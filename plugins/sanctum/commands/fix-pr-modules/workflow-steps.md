@@ -112,16 +112,17 @@ Ensure all fixes are correct and quality gates pass.
 
 Resolve threads, create issues, and post summary.
 
-**⚠️ MANDATORY for PR authors receiving review comments.**
+**MANDATORY for PR authors receiving review comments.**
 
-**Actions:**
-- **6.0 Reconcile ALL unworked items** (ensure nothing is missed)
-- 6.1 Create issues for suggestions/deferred items
-- 6.2 Create issues for deferred/out-of-scope items
-- 6.3 Resolve ALL review threads (GraphQL)
-- 6.4 Link/close related issues
-- 6.5 Post summary comment
-- 6.6 Final thread verification
+**Sub-Modules:**
+| Sub-Step | Module | Purpose |
+|----------|--------|---------|
+| **6.0** | [Reconciliation](steps/6-complete/reconciliation.md) | Reconcile ALL unworked items + enforcement |
+| **6.1-6.2** | [Issue Creation](steps/6-complete/issue-creation.md) | Create issues for suggestions/deferred items |
+| **6.3** | [Thread Resolution](steps/6-complete/thread-resolution.md) | Reply to and resolve ALL review threads |
+| **6.4** | [Issue Linkage](steps/6-complete/issue-linkage.md) | Link/close related issues |
+| **6.5** | [Summary](steps/6-complete/summary.md) | Post summary comment to PR |
+| **6.6** | [Verification](steps/6-complete/verification.md) | Final verification and workflow gate |
 
 **Output:** All threads resolved, ALL unworked items tracked as issues, summary posted
 
@@ -184,7 +185,14 @@ fix-pr-modules/
     ├── 3-plan.md             # Fix Strategy
     ├── 4-fix.md              # Apply Changes
     ├── 5-validate.md         # Test & Verify
-    └── 6-complete.md         # Threads, Issues, Summary
+    ├── 6-complete.md         # Hub: Pre-check + navigation
+    └── 6-complete/           # Sub-modules for Step 6
+        ├── reconciliation.md # 6.0: Reconcile items + enforcement
+        ├── issue-creation.md # 6.1-6.2: Create suggestion/deferred issues
+        ├── thread-resolution.md # 6.3: Reply + resolve threads
+        ├── issue-linkage.md  # 6.4: Link/close related issues
+        ├── summary.md        # 6.5: Post summary comment
+        └── verification.md   # 6.6: Final gate + verification
 ```
 
 **Usage:** Load only the step modules needed for your current phase.

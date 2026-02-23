@@ -1,12 +1,12 @@
 # Step 6: Complete (Threads, Issues, Summary)
 
-> **Navigation**: [← Step 5: Validate](5-validate.md) | [Main Workflow](../workflow-steps.md)
+> **Navigation**: [<- Step 5: Validate](5-validate.md) | [Main Workflow](../workflow-steps.md)
 
 **Purpose**: Resolve threads, create issues for deferred items, and post summary.
 
 **Platform Note**: Commands below show GitHub (`gh`) examples. Check session context for `git_platform:` and consult `Skill(leyline:git-platform)` for GitLab (`glab`) / Bitbucket equivalents. GitLab uses "merge request" terminology and `glab api graphql` for thread resolution.
 
-**⚠️ CRITICAL WORKFLOW GUARDRAIL ⚠️**
+**CRITICAL WORKFLOW GUARDRAIL**
 
 **NEVER skip this step unless you are NOT the PR author. If you are the PR author and received review comments, you MUST complete this step. There are NO exceptions.**
 
@@ -31,7 +31,7 @@ PENDING_REVIEWS=$(gh pr view $PR_NUM --json reviews -q '[.reviews[] | select(.st
 
 if [[ "$PENDING_REVIEWS" -gt 0 ]]; then
   echo ""
-  echo "⚠️  PENDING REVIEW DETECTED"
+  echo "PENDING REVIEW DETECTED"
   echo ""
   echo "There are $PENDING_REVIEWS review(s) in PENDING state."
   echo "Pending reviews have NOT been submitted yet - their threads cannot be resolved."
@@ -48,12 +48,12 @@ if [[ "$PENDING_REVIEWS" -gt 0 ]]; then
   echo "Pending review details:"
   gh pr view $PR_NUM --json reviews -q '.reviews[] | select(.state == "PENDING") | "  Author: \(.author.login) | State: \(.state)"'
   echo ""
-  echo "⛔ CANNOT RESOLVE THREADS UNTIL REVIEWS ARE SUBMITTED"
+  echo "CANNOT RESOLVE THREADS UNTIL REVIEWS ARE SUBMITTED"
   echo ""
   exit 1
 fi
 
-echo "✓ No pending reviews - proceeding to thread check"
+echo "No pending reviews - proceeding to thread check"
 
 CHECK_OUTPUT=$(gh api graphql -f query="
 query {
@@ -85,7 +85,7 @@ echo "Unresolved review threads: $UNRESOLVED_COUNT"
 
 if [[ "$UNRESOLVED_COUNT" -gt 0 ]]; then
   echo ""
-  echo "❌ WORKFLOW HALT: You have $UNRESOLVED_COUNT unresolved review threads"
+  echo "WORKFLOW HALT: You have $UNRESOLVED_COUNT unresolved review threads"
   echo ""
   echo "You CANNOT proceed until these threads are resolved:"
   echo "$CHECK_OUTPUT" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  Thread \(.id): \(.path):\(.line)\n    Comment: \(.comments.nodes[0].body[0:80])..."'
@@ -96,12 +96,12 @@ if [[ "$UNRESOLVED_COUNT" -gt 0 ]]; then
   echo "  3. Resolve each thread using: resolveReviewThread"
   echo "  4. Re-run this pre-check to verify"
   echo ""
-  echo "⛔ DO NOT POST REGULAR PR COMMENTS - They don't resolve threads!"
-  echo "⛔ DO NOT SKIP THIS STEP - It is MANDATORY for PR authors"
+  echo "DO NOT POST REGULAR PR COMMENTS - They don't resolve threads!"
+  echo "DO NOT SKIP THIS STEP - It is MANDATORY for PR authors"
   echo ""
   exit 1
 else
-  echo "✓ All threads resolved - you may proceed to Step 6.1"
+  echo "All threads resolved - you may proceed to Step 6.0"
 fi
 ```
 
@@ -118,617 +118,20 @@ fi
 
 **If you are NOT the PR author**, you may skip to Step 6.4. Otherwise, continue below.
 
-## 6.0 Reconcile ALL Unworked Items (MANDATORY)
-
-**Before creating issues, reconcile ALL items from the review.** This captures items identified DURING review but not formally triaged (test gaps, doc suggestions, security concerns, performance hints, etc.).
-
-**Quick Checklist:**
-- [ ] Review: Did ALL "Fix Now" / "This PR" items get addressed? Create issues for incomplete ones.
-- [ ] Re-read ALL review comments - find suggestions not captured at triage time.
-- [ ] Ensure EVERY non-worked-on item has a GitHub issue created in 6.1/6.2.
-
-**⛔ MANDATORY OUTPUT FORMAT (Machine-Checkable):**
-
-You MUST produce this reconciliation table. Empty tables or missing rows = workflow failure.
-
-```markdown
-## Reconciliation Table
-
-| ID | Category | Description | Disposition | Evidence |
-|----|----------|-------------|-------------|----------|
-| C1 | Critical | [from triage] | Fixed | commit SHA |
-| C2 | Critical | [from triage] | Fixed | commit SHA |
-| S1 | In-Scope | [from triage] | Fixed | commit SHA |
-| S2 | Suggestion | [from triage] | Issue #NN | link |
-| S3 | Suggestion | [discovered in review] | Fixed | commit SHA |
-| D1 | Deferred | [from triage] | Issue #NN | link |
-| I1 | Informational | [praise/question] | Skipped | N/A |
-
-### Summary
-- **Fixed**: N items (commit refs: abc123, def456)
-- **Issues Created**: N items (issue refs: #45, #46, #47)
-- **Skipped**: N items (informational only)
-- **UNACCOUNTED**: 0 items ← MUST BE ZERO
-
-⛔ If UNACCOUNTED > 0, STOP and address before proceeding.
-```
-
-**Disposition values (ONLY these are valid):**
-- `Fixed` - Code change applied, requires commit SHA
-- `Issue #NN` - GitHub issue created, requires issue number
-- `Skipped` - Informational/praise only, no action needed
-
-**VALIDATION RULE**: Every row from Step 2 triage MUST appear here. Missing rows = incomplete reconciliation.
-
 ---
 
-## 6.0.1 Issue Creation Enforcement (AUTOMATIC - BEFORE 6.1)
-
-**⛔ CRITICAL: Issues MUST be created IMMEDIATELY after reconciliation, not deferred.**
-
-When the reconciliation table contains items with disposition "Issue #NN" or category "Suggestion"/"Deferred":
-
-1. **STOP** - Do not proceed to 6.1 documentation
-2. **CREATE** the issues NOW using the templates in 6.1/6.2
-3. **UPDATE** the reconciliation table with actual issue numbers
-4. **VERIFY** issues exist before continuing
-
-```bash
-# Enforcement check - count items needing issues
-NEEDS_ISSUES=$(grep -c "Suggestion\|Deferred" reconciliation_table.md || echo 0)
-ISSUES_CREATED=$(gh issue list --search "PR #$PR_NUM in:body created:>=today" --json number --jq 'length')
-
-if [[ "$NEEDS_ISSUES" -gt "$ISSUES_CREATED" ]]; then
-  echo "❌ ENFORCEMENT FAILED: $NEEDS_ISSUES items need issues, only $ISSUES_CREATED created"
-  echo "CREATE ISSUES NOW before proceeding"
-  exit 1
-fi
-```
-
-**Anti-Pattern Detection:**
-| What You Wrote | Problem | Correct Action |
-|----------------|---------|----------------|
-| "Issue: Create follow-up" | Intent, not execution | Run `gh issue create` NOW |
-| "Will create issue later" | Deferring the deferral | Create issue IMMEDIATELY |
-| "S3: Deferred" without #NN | Missing issue number | Issue not created yet |
-
-**The reconciliation table is NOT complete until all Issue dispositions have real issue numbers (e.g., `Issue #184`).**
-
----
-
-## 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
-
-**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items identified in Step 6.0.**
-
-> **Module Reference**: Auto-issue creation is handled inline by the workflow monitor.
-
-**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2) OR identified during reconciliation (Step 6.0), issues are created.
-
-**To skip automatic creation**: Use `--no-auto-issues` flag.
-
-**Duplicate Detection**: Before creating, search for existing issues with similar titles to avoid duplicates.
-
-For each comment classified as **Suggestion** during triage or reconciliation, create a GitHub issue:
-   ```bash
-   gh issue create \
-     --title "[Suggestion] <description from review comment>" \
-     --body "$(cat <<'EOF'
-   ## Background
-
-   Identified during PR #PR_NUMBER review as a suggestion for improvement.
-
-   **Original Review Comment:**
-   > [Quote the review comment here]
-
-   **Location:** `file/path.py:line` (if applicable)
-
-   ## Suggested Improvement
-
-   [Describe the suggested improvement based on the review feedback]
-
-   ## Value
-
-   [Explain why this improvement would be valuable - performance, UX, maintainability, etc.]
-
-   ## Acceptance Criteria
-
-   - [ ] [Specific criteria based on the suggestion]
-   - [ ] Tests added/updated (if applicable)
-   - [ ] Documentation updated (if applicable)
-
-   ## References
-
-   - PR #PR_NUMBER: [PR URL]
-   - Original review comment: [Link if available]
-
-   ---
-   *Created from PR #PR_NUMBER review triage*
-   EOF
-   )" \
-     --label "suggestion" \
-     --label "enhancement"
-   ```
-
-   **Suggestion Issue Rules:**
-   - Prefix title with "[Suggestion]" for easy identification
-   - Always use the "suggestion" label (required for tracking)
-   - Add additional labels as appropriate (enhancement, docs, testing, etc.)
-   - Include the original review comment verbatim
-   - Explain the value/improvement rationale
-   - Reference the source PR
-   - Define clear acceptance criteria
-
-**Track Created Suggestion Issues:**
-After creating issues, document them in the PR comment:
-```markdown
-### Suggestions → GitHub Issues
-
-| Review Item | Issue Created | Description |
-|-------------|---------------|-------------|
-| S1 | #43 | Clarify ruff-format comment |
-| S2 | #44 | Improve test output verbosity |
-```
-
-## 6.2 Create Issues for Deferred/Out-of-Scope Items
-
-For each comment classified as **Deferred** (including "out-of-scope", "medium priority", "future work") during triage, create a GitHub issue:
-   ```bash
-   gh issue create \
-     --title "<type>(<scope>): <description from review comment>" \
-     --body "$(cat <<'EOF'
-   ## Background
-
-   Identified during PR #PR_NUMBER review as out-of-scope.
-
-   **Original Review Comment:**
-   > [Quote the review comment here]
-
-   **Location:** `file/path.py:line` (if applicable)
-
-   ## Scope
-
-   [Describe what needs to be done based on the review feedback]
-
-   ## Suggested Implementation
-
-   [Any suggestions from the review or analysis]
-
-   ## Acceptance Criteria
-
-   - [ ] [Specific criteria based on the feedback]
-   - [ ] Tests added/updated
-   - [ ] Documentation updated (if applicable)
-
-   ## References
-
-   - PR #PR_NUMBER: [PR URL]
-   - Original review comment: [Link if available]
-
-   ---
-   *Created from PR #PR_NUMBER review triage*
-   EOF
-   )" \
-     --label "enhancement"
-   ```
-
-**Issue Creation Rules:**
-- Use conventional commit format for title: `type(scope): description`
-- Common types: `feat`, `fix`, `test`, `docs`, `perf`, `refactor`
-- Include the original review comment in the body
-- Add relevant labels (enhancement, bug, docs, etc.)
-- Reference the source PR
-- Define clear acceptance criteria
-
-## 6.3 Thread Resolution (MANDATORY)
-
-**CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
-
-### Review Feedback Types
-
-GitHub has TWO types of review feedback - this workflow handles BOTH:
-
-| Type | Source | Resolution Method |
-|------|--------|-------------------|
-| **Review Threads** | Line-level comments from "Start a review" | GraphQL `resolveReviewThread` |
-| **PR Comments** | Conversation tab comments | Reply via `gh pr comment` |
-
-**Detection Logic:**
-```bash
-# Check for review threads (line-level)
-THREADS=$(gh api graphql -f query="..." --jq '[...reviewThreads...] | length')
-
-# Check for PR comments containing review feedback
-COMMENTS=$(gh pr view --json comments --jq '[.comments[] | select(.body | test("review|fix|change|improve|consider"; "i"))] | length')
-
-if [[ "$THREADS" -eq 0 && "$COMMENTS" -gt 0 ]]; then
-  echo "Review feedback is in PR comments (not threads)"
-  echo "Reply to comments using: gh pr comment --body 'Addressed in commit abc123'"
-fi
-```
-
-**If review feedback is in PR comments (not threads):**
-1. Reply to the comment thread acknowledging fixes
-2. Reference commit SHAs for each addressed item
-3. No GraphQL resolution needed (comments don't have resolve state)
-
-**MANDATORY WORKFLOW CHECKPOINTS - Create TodoWrite items BEFORE starting:**
-```markdown
-## Thread Resolution (MANDATORY for PR Authors)
-- [ ] fix-pr:thread-preflight - Run pre-check script (must pass to continue)
-- [ ] fix-pr:thread-extract - Extract thread IDs (PRRT_*) from GraphQL API
-- [ ] fix-pr:thread-reply-count - Reply to EACH unresolved thread (count: N)
-- [ ] fix-pr:thread-resolve-count - Resolve EACH thread (count: N)
-- [ ] fix-pr:thread-validate - Run validation checkpoint (must pass to proceed)
-- [ ] fix-pr:thread-verify-all - Confirm ZERO unresolved threads remain
-
-⚠️ IF ANY CHECKPOINT FAILS, STOP AND FIX BEFORE PROCEEDING
-```
-
-**Checkpoint Enforcement Rules:**
-1. **Pre-check must pass** (exit code 0) before any thread operations
-2. **Extract ALL thread IDs** before replying to any
-3. **Reply to ALL threads** before resolving any
-4. **Resolve ALL threads** before running validation
-5. **Validation must pass** (0 unresolved) before marking TodoWrite items complete
-6. **NEVER mark TodoWrite complete** if validation fails
-
-> **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
-
-**Pre-Flight Check - Verify Threads Exist:**
-   Before attempting resolution, confirm there are review threads to process:
-   ```bash
-   # Get repository info first (MANDATORY)
-   REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-   OWNER=$(echo "$REPO_FULL" | cut -d'/' -f1)
-   REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
-   PR_NUM=$(gh pr view --json number -q .number)
-
-   echo "Repository: $OWNER/$REPO"
-   echo "PR: #$PR_NUM"
-
-   # Fetch all review threads with their IDs and resolution status
-   THREADS_JSON=$(gh api graphql -f query="
-   query {
-     repository(owner: \"$OWNER\", name: \"$REPO\") {
-       pullRequest(number: $PR_NUM) {
-         reviewThreads(first: 100) {
-           nodes {
-             id
-             isResolved
-             path
-             line
-             comments(first: 1) {
-               nodes {
-                 body
-                 author { login }
-               }
-             }
-           }
-         }
-       }
-     }
-   }")
-
-   # Count unresolved threads
-   UNRESOLVED_COUNT=$(echo "$THREADS_JSON" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
-
-   echo "Unresolved threads: $UNRESOLVED_COUNT"
-
-   if [[ "$UNRESOLVED_COUNT" -eq 0 ]]; then
-     echo "✓ No unresolved threads to process - skipping thread resolution"
-     # Skip to Step 6.4
-   fi
-   ```
-
-   **If threads exist, proceed with resolution. If none exist, skip to Step 6.4.**
-
-**Reply to Each Thread with Fix Description:**
-   For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
-   ```bash
-   # Reply using addPullRequestReviewThreadReply mutation
-   # The pullRequestReviewThreadId is the PRRT_* ID from step 19
-   gh api graphql -f query='
-   mutation {
-     addPullRequestReviewThreadReply(input: {
-       pullRequestReviewThreadId: "PRRT_kwDOxxxxxx"
-       body: "Fixed - added input validation for slug parameter. Rejects injection characters."
-     }) {
-       comment { id }
-     }
-   }'
-   ```
-
-   **Reply format requirements:**
-   - Use "Fixed" prefix for fixed items
-   - Briefly describe what was changed
-   - Reference the file/line if helpful
-   - Keep it concise (1-2 sentences)
-
-   **Common mistakes to avoid:**
-   - Do NOT use `addPullRequestReviewComment` - it lacks thread support
-   - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
-   - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
-
-**Resolve the Thread:**
-After replying, resolve the thread:
-    ```bash
-    # Resolve the review thread via GraphQL mutation
-    gh api graphql -f query='
-    mutation {
-      resolveReviewThread(input: {threadId: "PRRT_kwDOxxxxxx"}) {
-        thread { isResolved }
-      }
-    }'
-    ```
-
-    **Batch resolution pattern:**
-    ```bash
-    # Resolve multiple threads in a loop
-    for thread_id in PRRT_abc123 PRRT_def456 PRRT_ghi789; do
-      gh api graphql -f query="
-    mutation {
-      resolveReviewThread(input: {threadId: \"$thread_id\"}) {
-        thread { isResolved }
-      }
-    }"
-    done
-    ```
-
-**VALIDATION CHECKPOINT - Verify All Threads Resolved:**
-    After replying to and resolving all threads, you MUST verify the resolution was successful:
-    ```bash
-    # Re-use variables from pre-flight check
-    VERIFICATION=$(gh api graphql -f query="
-    query {
-      repository(owner: \"$OWNER\", name: \"$REPO\") {
-        pullRequest(number: $PR_NUM) {
-          reviewThreads(first: 100) {
-            nodes {
-              isResolved
-              path
-              line
-            }
-          }
-        }
-      }
-    }")
-
-    # Count remaining unresolved threads
-    REMAINING=$(echo "$VERIFICATION" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
-
-    echo "Verification: $REMAINING unresolved threads remaining"
-
-    if [[ "$REMAINING" -eq 0 ]]; then
-      echo "✓ SUCCESS: All review threads are now resolved"
-    else
-      echo "❌ FAILED: $REMAINING threads still unresolved"
-      # Show which threads are still unresolved
-      echo "$VERIFICATION" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  - \(.path):\(.line)"'
-      echo ""
-      echo "RESOLUTION REQUIRED:"
-      echo "1. Review the above threads and determine why they weren't resolved"
-      echo "2. Manually resolve them using the GraphQL mutations above"
-      echo "3. Or run: /resolve-threads $PR_NUM"
-      echo ""
-      echo "DO NOT PROCEED TO STEP 6.4 UNTIL ALL THREADS ARE RESOLVED"
-      exit 1
-    fi
-    ```
-
-**⛔ FINAL ENFORCEMENT CHECKPOINT ⛔**
-
-**You MAY NOT mark the TodoWrite items as complete until:**
-- ✅ All unresolved threads count is 0
-- ✅ Verification query shows `isResolved: true` for all threads
-- ✅ No threads appear in "unresolved" list
-- ✅ Exit code 0 from validation script
-
-**If validation fails, you MUST:**
-1. Identify which threads weren't resolved
-2. Run the reply mutation again for those threads
-3. Run the resolve mutation again for those threads
-4. Re-run the validation checkpoint
-5. Repeat until validation passes
-
-**There is NO scenario where it is acceptable to:**
-- Post a regular PR comment instead of thread replies
-- Mark threads as "resolved" without actually resolving them
-- Skip thread resolution because "it's too hard"
-- Assume someone else will handle it
-- Defer thread resolution to "later"
-
-**⛔ WORKFLOW CANNOT BE MARKED COMPLETE UNTIL ALL THREADS ARE RESOLVED ⛔**
-
-    **This checkpoint prevents proceeding until ALL threads are resolved. No exceptions.**
-
-## 6.4 Issue Linkage & Closure
-
-**Analyze whether this PR addresses any open issues and close/comment on them accordingly.**
-
-**Fetch Open Issues:**
-```bash
-# Get all open issues for the repository
-gh issue list --state open --json number,title,body,labels --limit 50
-```
-
-**Analyze Issue Coverage:**
-
-    For each open issue, analyze whether the PR's changes address it:
-
-    ```bash
-    # Get PR changed files and commit messages
-    gh pr view --json files,commits -q '{files: .files[].path, commits: .commits[].messageHeadline}'
-
-    # Compare against issue requirements:
-    # - Extract acceptance criteria from issue body
-    # - Check if changed files relate to issue scope
-    # - Review commit messages for issue references
-    ```
-
-    **Classification:**
-    | Status | Criteria | Action |
-    |--------|----------|--------|
-    | **Fully Addressed** | All acceptance criteria met, all required changes made | Comment + Close |
-    | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
-    | **Not Related** | PR doesn't touch issue scope | Skip |
-
-**Comment on Fully Addressed Issues:**
-    ```bash
-    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## Addressed in PR #PR_NUMBER
-
-    This issue has been fully addressed by the linked pull request.
-
-    **Changes made:**
-    - [List specific changes that address the issue]
-
-    **Files modified:**
-    - `path/to/file.py`
-    - `path/to/another.py`
-
-    Closing this issue. The fix will be available after PR merge.
-    EOF
-    )"
-
-    # Close the issue
-    gh issue close ISSUE_NUMBER --reason completed
-    ```
-
-**Comment on Partially Addressed Issues:**
-    ```bash
-    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## Partially Addressed in PR #PR_NUMBER
-
-    This PR addresses some aspects of this issue but additional work is needed.
-
-    **What was addressed:**
-    - [List completed items]
-
-    **What still needs to be done (follow-up PR):**
-    - [ ] [Remaining task 1]
-    - [ ] [Remaining task 2]
-    - [ ] [Remaining task 3]
-
-    **Suggested next steps:**
-    1. Create follow-up branch from main after this PR merges
-    2. Address remaining items listed above
-    3. Reference this issue in the follow-up PR
-
-    Keeping this issue open until fully resolved.
-    EOF
-    )"
-    ```
-
-## 6.5 Post Summary Comment (MANDATORY)
-    ```markdown
-    ### Issue Linkage Summary
-
-    | Issue | Title | Status | Action Taken |
-    |-------|-------|--------|--------------|
-    | #42 | Add user authentication | Fully Addressed | Commented + Closed |
-    | #43 | Fix validation bugs | Partially Addressed | Commented (3 items remaining) |
-    | #44 | Improve performance | Not Related | Skipped |
-
-    **Closed Issues:** 1
-    **Partially Addressed:** 1 (follow-up items documented)
-    **Not Related:** 1
-    ```
-
-After completing all fixes, thread resolutions, and issue linkage, post a detailed summary comment to the PR.
-
-**Post Summary Comment:**
-    ```bash
-    gh pr comment PR_NUMBER --body "$(cat <<'EOF'
-    ## PR Review Feedback Addressed
-
-    All issues from the code review have been fixed in commit `COMMIT_SHA`.
-
-    ### Blocking Issues (N) [FIXED]
-
-    | ID | Issue | Resolution |
-    |----|-------|------------|
-    | **B1** | [Description] | [How it was fixed] |
-
-    ### In-Scope Issues (N) [FIXED]
-
-    | ID | Issue | Resolution |
-    |----|-------|------------|
-    | **S1** | [Description] | [How it was fixed] |
-
-    ### Suggestions Created (N)
-
-    | Review Item | Issue Created | Description |
-    |-------------|---------------|-------------|
-    | S2 | #43 | [Description] |
-    | S3 | #44 | [Description] |
-
-    Or: **None** - All suggestions were addressed directly in this PR.
-
-    ### Deferred Items Created (N)
-
-    | Review Item | Issue Created | Description |
-    |-------------|---------------|-------------|
-    | C2 | #41 | [Description] |
-
-    Or: **None** - No deferred/out-of-scope items identified.
-
-    ---
-
-    Ready for re-review. All pre-commit hooks pass.
-    EOF
-    )"
-    ```
-
-    **Summary Comment Requirements:**
-    - Include commit SHA for reference
-    - Group fixes by category (Blocking, In-Scope)
-    - List suggestions that were fixed directly vs. suggestions that created issues
-    - List deferred items that created issues
-    - Use tables for clarity
-    - End with clear status ("Ready for re-review")
-
-## 6.6 Final Thread Verification (AUTOMATIC)
-
-This phase runs automatically at the end of /fix-pr.
-
-```bash
-Skill(sanctum:resolve-threads)
-```
-
-This validates any threads missed during Step 6.3 are resolved via batch operation.
-
-**Step 6 Output**: All threads resolved, issues created, summary posted
-
----
-
-## ⛔ FINAL WORKFLOW GATE (Run Before Reporting Complete)
-
-**ALL THREE conditions must be true:**
-
-```bash
-# === GATE 1: Thread Resolution ===
-UNRESOLVED=$(gh api graphql -f query="..." --jq '...' )
-[[ "$UNRESOLVED" -eq 0 ]] && echo "✓ Gate 1: Threads" || echo "❌ Gate 1 FAILED"
-
-# === GATE 2: Reconciliation Complete ===
-# Verify reconciliation table has no UNACCOUNTED items
-# This is a manual check - review your reconciliation table above
-echo "Gate 2: Verify UNACCOUNTED = 0 in reconciliation table"
-
-# === GATE 3: Issues Created ===
-# Count issues created that reference this PR
-ISSUES=$(gh issue list --search "PR #$PR_NUM in:body created:>=today" --json number --jq 'length')
-echo "Issues created today referencing PR: $ISSUES"
-# Compare against Suggestion + Deferred count from triage
-```
-
-**Workflow completion checklist:**
-- [ ] Gate 1: 0 unresolved threads
-- [ ] Gate 2: Reconciliation table complete, UNACCOUNTED = 0
-- [ ] Gate 3: Issues created match Suggestion + Deferred count (or all were fixed)
-- [ ] Summary comment posted with all evidence
-
-**⛔ DO NOT report "/fix-pr complete" until all gates pass.**
+## Sub-Module Navigation
+
+Step 6 is organized into sub-modules. Execute them in order:
+
+| Sub-Step | Module | Purpose |
+|----------|--------|---------|
+| **6.0** | [Reconciliation](6-complete/reconciliation.md) | Reconcile ALL unworked items + enforcement |
+| **6.1-6.2** | [Issue Creation](6-complete/issue-creation.md) | Create issues for suggestions and deferred items |
+| **6.3** | [Thread Resolution](6-complete/thread-resolution.md) | Reply to and resolve every review thread |
+| **6.4** | [Issue Linkage](6-complete/issue-linkage.md) | Link/close related issues |
+| **6.5** | [Summary](6-complete/summary.md) | Post summary comment to PR |
+| **6.6** | [Verification](6-complete/verification.md) | Final verification and workflow gate |
 
 ---
 
