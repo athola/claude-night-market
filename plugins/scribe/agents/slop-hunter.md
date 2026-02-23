@@ -2,6 +2,7 @@
 name: slop-hunter
 description: Agent specialized in detecting AI-generated content patterns
 model: claude-sonnet-4-20250514
+background: true
 tools:
   - Read
   - Grep

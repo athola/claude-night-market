@@ -1,0 +1,50 @@
+# Category: Learnings (Open discussion format)
+# Requires manual category creation: Settings → Discussions → New Category
+#   Name: Learnings | Format: Open | Description: Session retrospectives, pattern discoveries, and debugging insights
+title: "[Learning] "
+labels:
+  - "learning"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Learning Record
+        Share a pattern, anti-pattern, or debugging insight discovered during a session.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What type of learning is this?
+      options:
+        - Pattern
+        - Anti-Pattern
+        - Debugging
+        - Performance
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief description of the learning
+      placeholder: What did you learn? Why does it matter?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: What evidence supports this learning?
+      placeholder: |
+        - Code example or link
+        - Error output
+        - Performance measurement
+        - Session reference
+    validations:
+      required: true
+  - type: input
+    id: applicable-to
+    attributes:
+      label: Applicable To
+      description: Which plugins, skills, or areas does this apply to?
+      placeholder: "memory-palace, attune:war-room, Python hooks"

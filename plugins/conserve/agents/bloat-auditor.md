@@ -5,6 +5,7 @@ description: |
   reports, and recommend cleanup actions.
 tools: [Bash, Grep, Glob, Read, Write]
 model: sonnet
+background: true
 escalation:
   to: opus
   hints:

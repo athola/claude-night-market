@@ -567,6 +567,7 @@ processed → [Archive] → queue/archive/
 - **Storage Patterns**: See `modules/storage-patterns.md`
 - **KonMari Tidying Philosophy**: See `modules/konmari-tidying.md`
 - **Tidying Workflows**: See `modules/pruning-workflows.md`
+- **Discussion Promotion**: See `modules/discussion-promotion.md`
 
 ## Hook Integration
 

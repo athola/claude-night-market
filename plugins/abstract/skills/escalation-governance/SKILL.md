@@ -209,6 +209,8 @@ Agent starts task at assigned model
 
 **MCP Tool Search (Claude Code 2.1.7+)**: Haiku models do not support MCP tool search. If a workflow uses many MCP tools (descriptions exceeding 10% of context), those tools load upfront on haiku instead of being deferred. This can consume significant context. Consider escalating to sonnet for MCP-heavy workflows or ensure haiku agents use only native tools (Read, Write, Bash, etc.).
 
+**Claude.ai MCP Connectors (Claude Code 2.1.46+)**: Users with claude.ai connectors configured may have additional MCP tools auto-loaded, increasing the total tool description footprint. This makes it more likely that haiku agents will exceed the 10% tool search threshold. When escalation decisions involve MCP-heavy workflows, factor in claude.ai connector tool count via `/mcp`.
+
 **Effort Controls as Escalation Alternative (Opus 4.6 / Claude Code 2.1.32+)**: Opus 4.6 introduces adaptive thinking with effort levels (`low`, `medium`, `high`, `max`). Before escalating between models, consider whether adjusting effort level on the current model would suffice:
 
 | Instead of... | Consider... | When |

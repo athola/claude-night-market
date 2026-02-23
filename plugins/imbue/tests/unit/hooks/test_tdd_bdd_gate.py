@@ -55,35 +55,69 @@ class TestIsImplementationFile:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_module_md_is_implementation_file(self, tdd_gate_module) -> None:
-        """Scenario: Module .md files in modules/ directory are implementation files.
+    def test_markdown_module_is_not_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Markdown module files are NOT implementation files.
 
         Given a path to a .md file in modules/ directory
         When checking if it's an implementation file
-        Then it should return True with module type.
+        Then it should return False because markdown modules are agent
+        instruction documents, not executable code testable by pytest.
         """
         is_impl, impl_type = tdd_gate_module.is_implementation_file(
             "/plugins/imbue/skills/proof-of-work/modules/iron-law-enforcement.md"
         )
 
-        assert is_impl is True
-        assert impl_type == tdd_gate_module.MODULE_FILE
+        assert is_impl is False
+        assert impl_type is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_md_is_implementation_file(self, tdd_gate_module) -> None:
-        """Scenario: Command .md files in commands/ directory are implementation files.
+    def test_python_module_is_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Python module files in modules/ ARE implementation files.
+
+        Given a path to a .py file in modules/ directory
+        When checking if it's an implementation file
+        Then it should return True with python type.
+        """
+        is_impl, impl_type = tdd_gate_module.is_implementation_file(
+            "/plugins/imbue/skills/proof-of-work/modules/validator.py"
+        )
+
+        assert is_impl is True
+        assert impl_type == tdd_gate_module.PYTHON_FILE
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_md_still_triggers_gate(self, tdd_gate_module) -> None:
+        """Scenario: SKILL.md files still trigger the TDD gate.
+
+        Given a path to a SKILL.md file
+        When checking if it's an implementation file
+        Then it should return True (SKILL.md defines core behavior).
+        """
+        is_impl, impl_type = tdd_gate_module.is_implementation_file(
+            "/plugins/attune/skills/war-room/SKILL.md"
+        )
+
+        assert is_impl is True
+        assert impl_type == tdd_gate_module.SKILL_FILE
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_markdown_command_is_not_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Markdown command files are NOT implementation files.
 
         Given a path to a .md file in commands/ directory
         When checking if it's an implementation file
-        Then it should return True with command type.
+        Then it should return False because markdown commands are agent
+        instruction documents, not executable code testable by pytest.
         """
         is_impl, impl_type = tdd_gate_module.is_implementation_file(
             "/plugins/attune/commands/war-room.md"
         )
 
-        assert is_impl is True
-        assert impl_type == tdd_gate_module.COMMAND_FILE
+        assert is_impl is False
+        assert impl_type is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -242,30 +276,6 @@ class TestFindTestFile:
 
         assert test_path is not None
         assert "test_validator" in str(test_path)
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_find_test_for_command(self, tdd_gate_module, tmp_path) -> None:
-        """Scenario: Find test file for command.
-
-        Given a command .md file path
-        When finding the corresponding test file
-        Then it should look in tests/unit/commands/ directory.
-        """
-        # Create mock plugin structure
-        plugin_root = tmp_path / "plugins" / "attune"
-        plugin_root.mkdir(parents=True)
-        (plugin_root / "pyproject.toml").touch()
-        (plugin_root / "commands").mkdir(parents=True)
-        cmd_path = plugin_root / "commands" / "war-room.md"
-        cmd_path.touch()
-
-        test_path = tdd_gate_module.find_test_file(
-            str(cmd_path), tdd_gate_module.COMMAND_FILE
-        )
-
-        assert test_path is not None
-        assert "test_war_room_command" in str(test_path)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -641,6 +651,133 @@ class TestMainEntryPoint:
 
         assert exc_info.value.code == 0
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_processes_edit_tool(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() processes Edit tool operations.
+
+        Given an Edit tool operation for a new implementation file
+        When running main
+        Then it should enforce the TDD gate with exit code 2.
+        """
+        from io import StringIO
+
+        # Create mock plugin structure
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        skill_dir = plugin_root / "skills" / "example"
+        skill_dir.mkdir(parents=True)
+
+        skill_path = skill_dir / "SKILL.md"
+        # File doesn't exist yet (new implementation)
+
+        input_data = json.dumps(
+            {
+                "tool_name": "Edit",
+                "tool_input": {"file_path": str(skill_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        assert "additionalContext" in output
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_processes_multiedit_tool(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() processes MultiEdit tool operations.
+
+        Given a MultiEdit tool operation for a new implementation file
+        When running main
+        Then it should enforce the TDD gate with exit code 2.
+        """
+        from io import StringIO
+
+        # Create mock plugin structure
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        skill_dir = plugin_root / "skills" / "example"
+        skill_dir.mkdir(parents=True)
+
+        skill_path = skill_dir / "SKILL.md"
+
+        input_data = json.dumps(
+            {
+                "tool_name": "MultiEdit",
+                "tool_input": {"file_path": str(skill_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        assert "additionalContext" in output
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_existing_file_without_tests_gives_short_reminder(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() gives short reminder when modifying existing file without tests.
+
+        Given a Write tool operation for an existing Python implementation file
+        And no corresponding test file exists
+        When running main
+        Then it should exit with code 2 and a short reminder (not the full template).
+        """
+        from io import StringIO
+
+        # Create mock plugin structure with existing implementation
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        scripts_dir = plugin_root / "scripts"
+        scripts_dir.mkdir(parents=True)
+
+        impl_path = scripts_dir / "validator.py"
+        impl_path.write_text("# existing implementation\n")
+
+        input_data = json.dumps(
+            {
+                "tool_name": "Write",
+                "tool_input": {"file_path": str(impl_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        parsed = json.loads(output)
+        context = parsed["hookSpecificOutput"]["additionalContext"]
+        # Should be the short reminder, not the full Iron Law template
+        assert "TDD/BDD Reminder" in context
+        assert "Consider tests" in context
+
 
 class TestFindPluginRoot:
     """Feature: Find plugin root directory.
@@ -706,3 +843,24 @@ class TestFindPluginRoot:
         found_root = tdd_gate_module._find_plugin_root(nested_path)
 
         assert found_root == plugin_root
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_find_plugin_root_returns_none_without_markers(
+        self, tdd_gate_module, tmp_path
+    ) -> None:
+        """Scenario: _find_plugin_root returns None when no marker is found.
+
+        Given a file path with no pyproject.toml or .claude-plugin in any parent
+        When finding the plugin root
+        Then it should return None instead of traversing to filesystem root.
+        """
+        # Create directory structure without any plugin markers
+        nested_dir = tmp_path / "some" / "deep" / "path"
+        nested_dir.mkdir(parents=True)
+        nested_file = nested_dir / "file.py"
+        nested_file.touch()
+
+        found_root = tdd_gate_module._find_plugin_root(nested_file)
+
+        assert found_root is None

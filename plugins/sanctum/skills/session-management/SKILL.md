@@ -35,7 +35,7 @@ Claude Code supports named sessions for better workflow organization. Use this s
 
 | Command | Description |
 |---------|-------------|
-| `/rename` | Name the current session |
+| `/rename` | Name the current session (auto-generates name if no argument given, 2.1.41+) |
 | `/resume` | Resume a previous session (REPL) |
 | `claude --resume <name>` | Resume from terminal |
 
@@ -185,6 +185,15 @@ If context seems incomplete or resume is slow:
 - Use `/debug` (Claude Code 2.1.30+) for session troubleshooting diagnostics
 - Re-run `Skill(sanctum:git-workspace-review)` if needed
 - If on older versions: resumed sessions may reload uncompacted history, increasing context usage unexpectedly
+
+### macOS Orphaned Processes (Claude Code 2.1.46+)
+
+Previously, disconnecting from a terminal on macOS could leave orphaned Claude Code processes running. This is now fixed in 2.1.46+. If you encounter stale CC processes on older versions, manually check and kill them:
+
+```bash
+# Find orphaned claude processes
+ps aux | grep -i claude | grep -v grep
+```
 
 ### 7. Automatic Memory (Claude Code 2.1.32+)
 

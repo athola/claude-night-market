@@ -5,6 +5,7 @@ description: |
   and archiving with user approval. Creates backups, runs tests, provides rollback.
 tools: [Bash, Grep, Glob, Read, Write, Edit]
 model: sonnet
+isolation: worktree
 escalation:
   to: opus
   hints:

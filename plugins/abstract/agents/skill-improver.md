@@ -11,6 +11,7 @@ allowed-tools:
   - Glob
 escalation: none
 context: fork
+isolation: worktree
 description: |
   Implements skill improvements based on observability data from LEARNINGS.md.
   Prioritizes by frequency × impact / ease, generates proposals, validates changes.

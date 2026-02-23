@@ -2,6 +2,7 @@
 name: doc-verifier
 description: QA agent that validates documentation claims using proof-of-work methodology
 model: claude-sonnet-4-20250514
+background: true
 tools:
   - Read
   - Bash

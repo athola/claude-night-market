@@ -9,6 +9,15 @@
             "timeout": 1
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/fetch-recent-discussions.sh",
+            "timeout": 3
+          }
+        ]
       }
     ]
   }

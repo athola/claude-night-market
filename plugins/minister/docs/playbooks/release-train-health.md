@@ -20,7 +20,7 @@ Gate checklist for release managers. Use with `skills/release-health-gates` for 
 |--------|---------------|---------------|
 | CI Checks | `gh run list --branch release/X --limit 5` | Green for 24h or rerun justified |
 | Docs | `gh issue list --label docs-needed --state open` | All closed or tracked |
-| Support | `gh discussion list --category support` | Known issues documented |
+| Support | `gh api graphql -f query='query($q: String!) { search(query: $q, type: DISCUSSION, first: 10) { nodes { ... on Discussion { number title url } } } }' -f q="repo:OWNER/REPO category:support"` | Known issues documented |
 
 1. Run health check: `tracker.py status --module quality-signals --github-comment > .claude/minister/quality.md`
 2. Post to release issue: `gh issue comment RELEASE_ID --body-file .claude/minister/quality.md`

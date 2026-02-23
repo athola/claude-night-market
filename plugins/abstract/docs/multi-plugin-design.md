@@ -219,7 +219,8 @@ ERROR: Missing required dependency
       "source": {"source": "url", "url": "https://github.com/athola/plugin-beta.git"}
     }
 
-    Then restart Claude Code to load the plugin.
+    The plugin will be available immediately (Claude Code 2.1.45+).
+    For older versions, restart Claude Code to load the plugin.
 ```
 
 ### Optional Dependency Missing

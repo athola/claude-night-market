@@ -1,0 +1,54 @@
+# Category: Deliberations (Open discussion format)
+# Requires manual category creation: Settings → Discussions → New Category
+#   Name: Deliberations | Format: Open | Description: Active decision-making threads with full reasoning context
+title: "[Deliberation] "
+labels:
+  - "deliberation"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Deliberation Thread
+        Capture the full reasoning context for an active or deferred decision.
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem or decision is being deliberated?
+      placeholder: Describe the problem clearly and concisely.
+    validations:
+      required: true
+  - type: input
+    id: stakeholders
+    attributes:
+      label: Stakeholders
+      description: Who is affected by this decision?
+      placeholder: "plugin-maintainers, end-users, CI/CD pipeline"
+    validations:
+      required: true
+  - type: textarea
+    id: options-considered
+    attributes:
+      label: Options Considered
+      description: What alternatives were evaluated?
+      placeholder: |
+        ### Option A: ...
+        Pros: ...
+        Cons: ...
+
+        ### Option B: ...
+        Pros: ...
+        Cons: ...
+    validations:
+      required: true
+  - type: dropdown
+    id: current-status
+    attributes:
+      label: Current Status
+      description: Is this deliberation still active?
+      options:
+        - In Progress
+        - Resolved
+        - Deferred
+    validations:
+      required: true

@@ -127,6 +127,13 @@ Part of Issue #69 Phase 3, this command processes skill execution logs to genera
 - Prioritizes by severity (high-impact issues first)
 - Tracks improvements over time (version comparison)
 
+**Phase 6a** (Collective Intelligence):
+- After LEARNINGS.md is generated, posts a summary to athola/claude-night-market Discussions
+- Check opt-out: reads `~/.claude/skills/discussions/config.json`
+- If `auto_post_learnings` is `true` (default), runs `post_learnings_to_discussions.py`
+- Reports: "Posted learning summary to Discussions: {url}"
+- Skips silently if `gh` is not authenticated or network is unavailable
+
 ## Automation
 
 ### Cron Job (Optional)
@@ -170,8 +177,9 @@ cat ~/.claude/skills/LEARNINGS.md
 
 - `/abstract:evaluate-skill` - Capture qualitative feedback (Phase 2)
 - `/abstract:improve-skills` - Act on insights (Phase 5)
+- `/abstract:promote-discussions` - Promote highly-voted learnings to Issues (Phase 6c)
 - `Skill(abstract:skill-execution-logger)` - Raw data capture (Phase 1)
 
 ## Version
 
-1.0.0 (Phase 3 implementation)
+1.1.0 (Phase 6a integration)

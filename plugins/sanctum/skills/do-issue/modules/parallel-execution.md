@@ -178,6 +178,15 @@ Task tool subagents are **fire-and-forget** — they can't communicate mid-execu
 
 If tmux is unavailable or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is not set, `--agent-teams` silently falls back to standard Task tool dispatch.
 
+## Worktree Isolation for Parallel Safety (Claude Code 2.1.49+)
+
+Subagents with `isolation: worktree` in their frontmatter run in a temporary git worktree, providing filesystem-level isolation without relying on conflict analysis alone.
+
+- **Use case**: When parallel tasks touch files in the same directory or have uncertain conflict boundaries
+- **Benefit**: Each agent gets its own working copy — merge conflicts are resolved at worktree merge time, not during execution
+- **Auto-cleanup**: Empty worktrees are removed automatically; worktrees with commits are preserved for review
+- **Combine with conflict analysis**: Worktree isolation is a safety net, not a replacement for the conflict check above — still analyze dependencies before dispatching
+
 ## Next Phase
 
 After parallel execution completes, proceed to [quality-gates.md](quality-gates.md) for batch review.

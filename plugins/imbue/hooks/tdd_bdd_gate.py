@@ -3,7 +3,7 @@
 
 This hook implements the Iron Law: NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 
-It fires on PreToolUse for Write/Edit operations and checks:
+It fires on PreToolUse for Write/Edit/MultiEdit operations and checks:
 1. Is this an implementation file (skill, module, Python code)?
 2. Does a corresponding test file exist?
 3. If not, inject a reminder to write tests first
@@ -24,22 +24,25 @@ import sys
 from pathlib import Path
 
 # File type classification
+# Only executable code types are gated. Markdown modules/commands are agent
+# instructions validated by abstract:skills-eval, not pytest.
 SKILL_FILE = "skill"
-MODULE_FILE = "module"
-COMMAND_FILE = "command"
 PYTHON_FILE = "python"
 
 
-def _find_plugin_root(path: Path) -> Path:
-    """Find the plugin root by looking for pyproject.toml or .claude-plugin."""
+def _find_plugin_root(path: Path) -> Path | None:
+    """Find the plugin root by looking for pyproject.toml or .claude-plugin.
+
+    Returns None if no plugin root is found (prevents traversal to filesystem root).
+    """
     plugin_root = path.parent
     while plugin_root != plugin_root.parent:
         has_pyproject = (plugin_root / "pyproject.toml").exists()
         has_plugin = (plugin_root / ".claude-plugin").exists()
         if has_pyproject or has_plugin:
-            break
+            return plugin_root
         plugin_root = plugin_root.parent
-    return plugin_root
+    return None
 
 
 def _check_python_file(path: Path) -> tuple[bool, str | None]:
@@ -57,22 +60,20 @@ def _check_python_file(path: Path) -> tuple[bool, str | None]:
 
 
 def is_implementation_file(file_path: str) -> tuple[bool, str | None]:
-    """Check if the file is an implementation file that requires tests."""
+    """Check if the file is an implementation file that requires tests.
+
+    Markdown files (.md) in modules/ and commands/ directories are excluded
+    because they are agent instruction documents, not executable code testable
+    by pytest. Use abstract:skills-eval or abstract:test-skill for those.
+    SKILL.md files are still gated as they define core skill behavior.
+    """
     path = Path(file_path)
 
-    # Skill files
+    # Skill files (SKILL.md defines core behavior — keep gated)
     if path.name == "SKILL.md":
         return True, SKILL_FILE
 
-    # Module files (in modules/ directory)
-    if "modules" in path.parts and path.suffix == ".md":
-        return True, MODULE_FILE
-
-    # Command files
-    if "commands" in path.parts and path.suffix == ".md":
-        return True, COMMAND_FILE
-
-    # Python implementation files
+    # Python implementation files (in modules/, commands/, or elsewhere)
     if path.suffix == ".py":
         return _check_python_file(path)
 
@@ -86,36 +87,6 @@ def _find_skill_test(path: Path, tests_dir: Path) -> Path:
         tests_dir / "unit" / "skills" / f"test_{skill_name}.py",
         tests_dir / "unit" / f"test_{skill_name}_skill.py",
         tests_dir / f"test_{skill_name}.py",
-    ]
-    return next((t for t in candidates if t.exists()), candidates[0])
-
-
-def _find_module_test(path: Path, tests_dir: Path) -> Path | None:
-    """Find test file for a module."""
-    module_name = path.stem.replace("-", "_")
-    # Find parent skill directory
-    skill_name = None
-    for parent in path.parents:
-        if (parent / "SKILL.md").exists():
-            skill_name = parent.name.replace("-", "_")  # Convert hyphens
-            break
-
-    if not skill_name:
-        return None
-
-    candidates = [
-        tests_dir / "unit" / "skills" / f"test_{skill_name}.py",
-        tests_dir / "unit" / "modules" / f"test_{module_name}.py",
-    ]
-    return next((t for t in candidates if t.exists()), candidates[0])
-
-
-def _find_command_test(path: Path, tests_dir: Path) -> Path:
-    """Find test file for a command."""
-    cmd_name = path.stem.replace("-", "_")
-    candidates = [
-        tests_dir / "unit" / "commands" / f"test_{cmd_name}_command.py",
-        tests_dir / "unit" / f"test_{cmd_name}_command.py",
     ]
     return next((t for t in candidates if t.exists()), candidates[0])
 
@@ -135,12 +106,12 @@ def find_test_file(impl_path: str, impl_type: str) -> Path | None:
     """Find the corresponding test file for an implementation file."""
     path = Path(impl_path)
     plugin_root = _find_plugin_root(path)
+    if plugin_root is None:
+        return None
     tests_dir = plugin_root / "tests"
 
     finders = {
         SKILL_FILE: _find_skill_test,
-        MODULE_FILE: _find_module_test,
-        COMMAND_FILE: _find_command_test,
         PYTHON_FILE: _find_python_test,
     }
 
@@ -159,8 +130,6 @@ def format_tdd_bdd_reminder(impl_path: str, impl_type: str, test_path: Path) -> 
     """Generate a TDD/BDD reminder message."""
     type_names = {
         SKILL_FILE: "skill",
-        MODULE_FILE: "module",
-        COMMAND_FILE: "command",
         PYTHON_FILE: "Python implementation",
     }
 

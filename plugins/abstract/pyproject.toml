@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.4.3"
+version = "1.4.4"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -57,7 +57,7 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D103"]
+"tests/**/*.py" = ["S101", "PLR2004", "D103", "D205"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -5,6 +5,7 @@ description: Execute implementation tasks systematically following the task plan
   tasks.md, continuing implementation, implementing specific phases, systematic code
   generation. Do not use when generating tasks - use task-generator agent first. analyzing
   specs - use spec-analyzer agent. Trigger proactively during /speckit-implement commands.
+isolation: worktree
 tools:
 - Read
 - Write

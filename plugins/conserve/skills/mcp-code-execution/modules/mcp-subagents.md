@@ -58,6 +58,10 @@ Before ANY Task invocation:
 
 **Now fixed**: MCP tools are properly synced across subagent boundaries. No workarounds needed.
 
+## Claude.ai MCP Connector Sync (Claude Code 2.1.46+)
+
+Claude.ai MCP connectors (configured at claude.ai/settings/connectors) are now available in Claude Code. These tools should sync to subagents via the same mechanism as the 2.1.30+ SDK MCP fix, but this has not been independently verified for claude.ai-sourced connectors. If subagents report missing MCP tools that are visible in the parent's `/mcp`, check whether the tools originate from claude.ai connectors.
+
 ## Sub-Agent Spawning Restrictions (Claude Code 2.1.33+)
 
 Agent `tools` frontmatter now supports `Task(agent_type)` to restrict which sub-agents can be spawned. This provides governance over delegation chains and prevents uncontrolled spawning.
@@ -71,6 +75,10 @@ tools:
 ```
 
 Use for orchestrator agents that should only delegate to specific workers. Combined with the pre-invocation complexity check, this ensures both *whether* and *to whom* delegation occurs is controlled.
+
+## Background Agent MCP Restriction (Claude Code 2.1.49+)
+
+**Critical**: Agents launched with `background: true` **cannot use MCP tools**. This means any subagent that requires MCP tool access (code execution servers, external service connectors, SDK-provided tools) must NOT be backgrounded. If you need both parallel execution and MCP access, use foreground `Task` invocations or `isolation: worktree` without the `background` flag.
 
 ## When to Use
 - **Automatic**: Keywords: `subagent`, `decompose`, `break down`, `modular`

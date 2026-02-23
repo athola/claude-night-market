@@ -49,6 +49,17 @@
           }
         ]
       }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py",
+            "timeout": 2
+          }
+        ]
+      }
     ]
   }
 }
