@@ -13,6 +13,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from update_plugins_modules.constants import CACHE_EXCLUDES
+
 
 def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     """Find all version files, excluding venvs and build dirs unless explicitly requested.
@@ -37,50 +40,8 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/.claude-plugin/marketplace.json",
     ]
 
-    # Directories to exclude from scan by default
-    # Cache, temp, and build directories are skipped unless --include-cache is set.
-    excludes = {
-        # Python
-        ".venv",
-        "venv",
-        ".virtualenv",
-        "virtualenv",
-        "__pycache__",
-        ".pytest_cache",
-        ".mypy_cache",
-        ".ruff_cache",
-        ".tox",
-        ".eggs",
-        "*.egg-info",
-        ".uv-cache",
-        # JavaScript/Node
-        "node_modules",
-        ".npm",
-        ".yarn",
-        ".pnp",
-        ".cache",
-        # Rust
-        "target",
-        ".cargo",
-        ".rustup",
-        # Build artifacts
-        "dist",
-        "build",
-        "_build",
-        "out",
-        # Version control
-        ".git",
-        ".hg",
-        ".svn",
-        ".worktrees",
-        # IDEs and editors
-        ".vscode",
-        ".idea",
-        ".vs",
-        # OS
-        ".DS_Store",
-        "Thumbs.db",
-    }
+    # Shared exclusion set from update_plugins_modules.constants
+    excludes = CACHE_EXCLUDES
 
     for pattern in patterns:
         for file in root.rglob(pattern):
