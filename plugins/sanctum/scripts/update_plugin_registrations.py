@@ -21,6 +21,7 @@ from update_plugins_modules import (
     MetaEvaluator,
     PerformanceAnalyzer,
 )
+from update_plugins_modules.constants import CACHE_EXCLUDES
 
 
 class PluginAuditor:
@@ -39,33 +40,9 @@ class PluginAuditor:
         self.meta_evaluator = MetaEvaluator()
         self.queue_checker = KnowledgeQueueChecker()
 
-    # Cache/temp directories to exclude from scans (consistent with update_versions.py)
-    CACHE_EXCLUDES = {
-        ".venv",
-        "venv",
-        ".virtualenv",
-        "virtualenv",
-        "__pycache__",
-        ".pytest_cache",
-        ".mypy_cache",
-        ".ruff_cache",
-        ".tox",
-        "node_modules",
-        ".npm",
-        ".yarn",
-        ".cache",
-        "target",
-        ".cargo",
-        ".rustup",
-        "dist",
-        "build",
-        "_build",
-        "out",
-    }
-
     def _should_exclude(self, path: Path) -> bool:
         """Check if path should be excluded based on cache/temp patterns."""
-        return any(exclude in path.parts for exclude in self.CACHE_EXCLUDES)
+        return any(exclude in path.parts for exclude in CACHE_EXCLUDES)
 
     def audit_skill_modules(self, plugin_path: Path) -> dict[str, Any]:
         """Audit modules within each skill directory.
