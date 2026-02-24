@@ -4,6 +4,8 @@ Extracts and indexes keywords from knowledge corpus entries (markdown files with
 to enable fast keyword-based lookup without requiring embeddings or external dependencies.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -284,10 +286,9 @@ class KeywordIndexer:
             self.load_index()
 
         # Normalize query to list
-        if isinstance(query, str):
-            keywords = [query.lower()]
-        else:
-            keywords = [k.lower() for k in query]
+        keywords = (
+            [query.lower()] if isinstance(query, str) else [k.lower() for k in query]
+        )
 
         # Find entries matching ALL keywords (AND logic)
         matching_entry_ids = None

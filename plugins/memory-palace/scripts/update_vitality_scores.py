@@ -57,8 +57,8 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
         last_accessed = payload.get("last_accessed")
         if state == "probation" and last_accessed:
             last_dt = dt.datetime.fromisoformat(last_accessed.replace("Z", "+00:00"))
-            OVERDUE_DAYS = 14
-            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= OVERDUE_DAYS:
+            overdue_days = 14
+            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= overdue_days:
                 queue["probation_overdue"].append(entry_id)
 
     metadata = data.setdefault("metadata", {})

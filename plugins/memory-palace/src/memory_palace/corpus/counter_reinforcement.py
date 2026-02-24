@@ -112,14 +112,10 @@ class ReinforcementCounter:
         - Total signals > 5 but helpfulness ratio < 40%
         - No access in metadata's stale_threshold (default 30 days)
         """
-        if self.harm_ratio > HARM_RATIO_THRESHOLD:
-            return True
-        if (
+        return self.harm_ratio > HARM_RATIO_THRESHOLD or (
             self.total_signals > MIN_SIGNALS_FOR_REVIEW
             and self.helpfulness_ratio < HELPFULNESS_RATIO_THRESHOLD
-        ):
-            return True
-        return False
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize counter to dictionary for storage."""

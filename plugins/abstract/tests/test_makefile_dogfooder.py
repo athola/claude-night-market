@@ -1,14 +1,12 @@
 """Tests for the Makefile dogfooder script.
 
-Tests the key functionality that exists in the refactored module:
+Tests the key functionality of the refactored module:
 - YAML target catalog loading
-- MakefileDogfooder initialization
+- MakefileDogfooder initialization and configuration modes
+- .PHONY block parsing and target extraction
+- Plugin analysis, coverage scoring, and report generation
 - Documentation command extraction
 - Makefile synthesis and generation
-
-Note: The original implementation with parse_makefile, analyze_makefile,
-MakefileInventory, and Target classes was refactored out. Those tests
-are skipped until the implementation is restored.
 """
 
 import sys
@@ -94,109 +92,241 @@ class TestMakefileDogfooderInit:
         assert dogfooder.explain is True
 
 
-# NOTE: The following test classes are skipped because the functionality
-# was removed during refactoring. The implementation now only loads from YAML
-# and the parsing/analysis methods no longer exist.
-#
-# To restore these tests, the following would need to be re-implemented:
-# - MakefileInventory dataclass
-# - Target dataclass
-# - MakefileDogfooder.parse_makefile() method
-# - MakefileDogfooder.analyze_makefile() method
-
-
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - parse_makefile not implemented"
-)
 class TestIncludeParsing:
-    """Tests for include directive parsing."""
+    """Tests for include directive handling in Makefile content."""
 
-    def test_parse_include_directive(self, tmp_path: Path) -> None:
-        """Test parsing of include directives from Makefile content."""
-        pass
+    def test_makefile_with_include_directive(self, tmp_path: Path) -> None:
+        """Test that Makefiles with include directives are handled correctly."""
+        plugin_dir = tmp_path / "plugins" / "testplugin"
+        plugin_dir.mkdir(parents=True)
 
-    def test_no_includes(self, tmp_path: Path) -> None:
-        """Test parsing Makefile with no includes."""
-        pass
+        (plugin_dir / "README.md").write_text("Use `/my-cmd` here.\n")
+        (plugin_dir / "Makefile").write_text(
+            "include ../shared/Makefile.common\n\n.PHONY: help\nhelp:\n\t@echo help\n"
+        )
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("testplugin")
+
+        # Should still analyze the plugin despite include directives
+        assert finding["commands_documented"] == 1
+
+    def test_makefile_without_includes(self, tmp_path: Path) -> None:
+        """Test that Makefiles without include directives work normally."""
+        plugin_dir = tmp_path / "plugins" / "testplugin"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("Use `/my-cmd` here.\n")
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("testplugin")
+
+        assert finding["commands_documented"] == 1
 
 
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - parse_makefile not implemented"
-)
 class TestPhonyRecognition:
-    """Tests for .PHONY target recognition."""
+    """Tests for .PHONY target recognition via _find_phony_block."""
 
     def test_single_phony_declaration(self, tmp_path: Path) -> None:
         """Test parsing single .PHONY declaration."""
-        pass
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+
+        content = ".PHONY: help test build\n\nhelp:\n\t@echo help\n"
+        phony_lines = dogfooder._find_phony_block(content)
+
+        assert len(phony_lines) >= 1
+        assert ".PHONY:" in phony_lines[0]
+        targets = dogfooder._extract_phony_targets(phony_lines)
+        assert "help" in targets
+        assert "test" in targets
+        assert "build" in targets
 
     def test_multiple_phony_declarations(self, tmp_path: Path) -> None:
-        """Test parsing multiple .PHONY declarations."""
-        pass
+        """Test parsing multi-line .PHONY declaration with continuations."""
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+
+        content = (
+            ".PHONY: help test \\\n"
+            "\tbuild validate \\\n"
+            "\tclean\n"
+            "\n"
+            "help:\n"
+            "\t@echo help\n"
+        )
+        phony_lines = dogfooder._find_phony_block(content)
+
+        assert len(phony_lines) == 3
+        targets = dogfooder._extract_phony_targets(phony_lines)
+        assert "help" in targets
+        assert "test" in targets
+        assert "build" in targets
+        assert "validate" in targets
+        assert "clean" in targets
 
 
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - parse_makefile not implemented"
-)
 class TestPluginTypeDetection:
-    """Tests for plugin type detection logic."""
+    """Tests for plugin structure detection via analyze_plugin."""
 
     def test_leaf_plugin_type(self, tmp_path: Path) -> None:
-        """Test detection of leaf plugin (standard plugin Makefile)."""
-        pass
+        """Test analysis of a standard plugin with commands and Makefile."""
+        plugin_dir = tmp_path / "plugins" / "leaf"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("Use `/validate` to check.\n")
+        (plugin_dir / "Makefile").write_text(
+            ".PHONY: help demo-validate\n"
+            "help:\n\t@echo help\n"
+            "demo-validate:\n\t@echo demo\n"
+        )
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("leaf")
+
+        assert finding["commands_documented"] == 1
+        assert finding["coverage_percent"] > 0
 
     def test_aggregator_plugin_type(self, tmp_path: Path) -> None:
-        """Test detection of aggregator (Makefile with delegation)."""
-        pass
+        """Test analysis of a plugin with delegation-style Makefile."""
+        plugin_dir = tmp_path / "plugins" / "aggregator"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text(
+            "Use `/cmd-a` and `/cmd-b` for operations.\n"
+        )
+        (plugin_dir / "Makefile").write_text(
+            ".PHONY: help demo-cmd-a demo-cmd-b test-cmd-a test-cmd-b\n"
+            "help:\n\t@echo help\n"
+            "demo-cmd-a:\n\t@echo a\n"
+            "demo-cmd-b:\n\t@echo b\n"
+            "test-cmd-a:\n\t@echo ta\n"
+            "test-cmd-b:\n\t@echo tb\n"
+        )
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("aggregator")
+
+        assert finding["commands_documented"] == 2
+        assert finding["targets_missing"] == 0
+        assert finding["coverage_percent"] == 100
 
     def test_auxiliary_plugin_type(self, tmp_path: Path) -> None:
-        """Test detection of auxiliary Makefile (in docs/ or tests/)."""
-        pass
+        """Test analysis of a plugin with no documented commands."""
+        plugin_dir = tmp_path / "plugins" / "auxiliary"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("# Auxiliary\n\nNo commands here.\n")
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("auxiliary")
+
+        assert finding["commands_documented"] == 0
+        assert finding["targets_missing"] == 0
 
 
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - analyze_makefile not implemented"
-)
 class TestScoringLogic:
-    """Tests for Makefile scoring logic."""
+    """Tests for coverage scoring via _calc_coverage and analyze_plugin."""
 
-    def test_essential_targets_scoring(self) -> None:
-        """Test that essential targets contribute 20 points each."""
-        pass
+    def test_essential_targets_scoring(self, tmp_path: Path) -> None:
+        """Test that coverage reflects implemented vs missing targets."""
+        plugin_dir = tmp_path / "plugins" / "scored"
+        plugin_dir.mkdir(parents=True)
 
-    def test_markdown_only_auto_credit(self) -> None:
-        """Test that markdown-only plugins get auto-credit for Python targets."""
-        pass
+        (plugin_dir / "README.md").write_text(
+            "- `/cmd-one`\n- `/cmd-two`\n- `/cmd-three`\n"
+        )
+        (plugin_dir / "Makefile").write_text(
+            ".PHONY: help demo-cmd-one test-cmd-one\n"
+            "help:\n\t@echo help\n"
+            "demo-cmd-one:\n\t@echo one\n"
+            "test-cmd-one:\n\t@echo test-one\n"
+        )
 
-    def test_auxiliary_auto_credit(self) -> None:
-        """Test that auxiliary Makefiles get auto-credit for some targets."""
-        pass
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("scored")
+
+        # 3 commands documented, 2 targets present for cmd-one, 4 missing for cmd-two/three
+        assert finding["commands_documented"] == 3
+        assert finding["targets_missing"] > 0
+        assert 0 < finding["coverage_percent"] < 100
+
+    def test_markdown_only_auto_credit(self, tmp_path: Path) -> None:
+        """Test coverage for plugin with all targets implemented."""
+        plugin_dir = tmp_path / "plugins" / "complete"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("- `/single-cmd`\n")
+        (plugin_dir / "Makefile").write_text(
+            ".PHONY: help demo-single-cmd test-single-cmd\n"
+            "help:\n\t@echo help\n"
+            "demo-single-cmd:\n\t@echo demo\n"
+            "test-single-cmd:\n\t@echo test\n"
+        )
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("complete")
+
+        assert finding["coverage_percent"] == 100
+        assert finding["targets_missing"] == 0
+
+    def test_auxiliary_auto_credit(self, tmp_path: Path) -> None:
+        """Test that plugins with zero documented commands get 100% coverage."""
+        plugin_dir = tmp_path / "plugins" / "nodocs"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("# No commands\n\nJust docs.\n")
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("nodocs")
+
+        # No commands means nothing to cover
+        assert finding["commands_documented"] == 0
+        assert finding["coverage_percent"] == 100
 
 
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - analyze_makefile not implemented"
-)
 class TestExplainMode:
     """Tests for --explain mode output."""
 
-    def test_explain_mode_outputs_breakdown(
-        self, capsys: pytest.CaptureFixture[str]
-    ) -> None:
-        """Test that explain mode outputs scoring breakdown."""
-        pass
+    def test_explain_mode_outputs_breakdown(self, tmp_path: Path) -> None:
+        """Test that explain mode produces a report with findings."""
+        plugin_dir = tmp_path / "plugins" / "explained"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("Use `/check` to verify.\n")
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path, explain=True)
+        dogfooder.analyze_all()
+        report = dogfooder.generate_report()
+
+        # generate_report returns a formatted string
+        assert "Findings by Plugin" in report
+        assert "explained:" in report
+        assert "Coverage:" in report
 
 
-@pytest.mark.skip(
-    reason="Functionality removed during refactoring - parse_makefile not implemented"
-)
 class TestVerboseMode:
     """Tests for --verbose mode output."""
 
-    def test_verbose_mode_shows_includes(
-        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-    ) -> None:
-        """Test that verbose mode shows include discovery."""
-        pass
+    def test_verbose_mode_shows_includes(self, tmp_path: Path) -> None:
+        """Test that verbose mode flag is set and analysis still works."""
+        plugin_dir = tmp_path / "plugins" / "verboseplugin"
+        plugin_dir.mkdir(parents=True)
+
+        (plugin_dir / "README.md").write_text("Use `/my-tool` here.\n")
+        (plugin_dir / "Makefile").write_text(
+            ".PHONY: help demo-my-tool\n"
+            "help:\n\t@echo help\n"
+            "demo-my-tool:\n\t@echo demo\n"
+        )
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path, verbose=True)
+        assert dogfooder.verbose is True
+
+        finding = dogfooder.analyze_plugin("verboseplugin")
+        assert finding["commands_documented"] == 1
 
 
 class TestDocumentationCommandExtractor:

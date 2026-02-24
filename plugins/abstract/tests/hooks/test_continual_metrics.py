@@ -11,6 +11,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
 
 def run_pre_hook(skill_ref: str) -> dict | None:
     """Run PreToolUse hook and return output."""
@@ -99,8 +101,13 @@ def verify_log_file(log_dir: Path) -> bool:
     return False
 
 
-def test_full_dual_hook_with_metrics() -> bool:
+@pytest.mark.integration
+def test_full_dual_hook_with_metrics() -> None:
     """Test PreToolUse + PostToolUse with continual metrics calculation."""
+    hook_path = Path("plugins/abstract/hooks/pre_skill_execution.py")
+    if not hook_path.exists():
+        pytest.skip("Must run from repo root (hook file not found at expected path)")
+
     print("Testing Dual-Hook Continual Metrics System")
     print("=" * 70)
 
@@ -112,8 +119,7 @@ def test_full_dual_hook_with_metrics() -> bool:
         print(f"\n--- Iteration {i + 1}/5 ---")
 
         pre_output = run_pre_hook(skill_ref)
-        if not pre_output:
-            return False
+        assert pre_output, f"PreToolUse hook failed on iteration {i + 1}"
 
         invocation_id = pre_output["hookSpecificOutput"]["invocation_id"]
         print(f"PreToolUse: {invocation_id}")
@@ -121,8 +127,7 @@ def test_full_dual_hook_with_metrics() -> bool:
         time.sleep(0.05)  # 50ms simulated execution
 
         post_output = run_post_hook(skill_ref, i)
-        if not post_output:
-            return False
+        assert post_output, f"PostToolUse hook failed on iteration {i + 1}"
 
         duration = post_output["hookSpecificOutput"]["duration_ms"]
         outcome = post_output["hookSpecificOutput"]["outcome"]
@@ -136,9 +141,10 @@ def test_full_dual_hook_with_metrics() -> bool:
 
     print("\n" + "=" * 70)
     print("Verification:")
-    return verify_log_file(log_dir)
+    assert verify_log_file(log_dir), "Log file verification failed"
 
 
 if __name__ == "__main__":
-    success = test_full_dual_hook_with_metrics()
-    sys.exit(0 if success else 1)
+    test_full_dual_hook_with_metrics()
+    print("All checks passed.")
+    sys.exit(0)

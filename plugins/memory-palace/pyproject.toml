@@ -14,14 +14,18 @@ maintainers = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "pre-commit>=3.0.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 tokens = [
     "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
+]
+fast = [
+    "xxhash>=3.0",  # 10x faster hashing
 ]
 dev = [
     "ruff>=0.14.13,<1.0",
@@ -64,7 +68,7 @@ packages = ["src/memory_palace"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
@@ -79,6 +83,8 @@ select = [
   "S",
   "PL",
   "D",
+  "N",
+  "SIM",
 ]
 
 extend-ignore = ["E203", "D203", "D213", "S101"]  # Added S101 for assert usage
@@ -93,8 +99,22 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
+[tool.ruff.lint.isort]
+known-first-party = ["memory_palace", "shared"]
+
+[tool.coverage.run]
+source = ["memory_palace", "shared"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

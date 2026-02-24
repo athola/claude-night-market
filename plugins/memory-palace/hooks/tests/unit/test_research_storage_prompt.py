@@ -26,8 +26,7 @@ import research_storage_prompt  # noqa: E402
 
 
 class TestResearchStoragePromptOutput:
-    """
-    Feature: Emit storage reminder after WebSearch/WebFetch
+    """Feature: Emit storage reminder after WebSearch/WebFetch
 
     As a researcher
     I want a reminder after web searches complete
@@ -38,8 +37,7 @@ class TestResearchStoragePromptOutput:
     def test_emits_reminder_for_websearch(
         self, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        """
-        Scenario: WebSearch completes with a query
+        """Scenario: WebSearch completes with a query
         Given a PostToolUse payload for WebSearch with query "python asyncio patterns"
         When the hook processes the payload
         Then it outputs JSON with a reminder mentioning knowledge-intake
@@ -64,8 +62,7 @@ class TestResearchStoragePromptOutput:
     def test_emits_reminder_for_webfetch(
         self, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        """
-        Scenario: WebFetch completes with a prompt
+        """Scenario: WebFetch completes with a prompt
         Given a PostToolUse payload for WebFetch
         When the hook processes the payload
         Then it outputs JSON with a reminder mentioning knowledge-intake
@@ -88,8 +85,7 @@ class TestResearchStoragePromptOutput:
 
     @pytest.mark.unit
     def test_ignores_non_web_tools(self, capsys: pytest.CaptureFixture[str]) -> None:
-        """
-        Scenario: A non-web tool completes
+        """Scenario: A non-web tool completes
         Given a PostToolUse payload for tool "Read"
         When the hook processes the payload
         Then it exits silently with no output
@@ -108,8 +104,7 @@ class TestResearchStoragePromptOutput:
 
     @pytest.mark.unit
     def test_ignores_invalid_json(self, capsys: pytest.CaptureFixture[str]) -> None:
-        """
-        Scenario: Hook receives invalid JSON on stdin
+        """Scenario: Hook receives invalid JSON on stdin
         Given malformed input on stdin
         When the hook processes the payload
         Then it exits cleanly with code 0 and no output
@@ -125,8 +120,7 @@ class TestResearchStoragePromptOutput:
 
 
 class TestRecentIntakePending:
-    """
-    Feature: Skip prompt when research_interceptor already flagged the query
+    """Feature: Skip prompt when research_interceptor already flagged the query
 
     As a researcher
     I want to avoid redundant prompts
@@ -135,8 +129,7 @@ class TestRecentIntakePending:
 
     @pytest.mark.unit
     def test_returns_true_when_query_in_queue(self, tmp_path: Path) -> None:
-        """
-        Scenario: Query was already queued by research_interceptor
+        """Scenario: Query was already queued by research_interceptor
         Given an intake_queue.jsonl containing a matching query
         When _recent_intake_pending is called
         Then it returns True
@@ -153,8 +146,7 @@ class TestRecentIntakePending:
 
     @pytest.mark.unit
     def test_case_insensitive_match(self, tmp_path: Path) -> None:
-        """
-        Scenario: Query matches case-insensitively
+        """Scenario: Query matches case-insensitively
         Given an intake_queue.jsonl containing "python asyncio patterns" (lowercase)
         When _recent_intake_pending is called with "PYTHON ASYNCIO PATTERNS" (uppercase)
         Then it returns True because matching is case-insensitive
@@ -171,8 +163,7 @@ class TestRecentIntakePending:
 
     @pytest.mark.unit
     def test_returns_false_when_no_match(self, tmp_path: Path) -> None:
-        """
-        Scenario: Query was NOT queued
+        """Scenario: Query was NOT queued
         Given an intake_queue.jsonl with different queries
         When _recent_intake_pending is called
         Then it returns False
@@ -189,8 +180,7 @@ class TestRecentIntakePending:
 
     @pytest.mark.unit
     def test_returns_false_when_no_queue_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: No intake queue file exists
+        """Scenario: No intake queue file exists
         Given PLUGIN_ROOT/data/intake_queue.jsonl does not exist
         When _recent_intake_pending is called
         Then it returns False
@@ -202,8 +192,7 @@ class TestRecentIntakePending:
     def test_suppresses_prompt_when_already_flagged(
         self, capsys: pytest.CaptureFixture[str], tmp_path: Path
     ) -> None:
-        """
-        Scenario: WebSearch completes but query was already flagged for intake
+        """Scenario: WebSearch completes but query was already flagged for intake
         Given a matching entry in intake_queue.jsonl
         When the hook processes a WebSearch payload with that query
         Then it exits silently (no redundant prompt)

@@ -308,6 +308,17 @@ class TestValidateGlobPatterns:
         result = validate_glob_patterns([])
         assert result["valid"] is True
 
+    @pytest.mark.unit
+    def test_empty_glob_pattern_in_list_flagged(self) -> None:
+        """Scenario: Glob pattern list contains a whitespace-only entry
+        Given a patterns list with an empty/whitespace string
+        When I validate the patterns
+        Then it should report an error about empty pattern
+        """
+        result = validate_glob_patterns(["src/**/*.ts", "  ", "lib/**/*.ts"])
+        assert result["valid"] is False
+        assert any("empty" in e.lower() for e in result["errors"])
+
 
 class TestValidateOrganization:
     """Feature: Rules directory organization validation
@@ -414,17 +425,6 @@ class TestValidateOrganization:
         result = validate_organization(rules_dir)
         assert result["score"] == 0
         assert any("no rule files" in w.lower() for w in result["warnings"])
-
-    @pytest.mark.unit
-    def test_empty_glob_pattern_in_list_flagged(self) -> None:
-        """Scenario: Glob pattern list contains a whitespace-only entry
-        Given a patterns list with an empty/whitespace string
-        When I validate the patterns
-        Then it should report an error about empty pattern
-        """
-        result = validate_glob_patterns(["src/**/*.ts", "  ", "lib/**/*.ts"])
-        assert result["valid"] is False
-        assert any("empty" in e.lower() for e in result["errors"])
 
 
 class TestValidateContentQuality:

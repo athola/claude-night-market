@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import sys
 import time
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -54,8 +55,9 @@ def should_aggregate() -> bool:
         last_run = float(ts_path.read_text().strip())
         elapsed = time.time() - last_run
         return elapsed >= CADENCE_SECONDS
-    except (ValueError, OSError):
+    except (ValueError, OSError) as exc:
         # Corrupt or unreadable file — treat as never run
+        print(f"[aggregate_learnings_daily] timestamp read: {exc}", file=sys.stderr)
         return True
 
 
@@ -124,7 +126,11 @@ def run_aggregation() -> bool:
         _write_learnings(result)
         return True
     except Exception:
-        # Silent failure — hook must not block the user
+        # Hook must not block the user, but log to stderr for diagnostics
+        print(
+            f"[aggregate_learnings_daily] aggregation: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
         return False
 
 
@@ -134,9 +140,12 @@ def run_auto_promote() -> None:
         from auto_promote_learnings import run_auto_promote as _promote  # noqa: PLC0415
 
         _promote()
-    except Exception:  # noqa: S110
-        # Silent failure — promotion is best-effort
-        pass
+    except Exception:
+        # Promotion is best-effort, but log to stderr for diagnostics
+        print(
+            f"[aggregate_learnings_daily] auto-promote: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
 
 
 def run_daily_pipeline() -> None:
@@ -161,14 +170,20 @@ def main() -> None:
     # Read and discard stdin (hook protocol)
     try:
         sys.stdin.read()
-    except Exception:  # noqa: S110
-        pass
+    except Exception:
+        print(
+            f"[aggregate_learnings_daily] stdin read: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
 
     # Run the daily pipeline (silent, fast)
     try:
         run_daily_pipeline()
-    except Exception:  # noqa: S110
-        pass
+    except Exception:
+        print(
+            f"[aggregate_learnings_daily] pipeline: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
 
     # Always allow the prompt through
     print(format_hook_output())

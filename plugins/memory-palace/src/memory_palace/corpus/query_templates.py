@@ -61,9 +61,12 @@ class QueryTemplateManager:
                     # Parse YAML frontmatter
                     try:
                         metadata = yaml.safe_load(frontmatter)
-                        if metadata and "queries" in metadata:
-                            if isinstance(metadata["queries"], list):
-                                queries = metadata["queries"]
+                        if (
+                            metadata
+                            and "queries" in metadata
+                            and isinstance(metadata["queries"], list)
+                        ):
+                            queries = metadata["queries"]
 
                     except yaml.YAMLError:
                         # Skip if YAML parsing fails

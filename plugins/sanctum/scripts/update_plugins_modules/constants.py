@@ -18,7 +18,6 @@ CACHE_EXCLUDES: frozenset[str] = frozenset(
         ".ruff_cache",
         ".tox",
         ".eggs",
-        "*.egg-info",
         ".uv-cache",
         # JavaScript/Node
         "node_modules",
@@ -44,8 +43,7 @@ CACHE_EXCLUDES: frozenset[str] = frozenset(
         ".vscode",
         ".idea",
         ".vs",
-        # OS
-        ".DS_Store",
-        "Thumbs.db",
+        # OS (note: .DS_Store and Thumbs.db are files, not dirs,
+        # so they won't match with `in path.parts` checking)
     }
 )

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Validate memory palace knowledge corpus entries have proper YAML frontmatter."""
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from typing import cast

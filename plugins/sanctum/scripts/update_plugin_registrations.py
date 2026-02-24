@@ -199,8 +199,11 @@ class PluginAuditor:
             for pattern in patterns:
                 matches = re.findall(pattern, content)
                 references.update(matches)
-        except OSError:
-            pass
+        except OSError as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {md_file}: {exc}",
+                file=sys.stderr,
+            )
 
         return references
 

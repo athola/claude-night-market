@@ -15,12 +15,9 @@ lookups, just a JSON message on stdout.
 from __future__ import annotations
 
 import json
-import logging
 import sys
 from pathlib import Path
 from typing import Any
-
-logger = logging.getLogger(__name__)
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 
@@ -40,9 +37,9 @@ def _recent_intake_pending(query: str) -> bool:
                 entry = json.loads(line)
                 if entry.get("query", "").lower().strip() == normalized_query:
                     return True
-            except (json.JSONDecodeError, KeyError):
+            except json.JSONDecodeError:
                 continue
-    except (OSError, PermissionError):
+    except OSError:
         pass
 
     return False
@@ -53,6 +50,7 @@ def main() -> None:
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        print("[research_storage_prompt] invalid JSON on stdin", file=sys.stderr)
         sys.exit(0)
 
     tool_name = payload.get("tool_name", "")

@@ -2,7 +2,7 @@
 
 > **Navigation**: [<- Issue Linkage](issue-linkage.md) | [Step 6 Hub](../6-complete.md) | [Next: Verification ->](verification.md)
 
-**Purpose**: Post a comprehensive summary comment to the PR documenting all actions taken.
+**Purpose**: Post a summary comment to the PR documenting all actions taken.
 
 ---
 

@@ -94,7 +94,11 @@ def validate_frontmatter(rule_file: Path) -> dict[str, Any]:
     warnings: list[str] = []
     score = 25  # Start with full score, deduct for issues
 
-    content = rule_file.read_text(encoding="utf-8")
+    try:
+        content = rule_file.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"Cannot read file: {exc}")
+        return {"valid": False, "errors": errors, "warnings": [], "score": 0}
     parsed, _body, parse_error = _parse_frontmatter(content)
 
     # No frontmatter is valid (plain rules file)
@@ -275,7 +279,7 @@ def validate_content_quality(content: str) -> dict[str, Any]:
     return {"score": max(0, score), "warnings": warnings, "token_count": token_count}
 
 
-def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:
+def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:  # noqa: PLR0915
     """Run a comprehensive evaluation of a rules directory.
 
     Args:
@@ -324,7 +328,11 @@ def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:
     total_token_score = 0
 
     for md_file in md_files:
-        content = md_file.read_text(encoding="utf-8")
+        try:
+            content = md_file.read_text(encoding="utf-8")
+        except OSError as exc:
+            all_errors.append(f"Cannot read {md_file}: {exc}")
+            continue
         parsed, body, _parse_error = _parse_frontmatter(content)
 
         # Frontmatter validation (25 points)
@@ -347,7 +355,7 @@ def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:
         total_content_score += content_result["score"]
         all_warnings.extend(content_result["warnings"])
 
-        # Token efficiency (15 points) - incorporated into content quality
+        # Token efficiency (15 points) - separate scoring dimension
         if content_result["token_count"] <= MAX_TOKEN_COUNT:
             total_token_score += 15
         elif content_result["token_count"] <= HIGH_TOKEN_COUNT:
