@@ -55,3 +55,38 @@ class TestCacheExcludes:
         from update_plugins_modules.constants import CACHE_EXCLUDES
 
         assert ".git" in CACHE_EXCLUDES
+
+    @pytest.mark.unit
+    def test_cache_excludes_backward_compat_with_legacy_plugin_auditor(self):
+        """Scenario: CACHE_EXCLUDES contains all legacy PluginAuditor entries.
+
+        Given the legacy PluginAuditor had a hardcoded exclusion list
+        When CACHE_EXCLUDES is used as the shared constant
+        Then it must contain every directory the old auditor excluded
+        """
+        from update_plugins_modules.constants import CACHE_EXCLUDES
+
+        legacy_entries = {
+            ".venv",
+            "venv",
+            "__pycache__",
+            ".pytest_cache",
+            ".mypy_cache",
+            ".ruff_cache",
+            ".tox",
+            ".eggs",
+            "node_modules",
+            ".npm",
+            ".yarn",
+            ".pnp",
+            ".cache",
+            "target",
+            ".cargo",
+            "dist",
+            "build",
+            ".git",
+            ".hg",
+            ".svn",
+        }
+        missing = legacy_entries - CACHE_EXCLUDES
+        assert not missing, f"CACHE_EXCLUDES is missing legacy entries: {missing}"

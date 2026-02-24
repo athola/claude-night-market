@@ -52,11 +52,14 @@ paths:
 ---
 ```
 
-## Scoring (25 points)
+## Scoring (25 points, deductive)
 
-| Check | Points | Criteria |
-|-------|--------|----------|
-| Valid YAML syntax | 10 | Parses without errors |
-| Correct field names | 5 | No `globs`, `alwaysApply`, etc. |
-| Proper quoting | 5 | Special chars quoted in globs |
-| Valid structure | 5 | `paths` is list, types correct |
+Starts at 25, deducts for issues found:
+
+| Issue | Deduction | Criteria |
+|-------|-----------|----------|
+| YAML parse error | -25 | Frontmatter fails to parse |
+| Cursor-specific field | -5 each | `globs`, `alwaysApply`, etc. |
+| Invalid `paths` type | -5 | `paths` is not a list |
+| Unknown field | -2 each | Field not in valid set |
+| Empty `paths` list | -1 | `paths: []` (likely unintended) |

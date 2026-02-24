@@ -23,11 +23,12 @@ Rules across files should not contradict each other.
 ### Single Topic
 Each rule file should address one focused topic.
 
-## Scoring (25 points)
+## Scoring (25 points, deductive)
 
-| Check | Points | Criteria |
-|-------|--------|----------|
-| Actionable content | 8 | Contains imperative guidance |
-| Conciseness | 7 | Not overly verbose (< 500 tokens) |
-| Focused topic | 5 | One topic per file |
-| No conflicts | 5 | No contradictions with other rules |
+Starts at 25, deducts for issues found:
+
+| Issue | Deduction | Criteria |
+|-------|-----------|----------|
+| Empty content | -25 | Rule file has no body text |
+| Too short | -5 | Fewer than 10 words |
+| Too verbose | -5 | Exceeds 500 estimated tokens |

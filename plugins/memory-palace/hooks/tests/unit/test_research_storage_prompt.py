@@ -152,6 +152,24 @@ class TestRecentIntakePending:
             )
 
     @pytest.mark.unit
+    def test_case_insensitive_match(self, tmp_path: Path) -> None:
+        """
+        Scenario: Query matches case-insensitively
+        Given an intake_queue.jsonl containing "python asyncio patterns" (lowercase)
+        When _recent_intake_pending is called with "PYTHON ASYNCIO PATTERNS" (uppercase)
+        Then it returns True because matching is case-insensitive
+        """
+        queue_file = tmp_path / "data" / "intake_queue.jsonl"
+        queue_file.parent.mkdir(parents=True)
+        entry = {"query": "python asyncio patterns", "query_id": "case1"}
+        queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
+
+        with patch.object(research_storage_prompt, "PLUGIN_ROOT", tmp_path):
+            assert research_storage_prompt._recent_intake_pending(
+                "PYTHON ASYNCIO PATTERNS"
+            )
+
+    @pytest.mark.unit
     def test_returns_false_when_no_match(self, tmp_path: Path) -> None:
         """
         Scenario: Query was NOT queued

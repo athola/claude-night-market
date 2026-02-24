@@ -25,11 +25,11 @@
 3. **Specificity**: Patterns should not match everything (`**/*`)
 4. **Intent clarity**: Pattern should clearly indicate target files
 
-## Scoring (20 points)
+## Scoring (20 points, deductive)
 
-| Check | Points | Criteria |
-|-------|--------|----------|
-| Valid glob syntax | 8 | All patterns parse correctly |
-| Appropriate specificity | 5 | Not overly broad or narrow |
-| Proper quoting | 4 | Special characters quoted |
-| Clear intent | 3 | Patterns describe their target |
+Starts at 20, deducts for issues found. Files without `paths` receive full score.
+
+| Issue | Deduction | Criteria |
+|-------|-----------|----------|
+| Overly broad pattern | -5 each | Matches `**/*`, `*`, etc. |
+| Empty pattern | -4 each | Blank or whitespace-only pattern |
