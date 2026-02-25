@@ -13,13 +13,11 @@
     "./skills/error-patterns",
     "./skills/authentication-patterns",
     "./skills/git-platform",
-    "./skills/mecw-patterns",
     "./skills/evaluation-framework",
     "./skills/storage-templates",
     "./skills/progressive-loading",
     "./skills/testing-quality-standards",
     "./skills/pytest-config",
-    "./skills/damage-control",
     "./skills/risk-classification"
   ],
   "hooks": "./hooks/hooks.json",

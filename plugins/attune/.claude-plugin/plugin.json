@@ -3,9 +3,15 @@
   "version": "1.4.5",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
+    "./commands/arch-init.md",
+    "./commands/blueprint.md",
+    "./commands/brainstorm.md",
+    "./commands/execute.md",
     "./commands/mission.md",
     "./commands/project-init.md",
+    "./commands/specify.md",
     "./commands/upgrade-project.md",
+    "./commands/validate.md",
     "./commands/war-room.md"
   ],
   "skills": [

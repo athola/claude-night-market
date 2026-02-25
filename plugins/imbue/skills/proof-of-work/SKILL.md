@@ -28,6 +28,7 @@ modules:
 - modules/red-flags.md
 - modules/iron-law-enforcement.md
 - modules/anti-cargo-cult.md
+- modules/evidence-logging.md
 ---
 # Proof of Work
 
@@ -125,6 +126,7 @@ Before sending a completion message, confirm that you have run the recommended c
 ## Supporting Modules
 
 - [TodoWrite naming patterns](modules/todowrite-patterns.md) - naming conventions and safe deletion rules for imbue TodoWrite items
+- [Evidence logging](modules/evidence-logging.md) - structured evidence capture, audit trails, and reproducibility patterns
 
 ## Exit Criteria
 

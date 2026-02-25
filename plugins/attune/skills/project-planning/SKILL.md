@@ -57,6 +57,10 @@ estimated_tokens: 2400
 
 Transform specification into implementation plan with architecture design and dependency-ordered tasks.
 
+## Delegation
+
+For detailed task planning workflows, this skill delegates to `spec-kit:task-planning` as the canonical implementation. Use this skill for quick planning needs; use spec-kit for comprehensive project plans.
+
 ## When To Use
 
 - After specification phase completes

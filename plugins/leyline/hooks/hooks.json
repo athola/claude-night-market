@@ -2,6 +2,7 @@
   "hooks": {
     "SessionStart": [
       {
+        "_comment": "Order 1: Detect git platform (GitHub/GitLab) early so other hooks can use it",
         "hooks": [
           {
             "type": "command",
@@ -11,6 +12,7 @@
         ]
       },
       {
+        "_comment": "Order 2: Fetch recent discussions (depends on git platform detection above)",
         "hooks": [
           {
             "type": "command",

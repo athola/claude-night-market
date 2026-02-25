@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Web content processor hook for PostToolUse (WebFetch/WebSearch).
+"""Unified web research handler hook for PostToolUse (WebFetch/WebSearch).
 
-Processes fetched web content through safety checks and AUTOMATICALLY STORES
-valuable content to the knowledge corpus queue for later curation.
+Combines web content processing, auto-capture to knowledge corpus queue,
+and research storage prompting into a single PostToolUse hook.
+
+Merges functionality from:
+- web_content_processor.py: Safety checks, dedup, auto-capture storage
+- research_storage_prompt.py: Lightweight storage reminder prompts
 
 This hook captures research results when auto_capture is enabled (default: true).
+When auto-capture is disabled or fails, it prompts the user to store findings.
 """
 
 from __future__ import annotations
@@ -210,7 +215,7 @@ auto_generated: true
         queue_path = QUEUE_DIR / filename
         queue_path.write_text(queue_entry, encoding="utf-8")
 
-        # Update index separately — if this fails, clean up the orphaned file
+        # Update index separately -- if this fails, clean up the orphaned file
         try:
             update_index(
                 content_hash=content_hash,
@@ -223,7 +228,7 @@ auto_generated: true
             )
         except Exception as idx_err:
             logger.error(
-                "web_content_processor: Index update failed, removing orphan: %s",
+                "web_research_handler: Index update failed, removing orphan: %s",
                 idx_err,
             )
             queue_path.unlink(missing_ok=True)
@@ -232,10 +237,10 @@ auto_generated: true
         return str(queue_path)
 
     except (PermissionError, OSError) as e:
-        logger.error("web_content_processor: Failed to store content (I/O): %s", e)
+        logger.error("web_research_handler: Failed to store content (I/O): %s", e)
         return None
     except Exception as e:
-        logger.error("web_content_processor: Failed to store content: %s", e)
+        logger.error("web_research_handler: Failed to store content: %s", e)
         return None
 
 
@@ -322,12 +327,47 @@ auto_generated: true
 
     except (PermissionError, OSError) as e:
         logger.error(
-            "web_content_processor: Failed to store search results (I/O): %s", e
+            "web_research_handler: Failed to store search results (I/O): %s", e
         )
         return None
     except Exception as e:
-        logger.error("web_content_processor: Failed to store search results: %s", e)
+        logger.error("web_research_handler: Failed to store search results: %s", e)
         return None
+
+
+def _recent_intake_pending(query: str) -> bool:
+    """Check if research_interceptor already flagged this query for intake.
+
+    Merged from research_storage_prompt.py to avoid redundant prompts.
+    """
+    queue_path = PLUGIN_ROOT / "data" / "intake_queue.jsonl"
+    if not queue_path.exists():
+        return False
+
+    try:
+        # Read last 20 lines (most recent entries) to avoid scanning huge files
+        lines = queue_path.read_text(encoding="utf-8").strip().splitlines()[-20:]
+        normalized_query = query.lower().strip()
+        for line in reversed(lines):
+            try:
+                entry = json.loads(line)
+                if entry.get("query", "").lower().strip() == normalized_query:
+                    return True
+            except json.JSONDecodeError:
+                continue
+    except OSError:
+        pass
+
+    return False
+
+
+def _build_storage_reminder(tool_name: str) -> str:
+    """Build a storage reminder message for when auto-capture is not active."""
+    skill_ref = "/memory-palace:knowledge-intake"
+    return (
+        f"Research detected via {tool_name}. "
+        f"Consider storing valuable findings with {skill_ref}"
+    )
 
 
 def main() -> None:
@@ -353,12 +393,16 @@ def main() -> None:
     if not feature_flags.get("lifecycle", True):
         sys.exit(0)
 
-    # NEW: Auto-capture feature flag (default: True)
+    # Auto-capture feature flag (default: True)
     auto_capture = feature_flags.get("auto_capture", True)
 
     context_parts = []
     response: dict[str, Any] | None = None
     stored_path: str | None = None
+
+    # Check if research_interceptor already flagged this query for intake
+    query = tool_input.get("query", "") or tool_input.get("prompt", "")
+    intake_already_pending = query and _recent_intake_pending(query)
 
     if tool_name == "WebFetch":
         content, url = extract_content_from_webfetch(tool_response)
@@ -388,7 +432,7 @@ def main() -> None:
                         "Consider updating the stored knowledge entry.",
                     )
                 # else: unchanged, no message needed
-            # NEW: Auto-capture the content
+            # Auto-capture the content
             elif auto_capture:
                 stored_path = store_webfetch_content(content, url, prompt)
                 if stored_path:
@@ -413,7 +457,6 @@ def main() -> None:
                 )
 
     elif tool_name == "WebSearch":
-        query = tool_input.get("query", "")
         results = extract_results_from_websearch(tool_response)
 
         if results:
@@ -428,7 +471,7 @@ def main() -> None:
                     else:
                         new_urls.append(result)
 
-            # NEW: Auto-capture search results
+            # Auto-capture search results
             if auto_capture and new_urls:
                 stored_path = store_websearch_results(query, results)
                 if stored_path:
@@ -464,6 +507,10 @@ def main() -> None:
                     f"\nMemory Palace: {len(known_urls)} result(s) already stored. "
                     "Check existing knowledge before re-fetching.",
                 )
+
+    # Add storage reminder if no auto-capture happened and intake not already pending
+    if not stored_path and not intake_already_pending and not context_parts:
+        context_parts.append(_build_storage_reminder(tool_name))
 
     # Output response
     if context_parts:

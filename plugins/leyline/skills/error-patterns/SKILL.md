@@ -33,6 +33,7 @@ progressive_loading: true
 modules:
 - modules/classification.md
 - modules/recovery-strategies.md
+- modules/agent-damage-control.md
 ---
 ## Table of Contents
 
@@ -164,6 +165,7 @@ dependencies: [leyline:error-patterns]
 
 - **Classification**: See `modules/classification.md` for error taxonomy
 - **Recovery**: See `modules/recovery-strategies.md` for handling patterns
+- **Agent Damage Control**: See `modules/agent-damage-control.md` for multi-agent error recovery and escalation
 
 ## Exit Criteria
 

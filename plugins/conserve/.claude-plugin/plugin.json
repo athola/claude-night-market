@@ -10,14 +10,15 @@
     "./skills/cpu-gpu-performance",
     "./skills/decisive-action",
     "./skills/mcp-code-execution",
-    "./skills/optimizing-large-skills",
     "./skills/response-compression",
     "./skills/smart-sourcing",
     "./skills/token-conservation"
   ],
   "commands": [
-    "./commands/cleanup.md",
-    "./commands/optimize-context.md"
+    "./commands/ai-hygiene-audit.md",
+    "./commands/bloat-scan.md",
+    "./commands/optimize-context.md",
+    "./commands/unbloat.md"
   ],
   "agents": [
     "./agents/ai-hygiene-auditor.md",

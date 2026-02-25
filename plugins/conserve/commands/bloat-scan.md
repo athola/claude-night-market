@@ -311,6 +311,45 @@ Found 24 bloat items across code, docs, and deps.
 Estimated context reduction: 18%
 ```
 
+## Growth Analysis Mode
+
+When invoked with `--growth`, bloat-scan includes growth trend analysis (formerly the standalone `analyze-growth` command).
+
+### Usage
+
+```bash
+# Analyze growth for specific skill
+/bloat-scan --growth skills/context-optimization
+
+# Analyze entire skills directory
+/bloat-scan --growth skills/
+
+# Compare before/after optimization
+/bloat-scan --growth --compare skills/my-skill
+```
+
+### Growth Metrics
+
+- **Historical size changes**: Git-based growth tracking
+- **Token velocity**: Rate of token accumulation
+- **Complexity trajectory**: Section and depth growth
+- **Dependency expansion**: Module reference growth
+
+### Predictions
+
+- **30-day forecast**: Estimated size in one month
+- **Threshold crossing**: When skill will exceed limits
+- **Optimization urgency**: Priority ranking
+
+### Growth Categories
+
+| Category | Growth Rate | Action |
+|----------|-------------|--------|
+| Stable | < 5%/month | No action |
+| Growing | 5-15%/month | Monitor |
+| Fast | 15-30%/month | Plan optimization |
+| Critical | > 30%/month | Immediate modularization |
+
 ## See Also
 
 - `bloat-detector` skill - Detection modules and patterns

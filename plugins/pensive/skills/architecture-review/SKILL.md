@@ -32,6 +32,7 @@ modules:
 - modules/adr-audit.md
 - modules/coupling-analysis.md
 - modules/principle-checks.md
+- modules/fpf-methodology.md
 ---
 ## Table of Contents
 
@@ -91,6 +92,7 @@ Load modules based on review scope:
 - **`modules/adr-audit.md`** (~400 tokens): ADR verification and documentation.
 - **`modules/coupling-analysis.md`** (~450 tokens): Dependency analysis and boundary violations.
 - **`modules/principle-checks.md`** (~500 tokens): Code quality, security, and performance.
+- **`modules/fpf-methodology.md`** (~800 tokens): FPF (Functional, Practical, Foundation) multi-perspective review methodology.
 
 Load all modules for full reviews. For focused reviews, load only relevant modules.
 

@@ -38,6 +38,7 @@ progressive_loading: true
 modules:
 - modules/selection-strategies.md
 - modules/loading-patterns.md
+- modules/performance-budgeting.md
 ---
 ## Table of Contents
 
@@ -161,6 +162,7 @@ See `modules/loading-patterns.md` for implementation patterns:
 
 - **Selection Strategies**: See `modules/selection-strategies.md` for choosing modules
 - **Loading Patterns**: See `modules/loading-patterns.md` for implementation techniques
+- **Performance Budgeting**: See `modules/performance-budgeting.md` for token budget model and optimization workflow
 
 ## Integration with Other Skills
 

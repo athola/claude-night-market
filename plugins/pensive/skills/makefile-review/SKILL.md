@@ -31,6 +31,7 @@ modules:
 - deduplication-patterns
 - portability-checks
 - best-practices
+- plugin-dogfood-checks
 ---
 ## Table of Contents
 
@@ -128,6 +129,8 @@ Summarize findings:
 Load additional context as needed:
 
 **Best Practices & Examples**: `@include modules/best-practices.md`
+
+**Plugin Dogfood Checks**: `@include modules/plugin-dogfood-checks.md` - Makefile completeness analysis, target generation, and dogfooding validation.
 
 ## Output Format
 

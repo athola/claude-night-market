@@ -5,7 +5,6 @@
   "skills": [
     "./skills/catchup",
     "./skills/diff-analysis",
-    "./skills/evidence-logging",
     "./skills/feature-review",
     "./skills/proof-of-work",
     "./skills/review-core",
@@ -16,7 +15,6 @@
   ],
   "commands": [
     "./commands/catchup.md",
-    "./commands/feature-review.md",
     "./commands/structured-review.md"
   ],
   "agents": [

@@ -12,6 +12,7 @@
     "./commands/refine-code.md",
     "./commands/rust-review.md",
     "./commands/shell-review.md",
+    "./commands/skill-history.md",
     "./commands/skill-review.md",
     "./commands/test-review.md"
   ],
@@ -20,7 +21,6 @@
     "./skills/architecture-review",
     "./skills/bug-review",
     "./skills/code-refinement",
-    "./skills/fpf-review",
     "./skills/makefile-review",
     "./skills/math-review",
     "./skills/rust-review",

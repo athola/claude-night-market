@@ -136,6 +136,71 @@ git checkout -b cleanup/unbloat-Q1
 /pr "Unbloat: Reduce codebase by 14%"
 ```
 
+## Unified Cleanup Mode
+
+When invoked with `--cleanup` or as `/unbloat --cleanup`, this command orchestrates a full codebase cleanup (formerly the standalone `/cleanup` command), combining bloat removal, code quality refinement, and AI hygiene auditing.
+
+### Cleanup Usage
+
+```bash
+# Full cleanup scan (all dimensions, Tier 1)
+/unbloat --cleanup
+
+# Quick pass (fastest possible)
+/unbloat --cleanup --quick
+
+# Focus on specific area
+/unbloat --cleanup --focus bloat       # bloat-scan + unbloat
+/unbloat --cleanup --focus quality     # refine-code
+/unbloat --cleanup --focus hygiene     # ai-hygiene-audit
+
+# Deep analysis with report
+/unbloat --cleanup --level 3 --report cleanup-report.md
+
+# Apply fixes interactively
+/unbloat --cleanup --apply
+```
+
+### Cleanup Orchestration Workflow
+
+```
+/unbloat --cleanup
+  |
+  +-- Phase 1: Bloat Scan (/bloat-scan)
+  |     Dead code, unused files, stale dependencies
+  |
+  +-- Phase 2: Code Refinement (/refine-code)  [if pensive installed]
+  |     Duplication, algorithms, clean code, architecture
+  |
+  +-- Phase 3: AI Hygiene Audit (/ai-hygiene-audit)
+  |     Git patterns, tab-completion bloat, test gaps, doc slop
+  |
+  +-- Phase 4: Consolidated Report
+  |     Unified findings, quality score, prioritized actions
+  |
+  +-- Phase 5: Remediation (if --apply)
+        Interactive approval for each finding
+```
+
+### Plugin Availability
+
+| Plugin | Provides | Required? | Fallback |
+|--------|----------|-----------|----------|
+| `conserve` | `/bloat-scan`, `/unbloat`, `/ai-hygiene-audit` | **Yes** | N/A |
+| `pensive` | `/refine-code` | Optional | Phase 2 skipped |
+| `imbue` | Evidence logging | Optional | Evidence inline in report |
+
+### Cleanup Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--cleanup` | Enable unified cleanup mode | `false` |
+| `--focus <area>` | Focus: `all`, `bloat`, `quality`, `hygiene` | `all` |
+| `--level <1\|2\|3>` | Depth passed to sub-commands | `1` |
+| `--report <file>` | Save consolidated report | stdout |
+| `--quick` | Tier 1 scan of all dimensions, minimal output | `false` |
+| `--apply` | Interactive remediation after scan | `false` |
+
 ## See Also
 
 - `/bloat-scan` - Detect bloat before remediation

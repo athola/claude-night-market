@@ -65,6 +65,60 @@ Creates structured review scaffold with:
 - Evidence log template
 - Deliverable outline
 
+## Feature Review Mode
+
+When invoked with `--mode feature` or `--features`, structured-review runs a feature-focused review workflow (formerly the standalone `/feature-review` command). This mode discovers, classifies, scores, and suggests features using evidence-based prioritization.
+
+### Feature Review Usage
+
+```bash
+# Full feature review: inventory, score, suggest
+/structured-review --mode feature
+
+# Only inventory current features
+/structured-review --mode feature --inventory
+
+# Generate new feature suggestions
+/structured-review --mode feature --suggest
+
+# Create GitHub issues for accepted suggestions
+/structured-review --mode feature --suggest --create-issues
+
+# Validate configuration file
+/structured-review --mode feature --validate-config
+```
+
+### Feature Review Phases
+
+1. **Discovers** implemented features from codebase (commands, skills, agents, hooks, APIs)
+2. **Classifies** features as proactive/reactive and static/dynamic
+3. **Scores** features using hybrid RICE+WSJF framework
+4. **Analyzes** tradeoffs across quality dimensions (Quality, Latency, Token Usage, Resource Usage, Redundancy, Readability, Scalability, Integration, API Surface)
+5. **Suggests** new features based on gaps and opportunities
+6. **Creates** GitHub issues for accepted suggestions (with `--create-issues`)
+
+### Scoring
+
+```
+Score = (Value Score / Cost Score) * Confidence
+```
+
+**Thresholds:**
+- **> 2.5:** High priority (implement soon)
+- **1.5 - 2.5:** Medium priority (roadmap)
+- **< 1.5:** Low priority (backlog)
+
+### Configuration
+
+Create `.feature-review.yaml` in project root to customize scoring weights, classification patterns, tradeoff dimension weights, and GitHub integration settings. See `Skill(imbue:feature-review)` for full configuration reference.
+
+### Feature Review Integration
+
+This mode uses:
+- `Skill(imbue:feature-review)` - Core scoring and classification
+- `Skill(imbue:scope-guard)` - Budget validation for suggestions
+- `Skill(imbue:review-core)` - Evidence-based methodology
+
 ## Exit Criteria
 
 - All TodoWrite items from review-core created

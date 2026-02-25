@@ -3,7 +3,11 @@
   "version": "1.4.5",
   "description": "Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern matching",
   "commands": [
+    "./commands/configure.md",
+    "./commands/from-hook.md",
+    "./commands/help.md",
     "./commands/hookify.md",
+    "./commands/install.md",
     "./commands/list.md"
   ],
   "skills": [
