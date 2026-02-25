@@ -6,8 +6,8 @@ of requiring reaction voting (which doesn't work for single-developer use).
 
 Priority formula: (Frequency × Impact) / Ease
 - Score > 5.0 → auto-create GitHub Issue (label: improvement:auto-promoted)
-- Score 2.0-5.0 → post to Discussions (Learnings category) for deliberation
-- Score < 2.0 → skip (low priority)
+- Score <= 5.0 → post to Discussions (Learnings category) for deliberation
+Duplication checking prevents redundant issues/discussions.
 
 Part of the improvement feedback loop (Issue #69).
 """
@@ -22,12 +22,20 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from post_learnings_to_discussions import (  # type: ignore[import-not-found]
+    LEARNINGS_CATEGORY_ID,
+    PostedRecord,
+    create_discussion,
+    get_repo_node_id,
+)
+
 # Hardcoded target repository
 TARGET_REPO = "athola/claude-night-market"
 
 # Thresholds for severity tiers
 HIGH_PRIORITY_THRESHOLD = 5.0
-MEDIUM_PRIORITY_THRESHOLD = 2.0
+# Low threshold to avoid missing insights — duplication check prevents spam
+MEDIUM_PRIORITY_THRESHOLD = 0.1
 
 # Slow execution reference (10s = threshold from aggregate_skill_logs.py)
 SLOW_THRESHOLD_MS = 10000
@@ -286,6 +294,50 @@ def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0
 # ---------------------------------------------------------------------------
 
 
+def has_existing_issue(item: dict[str, Any]) -> bool:
+    """Check if a similar issue or discussion already exists.
+
+    Searches open issues for matching skill name to prevent duplicates.
+
+    Args:
+        item: The improvement item to check.
+
+    Returns:
+        True if a duplicate exists.
+
+    """
+    skill = item.get("skill", "")
+    issue_type = item.get("type", "")
+    search_query = f"[Auto-Improvement] {skill}: {issue_type} in:title"
+    cmd = [  # noqa: S607
+        "gh",
+        "issue",
+        "list",
+        "--repo",
+        TARGET_REPO,
+        "--search",
+        search_query,
+        "--json",
+        "number",
+        "--limit",
+        "1",
+    ]
+    try:
+        result = subprocess.run(  # noqa: S603  # nosec B603
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        if result.returncode == 0:
+            issues = json.loads(result.stdout.strip() or "[]")
+            return len(issues) > 0
+    except Exception as exc:
+        print(f"[auto_promote] duplicate check: {exc}", file=sys.stderr)
+    return False
+
+
 def promote_to_issue(item: dict[str, Any]) -> str | None:
     """Create a GitHub Issue for a high-priority item.
 
@@ -374,13 +426,6 @@ def _post_single_discussion(item: dict[str, Any]) -> str | None:
 
     """
     try:
-        from post_learnings_to_discussions import (  # type: ignore[import-not-found]  # noqa: PLC0415
-            LEARNINGS_CATEGORY_ID,
-            PostedRecord,
-            create_discussion,
-            get_repo_node_id,
-        )
-
         record = PostedRecord.load()
         repo_id = get_repo_node_id(record)
 
@@ -447,12 +492,17 @@ def run_auto_promote() -> list[str]:
 
         score = calculate_priority(item)
 
+        # Check for duplicates before promoting
+        if has_existing_issue(item):
+            record.add(key, "duplicate-skipped")
+            record.save()
+            continue
+
         url: str | None = None
         if score >= HIGH_PRIORITY_THRESHOLD:
             url = promote_to_issue(item)
         elif score >= MEDIUM_PRIORITY_THRESHOLD:
             url = post_to_discussion(item)
-        # else: score < 2.0, skip
 
         if url:
             record.add(key, url)

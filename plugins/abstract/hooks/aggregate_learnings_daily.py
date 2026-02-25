@@ -25,6 +25,13 @@ _scripts_dir = _hooks_dir.parent / "scripts"
 if str(_scripts_dir) not in sys.path:
     sys.path.insert(0, str(_scripts_dir))
 
+from aggregate_skill_logs import (  # noqa: E402
+    aggregate_logs,
+    generate_learnings_md,
+    get_learnings_path,
+)
+from auto_promote_learnings import run_auto_promote as _promote  # noqa: E402
+
 # 24 hours in seconds
 CADENCE_SECONDS = 24 * 3600
 
@@ -99,15 +106,11 @@ def _run_aggregate() -> Any:
         AggregationResult from the aggregation.
 
     """
-    from aggregate_skill_logs import aggregate_logs  # noqa: PLC0415
-
     return aggregate_logs(days_back=30)
 
 
 def _write_learnings(result: Any) -> None:
     """Write LEARNINGS.md from aggregation result."""
-    from aggregate_skill_logs import get_learnings_path, generate_learnings_md  # noqa: PLC0415, I001
-
     content = generate_learnings_md(result)
     learnings_path = get_learnings_path()
     learnings_path.parent.mkdir(parents=True, exist_ok=True)
@@ -137,8 +140,6 @@ def run_aggregation() -> bool:
 def run_auto_promote() -> None:
     """Chain to auto-promotion after successful aggregation."""
     try:
-        from auto_promote_learnings import run_auto_promote as _promote  # noqa: PLC0415
-
         _promote()
     except Exception:
         # Promotion is best-effort, but log to stderr for diagnostics
