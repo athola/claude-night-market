@@ -12,7 +12,7 @@ create-missing = false
 [output.html]
 git-repository-url = "https://github.com/athola/claude-night-market"
 additional-css = ["theme/css/gamification.css"]
-additional-js = ["theme/js/achievements.js"]
+additional-js = ["theme/js/achievements.js", "theme/js/mermaid-init.js"]
 default-theme = "navy"
 preferred-dark-theme = "navy"
 smart-punctuation = true

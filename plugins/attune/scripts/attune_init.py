@@ -2,6 +2,7 @@
 """Initialize a new project with Attune."""
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,8 +24,6 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
         True if successful
 
     """
-    import subprocess  # noqa: PLC0415
-
     git_dir = project_path / ".git"
 
     if git_dir.exists() and not force:

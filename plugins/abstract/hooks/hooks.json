@@ -28,6 +28,18 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/aggregate_learnings_daily.py",
+            "timeout": 2
+          }
+        ]
+      }
     ]
   }
 }

@@ -185,10 +185,7 @@ class CacheLookup:
             return []
         if not self.keyword_indexer.index.get("entries"):
             self.keyword_indexer.load_index()
-        if isinstance(query, list):
-            query_text = " ".join(query)
-        else:
-            query_text = query
+        query_text = " ".join(query) if isinstance(query, list) else query
         scores = self.embedding_index.search(query_text)
         results = []
         for entry_id, score in scores:

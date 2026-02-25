@@ -19,6 +19,7 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `skill-authoring` | TDD methodology with Iron Law enforcement | Creating new skills with quality standards |
 | `hook-authoring` | Security-first hook development | Building safe, effective hooks |
 | `modular-skills` | Modular design patterns | Breaking large skills into modules |
+| `rules-eval` | Claude Code rules validation | Auditing `.claude/rules/` for frontmatter, glob patterns, and content quality |
 | `skills-eval` | Skill quality assessment | Auditing skills for token efficiency |
 | `hooks-eval` | Hook security scanning | Verifying hook safety |
 | `escalation-governance` | Model escalation decisions | Deciding when to escalate models |
@@ -42,6 +43,7 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `/estimate-tokens` | Estimate token usage for skills |
 | `/hooks-eval` | detailed hook evaluation |
 | `/make-dogfood` | Analyze and enhance Makefiles |
+| `/rules-eval` | Evaluate Claude Code rules quality |
 | `/skills-eval` | Run skill quality assessment |
 | `/test-skill` | Skill testing with TDD methodology |
 | `/validate-hook` | Validate hook compliance |
@@ -59,6 +61,7 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | Hook | Type | Description |
 |------|------|-------------|
 | `homeostatic_monitor.py` | PostToolUse | Reads stability gap metrics, queues degrading skills for auto-improvement |
+| `aggregate_learnings_daily.py` | UserPromptSubmit | Daily learning aggregation with severity-based issue creation |
 | `pre_skill_execution.py` | PreToolUse | Skill execution tracking |
 | `skill_execution_logger.py` | PostToolUse | Skill metrics logging |
 | `post-evaluation.json` | Config | Quality scoring and improvement tracking |

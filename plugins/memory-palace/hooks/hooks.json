@@ -52,6 +52,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/web_content_processor.py",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/research_storage_prompt.py",
+            "timeout": 3
           }
         ]
       },

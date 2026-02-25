@@ -102,10 +102,9 @@ class SourceLineageManager:
             return True
 
         # Use full lineage for high-importance entries
-        if importance_score >= self.FULL_LINEAGE_CRITERIA["importance_threshold"]:
-            return True
-
-        return False
+        return bool(
+            importance_score >= self.FULL_LINEAGE_CRITERIA["importance_threshold"]
+        )
 
     def create_lineage(
         self,
@@ -279,9 +278,8 @@ class SourceLineageManager:
             if isinstance(lineage, FullLineage):
                 if lineage.primary_source.url == url:
                     entry_ids.append(entry_id)
-            elif isinstance(lineage, SimpleLineage):
-                if lineage.source_url == url:
-                    entry_ids.append(entry_id)
+            elif isinstance(lineage, SimpleLineage) and lineage.source_url == url:
+                entry_ids.append(entry_id)
         return entry_ids
 
     def get_derivation_tree(self, entry_id: str) -> list[str]:

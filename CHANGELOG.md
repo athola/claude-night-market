@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-02-23
+
+### Added
+
+- **Rules evaluation skill** (abstract) — `rules-eval` skill and `/rules-eval` command validate Claude Code rules in `.claude/rules/` directories for YAML frontmatter, glob pattern quality, content metrics, and organization patterns
+- **Daily learning aggregation hook** (abstract) — `aggregate_learnings_daily.py` UserPromptSubmit hook runs on a 24h cadence to generate LEARNINGS.md, then chains to `auto_promote_learnings.py` for severity-based GitHub Issue creation (score > 5.0) or Discussion posting (score 2.0–5.0)
+- **Research storage prompt** (memory-palace) — PostToolUse hook detects WebSearch usage and prompts user to store findings via `memory-palace:knowledge-intake` skill
+
+### Fixed
+
+- **Mermaid rendering in mdbook** — CDN-based mermaid.js initialization so diagrams render in the published book
+- **Sanctum 6-complete modularization** — split 26KB hub into slim hub + 6 sub-modules for on-demand loading
+- **Shared CACHE_EXCLUDES** — extract duplicate exclude lists into `update_plugins_modules/constants.py`
+- **Skill frontmatter cleanup** — improved pytest-config description and verification steps
+
 ## [1.4.4] - 2026-02-19
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "sanctum",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/commit-msg.md",

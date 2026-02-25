@@ -100,6 +100,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `risk-classification` | [leyline](../plugins/leyline.md) | Inline 4-tier risk classification for agent tasks |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
+| `rules-eval` | [abstract](../plugins/abstract.md) | Evaluate and validate Claude Code rules in `.claude/rules/` directories |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for robust code |
@@ -206,6 +207,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/record-terminal` | scry | Create terminal recording |
 | `/reinstall-all-plugins` | leyline | Refresh all plugins |
 | `/resolve-threads` | sanctum | Resolve PR review threads |
+| `/rules-eval` | abstract | Evaluate Claude Code rules for frontmatter, glob patterns, and content quality |
 | `/review-room` | memory-palace | Manage PR review knowledge in palaces |
 | `/run-profiler` | parseltongue | Profile code execution |
 | `/rust-review` | pensive | Rust-specific review |
@@ -297,6 +299,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `homeostatic_monitor.py` | abstract | PostToolUse | Stability gap monitoring, queues degrading skills for improvement |
+| `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) with severity-based issue creation |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |

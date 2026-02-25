@@ -6,6 +6,8 @@ its skills, and associated palaces. Serve as the primary entrypoint
 for administrative tasks.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os

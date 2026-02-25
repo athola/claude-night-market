@@ -340,7 +340,7 @@ wheels = [
 
 [[package]]
 name = "sanctum"
-version = "1.4.4"
+version = "1.4.5"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },

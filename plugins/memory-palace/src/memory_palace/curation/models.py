@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
-@dataclass(slots=True)
+@dataclass
 class DomainAlignment:
     """Describes how a query aligns with configured domains of interest."""
 
@@ -27,7 +27,7 @@ class DomainAlignment:
         }
 
 
-@dataclass(slots=True)
+@dataclass
 class IntakeFlagPayload:
     """Payload describing why the hook should flag a query for intake."""
 

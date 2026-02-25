@@ -388,30 +388,29 @@ def main() -> None:
                         "Consider updating the stored knowledge entry.",
                     )
                 # else: unchanged, no message needed
-            else:
-                # NEW: Auto-capture the content
-                if auto_capture:
-                    stored_path = store_webfetch_content(content, url, prompt)
-                    if stored_path:
-                        context_parts.append(
-                            f"Memory Palace: Auto-captured web content from {url}\n"
-                            f"  Stored to: {Path(stored_path).name}\n"
-                            f"  Content length: {len(content):,} chars\n"
-                            "  Status: pending_review\n"
-                            "  IMPORTANT: Do NOT delete without evaluation - run knowledge-intake to review",
-                        )
-                    else:
-                        context_parts.append(
-                            f"Memory Palace: New web content fetched from {url}. "
-                            "Auto-capture failed - consider manual knowledge-intake. "
-                            f"Content length: {len(content)} chars.",
-                        )
+            # NEW: Auto-capture the content
+            elif auto_capture:
+                stored_path = store_webfetch_content(content, url, prompt)
+                if stored_path:
+                    context_parts.append(
+                        f"Memory Palace: Auto-captured web content from {url}\n"
+                        f"  Stored to: {Path(stored_path).name}\n"
+                        f"  Content length: {len(content):,} chars\n"
+                        "  Status: pending_review\n"
+                        "  IMPORTANT: Do NOT delete without evaluation - run knowledge-intake to review",
+                    )
                 else:
                     context_parts.append(
                         f"Memory Palace: New web content fetched from {url}. "
-                        "Consider running knowledge-intake to evaluate and store if valuable. "
+                        "Auto-capture failed - consider manual knowledge-intake. "
                         f"Content length: {len(content)} chars.",
                     )
+            else:
+                context_parts.append(
+                    f"Memory Palace: New web content fetched from {url}. "
+                    "Consider running knowledge-intake to evaluate and store if valuable. "
+                    f"Content length: {len(content)} chars.",
+                )
 
     elif tool_name == "WebSearch":
         query = tool_input.get("query", "")

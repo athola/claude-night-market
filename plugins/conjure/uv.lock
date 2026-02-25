@@ -219,7 +219,7 @@ wheels = [
 
 [[package]]
 name = "conjure-dev"
-version = "1.4.4"
+version = "1.4.5"
 source = { editable = "." }
 dependencies = [
     { name = "pre-commit" },
@@ -528,7 +528,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.4.4"
+version = "1.4.5"
 source = { directory = "../leyline" }
 
 [package.metadata]

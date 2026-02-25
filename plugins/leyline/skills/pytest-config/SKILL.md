@@ -1,10 +1,8 @@
 ---
 name: pytest-config
-description: 'Standardized pytest configuration for plugin development with shared
-  test patterns.
-
-
-  pytest configuration, conftest, fixtures, test setup.'
+description: 'Standardized pytest configuration for Claude Night Market plugin testing
+  with reusable fixtures and CI integration. Use when configuring pytest, setting up
+  conftest patterns, or establishing shared test fixtures.'
 category: infrastructure
 tags:
 - pytest
@@ -90,7 +88,7 @@ exclude_lines = [
 precision = 2
 show_missing = true
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
+**Verification:** Run `pytest --collect-only` to verify discovery, `pytest -v --co -q` for markers, and `pytest --cov` for coverage thresholds.
 
 ## Detailed Patterns
 
@@ -113,7 +111,6 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:pytest-config, leyline:testing-quality-standards]
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Exit Criteria
 

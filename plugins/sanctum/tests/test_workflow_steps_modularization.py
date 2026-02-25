@@ -18,6 +18,7 @@ SANCTUM_ROOT = Path(__file__).parent.parent
 COMMANDS_DIR = SANCTUM_ROOT / "commands"
 FIX_PR_MODULES = COMMANDS_DIR / "fix-pr-modules"
 STEPS_DIR = FIX_PR_MODULES / "steps"
+STEP6_SUBMODULES_DIR = STEPS_DIR / "6-complete"
 
 
 class TestModularStructureExists:
@@ -234,10 +235,11 @@ class TestNoContentLoss:
         """Combined modules should have similar content volume to original."""
         # Original file was 1203 lines, +47 lines for PENDING review detection (PR #142)
         # +270 lines for mandatory issue creation enforcement (Gates 2 & 3)
-        ORIGINAL_LINE_COUNT = 1520
+        # +183 lines from modularizing 6-complete into sub-modules (issue #122)
+        ORIGINAL_LINE_COUNT = 1703
         TOLERANCE = 0.20  # Allow 20% variance for added navigation/headers/structure
 
-        # Count lines in hub + all step files
+        # Count lines in hub + all step files + step 6 sub-modules
         total_lines = 0
 
         hub_path = FIX_PR_MODULES / "workflow-steps.md"
@@ -249,6 +251,11 @@ class TestNoContentLoss:
             step_path = STEPS_DIR / f"{i}-{names[i - 1]}.md"
             if step_path.exists():
                 total_lines += len(step_path.read_text().splitlines())
+
+        # Also count sub-modules in 6-complete/ directory
+        if STEP6_SUBMODULES_DIR.exists():
+            for submod in sorted(STEP6_SUBMODULES_DIR.glob("*.md")):
+                total_lines += len(submod.read_text().splitlines())
 
         # Should be within tolerance of original
         min_expected = int(ORIGINAL_LINE_COUNT * (1 - TOLERANCE))
@@ -273,6 +280,11 @@ class TestNoContentLoss:
             step_path = STEPS_DIR / f"{i}-{names[i - 1]}.md"
             if step_path.exists():
                 all_content += step_path.read_text()
+
+        # Also gather content from step 6 sub-modules
+        if STEP6_SUBMODULES_DIR.exists():
+            for submod in sorted(STEP6_SUBMODULES_DIR.glob("*.md")):
+                all_content += submod.read_text()
 
         # Critical sections that MUST be preserved
         critical_markers = [

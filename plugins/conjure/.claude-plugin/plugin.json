@@ -1,6 +1,6 @@
 {
   "name": "conjure",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Intelligent delegation framework for routing tasks to external LLM services while retaining strategic oversight",
   "skills": [
     "./skills/delegation-core",
