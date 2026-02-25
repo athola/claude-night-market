@@ -3,18 +3,17 @@
   "version": "1.4.5",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
-    "./commands/full-review.md",
     "./commands/api-review.md",
     "./commands/architecture-review.md",
     "./commands/bug-review.md",
-    "./commands/rust-review.md",
-    "./commands/test-review.md",
-    "./commands/math-review.md",
+    "./commands/full-review.md",
     "./commands/makefile-review.md",
+    "./commands/math-review.md",
+    "./commands/refine-code.md",
+    "./commands/rust-review.md",
     "./commands/shell-review.md",
     "./commands/skill-review.md",
-    "./commands/skill-history.md",
-    "./commands/refine-code.md"
+    "./commands/test-review.md"
   ],
   "skills": [
     "./skills/api-review",

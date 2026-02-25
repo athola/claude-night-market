@@ -1,13 +1,10 @@
 {
   "name": "memory-palace",
   "version": "1.4.5",
-  "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge and skill execution memory storage for continual learning.",
+  "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.",
   "commands": [
-    "./commands/palace.md",
     "./commands/garden.md",
-    "./commands/navigate.md",
-    "./commands/review-room.md",
-    "./commands/skill-logs.md"
+    "./commands/review-room.md"
   ],
   "skills": [
     "./skills/memory-palace-architect",
@@ -33,11 +30,7 @@
     "mnemonic",
     "pr-review",
     "code-review",
-    "knowledge-capture",
-    "skill-execution",
-    "observability",
-    "telemetry",
-    "continual-learning"
+    "knowledge-capture"
   ],
   "author": {
     "name": "Alex Thola",

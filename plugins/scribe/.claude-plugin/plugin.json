@@ -3,11 +3,7 @@
   "version": "1.4.5",
   "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
   "commands": [
-    "./commands/slop-scan.md",
-    "./commands/style-learn.md",
-    "./commands/doc-polish.md",
-    "./commands/doc-generate.md",
-    "./commands/doc-verify.md"
+    "./commands/doc-generate.md"
   ],
   "skills": [
     "./skills/slop-detector",

@@ -15,9 +15,9 @@
     "./skills/workflow-monitor"
   ],
   "commands": [
-    "./commands/structured-review.md",
     "./commands/catchup.md",
-    "./commands/feature-review.md"
+    "./commands/feature-review.md",
+    "./commands/structured-review.md"
   ],
   "agents": [
     "./agents/review-analyst.md"

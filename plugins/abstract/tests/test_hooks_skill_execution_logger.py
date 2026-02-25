@@ -612,10 +612,10 @@ class TestOutputSanitization:
         When: The hook executes
         Then: Output preview should be truncated
         """
-        # Given
+        # Given - include "error" so outcome is "failure" and output_preview is stored
         skill_ref = "abstract:skill-auditor"
         hook_path = Path("hooks/skill_execution_logger.py")
-        long_output = "x" * 10000  # 10KB
+        long_output = "error: " + "x" * 10000  # 10KB with error prefix
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -629,12 +629,12 @@ class TestOutputSanitization:
         # When
         run_hook(hook_path, env)
 
-        # Then
+        # Then - output_preview only stored for failure/partial outcomes (max_length=200)
         entry = json.loads(log_file.read_text().strip())
         output_preview = entry["context"]["output_preview"]
 
-        # Output should be truncated to ~1000 chars + truncation message
-        assert len(output_preview) <= 1100, "Output preview should be truncated"
+        # Output should be truncated to ~200 chars + truncation message
+        assert len(output_preview) <= 300, "Output preview should be truncated"
         assert "truncated" in output_preview.lower(), "Should indicate truncation"
 
 

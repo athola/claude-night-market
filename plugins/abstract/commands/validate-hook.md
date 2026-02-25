@@ -51,10 +51,11 @@ Avoid this command if:
 ### Security Scan (`--security`)
 Checks for security vulnerabilities and unsafe patterns:
 - **Input Validation**: Type checking, size bounds, sanitization
-- **Command Injection**: Shell command safety, parameter escaping
-- **Path Traversal**: Path validation, directory restrictions
-- **Data Leakage**: PII handling, credential exposure
-- **Privilege Escalation**: Permission checks, sandboxing
+- **Command Injection**: Shell command safety, parameter escaping, code injection patterns
+- **Path Traversal**: Path validation, directory restrictions, directory traversal attacks
+- **Data Leakage**: PII handling, credential exposure, hardcoded secrets
+- **Privilege Escalation**: Permission checks, sandboxing, sudo usage, chmod operations
+- **Crypto Issues**: Weak encryption, insecure randomness
 
 **Score**: PASS (100%), WARN (80-99%), FAIL (<80%)
 
@@ -65,6 +66,8 @@ Analyzes hook efficiency and resource usage:
 - **Blocking Operations**: Async patterns, non-blocking I/O
 - **Caching**: Result caching, expensive operation optimization
 - **Early Exits**: Fast-path optimization
+- **Scalability**: Performance under load, large file handling
+- **Pattern Matching Efficiency**: Regex compilation, loop optimization
 
 **Score**: OPTIMAL (>90%), ACCEPTABLE (70-90%), POOR (<70%)
 
@@ -73,8 +76,10 @@ Verifies SDK and best practice adherence:
 - **SDK Version**: Compatible with installed version
 - **Hook Schema**: Correct frontmatter, required fields
 - **Output Format**: Valid JSON structure
-- **Error Handling**: Try-catch blocks, graceful failures
+- **Error Handling**: Try-catch blocks, graceful failures, proper exit codes
 - **Logging**: Structured logging, appropriate levels
+- **Scope Appropriateness**: Correct hook placement and precedence (plugin/project/global)
+- **Variable Quoting**: Shell variable safety, set operations
 
 **Score**: COMPLIANT (100%), MINOR ISSUES (95-99%), NON-COMPLIANT (<95%)
 
@@ -169,6 +174,14 @@ if results.security.passed and results.performance.score > 80:
 else:
     print(f"Issues found: {results.issues}")
 ```
+
+## Output Formats
+
+Supports multiple output formats via `--format`:
+- `summary`: Quick pass/fail overview (default)
+- `detailed`: Full analysis with line-level findings
+- `json`: Machine-readable output for CI/CD integration
+- `sarif`: Static analysis results interchange format
 
 ## See Also
 

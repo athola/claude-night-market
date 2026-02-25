@@ -32,16 +32,6 @@
             "timeout": 3
           }
         ]
-      },
-      {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_tracker_pre.py",
-            "timeout": 1
-          }
-        ]
       }
     ],
     "PostToolUse": [
@@ -66,16 +56,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/local_doc_processor.py",
-            "timeout": 3
-          }
-        ]
-      },
-      {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_tracker_post.py",
             "timeout": 3
           }
         ]

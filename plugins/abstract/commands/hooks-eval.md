@@ -19,7 +19,6 @@ Use this command when you need to:
 ## When NOT To Use
 
 Avoid this command if:
-- Analyzing single hook - use /analyze-hook instead
 - Validating specific hook - use /validate-hook instead
 - Creating new hooks - use /create-hook instead
 
@@ -214,8 +213,8 @@ Avoid this command if:
 ### Development Workflow
 ```bash
 # During development
-/analyze-hook hooks/new-hook.py --security-scan
-/analyze-hook hooks/new-hook.py --performance-check
+/validate-hook hooks/new-hook.py --security
+/validate-hook hooks/new-hook.py --performance
 /hooks-eval --compliance-check
 
 # Before release
@@ -266,7 +265,7 @@ quality_gates:
 
 ## Related Commands
 
-- `/analyze-hook` - Individual hook analysis
+- `/validate-hook` - Individual hook validation (security, performance, compliance)
 - `/validate-plugin` - Complete plugin structure validation
 - `/skills-eval` - Skill quality evaluation framework
 

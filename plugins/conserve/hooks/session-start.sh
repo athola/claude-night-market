@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# SessionStart hook for conservation plugin - resource optimization awareness
-# Injects context-optimization, token-conservation, and CPU/GPU performance guidance
-# at session start for proactive resource management.
+# SessionStart hook for conservation plugin - resource optimization + scope-guard awareness
+# Injects context-optimization, token-conservation, CPU/GPU performance guidance,
+# and scope-guard principles (consolidated from imbue) at session start.
 #
 # Updated for Claude Code 2.1.2: Reads agent_type from hook input via stdin
 # to customize context injection based on the invoking agent.
@@ -213,7 +213,17 @@ Proactive checking prevents auto-compact penalties.
 Set `CONSERVATION_MODE` environment variable:
 - `quick` - Skip guidance for fast processing
 - `deep` - Allow extended resources for thorough analysis
-- `normal` - Default, full conservation guidance'
+- `normal` - Default, full conservation guidance
+
+### Scope-Guard Principles (from imbue)
+
+- **Worthiness**: `(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)` -- >2.0 implement, 1-2 discuss, <1 defer
+- **Anti-overengineering**: Ask before proposing; no abstraction until 3rd use; defer nice-to-haves; stay within branch budget
+- **Branch thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days (green/yellow/red)
+- **Proof-of-work**: Never claim "should work" -- run it, test it, cite evidence `[E1]`/`[E2]`
+- **Iron Law**: No implementation without a failing test first
+- **Rigorous reasoning**: No courtesy agreement; follow analysis checklists, not gut reactions
+- Invoke `Skill(imbue:scope-guard)`, `Skill(imbue:proof-of-work)`, or `Skill(imbue:rigorous-reasoning)` for full methodology'
 
 # Add deep mode notice if applicable
 if [ -n "$deep_mode_msg" ]; then
