@@ -89,9 +89,11 @@ plugins/memory-palace/data/state/
 plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
 
-# Auto-captured research queue (local evaluation before promotion)
-# Keep README.md and manually curated entries, ignore auto-generated
-plugins/memory-palace/docs/knowledge-corpus/queue/webfetch-*.md
-plugins/memory-palace/docs/knowledge-corpus/queue/websearch-*.md
-plugins/memory-palace/docs/knowledge-corpus/queue/archive/
+# Wiki-backed knowledge corpus (local clone, not committed to main repo)
+plugins/memory-palace/data/wiki/
+
+# Auto-captured research staging (local evaluation before promotion to wiki)
+plugins/memory-palace/data/staging/webfetch-*.md
+plugins/memory-palace/data/staging/websearch-*.md
+plugins/memory-palace/data/staging/archive/
 **/*.claude/session-state.md
