@@ -91,7 +91,11 @@ def main() -> int:
     """Validate all knowledge corpus markdown files."""
     # Find all markdown files in knowledge corpus
     if not CORPUS_DIR.exists():
-        print(f"Warning: Knowledge corpus directory not found: {CORPUS_DIR}")
+        print(
+            f"Knowledge corpus directory not found: {CORPUS_DIR}\n"
+            "knowledge-corpus was removed in 1.5.0 consolidation. "
+            "No entries to validate."
+        )
         return 0
 
     md_files = [

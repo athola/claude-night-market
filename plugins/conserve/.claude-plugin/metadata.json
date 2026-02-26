@@ -5,7 +5,6 @@
   "skills": [
     "skills/context-optimization",
     "skills/mcp-code-execution",
-    "skills/optimizing-large-skills",
     "skills/cpu-gpu-performance",
     "skills/token-conservation"
   ],
@@ -24,8 +23,7 @@
       "token-efficiency"
     ],
     "tools": [
-      "context-optimizer",
-      "growth-analyzer"
+      "context-optimizer"
     ]
   },
   "claude": {

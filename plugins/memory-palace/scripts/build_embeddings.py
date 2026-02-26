@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Build or benchmark the embedding index."""
+"""Build or benchmark the embedding index.
+
+NOTE: The docs/knowledge-corpus/ directory was removed in 1.5.0.
+This script will gracefully exit if no corpus directory exists.
+To re-enable, repopulate the corpus directory.
+"""
 
 from __future__ import annotations
 
@@ -22,6 +27,8 @@ def _entry_id_for(path: Path) -> str:
 
 def load_entries() -> dict[str, Path]:
     """Load all markdown entries from the corpus directory."""
+    if not CORPUS_DIR.is_dir():
+        return {}
     entries: dict[str, Path] = {}
     for path in sorted(CORPUS_DIR.rglob("*.md")):
         if path.name.lower() == "readme.md":
@@ -32,9 +39,16 @@ def load_entries() -> dict[str, Path]:
 
 def build_embeddings(provider: str) -> dict[str, list[float]]:
     """Build embeddings for all corpus entries."""
+    entries = load_entries()
+    if not entries:
+        print(
+            "[embeddings] No corpus entries found. "
+            "knowledge-corpus was removed in 1.5.0."
+        )
+        return {}
     index = EmbeddingIndex(str(EMBEDDINGS_PATH), provider=provider)
     vectors: dict[str, list[float]] = {}
-    for entry_id, path in load_entries().items():
+    for entry_id, path in entries.items():
         text = path.read_text(encoding="utf-8")
         vectors[entry_id] = index.vectorize(text)
     index.export(provider=provider, entries=vectors)

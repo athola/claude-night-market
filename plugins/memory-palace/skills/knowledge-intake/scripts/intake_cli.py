@@ -6,7 +6,7 @@ Workflow:
 2. Run the Marginal Value Filter to classify redundancy/delta/integration decisions.
 3. Prompt the operator (unless --auto-accept) to apply the decision.
 4. Generate dual outputs:
-   - Palace entry markdown (docs/knowledge-corpus)
+   - Palace entry markdown (data/staging)
    - Developer-facing doc stub (docs/developer-drafts)
 5. Append an audit row to docs/curation-log.md
 """
@@ -105,7 +105,7 @@ def write_palace_entry(
     confidence: float | None,
 ) -> Path:
     """Write palace entry markdown for a candidate."""
-    palace_dir = root / "docs" / "knowledge-corpus"
+    palace_dir = root / "data" / "staging"
     palace_path = palace_dir / f"{slug}.md"
     ensure_dirs(palace_path)
 
@@ -338,7 +338,7 @@ def main(argv: list[str] | None = None) -> None:
         "--candidate", required=True, type=Path, help="Path to intake_candidate.json"
     )
     parser.add_argument(
-        "--corpus-dir", type=Path, default=PLUGIN_ROOT / "docs" / "knowledge-corpus"
+        "--corpus-dir", type=Path, default=PLUGIN_ROOT / "data" / "staging"
     )
     parser.add_argument(
         "--index-dir", type=Path, default=PLUGIN_ROOT / "data" / "indexes"

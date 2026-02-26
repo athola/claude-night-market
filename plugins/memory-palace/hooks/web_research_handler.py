@@ -38,8 +38,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-QUEUE_DIR = PLUGIN_ROOT / "docs" / "knowledge-corpus" / "queue"
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
+QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
 
 def slugify(text: str, max_length: int = 50) -> str:
@@ -167,7 +167,7 @@ auto_generated: true
 ## Source
 
 - **URL**: {url}
-- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
+- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
 - **Content Length**: {len(content):,} characters
 
 ## Fetch Context
@@ -293,7 +293,7 @@ auto_generated: true
 ## Search Metadata
 
 - **Query**: {query}
-- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
+- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
 - **Results**: {len(results)} items captured
 
 ## Search Results
@@ -322,6 +322,25 @@ auto_generated: true
         QUEUE_DIR.mkdir(parents=True, exist_ok=True)
         queue_path = QUEUE_DIR / filename
         queue_path.write_text(queue_entry, encoding="utf-8")
+
+        # Update dedup index (mirrors store_webfetch_content behavior)
+        try:
+            update_index(
+                content_hash=content_hash,
+                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
+                importance_score=50,
+                url=query,
+                title=f"WebSearch: {query}",
+                maturity="seedling",
+                routing_type="pending",
+            )
+        except Exception as idx_err:
+            logger.error(
+                "web_research_handler: Index update failed for websearch, removing orphan: %s",
+                idx_err,
+            )
+            queue_path.unlink(missing_ok=True)
+            return None
 
         return str(queue_path)
 
@@ -374,7 +393,8 @@ def main() -> None:
     """Main hook entry point."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning("web_research_handler: Failed to parse payload: %s", e)
         sys.exit(0)
 
     tool_name = payload.get("tool_name", "")

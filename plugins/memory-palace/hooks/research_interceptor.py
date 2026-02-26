@@ -115,8 +115,14 @@ def is_evergreen(query: str) -> bool:
 
 def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Search local knowledge corpus for matches."""
+    corpus_dir_rel = config.get("corpus_dir", "")
+    if not corpus_dir_rel:
+        # corpus_dir removed in 1.5.0 consolidation
+        return []
     try:
-        corpus_dir = PLUGIN_ROOT / config.get("corpus_dir", "docs/knowledge-corpus/")
+        corpus_dir = PLUGIN_ROOT / corpus_dir_rel
+        if not corpus_dir.is_dir():
+            return []
         index_dir = PLUGIN_ROOT / config.get("indexes_dir", "data/indexes")
         provider = config.get("embedding_provider", "none")
         lookup = CacheLookup(
@@ -480,7 +486,7 @@ def emit_telemetry_event(
         logger.log_event(event)
     except Exception as e:
         # Use module-level logger for error logging
-        logging.getLogger(__name__).debug("Failed to emit telemetry: %s", e)
+        logging.getLogger(__name__).warning("Failed to emit telemetry: %s", e)
         return
 
 

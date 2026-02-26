@@ -4,7 +4,6 @@
   "main": "skills",
   "skills": [
     "skills/review-core",
-    "skills/evidence-logging",
     "skills/structured-output",
     "skills/diff-analysis",
     "skills/catchup"

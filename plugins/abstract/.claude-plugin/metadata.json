@@ -4,8 +4,7 @@
   "main": "skills",
   "skills": [
     "skills/modular-skills",
-    "skills/skills-eval",
-    "skills/validate-plugin-structure"
+    "skills/skills-eval"
   ],
   "dependencies": {},
   "provides": {

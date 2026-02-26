@@ -68,9 +68,9 @@ if status.warnings:
 
 ## Detailed Topics
 
-For deeper implementation patterns, see the original leyline modules:
-- **Monitoring Patterns** - Integration patterns, quota management, token estimation
-- **Prevention Strategies** - Early detection, compression, delegation, progressive disclosure
+Key implementation areas (consolidated from leyline modules in 1.5.0):
+- **Monitoring**: Use `leyline:quota-management` for quota tracking and threshold monitoring
+- **Prevention**: Use `leyline:progressive-loading` for budget-aware loading and `conjure:delegation-core` for delegation triggers
 
 ## Integration
 
