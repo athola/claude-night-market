@@ -11,6 +11,8 @@ Exit codes:
   2 - Errors found
 """
 
+from __future__ import annotations
+
 import argparse
 import ast
 import json

@@ -12,7 +12,6 @@ tests/
 │   ├── test_imbue_validator.py          # Core validation logic tests
 │   ├── skills/                          # Skill-specific unit tests
 │   │   ├── test_review_core.py          # Review workflow scaffolding
-│   │   ├── test_evidence_logging.py     # Evidence capture patterns
 │   │   ├── test_diff_analysis.py        # Change categorization
 │   │   ├── test_catchup.py              # Git repository catchup
 │   │   └── test_structured_output.py    # Deliverable formatting

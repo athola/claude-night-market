@@ -64,8 +64,8 @@ Monitor and optimize context usage:
 # Analyze context window usage
 /optimize-context
 
-# Check skill growth patterns
-/analyze-growth
+# Check skill growth patterns (consolidated into bloat-scan)
+/bloat-scan
 ```
 
 ## Skill Invocation Patterns
@@ -114,7 +114,7 @@ sanctum depends on imbue (for some skills)
 | `/fix-pr` | Address PR review comments |
 | `/do-issue` | Fix GitHub issues |
 | `/update-docs` | Update documentation |
-| `/update-readme` | Modernize README |
+| `/update-docs` | Update documentation (includes README) |
 | `/update-tests` | Maintain tests |
 | `/update-version` | Bump versions |
 
@@ -145,7 +145,7 @@ sanctum depends on imbue (for some skills)
 |---------|---------|
 | `/catchup` | Quick context recovery |
 | `/structured-review` | Structured review with evidence |
-| `/feature-review` | Feature prioritization |
+| `Skill(imbue:scope-guard)` | Feature prioritization (consolidated into scope-guard) |
 
 ### Plugin Management (leyline)
 

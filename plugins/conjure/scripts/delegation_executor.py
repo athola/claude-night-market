@@ -5,6 +5,8 @@ Unify execution interface for external LLM services with consistent error
 handling, logging, and resource management.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging

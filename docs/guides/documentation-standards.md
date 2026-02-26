@@ -36,7 +36,7 @@ For details see:
 - Link to existing docs instead of repeating concepts.
 - Extract common patterns to shared references.
 
-**Good**: "See [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md) for examples"
+**Good**: "See the [tutorials](../../book/src/tutorials/README.md) for examples"
 
 **Bad**: Copy-pasting 300 lines of code examples already in tutorial.
 
@@ -132,7 +132,7 @@ Based on leyline:error-patterns standard:
 - Recoverable: Retry with backoff
 - Warnings: Log and continue
 
-See [tutorial](../../book/src/tutorials/error-handling-tutorial.md) for detailed examples.
+See the [tutorials](../../book/src/tutorials/README.md) for examples.
 
 ## Plugin-Specific Patterns
 

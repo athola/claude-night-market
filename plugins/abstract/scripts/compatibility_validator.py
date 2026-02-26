@@ -7,6 +7,8 @@ Validate that wrapper implementations maintain feature parity
 with original plugin commands when migrating to superpowers-based wrappers.
 """
 
+from __future__ import annotations
+
 import argparse
 import ast
 import logging
@@ -319,7 +321,7 @@ class CompatibilityValidator:
 
         # Look for error handling patterns
         for child in ast.walk(node):
-            if isinstance(child, ast.Try | ast.ExceptHandler):
+            if isinstance(child, (ast.Try, ast.ExceptHandler)):
                 if "exception" not in features["error_handling"]:
                     features["error_handling"].append("exception")
             elif isinstance(child, ast.Call):

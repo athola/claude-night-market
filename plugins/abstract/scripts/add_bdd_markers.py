@@ -12,6 +12,8 @@ Options:
     --plugin     Only process specific plugin (default: all plugins)
 """
 
+from __future__ import annotations
+
 import argparse
 import re
 import sys

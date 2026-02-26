@@ -279,7 +279,6 @@ When writing or reviewing tests, verify:
 See the following test files for standardized patterns:
 - `tests/unit/agents/test_review_analyst.py`
 - `tests/unit/commands/test_review_command.py`
-- `tests/unit/skills/test_evidence_logging.py`
 
 ## Resources
 

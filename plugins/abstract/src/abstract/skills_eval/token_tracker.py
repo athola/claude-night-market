@@ -1,5 +1,7 @@
 """Token usage tracking and analysis for skills."""
 
+from __future__ import annotations
+
 import json
 import logging
 import re
@@ -7,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from abstract.frontmatter import FrontmatterProcessor
-from abstract.tokens import TokenAnalyzer, estimate_tokens
+from ..frontmatter import FrontmatterProcessor
+from ..tokens import TokenAnalyzer, estimate_tokens
 
 logger = logging.getLogger(__name__)
 

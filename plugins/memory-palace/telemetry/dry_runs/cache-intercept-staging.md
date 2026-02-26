@@ -11,7 +11,7 @@
 | 1 | "structured concurrency patterns" | augment | Cached entry `structured-concurrency-task-groups` merged with staging web fetch. |
 | 2 | "latest python release" | web_bypass | freshness pattern detected, no cache. |
 | 3 | "konmari knowledge tending" | cache_hit | Returned `konmari-method-tidying`. |
-| 4 | `garden trust --domain cache --level 2 --lock` | trust | Granted cache intercept Level 2 with lock while capturing transcript (full log in `docs/runbooks/memory-palace-rollout-dry-run.md`). |
+| 4 | `garden trust --domain cache --level 2 --lock` | trust | Granted cache intercept Level 2 with lock while capturing transcript. |
 
 ### Governance Transcript Excerpt
 
@@ -24,7 +24,7 @@ Garden command transcript
   state: plugins/memory-palace/data/state/autonomy-state.yaml
 ```
 
-The transcript above was copied into the incident log along with the generated alerts file at `plugins/memory-palace/telemetry/alerts/autonomy.json`. The complete dry-run narrative, validation checklist, and rollback guidance now live in `docs/runbooks/memory-palace-rollout-dry-run.md`.
+The transcript above was copied into the incident log along with the generated alerts file at `plugins/memory-palace/telemetry/alerts/autonomy.json`.
 
 ## Validation
 

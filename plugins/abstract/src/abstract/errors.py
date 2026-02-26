@@ -4,11 +4,12 @@
 Provide consistent error reporting, logging, and user-friendly messages.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
 import traceback
-import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
@@ -21,15 +22,6 @@ try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
-    warning_message = (
-        "PyYAML is not installed; YAML parsing features are disabled. "
-        "Install with: pip install pyyaml"
-    )
-    # Use warnings.warn() for interactive environments
-    warnings.warn(warning_message, category=RuntimeWarning, stacklevel=2)
-    # Also log for persistence in non-interactive environments (CI/CD, scripts)
-    logger = logging.getLogger(__name__)
-    logger.warning(warning_message)
 
 
 class ErrorSeverity(Enum):
@@ -266,10 +258,14 @@ class ErrorHandler:
         min_severity: ErrorSeverity = ErrorSeverity.MEDIUM,
     ) -> None:
         """Exit if errors of specified severity or higher exist."""
-        critical_errors = [
-            e for e in self.errors if e.severity.value in ["critical", "high"]
+        severity_order = ["critical", "high", "medium", "low", "info"]
+        min_idx = severity_order.index(min_severity.value)
+        qualifying = [
+            e
+            for e in self.errors
+            if e.severity.value in severity_order[: min_idx + 1]
         ]
-        if critical_errors or (min_severity == ErrorSeverity.MEDIUM and self.errors):
+        if qualifying:
             self.print_error_summary()
             sys.exit(1)
 

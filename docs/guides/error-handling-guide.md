@@ -1,6 +1,6 @@
 # Error Handling Guide
 
-This guide details error handling patterns and troubleshooting strategies for Night Market plugins. For implementation examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
+This guide details error handling patterns and troubleshooting strategies for Night Market plugins.
 
 ## Error Classification System
 

@@ -19,11 +19,9 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `quota-management` | Rate limiting and quotas | Building services that consume APIs |
 | `usage-logging` | Telemetry tracking | Logging tool usage for analytics |
 | `service-registry` | Service discovery patterns | Managing external tool connections |
-| `damage-control` | Agent-level error recovery for multi-agent coordination | Crash recovery, context overflow, merge conflicts |
-| `error-patterns` | Standardized error handling | Implementing production-grade error recovery |
+| `error-patterns` | Standardized error handling with agent damage-control module | Production-grade error recovery and multi-agent crash handling |
 | `authentication-patterns` | Auth flow patterns | Handling API keys and OAuth |
 | `evaluation-framework` | Decision thresholds | Building evaluation criteria |
-| `mecw-patterns` | MECW implementation | Minimal Effective Context Window |
 | `progressive-loading` | Dynamic content loading | Lazy loading strategies |
 | `risk-classification` | Inline 4-tier risk classification for agent tasks | Risk-based task routing with war-room escalation |
 | `pytest-config` | Pytest configuration | Standardized test configuration |
@@ -136,17 +134,6 @@ storage = Storage.from_config()
 storage.save("key", data)
 data = storage.load("key")
 ```
-
-## MECW Patterns
-
-The `mecw-patterns` skill implements Minimum Effective Context Window principles:
-
-| Pattern | Description |
-|---------|-------------|
-| Summarize Early | Compress context before it grows |
-| Load on Demand | Fetch details only when needed |
-| Evict Stale | Remove outdated information |
-| Prioritize Recent | Weight recent context higher |
 
 ## Discussion Operations (GitHub Only)
 

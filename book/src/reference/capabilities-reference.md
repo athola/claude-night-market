@@ -48,11 +48,9 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
-| `evidence-logging` | [imbue](../plugins/imbue.md) | Capture methodology |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
-| `fpf-review` | [pensive](../plugins/pensive.md) | FPF architecture review (Functional/Practical/Foundation) |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
@@ -62,7 +60,6 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
-| `makefile-dogfooder` | [abstract](../plugins/abstract.md) | Makefile analysis and enhancement |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
@@ -70,13 +67,9 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
-| `mecw-patterns` | [leyline](../plugins/leyline.md) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
-| `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
-| `performance-optimization` | [abstract](../plugins/abstract.md) | Progressive loading, token budgeting, and context-aware content delivery |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
-| `damage-control` | [leyline](../plugins/leyline.md) | Agent-level error recovery for multi-agent coordination |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
@@ -127,7 +120,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
-| `update-readme` | [sanctum](../plugins/sanctum.md) | README modernization |
+| `update-readme` | [sanctum](../plugins/sanctum.md) | README content updates from git context |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
@@ -144,8 +137,6 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 |---------|--------|-------------|
 | `/ai-hygiene-audit` | conserve | Audit codebase for AI-generated code quality issues (vibe coding, Tab bloat, slop) |
 | `/aggregate-logs` | abstract | Generate LEARNINGS.md from skill execution logs |
-| `/analyze-growth` | conserve | Analyzes skill growth patterns |
-| `/analyze-hook` | abstract | Analyzes hook for security/performance |
 | `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/analyze-skill` | abstract | Skill complexity analysis |
 | `/analyze-tests` | parseltongue | Test suite health report |
@@ -174,10 +165,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/create-skill` | abstract | Scaffold new skill |
 | `/doc-generate` | scribe | Generate new documentation |
 | `/doc-polish` | scribe | Clean up AI-generated content |
-| `/doc-verify` | scribe | Validate documentation claims with proof-of-work |
-| `/estimate-tokens` | abstract | Token usage estimation |
 | `/evaluate-skill` | abstract | Evaluate skill execution quality |
-| `/feature-review` | imbue | Feature prioritization |
 | `/do-issue` | sanctum | Fix GitHub issues |
 | `/fix-pr` | sanctum | Address PR review comments |
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
@@ -213,9 +201,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/rust-review` | pensive | Rust-specific review |
 | `/shell-review` | pensive | Shell script safety and portability review |
 | `/skill-history` | pensive | View recent skill executions with context |
-| `/skill-logs` | memory-palace | View and manage skill execution memories |
 | `/skill-review` | pensive | Analyze skill metrics and stability gaps |
-| `/slop-scan` | scribe | Scan files for AI slop markers |
 | `/skills-eval` | abstract | Skill quality assessment |
 | `/speckit-analyze` | spec-kit | Check artifact consistency |
 | `/speckit-checklist` | spec-kit | Generate checklist |
@@ -236,7 +222,6 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/update-docs` | sanctum | Update documentation |
 | `/update-labels` | minister | Reorganize GitHub issue labels with professional taxonomy |
 | `/update-plugins` | sanctum | Audit plugin registrations + automatic performance analysis and improvement recommendations |
-| `/update-readme` | sanctum | Modernize README |
 | `/update-tests` | sanctum | Maintain tests |
 | `/update-tutorial` | sanctum | Update tutorial content |
 | `/update-version` | sanctum | Bump versions |
@@ -306,10 +291,8 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `session_complete_notify.py` | sanctum | Stop | Cross-platform toast notifications |
 | `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
-| `skill_tracker_pre.py` | memory-palace | PreToolUse | Skill execution start tracking |
-| `skill_tracker_post.py` | memory-palace | PostToolUse | Skill execution completion |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
-| `web_content_processor.py` | memory-palace | PostToolUse | Web content processing |
+| `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |

@@ -71,5 +71,5 @@ Testing complete skill chains verifies that data flows correctly between steps a
 
 ## See Also
 
-- [Superpowers Integration](./superpowers-integration.md)
+- [Superpowers Integration](../book/src/reference/superpowers-integration.md)
 - [Plugin Development Guide](./plugin-development-guide.md)

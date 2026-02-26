@@ -25,7 +25,6 @@ Pensive provides deep code review capabilities across multiple dimensions: archi
 | `makefile-review` | Makefile best practices | Reviewing Makefile quality |
 | `math-review` | Mathematical correctness | Reviewing mathematical logic |
 | `shell-review` | Shell script auditing | Exit codes, portability, safety patterns |
-| `fpf-review` | FPF architecture review | Functional/Practical/Foundation analysis |
 | `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
 
@@ -42,7 +41,6 @@ Pensive provides deep code review capabilities across multiple dimensions: archi
 | `/makefile-review` | Run Makefile review |
 | `/math-review` | Run mathematical review |
 | `/shell-review` | Run shell script safety review |
-| `/fpf-review` | Run FPF architecture review |
 | `/skill-review` | Analyze skill runtime metrics and stability gaps (canonical) |
 | `/skill-history` | View recent skill executions |
 
@@ -164,7 +162,7 @@ Pensive builds on foundation plugins:
 ```
 pensive
     |
-    +--> imbue (review-core, evidence-logging)
+    +--> imbue (review-core, proof-of-work)
     |
     +--> sanctum (git-workspace-review)
 ```

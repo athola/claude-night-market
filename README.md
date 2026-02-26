@@ -2,44 +2,7 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 16 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. Each plugin functions independently to allow selective installation while sharing a common testing framework for consistency.
-
-## Features
-
-**Governance & Quality**
-Hooks adapt context based on the active agent. `pensive` tracks usage frequency and failure rates to identify unstable workflows. `imbue` enforces test-driven development via a PreToolUse hook that verifies the existence of test files before allowing implementation writes (markdown modules in `modules/` and `commands/` directories are exempt since they are validated by `abstract:skills-eval`). For complex tasks, `imbue:rigorous-reasoning` requires step-by-step logic checks before tool execution.
-
-**Security & Session Management**
-`leyline` manages OAuth flows for GitHub, GitLab, and AWS with local token caching. `conserve` implements permission checks, automatically approving safe commands like `ls` while blocking high-risk operations like `rm -rf /`. `sanctum` isolates named sessions for debugging, feature work, and PR reviews. Quality gates in `/create-skill` and `/create-command` halt execution if the project has failing tests.
-
-**Maintenance & Resilience**
-`/cleanup` orchestrates bloat removal, code refinement, and AI hygiene auditing in a single pass with progressive depth levels. `/update-ci` reconciles pre-commit hooks and GitHub Actions workflows with recent code changes, detecting renamed files and orphaned references. `/update-plugins` recommends updates based on plugin stability metrics and includes module auditing to detect orphaned or missing skill references. `/fix-workflow` attempts to repair failed runs by analyzing previous errors. `/abstract:make-dogfood` generates or validates Makefile targets for all documented commands across plugins, with automatic language detection for Python, Rust, and TypeScript projects. `abstract`'s homeostatic monitor tracks skill stability after each invocation and auto-triggers the `skill-improver` agent when degradation is detected, with rollback review via GitHub issues. For strategic decisions, `/attune:war-room` uses a Type 1/2 reversibility framework to route choices to appropriate expert subagents, with `war-room-checkpoint` enabling embedded escalation at decision points during implementation. `leyline` adds `damage-control` for agent-level crash recovery and context overflow handling, and `risk-classification` for 4-tier task risk gating (GREEN/YELLOW use heuristic matching, RED/CRITICAL escalate to war-room-checkpoint). Agents that modify files can run in worktree isolation (`isolation: worktree`) to prevent filesystem conflicts during parallel execution; read-only audit agents support background execution (`background: true`) for non-blocking analysis.
-
-**Cross-Session State (Claude Code 2.1.16+)**
-`attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation occurs on-demand, and state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`. GitHub Discussions serve as a second persistence layer: `leyline` retrieves recent Decisions discussions at session start, `attune` publishes war-room deliberations after user approval, `memory-palace` promotes evergreen knowledge entries, and `imbue` links scope-guard deferrals to companion discussions. `abstract`'s `/aggregate-logs` command can auto-post learning summaries to Discussions, and `/promote-discussions` escalates highly-voted learnings into actionable GitHub Issues. Four discussion category templates (decisions, deliberations, learnings, knowledge) ship in `.github/DISCUSSION_TEMPLATE/`. The `war-room-checkpoint` skill integrates with commands like `/do-issue`, `/pr-review`, `/fix-pr`, and `/architecture-review` to trigger expert deliberation when high-stakes decisions emerge during workflows. Ambiguity detection prompts for user decisions when task boundaries are unclear. Versions prior to 2.1.16 use file-based state by default. Claude Code 2.1.20+ supports task deletion via `TaskUpdate`, 2.1.32+ adds agent teams for parallel execution in `/do-issue`, `/fix-pr`, and `/pr-review` (with automatic downgrade for small-scope tasks), and 2.1.33+ adds persistent agent memory scoped to user, project, or session. 2.1.38 hardens heredoc delimiter parsing against command smuggling and sandboxes `.claude/skills` writes. 2.1.39 adds nested session guards and fixes agent teams model selection for Bedrock/Vertex/Foundry providers. 2.1.41+ adds `claude auth` CLI and `/rename` auto-naming, 2.1.45 introduces Sonnet 4.6 and plugin hot-loading, and 2.1.47 adds `last_assistant_message` to Stop hook inputs and fixes background agent transcript handling.
-
-## Workflow Improvements
-
-Commands automate multi-step processes to reduce manual intervention. `/prepare-pr` validates branch scope, runs configured linters, and verifies a clean git state before drafting a pull request. `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` requires a written specification phase before generating code. To maintain context, `/catchup` reads recent git history, and `/attune:project-init` detects project types (Python, Node) to scaffold configuration files. `/attune:mission` wraps the full project lifecycle into a single resumable command with artifact-based state detection and error recovery via `leyline:damage-control`.
-
-## Requirements
-
-- **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for full security features, 2.1.47 latest tested)
-- **Python 3.9+** — hooks execute under the system Python (macOS ships 3.9.6). Plugin packages and scripts may target 3.10+ or 3.12+ via virtual environments, but **all hook code must be 3.9-compatible**
-
-### Python 3.9 Hook Compatibility Rules
-
-Hooks run outside virtual environments, so they must avoid syntax and APIs added after 3.9:
-
-| Feature | Requires | Use Instead |
-|---------|----------|-------------|
-| `X \| Y` union types | 3.10+ | `from __future__ import annotations` |
-| `@dataclass(slots=True)` | 3.10+ | `@dataclass` (omit `slots`) |
-| `datetime.UTC` | 3.11+ | `datetime.timezone.utc` |
-| `import tomllib` | 3.11+ | `import tomli` or parse manually |
-| `import yaml` | not stdlib | wrap in `try/except ImportError` |
-
-See the [Plugin Development Guide](docs/plugin-development-guide.md) for the full list.
+16 plugins providing 120 skills, 96 commands, and 41 agents for git operations, code review, spec-driven development, and issue management. Each plugin installs independently.
 
 ## Quick Start
 
@@ -90,7 +53,7 @@ claude --maintenance
 
 ## What's Included
 
-**16 plugins** organized in layers, each building on foundations below:
+**16 plugins** organized in four layers:
 
 ```mermaid
 flowchart TB
@@ -134,47 +97,91 @@ flowchart TB
     Domain ==> Utility ==> Foundation ==> Meta
 ```
 
-### Layer Overview
+### Plugin Catalog
 
-1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth, quotas, and GitHub Discussions retrieval), and `imbue` (TDD cycles).
-2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
-3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` commands auto-chain forward by default (use `--standalone` to run a single phase). `/attune:mission` orchestrates the full brainstorm→specify→plan→execute lifecycle with state persistence and session recovery.
-4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation, command-to-target validation, and Claude Code rules evaluation. Its self-adapting system monitors skill stability via a PostToolUse hook, queues degrading skills for automatic improvement, and creates human-gated GitHub issues when regressions are detected. A daily learning aggregation hook generates LEARNINGS.md and promotes high-severity findings to GitHub Issues or Discussions.
+| Plugin | Layer | Description | Skills | Commands |
+|--------|-------|-------------|--------|----------|
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, and self-adapting stability monitoring | 10 | 18 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, and GitHub Discussions retrieval | 12 | 2 |
+| **sanctum** | Foundation | Git workflows, commit messages, PR prep, documentation updates, version management, and session isolation | 14 | 17 |
+| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, and rigorous reasoning checks | 9 | 2 |
+| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, and token conservation | 10 | 4 |
+| **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) | 4 | 0 |
+| **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
+| **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, and NASA Power of 10 safety patterns | 11 | 12 |
+| **attune** | Domain | Full project lifecycle: brainstorm, specify, plan, initialize, execute, and war-room deliberation | 12 | 10 |
+| **spec-kit** | Domain | Spec-driven development: specifications, task generation, and systematic implementation | 3 | 9 |
+| **parseltongue** | Domain | Python development: testing, performance, async patterns, and packaging | 4 | 3 |
+| **minister** | Domain | GitHub issue management, label taxonomy, and initiative tracking | 2 | 3 |
+| **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, and PR review knowledge capture | 6 | 5 |
+| **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
+| **scribe** | Domain | Documentation with AI slop detection, style learning, and human-quality writing enforcement | 3 | 3 |
+| **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 127 skills, 105 commands, and 41 agents across all 16 plugins.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full breakdown of skills, commands, and agents per plugin.
 
 ## Common Workflows
 
 Details are available in the [Common Workflows Guide](book/src/getting-started/common-workflows.md).
 
-| Workflow | Command | Example |
-|----------|-------------|---------|
-| Full project lifecycle | `/attune:mission` | Auto-detects state, routes through phases, supports resume |
-| Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
-| Review a PR | `/full-review` | Run multi-discipline code review |
-| Architecture review | `/fpf-review` | FPF analysis |
-| Fix PR feedback | `/fix-pr` | Address review comments |
-| Implement issues | `/do-issue` | Progressive issue resolution |
-| Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion |
-| Prepare a PR | `/prepare-pr` | Quality gates before merge |
-| Create GitHub issue | `/create-issue` | Interactive issue creation |
-| Manage labels | `/update-labels` | GitHub label taxonomy |
-| Catch up on changes | `/catchup` | Context recovery |
-| Write specifications | `/speckit-specify` | Spec-driven development |
-| Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
-| Codebase cleanup | `/cleanup` | Orchestrated bloat, quality, and hygiene scan |
+| Workflow | Command | Description |
+|----------|---------|-------------|
+| Full project lifecycle | `/attune:mission` | Auto-detects state, routes through brainstorm/specify/plan/execute phases |
+| Initialize project | `/attune:arch-init` | Architecture-aware scaffolding with language detection |
+| Review a PR | `/full-review` | Multi-discipline code review in a single pass |
+| Architecture review | `/pensive:architecture-review` | FPF analysis and coupling assessment |
+| Fix PR feedback | `/fix-pr` | Address review comments progressively |
+| Implement issues | `/do-issue` | Issue resolution with parallel agent execution |
+| Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion methodology |
+| Prepare a PR | `/prepare-pr` | Quality gates, linting, and clean git state before merge |
+| Create GitHub issue | `/create-issue` | Interactive issue creation with labels |
+| Manage labels | `/update-labels` | GitHub label taxonomy management |
+| Catch up on changes | `/catchup` | Context recovery from recent git history |
+| Write specifications | `/speckit-specify` | Specification-first development |
+| Codebase cleanup | `/unbloat` | Bloat removal with progressive depth levels |
 | Update CI/CD | `/update-ci` | Reconcile hooks and workflows with code changes |
-| Refine code | `/refine-code` | Duplication, algorithms, and clean code analysis |
-| Safety review | `Skill(pensive:safety-critical-patterns)` | NASA Power of 10 guidelines for robust code |
-| Improve plugins | `/update-plugins` | Update based on stability metrics + module audit |
-| Generate Makefiles | `/abstract:make-dogfood` | Auto-generate Makefiles for plugins with language detection |
+| Refine code | `/refine-code` | Duplication, algorithm, and clean code analysis |
+| Safety review | `Skill(pensive:safety-critical-patterns)` | NASA Power of 10 guidelines |
+| Improve plugins | `/update-plugins` | Stability metrics and module auditing |
+| Generate Makefiles | `/abstract:make-dogfood` | Auto-generate targets with language detection |
 | Validate rules | `/rules-eval` | Audit `.claude/rules/` for frontmatter and content quality |
 | Strategic decisions | `/attune:war-room` | Expert routing with reversibility scoring |
 | Embedded escalation | `Skill(attune:war-room-checkpoint)` | Inline expert deliberation at decision points |
 
+## Key Capabilities
+
+**Governance & Quality.** `imbue` enforces TDD via a PreToolUse hook that verifies test files before allowing implementation writes. `pensive` tracks usage frequency and failure rates. `imbue:rigorous-reasoning` requires step-by-step logic checks before tool execution. Quality gates in `/create-skill` and `/create-command` halt execution when tests fail.
+
+**Security & Sessions.** `leyline` manages OAuth flows with local token caching. `conserve` implements permission checks, auto-approving safe commands while blocking destructive operations. `sanctum` isolates named sessions. Agents can run in worktree isolation (`isolation: worktree`) to prevent filesystem conflicts during parallel execution.
+
+**Maintenance.** `/update-ci` reconciles pre-commit hooks and GitHub Actions with code changes. `/update-plugins` recommends updates based on stability metrics. `abstract`'s homeostatic monitor tracks skill stability and auto-triggers improvement agents when degradation is detected, creating GitHub issues for human review. `/fix-workflow` repairs failed runs by analyzing previous errors.
+
+**Cross-Session State.** `attune`, `spec-kit`, and `sanctum` integrate with the Claude Code Tasks system, persisting state across sessions via `CLAUDE_CODE_TASK_LIST_ID`. GitHub Discussions serve as a second persistence layer: `leyline` retrieves recent Decisions at session start, `attune` publishes war-room deliberations, `memory-palace` promotes evergreen knowledge, and `imbue` links scope-guard deferrals to companion discussions. Four discussion category templates ship in `.github/DISCUSSION_TEMPLATE/`.
+
+**Risk Classification.** `leyline:risk-classification` provides 4-tier task risk gating. GREEN and YELLOW tasks use heuristic matching. RED and CRITICAL tasks escalate to `war-room-checkpoint` for expert deliberation.
+
+## Requirements
+
+- **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for full security features, 2.1.47 latest tested)
+- **Python 3.9+**: hooks execute under the system Python (macOS ships 3.9.6). Plugin packages and scripts may target 3.10+ or 3.12+ via virtual environments, but **all hook code must be 3.9-compatible**
+
+### Python 3.9 Hook Compatibility Rules
+
+Hooks run outside virtual environments, so they must avoid syntax and APIs added after 3.9:
+
+| Feature | Requires | Use Instead |
+|---------|----------|-------------|
+| `X \| Y` union types | 3.10+ | `from __future__ import annotations` |
+| `@dataclass(slots=True)` | 3.10+ | `@dataclass` (omit `slots`) |
+| `datetime.UTC` | 3.11+ | `datetime.timezone.utc` |
+| `import tomllib` | 3.11+ | `import tomli` or parse manually |
+| `import yaml` | not stdlib | wrap in `try/except ImportError` |
+
+See the [Plugin Development Guide](docs/plugin-development-guide.md) for the full list.
+
 ## LSP Integration
 
-LSP (Language Server Protocol) support requires Claude Code v2.0.74+. It enables symbol search in ~50ms, significantly faster than standard text search.
+LSP (Language Server Protocol) support requires Claude Code v2.0.74+. It enables symbol search in ~50ms vs seconds for standard text search.
 
 **Setup:**
 
@@ -200,15 +207,42 @@ make validate
 make lint && make test
 ```
 
+Each plugin follows this layout:
+
+```
+my-plugin/
+├── .claude-plugin/
+│   └── plugin.json        # Metadata: skills, commands, agents, hooks
+├── commands/               # Slash commands (markdown)
+├── skills/                 # Agent skills (SKILL.md + modules/)
+├── hooks/                  # Event handlers (Python, 3.9-compatible)
+├── agents/                 # Specialized agent definitions
+├── scripts/                # Supporting Python scripts
+├── tests/                  # pytest suite
+├── Makefile                # Build, test, lint targets
+└── pyproject.toml          # Package config
+```
+
 Refer to the [Plugin Development Guide](docs/plugin-development-guide.md).
 
 ## Prompt Context Usage
 
 The ecosystem adds ~14.8k characters to the system prompt. As of Claude Code 2.1.32+, the skill description budget scales at 2% of context window instead of a fixed limit. Plugins use modular designs and progressive loading to stay within these limits.
 
+## Documentation
+
+- [Installation Guide](book/src/getting-started/installation.md) - setup, marketplace, and post-install hooks
+- [Quick Start](book/src/getting-started/quick-start.md) - first commands after installation
+- [Common Workflows](book/src/getting-started/common-workflows.md) - task-oriented usage guide
+- [Plugin Development Guide](docs/plugin-development-guide.md) - creating and testing plugins
+- [Capabilities Reference](book/src/reference/capabilities-reference.md) - full skill, command, and agent inventory
+- [Tutorials](book/src/tutorials/README.md) - step-by-step guides for PR workflows, debugging, and more
+
+Per-plugin documentation lives in `book/src/plugins/` (one page per plugin).
+
 ## Contributing
 
-Each plugin maintains its own tests and documentation. See the [Plugin Development Guide](docs/plugin-development-guide.md).
+Each plugin maintains its own tests and documentation. Run `make test` at the repo root to execute all plugin test suites. See the [Plugin Development Guide](docs/plugin-development-guide.md) for structure requirements and naming conventions.
 
 ## License
 

@@ -1,5 +1,7 @@
 """Provide command-line interface for parseltongue."""
 
+from __future__ import annotations
+
 import sys
 
 

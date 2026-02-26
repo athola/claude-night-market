@@ -5,6 +5,8 @@ Analyze skill files and suggest modularization strategies.
 Use centralized utilities from abstract.base and abstract.utils.
 """
 
+from __future__ import annotations
+
 import argparse
 import logging
 import re

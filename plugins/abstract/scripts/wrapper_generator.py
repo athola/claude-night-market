@@ -5,6 +5,8 @@ This script generates wrapper classes that delegate to superpowers with
 plugin-specific extensions and parameter mappings.
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path

@@ -189,7 +189,7 @@ demo-skills: ## Validate conservation skill structure
 	@echo "Skill coverage:"
 	@echo "  context-optimization: $$(test -f skills/context-optimization/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  mcp-code-execution:   $$(test -f skills/mcp-code-execution/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  optimizing-large-skills: $$(test -f skills/optimizing-large-skills/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  token-conservation:     $$(test -f skills/token-conservation/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  bloat-detector:       $$(test -f skills/bloat-detector/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo ""
 	@echo "Scripts:"
@@ -234,7 +234,7 @@ demo-bloat-scan: ## Demo bloat-scan command (LIVE)
 	@echo ""
 	@echo "Running bloat-scan on conserve plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/bloat_detector.py . --report || echo "  [INFO] Tool execution completed"
+	$(UV_RUN) python scripts/detect_duplicates.py . --report || echo "  [INFO] Tool execution completed"
 	@echo ""
 	@echo "Use /bloat-scan for full workflow."
 
@@ -276,7 +276,7 @@ demo-ai-hygiene-audit: ## Demo ai-hygiene-audit command (LIVE)
 	@echo ""
 	@echo "Running bloat-scan on conserve plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/bloat_detector.py . --report || echo "  [INFO] Tool execution completed"
+	$(UV_RUN) python scripts/detect_duplicates.py . --report || echo "  [INFO] Tool execution completed"
 	@echo ""
 	@echo "Use /bloat-scan for full workflow."
 
@@ -370,6 +370,3 @@ test-ai-hygiene-audit: ## Test ai-hygiene-audit command workflow
 
 
 # Guard against accidental file creation (catch-all for unknown targets)
-
-# Include local overrides if they exist (before catch-all rule)
--include Makefile.local

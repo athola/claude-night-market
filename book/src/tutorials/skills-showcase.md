@@ -1,271 +1,116 @@
-# Skills Showcase - Claude Code Development Workflows
+# Your First Session
 
-This tutorial demonstrates the foundational concept of **skills** in the claude-night-market ecosystem. Skills are the primary abstraction that transforms Claude Code from a general-purpose assistant into a specialized development partner.
-
-![Skills Showcase Demo](../../../assets/gifs/skills-showcase.gif)
-
-*A detailed walkthrough of skill discovery, structure, validation, and composition patterns.*
+You've just installed Claude Night Market. This tutorial walks through your first real session: discovering what's available, running your first skill, and seeing how plugins work together.
 
 ---
 
-## Overview
+## Scenario
 
-The claude-night-market contains 105+ skills across 14 plugins, each skill representing a reusable, composable unit of functionality. This tutorial explores:
+You've followed the [installation guide](../getting-started/installation.md) and have Night Market plugins installed. You open Claude Code in a project and want to explore what you can do.
 
-- Skill Discovery: How to find and catalog available skills
-- Skill Anatomy: Understanding the structure and metadata of skills
-- Skill Validation: Verifying that skills follow proper conventions
-- Skill Composition: How skills chain together into workflows
+## Step 1: See What's Available
+
+Start by asking Claude Code what skills are available:
+
+```
+What skills do I have installed?
+```
+
+Claude reads the installed plugins and lists available skills. You'll see entries like:
+
+```
+- sanctum:commit-msg - Draft a conventional commit message
+- sanctum:prepare-pr - Complete PR preparation
+- pensive:code-reviewer - Code review agent
+- imbue:catchup - Quickly understand recent changes
+- abstract:validate-plugin - Validate plugin structure
+```
+
+Each skill is identified by `plugin:skill-name`. The plugin tells you which domain it belongs to, and the skill name tells you what it does.
+
+## Step 2: Explore a Plugin
+
+Pick a plugin to understand what it offers. For example, sanctum handles git workflows:
+
+```
+What commands does the sanctum plugin provide?
+```
+
+You'll see commands like:
+
+| Command | What it does |
+|---------|-------------|
+| `/commit-msg` | Generate a conventional commit message from staged changes |
+| `/prepare-pr` | Run quality gates and prepare a PR description |
+| `/do-issue` | Implement a GitHub issue end-to-end |
+| `/fix-pr` | Address PR review feedback |
+| `/git-catchup` | Catch up on repository changes |
+
+Commands (prefixed with `/`) are the main way you interact with skills. They're shorthand: `/commit-msg` invokes the `sanctum:commit-msg` skill behind the scenes.
+
+## Step 3: Run Your First Skill
+
+Let's use `/catchup` to understand the current state of the repository:
+
+```
+/catchup
+```
+
+This invokes the `imbue:catchup` skill, which:
+
+1. Reads recent git history
+2. Analyzes what changed and why
+3. Summarizes the current state of the project
+
+The output gives you a summary of recent commits, active branches, what areas of the code changed, and what work is in progress.
+
+## Step 4: Try a Review
+
+If you have uncommitted changes or a branch with work on it, try a code review:
+
+```
+/code-review
+```
+
+This invokes the `pensive` plugin's review system. It analyzes your changes and reports findings by category: bugs, style issues, architecture concerns, test coverage gaps.
+
+For a more targeted review, you can use specific variants:
+
+```
+/bug-review          # Focus on potential bugs
+/architecture-review # Focus on design patterns
+/test-review         # Focus on test quality
+```
+
+## Step 5: Understand How Skills Compose
+
+Skills often work together. For example, preparing a PR typically involves:
+
+1. `/commit-msg` - generate a commit message for staged changes
+2. `/prepare-pr` - run quality gates and create the PR description
+
+The PR preparation skill runs workspace analysis, checks for scope drift, and produces a PR description, all by composing underlying skills.
+
+This composition happens on its own. You don't need to orchestrate it. Just invoke the top-level command and the skill handles the rest.
+
+## What You've Learned
+
+- **Skills** are the building blocks. Each does one thing well.
+- **Commands** (`/command`) are the main interface for invoking skills.
+- **Plugins** group related skills by domain (git, review, analysis, etc.).
+- **Composition** lets skills chain together into workflows without manual orchestration.
+
+## Next Steps
+
+| Tutorial | When to read it |
+|----------|----------------|
+| [Feature Development Lifecycle](feature-lifecycle.md) | You want to build a feature from spec to PR |
+| [Code Review and PR Workflow](code-review-pr-workflow.md) | You're ready to review code and submit PRs |
+| [Debugging and Issue Resolution](debugging-issues.md) | You need to triage and fix a bug |
+| [Memory Palace: Knowledge Management](memory-palace-knowledge.md) | You want to build a persistent knowledge base |
 
 ---
 
-## Part 1: Skill Discovery and Cataloging
-
-### Exploring Plugin Skills
-
-Skills are organized within plugin directories under a `skills/` subdirectory. Each skill is a directory containing:
-
-- `SKILL.md` - The skill definition with frontmatter and workflow instructions
-- `modules/` (optional) - Modular components loaded progressively
-- `scripts/` (optional) - Executable scripts for automation
-
-To explore available skills in a plugin:
-
-```bash
-ls plugins/abstract/skills/
-```
-
-**Output:**
-```
-dogfood/  plugin-auditor/  plugin-validator/  skill-auditor/  skill-creator/
-```
-
-Each of these directories represents a **meta-skill** for plugin development.
-
-### Counting Total Skills
-
-To get a project-wide count of all skills:
-
-```bash
-find plugins -name 'SKILL.md' -type f | wc -l
-```
-
-**Output:**
-```
-105
-```
-
-This count represents the total capability surface of the marketplace. Each skill is:
-- **Self-contained:** Can be invoked independently
-- **Documented:** Includes description, usage, and examples
-- **Testable:** Follows structured patterns for validation
-
----
-
-## Part 2: Skill Anatomy and Structure
-
-### Skill Definition Format
-
-Skills follow a **two-part structure:**
-
-1. **YAML Frontmatter** - Metadata and configuration
-2. **Markdown Body** - Workflow instructions and context
-
-Let's examine a real skill:
-
-```bash
-head -30 plugins/abstract/skills/plugin-validator/SKILL.md
-```
-
-**Sample Output:**
-```yaml
----
-name: plugin-validator
-description: |
-  Validate plugin structure, metadata, and skill definitions.
-  Checks frontmatter, dependencies, and file organization.
-category: validation
-tags: [plugin, validation, quality]
-tools: [Read, Glob, Bash]
-complexity: medium
-estimated_tokens: 800
-dependencies:
-  - abstract:shared
----
-
-# Plugin Validator Skill
-
-Validates that a plugin follows the claude-night-market conventions...
-```
-
-### Frontmatter Fields
-
-| Field | Purpose | Example |
-|-------|---------|---------|
-| `name` | Unique identifier | `plugin-validator` |
-| `description` | What the skill does | Multi-line description |
-| `category` | Skill category | `validation`, `workflow`, `analysis` |
-| `tags` | Searchable keywords | `[plugin, validation]` |
-| `tools` | Required Claude Code tools | `[Read, Write, Bash]` |
-| `complexity` | Complexity level | `low`, `medium`, `high` |
-| `estimated_tokens` | Approximate token usage | `800` |
-| `dependencies` | Required skills | `[abstract:shared]` |
-
-### Progressive Loading
-
-Some skills use **progressive loading** to reduce initial token cost:
-
-```yaml
-progressive_loading: true
-modules:
-  - manifest-parsing
-  - markdown-generation
-  - tape-validation
-```
-
-Modules are loaded on-demand when specific functionality is needed.
-
----
-
-## Part 3: Skill Validation
-
-### Why Validate Skills?
-
-The `abstract:plugin-validator` skill verifies that skills follow project conventions. This validation checks for structural integrity by confirming required files exist, ensures that YAML frontmatter is well-formed, and resolves dependencies between skills. It also assesses documentation quality by checking for clear descriptions and examples.
-
-### Using the Validator
-
-In Claude Code, invoke with:
-
-```
-Skill(abstract:plugin-validator, plugin_name='sanctum')
-```
-
-The validator performs these checks:
-
-1. Plugin structure: Confirms `skills/`, `commands/`, `.claude-plugin/` exist
-2. Skill frontmatter: Validates YAML syntax and required fields
-3. Command definitions: Checks command markdown files are valid
-4. Dependencies: Verifies all referenced skills exist
-
-**Example Validation Output:**
-```
-Plugin structure valid
-19 skills found with valid frontmatter
-12 commands defined correctly
-All dependencies resolved
-WARNING: skill-x missing 'estimated_tokens' field
-```
-
----
-
-## Part 4: Skills in Real Workflows
-
-### Example: Git Workspace Review
-
-The `sanctum:git-workspace-review` skill is commonly invoked at the start of development sessions:
-
-```
-Skill(sanctum:git-workspace-review)
-```
-
-**What it does:**
-
-1. Repository State: Runs `git status` to identify uncommitted changes
-2. Commit History: Runs `git log` to show recent commits and context
-3. File Analysis: Analyzes changed files to understand impact areas
-4. Session Context: Provides Claude Code with a full view of the current work
-
-**Value Proposition:**
-
-- Context Recovery: Quickly understand what's in progress
-- Change Impact: See which parts of the codebase are affected
-- Commit Quality: Understand recent work to maintain consistency
-
-### Example: PR Preparation Workflow
-
-Complex workflows compose multiple skills sequentially:
-
-```
-PR Preparation Workflow:
-  1. Skill(sanctum:git-workspace-review) - Understand changes
-  2. Skill(imbue:scope-guard) - Check scope drift
-  3. Skill(sanctum:commit-messages) - Generate commit message
-  4. Skill(sanctum:pr-prep) - Prepare PR description
-```
-
-#### Benefits of Skill Composition
-
-Composing skills into workflows provides several advantages. Each skill maintains a focus on a single responsibility, which increases reusability across different projects and tasks. This modular approach maintains a consistent standard for complex operations like PR preparation and integrates quality gates that automatically check for scope drift and code quality issues.
-
----
-
-## Part 5: Skills Enable Workflow Automation
-
-### The Skills Philosophy
-
-Skills transform the assistant's capabilities by encoding team best practices directly into the workflow. This automation removes the need to manually describe repetitive tasks such as code review steps or documentation updates. By following the same process every time, skills maintain consistency across the project and provide the assistant with the necessary context to understand specific project structures and conventions.
-
-### Skill Composition Patterns
-
-#### Sequential Composition
-Skills execute in order, each building on the previous:
-```
-Skill(A) → Skill(B) → Skill(C)
-```
-
-#### Conditional Composition
-Skills invoke others based on context:
-```
-if scope_drift_detected:
-    Skill(imbue:scope-guard)
-```
-
-#### Parallel Composition
-Independent skills can run in parallel (conceptually):
-```
-Skill(pensive:api-review) + Skill(pensive:architecture-review)
-```
-
----
-
-## Key Insights
-
-### Design Principles
-
-1. **Single Responsibility:** Each skill does one thing well
-2. **Clear Dependencies:** Skills declare what they need
-3. **Progressive Disclosure:** Complex skills load modules on-demand
-4. **Self-Documentation:** Skills explain their purpose and usage
-
-### Quality Metrics
-
-- 105 skills across 14 plugins
-- Structured workflows for git, review, specs, testing
-- Composable and reusable across projects
-- Self-documenting with clear dependencies
-- Validated structure supports overall quality
-
-### Workflow Value
-
-- **Git Operations:** 19 skills in sanctum for branch management, commits, PRs
-- **Code Review:** 12 skills in pensive for multi-discipline review
-- **Specification:** 8 skills in spec-kit for spec-driven development
-- **Testing:** 6 skills in parseltongue for Python test analysis
-- **Meta-Development:** 5 skills in abstract for plugin creation
-
----
-
-## Further Reading
-
-- **[Plugin Overview](../plugins/README.md):** Deep dive into plugin design
-- **[Skills Reference](../reference/capabilities-skills.md):** How skills work and skill catalog
-- **[Workflows Reference](../reference/capabilities-workflows.md):** Common skill composition patterns
-- **[Capabilities Reference](../reference/capabilities-reference.md):** Full catalog of all capabilities
-
----
-
-**Duration:** ~90 seconds
 **Difficulty:** Beginner
-**Prerequisites:** Basic understanding of Claude Code
-**Tags:** skills, workflows, claude-code, development, getting-started, architecture
+**Prerequisites:** Claude Code installed, Night Market plugins installed
+**Duration:** 5 minutes

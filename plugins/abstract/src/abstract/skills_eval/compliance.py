@@ -1,5 +1,7 @@
 """Compliance checking for skills against standards."""
 
+from __future__ import annotations
+
 import json
 import logging
 import re
@@ -7,8 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
-from abstract.frontmatter import FrontmatterProcessor
-from abstract.tokens import estimate_tokens
+from ..frontmatter import FrontmatterProcessor
+from ..tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 

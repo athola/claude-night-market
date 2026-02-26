@@ -7,6 +7,8 @@ This script helps maintain the CHANGELOG.md file by:
 - Validating changelog format
 """
 
+from __future__ import annotations
+
 import argparse
 import re
 import subprocess  # nosec B404

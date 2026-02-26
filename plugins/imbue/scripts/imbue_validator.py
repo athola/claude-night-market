@@ -260,7 +260,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--root",
-        default="/home/alext/imbue",
+        default=str(Path(__file__).resolve().parent.parent),
         help="Imbue plugin root directory",
     )
     parser.add_argument("--report", action="store_true", help="Generate full report")

@@ -37,7 +37,7 @@ Many Night Market capabilities achieve their full potential when used alongside 
 | **pensive** | `/full-review` | Command | `systematic-debugging`, `verification-before-completion` | Debugging + evidence |
 | **parseltongue** | `python-testing` | Skill | `test-driven-development`, `testing-anti-patterns` | TDD + anti-patterns |
 | **imbue** | `scope-guard` | Skill | `brainstorming`, `writing-plans`, `execute-plan` | Anti-overengineering |
-| **imbue** | `/feature-review` | Command | `brainstorming` | Feature prioritization |
+| **imbue** | `Skill(imbue:scope-guard)` | Skill | `brainstorming`, `writing-plans`, `execute-plan` | Feature prioritization (consolidated from `/feature-review`) |
 | **conservation** | `/optimize-context` | Command | `condition-based-waiting` | Smart waiting |
 | **minister** | `issue-management` | Skill | `systematic-debugging` | Bug investigation |
 

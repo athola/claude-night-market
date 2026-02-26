@@ -51,9 +51,9 @@ Analyzes current context usage and suggests MECW (Minimum Effective Context Wind
 
 ### Growth Analysis
 ```bash
-/analyze-growth
+/bloat-scan
 ```
-Predicts context budget impact of skill growth patterns.
+Predicts context budget impact of skill growth patterns. (Growth analysis has been consolidated into `/bloat-scan`.)
 
 ### External Delegation
 ```bash

@@ -7,6 +7,8 @@ Provide the single source of truth for all frontmatter operations:
 - Access: Provide clean interfaces for frontmatter data
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from pathlib import Path
 

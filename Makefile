@@ -188,7 +188,7 @@ validate-all: ## Validate all plugin structures
 	@for plugin in $(ALL_PLUGINS); do \
 		echo ""; \
 		echo ">>> Validating $$plugin:"; \
-		python3 $(ABSTRACT_DIR)/scripts/validate-plugin.py $$plugin || echo "  (validation failed)"; \
+		python3 $(ABSTRACT_DIR)/scripts/validate_plugin.py $$plugin || echo "  (validation failed)"; \
 	done
 
 plugin-check: ## Run demo/dogfood checks across all plugins

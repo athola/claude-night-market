@@ -15,8 +15,7 @@ tests/
 │   │   ├── test_context_optimization.py # MECW principles and context management
 │   │   ├── test_token_conservation.py   # Token optimization and quota tracking
 │   │   ├── test_performance_monitoring.py # Resource usage monitoring
-│   │   ├── test_mcp_code_execution.py   # MCP pattern optimization
-│   │   └── test_optimizing_large_skills.py # Large skill optimization
+│   │   └── test_mcp_code_execution.py   # MCP pattern optimization
 │   ├── commands/                        # Command-specific tests
 │   │   ├── test_optimize_context.py     # /optimize-context command
 │   │   └── test_analyze_growth.py       # /analyze-growth command

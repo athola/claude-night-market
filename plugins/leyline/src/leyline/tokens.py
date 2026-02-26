@@ -5,6 +5,8 @@ with optional tiktoken integration for accurate tokenization and a secondary
 heuristic-based estimation.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from collections.abc import Iterable

@@ -29,6 +29,7 @@ from aggregate_skill_logs import (  # noqa: E402
     aggregate_logs,
     generate_learnings_md,
     get_learnings_path,
+    get_log_directory,
 )
 from auto_promote_learnings import run_auto_promote as _promote  # noqa: E402
 
@@ -39,11 +40,6 @@ CADENCE_SECONDS = 24 * 3600
 def get_timestamp_path() -> Path:
     """Get path to the last-aggregation timestamp file."""
     return Path.home() / ".claude" / "skills" / "logs" / ".last_aggregation"
-
-
-def get_log_directory() -> Path:
-    """Get the skill execution log directory."""
-    return Path.home() / ".claude" / "skills" / "logs"
 
 
 def should_aggregate() -> bool:

@@ -342,9 +342,9 @@ class TestReviewSkill(BaseReviewSkill):
                 )
 
         # Tests without assertions
-        test_funcs = re.finditer(
+        test_funcs = list(re.finditer(
             r"def\s+(test_\w+)\s*\([^)]*\):(.*?)(?=\ndef|\Z)", content, re.DOTALL
-        )
+        ))
         for match in test_funcs:
             func_name = match.group(1)
             func_body = match.group(2)

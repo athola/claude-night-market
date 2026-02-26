@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Fetch latest versions for dependencies and GitHub Actions."""
 
+from __future__ import annotations
+
 import json
 import urllib.request
 from functools import lru_cache

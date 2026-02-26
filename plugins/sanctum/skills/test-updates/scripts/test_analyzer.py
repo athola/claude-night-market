@@ -10,6 +10,8 @@ Usage:
     python test_analyzer.py --changes /path/to/repo
 """
 
+from __future__ import annotations
+
 import argparse
 import ast
 import json

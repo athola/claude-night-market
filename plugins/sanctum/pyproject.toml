@@ -1,6 +1,6 @@
 [project]
 name = "sanctum"
-version = "1.4.5"
+version = "1.5.0"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}

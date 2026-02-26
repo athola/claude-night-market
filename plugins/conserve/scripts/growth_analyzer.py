@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from datetime import datetime
 
@@ -51,7 +52,6 @@ class GrowthAnalyzer:
         urgency = self._assess_urgency(growth_rate, acceleration)
 
         # Analyze controllable growth
-        context_data.get("growth_metrics", {})
         content_breakdown = context_data.get("content_breakdown", {})
         controllable_percentage = self._calculate_controllable_growth(content_breakdown)
 
@@ -245,6 +245,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    import math
-
     main()

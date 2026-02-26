@@ -10,6 +10,8 @@ Usage:
     python quality_checker.py --validate test_file.py
 """
 
+from __future__ import annotations
+
 import argparse
 import ast
 import json
@@ -160,7 +162,7 @@ class TestQualityChecker:
         imports = [
             node
             for node in ast.walk(tree)
-            if isinstance(node, ast.Import | ast.ImportFrom)
+            if isinstance(node, (ast.Import, ast.ImportFrom))
         ]
 
         if not imports:

@@ -5,6 +5,8 @@ This module analyzes plugin code to identify functionality that might overlap
 with existing superpowers, helping with migration decisions.
 """
 
+from __future__ import annotations
+
 import importlib
 import os
 import sys

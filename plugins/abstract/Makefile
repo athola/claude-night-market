@@ -283,7 +283,7 @@ demo-validate-plugin: ## Demo validate-plugin command (LIVE)
 	@echo ""
 	@echo "Running validate-plugin on abstract plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/validator.py --target . || echo 'Plugin validator: Checks plugin structure compliance' || echo "  [INFO] Tool execution completed"
+	$(UV_RUN) python scripts/validate_plugin.py --target . || echo 'Plugin validator: Checks plugin structure compliance' || echo "  [INFO] Tool execution completed"
 	@echo ""
 	@echo "Use /validate-plugin for full workflow."
 

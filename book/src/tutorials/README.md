@@ -1,65 +1,32 @@
 # Tutorials
 
-Step-by-step guides for common workflows and advanced features.
+Workflow-driven tutorials for real developer scenarios. Each tutorial walks through an actual task using real commands.
 
 ## Available Tutorials
 
 | Tutorial | Description | Level |
 |----------|-------------|-------|
-| [Skills Showcase](skills-showcase.md) | Discover, validate, and use skills in Claude Code | Beginner |
-| [Cache Modes](cache-modes.md) | Memory Palace cache mode configuration | Intermediate |
-| [Embedding Upgrade](embedding-upgrade.md) | Adding semantic search to Memory Palace | Advanced |
-| [Memory Palace Curation](memory-palace-curation.md) | Knowledge intake and curation workflow | Intermediate |
-| [Error Handling](error-handling-tutorial.md) | Error handling patterns and recovery strategies | Intermediate |
-| [Cross-Plugin Collaboration](cross-plugin-collaboration.md) | Using skills across multiple plugins | Intermediate |
+| [Your First Session](skills-showcase.md) | Install, explore skills, run your first command | Beginner |
+| [Feature Development Lifecycle](feature-lifecycle.md) | Spec → implement → test → PR end-to-end | Intermediate |
+| [Code Review and PR Workflow](code-review-pr-workflow.md) | Review, commit, PR, and address feedback | Beginner |
+| [Debugging and Issue Resolution](debugging-issues.md) | Triage a GitHub issue, debug, fix, verify | Intermediate |
+| [Memory Palace: Knowledge Management](memory-palace-knowledge.md) | Build and maintain a persistent knowledge base | Intermediate |
 
-## Tutorial Structure
+## Suggested Path
 
-Each tutorial includes:
+### New Users
 
-- **Prerequisites**: What you need before starting
-- **Objectives**: What you'll learn
-- **Step-by-step instructions**: Detailed walkthrough
-- **Verification**: How to confirm success
-- **Troubleshooting**: Common issues and solutions
+1. [Your First Session](skills-showcase.md) - understand skills, commands, and plugins
+2. [Code Review and PR Workflow](code-review-pr-workflow.md) - the most common daily workflow
+3. [Feature Development Lifecycle](feature-lifecycle.md) - full feature development cycle
 
-## Skill Levels
+### Experienced Users
 
-| Level | Description |
-|-------|-------------|
-| **Beginner** | New to Claude Night Market |
-| **Intermediate** | Familiar with basic plugin usage |
-| **Advanced** | Comfortable with configuration and customization |
+1. [Debugging and Issue Resolution](debugging-issues.md) - issue triage and resolution
+2. [Memory Palace: Knowledge Management](memory-palace-knowledge.md) - persistent knowledge base
 
-## Suggested Learning Path
+## Prerequisites
 
-### For New Users
-
-1. Complete [Getting Started](../getting-started/quick-start.md) first
-2. Follow [Skills Showcase](skills-showcase.md) to understand the skill system
-3. Read plugin documentation for plugins you've installed
-4. Return here for deeper dives
-
-### For Memory Palace Users
-
-1. [Cache Modes](cache-modes.md) - Understand interception behavior
-2. [Memory Palace Curation](memory-palace-curation.md) - Manage knowledge intake
-3. [Embedding Upgrade](embedding-upgrade.md) - Add semantic search
-
-### For Plugin Developers
-
-1. [Skills Showcase](skills-showcase.md) - Understand skill architecture
-2. [Cross-Plugin Collaboration](cross-plugin-collaboration.md) - Learn skill dependencies
-3. [Error Handling](error-handling-tutorial.md) - Implement error handling
-
-## Achievement Progress
-
-<div class="tutorial-progress" data-section="tutorials">
-Complete all tutorials to unlock: Tutorial Master
-</div>
-
-| Tutorial | Status |
-|----------|--------|
-| Cache Modes | <span class="achievement-checkbox" data-tutorial="cache-modes"></span> |
-| Embedding Upgrade | <span class="achievement-checkbox" data-tutorial="embedding-upgrade"></span> |
-| Memory Palace Curation | <span class="achievement-checkbox" data-tutorial="memory-palace-curation"></span> |
+- Claude Code installed
+- Night Market plugins installed (see [Installation](../getting-started/installation.md))
+- A git repository to work in

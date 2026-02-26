@@ -29,9 +29,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-# Configure logging for hook diagnostics
-logging.basicConfig(level=logging.WARNING, format="%(name)s: %(message)s")
-logger = logging.getLogger("context_warning")
+logger = logging.getLogger(__name__)
 
 # Threshold constants for three-tier MECW warnings
 WARNING_THRESHOLD = 0.40

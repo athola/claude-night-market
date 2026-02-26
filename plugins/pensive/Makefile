@@ -304,7 +304,7 @@ demo-math-review: ## Demo math-review command (LIVE)
 	@echo ""
 	@echo "Running makefile-review on pensive plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/makefile_review.py Makefile || echo 'Makefile review: Analyzes Makefile patterns and quality' || echo "  [INFO] Tool execution completed"
+	@echo 'Makefile review: Analyzes Makefile patterns and quality (skill-based, no script)' || echo "  [INFO] Tool execution completed"
 	@echo ""
 	@echo "Use /makefile-review for full workflow."
 

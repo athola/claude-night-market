@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.4.5"
+version = "1.5.0"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -96,8 +96,8 @@ Repository = "https://github.com/superpowers-marketplace/spec-kit"
 "Bug Tracker" = "https://github.com/superpowers-marketplace/spec-kit/issues"
 Changelog = "https://github.com/superpowers-marketplace/spec-kit/blob/main/CHANGELOG.md"
 
-[project.scripts]
-speckit = "speckit.cli:main"
+# [project.scripts]
+# speckit = "speckit.cli:main"  # CLI not yet implemented
 
 # [tool.hatch.version]
 # path = "src/speckit/__init__.py"

@@ -605,5 +605,4 @@ When blocked:
 - [Specify Command](../commands/specify.md)
 - [Plan Command](../commands/plan.md)
 - [Execute Command](../commands/execute.md)
-- [Superpowers Integration](../../docs/superpowers-integration.md)
-- [Spec-Kit Integration](../../book/src/reference/superpowers-integration.md)
+- [Superpowers Integration](../../book/src/reference/superpowers-integration.md)

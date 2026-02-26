@@ -23,7 +23,6 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `skills-eval` | Skill quality assessment | Auditing skills for token efficiency |
 | `hooks-eval` | Hook security scanning | Verifying hook safety |
 | `escalation-governance` | Model escalation decisions | Deciding when to escalate models |
-| `makefile-dogfooder` | Makefile analysis | Ensuring Makefile completeness |
 | `methodology-curator` | Expert framework curation | Grounding skills in proven methodologies |
 | `shared-patterns` | Plugin development patterns | Reusable templates |
 | `subagent-testing` | Subagent test patterns | Testing subagent interactions |
@@ -36,11 +35,9 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `/create-skill` | Scaffold new skill with best practices |
 | `/create-command` | Scaffold new command |
 | `/create-hook` | Scaffold hook with security-first design |
-| `/analyze-hook` | Analyze hook for security and performance |
 | `/analyze-skill` | Get modularization recommendations |
 | `/bulletproof-skill` | Anti-rationalization workflow for hardening |
 | `/context-report` | Context optimization report |
-| `/estimate-tokens` | Estimate token usage for skills |
 | `/hooks-eval` | detailed hook evaluation |
 | `/make-dogfood` | Analyze and enhance Makefiles |
 | `/rules-eval` | Evaluate Claude Code rules quality |

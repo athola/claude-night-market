@@ -7,6 +7,8 @@ This example demonstrates how the Sanctum plugin can:
 4. Enhance git operations with complexity analysis
 """
 
+from __future__ import annotations
+
 import json
 import shutil
 import subprocess

@@ -92,7 +92,7 @@ class BaseReviewSkill:
     # Shared utility methods
     # ========================================================================
 
-    def _get_content(self, context: Any, filename: str = "") -> str:
+    def _get_code_content(self, context: Any, filename: str = "") -> str:
         """Get file content from context.
 
         Args:
@@ -104,7 +104,6 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.get_file_content(context, filename)
-        # Secondary implementation
         if hasattr(context, "get_file_content"):
             if filename:
                 content = context.get_file_content(filename)
@@ -113,7 +112,10 @@ class BaseReviewSkill:
             return content if isinstance(content, str) else ""
         return ""
 
-    def _find_line(self, content: str, position: int) -> int:
+    # Alias for backwards compat
+    _get_content = _get_code_content
+
+    def _find_line_number(self, content: str, position: int) -> int:
         """Find line number for a character position.
 
         Args:
@@ -125,10 +127,11 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.find_line_number(content, position)
-        # Default logic
         return content[:position].count("\n") + 1
 
-    def _extract_snippet(self, content: str, line: int, context: int = 0) -> str:
+    _find_line = _find_line_number
+
+    def _extract_code_snippet(self, content: str, line: int, context: int = 0) -> str:
         """Extract code snippet around a line.
 
         Args:
@@ -141,11 +144,12 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.extract_code_snippet(content, line, context)
-        # Default logic
         lines = content.split("\n")
         if 0 < line <= len(lines):
             return lines[line - 1].strip()
         return ""
+
+    _extract_snippet = _extract_code_snippet
 
     def _categorize_severity(
         self,

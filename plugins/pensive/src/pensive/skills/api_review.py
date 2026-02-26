@@ -19,12 +19,6 @@ class ApiReviewSkill(BaseReviewSkill):
         "rust",
     ]
 
-    def _get_code_content(self, context: Any, filename: str) -> str:
-        """Get code content."""
-        if hasattr(context, "get_file_content"):
-            return context.get_file_content(filename) or ""
-        return ""
-
     def analyze_typescript_api(
         self,
         context: Any,

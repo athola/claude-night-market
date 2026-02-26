@@ -2,6 +2,62 @@
 
 Dispatch subagents for independent tasks concurrently.
 
+## CRITICAL: Plan Before Large Dispatch
+
+**When dispatching 4+ agents**, you MUST enter plan mode first:
+
+| Agent Count | Requirement |
+|-------------|-------------|
+| 1-3 agents | Dispatch directly (standard parallel) |
+| 4+ agents | **Enter plan mode → write strategy → get user approval → execute** |
+
+### Why This Threshold Exists
+
+Large agent dispatches (4+ agents) create:
+- **Observability loss**: Too many concurrent outputs to track
+- **Context overflow**: Research agents produce large results, triggering continuation agents that lose state
+- **Recovery difficulty**: If 2 of 7 agents fail, there's no plan to resume from
+- **Wasted compute**: Without user alignment, agents may research the wrong things
+
+### Plan-Before-Dispatch Checklist
+
+Before launching 4+ agents, your plan MUST specify:
+
+1. **Agent roster**: Name, type (`general-purpose`/`Explore`/specialized), and model (`sonnet`/`haiku`/`opus`) for each
+2. **Scope per agent**: Exactly what each agent investigates (files, topics, questions)
+3. **Output contract**: What each agent should return (format, length, key questions to answer)
+4. **Result integration**: How you'll combine agent outputs into a coherent response
+5. **Failure strategy**: What happens if an agent hits context limits or returns incomplete results
+
+### Example Plan Structure
+
+```markdown
+## Agent Dispatch Plan: [Goal]
+
+### Agents (N total)
+
+| # | Agent Type | Model | Scope | Output Contract |
+|---|-----------|-------|-------|-----------------|
+| 1 | Explore | haiku | Search plugins/ for X | File paths + summaries |
+| 2 | general-purpose | sonnet | Research Y via web | Key findings, 500 words max |
+| 3 | general-purpose | sonnet | Analyze Z files | Structured assessment |
+
+### Integration Strategy
+[How results combine into final answer]
+
+### Failure Handling
+- Agent timeout/overflow: [strategy]
+- Incomplete results: [strategy]
+```
+
+### Enforcement
+
+This rule applies to ALL multi-agent dispatches, including:
+- Research/audit missions (web + codebase analysis)
+- Large refactoring across many files
+- Comprehensive review tasks
+- Any task requiring continuation agents
+
 ## CRITICAL: Execute Nonconflicting Tasks in Parallel
 
 **When you have multiple NONCONFLICTING tasks, invoke ALL Task tools in a SINGLE response.**

@@ -89,7 +89,7 @@ CONFIG_DEFAULTS: dict[str, Any] = {
     },
     "index_file": "memory-palace-index.yaml",
     "indexes_dir": "data/indexes",
-    "corpus_dir": "docs/knowledge-corpus/",
+    "corpus_dir": "",  # knowledge-corpus was removed in 1.5.0 consolidation
     "embedding_provider": "none",  # none|local|api
     # New governance + lifecycle controls
     "autonomy_level": 0,

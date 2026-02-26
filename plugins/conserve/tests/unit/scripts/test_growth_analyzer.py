@@ -537,7 +537,7 @@ class TestGrowthAnalyzerEdgeCases:
         if "mecw_violation_turns" in result["projections"]:
             # Should calculate violation turns
             assert isinstance(
-                result["projections"]["mecw_violation_turns"], int | float
+                result["projections"]["mecw_violation_turns"], (int, float)
             )
 
 
