@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/bloat-detector",
@@ -10,18 +10,15 @@
     "./skills/cpu-gpu-performance",
     "./skills/decisive-action",
     "./skills/mcp-code-execution",
-    "./skills/optimizing-large-skills",
     "./skills/response-compression",
     "./skills/smart-sourcing",
     "./skills/token-conservation"
   ],
   "commands": [
     "./commands/ai-hygiene-audit.md",
-    "./commands/analyze-growth.md",
     "./commands/bloat-scan.md",
     "./commands/optimize-context.md",
-    "./commands/unbloat.md",
-    "./commands/cleanup.md"
+    "./commands/unbloat.md"
   ],
   "agents": [
     "./agents/ai-hygiene-auditor.md",

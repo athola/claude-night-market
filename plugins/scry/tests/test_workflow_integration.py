@@ -10,6 +10,8 @@ Issue #54: Add integration tests for VHS -> ffmpeg -> GIF workflow
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+from __future__ import annotations
+
 import shutil
 import subprocess
 from pathlib import Path

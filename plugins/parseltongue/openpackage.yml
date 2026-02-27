@@ -1,0 +1,38 @@
+name: parseltongue
+version: 1.5.0
+description: Modern Python development suite - testing, performance optimization, async patterns, and packaging
+keywords:
+- python
+- testing
+- pytest
+- performance
+- optimization
+- async
+- asyncio
+- packaging
+- uv
+- profiling
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  leyline:
+    source: gh@athola/claude-night-market
+    path: plugins/leyline
+    skills:
+    - pytest-config
+skills:
+- skills/python-testing
+- skills/python-performance
+- skills/python-async
+- skills/python-packaging
+commands:
+- commands/analyze-tests.md
+- commands/check-async.md
+- commands/run-profiler.md
+agents:
+- agents/python-linter.md
+- agents/python-optimizer.md
+- agents/python-pro.md
+- agents/python-tester.md

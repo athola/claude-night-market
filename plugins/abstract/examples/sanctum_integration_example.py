@@ -7,6 +7,8 @@ This example demonstrates how the Abstract plugin can:
 4. Enhance skill analysis with git context
 """
 
+from __future__ import annotations
+
 import importlib.util
 import json
 import logging

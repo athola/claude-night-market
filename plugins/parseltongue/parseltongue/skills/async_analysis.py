@@ -92,7 +92,7 @@ class AsyncAnalysisSkill:
                 methods = [
                     item.name
                     for item in node.body
-                    if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
+                    if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
                 ]
 
                 has_aenter = "__aenter__" in methods

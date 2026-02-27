@@ -5,6 +5,8 @@ Provide standardized CLI creation with common arguments, output formatting,
 and integration with core Abstract functionality.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys
@@ -13,7 +15,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 
 from .base import AbstractScript
 from .config import AbstractConfig
@@ -23,7 +25,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult[T]:
+class CLIResult(Generic[T]):
     """Standard result wrapper for CLI operations."""
 
     success: bool

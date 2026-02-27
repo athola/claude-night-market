@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-02-26
+
+### Changed
+
+- **Cross-plugin skill consolidation** - Merged 7 redundant skills into parent skills as modules, eliminated 6 commands, and consolidated 2 hooks. Net reduction: ~7,200 lines removed across 90 files.
+  - `fpf-review` → `pensive:architecture-review/fpf-methodology` module
+  - `evidence-logging` → `imbue:proof-of-work/evidence-logging` module
+  - `damage-control` → `leyline:error-patterns/agent-damage-control` module
+  - `optimizing-large-skills` → `abstract:modular-skills/optimization-techniques` module
+  - `makefile-dogfooder` → `pensive:makefile-review/plugin-dogfood-checks` module
+  - `performance-optimization` → `leyline:progressive-loading/performance-budgeting` module
+  - `mecw-patterns` → `conserve:context-optimization/mecw-theory` module
+
+- **Command consolidation** - Removed 6 duplicate or overlapping commands:
+  - `/estimate-tokens` merged into `/context-report`
+  - `/analyze-growth` merged into `/bloat-scan`
+  - `/cleanup` merged into `/unbloat`
+  - `/update-readme` merged into `/update-docs`
+  - `/analyze-hook` merged into `/validate-hook`
+  - `/skill-logs` removed (namespace collision with memory-palace)
+  - `/doc-verify` and `/slop-scan` removed (agent-only, no command wrapper needed)
+  - `/feature-review` removed (merged into `imbue:scope-guard`)
+
+- **Hook consolidation** - Merged 4 hooks into 1:
+  - `web_content_processor.py` + `research_storage_prompt.py` → `web_research_handler.py` (memory-palace)
+  - `skill_tracker_pre.py` + `skill_tracker_post.py` removed (duplicate of abstract's canonical tracking)
+
+- **Cross-plugin delegation** - attune skills now delegate to spec-kit rather than duplicating:
+  - `attune:project-specification` delegates to `spec-kit:spec-writing`
+  - `attune:project-planning` delegates to `spec-kit:task-planning`
+
+- **Plan-before-dispatch rule** - Added enforcement requiring `EnterPlanMode` before dispatching 4+ parallel agents. Documented in `parallel-execution.md` and enforced via hookify rule.
+
 ## [1.4.5] - 2026-02-23
 
 ### Added

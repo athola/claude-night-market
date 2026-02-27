@@ -18,7 +18,7 @@ from typing import Any
 import yaml
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-CORPUS_DIR = PLUGIN_ROOT / "docs" / "knowledge-corpus"
+CORPUS_DIR = PLUGIN_ROOT / "docs" / "knowledge-corpus"  # removed in 1.5.0; kept for future re-seeding
 INDEX_DIR = PLUGIN_ROOT / "data" / "indexes"
 DATA_DIR = PLUGIN_ROOT / "data"
 DEFAULT_CACHE_CATALOG = CORPUS_DIR / "cache_intercept_catalog.yaml"
@@ -191,6 +191,14 @@ def main() -> None:
     """Seed Memory Palace knowledge corpus with curated entries."""
     print("Memory Palace Knowledge Corpus Seeder")
     print("=" * 50)
+
+    if not CORPUS_DIR.exists():
+        print(
+            f"Corpus directory not found: {CORPUS_DIR}\n"
+            "knowledge-corpus was removed in 1.5.0. "
+            "Create the directory to re-seed."
+        )
+        return
 
     entries = generate_entries()
     print(f"Generated {len(entries)} knowledge entries")

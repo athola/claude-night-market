@@ -79,15 +79,9 @@ Manage dependencies between plugins without tight coupling by detecting optional
 
 ## Integration Guides
 
-### [Superpowers Integration](superpowers-integration.md)
+### [Superpowers Integration](../../book/src/reference/superpowers-integration.md)
 
-Integrating with the [obra/superpowers](https://github.com/obra/superpowers) marketplace.
-
-**Topics**:
-- TDD workflows (superpowers:tdd)
-- Debugging (superpowers:debugging)
-- Brainstorming (superpowers:brainstorming)
-- Combined workflows with Night Market plugins
+Integrating with the [obra/superpowers](https://github.com/obra/superpowers) marketplace. See the [book reference](../../book/src/reference/superpowers-integration.md) for full details.
 
 ---
 

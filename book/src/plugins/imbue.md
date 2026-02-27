@@ -28,7 +28,6 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
 | `review-core` | Scaffolding for detailed reviews | Starting architecture, security, or code quality reviews |
-| `evidence-logging` | Evidence capture methodology | Creating audit trails during analysis |
 | `structured-output` | Output formatting patterns | Preparing final reports |
 
 ### Analysis Methods
@@ -45,12 +44,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 | `scope-guard` | Anti-overengineering | Evaluating if features should be built now |
 | `proof-of-work` | Evidence-based validation | Enforcing Iron Law TDD discipline |
 | `rigorous-reasoning` | Anti-sycophancy guardrails | Analyzing conflicts, evaluating contested claims |
-
-### Feature Planning
-
-| Skill | Description | When to Use |
-|-------|-------------|-------------|
-| `feature-review` | Feature prioritization | Sprint planning, roadmap reviews |
+| `feature-review` | Feature prioritization with RICE+WSJF scoring | Sprint planning, roadmap reviews |
 
 ### Workflow Automation
 
@@ -64,7 +58,6 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 |---------|-------------|
 | `/catchup` | Quick context recovery from recent changes |
 | `/structured-review` | Start structured review workflow with evidence logging |
-| `/feature-review` | Feature prioritization with RICE+WSJF scoring |
 
 ## Agents
 
@@ -118,17 +111,6 @@ Skill(imbue:diff-analysis)
 # - Changed files
 # - Key decisions
 # - Action items
-```
-
-### Feature Prioritization
-
-```bash
-/feature-review
-
-# Uses hybrid RICE+WSJF scoring:
-# - Reach, Impact, Confidence, Effort
-# - Weighted Shortest Job First
-# - ISO 25010 quality dimensions
 ```
 
 ## Scope Guard
@@ -214,7 +196,7 @@ Skill(imbue:review-core)
 Skill(sanctum:git-workspace-review)
 
 # Pensive uses imbue for evidence gathering
-Skill(imbue:evidence-logging)
+Skill(imbue:proof-of-work)
 Skill(pensive:architecture-review)
 ```
 
@@ -223,7 +205,6 @@ Skill(pensive:architecture-review)
 | Skill | Enhancement |
 |-------|-------------|
 | `scope-guard` | Uses `brainstorming`, `writing-plans`, `execute-plan` |
-| `/feature-review` | Uses `brainstorming` for feature suggestions |
 
 ## Related Plugins
 

@@ -165,13 +165,13 @@ Skill(parseltongue:python-testing)
 
 ### Documentation Cleanup
 ```bash
-/slop-scan docs/
+Skill(scribe:slop-detector)
 # Scans for AI-generated content markers
 
 /doc-polish README.md
 # Interactive cleanup of AI slop
 
-/doc-verify README.md
+Agent(scribe:doc-verifier)
 # Validates documentation claims
 ```
 

@@ -4,10 +4,15 @@ This module provides base classes and utilities for creating plugin command wrap
 that delegate to superpowers with parameter translation and error handling.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
 
 from .errors import ErrorHandler, ErrorSeverity, ToolError
 

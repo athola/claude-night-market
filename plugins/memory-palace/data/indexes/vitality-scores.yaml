@@ -1,36 +1,8 @@
-entries:
-  franklin-protocol-learning:
-    state: growing
-    vitality: 48
-    last_accessed: "2025-12-08T22:10:00Z"
-    history:
-      - event: retrieval
-        delta: 10
-        at: "2025-12-08T22:10:00Z"
-      - event: referenced
-        delta: 3
-        at: "2025-12-07T18:45:00Z"
-  konmari-method-tidying:
-    state: evergreen
-    vitality: 72
-    last_accessed: "2025-12-07T12:00:00Z"
-    history:
-      - event: retrieval
-        delta: 10
-        at: "2025-12-07T12:00:00Z"
-      - event: tending_review
-        delta: 5
-        at: "2025-12-06T09:30:00Z"
-  README:
-    state: probation
-    vitality: 18
-    last_accessed: "2025-12-05T16:00:00Z"
-    history:
-      - event: decay
-        delta: -3
-        at: "2025-12-08T00:00:00Z"
+# Vitality scores for memory palace knowledge entries
+# Emptied in 1.5.0: knowledge-corpus was removed during consolidation.
+entries: {}
 metadata:
-  last_recomputed: "2025-12-09T07:00:00Z"
+  last_recomputed: null
   decay_per_day: 1
   promotion_thresholds:
     growing: 30

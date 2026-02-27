@@ -34,27 +34,6 @@ class BugReviewSkill(BaseReviewSkill):
         "php",
     ]
 
-    def __init__(self) -> None:
-        """Initialize the bug review skill."""
-        super().__init__()
-
-    def _get_code_content(self, context: Any, filename: str) -> str:
-        """Get code content from context."""
-        if hasattr(context, "get_file_content"):
-            return context.get_file_content(filename) or ""
-        return ""
-
-    def _find_line_number(self, code: str, match_start: int) -> int:
-        """Find line number for a match position."""
-        return code[:match_start].count("\n") + 1
-
-    def _extract_code_snippet(self, code: str, line_num: int) -> str:
-        """Extract code snippet around a line."""
-        lines = code.split("\n")
-        if 0 < line_num <= len(lines):
-            return lines[line_num - 1].strip()
-        return ""
-
     # ========================================================================
     # Bug Detection Methods
     # ========================================================================
@@ -99,18 +78,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "null_pointer",
-                    "location": f"{filename}:1",
-                    "issue": "Potential null or undefined access detected",
-                    "code": code.split("\n")[0] if code else "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_race_conditions(
         self,
@@ -156,18 +124,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "race_condition",
-                    "location": f"{filename}:1",
-                    "issue": "Potential race condition or thread safety issue detected",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_memory_leaks(
         self,
@@ -212,18 +169,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "memory_leak",
-                    "location": f"{filename}:1",
-                    "issue": "Potential memory leak or event listener issue",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_sql_injection(
         self,
@@ -261,18 +207,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "sql_injection",
-                    "location": f"{filename}:1",
-                    "issue": "Potential SQL injection detected",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_off_by_one_errors(
         self,
@@ -313,18 +248,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "off_by_one",
-                    "location": f"{filename}:1",
-                    "issue": "Potential off-by-one error in bounds checking",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_integer_overflow(
         self,
@@ -364,18 +288,7 @@ class BugReviewSkill(BaseReviewSkill):
                 )
                 break  # Limit to avoid too many matches
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "integer_overflow",
-                    "location": f"{filename}:1",
-                    "issue": "Potential overflow risk in calculation",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_resource_leaks(
         self,
@@ -423,18 +336,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "resource_leak",
-                    "location": f"{filename}:1",
-                    "issue": "Potential file or socket leak",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_logical_errors(
         self,
@@ -485,18 +387,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "logical_error",
-                    "location": f"{filename}:1",
-                    "issue": "Potential logic error in conditional",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_type_confusion(
         self,
@@ -537,18 +428,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "type_confusion",
-                    "location": f"{filename}:1",
-                    "issue": "Potential type mismatch or confusion",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     def detect_timing_attacks(
         self,
@@ -599,18 +479,7 @@ class BugReviewSkill(BaseReviewSkill):
                     }
                 )
 
-        return (
-            bugs
-            if bugs
-            else [
-                {
-                    "type": "timing_attack",
-                    "location": f"{filename}:1",
-                    "issue": "Potential timing attack vulnerability in comparison",
-                    "code": "",
-                }
-            ]
-        )
+        return bugs
 
     # ========================================================================
     # Bug Analysis Methods

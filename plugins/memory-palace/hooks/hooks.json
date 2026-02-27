@@ -32,16 +32,6 @@
             "timeout": 3
           }
         ]
-      },
-      {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_tracker_pre.py",
-            "timeout": 1
-          }
-        ]
       }
     ],
     "PostToolUse": [
@@ -50,13 +40,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/web_content_processor.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/web_research_handler.py",
             "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/research_storage_prompt.py",
-            "timeout": 3
           }
         ]
       },
@@ -66,16 +51,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/local_doc_processor.py",
-            "timeout": 3
-          }
-        ]
-      },
-      {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_tracker_post.py",
             "timeout": 3
           }
         ]

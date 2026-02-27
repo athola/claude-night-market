@@ -80,6 +80,17 @@ For enhanced methodology integration:
 
 Superpowers provides TDD, debugging, and review patterns that enhance Night Market plugins.
 
+## Alternative: opkg (OpenPackage)
+
+Each plugin ships an `openpackage.yml` manifest for installation via opkg:
+
+```bash
+opkg i gh@athola/claude-night-market --plugins sanctum
+opkg i gh@athola/claude-night-market --plugins pensive,spec-kit
+```
+
+Plugins that depend on shared runtime skills (attune, conjure, imbue, memory-palace, parseltongue, sanctum) automatically pull `packages/core` as a dependency.
+
 ## Recommended Plugin Sets
 
 ### Minimal Setup

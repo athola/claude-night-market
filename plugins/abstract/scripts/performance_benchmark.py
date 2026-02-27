@@ -10,8 +10,8 @@ import statistics
 import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.test_skill_wrapper import TddSkillWrapper
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+from abstract.tdd_skill_wrapper import TddSkillWrapper
 
 
 def benchmark_wrapper(iterations: int = 1000) -> dict:

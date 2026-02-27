@@ -63,7 +63,7 @@ The claude-night-market codebase has three sophisticated but **disconnected** sy
 ### Architectural
 - **leyline abstraction** — Discussion support must go through the git-platform skill to maintain cross-platform compatibility (GitLab has similar "Discussions" in MR threads)
 - **Plugin boundaries** — Changes span multiple plugins (leyline, minister, sanctum, attune, memory-palace, imbue) and must respect their separation of concerns
-- **Existing hook budget** — 23 hooks already registered; adding more should be justified by clear value
+- **Existing hook budget** — 20 hooks already registered; adding more should be justified by clear value
 
 ### Process
 - **Human approval for publishing** — Agent decisions should require user confirmation before posting to public Discussions (similar to how memory-palace requires curator approval for tidying)

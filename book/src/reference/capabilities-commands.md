@@ -381,21 +381,17 @@ Optimize context window usage.
 ```
 
 ### `/conserve:analyze-growth`
-Analyze skill growth patterns.
+
+**Consolidated:** This command has been merged into `/bloat-scan`. See [bloat-scan](#conservebloat-scan).
+
+~~Analyze skill growth patterns.~~
 
 ```bash
-# Usage
-/analyze-growth [--plugin PLUGIN] [--days N] [--trend]
+# Usage (now use /bloat-scan instead)
+/bloat-scan [--level 1|2|3] [--focus TYPE] [--report FILE]
 
-# Options
---plugin PLUGIN    Limit to specific plugin
---days N           Analysis period (default: 30)
---trend            Show growth trend predictions
---alert            Alert if growth exceeds threshold
-
-# Examples
-/analyze-growth --plugin conserve --days 60
-/analyze-growth --trend --alert
+# Previous /analyze-growth options are covered by:
+/bloat-scan --level 2 --focus code    # Growth pattern analysis
 ```
 
 ---
@@ -421,21 +417,17 @@ Quick context recovery after session restart.
 ```
 
 ### `/imbue:feature-review`
-Feature prioritization and gap analysis.
+
+**Consolidated:** This command has been merged into `Skill(imbue:scope-guard)`. Invoke via `Skill(imbue:scope-guard)` instead.
+
+~~Feature prioritization and gap analysis.~~
 
 ```bash
-# Usage
-/feature-review [--scope BRANCH] [--against BASELINE]
+# Usage (now use Skill(imbue:scope-guard) instead)
+Skill(imbue:scope-guard)
 
-# Options
---scope BRANCH     Review specific branch
---against BASELINE Compare against baseline (main|tag|commit)
---gaps             Focus on gap analysis
---priorities       Generate priority rankings
-
-# Examples
-/feature-review --scope feature/new-api
-/feature-review --gaps --against main
+# scope-guard covers feature prioritization, gap analysis,
+# and anti-overengineering evaluation
 ```
 
 ### `/imbue:structured-review`
@@ -599,22 +591,18 @@ Update project documentation.
 ```
 
 ### `/sanctum:update-readme`
-Modernize README.
+
+**Consolidated:** This command has been merged into `/update-docs`. See [update-docs](#sanctumupdate-docs). Use `/update-docs --scope readme` for README-specific updates.
+
+~~Modernize README.~~
 
 ```bash
-# Usage
-/update-readme [--badges] [--toc]
+# Usage (now use /update-docs instead)
+/update-docs --scope readme
 
-# Options
---badges    Update/add badges
---toc       Update table of contents
---examples  Update code examples
---full      Full README refresh
-
-# Examples
-/update-readme
-/update-readme --badges --toc
-/update-readme --full
+# Previous /update-readme options are covered by /update-docs:
+/update-docs --scope readme    # README-specific updates
+/update-docs --scope all       # Full documentation refresh
 ```
 
 ### `/sanctum:update-tests`

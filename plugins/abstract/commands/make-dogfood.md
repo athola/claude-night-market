@@ -185,7 +185,7 @@ The command provides:
 
 ## Integration with Skills
 
-This command uses the `makefile-dogfooder` skill which provides:
+This command uses the `pensive:makefile-review` skill (module: plugin-dogfood-checks) which provides:
 - Modular discovery and analysis components
 - Safe testing patterns for validation
 - Template-based target generation

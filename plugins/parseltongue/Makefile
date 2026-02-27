@@ -105,7 +105,7 @@ memory-profile: ## Profile memory usage
 
 mutation-test: ## Run mutation testing
 	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate src/parseltongue --tests-dir tests/; \
+		mutmut run --paths-to-mutate parseltongue --tests-dir tests/; \
 	else \
 		echo "mutmut not installed (pip install mutmut)"; \
 	fi

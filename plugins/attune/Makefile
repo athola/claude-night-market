@@ -350,4 +350,7 @@ test-attune: ## Test attune command workflow
 
 
 # Catch-all rule
-%:: double-colon rule was interfering with typecheck, lint, etc.
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

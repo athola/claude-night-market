@@ -59,7 +59,7 @@ class ContinualEvaluator:
         """Save historical execution data."""
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
         with open(self.history_file, "w") as f:
-            json.dump(dict(self.skill_history), f, indent=2)
+            json.dump(dict(self.skill_history), f, indent=None, separators=(",", ":"))
 
     def evaluate_iteration(
         self, skill_ref: str, success: bool, duration_ms: int
@@ -248,6 +248,19 @@ def create_log_entry(
             skill_ref, success, duration_ms
         )
 
+    # Save minimal context on success to reduce log size; full context on failure
+    if outcome in ["failure", "partial"]:
+        context = {
+            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "tool_input": tool_input,
+            "output_preview": sanitize_output(tool_output, max_length=200),
+        }
+    else:
+        context = {
+            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "tool_input": {"skill": skill_ref},
+        }
+
     return {
         "timestamp": end_time.isoformat(),
         "invocation_id": pre_state.get("invocation_id") if pre_state else str(uuid4()),
@@ -257,11 +270,7 @@ def create_log_entry(
         "duration_ms": duration_ms,
         "outcome": outcome,
         "continual_metrics": continual_metrics,
-        "context": {
-            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
-            "tool_input": tool_input,
-            "output_preview": sanitize_output(tool_output, max_length=1000),
-        },
+        "context": context,
         "error": error,
         "qualitative_evaluation": None,  # Populated later by human-in-loop
     }

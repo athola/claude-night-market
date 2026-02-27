@@ -43,7 +43,7 @@ hooks:
   SessionStart:
     - command: "bash hooks/init.sh"
   Stop:
-    - command: "python3 hooks/cleanup.py"
+    - command: "python3 hooks/session_cleanup.py"
 ```
 
 ---

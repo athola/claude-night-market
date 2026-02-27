@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.4.5"
+version = "1.5.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -63,6 +63,19 @@ Repository = "https://github.com/anthropics/pensive.git"
 
 [project.scripts]
 pensive = "pensive.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-xdist>=3.0.0",
+    "coverage>=7.0.0",
+    "ruff>=0.14.13",
+    "mypy>=1.0.0",
+    "types-PyYAML>=6.0.0",
+]
 
 [tool.setuptools_scm]
 write_to = "src/pensive/_version.py"

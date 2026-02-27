@@ -156,11 +156,6 @@ def sample_plugin_json():
                 "description": "Monitor CPU/GPU performance and resource usage",
                 "file": "skills/cpu-gpu-performance/SKILL.md",
             },
-            {
-                "name": "optimizing-large-skills",
-                "description": "Optimize large skills for better performance",
-                "file": "skills/optimizing-large-skills/SKILL.md",
-            },
         ],
         "commands": [
             {
@@ -272,7 +267,6 @@ def temp_skill_dir(tmp_path):
         ("token-conservation", "Token optimization and quota management"),
         ("cpu-gpu-performance", "Resource usage and performance tracking"),
         ("mcp-code-execution", "MCP pattern optimization"),
-        ("optimizing-large-skills", "Large skill optimization patterns"),
     ]
 
     for skill_name, description in skill_configs:

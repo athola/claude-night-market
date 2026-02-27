@@ -863,14 +863,16 @@ class TestMainEntryPoint:
         data = json.loads(output)
         additional_context = data["hookSpecificOutput"]["additionalContext"]
 
-        # Check for formatted sections (updated for graceful wrap-up workflow)
-        assert "**CONTEXT LIMIT APPROACHING**" in additional_context
+        # Check for formatted sections (updated for auto-continuation workflow)
+        assert "**MANDATORY AUTO-CONTINUATION TRIGGERED**" in additional_context
         assert "EMERGENCY" in additional_context
-        assert "**ACTION REQUIRED:**" in additional_context
-        # Steps now focus on graceful completion (Task tool unavailable)
-        assert "1. Save session state" in additional_context
+        assert "**YOU MUST EXECUTE THIS NOW**" in additional_context
+        # Steps focus on session state handoff
+        assert (
+            "1. Write session state to .claude/session-state.md" in additional_context
+        )
         assert "session-state.md" in additional_context
-        assert "Do NOT repeatedly warn" in additional_context
+        assert "MANDATORY" in additional_context
 
 
 class TestConfigurableEmergencyThreshold:

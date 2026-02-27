@@ -55,7 +55,6 @@ class TestCodeRefinementSkillStructure:
         assert fm.get("name") == "code-refinement"
         assert "description" in fm
         assert fm.get("category") == "code-quality"
-        assert "version" in fm
         assert "modules" in fm
         assert "dependencies" in fm
 
@@ -143,40 +142,41 @@ class TestRefineCodeCommand:
 
 class TestCleanupCommand:
     """
-    Feature: Cleanup command has valid structure in conserve plugin
+    Feature: Cleanup mode is available in unbloat command (conserve plugin)
 
     As a user
-    I want /cleanup to orchestrate multiple cleanup commands
+    I want /unbloat --cleanup to orchestrate multiple cleanup commands
     So that I get comprehensive codebase maintenance
+
+    Note: The standalone /cleanup command was merged into /unbloat --cleanup.
     """
 
     CONSERVE_ROOT = PLUGIN_ROOT.parent / "conserve"
 
     @pytest.mark.unit
     def test_command_exists(self):
-        """Given the cleanup command, the file must exist."""
-        assert (self.CONSERVE_ROOT / "commands" / "cleanup.md").exists()
+        """Given the unbloat command, the file must exist."""
+        assert (self.CONSERVE_ROOT / "commands" / "unbloat.md").exists()
 
     @pytest.mark.unit
     def test_command_has_valid_frontmatter(self):
-        """Given cleanup.md, it must have name and usage."""
-        fm = _parse_frontmatter(self.CONSERVE_ROOT / "commands" / "cleanup.md")
-        assert fm.get("name") == "cleanup"
+        """Given unbloat.md, it must have name and usage."""
+        fm = _parse_frontmatter(self.CONSERVE_ROOT / "commands" / "unbloat.md")
+        assert fm.get("name") == "unbloat"
         assert "usage" in fm
 
     @pytest.mark.unit
     def test_command_documents_graceful_degradation(self):
-        """Given cleanup.md, it must document behavior when plugins missing."""
-        text = (self.CONSERVE_ROOT / "commands" / "cleanup.md").read_text()
+        """Given unbloat.md cleanup section, it must document behavior when plugins missing."""
+        text = (self.CONSERVE_ROOT / "commands" / "unbloat.md").read_text()
         assert "pensive" in text.lower()
-        assert "Graceful" in text or "graceful" in text or "fallback" in text.lower()
+        assert "Optional" in text or "optional" in text or "fallback" in text.lower()
 
     @pytest.mark.unit
     def test_command_references_sub_commands(self):
-        """Given cleanup.md, it must reference bloat-scan, unbloat, and refine-code."""
-        text = (self.CONSERVE_ROOT / "commands" / "cleanup.md").read_text()
+        """Given unbloat.md cleanup section, it must reference bloat-scan and refine-code."""
+        text = (self.CONSERVE_ROOT / "commands" / "unbloat.md").read_text()
         assert "/bloat-scan" in text
-        assert "/unbloat" in text
         assert "/refine-code" in text
         assert "/ai-hygiene-audit" in text
 

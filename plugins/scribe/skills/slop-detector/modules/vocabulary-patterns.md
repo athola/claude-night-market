@@ -150,6 +150,79 @@ user-friendly, best-in-class
 "at a crossroads"
 ```
 
+## Tier 4: Research-Validated Markers (2025-2026)
+
+From peer-reviewed studies on AI text detection (PMC12219543, arXiv 2503.01659v1).
+
+### High-Frequency Shift Words
+
+These common words had the largest frequency increase in post-ChatGPT text. Individually unremarkable; their co-occurrence is the signal.
+
+**10-word co-occurrence test** (5+ in a single paragraph = strong signal):
+```
+across, additionally, comprehensive, crucial, enhancing,
+exhibited, insights, notably, particularly, within
+```
+
+### New Verbs (Score: 3 each)
+```
+underscore(s), bolster, foster, harness, illuminate,
+elucidate, grapple, reimagine, intertwine, exemplify,
+evoke, emulate, transcend, unravel
+```
+
+Note: "underscores the importance" is a near-diagnostic construction (13.8x human baseline frequency).
+
+### New Adjectives (Score: 2-3 each)
+```
+seamless, invaluable, dynamic, whimsical, vibrant,
+timeless, sustainable (outside environmental context)
+```
+
+### New Adverbs (Score: 2 each)
+```
+aptly, tirelessly, seamlessly, vividly
+```
+
+### New Nouns (Score: 2 each)
+```
+interplay, facet, symphony (metaphorical), endeavor,
+synergy, insights (as padding: "provides valuable insights")
+```
+
+### Hedging Constructions (Score: 2-3 each)
+```
+"It's important to note that"
+"It's important to remember that"
+"Generally speaking"
+"To some extent"
+"From a broader perspective"
+"One might argue that"
+"It could be said that"
+"There is growing evidence that"
+```
+
+### Conclusion Starters (Score: 2 each)
+```
+"Overall, "
+"In conclusion, "
+"In summary, "
+"Ultimately, "
+"To sum up, "
+```
+
+These overwhelmingly start AI conclusions. Human writers end with specifics, callbacks, or questions.
+
+### Sycophantic Positivity (Score: 3 each)
+```
+"areas for improvement" (avoids saying "problems")
+"invaluable resource"
+"exceptional"
+"remarkable"
+```
+
+AI text is measured at 50% more sycophantic than human text (Georgetown AI Sycophancy Research, 2025).
+
 ## Detection Regex Patterns
 
 For automated scanning:
@@ -160,6 +233,15 @@ TIER1_PATTERNS = [
     r'\bbeacon\b', r'\bmultifaceted\b', r'\bpivotal\b', r'\bnuanced\b',
     r'\bmeticulous(?:ly)?\b', r'\bintricate\b', r'\bshowcasing\b',
     r'\bleveraging\b', r'\bstreamline\b', r'\bunleash\b',
+]
+
+TIER1_NEW_PATTERNS = [
+    r'\bunderscore[sd]?\b', r'\bbolster\b', r'\bfoster\b',
+    r'\billumicat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
+    r'\breimaginc[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
+    r'\bseamless(?:ly)?\b', r'\binvaluable\b', r'\bvibrant\b',
+    r'\binterplay\b', r'\bfacet[s]?\b', r'\bendeavor[s]?\b',
+    r'\baptly\b', r'\btirelessly\b', r'\bvividly\b',
 ]
 
 PHRASE_PATTERNS = [
@@ -173,6 +255,30 @@ PHRASE_PATTERNS = [
     r'nestled in the heart',
     r'treasure trove',
     r'game[- ]changer',
+    r"it's important to (?:note|remember|understand) that",
+    r'generally speaking',
+    r'from a broader perspective',
+    r'one might argue',
+    r'it could be said',
+    r'there is growing evidence',
+    r'areas for improvement',
+    r'invaluable resource',
+    r'underscores the importance',
+]
+
+# Conclusion starters (check first word of last paragraph)
+CONCLUSION_STARTERS = [
+    r'^Overall,',
+    r'^In conclusion,',
+    r'^In summary,',
+    r'^Ultimately,',
+    r'^To sum up,',
+]
+
+# Co-occurrence test: 5+ of these in one paragraph = strong signal
+HIGH_FREQ_SHIFT_WORDS = [
+    'across', 'additionally', 'comprehensive', 'crucial', 'enhancing',
+    'exhibited', 'insights', 'notably', 'particularly', 'within',
 ]
 ```
 

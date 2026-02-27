@@ -441,22 +441,17 @@ Check artifact consistency.
 ## Scribe Plugin
 
 ### `/slop-scan`
-Scan files for AI-generated content markers.
+
+**Consolidated:** This command wrapper has been removed. `slop-scan` is now agent-only via the `slop-hunter` agent. Invoke directly with `Agent(scribe:slop-hunter)`.
+
+~~Scan files for AI-generated content markers.~~
 
 ```bash
-# Usage
-/slop-scan [PATH] [--fix] [--report FILE]
+# Usage (now agent-only)
+Agent(scribe:slop-hunter)
 
-# Options
-PATH          File or directory to scan (default: current directory)
---fix         Show fix suggestions
---report FILE Output to report file
-
-# Examples
-/slop-scan
-/slop-scan docs/
-/slop-scan README.md --fix
-/slop-scan **/*.md --report slop-report.md
+# Or use the slop-detector skill directly:
+Skill(scribe:slop-detector)
 ```
 
 ### `/style-learn`
@@ -513,21 +508,17 @@ TYPE          Document type: readme|api|changelog|usage
 ```
 
 ### `/doc-verify`
-Validate documentation claims with proof-of-work.
+
+**Consolidated:** This command wrapper has been removed. `doc-verify` is now agent-only via the `doc-verifier` agent. Invoke directly with `Agent(scribe:doc-verifier)`.
+
+~~Validate documentation claims with proof-of-work.~~
 
 ```bash
-# Usage
-/doc-verify [FILES] [--strict] [--report FILE]
+# Usage (now agent-only)
+Agent(scribe:doc-verifier)
 
-# Options
-FILES         Files to verify
---strict      Treat warnings as errors
---report FILE Output QA report
-
-# Examples
-/doc-verify README.md
-/doc-verify docs/ --strict
-/doc-verify **/*.md --report qa-report.md
+# Or use the doc-generator skill with verification mode:
+Skill(scribe:doc-generator)
 ```
 
 ---

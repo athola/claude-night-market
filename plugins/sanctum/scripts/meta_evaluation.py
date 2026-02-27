@@ -12,6 +12,8 @@ Checks:
 - Anti-cargo cult patterns are enforced
 """
 
+from __future__ import annotations
+
 import argparse
 import re
 import sys
@@ -30,7 +32,6 @@ class MetaEvaluator:
         "imbue": [
             "proof-of-work",
             "review-core",
-            "evidence-logging",
             "structured-output",
         ],
         # Leyline plugin
@@ -252,7 +253,7 @@ class MetaEvaluator:
         # For critical evaluation skills, missing tests is a high severity issue
         critical_skills = {
             "abstract": ["skills-eval", "hooks-eval", "modular-skills"],
-            "imbue": ["proof-of-work", "evidence-logging"],
+            "imbue": ["proof-of-work"],
             "leyline": ["evaluation-framework", "testing-quality-standards"],
         }
 

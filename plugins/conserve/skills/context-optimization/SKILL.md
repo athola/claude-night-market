@@ -117,6 +117,7 @@ def select_optimal_modules(context_situation, task_complexity):
 ## Resources
 
 - **MECW Theory**: See `modules/mecw-principles.md` for core concepts and the 50% rule.
+- **MECW Theory (Extended)**: See `modules/mecw-theory.md` for pressure levels, compliance checking, and monitoring patterns.
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
 - **Context Waiting**: See `modules/context-waiting.md` for deferred loading strategies.

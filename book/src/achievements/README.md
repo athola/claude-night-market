@@ -38,9 +38,11 @@ As you explore the documentation, complete tutorials, and try plugins, you earn 
 
 | Achievement | Description | Status |
 |-------------|-------------|--------|
-| Cache Commander | Complete the Cache Modes tutorial | <span class="achievement-status" data-achievement="cache-modes-complete"></span> |
-| Semantic Scholar | Complete the Embedding Upgrade tutorial | <span class="achievement-status" data-achievement="embedding-upgrade-complete"></span> |
-| Knowledge Curator | Complete the Curation tutorial | <span class="achievement-status" data-achievement="curation-complete"></span> |
+| First Steps | Complete Your First Session | <span class="achievement-status" data-achievement="first-session-complete"></span> |
+| Full Cycle | Complete Feature Development Lifecycle | <span class="achievement-status" data-achievement="feature-lifecycle-complete"></span> |
+| PR Pro | Complete Code Review and PR Workflow | <span class="achievement-status" data-achievement="pr-workflow-complete"></span> |
+| Bug Squasher | Complete Debugging and Issue Resolution | <span class="achievement-status" data-achievement="debugging-complete"></span> |
+| Knowledge Keeper | Complete Memory Palace tutorial | <span class="achievement-status" data-achievement="memory-palace-complete"></span> |
 | Tutorial Master | Complete all tutorials | <span class="achievement-status" data-achievement="tutorial-master"></span> |
 
 ### Plugin Mastery

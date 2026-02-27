@@ -38,12 +38,11 @@
 # Tutorials
 
 - [Tutorial Overview](tutorials/README.md)
-- [Skills Showcase](tutorials/skills-showcase.md)
-- [Error Handling](tutorials/error-handling-tutorial.md)
-- [Cross-Plugin Collaboration](tutorials/cross-plugin-collaboration.md)
-- [Memory Palace Cache Modes](tutorials/cache-modes.md)
-- [Embedding Upgrade Guide](tutorials/embedding-upgrade.md)
-- [Memory Palace Curation](tutorials/memory-palace-curation.md)
+- [Your First Session](tutorials/skills-showcase.md)
+- [Feature Development Lifecycle](tutorials/feature-lifecycle.md)
+- [Code Review and PR Workflow](tutorials/code-review-pr-workflow.md)
+- [Debugging and Issue Resolution](tutorials/debugging-issues.md)
+- [Memory Palace: Knowledge Management](tutorials/memory-palace-knowledge.md)
 
 # Reference
 

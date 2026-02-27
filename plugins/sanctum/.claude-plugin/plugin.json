@@ -1,6 +1,6 @@
 {
   "name": "sanctum",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/commit-msg.md",
@@ -13,15 +13,13 @@
     "./commands/pr-review.md",
     "./commands/prepare-pr.md",
     "./commands/resolve-threads.md",
-    "./commands/skill-logs.md",
+    "./commands/update-ci.md",
     "./commands/update-dependencies.md",
     "./commands/update-docs.md",
     "./commands/update-plugins.md",
-    "./commands/update-readme.md",
     "./commands/update-tests.md",
     "./commands/update-tutorial.md",
-    "./commands/update-version.md",
-    "./commands/update-ci.md"
+    "./commands/update-version.md"
   ],
   "skills": [
     "./skills/commit-messages",

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 # ruff: noqa: S324, PLR0912, PLR2004
 """Duplicate code detection without external dependencies.
 

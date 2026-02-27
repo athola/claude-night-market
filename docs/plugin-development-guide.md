@@ -157,7 +157,7 @@ hooks:
     - matcher: "Write|Edit"
       command: "./post-edit-hook.sh"
   Stop:
-    - command: "./cleanup.sh"
+    - command: "./teardown.sh"
 
 escalation:
   to: sonnet                    # Escalate to stronger model

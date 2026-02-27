@@ -1,5 +1,7 @@
 """Evaluate hookify rules."""
 
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -231,7 +233,7 @@ class RuleEngine:
 
         messages = []
         for result in results:
-            header = f"{'🛑 BLOCKED' if result.should_block() else '⚠️  WARNING'}: {result.rule.name}"
+            header = f"{'[BLOCKED]' if result.should_block() else '[WARNING]'}: {result.rule.name}"
             messages.append(f"{header}\n\n{result.message}")
 
         return "\n\n---\n\n".join(messages)

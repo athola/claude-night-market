@@ -56,8 +56,8 @@ git checkout -b cleanup/bloat-reduction
 # 5. Verify no regressions
 make test
 
-# 6. Analyze growth trends
-/analyze-growth --plugin conserve --trend
+# 6. Analyze growth trends (consolidated into bloat-scan)
+/bloat-scan --level 2 --focus code
 
 # 7. Create cleanup PR
 /prepare-pr
@@ -165,7 +165,7 @@ Skill(memory-palace:knowledge-intake)
 
 # 3. Update documentation
 /sanctum:update-docs --check
-/sanctum:update-readme --full
+/sanctum:update-docs --scope readme
 
 # 4. Update tests
 /sanctum:update-tests --missing --coverage

@@ -24,6 +24,8 @@ This module offers two usage patterns:
    ```
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -43,10 +45,9 @@ if TYPE_CHECKING:
 def setup_imports() -> None:
     """Set up import paths for scripts run from any location.
 
-    This is a convenience function that maintains backwards compatibility.
+    This is a no-op kept for backwards compatibility.
     All imports are now handled at the module level.
     """
-    # Imports are now handled at module level, but keep this for compatibility
 
 
 def has_frontmatter_file(file_path: Path) -> bool:
@@ -110,11 +111,9 @@ class AbstractScript:
     def _setup_imports(self) -> None:
         """Set up import paths for running from any location.
 
-        This allows scripts to be run directly or as part of a package.
-        The method validates the abstract package is importable regardless
-        of the current working directory.
+        This is a no-op kept for backwards compatibility.
+        All imports are now handled at the module level.
         """
-        # Imports are now handled at module level, but keep this for compatibility
 
     def find_markdown_files(self, directory: Path) -> list[Path]:
         """Find all markdown files in a directory recursively.

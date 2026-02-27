@@ -159,10 +159,11 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.9
+    rev: 1.8.3
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r", "plugins/"]
+        additional_dependencies: ["bandit[toml]"]
         exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
 
   # =================================================================

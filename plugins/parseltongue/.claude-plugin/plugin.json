@@ -1,11 +1,11 @@
 {
   "name": "parseltongue",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "description": "Modern Python development suite - testing, performance optimization, async patterns, and packaging",
   "commands": [
     "./commands/analyze-tests.md",
-    "./commands/run-profiler.md",
-    "./commands/check-async.md"
+    "./commands/check-async.md",
+    "./commands/run-profiler.md"
   ],
   "skills": [
     "./skills/python-testing",

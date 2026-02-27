@@ -861,7 +861,7 @@ wheels = [
 
 [[package]]
 name = "pensive"
-version = "1.4.5"
+version = "1.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -899,6 +899,19 @@ docs = [
     { name = "mkdocstrings", extra = ["python"] },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
+    { name = "types-pyyaml" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=26.1.0" },
@@ -930,6 +943,19 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
 ]
 provides-extras = ["dev", "docs"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", specifier = ">=7.0.0" },
+    { name = "mypy", specifier = ">=1.0.0" },
+    { name = "pytest", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.21.0" },
+    { name = "pytest-cov", specifier = ">=4.0.0" },
+    { name = "pytest-mock", specifier = ">=3.10.0" },
+    { name = "pytest-xdist", specifier = ">=3.0.0" },
+    { name = "ruff", specifier = ">=0.14.13" },
+    { name = "types-pyyaml", specifier = ">=6.0.0" },
+]
 
 [[package]]
 name = "platformdirs"

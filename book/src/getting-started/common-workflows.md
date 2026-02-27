@@ -13,7 +13,7 @@ When and how to use commands, skills, and subagents for typical development task
 | [Catch up on changes](#catching-up-on-changes) | `/catchup` | imbue |
 | [Write specifications](#writing-specifications) | `/speckit-specify` | spec-kit |
 | [Improve system](#meta-development) | `/speckit-analyze` | spec-kit |
-| [Debug an issue](#debugging-issues) | `Skill(superpowers:debugging)` | superpowers |
+| [Debug an issue](#debugging-issues) | `Skill(superpowers:systematic-debugging)` | superpowers |
 | [Manage knowledge](#managing-knowledge) | `/palace` | memory-palace |
 
 ---
@@ -209,8 +209,8 @@ Run these commands before creating a PR:
 # 1. Update documentation
 /sanctum:update-docs
 
-# 2. Update README if needed
-/sanctum:update-readme
+# 2. Update README if needed (consolidated into update-docs)
+/sanctum:update-docs
 
 # 3. Review and update tests
 /sanctum:update-tests
@@ -372,7 +372,7 @@ Skill(superpowers:verification-before-completion)
 
 ```bash
 # Systematic debugging methodology
-Skill(superpowers:debugging)
+Skill(superpowers:systematic-debugging)
 
 # This provides:
 # - Hypothesis formation
@@ -517,8 +517,8 @@ make lint && make test && make build
 # Context optimization skill
 Skill(conserve:context-optimization)
 
-# Growth analysis
-/analyze-growth
+# Growth analysis (consolidated into bloat-scan)
+/bloat-scan
 ```
 
 ---
@@ -707,7 +707,7 @@ hooks:
     - matcher: "Write|Edit"
       command: "./format.sh"
   Stop:
-    - command: "./cleanup.sh"
+    - command: "./teardown.sh"
 ---
 ```
 

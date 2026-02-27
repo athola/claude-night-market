@@ -288,10 +288,42 @@ Phase 4.25 scans for AI-generated content markers:
 
 Use `--skip-slop` to bypass this phase. Slop warnings are non-blocking by default.
 
+## README Update Mode
+
+When invoked with `--readme` or targeting a README file, this command applies README-specific handling (formerly the standalone `/update-readme` command).
+
+### README Usage
+
+```bash
+# Update README specifically
+/update-docs --readme
+
+# Equivalent: target README directly
+/update-docs README.md
+```
+
+### README Workflow
+
+1. Run `Skill(sanctum:git-workspace-review)` to capture change context and complete its `TodoWrite` items.
+2. Run `Skill(sanctum:update-readme)` and follow its checklist (context, exemplar research, content consolidation, verification).
+3. Use notes from the preflight to understand recent changes that affect the README.
+4. Research language-aware README exemplars via web search for the project's primary language.
+5. Consolidate README sections with internal documentation links and reproducible evidence.
+6. Apply project writing guidelines and verify that all links and code examples work.
+7. Run `Skill(scribe:slop-detector)` on the updated README to detect AI-generated content markers.
+8. Apply `scribe:doc-generator` principles if slop score exceeds threshold.
+
+### README Manual Execution
+
+If a skill cannot be loaded:
+- Manually gather the Git context (`pwd`, `git status -sb`, `git diff --stat`).
+- Review the current README structure and update sections based on recent changes.
+- Verify all links and examples before finalizing.
+- Check for AI slop using scribe guidelines: avoid "leverage", "comprehensive", "cutting-edge", excessive em dashes, and marketing language.
+
 ## See Also
 
 - `/merge-docs` - Full consolidation workflow for complex multi-file merges
-- `/update-readme` - README-specific updates with exemplar research
 - `/git-catchup` - Understand recent git changes
 - `/slop-scan` - Direct AI slop detection (scribe plugin)
 - `/doc-polish` - Interactive documentation cleanup (scribe plugin)

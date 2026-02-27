@@ -9,12 +9,14 @@ Usage from within a skill:
     tokens = estimate_tokens("SKILL.md")
 """
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from typing import Any
 
-# Add project root to Python path for imports (must be before abstract imports)
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add abstract/src to Python path for imports (must be before abstract imports)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from abstract.tokens import TokenAnalyzer, extract_code_blocks
 from abstract.utils import find_skill_files
@@ -74,14 +76,9 @@ def analyze_skill(
                 "above_threshold": lines > threshold,
             }
 
-            if verbose:
-                pass
-
             results.append(result)
 
         except Exception as e:
-            if verbose:
-                pass
             results.append(
                 {
                     "path": str(skill_file),
@@ -171,64 +168,3 @@ def validate_skill_structure(skill_path: str = ".") -> dict[str, Any]:
         "total_skill_files": len(skill_files),
     }
 
-
-# CLI entry points for when run directly
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Skill analysis tools")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Analyze command
-    analyze_parser = subparsers.add_parser("analyze", help="Analyze skill complexity")
-    analyze_parser.add_argument("path", nargs="?", default=".", help="Path to analyze")
-    analyze_parser.add_argument(
-        "--threshold",
-        type=int,
-        default=150,
-        help="Complexity threshold",
-    )
-    analyze_parser.add_argument("--verbose", action="store_true", help="Verbose output")
-
-    # Token estimation command
-    token_parser = subparsers.add_parser("tokens", help="Estimate token usage")
-    token_parser.add_argument("file", help="File to analyze")
-
-    # Validate command
-    validate_parser = subparsers.add_parser("validate", help="Validate skill structure")
-    validate_parser.add_argument(
-        "path",
-        nargs="?",
-        default=".",
-        help="Path to validate",
-    )
-
-    args = parser.parse_args()
-
-    if args.command == "analyze":
-        result = analyze_skill(args.path, args.threshold, args.verbose)
-        for r in result["results"]:
-            if "error" in r:
-                pass
-            else:
-                status = "WARN" if r["above_threshold"] else "OK"
-                lines = r["lines"]
-                tokens = r["tokens"]
-                complexity = r["complexity"]
-
-    elif args.command == "tokens":
-        result = estimate_tokens(args.file)
-        code_tokens = result["code_tokens"]
-        blocks_count = result["code_blocks_count"]
-
-    elif args.command == "validate":
-        result = validate_skill_structure(args.path)
-        if result["valid"]:
-            pass
-        else:
-            pass
-        if result["existing_directories"]:
-            pass
-
-    else:
-        parser.print_help()

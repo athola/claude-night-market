@@ -10,6 +10,8 @@ Core Philosophy:
 - Dogfooding catches edge cases static analysis misses
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os

@@ -20,7 +20,6 @@ Use this command when you need to:
 
 Avoid this command if:
 - Analyzing single skill - use /analyze-skill instead
-- Estimating specific file tokens - use /estimate-tokens
 - Evaluating skill quality - use /skills-eval instead
 
 ## Usage
@@ -34,6 +33,12 @@ Avoid this command if:
 
 # Full statistics with detailed breakdown
 /context-report skills/ --stats
+
+# Estimate tokens for a single skill file
+/context-report --estimate skills/my-skill/SKILL.md
+
+# Estimate with dependency analysis
+/context-report --estimate skills/my-skill/SKILL.md --include-dependencies
 ```
 
 ## What It Reports
@@ -101,15 +106,48 @@ Before publishing a plugin, validate all skills are within optimal bounds:
 ### Optimization Planning
 Identify which skills need the most attention for modularization.
 
+## Token Estimation
+
+When used with `--estimate`, provides detailed per-file token breakdown:
+
+### Component Breakdown
+- **Frontmatter tokens**: YAML metadata overhead
+- **Body tokens**: Main content consumption
+- **Code tokens**: Embedded code examples
+- **Dependency tokens**: Referenced module costs (with `--include-dependencies`)
+
+### Token Thresholds
+- **< 800 tokens**: Optimal for quick loading
+- **800-2000 tokens**: Good balance of content and efficiency
+- **2000-3000 tokens**: Consider modularization
+- **> 3000 tokens**: Should modularize for context efficiency
+
+### Token Estimation Examples
+
+```bash
+/context-report --estimate skills/modular-skills/SKILL.md
+# Output:
+# === skills/modular-skills/SKILL.md ===
+# Total tokens: 1,847
+# Component breakdown:
+#   Frontmatter: 45 tokens
+#   Body content: 1,402 tokens
+#   Code blocks: 400 tokens
+# === Recommendations ===
+# GOOD: Optimal token range (800-2000 tokens)
+```
+
 ## Integration
 
 Complements other commands:
 - `/analyze-skill` - Deep dive on individual files
-- `/estimate-tokens` - Detailed token breakdown
 - `/skills-eval` - Quality and compliance scoring
 
 ## Implementation
 
 ```bash
+# Directory report mode
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/context_optimizer.py report "${1:-.}"
+# Token estimation mode (--estimate flag)
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/token_estimator.py --file "${1:-.}"
 ```

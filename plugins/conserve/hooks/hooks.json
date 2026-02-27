@@ -24,7 +24,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": ".*",
+        "matcher": "Write|Edit|Bash|Skill|Task",
         "hooks": [
           {
             "type": "command",
@@ -36,6 +36,7 @@
     ],
     "SessionStart": [
       {
+        "_comment": "Order 1: Initialize conservation metrics and context tracking on session start/resume",
         "matcher": "startup|resume|clear|compact",
         "hooks": [
           {

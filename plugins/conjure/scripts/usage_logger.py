@@ -5,6 +5,8 @@ Log Gemini CLI usage for pattern analysis and quota monitoring.
 Integrates with the gemini-delegation skill to track actual usage.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging

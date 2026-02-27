@@ -24,11 +24,9 @@ Scribe helps maintain high-quality documentation by detecting AI-generated conte
 
 | Command | Description |
 |---------|-------------|
-| `/slop-scan` | Scan files for AI slop markers |
 | `/style-learn` | Create style profile from examples |
 | `/doc-polish` | Clean up AI-generated content |
 | `/doc-generate` | Generate new documentation |
-| `/doc-verify` | Validate documentation claims with proof-of-work |
 
 ## Agents
 
@@ -43,11 +41,11 @@ Scribe helps maintain high-quality documentation by detecting AI-generated conte
 ### Detect AI Slop
 
 ```bash
-# Scan current directory
-/slop-scan
+# Scan using the slop-detector skill
+Skill(scribe:slop-detector)
 
-# Scan specific file with fix suggestions
-/slop-scan README.md --fix
+# Or use the slop-hunter agent for comprehensive detection
+Agent(scribe:slop-hunter)
 ```
 
 ### Clean Up Content
@@ -73,11 +71,11 @@ Scribe helps maintain high-quality documentation by detecting AI-generated conte
 ### Verify Documentation
 
 ```bash
-# Verify README claims and commands
-/doc-verify README.md
+# Verify README claims and commands (now agent-only)
+Agent(scribe:doc-verifier)
 
-# Verify with strict mode
-/doc-verify docs/ --strict --report qa-report.md
+# For targeted verification, use the doc-generator skill
+Skill(scribe:doc-generator)
 ```
 
 ## AI Slop Detection
@@ -127,7 +125,7 @@ Scribe integrates with sanctum documentation workflows:
 |-----------------|-------------------|
 | `/pr-review` | Runs `slop-detector` on changed `.md` files |
 | `/update-docs` | Runs `slop-detector` on edited docs |
-| `/update-readme` | Runs `slop-detector` on README |
+| `/update-docs --readme` | Runs `slop-detector` on README |
 | `/prepare-pr` | Verifies PR descriptions with `slop-detector` |
 
 ## Dependencies

@@ -10,6 +10,8 @@ Key principles:
 - Component-based analysis: Separate tokens for frontmatter, body, and code
 """
 
+from __future__ import annotations
+
 import re
 
 from .frontmatter import FrontmatterProcessor

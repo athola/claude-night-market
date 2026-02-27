@@ -24,7 +24,6 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `doc-consolidation` | Merge ephemeral docs | Consolidating LLM-generated docs |
 | `doc-updates` | Documentation maintenance | Syncing docs with code |
 | `test-updates` | Test generation and enhancement | Maintaining test suites |
-| `update-readme` | README modernization | Refreshing project entry points |
 | `version-updates` | Version bumping | Managing semantic versions |
 | `workflow-improvement` | Workflow retrospectives | Improving development processes |
 | `tutorial-updates` | Tutorial maintenance | Keeping tutorials current |
@@ -43,7 +42,6 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `/merge-docs` | Consolidate ephemeral docs |
 | `/update-docs` | Update documentation |
 | `/update-plugins` | Audit and sync plugin.json registrations |
-| `/update-readme` | Modernize README |
 | `/update-tests` | Maintain tests |
 | `/update-tutorial` | Update tutorial content |
 | `/update-version` | Bump versions |
@@ -138,7 +136,6 @@ git-workspace-review (foundation)
 ├── commit-messages
 ├── pr-prep
 ├── doc-updates
-├── update-readme
 └── version-updates
 
 file-analysis (standalone)

@@ -267,4 +267,4 @@ This demo integrates with:
 ## See Also
 
 - [Conserve Plugin](../../plugins/conserve/) - Context optimization plugin
-- [Cross-Plugin Collaboration](../../book/src/tutorials/cross-plugin-collaboration.md) - Plugin workflows
+- [Feature Development Lifecycle](../../book/src/tutorials/feature-lifecycle.md) - Plugin workflows in practice

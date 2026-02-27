@@ -6,6 +6,7 @@ ADR compliance, and generates architecture quality reports.
 
 from __future__ import annotations
 
+import re
 from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
@@ -337,8 +338,6 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         # Check for direct instantiation in __init__ methods
         if "def __init__(" in content:
             # Look for patterns like: self.something = ConcreteClass()
-            import re
-
             init_pattern = r"self\.\w+\s*=\s*([A-Z]\w+)\(\)"
             matches = re.findall(init_pattern, content)
             for class_name in matches:
@@ -370,7 +369,6 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             Dict with analysis for each SOLID principle
         """
         content = context.get_file_content(file_path)
-        import re
 
         # Single Responsibility Principle
         srp_violations = 0
@@ -656,8 +654,6 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 method_content = content[method_start:method_end]
 
                 # Remove comments from method content before checking
-                import re
-
                 method_without_comments = re.sub(r"#.*", "", method_content)
 
                 # Check for actual authorization code (not just in comments)

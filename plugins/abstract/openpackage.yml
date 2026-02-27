@@ -1,0 +1,62 @@
+name: abstract
+version: 1.5.0
+description: Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design
+  patterns, and evaluation frameworks
+keywords:
+- meta-skills
+- infrastructure
+- patterns
+- evaluation
+- modular
+- framework
+- agent-sdk
+- performance
+- optimization
+- hooks
+- scope
+- authoring
+- tdd
+- validation
+- security
+- bulletproofing
+- persuasion
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+skills:
+- skills/escalation-governance
+- skills/hook-authoring
+- skills/hooks-eval
+- skills/methodology-curator
+- skills/modular-skills
+- skills/rules-eval
+- skills/shared-patterns
+- skills/skill-authoring
+- skills/skills-eval
+- skills/subagent-testing
+commands:
+- commands/aggregate-logs.md
+- commands/analyze-skill.md
+- commands/bulletproof-skill.md
+- commands/context-report.md
+- commands/create-command.md
+- commands/create-hook.md
+- commands/create-skill.md
+- commands/evaluate-skill.md
+- commands/hooks-eval.md
+- commands/improve-skills.md
+- commands/make-dogfood.md
+- commands/plugin-review.md
+- commands/promote-discussions.md
+- commands/rules-eval.md
+- commands/skills-eval.md
+- commands/test-skill.md
+- commands/validate-hook.md
+- commands/validate-plugin.md
+agents:
+- agents/meta-architect.md
+- agents/plugin-validator.md
+- agents/skill-auditor.md
+- agents/skill-evaluator.md
+- agents/skill-improver.md

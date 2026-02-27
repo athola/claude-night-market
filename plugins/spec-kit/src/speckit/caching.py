@@ -1,5 +1,7 @@
 """Provide caching utilities for spec-kit performance optimization."""
 
+from __future__ import annotations
+
 import hashlib
 import json
 import time
@@ -252,55 +254,3 @@ class CacheManager:
         # This is a simplified implementation
         # In practice, you might want more sophisticated category tracking
         cache.invalidate()
-
-
-# Performance monitoring
-def cache_performance_monitor(func: Callable) -> Any:
-    """Monitor cache performance for a function."""
-
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        start_time = time.time()
-
-        # Check if result is cached
-        cache = get_cache()
-        cache_key = f"perf:{func.__module__}.{func.__name__}"
-        is_cached = cache.get(cache_key) is not None
-
-        result = func(*args, **kwargs)
-
-        execution_time = time.time() - start_time
-
-        # Log performance metrics
-        metrics = {
-            "function": f"{func.__module__}.{func.__name__}",
-            "execution_time": execution_time,
-            "cached": is_cached,
-            "timestamp": time.time(),
-        }
-
-        # Store performance metrics
-        perf_key = f"perf_metrics:{func.__name__}"
-        cache.set(perf_key, metrics, ttl=86400)  # Keep for 24 hours
-
-        return result
-
-    return wrapper
-
-
-def get_performance_report() -> dict[str, Any]:
-    """Get performance report for cached functions."""
-    cache = get_cache()
-    report = {"cache_stats": cache.get_cache_stats(), "function_metrics": {}}
-
-    # Collect performance metrics
-    for cache_file in cache.cache_dir.glob("perf_metrics_*.json"):
-        try:
-            with open(cache_file, encoding="utf-8") as f:
-                metrics = json.load(f)
-                func_name = metrics.get("function", "unknown")
-                report["function_metrics"][func_name] = metrics
-        except (OSError, json.JSONDecodeError):
-            continue
-
-    return report

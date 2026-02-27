@@ -8,6 +8,8 @@ This module provides reusable test fixtures following TDD/BDD principles:
 - Factory fixtures for generating variations
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any

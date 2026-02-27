@@ -141,7 +141,7 @@ class TestFrontmatterValidation:
                 elif field in ["complexity"]:
                     assert isinstance(value, str), f"{field} should be a string"
                 elif field == "estimated_tokens":
-                    assert isinstance(value, int | str), (
+                    assert isinstance(value, (int, str)), (
                         f"{field} should be a number or string"
                     )
 

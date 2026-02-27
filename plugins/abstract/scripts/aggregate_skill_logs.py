@@ -13,6 +13,7 @@ Part of Issue #69 Phase 3: Log Aggregation & Pattern Detection
 from __future__ import annotations
 
 import json
+import os
 import statistics
 import sys
 from collections import defaultdict
@@ -65,7 +66,7 @@ class AggregationResult:
 
 def get_log_directory() -> Path:
     """Get the skill execution log directory."""
-    claude_home = Path.home() / ".claude"
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
     return claude_home / "skills" / "logs"
 
 

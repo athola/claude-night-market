@@ -46,7 +46,7 @@ Memory Palace applies the ancient method of loci to digital knowledge management
 | `research_interceptor.py` | PreToolUse | Checks local knowledge before web searches |
 | `url_detector.py` | UserPromptSubmit | Detects URLs for intake |
 | `local_doc_processor.py` | PostToolUse | Processes local docs after reads |
-| `web_content_processor.py` | PostToolUse | Processes web content for storage |
+| `web_research_handler.py` | PostToolUse | Processes web content and prompts for knowledge storage |
 
 ## Usage Examples
 

@@ -1,5 +1,7 @@
 """Tool performance analysis functionality."""
 
+from __future__ import annotations
+
 import json
 import os
 import subprocess  # nosec B404

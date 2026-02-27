@@ -1,11 +1,10 @@
 {
   "name": "imbue",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/catchup",
     "./skills/diff-analysis",
-    "./skills/evidence-logging",
     "./skills/feature-review",
     "./skills/proof-of-work",
     "./skills/review-core",
@@ -15,9 +14,8 @@
     "./skills/workflow-monitor"
   ],
   "commands": [
-    "./commands/structured-review.md",
     "./commands/catchup.md",
-    "./commands/feature-review.md"
+    "./commands/structured-review.md"
   ],
   "agents": [
     "./agents/review-analyst.md"

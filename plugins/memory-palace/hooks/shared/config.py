@@ -28,7 +28,6 @@ CONFIG_DEFAULTS: dict[str, Any] = {
     "research_mode": "cache_first",
     "local_knowledge_paths": [
         "docs/",
-        "knowledge-corpus/",
         "references/",
     ],
     "exclude_patterns": [
@@ -89,7 +88,7 @@ CONFIG_DEFAULTS: dict[str, Any] = {
     },
     "index_file": "memory-palace-index.yaml",
     "indexes_dir": "data/indexes",
-    "corpus_dir": "docs/knowledge-corpus/",
+    "corpus_dir": "data/wiki",  # wiki-backed corpus (run scripts/sync_wiki.py to clone)
     "embedding_provider": "none",  # none|local|api
     # New governance + lifecycle controls
     "autonomy_level": 0,
@@ -171,8 +170,15 @@ def get_config() -> dict[str, Any]:
         if _config_cache is None:
             _config_cache = CONFIG_DEFAULTS.copy()
         return _config_cache
-    except Exception:
-        # On any error, use defaults
+    except Exception as e:
+        # Log config load failures so users know defaults are being used
+        import logging as _logging
+
+        _logging.getLogger(__name__).warning(
+            "memory-palace config: failed to load %s, using defaults: %s",
+            config_path,
+            e,
+        )
         if _config_cache is None:
             _config_cache = CONFIG_DEFAULTS.copy()
         return _config_cache

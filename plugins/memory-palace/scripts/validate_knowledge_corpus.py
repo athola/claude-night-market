@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import cast
 
 import yaml
 
@@ -36,7 +35,9 @@ def extract_frontmatter(content: str) -> dict | None:
         end_idx = content.index("---", 3)
         frontmatter_str = content[3:end_idx].strip()
         result = yaml.safe_load(frontmatter_str)
-        return cast(dict | None, result)
+        if isinstance(result, dict):
+            return result  # type: ignore[return-value]
+        return None
     except (ValueError, yaml.YAMLError):
         return None
 
@@ -90,7 +91,11 @@ def main() -> int:
     """Validate all knowledge corpus markdown files."""
     # Find all markdown files in knowledge corpus
     if not CORPUS_DIR.exists():
-        print(f"Warning: Knowledge corpus directory not found: {CORPUS_DIR}")
+        print(
+            f"Knowledge corpus directory not found: {CORPUS_DIR}\n"
+            "knowledge-corpus was removed in 1.5.0 consolidation. "
+            "No entries to validate."
+        )
         return 0
 
     md_files = [

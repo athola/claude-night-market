@@ -108,43 +108,16 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    @pytest.mark.skip(reason="Aspirational: tests hardcoded list, not production code")
     def test_cpu_gpu_performance_creates_required_todowrite_items(
         self,
         mock_todo_write,
     ) -> None:
         """Scenario: CPU/GPU performance creates required TodoWrite items.
 
-        Given the cpu-gpu-performance skill is executed
-        When establishing the monitoring workflow
-        Then it should create all 5 required TodoWrite items
-        And each item should have proper naming convention.
+        NOTE: This test asserts on a hardcoded list constructed inline,
+        not on any production code. Skipped until a real module exists.
         """
-        # Arrange
-        expected_items = [
-            "cpu-gpu-performance:baseline",
-            "cpu-gpu-performance:scope",
-            "cpu-gpu-performance:instrument",
-            "cpu-gpu-performance:throttle",
-            "cpu-gpu-performance:log",
-        ]
-
-        # Act - simulate cpu-gpu-performance skill execution
-        cpu_gpu_performance_items = [
-            "cpu-gpu-performance:baseline",
-            "cpu-gpu-performance:scope",
-            "cpu-gpu-performance:instrument",
-            "cpu-gpu-performance:throttle",
-            "cpu-gpu-performance:log",
-        ]
-
-        # Assert
-        assert len(cpu_gpu_performance_items) == FIVE
-        for expected_item in expected_items:
-            assert expected_item in cpu_gpu_performance_items
-        assert all(
-            item.startswith("cpu-gpu-performance:")
-            for item in cpu_gpu_performance_items
-        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -663,7 +636,7 @@ tags:
         assert report["efficiency_score"] > 0  # Mock returns 0.88
 
         # Verify report provides insights
-        assert isinstance(report["average_cpu"], int | float)
-        assert isinstance(report["peak_memory"], int | float)
-        assert isinstance(report["total_tokens"], int | float)
-        assert isinstance(report["efficiency_score"], int | float)
+        assert isinstance(report["average_cpu"], (int, float))
+        assert isinstance(report["peak_memory"], (int, float))
+        assert isinstance(report["total_tokens"], (int, float))
+        assert isinstance(report["efficiency_score"], (int, float))

@@ -123,6 +123,7 @@ Detailed guides for implementation and maintenance:
 - **Migration Guide**: See `modules/antipatterns-and-migration.md`
 - **Design Philosophy**: See `modules/design-philosophy.md`
 - **Troubleshooting**: See `modules/troubleshooting.md`
+- **Optimization Techniques**: See `modules/optimization-techniques.md` - reducing large skill file sizes through externalization, consolidation, and progressive loading
 
 ### Tools and Examples
 - **Tools**: `skill_analyzer.py`, `token_estimator.py`, and `abstract_validator.py` in `../../scripts/`.

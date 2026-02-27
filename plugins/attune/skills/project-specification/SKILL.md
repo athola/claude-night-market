@@ -52,6 +52,10 @@ estimated_tokens: 2200
 
 Transform project briefs into structured, testable specifications with acceptance criteria.
 
+## Delegation
+
+For detailed specification writing workflows, this skill delegates to `spec-kit:spec-writing` as the canonical implementation. Use this skill for quick specification needs; use spec-kit for comprehensive specification documents.
+
 ## When To Use
 
 - After brainstorming phase completes

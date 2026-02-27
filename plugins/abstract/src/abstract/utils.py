@@ -10,7 +10,10 @@ Provide utility functions for:
 For token-related utilities, use the `tokens` module directly.
 """
 
+from __future__ import annotations
+
 import logging
+import os
 import re
 from pathlib import Path
 
@@ -28,6 +31,9 @@ __all__ = [
     "find_dependency_file",
     # Project utilities
     "find_project_root",
+    # Path utilities
+    "get_config_dir",
+    "get_log_directory",
     # Skill file utilities
     "find_skill_files",
     # Analysis utilities
@@ -57,6 +63,41 @@ def find_project_root(start_path: Path) -> Path:
             return current
         current = current.parent
     return Path.cwd()
+
+
+def get_log_directory(*, create: bool = False) -> Path:
+    """Get the skill execution log directory.
+
+    Respects CLAUDE_HOME env var for non-standard installations.
+
+    Args:
+        create: If True, create the directory if it doesn't exist.
+
+    Returns:
+        Path to ~/.claude/skills/logs/ (or $CLAUDE_HOME/skills/logs/).
+
+    """
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+    log_base = claude_home / "skills" / "logs"
+    if create:
+        log_base.mkdir(parents=True, exist_ok=True)
+    return log_base
+
+
+def get_config_dir(*, create: bool = False) -> Path:
+    """Get the discussions config directory.
+
+    Args:
+        create: If True, create the directory if it doesn't exist.
+
+    Returns:
+        Path to ~/.claude/skills/discussions/.
+
+    """
+    config_dir = Path.home() / ".claude" / "skills" / "discussions"
+    if create:
+        config_dir.mkdir(parents=True, exist_ok=True)
+    return config_dir
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:

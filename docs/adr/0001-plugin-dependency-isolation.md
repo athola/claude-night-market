@@ -160,4 +160,3 @@ Each plugin must document its optional dependencies and the enhanced features th
 - `docs/guides/plugin-dependency-pattern.md` - Detailed implementation guide
 - `plugins/abstract/examples/sanctum_integration_example.py`
 - `plugins/sanctum/examples/abstract_integration_example.py`
-- `plugins/conserve/examples/context_optimization_service.py`

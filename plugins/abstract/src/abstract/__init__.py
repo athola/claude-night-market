@@ -8,6 +8,8 @@ __all__ = [
     "config",
     "errors",
     "frontmatter",
+    "tasks_manager_base",
+    "tdd_skill_wrapper",
     "tokens",
     "utils",
 ]

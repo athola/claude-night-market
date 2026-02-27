@@ -14,7 +14,7 @@ research_mode: cache_first
 # Relative to project root
 local_knowledge_paths:
   - "docs/"
-  - "knowledge-corpus/"
+  # knowledge-corpus/ was removed in 1.5.0 consolidation
   - "references/"
   - "wiki/"
   # Uncomment to include root markdown files:
@@ -107,7 +107,7 @@ safety:
 # Storage locations
 index_file: "memory-palace-index.yaml"
 indexes_dir: "data/indexes"
-corpus_dir: "docs/knowledge-corpus/"
+corpus_dir: "data/wiki"  # wiki-backed knowledge corpus (run scripts/sync_wiki.py to clone)
 embedding_provider: "none"  # none|local|api
 
 # Knowledge governance defaults

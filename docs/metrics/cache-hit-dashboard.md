@@ -38,4 +38,4 @@ Store the rendered panel markdown + SVG in `plugins/memory-palace/telemetry/dash
 1. Disable `memory_palace.cache_intercept` via `python -m memory_palace.cli garden demote --domain cache`.
 2. Redeploy hooks without cache intercept overlay.
 3. Confirm hit ratio metric flatlines at 0 and trust overrides reset to 0.
-4. Link rollback evidence into `docs/runbooks/memory-palace-rollout-dry-run.md`.
+4. Link rollback evidence into the relevant rollout tracking issue.

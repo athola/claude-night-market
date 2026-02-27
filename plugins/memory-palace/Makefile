@@ -6,7 +6,7 @@
 .PHONY:
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
 	demo-import demo-navigate demo-palace demo-pensive demo-reset demo-review-room demo-skill-logs \
-	demo-status deps disable enable export fix format garden-metrics garden-tend help import install \
+	demo-status deps disable enable export fix format garden-metrics garden-tend help import install skills \
 	install-hooks lint list manager memory-profile mutation-test plugin-check precommit search security \
 	skills spellcheck status test test-garden test-navigate test-palace test-pensive test-review-room \
 	test-skill-logs test-unit type-check typecheck
@@ -119,16 +119,16 @@ debug-variables: ## Show Makefile variable values (for debugging)
 
 # ---------- Plugin control ----------
 enable:
-	$(PY) tools/memory_palace_cli.py enable || echo "Skip enable (permission denied)"
+	$(PY) scripts/memory_palace_cli.py enable || echo "Skip enable (permission denied)"
 
 disable:
-	$(PY) tools/memory_palace_cli.py disable || echo "Skip disable (permission denied)"
+	$(PY) scripts/memory_palace_cli.py disable || echo "Skip disable (permission denied)"
 
 skills:
-	$(PY) tools/memory_palace_cli.py skills || echo "Skip skills (permission denied)"
+	$(PY) scripts/memory_palace_cli.py skills || echo "Skip skills (permission denied)"
 
 install:
-	$(PY) tools/memory_palace_cli.py install || echo "Skip install (permission denied)"
+	$(PY) scripts/memory_palace_cli.py install || echo "Skip install (permission denied)"
 
 # ---------- Palace management (PALACES_DIR scoped) ----------
 create:
@@ -163,7 +163,7 @@ garden-tend:
 
 # ---------- Test cleanup ----------
 # Override test-unit to clean up queue files created during hook tests
-QUEUE_DIR := docs/knowledge-corpus/queue
+QUEUE_DIR := data/queue
 
 test-unit: ## Run unit tests (with queue cleanup)
 	@echo "Running unit tests..."
