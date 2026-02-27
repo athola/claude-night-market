@@ -1,0 +1,67 @@
+name: sanctum
+version: 1.5.0
+description: Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates,
+  and version management
+keywords:
+- git
+- workspace
+- commit
+- pr
+- documentation
+- version
+- changelog
+- conventional-commits
+- dependencies
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  core:
+    source: gh@athola/claude-night-market
+    path: packages/core
+    skills:
+    - git-platform
+skills:
+- skills/commit-messages
+- skills/do-issue
+- skills/doc-consolidation
+- skills/doc-updates
+- skills/file-analysis
+- skills/git-workspace-review
+- skills/pr-prep
+- skills/pr-review
+- skills/session-management
+- skills/test-updates
+- skills/tutorial-updates
+- skills/update-readme
+- skills/version-updates
+- skills/workflow-improvement
+commands:
+- commands/commit-msg.md
+- commands/create-tag.md
+- commands/do-issue.md
+- commands/fix-pr.md
+- commands/fix-workflow.md
+- commands/git-catchup.md
+- commands/merge-docs.md
+- commands/pr-review.md
+- commands/prepare-pr.md
+- commands/resolve-threads.md
+- commands/update-ci.md
+- commands/update-dependencies.md
+- commands/update-docs.md
+- commands/update-plugins.md
+- commands/update-tests.md
+- commands/update-tutorial.md
+- commands/update-version.md
+agents:
+- agents/git-workspace-agent.md
+- agents/commit-agent.md
+- agents/pr-agent.md
+- agents/workflow-recreate-agent.md
+- agents/workflow-improvement-analysis-agent.md
+- agents/workflow-improvement-planner-agent.md
+- agents/workflow-improvement-implementer-agent.md
+- agents/workflow-improvement-validator-agent.md
+- agents/dependency-updater.md

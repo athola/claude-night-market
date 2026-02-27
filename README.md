@@ -35,6 +35,17 @@ npx skills add athola/claude-night-market/pensive    # Code review
 npx skills add athola/claude-night-market/conserve   # Resource optimization
 ```
 
+### opkg (OpenPackage)
+
+```bash
+# Install specific plugins
+opkg i gh@athola/claude-night-market --plugins sanctum
+opkg i gh@athola/claude-night-market --plugins pensive,conserve
+
+# Plugins that depend on shared runtime skills (e.g. attune, conjure)
+# automatically pull packages/core as a dependency
+```
+
 ### Post-Installation Setup (Claude Code 2.1.16+)
 
 Initialize plugins with Setup hooks:

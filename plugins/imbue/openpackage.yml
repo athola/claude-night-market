@@ -1,0 +1,45 @@
+name: imbue
+version: 1.5.0
+description: Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns
+keywords:
+- workflow
+- analysis
+- evidence
+- structured-output
+- methodology
+- review
+- catchup
+- scope-guard
+- anti-overengineering
+- feature-review
+- prioritization
+- RICE
+- WSJF
+- roadmap
+- workflow-monitor
+- error-detection
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  core:
+    source: gh@athola/claude-night-market
+    path: packages/core
+    skills:
+    - git-platform
+skills:
+- skills/catchup
+- skills/diff-analysis
+- skills/feature-review
+- skills/proof-of-work
+- skills/review-core
+- skills/rigorous-reasoning
+- skills/scope-guard
+- skills/structured-output
+- skills/workflow-monitor
+commands:
+- commands/catchup.md
+- commands/structured-review.md
+agents:
+- agents/review-analyst.md

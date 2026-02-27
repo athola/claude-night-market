@@ -1,7 +1,7 @@
 # Claude Night Market - Root Makefile
 # Delegates to plugin Makefiles for build operations
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples demo \
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples demo sync-core \
         abstract abstract-% conjure conjure-% conserve conserve-% \
         imbue imbue-% memory-palace memory-palace-% parseltongue parseltongue-% \
         pensive pensive-% sanctum sanctum-% spec-kit spec-kit-%
@@ -164,6 +164,12 @@ spec-kit-%:
 
 spec-kit:
 	@$(MAKE) -C $(SPEC_KIT_DIR)
+
+sync-core: ## Sync leyline skills to packages/core
+	@echo "Syncing plugins/leyline/skills/ → packages/core/skills/"
+	@mkdir -p packages/core/skills
+	@rsync -a --delete plugins/leyline/skills/ packages/core/skills/
+	@echo "Done."
 
 status: ## Show status of all plugins
 	@echo "=== Plugin Status ==="

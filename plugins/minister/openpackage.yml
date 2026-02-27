@@ -1,0 +1,24 @@
+name: minister
+version: 1.5.0
+description: Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects
+  into status dashboards
+keywords:
+- project-management
+- github
+- initiatives
+- status-tracking
+- release-gates
+- dashboards
+- reporting
+- program-management
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+skills:
+- skills/github-initiative-pulse
+- skills/release-health-gates
+commands:
+- commands/close-issue.md
+- commands/create-issue.md
+- commands/update-labels.md

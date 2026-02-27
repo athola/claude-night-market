@@ -1,0 +1,26 @@
+name: hookify
+version: 1.5.0
+description: Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern
+  matching
+keywords:
+- hooks
+- rules
+- safety
+- validation
+- patterns
+- behavioral-constraints
+- governance
+author:
+  name: athola
+  email: athola@users.noreply.github.com
+license: MIT
+skills:
+- skills/writing-rules
+- skills/rule-catalog
+commands:
+- commands/configure.md
+- commands/from-hook.md
+- commands/help.md
+- commands/hookify.md
+- commands/install.md
+- commands/list.md

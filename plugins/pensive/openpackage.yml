@@ -1,0 +1,53 @@
+name: pensive
+version: 1.5.0
+description: Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration
+keywords:
+- review
+- code-quality
+- architecture
+- testing
+- analysis
+- rust
+- api
+- bugs
+- audit
+- skill-review
+- metrics
+- stability-gap
+- continual-learning
+- fpf
+- functional-perspective
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+skills:
+- skills/api-review
+- skills/architecture-review
+- skills/bug-review
+- skills/code-refinement
+- skills/makefile-review
+- skills/math-review
+- skills/rust-review
+- skills/safety-critical-patterns
+- skills/shell-review
+- skills/test-review
+- skills/unified-review
+commands:
+- commands/api-review.md
+- commands/architecture-review.md
+- commands/bug-review.md
+- commands/full-review.md
+- commands/makefile-review.md
+- commands/math-review.md
+- commands/refine-code.md
+- commands/rust-review.md
+- commands/shell-review.md
+- commands/skill-history.md
+- commands/skill-review.md
+- commands/test-review.md
+agents:
+- agents/code-reviewer.md
+- agents/architecture-reviewer.md
+- agents/rust-auditor.md
+- agents/code-refiner.md

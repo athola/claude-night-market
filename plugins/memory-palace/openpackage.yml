@@ -1,0 +1,44 @@
+name: memory-palace
+version: 1.5.0
+description: Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory
+  structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.
+keywords:
+- memory-palace
+- spatial-memory
+- knowledge-organization
+- digital-garden
+- recall
+- navigation
+- mnemonic
+- pr-review
+- code-review
+- knowledge-capture
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  core:
+    source: gh@athola/claude-night-market
+    path: packages/core
+    skills:
+    - evaluation-framework
+    - storage-templates
+skills:
+- skills/memory-palace-architect
+- skills/knowledge-locator
+- skills/session-palace-builder
+- skills/digital-garden-cultivator
+- skills/knowledge-intake
+- skills/review-chamber
+commands:
+- commands/garden.md
+- commands/navigate.md
+- commands/palace.md
+- commands/review-room.md
+- commands/skill-logs.md
+agents:
+- agents/palace-architect.md
+- agents/knowledge-navigator.md
+- agents/garden-curator.md
+- agents/knowledge-librarian.md

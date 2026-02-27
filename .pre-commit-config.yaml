@@ -132,6 +132,14 @@ repos:
         files: ^plugins/.*(SKILL\.md|commands/.*\.md)$
         pass_filenames: false
 
+      - id: sync-leyline-to-core
+        name: Sync Leyline Skills to packages/core
+        entry: bash -c 'make sync-core && git add packages/core/'
+        language: system
+        files: ^plugins/leyline/skills/
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: check-markdown-links
         name: Check Markdown Links
         entry: python3 scripts/check-markdown-links.py
