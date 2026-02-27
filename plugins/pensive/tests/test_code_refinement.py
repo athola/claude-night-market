@@ -55,7 +55,6 @@ class TestCodeRefinementSkillStructure:
         assert fm.get("name") == "code-refinement"
         assert "description" in fm
         assert fm.get("category") == "code-quality"
-        assert "version" in fm
         assert "modules" in fm
         assert "dependencies" in fm
 

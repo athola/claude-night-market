@@ -8,6 +8,8 @@ All discovery info must be in the `description` field - custom fields like
 `triggers`, `use_when`, `do_not_use_when` are ignored by Claude Code.
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
