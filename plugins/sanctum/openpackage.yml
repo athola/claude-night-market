@@ -17,9 +17,9 @@ author:
   url: https://github.com/athola
 license: MIT
 dependencies:
-  core:
+  leyline:
     source: gh@athola/claude-night-market
-    path: packages/core
+    path: plugins/leyline
     skills:
     - git-platform
 skills:
