@@ -10,7 +10,6 @@ constants and cross-cutting keywords.
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -121,6 +120,9 @@ def is_tasks_available() -> bool:
     return False
 
 
+_MULTI_COMPONENT_THRESHOLD = 2
+
+
 def detect_ambiguity(
     task_description: str,
     context: dict[str, Any] | None = None,
@@ -147,7 +149,7 @@ def detect_ambiguity(
 
     # Check for multiple components
     files_touched = context.get("files_touched", [])
-    if len(files_touched) > 2:
+    if len(files_touched) > _MULTI_COMPONENT_THRESHOLD:
         return AmbiguityResult(
             is_ambiguous=True,
             ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,

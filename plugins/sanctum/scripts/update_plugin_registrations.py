@@ -497,6 +497,32 @@ class PluginAuditor:
                 for item in items:
                     print(f"    - {item}")
 
+    def _read_module_description(self, module_path: Path) -> str:
+        """Extract a short description from a module file's content."""
+        try:
+            lines = module_path.read_text(encoding="utf-8").splitlines()
+            in_frontmatter = False
+            for line in lines:
+                stripped = line.strip()
+                if stripped == "---":
+                    in_frontmatter = not in_frontmatter
+                    continue
+                if in_frontmatter or not stripped:
+                    continue
+                if stripped.startswith("#"):
+                    continue
+                if len(stripped) > 80:
+                    return stripped[:77] + "..."
+                return stripped
+        except FileNotFoundError:
+            pass  # Expected: orphaned module may not exist on disk
+        except OSError as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
+                file=sys.stderr,
+            )
+        return ""
+
     def _print_module_issues(
         self, plugin_name: str, module_issues: dict[str, Any]
     ) -> None:
@@ -513,7 +539,20 @@ class PluginAuditor:
             if issues.get("orphaned"):
                 print("    Orphaned (exist but not referenced):")
                 for module in issues["orphaned"]:
-                    print(f"      - modules/{module}")
+                    module_path = (
+                        self.plugins_root
+                        / plugin_name
+                        / "skills"
+                        / skill_name
+                        / "modules"
+                        / module
+                    )
+                    desc = self._read_module_description(module_path)
+                    if desc:
+                        print(f"      - modules/{module}")
+                        print(f"        {desc}")
+                    else:
+                        print(f"      - modules/{module}")
             if issues.get("missing"):
                 print("    Missing (referenced but not found):")
                 for module in issues["missing"]:

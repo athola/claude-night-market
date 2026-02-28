@@ -17,13 +17,16 @@ tools:
 - Grep
 - TodoWrite
 complexity: medium
-estimated_tokens: 2800
+estimated_tokens: 4200
 progressive_loading: true
 modules:
 - vocabulary-patterns
 - structural-patterns
 - fiction-patterns
 - remediation-strategies
+- config-file
+- progress-indicators
+- ci-integration
 dependencies:
 - scribe:shared
 ---

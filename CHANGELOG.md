@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-02-27
+
+### Changed
+
+- Enrich update-plugins orphaned module output with inline descriptions
+- Split update-plugins command doc from 397 to 91 lines + 3 on-demand modules
+- Wire ci-integration, config-file, progress-indicators into scribe slop-detector
+
+### Added
+
+- 14 tests for enriched update-plugins output (TestReadModuleDescription, TestPrintModuleIssuesEnriched)
+
 ## [1.5.0] - 2026-02-26
 
 ### Changed
