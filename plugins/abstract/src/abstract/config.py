@@ -239,7 +239,7 @@ class AbstractConfig:
             self.project_root = str(Path.cwd())
 
     @classmethod
-    def from_file(cls, config_path: str | Path) -> "AbstractConfig":
+    def from_file(cls, config_path: str | Path) -> AbstractConfig:
         """Load configuration from file."""
         config_path = Path(config_path)
 
@@ -287,12 +287,12 @@ class AbstractConfig:
         return cls(**config_data)
 
     @classmethod
-    def from_yaml(cls, yaml_path: str | Path) -> "AbstractConfig":
+    def from_yaml(cls, yaml_path: str | Path) -> AbstractConfig:
         """Load configuration from YAML file (most common format)."""
         return cls.from_file(yaml_path)
 
     @classmethod
-    def from_env(cls) -> "AbstractConfig":
+    def from_env(cls) -> AbstractConfig:
         """Load configuration from environment variables."""
         config = cls()
 
