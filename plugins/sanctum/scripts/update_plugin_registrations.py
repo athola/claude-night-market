@@ -514,8 +514,13 @@ class PluginAuditor:
                 if len(stripped) > 80:
                     return stripped[:77] + "..."
                 return stripped
-        except OSError:
-            pass
+        except FileNotFoundError:
+            pass  # Expected: orphaned module may not exist on disk
+        except OSError as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
+                file=sys.stderr,
+            )
         return ""
 
     def _print_module_issues(

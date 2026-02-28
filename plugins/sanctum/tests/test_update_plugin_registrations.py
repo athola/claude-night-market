@@ -1276,6 +1276,16 @@ class TestReadModuleDescription:
         auditor = PluginAuditor(tmp_path, dry_run=True)
         assert auditor._read_module_description(module) == line_80
 
+    def test_truncates_at_81_chars(self, tmp_path: Path) -> None:
+        """GIVEN a line of exactly 81 chars (first that triggers truncation)."""
+        line_81 = "C" * 81
+        module = tmp_path / "test.md"
+        module.write_text(f"{line_81}\n")
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        result = auditor._read_module_description(module)
+        assert len(result) == 80
+        assert result == "C" * 77 + "..."
+
     def test_skips_blank_lines(self, tmp_path: Path) -> None:
         """GIVEN a module with blank lines before content, skips them."""
         module = tmp_path / "test.md"
@@ -1315,11 +1325,7 @@ class TestPrintModuleIssuesEnriched:
 
         captured = capsys.readouterr()
         assert "modules/empty.md" in captured.out
-        lines = [ln for ln in captured.out.split("\n") if ln.strip()]
-        orphan_idx = next(i for i, ln in enumerate(lines) if "modules/empty.md" in ln)
-        if orphan_idx + 1 < len(lines):
-            next_line = lines[orphan_idx + 1]
-            assert not next_line.startswith("        ")
+        assert "Just a heading" not in captured.out
 
     def test_orphaned_nonexistent_module_file(self, tmp_path: Path, capsys) -> None:
         """GIVEN orphaned module whose file is missing, prints path only."""
@@ -1333,6 +1339,19 @@ class TestPrintModuleIssuesEnriched:
 
         captured = capsys.readouterr()
         assert "modules/ghost.md" in captured.out
+
+    def test_header_suppressed_when_discrepancies_exist(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        """GIVEN plugin already has discrepancies, THEN header is suppressed."""
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor.discrepancies["test-plugin"] = {"commands": {"extra": ["cmd.md"]}}
+        module_issues = {"my-skill": {"orphaned": ["orphan.md"], "missing": []}}
+        auditor._print_module_issues("test-plugin", module_issues)
+
+        captured = capsys.readouterr()
+        assert "PLUGIN: test-plugin" not in captured.out
+        assert "[MODULES]" in captured.out
 
     def test_missing_modules_unchanged(self, tmp_path: Path, capsys) -> None:
         """GIVEN missing modules, THEN prints them without descriptions."""
