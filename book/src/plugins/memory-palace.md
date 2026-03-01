@@ -140,7 +140,7 @@ Palace: "Python Async"
 New Information
       |
       v
-[Novelty Check] --> Duplicate? --> Skip
+[Semantic Dedup] --> Near-duplicate? --> Increment counter, skip
       |
       No
       v
@@ -153,6 +153,19 @@ New Information
       v
 [Cross-Reference] --> Link to related concepts
 ```
+
+The `SemanticDeduplicator` uses FAISS cosine similarity (threshold: 0.8) to detect near-duplicate content before storage. When FAISS is unavailable, it falls back to Jaccard word-set similarity. Suppressed duplicates increment a counter rather than being stored, keeping the corpus dense.
+
+## Semantic Deduplication
+
+Optional FAISS-based duplicate detection:
+
+```bash
+# Install semantic extras
+pip install memory-palace[semantic]  # faiss-cpu + numpy
+```
+
+Without FAISS, deduplication uses Jaccard similarity on word sets. Both backends share the same API via `SemanticDeduplicator.should_store()`.
 
 ## Embedding Support
 

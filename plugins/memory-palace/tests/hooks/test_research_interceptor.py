@@ -292,7 +292,10 @@ class TestSearchLocalKnowledge:
     def test_successful_search(self) -> None:
         """Successful search should return results."""
         config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
-        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+        with (
+            patch("pathlib.Path.is_dir", return_value=True),
+            patch.object(research_interceptor, "CacheLookup") as mock_lookup,
+        ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = [{"title": "Test", "match_score": 0.8}]
             mock_lookup.return_value = mock_instance
@@ -324,7 +327,10 @@ class TestSearchLocalKnowledge:
     def test_search_with_unified_mode(self) -> None:
         """Search should use unified mode."""
         config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
-        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+        with (
+            patch("pathlib.Path.is_dir", return_value=True),
+            patch.object(research_interceptor, "CacheLookup") as mock_lookup,
+        ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = []
             mock_lookup.return_value = mock_instance

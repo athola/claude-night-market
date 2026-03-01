@@ -4,162 +4,50 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-Memory Palace organizes complex information using spatial memory techniques for easier retrieval.
+Memory Palace organizes information using spatial memory techniques for easier retrieval. It builds "palaces" (structured knowledge repositories with spatial metaphors), "gardens" (organic knowledge bases with bidirectional links), and a "review chamber" for capturing PR review knowledge.
 
-## How This Differs from Native Claude Memory (2.1.32+)
+### How This Differs from Native Claude Memory
 
-Claude Code now provides three layers of memory, each serving a different purpose:
+| Layer | Scope | Control |
+|-------|-------|---------|
+| **Native Memory** (2.1.32+) | Session continuity | Implicit, automatic |
+| **Agent `memory` Frontmatter** (2.1.33+) | Agent-scoped recall | Opt-in per agent |
+| **Memory Palace** | Domain knowledge with spatial hierarchies | Explicit, user-designed |
 
-| Layer | Feature | Scope | Control |
-|-------|---------|-------|---------|
-| **Native Memory** (2.1.32+) | Automatic session summaries | Session continuity — "what did I work on?" | Implicit, automatic |
-| **Agent `memory` Frontmatter** (2.1.33+) | Per-agent persistent memory | Agent-scoped — `user`, `project`, or `local` | Opt-in per agent via frontmatter |
-| **Memory Palace** | Structured knowledge management | Domain knowledge — "how does X relate to Y?" | Explicit, user-designed architecture |
-
-**Native memory** handles session continuity and resumption. **Agent memory frontmatter** gives individual agents persistent recall across sessions (Memory Palace agents use `memory: project`). **Memory Palace** provides structured, navigable knowledge architectures with spatial hierarchies, bidirectional links, and multi-modal search that persist as a permanent knowledge corpus.
-
-## Features
-
-The Memory Palace Architect allows users to design spatial knowledge structures using mnemonic techniques, while the Knowledge Locator facilitates multi-modal search across these palaces. Temporary structures for extended conversations are handled by the Session Palace Builder, and the Digital Garden Cultivator manages evolving knowledge bases with bidirectional linking. Additionally, a dedicated PR Review Chamber captures knowledge from PR reviews, and Skill Execution Memory automatically logs skill invocation history to support continual learning.
-
-## PR Review Room
-
-Projects function as palaces with a dedicated chamber for capturing knowledge from PR reviews.
-
-### Project Palace Structure
-
-```
-project-palace/
-├── entrance/           # README, getting started
-├── library/            # Documentation, ADRs
-├── workshop/           # Development patterns, tooling
-├── review-chamber/     # PR Reviews
-│   ├── decisions/      # Architectural choices
-│   ├── patterns/       # Recurring issues/solutions
-│   ├── standards/      # Quality bar examples
-│   └── lessons/        # Post-mortems, learnings
-└── garden/             # Evolving knowledge
-```
-
-### Quick Start
-
-```bash
-# Capture knowledge from a PR review
-/review-room capture 42
-
-# Search past decisions
-/review-room search "authentication" --room decisions
-
-# List recent patterns
-/review-room list --room patterns --limit 5
-```
-
-### Integration with sanctum:pr-review
-
-Knowledge capture triggers after PR reviews:
-
-1. Review posted to GitHub.
-2. Findings captured to review-chamber.
-
-See `skills/review-chamber/SKILL.md` for details.
-
-## Optional Dependencies
-
-| Package | Purpose | Fallback |
-|---------|---------|----------|
-| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
-
-For accurate token counts, install tiktoken:
-```bash
-pip install tiktoken
-```
-
-## Skill Execution Memory
-
-Memory-palace automatically stores skill execution history via hooks, enabling continual learning and performance analysis.
-
-### Automatic Storage
-
-Every skill invocation is automatically stored with:
-- **Timestamp**: When the skill was invoked
-- **Duration**: Execution time
-- **Outcome**: Success, failure, or partial
-- **Continual metrics**: Stability gap, accuracy trends
-
-### Storage Structure
-
-```
-~/.claude/skills/logs/
-├── .history.json              # Aggregated continual metrics
-├── abstract/
-│   ├── skill-auditor/
-│   │   └── 2025-01-08.jsonl   # Daily JSONL files
-│   └── plugin-validator/
-├── sanctum/
-│   └── pr-review/
-└── <your-plugin>/
-    └── <your-skill>/
-```
-
-### Quick Start
-
-```bash
-# View recent skill executions
-/skill-logs --last 1h
-
-# View failures only
-/skill-logs --failures-only
-
-# Filter by plugin
-/skill-logs --plugin abstract
-
-# Cleanup old logs
-/skill-logs cleanup --older-than 90d
-```
-
-### Integration with pensive
-
-Use `/pensive:skill-review` to analyze metrics and identify unstable skills:
-
-```bash
-# Check skill health
-/pensive:skill-review --unstable-only
-
-# Deep-dive specific skill
-/pensive:skill-review --skill abstract:skill-auditor
-```
+Native memory handles session continuity. Agent memory frontmatter gives agents persistent recall. Memory Palace provides structured, navigable knowledge architectures that persist as a permanent corpus.
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/superpowers-marketplace/memory-palace.git
-
-# Install as Claude Code plugin
-claude-code plugins add ./memory-palace
+claude plugins add memory-palace@claude-night-market
 ```
 
 ## Quick Start
 
-### Create a Palace
 ```bash
-python scripts/palace_manager.py create "K8s Concepts" "kubernetes" --metaphor workshop
+# Create a palace
+/palace create "K8s Concepts"
+
+# Add knowledge from an external source
+Skill(memory-palace:knowledge-intake)
+
+# Search across palaces
+/navigate "authentication"
+
+# Check garden health
+/garden status
 ```
 
-### List Palaces
-```bash
-python scripts/palace_manager.py list
-```
+## Features
 
-### Search
-```bash
-python scripts/palace_manager.py search "authentication" --type semantic
-```
-
-### Garden Metrics
-```bash
-python scripts/garden_metrics.py path/to/garden.json --format brief
-```
+- **Palace Architect**: Design spatial knowledge structures using mnemonic techniques
+- **Knowledge Locator**: Multi-modal search (keyword, semantic, spatial) across palaces
+- **Session Palaces**: Temporary structures for extended conversations
+- **Digital Gardens**: Evolving knowledge bases with bidirectional linking
+- **PR Review Chamber**: Capture architectural decisions, patterns, and lessons from PR reviews
+- **Skill Execution Memory**: Automatic logging of skill invocations for continual learning
+- **Semantic Deduplication**: FAISS cosine similarity (with Jaccard fallback) prevents near-duplicate storage
+- **Research Interceptor**: Checks local knowledge cache before making web requests
 
 ## Skills
 
@@ -188,40 +76,10 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 |-------|-------------|
 | `palace-architect` | Design palace architectures. |
 | `knowledge-navigator` | Search and retrieve information. |
+| `knowledge-librarian` | Evaluate and route knowledge. |
 | `garden-curator` | Maintain digital gardens. |
 
 ## Hooks
-
-### Setup Hook (Claude Code 2.1.10+)
-
-One-time initialization and periodic maintenance for knowledge gardens. Triggered via CLI flags:
-
-```bash
-# Initialize memory palace (creates garden structure, indexes)
-claude --init
-
-# Run maintenance (cleans stale captures, rotates logs, rebuilds indexes)
-claude --maintenance
-```
-
-**Init tasks:**
-- Creates knowledge garden structure (`~/.claude/knowledge-garden/`)
-- Creates project palace structure (if in a git repo)
-- Initializes skill logs directory
-- Creates web captures directory
-- Generates garden index file
-
-**Maintenance tasks:**
-- Composts stale web captures (>30 days to `compost/`)
-- Rotates skill logs (deletes >90 days)
-- Rebuilds garden index with current counts
-- Detects potential duplicate captures
-
-**Why use Setup vs SessionStart?** Garden maintenance and index rebuilding are expensive operations that shouldn't run on every session. Use `--init` when setting up a new project, and `--maintenance` weekly or monthly.
-
-### Runtime Hooks
-
-Hooks integrate Memory Palace with Claude Code events:
 
 | Hook | Event | Description |
 |------|-------|-------------|
@@ -232,36 +90,37 @@ Hooks integrate Memory Palace with Claude Code events:
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
 
-Hooks are configured via `hooks/hooks.json` and `hooks/memory-palace-config.yaml`.
+Setup hook (`claude --init`, `claude --maintenance`) handles one-time initialization and periodic garden maintenance. See `hooks/hooks.json` for configuration.
+
+## Optional Dependencies
+
+| Package | Purpose | Fallback |
+|---------|---------|----------|
+| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
+| faiss-cpu + numpy | Semantic deduplication via cosine similarity | Jaccard word-set similarity |
+
+```bash
+pip install tiktoken
+pip install memory-palace[semantic]  # faiss-cpu + numpy
+```
 
 ## Architecture
 
 ```
 memory-palace/
 ├── .claude-plugin/
-│   ├── plugin.json      # Plugin manifest
-│   └── metadata.json    # Extended metadata
-├── skills/
-│   ├── memory-palace-architect/
-│   │   ├── SKILL.md
-│   │   └── modules/
-│   ├── knowledge-locator/
-│   ├── session-palace-builder/
-│   └── digital-garden-cultivator/
-├── commands/
-│   ├── palace.md
-│   ├── garden.md
-│   └── navigate.md
-├── agents/
-│   ├── palace-architect.md
-│   ├── knowledge-navigator.md
-│   └── garden-curator.md
+│   └── plugin.json
+├── skills/              # 6 skills (architect, locator, garden, session, intake, review)
+├── commands/            # 5 commands (palace, garden, navigate, review-room, skill-logs)
+├── agents/              # 4 agents (architect, navigator, librarian, curator)
+├── hooks/               # 6 runtime hooks + setup hook
 ├── src/memory_palace/
 │   ├── palace_manager.py
-│   ├── project_palace.py    # NEW: Project palace with review chamber
-│   └── garden_metrics.py
-└── scripts/
-    └── memory_palace_cli.py
+│   ├── project_palace.py
+│   ├── corpus/          # Indexing, caching, deduplication, lineage
+│   └── lifecycle/       # Autonomy state, decay model
+├── scripts/             # CLI tools, metrics, embedding builder
+└── tests/
 ```
 
 ## Requirements
@@ -269,23 +128,11 @@ memory-palace/
 - Python 3.12+
 - Claude Code
 
-## Session Forking Workflows (Claude Code 2.0.73+)
+## Documentation
 
-Session forking allows testing knowledge organization strategies without committing to a single structure:
-
-```bash
-# Fork for hierarchical organization
-claude --fork-session --session-id "hierarchical-tags" --resume
-> "Organize using hierarchical tags"
-
-# Fork for concept-map approach
-claude --fork-session --session-id "concept-map" --resume
-> "Organize using semantic relationships"
-```
-
-**Best Practices**: Test with representative content, extract successful designs as templates.
-
-See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
+- [Book: Memory Palace Plugin](../../book/src/plugins/memory-palace.md) for detailed usage, cache modes, palace architecture, and curation workflows
+- [PR Review Chamber](skills/review-chamber/SKILL.md) for review knowledge capture
+- [Skill Execution Memory](commands/skill-logs.md) for execution history and metrics
 
 ## License
 
