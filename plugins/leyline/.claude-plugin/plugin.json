@@ -20,6 +20,7 @@
     "./skills/pytest-config",
     "./skills/risk-classification"
   ],
+  "hooks": "./hooks/hooks.json",
   "keywords": [
     "infrastructure",
     "pipeline",
