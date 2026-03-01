@@ -10,9 +10,8 @@ constants and cross-cutting keywords.
 from __future__ import annotations
 
 import json
-import os
 import re
-import subprocess
+import subprocess  # nosec B404
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -83,7 +82,7 @@ class ResumeState:
 def get_claude_code_version() -> str | None:
     """Get the current Claude Code version, or None if not in Claude Code."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607
             ["claude", "--version"],  # noqa: S607
             capture_output=True,
             text=True,
@@ -106,19 +105,24 @@ def is_tasks_available() -> bool:
     if version is None:
         return False
 
+    _min_major = 2
+    _min_minor = 1
+    _min_patch = 16
     try:
         parts = [int(p) for p in version.split(".")]
-        # Version 2.1.16 or higher
-        if parts[0] > 2:
+        if parts[0] > _min_major:
             return True
-        if parts[0] == 2 and parts[1] > 1:
+        if parts[0] == _min_major and parts[1] > _min_minor:
             return True
-        if parts[0] == 2 and parts[1] == 1 and parts[2] >= 16:
+        if parts[0] == _min_major and parts[1] == _min_minor and parts[2] >= _min_patch:
             return True
     except (ValueError, IndexError):
         pass
 
     return False
+
+
+_MULTI_COMPONENT_THRESHOLD = 2
 
 
 def detect_ambiguity(
@@ -147,7 +151,7 @@ def detect_ambiguity(
 
     # Check for multiple components
     files_touched = context.get("files_touched", [])
-    if len(files_touched) > 2:
+    if len(files_touched) > _MULTI_COMPONENT_THRESHOLD:
         return AmbiguityResult(
             is_ambiguous=True,
             ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,

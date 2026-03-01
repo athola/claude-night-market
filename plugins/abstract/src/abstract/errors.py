@@ -261,9 +261,7 @@ class ErrorHandler:
         severity_order = ["critical", "high", "medium", "low", "info"]
         min_idx = severity_order.index(min_severity.value)
         qualifying = [
-            e
-            for e in self.errors
-            if e.severity.value in severity_order[: min_idx + 1]
+            e for e in self.errors if e.severity.value in severity_order[: min_idx + 1]
         ]
         if qualifying:
             self.print_error_summary()

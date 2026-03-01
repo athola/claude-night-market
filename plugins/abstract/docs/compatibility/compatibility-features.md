@@ -6,6 +6,334 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### Claude Code 2.1.63 (March 2026)
+
+**New Features**:
+- ✅ **`/simplify` and `/batch` Bundled Slash Commands**: New built-in slash commands for code simplification and batch operations
+  - **Impact**: New built-in commands
+  - **Affected**: None - no naming conflicts with existing skills or commands
+  - **Action Required**: None
+
+- ✅ **HTTP Hooks**: Hooks can now POST JSON to a URL and receive JSON responses, as an alternative to shell commands
+  - **Impact**: New hook execution model for enterprise/sandboxed environments. Complements existing shell-based hooks.
+  - **Affected**: abstract:hook-authoring (updated with HTTP hook documentation), hookify plugin (new hook type to consider)
+  - **Action Required**: Done - hook-authoring SKILL.md updated with HTTP hooks section
+
+- ✅ **Project Configs and Auto-Memory Shared Across Worktrees**: `.claude/` configs and auto-memory are now shared across git worktrees of the same repository
+  - **Impact**: Agents with `isolation: worktree` now inherit the parent repo's project configs and memory instead of starting with a blank slate
+  - **Affected**: superpowers:using-git-worktrees, conserve:subagent-coordination (updated), conjure:agent-teams
+  - **Action Required**: Done - subagent-coordination module updated
+
+- ✅ **`ENABLE_CLAUDEAI_MCP_SERVERS=false` Env Var**: Opt out of claude.ai MCP servers being available in Claude Code
+  - **Impact**: Opt-out for the claude.ai MCP connector feature introduced in 2.1.46
+  - **Affected**: conserve:mcp-code-execution (document as tuning option)
+  - **Action Required**: None - opt-in flag
+
+- ✅ **`/copy` "Always Copy Full Response" Option**: Skips code block picker for future `/copy` invocations
+  - **Impact**: UX convenience improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Improved `/model` Display**: Shows currently active model in slash command menu
+  - **Impact**: UX improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+**Bug Fixes**:
+- ✅ **`/clear` Skill Cache Reset**: Fixed `/clear` not resetting cached skills, causing stale skill content to persist in new conversations
+  - **Impact**: `/clear` + `/catchup` pattern is now fully reliable; skills refresh properly after clear
+  - **Affected**: conserve:clear-context (updated with fix note), sanctum:session-management
+  - **Action Required**: Done - clear-context SKILL.md updated
+
+- ✅ **Memory Leak Fixes (12+ sites)**: Fixed leaks in bridge polling, MCP OAuth cleanup, hooks config menu, permission handler auto-approvals, bash prefix cache, MCP tool/resource cache on reconnect, IDE host IP cache, WebSocket transport reconnect, git root detection cache, JSON parsing cache, long-running teammate messages in AppState, and MCP server fetch caches on disconnect
+  - **Impact**: Massive quality pass on memory leaks. Long-running sessions and heavy agent workflows are significantly more stable.
+  - **Affected**: conserve:context-optimization (memory management guidance), conjure:agent-teams (teammate memory fix)
+  - **Action Required**: None - passive improvements across the board
+
+- ✅ **Subagent Context Compaction**: Heavy progress message payloads stripped during compaction in subagent sessions
+  - **Impact**: Subagent compaction is leaner; less noise retained after compaction
+  - **Affected**: conserve:context-optimization (subagent-coordination)
+  - **Action Required**: None - passive improvement
+
+- ✅ **Local Slash Command Output Fix**: `/cost` and similar local commands now appear as system messages instead of user-sent messages
+  - **Impact**: UI correctness for built-in commands
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **REPL Bridge Race Condition**: Fixed message ordering issues during initial connection flush
+  - **Impact**: Reliability fix for bridge-based integrations
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **File Count Cache Glob Fix**: File count cache now respects glob ignore patterns
+  - **Impact**: More accurate file counting in repos with ignore patterns
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **MCP OAuth Manual URL Fallback**: Added paste fallback when localhost redirect fails during MCP OAuth
+  - **Impact**: Improved MCP authentication reliability
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Config File Corruption (Follow-up)**: Fixed config corruption when multiple instances run simultaneously (related to 2.1.59 fix)
+  - **Impact**: Multi-instance reliability
+  - **Affected**: None
+  - **Action Required**: None
+
+### Claude Code 2.1.62 (March 2026)
+
+**Bug Fixes**:
+- ✅ **Prompt Cache Regression Fix**: Fixed regression that reduced prompt suggestion cache hit rates
+  - **Impact**: Internal API-level optimization; improved cache hit rates reduce latency and cost transparently
+  - **Affected**: None - infrastructure-level fix, no plugin surface area
+  - **Action Required**: None
+
+### Claude Code 2.1.61 (March 2026)
+
+**Bug Fixes**:
+- ✅ **Config File Concurrent Write Fix (Windows)**: Fixed concurrent writes corrupting config file on Windows
+  - **Impact**: Windows-specific follow-up to 2.1.59 config corruption fix; adds proper file locking for concurrent writes
+  - **Affected**: None - Windows-specific, no multi-instance orchestration in this codebase
+  - **Action Required**: None
+
+### Claude Code 2.1.59 (March 2026)
+
+**New Features**:
+- ✅ **Auto-Memory with /memory Command**: Claude automatically saves useful context to persistent auto-memory. Managed via `/memory` command.
+  - **Impact**: Built-in memory persistence for conversation context. This is the system backing `~/.claude/projects/*/memory/MEMORY.md`
+  - **Affected**: memory-palace plugin (complementary, not conflicting - memory-palace handles structured knowledge intake; auto-memory handles conversation context)
+  - **Action Required**: None - these are separate systems serving different purposes
+
+- ✅ **/copy Command**: Interactive code block picker for copying individual blocks or full responses
+  - **Impact**: New built-in slash command
+  - **Affected**: None - no naming conflict with existing skills
+  - **Action Required**: None
+
+- ✅ **Smarter Bash "Always Allow" Prefixes**: Compound bash commands (e.g., `cd /tmp && git fetch && git push`) now compute per-subcommand prefixes instead of treating the whole command as one
+  - **Impact**: More granular permission approval UX for chained commands
+  - **Affected**: None - passive UX improvement
+  - **Action Required**: None
+
+**Bug Fixes**:
+- ✅ **Multi-Agent Memory Release**: Releasing completed subagent task state improves memory in multi-agent sessions
+  - **Impact**: Continuation of 2.1.50 memory leak fixes; further reduces RSS growth in Task-heavy workflows
+  - **Affected**: conserve:context-optimization (subagent-coordination module)
+  - **Action Required**: None - passive improvement
+
+- ✅ **MCP OAuth Token Refresh Race**: Fixed race condition when running multiple Claude Code instances simultaneously
+  - **Impact**: Multi-instance MCP reliability
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Config File Corruption Fix**: Fixed config corruption that could wipe authentication when multiple instances ran simultaneously
+  - **Impact**: Critical reliability fix for users running parallel Claude Code sessions
+  - **Affected**: None - no multi-instance orchestration in this codebase
+  - **Action Required**: None
+
+- ✅ **Shell Error on Deleted Working Directory**: Clear error message when cwd has been deleted
+  - **Impact**: UX improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+### Claude Code 2.1.58 (March 2026)
+
+**Features**:
+- ✅ **Remote Control Wider Rollout**: Expanded `claude remote-control` availability to more users
+  - **Impact**: Feature flag expansion, no API or behavioral changes (see 2.1.51 for feature details)
+  - **Affected**: None
+  - **Action Required**: None
+
+### Claude Code 2.1.56 (March 2026)
+
+**Bug Fixes**:
+- ✅ **VS Code Extension Crash (Follow-up)**: Fixed another cause of "command 'claude-vscode.editor.openLast' not found" crashes
+  - **Impact**: VS Code extension stability on Windows (follow-up to 2.1.52 fix)
+  - **Affected**: None - IDE extension fix, not relevant to CLI plugin ecosystem
+  - **Action Required**: None
+
+### Claude Code 2.1.55 (March 2026)
+
+**Bug Fixes**:
+- ✅ **BashTool EINVAL on Windows**: Fixed BashTool failing with EINVAL error on Windows
+  - **Impact**: Windows-specific Bash tool reliability fix
+  - **Affected**: None - no Windows-specific workarounds in this codebase
+  - **Action Required**: None
+
+### Claude Code 2.1.53 (March 2026)
+
+**Bug Fixes**:
+- ✅ **UI Flicker on Input Submission**: Fixed user input briefly disappearing after submission before the message rendered
+  - **Impact**: Pure UI rendering fix
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Bulk Agent Kill (ctrl+f) Aggregate Notification**: ctrl+f now sends a single aggregate notification instead of one per agent, and properly clears the command queue
+  - **Impact**: Cleaner shutdown of parallel agent sessions; no more notification storms when killing N background agents
+  - **Affected**: conjure:agent-teams (cleaner bulk termination), superpowers:dispatching-parallel-agents (ctrl+f more reliable)
+  - **Action Required**: None - passive reliability improvement
+
+- ✅ **Remote Control Stale Sessions on Shutdown**: Parallelized teardown network calls to prevent graceful shutdown from leaving stale sessions
+  - **Impact**: `claude remote-control` sessions now clean up reliably on shutdown
+  - **Affected**: sanctum:session-management (session cleanup reliability)
+  - **Action Required**: None - passive fix for remote control users
+
+- ✅ **`--worktree` Ignored on First Launch**: Fixed `--worktree` flag sometimes being silently ignored on first launch
+  - **Impact**: Worktree isolation now activates reliably on initial invocation
+  - **Affected**: superpowers:using-git-worktrees, agents with `isolation: worktree` frontmatter
+  - **Action Required**: None - passive fix. Worktree isolation was intermittently not activating.
+
+- ✅ **Windows Stability (4 fixes)**: Fixed panic on corrupted value, crash spawning many processes, WebAssembly interpreter crash (Linux x64 and Windows x64), and ARM64 crash after 2 minutes
+  - **Impact**: Platform stability improvements for Windows and Linux x64 WebAssembly users
+  - **Affected**: None - no platform-specific workarounds in this codebase
+  - **Action Required**: None
+
+### Claude Code 2.1.52 (March 2026)
+
+**Bug Fixes**:
+- ✅ **VS Code Extension Crash on Windows**: Fixed extension crash with error "command 'claude-vscode.editor.openLast' not found"
+  - **Impact**: VS Code extension stability on Windows
+  - **Affected**: None - IDE extension fix, not relevant to CLI plugin ecosystem
+  - **Action Required**: None
+
+### Claude Code 2.1.51 (March 2026)
+
+**New Features**:
+- ✅ **`claude remote-control` Subcommand**: New subcommand for external builds, enabling local environment serving for all users
+  - **Impact**: Enables external IDEs and tools to connect to a local Claude Code session
+  - **Affected**: None - new capability, no existing plugins reference this
+  - **Action Required**: None - additive feature
+
+- ✅ **Plugin Marketplace Git Timeout Increase**: Default git timeout increased from 30s to 120s; configurable via `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS`
+  - **Impact**: Plugin installations from slow networks or large repos are less likely to time out
+  - **Affected**: leyline:reinstall-all-plugins (benefits from higher timeout), sanctum:update-plugins
+  - **Action Required**: None - default behavior improved. Set `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` if custom timeout needed
+
+- ✅ **Custom npm Registries and Version Pinning**: Plugins installed from npm sources now support custom registries and specific version pins
+  - **Impact**: Enterprise environments with private npm registries can now host and install plugins
+  - **Affected**: None - all night-market plugins use marketplace installation
+  - **Action Required**: None - additive capability
+
+- ✅ **BashTool Skips Login Shell by Default**: BashTool no longer uses `-l` flag when a shell snapshot is available, improving command execution performance
+  - **Impact**: Faster command execution; previously required setting `CLAUDE_BASH_NO_LOGIN=true`
+  - **Affected**: All agents using Bash tool - no agents rely on login shell behavior (verified)
+  - **Action Required**: None - performance improvement with no behavioral change for this codebase
+
+- ✅ **Managed Settings via macOS plist / Windows Registry**: Settings can now be configured through OS-native management tools
+  - **Impact**: Enterprise IT can deploy Claude Code settings via MDM (macOS) or Group Policy (Windows)
+  - **Affected**: None - informational for cross-platform deployment scenarios
+  - **Action Required**: None - additive capability
+
+- ✅ **New Account Environment Variables**: `CLAUDE_CODE_ACCOUNT_UUID`, `CLAUDE_CODE_USER_EMAIL`, and `CLAUDE_CODE_ORGANIZATION_UUID` for SDK callers
+  - **Impact**: Eliminates race condition where early telemetry events lacked account metadata
+  - **Affected**: None - no SDK callers in this codebase
+  - **Action Required**: None - relevant for external SDK integrations only
+
+- ✅ **Human-Readable `/model` Picker Labels**: Shows "Sonnet 4.5" instead of raw model IDs, with upgrade hints for newer versions
+  - **Impact**: Better UX when switching models; stale model IDs in agent frontmatter still resolve correctly
+  - **Affected**: scribe agents (updated from `claude-sonnet-4-20250514` to `claude-sonnet-4-6`)
+  - **Action Required**: Done - scribe agent model IDs updated
+
+**Bug Fixes**:
+- ✅ **statusLine/fileSuggestion Security Fix**: Hook commands now require workspace trust acceptance in interactive mode
+  - **Impact**: Prevents untrusted hooks from executing status line or file suggestion commands
+  - **Affected**: None - no hooks in this codebase use statusLine or fileSuggestion
+  - **Action Required**: None
+
+- ✅ **Tool Result Persistence Threshold Lowered**: Results larger than 50K chars now persisted to disk (previously 100K)
+  - **Impact**: Reduces context window usage; improves conversation longevity for subagent-heavy workflows
+  - **Affected**: conjure bridge hook (already uses 50K threshold - aligned), conserve:context-optimization (lower inline threshold)
+  - **Action Required**: Done - updated conjure book documentation from 100K to 50K to match
+
+- ✅ **Duplicate `control_response` Fix**: WebSocket reconnects no longer cause API 400 errors from duplicate assistant messages
+  - **Impact**: Improved reliability for long-running sessions with network interruptions
+  - **Affected**: None - no WebSocket or SDK caller code in codebase
+  - **Action Required**: None
+
+- ✅ **Slash Command Autocomplete Fix**: No longer crashes when a skill description is a YAML array or non-string type
+  - **Impact**: Plugin marketplace stability improvement
+  - **Affected**: None - all 121 SKILL.md files in this codebase use string descriptions (verified)
+  - **Action Required**: None
+
+### Claude Code 2.1.50 (March 2026)
+
+**New Features**:
+- ✅ **WorktreeCreate/WorktreeRemove Hook Events**: New hook events that fire when agent worktree isolation creates or removes worktrees
+  - **Impact**: Custom VCS setup and teardown (symlink creation, cache pre-population) can now run as lifecycle hooks for isolated agents
+  - **Affected**: sanctum session-management (potential worktree setup hooks), superpowers:using-git-worktrees (documentation update), conjure agent-teams (agents with `isolation: worktree` can now have setup/teardown)
+  - **Action Required**: None — additive. Evaluate whether existing worktree setup scripts should migrate to hook events
+
+- ✅ **`claude agents` CLI Command**: New subcommand listing all configured agents in the workspace
+  - **Impact**: Debugging agent configurations and verifying plugin agent registrations no longer requires manual directory inspection
+  - **Affected**: All plugins registering agents — useful for verifying agent discovery during development
+  - **Action Required**: None — informational tool
+
+- ✅ **LSP `startupTimeout` Configuration**: New `startupTimeout` field in LSP server configuration controls how long Claude Code waits for an LSP server to initialize before falling back
+  - **Impact**: Slow LSP servers (e.g., Rust Analyzer on large codebases) can be given more time rather than causing silent fallback to non-LSP operation
+  - **Affected**: pensive (LSP-based code review), sanctum (LSP documentation)
+  - **Action Required**: None — defaults unchanged. Consider setting `startupTimeout` if LSP initialization is flaky on large repos
+
+- ✅ **`isolation: worktree` in Agent Definitions**: Agents can now declaratively specify `isolation: worktree` in their frontmatter to request worktree-based isolation
+  - **Impact**: Seven agents in the night-market ecosystem already adopted this field prior to official support — those definitions now activate official isolation behavior
+  - **Affected**: Any agent definitions using `isolation: worktree` in frontmatter — verify all seven are correctly isolated now that the field is official
+  - **Action Required**: Audit agents with `isolation: worktree` to confirm isolation behavior matches intent
+
+- ✅ **`CLAUDE_CODE_DISABLE_1M_CONTEXT` Environment Variable**: New env var to disable 1M context window support
+  - **Impact**: Constrained systems or workflows that prefer shorter context windows can opt out of 1M context
+  - **Affected**: conserve:context-optimization (document as a tuning option)
+  - **Action Required**: None — opt-in flag, no behavior change without setting it
+
+- ✅ **Opus 4.6 Fast Mode 1M Context**: Fast mode now includes the full 1M context window (previously limited)
+  - **Impact**: Fast mode sessions on Opus 4.6 now have the same context capacity as standard mode
+  - **Affected**: conjure agent-teams (Opus 4.6 fast mode users get longer context), conserve:context-optimization (update fast mode guidance)
+  - **Action Required**: None — passive capability expansion
+
+- ✅ **`CLAUDE_CODE_SIMPLE` Enhancement**: Now also disables MCP tools, attachments, hooks, and CLAUDE.md file loading
+  - **Impact**: `CLAUDE_CODE_SIMPLE=1` now provides a fully stripped-down session — useful for benchmarking or constrained environments
+  - **Affected**: abstract:escalation-governance (document SIMPLE mode implications), imbue:governance (CLAUDE.md loading disabled in SIMPLE mode — governance will not load)
+  - **Action Required**: Ensure governance-critical workflows never run with `CLAUDE_CODE_SIMPLE=1`
+
+**Bug Fixes**:
+- ✅ **Memory Leaks Fixed (6+ sites)**: Fixed leaks in TaskOutput retained lines, CircularBuffer cleared items, shell command ChildProcess/AbortController references, LSP diagnostic data, completed task state objects, and agent teams completed teammate tasks
+  - **Impact**: Long sessions with heavy Task tool spawning benefit significantly — RSS growth over time is reduced
+  - **Affected**: conserve:context-optimization (update memory management guidance), conjure agent-teams (teammate task cleanup now automatic)
+  - **Action Required**: None — passive improvement. Remove any manual workarounds for memory pressure in long sessions
+
+- ✅ **Resumed Sessions with Symlinked Working Directories**: Fixed resumed sessions being invisible when the working directory involved symlinks
+  - **Previous Bug**: `claude --resume` or `claude --continue` failed to find the session when cwd resolved through symlinks
+  - **Now Fixed**: Session lookup now resolves symlinks before matching
+  - **Affected**: sanctum session-management (resume patterns), conserve (session restart guidance)
+  - **Action Required**: None — passive fix. Remove any workarounds that avoided symlinked working directories
+
+- ✅ **Session Data Loss on SSH Disconnect**: Fixed session state loss on SSH disconnect by flushing before hooks and analytics in the shutdown sequence
+  - **Previous Bug**: SSH disconnect triggered shutdown but hooks/analytics ran before flush, causing in-progress session state to be lost
+  - **Now Fixed**: Flush happens first in shutdown sequence
+  - **Affected**: sanctum session-management (session persistence reliability improves)
+  - **Action Required**: None — passive reliability fix for SSH users
+
+**Performance**:
+- ✅ **Memory Reduction After Compaction**: Internal caches cleared after compaction, large tool results freed after processing, file history snapshots capped to prevent unbounded growth
+  - **Impact**: Post-compaction memory footprint is lower; file history no longer grows without bound in very long sessions
+  - **Affected**: conserve:context-optimization (update compaction guidance to note memory benefit)
+  - **Action Required**: None — passive improvement
+
+**Notes**:
+- The worktree lifecycle hooks and `isolation: worktree` frontmatter together complete the agent isolation story for worktree-based workflows
+- Memory leak fixes across 6+ sites plus post-compaction cache clearing make this a meaningful quality release for long sessions
+- `CLAUDE_CODE_SIMPLE` now fully disables governance loading — ensure imbue/leyline governance is not expected to run in SIMPLE mode
+
+### Claude Code 2.1.49 (February 2026)
+
+**New Features**:
+- ✅ **Worktree Isolation for Subagents**: Introduced `isolation: "worktree"` parameter for the Task tool, enabling agents to run in temporary git worktrees with filesystem-level isolation
+  - **Impact**: Parallel agents that modify files no longer risk merge conflicts or file-level races. Each agent gets its own working copy.
+  - **Affected**: conjure:agent-teams (worktree alternative to inbox coordination), conserve:subagent-coordination (documented), sanctum:do-issue parallel-execution (documented)
+  - **Action Required**: None - additive capability
+
+- ✅ **Background Agent MCP Restriction**: Agents launched with `background: true` cannot use MCP tools
+  - **Impact**: Subagents requiring MCP tool access (code execution servers, external connectors) must NOT be backgrounded
+  - **Affected**: conserve:mcp-code-execution (mcp-subagents module documents this restriction)
+  - **Action Required**: None - constraint documented in affected modules
+
 ### Claude Code 2.1.47 (February 2026)
 
 **New Features**:

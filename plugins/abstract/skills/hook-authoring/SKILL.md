@@ -148,6 +148,8 @@ Quick reference for all supported hook events:
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
 | **SessionStart** | Session starts/resumes | `session_id`, `source`, `agent_type` | Initialization, context loading |
 | **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
+| **WorktreeCreate** | Agent worktree created | `worktree_path`, `session_id` | Custom VCS setup, symlink .venv, pre-populate caches (2.1.50+) |
+| **WorktreeRemove** | Agent worktree removed | `worktree_path`, `session_id` | Cleanup temp files, teardown worktree-scoped resources (2.1.50+) |
 
 ### SessionStart Input Schema (Claude Code 2.1.2+)
 
@@ -156,10 +158,12 @@ The SessionStart hook receives JSON input via stdin with these fields:
 ```json
 {
   "session_id": "abc123",
-  "source": "startup",  // "startup" | "resume" | "clear" | "compact"
-  "agent_type": "my-agent"  // Populated if --agent flag used
+  "source": "startup",
+  "agent_type": "my-agent"
 }
 ```
+
+Fields: `source` is one of `"startup"`, `"resume"`, `"clear"`, or `"compact"`. `agent_type` is populated when the `--agent` flag is used.
 
 **`agent_type` field**: When Claude Code is launched with `--agent my-agent`, this field contains the agent name, enabling agent-specific initialization:
 
@@ -287,6 +291,35 @@ PreToolUse hooks can now return `updatedInput` when returning `ask` permission d
 
 **Pros:** Simple, no code required, easy to version control
 **Cons:** Limited logic capabilities, shell command only
+
+### HTTP Hooks (Claude Code 2.1.63+)
+
+**New in 2.1.63:** Hooks can POST JSON to a URL and receive JSON responses instead of running shell commands. Use `"type": "http"` with a `"url"` field:
+
+```json
+{
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [{
+        "type": "http",
+        "url": "https://my-service.example.com/hooks/validate-bash"
+      }]
+    }
+  ]
+}
+```
+
+The hook POSTs the standard hook input as JSON and expects a standard hook response JSON body.
+
+**When to use HTTP hooks over command hooks:**
+- Enterprise environments where shell execution is restricted
+- Centralized hook logic shared across teams via a web service
+- Sandboxed or containerized setups without local script access
+- Integration with external validation/logging services
+
+**Pros:** No local scripts needed, centralized logic, works in sandboxed environments
+**Cons:** Network latency, requires running HTTP service, external dependency
 
 ### Python SDK Hooks
 

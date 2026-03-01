@@ -161,7 +161,7 @@ class AbstractScript:
         return FrontmatterProcessor.extract_raw(content)
 
     @property
-    def config(self) -> "AbstractConfig":
+    def config(self) -> AbstractConfig:
         """Get the configuration, loading it lazily.
 
         Returns:
@@ -173,7 +173,7 @@ class AbstractScript:
         return self._config
 
     @config.setter
-    def config(self, value: "AbstractConfig") -> None:
+    def config(self, value: AbstractConfig) -> None:
         """Set the configuration manually.
 
         Args:
@@ -183,7 +183,7 @@ class AbstractScript:
         self._config = value
 
     @property
-    def error_handler(self) -> "ErrorHandler":
+    def error_handler(self) -> ErrorHandler:
         """Get the error handler, creating it lazily.
 
         Returns:
@@ -195,7 +195,7 @@ class AbstractScript:
         return self._error_handler
 
     @error_handler.setter
-    def error_handler(self, value: "ErrorHandler") -> None:
+    def error_handler(self, value: ErrorHandler) -> None:
         """Set the error handler manually.
 
         Args:

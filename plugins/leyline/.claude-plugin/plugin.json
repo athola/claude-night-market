@@ -1,6 +1,6 @@
 {
   "name": "leyline",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Infrastructure and pipeline building blocks for Claude Code plugins. Like ancient ley lines connecting sacred sites, leyline provides the foundational patterns that connect and power plugin ecosystems.",
   "commands": [
     "./commands/reinstall-all-plugins.md",

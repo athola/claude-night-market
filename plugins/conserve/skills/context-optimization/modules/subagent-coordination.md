@@ -112,10 +112,16 @@ Agents with `isolation: worktree` in their frontmatter run in a temporary git wo
 - **Auto-cleanup**: Worktree is removed if the agent makes no changes; preserved with commits if changes exist
 - **Frontmatter**: Add `isolation: worktree` to any agent definition, or use `--worktree` CLI flag
 - **Background agent constraint**: Agents with `background: true` **cannot use MCP tools or AskUserQuestion** — plan tool access accordingly when combining background execution with worktree isolation
+- **First-launch fix (2.1.53+)**: `--worktree` was sometimes silently ignored on first launch — now reliable
+- **Config and memory sharing (2.1.63+)**: Project configs and auto-memory are now shared across git worktrees of the same repository. Worktree-isolated agents inherit the parent repo's `.claude/` settings and memory.
 
 ### Memory Stability in Long Sessions (Claude Code 2.1.47+)
 
 2.1.47 fixes an O(n^2) message accumulation issue and adds stream buffer release, reducing memory growth in long-running agent sessions. This is particularly relevant for multi-agent workflows where the parent dispatches many sequential subagents — previously, memory usage could grow disproportionately as each subagent's results accumulated. The fix makes sustained orchestration sessions (e.g., large map-reduce pipelines) more stable without requiring manual session restarts.
+
+### Additional Memory Fixes (Claude Code 2.1.50+)
+
+2.1.50 patches several leaks relevant to Task-heavy workflows: completed TaskOutput and task state objects are now freed, CircularBuffer no longer retains cleared items, shell ChildProcess/AbortController references are released after cleanup, and agent team teammate tasks are garbage collected on completion. Internal caches are cleared after compaction, large tool results are freed after processing, and file history snapshots are capped. Parallel execution patterns and agent teams are more viable in long sessions as a result.
 
 ### Best Practice: State Preservation
 

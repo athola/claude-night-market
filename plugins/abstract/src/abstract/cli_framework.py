@@ -25,7 +25,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult(Generic[T]):
+class CLIResult(Generic[T]):  # noqa: UP046 — Python 3.9 compat: no PEP 695 type aliases
     """Standard result wrapper for CLI operations."""
 
     success: bool

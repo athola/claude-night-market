@@ -167,4 +167,3 @@ def validate_skill_structure(skill_path: str = ".") -> dict[str, Any]:
         "skill_files": [str(f) for f in skill_files],
         "total_skill_files": len(skill_files),
     }
-

@@ -427,6 +427,7 @@ npx cclsp@latest setup
          "extensions": ["py", "pyi"],
          "command": ["pylsp"],
          "rootDir": ".",
+         "startupTimeout": 5000,
          "initializationOptions": {
            "settings": {
              "pylsp": {
@@ -442,11 +443,14 @@ npx cclsp@latest setup
        {
          "extensions": ["js", "ts", "jsx", "tsx"],
          "command": ["typescript-language-server", "--stdio"],
-         "rootDir": "."
+         "rootDir": ".",
+         "startupTimeout": 5000
        }
      ]
    }
    ```
+
+   **`startupTimeout`** (added in Claude Code 2.1.50): milliseconds Claude Code waits for the LSP server to initialize before falling back. Default is 2000ms. Increase this value if you see "No LSP server available" errors caused by slow server startup or the 52ms race condition ([#13952](https://github.com/anthropics/claude-code/issues/13952)).
 
 3. **Configure MCP server** (`~/.claude/.mcp.json`):
    ```json

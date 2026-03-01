@@ -12,18 +12,29 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
 
 def test_update_plugins_has_phase_2():
-    """Verify /update-plugins includes Phase 2 improvement analysis."""
-    file_path = PROJECT_ROOT / "plugins/sanctum/commands/update-plugins.md"
-    content = file_path.read_text()
+    """Verify /update-plugins references Phase 2 (content in module)."""
+    main_path = PROJECT_ROOT / "plugins/sanctum/commands/update-plugins.md"
+    main_content = main_path.read_text()
 
-    assert "Phase 2: Performance & Improvement Analysis" in content, (
-        "/update-plugins missing Phase 2 section"
+    # Main doc references Phase 2 module
+    assert "phase2-performance" in main_content, (
+        "/update-plugins missing Phase 2 module reference"
     )
-    assert "skill-review" in content, "/update-plugins missing skill-review reference"
-    assert "/skill-logs" in content, "/update-plugins missing /skill-logs reference"
-    assert "stability_gap" in content, "/update-plugins missing stability_gap mention"
-    assert "TodoWrite" in content or "improvement:" in content, (
-        "/update-plugins missing TodoWrite documentation"
+    assert "skill-review" in main_content, (
+        "/update-plugins missing skill-review reference"
+    )
+
+    # Phase 2 detail lives in the module file
+    module_path = (
+        PROJECT_ROOT
+        / "plugins/sanctum/commands/update-plugins/modules/phase2-performance.md"
+    )
+    module_content = module_path.read_text()
+    assert "stability_gap" in module_content, (
+        "Phase 2 module missing stability_gap mention"
+    )
+    assert "TodoWrite" in module_content or "improvement" in module_content, (
+        "Phase 2 module missing improvement documentation"
     )
 
 

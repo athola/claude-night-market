@@ -119,7 +119,7 @@ Quota available: Yes
 When output is truncated:
 
 ```
-[Conjure Bridge] Output truncated at 100,000 chars
+[Conjure Bridge] Output truncated at 50,000 chars
 Suggested action: Re-run with delegation
 Recommended service: Gemini
 ```

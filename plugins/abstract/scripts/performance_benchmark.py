@@ -10,7 +10,9 @@ import statistics
 import sys
 import time
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+)
 from abstract.tdd_skill_wrapper import TddSkillWrapper
 
 

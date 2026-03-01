@@ -34,7 +34,7 @@ EIGHTY_PERCENT_DISPLAY = 80.0
 
 
 class TestContextWarningHook:
-    """Feature: Two-tier context warnings for MECW compliance.
+    """Feature: Three-tier context warnings for MECW compliance.
 
     As a context optimization workflow
     I want to receive warnings at 40% and critical alerts at 50%
@@ -175,8 +175,8 @@ class TestContextWarningHook:
 
         assert alert.severity == ContextSeverity.EMERGENCY
         assert alert.usage_percent == EIGHTY_PERCENT
-        assert "EMERGENCY" in alert.message
-        # Updated: now recommends graceful completion instead of Task tool invocation
+        assert "high" in alert.message.lower()
+        # Recommends graceful completion, not imperative commands
         assert any("complete" in rec.lower() for rec in alert.recommendations)
 
     @pytest.mark.bdd
@@ -200,8 +200,8 @@ class TestContextWarningHook:
 
         assert alert.severity == ContextSeverity.EMERGENCY
         assert alert.usage_percent == ninety_percent
-        assert "AUTO-CLEAR" in alert.message
-        # Updated: now recommends graceful completion (Task tool unavailable)
+        assert "high" in alert.message.lower()
+        # Recommends graceful completion, not imperative commands
         assert any("complete" in rec.lower() for rec in alert.recommendations)
         assert any("summarize" in rec.lower() for rec in alert.recommendations)
 
@@ -834,8 +834,7 @@ class TestMainEntryPoint:
         output = output_capture.getvalue()
         data = json.loads(output)
         assert "additionalContext" in data["hookSpecificOutput"]
-        assert "EMERGENCY" in data["hookSpecificOutput"]["additionalContext"]
-        assert "clear-context" in data["hookSpecificOutput"]["additionalContext"]
+        assert "Context usage high" in data["hookSpecificOutput"]["additionalContext"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -863,16 +862,13 @@ class TestMainEntryPoint:
         data = json.loads(output)
         additional_context = data["hookSpecificOutput"]["additionalContext"]
 
-        # Check for formatted sections (updated for auto-continuation workflow)
-        assert "**MANDATORY AUTO-CONTINUATION TRIGGERED**" in additional_context
-        assert "EMERGENCY" in additional_context
-        assert "**YOU MUST EXECUTE THIS NOW**" in additional_context
-        # Steps focus on session state handoff
-        assert (
-            "1. Write session state to .claude/session-state.md" in additional_context
-        )
-        assert "session-state.md" in additional_context
-        assert "MANDATORY" in additional_context
+        # Check for informational guidance (not imperative commands)
+        assert "Context usage high" in additional_context
+        assert "wrapping up" in additional_context or "Consider" in additional_context
+        # Should NOT contain manipulative/imperative language
+        assert "MANDATORY" not in additional_context
+        assert "YOU MUST" not in additional_context
+        assert "BLOCKING" not in additional_context
 
 
 class TestConfigurableEmergencyThreshold:
@@ -1058,3 +1054,147 @@ class TestFallbackContextEstimation:
         result = context_warning_full_module.get_context_usage_from_env()
 
         assert result == 0.75
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_session_id_matches_correct_file(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: CLAUDE_SESSION_ID selects the correct session file.
+
+        Given multiple JSONL files exist in the project directory
+        And CLAUDE_SESSION_ID matches one of them
+        When estimating context from session
+        Then it should use the matching file, not the most recent.
+        """
+        # Set up fake project directory structure
+        home = tmp_path / "home" / "user"
+        home.mkdir(parents=True)
+        project_dir = home / ".claude" / "projects" / "-fakecwd"
+        project_dir.mkdir(parents=True)
+
+        # Create two session files: old-large and new-small
+        old_session = project_dir / "old-session-id.jsonl"
+        old_session.write_text("x" * 400000)  # ~50% of 800KB
+
+        new_session = project_dir / "target-session-id.jsonl"
+        new_session.write_text("x" * 80000)  # ~10% of 800KB
+
+        monkeypatch.setenv("CLAUDE_SESSION_ID", "target-session-id")
+        monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+
+        # Patch Path.cwd and Path.home
+        monkeypatch.setattr(
+            "pathlib.Path.cwd", staticmethod(lambda: tmp_path / "fakecwd")
+        )
+        monkeypatch.setattr("pathlib.Path.home", staticmethod(lambda: home))
+
+        # Create the cwd directory and matching project dir
+        fakecwd = tmp_path / "fakecwd"
+        fakecwd.mkdir(exist_ok=True)
+        real_project_dir = (
+            home
+            / ".claude"
+            / "projects"
+            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+        )
+        real_project_dir.mkdir(parents=True, exist_ok=True)
+
+        target_file = real_project_dir / "target-session-id.jsonl"
+        target_file.write_text("x" * 80000)
+
+        large_file = real_project_dir / "other-session.jsonl"
+        large_file.write_text("x" * 400000)
+
+        result = context_warning_full_module.estimate_context_from_session()
+
+        assert result is not None
+        assert result == pytest.approx(80000 / 800000, abs=0.01)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_stale_session_file_returns_none(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: Stale session files are ignored without CLAUDE_SESSION_ID.
+
+        Given no CLAUDE_SESSION_ID is set
+        And the most recent JSONL file is older than 60 seconds
+        When estimating context from session
+        Then it should return None to avoid false alerts.
+        """
+        import time
+
+        home = tmp_path / "home" / "user"
+        fakecwd = tmp_path / "fakecwd"
+        fakecwd.mkdir(parents=True)
+        home.mkdir(parents=True)
+
+        monkeypatch.setattr("pathlib.Path.cwd", staticmethod(lambda: fakecwd))
+        monkeypatch.setattr("pathlib.Path.home", staticmethod(lambda: home))
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+        monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+
+        real_project_dir = (
+            home
+            / ".claude"
+            / "projects"
+            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+        )
+        real_project_dir.mkdir(parents=True, exist_ok=True)
+
+        stale_file = real_project_dir / "old-session.jsonl"
+        stale_file.write_text("x" * 500000)
+
+        # Make the file appear old (>60s) by backdating mtime
+        old_time = time.time() - 120
+        import os
+
+        os.utime(stale_file, (old_time, old_time))
+
+        result = context_warning_full_module.estimate_context_from_session()
+
+        assert result is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_fresh_session_file_used_without_session_id(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: Fresh session files are used when no CLAUDE_SESSION_ID.
+
+        Given no CLAUDE_SESSION_ID is set
+        And a recently modified JSONL file exists (< 60 seconds old)
+        When estimating context from session
+        Then it should use that file for estimation.
+        """
+        home = tmp_path / "home" / "user"
+        fakecwd = tmp_path / "fakecwd"
+        fakecwd.mkdir(parents=True)
+        home.mkdir(parents=True)
+
+        monkeypatch.setattr("pathlib.Path.cwd", staticmethod(lambda: fakecwd))
+        monkeypatch.setattr("pathlib.Path.home", staticmethod(lambda: home))
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+        monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+
+        real_project_dir = (
+            home
+            / ".claude"
+            / "projects"
+            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+        )
+        real_project_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create a fresh file (just written = within 60s)
+        fresh_file = real_project_dir / "fresh-session.jsonl"
+        file_size = 400000
+        fresh_file.write_text("x" * file_size)
+
+        result = context_warning_full_module.estimate_context_from_session()
+
+        assert result is not None
+        assert result == pytest.approx(file_size / 800000, abs=0.01)
