@@ -6,6 +6,73 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### Claude Code 2.1.50 (March 2026)
+
+**New Features**:
+- ✅ **WorktreeCreate/WorktreeRemove Hook Events**: New hook events that fire when agent worktree isolation creates or removes worktrees
+  - **Impact**: Custom VCS setup and teardown (symlink creation, cache pre-population) can now run as lifecycle hooks for isolated agents
+  - **Affected**: sanctum session-management (potential worktree setup hooks), superpowers:using-git-worktrees (documentation update), conjure agent-teams (agents with `isolation: worktree` can now have setup/teardown)
+  - **Action Required**: None — additive. Evaluate whether existing worktree setup scripts should migrate to hook events
+
+- ✅ **`claude agents` CLI Command**: New subcommand listing all configured agents in the workspace
+  - **Impact**: Debugging agent configurations and verifying plugin agent registrations no longer requires manual directory inspection
+  - **Affected**: All plugins registering agents — useful for verifying agent discovery during development
+  - **Action Required**: None — informational tool
+
+- ✅ **LSP `startupTimeout` Configuration**: New `startupTimeout` field in LSP server configuration controls how long Claude Code waits for an LSP server to initialize before falling back
+  - **Impact**: Slow LSP servers (e.g., Rust Analyzer on large codebases) can be given more time rather than causing silent fallback to non-LSP operation
+  - **Affected**: pensive (LSP-based code review), sanctum (LSP documentation)
+  - **Action Required**: None — defaults unchanged. Consider setting `startupTimeout` if LSP initialization is flaky on large repos
+
+- ✅ **`isolation: worktree` in Agent Definitions**: Agents can now declaratively specify `isolation: worktree` in their frontmatter to request worktree-based isolation
+  - **Impact**: Seven agents in the night-market ecosystem already adopted this field prior to official support — those definitions now activate official isolation behavior
+  - **Affected**: Any agent definitions using `isolation: worktree` in frontmatter — verify all seven are correctly isolated now that the field is official
+  - **Action Required**: Audit agents with `isolation: worktree` to confirm isolation behavior matches intent
+
+- ✅ **`CLAUDE_CODE_DISABLE_1M_CONTEXT` Environment Variable**: New env var to disable 1M context window support
+  - **Impact**: Constrained systems or workflows that prefer shorter context windows can opt out of 1M context
+  - **Affected**: conserve:context-optimization (document as a tuning option)
+  - **Action Required**: None — opt-in flag, no behavior change without setting it
+
+- ✅ **Opus 4.6 Fast Mode 1M Context**: Fast mode now includes the full 1M context window (previously limited)
+  - **Impact**: Fast mode sessions on Opus 4.6 now have the same context capacity as standard mode
+  - **Affected**: conjure agent-teams (Opus 4.6 fast mode users get longer context), conserve:context-optimization (update fast mode guidance)
+  - **Action Required**: None — passive capability expansion
+
+- ✅ **`CLAUDE_CODE_SIMPLE` Enhancement**: Now also disables MCP tools, attachments, hooks, and CLAUDE.md file loading
+  - **Impact**: `CLAUDE_CODE_SIMPLE=1` now provides a fully stripped-down session — useful for benchmarking or constrained environments
+  - **Affected**: abstract:escalation-governance (document SIMPLE mode implications), imbue:governance (CLAUDE.md loading disabled in SIMPLE mode — governance will not load)
+  - **Action Required**: Ensure governance-critical workflows never run with `CLAUDE_CODE_SIMPLE=1`
+
+**Bug Fixes**:
+- ✅ **Memory Leaks Fixed (6+ sites)**: Fixed leaks in TaskOutput retained lines, CircularBuffer cleared items, shell command ChildProcess/AbortController references, LSP diagnostic data, completed task state objects, and agent teams completed teammate tasks
+  - **Impact**: Long sessions with heavy Task tool spawning benefit significantly — RSS growth over time is reduced
+  - **Affected**: conserve:context-optimization (update memory management guidance), conjure agent-teams (teammate task cleanup now automatic)
+  - **Action Required**: None — passive improvement. Remove any manual workarounds for memory pressure in long sessions
+
+- ✅ **Resumed Sessions with Symlinked Working Directories**: Fixed resumed sessions being invisible when the working directory involved symlinks
+  - **Previous Bug**: `claude --resume` or `claude --continue` failed to find the session when cwd resolved through symlinks
+  - **Now Fixed**: Session lookup now resolves symlinks before matching
+  - **Affected**: sanctum session-management (resume patterns), conserve (session restart guidance)
+  - **Action Required**: None — passive fix. Remove any workarounds that avoided symlinked working directories
+
+- ✅ **Session Data Loss on SSH Disconnect**: Fixed session state loss on SSH disconnect by flushing before hooks and analytics in the shutdown sequence
+  - **Previous Bug**: SSH disconnect triggered shutdown but hooks/analytics ran before flush, causing in-progress session state to be lost
+  - **Now Fixed**: Flush happens first in shutdown sequence
+  - **Affected**: sanctum session-management (session persistence reliability improves)
+  - **Action Required**: None — passive reliability fix for SSH users
+
+**Performance**:
+- ✅ **Memory Reduction After Compaction**: Internal caches cleared after compaction, large tool results freed after processing, file history snapshots capped to prevent unbounded growth
+  - **Impact**: Post-compaction memory footprint is lower; file history no longer grows without bound in very long sessions
+  - **Affected**: conserve:context-optimization (update compaction guidance to note memory benefit)
+  - **Action Required**: None — passive improvement
+
+**Notes**:
+- The worktree lifecycle hooks and `isolation: worktree` frontmatter together complete the agent isolation story for worktree-based workflows
+- Memory leak fixes across 6+ sites plus post-compaction cache clearing make this a meaningful quality release for long sessions
+- `CLAUDE_CODE_SIMPLE` now fully disables governance loading — ensure imbue/leyline governance is not expected to run in SIMPLE mode
+
 ### Claude Code 2.1.47 (February 2026)
 
 **New Features**:

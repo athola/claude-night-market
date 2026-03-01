@@ -148,6 +148,8 @@ Quick reference for all supported hook events:
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
 | **SessionStart** | Session starts/resumes | `session_id`, `source`, `agent_type` | Initialization, context loading |
 | **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
+| **WorktreeCreate** | Agent worktree created | `worktree_path`, `session_id` | Custom VCS setup, symlink .venv, pre-populate caches (2.1.50+) |
+| **WorktreeRemove** | Agent worktree removed | `worktree_path`, `session_id` | Cleanup temp files, teardown worktree-scoped resources (2.1.50+) |
 
 ### SessionStart Input Schema (Claude Code 2.1.2+)
 

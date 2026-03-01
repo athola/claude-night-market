@@ -25,7 +25,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult(Generic[T]):
+class CLIResult(Generic[T]):  # noqa: UP046
     """Standard result wrapper for CLI operations."""
 
     success: bool

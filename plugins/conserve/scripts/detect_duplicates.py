@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
-
-# ruff: noqa: S324, PLR0912, PLR2004
 """Duplicate code detection without external dependencies.
 
 Detects repeated code blocks (Tab-completion bloat) using:
@@ -14,6 +11,9 @@ Usage:
     python detect_duplicates.py src/ --min-lines 5 --format json
 """
 
+from __future__ import annotations
+
+# ruff: noqa: S324, PLR0912, PLR2004
 import argparse
 import hashlib
 import json

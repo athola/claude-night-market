@@ -117,6 +117,10 @@ Agents with `isolation: worktree` in their frontmatter run in a temporary git wo
 
 2.1.47 fixes an O(n^2) message accumulation issue and adds stream buffer release, reducing memory growth in long-running agent sessions. This is particularly relevant for multi-agent workflows where the parent dispatches many sequential subagents — previously, memory usage could grow disproportionately as each subagent's results accumulated. The fix makes sustained orchestration sessions (e.g., large map-reduce pipelines) more stable without requiring manual session restarts.
 
+### Additional Memory Fixes (Claude Code 2.1.50+)
+
+2.1.50 patches several leaks relevant to Task-heavy workflows: completed TaskOutput and task state objects are now freed, CircularBuffer no longer retains cleared items, shell ChildProcess/AbortController references are released after cleanup, and agent team teammate tasks are garbage collected on completion. Internal caches are cleared after compaction, large tool results are freed after processing, and file history snapshots are capped. Parallel execution patterns and agent teams are more viable in long sessions as a result.
+
 ### Best Practice: State Preservation
 
 For subagents handling complex, multi-step workflows:
