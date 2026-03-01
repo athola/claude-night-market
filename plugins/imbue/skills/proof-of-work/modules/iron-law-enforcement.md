@@ -79,6 +79,8 @@ If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
 
 ### Execution Markdown = Code
 
+> **Note:** L1/L2/L3 below refer to content assertion depth per `leyline:testing-quality-standards`, distinct from this document's Enforcement Levels 1-5.
+
 Markdown files under `skills/`, `agents/`, `modules/`, and `commands/` directories are execution markdown. Claude interprets them as behavioral instructions. They require content assertions following the L1/L2/L3 taxonomy defined in `leyline:testing-quality-standards/modules/content-assertion-levels.md`.
 
 **Iron Law applied to execution markdown:**

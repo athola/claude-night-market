@@ -44,7 +44,8 @@ Validates semantic correctness across documents and ensures the content teaches 
 
 ```python
 versions = re.findall(r"2\.1\.(\d+)", module_content)
-compat_content = compat_dir.glob("compatibility-features*.md")
+compat_texts = [p.read_text() for p in compat_dir.glob("compatibility-features*.md")]
+compat_content = "\n".join(compat_texts)
 for v in versions:
     assert f"2.1.{v}" in compat_content
 ```

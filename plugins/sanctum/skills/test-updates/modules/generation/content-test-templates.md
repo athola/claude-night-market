@@ -79,7 +79,7 @@ import re
 @pytest.fixture
 def json_code_blocks(self, skill_content: str):
     """Extract all JSON code blocks from the skill."""
-    return re.findall(r"```json\\n(.*?)```", skill_content, re.DOTALL)
+    return re.findall(r"```json\n(.*?)```", skill_content, re.DOTALL)
 
 @pytest.mark.bdd
 @pytest.mark.unit

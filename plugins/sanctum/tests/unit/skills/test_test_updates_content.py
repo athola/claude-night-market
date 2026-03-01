@@ -74,7 +74,11 @@ class TestContentTestDiscoveryModuleContent:
         """Given not every markdown change needs tests
         Then the module must define skip conditions."""
         content_lower = module_content.lower()
-        assert "skip" in content_lower or "not" in content_lower
+        assert (
+            "skip" in content_lower
+            or "not required" in content_lower
+            or "when not to" in content_lower
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit

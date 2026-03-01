@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `sanctum:test-updates/modules/generation/content-test-templates.md` - BDD scaffolding
   - `pensive:test-review/modules/content-assertion-quality.md` - review scoring dimension
 - Claude Code 2.1.49-2.1.63 compatibility entries in abstract docs
-- 29 content assertion tests across leyline (8), conserve (included in 143), abstract (6), sanctum (15), pensive (6)
+- 35 content assertion tests across leyline (8), conserve (included in 143), abstract (6), sanctum (15), pensive (6)
 - 14 tests for enriched update-plugins output (TestReadModuleDescription, TestPrintModuleIssuesEnriched)
 
 ### Changed

@@ -425,6 +425,7 @@ class TestHookAuthoringHttpHooks:
 
     # --- Level 2: Code example validity ---
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_all_json_examples_parse_successfully(self, json_code_blocks):
         """Given all JSON code blocks in hook-authoring skill
@@ -438,6 +439,7 @@ class TestHookAuthoringHttpHooks:
             except json.JSONDecodeError as exc:
                 pytest.fail(f"JSON block #{i + 1} is invalid: {exc}\n{block[:200]}")
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_http_hook_example_has_correct_schema(self, json_code_blocks):
         """Given the HTTP hooks JSON example
@@ -476,6 +478,7 @@ class TestHookAuthoringHttpHooks:
         assert "url" in hook, "HTTP hook must have a 'url' field"
         assert hook["url"].startswith("http"), "URL must start with http"
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_command_hook_example_has_correct_schema(self, json_code_blocks):
         """Given the command hooks JSON example
@@ -502,6 +505,7 @@ class TestHookAuthoringHttpHooks:
 
     # --- Level 3: Behavioral contracts ---
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_skill_covers_all_three_hook_types(self, skill_content):
         """Given the skill is Claude's reference for hook creation
@@ -512,6 +516,7 @@ class TestHookAuthoringHttpHooks:
         assert "HTTP Hooks" in skill_content
         assert "Python SDK" in skill_content or "SDK Hooks" in skill_content
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_http_hooks_version_gate_matches_compatibility_docs(self, skill_content):
         """Given the skill references '2.1.63+' for HTTP hooks
@@ -537,6 +542,7 @@ class TestHookAuthoringHttpHooks:
             or f"{version}" in compat_content
         ), f"Version {version} referenced in skill but missing from compatibility docs"
 
+    @pytest.mark.unit
     @pytest.mark.bdd
     def test_decision_guidance_distinguishes_http_use_cases(self, skill_content):
         """Given a user asks 'which hook type should I use?'

@@ -34,7 +34,7 @@ EIGHTY_PERCENT_DISPLAY = 80.0
 
 
 class TestContextWarningHook:
-    """Feature: Two-tier context warnings for MECW compliance.
+    """Feature: Three-tier context warnings for MECW compliance.
 
     As a context optimization workflow
     I want to receive warnings at 40% and critical alerts at 50%

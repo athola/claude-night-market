@@ -24,6 +24,7 @@ import json
 import logging
 import os
 import sys
+import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -198,7 +199,6 @@ def estimate_context_from_session() -> float | None:
             # modified in the last 60 seconds (likely the active session).
             # Without this guard, old multi-MB session files trigger false
             # EMERGENCY alerts on every tool call.
-            import time
 
             candidates = sorted(
                 jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True
@@ -267,7 +267,7 @@ def format_hook_output(alert: ContextAlert) -> dict[str, Any]:
         }
     }
 
-    # Add additionalContext for WARNING and CRITICAL levels
+    # Add additionalContext for non-OK levels (overwritten for EMERGENCY in main())
     if alert.severity != ContextSeverity.OK:
         output["hookSpecificOutput"]["additionalContext"] = (
             f"{alert.message}\n\nRecommendations:\n"
