@@ -112,6 +112,7 @@ Validates semantic correctness, cross-references, and anti-patterns.
 ```python
 # --- Level 3: Behavioral contracts ---
 # Add these methods inside your Test*Content class
+# Requires: re (imported in Level 2), Path (imported in Level 1)
 
 @pytest.mark.bdd
 @pytest.mark.unit
@@ -161,8 +162,6 @@ def test_version_refs_cross_reference_docs(
 
     Prevents Claude from citing nonexistent versions.
     """
-    from pathlib import Path
-
     versions = set(re.findall(r"2\.1\.(\d+)", skill_content))
     compat_dir = (
         Path(__file__).parents[4]  # Adjust depth for your test location
