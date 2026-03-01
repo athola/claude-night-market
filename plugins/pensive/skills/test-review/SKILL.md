@@ -32,6 +32,7 @@ modules:
 - coverage-analysis
 - scenario-quality
 - remediation-planning
+- content-assertion-quality
 ---
 ## Table of Contents
 

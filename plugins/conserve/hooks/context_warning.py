@@ -88,14 +88,14 @@ def assess_context_usage(usage: float) -> ContextAlert:
             severity=ContextSeverity.EMERGENCY,
             usage_percent=usage,
             message=(
-                f"EMERGENCY: Context at {usage * 100:.1f}% - "
-                "AUTO-CLEAR REQUIRED! Execute clear-context workflow NOW."
+                f"Context usage high: {usage * 100:.1f}%. "
+                "Consider wrapping up current work soon."
             ),
             recommendations=[
                 "Complete current in-progress work",
                 "Commit any pending changes",
-                "Summarize remaining tasks in your response",
-                "Session will auto-compact if needed - work is not lost",
+                "Summarize remaining tasks for the user",
+                "Session will auto-compact if needed, work is not lost",
             ],
         )
     # CRITICAL level - immediate optimization needed
@@ -178,13 +178,38 @@ def estimate_context_from_session() -> float | None:
         if not project_dir.exists():
             return None
 
-        # Find most recently modified JSONL file (current session)
+        # Find JSONL file for the current session
         jsonl_files = list(project_dir.glob("*.jsonl"))
         if not jsonl_files:
             return None
 
-        # Get the most recent file by modification time
-        current_session = max(jsonl_files, key=lambda f: f.stat().st_mtime)
+        # Use CLAUDE_SESSION_ID to find the correct session file if available
+        session_id = os.environ.get("CLAUDE_SESSION_ID", "")
+        current_session = None
+        if session_id:
+            # Match session ID to filename (files are named {uuid}.jsonl)
+            for f in jsonl_files:
+                if f.stem == session_id:
+                    current_session = f
+                    break
+
+        if current_session is None:
+            # Fallback: use most recently modified file, but only if it was
+            # modified in the last 60 seconds (likely the active session).
+            # Without this guard, old multi-MB session files trigger false
+            # EMERGENCY alerts on every tool call.
+            import time
+
+            candidates = sorted(
+                jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True
+            )
+            newest = candidates[0]
+            age_seconds = time.time() - newest.stat().st_mtime
+            if age_seconds > 60:
+                # Most recent file is stale — not the current session
+                return None
+            current_session = newest
+
         file_size = current_session.stat().st_size
 
         # Estimate usage as percentage of context window
@@ -291,26 +316,15 @@ def main() -> int:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
     else:
         output = format_hook_output(alert)
-        # For EMERGENCY level, trigger mandatory auto-continuation
+        # For EMERGENCY level, provide clear guidance (not imperative commands)
         if alert.severity == ContextSeverity.EMERGENCY:
             output["hookSpecificOutput"]["additionalContext"] = (
-                "**MANDATORY AUTO-CONTINUATION TRIGGERED**\n\n"
-                f"{alert.message}\n\n"
-                "**YOU MUST EXECUTE THIS NOW** (not optional):\n\n"
-                "```\n"
-                "1. Write session state to .claude/session-state.md with:\n"
-                "   - Current task objective\n"
-                "   - Progress summary\n"
-                "   - Remaining work\n"
-                "   - execution_mode: unattended, auto_continue: true\n\n"
-                "2. Spawn continuation agent with Task tool:\n"
-                "   Task(prompt='Continue from .claude/session-state.md. "
-                "Read state file FIRST. This is unattended mode - do NOT pause "
-                "for confirmation. Complete ALL remaining work.', "
-                "description='Continuation agent for context handoff')\n"
-                "```\n\n"
-                "**BLOCKING**: Do not proceed with other work until handoff is complete.\n"
-                "This is MANDATORY, not a recommendation."
+                f"Context usage high ({alert.usage_percent * 100:.1f}%). "
+                "Consider wrapping up current work:\n"
+                "- Complete in-progress tasks\n"
+                "- Commit pending changes\n"
+                "- Summarize remaining work for the user\n"
+                "- The session will auto-compact if needed"
             )
         print(json.dumps(output))
 

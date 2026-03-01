@@ -73,6 +73,13 @@ def analyze_git_changes():
 - Integration points affected
 
 ### Priority Scoring
-- High: Public API changes
-- Medium: Internal refactoring
-- Low: Documentation or test-only changes
+
+- **High**: Public API changes, execution markdown changes (SKILL.md files, agent definitions)
+- **Medium**: Internal refactoring, module markdown changes (files under `modules/` directories)
+- **Low**: README, CHANGELOG, non-execution documentation, test-only changes
+
+#### Execution Markdown Detection
+
+Files under `skills/`, `agents/`, `modules/`, or `commands/` with `.md` extension are execution markdown -- Claude interprets them as behavioral instructions. These are NOT low-priority documentation changes.
+
+When execution markdown is modified, check for corresponding content tests using the L1/L2/L3 taxonomy. See `modules/content-test-discovery.md` for detection heuristics and gap analysis, and `modules/generation/content-test-templates.md` for BDD test scaffolding.

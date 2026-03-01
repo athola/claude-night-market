@@ -58,6 +58,7 @@ Claude recognizes Iron Law violations in its own thought process.
 | "This will work because..." | Assumption without evidence | TEST IT, capture evidence |
 | "The design is straightforward" | Skipping uncertainty exploration | Write test, let design EMERGE |
 | "It's just documentation/config" | Documentation Exception fallacy | Markdown/YAML/shell have testable structure |
+| "It's just a module update" | Execution markdown exception | Apply content assertion levels (L1/L2/L3) per leyline:testing-quality-standards |
 | "The user wants this quickly" | Speed rationalization | Quality gates are non-negotiable |
 | "Files exist, so it works" | Existence ≠ functionality | Test BEHAVIOR, not just existence |
 
@@ -75,6 +76,18 @@ Before writing ANY code:
 
 If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
 ```
+
+### Execution Markdown = Code
+
+Markdown files under `skills/`, `agents/`, `modules/`, and `commands/` directories are execution markdown. Claude interprets them as behavioral instructions. They require content assertions following the L1/L2/L3 taxonomy defined in `leyline:testing-quality-standards/modules/content-assertion-levels.md`.
+
+**Iron Law applied to execution markdown:**
+
+- **L1 assertions** (keyword presence) are the minimum for any skill or module change
+- **L2 assertions** (code example validity) are required when the file contains JSON, YAML, or code blocks that Claude will copy as templates
+- **L3 assertions** (behavioral contracts) are required when the file defines decision frameworks, version gates, or behavioral guidance that affects user outcomes
+
+The Documentation Exception case study demonstrated that 37 BDD tests were needed for a single skill's content. Content assertion levels provide the framework for knowing WHICH tests to write, not just that tests are needed.
 
 ## BDD Test Structure Requirement
 

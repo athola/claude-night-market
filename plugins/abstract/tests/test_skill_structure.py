@@ -4,6 +4,7 @@ These tests verify that skills follow Claude Code documentation best practices
 for descriptions, triggers, and conflict avoidance.
 """
 
+import json
 import re
 from pathlib import Path
 
@@ -396,3 +397,168 @@ class TestHookScopeGuideSkill:
         )
 
         assert has_decision_content, "Skill should include decision framework questions"
+
+
+class TestHookAuthoringHttpHooks:
+    """Feature: Hook-authoring skill teaches Claude to generate valid hook configs.
+
+    As a skill interpreted by Claude Code for hook development guidance
+    I want JSON examples to be valid and schema-compliant
+    So that Claude produces working hook configurations when users ask.
+
+    Level 2: Code examples parse as valid JSON with correct schema.
+    Level 3: Decision framework covers all hook types, version refs are consistent.
+    """
+
+    @pytest.fixture
+    def skill_path(self):
+        return Path(__file__).parent.parent / "skills" / "hook-authoring" / "SKILL.md"
+
+    @pytest.fixture
+    def skill_content(self, skill_path):
+        return skill_path.read_text()
+
+    @pytest.fixture
+    def json_code_blocks(self, skill_content):
+        """Extract all ```json ... ``` code blocks from the skill."""
+        return re.findall(r"```json\n(.*?)```", skill_content, re.DOTALL)
+
+    # --- Level 2: Code example validity ---
+
+    @pytest.mark.bdd
+    def test_all_json_examples_parse_successfully(self, json_code_blocks):
+        """Given all JSON code blocks in hook-authoring skill
+        When Claude copies them as templates
+        Then every block must be valid JSON (no syntax errors).
+        """
+        assert len(json_code_blocks) > 0, "Skill should contain JSON examples"
+        for i, block in enumerate(json_code_blocks):
+            try:
+                json.loads(block)
+            except json.JSONDecodeError as exc:
+                pytest.fail(f"JSON block #{i + 1} is invalid: {exc}\n{block[:200]}")
+
+    @pytest.mark.bdd
+    def test_http_hook_example_has_correct_schema(self, json_code_blocks):
+        """Given the HTTP hooks JSON example
+        When Claude uses it as a template for generating hook configs
+        Then it must have: event key, matcher, hooks array with type=http and url.
+
+        This prevents Claude from teaching users to write malformed configs.
+        """
+        http_block = None
+        for block in json_code_blocks:
+            parsed = json.loads(block)
+            # Find the block that contains type: http
+            block_str = json.dumps(parsed)
+            if '"type": "http"' in block_str:
+                http_block = parsed
+                break
+
+        assert http_block is not None, "Skill must contain an HTTP hook JSON example"
+
+        # Validate schema: must have an event key containing hook definitions
+        event_keys = list(http_block.keys())
+        assert len(event_keys) >= 1, "Must have at least one event key"
+
+        hook_defs = http_block[event_keys[0]]
+        assert isinstance(hook_defs, list), "Event value must be an array"
+
+        first_def = hook_defs[0]
+        assert "matcher" in first_def, "Hook definition must have a matcher"
+        assert isinstance(first_def["matcher"], str), (
+            "Matcher must be a string (not object)"
+        )
+        assert "hooks" in first_def, "Hook definition must have hooks array"
+
+        hook = first_def["hooks"][0]
+        assert hook["type"] == "http", "Hook type must be 'http'"
+        assert "url" in hook, "HTTP hook must have a 'url' field"
+        assert hook["url"].startswith("http"), "URL must start with http"
+
+    @pytest.mark.bdd
+    def test_command_hook_example_has_correct_schema(self, json_code_blocks):
+        """Given the command hooks JSON example
+        When Claude uses it as a template
+        Then it must have: event key, matcher, hooks array with type=command.
+        """
+        cmd_block = None
+        for block in json_code_blocks:
+            parsed = json.loads(block)
+            block_str = json.dumps(parsed)
+            if '"type": "command"' in block_str:
+                cmd_block = parsed
+                break
+
+        assert cmd_block is not None, "Skill must contain a command hook JSON example"
+
+        event_keys = list(cmd_block.keys())
+        hook_defs = cmd_block[event_keys[0]]
+        first_def = hook_defs[0]
+
+        hook = first_def["hooks"][0]
+        assert hook["type"] == "command"
+        assert "command" in hook, "Command hook must have a 'command' field"
+
+    # --- Level 3: Behavioral contracts ---
+
+    @pytest.mark.bdd
+    def test_skill_covers_all_three_hook_types(self, skill_content):
+        """Given the skill is Claude's reference for hook creation
+        When a user asks 'how do I create a hook?'
+        Then Claude must know about all three approaches (JSON, HTTP, SDK).
+        """
+        assert "JSON Hooks" in skill_content
+        assert "HTTP Hooks" in skill_content
+        assert "Python SDK" in skill_content or "SDK Hooks" in skill_content
+
+    @pytest.mark.bdd
+    def test_http_hooks_version_gate_matches_compatibility_docs(self, skill_content):
+        """Given the skill references '2.1.63+' for HTTP hooks
+        Then that version must also be documented in compatibility-features.md.
+
+        This prevents Claude from recommending features for wrong versions.
+        """
+        # Extract version reference from HTTP hooks section
+        http_section_match = re.search(r"HTTP Hooks.*?(\d+\.\d+\.\d+)", skill_content)
+        assert http_section_match, "HTTP Hooks section must have a version reference"
+        version = http_section_match.group(1)
+
+        # Cross-reference against compatibility docs
+        compat_path = (
+            Path(__file__).parent.parent
+            / "docs"
+            / "compatibility"
+            / "compatibility-features.md"
+        )
+        compat_content = compat_path.read_text()
+        assert (
+            f"### Claude Code {version}" in compat_content
+            or f"{version}" in compat_content
+        ), f"Version {version} referenced in skill but missing from compatibility docs"
+
+    @pytest.mark.bdd
+    def test_decision_guidance_distinguishes_http_use_cases(self, skill_content):
+        """Given a user asks 'which hook type should I use?'
+        When Claude reads the skill's decision guidance
+        Then it must find distinct use-case criteria for HTTP vs command hooks.
+
+        Without this, Claude can't make informed recommendations.
+        """
+        # HTTP hooks should have specific use-case guidance
+        http_section = skill_content[skill_content.index("HTTP Hooks") :]
+        http_section = http_section[: http_section.index("### Python SDK")]
+
+        # Must provide criteria for WHEN to choose HTTP over command
+        use_case_indicators = [
+            "enterprise",
+            "sandboxed",
+            "centralized",
+            "web service",
+        ]
+        found = [ind for ind in use_case_indicators if ind in http_section.lower()]
+        min_indicators = 2
+        assert len(found) >= min_indicators, (
+            f"HTTP section needs distinct use-case criteria. "
+            f"Found {found}, need at least {min_indicators} of {use_case_indicators}"
+        )

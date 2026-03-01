@@ -386,3 +386,121 @@ class TestQualityMetricsCompleteness:
             "reliability" in quality_standards_content.lower()
             or "flaky" in quality_standards_content.lower()
         )
+
+
+class TestContentAssertionLevelsModuleContent:
+    """Feature: Content assertion levels module defines the L1/L2/L3 taxonomy.
+
+    As a testing workflow that encounters execution markdown changes
+    I want a canonical definition of content assertion levels
+    So that I know which tests to write for each content type.
+
+    Level 1: Structural presence (keyword checks).
+    Level 2: Code example validity (Python/JSON/YAML parsing).
+    """
+
+    @pytest.fixture
+    def module_path(self) -> Path:
+        return (
+            Path(__file__).parents[3]
+            / "skills"
+            / "testing-quality-standards"
+            / "modules"
+            / "content-assertion-levels.md"
+        )
+
+    @pytest.fixture
+    def module_content(self, module_path: Path) -> str:
+        return module_path.read_text()
+
+    # --- L1: Structural presence ---
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_module_exists_with_substance(self, module_path: Path) -> None:
+        """Given the content assertion levels module
+        Then it must exist with substantial content."""
+        assert module_path.exists()
+        content = module_path.read_text()
+        assert len(content.splitlines()) >= 50, "Module should be substantial"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "required_section",
+        [
+            "Level 1",
+            "Level 2",
+            "Level 3",
+        ],
+    )
+    def test_module_defines_all_three_levels(
+        self, module_content: str, required_section: str
+    ) -> None:
+        """Given the content assertion levels module
+        Then it must define all three assertion levels."""
+        assert required_section in module_content, (
+            f"Missing '{required_section}' definition"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_module_defines_when_to_apply(self, module_content: str) -> None:
+        """Given the module guides test authors
+        Then it must explain when to apply each level."""
+        assert "when to apply" in module_content.lower() or (
+            "content type" in module_content.lower()
+            and "minimum level" in module_content.lower()
+        ), "Must explain when each level applies"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_module_references_exemplar_tests(self, module_content: str) -> None:
+        """Given the module provides guidance
+        Then it must reference real test exemplars."""
+        assert (
+            "test_" in module_content.lower() or "exemplar" in module_content.lower()
+        ), "Must reference exemplar test classes"
+
+    # --- L2: Code block validity ---
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_python_code_blocks_are_syntactically_valid(
+        self, module_content: str
+    ) -> None:
+        """Given Python code blocks in the module
+        When Claude copies them as test scaffolding
+        Then every block must be valid Python syntax."""
+        import ast
+        import re
+
+        # Anchor closing fence to line start to avoid matching
+        # triple backticks inside code block string literals
+        python_blocks = re.findall(
+            r"```python\n(.*?)\n```",
+            module_content,
+            re.DOTALL | re.MULTILINE,
+        )
+        assert len(python_blocks) >= 1, "Module should contain Python examples"
+        for i, block in enumerate(python_blocks):
+            try:
+                ast.parse(block)
+            except SyntaxError as exc:
+                pytest.fail(f"Python block #{i + 1} has invalid syntax: {exc}")
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_md_references_this_module(self) -> None:
+        """Given the SKILL.md provides the entry point
+        Then it must reference the content-assertion-levels module."""
+        skill_path = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "testing-quality-standards"
+            / "SKILL.md"
+        )
+        skill_content = skill_path.read_text()
+        assert "content-assertion-levels" in skill_content, (
+            "SKILL.md must reference this module"
+        )

@@ -4,12 +4,14 @@ This module tests the MECW principles, context analysis, and optimization
 functionality following TDD/BDD principles.
 """
 
+from pathlib import Path
+
 import pytest
 
 # Constants for PLR2004 magic values
 TWO = 2
 THREE = 3
-FOUR = 4
+FOUR = 4  # Also used for path traversal in TestSubagentCoordinationModuleContent
 FIVE = 5
 THIRTY = 30
 THIRTY_POINT_ZERO = 30.0
@@ -499,3 +501,132 @@ tags:
         assert total_cost <= optimization_budget
         assert any(task["task"] == "context_analysis" for task in selected_tasks)
         assert any(task["task"] == "compression_strategy" for task in selected_tasks)
+
+
+class TestSubagentCoordinationModuleContent:
+    """Feature: Subagent coordination module guides Claude's agent dispatch decisions.
+
+    As a module interpreted by Claude Code for multi-agent orchestration
+    I want version-gated features to be accurately documented
+    So that Claude makes correct decisions about agent isolation and delegation.
+
+    Level 2: Version references are internally consistent.
+    Level 3: Delegation decision framework produces correct outcomes.
+    """
+
+    @pytest.fixture
+    def module_path(self) -> Path:
+        return (
+            Path(__file__).parents[THREE]
+            / "skills"
+            / "context-optimization"
+            / "modules"
+            / "subagent-coordination.md"
+        )
+
+    @pytest.fixture
+    def module_content(self, module_path: Path) -> str:
+        return module_path.read_text()
+
+    # --- Level 2: Version gate consistency ---
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_worktree_features_are_version_gated(self, module_content: str) -> None:
+        """Given worktree isolation features in the module
+        When Claude reads about worktree capabilities
+        Then each capability must have a version gate so Claude doesn't
+        recommend features unavailable in the user's version.
+        """
+        import re
+
+        worktree_section_match = re.search(
+            r"### Worktree Isolation.*?(?=###|\Z)", module_content, re.DOTALL
+        )
+        assert worktree_section_match, "Module must have a Worktree Isolation section"
+        worktree_section = worktree_section_match.group()
+
+        # Must contain version-gated entries
+        version_refs = re.findall(r"\d+\.\d+\.\d+", worktree_section)
+        min_version_refs = 2
+        assert len(version_refs) >= min_version_refs, (
+            f"Worktree section has {len(version_refs)} version refs, "
+            f"need at least {min_version_refs} for proper version gating"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_version_refs_cross_reference_compatibility_docs(
+        self, module_content: str
+    ) -> None:
+        """Given version references in the module
+        Then each referenced version must exist in compatibility docs.
+
+        This prevents Claude from citing nonexistent versions.
+        Checks both main and 2025 archive compatibility files.
+        """
+        import re
+        from pathlib import Path
+
+        versions = set(re.findall(r"2\.1\.(\d+)", module_content))
+        compat_dir = (
+            Path(__file__).parents[FOUR] / "abstract" / "docs" / "compatibility"
+        )
+        # Combine all compatibility docs content
+        compat_content = ""
+        for compat_file in compat_dir.glob("compatibility-features*.md"):
+            compat_content += compat_file.read_text()
+
+        for minor in versions:
+            version_str = f"2.1.{minor}"
+            assert version_str in compat_content, (
+                f"Module references {version_str} but it's not in any "
+                "compatibility-features*.md file"
+            )
+
+    # --- Level 3: Delegation decision framework ---
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_delegation_framework_has_efficiency_threshold(
+        self, module_content: str
+    ) -> None:
+        """Given the delegation decision framework
+        When Claude decides whether to spawn a subagent
+        Then the framework must include a minimum efficiency threshold
+        to prevent wasteful delegation of simple tasks.
+        """
+        assert (
+            "MIN_EFFICIENCY" in module_content or "efficiency" in module_content.lower()
+        )
+        assert "BASE_OVERHEAD" in module_content or "overhead" in module_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_delegation_framework_has_pre_invocation_check(
+        self, module_content: str
+    ) -> None:
+        """Given the delegation framework
+        When Claude is about to spawn a subagent
+        Then the framework must instruct a pre-invocation complexity check.
+
+        Without this, Claude wastes ~8k tokens on subagent overhead for simple tasks.
+        """
+        assert "pre-invocation" in module_content.lower()
+        # Must include explicit "do it directly" guidance for simple tasks
+        assert "directly" in module_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_worktree_config_sharing_documented(self, module_content: str) -> None:
+        """Given worktree-isolated agents share configs since 2.1.63
+        When Claude dispatches a worktree agent
+        Then it should know configs and memory are inherited, not blank.
+
+        Without this, Claude might add unnecessary config-copying steps.
+        """
+        assert "2.1.63" in module_content
+        # Must mention what is shared
+        content_lower = module_content.lower()
+        assert "config" in content_lower or "settings" in content_lower
+        assert "memory" in content_lower or "auto-memory" in content_lower

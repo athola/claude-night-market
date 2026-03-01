@@ -1,7 +1,7 @@
 ---
 name: doc-editor
 description: Documentation editor agent for polishing and improving content quality
-model: claude-sonnet-4-20250514
+model: claude-sonnet-4-6
 tools:
   - Read
   - Edit

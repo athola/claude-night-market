@@ -23,6 +23,7 @@ provides:
   - coverage-thresholds
   - quality-metrics
   - anti-patterns
+  - content-assertion-levels
 ---
 
 # Testing Quality Standards
@@ -87,13 +88,15 @@ For implementation patterns and examples:
 
 - **[Anti-Patterns](modules/anti-patterns.md)** - Common testing mistakes with before/after examples
 - **[Best Practices](modules/best-practices.md)** - Core testing principles and exit criteria
+- **[Content Assertion Levels](modules/content-assertion-levels.md)** - L1/L2/L3 taxonomy for testing LLM-interpreted markdown files
 
 ## Integration with Plugin Testing
 
 This skill provides foundational standards referenced by:
 - `pensive:test-review` - Uses coverage thresholds and quality metrics
 - `parseltongue:python-testing` - Uses anti-patterns and best practices
-- `sanctum:test-*` - Uses quality checklist for test validation
+- `sanctum:test-*` - Uses quality checklist and content assertion levels for test validation
+- `imbue:proof-of-work` - Uses content assertion levels to enforce Iron Law on execution markdown
 
 Reference in your skill's frontmatter:
 ```yaml

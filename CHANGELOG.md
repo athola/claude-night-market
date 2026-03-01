@@ -9,15 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2026-02-27
 
+### Added
+
+- **Content assertion levels framework** (L1/L2/L3) for testing execution markdown
+  - `leyline:testing-quality-standards/modules/content-assertion-levels.md` - canonical taxonomy
+  - `sanctum:test-updates/modules/content-test-discovery.md` - execution markdown detection
+  - `sanctum:test-updates/modules/generation/content-test-templates.md` - BDD scaffolding
+  - `pensive:test-review/modules/content-assertion-quality.md` - review scoring dimension
+- Claude Code 2.1.49-2.1.63 compatibility entries in abstract docs
+- 29 content assertion tests across leyline (8), conserve (included in 143), abstract (6), sanctum (15), pensive (6)
+- 14 tests for enriched update-plugins output (TestReadModuleDescription, TestPrintModuleIssuesEnriched)
+
 ### Changed
 
 - Enrich update-plugins orphaned module output with inline descriptions
 - Split update-plugins command doc from 397 to 91 lines + 3 on-demand modules
 - Wire ci-integration, config-file, progress-indicators into scribe slop-detector
+- Iron Law enforcement now recognizes execution markdown as code (imbue)
+- Test discovery reclassifies execution markdown from Low to High/Medium priority (sanctum)
+- Scribe agents updated to claude-sonnet-4-6 model ID
 
-### Added
+### Fixed
 
-- 14 tests for enriched update-plugins output (TestReadModuleDescription, TestPrintModuleIssuesEnriched)
+- Invalid JSON code block in hook-authoring skill (removed // comments)
+- Conjure bridge truncation limit corrected (100k to 50k chars)
 
 ## [1.5.0] - 2026-02-26
 

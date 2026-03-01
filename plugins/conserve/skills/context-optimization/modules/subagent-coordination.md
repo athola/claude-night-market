@@ -112,6 +112,8 @@ Agents with `isolation: worktree` in their frontmatter run in a temporary git wo
 - **Auto-cleanup**: Worktree is removed if the agent makes no changes; preserved with commits if changes exist
 - **Frontmatter**: Add `isolation: worktree` to any agent definition, or use `--worktree` CLI flag
 - **Background agent constraint**: Agents with `background: true` **cannot use MCP tools or AskUserQuestion** — plan tool access accordingly when combining background execution with worktree isolation
+- **First-launch fix (2.1.53+)**: `--worktree` was sometimes silently ignored on first launch — now reliable
+- **Config and memory sharing (2.1.63+)**: Project configs and auto-memory are now shared across git worktrees of the same repository. Worktree-isolated agents inherit the parent repo's `.claude/` settings and memory.
 
 ### Memory Stability in Long Sessions (Claude Code 2.1.47+)
 
