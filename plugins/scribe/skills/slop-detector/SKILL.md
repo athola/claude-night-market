@@ -27,6 +27,7 @@ modules:
 - config-file
 - progress-indicators
 - ci-integration
+- metrics
 dependencies:
 - scribe:shared
 ---
