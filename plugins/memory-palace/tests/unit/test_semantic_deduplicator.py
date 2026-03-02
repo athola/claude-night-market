@@ -9,7 +9,6 @@ So that the knowledge base stays dense and non-redundant
 
 from __future__ import annotations
 
-import warnings
 from unittest.mock import patch
 
 import pytest
@@ -318,131 +317,20 @@ class TestSemanticDeduplicatorFaiss:
 # ---------------------------------------------------------------------------
 
 
-class TestSemanticDeduplicatorFallback:
+class TestSemanticDeduplicatorFaissMandatory:
     """
-    Feature: Graceful fallback when FAISS is unavailable
-
-    As a memory palace plugin
-    I want deduplication to work even without FAISS installed
-    So that basic duplicate suppression is always available
+    Feature: FAISS is always available (mandatory dependency since 1.5.2)
     """
 
-    @pytest.fixture
-    def deduplicator_fallback(self) -> SemanticDeduplicator:
-        """Deduplicator forced into fallback mode by masking FAISS import."""
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._HAS_FAISS",
-            False,
-        ):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                return SemanticDeduplicator(threshold=0.8)
+    @pytest.mark.unit
+    def test_always_uses_faiss(self) -> None:
+        """FAISS mode is always active since faiss-cpu is mandatory."""
+        dedup = SemanticDeduplicator(threshold=0.8, vector_dim=4)
+        assert dedup.uses_faiss is True
 
     @pytest.mark.unit
-    def test_fallback_mode_when_faiss_absent(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: FAISS unavailable
-        Given _HAS_FAISS is False
-        When a deduplicator is constructed
-        Then uses_faiss is False
-        """
-        assert deduplicator_fallback.uses_faiss is False
-
-    @pytest.mark.unit
-    def test_warning_emitted_in_fallback_mode(self) -> None:
-        """
-        Scenario: Fallback mode emits a warning
-        Given FAISS is unavailable
-        When a deduplicator is constructed
-        Then a UserWarning about the fallback is emitted
-        """
-        with patch("memory_palace.corpus.semantic_deduplicator._HAS_FAISS", False):
-            with pytest.warns(UserWarning, match="faiss-cpu or numpy not installed"):
-                SemanticDeduplicator(threshold=0.8)
-
-    @pytest.mark.unit
-    def test_fallback_empty_store_allows_storage(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: First entry in empty fallback store
-        Given no texts have been registered
-        When should_store is called
-        Then it returns True
-        """
-        assert deduplicator_fallback.should_store("first content") is True
-
-    @pytest.mark.unit
-    def test_fallback_distinct_content_stored(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: Distinct content passes fallback check
-        Given an existing text with no word overlap
-        When new distinct content is checked
-        Then should_store returns True
-        """
-        deduplicator_fallback.add_text("apple banana cherry")
-        result = deduplicator_fallback.should_store("dog elephant fish")
-        assert result is True
-
-    @pytest.mark.unit
-    def test_fallback_near_duplicate_suppressed(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: Near-duplicate content blocked in fallback mode
-        Given stored text with high Jaccard overlap with new content
-        When should_store is called
-        Then it returns False
-        """
-        # Jaccard of "a b c d" vs "a b c e" = 3/5 = 0.6, threshold=0.8
-        # Need near-identical: "a b c d" vs "a b c d e" = 4/5 = 0.8 >= threshold
-        deduplicator_fallback.add_text("the quick brown fox jumps")
-        # Same text → Jaccard = 1.0 >= 0.8
-        result = deduplicator_fallback.should_store("the quick brown fox jumps")
-        assert result is False
-
-    @pytest.mark.unit
-    def test_fallback_counter_increments_on_duplicate(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: Fallback counter increments on suppressed entries
-        Given stored text that matches new content at >= threshold
-        When two near-duplicates are submitted
-        Then the fallback counter for position 0 equals 2
-        """
-        deduplicator_fallback.add_text("hello world foo bar baz")
-        deduplicator_fallback.should_store("hello world foo bar baz")
-        deduplicator_fallback.should_store("hello world foo bar baz")
-
-        count = deduplicator_fallback.get_near_duplicate_count("fallback:0")
-        assert count == 2
-
-    @pytest.mark.unit
-    def test_fallback_add_vector_is_noop(
-        self, deduplicator_fallback: SemanticDeduplicator
-    ) -> None:
-        """
-        Scenario: add_vector is a no-op in fallback mode
-        Given fallback mode
-        When add_vector is called
-        Then index_size remains 0
-        """
-        deduplicator_fallback.add_vector("e1", [1.0, 0.0])
-        assert deduplicator_fallback.index_size == 0
-
-    @pytest.mark.unit
-    def test_fallback_add_text_is_noop_in_faiss_mode(self) -> None:
-        """
-        Scenario: add_text is a no-op in FAISS mode
-        Given FAISS mode
-        When add_text is called
-        Then it does not raise and index_size stays 0
-        """
+    def test_add_text_is_noop_in_faiss_mode(self) -> None:
+        """add_text is a no-op since FAISS is always active."""
         dedup = SemanticDeduplicator(threshold=0.8, vector_dim=4)
         dedup.add_text("some text")  # should not raise
         assert dedup.index_size == 0

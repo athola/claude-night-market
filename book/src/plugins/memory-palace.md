@@ -158,14 +158,7 @@ The `SemanticDeduplicator` uses FAISS cosine similarity (threshold: 0.8) to dete
 
 ## Semantic Deduplication
 
-Optional FAISS-based duplicate detection:
-
-```bash
-# Install semantic extras
-pip install memory-palace[semantic]  # faiss-cpu + numpy
-```
-
-Without FAISS, deduplication uses Jaccard similarity on word sets. Both backends share the same API via `SemanticDeduplicator.should_store()`.
+FAISS-based duplicate detection is included as a mandatory dependency. The `SemanticDeduplicator.should_store()` API uses cosine similarity on L2-normalized vectors to detect near-duplicates before storage.
 
 ## Embedding Support
 

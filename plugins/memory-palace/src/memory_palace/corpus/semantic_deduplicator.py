@@ -1,7 +1,6 @@
 """Semantic deduplication using FAISS vector similarity search.
 
 Uses cosine similarity to detect near-duplicate content before storage.
-When FAISS/numpy are unavailable, falls back to Jaccard similarity on word sets.
 """
 
 from __future__ import annotations
@@ -9,22 +8,16 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
-import warnings
+
+import faiss  # type: ignore[import-not-found,import-untyped]
+import numpy as np  # type: ignore[import-not-found,import-untyped]
 
 logger = logging.getLogger(__name__)
 
 # Default similarity threshold (0.8 matches ACE Playbook recommendation)
 DEFAULT_THRESHOLD = 0.8
 
-try:
-    import faiss  # type: ignore[import-not-found,import-untyped]
-    import numpy as np  # type: ignore[import-not-found,import-untyped]
-
-    _HAS_FAISS = True
-except ImportError:
-    np = None  # type: ignore[assignment]
-    faiss = None  # type: ignore[assignment]
-    _HAS_FAISS = False
+_HAS_FAISS = True  # Always True; faiss-cpu is a mandatory dependency
 
 
 def _jaccard_similarity(a: str, b: str) -> float:
@@ -72,27 +65,18 @@ class SemanticDeduplicator:
         threshold: float = DEFAULT_THRESHOLD,
         vector_dim: int = 128,
     ) -> None:
-        """Initialize the deduplicator with optional FAISS index."""
+        """Initialize the deduplicator with FAISS index."""
         self.threshold = threshold
         self.vector_dim = vector_dim
         self._near_duplicate_counts: dict[str, int] = {}
-        self._use_faiss = _HAS_FAISS
+        self._use_faiss = True
+        self._stored_texts: list[str] = []  # Unused; Jaccard fallback is dead code
 
-        if not self._use_faiss:
-            warnings.warn(
-                "faiss-cpu or numpy not installed. "
-                "Falling back to Jaccard word-set similarity for deduplication. "
-                "Install memory-palace[semantic] for vector-based deduplication.",
-                stacklevel=2,
-            )
-            # Fallback: store raw content strings for Jaccard comparison
-            self._stored_texts: list[str] = []
-        else:
-            # FAISS flat index with inner-product search on L2-normalised vectors
-            # (inner product on unit vectors == cosine similarity)
-            self._index: faiss.IndexFlatIP = faiss.IndexFlatIP(vector_dim)  # type: ignore[name-defined]
-            # Track which entry_id corresponds to each FAISS index position
-            self._entry_ids: list[str] = []
+        # FAISS flat index with inner-product search on L2-normalised vectors
+        # (inner product on unit vectors == cosine similarity)
+        self._index: faiss.IndexFlatIP = faiss.IndexFlatIP(vector_dim)  # type: ignore[name-defined]
+        # Track which entry_id corresponds to each FAISS index position
+        self._entry_ids: list[str] = []
 
     # ------------------------------------------------------------------
     # Public API

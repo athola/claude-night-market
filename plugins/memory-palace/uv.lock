@@ -1368,6 +1368,11 @@ name = "memory-palace"
 version = "1.5.2"
 source = { editable = "." }
 dependencies = [
+    { name = "faiss-cpu", version = "1.13.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "faiss-cpu", version = "1.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pre-commit", version = "4.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pre-commit", version = "4.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pyyaml" },
@@ -1383,13 +1388,6 @@ dev = [
 ]
 fast = [
     { name = "xxhash" },
-]
-semantic = [
-    { name = "faiss-cpu", version = "1.13.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "faiss-cpu", version = "1.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
-    { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 tokens = [
     { name = "tiktoken" },
@@ -1415,9 +1413,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "faiss-cpu", marker = "extra == 'semantic'", specifier = ">=1.7.0" },
+    { name = "faiss-cpu", specifier = ">=1.7.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.0,<2.0" },
-    { name = "numpy", marker = "extra == 'semantic'", specifier = ">=1.21.0" },
+    { name = "numpy", specifier = ">=1.21.0" },
     { name = "pre-commit", specifier = ">=3.0.0" },
     { name = "pytype", marker = "python_full_version >= '3.10' and extra == 'dev'", specifier = ">=2024.10.11" },
     { name = "pyyaml", specifier = ">=6.0" },
@@ -1427,7 +1425,7 @@ requires-dist = [
     { name = "typos", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "xxhash", marker = "extra == 'fast'", specifier = ">=3.0" },
 ]
-provides-extras = ["tokens", "fast", "semantic", "dev"]
+provides-extras = ["tokens", "fast", "dev"]
 
 [package.metadata.requires-dev]
 dev = [

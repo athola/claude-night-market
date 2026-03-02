@@ -97,11 +97,9 @@ Setup hook (`claude --init`, `claude --maintenance`) handles one-time initializa
 | Package | Purpose | Fallback |
 |---------|---------|----------|
 | tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
-| faiss-cpu + numpy | Semantic deduplication via cosine similarity | Jaccard word-set similarity |
 
 ```bash
 pip install tiktoken
-pip install memory-palace[semantic]  # faiss-cpu + numpy
 ```
 
 ## Architecture
