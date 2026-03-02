@@ -1198,3 +1198,157 @@ class TestFallbackContextEstimation:
 
         assert result is not None
         assert result == pytest.approx(file_size / 800000, abs=0.01)
+
+
+class TestEstimateFromHeuristics:
+    """Feature: Token-based heuristic estimation from session JSONL.
+
+    As a context monitoring system
+    I want a secondary heuristic based on message/tool counts
+    So that estimation cross-checks file size with turn-based approximation
+
+    Uses shared fixture: context_warning_full_module from conftest.py
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_file_returns_zero(
+        self, context_warning_full_module, tmp_path
+    ) -> None:
+        """Scenario: Empty session file yields near-zero estimate.
+
+        Given an empty JSONL session file
+        When estimating from heuristics
+        Then it should return approximately 0.
+        """
+        session_file = tmp_path / "empty.jsonl"
+        session_file.write_text("")
+
+        result = context_warning_full_module._estimate_from_heuristics(session_file)
+
+        assert result is not None
+        assert result == pytest.approx(ZERO, abs=0.01)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_counts_user_and_assistant_turns(
+        self, context_warning_full_module, tmp_path
+    ) -> None:
+        """Scenario: Turns contribute to token estimate.
+
+        Given a session file with user and assistant messages
+        When estimating from heuristics
+        Then turn count should contribute to the estimate.
+        """
+        lines = [
+            json.dumps({"role": "user", "content": "hello"}),
+            json.dumps({"role": "assistant", "content": "hi"}),
+            json.dumps({"role": "user", "content": "question"}),
+            json.dumps({"role": "assistant", "content": "answer"}),
+        ]
+        session_file = tmp_path / "turns.jsonl"
+        session_file.write_text("\n".join(lines))
+
+        result = context_warning_full_module._estimate_from_heuristics(session_file)
+
+        assert result is not None
+        # 4 turns * 800 tokens/turn = 3200 tokens; char estimate also factors in
+        assert result > ZERO
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_counts_tool_results(self, context_warning_full_module, tmp_path) -> None:
+        """Scenario: Tool results add to token estimate.
+
+        Given a session with tool_result content blocks
+        When estimating from heuristics
+        Then tool results should increase the estimate.
+        """
+        lines = [
+            json.dumps(
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": "t1",
+                            "content": "result1",
+                        },
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": "t2",
+                            "content": "result2",
+                        },
+                    ],
+                }
+            ),
+            json.dumps({"role": "assistant", "content": "response"}),
+        ]
+        session_file = tmp_path / "tools.jsonl"
+        session_file.write_text("\n".join(lines))
+
+        result = context_warning_full_module._estimate_from_heuristics(session_file)
+
+        assert result is not None
+        assert result > ZERO
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_caps_at_095(self, context_warning_full_module, tmp_path) -> None:
+        """Scenario: Estimate is capped at 0.95 to avoid false 100%.
+
+        Given a very large session file
+        When estimating from heuristics
+        Then the result should not exceed 0.95.
+        """
+        # Create a file large enough that char_tokens >> context_window_tokens
+        large_content = "x" * 2_000_000
+        session_file = tmp_path / "large.jsonl"
+        session_file.write_text(large_content)
+
+        result = context_warning_full_module._estimate_from_heuristics(session_file)
+
+        assert result is not None
+        assert result <= 0.95
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_handles_malformed_json_lines(
+        self, context_warning_full_module, tmp_path
+    ) -> None:
+        """Scenario: Malformed JSON lines are skipped gracefully.
+
+        Given a session file with some invalid JSON lines
+        When estimating from heuristics
+        Then it should skip bad lines and still return an estimate.
+        """
+        lines = [
+            "not valid json",
+            json.dumps({"role": "user", "content": "hello"}),
+            "{bad json{",
+            json.dumps({"role": "assistant", "content": "hi"}),
+        ]
+        session_file = tmp_path / "mixed.jsonl"
+        session_file.write_text("\n".join(lines))
+
+        result = context_warning_full_module._estimate_from_heuristics(session_file)
+
+        assert result is not None
+        assert result > ZERO
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_missing_file_returns_none(
+        self, context_warning_full_module, tmp_path
+    ) -> None:
+        """Scenario: Missing file returns None.
+
+        Given a path to a non-existent file
+        When estimating from heuristics
+        Then it should return None.
+        """
+        missing_file = tmp_path / "nonexistent.jsonl"
+
+        result = context_warning_full_module._estimate_from_heuristics(missing_file)
+
+        assert result is None

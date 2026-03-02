@@ -38,6 +38,9 @@ CRITICAL_THRESHOLD = 0.50
 # Emergency threshold is configurable via environment variable
 EMERGENCY_THRESHOLD = float(os.environ.get("CONSERVE_EMERGENCY_THRESHOLD", "0.80"))
 
+# Staleness threshold: ignore session files older than this (seconds)
+STALE_SESSION_SECONDS = 60
+
 
 class ContextSeverity(Enum):
     """Severity levels for context usage alerts."""
@@ -148,6 +151,7 @@ def estimate_context_from_session() -> float | None:
 
     Returns:
         Estimated context usage as float 0-1, or None if cannot estimate.
+
     """
     # Check if estimation is disabled
     if os.environ.get("CONSERVE_CONTEXT_ESTIMATION", "1") == "0":
@@ -165,9 +169,6 @@ def estimate_context_from_session() -> float | None:
         home = Path.home()
         claude_projects = home / ".claude" / "projects"
 
-        if not claude_projects.exists():
-            return None
-
         # Convert cwd to Claude's project directory naming convention
         # e.g., /home/user/my-project -> -home-user-my-project
         project_dir_name = str(cwd).replace("/", "-")
@@ -176,10 +177,11 @@ def estimate_context_from_session() -> float | None:
         project_dir_name = "-" + project_dir_name
 
         project_dir = claude_projects / project_dir_name
-        if not project_dir.exists():
+
+        # Guard: need existing projects dir, project dir, and JSONL files
+        if not claude_projects.exists() or not project_dir.exists():
             return None
 
-        # Find JSONL file for the current session
         jsonl_files = list(project_dir.glob("*.jsonl"))
         if not jsonl_files:
             return None
@@ -205,28 +207,86 @@ def estimate_context_from_session() -> float | None:
             )
             newest = candidates[0]
             age_seconds = time.time() - newest.stat().st_mtime
-            if age_seconds > 60:
+            if age_seconds > STALE_SESSION_SECONDS:
                 # Most recent file is stale — not the current session
                 return None
             current_session = newest
 
         file_size = current_session.stat().st_size
 
-        # Estimate usage as percentage of context window
-        # Cap at 0.95 to leave room for estimation error
-        usage = min(file_size / context_window_bytes, 0.95)
+        # Primary estimate: file size relative to context window bytes
+        size_usage = min(file_size / context_window_bytes, 0.95)
+
+        # Secondary estimate: parse message/tool counts for cross-check
+        heuristic_usage = _estimate_from_heuristics(current_session)
+
+        # Use the higher of the two to be conservative (fail safe)
+        usage = (
+            max(size_usage, heuristic_usage)
+            if heuristic_usage is not None
+            else size_usage
+        )
 
         logger.debug(
-            "Estimated context from %s: %d bytes = %.1f%%",
+            "Estimated context from %s: %d bytes, size=%.1f%%, heuristic=%.1f%%",
             current_session.name,
             file_size,
-            usage * 100,
+            size_usage * 100,
+            (heuristic_usage or 0) * 100,
         )
         return usage
 
     except (OSError, PermissionError) as e:
         logger.debug("Could not estimate context from session files: %s", e)
         return None
+
+
+def _estimate_from_heuristics(session_file: Path) -> float | None:
+    """Estimate context usage by counting messages and tool calls in a session file.
+
+    Uses per-turn and per-tool-result token heuristics as a cross-check
+    against the file-size estimate. Returns the higher of turn-based and
+    character-based approximations, capped at 0.95.
+    """
+    context_window_tokens = 200_000
+    tokens_per_turn = 800
+    tokens_per_tool_result = 200
+
+    try:
+        content = session_file.read_text(encoding="utf-8", errors="replace")
+    except (OSError, PermissionError):
+        return None
+
+    turn_count = 0
+    tool_result_count = 0
+    total_chars = len(content)
+
+    for raw_line in content.splitlines():
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        try:
+            entry = json.loads(stripped)
+        except json.JSONDecodeError:
+            continue
+
+        role = entry.get("role", "")
+        if role in ("user", "assistant"):
+            turn_count += 1
+
+        message_content = entry.get("content", [])
+        if isinstance(message_content, list):
+            for block in message_content:
+                if isinstance(block, dict) and block.get("type") == "tool_result":
+                    tool_result_count += 1
+
+    turn_tokens = (
+        turn_count * tokens_per_turn + tool_result_count * tokens_per_tool_result
+    )
+    char_tokens = total_chars // 4
+    estimated_tokens = max(turn_tokens, char_tokens)
+
+    return min(estimated_tokens / context_window_tokens, 0.95)
 
 
 def get_context_usage_from_env() -> float | None:
