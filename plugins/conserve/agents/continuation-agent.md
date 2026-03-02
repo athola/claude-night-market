@@ -57,7 +57,13 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 
 ## After Reading State
 
-1. **CHECK EXECUTION MODE FIRST** (before anything else):
+1. **CHECK STATE VERSION** (before anything else):
+   - Look for `state_version: N` in the first 5 lines of the file
+   - If `state_version: 1` -- proceed normally
+   - If no `state_version` line (v0, unversioned) -- treat as v1 and proceed normally. If you update the file later, add `state_version: 1` at that time.
+   - If `state_version` is greater than 1 -- log a warning ("Session state version N is newer than expected, reading with best effort") then proceed, skipping any unrecognized sections
+
+2. **CHECK EXECUTION MODE** (before starting work):
    - Look for the "Execution Mode" section
    - If `auto_continue: true` or mode is `dangerous`/`unattended`:
      - **DO NOT** pause for user confirmation
@@ -65,17 +71,17 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
      - **CONTINUE** executing until ALL tasks are complete
    - This is NON-NEGOTIABLE for batch operations
 
-2. **Acknowledge** the handoff by summarizing:
+3. **Acknowledge** the handoff by summarizing:
    - The objective
    - Progress so far
    - **Execution mode** (interactive/unattended/dangerous)
    - Your immediate next step
 
-3. **Re-read** any files listed in "Context to Re-read"
+4. **Re-read** any files listed in "Context to Re-read"
 
-4. **Continue** from the "Immediate Next Step"
+5. **Continue** from the "Immediate Next Step"
 
-5. **Enter the completion loop** - Work continuously until ALL tasks are done
+6. **Enter the completion loop** - Work continuously until ALL tasks are done
    - Do NOT stop after completing one task
    - Do NOT ask user if you should continue
    - Do NOT claim completion until self-validation passes
