@@ -144,7 +144,7 @@ class TestExternalInvocation:
 
         # Mock availability to return True (expert is available)
         with patch(
-            "scripts.war_room_orchestrator.test_expert_availability",
+            "scripts.war_room.experts.test_expert_availability",
             new_callable=AsyncMock,
             return_value=True,
         ):
@@ -366,7 +366,7 @@ class TestHaikuFallback:
 
         # Mock availability to return False
         with patch(
-            "scripts.war_room_orchestrator.test_expert_availability",
+            "scripts.war_room.experts.test_expert_availability",
             new_callable=AsyncMock,
             return_value=False,
         ):
