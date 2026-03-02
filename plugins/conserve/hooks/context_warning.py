@@ -15,12 +15,10 @@ Environment variables:
 - CONSERVE_EMERGENCY_THRESHOLD: Override default 80% emergency threshold
 - CONSERVE_SESSION_STATE_PATH: Override default .claude/session-state.md
 - CONSERVE_CONTEXT_ESTIMATION: Enable fallback estimation (default: 1)
-- CONSERVE_CONTEXT_WINDOW_BYTES: Estimated context window in bytes (default: 800000)
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import os
@@ -41,6 +39,11 @@ EMERGENCY_THRESHOLD = float(os.environ.get("CONSERVE_EMERGENCY_THRESHOLD", "0.80
 
 # Staleness threshold: ignore session files older than this (seconds)
 STALE_SESSION_SECONDS = 60
+
+# Maximum bytes to read from the tail of a JSONL session file.
+# 800KB ≈ one full 200K-token context window at ~4 chars/token.
+# Reading beyond this risks counting auto-compressed history.
+_TAIL_BYTES = 800_000
 
 
 class ContextSeverity(Enum):
@@ -93,14 +96,15 @@ def assess_context_usage(usage: float) -> ContextAlert:
             severity=ContextSeverity.EMERGENCY,
             usage_percent=usage,
             message=(
-                f"Context usage high: {usage * 100:.1f}%. "
-                "Consider wrapping up current work soon."
+                f"EMERGENCY: Context at {usage * 100:.1f}%. "
+                "Invoke Skill(conserve:clear-context) to delegate to "
+                "a continuation agent."
             ),
             recommendations=[
-                "Complete current in-progress work",
-                "Commit any pending changes",
-                "Summarize remaining tasks for the user",
-                "Session will auto-compact if needed, work is not lost",
+                "Invoke Skill(conserve:clear-context) immediately",
+                "Save session state and spawn continuation agent",
+                "Do NOT stop working - delegate remaining tasks",
+                "Continuation agent will resume with fresh context",
             ],
         )
     # CRITICAL level - immediate optimization needed
@@ -139,11 +143,37 @@ def assess_context_usage(usage: float) -> ContextAlert:
     )
 
 
+def _resolve_project_dir(cwd: Path, claude_projects: Path) -> Path | None:
+    """Resolve the Claude Code project directory for the given working directory.
+
+    Claude Code names project directories by replacing path separators with
+    dashes.  For example, ``/home/user/project`` becomes
+    ``-home-user-project``.
+
+    Returns:
+        The resolved project directory Path, or None if not found.
+
+    """
+    # Claude Code convention: replace path separators with dashes
+    project_dir_name = str(cwd).replace(os.sep, "-")
+    if not project_dir_name.startswith("-"):
+        project_dir_name = "-" + project_dir_name
+
+    project_dir = claude_projects / project_dir_name
+    if project_dir.exists():
+        return project_dir
+
+    return None
+
+
 def estimate_context_from_session() -> float | None:
-    """Estimate context usage from current session's JSONL file size.
+    """Estimate context usage from current session's JSONL conversation data.
 
     This is a FAST fallback for real-time hooks when CLAUDE_CONTEXT_USAGE
-    is not available. Estimates based on conversation history file size.
+    is not available. Estimates based on **recent** conversation entries,
+    not total file size — JSONL files contain the full conversation history
+    including auto-compressed messages that are no longer in the context
+    window.
 
     Note: For more precise context reading in batch/headless scenarios,
     use the CLI method instead:
@@ -158,29 +188,17 @@ def estimate_context_from_session() -> float | None:
     if os.environ.get("CONSERVE_CONTEXT_ESTIMATION", "1") == "0":
         return None
 
-    # Claude's context window is ~200K tokens, ~4 chars/token = ~800KB
-    # Use conservative estimate to trigger earlier rather than later
-    context_window_bytes = int(
-        os.environ.get("CONSERVE_CONTEXT_WINDOW_BYTES", "800000")
-    )
-
     try:
         # Find Claude's project directory for current working directory
         cwd = Path.cwd()
         home = Path.home()
         claude_projects = home / ".claude" / "projects"
 
-        # Convert cwd to a safe project directory name using hash
-        # Avoids path traversal via crafted directory names
-        cwd_hash = hashlib.md5(str(cwd).encode(), usedforsecurity=False).hexdigest()[
-            :16
-        ]
-        project_dir_name = "-" + cwd_hash
+        if not claude_projects.exists():
+            return None
 
-        project_dir = claude_projects / project_dir_name
-
-        # Guard: need existing projects dir, project dir, and JSONL files
-        if not claude_projects.exists() or not project_dir.exists():
+        project_dir = _resolve_project_dir(cwd, claude_projects)
+        if project_dir is None:
             return None
 
         jsonl_files = list(project_dir.glob("*.jsonl"))
@@ -202,38 +220,24 @@ def estimate_context_from_session() -> float | None:
             # modified in the last 60 seconds (likely the active session).
             # Without this guard, old multi-MB session files trigger false
             # EMERGENCY alerts on every tool call.
-
             candidates = sorted(
                 jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True
             )
             newest = candidates[0]
             age_seconds = time.time() - newest.stat().st_mtime
             if age_seconds > STALE_SESSION_SECONDS:
-                # Most recent file is stale — not the current session
                 return None
             current_session = newest
 
-        file_size = current_session.stat().st_size
-
-        # Primary estimate: file size relative to context window bytes
-        size_usage = min(file_size / context_window_bytes, 0.95)
-
-        # Secondary estimate: parse message/tool counts for cross-check
-        heuristic_usage = _estimate_from_heuristics(current_session)
-
-        # Use the higher of the two to be conservative (fail safe)
-        usage = (
-            max(size_usage, heuristic_usage)
-            if heuristic_usage is not None
-            else size_usage
-        )
+        # Estimate from recent conversation turns only.
+        # JSONL files contain the FULL history (including compressed
+        # messages), so raw file size vastly over-reports actual context.
+        usage = _estimate_from_recent_turns(current_session)
 
         logger.debug(
-            "Estimated context from %s: %d bytes, size=%.1f%%, heuristic=%.1f%%",
+            "Estimated context from %s: %.1f%%",
             current_session.name,
-            file_size,
-            size_usage * 100,
-            (heuristic_usage or 0) * 100,
+            (usage or 0) * 100,
         )
         return usage
 
@@ -242,25 +246,46 @@ def estimate_context_from_session() -> float | None:
         return None
 
 
-def _estimate_from_heuristics(session_file: Path) -> float | None:
-    """Estimate context usage by counting messages and tool calls in a session file.
+def _estimate_from_recent_turns(session_file: Path) -> float | None:
+    """Estimate context usage from recent conversation turns only.
 
-    Uses per-turn and per-tool-result token heuristics as a cross-check
-    against the file-size estimate. Returns the higher of turn-based and
-    character-based approximations, capped at 0.95.
+    JSONL files contain the FULL conversation history, including messages
+    that Claude Code has auto-compressed out of the active context window.
+    Reading the entire file vastly over-estimates actual context usage.
+
+    This function reads only the tail of the file (last ``_TAIL_BYTES``)
+    and counts turns + content size within that window.  The result is a
+    conservative estimate that avoids false EMERGENCY alerts from large
+    history files.
+
+    Returns:
+        Estimated context usage as float 0-1, or None on read failure.
+
     """
     context_window_tokens = 200_000
-    tokens_per_turn = 800
-    tokens_per_tool_result = 200
+    tokens_per_turn = 600
+    tokens_per_tool_result = 150
 
     try:
-        content = session_file.read_text(encoding="utf-8", errors="replace")
+        file_size = session_file.stat().st_size
+
+        # Read only the tail of the file — recent conversation is at the end.
+        # 800KB ≈ 200K tokens at ~4 chars/token, which is one full context
+        # window.  Reading more than this means we're counting compressed
+        # history that is no longer in the context.
+        tail_bytes = _TAIL_BYTES
+        with open(session_file, encoding="utf-8", errors="replace") as fh:
+            if file_size > tail_bytes:
+                fh.seek(file_size - tail_bytes)
+                # Skip partial first line after seeking
+                fh.readline()
+            content = fh.read()
     except (OSError, PermissionError):
         return None
 
     turn_count = 0
     tool_result_count = 0
-    total_chars = len(content)
+    content_chars = 0
 
     for raw_line in content.splitlines():
         stripped = raw_line.strip()
@@ -278,14 +303,26 @@ def _estimate_from_heuristics(session_file: Path) -> float | None:
         message_content = entry.get("content", [])
         if isinstance(message_content, list):
             for block in message_content:
-                if isinstance(block, dict) and block.get("type") == "tool_result":
-                    tool_result_count += 1
+                if isinstance(block, dict):
+                    if block.get("type") == "tool_result":
+                        tool_result_count += 1
+                    # Count actual text content, not JSON overhead
+                    text = block.get("text", "")
+                    if text:
+                        content_chars += len(text)
+                elif isinstance(block, str):
+                    content_chars += len(block)
+        elif isinstance(message_content, str):
+            content_chars += len(message_content)
 
+    # Estimate tokens from turn structure
     turn_tokens = (
         turn_count * tokens_per_turn + tool_result_count * tokens_per_tool_result
     )
-    char_tokens = total_chars // 4
-    estimated_tokens = max(turn_tokens, char_tokens)
+    # Estimate tokens from actual content (text only, not JSON keys)
+    content_tokens = content_chars // 4
+    # Use the higher of structural vs content estimates
+    estimated_tokens = max(turn_tokens, content_tokens)
 
     return min(estimated_tokens / context_window_tokens, 0.95)
 
@@ -380,12 +417,13 @@ def main() -> int:
         # For EMERGENCY level, provide clear guidance (not imperative commands)
         if alert.severity == ContextSeverity.EMERGENCY:
             output["hookSpecificOutput"]["additionalContext"] = (
-                f"Context usage high ({alert.usage_percent * 100:.1f}%). "
-                "Consider wrapping up current work:\n"
-                "- Complete in-progress tasks\n"
-                "- Commit pending changes\n"
-                "- Summarize remaining work for the user\n"
-                "- The session will auto-compact if needed"
+                f"EMERGENCY: Context at {alert.usage_percent * 100:.1f}%. "
+                "Invoke Skill(conserve:clear-context) to hand off to a "
+                "continuation agent:\n"
+                "- Save session state to .claude/session-state.md\n"
+                "- Spawn a continuation agent with fresh context\n"
+                "- The continuation agent will resume all remaining work\n"
+                "- Do NOT simply stop or wrap up - DELEGATE via continuation"
             )
         print(json.dumps(output))
 

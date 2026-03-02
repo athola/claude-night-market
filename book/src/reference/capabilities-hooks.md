@@ -220,7 +220,7 @@ Records skill execution completion and metrics.
 **Type**: PreToolUse
 **Matcher**: `.*`
 
-Monitors context utilization and warns at thresholds.
+Monitors context utilization and alerts at thresholds. At EMERGENCY (80%+), directs Claude to delegate via `Skill(conserve:clear-context)` and a continuation agent rather than wrapping up. Uses tail-based JSONL parsing to avoid false alerts from compressed history.
 
 ### `permission_request.py`
 **Type**: PermissionRequest

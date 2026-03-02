@@ -86,7 +86,7 @@ Auto-approves safe patterns like read-only operations, search, and git status. A
 
 ### Context Usage
 
-Monitoring levels trigger actions based on context pressure: LOW (<40%), WARNING (40-50%), CRITICAL (50-80%), and EMERGENCY (80%+). At the EMERGENCY level, the `clear-context` skill saves state to `.claude/session-state.md` and either spawns a continuation agent via Task tool or guides graceful wrap-up if Task tool is unavailable.
+Monitoring levels trigger actions based on context pressure: LOW (<40%), WARNING (40-50%), CRITICAL (50-80%), and EMERGENCY (80%+). At the EMERGENCY level, the hook directs Claude to invoke `Skill(conserve:clear-context)`, which saves state to `.claude/session-state.md` and spawns a continuation agent with fresh context. The continuation agent resumes all remaining work rather than wrapping up.
 
 ### Context Measurement
 
@@ -94,11 +94,11 @@ Two methods are available depending on the use case:
 
 | Method | Use Case | Accuracy | Speed |
 |--------|----------|----------|-------|
-| File size heuristic | Real-time hooks | Approximate (~800KB ≈ 100%) | Fast |
+| Tail-based turn counting | Real-time hooks | Approximate (last 800KB of JSONL) | Fast |
 | CLI `/context` command | Headless/batch automation | Precise token breakdown | Slower |
 
 For headless sessions, use `claude -p "/context" --verbose --output-format json` to get precise token breakdowns. See `/conserve:optimize-context` for full documentation.
 
 ## Requirements
 
-Python 3.10+ and Claude Code.
+Python 3.9+ and Claude Code.

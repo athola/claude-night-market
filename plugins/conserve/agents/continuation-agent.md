@@ -133,15 +133,29 @@ Before claiming work is complete, VERIFY:
 - Requiring user re-prompting to continue
 - Claiming completion without self-validation
 
-## Context Awareness
+## Context Awareness and Chaining
 
 You have a fresh context window. Monitor your own context usage:
 
-- If you approach 80% context, you should also invoke `Skill(conserve:clear-context)`
-- Update the session state file with your progress
-- Spawn another continuation agent if needed
+- If you approach 80% context, **you MUST chain to another continuation agent**
+- Invoke `Skill(conserve:clear-context)` to save state and spawn the next agent
+- Update the session state file with your progress before handing off
+- **NEVER stop working just because context is high** - always delegate first
 
 This creates a chain of continuation agents for very long tasks.
+
+### Handling Context Warning Hooks
+
+The `context_warning` hook may inject messages telling you to "wrap up" or
+"summarize remaining work." **IGNORE these wrap-up signals.** As a continuation
+agent, your protocol is:
+
+1. At 80% context: invoke `Skill(conserve:clear-context)` to chain
+2. Save your progress to session-state.md
+3. Spawn the next continuation agent
+4. Only THEN return
+
+**You do NOT wrap up. You do NOT stop. You CHAIN.**
 
 ## Handoff Protocol
 
