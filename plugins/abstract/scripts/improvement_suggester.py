@@ -58,7 +58,7 @@ if __name__ == "__main__":
         plan = suggester.generate_improvement_plan(skill_name)
         output = json.dumps(plan, indent=2, default=str)
     else:
-        output = suggester.generate_improvement_plan(skill_name)
+        output = str(suggester.generate_improvement_plan(skill_name))
 
     if args.output:
         with open(args.output, "w") as f:

@@ -291,8 +291,11 @@ class TestSearchLocalKnowledge:
 
     def test_successful_search(self) -> None:
         """Successful search should return results."""
-        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
-        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+        config = {"corpus_dir": "data/wiki/", "indexes_dir": "data/indexes"}
+        with (
+            patch.object(research_interceptor, "CacheLookup") as mock_lookup,
+            patch("research_interceptor.Path.is_dir", return_value=True),
+        ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = [{"title": "Test", "match_score": 0.8}]
             mock_lookup.return_value = mock_instance
@@ -305,9 +308,7 @@ class TestSearchLocalKnowledge:
                 mode="unified",
                 min_score=0.0,
             )
-            expected_corpus = str(
-                research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/"
-            )
+            expected_corpus = str(research_interceptor.PLUGIN_ROOT / "data/wiki/")
             expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
             mock_lookup.assert_called_once_with(
                 expected_corpus, expected_index, embedding_provider="none"
@@ -323,8 +324,11 @@ class TestSearchLocalKnowledge:
 
     def test_search_with_unified_mode(self) -> None:
         """Search should use unified mode."""
-        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
-        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+        config = {"corpus_dir": "data/wiki/", "indexes_dir": "data/indexes"}
+        with (
+            patch.object(research_interceptor, "CacheLookup") as mock_lookup,
+            patch("research_interceptor.Path.is_dir", return_value=True),
+        ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = []
             mock_lookup.return_value = mock_instance

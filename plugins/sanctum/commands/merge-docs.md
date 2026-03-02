@@ -111,8 +111,8 @@ This command invokes the `doc-consolidation` skill. For manual control:
 
 ```bash
 # Direct script usage
-python plugins/sanctum/skills/doc-consolidation/scripts/consolidation_planner.py scan
-python plugins/sanctum/skills/doc-consolidation/scripts/consolidation_planner.py plan FILE.md
+python plugins/sanctum/scripts/consolidation_planner.py scan
+python plugins/sanctum/scripts/consolidation_planner.py plan FILE.md
 ```
 
 ## See Also

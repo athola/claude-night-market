@@ -15,7 +15,7 @@ NEEDS_IMPROVEMENT_THRESHOLD = 60
 
 # Import from centralized abstract package
 try:
-    from abstract.utils import (
+    from abstract.utils import (  # type: ignore[attr-defined]
         estimate_tokens,
         extract_frontmatter,
         find_skill_files,
@@ -32,7 +32,7 @@ except ImportError as err:
     src_path = project_root / "src"
     if src_path.exists():
         sys.path.insert(0, str(src_path))
-        from abstract.utils import (
+        from abstract.utils import (  # type: ignore[attr-defined]
             estimate_tokens,
             extract_frontmatter,
             find_skill_files,

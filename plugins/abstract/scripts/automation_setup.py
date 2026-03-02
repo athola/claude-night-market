@@ -17,8 +17,8 @@ def setup_skills_eval() -> bool:
     """Set up the skills-eval framework."""
     # Get script directory
     script_dir = Path(__file__).parent
-    skills_eval_dir = script_dir.parent.parent
-    modular_skills_dir = skills_eval_dir.parent / "modular-skills"
+    skills_eval_dir = script_dir.parent / "skills" / "skills-eval"
+    modular_skills_dir = script_dir.parent / "skills" / "modular-skills"
 
     # Check required directories exist
     required_dirs = [skills_eval_dir, modular_skills_dir]

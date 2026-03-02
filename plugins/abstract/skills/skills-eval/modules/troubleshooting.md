@@ -88,7 +88,7 @@ chmod +x skills/skills-eval/scripts/skills-auditor
 **Issue**: Python dependencies missing
 ```bash
 # Solution: Use setup script or install dependencies
-python3 skills/skills-eval/scripts/automation/setup.py
+python3 scripts/automation_setup.py
 pip install -r requirements.txt  # if available
 ```
 
@@ -149,7 +149,7 @@ skills/skills-eval/scripts/compliance-checker --debug --skill-path skill.md
 ### Environment Validation
 ```bash
 # Complete environment check
-python3 skills/skills-eval/scripts/automation/validate.py --check-deps --verbose
+python3 scripts/automation_validate.py --check-deps --verbose
 ```
 
 ### Performance Analysis

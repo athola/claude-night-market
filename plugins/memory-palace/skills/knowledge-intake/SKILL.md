@@ -555,7 +555,7 @@ processed → [Archive] → queue/archive/
 
 ## Automation
 
-- Run `uv run python skills/knowledge-intake/scripts/intake_cli.py --candidate path/to/intake_candidate.json --auto-accept`
+- Run `uv run python scripts/intake_cli.py --candidate path/to/intake_candidate.json --auto-accept`
 - The CLI runs marginal value filter, creates palace entries (`docs/knowledge-corpus/*.md`),
   developer drafts (`docs/developer-drafts/`), and appends audit rows to `docs/curation-log.md`.
 - Use `--output-root` in tests or sandboxes to avoid mutating the main corpus.

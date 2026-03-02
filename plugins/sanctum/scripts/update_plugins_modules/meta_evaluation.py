@@ -69,8 +69,8 @@ class MetaEvaluator:
             try:
                 content = skill_file.read_text(encoding="utf-8")
                 skill_issues = self._check_skill_quality(skill_name, content)
-                for category in issues:
-                    issues[category].extend(skill_issues.get(category, []))
+                for category, category_list in issues.items():
+                    category_list.extend(skill_issues.get(category, []))
             except OSError:
                 continue
 

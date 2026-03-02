@@ -7,13 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-INTAKE_CLI_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "skills"
-    / "knowledge-intake"
-    / "scripts"
-    / "intake_cli.py"
-)
+INTAKE_CLI_PATH = Path(__file__).resolve().parents[2] / "scripts" / "intake_cli.py"
 
 
 def load_cli_module():

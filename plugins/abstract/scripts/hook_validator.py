@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import re
 import sys
 from pathlib import Path
 from typing import TypedDict
@@ -133,8 +134,6 @@ def _validate_matcher(
     # String matchers are the preferred format (Claude Code SDK)
     if isinstance(matcher, str):
         # Validate it's a valid regex pattern
-        import re
-
         try:
             re.compile(matcher)
             result["info"].append(
@@ -164,7 +163,8 @@ def _validate_matcher(
 
     # Invalid type
     result["errors"].append(
-        f"{event_type}[{idx}]: 'matcher' must be a string (regex pattern) or object, got {type(matcher).__name__}",
+        f"{event_type}[{idx}]: 'matcher' must be a string (regex pattern) "
+        f"or object, got {type(matcher).__name__}",
     )
     result["valid"] = False
 

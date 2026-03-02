@@ -1,0 +1,151 @@
+language: en
+name: English
+tier1:
+  power_words:
+    - delve
+    - embark
+    - unleash
+    - unlock
+    - revolutionize
+    - spearhead
+    - foster
+    - harness
+    - elevate
+    - transcend
+    - forge
+    - ignite
+    - propel
+    - catalyze
+    - galvanize
+    - amplify
+  sophistication_signals:
+    - multifaceted
+    - nuanced
+    - intricate
+    - meticulous
+    - profound
+    - comprehensive
+    - holistic
+    - robust
+    - pivotal
+    - paramount
+    - indispensable
+    - quintessential
+  metaphor_abuse:
+    - tapestry
+    - beacon
+    - realm
+    - landscape
+    - symphony
+    - mosaic
+    - crucible
+    - labyrinth
+    - odyssey
+    - cornerstone
+    - bedrock
+    - linchpin
+    - nexus
+  display_verbs:
+    - showcasing
+    - exemplifying
+    - demonstrating
+    - illuminating
+    - underscoring
+    - highlighting
+    - epitomizing
+tier2:
+  transition_overuse:
+    - moreover
+    - furthermore
+    - indeed
+    - notably
+    - subsequently
+    - consequently
+    - additionally
+    - likewise
+    - nonetheless
+    - henceforth
+    - thereby
+    - whereby
+  hedging:
+    - potentially
+    - typically
+    - generally
+    - arguably
+    - presumably
+    - ostensibly
+    - conceivably
+    - seemingly
+  intensity:
+    - significantly
+    - substantially
+    - fundamentally
+    - profoundly
+    - dramatically
+    - tremendously
+    - remarkably
+    - exceedingly
+    - immensely
+    - vastly
+  business_jargon:
+    - leverage
+    - synergy
+    - optimize
+    - streamline
+    - scalability
+    - actionable
+    - deliverables
+    - stakeholders
+    - bandwidth
+    - paradigm
+    - disruptive
+    - ecosystem
+  tech_buzzwords:
+    - cutting-edge
+    - state-of-the-art
+    - next-gen
+    - AI-powered
+    - game-changing
+    - innovative
+    - transformative
+    - seamless
+    - user-friendly
+    - best-in-class
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "in today's fast-paced world"
+      - "in an ever-evolving landscape"
+      - "in the dynamic world of"
+      - "in this digital age"
+      - "as technology continues to evolve"
+      - "in the realm of"
+  empty_emphasis:
+    score: 3
+    patterns:
+      - "cannot be overstated"
+      - "goes without saying"
+      - "needless to say"
+      - "it bears mentioning"
+      - "of paramount importance"
+      - "absolutely essential"
+  filler:
+    score: 2
+    patterns:
+      - "it's worth noting that"
+      - "it's important to understand"
+      - "at its core"
+      - "from a broader perspective"
+      - "through this lens"
+      - "when it comes to"
+      - "at the end of the day"
+sycophantic:
+  score: 3
+  patterns:
+    - "I'd be happy to"
+    - "Great question!"
+    - "Absolutely!"
+    - "That's a wonderful point"
+    - "I'm glad you asked"
+    - "You're absolutely right"

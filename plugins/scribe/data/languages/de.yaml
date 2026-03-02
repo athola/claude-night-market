@@ -1,0 +1,55 @@
+language: de
+name: German
+tier1:
+  power_words:
+    - vertiefen
+    - erschließen
+    - revolutionieren
+    - vorantreiben
+    - fördern
+    - katalysieren
+  sophistication_signals:
+    - umfassend
+    - ganzheitlich
+    - robust
+    - grundlegend
+    - maßgeblich
+    - vielschichtig
+  metaphor_abuse:
+    - Landschaft
+    - Leuchtturm
+    - Eckpfeiler
+    - Grundstein
+    - Mosaik
+tier2:
+  transition_overuse:
+    - darüber hinaus
+    - des Weiteren
+    - nichtsdestotrotz
+    - folglich
+    - zusätzlich
+  hedging:
+    - potenziell
+    - möglicherweise
+    - grundsätzlich
+    - vermutlich
+  business_jargon:
+    - nutzen
+    - Synergie
+    - optimieren
+    - skalierbar
+    - Stakeholder
+    - Mehrwert
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "in der heutigen schnelllebigen Welt"
+      - "in einer sich ständig verändernden Welt"
+      - "im Zeitalter der Digitalisierung"
+  filler:
+    score: 2
+    patterns:
+      - "es ist erwähnenswert, dass"
+      - "im Kern"
+      - "aus einer breiteren Perspektive"

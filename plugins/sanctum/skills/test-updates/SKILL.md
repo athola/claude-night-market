@@ -115,14 +115,14 @@ Skill(test-updates) --tdd-only --target new_feature.py
 **Human-Readable Output:**
 ```bash
 # Analyze test coverage gaps
-python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py --scan src/
+python plugins/sanctum/scripts/test_analyzer.py --scan src/
 
 # Generate test scaffolding
-python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
+python plugins/sanctum/scripts/test_generator.py \
     --source src/my_module.py --style pytest_bdd
 
 # Check test quality
-python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
+python plugins/sanctum/scripts/quality_checker.py \
     --validate tests/test_my_module.py
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
@@ -130,7 +130,7 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 **Programmatic Output (for Claude Code):**
 ```bash
 # Get JSON output for programmatic parsing - test_analyzer
-python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py \
+python plugins/sanctum/scripts/test_analyzer.py \
     --scan src/ --output-json
 
 # Returns:
@@ -145,7 +145,7 @@ python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py \
 # }
 
 # Get JSON output - test_generator
-python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
+python plugins/sanctum/scripts/test_generator.py \
     --source src/my_module.py --output-json
 
 # Returns:
@@ -162,7 +162,7 @@ python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
 # }
 
 # Get JSON output - quality_checker
-python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
+python plugins/sanctum/scripts/quality_checker.py \
     --validate tests/test_my_module.py --output-json
 
 # Returns:

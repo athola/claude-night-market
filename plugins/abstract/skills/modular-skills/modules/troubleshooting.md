@@ -19,10 +19,10 @@ estimated_tokens: 600
 
 ```bash
 # Check specific skill with verbose output
-skills/modular-skills/scripts/module_validator -s path/to/skill.md --verbose
+scripts/module_validator -s path/to/skill.md --verbose
 
 # Validate YAML frontmatter specifically
-skills/modular-skills/scripts/module_validator -s path/to/skill.md -c
+scripts/module_validator -s path/to/skill.md -c
 ```
 
 **Common Solutions**:
@@ -37,11 +37,11 @@ skills/modular-skills/scripts/module_validator -s path/to/skill.md -c
 
 ```bash
 # Get detailed token breakdown
-skills/modular-skills/scripts/token-estimator -f path/to/skill.md -v
+scripts/token-estimator -f path/to/skill.md -v
 
 # Compare design alternatives
-skills/modular-skills/scripts/token-estimator -f design1.md > design1_tokens.txt
-skills/modular-skills/scripts/token-estimator -f design2.md > design2_tokens.txt
+scripts/token-estimator -f design1.md > design1_tokens.txt
+scripts/token-estimator -f design2.md > design2_tokens.txt
 ```
 
 **Common Solutions**:
@@ -56,10 +56,10 @@ skills/modular-skills/scripts/token-estimator -f design2.md > design2_tokens.txt
 
 ```bash
 # Analyze dependency depth and complexity
-skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md --threshold 100
+scripts/skill-analyzer --path path/to/skill.md --threshold 100
 
 # Check if skill should be split
-skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md --verbose
+scripts/skill-analyzer --path path/to/skill.md --verbose
 ```
 
 **Common Solutions**:
@@ -74,13 +74,13 @@ skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md --verbose
 
 ```bash
 # Check tool permissions
-ls -la skills/modular-skills/scripts/
+ls -la scripts/
 
 # Make tools executable
-find skills/modular-skills/scripts/ -type f -exec chmod +x {} \;
+find scripts/ -type f -exec chmod +x {} \;
 
 # Test individual tools
-skills/modular-skills/scripts/skill-analyzer --help
+scripts/skill-analyzer --help
 ```
 
 **Common Solutions**:
@@ -97,10 +97,10 @@ skills/modular-skills/scripts/skill-analyzer --help
 
 ```bash
 # Use custom threshold for strict evaluation
-skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md --threshold 50
+scripts/skill-analyzer --path path/to/skill.md --threshold 50
 
 # Analyze all skills in directory
-skills/modular-skills/scripts/skill-analyzer --path path/to/skills/ --verbose
+scripts/skill-analyzer --path path/to/skills/ --verbose
 ```
 
 **Diagnostic Approaches**:
@@ -115,10 +115,10 @@ skills/modular-skills/scripts/skill-analyzer --path path/to/skills/ --verbose
 
 ```bash
 # Validate against modular design principles
-skills/modular-skills/scripts/module_validator -d path/to/skills/ --fail-on-warnings
+scripts/module_validator -d path/to/skills/ --fail-on-warnings
 
 # Check for structural violations
-skills/modular-skills/scripts/module_validator -s path/to/skill.md --verbose
+scripts/module_validator -s path/to/skill.md --verbose
 ```
 
 **Design Validation Checklist**:
@@ -134,10 +134,10 @@ skills/modular-skills/scripts/module_validator -s path/to/skill.md --verbose
 
 ```bash
 # Token usage analysis
-skills/modular-skills/scripts/token-estimator -d path/to/skills/
+scripts/token-estimator -d path/to/skills/
 
 # Identify optimization opportunities
-skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md | grep -i recommend
+scripts/skill-analyzer --path path/to/skill.md | grep -i recommend
 ```
 
 **Optimization Strategies**:
@@ -198,31 +198,31 @@ skills/modular-skills/scripts/skill-analyzer --path path/to/skill.md | grep -i r
 ### Analysis Mode
 Use `--verbose` flag for detailed breakdowns:
 ```bash
-skills/modular-skills/scripts/skill-analyzer --verbose --path skill.md
+scripts/skill-analyzer --verbose --path skill.md
 ```
 
 ### Help System
 All tools support `--help` for usage guidance:
 ```bash
-skills/modular-skills/scripts/module_validator --help
-skills/modular-skills/scripts/token-estimator --help
+scripts/module_validator --help
+scripts/token-estimator --help
 ```
 
 ### Custom Thresholds
 Adjust analysis parameters with `--threshold`:
 ```bash
-skills/modular-skills/scripts/skill-analyzer --threshold 100 --path skill.md
+scripts/skill-analyzer --threshold 100 --path skill.md
 ```
 
 ### Batch Analysis
 Process multiple skills with directory paths:
 ```bash
-skills/modular-skills/scripts/skill-analyzer --path path/to/skills/
-skills/modular-skills/scripts/token-estimator -d path/to/skills/
+scripts/skill-analyzer --path path/to/skills/
+scripts/token-estimator -d path/to/skills/
 ```
 
 ### Validation Scripts
 Use `--fail-on-warnings` for strict checking:
 ```bash
-skills/modular-skills/scripts/module_validator --fail-on-warnings -s skill.md
+scripts/module_validator --fail-on-warnings -s skill.md
 ```

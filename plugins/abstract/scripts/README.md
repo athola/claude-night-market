@@ -38,9 +38,8 @@ python scripts/context_optimizer.py stats skills/
 
 Skills may contain their own specialized scripts:
 
-- `skills/skills-eval/scripts/` - Skill evaluation utilities
-- `skills/modular-skills/scripts/` - Module validation tools
-- `skills/performance-optimization/scripts/` - Example optimization scripts
+- All scripts are now centralized in this `scripts/` directory
+- Formerly in `skills/*/scripts/`, migrated per issue #117
 
 ## Python Package Integration
 

@@ -42,8 +42,7 @@ def build_embeddings(provider: str) -> dict[str, list[float]]:
     entries = load_entries()
     if not entries:
         print(
-            "[embeddings] No corpus entries found. "
-            "knowledge-corpus was removed in 1.5.0."
+            "[embeddings] No corpus entries found. knowledge-corpus was removed in 1.5.0."
         )
         return {}
     index = EmbeddingIndex(str(EMBEDDINGS_PATH), provider=provider)

@@ -55,7 +55,14 @@ class MetaEvaluator:
         "conserve": ["code-quality-principles", "context-optimization"],
     }
 
+    # Thresholds for quality checks
+    TOC_LINE_THRESHOLD = 100
+    CODE_BLOCK_VERIFICATION_THRESHOLD = 2
+    PASS_RATE_WARNING_THRESHOLD = 50
+    PASS_RATE_CAUTION_THRESHOLD = 80
+
     def __init__(self, plugins_root: Path, verbose: bool = False):
+        """Initialize evaluator with path to plugins root directory."""
         self.plugins_root = plugins_root
         self.verbose = verbose
         self.issues: list[dict[str, Any]] = []
@@ -87,7 +94,7 @@ class MetaEvaluator:
         if not has_toc:
             # Check if content is long enough to warrant TOC
             line_count = len(content.split("\n"))
-            if line_count > 100:
+            if line_count > self.TOC_LINE_THRESHOLD:
                 self.issues.append(
                     {
                         "type": "missing_toc",
@@ -114,14 +121,20 @@ class MetaEvaluator:
             "verification" in content.lower() or "verify" in content.lower()
         )
 
-        if not has_verification and len(code_blocks) > 2:
+        exceeds_threshold = len(code_blocks) > self.CODE_BLOCK_VERIFICATION_THRESHOLD
+        if not has_verification and exceeds_threshold:
             self.issues.append(
                 {
                     "type": "missing_verification",
                     "skill": skill_name,
                     "severity": "medium",
-                    "message": f"Skill has {len(code_blocks)} code blocks but no verification steps",
-                    "fix": 'Add "**Verification:** Run `command` to verify" after examples',
+                    "message": (
+                        f"Skill has {len(code_blocks)} code blocks"
+                        " but no verification steps"
+                    ),
+                    "fix": (
+                        'Add "**Verification:** Run `command` to verify" after examples'
+                    ),
                 }
             )
             return False
@@ -161,7 +174,10 @@ class MetaEvaluator:
                     "type": "abstract_quick_start",
                     "skill": skill_name,
                     "severity": "high",
-                    "message": "Quick Start uses abstract descriptions instead of concrete commands",
+                    "message": (
+                        "Quick Start uses abstract descriptions"
+                        " instead of concrete commands"
+                    ),
                     "fix": "Replace 'Configure X' with 'Run `command` to configure X'",
                 }
             )
@@ -190,8 +206,12 @@ class MetaEvaluator:
                     "type": "missing_quality_criteria",
                     "skill": skill_name,
                     "severity": "high",
-                    "message": "Evaluation skill doesn't define quality criteria or scoring",
-                    "fix": "Add quality criteria, scoring rubric, or evaluation thresholds",
+                    "message": (
+                        "Evaluation skill doesn't define quality criteria or scoring"
+                    ),
+                    "fix": (
+                        "Add quality criteria, scoring rubric, or evaluation thresholds"
+                    ),
                 }
             )
             return False
@@ -221,8 +241,13 @@ class MetaEvaluator:
                         "type": "missing_anti_cargo_cult",
                         "skill": skill_name,
                         "severity": "low",
-                        "message": "Evaluation skill doesn't document anti-cargo-cult patterns",
-                        "fix": "Add section warning against testing theater and abstract documentation",
+                        "message": (
+                            "Evaluation skill doesn't document anti-cargo-cult patterns"
+                        ),
+                        "fix": (
+                            "Add section warning against testing theater"
+                            " and abstract documentation"
+                        ),
                     }
                 )
             return False
@@ -264,7 +289,9 @@ class MetaEvaluator:
                     "skill": f"{plugin}:{skill}",
                     "severity": "high",
                     "message": "Critical evaluation skill lacks BDD test validation",
-                    "fix": f"Create tests/unit/skills/test_{skill}.py with quality checks",
+                    "fix": (
+                        f"Create tests/unit/skills/test_{skill}.py with quality checks"
+                    ),
                 }
             )
             return False
@@ -407,9 +434,8 @@ class MetaEvaluator:
 
         # Critical issues
         if results["by_severity"]["critical"] > 0:
-            print(
-                f"\n🔴 CRITICAL: {results['by_severity']['critical']} critical issues found"
-            )
+            critical_count = results["by_severity"]["critical"]
+            print(f"\n🔴 CRITICAL: {critical_count} critical issues found")
             print("   These indicate evaluation skills are missing or broken.")
             print("   Action: Create or fix these skills immediately.")
 
@@ -423,9 +449,8 @@ class MetaEvaluator:
 
         # Medium issues
         if results["by_severity"]["medium"] > 0:
-            print(
-                f"\n🟡 MEDIUM: {results['by_severity']['medium']} medium-priority issues"
-            )
+            medium_count = results["by_severity"]["medium"]
+            print(f"\n🟡 MEDIUM: {medium_count} medium-priority issues")
             print("   These affect navigation and documentation quality.")
             print("   Action: Add TOCs for long modules, include verification steps.")
 
@@ -443,11 +468,11 @@ class MetaEvaluator:
         )
         print(f"\nPass Rate: {pass_rate:.1f}%")
 
-        if pass_rate < 50:
+        if pass_rate < self.PASS_RATE_WARNING_THRESHOLD:
             print("\n⚠️  WARNING: Less than half of evaluation skills meet standards.")
             print("   Recursive validation is broken.")
             print("   Priority: Address critical and high issues immediately.")
-        elif pass_rate < 80:
+        elif pass_rate < self.PASS_RATE_CAUTION_THRESHOLD:
             print("\n⚠️  CAUTION: Many evaluation skills need improvement.")
             print("   Priority: Address high and medium issues.")
         else:
@@ -456,7 +481,7 @@ class MetaEvaluator:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Run meta-evaluation and print results."""
     parser = argparse.ArgumentParser(
         description="Meta-evaluation of evaluation-related skills"
     )
