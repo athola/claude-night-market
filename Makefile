@@ -1,7 +1,7 @@
 # Claude Night Market - Root Makefile
 # Delegates to plugin Makefiles for build operations
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples demo \
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo \
         abstract abstract-% conjure conjure-% conserve conserve-% \
         imbue imbue-% memory-palace memory-palace-% parseltongue parseltongue-% \
         pensive pensive-% sanctum sanctum-% spec-kit spec-kit-%
@@ -208,6 +208,9 @@ check-examples: ## Verify all plugins have proper examples
 	@python3 tests/integration/test_all_plugin_examples.py --report
 	@echo ""
 	@echo "=== Example Check Complete ==="
+
+docs-sync-check: ## Verify capabilities docs match plugin registrations
+	@bash scripts/capabilities-sync-check.sh
 
 demo: ## Demonstrate Claude Night Market capabilities
 	@echo "=== Claude Night Market Demo ==="
