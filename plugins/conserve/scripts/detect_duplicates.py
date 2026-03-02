@@ -289,6 +289,11 @@ def find_similar_functions(path: Path) -> list[tuple[str, list[str]]]:
     return [(base, names) for base, names in similar_groups.items() if len(names) >= 2]
 
 
+def _format_location(file_path: str, start_line: int, end_line: int) -> str:
+    """Format a location tuple as a human-readable string."""
+    return f"{file_path}:{start_line}-{end_line}"
+
+
 def format_text(report: DuplicateReport, similar_funcs: list) -> str:
     """Format report as human-readable text."""
     lines = [
@@ -313,7 +318,7 @@ def format_text(report: DuplicateReport, similar_funcs: list) -> str:
             )
             lines.append(summary)
             for filepath, start, end in dup.locations[:5]:
-                lines.append(f"    {filepath}:{start}-{end}")
+                lines.append(f"    {_format_location(filepath, start, end)}")
             if len(dup.locations) > 5:
                 lines.append(f"    ... and {len(dup.locations) - 5} more")
             # Show first 3 lines of content
