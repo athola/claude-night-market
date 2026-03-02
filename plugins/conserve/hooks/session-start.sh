@@ -56,7 +56,7 @@ escape_for_json() {
     local input="$1"
 
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1
 
@@ -111,6 +111,11 @@ HOOK_INPUT=""
 AGENT_TYPE=""
 if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
     AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
+    # Validate: only allow alphanumeric, hyphens, and underscores
+    if [[ -n "$AGENT_TYPE" && ! "$AGENT_TYPE" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "[conserve] WARNING: Invalid agent_type value, ignoring" >&2
+        AGENT_TYPE=""
+    fi
 fi
 
 # Lightweight agents that get abbreviated guidance
@@ -134,6 +139,15 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Check bypass mode from environment
 CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"
+
+# Validate CONSERVATION_MODE to prevent injection of unexpected values
+case "$CONSERVATION_MODE" in
+    normal|quick|deep|standard|aggressive|minimal|off) ;;
+    *)
+        echo "[conserve] WARNING: Unknown CONSERVATION_MODE='${CONSERVATION_MODE}', defaulting to 'normal'" >&2
+        CONSERVATION_MODE="normal"
+        ;;
+esac
 
 # Handle bypass modes
 case "$CONSERVATION_MODE" in

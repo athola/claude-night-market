@@ -20,6 +20,7 @@ Environment variables:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -169,12 +170,12 @@ def estimate_context_from_session() -> float | None:
         home = Path.home()
         claude_projects = home / ".claude" / "projects"
 
-        # Convert cwd to Claude's project directory naming convention
-        # e.g., /home/user/my-project -> -home-user-my-project
-        project_dir_name = str(cwd).replace("/", "-")
-        if project_dir_name.startswith("-"):
-            project_dir_name = project_dir_name[1:]
-        project_dir_name = "-" + project_dir_name
+        # Convert cwd to a safe project directory name using hash
+        # Avoids path traversal via crafted directory names
+        cwd_hash = hashlib.md5(str(cwd).encode(), usedforsecurity=False).hexdigest()[
+            :16
+        ]
+        project_dir_name = "-" + cwd_hash
 
         project_dir = claude_projects / project_dir_name
 

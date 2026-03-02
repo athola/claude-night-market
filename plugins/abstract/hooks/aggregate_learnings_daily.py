@@ -12,6 +12,7 @@ Part of the improvement feedback loop (Issue #69).
 
 from __future__ import annotations
 
+# pyright: reportPossiblyUnboundVariable=false
 import json
 import sys
 import time
@@ -19,19 +20,35 @@ import traceback
 from pathlib import Path
 from typing import Any
 
-# Add sibling directories to path for imports
+# Add sibling directories to path for imports.
+# In plugin-cache context, __file__ may not be adjacent to scripts/.
+# Try both the cached location and the original plugin layout.
 _hooks_dir = Path(__file__).resolve().parent
-_scripts_dir = _hooks_dir.parent / "scripts"
-if str(_scripts_dir) not in sys.path:
-    sys.path.insert(0, str(_scripts_dir))
+_candidate_dirs = [
+    _hooks_dir.parent / "scripts",
+    _hooks_dir.parent.parent / "scripts",
+    _hooks_dir / "scripts",
+]
+for _d in _candidate_dirs:
+    if _d.is_dir() and str(_d) not in sys.path:
+        sys.path.insert(0, str(_d))
 
-from aggregate_skill_logs import (  # noqa: E402
-    aggregate_logs,
-    generate_learnings_md,
-    get_learnings_path,
-    get_log_directory,
-)
-from auto_promote_learnings import run_auto_promote as _promote  # noqa: E402
+try:
+    from aggregate_skill_logs import (  # noqa: E402
+        aggregate_logs,
+        generate_learnings_md,
+        get_learnings_path,
+        get_log_directory,
+    )
+    from auto_promote_learnings import run_auto_promote as _promote  # noqa: E402
+
+    _HAS_SCRIPTS = True
+except ImportError as _imp_err:
+    _HAS_SCRIPTS = False
+    print(
+        f"[aggregate_learnings_daily] script imports unavailable: {_imp_err}",
+        file=sys.stderr,
+    )
 
 # 24 hours in seconds
 CADENCE_SECONDS = 24 * 3600
@@ -71,6 +88,9 @@ def has_logs_to_aggregate() -> bool:
         True if JSONL log files exist in the log directory.
 
     """
+    if not _HAS_SCRIPTS:
+        return False
+
     log_dir = get_log_directory()
 
     if not log_dir.exists():
@@ -135,6 +155,8 @@ def run_aggregation() -> bool:
 
 def run_auto_promote() -> None:
     """Chain to auto-promotion after successful aggregation."""
+    if not _HAS_SCRIPTS:
+        return
     try:
         _promote()
     except Exception:

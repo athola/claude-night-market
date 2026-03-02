@@ -330,13 +330,25 @@ def main() -> None:
         if state_files:
             # Get most recent state file
             latest_file = max(state_files, key=lambda p: p.stat().st_mtime)
+            processing_file = latest_file.with_suffix(".processing")
             try:
-                with open(latest_file) as f:
+                # Atomic rename to claim the file before reading
+                latest_file.rename(processing_file)
+                with open(processing_file) as f:
                     pre_state = json.load(f)
-                # Clean up state file
-                latest_file.unlink()
-            except (OSError, json.JSONDecodeError):
+                try:
+                    processing_file.unlink()
+                except OSError:
+                    pass
+            except FileNotFoundError:
+                # Another hook already claimed this file
                 pass
+            except (OSError, json.JSONDecodeError):
+                # Clean up .processing file on parse errors
+                try:
+                    processing_file.unlink()
+                except OSError:
+                    pass
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"

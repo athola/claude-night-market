@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+# pyright: reportPossiblyUnboundVariable=false, reportOptionalMemberAccess=false, reportOptionalCall=false
 import json
 import logging
 import re
@@ -134,7 +135,9 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
         return []
 
 
-def _classify_redundancy(score: float) -> RedundancyLevel:
+def _classify_redundancy(score: float) -> RedundancyLevel | None:
+    if not _HAS_MEMORY_PALACE:
+        return None
     if score >= 0.9:
         return RedundancyLevel.EXACT_MATCH
     if score >= 0.8:
@@ -152,7 +155,9 @@ def _calculate_novelty_and_duplicates(
 
     best_score = float(results[0].get("match_score") or 0.0)
     redundancy = _classify_redundancy(best_score)
-    novelty = _NOVELTY_BY_REDUNDANCY.get(redundancy, 0.5)
+    novelty = (
+        _NOVELTY_BY_REDUNDANCY.get(redundancy, 0.5) if redundancy is not None else 0.5
+    )
 
     duplicate_entry_ids: list[str] = []
     for entry in results:

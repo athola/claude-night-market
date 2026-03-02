@@ -77,6 +77,9 @@ fi
 # --- Resolve "Decisions" category ID ---
 
 category_err=$(mktemp)
+discussions_err=$(mktemp)
+trap 'rm -f "$category_err" "$discussions_err"' EXIT
+
 category_response=$(gh api graphql -f query='
 query($owner: String!, $repo: String!) {
   repository(owner: $owner, name: $repo) {
@@ -89,10 +92,8 @@ query($owner: String!, $repo: String!) {
 
 if [ -z "$category_response" ]; then
     err_msg=$(cat "$category_err" 2>/dev/null || true)
-    rm -f "$category_err"
     _emit_empty "GraphQL category query failed: ${err_msg:-unknown error}"
 fi
-rm -f "$category_err"
 
 # Check for GraphQL errors and whether discussions are enabled
 has_discussions=$(echo "$category_response" | python3 -c "
@@ -136,7 +137,6 @@ fi
 
 # --- Fetch 5 most recent Decisions discussions ---
 
-discussions_err=$(mktemp)
 discussions_response=$(gh api graphql -f query='
 query($owner: String!, $repo: String!, $categoryId: ID!) {
   repository(owner: $owner, name: $repo) {
@@ -153,10 +153,8 @@ query($owner: String!, $repo: String!, $categoryId: ID!) {
 
 if [ -z "$discussions_response" ]; then
     err_msg=$(cat "$discussions_err" 2>/dev/null || true)
-    rm -f "$discussions_err"
     _emit_empty "GraphQL discussions query failed: ${err_msg:-unknown error}"
 fi
-rm -f "$discussions_err"
 
 # --- Format summary ---
 

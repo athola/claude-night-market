@@ -6,6 +6,7 @@ This module tests the context warning hook that implements:
 - 80% emergency threshold (triggers auto-clear workflow)
 """
 
+import hashlib
 import json
 
 import pytest
@@ -1097,7 +1098,13 @@ class TestFallbackContextEstimation:
             home
             / ".claude"
             / "projects"
-            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+            / (
+                "-"
+                + hashlib.md5(
+                    str(fakecwd).encode(),
+                    usedforsecurity=False,
+                ).hexdigest()[:16]
+            )
         )
         real_project_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1141,7 +1148,13 @@ class TestFallbackContextEstimation:
             home
             / ".claude"
             / "projects"
-            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+            / (
+                "-"
+                + hashlib.md5(
+                    str(fakecwd).encode(),
+                    usedforsecurity=False,
+                ).hexdigest()[:16]
+            )
         )
         real_project_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1185,7 +1198,13 @@ class TestFallbackContextEstimation:
             home
             / ".claude"
             / "projects"
-            / ("-" + str(fakecwd).replace("/", "-").lstrip("-"))
+            / (
+                "-"
+                + hashlib.md5(
+                    str(fakecwd).encode(),
+                    usedforsecurity=False,
+                ).hexdigest()[:16]
+            )
         )
         real_project_dir.mkdir(parents=True, exist_ok=True)
 
