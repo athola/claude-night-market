@@ -558,28 +558,43 @@ class PluginAuditor:
                 for module in issues["missing"]:
                     print(f"      - modules/{module}")
 
-    def fix_plugin(self, plugin_name: str) -> bool:
-        """Fix discrepancies by updating plugin.json or hooks.json.
+    def _discover_plugin(
+        self, plugin_name: str
+    ) -> tuple[Path, Path, dict[str, Any]] | None:
+        """Load plugin paths and current plugin.json data.
 
-        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
-        discrepancies are reported but require manual fixes to hooks.json.
-        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        Returns:
+            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
+            there is nothing to fix for this plugin.
+
         """
         if plugin_name not in self.discrepancies:
-            return True  # Nothing to fix
+            return None
 
         plugin_path = self.plugins_root / plugin_name
         plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
-        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
 
-        # Read current plugin.json
         with plugin_json_path.open(encoding="utf-8") as f:
             plugin_data = json.load(f)
 
-        # Get discrepancies
-        disc = self.discrepancies[plugin_name]
+        return plugin_path, plugin_json_path, plugin_data
 
-        # Track if we have hooks that need manual fixing
+    def _validate_registration(
+        self,
+        plugin_name: str,
+        plugin_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> tuple[dict[str, Any], bool]:
+        """Apply discrepancy rules to plugin_data and report hooks needing manual fixes.
+
+        Mutates plugin_data in place for non-hooks categories.
+
+        Returns:
+            Tuple of (updated plugin_data, hooks_need_manual_fix flag).
+
+        """
+        disc = self.discrepancies[plugin_name]
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
         hooks_need_manual_fix = False
 
         # Fix missing entries (add them)
@@ -631,29 +646,65 @@ class PluginAuditor:
                     item for item in plugin_data[category] if item not in items
                 ]
 
-        # Write updated plugin.json (only if there are non-hooks changes)
+        return plugin_data, hooks_need_manual_fix
+
+    def _apply_fixes(
+        self,
+        plugin_name: str,
+        plugin_json_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> bool:
+        """Write the updated plugin.json to disk when non-hooks changes exist.
+
+        Returns:
+            True on success (or when no write is needed), False if JSON is invalid
+            after writing.
+
+        """
+        disc = self.discrepancies[plugin_name]
         non_hooks_changes = any(
             cat != "hooks"
             for cat in list(disc["missing"].keys()) + list(disc["stale"].keys())
         )
 
-        if non_hooks_changes:
-            if not self.dry_run:
-                with plugin_json_path.open("w", encoding="utf-8") as f:
-                    json.dump(plugin_data, f, indent=2, ensure_ascii=False)
-                    f.write("\n")  # Trailing newline
-                # Validate written JSON (smoke test)
-                try:
-                    with plugin_json_path.open(encoding="utf-8") as f:
-                        json.load(f)
-                except json.JSONDecodeError as e:
-                    print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
-                    return False
-                print(f"[FIXED] {plugin_name}: plugin.json updated")
-            else:
-                print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
+        if not non_hooks_changes:
+            return True
+
+        if not self.dry_run:
+            with plugin_json_path.open("w", encoding="utf-8") as f:
+                json.dump(plugin_data, f, indent=2, ensure_ascii=False)
+                f.write("\n")  # Trailing newline
+            # Validate written JSON (smoke test)
+            try:
+                with plugin_json_path.open(encoding="utf-8") as f:
+                    json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
+                return False
+            print(f"[FIXED] {plugin_name}: plugin.json updated")
+        else:
+            print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
 
         return True
+
+    def fix_plugin(self, plugin_name: str) -> bool:
+        """Fix discrepancies by updating plugin.json or hooks.json.
+
+        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
+        discrepancies are reported but require manual fixes to hooks.json.
+        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        """
+        discovered = self._discover_plugin(plugin_name)
+        if discovered is None:
+            return True  # Nothing to fix
+
+        plugin_path, plugin_json_path, plugin_data = discovered
+
+        plugin_data, _hooks_manual = self._validate_registration(
+            plugin_name, plugin_path, plugin_data
+        )
+
+        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
 
     def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
         """Phase 2: Analyze skill execution metrics for performance issues."""
