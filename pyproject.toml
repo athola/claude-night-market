@@ -64,6 +64,7 @@ markers = [
     "hook: Hook-specific tests",
     "command: Command-specific tests",
     "bdd: BDD-style behavior-driven tests",
+    "benchmark: Performance benchmark tests (skip in CI with -m 'not benchmark')",
 ]
 
 [tool.coverage.run]

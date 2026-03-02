@@ -170,15 +170,23 @@ class TestStepContentCompleteness:
         assert "pytest" in content or "validation" in content.lower()
 
     def test_step6_contains_key_content(self):
-        """Step 6 (Complete) should contain thread resolution content."""
+        """Step 6 (Complete) should contain thread resolution content.
+
+        Pre-check bash script extracted to 6-complete/pre-check.md (#122).
+        """
         step_path = STEPS_DIR / "6-complete.md"
         content = step_path.read_text(encoding="utf-8")
 
-        # Key content markers for Step 6
-        assert "Thread Resolution" in content or "resolveReviewThread" in content
-        assert "PRRT_" in content
+        # Key content markers for Step 6 (main file references modules)
+        assert "Thread Resolution" in content
         assert "Summary" in content
         assert "Issue" in content
+        assert "Pre-Check" in content
+
+        # PRRT_ content now lives in the pre-check sub-module
+        precheck_path = STEPS_DIR / "6-complete" / "pre-check.md"
+        precheck_content = precheck_path.read_text(encoding="utf-8")
+        assert "PRRT_" in precheck_content
 
 
 class TestCrossReferences:

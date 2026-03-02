@@ -117,6 +117,40 @@ Scribe enforces these principles:
 | delve | explore |
 | embark | start |
 
+## Examples
+
+These examples show slop remediation in practice. Each pair includes a score reduction from the detector.
+
+### Example 1: Vocabulary Slop
+
+**Before** (score: 8/10):
+> "This comprehensive solution leverages cutting-edge technology to delve into the multifaceted realm of documentation quality."
+
+**After** (score: 1/10):
+> "This solution uses modern tools to check documentation quality."
+
+Removed: comprehensive, leverages, delve, multifaceted, realm.
+
+### Example 2: Structural Patterns (Em Dash Overuse)
+
+**Before** (score: 7/10):
+> "The system—which processes requests—handles validation—ensuring data integrity—before returning results."
+
+**After** (score: 1/10):
+> "The system processes requests and handles validation to ensure data integrity before returning results."
+
+Four em dashes collapsed into a single flowing sentence.
+
+### Example 3: Phrase Patterns
+
+**Before** (score: 9/10):
+> "In today's fast-paced world, it's worth noting that this tool cannot be overstated as a testament to documentation quality."
+
+**After** (score: 1/10):
+> "This tool improves documentation quality by detecting and flagging AI-generated patterns."
+
+Removed: "In today's fast-paced world," opener, "it's worth noting that," and "cannot be overstated."
+
 ## Integration
 
 Scribe integrates with sanctum documentation workflows:

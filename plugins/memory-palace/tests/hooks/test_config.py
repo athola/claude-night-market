@@ -95,9 +95,9 @@ class TestIsKnowledgePath:
         assert is_knowledge_path("docs/guide.md") is True
         assert is_knowledge_path("docs/api/reference.md") is True
 
-    def test_knowledge_corpus_is_knowledge(self) -> None:
-        """knowledge-corpus/ should be a knowledge path."""
-        assert is_knowledge_path("knowledge-corpus/article.md") is True
+    def test_knowledge_corpus_not_knowledge(self) -> None:
+        """knowledge-corpus/ was removed in 1.5.0; no longer a knowledge path."""
+        assert is_knowledge_path("knowledge-corpus/article.md") is False
 
     def test_references_is_knowledge(self) -> None:
         """references/ should be a knowledge path."""

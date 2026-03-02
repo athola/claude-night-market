@@ -13,7 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
@@ -23,7 +23,7 @@ REPO_URL = "git@github.com:athola/claude-night-market.wiki.git"
 
 
 def _run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=False)  # noqa: S603  # nosec B603
 
 
 def clone() -> bool:
@@ -104,7 +104,7 @@ def sync() -> bool:
         return clone()
 
 
-def main() -> None:
+def main() -> None:  # noqa: D103
     parser = argparse.ArgumentParser(description="Sync wiki knowledge corpus")
     parser.add_argument("--status", action="store_true", help="Show sync status")
     parser.add_argument("--push", action="store_true", help="Push local changes")

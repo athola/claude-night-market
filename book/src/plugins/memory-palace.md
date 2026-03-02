@@ -140,7 +140,7 @@ Palace: "Python Async"
 New Information
       |
       v
-[Novelty Check] --> Duplicate? --> Skip
+[Semantic Dedup] --> Near-duplicate? --> Increment counter, skip
       |
       No
       v
@@ -153,6 +153,12 @@ New Information
       v
 [Cross-Reference] --> Link to related concepts
 ```
+
+The `SemanticDeduplicator` uses FAISS cosine similarity (threshold: 0.8) to detect near-duplicate content before storage. When FAISS is unavailable, it falls back to Jaccard word-set similarity. Suppressed duplicates increment a counter rather than being stored, keeping the corpus dense.
+
+## Semantic Deduplication
+
+FAISS-based duplicate detection is included as a mandatory dependency. The `SemanticDeduplicator.should_store()` API uses cosine similarity on L2-normalized vectors to detect near-duplicates before storage.
 
 ## Embedding Support
 
