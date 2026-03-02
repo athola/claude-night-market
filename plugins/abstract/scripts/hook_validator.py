@@ -331,7 +331,9 @@ def _find_agent_hooks_subclasses(
 
 
 def _validate_callback_method(
-    cls: ast.ClassDef, method: ast.FunctionDef, result: ValidationResult
+    cls: ast.ClassDef,
+    method: ast.FunctionDef | ast.AsyncFunctionDef,
+    result: ValidationResult,
 ) -> None:
     """Validate a single callback method."""
     method_name = method.name
@@ -368,7 +370,11 @@ def _validate_agent_hooks_class(cls: ast.ClassDef, result: ValidationResult) -> 
     result["info"].append(f"Validating class: {cls.name}")
 
     # Find callback methods
-    methods = [node for node in cls.body if isinstance(node, ast.FunctionDef)]
+    methods = [
+        node
+        for node in cls.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
 
     for method in methods:
         _validate_callback_method(cls, method, result)

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Add src to path to import core functionality
-src_path = Path(__file__).parent.parent.parent / "src"
+src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from abstract.skills_eval import (  # noqa: E402

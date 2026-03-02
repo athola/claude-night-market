@@ -184,7 +184,7 @@ class WarRoomOrchestrator:
         if expert.service == "native":
             # Native experts (Opus, Sonnet) handled by orchestrating Claude
             result = f"[Native expert {expert.role} response placeholder]"
-        elif await _experts_mod.test_expert_availability(expert):
+        elif await _experts_mod.check_expert_availability(expert):
             # External expert is available - invoke directly
             result = await self._invoke_external(expert, prompt)
         else:

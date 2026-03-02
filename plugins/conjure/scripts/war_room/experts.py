@@ -105,7 +105,7 @@ def get_haiku_command() -> list[str]:
     raise RuntimeError("Claude CLI not found - cannot use Haiku fallback")
 
 
-async def test_expert_availability(expert: ExpertConfig) -> bool:
+async def check_expert_availability(expert: ExpertConfig) -> bool:
     """Test if an external expert is available with a lightweight probe.
 
     Returns True if expert responds successfully, False otherwise.

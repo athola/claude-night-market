@@ -19,12 +19,12 @@ from scripts.war_room.experts import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
+    check_expert_availability,
     clear_availability_cache,
     get_expert_command,
     get_fallback_notice,
     get_glm_command,
     get_haiku_command,
-    test_expert_availability,
 )
 from scripts.war_room.hooks import should_suggest_war_room
 from scripts.war_room.models import (
@@ -54,7 +54,7 @@ __all__ = [
     # Availability
     "clear_availability_cache",
     "get_fallback_notice",
-    "test_expert_availability",
+    "check_expert_availability",
     # Hooks
     "should_suggest_war_room",
 ]

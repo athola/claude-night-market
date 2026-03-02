@@ -54,6 +54,18 @@ if [ "$TRIGGER_TYPE" = "init" ]; then
 
     # 3. Create session-state.md template if it doesn't exist
     SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
+    # Validate SESSION_STATE_FILE stays within allowed directories
+    if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
+        _resolved_state="$(readlink -f "$SESSION_STATE_FILE" 2>/dev/null || echo "$SESSION_STATE_FILE")"
+        _home_prefix="$(readlink -f "$HOME" 2>/dev/null || echo "$HOME")"
+        case "$_resolved_state" in
+            "${_home_prefix}"*|"${PROJECT_DIR}"*) ;;
+            *)
+                echo "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
+                SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"
+                ;;
+        esac
+    fi
     if [ ! -f "$SESSION_STATE_FILE" ]; then
         cat > "$SESSION_STATE_FILE" << 'TEMPLATE'
 # Session State

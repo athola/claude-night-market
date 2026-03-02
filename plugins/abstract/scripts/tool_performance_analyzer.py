@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 # Add src to path to import core functionality
-src_path = Path(__file__).parent.parent.parent / "src"
+src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 

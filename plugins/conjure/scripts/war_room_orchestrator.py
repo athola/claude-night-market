@@ -27,12 +27,12 @@ from scripts.war_room import (  # noqa: F401
     MerkleDAG,
     WarRoomOrchestrator,
     WarRoomSession,
+    check_expert_availability,
     clear_availability_cache,
     get_expert_command,
     get_fallback_notice,
     get_glm_command,
     get_haiku_command,
-    test_expert_availability,
 )
 
 # Module-level state re-exports for test patching compatibility
