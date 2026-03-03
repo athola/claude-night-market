@@ -28,6 +28,7 @@ export CONSERVE_SESSION_STATE_PATH="/tmp/my-session-state.md"
 
 ```markdown
 # Session State Checkpoint
+state_version: 1
 
 **Generated**: YYYY-MM-DD HH:MM:SS
 **Reason**: [Context threshold | Manual checkpoint | Task boundary]
@@ -182,6 +183,7 @@ For quick checkpoints:
 
 ```markdown
 # Quick Checkpoint
+state_version: 1
 
 **Task**: [What we're doing]
 **Progress**: [Where we are]
@@ -355,6 +357,7 @@ Each continuation agent increments `handoff_count` and adds to `handoff_history`
 
 ```markdown
 # Session State Checkpoint
+state_version: 1
 
 **Generated**: 2025-01-15 14:30:00
 **Reason**: Context threshold exceeded (82%)

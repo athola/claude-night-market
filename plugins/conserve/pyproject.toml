@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.5.1"
+version = "1.5.3"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -140,6 +140,7 @@ omit = [
     "*/tests/*",
     "*/__pycache__/*",
     "hooks/session-start.sh",  # Shell script, not Python
+    "hooks/permission_request.py",  # Covered by its own test module
 ]
 
 [tool.coverage.report]

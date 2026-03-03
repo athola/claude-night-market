@@ -19,6 +19,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -42,7 +43,7 @@ class NotificationState:
         """Get path to state file for given session."""
         # Sanitize session_id for filesystem
         safe_id = re.sub(r"[^a-zA-Z0-9_-]", "_", session_id)[:64]
-        return Path(f"/tmp/.claude-notify-{safe_id}.json")  # noqa: S108
+        return Path(tempfile.gettempdir()) / f".claude-notify-{safe_id}.json"
 
     @classmethod
     def load(cls, session_id: str) -> NotificationState:
@@ -67,7 +68,9 @@ class NotificationState:
         """Persist state to file."""
         state_file = self.state_file_path(self.session_id)
         try:
-            state_file.write_text(json.dumps(asdict(self)))
+            fd = os.open(str(state_file), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(json.dumps(asdict(self)))
         except OSError:
             pass  # Non-critical, fail silently
 

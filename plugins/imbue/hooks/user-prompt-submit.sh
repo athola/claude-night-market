@@ -139,7 +139,7 @@ escape_for_json() {
     local input="$1"
     # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         # Pure bash fallback with complete JSON control character handling
         # WARNING: jq is recommended for production use. Install with: apt-get install jq

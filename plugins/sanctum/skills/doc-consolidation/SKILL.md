@@ -181,7 +181,7 @@ After user approval:
 Phase 1 tasks are delegated to haiku-class models for efficiency:
 
 ```python
-# scripts/consolidation_planner.py handles:
+# plugins/sanctum/scripts/consolidation_planner.py handles:
 - scan_for_candidates()
 - extract_content_chunks()
 - categorize_chunks()

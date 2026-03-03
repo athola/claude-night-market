@@ -120,6 +120,9 @@ def get_log_directory() -> Path:
     return log_base
 
 
+_SAFE_COMPONENT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
+
+
 def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
     """Parse plugin and skill name from Skill tool input.
 
@@ -135,9 +138,17 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
 
     if ":" in skill_ref:
         plugin, skill = skill_ref.split(":", 1)
-        return plugin.strip(), skill.strip()
+        plugin = plugin.strip()
+        skill = skill.strip()
+    else:
+        plugin, skill = "unknown", skill_ref.strip()
 
-    return "unknown", skill_ref.strip()
+    # Sanitize to prevent path traversal
+    if not _SAFE_COMPONENT.match(plugin):
+        plugin = "unknown"
+    if not _SAFE_COMPONENT.match(skill):
+        skill = "unknown"
+    return plugin, skill
 
 
 def sanitize_output(output: str, max_length: int = 5000) -> str:
@@ -287,8 +298,10 @@ def save_log_entry(log_entry: dict[str, Any]) -> None:
     plugin = log_entry["plugin"]
     skill = log_entry["skill_name"]
 
-    # Create plugin/skill-specific directory
+    # Create plugin/skill-specific directory (with containment check)
     skill_log_dir = log_base / plugin / skill
+    if not skill_log_dir.resolve().is_relative_to(log_base.resolve()):
+        raise ValueError(f"Path traversal detected: {skill_log_dir}")
     skill_log_dir.mkdir(parents=True, exist_ok=True)
 
     # Use date-based log file (one file per day)
@@ -330,13 +343,25 @@ def main() -> None:
         if state_files:
             # Get most recent state file
             latest_file = max(state_files, key=lambda p: p.stat().st_mtime)
+            processing_file = latest_file.with_suffix(".processing")
             try:
-                with open(latest_file) as f:
+                # Atomic rename to claim the file before reading
+                latest_file.rename(processing_file)
+                with open(processing_file) as f:
                     pre_state = json.load(f)
-                # Clean up state file
-                latest_file.unlink()
-            except (OSError, json.JSONDecodeError):
+                try:
+                    processing_file.unlink()
+                except OSError:
+                    pass
+            except FileNotFoundError:
+                # Another hook already claimed this file
                 pass
+            except (OSError, json.JSONDecodeError):
+                # Clean up .processing file on parse errors
+                try:
+                    processing_file.unlink()
+                except OSError:
+                    pass
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"

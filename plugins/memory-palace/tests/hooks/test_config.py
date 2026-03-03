@@ -95,7 +95,11 @@ class TestIsKnowledgePath:
         assert is_knowledge_path("docs/guide.md") is True
         assert is_knowledge_path("docs/api/reference.md") is True
 
-    def test_knowledge_corpus_not_knowledge(self) -> None:
+    def test_knowledge_corpus_under_docs_is_knowledge(self) -> None:
+        """docs/ subdirectories should be recognized as knowledge paths."""
+        assert is_knowledge_path("docs/knowledge-corpus/article.md") is True
+
+    def test_bare_knowledge_corpus_not_knowledge(self) -> None:
         """knowledge-corpus/ was removed in 1.5.0; no longer a knowledge path."""
         assert is_knowledge_path("knowledge-corpus/article.md") is False
 

@@ -15,7 +15,7 @@ set -euo pipefail
 # Read hook input to determine trigger type
 HOOK_INPUT=""
 TRIGGER_TYPE="init"
-if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     if command -v jq >/dev/null 2>&1; then
         TRIGGER_TYPE=$(echo "$HOOK_INPUT" | jq -r '.trigger // "init"' 2>/dev/null || echo "init")
     fi
@@ -95,8 +95,8 @@ if [ "$TRIGGER_TYPE" = "init" ]; then
 }
 INDEX
         # Replace timestamp
-        sed -i.bak "s/{{timestamp}}/$(date -Iseconds)/" "$INDEX_FILE" 2>/dev/null || \
-            sed -i '' "s/{{timestamp}}/$(date -Iseconds)/" "$INDEX_FILE" 2>/dev/null || true
+        sed -i.bak "s/{{timestamp}}/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" "$INDEX_FILE" 2>/dev/null || \
+            sed -i '' "s/{{timestamp}}/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" "$INDEX_FILE" 2>/dev/null || true
         rm -f "${INDEX_FILE}.bak" 2>/dev/null || true
         init_tasks+=("Created garden index: ${INDEX_FILE}")
     fi
@@ -156,7 +156,7 @@ if [ "$TRIGGER_TYPE" = "maintenance" ]; then
 
         INDEX_FILE="${GARDEN_ROOT}/meta/index.json"
         if [ -f "$INDEX_FILE" ] && command -v jq >/dev/null 2>&1; then
-            jq --arg ts "$(date -Iseconds)" \
+            jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                --argjson seeds "$seeds_count" \
                --argjson seedlings "$seedlings_count" \
                --argjson evergreen "$evergreen_count" \
@@ -195,7 +195,7 @@ fi
 escape_for_json() {
     local input="$1"
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         local output=""
         local i char

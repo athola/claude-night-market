@@ -19,6 +19,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from scripts.war_room_orchestrator import (
+    ExpertInfo,
     WarRoomOrchestrator,
     WarRoomSession,
 )
@@ -195,15 +196,13 @@ class TestAdditionalPhases:
             content="COA Alpha content",
             phase="coa",
             round_number=1,
-            expert_role="Strategist",
-            expert_model="model-a",
+            expert=ExpertInfo(role="Strategist", model="model-a"),
         )
         session.merkle_dag.add_contribution(
             content="COA Beta content",
             phase="coa",
             round_number=1,
-            expert_role="Tactician",
-            expert_model="model-b",
+            expert=ExpertInfo(role="Tactician", model="model-b"),
         )
 
         with patch.object(
@@ -233,15 +232,13 @@ class TestAdditionalPhases:
             content="COA A",
             phase="coa",
             round_number=1,
-            expert_role="Strategist",
-            expert_model="model",
+            expert=ExpertInfo(role="Strategist", model="model"),
         )
         session.merkle_dag.add_contribution(
             content="COA B",
             phase="coa",
             round_number=1,
-            expert_role="Tactician",
-            expert_model="model",
+            expert=ExpertInfo(role="Tactician", model="model"),
         )
         session.artifacts["red_team"] = {"challenges": "Challenges text"}
 
@@ -289,8 +286,7 @@ class TestAdditionalPhases:
             content="Winning COA content",
             phase="coa",
             round_number=1,
-            expert_role="Strategist",
-            expert_model="model",
+            expert=ExpertInfo(role="Strategist", model="model"),
         )
         session.artifacts["voting"] = {"finalists": ["Response A"]}
 
@@ -430,8 +426,7 @@ class TestSynthesisPhase:
             content="COA content",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="claude-sonnet-4",
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
         )
         session.artifacts = {
             "intel": {"scout_report": "Scout", "intel_report": "Intel"},
@@ -542,8 +537,7 @@ class TestDelphiMode:
             content="Original COA 1",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="model",
+            expert=ExpertInfo(role="Chief Strategist", model="model"),
         )
 
         with patch.object(

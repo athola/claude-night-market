@@ -21,10 +21,10 @@ from scripts.war_room_orchestrator import (
     WarRoomSession,
     _expert_availability,
     _haiku_fallback_notices,
+    check_expert_availability,
     clear_availability_cache,
     get_fallback_notice,
     get_haiku_command,
-    test_expert_availability,
 )
 
 
@@ -144,7 +144,7 @@ class TestExternalInvocation:
 
         # Mock availability to return True (expert is available)
         with patch(
-            "scripts.war_room_orchestrator.test_expert_availability",
+            "scripts.war_room.experts.check_expert_availability",
             new_callable=AsyncMock,
             return_value=True,
         ):
@@ -326,7 +326,7 @@ class TestHaikuFallback:
 
     @pytest.mark.asyncio
     async def test_expert_availability_caches_result(self) -> None:
-        """test_expert_availability caches results to avoid repeated probes."""
+        """check_expert_availability caches results to avoid repeated probes."""
         clear_availability_cache()
         expert = EXPERT_CONFIGS["scout"]
 
@@ -335,8 +335,8 @@ class TestHaikuFallback:
             "asyncio.create_subprocess_exec",
             side_effect=FileNotFoundError("command not found"),
         ):
-            result1 = await test_expert_availability(expert)
-            result2 = await test_expert_availability(expert)
+            result1 = await check_expert_availability(expert)
+            result2 = await check_expert_availability(expert)
 
         assert result1 is False
         assert result2 is False
@@ -349,7 +349,7 @@ class TestHaikuFallback:
         clear_availability_cache()
         expert = EXPERT_CONFIGS["supreme_commander"]
 
-        result = await test_expert_availability(expert)
+        result = await check_expert_availability(expert)
         assert result is True
 
     @pytest.mark.asyncio
@@ -366,7 +366,7 @@ class TestHaikuFallback:
 
         # Mock availability to return False
         with patch(
-            "scripts.war_room_orchestrator.test_expert_availability",
+            "scripts.war_room.experts.check_expert_availability",
             new_callable=AsyncMock,
             return_value=False,
         ):

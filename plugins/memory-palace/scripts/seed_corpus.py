@@ -18,7 +18,9 @@ from typing import Any
 import yaml
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-CORPUS_DIR = PLUGIN_ROOT / "docs" / "knowledge-corpus"  # removed in 1.5.0
+CORPUS_DIR = (
+    PLUGIN_ROOT / "docs" / "knowledge-corpus"
+)  # removed in 1.5.0; kept for re-seeding
 INDEX_DIR = PLUGIN_ROOT / "data" / "indexes"
 DATA_DIR = PLUGIN_ROOT / "data"
 DEFAULT_CACHE_CATALOG = CORPUS_DIR / "cache_intercept_catalog.yaml"

@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 from scripts.war_room_orchestrator import (
+    ExpertInfo,
     MerkleDAG,
     WarRoomOrchestrator,
     WarRoomSession,
@@ -234,8 +235,7 @@ class TestStrategeionPersistence:
             content="Test COA",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="claude-sonnet-4",
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
         )
 
         orchestrator._persist_session(session)

@@ -1,0 +1,54 @@
+language: fr
+name: French
+tier1:
+  power_words:
+    - approfondir
+    - révolutionner
+    - propulser
+    - catalyser
+    - favoriser
+    - exploiter
+  sophistication_signals:
+    - exhaustif
+    - holistique
+    - robuste
+    - fondamental
+    - primordial
+    - incontournable
+  metaphor_abuse:
+    - paysage
+    - phare
+    - pierre angulaire
+    - mosaïque
+    - symphonie
+tier2:
+  transition_overuse:
+    - de surcroît
+    - en outre
+    - néanmoins
+    - par conséquent
+    - de plus
+  hedging:
+    - potentiellement
+    - vraisemblablement
+    - éventuellement
+    - en principe
+  business_jargon:
+    - tirer parti de
+    - synergie
+    - optimiser
+    - partie prenante
+    - écosystème
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "dans le monde actuel en rapide évolution"
+      - "dans un paysage en constante évolution"
+      - "à l'ère du numérique"
+  filler:
+    score: 2
+    patterns:
+      - "il convient de noter que"
+      - "au cœur de"
+      - "dans une perspective plus large"

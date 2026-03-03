@@ -10,7 +10,7 @@
 
 ```bash
 # Combined workflow example
-skills/modular-skills/scripts/skill-analyzer --path skill.md --verbose
+scripts/skill-analyzer --path skill.md --verbose
 skills/skills-eval/scripts/compliance-checker --skill-path skill.md
 skills/skills-eval/scripts/improvement-suggester --skill-path skill.md
 ```

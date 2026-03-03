@@ -29,9 +29,9 @@ from memory_palace.corpus.marginal_value import (
     MarginalValueFilter,
 )
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PLUGIN_ROOT.parents[1]
-PROMPT_TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "prompts"
+PROMPT_TEMPLATE_DIR = PLUGIN_ROOT / "skills" / "knowledge-intake" / "prompts"
 DEFAULT_PROMPT_PACK = "marginal-value-dual"
 
 
@@ -70,7 +70,8 @@ class Candidate:
     def source_identifier(self) -> str:
         """Source identifier for traceability."""
         source = self.raw.get("source", {})
-        return source.get("identifier", "unknown")
+        result: str = source.get("identifier", "unknown")
+        return result
 
 
 def slugify(value: str) -> str:

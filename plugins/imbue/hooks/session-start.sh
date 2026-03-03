@@ -51,7 +51,7 @@ escape_for_json() {
     local input="$1"
 
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1
 
@@ -104,7 +104,7 @@ escape_for_json() {
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""
 AGENT_TYPE=""
-if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
 fi
 

@@ -27,7 +27,11 @@ from update_plugins_modules.constants import CACHE_EXCLUDES
 class PluginAuditor:
     """Audit and sync plugin.json registrations with disk contents."""
 
+    MODULE_DESCRIPTION_MAX_LEN = 80
+    QUEUE_DISPLAY_LIMIT = 10
+
     def __init__(self, plugins_root: Path, dry_run: bool = True):
+        """Initialize auditor with plugins root and dry-run mode."""
         self.plugins_root = plugins_root
         self.dry_run = dry_run
         self.discrepancies: dict[str, Any] = {}
@@ -176,15 +180,15 @@ class PluginAuditor:
                     r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
                 )
                 if modules_match:
-                    for name in re.findall(
+                    for raw_name in re.findall(
                         r"^- (.+)$", modules_match.group(1), re.MULTILINE
                     ):
-                        name = name.strip()
-                        if name and not name.startswith("{"):
+                        entry = raw_name.strip()
+                        if entry and not entry.startswith("{"):
                             # Convert bare name to filename: name -> name.md
-                            if not name.endswith(".md"):
-                                name = f"{name}.md"
-                            references.add(name)
+                            if not entry.endswith(".md"):
+                                entry = f"{entry}.md"
+                            references.add(entry)
 
             # Content-level patterns
             patterns = [
@@ -207,7 +211,7 @@ class PluginAuditor:
 
         return references
 
-    def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:
+    def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:  # noqa: PLR0912
         """Scan disk for actual commands, skills, agents, hooks."""
         results: dict[str, list[str]] = {
             "commands": [],
@@ -216,14 +220,14 @@ class PluginAuditor:
             "hooks": [],
         }
 
-        # Commands: *.md files in commands/ (excluding module subdirectories and cache dirs)
+        # Commands: *.md files in commands/ (excluding module subdirs and cache dirs)
         commands_dir = plugin_path / "commands"
         if commands_dir.exists():
             for cmd_file in commands_dir.rglob("*.md"):
                 # Skip cache directories
                 if self._should_exclude(cmd_file):
                     continue
-                # Skip files in module subdirectories (check all ancestors, not just parent)
+                # Skip files in module subdirs (check all ancestors, not just parent)
                 # This handles paths like commands/fix-pr-modules/steps/1-analyze.md
                 rel_to_commands = cmd_file.relative_to(commands_dir)
                 if any(
@@ -261,7 +265,7 @@ class PluginAuditor:
                     rel_path = f"./agents/{agent_file.name}"
                     results["agents"].append(rel_path)
 
-        # Hooks: *.sh, *.py files in hooks/ (excluding test files, __init__.py, and cache dirs)
+        # Hooks: *.sh, *.py files in hooks/ (excluding test files, __init__.py, cache)
         # Note: *.md files in hooks/ are documentation, not executable hooks
         hooks_dir = plugin_path / "hooks"
         if hooks_dir.exists():
@@ -278,8 +282,8 @@ class PluginAuditor:
                         results["hooks"].append(rel_path)
 
         # Sort all lists for consistent comparison
-        for key in results:
-            results[key].sort()
+        for _key, items in results.items():
+            items.sort()
 
         return results
 
@@ -306,7 +310,7 @@ class PluginAuditor:
             hooks_json_ref: Relative path like "./hooks/hooks.json"
 
         Returns:
-            List of hook script paths in ./hooks/filename format, or None if file not found
+            List of hook script paths in ./hooks/filename format, or None if not found
 
         """
         # Resolve the hooks.json path
@@ -369,6 +373,26 @@ class PluginAuditor:
 
         return None
 
+    def _resolve_hooks_set(self, plugin_path: Path, json_value: Any) -> set[str] | None:
+        """Resolve registered hooks from plugin.json or auto-loaded hooks.json.
+
+        Returns None if the category should be skipped.
+        """
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
+
+        if isinstance(json_value, str):
+            if json_value.endswith(".json"):
+                resolved = self.resolve_hooks_json(plugin_path, json_value)
+                return set(resolved) if resolved is not None else None
+            print(f"[WARN] Unexpected hooks format: {json_value}")
+            return None
+
+        if standard_hooks_json.exists():
+            resolved = self.resolve_hooks_json(plugin_path, "./hooks/hooks.json")
+            return set(resolved) if resolved is not None else set()
+
+        return set(json_value) if json_value else set()
+
     def compare_registrations(
         self,
         plugin_path: Path,
@@ -380,7 +404,6 @@ class PluginAuditor:
         Note: Claude Code auto-loads hooks/hooks.json if it exists, so plugins
         should NOT add "hooks": "./hooks/hooks.json" to plugin.json (causes duplicate).
         """
-        # Ensure plugin_path is a Path object
         plugin_path = Path(plugin_path)
 
         discrepancies: dict[str, Any] = {
@@ -392,37 +415,11 @@ class PluginAuditor:
             disk_set = set(on_disk[category])
             json_value = in_json.get(category, [])
 
-            # Special handling for hooks - Claude Code auto-loads hooks/hooks.json
             if category == "hooks":
-                # Check if standard hooks.json exists (auto-loaded by Claude Code)
-                standard_hooks_json = plugin_path / "hooks" / "hooks.json"
-
-                if isinstance(json_value, str):
-                    # plugin.json has explicit hooks reference
-                    if json_value.endswith(".json"):
-                        resolved_hooks = self.resolve_hooks_json(
-                            plugin_path, json_value
-                        )
-                        if resolved_hooks is not None:
-                            json_set = set(resolved_hooks)
-                        else:
-                            continue
-                    else:
-                        print(f"[WARN] Unexpected hooks format: {json_value}")
-                        continue
-                elif standard_hooks_json.exists():
-                    # No hooks key in plugin.json but hooks.json exists
-                    # Claude Code auto-loads this, so compare against it
-                    resolved_hooks = self.resolve_hooks_json(
-                        plugin_path, "./hooks/hooks.json"
-                    )
-                    if resolved_hooks is not None:
-                        json_set = set(resolved_hooks)
-                    else:
-                        json_set = set()
-                else:
-                    # No hooks.json, use array from plugin.json (if any)
-                    json_set = set(json_value) if json_value else set()
+                hooks_set = self._resolve_hooks_set(plugin_path, json_value)
+                if hooks_set is None:
+                    continue
+                json_set = hooks_set
             else:
                 json_set = set(json_value) if json_value else set()
 
@@ -511,7 +508,7 @@ class PluginAuditor:
                     continue
                 if stripped.startswith("#"):
                     continue
-                if len(stripped) > 80:
+                if len(stripped) > self.MODULE_DESCRIPTION_MAX_LEN:
                     return stripped[:77] + "..."
                 return stripped
         except FileNotFoundError:
@@ -558,34 +555,50 @@ class PluginAuditor:
                 for module in issues["missing"]:
                     print(f"      - modules/{module}")
 
-    def fix_plugin(self, plugin_name: str) -> bool:
-        """Fix discrepancies by updating plugin.json or hooks.json.
+    def _discover_plugin(
+        self, plugin_name: str
+    ) -> tuple[Path, Path, dict[str, Any]] | None:
+        """Load plugin paths and current plugin.json data.
 
-        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
-        discrepancies are reported but require manual fixes to hooks.json.
-        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        Returns:
+            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
+            there is nothing to fix for this plugin.
+
         """
         if plugin_name not in self.discrepancies:
-            return True  # Nothing to fix
+            return None
 
         plugin_path = self.plugins_root / plugin_name
         plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
-        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
 
-        # Read current plugin.json
         with plugin_json_path.open(encoding="utf-8") as f:
             plugin_data = json.load(f)
 
-        # Get discrepancies
-        disc = self.discrepancies[plugin_name]
+        return plugin_path, plugin_json_path, plugin_data
 
-        # Track if we have hooks that need manual fixing
+    def _validate_registration(
+        self,
+        plugin_name: str,
+        plugin_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> tuple[dict[str, Any], bool]:
+        """Apply discrepancy rules to plugin_data and report hooks needing manual fixes.
+
+        Mutates plugin_data in place for non-hooks categories.
+
+        Returns:
+            Tuple of (updated plugin_data, hooks_need_manual_fix flag).
+
+        """
+        disc = self.discrepancies[plugin_name]
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
         hooks_need_manual_fix = False
 
         # Fix missing entries (add them)
         for category, items in disc["missing"].items():
             # Hooks require manual update to hooks.json (NOT plugin.json)
-            # Claude Code auto-loads hooks/hooks.json, adding to plugin.json causes duplicates
+            # Claude Code auto-loads hooks/hooks.json; adding to plugin.json
+            # causes duplicate registrations
             if category == "hooks":
                 if standard_hooks_json.exists() or isinstance(
                     plugin_data.get("hooks"), str
@@ -631,29 +644,65 @@ class PluginAuditor:
                     item for item in plugin_data[category] if item not in items
                 ]
 
-        # Write updated plugin.json (only if there are non-hooks changes)
+        return plugin_data, hooks_need_manual_fix
+
+    def _apply_fixes(
+        self,
+        plugin_name: str,
+        plugin_json_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> bool:
+        """Write the updated plugin.json to disk when non-hooks changes exist.
+
+        Returns:
+            True on success (or when no write is needed), False if JSON is invalid
+            after writing.
+
+        """
+        disc = self.discrepancies[plugin_name]
         non_hooks_changes = any(
             cat != "hooks"
             for cat in list(disc["missing"].keys()) + list(disc["stale"].keys())
         )
 
-        if non_hooks_changes:
-            if not self.dry_run:
-                with plugin_json_path.open("w", encoding="utf-8") as f:
-                    json.dump(plugin_data, f, indent=2, ensure_ascii=False)
-                    f.write("\n")  # Trailing newline
-                # Validate written JSON (smoke test)
-                try:
-                    with plugin_json_path.open(encoding="utf-8") as f:
-                        json.load(f)
-                except json.JSONDecodeError as e:
-                    print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
-                    return False
-                print(f"[FIXED] {plugin_name}: plugin.json updated")
-            else:
-                print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
+        if not non_hooks_changes:
+            return True
+
+        if not self.dry_run:
+            with plugin_json_path.open("w", encoding="utf-8") as f:
+                json.dump(plugin_data, f, indent=2, ensure_ascii=False)
+                f.write("\n")  # Trailing newline
+            # Validate written JSON (smoke test)
+            try:
+                with plugin_json_path.open(encoding="utf-8") as f:
+                    json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
+                return False
+            print(f"[FIXED] {plugin_name}: plugin.json updated")
+        else:
+            print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
 
         return True
+
+    def fix_plugin(self, plugin_name: str) -> bool:
+        """Fix discrepancies by updating plugin.json or hooks.json.
+
+        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
+        discrepancies are reported but require manual fixes to hooks.json.
+        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        """
+        discovered = self._discover_plugin(plugin_name)
+        if discovered is None:
+            return True  # Nothing to fix
+
+        plugin_path, plugin_json_path, plugin_data = discovered
+
+        plugin_data, _hooks_manual = self._validate_registration(
+            plugin_name, plugin_path, plugin_data
+        )
+
+        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
 
     def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
         """Phase 2: Analyze skill execution metrics for performance issues."""
@@ -669,18 +718,64 @@ class PluginAuditor:
         """Phase 4: Scan memory-palace queue for pending research items."""
         return self.queue_checker.check_queue()
 
+    def _print_performance_summary(self, report: dict[str, Any]) -> None:
+        """Print Phase 2 performance analysis summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 2: PERFORMANCE & IMPROVEMENT ANALYSIS")
+        print("=" * 60)
+        for plugin, data in report.items():
+            print(f"\n{plugin}:")
+            if data["unstable_skills"]:
+                print("  ⚠ Unstable skills (stability_gap > 0.3):")
+                for item in data["unstable_skills"]:
+                    print(f"    - {item['skill']}: {item['stability_gap']}")
+            if data["recent_failures"]:
+                print("  ❌ Recent failures (last 7 days):")
+                for item in data["recent_failures"]:
+                    print(f"    - {item['skill']}: {item['failures']} failures")
+            if data["low_success_rate"]:
+                print("  📉 Low success rate (< 80%):")
+                for item in data["low_success_rate"]:
+                    print(f"    - {item['skill']}: {item['success_rate']:.0%}")
+
+    def _print_meta_eval_summary(self, report: dict[str, Any]) -> None:
+        """Print Phase 3 meta-evaluation summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 3: META-EVALUATION CHECK")
+        print("=" * 60)
+        for plugin, issues in report.items():
+            print(f"\n{plugin}:")
+            if issues["missing_toc"]:
+                print(f"  📋 Missing TOC: {', '.join(issues['missing_toc'])}")
+            if issues["missing_verification"]:
+                skills = ", ".join(issues["missing_verification"])
+                print(f"  🔍 Missing verification: {skills}")
+            if issues["missing_tests"]:
+                print(f"  🧪 Missing tests: {', '.join(issues['missing_tests'])}")
+
+    def _print_queue_summary(self, queue_items: list[dict[str, Any]]) -> None:
+        """Print Phase 4 knowledge queue summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 4: KNOWLEDGE QUEUE PROMOTION CHECK")
+        print("=" * 60)
+        print(f"\nPending items in memory-palace queue: {len(queue_items)}")
+        limit = self.QUEUE_DISPLAY_LIMIT
+        for item in queue_items[:limit]:
+            age_str = f"{item['age_days']}d ago" if item["age_days"] > 0 else "today"
+            print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
+        if len(queue_items) > limit:
+            print(f"  ... and {len(queue_items) - limit} more")
+
     def audit_all(self, specific_plugin: str | None = None) -> int:
         """Audit all plugins or a specific plugin."""
         if specific_plugin:
             plugins = [specific_plugin]
         else:
-            # Get all plugin directories
-            plugins = [
+            plugins = sorted(
                 p.name
                 for p in self.plugins_root.iterdir()
                 if p.is_dir() and not p.name.startswith(".")
-            ]
-            plugins.sort()
+            )
 
         print(f"Auditing {len(plugins)} plugin(s)...\n")
 
@@ -688,26 +783,21 @@ class PluginAuditor:
         performance_report: dict[str, Any] = {}
         meta_eval_report: dict[str, Any] = {}
 
-        # Phase 1: Registration Audit
         for plugin_name in plugins:
             if self.audit_plugin(plugin_name):
                 plugins_with_issues += 1
 
-            # Phase 2: Performance Analysis
             perf_data = self.analyze_skill_performance(plugin_name)
             if any(perf_data.values()):
                 performance_report[plugin_name] = perf_data
 
-            # Phase 3: Meta-Evaluation Check
             plugin_path = self.plugins_root / plugin_name
             meta_issues = self.check_meta_evaluation(plugin_name, plugin_path)
             if any(meta_issues.values()):
                 meta_eval_report[plugin_name] = meta_issues
 
-        # Phase 4: Knowledge Queue Check (once for all plugins)
         queue_items = self.check_knowledge_queue()
 
-        # Summary
         print(f"\n{'=' * 60}")
         print("AUDIT SUMMARY")
         print("=" * 60)
@@ -716,57 +806,13 @@ class PluginAuditor:
         print(f"Plugins with module issues: {len(self.module_issues)}")
         print(f"Plugins clean: {len(plugins) - plugins_with_issues}")
 
-        # Phase 2 Summary
         if performance_report:
-            print(f"\n{'=' * 60}")
-            print("PHASE 2: PERFORMANCE & IMPROVEMENT ANALYSIS")
-            print("=" * 60)
-            for plugin, data in performance_report.items():
-                print(f"\n{plugin}:")
-                if data["unstable_skills"]:
-                    print("  ⚠ Unstable skills (stability_gap > 0.3):")
-                    for item in data["unstable_skills"]:
-                        print(f"    - {item['skill']}: {item['stability_gap']}")
-                if data["recent_failures"]:
-                    print("  ❌ Recent failures (last 7 days):")
-                    for item in data["recent_failures"]:
-                        print(f"    - {item['skill']}: {item['failures']} failures")
-                if data["low_success_rate"]:
-                    print("  📉 Low success rate (< 80%):")
-                    for item in data["low_success_rate"]:
-                        print(f"    - {item['skill']}: {item['success_rate']:.0%}")
-
-        # Phase 3 Summary
+            self._print_performance_summary(performance_report)
         if meta_eval_report:
-            print(f"\n{'=' * 60}")
-            print("PHASE 3: META-EVALUATION CHECK")
-            print("=" * 60)
-            for plugin, issues in meta_eval_report.items():
-                print(f"\n{plugin}:")
-                if issues["missing_toc"]:
-                    print(f"  📋 Missing TOC: {', '.join(issues['missing_toc'])}")
-                if issues["missing_verification"]:
-                    print(
-                        f"  🔍 Missing verification: {', '.join(issues['missing_verification'])}"
-                    )
-                if issues["missing_tests"]:
-                    print(f"  🧪 Missing tests: {', '.join(issues['missing_tests'])}")
-
-        # Phase 4 Summary
+            self._print_meta_eval_summary(meta_eval_report)
         if queue_items:
-            print(f"\n{'=' * 60}")
-            print("PHASE 4: KNOWLEDGE QUEUE PROMOTION CHECK")
-            print("=" * 60)
-            print(f"\nPending items in memory-palace queue: {len(queue_items)}")
-            for item in queue_items[:10]:  # Show top 10
-                age_str = (
-                    f"{item['age_days']}d ago" if item["age_days"] > 0 else "today"
-                )
-                print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
-            if len(queue_items) > 10:
-                print(f"  ... and {len(queue_items) - 10} more")
+            self._print_queue_summary(queue_items)
 
-        # Fix if requested
         if not self.dry_run and plugins_with_issues > 0:
             print(f"\n{'=' * 60}")
             print("FIXING DISCREPANCIES")
@@ -778,7 +824,7 @@ class PluginAuditor:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Audit and sync plugin.json files with disk contents."""
     parser = argparse.ArgumentParser(
         description="Audit and sync plugin.json files with disk contents"
     )

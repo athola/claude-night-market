@@ -10,6 +10,7 @@ Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.
 
 from __future__ import annotations
 
+# pyright: reportPossiblyUnboundVariable=false
 import json
 import os
 import sys
@@ -20,7 +21,12 @@ _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-from abstract.improvement_queue import ImprovementQueue  # noqa: E402
+try:
+    from abstract.improvement_queue import ImprovementQueue  # noqa: E402
+
+    _HAS_QUEUE = True
+except ImportError:
+    _HAS_QUEUE = False
 
 STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
@@ -87,6 +93,23 @@ def main() -> None:
                     "skill": skill_ref,
                     "stability_gap": gap,
                     "status": "healthy",
+                }
+            }
+            print(json.dumps(output))
+            sys.exit(0)
+
+        if not _HAS_QUEUE:
+            sys.stderr.write(
+                f"homeostatic_monitor: ImprovementQueue unavailable, "
+                f"skipping queue ops for {skill_ref} (gap={gap:.2f})\n"
+            )
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "monitor": "homeostatic",
+                    "skill": skill_ref,
+                    "stability_gap": gap,
+                    "status": "degrading",
                 }
             }
             print(json.dumps(output))

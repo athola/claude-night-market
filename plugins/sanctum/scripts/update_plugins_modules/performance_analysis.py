@@ -17,6 +17,9 @@ from typing import Any
 class PerformanceAnalyzer:
     """Analyze skill execution metrics."""
 
+    STABILITY_GAP_THRESHOLD = 0.3
+    SUCCESS_RATE_THRESHOLD = 0.8
+
     def __init__(self, log_dir: Path | None = None):
         """Initialize analyzer with optional custom log directory."""
         self.log_dir = log_dir or Path.home() / ".claude" / "skills" / "logs"
@@ -125,13 +128,13 @@ class PerformanceAnalyzer:
             # Check unstable skills (stability_gap > 0.3)
             if stats["stability_gaps"]:
                 avg_gap = sum(stats["stability_gaps"]) / len(stats["stability_gaps"])
-                if avg_gap > 0.3:
+                if avg_gap > self.STABILITY_GAP_THRESHOLD:
                     performance_data["unstable_skills"].append(
                         {"skill": skill, "stability_gap": round(avg_gap, 2)}
                     )
 
             # Check low success rate
-            if success_rate < 0.8:
+            if success_rate < self.SUCCESS_RATE_THRESHOLD:
                 performance_data["low_success_rate"].append(
                     {"skill": skill, "success_rate": round(success_rate, 2)}
                 )

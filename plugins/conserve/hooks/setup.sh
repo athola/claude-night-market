@@ -54,6 +54,18 @@ if [ "$TRIGGER_TYPE" = "init" ]; then
 
     # 3. Create session-state.md template if it doesn't exist
     SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
+    # Validate SESSION_STATE_FILE stays within allowed directories
+    if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
+        _resolved_state="$(readlink -f "$SESSION_STATE_FILE" 2>/dev/null || echo "$SESSION_STATE_FILE")"
+        _home_prefix="$(readlink -f "$HOME" 2>/dev/null || echo "$HOME")"
+        case "$_resolved_state" in
+            "${_home_prefix}"*|"${PROJECT_DIR}"*) ;;
+            *)
+                echo "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
+                SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"
+                ;;
+        esac
+    fi
     if [ ! -f "$SESSION_STATE_FILE" ]; then
         cat > "$SESSION_STATE_FILE" << 'TEMPLATE'
 # Session State
@@ -80,14 +92,16 @@ if [ "$TRIGGER_TYPE" = "init" ]; then
 - [ ] Criteria 2
 TEMPLATE
         # Replace timestamp placeholder
-        sed -i.bak "s/{{timestamp}}/$(date -Iseconds)/" "$SESSION_STATE_FILE" 2>/dev/null || \
+        if sed -i.bak "s/{{timestamp}}/$(date -Iseconds)/" "$SESSION_STATE_FILE" 2>/dev/null; then
+            rm -f "${SESSION_STATE_FILE}.bak" 2>/dev/null || true
+        else
             sed -i '' "s/{{timestamp}}/$(date -Iseconds)/" "$SESSION_STATE_FILE" 2>/dev/null || true
-        rm -f "${SESSION_STATE_FILE}.bak" 2>/dev/null || true
+        fi
         setup_tasks+=("Created session state template: ${SESSION_STATE_FILE}")
     fi
 
     # 4. Set environment variables via CLAUDE_ENV_FILE
-    if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+    if [ -n "${CLAUDE_ENV_FILE:-}" ] && [ -w "${CLAUDE_ENV_FILE}" -o ! -e "${CLAUDE_ENV_FILE}" ]; then
         echo "export CONSERVE_SESSION_STATE_PATH=\"${SESSION_STATE_FILE}\"" >> "$CLAUDE_ENV_FILE"
         setup_tasks+=("Persisted CONSERVE_SESSION_STATE_PATH to environment")
     fi
@@ -155,7 +169,7 @@ fi
 escape_for_json() {
     local input="$1"
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         local output=""
         local i char

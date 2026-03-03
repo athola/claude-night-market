@@ -108,6 +108,7 @@ Write to `.claude/session-state.md` (or `$CONSERVE_SESSION_STATE_PATH`):
 
 ```markdown
 # Session State Checkpoint
+state_version: 1
 Generated: [timestamp]
 Reason: Context threshold exceeded (80%+)
 
@@ -262,6 +263,7 @@ This skill works with `context_warning.py` hook:
 
 For detailed session state format and examples:
 - See `modules/session-state.md` for checkpoint format and handoff patterns
+- See `modules/session-state-schema.md` for versioned schema and migration logic
 
 ## Self-Monitoring Pattern
 

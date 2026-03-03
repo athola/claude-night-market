@@ -9,7 +9,7 @@ Tests core Merkle-DAG functionality:
 
 from __future__ import annotations
 
-from scripts.war_room_orchestrator import MerkleDAG
+from scripts.war_room_orchestrator import ExpertInfo, MerkleDAG
 
 
 class TestMerkleDAG:
@@ -22,8 +22,7 @@ class TestMerkleDAG:
             content="Test COA content",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="claude-sonnet-4",
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
         )
 
         assert node.content_hash is not None
@@ -38,15 +37,13 @@ class TestMerkleDAG:
             content="COA 1",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="claude-sonnet-4",
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
         )
         dag.add_contribution(
             content="COA 2",
             phase="coa",
             round_number=1,
-            expert_role="Field Tactician",
-            expert_model="glm-4.7",
+            expert=ExpertInfo(role="Field Tactician", model="glm-4.7"),
         )
 
         anon_view = dag.get_anonymized_view(phase="coa")
@@ -65,8 +62,7 @@ class TestMerkleDAG:
             content="COA content",
             phase="coa",
             round_number=1,
-            expert_role="Chief Strategist",
-            expert_model="claude-sonnet-4",
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
         )
 
         assert dag.sealed is True
@@ -84,8 +80,7 @@ class TestMerkleDAG:
             content="Test",
             phase="coa",
             round_number=1,
-            expert_role="Tactician",
-            expert_model="glm-4.7",
+            expert=ExpertInfo(role="Tactician", model="glm-4.7"),
         )
 
         # Sealed - should mask
@@ -118,15 +113,13 @@ class TestMerkleDAGEdgeCases:
             content="COA 1",
             phase="coa",
             round_number=1,
-            expert_role="Strategist",
-            expert_model="model-a",
+            expert=ExpertInfo(role="Strategist", model="model-a"),
         )
         dag.add_contribution(
             content="COA 2",
             phase="coa",
             round_number=1,
-            expert_role="Tactician",
-            expert_model="model-b",
+            expert=ExpertInfo(role="Tactician", model="model-b"),
         )
 
         # Add voting contributions
@@ -134,8 +127,7 @@ class TestMerkleDAGEdgeCases:
             content="Vote 1",
             phase="voting",
             round_number=2,
-            expert_role="Strategist",
-            expert_model="model-a",
+            expert=ExpertInfo(role="Strategist", model="model-a"),
         )
 
         anon_coa = dag.get_anonymized_view(phase="coa")
@@ -155,15 +147,13 @@ class TestMerkleDAGEdgeCases:
             content="Intel",
             phase="intel",
             round_number=1,
-            expert_role="Scout",
-            expert_model="model-a",
+            expert=ExpertInfo(role="Scout", model="model-a"),
         )
         dag.add_contribution(
             content="COA",
             phase="coa",
             round_number=2,
-            expert_role="Strategist",
-            expert_model="model-b",
+            expert=ExpertInfo(role="Strategist", model="model-b"),
         )
 
         all_anon = dag.get_anonymized_view()
@@ -178,15 +168,13 @@ class TestMerkleDAGEdgeCases:
             content="Same content",
             phase="coa",
             round_number=1,
-            expert_role="Role",
-            expert_model="Model",
+            expert=ExpertInfo(role="Role", model="Model"),
         )
         node2 = dag2.add_contribution(
             content="Same content",
             phase="coa",
             round_number=1,
-            expert_role="Role",
-            expert_model="Model",
+            expert=ExpertInfo(role="Role", model="Model"),
         )
 
         assert node1.content_hash == node2.content_hash

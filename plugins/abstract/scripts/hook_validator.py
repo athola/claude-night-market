@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import re
 import sys
 from pathlib import Path
 from typing import TypedDict
@@ -133,8 +134,6 @@ def _validate_matcher(
     # String matchers are the preferred format (Claude Code SDK)
     if isinstance(matcher, str):
         # Validate it's a valid regex pattern
-        import re
-
         try:
             re.compile(matcher)
             result["info"].append(
@@ -164,7 +163,8 @@ def _validate_matcher(
 
     # Invalid type
     result["errors"].append(
-        f"{event_type}[{idx}]: 'matcher' must be a string (regex pattern) or object, got {type(matcher).__name__}",
+        f"{event_type}[{idx}]: 'matcher' must be a string (regex pattern) "
+        f"or object, got {type(matcher).__name__}",
     )
     result["valid"] = False
 
@@ -331,7 +331,9 @@ def _find_agent_hooks_subclasses(
 
 
 def _validate_callback_method(
-    cls: ast.ClassDef, method: ast.FunctionDef, result: ValidationResult
+    cls: ast.ClassDef,
+    method: ast.FunctionDef | ast.AsyncFunctionDef,
+    result: ValidationResult,
 ) -> None:
     """Validate a single callback method."""
     method_name = method.name
@@ -368,7 +370,11 @@ def _validate_agent_hooks_class(cls: ast.ClassDef, result: ValidationResult) -> 
     result["info"].append(f"Validating class: {cls.name}")
 
     # Find callback methods
-    methods = [node for node in cls.body if isinstance(node, ast.FunctionDef)]
+    methods = [
+        node
+        for node in cls.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
 
     for method in methods:
         _validate_callback_method(cls, method, result)

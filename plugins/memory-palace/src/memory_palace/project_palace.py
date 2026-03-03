@@ -407,6 +407,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         query: str,
         room_type: str | None = None,
         tags: list[str] | None = None,
+        semantic: bool = False,
     ) -> list[dict[str, Any]]:
         """Search the review chamber of a project palace.
 
@@ -415,6 +416,8 @@ class ProjectPalaceManager(MemoryPalaceManager):
             query: Search query
             room_type: Optional filter by room type
             tags: Optional filter by tags
+            semantic: When True, use embedding-based semantic search
+                instead of text substring matching
 
         Returns:
             List of matching review entries
@@ -424,22 +427,38 @@ class ProjectPalaceManager(MemoryPalaceManager):
         if not palace:
             return []
 
+        review_chamber = palace["rooms"]["review-chamber"]
+
+        if semantic:
+            return self._search_review_chamber_semantic(
+                palace, review_chamber, query, room_type, tags
+            )
+
+        return self._search_review_chamber_text(
+            palace, review_chamber, query, room_type, tags
+        )
+
+    def _search_review_chamber_text(
+        self,
+        palace: dict[str, Any],
+        review_chamber: dict[str, Any],
+        query: str,
+        room_type: str | None,
+        tags: list[str] | None,
+    ) -> list[dict[str, Any]]:
+        """Text substring search (original behavior)."""
         results = []
         query_lower = query.lower()
 
-        review_chamber = palace["rooms"]["review-chamber"]
         for subroom_name, subroom in review_chamber.get("subrooms", {}).items():
-            # Filter by room type if specified
             if room_type and subroom_name != room_type:
                 continue
 
             for entry_data in subroom.get("entries", []):
-                # Check query match
                 entry_text = json.dumps(entry_data).lower()
                 if query_lower not in entry_text:
                     continue
 
-                # Filter by tags if specified
                 if tags:
                     entry_tags = entry_data.get("tags", [])
                     if not any(tag in entry_tags for tag in tags):
@@ -449,10 +468,76 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     {
                         "room": f"review-chamber/{subroom_name}",
                         "entry": entry_data,
-                        "palace_id": palace_id,
+                        "palace_id": palace["id"],
                         "palace_name": palace["name"],
                     }
                 )
+
+        return results
+
+    def _search_review_chamber_semantic(
+        self,
+        palace: dict[str, Any],
+        review_chamber: dict[str, Any],
+        query: str,
+        room_type: str | None,
+        tags: list[str] | None,
+    ) -> list[dict[str, Any]]:
+        """Embedding-based semantic search across review chamber rooms."""
+        from .corpus.embedding_index import EmbeddingIndex  # noqa: PLC0415
+
+        # Build a temporary in-memory index for the review chamber entries
+        embeddings_path = os.path.join(
+            self.project_palaces_dir, f"{palace['id']}_embeddings.yaml"
+        )
+        index = EmbeddingIndex(embeddings_path, provider="hash")
+
+        # Map entry IDs to their data and subroom for later retrieval
+        entry_map: dict[str, tuple[str, dict[str, Any]]] = {}
+
+        for subroom_name, subroom in review_chamber.get("subrooms", {}).items():
+            if room_type and subroom_name != room_type:
+                continue
+
+            for entry_data in subroom.get("entries", []):
+                entry_id = entry_data.get("id", "")
+                if not entry_id:
+                    continue
+
+                # Pre-filter by tags if specified
+                if tags:
+                    entry_tags = entry_data.get("tags", [])
+                    if not any(tag in entry_tags for tag in tags):
+                        continue
+
+                # Build searchable text from entry content
+                text_parts = [
+                    entry_data.get("title", ""),
+                    json.dumps(entry_data.get("content", {})),
+                ]
+                text = " ".join(text_parts)
+
+                index.add_to_room(subroom_name, entry_id, text)
+                entry_map[entry_id] = (subroom_name, entry_data)
+
+        # Search across the rooms we indexed
+        target_rooms = [room_type] if room_type else None
+        scored = index.search_across_rooms(query, rooms=target_rooms, top_k=50)
+
+        results = []
+        for entry_id, _room_name, score in scored:
+            if entry_id not in entry_map:
+                continue
+            subroom_name, entry_data = entry_map[entry_id]
+            results.append(
+                {
+                    "room": f"review-chamber/{subroom_name}",
+                    "entry": entry_data,
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": score,
+                }
+            )
 
         return results
 

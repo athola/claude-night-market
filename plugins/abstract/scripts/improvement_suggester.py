@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Add src to path to import core functionality
-src_path = Path(__file__).parent.parent.parent / "src"
+src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         plan = suggester.generate_improvement_plan(skill_name)
         output = json.dumps(plan, indent=2, default=str)
     else:
-        output = suggester.generate_improvement_plan(skill_name)
+        output = str(suggester.generate_improvement_plan(skill_name))
 
     if args.output:
         with open(args.output, "w") as f:

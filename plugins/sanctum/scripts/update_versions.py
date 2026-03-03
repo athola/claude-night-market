@@ -18,7 +18,7 @@ from update_plugins_modules.constants import CACHE_EXCLUDES
 
 
 def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
-    """Find all version files, excluding venvs and build dirs unless explicitly requested.
+    """Find all version files, excluding venvs and build dirs unless explicitly asked.
 
     Args:
         root: Root directory to search
@@ -115,9 +115,13 @@ def update_version_file(
 
 
 def main():
+    """Update version strings across all version files in the repository."""
     parser = argparse.ArgumentParser(
         description="Update versions across all version files",
-        epilog="By default, cache/temp directories are excluded. Use --include-cache to override.",
+        epilog=(
+            "By default, cache/temp directories are excluded."
+            " Use --include-cache to override."
+        ),
     )
     parser.add_argument("version", help="New version (e.g., 1.2.5)")
     parser.add_argument(
@@ -134,7 +138,10 @@ def main():
     parser.add_argument(
         "--include-cache",
         action="store_true",
-        help="Include cache/temp directories (.venv, node_modules, etc.). Use with caution!",
+        help=(
+            "Include cache/temp directories (.venv, node_modules, etc.)."
+            " Use with caution!"
+        ),
     )
 
     args = parser.parse_args()
@@ -142,7 +149,8 @@ def main():
     # Validate version format
     if not re.match(r"^\d+\.\d+\.\d+$", args.version):
         print(
-            f"ERROR: Invalid version format '{args.version}'. Expected: MAJOR.MINOR.PATCH",
+            f"ERROR: Invalid version format '{args.version}'."
+            " Expected: MAJOR.MINOR.PATCH",
             file=sys.stderr,
         )
         return 1
@@ -154,7 +162,8 @@ def main():
 
     if args.include_cache:
         print(
-            "⚠️  WARNING: Searching cache directories. This may be slow and find unwanted files."
+            "WARNING: Searching cache directories."
+            " This may be slow and find unwanted files."
         )
 
     print(f"Searching for version files in: {root}")
@@ -183,7 +192,8 @@ def main():
             print(f"  - No change: {file.relative_to(root)}")
 
     print(
-        f"\n{'Would update' if args.dry_run else 'Updated'} {updated}/{len(version_files)} file(s)"
+        f"\n{'Would update' if args.dry_run else 'Updated'}"
+        f" {updated}/{len(version_files)} file(s)"
     )
 
     if args.dry_run:

@@ -24,6 +24,7 @@ modules:
 - structural-patterns
 - fiction-patterns
 - remediation-strategies
+- language-support
 - config-file
 - progress-indicators
 - ci-integration
@@ -40,6 +41,14 @@ AI slop is identified by patterns of usage rather than individual words. While a
 ## Execution Workflow
 
 Start by identifying target files and classifying them as technical docs, narrative prose, or code comments. This allows for context-aware scoring during analysis.
+
+### Language Detection
+
+- Auto-detect language from text content using function word frequency
+- Override with explicit `--lang` parameter (en, de, fr, es)
+- Load language-specific patterns from `data/languages/{lang}.yaml`
+- Fall back to English if detection confidence is low
+- See `modules/language-support.md` for details on cultural calibration
 
 ### Vocabulary and Phrase Detection
 

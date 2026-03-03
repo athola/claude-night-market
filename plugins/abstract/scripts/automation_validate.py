@@ -10,13 +10,13 @@ import sys
 from pathlib import Path
 
 
-def validate_skill(skill_path):
+def validate_skill(skill_path: Path) -> bool:
     """Validate a single skill."""
     if not skill_path.exists():
         return False
 
     # Use modular-skills validator
-    modular_skills_dir = Path(__file__).parent.parent.parent / "modular-skills"
+    modular_skills_dir = Path(__file__).parent.parent / "skills" / "modular-skills"
     validator = modular_skills_dir / "tools" / "module_validator"
 
     if validator.exists():
@@ -40,7 +40,7 @@ def validate_skill(skill_path):
         return False
 
 
-def validate_directory(directory):
+def validate_directory(directory: str | Path) -> bool:
     """Validate all skills in directory."""
     skill_files = list(Path(directory).glob("**/SKILL.md"))
 
@@ -60,8 +60,8 @@ def validate_directory(directory):
 def check_dependencies() -> bool:
     """Check if required dependencies are available."""
     script_dir = Path(__file__).parent
-    skills_eval_dir = script_dir.parent.parent
-    modular_skills_dir = skills_eval_dir.parent / "modular-skills"
+    skills_eval_dir = script_dir.parent / "skills" / "skills-eval"
+    modular_skills_dir = script_dir.parent / "skills" / "modular-skills"
 
     # Check tools exist
     required_tools = [

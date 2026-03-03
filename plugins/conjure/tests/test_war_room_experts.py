@@ -151,8 +151,8 @@ class TestCommandResolution:
             command_resolver="bad_resolver",
         )
 
-        with patch.dict(
-            "scripts.war_room_orchestrator.__dict__", {"bad_resolver": bad_resolver}
-        ):
+        from scripts.war_room.experts import _COMMAND_RESOLVERS
+
+        with patch.dict(_COMMAND_RESOLVERS, {"bad_resolver": bad_resolver}):
             with pytest.raises(RuntimeError, match="did not return list"):
                 get_expert_command(fake_expert)

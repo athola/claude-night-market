@@ -1,16 +1,4 @@
 {
-  "PreToolUse": [
-    {
-      "matcher": "Skill",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/test_skill_observability_proof.py",
-          "timeout": 1
-        }
-      ]
-    }
-  ],
   "PostToolUse": [
     {
       "matcher": "Skill",

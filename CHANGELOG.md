@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.3] - 2026-03-02
+
+### Changed
+
+- **Context warning hook delegates instead of wrapping up** (conserve) - EMERGENCY alerts now direct Claude to invoke `Skill(conserve:clear-context)` and chain to a continuation agent rather than stopping work. Recommendations changed from "summarize remaining tasks" to "delegate via continuation."
+- **Tail-based context estimation** (conserve) - `estimate_context_from_session()` reads only the last 800KB of a JSONL session file and counts actual content text. The previous file-size approach over-reported context usage on long sessions with compressed history.
+- **Dash-convention project directory resolution** (conserve) - Replaced MD5-hash-based directory naming with Claude Code's actual convention (`/home/user/project` becomes `-home-user-project`). The old hash approach never matched real session directories.
+- **Continuation agent chaining protocol** (conserve) - Agent instructions now state: ignore "wrap up" signals from the context warning hook; chain to another continuation agent at 80% context instead of stopping.
+
 ## [1.5.1] - 2026-02-27
 
 ### Added

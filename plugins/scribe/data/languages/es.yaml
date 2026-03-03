@@ -1,0 +1,54 @@
+language: es
+name: Spanish
+tier1:
+  power_words:
+    - profundizar
+    - revolucionar
+    - impulsar
+    - catalizar
+    - fomentar
+    - aprovechar
+  sophistication_signals:
+    - integral
+    - holístico
+    - robusto
+    - fundamental
+    - primordial
+    - indispensable
+  metaphor_abuse:
+    - paisaje
+    - faro
+    - piedra angular
+    - mosaico
+    - sinfonía
+tier2:
+  transition_overuse:
+    - además
+    - asimismo
+    - no obstante
+    - por consiguiente
+    - adicionalmente
+  hedging:
+    - potencialmente
+    - posiblemente
+    - presumiblemente
+    - en principio
+  business_jargon:
+    - aprovechar
+    - sinergia
+    - optimizar
+    - escalable
+    - ecosistema
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "en el mundo acelerado de hoy"
+      - "en un panorama en constante evolución"
+      - "en la era digital"
+  filler:
+    score: 2
+    patterns:
+      - "vale la pena señalar que"
+      - "en esencia"
+      - "desde una perspectiva más amplia"
