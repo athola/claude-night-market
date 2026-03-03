@@ -30,6 +30,7 @@ from scripts.war_room.hooks import should_suggest_war_room
 from scripts.war_room.models import (
     DeliberationNode,
     ExpertConfig,
+    ExpertInfo,
     MerkleDAG,
     WarRoomSession,
 )
@@ -41,6 +42,7 @@ __all__ = [
     # Data structures
     "DeliberationNode",
     "ExpertConfig",
+    "ExpertInfo",
     "MerkleDAG",
     "WarRoomSession",
     # Expert configuration

@@ -373,7 +373,27 @@ class PluginAuditor:
 
         return None
 
-    def compare_registrations(  # noqa: PLR0912
+    def _resolve_hooks_set(self, plugin_path: Path, json_value: Any) -> set[str] | None:
+        """Resolve registered hooks from plugin.json or auto-loaded hooks.json.
+
+        Returns None if the category should be skipped.
+        """
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
+
+        if isinstance(json_value, str):
+            if json_value.endswith(".json"):
+                resolved = self.resolve_hooks_json(plugin_path, json_value)
+                return set(resolved) if resolved is not None else None
+            print(f"[WARN] Unexpected hooks format: {json_value}")
+            return None
+
+        if standard_hooks_json.exists():
+            resolved = self.resolve_hooks_json(plugin_path, "./hooks/hooks.json")
+            return set(resolved) if resolved is not None else set()
+
+        return set(json_value) if json_value else set()
+
+    def compare_registrations(
         self,
         plugin_path: Path,
         on_disk: dict[str, list[str]],
@@ -384,7 +404,6 @@ class PluginAuditor:
         Note: Claude Code auto-loads hooks/hooks.json if it exists, so plugins
         should NOT add "hooks": "./hooks/hooks.json" to plugin.json (causes duplicate).
         """
-        # Ensure plugin_path is a Path object
         plugin_path = Path(plugin_path)
 
         discrepancies: dict[str, Any] = {
@@ -396,37 +415,11 @@ class PluginAuditor:
             disk_set = set(on_disk[category])
             json_value = in_json.get(category, [])
 
-            # Special handling for hooks - Claude Code auto-loads hooks/hooks.json
             if category == "hooks":
-                # Check if standard hooks.json exists (auto-loaded by Claude Code)
-                standard_hooks_json = plugin_path / "hooks" / "hooks.json"
-
-                if isinstance(json_value, str):
-                    # plugin.json has explicit hooks reference
-                    if json_value.endswith(".json"):
-                        resolved_hooks = self.resolve_hooks_json(
-                            plugin_path, json_value
-                        )
-                        if resolved_hooks is not None:
-                            json_set = set(resolved_hooks)
-                        else:
-                            continue
-                    else:
-                        print(f"[WARN] Unexpected hooks format: {json_value}")
-                        continue
-                elif standard_hooks_json.exists():
-                    # No hooks key in plugin.json but hooks.json exists
-                    # Claude Code auto-loads this, so compare against it
-                    resolved_hooks = self.resolve_hooks_json(
-                        plugin_path, "./hooks/hooks.json"
-                    )
-                    if resolved_hooks is not None:
-                        json_set = set(resolved_hooks)
-                    else:
-                        json_set = set()
-                else:
-                    # No hooks.json, use array from plugin.json (if any)
-                    json_set = set(json_value) if json_value else set()
+                hooks_set = self._resolve_hooks_set(plugin_path, json_value)
+                if hooks_set is None:
+                    continue
+                json_set = hooks_set
             else:
                 json_set = set(json_value) if json_value else set()
 
@@ -725,18 +718,64 @@ class PluginAuditor:
         """Phase 4: Scan memory-palace queue for pending research items."""
         return self.queue_checker.check_queue()
 
-    def audit_all(self, specific_plugin: str | None = None) -> int:  # noqa: PLR0912, PLR0915
+    def _print_performance_summary(self, report: dict[str, Any]) -> None:
+        """Print Phase 2 performance analysis summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 2: PERFORMANCE & IMPROVEMENT ANALYSIS")
+        print("=" * 60)
+        for plugin, data in report.items():
+            print(f"\n{plugin}:")
+            if data["unstable_skills"]:
+                print("  ⚠ Unstable skills (stability_gap > 0.3):")
+                for item in data["unstable_skills"]:
+                    print(f"    - {item['skill']}: {item['stability_gap']}")
+            if data["recent_failures"]:
+                print("  ❌ Recent failures (last 7 days):")
+                for item in data["recent_failures"]:
+                    print(f"    - {item['skill']}: {item['failures']} failures")
+            if data["low_success_rate"]:
+                print("  📉 Low success rate (< 80%):")
+                for item in data["low_success_rate"]:
+                    print(f"    - {item['skill']}: {item['success_rate']:.0%}")
+
+    def _print_meta_eval_summary(self, report: dict[str, Any]) -> None:
+        """Print Phase 3 meta-evaluation summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 3: META-EVALUATION CHECK")
+        print("=" * 60)
+        for plugin, issues in report.items():
+            print(f"\n{plugin}:")
+            if issues["missing_toc"]:
+                print(f"  📋 Missing TOC: {', '.join(issues['missing_toc'])}")
+            if issues["missing_verification"]:
+                skills = ", ".join(issues["missing_verification"])
+                print(f"  🔍 Missing verification: {skills}")
+            if issues["missing_tests"]:
+                print(f"  🧪 Missing tests: {', '.join(issues['missing_tests'])}")
+
+    def _print_queue_summary(self, queue_items: list[dict[str, Any]]) -> None:
+        """Print Phase 4 knowledge queue summary."""
+        print(f"\n{'=' * 60}")
+        print("PHASE 4: KNOWLEDGE QUEUE PROMOTION CHECK")
+        print("=" * 60)
+        print(f"\nPending items in memory-palace queue: {len(queue_items)}")
+        limit = self.QUEUE_DISPLAY_LIMIT
+        for item in queue_items[:limit]:
+            age_str = f"{item['age_days']}d ago" if item["age_days"] > 0 else "today"
+            print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
+        if len(queue_items) > limit:
+            print(f"  ... and {len(queue_items) - limit} more")
+
+    def audit_all(self, specific_plugin: str | None = None) -> int:
         """Audit all plugins or a specific plugin."""
         if specific_plugin:
             plugins = [specific_plugin]
         else:
-            # Get all plugin directories
-            plugins = [
+            plugins = sorted(
                 p.name
                 for p in self.plugins_root.iterdir()
                 if p.is_dir() and not p.name.startswith(".")
-            ]
-            plugins.sort()
+            )
 
         print(f"Auditing {len(plugins)} plugin(s)...\n")
 
@@ -744,26 +783,21 @@ class PluginAuditor:
         performance_report: dict[str, Any] = {}
         meta_eval_report: dict[str, Any] = {}
 
-        # Phase 1: Registration Audit
         for plugin_name in plugins:
             if self.audit_plugin(plugin_name):
                 plugins_with_issues += 1
 
-            # Phase 2: Performance Analysis
             perf_data = self.analyze_skill_performance(plugin_name)
             if any(perf_data.values()):
                 performance_report[plugin_name] = perf_data
 
-            # Phase 3: Meta-Evaluation Check
             plugin_path = self.plugins_root / plugin_name
             meta_issues = self.check_meta_evaluation(plugin_name, plugin_path)
             if any(meta_issues.values()):
                 meta_eval_report[plugin_name] = meta_issues
 
-        # Phase 4: Knowledge Queue Check (once for all plugins)
         queue_items = self.check_knowledge_queue()
 
-        # Summary
         print(f"\n{'=' * 60}")
         print("AUDIT SUMMARY")
         print("=" * 60)
@@ -772,57 +806,13 @@ class PluginAuditor:
         print(f"Plugins with module issues: {len(self.module_issues)}")
         print(f"Plugins clean: {len(plugins) - plugins_with_issues}")
 
-        # Phase 2 Summary
         if performance_report:
-            print(f"\n{'=' * 60}")
-            print("PHASE 2: PERFORMANCE & IMPROVEMENT ANALYSIS")
-            print("=" * 60)
-            for plugin, data in performance_report.items():
-                print(f"\n{plugin}:")
-                if data["unstable_skills"]:
-                    print("  ⚠ Unstable skills (stability_gap > 0.3):")
-                    for item in data["unstable_skills"]:
-                        print(f"    - {item['skill']}: {item['stability_gap']}")
-                if data["recent_failures"]:
-                    print("  ❌ Recent failures (last 7 days):")
-                    for item in data["recent_failures"]:
-                        print(f"    - {item['skill']}: {item['failures']} failures")
-                if data["low_success_rate"]:
-                    print("  📉 Low success rate (< 80%):")
-                    for item in data["low_success_rate"]:
-                        print(f"    - {item['skill']}: {item['success_rate']:.0%}")
-
-        # Phase 3 Summary
+            self._print_performance_summary(performance_report)
         if meta_eval_report:
-            print(f"\n{'=' * 60}")
-            print("PHASE 3: META-EVALUATION CHECK")
-            print("=" * 60)
-            for plugin, issues in meta_eval_report.items():
-                print(f"\n{plugin}:")
-                if issues["missing_toc"]:
-                    print(f"  📋 Missing TOC: {', '.join(issues['missing_toc'])}")
-                if issues["missing_verification"]:
-                    skills = ", ".join(issues["missing_verification"])
-                    print(f"  🔍 Missing verification: {skills}")
-                if issues["missing_tests"]:
-                    print(f"  🧪 Missing tests: {', '.join(issues['missing_tests'])}")
-
-        # Phase 4 Summary
+            self._print_meta_eval_summary(meta_eval_report)
         if queue_items:
-            print(f"\n{'=' * 60}")
-            print("PHASE 4: KNOWLEDGE QUEUE PROMOTION CHECK")
-            print("=" * 60)
-            print(f"\nPending items in memory-palace queue: {len(queue_items)}")
-            limit = self.QUEUE_DISPLAY_LIMIT
-            for item in queue_items[:limit]:
-                age_str = (
-                    f"{item['age_days']}d ago" if item["age_days"] > 0 else "today"
-                )
-                print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
-            if len(queue_items) > limit:
-                print(f"  ... and {len(queue_items) - limit} more")
+            self._print_queue_summary(queue_items)
 
-        # Fix if requested
         if not self.dry_run and plugins_with_issues > 0:
             print(f"\n{'=' * 60}")
             print("FIXING DISCREPANCIES")

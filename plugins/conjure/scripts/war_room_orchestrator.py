@@ -24,6 +24,7 @@ from scripts.war_room import (  # noqa: F401
     LIGHTWEIGHT_PANEL,
     DeliberationNode,
     ExpertConfig,
+    ExpertInfo,
     MerkleDAG,
     WarRoomOrchestrator,
     WarRoomSession,

@@ -27,7 +27,7 @@ from scripts.war_room.experts import (
     get_haiku_command,
 )
 from scripts.war_room.hooks import should_suggest_war_room as _should_suggest_war_room
-from scripts.war_room.models import MerkleDAG, WarRoomSession
+from scripts.war_room.models import ExpertInfo, MerkleDAG, WarRoomSession
 from scripts.war_room.persistence import (
     archive_session,
     list_sessions,
@@ -202,8 +202,7 @@ class WarRoomOrchestrator:
             content=result,
             phase=phase,
             round_number=len(session.phases_completed) + 1,
-            expert_role=expert.role,
-            expert_model=actual_model,
+            expert=ExpertInfo(role=expert.role, model=actual_model),
         )
 
         return result

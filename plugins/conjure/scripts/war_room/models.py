@@ -12,6 +12,14 @@ from typing import Any
 
 
 @dataclass
+class ExpertInfo:
+    """Identity of the expert providing a contribution."""
+
+    role: str
+    model: str
+
+
+@dataclass
 class DeliberationNode:
     """A single contribution in the deliberation graph."""
 
@@ -39,18 +47,17 @@ class MerkleDAG:
     nodes: dict[str, DeliberationNode] = field(default_factory=dict)
     label_counter: dict[str, int] = field(default_factory=dict)
 
-    def add_contribution(  # noqa: PLR0913
+    def add_contribution(
         self,
         content: str,
         phase: str,
         round_number: int,
-        expert_role: str,
-        expert_model: str,
+        expert: ExpertInfo,
         parent_id: str | None = None,
     ) -> DeliberationNode:
         """Add a contribution and compute hashes."""
         content_hash = sha256(content.encode()).hexdigest()
-        metadata_hash = sha256(f"{expert_role}:{expert_model}".encode()).hexdigest()
+        metadata_hash = sha256(f"{expert.role}:{expert.model}".encode()).hexdigest()
         combined_hash = sha256(f"{content_hash}:{metadata_hash}".encode()).hexdigest()
 
         label = self._generate_label(phase)
@@ -62,8 +69,8 @@ class MerkleDAG:
             phase=phase,
             anonymous_label=label,
             content=content,
-            expert_role=expert_role,
-            expert_model=expert_model,
+            expert_role=expert.role,
+            expert_model=expert.model,
             content_hash=content_hash,
             metadata_hash=metadata_hash,
             combined_hash=combined_hash,
