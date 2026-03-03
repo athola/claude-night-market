@@ -1,0 +1,75 @@
+name: Slop Check
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+
+jobs:
+  slop-check:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan docs for slop markers
+        id: scan
+        run: |
+          THRESHOLD=3.0
+          TOTAL_SCORE=0
+          FILE_COUNT=0
+          MAX_SCORE=0
+          FAILED_FILES=""
+
+          TIER1="delve|tapestry|embark|beacon|spearheaded|multifaceted|pivotal|nuanced|meticulous|intricate|showcasing|leveraging|streamline|comprehensive"
+          TIER2="moreover|furthermore|indeed|notably|subsequently|revolutionize|transform|unleash|elevate|crucial|vital|paramount"
+
+          for f in $(find docs/ -name '*.md' 2>/dev/null); do
+            WORDS=$(wc -w < "$f")
+            [ "$WORDS" -eq 0 ] && continue
+
+            T1=$(grep -oiE "$TIER1" "$f" | wc -l)
+            T2=$(grep -oiE "$TIER2" "$f" | wc -l)
+            EM=$(grep -o '—' "$f" | wc -l)
+
+            SCORE=$(awk "BEGIN {printf \"%.2f\", ($T1*3 + $T2*2 + $EM) / ($WORDS) * 100}")
+            FILE_COUNT=$((FILE_COUNT + 1))
+            TOTAL_SCORE=$(awk "BEGIN {printf \"%.2f\", $TOTAL_SCORE + $SCORE}")
+
+            CMP=$(awk "BEGIN {print ($SCORE > $THRESHOLD) ? 1 : 0}")
+            if [ "$CMP" -eq 1 ]; then
+              FAILED_FILES="$FAILED_FILES- \`$f\` score: $SCORE\n"
+            fi
+
+            CMP_MAX=$(awk "BEGIN {print ($SCORE > $MAX_SCORE) ? 1 : 0}")
+            [ "$CMP_MAX" -eq 1 ] && MAX_SCORE=$SCORE
+          done
+
+          if [ "$FILE_COUNT" -gt 0 ]; then
+            AVG=$(awk "BEGIN {printf \"%.2f\", $TOTAL_SCORE / $FILE_COUNT}")
+          else
+            AVG=0
+          fi
+
+          echo "file_count=$FILE_COUNT" >> "$GITHUB_OUTPUT"
+          echo "avg_score=$AVG" >> "$GITHUB_OUTPUT"
+          echo "max_score=$MAX_SCORE" >> "$GITHUB_OUTPUT"
+          printf "failed_files<<EOF\n%b\nEOF\n" "$FAILED_FILES" >> "$GITHUB_OUTPUT"
+
+          CMP_FAIL=$(awk "BEGIN {print ($MAX_SCORE > $THRESHOLD) ? 1 : 0}")
+          exit "$CMP_FAIL"
+
+      - name: Comment on PR if threshold exceeded
+        if: failure() && steps.scan.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AVG_SCORE: ${{ steps.scan.outputs.avg_score }}
+          MAX_SCORE: ${{ steps.scan.outputs.max_score }}
+          FAILED_FILES: ${{ steps.scan.outputs.failed_files }}
+        run: |
+          gh pr comment "$PR_NUMBER" --body "$(printf \
+            '**Slop check failed** (threshold: 3.0)\n\nFiles exceeding threshold:\n%s\nAvg score: %s  Max score: %s\n\nSee slop-detector vocabulary-patterns.md for remediation.' \
+            "$FAILED_FILES" "$AVG_SCORE" "$MAX_SCORE")"

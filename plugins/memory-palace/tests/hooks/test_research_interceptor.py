@@ -289,12 +289,14 @@ class TestFormatCachedEntry:
 class TestSearchLocalKnowledge:
     """Tests for local knowledge search integration."""
 
-    def test_successful_search(self) -> None:
+    def test_successful_search(self, tmp_path: Path) -> None:
         """Successful search should return results."""
-        config = {"corpus_dir": "data/wiki/", "indexes_dir": "data/indexes"}
+        (tmp_path / "docs" / "knowledge-corpus").mkdir(parents=True)
+        (tmp_path / "data" / "indexes").mkdir(parents=True)
+        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
         with (
+            patch.object(research_interceptor, "PLUGIN_ROOT", tmp_path),
             patch.object(research_interceptor, "CacheLookup") as mock_lookup,
-            patch("research_interceptor.Path.is_dir", return_value=True),
         ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = [{"title": "Test", "match_score": 0.8}]
@@ -308,8 +310,8 @@ class TestSearchLocalKnowledge:
                 mode="unified",
                 min_score=0.0,
             )
-            expected_corpus = str(research_interceptor.PLUGIN_ROOT / "data/wiki/")
-            expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
+            expected_corpus = str(tmp_path / "docs/knowledge-corpus/")
+            expected_index = str(tmp_path / "data/indexes")
             mock_lookup.assert_called_once_with(
                 expected_corpus, expected_index, embedding_provider="none"
             )
@@ -322,12 +324,13 @@ class TestSearchLocalKnowledge:
             results = search_local_knowledge("test query", config)
             assert results == []
 
-    def test_search_with_unified_mode(self) -> None:
+    def test_search_with_unified_mode(self, tmp_path: Path) -> None:
         """Search should use unified mode."""
-        config = {"corpus_dir": "data/wiki/", "indexes_dir": "data/indexes"}
+        (tmp_path / "docs" / "knowledge-corpus").mkdir(parents=True)
+        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
         with (
+            patch.object(research_interceptor, "PLUGIN_ROOT", tmp_path),
             patch.object(research_interceptor, "CacheLookup") as mock_lookup,
-            patch("research_interceptor.Path.is_dir", return_value=True),
         ):
             mock_instance = MagicMock()
             mock_instance.search.return_value = []

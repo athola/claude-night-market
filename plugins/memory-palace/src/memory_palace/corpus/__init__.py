@@ -28,6 +28,10 @@ from memory_palace.corpus.marginal_value import (
     RedundancyLevel,
 )
 from memory_palace.corpus.query_templates import QueryTemplateManager
+from memory_palace.corpus.semantic_deduplicator import (
+    DEFAULT_THRESHOLD,
+    SemanticDeduplicator,
+)
 from memory_palace.corpus.source_lineage import (
     FullLineage,
     SimpleLineage,
@@ -44,6 +48,9 @@ from memory_palace.corpus.usage_tracker import (
 )
 
 __all__ = [
+    # Semantic deduplication
+    "DEFAULT_THRESHOLD",
+    "SemanticDeduplicator",
     # Cache and indexing
     "CacheLookup",
     "KeywordIndexer",
