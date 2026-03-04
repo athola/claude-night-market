@@ -164,12 +164,6 @@ def sample_plugin_json():
                 "usage": "/optimize-context [target]",
                 "file": "commands/optimize-context.md",
             },
-            {
-                "name": "analyze-growth",
-                "description": "Analyze resource usage and growth patterns",
-                "usage": "/analyze-growth [timeframe]",
-                "file": "commands/analyze-growth.md",
-            },
         ],
         "agents": [
             {

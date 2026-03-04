@@ -198,7 +198,7 @@ Spec-Kit uses imbue for analysis:
 spec-kit
     |
     v
-imbue (diff-analysis, evidence-logging)
+imbue (diff-analysis, proof-of-work)
 ```
 
 ## Superpowers Integration

@@ -194,7 +194,7 @@ class TestRuleEngine:
 
         formatted = engine.format_messages(results)
 
-        assert "🛑 BLOCKED: rule1" in formatted
-        assert "⚠️  WARNING: rule2" in formatted
+        assert "[BLOCKED]: rule1" in formatted
+        assert "[WARNING]: rule2" in formatted
         assert "Message 1" in formatted
         assert "Message 2" in formatted

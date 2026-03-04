@@ -10,7 +10,7 @@ tools:
 - Glob
 - Grep
 - Bash
-skills: imbue:review-core, imbue:evidence-logging, imbue:structured-output, imbue:diff-analysis
+skills: imbue:review-core, imbue:proof-of-work, imbue:structured-output, imbue:diff-analysis
 ---
 
 # Review Analyst Agent
@@ -67,7 +67,7 @@ The agent produces:
 
 Uses imbue skills:
 - `review-core` - Workflow scaffolding
-- `evidence-logging` - Citation management
+- `proof-of-work` - Citation management
 - `structured-output` - Report formatting
 - `diff-analysis` - Change categorization
 

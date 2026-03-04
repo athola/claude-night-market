@@ -1,6 +1,6 @@
 # Makefile Testing Examples
 
-Comprehensive test examples for Makefile validation. For testing strategies and quick reference, see the [testing module](../../../plugins/abstract/skills/makefile-dogfooder/modules/testing.md).
+Comprehensive test examples for Makefile validation. For testing strategies and quick reference, see the [dogfood checks module](../../../plugins/pensive/skills/makefile-review/modules/plugin-dogfood-checks.md).
 
 ## Complete Test Suite Template
 

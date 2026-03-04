@@ -32,7 +32,7 @@ Initializes a structured review workflow using imbue's core methodology: context
 
 This command orchestrates multiple imbue skills:
 - `review-core` - Core workflow scaffolding
-- `evidence-logging` - Reproducible evidence capture
+- `proof-of-work` - Reproducible evidence capture
 - `structured-output` - Consistent deliverable formatting
 - `diff-analysis` - Change categorization (if diffs involved)
 

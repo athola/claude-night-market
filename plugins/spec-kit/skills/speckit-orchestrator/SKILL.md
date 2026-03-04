@@ -14,7 +14,7 @@ tags:
 - specification
 dependencies:
 - sanctum:git-workspace-review
-- imbue:evidence-logging
+- imbue:proof-of-work
 - superpowers:brainstorming
 - superpowers:writing-plans
 - superpowers:executing-plans

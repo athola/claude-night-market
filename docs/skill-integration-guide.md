@@ -12,7 +12,7 @@ Security reviews follow a similar sequence: `security-scanning` identifies poten
 
 Knowledge-focused skills capture and structure project information. In a learning or onboarding workflow, `memory-palace-architect` defines a spatial structure for core concepts, while `knowledge-intake` processes raw materials. `digital-garden-cultivator` then stores these concepts for long-term reference, and `session-palace-builder` generates recall exercises.
 
-Research workflows use `knowledge-locator` to identify sources, `evidence-logging` for maintaining citations, and `structured-output` to format data. The `imbue-review` skill then synthesizes these components into a report.
+Research workflows use `knowledge-locator` to identify sources, `proof-of-work` for maintaining citations, and `structured-output` to format data. The `imbue-review` skill then synthesizes these components into a report.
 
 ## Performance and Resource Optimization
 

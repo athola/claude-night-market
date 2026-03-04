@@ -26,7 +26,7 @@ estimated_tokens: 300
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 - imbue:diff-analysis/modules/risk-assessment-framework
 modules:
 - modules/adr-audit.md

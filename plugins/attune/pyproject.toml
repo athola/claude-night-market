@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.5.3"
+version = "1.5.4"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -115,7 +115,7 @@ namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^__pycache__']
 
 [[tool.mypy.overrides]]
-module = ["yaml"]
+module = ["yaml", "abstract", "abstract.*"]
 ignore_missing_imports = true
 
 [tool.bandit]

@@ -118,7 +118,7 @@ description: "Use when: starting projects"
 ### Neutral
 
 - ℹ️ **Custom Metadata**: Fields like `category`, `tags`, `complexity` documented as non-functional for matching
-- ℹ️ **Token Budgets**: Require monitoring with conserve tools (`/conserve:estimate-tokens`)
+- ℹ️ **Token Budgets**: Require monitoring with conserve tools (`/conserve:context-report`)
 - ℹ️ **Template Evolution**: Phase 1 pilot refined templates based on learnings
 
 ## Validation
@@ -199,7 +199,7 @@ tags: [brainstorming, ideation, planning]
 2. **Automated Validation**: Create pre-commit hook validating new skills against template
 3. **Discovery Metrics**: Track which prompts trigger which components to refine keywords
 4. **Pattern Evolution**: Monitor effectiveness and evolve formula based on usage data
-5. **Token Budget Monitoring**: Periodic review with `/conserve:estimate-tokens` as ecosystem grows
+5. **Token Budget Monitoring**: Periodic review with `/conserve:context-report` as ecosystem grows
 
 ---
 

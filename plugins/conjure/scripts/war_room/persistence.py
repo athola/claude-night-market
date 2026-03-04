@@ -6,11 +6,13 @@ Save, load, archive, and list War Room sessions.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.war_room.audit_trail import AuditTrailManager
 from scripts.war_room.models import DeliberationNode, MerkleDAG, WarRoomSession
 
 
@@ -51,7 +53,8 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
     # Save COAs (battle plans)
     coas = session.artifacts.get("coa", {}).get("raw_coas", {})
     for expert, coa_content in coas.items():
-        (plans_dir / f"coa-{expert}.md").write_text(
+        safe_expert = re.sub(r"[^\w\-]", "_", expert)
+        (plans_dir / f"coa-{safe_expert}.md").write_text(
             f"# Course of Action: {expert}\n\n{coa_content}"
         )
 
@@ -92,6 +95,11 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
 
     with open(session_dir / "session.json", "w") as f:
         json.dump(session_data, f, indent=2)
+
+    # Generate and save the audit report alongside the session file
+    audit_manager = AuditTrailManager(strategeion_dir=strategeion)
+    report = audit_manager.generate_audit_report(session_data)
+    audit_manager.save_audit_report(report)
 
 
 def load_session(strategeion: Path, session_id: str) -> WarRoomSession | None:

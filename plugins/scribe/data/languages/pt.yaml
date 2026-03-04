@@ -1,0 +1,61 @@
+language: pt
+name: Portuguese
+
+tier1:
+  power_words:
+    - aprofundar      # delve
+    - embarcar        # embark
+    - desencadear     # unleash
+    - revolucionar    # revolutionize
+    - alavancar       # leverage
+    - fomentar        # foster
+    - potencializar   # amplify
+    - catalisar       # catalyze
+  sophistication_signals:
+    - abrangente      # comprehensive
+    - robusto         # robust
+    - multifacetado   # multifaceted
+    - holístico       # holistic
+    - meticuloso      # meticulous
+    - primordial      # paramount
+  metaphor_abuse:
+    - tapeçaria       # tapestry
+    - farol           # beacon
+    - mosaico         # mosaic
+    - alicerce        # cornerstone
+    - pedra angular   # bedrock
+    - odisseia        # odyssey
+
+tier2:
+  transition_overuse:
+    - ademais         # moreover
+    - consequentemente # consequently
+    - adicionalmente  # additionally
+    - nomeadamente    # notably
+    - subsequentemente # subsequently
+  hedging:
+    - potencialmente  # potentially
+    - tipicamente     # typically
+    - geralmente      # generally
+    - presumivelmente # presumably
+    - aparentemente   # seemingly
+  business_jargon:
+    - sinergia        # synergy
+    - otimizar        # optimize
+    - escalabilidade  # scalability
+    - ecossistema     # ecosystem
+    - paradigma       # paradigm
+
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "no mundo acelerado de hoje"
+      - "num cenário em constante evolução"
+      - "na era digital"
+  filler:
+    score: 2
+    patterns:
+      - "é importante notar que"
+      - "vale a pena mencionar"
+      - "não se pode subestimar"

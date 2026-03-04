@@ -99,22 +99,24 @@ def get_claude_code_version() -> str | None:
     return None
 
 
+_MIN_MAJOR = 2
+_MIN_MINOR = 1
+_MIN_PATCH = 16
+
+
 def is_tasks_available() -> bool:
     """Check if Claude Code Tasks system is available (2.1.16+)."""
     version = get_claude_code_version()
     if version is None:
         return False
 
-    _min_major = 2
-    _min_minor = 1
-    _min_patch = 16
     try:
         parts = [int(p) for p in version.split(".")]
-        if parts[0] > _min_major:
+        if parts[0] > _MIN_MAJOR:
             return True
-        if parts[0] == _min_major and parts[1] > _min_minor:
+        if parts[0] == _MIN_MAJOR and parts[1] > _MIN_MINOR:
             return True
-        if parts[0] == _min_major and parts[1] == _min_minor and parts[2] >= _min_patch:
+        if parts[0] == _MIN_MAJOR and parts[1] == _MIN_MINOR and parts[2] >= _MIN_PATCH:
             return True
     except (ValueError, IndexError):
         pass
@@ -399,10 +401,14 @@ class TasksManager:
         """
         self.fallback_state_file.parent.mkdir(parents=True, exist_ok=True)
 
+        empty_state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
         if self.fallback_state_file.exists():
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                state = empty_state
         else:
-            state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
+            state = empty_state
 
         task_id = f"{self.config.task_prefix}-{len(state['tasks']) + 1:03d}"
 
@@ -438,7 +444,10 @@ class TasksManager:
             if not self.fallback_state_file.exists():
                 return TaskState()
 
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return TaskState()
             tasks_dict: dict[str, dict[str, Any]] = state.get("tasks", {})
             completed = [
                 tid for tid, t in tasks_dict.items() if t.get("status") == "complete"
@@ -466,7 +475,10 @@ class TasksManager:
         else:
             if not self.fallback_state_file.exists():
                 return ResumeState()
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return ResumeState()
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -522,7 +534,10 @@ class TasksManager:
         else:
             if not self.fallback_state_file.exists():
                 return True
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return True
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -561,7 +576,10 @@ class TasksManager:
             if not self.fallback_state_file.exists():
                 return False
 
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return False
             if task_id not in state.get("tasks", {}):
                 return False
 

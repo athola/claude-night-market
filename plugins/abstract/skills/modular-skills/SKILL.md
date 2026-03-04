@@ -26,6 +26,14 @@ usage_patterns:
 - refactoring-workflows
 complexity: intermediate
 estimated_tokens: 1200
+modules:
+- modules/antipatterns-and-migration.md
+- modules/core-workflow.md
+- modules/design-philosophy.md
+- modules/enforcement-patterns.md
+- modules/implementation-patterns.md
+- modules/optimization-techniques.md
+- modules/troubleshooting.md
 ---
 ## Table of Contents
 

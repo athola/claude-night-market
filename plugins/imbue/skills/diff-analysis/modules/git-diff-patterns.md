@@ -53,5 +53,5 @@ Then proceed with imbue-specific semantic analysis and risk assessment.
 
 1. **Sanctum First**: Use `sanctum:git-workspace-review` to gather raw git data
 2. **Imbue Second**: Apply semantic categorization and risk assessment to findings
-3. **Evidence**: Use `imbue:evidence-logging` to capture analysis artifacts
+3. **Evidence**: Use `imbue:proof-of-work` to capture analysis artifacts
 4. **Output**: Format with `imbue:structured-output` for downstream consumption

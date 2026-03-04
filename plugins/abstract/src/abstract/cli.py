@@ -5,6 +5,8 @@ Provides subcommands for compliance checking, auditing, improvement suggestions,
 and token usage tracking through a single entry point.
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path

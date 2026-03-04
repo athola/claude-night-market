@@ -193,7 +193,7 @@ flowchart TB
     subgraph Leyline["Leyline (Shared Patterns)"]
         AP[authentication-patterns]
         EP[error-patterns]
-        MP[mecw-patterns]
+        MP[context-optimization]
         PL[progressive-loading]
         QM[quota-management]
     end

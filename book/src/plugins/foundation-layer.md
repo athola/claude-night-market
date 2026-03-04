@@ -66,7 +66,7 @@ Skill(sanctum:commit-messages)
 ### Review Flow
 ```bash
 Skill(imbue:review-core)
-Skill(imbue:evidence-logging)
+Skill(imbue:proof-of-work)
 Skill(imbue:structured-output)
 ```
 

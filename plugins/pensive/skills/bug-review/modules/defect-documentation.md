@@ -3,7 +3,7 @@ parent_skill: pensive:bug-review
 category: analysis
 estimated_tokens: 400
 progressive_loading: true
-dependencies: [imbue:evidence-logging]
+dependencies: [imbue:proof-of-work]
 ---
 
 # Defect Documentation

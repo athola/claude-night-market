@@ -11,12 +11,12 @@
     "performance-evaluation"
   ],
   "tools": [
-    "skills/skills-eval/scripts/skills_auditor.py",
-    "skills/skills-eval/scripts/improvement_suggester.py",
-    "skills/skills-eval/scripts/compliance_checker.py",
-    "skills/skills-eval/scripts/tool_performance_analyzer.py",
-    "scripts/skill_analyzer.py",
-    "scripts/token_estimator.py"
+    "plugins/abstract/scripts/skills_auditor.py",
+    "plugins/abstract/scripts/improvement_suggester.py",
+    "plugins/abstract/scripts/compliance_checker.py",
+    "plugins/abstract/scripts/tool_performance_analyzer.py",
+    "plugins/abstract/scripts/skill_analyzer.py",
+    "plugins/abstract/scripts/token_estimator.py"
   ],
   "triggers": [
     "skill-quality-review",

@@ -13,8 +13,7 @@ tags:
 - proof
 - definition-of-done
 - acceptance-criteria
-dependencies:
-- imbue:evidence-logging
+dependencies: []
 tools: []
 usage_patterns:
 - completion-validation
@@ -29,6 +28,7 @@ modules:
 - modules/iron-law-enforcement.md
 - modules/anti-cargo-cult.md
 - modules/evidence-logging.md
+- modules/todowrite-patterns.md
 ---
 # Proof of Work
 
@@ -103,7 +103,7 @@ Research known bugs and limitations related to the approach. Check GitHub issues
 
 ### Step 4: Capture Evidence (`proof:evidence-captured`)
 
-Use `imbue:evidence-logging` to document the commands executed, their output, timestamps, and the conclusions drawn from each step.
+Use `imbue:proof-of-work` to document the commands executed, their output, timestamps, and the conclusions drawn from each step.
 
 ### Step 5: Prove Completion (`proof:completion-proven`)
 

@@ -88,11 +88,11 @@ def sample_plugin_json():
                 "file": "skills/review-core/SKILL.md",
             },
             {
-                "name": "evidence-logging",
+                "name": "proof-of-work",
                 "description": (
-                    "Workflow for capturing reproducible evidence and audit trails"
+                    "Enforces prove-before-claim discipline with evidence logging"
                 ),
-                "file": "skills/evidence-logging/SKILL.md",
+                "file": "skills/proof-of-work/SKILL.md",
             },
             {
                 "name": "diff-analysis",
@@ -112,7 +112,7 @@ def sample_plugin_json():
                 "name": "structured-output",
                 "description": "Guide for formatting review deliverables consistently",
                 "file": "skills/structured-output/SKILL.md",
-                "dependencies": ["imbue:evidence-logging"],
+                "dependencies": ["imbue:proof-of-work"],
             },
         ],
         "commands": [

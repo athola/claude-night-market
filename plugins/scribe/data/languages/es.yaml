@@ -8,6 +8,10 @@ tier1:
     - catalizar
     - fomentar
     - aprovechar
+    - desencadenar
+    - transformar
+    - amplificar
+    - galvanizar
   sophistication_signals:
     - integral
     - holístico
@@ -39,6 +43,9 @@ tier2:
     - optimizar
     - escalable
     - ecosistema
+    - paradigma
+    - escalabilidad
+    - disrupción
 phrases:
   vapid_openers:
     score: 4
@@ -52,3 +59,8 @@ phrases:
       - "vale la pena señalar que"
       - "en esencia"
       - "desde una perspectiva más amplia"
+  empty_emphasis:
+    score: 3
+    patterns:
+      - "no puede subestimarse"
+      - "huelga decir que"

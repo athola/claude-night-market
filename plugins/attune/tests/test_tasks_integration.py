@@ -11,6 +11,8 @@ import pytest
 
 # Import from implementation module
 from tasks_manager import (
+    ATTUNE_CONFIG,
+    CROSS_CUTTING_KEYWORDS,
     AmbiguityResult,
     AmbiguityType,
     TasksManager,
@@ -28,8 +30,11 @@ class TestTasksAvailabilityDetection:
         # Arrange
         mock_version = "2.1.17"
 
-        # Act
-        with patch("tasks_manager.get_claude_code_version", return_value=mock_version):
+        # Act - patch where get_claude_code_version is defined (abstract base)
+        with patch(
+            "abstract.tasks_manager_base.get_claude_code_version",
+            return_value=mock_version,
+        ):
             result = is_tasks_available()
 
         # Assert
@@ -41,8 +46,11 @@ class TestTasksAvailabilityDetection:
         # Arrange
         mock_version = "2.1.15"
 
-        # Act
-        with patch("tasks_manager.get_claude_code_version", return_value=mock_version):
+        # Act - patch where get_claude_code_version is defined (abstract base)
+        with patch(
+            "abstract.tasks_manager_base.get_claude_code_version",
+            return_value=mock_version,
+        ):
             result = is_tasks_available()
 
         # Assert
@@ -53,8 +61,10 @@ class TestTasksAvailabilityDetection:
         """Given not running in Claude Code, when checking availability, then Tasks is not available."""
         # Arrange - version returns None when not in Claude Code
 
-        # Act
-        with patch("tasks_manager.get_claude_code_version", return_value=None):
+        # Act - patch where get_claude_code_version is defined (abstract base)
+        with patch(
+            "abstract.tasks_manager_base.get_claude_code_version", return_value=None
+        ):
             result = is_tasks_available()
 
         # Assert
@@ -70,6 +80,7 @@ class TestLazyTaskCreation:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=tmp_path / ".attune" / "execution-state.json",
+            config=ATTUNE_CONFIG,
             use_tasks=True,  # Enable Tasks mode for testing
         )
         # Mock the Claude Code task tools
@@ -155,8 +166,13 @@ class TestAmbiguityDetection:
         task_description = "Add logging throughout the codebase"
         context = {}
 
-        # Act
-        result = detect_ambiguity(task_description, context)
+        # Act - pass attune's cross-cutting keywords (base detect_ambiguity
+        # defaults to empty keywords; plugin-specific keywords must be provided)
+        result = detect_ambiguity(
+            task_description,
+            context,
+            cross_cutting_keywords=CROSS_CUTTING_KEYWORDS,
+        )
 
         # Assert
         assert result.is_ambiguous is True
@@ -219,6 +235,7 @@ class TestUserPromptOnAmbiguity:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=tmp_path / ".attune" / "execution-state.json",
+            config=ATTUNE_CONFIG,
             use_tasks=True,  # Enable Tasks mode for testing
         )
         manager._task_create = MagicMock(
@@ -240,7 +257,7 @@ class TestUserPromptOnAmbiguity:
         tasks_manager_with_prompt._task_list.return_value = []
 
         # Override detect_ambiguity to return ambiguous for this test
-        with patch("tasks_manager.detect_ambiguity") as mock_detect:
+        with patch("abstract.tasks_manager_base.detect_ambiguity") as mock_detect:
             mock_detect.return_value = AmbiguityResult(
                 is_ambiguous=True,
                 ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,
@@ -266,7 +283,7 @@ class TestUserPromptOnAmbiguity:
         task_description = "Implement authentication feature"
 
         # Override detect_ambiguity to return ambiguous with components
-        with patch("tasks_manager.detect_ambiguity") as mock_detect:
+        with patch("abstract.tasks_manager_base.detect_ambiguity") as mock_detect:
             mock_detect.return_value = AmbiguityResult(
                 is_ambiguous=True,
                 ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,
@@ -331,6 +348,7 @@ class TestDualModeOperation:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=fallback_state_file,
+            config=ATTUNE_CONFIG,
             use_tasks=True,  # Explicitly enable Tasks mode
         )
         manager._task_create = MagicMock(return_value={"id": "task-001"})
@@ -352,6 +370,7 @@ class TestDualModeOperation:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=fallback_state_file,
+            config=ATTUNE_CONFIG,
             use_tasks=False,  # Explicitly disable Tasks mode
         )
 
@@ -388,6 +407,7 @@ class TestDualModeOperation:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=fallback_state_file,
+            config=ATTUNE_CONFIG,
             use_tasks=False,  # Explicitly disable Tasks mode
         )
 
@@ -409,6 +429,7 @@ class TestResumeDetection:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=tmp_path / ".attune" / "execution-state.json",
+            config=ATTUNE_CONFIG,
             use_tasks=True,  # Enable Tasks mode for testing
         )
         manager._task_list = MagicMock(
@@ -477,6 +498,7 @@ class TestDependencyTracking:
         manager = TasksManager(
             project_path=tmp_path,
             fallback_state_file=tmp_path / ".attune" / "execution-state.json",
+            config=ATTUNE_CONFIG,
             use_tasks=True,  # Enable Tasks mode for testing
         )
         manager._task_create = MagicMock(

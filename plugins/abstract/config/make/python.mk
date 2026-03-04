@@ -50,7 +50,7 @@ typecheck: type-check
 
 security: ## Run security checks
 	@echo "Running security checks..."
-	@$(BANDIT) -r $(BANDIT_TARGETS) || { echo "[WARN] Security check failed"; exit 1; }
+	@$(BANDIT) -c pyproject.toml -r $(BANDIT_TARGETS) || { echo "[WARN] Security check failed"; exit 1; }
 ifneq ($(strip $(SECURITY_EXTRA)),)
 	@$(SECURITY_EXTRA)
 endif

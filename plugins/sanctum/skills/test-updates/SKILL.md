@@ -28,6 +28,14 @@ usage_patterns:
 - quality-validation
 complexity: intermediate
 estimated_tokens: 1500
+modules:
+- modules/bdd-patterns.md
+- modules/content-test-discovery.md
+- modules/quality-validation.md
+- modules/tdd-workflow.md
+- modules/test-discovery.md
+- modules/test-enhancement.md
+- modules/test-generation.md
 ---
 ## Table of Contents
 

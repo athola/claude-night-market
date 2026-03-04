@@ -250,7 +250,15 @@ def is_path_safe(path: str) -> bool:
             return False
 
         # validate path doesn't escape to sensitive locations
-        sensitive_paths = ["/etc/", "/root/", "/var/log/", "/.ssh/"]
+        # Include /private/ variants for macOS where /etc -> /private/etc
+        sensitive_paths = [
+            "/etc/",
+            "/root/",
+            "/var/log/",
+            "/.ssh/",
+            "/private/etc/",
+            "/private/var/log/",
+        ]
         return all(not path_str.startswith(sensitive) for sensitive in sensitive_paths)
     except (ValueError, OSError):
         return False

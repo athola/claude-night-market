@@ -77,12 +77,12 @@ Model escalation decision framework.
 | Standard task | sonnet |
 | Complex reasoning | opus |
 
-### `abstract:performance-optimization`
-Agent SDK performance patterns.
+### `leyline:progressive-loading` (includes performance budgeting)
+Progressive module loading with performance budgets.
 
-**Invocation**: `Skill(abstract:performance-optimization)`
+**Invocation**: `Skill(leyline:progressive-loading)`
 
-Covers agent performance optimization including tool restrictions, model selection, parallelization patterns, and timeout configuration for subagent workflows.
+Covers agent performance optimization including tool restrictions, model selection, parallelization patterns, and timeout configuration. The `performance-budgeting` module (consolidated from `abstract:performance-optimization` in v1.5.0) provides subagent workflow optimization patterns.
 
 ---
 
@@ -147,19 +147,6 @@ NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
 | "Should work" | TEST IT |
 | "Syntax valid" | FUNCTIONAL TEST |
 
-### `imbue:evidence-logging`
-Structured evidence capture methodology.
-
-**Invocation**: `Skill(imbue:evidence-logging)`
-
-**Evidence Format**:
-```markdown
-[E1] Command: <command executed>
-     Output: <actual output>
-     Timestamp: <ISO timestamp>
-     Conclusion: <what this proves>
-```
-
 ### `imbue:catchup`
 Context recovery after session restart.
 
@@ -195,12 +182,12 @@ Detection algorithms for dead code and duplication.
 
 Detects dead code (0 references), stale files (6+ months unchanged), God classes (500+ lines), and documentation duplication (85%+ similar content). The `/bloat-scan` command uses this skill under the hood.
 
-### `conserve:optimizing-large-skills`
-Patterns for optimizing oversized skills.
+### `abstract:modular-skills` (includes optimization techniques)
+Modular skill architecture patterns.
 
-**Invocation**: `Skill(conserve:optimizing-large-skills)`
+**Invocation**: `Skill(abstract:modular-skills)`
 
-Covers four strategies: extracting content to modules, removing redundancy, using progressive loading to defer rarely-needed sections, and moving verbose documentation to separate files loaded on demand.
+Covers four strategies: extracting content to modules, removing redundancy, using progressive loading to defer rarely-needed sections, and moving verbose documentation to separate files loaded on demand. The `optimization-techniques` module (consolidated from `conserve:optimizing-large-skills` in v1.5.0) provides skill size reduction patterns.
 
 ### `conserve:code-quality-principles`
 Core principles for AI-assisted code quality.

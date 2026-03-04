@@ -33,7 +33,7 @@ Full flag and option documentation for commands, skills, agents, and hooks, with
 | [parseltongue](capabilities-commands-extended.md#parseltongue-plugin) | analyze-tests, run-profiler | python-async, python-packaging | python-pro, python-tester |
 | [pensive](capabilities-commands-extended.md#pensive-plugin) | full-review, code-review, architecture-review | bug-review, api-review | code-reviewer, architecture-reviewer |
 | [sanctum](capabilities-commands.md#sanctum-plugin) | prepare-pr, commit-msg, do-issue | pr-prep, commit-messages | commit-agent, pr-agent |
-| [scribe](capabilities-commands-extended.md#scribe-plugin) | slop-scan, doc-polish, doc-verify | slop-detector, doc-generator | doc-editor, slop-hunter |
+| [scribe](capabilities-commands-extended.md#scribe-plugin) | doc-polish, doc-generate, style-learn | slop-detector, doc-generator | doc-editor, slop-hunter, doc-verifier |
 | [spec-kit](capabilities-commands-extended.md#spec-kit-plugin) | speckit-startup, speckit-implement | speckit-orchestrator | spec-analyzer |
 
 ### By Task
@@ -46,7 +46,7 @@ Full flag and option documentation for commands, skills, agents, and hooks, with
 | Context optimization | [/conserve:bloat-scan](capabilities-commands.md#conservebloat-scan) |
 | Feature development | [Workflow: Complete Feature](capabilities-workflows.md#complete-feature-development) |
 | Bug fix | [Workflow: Quick Bug Fix](capabilities-workflows.md#quick-bug-fix) |
-| Documentation cleanup | [/scribe:slop-scan](capabilities-commands-extended.md#slop-scan) |
+| Documentation cleanup | [/scribe:doc-polish](capabilities-commands-extended.md#doc-polish) |
 | Knowledge management | [/memory-palace:garden](capabilities-commands-extended.md#memory-palacegarden) |
 
 ---

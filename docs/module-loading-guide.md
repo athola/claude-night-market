@@ -37,7 +37,7 @@ Skills list their dependencies in the frontmatter.
 # SKILL.md
 dependencies:
   - pensive:shared              # Use pensive shared utilities
-  - imbue:evidence-logging      # Use imbue evidence logging
+  - imbue:proof-of-work          # Use imbue evidence logging
 ```
 
 ### 2. Module Dependencies
@@ -48,7 +48,7 @@ Modules can be more specific.
 # modules/specific-module.md
 dependencies:
   - parent-skill:shared          # Use parent skill's shared modules
-  - imbue:evidence-logging       # Cross-plugin dependency
+  - imbue:proof-of-work       # Cross-plugin dependency
   - plugin:other-skill           # Plugin-to-plugin dependency
 ```
 
@@ -138,7 +138,7 @@ Load modules only when the user's task requires them. Use priorities to keep the
 # pensive/review-skills/SKILL.md
 dependencies:
   - pensive:shared
-  - imbue:evidence-logging
+  - imbue:proof-of-work
 
 progressive_loading: true
 modules:
@@ -152,7 +152,7 @@ modules:
 ```yaml
 # plugin/analysis-skills/SKILL.md
 dependencies:
-  - imbue:evidence-logging
+  - imbue:proof-of-work
   - plugin:shared-utilities
 
 progressive_loading: true
@@ -167,7 +167,7 @@ modules:
 # Plugin A skill using Plugin B utilities
 dependencies:
   - plugin-b:shared-utilities
-  - imbue:evidence-logging
+  - imbue:proof-of-work
 ```
 
 ## Testing Integration

@@ -21,7 +21,7 @@ complexity: medium
 estimated_tokens: 800
 dependencies:
 - sanctum:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 ---
 
 # File Analysis

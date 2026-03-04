@@ -8,6 +8,10 @@ tier1:
     - vorantreiben
     - fördern
     - katalysieren
+    - entfesseln
+    - transformieren
+    - wegweisend
+    - bahnbrechend
   sophistication_signals:
     - umfassend
     - ganzheitlich
@@ -40,6 +44,9 @@ tier2:
     - skalierbar
     - Stakeholder
     - Mehrwert
+    - Disruption
+    - Ökosystem
+    - Paradigma
 phrases:
   vapid_openers:
     score: 4
@@ -53,3 +60,8 @@ phrases:
       - "es ist erwähnenswert, dass"
       - "im Kern"
       - "aus einer breiteren Perspektive"
+  empty_emphasis:
+    score: 3
+    patterns:
+      - "kann nicht genug betont werden"
+      - "es versteht sich von selbst"

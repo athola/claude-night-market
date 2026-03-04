@@ -148,7 +148,7 @@ thresholds:
 
 ### Evaluation Workflow
 
-```
+```text
 **Verification:** Run the command with `--help` flag to verify availability.
 1. Review artifact against each criterion
 2. Assign 0-100 score for each criterion

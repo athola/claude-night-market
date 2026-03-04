@@ -9,7 +9,7 @@ description: |
 tools: Read, Bash, Glob, Grep, Task
 model: sonnet
 permissionMode: default
-skills: imbue:evidence-logging, imbue:structured-output, pensive:bug-review
+skills: imbue:proof-of-work, imbue:structured-output, pensive:bug-review
 ---
 
 # Code Review Mode

@@ -15,7 +15,7 @@ description: |
   analysis, full PR reviews, or architecture/API consistency reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
-skills: imbue:evidence-logging, pensive:bug-review
+skills: imbue:proof-of-work, pensive:bug-review
 
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:

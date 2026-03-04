@@ -36,7 +36,6 @@ from web_research_handler import (
     slugify,
 )
 
-
 # -- Helpers ------------------------------------------------------------------
 
 
@@ -192,8 +191,7 @@ class TestExtractResultsFromWebsearch:
         """Given more than 10 results, only extract first 10."""
         response = {
             "results": [
-                {"url": f"https://example.com/{i}", "title": f"R{i}"}
-                for i in range(15)
+                {"url": f"https://example.com/{i}", "title": f"R{i}"} for i in range(15)
             ],
         }
         results = extract_results_from_websearch(response)
@@ -261,9 +259,7 @@ class TestRecentIntakePending:
         queue_file = tmp_path / "data" / "intake_queue.jsonl"
         queue_file.parent.mkdir(parents=True)
         queue_file.write_text(
-            "not valid json\n"
-            + json.dumps({"query": "target query"})
-            + "\n",
+            "not valid json\n" + json.dumps({"query": "target query"}) + "\n",
             encoding="utf-8",
         )
 

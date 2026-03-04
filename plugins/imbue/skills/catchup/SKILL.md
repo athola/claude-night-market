@@ -12,7 +12,7 @@ tags:
 - insights
 - follow-ups
 dependencies:
-- imbue:evidence-logging
+- imbue:proof-of-work
 tools:
 - git
 - log-tools
@@ -70,7 +70,7 @@ Load modules based on context:
 
 **Logs/Events**: Load `modules/log-analysis-patterns.md` for time-series and metric analysis.
 
-**Always Available**: `imbue:evidence-logging`, TodoWrite workflow, structured output.
+**Always Available**: `imbue:proof-of-work`, TodoWrite workflow, structured output.
 
 ## Required TodoWrite Items
 1. `catchup:context-confirmed` - Boundaries established
@@ -109,7 +109,7 @@ Capture: Tests, Documentation, Reviews, Blockers, Questions. If none, state expl
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration
-Use `imbue:diff-analysis` for risk assessment, `imbue:evidence-logging` for reproducibility, `sanctum:git-workspace-review` for git data. Feed to `brainstorming` or `writing-plans` as needed.
+Use `imbue:diff-analysis` for risk assessment, `imbue:proof-of-work` for reproducibility, `sanctum:git-workspace-review` for git data. Feed to `brainstorming` or `writing-plans` as needed.
 
 ## Token Conservation
 Reference paths + lines (don't reproduce). Summarize outputs. Defer deep analysis. Use progressive loading.

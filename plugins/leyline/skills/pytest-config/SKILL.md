@@ -22,6 +22,7 @@ modules:
 - modules/git-testing-fixtures.md
 - modules/mock-fixtures.md
 - modules/ci-integration.md
+- modules/README.md
 ---
 ## Table of Contents
 

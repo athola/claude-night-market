@@ -8,6 +8,12 @@ description: 'Use this skill BEFORE starting complex tasks. Check context levels
 category: conservation
 token_budget: 150
 progressive_loading: true
+modules:
+- modules/context-waiting.md
+- modules/mecw-assessment.md
+- modules/mecw-principles.md
+- modules/mecw-theory.md
+- modules/subagent-coordination.md
 hooks:
   PreToolUse:
   - matcher: Read

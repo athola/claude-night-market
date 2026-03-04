@@ -6,19 +6,12 @@ to the original per-plugin tasks_manager.py files.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from unittest.mock import MagicMock
-
 import pytest
 
 from abstract.tasks_manager_base import (
-    AmbiguityResult,
     AmbiguityType,
-    ResumeState,
     TasksManager,
     TasksManagerConfig,
-    TaskState,
     detect_ambiguity,
 )
 

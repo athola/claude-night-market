@@ -109,7 +109,7 @@ These tasks are deterministic, rule-based, and don't require reasoning:
 ### Imbue Plugin
 | Component | Type | Rationale |
 |-----------|------|-----------|
-| `evidence-logging` | skill | Log formatting |
+| `proof-of-work` | skill | Evidence validation |
 | `structured-output` | skill | Output formatting |
 
 ## Tier 2: Sonnet Candidates (Moderate Complexity)

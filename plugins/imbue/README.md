@@ -27,14 +27,14 @@ The `proof-of-work` skill requires functional verification before a claim of com
 ## Feature Planning and Monitoring
 
 ### Feature Review
-`feature-review` uses a hybrid RICE+WSJF scoring framework to prioritize features based on quality dimensions and tradeoffs. This process involves cataloging features and identifying improvement gaps to guide development decisions.
+`feature-review` uses a hybrid [RICE](https://www.productplan.com/glossary/rice-scoring-model/)+[WSJF](https://scaledagileframework.com/wsjf/) scoring framework to prioritize features based on quality dimensions and tradeoffs. This process involves cataloging features and identifying improvement gaps to guide development decisions.
 
 ### Monitoring
 `workflow-monitor` tracks execution for inefficiencies or errors. When a failure or timeout occurs, it automatically captures relevant logs and context to create GitHub issues for remediation.
 
 ## Output and Documentation
 
-Analysis results are structured through `evidence-logging` and `structured-output`. We record all commands, citations, and artifacts to provide a traceable record of the work. Final reports use established templates to define findings and action items.
+Analysis results are structured through `proof-of-work` and `structured-output`. We record all commands, citations, and artifacts to provide a traceable record of the work. Final reports use established templates to define findings and action items.
 
 ## Plugin Structure
 
@@ -54,7 +54,6 @@ imbue/
 │   └── feature-review.md    # Feature prioritization command
 └── skills/
     ├── review-core/        # Review workflow scaffolding
-    ├── evidence-logging/   # Evidence capture methodology
     ├── structured-output/  # Output formatting patterns
     ├── diff-analysis/      # Change analysis methodology
     ├── catchup/            # Summarization methodology
@@ -67,7 +66,7 @@ imbue/
 
 ## Usage
 
-Use `Skill(imbue:review-core)` for review scaffolding and `Skill(imbue:diff-analysis)` or `Skill(imbue:catchup)` for analysis methodologies. `Skill(imbue:scope-guard)` and `Skill(imbue:rigorous-reasoning)` provide workflow guardrails. Feature planning uses `Skill(imbue:feature-review)`, while `Skill(imbue:proof-of-work)` handles verification. `Skill(imbue:workflow-monitor)` tracks execution, and output patterns are managed via `Skill(imbue:evidence-logging)` and `Skill(imbue:structured-output)`.
+Use `Skill(imbue:review-core)` for review scaffolding and `Skill(imbue:diff-analysis)` or `Skill(imbue:catchup)` for analysis methodologies. `Skill(imbue:scope-guard)` and `Skill(imbue:rigorous-reasoning)` provide workflow guardrails. Feature planning uses `Skill(imbue:feature-review)`, while `Skill(imbue:proof-of-work)` handles verification. `Skill(imbue:workflow-monitor)` tracks execution, and output patterns are managed via `Skill(imbue:proof-of-work)` and `Skill(imbue:structured-output)`.
 
 Commands include `/feature-review` for full inventory, scoring, and suggestions. Append `--inventory` to only discover features, or `--suggest` to include new feature suggestions. Use `--create-issues` to automate GitHub issue creation for suggestions.
 
@@ -77,7 +76,7 @@ Session forking allows parallel evidence analysis from multiple perspectives wit
 
 ### Use Cases
 
-For **Multi-Perspective Code Analysis**, fork sessions to isolate security, performance, or maintainability audits. This allows for focused analysis before consolidating findings. **Parallel Feature Evaluation** uses separate forks for RICE and WSJF scoring to inform prioritization decisions. **Alternative Evidence Collection** strategies can compare bottom-up and top-down review approaches in parallel.
+For **Multi-Perspective Code Analysis**, fork sessions to isolate security, performance, or maintainability audits. This allows for focused analysis before consolidating findings. **Parallel Feature Evaluation** uses separate forks for [RICE](https://www.productplan.com/glossary/rice-scoring-model/) and [WSJF](https://scaledagileframework.com/wsjf/) scoring to inform prioritization decisions. **Alternative Evidence Collection** strategies can compare bottom-up and top-down review approaches in parallel.
 
 ### Standards
 

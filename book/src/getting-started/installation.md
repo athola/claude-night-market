@@ -119,6 +119,20 @@ For detailed workflow coverage:
 /plugin install spec-kit@claude-night-market
 ```
 
+## Post-Installation Setup
+
+Several plugins register Setup hooks that run one-time initialization (directory creation, index building, configuration). Trigger them after installing:
+
+```bash
+# One-time initialization
+claude --init
+
+# Periodic maintenance (weekly or monthly)
+claude --maintenance
+```
+
+`--init` runs setup tasks like creating knowledge garden directories (memory-palace) and initializing caches (conserve). `--maintenance` handles heavier operations like rebuilding indexes, cleaning stale captures, and rotating logs. Neither runs automatically on every session.
+
 ## Troubleshooting
 
 ### Plugin not loading?

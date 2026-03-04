@@ -18,6 +18,8 @@ complexity: low
 estimated_tokens: 500
 dependencies:
 - sanctum:shared
+modules:
+- modules/git-commands.md
 hooks:
   PreToolUse:
   - matcher: Bash

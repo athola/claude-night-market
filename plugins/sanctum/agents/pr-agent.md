@@ -19,7 +19,7 @@ tools:
 - Glob
 - Grep
 model: sonnet
-skills: sanctum:pr-prep, imbue:evidence-logging
+skills: sanctum:pr-prep, imbue:proof-of-work
 hooks:
   PreToolUse:
   - matcher: Bash

@@ -17,6 +17,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from scribe.pattern_loader import (
     detect_language,
+    get_all_language_patterns,
+    get_calibration_factor,
     get_phrase_patterns,
     get_tier1_words,
     get_tier2_words,
@@ -58,6 +60,22 @@ class TestPatternLoading:
         patterns = load_language_patterns("es")
         assert patterns["language"] == "es"
         assert "tier1" in patterns
+
+    @pytest.mark.unit
+    def test_load_portuguese_patterns(self) -> None:
+        """Portuguese patterns load with core categories."""
+        patterns = load_language_patterns("pt")
+        assert patterns["language"] == "pt"
+        assert "tier1" in patterns
+        assert "tier2" in patterns
+
+    @pytest.mark.unit
+    def test_load_italian_patterns(self) -> None:
+        """Italian patterns load with core categories."""
+        patterns = load_language_patterns("it")
+        assert patterns["language"] == "it"
+        assert "tier1" in patterns
+        assert "tier2" in patterns
 
     @pytest.mark.unit
     def test_unsupported_language_raises(self) -> None:
@@ -155,6 +173,24 @@ class TestLanguageDetection:
         assert detect_language(text) == "es"
 
     @pytest.mark.unit
+    def test_detect_portuguese(self) -> None:
+        """Detects Portuguese text correctly."""
+        text = (
+            "O sistema processa os pedidos com eficiência. Os dados são "
+            "armazenados na base de dados e não são partilhados com terceiros."
+        )
+        assert detect_language(text) == "pt"
+
+    @pytest.mark.unit
+    def test_detect_italian(self) -> None:
+        """Detects Italian text correctly."""
+        text = (
+            "Il sistema elabora le richieste in modo efficiente. I dati non "
+            "vengono condivisi con terzi e questo è fondamentale per la privacy."
+        )
+        assert detect_language(text) == "it"
+
+    @pytest.mark.unit
     def test_defaults_to_english(self) -> None:
         """Short or ambiguous text defaults to English."""
         assert detect_language("hello world") == "en"
@@ -177,6 +213,8 @@ class TestSupportedLanguages:
         assert "de" in codes
         assert "fr" in codes
         assert "es" in codes
+        assert "pt" in codes
+        assert "it" in codes
 
     @pytest.mark.unit
     def test_language_entries_have_names(self) -> None:
@@ -185,3 +223,74 @@ class TestSupportedLanguages:
         for lang in langs:
             assert "name" in lang
             assert len(lang["name"]) > 0
+
+
+class TestCalibrationFactor:
+    """Feature: Language-specific scoring calibration."""
+
+    @pytest.mark.unit
+    def test_english_calibration_is_baseline(self) -> None:
+        """English calibration factor is 1.0 (baseline)."""
+        assert get_calibration_factor("en") == 1.0
+
+    @pytest.mark.unit
+    def test_german_calibration_below_baseline(self) -> None:
+        """German calibration factor is less than 1.0."""
+        assert get_calibration_factor("de") < 1.0
+
+    @pytest.mark.unit
+    def test_french_calibration_below_baseline(self) -> None:
+        """French calibration factor is less than 1.0."""
+        assert get_calibration_factor("fr") < 1.0
+
+    @pytest.mark.unit
+    def test_portuguese_calibration_below_baseline(self) -> None:
+        """Portuguese calibration factor is less than 1.0."""
+        assert get_calibration_factor("pt") < 1.0
+
+    @pytest.mark.unit
+    def test_italian_calibration_below_baseline(self) -> None:
+        """Italian calibration factor is less than 1.0."""
+        assert get_calibration_factor("it") < 1.0
+
+    @pytest.mark.unit
+    def test_unknown_language_defaults_to_one(self) -> None:
+        """Unknown language code returns 1.0 (no adjustment)."""
+        assert get_calibration_factor("xx") == 1.0
+
+
+class TestGetAllLanguagePatterns:
+    """Feature: Batch-load patterns for multiple languages."""
+
+    @pytest.mark.unit
+    def test_loads_all_languages_by_default(self) -> None:
+        """Calling with no args loads all supported languages."""
+        all_patterns = get_all_language_patterns()
+        assert "en" in all_patterns
+        assert "de" in all_patterns
+        assert "fr" in all_patterns
+        assert "es" in all_patterns
+        assert "pt" in all_patterns
+        assert "it" in all_patterns
+
+    @pytest.mark.unit
+    def test_loads_subset_of_languages(self) -> None:
+        """Providing a list loads only the requested languages."""
+        result = get_all_language_patterns(["en", "de"])
+        assert "en" in result
+        assert "de" in result
+        assert "fr" not in result
+
+    @pytest.mark.unit
+    def test_unsupported_language_skipped(self) -> None:
+        """Unsupported language codes are silently skipped."""
+        result = get_all_language_patterns(["en", "xx"])
+        assert "en" in result
+        assert "xx" not in result
+
+    @pytest.mark.unit
+    def test_each_entry_contains_tier1(self) -> None:
+        """Every loaded language entry includes tier1 data."""
+        result = get_all_language_patterns(["en", "pt", "it"])
+        for lang, patterns in result.items():
+            assert "tier1" in patterns, f"Missing tier1 for {lang}"

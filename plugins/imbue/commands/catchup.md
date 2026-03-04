@@ -65,7 +65,7 @@ Baseline → Current → Delta → Insights → Follow-ups
 
 Works with:
 - `diff-analysis` - For semantic categorization
-- `evidence-logging` - For reproducible context
+- `proof-of-work` - For reproducible context
 - Git workspace commands for raw data
 
 ## Output Format

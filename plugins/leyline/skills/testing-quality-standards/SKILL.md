@@ -24,6 +24,10 @@ provides:
   - quality-metrics
   - anti-patterns
   - content-assertion-levels
+modules:
+- modules/anti-patterns.md
+- modules/best-practices.md
+- modules/content-assertion-levels.md
 ---
 
 # Testing Quality Standards
