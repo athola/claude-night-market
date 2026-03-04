@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.war_room.audit_trail import AuditTrailManager
 from scripts.war_room.models import DeliberationNode, MerkleDAG, WarRoomSession
 
 
@@ -92,6 +93,11 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
 
     with open(session_dir / "session.json", "w") as f:
         json.dump(session_data, f, indent=2)
+
+    # Generate and save the audit report alongside the session file
+    audit_manager = AuditTrailManager(strategeion_dir=strategeion)
+    report = audit_manager.generate_audit_report(session_data)
+    audit_manager.save_audit_report(report)
 
 
 def load_session(strategeion: Path, session_id: str) -> WarRoomSession | None:

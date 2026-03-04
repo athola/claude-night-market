@@ -8,6 +8,10 @@ tier1:
     - catalyser
     - favoriser
     - exploiter
+    - déclencher
+    - transformer
+    - amplifier
+    - galvaniser
   sophistication_signals:
     - exhaustif
     - holistique
@@ -39,6 +43,9 @@ tier2:
     - optimiser
     - partie prenante
     - écosystème
+    - paradigme
+    - scalabilité
+    - disruption
 phrases:
   vapid_openers:
     score: 4
@@ -52,3 +59,8 @@ phrases:
       - "il convient de noter que"
       - "au cœur de"
       - "dans une perspective plus large"
+  empty_emphasis:
+    score: 3
+    patterns:
+      - "ne saurait être surestimé"
+      - "cela va sans dire"

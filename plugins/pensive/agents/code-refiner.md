@@ -25,7 +25,7 @@ escalation:
     - large_codebase_analysis
 skills:
   - pensive:code-refinement
-  - imbue:evidence-logging
+  - imbue:proof-of-work
 examples:
   - context: User wants to improve code quality
     user: "Refine the code quality of this module"
@@ -154,7 +154,7 @@ def detect_plugins():
     available = {}
 
     # Check imbue (evidence logging)
-    available['imbue'] = skill_exists('imbue:evidence-logging')
+    available['imbue'] = skill_exists('imbue:proof-of-work')
 
     # Check conserve (code-quality-principles, detect_duplicates.py)
     available['conserve'] = skill_exists('conserve:code-quality-principles')

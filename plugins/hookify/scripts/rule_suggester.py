@@ -99,6 +99,180 @@ action: block
 Blocked: Security audits should not be bypassed.""",
         ),
     ],
+    "typescript": [
+        RuleSuggestion(
+            name="block-npm-audit-bypass",
+            description="Block attempts to skip npm audit",
+            relevance=0.85,
+            reason="TypeScript project detected",
+            category="security",
+            rule_template="""---
+name: block-npm-audit-bypass
+event: bash
+pattern: 'npm.*--no-audit|npm install.*--legacy-peer-deps.*--no-audit'
+action: block
+---
+Blocked: npm audit checks must not be skipped. Remove --no-audit and address reported vulnerabilities.""",
+        ),
+        RuleSuggestion(
+            name="warn-no-lockfile",
+            description="Warn when package-lock.json is missing or disabled",
+            relevance=0.75,
+            reason="TypeScript project detected",
+            category="quality",
+            rule_template="""---
+name: warn-no-lockfile
+event: bash
+conditions:
+  - field: command
+    operator: contains
+    pattern: npm install
+  - field: command
+    operator: not_contains
+    pattern: --package-lock
+action: warn
+---
+Verify that package-lock.json exists and that .npmrc does not set package-lock=false. Lockfiles ensure reproducible installs.""",
+        ),
+        RuleSuggestion(
+            name="block-any-type",
+            description="Block usage of the `any` type in TypeScript files",
+            relevance=0.7,
+            reason="TypeScript project detected",
+            category="quality",
+            rule_template="""---
+name: block-any-type
+event: file_write
+conditions:
+  - field: path
+    operator: matches
+    pattern: '\\.tsx?$'
+  - field: content
+    operator: contains
+    pattern: ': any'
+action: block
+---
+Blocked: Avoid using `any` type. Prefer explicit types, `unknown`, or a type assertion with a comment explaining why.""",
+        ),
+    ],
+    "go": [
+        RuleSuggestion(
+            name="block-go-vet-bypass",
+            description="Block bypassing go vet checks",
+            relevance=0.85,
+            reason="Go project detected",
+            category="quality",
+            rule_template="""---
+name: block-go-vet-bypass
+event: bash
+pattern: 'go build.*-gcflags.*-e|//go:build ignore'
+action: block
+---
+Blocked: go vet checks must not be bypassed. Fix reported issues before building.""",
+        ),
+        RuleSuggestion(
+            name="warn-no-mod-tidy",
+            description="Warn when go.mod may need tidying",
+            relevance=0.7,
+            reason="Go project detected",
+            category="quality",
+            rule_template="""---
+name: warn-no-mod-tidy
+event: bash
+conditions:
+  - field: command
+    operator: contains
+    pattern: go build
+  - field: command
+    operator: not_contains
+    pattern: go mod tidy
+action: warn
+---
+Consider running `go mod tidy` before building to keep go.mod and go.sum consistent with your imports.""",
+        ),
+        RuleSuggestion(
+            name="block-unsafe-import",
+            description="Block usage of the unsafe package",
+            relevance=0.8,
+            reason="Go project detected",
+            category="security",
+            rule_template="""---
+name: block-unsafe-import
+event: file_write
+conditions:
+  - field: path
+    operator: matches
+    pattern: '\\.go$'
+  - field: content
+    operator: contains
+    pattern: '"unsafe"'
+action: block
+---
+Blocked: Importing the `unsafe` package bypasses Go type safety. Justify usage with a detailed comment before adding this import.""",
+        ),
+    ],
+    "rust": [
+        RuleSuggestion(
+            name="block-clippy-bypass",
+            description="Block suppressing clippy lints without justification",
+            relevance=0.8,
+            reason="Rust project detected",
+            category="quality",
+            rule_template="""---
+name: block-clippy-bypass
+event: file_write
+conditions:
+  - field: path
+    operator: matches
+    pattern: '\\.rs$'
+  - field: content
+    operator: matches
+    pattern: '#\\[allow\\(clippy::'
+action: block
+---
+Blocked: Suppressing clippy lints requires a `// SAFETY:` or `// ALLOW:` comment on the preceding line explaining the justification.""",
+        ),
+        RuleSuggestion(
+            name="warn-no-audit",
+            description="Warn when cargo-audit is not being used",
+            relevance=0.75,
+            reason="Rust project detected",
+            category="security",
+            rule_template="""---
+name: warn-no-audit
+event: bash
+conditions:
+  - field: command
+    operator: contains
+    pattern: cargo build
+  - field: command
+    operator: not_contains
+    pattern: cargo audit
+action: warn
+---
+Consider running `cargo audit` to check for known vulnerabilities in your dependency tree.""",
+        ),
+        RuleSuggestion(
+            name="block-unsafe-without-comment",
+            description="Block unsafe blocks without an adjacent safety comment",
+            relevance=0.85,
+            reason="Rust project detected",
+            category="security",
+            rule_template="""---
+name: block-unsafe-without-comment
+event: file_write
+conditions:
+  - field: path
+    operator: matches
+    pattern: '\\.rs$'
+  - field: content
+    operator: matches
+    pattern: 'unsafe \\{'
+action: block
+---
+Blocked: Every `unsafe` block must be preceded by a `// SAFETY:` comment explaining why the invariants required by the unsafe code are upheld.""",
+        ),
+    ],
     "git": [
         RuleSuggestion(
             name="block-force-push-main",

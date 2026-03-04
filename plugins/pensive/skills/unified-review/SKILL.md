@@ -25,7 +25,7 @@ estimated_tokens: 400
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 - imbue:structured-output
 orchestrates:
 - pensive:rust-review
@@ -199,7 +199,7 @@ All review skills use a hub-and-spoke architecture with progressive loading:
 
 - **`pensive:shared`**: Common workflow, output templates, quality checklists
 - **Each skill has `modules/`**: Domain-specific details loaded on demand
-- **Cross-plugin deps**: `imbue:evidence-logging`, `imbue:diff-analysis/modules/risk-assessment-framework`
+- **Cross-plugin deps**: `imbue:proof-of-work`, `imbue:diff-analysis/modules/risk-assessment-framework`
 
 This reduces token usage by 50-70% for focused reviews while maintaining full capabilities.
 

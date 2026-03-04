@@ -25,7 +25,7 @@ estimated_tokens: 150
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 modules:
 - dependency-graph
 - deduplication-patterns
@@ -116,7 +116,7 @@ Document changed targets, project goals, and tooling requirements.
 
 ### Step 5: Evidence Log (`makefile-review:evidence-logged`)
 
-Use `imbue:evidence-logging` to record command outputs with file:line references.
+Use `imbue:proof-of-work` to record command outputs with file:line references.
 
 Summarize findings:
 - Severity (critical, major, minor)

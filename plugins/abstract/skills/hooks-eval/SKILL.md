@@ -30,6 +30,9 @@ provides:
   - hook-callbacks
   - hook-matchers
 estimated_tokens: 1200
+modules:
+- modules/evaluation-criteria.md
+- modules/sdk-hook-types.md
 ---
 ## Table of Contents
 

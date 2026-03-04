@@ -26,15 +26,17 @@ complexity: intermediate
 estimated_tokens: 500
 progressive_loading: true
 modules:
-- knowledge-capture.md
-- version-validation.md
+- modules/comment-guidelines.md
+- modules/github-comments.md
+- modules/knowledge-capture.md
+- modules/version-validation.md
 dependencies:
 - leyline:git-platform
 - sanctum:shared
 - sanctum:git-workspace-review
 - sanctum:version-updates
 - pensive:unified-review
-- imbue:evidence-logging
+- imbue:proof-of-work
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
@@ -242,7 +244,7 @@ Use `pensive:unified-review` on the changed files. For comment quality assessmen
 
 **Critical:** Evaluate each finding against the scope baseline:
 
-```
+```text
 **Verification:** Run the command with `--help` flag to verify availability.
 Finding: "Function X lacks input validation"
 Scope check: Is input validation mentioned in requirements?

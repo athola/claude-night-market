@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-03-03
+
+### Added
+
+- Session lifecycle hooks for memory-palace (session history tracking)
+- Audit trail module for conjure war room persistence
+- Italian (it) and Portuguese (pt) language patterns for scribe slop detection
+- New test suites: CLI framework, skill tools, utils extended, wrapper base (abstract)
+
+### Changed
+
+- Improved tasks manager base with updated unit tests (abstract)
+- Enhanced rule suggester with updated tests (hookify)
+- Refined review analyst agent and proof enforcement hook (imbue)
+- Updated code reviewer, architecture reviewer, and code refiner agents (pensive)
+- Improved PR agent and meta evaluation script (sanctum)
+- Enhanced pattern loader with i18n test coverage (scribe)
+- Updated speckit orchestrator skill (spec-kit)
+- Expanded book reference documentation for capabilities, agents, and skills
+
+### Fixed
+
+- Web research handler test updates (memory-palace)
+- Conftest improvements for conserve and imbue test suites
+- Memory-palace hooks.json configuration update
+
 ## [1.5.3] - 2026-03-02
 
 ### Changed

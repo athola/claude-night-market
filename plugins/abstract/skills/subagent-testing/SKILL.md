@@ -14,6 +14,8 @@ tags:
 - fresh-instances
 token_budget: 30
 progressive_loading: true
+modules:
+- modules/testing-patterns.md
 ---
 
 # Subagent Testing - TDD for Skills

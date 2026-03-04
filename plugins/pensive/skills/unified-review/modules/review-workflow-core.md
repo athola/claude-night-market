@@ -51,7 +51,7 @@ Actions:
 ### Step 4: Evidence Capture
 **TodoWrite Item**: "Capturing evidence"
 
-Integration with `imbue:evidence-logging`:
+Integration with `imbue:proof-of-work`:
 1. Document code snippets with file paths and line numbers
 2. Record reasoning chains for conclusions
 3. Link findings to specific violations or patterns

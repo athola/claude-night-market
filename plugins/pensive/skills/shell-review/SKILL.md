@@ -20,7 +20,7 @@ estimated_tokens: 200
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 modules:
 - exit-codes
 - portability
@@ -104,7 +104,7 @@ Document:
 
 ### Step 5: Evidence Log (`shell-review:evidence-logged`)
 
-Use `imbue:evidence-logging` to record findings with file:line references.
+Use `imbue:proof-of-work` to record findings with file:line references.
 
 Summarize:
 - Critical issues (failures masked, security risks)

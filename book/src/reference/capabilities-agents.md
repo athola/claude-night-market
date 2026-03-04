@@ -124,7 +124,7 @@ Context optimization.
 ```yaml
 tools: [Read, Glob, Grep, Bash, Write]
 model: haiku
-skills: conserve:context-optimization, conserve:optimizing-large-skills
+skills: conserve:context-optimization, abstract:modular-skills
 escalation:
   to: sonnet
   hints: [complex_modularization]
@@ -165,7 +165,7 @@ Expert code review.
 ```yaml
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
-skills: imbue:evidence-logging, pensive:bug-review
+skills: imbue:proof-of-work, pensive:bug-review
 escalation:
   to: opus
   hints: [security_audit, complex_architecture]
@@ -385,7 +385,7 @@ Structured reviews.
 ```yaml
 tools: [Read, Glob, Grep]
 model: haiku
-skills: imbue:review-core, imbue:evidence-logging
+skills: imbue:review-core, imbue:proof-of-work
 ```
 
 ---

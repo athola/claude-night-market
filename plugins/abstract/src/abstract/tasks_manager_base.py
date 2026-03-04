@@ -99,22 +99,24 @@ def get_claude_code_version() -> str | None:
     return None
 
 
+_MIN_MAJOR = 2
+_MIN_MINOR = 1
+_MIN_PATCH = 16
+
+
 def is_tasks_available() -> bool:
     """Check if Claude Code Tasks system is available (2.1.16+)."""
     version = get_claude_code_version()
     if version is None:
         return False
 
-    _min_major = 2
-    _min_minor = 1
-    _min_patch = 16
     try:
         parts = [int(p) for p in version.split(".")]
-        if parts[0] > _min_major:
+        if parts[0] > _MIN_MAJOR:
             return True
-        if parts[0] == _min_major and parts[1] > _min_minor:
+        if parts[0] == _MIN_MAJOR and parts[1] > _MIN_MINOR:
             return True
-        if parts[0] == _min_major and parts[1] == _min_minor and parts[2] >= _min_patch:
+        if parts[0] == _MIN_MAJOR and parts[1] == _MIN_MINOR and parts[2] >= _MIN_PATCH:
             return True
     except (ValueError, IndexError):
         pass

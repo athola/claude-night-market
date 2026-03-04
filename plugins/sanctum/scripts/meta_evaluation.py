@@ -20,6 +20,17 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
+
+# Evaluation thresholds (configurable)
+MIN_CODE_BLOCK_LINES = 3  # Skip language annotation check for blocks shorter than this
+MODULE_REFERENCE_WEIGHT = 2  # Points deducted for missing module references
+CODE_EXAMPLE_WEIGHT = 1  # Points deducted per unannotated code block
+CROSS_REFERENCE_WEIGHT = 2  # Points deducted for broken cross-references
+
 
 class MetaEvaluator:
     """Validate that evaluation skills meet their own standards."""
@@ -298,6 +309,178 @@ class MetaEvaluator:
 
         return True
 
+    def _parse_frontmatter(self, content: str) -> dict[str, Any]:
+        """Parse YAML frontmatter from skill content."""
+        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if not fm_match:
+            return {}
+        if yaml is None:
+            # Fallback: parse modules list manually if pyyaml not available
+            raw = fm_match.group(1)
+            modules: list[str] = []
+            in_modules = False
+            for line in raw.splitlines():
+                if line.startswith("modules:"):
+                    in_modules = True
+                    continue
+                if in_modules:
+                    stripped = line.strip()
+                    if stripped.startswith("- "):
+                        modules.append(stripped[2:].strip())
+                    elif stripped and not stripped.startswith("-"):
+                        in_modules = False
+            return {"modules": modules} if modules else {}
+        try:
+            return yaml.safe_load(fm_match.group(1)) or {}
+        except yaml.YAMLError:
+            return {}
+
+    def _resolve_module_path(self, skill_path: Path, module_entry: str) -> Path | None:
+        """Resolve a frontmatter module entry to an existing path.
+
+        Handles two conventions:
+        - Full relative path: ``modules/validation-protocols.md``
+        - Bare name (no extension, no slash): ``unit-testing``
+          resolved as ``modules/<name>.md``
+
+        Returns the resolved Path if it exists, otherwise None.
+        """
+        candidate = skill_path / module_entry
+        if candidate.exists():
+            return candidate
+        # Bare-name fallback: treat as modules/<name>.md
+        if "/" not in module_entry and not module_entry.endswith(".md"):
+            fallback = skill_path / "modules" / f"{module_entry}.md"
+            if fallback.exists():
+                return fallback
+        return None
+
+    def check_module_references(
+        self, skill_path: Path, frontmatter: dict[str, Any], skill_name: str
+    ) -> bool:
+        """Check that modules listed in frontmatter exist and no orphaned module files."""
+        modules_listed: list[str] = frontmatter.get("modules", []) or []
+        passed = True
+
+        # Resolve each listed entry; collect the canonical paths that were found.
+        resolved_paths: set[Path] = set()
+        for module_entry in modules_listed:
+            resolved = self._resolve_module_path(skill_path, module_entry)
+            if resolved is None:
+                self.issues.append(
+                    {
+                        "type": "missing_module_file",
+                        "skill": skill_name,
+                        "severity": "medium",
+                        "message": (
+                            f"Module listed in frontmatter not found: {module_entry}"
+                        ),
+                        "fix": (
+                            f"Create the file for '{module_entry}' or remove it from"
+                            " the modules: list in frontmatter"
+                        ),
+                    }
+                )
+                passed = False
+            else:
+                resolved_paths.add(resolved.resolve())
+
+        # Check for .md files in modules/ that are NOT covered by the frontmatter list.
+        modules_dir = skill_path / "modules"
+        if modules_dir.is_dir():
+            for md_file in sorted(modules_dir.glob("*.md")):
+                if md_file.resolve() not in resolved_paths:
+                    rel = md_file.relative_to(skill_path)
+                    self.issues.append(
+                        {
+                            "type": "unlisted_module_file",
+                            "skill": skill_name,
+                            "severity": "low",
+                            "message": (
+                                f"Module file exists but not listed in frontmatter:"
+                                f" {rel}"
+                            ),
+                            "fix": (
+                                f"Add {rel} to the modules: list in frontmatter"
+                                " or remove the file"
+                            ),
+                        }
+                    )
+                    passed = False
+
+        return passed
+
+    def check_code_examples(self, content: str, skill_name: str) -> bool:
+        """Check that fenced code blocks have language annotations."""
+        # Match fenced code blocks: opening fence, optional language, newline, body, closing fence
+        pattern = re.compile(r"^```(\w*)\n(.*?)^```", re.MULTILINE | re.DOTALL)
+        passed = True
+
+        for match in pattern.finditer(content):
+            lang = match.group(1)
+            body = match.group(2)
+            line_count = len(body.splitlines())
+
+            # Skip very short blocks
+            if line_count < MIN_CODE_BLOCK_LINES:
+                continue
+
+            if not lang:
+                self.issues.append(
+                    {
+                        "type": "unannotated_code_block",
+                        "skill": skill_name,
+                        "severity": "low",
+                        "message": (
+                            f"Code block ({line_count} lines) missing language annotation"
+                        ),
+                        "fix": (
+                            "Add a language tag after the opening fence,"
+                            " e.g. ```python or ```bash"
+                        ),
+                    }
+                )
+                passed = False
+
+        return passed
+
+    def check_cross_references(
+        self, skill_path: Path, content: str, skill_name: str
+    ) -> bool:
+        """Check that relative markdown links point to files that exist."""
+        # Match [text](path) where path is not an http/https URL
+        link_pattern = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+        passed = True
+
+        for match in link_pattern.finditer(content):
+            link_target = match.group(2)
+
+            # Skip absolute URLs and anchor-only links
+            if link_target.startswith(("http://", "https://", "#")):
+                continue
+
+            # Strip anchor fragment from path
+            path_part = link_target.split("#")[0]
+            if not path_part:
+                continue
+
+            full_path = skill_path / path_part
+            if not full_path.exists():
+                self.issues.append(
+                    {
+                        "type": "broken_cross_reference",
+                        "skill": skill_name,
+                        "severity": "medium",
+                        "message": f"Broken internal link: {link_target}",
+                        "fix": (
+                            f"Fix the link target or create the missing file: {path_part}"
+                        ),
+                    }
+                )
+                passed = False
+
+        return passed
+
     def evaluate_skill(self, plugin: str, skill: str) -> dict[str, Any]:
         """Evaluate a single evaluation skill."""
         skill_path = self.plugins_root / plugin / "skills" / skill
@@ -331,6 +514,9 @@ class MetaEvaluator:
         if content is None:
             return results
 
+        # Parse frontmatter for module-reference check
+        frontmatter = self._parse_frontmatter(content)
+
         # Run checks
         results["checks"]["toc"] = self.check_toc_exists(content, f"{plugin}:{skill}")
         results["checks"]["verification"] = self.check_verification_steps(
@@ -346,6 +532,15 @@ class MetaEvaluator:
             content, f"{plugin}:{skill}"
         )
         results["checks"]["tests_exist"] = self.check_tests_exist(plugin, skill)
+        results["checks"]["module_references"] = self.check_module_references(
+            skill_path, frontmatter, f"{plugin}:{skill}"
+        )
+        results["checks"]["code_examples"] = self.check_code_examples(
+            content, f"{plugin}:{skill}"
+        )
+        results["checks"]["cross_references"] = self.check_cross_references(
+            skill_path, content, f"{plugin}:{skill}"
+        )
 
         return results
 

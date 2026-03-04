@@ -356,7 +356,7 @@ def requires_proof_of_work(message: str) -> bool:
 **Coordinates with:**
 
 - `scope-guard-integration.md` - Handles feature evaluation
-- `imbue:evidence-logging` - Handles evidence format
+- `imbue:proof-of-work` - Handles evidence format
 - `superpowers:using-superpowers` - Works within skill system
 
 **Execution order:**

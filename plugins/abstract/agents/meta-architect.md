@@ -11,10 +11,10 @@
     "structure-optimization"
   ],
   "tools": [
-    "scripts/skill_analyzer.py",
-    "scripts/abstract_validator.py",
-    "scripts/token_estimator.py",
-    "skills/skills-eval/scripts/compliance_checker.py"
+    "plugins/abstract/scripts/skill_analyzer.py",
+    "plugins/abstract/scripts/abstract_validator.py",
+    "plugins/abstract/scripts/token_estimator.py",
+    "plugins/abstract/scripts/compliance_checker.py"
   ],
   "triggers": [
     "architectural-review",

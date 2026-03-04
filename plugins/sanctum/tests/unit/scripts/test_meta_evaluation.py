@@ -12,6 +12,12 @@ from pathlib import Path
 
 import pytest
 
+# ---------------------------------------------------------------------------
+# Import the MetaEvaluator class directly for unit-level tests.
+# ---------------------------------------------------------------------------
+sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
+from meta_evaluation import MetaEvaluator  # noqa: E402
+
 
 class TestMetaEvaluationScript:
     """
@@ -539,3 +545,397 @@ class TestRecursiveValidation:
 
         # Assert - testing-quality-standards is in inventory
         assert "testing-quality-standards" in script_content
+
+
+# ---------------------------------------------------------------------------
+# Unit tests for the three new check methods
+# ---------------------------------------------------------------------------
+
+
+class TestCheckModuleReferences:
+    """
+    Feature: check_module_references validates frontmatter module lists
+
+    As a skill author
+    I want broken module references caught automatically
+    So that skill readers are not sent to non-existent files
+    """
+
+    @pytest.fixture
+    def evaluator(self, tmp_path: Path) -> MetaEvaluator:
+        return MetaEvaluator(tmp_path, verbose=False)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_passes_when_all_modules_exist(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: All modules listed in frontmatter exist on disk
+
+        Given a skill directory with modules/ files that match the frontmatter list
+        When check_module_references is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        (skill_path / "modules").mkdir(parents=True)
+        (skill_path / "modules" / "overview.md").write_text("# Overview")
+        frontmatter = {"modules": ["modules/overview.md"]}
+
+        # Act
+        result = evaluator.check_module_references(
+            skill_path, frontmatter, "test:skill"
+        )
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_fails_when_listed_module_is_missing(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A module listed in frontmatter does not exist on disk
+
+        Given a skill whose frontmatter references a non-existent file
+        When check_module_references is called
+        Then it returns False and records a missing_module_file issue
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        skill_path.mkdir()
+        frontmatter = {"modules": ["modules/ghost.md"]}
+
+        # Act
+        result = evaluator.check_module_references(
+            skill_path, frontmatter, "test:skill"
+        )
+
+        # Assert
+        assert result is False
+        assert len(evaluator.issues) == 1
+        assert evaluator.issues[0]["type"] == "missing_module_file"
+        assert "ghost.md" in evaluator.issues[0]["message"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_flags_unlisted_module_files(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A .md file exists in modules/ but is not listed in frontmatter
+
+        Given a skill with an orphaned module file
+        When check_module_references is called
+        Then it returns False and records an unlisted_module_file issue
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        (skill_path / "modules").mkdir(parents=True)
+        (skill_path / "modules" / "orphan.md").write_text("# Orphan")
+        frontmatter: dict = {}  # no modules key
+
+        # Act
+        result = evaluator.check_module_references(
+            skill_path, frontmatter, "test:skill"
+        )
+
+        # Assert
+        assert result is False
+        issue_types = [i["type"] for i in evaluator.issues]
+        assert "unlisted_module_file" in issue_types
+        assert any("orphan.md" in i["message"] for i in evaluator.issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_passes_when_no_modules_anywhere(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: No modules in frontmatter and no modules/ directory
+
+        Given a simple skill with no module references at all
+        When check_module_references is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        skill_path = tmp_path / "simple-skill"
+        skill_path.mkdir()
+        frontmatter: dict = {}
+
+        # Act
+        result = evaluator.check_module_references(
+            skill_path, frontmatter, "test:skill"
+        )
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+
+class TestCheckCodeExamples:
+    """
+    Feature: check_code_examples detects unannotated fenced code blocks
+
+    As a skill reader
+    I want code blocks to declare their language
+    So that syntax highlighting and intent are clear
+    """
+
+    @pytest.fixture
+    def evaluator(self, tmp_path: Path) -> MetaEvaluator:
+        return MetaEvaluator(tmp_path, verbose=False)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_passes_when_all_blocks_annotated(self, evaluator: MetaEvaluator) -> None:
+        """
+        Scenario: All fenced code blocks have language annotations
+
+        Given skill content where every code block specifies a language
+        When check_code_examples is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        content = (
+            "# Skill\n\n```python\nprint('hello')\nprint('world')\nprint('!')\n```\n"
+        )
+
+        # Act
+        result = evaluator.check_code_examples(content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_fails_when_long_block_missing_annotation(
+        self, evaluator: MetaEvaluator
+    ) -> None:
+        """
+        Scenario: A code block with 3+ lines has no language annotation
+
+        Given skill content with an unannotated multi-line code block
+        When check_code_examples is called
+        Then it returns False and records an unannotated_code_block issue
+        """
+        # Arrange
+        content = "# Skill\n\n```\nline one\nline two\nline three\n```\n"
+
+        # Act
+        result = evaluator.check_code_examples(content, "test:skill")
+
+        # Assert
+        assert result is False
+        assert len(evaluator.issues) == 1
+        assert evaluator.issues[0]["type"] == "unannotated_code_block"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skips_short_blocks(self, evaluator: MetaEvaluator) -> None:
+        """
+        Scenario: A code block with fewer than MIN_CODE_BLOCK_LINES lines is skipped
+
+        Given a short unannotated code block (1-2 lines)
+        When check_code_examples is called
+        Then it returns True and records no issues
+        """
+        # Arrange — 2-line block, under the MIN_CODE_BLOCK_LINES=3 threshold
+        content = "# Skill\n\n```\nshort line\nanother\n```\n"
+
+        # Act
+        result = evaluator.check_code_examples(content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_multiple_unannotated_blocks(
+        self, evaluator: MetaEvaluator
+    ) -> None:
+        """
+        Scenario: Multiple unannotated blocks each produce an issue
+
+        Given skill content with two unannotated 3-line blocks
+        When check_code_examples is called
+        Then it records two separate unannotated_code_block issues
+        """
+        # Arrange
+        content = (
+            "# Skill\n\n"
+            "```\nline1\nline2\nline3\n```\n\n"
+            "```\nlineA\nlineB\nlineC\n```\n"
+        )
+
+        # Act
+        result = evaluator.check_code_examples(content, "test:skill")
+
+        # Assert
+        assert result is False
+        unannotated = [
+            i for i in evaluator.issues if i["type"] == "unannotated_code_block"
+        ]
+        assert len(unannotated) == 2
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_passes_with_no_code_blocks(self, evaluator: MetaEvaluator) -> None:
+        """
+        Scenario: Skill content has no code blocks at all
+
+        Given skill content with no fenced code blocks
+        When check_code_examples is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        content = "# Skill\n\nJust prose, no code here.\n"
+
+        # Act
+        result = evaluator.check_code_examples(content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+
+class TestCheckCrossReferences:
+    """
+    Feature: check_cross_references detects broken internal markdown links
+
+    As a skill reader
+    I want all relative links in skills to resolve to real files
+    So that navigation between documents works correctly
+    """
+
+    @pytest.fixture
+    def evaluator(self, tmp_path: Path) -> MetaEvaluator:
+        return MetaEvaluator(tmp_path, verbose=False)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_passes_when_referenced_file_exists(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A relative link points to an existing file
+
+        Given skill content with a relative link to a file that exists
+        When check_cross_references is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        skill_path.mkdir()
+        (skill_path / "modules").mkdir()
+        (skill_path / "modules" / "details.md").write_text("# Details")
+        content = "See [details](modules/details.md) for more.\n"
+
+        # Act
+        result = evaluator.check_cross_references(skill_path, content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_fails_when_referenced_file_missing(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A relative link points to a file that does not exist
+
+        Given skill content with a broken relative link
+        When check_cross_references is called
+        Then it returns False and records a broken_cross_reference issue
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        skill_path.mkdir()
+        content = "See [missing](modules/ghost.md) for more.\n"
+
+        # Act
+        result = evaluator.check_cross_references(skill_path, content, "test:skill")
+
+        # Assert
+        assert result is False
+        assert len(evaluator.issues) == 1
+        assert evaluator.issues[0]["type"] == "broken_cross_reference"
+        assert "ghost.md" in evaluator.issues[0]["message"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_ignores_http_links(self, evaluator: MetaEvaluator, tmp_path: Path) -> None:
+        """
+        Scenario: Absolute http/https links are not checked for file existence
+
+        Given skill content with only external URLs
+        When check_cross_references is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        skill_path.mkdir()
+        content = "See [docs](https://example.com/guide) for more.\n"
+
+        # Act
+        result = evaluator.check_cross_references(skill_path, content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_ignores_anchor_only_links(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: Anchor-only links (#section) are not checked for file existence
+
+        Given skill content with only in-page anchor links
+        When check_cross_references is called
+        Then it returns True and records no issues
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        skill_path.mkdir()
+        content = "Jump to [section](#overview).\n"
+
+        # Act
+        result = evaluator.check_cross_references(skill_path, content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_handles_link_with_anchor_fragment(
+        self, evaluator: MetaEvaluator, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A relative link with an anchor fragment is resolved by file path only
+
+        Given a link like [text](modules/guide.md#section) where guide.md exists
+        When check_cross_references is called
+        Then it returns True (fragment is stripped before checking)
+        """
+        # Arrange
+        skill_path = tmp_path / "my-skill"
+        (skill_path / "modules").mkdir(parents=True)
+        (skill_path / "modules" / "guide.md").write_text("# Guide")
+        content = "See [guide](modules/guide.md#overview).\n"
+
+        # Act
+        result = evaluator.check_cross_references(skill_path, content, "test:skill")
+
+        # Assert
+        assert result is True
+        assert evaluator.issues == []

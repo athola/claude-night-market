@@ -38,7 +38,6 @@ This document tracks external dependencies across plugins, their fallback strate
 | Source Plugin | Referenced Skill | Required | Fallback | Documented |
 |---------------|------------------|----------|----------|------------|
 | hookify | abstract:hook-scope-guide | Soft | Works without, less guidance | Partially |
-| sanctum | memory-palace (skill-logs) | Soft | Command unavailable | Implicit |
 
 ### 4. Shared Code Patterns
 

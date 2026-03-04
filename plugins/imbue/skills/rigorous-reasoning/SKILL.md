@@ -16,7 +16,7 @@ tags:
 - debate
 - analysis
 dependencies:
-- imbue:evidence-logging
+- imbue:proof-of-work
 tools: []
 ---
 ## Table of Contents
@@ -137,9 +137,9 @@ When applying this skill, create these todos:
 
 **Combined use:** When evaluating feature proposals that involve contested claims about user needs.
 
-### With `evidence-logging`
+### With `proof-of-work`
 
-Use `evidence-logging` to document:
+Use `proof-of-work` to document:
 - Checklist results (harm found/not found)
 - Validity assessments
 - Sources for truth claims
@@ -159,7 +159,7 @@ Use `evidence-logging` to document:
 
 - `imbue:proof-of-work` - Technical validation (complements reasoning validation)
 - `imbue:scope-guard` - Feature evaluation (often involves contested claims)
-- `imbue:evidence-logging` - How to capture and format evidence
+- `imbue:proof-of-work` - How to capture and format evidence
 
 ## Exit Criteria
 

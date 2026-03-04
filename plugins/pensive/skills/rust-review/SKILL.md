@@ -26,7 +26,7 @@ estimated_tokens: 400
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 modules:
 - ownership-analysis.md
 - error-handling.md

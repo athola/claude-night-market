@@ -3,7 +3,7 @@ name: structured-output
 description: 'Consult this skill when formatting final review deliverables. Use when
   formatting final review outputs, ensuring consistent deliverable structure, making
   findings comparable across reviews. Do not use when capturing evidence during analysis
-  - use evidence-logging. DO NOT use when: reviewing changes - use diff-analysis or
+  - use proof-of-work. DO NOT use when: reviewing changes - use diff-analysis or
   review-core first.'
 category: output-patterns
 tags:
@@ -13,7 +13,7 @@ tags:
 - reporting
 - structure
 dependencies:
-- imbue:evidence-logging
+- imbue:proof-of-work
 tools: []
 usage_patterns:
 - deliverable-formatting
@@ -44,7 +44,7 @@ estimated_tokens: 1000
 
 ## When NOT To Use
 
-- Capturing evidence during analysis - use evidence-logging
+- Capturing evidence during analysis - use proof-of-work
 - Reviewing changes - use diff-analysis or review-core first
 
 ## Activation Patterns
@@ -105,7 +105,7 @@ Mark each item complete as you finish the corresponding step.
   ```markdown
   ## Appendix
   ### A. Commands Run
-  [Full evidence log from imbue:evidence-logging]
+  [Full evidence log from imbue:proof-of-work]
 
   ### B. External References
   [Citations and documentation links]

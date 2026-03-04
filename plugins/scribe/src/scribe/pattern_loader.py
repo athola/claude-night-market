@@ -11,7 +11,18 @@ import yaml
 DEFAULT_LANGUAGE = "en"
 
 # Supported languages
-SUPPORTED_LANGUAGES = {"en", "de", "fr", "es"}
+SUPPORTED_LANGUAGES = {"en", "de", "fr", "es", "pt", "it"}
+
+# Language-specific scoring calibration
+# Adjusts sensitivity based on cultural norms (1.0 = English baseline)
+LANGUAGE_CALIBRATION: dict[str, float] = {
+    "en": 1.0,  # Baseline
+    "de": 0.85,  # German: formal register more accepted
+    "fr": 0.80,  # French: literary flourishes culturally valued
+    "es": 0.85,  # Spanish: formal transitions standard in academic writing
+    "pt": 0.85,  # Portuguese: similar to Spanish academic norms
+    "it": 0.80,  # Italian: literary style culturally valued
+}
 
 # Data directory
 DATA_DIR = Path(__file__).parent.parent.parent / "data" / "languages"
@@ -21,7 +32,7 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     """Load slop patterns for a specific language.
 
     Args:
-        language: ISO 639-1 language code (en, de, fr, es).
+        language: ISO 639-1 language code (en, de, fr, es, pt, it).
 
     Returns:
         Dictionary of pattern tiers and categories.
@@ -163,6 +174,42 @@ def detect_language(text: str) -> str:
             "que",
             "como",
         },
+        "pt": {
+            "o",
+            "a",
+            "os",
+            "as",
+            "é",
+            "são",
+            "foi",
+            "tem",
+            "com",
+            "para",
+            "uma",
+            "dos",
+            "por",
+            "que",
+            "como",
+            "não",
+        },
+        "it": {
+            "il",
+            "la",
+            "le",
+            "gli",
+            "è",
+            "sono",
+            "con",
+            "per",
+            "una",
+            "del",
+            "che",
+            "non",
+            "più",
+            "anche",
+            "questo",
+            "nella",
+        },
     }
 
     scores: dict[str, int] = {}
@@ -179,6 +226,46 @@ def detect_language(text: str) -> str:
         return best_lang
 
     return DEFAULT_LANGUAGE
+
+
+def get_calibration_factor(language: str) -> float:
+    """Return the scoring calibration factor for a language.
+
+    A factor < 1.0 reduces sensitivity for languages where formal or
+    literary register is culturally more accepted than in English.
+
+    Args:
+        language: ISO 639-1 language code.
+
+    Returns:
+        Calibration multiplier (1.0 = English baseline).
+    """
+    return LANGUAGE_CALIBRATION.get(language, 1.0)
+
+
+def get_all_language_patterns(languages: list[str] | None = None) -> dict[str, dict]:
+    """Load patterns for multiple languages at once.
+
+    Args:
+        languages: List of ISO 639-1 language codes to load.
+            Defaults to all supported languages when None.
+
+    Returns:
+        Mapping of language code to its loaded pattern dictionary.
+        Unsupported or missing languages are silently skipped.
+    """
+    if languages is None:
+        languages = sorted(SUPPORTED_LANGUAGES)
+
+    result: dict[str, dict] = {}
+    for lang in languages:
+        if lang not in SUPPORTED_LANGUAGES:
+            continue
+        try:
+            result[lang] = load_language_patterns(lang)
+        except FileNotFoundError:
+            continue
+    return result
 
 
 def list_supported_languages() -> list[dict[str, str]]:

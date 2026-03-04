@@ -26,8 +26,12 @@ estimated_tokens: 450
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 - imbue:diff-analysis/modules/risk-assessment-framework
+modules:
+- modules/defect-documentation.md
+- modules/fix-preparation.md
+- modules/language-detection.md
 ---
 ## Table of Contents
 
@@ -131,7 +135,7 @@ Review code line-by-line, logging each bug with:
 
 Run static analyzers (`cargo clippy`, `ruff check`, `golangci-lint`, `eslint`).
 
-Use `imbue:evidence-logging` for reproducible capture.
+Use `imbue:proof-of-work` for reproducible capture.
 
 **Progressive**: Load `modules/defect-documentation.md` for classification details and analyzer commands.
 

@@ -349,6 +349,10 @@ test-attune: ## Test attune command workflow
 	@echo ""
 
 
+# Re-export aliases from python.mk before catch-all (catch-all overrides includes)
+.PHONY: typecheck
+typecheck: type-check
+
 # Catch-all rule
 %::
 	@echo "Error: Unknown target '$@'"

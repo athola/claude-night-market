@@ -12,7 +12,7 @@ tags:
 - automation
 dependencies:
 - leyline:git-platform
-- imbue:evidence-logging
+- imbue:proof-of-work
 - sanctum:fix-workflow
 tools:
 - Bash
@@ -191,7 +191,7 @@ efficiency:
 
 ## Integration Points
 
-- **`imbue:evidence-logging`**: Captures execution evidence
+- **`imbue:proof-of-work`**: Captures execution evidence
 - **`sanctum:fix-workflow`**: Implements suggested fixes
 - **Hooks**: Can be triggered by session hooks for automatic monitoring
 
@@ -228,7 +228,7 @@ efficiency:
 
 ## Related Skills
 
-- `imbue:evidence-logging`: Evidence capture methodology
+- `imbue:proof-of-work`: Evidence capture methodology
 - `sanctum:fix-workflow`: Workflow improvement command
 - `imbue:proof-of-work`: Validation methodology
 

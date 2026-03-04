@@ -24,7 +24,7 @@ modules:
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review
-- imbue:evidence-logging
+- imbue:proof-of-work
 - imbue:structured-output
 - scribe:slop-detector
 - scribe:doc-generator

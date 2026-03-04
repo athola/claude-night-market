@@ -26,7 +26,7 @@ estimated_tokens: 200
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 ---
 ## Table of Contents
 
@@ -38,7 +38,7 @@ dependencies:
 - [2. Requirements Mapping](#2-requirements-mapping)
 - [3. Derivation Verification](#3-derivation-verification)
 - [4. Stability Assessment](#4-stability-assessment)
-- [5. Evidence Logging](#5-evidence-logging)
+- [5. Proof of Work](#5-proof-of-work)
 - [Progressive Loading](#progressive-loading)
 - [Essential Checklist](#essential-checklist)
 - [Output Format](#output-format)
@@ -107,7 +107,7 @@ Re-derive formulas using CAS. Challenge approximations. Cite authoritative stand
 ### 4. Stability Assessment
 Evaluate conditioning, precision, scaling, randomness. Compare complexity. Quantify uncertainty. **Load**: `modules/numerical-stability.md`
 
-### 5. Evidence Logging
+### 5. Proof of Work
 ```bash
 pytest tests/math/ --benchmark
 jupyter nbconvert --execute derivation.ipynb

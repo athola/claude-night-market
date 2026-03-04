@@ -19,7 +19,7 @@ Our quality system relies on three layers: **Pre-Commit Hooks** (Layer 1) for au
 
 **Status**
 - **New Code**: Every commit undergoes linting, type checks, tests, and security scans.
-- **Existing Code**: We track legacy issues through baseline audits. See [Code Quality Baseline Archive](./archive/2026-01/).
+- **Existing Code**: We track legacy issues through baseline audits.
 
 ## The Three Layers
 
@@ -192,5 +192,4 @@ pre-commit run run-plugin-tests
 
 - [Testing Guide](./testing-guide.md) - Testing documentation
 - [Plugin Development Guide](./plugin-development-guide.md) - Plugin development standards
-- [Code Quality Baseline Archive](./archive/2026-01/) - Historical audit snapshots
 - [Pre-commit configuration](../.pre-commit-config.yaml) - Hook definitions

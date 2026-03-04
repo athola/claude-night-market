@@ -26,7 +26,7 @@ estimated_tokens: 200
 progressive_loading: true
 dependencies:
 - pensive:shared
-- imbue:evidence-logging
+- imbue:proof-of-work
 modules:
 - framework-detection
 - coverage-analysis
@@ -142,7 +142,7 @@ Create concrete improvement plan with owners and dates.
 ### Step 5: Log Evidence (`test-review:evidence-logged`)
 
 Record executed commands, outputs, and recommendations.
-→ **See**: `imbue:evidence-logging`
+→ **See**: `imbue:proof-of-work`
 
 ## Test Quality Checklist (Condensed)
 
@@ -177,7 +177,7 @@ Approve / Approve with actions / Block
 
 ## Integration Notes
 
-- Use `imbue:evidence-logging` for reproducible evidence capture
+- Use `imbue:proof-of-work` for reproducible evidence capture
 - Reference `imbue:diff-analysis` for risk assessment
 - Format output using `imbue:structured-output` patterns
 

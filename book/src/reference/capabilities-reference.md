@@ -48,7 +48,6 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
-| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
@@ -120,7 +119,6 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
-| `update-readme` | [sanctum](../plugins/sanctum.md) | README content updates from git context |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |

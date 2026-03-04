@@ -213,9 +213,35 @@ If checkpoint invocation fails:
 
 ## Audit Trail
 
-All checkpoints are logged to:
+Checkpoints are logged to:
 ```
-~/.claude/memory-palace/strategeion/checkpoints/{date}/{session-id}.yaml
+~/.claude/memory-palace/strategeion/checkpoints/{date}/{checkpoint-id}.json
+```
+
+Each file contains a `CheckpointEntry` with: `checkpoint_id`, `session_id`, `phase`,
+`action`, `reversibility_score`, `dimensions`, `confidence`, `files_affected`, and
+`requires_user_confirmation`.
+
+After a war room session completes and `persist_session()` is called, an audit report
+is written automatically to:
+```
+~/.claude/memory-palace/strategeion/war-table/{session-id}/audit-report.json
+```
+
+The report consolidates: all checkpoints for the session, the expert panel, voting
+summary with unanimity score, escalation history, final decision and rationale, and
+a Merkle-DAG integrity verification block. The verification recomputes every node
+hash against the stored values so any tampering with deliberation content is
+detectable.
+
+Use `AuditTrailManager` from `scripts.war_room.audit_trail` to query checkpoints or
+generate reports programmatically:
+
+```python
+from scripts.war_room.audit_trail import AuditTrailManager
+manager = AuditTrailManager()
+checkpoints = manager.get_checkpoints("war-room-20260303-100000")
+audited = manager.list_audited_sessions()
 ```
 
 ## Examples

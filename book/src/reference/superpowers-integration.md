@@ -36,9 +36,8 @@ Many Night Market capabilities achieve their full potential when used alongside 
 | **spec-kit** | `/speckit-checklist` | Command | `verification-before-completion` | Validation |
 | **pensive** | `/full-review` | Command | `systematic-debugging`, `verification-before-completion` | Debugging + evidence |
 | **parseltongue** | `python-testing` | Skill | `test-driven-development`, `testing-anti-patterns` | TDD + anti-patterns |
-| **imbue** | `scope-guard` | Skill | `brainstorming`, `writing-plans`, `execute-plan` | Anti-overengineering |
-| **imbue** | `Skill(imbue:scope-guard)` | Skill | `brainstorming`, `writing-plans`, `execute-plan` | Feature prioritization (consolidated from `/feature-review`) |
-| **conservation** | `/optimize-context` | Command | `condition-based-waiting` | Smart waiting |
+| **imbue** | `scope-guard`, `proof-of-work` | Skill | `brainstorming`, `writing-plans`, `execute-plan`, `verification-before-completion` | Anti-overengineering, feature prioritization, evidence-based completion |
+| **conserve** | `/optimize-context` | Command | `condition-based-waiting` | Smart waiting |
 | **minister** | `issue-management` | Skill | `systematic-debugging` | Bug investigation |
 
 ## Superpowers Skills Referenced
@@ -54,7 +53,7 @@ Many Night Market capabilities achieve their full potential when used alongside 
 | `systematic-debugging` | Four-phase debugging framework | spec-kit, pensive, minister |
 | `verification-before-completion` | Evidence-based review standards | spec-kit, pensive, imbue |
 | `testing-anti-patterns` | Common testing mistake prevention | parseltongue |
-| `condition-based-waiting` | Smart polling/waiting strategies | conservation |
+| `condition-based-waiting` | Smart polling/waiting strategies | conserve |
 | `subagent-driven-development` | Autonomous subagent orchestration | sanctum |
 | `finishing-a-development-branch` | Branch cleanup and finalization | sanctum |
 

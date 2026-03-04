@@ -32,7 +32,7 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - pensive:safety-critical-patterns
-- imbue:evidence-logging
+- imbue:proof-of-work
 modules:
 - modules/duplication-analysis.md
 - modules/algorithm-efficiency.md
@@ -105,7 +105,7 @@ Load all for comprehensive refinement. For focused work, load only relevant modu
 2. `refine:scan-complete` — Findings across all dimensions
 3. `refine:prioritized` — Findings ranked by impact and effort
 4. `refine:plan-generated` — Concrete refactoring plan with before/after
-5. `refine:evidence-captured` — Evidence appendix per `imbue:evidence-logging`
+5. `refine:evidence-captured` — Evidence appendix per `imbue:proof-of-work`
 
 ## Workflow
 
@@ -147,7 +147,7 @@ For each finding, produce:
 
 ### Step 5: Evidence Capture (`refine:evidence-captured`)
 
-Document with `imbue:evidence-logging` (if available):
+Document with `imbue:proof-of-work` (if available):
 - `[E1]`, `[E2]` references for each finding
 - Metrics before/after where measurable
 - Principle violations cited
@@ -167,7 +167,7 @@ Document with `imbue:evidence-logging` (if available):
 | Dependency | Required? | Fallback |
 |------------|-----------|----------|
 | `pensive:shared` | Yes | Core review patterns |
-| `imbue:evidence-logging` | Optional | Inline evidence in report |
+| `imbue:proof-of-work` | Optional | Inline evidence in report |
 | `conserve:code-quality-principles` | Optional | Built-in KISS/YAGNI/SOLID checks |
 | `archetypes:architecture-paradigms` | Optional | Principle-based checks only (no paradigm detection) |
 

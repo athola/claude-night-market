@@ -1,0 +1,61 @@
+language: it
+name: Italian
+
+tier1:
+  power_words:
+    - approfondire    # delve
+    - intraprendere   # embark
+    - scatenare       # unleash
+    - rivoluzionare   # revolutionize
+    - sfruttare       # leverage
+    - promuovere      # foster
+    - potenziare      # amplify
+    - catalizzare     # catalyze
+  sophistication_signals:
+    - esaustivo       # comprehensive
+    - robusto         # robust
+    - sfaccettato     # multifaceted
+    - olistico        # holistic
+    - meticoloso      # meticulous
+    - fondamentale    # paramount
+  metaphor_abuse:
+    - arazzo          # tapestry
+    - faro            # beacon
+    - mosaico         # mosaic
+    - pietra angolare # cornerstone
+    - cardine         # linchpin
+    - odissea         # odyssey
+
+tier2:
+  transition_overuse:
+    - inoltre         # moreover/furthermore
+    - conseguentemente # consequently
+    - nondimeno       # nonetheless
+    - successivamente # subsequently
+    - altresì         # likewise
+  hedging:
+    - potenzialmente  # potentially
+    - tipicamente     # typically
+    - generalmente    # generally
+    - presumibilmente # presumably
+    - apparentemente  # seemingly
+  business_jargon:
+    - sinergia        # synergy
+    - ottimizzare     # optimize
+    - scalabilità     # scalability
+    - ecosistema      # ecosystem
+    - paradigma       # paradigm
+
+phrases:
+  vapid_openers:
+    score: 4
+    patterns:
+      - "nel mondo frenetico di oggi"
+      - "in un panorama in continua evoluzione"
+      - "nell'era digitale"
+  filler:
+    score: 2
+    patterns:
+      - "è importante notare che"
+      - "vale la pena menzionare"
+      - "non si può sottovalutare"

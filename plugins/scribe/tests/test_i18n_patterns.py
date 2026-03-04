@@ -59,6 +59,34 @@ ES_PHRASE_PATTERNS: list[str] = [
     r"cabe destacar que",
 ]
 
+PT_TIER1_PATTERNS: list[str] = [
+    r"\balavancar?\b",
+    r"\babrangente[s]?\b",
+    r"\brobusto[s]?\b",
+    r"\bholístico[s]?\b",
+    r"\bmeticuloso[s]?\b",
+    r"\bprimordial[a-z]?\b",
+]
+
+PT_PHRASE_PATTERNS: list[str] = [
+    r"no mundo acelerado de hoje",
+    r"é importante notar que",
+]
+
+IT_TIER1_PATTERNS: list[str] = [
+    r"\bsfruttare?\b",
+    r"\besaustiv\w+\b",
+    r"\brobusto[a-z]?\b",
+    r"\bolistic\w+\b",
+    r"\bmeticoloso[a-z]?\b",
+    r"\bfondamentale[a-z]?\b",
+]
+
+IT_PHRASE_PATTERNS: list[str] = [
+    r"nel mondo frenetico di oggi",
+    r"è importante notare che",
+]
+
 # Heuristic function-word counts used for language detection
 LANG_FUNCTION_WORDS: dict[str, list[str]] = {
     "de": ["der", "die", "das", "und", "ist", "nicht", "mit", "von"],
@@ -100,6 +128,8 @@ def select_patterns(languages: list[str]) -> dict[str, list[str]]:
         "de": DE_TIER1_PATTERNS + DE_PHRASE_PATTERNS,
         "fr": FR_TIER1_PATTERNS + FR_PHRASE_PATTERNS,
         "es": ES_TIER1_PATTERNS + ES_PHRASE_PATTERNS,
+        "pt": PT_TIER1_PATTERNS + PT_PHRASE_PATTERNS,
+        "it": IT_TIER1_PATTERNS + IT_PHRASE_PATTERNS,
     }
     result: dict[str, list[str]] = {}
     for lang in languages:
@@ -296,6 +326,102 @@ class TestLanguageSelectionFromConfig:
 
 
 # ---------------------------------------------------------------------------
+# Portuguese tests
+# ---------------------------------------------------------------------------
+
+
+class TestPortugueseTier1Patterns:
+    """Feature: Detect Portuguese tier-1 slop words."""
+
+    @pytest.mark.unit
+    def test_detects_alavancar(self) -> None:
+        """Scenario: 'alavancar' is flagged as a Portuguese tier-1 marker."""
+        text = "Precisamos alavancar esta oportunidade única."
+        assert count_matches(text, PT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_abrangente(self) -> None:
+        """Scenario: 'abrangente' is flagged."""
+        text = "Este guia abrangente cobre todos os casos de uso."
+        assert count_matches(text, PT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_primordial(self) -> None:
+        """Scenario: 'primordial' is flagged."""
+        text = "É primordial testar o código antes de publicar."
+        assert count_matches(text, PT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_portuguese_vapid_opener(self) -> None:
+        """Scenario: Portuguese vapid opener is flagged."""
+        text = "No mundo acelerado de hoje, precisamos de soluções rápidas."
+        assert count_matches(text, PT_PHRASE_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_portuguese_filler_phrase(self) -> None:
+        """Scenario: 'É importante notar que' is flagged."""
+        text = "É importante notar que esta abordagem tem limitações."
+        assert count_matches(text, PT_PHRASE_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_multiple_portuguese_markers(self) -> None:
+        """Scenario: Several Portuguese tier-1 words in one passage are all detected."""
+        text = (
+            "Esta solução abrangente e robusta é holística "
+            "e primordial para alavancar o potencial da equipa."
+        )
+        assert count_matches(text, PT_TIER1_PATTERNS) >= 3
+
+
+# ---------------------------------------------------------------------------
+# Italian tests
+# ---------------------------------------------------------------------------
+
+
+class TestItalianTier1Patterns:
+    """Feature: Detect Italian tier-1 slop words."""
+
+    @pytest.mark.unit
+    def test_detects_sfruttare(self) -> None:
+        """Scenario: 'sfruttare' is flagged as an Italian tier-1 marker."""
+        text = "Dobbiamo sfruttare questa opportunità unica."
+        assert count_matches(text, IT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_esaustivo(self) -> None:
+        """Scenario: 'esaustivo' is flagged."""
+        text = "Questa guida esaustiva copre tutti i casi d'uso."
+        assert count_matches(text, IT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_fondamentale(self) -> None:
+        """Scenario: 'fondamentale' is flagged."""
+        text = "È fondamentale testare il codice prima del rilascio."
+        assert count_matches(text, IT_TIER1_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_italian_vapid_opener(self) -> None:
+        """Scenario: Italian vapid opener is flagged."""
+        text = "Nel mondo frenetico di oggi abbiamo bisogno di soluzioni rapide."
+        assert count_matches(text, IT_PHRASE_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_detects_italian_filler_phrase(self) -> None:
+        """Scenario: 'È importante notare che' is flagged."""
+        text = "È importante notare che questo approccio ha dei limiti."
+        assert count_matches(text, IT_PHRASE_PATTERNS) >= 1
+
+    @pytest.mark.unit
+    def test_multiple_italian_markers(self) -> None:
+        """Scenario: Several Italian tier-1 words in one passage are all detected."""
+        text = (
+            "Questa soluzione esaustiva e robusta è olistica "
+            "e fondamentale per sfruttare il potenziale del team."
+        )
+        assert count_matches(text, IT_TIER1_PATTERNS) >= 3
+
+
+# ---------------------------------------------------------------------------
 # No false positives on English-only text
 # ---------------------------------------------------------------------------
 
@@ -338,6 +464,26 @@ class TestNoFalsePositivesOnEnglishText:
     def test_english_text_no_spanish_phrase_match(self) -> None:
         """Scenario: Plain English text does not match Spanish phrase patterns."""
         assert count_matches(self.ENGLISH_SAMPLE, ES_PHRASE_PATTERNS) == 0
+
+    @pytest.mark.unit
+    def test_english_text_no_portuguese_tier1_match(self) -> None:
+        """Scenario: Plain English text does not match Portuguese tier-1 patterns."""
+        assert count_matches(self.ENGLISH_SAMPLE, PT_TIER1_PATTERNS) == 0
+
+    @pytest.mark.unit
+    def test_english_text_no_portuguese_phrase_match(self) -> None:
+        """Scenario: Plain English text does not match Portuguese phrase patterns."""
+        assert count_matches(self.ENGLISH_SAMPLE, PT_PHRASE_PATTERNS) == 0
+
+    @pytest.mark.unit
+    def test_english_text_no_italian_tier1_match(self) -> None:
+        """Scenario: Plain English text does not match Italian tier-1 patterns."""
+        assert count_matches(self.ENGLISH_SAMPLE, IT_TIER1_PATTERNS) == 0
+
+    @pytest.mark.unit
+    def test_english_text_no_italian_phrase_match(self) -> None:
+        """Scenario: Plain English text does not match Italian phrase patterns."""
+        assert count_matches(self.ENGLISH_SAMPLE, IT_PHRASE_PATTERNS) == 0
 
 
 # ---------------------------------------------------------------------------

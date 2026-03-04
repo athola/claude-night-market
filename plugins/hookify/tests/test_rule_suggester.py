@@ -171,6 +171,195 @@ class TestDetectContextEdgeCases:
             assert ctx.has_docker
 
 
+class TestNewLanguageTemplates:
+    """Test TypeScript, Go, and Rust rule suggestions."""
+
+    # TypeScript
+
+    def test_suggests_typescript_rules_for_typescript_project(self):
+        """Given TypeScript context, suggests TypeScript rules."""
+        ctx = ProjectContext(languages=["typescript"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-npm-audit-bypass" in names
+
+    def test_typescript_warn_no_lockfile(self):
+        """Given TypeScript context, includes warn-no-lockfile rule."""
+        ctx = ProjectContext(languages=["typescript"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "warn-no-lockfile" in names
+
+    def test_typescript_block_any_type(self):
+        """Given TypeScript context, includes block-any-type rule."""
+        ctx = ProjectContext(languages=["typescript"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-any-type" in names
+
+    def test_typescript_templates_have_required_fields(self):
+        """All TypeScript templates have the required RuleSuggestion fields."""
+        from scripts.rule_suggester import RULE_TEMPLATES
+
+        for template in RULE_TEMPLATES["typescript"]:
+            assert template.name, "name must not be empty"
+            assert template.description, "description must not be empty"
+            assert 0.0 <= template.relevance <= 1.0, "relevance must be in [0, 1]"
+            assert template.reason, "reason must not be empty"
+            assert template.category in (
+                "security",
+                "quality",
+                "workflow",
+            ), f"unexpected category: {template.category}"
+            assert template.rule_template, "rule_template must not be empty"
+
+    # Go
+
+    def test_suggests_go_rules_for_go_project(self):
+        """Given Go context, suggests Go rules."""
+        ctx = ProjectContext(languages=["go"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-go-vet-bypass" in names
+
+    def test_go_warn_no_mod_tidy(self):
+        """Given Go context, includes warn-no-mod-tidy rule."""
+        ctx = ProjectContext(languages=["go"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "warn-no-mod-tidy" in names
+
+    def test_go_block_unsafe_import(self):
+        """Given Go context, includes block-unsafe-import rule."""
+        ctx = ProjectContext(languages=["go"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-unsafe-import" in names
+
+    def test_go_templates_have_required_fields(self):
+        """All Go templates have the required RuleSuggestion fields."""
+        from scripts.rule_suggester import RULE_TEMPLATES
+
+        for template in RULE_TEMPLATES["go"]:
+            assert template.name, "name must not be empty"
+            assert template.description, "description must not be empty"
+            assert 0.0 <= template.relevance <= 1.0, "relevance must be in [0, 1]"
+            assert template.reason, "reason must not be empty"
+            assert template.category in (
+                "security",
+                "quality",
+                "workflow",
+            ), f"unexpected category: {template.category}"
+            assert template.rule_template, "rule_template must not be empty"
+
+    # Rust
+
+    def test_suggests_rust_rules_for_rust_project(self):
+        """Given Rust context, suggests Rust rules."""
+        ctx = ProjectContext(languages=["rust"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-clippy-bypass" in names
+
+    def test_rust_warn_no_audit(self):
+        """Given Rust context, includes warn-no-audit rule."""
+        ctx = ProjectContext(languages=["rust"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "warn-no-audit" in names
+
+    def test_rust_block_unsafe_without_comment(self):
+        """Given Rust context, includes block-unsafe-without-comment rule."""
+        ctx = ProjectContext(languages=["rust"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-unsafe-without-comment" in names
+
+    def test_rust_templates_have_required_fields(self):
+        """All Rust templates have the required RuleSuggestion fields."""
+        from scripts.rule_suggester import RULE_TEMPLATES
+
+        for template in RULE_TEMPLATES["rust"]:
+            assert template.name, "name must not be empty"
+            assert template.description, "description must not be empty"
+            assert 0.0 <= template.relevance <= 1.0, "relevance must be in [0, 1]"
+            assert template.reason, "reason must not be empty"
+            assert template.category in (
+                "security",
+                "quality",
+                "workflow",
+            ), f"unexpected category: {template.category}"
+            assert template.rule_template, "rule_template must not be empty"
+
+    # Cross-language
+
+    def test_detect_context_go_project(self):
+        """detect_context returns go in languages for a go.mod project."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+            (path / "go.mod").touch()
+
+            ctx = detect_context(path)
+
+            assert "go" in ctx.languages
+
+    def test_detect_context_rust_project(self):
+        """detect_context returns rust in languages for a Cargo.toml project."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+            (path / "Cargo.toml").touch()
+
+            ctx = detect_context(path)
+
+            assert "rust" in ctx.languages
+
+    def test_detect_context_typescript_project(self):
+        """detect_context returns typescript in languages for package.json + tsconfig.json."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+            (path / "package.json").touch()
+            (path / "tsconfig.json").touch()
+
+            ctx = detect_context(path)
+
+            assert "typescript" in ctx.languages
+
+    def test_no_cross_language_bleed(self):
+        """Go rules are not returned for a Python-only project."""
+        ctx = ProjectContext(languages=["python"])
+
+        suggestions = suggest_rules(ctx)
+
+        names = [s.name for s in suggestions]
+        assert "block-go-vet-bypass" not in names
+        assert "block-clippy-bypass" not in names
+        assert "block-any-type" not in names
+
+
 class TestFormatSuggestions:
     """Test suggestion formatting."""
 

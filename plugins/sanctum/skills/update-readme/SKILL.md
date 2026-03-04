@@ -27,7 +27,7 @@ progressive_loading: true
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review
-- imbue:evidence-logging
+- imbue:proof-of-work
 - scribe:slop-detector
 - scribe:doc-generator
 ---
