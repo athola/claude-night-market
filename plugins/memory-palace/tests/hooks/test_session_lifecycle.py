@@ -28,6 +28,8 @@ if str(HOOKS_DIR) not in sys.path:
 
 import session_lifecycle as lc  # noqa: E402 (import after sys.path manipulation)
 
+from memory_palace.session_history import SessionHistoryManager  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -397,7 +399,6 @@ class TestMainIntegration:
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
 
         # Redirect SessionHistoryManager to tmp_path
-        from memory_palace.session_history import SessionHistoryManager
 
         def _fake_manager(*_args: object, **_kwargs: object) -> SessionHistoryManager:
             return SessionHistoryManager(data_dir=tmp_path)
@@ -460,8 +461,6 @@ class TestMainIntegration:
         """
         import io
 
-        from memory_palace.session_history import SessionHistoryManager
-
         class _BrokenManager(SessionHistoryManager):
             def record_session(self, record: object) -> object:  # type: ignore[override]
                 raise RuntimeError("disk full")
@@ -487,8 +486,6 @@ class TestMainIntegration:
         Then no session file is written.
         """
         import io
-
-        from memory_palace.session_history import SessionHistoryManager
 
         mgr = SessionHistoryManager(data_dir=tmp_path)
         monkeypatch.setattr(lc, "SessionHistoryManager", lambda *a, **kw: mgr)

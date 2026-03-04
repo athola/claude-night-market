@@ -38,6 +38,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/.claude-plugin/plugin.json",
         "**/.claude-plugin/metadata.json",
         "**/.claude-plugin/marketplace.json",
+        "**/__init__.py",
     ]
 
     # Shared exclusion set from update_plugins_modules.constants
@@ -48,6 +49,13 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
             # Skip exclusions unless --include-cache is specified
             if not include_cache:
                 if any(exclude in file.parts for exclude in excludes):
+                    continue
+            # Only include __init__.py files that contain __version__
+            if file.name == "__init__.py":
+                try:
+                    if "__version__" not in file.read_text(encoding="utf-8"):
+                        continue
+                except Exception:
                     continue
             version_files.append(file)
 
@@ -86,6 +94,14 @@ def update_plugin_json_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content)
 
 
+def update_init_py_version(content: str, new_version: str) -> str:
+    """Update __version__ in __init__.py content."""
+    # Match: __version__ = "1.2.3"
+    pattern = r'^__version__\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"'
+    replacement = f'__version__ = "{new_version}"'
+    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -102,6 +118,8 @@ def update_version_file(
             content = update_package_json_version(content, new_version)
         elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
             content = update_plugin_json_version(content, new_version)
+        elif file_path.name == "__init__.py":
+            content = update_init_py_version(content, new_version)
 
         if content != original:
             if not dry_run:

@@ -6,6 +6,7 @@ Save, load, archive, and list War Room sessions.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -52,7 +53,8 @@ def persist_session(strategeion: Path, session: WarRoomSession) -> None:
     # Save COAs (battle plans)
     coas = session.artifacts.get("coa", {}).get("raw_coas", {})
     for expert, coa_content in coas.items():
-        (plans_dir / f"coa-{expert}.md").write_text(
+        safe_expert = re.sub(r"[^\w\-]", "_", expert)
+        (plans_dir / f"coa-{safe_expert}.md").write_text(
             f"# Course of Action: {expert}\n\n{coa_content}"
         )
 

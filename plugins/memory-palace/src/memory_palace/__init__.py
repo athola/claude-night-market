@@ -13,4 +13,4 @@ __all__ = [
     "SessionRecord",
     "compute_garden_metrics",
 ]
-__version__ = "2.0.0"
+__version__ = "1.5.4"

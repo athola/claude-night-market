@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.5.3-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.4-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-16-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)

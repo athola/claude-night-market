@@ -176,8 +176,7 @@ class MetaEvaluator:
         is_abstract = (
             "should " in quick_start_content.lower()
             or "configure " in quick_start_content.lower()
-            and "python" not in quick_start_content.lower()
-        )
+        ) and "python" not in quick_start_content.lower()
 
         if is_abstract and not has_concrete:
             self.issues.append(

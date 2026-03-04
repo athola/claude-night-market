@@ -4,12 +4,26 @@ import tempfile
 from pathlib import Path
 
 try:
-    from scripts.rule_suggester import ProjectContext, detect_context, suggest_rules
+    from scripts.rule_suggester import (
+        RULE_TEMPLATES,
+        ProjectContext,
+        RuleSuggestion,
+        detect_context,
+        format_suggestions,
+        suggest_rules,
+    )
 except ImportError:
     import sys
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from scripts.rule_suggester import ProjectContext, detect_context, suggest_rules
+    from scripts.rule_suggester import (
+        RULE_TEMPLATES,
+        ProjectContext,
+        RuleSuggestion,
+        detect_context,
+        format_suggestions,
+        suggest_rules,
+    )
 
 
 class TestDetectContext:
@@ -205,8 +219,6 @@ class TestNewLanguageTemplates:
 
     def test_typescript_templates_have_required_fields(self):
         """All TypeScript templates have the required RuleSuggestion fields."""
-        from scripts.rule_suggester import RULE_TEMPLATES
-
         for template in RULE_TEMPLATES["typescript"]:
             assert template.name, "name must not be empty"
             assert template.description, "description must not be empty"
@@ -250,8 +262,6 @@ class TestNewLanguageTemplates:
 
     def test_go_templates_have_required_fields(self):
         """All Go templates have the required RuleSuggestion fields."""
-        from scripts.rule_suggester import RULE_TEMPLATES
-
         for template in RULE_TEMPLATES["go"]:
             assert template.name, "name must not be empty"
             assert template.description, "description must not be empty"
@@ -295,8 +305,6 @@ class TestNewLanguageTemplates:
 
     def test_rust_templates_have_required_fields(self):
         """All Rust templates have the required RuleSuggestion fields."""
-        from scripts.rule_suggester import RULE_TEMPLATES
-
         for template in RULE_TEMPLATES["rust"]:
             assert template.name, "name must not be empty"
             assert template.description, "description must not be empty"
@@ -365,8 +373,6 @@ class TestFormatSuggestions:
 
     def test_formats_as_text(self):
         """Given text format, returns markdown output."""
-        from scripts.rule_suggester import RuleSuggestion, format_suggestions
-
         ctx = ProjectContext(has_git=True, languages=["python"])
         suggestions = [
             RuleSuggestion(
@@ -388,8 +394,6 @@ class TestFormatSuggestions:
     def test_formats_as_json(self):
         """Given json format, returns valid JSON output."""
         import json
-
-        from scripts.rule_suggester import RuleSuggestion, format_suggestions
 
         ctx = ProjectContext(has_git=True, languages=["python"])
         suggestions = [

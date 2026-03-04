@@ -275,7 +275,8 @@ class SessionHistoryManager:
 
         current_id = current.session_id
         seen: set[str] = {current_id}
-        while True:
+        found_child = True
+        while found_child:
             found_child = False
             for sid in all_ids:
                 if sid in seen:
@@ -287,8 +288,6 @@ class SessionHistoryManager:
                     current_id = record.session_id
                     found_child = True
                     break
-            if not found_child:
-                break
 
         return chain
 

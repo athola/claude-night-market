@@ -401,10 +401,14 @@ class TasksManager:
         """
         self.fallback_state_file.parent.mkdir(parents=True, exist_ok=True)
 
+        empty_state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
         if self.fallback_state_file.exists():
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                state = empty_state
         else:
-            state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
+            state = empty_state
 
         task_id = f"{self.config.task_prefix}-{len(state['tasks']) + 1:03d}"
 
@@ -440,7 +444,10 @@ class TasksManager:
             if not self.fallback_state_file.exists():
                 return TaskState()
 
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return TaskState()
             tasks_dict: dict[str, dict[str, Any]] = state.get("tasks", {})
             completed = [
                 tid for tid, t in tasks_dict.items() if t.get("status") == "complete"
@@ -468,7 +475,10 @@ class TasksManager:
         else:
             if not self.fallback_state_file.exists():
                 return ResumeState()
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return ResumeState()
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -524,7 +534,10 @@ class TasksManager:
         else:
             if not self.fallback_state_file.exists():
                 return True
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return True
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()
             ]
@@ -563,7 +576,10 @@ class TasksManager:
             if not self.fallback_state_file.exists():
                 return False
 
-            state = json.loads(self.fallback_state_file.read_text())
+            try:
+                state = json.loads(self.fallback_state_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                return False
             if task_id not in state.get("tasks", {}):
                 return False
 
