@@ -189,31 +189,17 @@ demo-minister-commands: demo-create-issue demo-close-issue demo-update-labels ##
 	@echo ""
 
 
-test-create-issue: ## Test create-issue command workflow
-	@echo "=== Testing create-issue workflow ==="
-	@echo "Validating: /create-issue"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-create-issue: ## Test create-issue command (runs related unit tests)
+	$(PYTEST) tests/ -v -k "create_issue or create issue" || \
+		$(PYTEST) tests/unit/ -v
 
+test-close-issue: ## Test close-issue command (runs related unit tests)
+	$(PYTEST) tests/ -v -k "close_issue or close issue" || \
+		$(PYTEST) tests/unit/ -v
 
-test-close-issue: ## Test close-issue command workflow
-	@echo "=== Testing close-issue workflow ==="
-	@echo "Validating: /close-issue"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-update-labels: ## Test update-labels command workflow
-	@echo "=== Testing update-labels workflow ==="
-	@echo "Validating: /update-labels"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-update-labels: ## Test update-labels command (runs related unit tests)
+	$(PYTEST) tests/ -v -k "update_labels or update labels" || \
+		$(PYTEST) tests/unit/test_update_labels_command.py -v
 
 
 

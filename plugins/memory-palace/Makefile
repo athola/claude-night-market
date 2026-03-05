@@ -260,7 +260,6 @@ demo-review-room: ## Demo review-room command (LIVE)
 	@echo ""
 	@echo "Use /review-room for full workflow."
 
-
 demo-skill-logs: ## Demo skill-logs command (LIVE)
 	@echo "=== skill-logs Demo (LIVE) ==="
 	@echo ""
@@ -272,155 +271,30 @@ demo-skill-logs: ## Demo skill-logs command (LIVE)
 	@echo ""
 	@echo "Use /skill-logs for full workflow."
 
-
-	@echo "=== review-room Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /review-room"
-	@echo "Plugin: memory-palace"
-	@echo ""
-	@echo "This demonstrates review-room usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /review-room for full workflow."
-
-
-	@echo "=== review-room Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /review-room"
-	@echo "Plugin: memory-palace"
-	@echo ""
-	@echo "This demonstrates review-room usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /review-room for full workflow."
-
-
-	@echo "=== review-room Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /review-room"
-	@echo "Plugin: memory-palace"
-	@echo ""
-	@echo "This demonstrates review-room usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /review-room for full workflow."
-
-
-	@echo "=== skill-logs Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /skill-logs"
-	@echo "Plugin: memory-palace"
-	@echo ""
-	@echo "This demonstrates skill-logs usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /skill-logs for full workflow."
-
-
-	@echo "=== skill-logs Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /skill-logs"
-	@echo "Plugin: memory-palace"
-	@echo ""
-	@echo "This demonstrates skill-logs usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /skill-logs for full workflow."
-
-
-demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-review-room demo-review-room demo-review-room demo-skill-logs demo-skill-logs ## Run all memory-palace documented command demos
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs ## Run all memory-palace documented command demos
 	@echo ""
 	@echo "=== Memory-palace All Commands Demo Complete ==="
-	@echo "Ran 10 documented commands"
 	@echo ""
 
+test-palace: ## Test palace command (runs palace management unit tests)
+	@echo "Running palace tests..."
+	$(PYTEST) tests/ -v -k "palace" || $(PYTEST) tests/ -v --tb=short
 
-test-palace: ## Test palace command workflow
-	@echo "=== Testing palace workflow ==="
-	@echo "Validating: /palace"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-garden: ## Test garden command (runs garden management unit tests)
+	@echo "Running garden tests..."
+	$(PYTEST) tests/ -v -k "garden" || $(PYTEST) tests/ -v --tb=short
 
+test-navigate: ## Test navigate command (runs navigation unit tests)
+	@echo "Running navigate tests..."
+	$(PYTEST) tests/ -v -k "navigate or search" || $(PYTEST) tests/ -v --tb=short
 
-test-garden: ## Test garden command workflow
-	@echo "=== Testing garden workflow ==="
-	@echo "Validating: /garden"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-review-room: ## Test review-room command (runs review-room unit tests)
+	@echo "Running review-room tests..."
+	$(PYTEST) tests/ -v -k "review_room or review-room" || $(PYTEST) tests/ -v --tb=short
 
-
-test-navigate: ## Test navigate command workflow
-	@echo "=== Testing navigate workflow ==="
-	@echo "Validating: /navigate"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-review-room: ## Test review-room command workflow
-	@echo "=== Testing review-room workflow ==="
-	@echo "Validating: /review-room"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-skill-logs: ## Test skill-logs command workflow
-	@echo "=== Testing skill-logs workflow ==="
-	@echo "Validating: /skill-logs"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing review-room workflow ==="
-	@echo "Validating: /review-room"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing review-room workflow ==="
-	@echo "Validating: /review-room"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing review-room workflow ==="
-	@echo "Validating: /review-room"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing skill-logs workflow ==="
-	@echo "Validating: /skill-logs"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing skill-logs workflow ==="
-	@echo "Validating: /skill-logs"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-
+test-skill-logs: ## Test skill-logs command (runs skill logging unit tests)
+	@echo "Running skill-logs tests..."
+	$(PYTEST) tests/ -v -k "skill_log or skill-log" || $(PYTEST) tests/ -v --tb=short
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

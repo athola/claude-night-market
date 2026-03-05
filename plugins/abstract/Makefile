@@ -295,13 +295,9 @@ demo-abstract-commands: demo-validate-plugin ## Run all abstract documented comm
 	@echo ""
 
 
-test-validate-plugin: ## Test validate-plugin command workflow
-	@echo "=== Testing validate-plugin workflow ==="
-	@echo "Validating: /validate-plugin"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-validate-plugin: ## Test validate-plugin command (runs plugin structure tests)
+	$(PYTEST) tests/ -v -k "plugin" --tb=short || \
+		$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py . && echo "[OK] validate-plugin works"
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

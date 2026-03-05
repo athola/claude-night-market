@@ -254,16 +254,6 @@ demo-architecture-review: ## Demo architecture-review command (LIVE)
 	@echo ""
 	@echo "Use /architecture-review for full workflow."
 
-
-	@echo "=== bug-review Demo (LIVE) ==="
-	@echo ""
-	@echo "Running bug-review on pensive plugin..."
-	@echo ""
-	echo 'Bug review: Analyzing code for potential bugs...' && find src/ -name '*.py' | head -5 || echo "  [INFO] Tool execution completed"
-	@echo ""
-	@echo "Use /bug-review for full workflow."
-
-
 demo-rust-review: ## Demo rust-review command (LIVE)
 	@echo "=== rust-review Demo (LIVE) ==="
 	@echo ""
@@ -298,16 +288,6 @@ demo-math-review: ## Demo math-review command (LIVE)
 	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
 	@echo "Use /math-review for full workflow."
-
-
-	@echo "=== makefile-review Demo (LIVE) ==="
-	@echo ""
-	@echo "Running makefile-review on pensive plugin..."
-	@echo ""
-	@echo 'Makefile review: Analyzes Makefile patterns and quality (skill-based, no script)' || echo "  [INFO] Tool execution completed"
-	@echo ""
-	@echo "Use /makefile-review for full workflow."
-
 
 demo-shell-review: ## Demo shell-review command (LIVE)
 	@echo "=== shell-review Demo (LIVE) ==="
@@ -364,94 +344,42 @@ demo-pensive-commands: demo-full-review demo-api-review demo-architecture-review
 	@echo ""
 
 
-test-full-review: ## Test full-review command workflow
-	@echo "=== Testing full-review workflow ==="
-	@echo "Validating: /full-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-full-review: ## Test full-review command (runs all review tests)
+	$(PYTEST) $(PYTEST_TARGETS) -v --tb=short
 
+test-api-review: ## Test api-review command (runs API review tests)
+	$(PYTEST) tests/skills/test_api_review.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "api_review or api-review"
 
-test-api-review: ## Test api-review command workflow
-	@echo "=== Testing api-review workflow ==="
-	@echo "Validating: /api-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-architecture-review: ## Test architecture-review command (runs architecture review tests)
+	$(PYTEST) tests/skills/test_architecture_review.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "architecture"
 
+test-bug-review: ## Test bug-review command (runs bug review tests)
+	$(PYTEST) tests/skills/test_bug_review.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "bug_review or bug-review"
 
-test-architecture-review: ## Test architecture-review command workflow
-	@echo "=== Testing architecture-review workflow ==="
-	@echo "Validating: /architecture-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-rust-review: ## Test rust-review command (runs Rust review tests)
+	$(PYTEST) tests/skills/test_rust_review.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "rust_review or rust-review"
 
+test-test-review: ## Test test-review command (runs test review tests)
+	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "test_review"
 
-test-bug-review: ## Test bug-review command workflow
-	@echo "=== Testing bug-review workflow ==="
-	@echo "Validating: /bug-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-math-review: ## Test math-review command (runs math review tests)
+	$(PYTEST) tests/skills/test_math_review.py -v 2>/dev/null || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "math_review or math-review"
 
+test-makefile-review: ## Test makefile-review command (runs Makefile review tests)
+	$(PYTEST) tests/skills/test_makefile_review.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "makefile_review or makefile-review"
 
-test-rust-review: ## Test rust-review command workflow
-	@echo "=== Testing rust-review workflow ==="
-	@echo "Validating: /rust-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-shell-review: ## Test shell-review command (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: shell-review is a skill-only command with no unit tests"
 
-
-test-test-review: ## Test test-review command workflow
-	@echo "=== Testing test-review workflow ==="
-	@echo "Validating: /test-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-math-review: ## Test math-review command workflow
-	@echo "=== Testing math-review workflow ==="
-	@echo "Validating: /math-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-makefile-review: ## Test makefile-review command workflow
-	@echo "=== Testing makefile-review workflow ==="
-	@echo "Validating: /makefile-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-shell-review: ## Test shell-review command workflow
-	@echo "=== Testing shell-review workflow ==="
-	@echo "Validating: /shell-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-fpf-review: ## Test fpf-review command workflow
-	@echo "=== Testing fpf-review workflow ==="
-	@echo "Validating: /fpf-review"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"
 
 
 
