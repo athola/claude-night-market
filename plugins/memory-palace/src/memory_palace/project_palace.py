@@ -92,6 +92,7 @@ class ReviewEntry:
         participants: list[str] | None = None,
         related_rooms: list[str] | None = None,
         tags: list[str] | None = None,
+        importance_score: int | None = None,
     ) -> None:
         """Initialize a review entry.
 
@@ -103,6 +104,8 @@ class ReviewEntry:
             participants: List of PR participants
             related_rooms: Links to related palace rooms
             tags: Searchable tags
+            importance_score: Explicit importance (0-100). Defaults to 70
+                for decisions, 40 for other room types.
 
         """
         self.id = hashlib.sha256(
@@ -119,6 +122,13 @@ class ReviewEntry:
         self.last_accessed = datetime.now().isoformat()
         self.access_count = 0
 
+        if importance_score is not None:
+            self.importance_score = importance_score
+        elif room_type == "decisions":
+            self.importance_score = 70
+        else:
+            self.importance_score = 40
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
@@ -133,6 +143,7 @@ class ReviewEntry:
             "created": self.created,
             "last_accessed": self.last_accessed,
             "access_count": self.access_count,
+            "importance_score": self.importance_score,
         }
 
     @classmethod
@@ -151,6 +162,7 @@ class ReviewEntry:
         entry.created = data["created"]
         entry.last_accessed = data.get("last_accessed", entry.created)
         entry.access_count = data.get("access_count", 0)
+        entry.importance_score = data.get("importance_score", 40)
         return entry
 
     def to_markdown(self) -> str:
@@ -163,6 +175,7 @@ class ReviewEntry:
             f"palace_location: review-chamber/{self.room_type}",
             f"related_rooms: {self.related_rooms}",
             f"tags: {self.tags}",
+            f"importance_score: {self.importance_score}",
             "---",
             "",
             f"## {self.title}",
@@ -401,13 +414,14 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(
+    def search_review_chamber(  # noqa: PLR0913
         self,
         palace_id: str,
         query: str,
         room_type: str | None = None,
         tags: list[str] | None = None,
         semantic: bool = False,
+        sort_by: str = "recency",
     ) -> list[dict[str, Any]]:
         """Search the review chamber of a project palace.
 
@@ -418,6 +432,8 @@ class ProjectPalaceManager(MemoryPalaceManager):
             tags: Optional filter by tags
             semantic: When True, use embedding-based semantic search
                 instead of text substring matching
+            sort_by: Sort order for results. "recency" (default) or
+                "importance" to sort by importance_score descending.
 
         Returns:
             List of matching review entries
@@ -435,16 +451,17 @@ class ProjectPalaceManager(MemoryPalaceManager):
             )
 
         return self._search_review_chamber_text(
-            palace, review_chamber, query, room_type, tags
+            palace, review_chamber, query, room_type, tags, sort_by
         )
 
-    def _search_review_chamber_text(
+    def _search_review_chamber_text(  # noqa: PLR0913
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
         room_type: str | None,
         tags: list[str] | None,
+        sort_by: str = "recency",
     ) -> list[dict[str, Any]]:
         """Text substring search (original behavior)."""
         results = []
@@ -472,6 +489,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
                         "palace_name": palace["name"],
                     }
                 )
+
+        if sort_by == "importance":
+            results.sort(
+                key=lambda r: r["entry"].get("importance_score", 40),
+                reverse=True,
+            )
 
         return results
 
@@ -558,7 +581,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         stats: dict[str, Any] = {
             "total_entries": 0,
             "by_room": {},
-            "recent_entries": [],
+            "top_entries": [],
             "top_tags": {},
             "contributors": palace["metadata"].get("contributors", []),
         }
@@ -576,9 +599,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
                 for tag in entry.get("tags", []):
                     stats["top_tags"][tag] = stats["top_tags"].get(tag, 0) + 1
 
-        # Sort entries by creation date and get recent
-        all_entries.sort(key=lambda x: x.get("created", ""), reverse=True)
-        stats["recent_entries"] = all_entries[:5]
+        # Sort by importance (top entries) instead of recency
+        all_entries.sort(
+            key=lambda x: x.get("importance_score", 40),
+            reverse=True,
+        )
+        stats["top_entries"] = all_entries[:5]
 
         # Sort tags by frequency
         stats["top_tags"] = dict(
