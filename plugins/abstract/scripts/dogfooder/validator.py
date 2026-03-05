@@ -177,7 +177,6 @@ class MakefileTargetGenerator:
                 f"\n"
             )
             targets.append(aggregate_target)
-            targets.append(aggregate_target)
 
         # Generate test targets for slash commands
         for cmd in slash_cmds[:10]:

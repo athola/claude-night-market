@@ -163,6 +163,33 @@ class TestMakefileTargetGeneratorFromValidator:
         assert "bloat_detector.py" in result
 
 
+class TestGenerateDemoTargetsNoDuplicate:
+    """Feature: generate_demo_targets produces exactly one aggregate target
+
+    Regression test for C3: the aggregate demo-{plugin}-commands target
+    must not be appended twice.
+    """
+
+    @pytest.mark.unit
+    def test_aggregate_target_appears_exactly_once(self, tmp_path: Path) -> None:
+        """Scenario: Aggregate target is not duplicated
+        Given multiple slash-command entries
+        When generate_demo_targets() is called
+        Then demo-{plugin}-commands: appears exactly once
+        """
+        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
+
+        gen = MakefileTargetGenerator(tmp_path)
+        commands = [
+            {"type": "slash-command", "command": "cmd-one", "args": ""},
+            {"type": "slash-command", "command": "cmd-two", "args": ""},
+        ]
+
+        result = gen.generate_demo_targets("myplugin", commands)
+
+        assert result.count("demo-myplugin-commands:") == 1
+
+
 class TestRunPreflightChecks:
     """Feature: run_preflight_checks validates the environment
 

@@ -143,7 +143,8 @@ def safe_json_load(path: Path, default: Any = None) -> Any:
     """
     try:
         return json.loads(path.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError):
+    except (FileNotFoundError, OSError, json.JSONDecodeError) as e:
+        logger.debug("safe_json_load: %s: %s", path, e)
         return default
 
 

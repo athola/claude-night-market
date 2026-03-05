@@ -695,6 +695,93 @@ class TestFixMakefilePronouce:
         assert dogfooder.fix_makefile_pronounce("already", finding) is True
 
 
+class TestBuildPhonyBlockNoSpuriousLine:
+    """Feature: _build_phony_block does not emit a bare .PHONY: line
+
+    Regression test for C2: when all targets fit on one line,
+    the result should NOT start with a bare '.PHONY:' line.
+    """
+
+    @pytest.mark.unit
+    def test_no_bare_phony_line_when_targets_fit(self, tmp_path: Path) -> None:
+        """Scenario: Short targets produce no spurious bare .PHONY: line
+        Given 3 short target names that fit on one line
+        When _build_phony_block() is called
+        Then the first line is NOT a bare '.PHONY:' without targets
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        targets = ["help", "test", "lint"]
+        result = dogfooder._build_phony_block(targets)
+
+        assert result[0] != ".PHONY:"
+        assert result[0].startswith(".PHONY:")
+        assert "help" in result[0]
+
+
+class TestFilterDuplicateTargetsOrphanedRecipes:
+    """Feature: _filter_duplicate_targets skips orphaned recipe lines
+
+    Regression test for C4: when a duplicate target header is filtered,
+    its recipe lines (tab-indented) must also be filtered.
+    """
+
+    @pytest.mark.unit
+    def test_duplicate_target_recipes_are_skipped(self, tmp_path: Path) -> None:
+        """Scenario: Recipe lines for duplicate targets are excluded
+        Given generated content with a duplicate target and its recipes
+        When _filter_duplicate_targets() is called
+        Then neither the target header nor its recipe lines appear
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        existing = {"old-target"}
+        generated = (
+            "old-target: ## already here\n"
+            "\t@echo old\n"
+            "\t@echo old-recipe-2\n"
+            "\n"
+            "new-target: ## brand new\n"
+            "\t@echo new\n"
+        )
+
+        filtered_lines = dogfooder._filter_duplicate_targets(generated, existing)
+        filtered_text = "\n".join(filtered_lines)
+
+        assert "new-target:" in filtered_text
+        assert "old-target:" not in filtered_text
+        assert "@echo old" not in filtered_text
+        assert "old-recipe-2" not in filtered_text
+
+
+class TestAnalyzeAllVerboseNoReadme:
+    """Feature: analyze_all verbose mode handles no-readme plugins
+
+    Regression test for C5: verbose mode must not crash with KeyError
+    when a plugin returns a minimal dict without 'commands_documented'.
+    """
+
+    @pytest.mark.unit
+    def test_verbose_skips_no_readme_plugin(self, tmp_path: Path) -> None:
+        """Scenario: Plugin without README does not crash verbose output
+        Given a plugin directory without a README.md
+        When analyze_all() is called with verbose=True
+        Then no KeyError is raised
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "no-readme"
+        plugin_dir.mkdir(parents=True)
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path, verbose=True)
+        # Should not raise KeyError
+        report = dogfooder.analyze_all()
+
+        assert isinstance(report, dict)
+
+
 class TestAnalyzeAllVerbose:
     """Feature: analyze_all with verbose flag prints details
 

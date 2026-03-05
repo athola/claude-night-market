@@ -182,15 +182,23 @@ class MakefileDogfooder:
 
         """
         filtered_content = []
+        skip_current_target = False
         for line in generated_content.splitlines():
             # Check if this line defines a new target
             target_match = re.match(r"^([a-zA-Z][\w-]+)\s*:", line)
             if target_match:
                 target_name = target_match.group(1)
                 if target_name not in existing_targets:
+                    skip_current_target = False
                     filtered_content.append(line)
                     existing_targets.add(target_name)  # Mark as added
-                # else: Skip duplicate target
+                else:
+                    skip_current_target = True
+            elif skip_current_target:
+                # Skip recipe lines belonging to a duplicate target
+                if not line.startswith("\t") and line.strip():
+                    skip_current_target = False
+                    filtered_content.append(line)
             # Keep non-target lines (recipes, comments, etc.)
             elif filtered_content or line.strip():  # Don't add leading empty lines
                 filtered_content.append(line)
@@ -388,7 +396,7 @@ class MakefileDogfooder:
             List of formatted lines for .PHONY block
 
         """
-        new_phony_lines = [".PHONY:"]
+        new_phony_lines = []
         current_line = ".PHONY:"
 
         for target in all_targets:
@@ -484,7 +492,7 @@ class MakefileDogfooder:
                 plugin_name, generate_missing=generate_missing
             )
 
-            if self.verbose:
+            if self.verbose and "commands_documented" in finding:
                 print(f"\n{plugin_name}:")
                 print(f"  Commands documented: {finding['commands_documented']}")
                 print(f"  Targets missing: {finding['targets_missing']}")

@@ -93,22 +93,16 @@ jobs:
         include:
           - plugin: abstract
             hook_test_path: tests/hooks
-            has_lock: true
           - plugin: memory-palace
             hook_test_path: tests/hooks
-            has_lock: true
           - plugin: sanctum
             hook_test_path: tests/hooks
-            has_lock: true
           - plugin: conserve
-            hook_test_path: tests/unit
-            has_lock: false
+            hook_test_path: tests/unit/test_context_warning.py tests/unit/test_permission_request.py
           - plugin: imbue
             hook_test_path: tests/unit/hooks
-            has_lock: true
           - plugin: leyline
             hook_test_path: tests/hooks
-            has_lock: true
 
     steps:
       - uses: actions/checkout@v4
@@ -121,22 +115,19 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Install dependencies (with lock file)
-        if: matrix.has_lock == true
-        working-directory: plugins/${{ matrix.plugin }}
-        run: uv sync --python 3.9 --group dev
-
-      - name: Install dependencies (without lock file)
-        if: matrix.has_lock == false
+      # Hook scripts use only stdlib — we install pytest in an
+      # isolated venv to avoid the plugin's requires-python
+      # constraint (most plugins target >=3.12 for their main
+      # code, but hooks must run under system Python 3.9).
+      - name: Create Python 3.9 venv with pytest
         working-directory: plugins/${{ matrix.plugin }}
         run: |
           uv venv --python 3.9
-          uv pip install --group dev -e .
+          uv pip install pytest
 
       - name: Run hook tests under Python 3.9
         working-directory: plugins/${{ matrix.plugin }}
         run: |
-          uv run --python 3.9 pytest ${{ matrix.hook_test_path }} \
+          .venv/bin/python -m pytest ${{ matrix.hook_test_path }} \
             -v --tb=short \
-            --no-cov \
             --override-ini="addopts="
