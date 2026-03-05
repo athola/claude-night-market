@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SessionStart hook for leyline - Fetch recent Discussions
-# Queries the 5 most recent "Decisions" discussions from GitHub Discussions
+# Queries the 10 most recent "Decisions" discussions from GitHub Discussions
 # and injects a brief summary into the session context for cross-session learning.
 #
 # Requirements:
@@ -135,12 +135,12 @@ if [ -z "$category_id" ]; then
     _emit_empty
 fi
 
-# --- Fetch 5 most recent Decisions discussions ---
+# --- Fetch 10 most recent Decisions discussions ---
 
 discussions_response=$(gh api graphql -f query='
 query($owner: String!, $repo: String!, $categoryId: ID!) {
   repository(owner: $owner, name: $repo) {
-    discussions(first: 5, categoryId: $categoryId, orderBy: {field: CREATED_AT, direction: DESC}) {
+    discussions(first: 10, categoryId: $categoryId, orderBy: {field: CREATED_AT, direction: DESC}) {
       nodes {
         number
         title
