@@ -20,7 +20,8 @@
     "./skills/pytest-config",
     "./skills/risk-classification",
     "./skills/markdown-formatting",
-    "./skills/content-sanitization"
+    "./skills/content-sanitization",
+    "./skills/damage-control"
   ],
   "keywords": [
     "infrastructure",
