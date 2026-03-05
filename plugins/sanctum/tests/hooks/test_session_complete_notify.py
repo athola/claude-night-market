@@ -16,12 +16,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-# Add hooks directory to path for import
-HOOKS_DIR = Path(__file__).parent.parent.parent / "hooks"
-sys.path.insert(0, str(HOOKS_DIR))
-
-from session_complete_notify import (  # noqa: E402
+from session_complete_notify import (
     CONTENT_DEDUP_SECONDS,
     DEBOUNCE_SECONDS,
     NotificationState,

@@ -5,13 +5,9 @@ so they can run separately from the main suite.
 """
 
 import json
-import sys
 import time
-from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from update_plugin_registrations import PluginAuditor
 
 # Mark all tests in this module as benchmarks

@@ -65,6 +65,7 @@ exclude = ['^\.venv', '^\.uv-cache']
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+pythonpath = ["scripts", "hooks", "src"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
