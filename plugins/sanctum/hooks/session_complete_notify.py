@@ -27,6 +27,7 @@ from pathlib import Path
 # Configuration (can be overridden via environment variables)
 DEBOUNCE_SECONDS = int(os.environ.get("CLAUDE_NOTIFY_DEBOUNCE", "5"))
 CONTENT_DEDUP_SECONDS = int(os.environ.get("CLAUDE_NOTIFY_CONTENT_DEDUP", "30"))
+BACKGROUND_MODE_ARG_COUNT = 4  # --background, session_id, cwd
 
 
 @dataclass
@@ -508,6 +509,7 @@ def run_notification(session_id: str, cwd: str) -> None:
     Args:
         session_id: Pre-computed session identifier from parent process.
         cwd: Working directory from parent process.
+
     """
     try:
         # Change to original working directory for terminal info
@@ -542,7 +544,9 @@ if __name__ == "__main__":
         if sys.argv[1] == "--clear-state":
             # Called by UserPromptSubmit hook to reset notification state
             clear_notification_state()
-        elif sys.argv[1] == "--background" and len(sys.argv) >= 4:
+        elif (
+            sys.argv[1] == "--background" and len(sys.argv) >= BACKGROUND_MODE_ARG_COUNT
+        ):
             # Background mode with session_id and cwd
             run_notification(session_id=sys.argv[2], cwd=sys.argv[3])
         elif sys.argv[1] == "--background":
