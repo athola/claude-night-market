@@ -126,6 +126,7 @@ Round 2: Pressure Testing
   - Phase 5: Voting + Narrowing (top 2-3)
   - Phase 6: Premortem Analysis (selected COA)
   - Phase 7: Supreme Commander Synthesis
+  - Phase 8: Discussion Publishing (optional)
 ```
 
 ### Delphi Extension (High-Stakes)
@@ -408,6 +409,12 @@ Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonn
 5. **Phase 5 (Voting)**: Lead broadcasts ballot; teammates rank via inbox messages
 6. **Phase 6 (Premortem)**: All teammates receive selected COA; can build on each other's failure scenarios
 7. **Phase 7 (Synthesis)**: Lead collects all artifacts, produces decision
+8. **Phase 8 (Discussion Publishing)**: After the
+   Supreme Commander Decision document is finalized,
+   follow `modules/discussion-publishing.md` to offer
+   publishing the decision to GitHub Discussions. This
+   step is optional. If the user declines or publishing
+   fails, the local strategeion record is unaffected.
 
 ### Falling Back to Conjure Delegation
 
@@ -416,6 +423,22 @@ If agent teams fails (tmux unavailable, team creation error), the War Room autom
 ### Cost Considerations
 
 Agent teams is significantly more token-intensive than conjure delegation (each teammate maintains its own context window). Use only when the coordination value justifies the cost — typically Delphi mode where multiple rounds of revision make persistent teammates worthwhile.
+
+### Discussion Publishing
+
+After Phase 7 synthesis completes (in any execution
+mode), invoke the `modules/discussion-publishing.md`
+workflow. This module:
+
+1. Prompts the user for confirmation before publishing
+2. Creates a Discussion in the "Decisions" category
+3. Posts deliberation phases as threaded comments
+4. Updates the local strategeion with the Discussion URL
+
+If GitHub Discussions are unavailable (non-GitHub
+platform, Discussions disabled, `gh` not authenticated),
+the module skips silently. Publishing failures never
+block the war room workflow.
 
 ## Related Skills
 

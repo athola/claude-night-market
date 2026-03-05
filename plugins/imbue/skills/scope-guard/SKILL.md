@@ -151,9 +151,17 @@ Count current features in branch. If at budget (default: 3), new feature require
 Record outcome:
 - **Implementing:** Note Worthiness Score and budget slot
 - **Deferring (MANDATORY STEPS):**
-  1. **Create GitHub issue immediately** - See [github-integration.md](modules/github-integration.md)
+  1. **Create GitHub issue immediately** - See
+     [github-integration.md](modules/github-integration.md)
+     Steps 1-3
   2. Mark `scope-guard:github-issue-created` complete
-  3. Optionally add to `docs/backlog/queue.md` with issue link
+  3. **Offer Discussion creation** - See
+     [github-integration.md](modules/github-integration.md)
+     Step 4.
+     Prompt: "Also create a Discussion with full reasoning context? [Y/n]"
+     If confirmed, create a Discussion in the "Deliberations" category
+     and link it from the issue. If declined or failed, continue.
+  4. Optionally add to `docs/backlog/queue.md` with issue link
 - **Rejecting:** Document why (low value, out of scope)
 
 **IMPORTANT:** Deferral is NOT complete until a GitHub issue exists. This prevents context loss when branches are merged or abandoned.

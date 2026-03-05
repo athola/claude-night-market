@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.6] - 2026-03-05
+
 ### Added
 
 - Shared test plan injection module for sanctum
@@ -17,6 +19,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 627-line BDD test suite for test plan injection
   covering detection patterns, generation templates,
   and cross-reference validation
+- Educational insights in PR review findings
+  (sanctum, pensive)
+- GitHub Discussions publishing wired into war-room
+  (Phase 8), scope-guard (deferral linking), and
+  knowledge-intake (Step 7 promotion for score 80+)
+- `tech-tutorial` skill for scribe with 3 modules
+  (planning, drafting, refinement)
+- `damage-control` skill for leyline (crash recovery,
+  context overflow, merge conflict resolution)
+- 93 placeholder Makefile targets across 9 plugins
+- Python 3.9 compatibility CI workflow
+- `--dry-run` flag for abstract wrapper_generator
+- Stop-word filtering for abstract find_similar
+
+### Changed
+
+- Modularized `makefile_dogfooder.py` into dogfooder
+  package (abstract)
+- Raised abstract test coverage target to 90%
 
 ## [1.5.5] - 2026-03-04
 
