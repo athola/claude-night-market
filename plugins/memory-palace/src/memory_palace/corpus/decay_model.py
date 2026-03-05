@@ -12,6 +12,7 @@ import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,32 @@ DECAY_CONFIG: dict[str, dict] = {
     },
 }
 
+# Importance classification (0-100 scale)
+IMPORTANCE_CLASSES: dict[str, dict[str, Any]] = {
+    "constitutional": {"min_score": 90, "decay_floor": 0.5},
+    "architectural": {"min_score": 70, "decay_floor": 0.4},
+    "significant": {"min_score": 50, "decay_floor": 0.3},
+    "standard": {"min_score": 30, "decay_floor": 0.1},
+    "ephemeral": {"min_score": 0, "decay_floor": 0.0},
+}
+
+DEFAULT_IMPORTANCE_SCORE = 40
+
+
+def get_importance_class(score: int) -> str:
+    """Classify an importance score into a named class."""
+    for name, config in IMPORTANCE_CLASSES.items():
+        if score >= config["min_score"]:
+            return name
+    return "ephemeral"
+
+
+def get_decay_floor(score: int) -> float:
+    """Get the decay floor for a given importance score."""
+    cls = get_importance_class(score)
+    floor: float = IMPORTANCE_CLASSES[cls]["decay_floor"]
+    return floor
+
 
 @dataclass
 class DecayState:
@@ -72,6 +99,7 @@ class DecayModel:
         entry_id: str,
         maturity: str,
         last_validated: datetime,
+        importance_score: int | None = None,
     ) -> DecayState:
         """Calculate current decay state for an entry.
 
@@ -79,6 +107,7 @@ class DecayModel:
             entry_id: The ID of the knowledge entry
             maturity: The maturity level (seedling, growing, evergreen)
             last_validated: When the entry was last validated
+            importance_score: Importance score (0-100) for decay floor
 
         Returns:
             DecayState with current decay metrics
@@ -103,6 +132,12 @@ class DecayModel:
 
         # Clamp to valid range
         decay_factor = max(0.0, min(1.0, decay_factor))
+
+        # Enforce importance-based decay floor
+        if importance_score is None:
+            importance_score = DEFAULT_IMPORTANCE_SCORE
+        floor = get_decay_floor(importance_score)
+        decay_factor = max(decay_factor, floor)
 
         # Determine status
         status = self._determine_status(decay_factor)
