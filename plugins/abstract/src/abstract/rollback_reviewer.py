@@ -10,6 +10,7 @@ docs/plans/2026-02-15-self-adapting-systems-design.md
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess  # nosec: B404
 
@@ -67,7 +68,16 @@ The skill was improved automatically but showed regression during the
 """
 
     def generate_rollback_command(self, commit_hash: str) -> str:
-        """Generate a git revert command for a commit."""
+        """Generate a git revert command for a commit.
+
+        Raises ValueError if commit_hash contains invalid characters
+        to prevent command injection.
+        """
+        if not re.match(r"^[a-f0-9]+$", commit_hash):
+            raise ValueError(
+                f"Invalid commit hash {commit_hash!r}: "
+                "must contain only lowercase hex characters (a-f, 0-9)."
+            )
         return f"git revert {commit_hash} --no-edit"
 
     def create_github_issue(
