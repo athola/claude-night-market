@@ -442,3 +442,58 @@ class TestDecayModelWithImportance:
         # Ephemeral should have decayed far below constitutional floor
         assert state_no_importance.decay_factor < 0.5
         assert state_constitutional.decay_factor >= 0.5
+
+
+class TestGetStaleEntriesWithImportance:
+    """Test importance-aware stale entry filtering."""
+
+    @pytest.fixture
+    def model(self) -> DecayModel:
+        return DecayModel()
+
+    def test_excludes_constitutional_from_stale(self, model: DecayModel) -> None:
+        """Constitutional entries should not appear in stale list."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("const-1", now - timedelta(days=200))
+        model.validate_entry("normal-1", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "const-1", "maturity": "seedling", "importance_score": 95},
+                {"id": "normal-1", "maturity": "seedling", "importance_score": 40},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "const-1" not in entry_ids
+        assert "normal-1" in entry_ids
+
+    def test_architectural_can_appear_in_stale(self, model: DecayModel) -> None:
+        """Architectural entries CAN be stale but have floor-adjusted decay."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("arch-1", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "arch-1", "maturity": "seedling", "importance_score": 75},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "arch-1" in entry_ids
+        arch_state = [s for s in stale if s.entry_id == "arch-1"][0]
+        assert arch_state.decay_factor >= 0.4  # architectural floor
+
+    def test_default_importance_in_stale(self, model: DecayModel) -> None:
+        """Entries without importance_score use default (40)."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("no-score", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "no-score", "maturity": "seedling"},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "no-score" in entry_ids

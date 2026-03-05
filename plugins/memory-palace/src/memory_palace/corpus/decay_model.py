@@ -55,6 +55,7 @@ IMPORTANCE_CLASSES: dict[str, dict[str, Any]] = {
 }
 
 DEFAULT_IMPORTANCE_SCORE = 40
+CONSTITUTIONAL_MIN_SCORE: int = IMPORTANCE_CLASSES["constitutional"]["min_score"]
 
 
 def get_importance_class(score: int) -> str:
@@ -241,7 +242,7 @@ class DecayModel:
 
     def get_stale_entries(
         self,
-        entries: list[dict],
+        entries: list[dict[str, Any]],
         threshold: float = STATUS_STALE_THRESHOLD,
     ) -> list[DecayState]:
         """Get entries with decay below threshold.
@@ -257,16 +258,25 @@ class DecayModel:
         stale: list[DecayState] = []
 
         for entry in entries:
-            entry_id = entry["id"]
+            entry_id = entry.get("id", "")
             maturity = entry.get("maturity", "growing")
+            importance_score = entry.get("importance_score", DEFAULT_IMPORTANCE_SCORE)
+
+            # Constitutional entries never appear as stale
+            if importance_score >= CONSTITUTIONAL_MIN_SCORE:
+                continue
 
             # Get validation date
-            validation_date = self._validation_dates.get(entry_id)
-            if validation_date is None:
-                # Use entry creation time or default to old date
-                validation_date = datetime.now(timezone.utc)
+            last_validated = self._validation_dates.get(entry_id)
+            if last_validated is None:
+                last_validated = datetime.now(timezone.utc)
 
-            state = self.calculate_decay(entry_id, maturity, validation_date)
+            state = self.calculate_decay(
+                entry_id,
+                maturity,
+                last_validated,
+                importance_score=importance_score,
+            )
 
             if state.decay_factor < threshold:
                 stale.append(state)
