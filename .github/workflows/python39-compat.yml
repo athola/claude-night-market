@@ -1,0 +1,142 @@
+name: Python 3.9 Hook Compatibility (issue #204)
+
+# Validates that hook scripts from all hook-registering plugins
+# remain importable and testable under Python 3.9 (the minimum
+# version required for system Python support).
+#
+# Plugins covered: abstract, memory-palace, sanctum, conserve,
+# imbue, leyline.
+#
+# Two gates per plugin:
+#   1. ruff UP007 — flags bare `X | Y` union annotations that
+#      require Python 3.10+ without `from __future__ import
+#      annotations`.
+#   2. pytest hooks — runs only the tests that exercise hook
+#      scripts under CPython 3.9.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "plugins/abstract/hooks/**"
+      - "plugins/memory-palace/hooks/**"
+      - "plugins/sanctum/hooks/**"
+      - "plugins/conserve/hooks/**"
+      - "plugins/imbue/hooks/**"
+      - "plugins/leyline/hooks/**"
+      - ".github/workflows/python39-compat.yml"
+  pull_request:
+    paths:
+      - "plugins/abstract/hooks/**"
+      - "plugins/memory-palace/hooks/**"
+      - "plugins/sanctum/hooks/**"
+      - "plugins/conserve/hooks/**"
+      - "plugins/imbue/hooks/**"
+      - "plugins/leyline/hooks/**"
+      - ".github/workflows/python39-compat.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: python39-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ------------------------------------------------------------------ #
+  # Gate 1: Static syntax check                                          #
+  # Ruff UP007 detects `X | Y` union annotations on files that lack     #
+  # `from __future__ import annotations`, which would raise a           #
+  # TypeError at import time on Python 3.9.                             #
+  # ------------------------------------------------------------------ #
+  syntax-check:
+    name: ruff UP007 — union annotation syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install ruff
+        run: uv tool install ruff
+
+      - name: Check hook files for 3.10+ union syntax (UP007)
+        # UP007: Use `X | Y` for type annotations — ruff flags this when
+        # the file would fail on Python 3.9 without the future import.
+        # We target only the hooks directories of the six plugins.
+        run: |
+          ruff check \
+            --select UP007 \
+            --target-version py39 \
+            plugins/abstract/hooks/ \
+            plugins/memory-palace/hooks/ \
+            plugins/sanctum/hooks/ \
+            plugins/conserve/hooks/ \
+            plugins/imbue/hooks/ \
+            plugins/leyline/hooks/
+
+  # ------------------------------------------------------------------ #
+  # Gate 2: Runtime hook tests under Python 3.9                         #
+  # Each plugin runs only its hooks test subtree so the job stays        #
+  # focused on what matters: hook script importability and behaviour.    #
+  # ------------------------------------------------------------------ #
+  hook-tests:
+    name: pytest hooks — ${{ matrix.plugin }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - plugin: abstract
+            hook_test_path: tests/hooks
+            has_lock: true
+          - plugin: memory-palace
+            hook_test_path: tests/hooks
+            has_lock: true
+          - plugin: sanctum
+            hook_test_path: tests/hooks
+            has_lock: true
+          - plugin: conserve
+            hook_test_path: tests/unit
+            has_lock: false
+          - plugin: imbue
+            hook_test_path: tests/unit/hooks
+            has_lock: true
+          - plugin: leyline
+            hook_test_path: tests/hooks
+            has_lock: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies (with lock file)
+        if: matrix.has_lock == true
+        working-directory: plugins/${{ matrix.plugin }}
+        run: uv sync --python 3.9 --group dev
+
+      - name: Install dependencies (without lock file)
+        if: matrix.has_lock == false
+        working-directory: plugins/${{ matrix.plugin }}
+        run: |
+          uv venv --python 3.9
+          uv pip install --group dev -e .
+
+      - name: Run hook tests under Python 3.9
+        working-directory: plugins/${{ matrix.plugin }}
+        run: |
+          uv run --python 3.9 pytest ${{ matrix.hook_test_path }} \
+            -v --tb=short \
+            --no-cov \
+            --override-ini="addopts="
