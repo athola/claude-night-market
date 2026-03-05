@@ -3,7 +3,6 @@
 
 import json
 import sys
-import unittest.mock
 from pathlib import Path
 
 import pytest
@@ -1114,42 +1113,6 @@ class TestFixPluginAdvanced:
         with plugin_json.open() as f:
             data = json.load(f)
         assert "./commands/cmd2.md" in data["commands"]
-
-    def test_fix_plugin_returns_false_on_corrupt_write(self, tmp_path: Path) -> None:
-        """Verify fix_plugin returns False if written JSON is invalid."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-
-        plugin_json = config_dir / "plugin.json"
-        plugin_json.write_text(
-            json.dumps(
-                {"name": "test-plugin", "commands": ["./commands/cmd1.md"]}, indent=2
-            )
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=False)
-        auditor.discrepancies["test-plugin"] = {
-            "missing": {"commands": ["./commands/cmd2.md"]},
-            "stale": {},
-        }
-
-        # Patch json.load: allow the first call (initial read at line 554),
-        # but fail on the second call (validation read-back after write).
-        original_json_load = json.load
-        load_call_count = {"n": 0}
-
-        def selective_failing_load(f):
-            load_call_count["n"] += 1
-            if load_call_count["n"] >= 2:
-                raise json.JSONDecodeError("Mocked corrupt JSON", "", 0)
-            return original_json_load(f)
-
-        with unittest.mock.patch("json.load", side_effect=selective_failing_load):
-            result = auditor.fix_plugin("test-plugin")
-
-        assert result is False
 
 
 class TestScanSkillModules:

@@ -655,8 +655,7 @@ class PluginAuditor:
         """Write the updated plugin.json to disk when non-hooks changes exist.
 
         Returns:
-            True on success (or when no write is needed), False if JSON is invalid
-            after writing.
+            True on success (or when no write is needed).
 
         """
         disc = self.discrepancies[plugin_name]
@@ -672,13 +671,6 @@ class PluginAuditor:
             with plugin_json_path.open("w", encoding="utf-8") as f:
                 json.dump(plugin_data, f, indent=2, ensure_ascii=False)
                 f.write("\n")  # Trailing newline
-            # Validate written JSON (smoke test)
-            try:
-                with plugin_json_path.open(encoding="utf-8") as f:
-                    json.load(f)
-            except json.JSONDecodeError as e:
-                print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
-                return False
             print(f"[FIXED] {plugin_name}: plugin.json updated")
         else:
             print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
