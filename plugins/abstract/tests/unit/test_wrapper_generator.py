@@ -418,7 +418,7 @@ class TestMainManualMode:
         """Given --plugin/--command/--superpower, generate_wrapper is called."""
         calls = []
 
-        def fake_generate(plugin, cmd, sp, output_path=None):
+        def fake_generate(plugin, cmd, sp, output_path=None, dry_run=False):
             calls.append((plugin, cmd, sp, output_path))
             return "# code"
 
@@ -467,7 +467,7 @@ class TestMainManualMode:
         out_file = tmp_path / "wrapper.py"
         calls = []
 
-        def fake_generate(plugin, cmd, sp, output_path=None):
+        def fake_generate(plugin, cmd, sp, output_path=None, dry_run=False):
             calls.append(output_path)
             return "# code"
 
