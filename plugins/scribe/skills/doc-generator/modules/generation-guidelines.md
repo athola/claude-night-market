@@ -46,6 +46,47 @@ Paragraphs should contain 2-4 sentences on a single topic. If a paragraph exceed
 
 One paragraph = one idea.
 
+## Line Wrapping
+
+Wrap prose text at 80 characters per line using hybrid
+wrapping. This makes git diffs readable and mobile-friendly.
+
+### Rules (in priority order)
+
+1. Keep sentences on one line if they fit within 80 chars
+2. Break long sentences at clause boundaries (after `, ; :`)
+3. Break before conjunctions (`and`, `but`, `or`)
+4. Break at word boundaries as a last resort
+
+### Exempt from wrapping
+
+Tables, code blocks, headings, frontmatter, HTML blocks,
+link definitions, and image references stay on one line.
+
+### Example
+
+```markdown
+BEFORE:
+The system validates all input against the schema and rejects
+malformed requests with a 400 status code, logging the
+validation failure for debugging.
+
+AFTER:
+The system validates all input against the schema
+and rejects malformed requests with a 400 status code,
+logging the validation failure for debugging.
+```
+
+### Additional formatting rules
+
+- Blank line before and after every heading
+- ATX headings only (`#` style, never setext underlines)
+- Blank line before every list
+- Use reference-style links when inline links push past
+  80 chars
+
+Full specification: `Skill(leyline:markdown-formatting)`
+
 ## Concrete Examples
 
 Every feature claim needs a concrete example:

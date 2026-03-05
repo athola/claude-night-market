@@ -66,10 +66,19 @@ Use this skill when:
 - Preparing a PR and need to clean up working artifacts
 
 Do NOT use when:
-- Files are already in proper documentation locations (`docs/`, `skills/`)
+- Files are already in proper documentation locations
+  (`docs/`, `skills/`)
 - Files are intentionally temporary scratch notes
 - User explicitly wants to preserve the original report format
 - Source files have no extractable value (pure log output)
+
+## Formatting
+
+When merging content into permanent documentation, follow
+`Skill(leyline:markdown-formatting)` conventions: wrap prose
+at 80 chars (prefer sentence/clause boundaries), blank lines
+around headings, ATX headings only, blank line before lists,
+and reference-style links for long URLs.
 
 ## When NOT To Use
 

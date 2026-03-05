@@ -1,6 +1,6 @@
 """Provide Spec Driven Development toolkit with enhanced superpowers integration."""
 
-__version__ = "3.1.0"
+__version__ = "1.5.5"
 __author__ = "Claude Skills"
 __description__ = (
     "Spec Driven Development toolkit with enhanced superpowers integration"

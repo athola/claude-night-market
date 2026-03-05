@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.5] - 2026-03-04
+
+### Added
+
+- Shared `leyline:markdown-formatting` skill with hybrid
+  wrapping rules (80 chars, sentence-boundary preference)
+  and structural conventions (ATX headings, blank lines
+  around headings/lists, reference-style links)
+- New `.claude/rules/markdown-formatting.md` rule for
+  enforcing formatting during documentation generation
+- Prune-check tests for memory-palace palace manager
+  (stale entry, duplicate, low-quality detection)
+- Leyline Makefile `demo-formatting` target for skill
+  structure validation
+
+### Fixed
+
+- Replaced inline `__import__("datetime").timedelta` with
+  proper import in `palace_manager.py`
+
+### Changed
+
+- Updated scribe doc-generator generation-guidelines with
+  line wrapping section
+- Updated sanctum directory-style-rules shared rules with
+  formatting conventions
+- Updated sanctum update-readme, tutorial-updates, and
+  doc-consolidation skills with formatting references
+- Updated slop-scan-for-docs rule to include line length
+  verification as first post-write check
+
 ## [1.5.4] - 2026-03-03
 
 ### Added

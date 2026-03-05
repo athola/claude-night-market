@@ -1,13 +1,15 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.5.4-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.5-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-16-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 
 **Claude Code plugins for software engineering workflows.**
 
-16 plugins providing 120 skills, 98 commands, and 41 agents for git operations, code review, spec-driven development, and issue management. Each plugin installs independently.
+16 plugins providing 122 skills, 97 commands, and 41 agents
+for git operations, code review, spec-driven development,
+and issue management. Each plugin installs independently.
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
@@ -29,11 +31,15 @@
 /full-review                                   # Run code review
 ```
 
-**Alternative:** Install via npx with `npx skills add athola/claude-night-market` (installs all plugins at once).
+**Alternative:** Install via npx with
+`npx skills add athola/claude-night-market`
+(installs all plugins at once).
 
 After installation, run `claude --init` for one-time setup.
 
-> **Note:** If the `Skill` tool is unavailable, read skill files directly at `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
+> **Note:** If the `Skill` tool is unavailable, read skill
+> files directly at
+> `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
 
 ### opkg (OpenPackage)
 
@@ -46,11 +52,15 @@ opkg i gh@athola/claude-night-market --plugins pensive,conserve
 # automatically pull packages/core as a dependency
 ```
 
-See the [Installation Guide](book/src/getting-started/installation.md) for detailed setup options.
+See the [Installation Guide](book/src/getting-started/installation.md)
+for detailed setup options.
 
 ## Architecture
 
-16 plugins organized in four layers. Domain specialists depend on utility plugins, which depend on foundation plugins, which depend on the meta layer.
+16 plugins organized in four layers.
+Domain specialists depend on utility plugins,
+which depend on foundation plugins,
+which depend on the meta layer.
 
 ```mermaid
 flowchart TB
@@ -99,7 +109,7 @@ flowchart TB
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, stability monitoring | 10 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, Discussions retrieval | 12 | 2 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval | 14 | 2 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions | 14 | 18 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 9 | 2 |
 | **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 10 | 4 |
@@ -115,23 +125,54 @@ flowchart TB
 | **scribe** | Domain | Documentation with AI slop detection, style learning, writing enforcement | 3 | 3 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 
-Full inventory: [Capabilities Reference](book/src/reference/capabilities-reference.md).
+Full inventory:
+[Capabilities Reference](book/src/reference/capabilities-reference.md).
 
 ### How the Layers Work
 
-**Governance and quality.** `imbue` enforces TDD via a PreToolUse hook that verifies test files before allowing implementation writes. Quality gates in `/create-skill` and `/create-command` halt execution when tests fail. `imbue:rigorous-reasoning` requires step-by-step logic checks before tool execution.
+**Governance and quality.**
+`imbue` enforces TDD via a PreToolUse hook that verifies
+test files before allowing implementation writes.
+Quality gates in `/create-skill` and `/create-command`
+halt execution when tests fail.
+`imbue:rigorous-reasoning` requires step-by-step logic
+checks before tool execution.
 
-**Security and sessions.** `leyline` manages OAuth flows with local token caching. `conserve` auto-approves safe commands while blocking destructive operations. `sanctum` isolates named sessions. Agents can run in worktree isolation to prevent filesystem conflicts during parallel execution.
+**Security and sessions.**
+`leyline` manages OAuth flows with local token caching.
+`conserve` auto-approves safe commands while blocking
+destructive operations. `sanctum` isolates named sessions.
+Agents can run in worktree isolation to prevent filesystem
+conflicts during parallel execution.
 
-**Maintenance.** `/update-ci` reconciles pre-commit hooks and GitHub Actions with code changes. `abstract`'s homeostatic monitor tracks skill stability and auto-triggers improvement agents when degradation is detected. It creates GitHub issues for human review. `/fix-workflow` repairs failed runs by analyzing previous errors.
+**Maintenance.**
+`/update-ci` reconciles pre-commit hooks and GitHub Actions
+with code changes.
+`abstract`'s homeostatic monitor tracks skill stability and
+auto-triggers improvement agents when degradation is detected.
+It creates GitHub issues for human review.
+`/fix-workflow` repairs failed runs by analyzing previous errors.
 
-**Cross-session state.** `attune`, `spec-kit`, and `sanctum` persist state across sessions via `CLAUDE_CODE_TASK_LIST_ID`. GitHub Discussions serve as a second persistence layer: `leyline` retrieves Decisions at session start, `attune` publishes war-room deliberations, `memory-palace` promotes evergreen knowledge, and `imbue` links scope-guard deferrals to companion discussions.
+**Cross-session state.**
+`attune`, `spec-kit`, and `sanctum` persist state across
+sessions via `CLAUDE_CODE_TASK_LIST_ID`.
+GitHub Discussions serve as a second persistence layer:
+`leyline` retrieves Decisions at session start,
+`attune` publishes war-room deliberations,
+`memory-palace` promotes evergreen knowledge,
+and `imbue` links scope-guard deferrals to companion
+discussions.
 
-**Risk classification.** `leyline:risk-classification` provides 4-tier task gating. GREEN and YELLOW tasks use heuristic matching. RED and CRITICAL tasks escalate to `war-room-checkpoint` for expert deliberation.
+**Risk classification.**
+`leyline:risk-classification` provides 4-tier task gating.
+GREEN and YELLOW tasks use heuristic matching.
+RED and CRITICAL tasks escalate to `war-room-checkpoint`
+for expert deliberation.
 
 ## Common Workflows
 
-See the [Common Workflows Guide](book/src/getting-started/common-workflows.md) for full details.
+See the [Common Workflows Guide](book/src/getting-started/common-workflows.md)
+for full details.
 
 | Workflow | Command | What it does |
 |----------|---------|-------------|
@@ -150,8 +191,13 @@ See the [Common Workflows Guide](book/src/getting-started/common-workflows.md) f
 
 ## Requirements
 
-- **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for security features, 2.1.63 latest tested)
-- **Python 3.9+** for hooks (macOS ships 3.9.6). Plugin packages may target 3.10+ via virtual environments, but all hook code must be 3.9-compatible. See the [Plugin Development Guide](docs/plugin-development-guide.md) for compatibility rules.
+- **Claude Code** 2.1.16+ (2.1.32+ for agent teams,
+  2.1.38+ for security features, 2.1.63 latest tested)
+- **Python 3.9+** for hooks (macOS ships 3.9.6).
+  Plugin packages may target 3.10+ via virtual environments,
+  but all hook code must be 3.9-compatible.
+  See the [Plugin Development Guide](docs/plugin-development-guide.md)
+  for compatibility rules.
 
 ## Plugin Development
 
@@ -178,22 +224,36 @@ my-plugin/
 └── pyproject.toml          # Package config
 ```
 
-See the [Plugin Development Guide](docs/plugin-development-guide.md) for structure requirements and naming conventions. For LSP integration, see the [LSP Guide](docs/guides/lsp-native-support.md).
+See the [Plugin Development Guide](docs/plugin-development-guide.md)
+for structure requirements and naming conventions.
+For LSP integration,
+see the [LSP Guide](docs/guides/lsp-native-support.md).
 
 ## Documentation
 
-- [Installation Guide](book/src/getting-started/installation.md) - setup, marketplace, post-install hooks
-- [Quick Start](book/src/getting-started/quick-start.md) - first commands after installation
-- [Common Workflows](book/src/getting-started/common-workflows.md) - task-oriented usage guide
-- [Plugin Development Guide](docs/plugin-development-guide.md) - creating and testing plugins
-- [Capabilities Reference](book/src/reference/capabilities-reference.md) - full skill, command, and agent inventory
-- [Tutorials](book/src/tutorials/README.md) - PR workflows, debugging, feature lifecycles
+- [Installation Guide](book/src/getting-started/installation.md) -
+  setup, marketplace, post-install hooks
+- [Quick Start](book/src/getting-started/quick-start.md) -
+  first commands after installation
+- [Common Workflows](book/src/getting-started/common-workflows.md) -
+  task-oriented usage guide
+- [Plugin Development Guide](docs/plugin-development-guide.md) -
+  creating and testing plugins
+- [Capabilities Reference](book/src/reference/capabilities-reference.md) -
+  full skill, command, and agent inventory
+- [Tutorials](book/src/tutorials/README.md) -
+  PR workflows, debugging, feature lifecycles
 
-Per-plugin documentation lives in `book/src/plugins/` (one page per plugin).
+Per-plugin documentation lives in `book/src/plugins/`
+(one page per plugin).
 
 ## Contributing
 
-Each plugin maintains its own tests and documentation. Run `make test` at the repo root to execute all plugin test suites. See the [Plugin Development Guide](docs/plugin-development-guide.md) for contribution guidelines.
+Each plugin maintains its own tests and documentation.
+Run `make test` at the repo root to execute all plugin
+test suites. See the
+[Plugin Development Guide](docs/plugin-development-guide.md)
+for contribution guidelines.
 
 ## License
 

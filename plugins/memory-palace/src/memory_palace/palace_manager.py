@@ -13,7 +13,7 @@ import hashlib
 import json
 import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -592,7 +592,7 @@ class MemoryPalaceManager:
 
         # Track queries across palaces for duplicate detection
         query_locations: dict[str, list[tuple[str, str]]] = defaultdict(list)
-        cutoff = datetime.now() - __import__("datetime").timedelta(days=stale_days)
+        cutoff = datetime.now() - timedelta(days=stale_days)
 
         for palace_summary in self.list_palaces():
             palace = self.load_palace(palace_summary["id"])

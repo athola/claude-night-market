@@ -28,6 +28,7 @@ Leyline provides shared utilities and services to maintain consistent plugin fun
 | `service-registry` | Manage external service connections. | Coordinating multiple external services. |
 | `error-patterns` | Standardized error handling. | Implementing error recovery logic. |
 | `authentication-patterns` | Common auth flows. | Connecting to external APIs. |
+| `markdown-formatting` | Line wrapping and style conventions. | Generating or editing markdown prose. |
 
 ## Workflow and Integration
 

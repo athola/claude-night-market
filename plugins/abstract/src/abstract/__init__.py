@@ -1,6 +1,6 @@
 """Abstract plugin - meta-skills infrastructure for Claude Code."""
 
-__version__ = "1.0.1"
+__version__ = "1.5.5"
 
 __all__ = [
     "base",

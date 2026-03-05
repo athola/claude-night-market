@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-coverage lint format type-check typecheck security clean \
-        install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota demo-skills plugin-check debug-variables
+        install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota demo-skills demo-formatting plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -125,7 +125,29 @@ demo-skills: ## Validate leyline skill structure
 	@echo "Commands:"
 	@find commands/ -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
 
-plugin-check: demo-tokens demo-quota demo-skills status ## Run all demo workflows
+demo-formatting: ## Validate markdown-formatting skill structure
+	@echo "=== Markdown Formatting Skill Demo ==="
+	@echo "Checking skill structure..."
+	@test -f skills/markdown-formatting/SKILL.md && \
+		echo "  SKILL.md: OK" || echo "  SKILL.md: MISSING"
+	@test -f skills/markdown-formatting/modules/wrapping-rules.md && \
+		echo "  wrapping-rules.md: OK" || echo "  wrapping-rules.md: MISSING"
+	@echo ""
+	@echo "Frontmatter:"
+	@head -10 skills/markdown-formatting/SKILL.md | grep -E '^(name|category|estimated_tokens):' | sed 's/^/  /'
+	@echo ""
+	@echo "Checking prose compliance (lines > 80 chars outside code blocks):"
+	@python3 -c "\
+	in_code = False; violations = 0; \
+	[exec('in_code = not in_code') if l.startswith('\`\`\`') \
+	else exec('violations += 1') if not in_code and len(l.rstrip()) > 80 \
+	and not l.startswith('|') and not l.startswith('---') \
+	else None for l in open('skills/markdown-formatting/SKILL.md')]; \
+	print(f'  {violations} violations found')" 2>/dev/null || echo "  (python3 check skipped)"
+	@echo ""
+	@echo "Formatting skill demo complete."
+
+plugin-check: demo-tokens demo-quota demo-skills demo-formatting status ## Run all demo workflows
 	@echo ""
 	@echo "=== Leyline Plugin Check Complete ==="
 

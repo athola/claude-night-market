@@ -76,10 +76,19 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 - validate internal documents (docs/, specs/, wiki, commands/) are mapped to the relevant sections so the README anchors them with context-sensitive links.
 
 ## Step 4 - Apply Edits (`update-readme:edits-applied`)
-- Implement the new structure directly in `README.md` (or the specified file).
+- Implement the new structure directly in `README.md`
+  (or the specified file).
+- Follow `Skill(leyline:markdown-formatting)` conventions:
+  wrap prose at 80 chars (prefer sentence/clause boundaries),
+  blank lines around headings, ATX headings only, blank line
+  before lists, reference-style links for long URLs.
 - Maintain concise, evidence-based prose; avoid marketing fluff.
-- Add comparison tables, feature lists, or diagrams only if they originate from current repository assets (no speculative content).
-- When referencing algorithms or performance claims, point to benchmarks or tests within the repository or documented math reviews.
+- Add comparison tables, feature lists, or diagrams only if
+  they originate from current repository assets (no speculative
+  content).
+- When referencing algorithms or performance claims, point to
+  benchmarks or tests within the repository or documented math
+  reviews.
 
 ## Step 4.5 - AI Slop Detection (`update-readme:slop-scanned`)
 

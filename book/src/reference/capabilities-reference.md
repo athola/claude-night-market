@@ -61,6 +61,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
+| `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |

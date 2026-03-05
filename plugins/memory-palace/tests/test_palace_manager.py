@@ -5,10 +5,11 @@ BDD-style tests organized by behavior:
 - Master index management
 - Search operations
 - Export/Import functionality
+- Prune check (stale, duplicate, low-quality detection)
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -764,3 +765,297 @@ class TestBackupCreation:
         manager.create_backup("nonexistent")
 
         assert len(list(backups_dir.glob("*.json"))) == len(initial_backups)
+
+
+STALE_DAYS = 90
+LOW_NOVELTY = 0.1
+
+
+class TestPruneCheck:
+    """Feature: Prune check identifies entries needing cleanup.
+
+    As a knowledge curator
+    I want to identify stale, duplicate, and low-quality entries
+    So that I can maintain a healthy palace collection
+    """
+
+    @pytest.fixture
+    def manager(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> MemoryPalaceManager:
+        """Create a manager for prune check testing."""
+        return MemoryPalaceManager(
+            config_path=str(temp_config_file),
+            palaces_dir_override=str(temp_palaces_dir),
+        )
+
+    def _write_palace(self, palaces_dir: Path, palace: dict) -> None:
+        """Write a palace JSON file to the palaces directory."""
+        (palaces_dir / f"{palace['id']}.json").write_text(json.dumps(palace, indent=2))
+
+    @pytest.fixture
+    def _fresh_palace(
+        self,
+        temp_palaces_dir: Path,
+        manager: MemoryPalaceManager,
+    ) -> None:
+        """Create a palace with recent, high-quality entries."""
+        now = datetime.now().isoformat()
+        self._write_palace(
+            temp_palaces_dir,
+            {
+                "id": "fresh-palace",
+                "name": "Fresh Palace",
+                "domain": "testing",
+                "metaphor": "garden",
+                "created": now,
+                "last_modified": now,
+                "layout": {
+                    "districts": [],
+                    "buildings": [],
+                    "rooms": [],
+                    "connections": [],
+                },
+                "associations": {
+                    "entry1": {
+                        "label": "Recent Entry",
+                        "query": "recent topic",
+                        "timestamp": now,
+                        "novelty_score": 0.9,
+                    },
+                },
+                "sensory_encoding": {},
+                "metadata": {"concept_count": 1},
+            },
+        )
+        manager.update_master_index()
+
+    @pytest.fixture
+    def _stale_palace(
+        self,
+        temp_palaces_dir: Path,
+        manager: MemoryPalaceManager,
+    ) -> None:
+        """Create a palace with entries older than the stale cutoff."""
+        old_time = (datetime.now() - timedelta(days=STALE_DAYS + 30)).isoformat()
+        now = datetime.now().isoformat()
+        self._write_palace(
+            temp_palaces_dir,
+            {
+                "id": "stale-palace",
+                "name": "Stale Palace",
+                "domain": "testing",
+                "metaphor": "ruin",
+                "created": old_time,
+                "last_modified": now,
+                "layout": {
+                    "districts": [],
+                    "buildings": [],
+                    "rooms": [],
+                    "connections": [],
+                },
+                "associations": {
+                    "old-entry": {
+                        "label": "Old Entry",
+                        "query": "old topic",
+                        "timestamp": old_time,
+                        "novelty_score": 0.8,
+                    },
+                    "fresh-entry": {
+                        "label": "Fresh Entry",
+                        "query": "fresh topic",
+                        "timestamp": now,
+                        "novelty_score": 0.9,
+                    },
+                },
+                "sensory_encoding": {},
+                "metadata": {"concept_count": 2},
+            },
+        )
+        manager.update_master_index()
+
+    @pytest.fixture
+    def _low_quality_palace(
+        self,
+        temp_palaces_dir: Path,
+        manager: MemoryPalaceManager,
+    ) -> None:
+        """Create a palace with low novelty_score entries."""
+        now = datetime.now().isoformat()
+        self._write_palace(
+            temp_palaces_dir,
+            {
+                "id": "lowq-palace",
+                "name": "Low Quality Palace",
+                "domain": "testing",
+                "metaphor": "shed",
+                "created": now,
+                "last_modified": now,
+                "layout": {
+                    "districts": [],
+                    "buildings": [],
+                    "rooms": [],
+                    "connections": [],
+                },
+                "associations": {
+                    "weak-entry": {
+                        "label": "Weak Entry",
+                        "query": "weak topic",
+                        "timestamp": now,
+                        "novelty_score": LOW_NOVELTY,
+                    },
+                    "good-entry": {
+                        "label": "Good Entry",
+                        "query": "good topic",
+                        "timestamp": now,
+                        "novelty_score": 0.8,
+                    },
+                },
+                "sensory_encoding": {},
+                "metadata": {"concept_count": 2},
+            },
+        )
+        manager.update_master_index()
+
+    @pytest.fixture
+    def _duplicate_palaces(
+        self,
+        temp_palaces_dir: Path,
+        manager: MemoryPalaceManager,
+    ) -> None:
+        """Create two palaces with the same query string."""
+        now = datetime.now().isoformat()
+        for idx, pid in enumerate(["dup-palace-a", "dup-palace-b"]):
+            self._write_palace(
+                temp_palaces_dir,
+                {
+                    "id": pid,
+                    "name": f"Dup Palace {idx}",
+                    "domain": "testing",
+                    "metaphor": "tower",
+                    "created": now,
+                    "last_modified": now,
+                    "layout": {
+                        "districts": [],
+                        "buildings": [],
+                        "rooms": [],
+                        "connections": [],
+                    },
+                    "associations": {
+                        f"entry-{idx}": {
+                            "label": "Shared Query Entry",
+                            "query": "shared topic",
+                            "timestamp": now,
+                            "novelty_score": 0.7,
+                        },
+                    },
+                    "sensory_encoding": {},
+                    "metadata": {"concept_count": 1},
+                },
+            )
+        manager.update_master_index()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_result_for_no_palaces(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: No palaces exist.
+
+        Given an empty palace directory
+        When running prune_check
+        Then the result should show zero issues
+        """
+        result = manager.prune_check()
+
+        assert result["palaces_checked"] == 0
+        assert result["total_stale"] == 0
+        assert result["total_duplicates"] == 0
+        assert result["total_low_quality"] == 0
+        assert result["recommendations"] == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.usefixtures("_fresh_palace")
+    def test_no_issues_for_fresh_entries(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: All entries are recent and high quality.
+
+        Given a palace with fresh, high-novelty entries
+        When running prune_check
+        Then no recommendations should be generated
+        """
+        result = manager.prune_check()
+
+        assert result["palaces_checked"] == 1
+        assert result["total_stale"] == 0
+        assert result["total_low_quality"] == 0
+        assert result["recommendations"] == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.usefixtures("_stale_palace")
+    def test_detects_stale_entries(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: Palace contains entries older than the cutoff.
+
+        Given a palace with one entry older than 90 days
+        When running prune_check with default stale_days
+        Then the stale entry should appear in recommendations
+        And the fresh entry should not
+        """
+        result = manager.prune_check()
+
+        assert result["total_stale"] == 1
+        assert len(result["recommendations"]) == 1
+        rec = result["recommendations"][0]
+        assert rec["palace_id"] == "stale-palace"
+        assert "old-entry" in rec["stale"]
+        assert "fresh-entry" not in rec["stale"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.usefixtures("_low_quality_palace")
+    def test_detects_low_quality_entries(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: Palace contains entries with low novelty scores.
+
+        Given a palace with one entry below the quality threshold
+        When running prune_check
+        Then the low-quality entry should be flagged
+        And the good entry should not
+        """
+        result = manager.prune_check()
+
+        assert result["total_low_quality"] == 1
+        assert len(result["recommendations"]) == 1
+        rec = result["recommendations"][0]
+        assert "weak-entry" in rec["low_quality"]
+        assert "good-entry" not in rec["low_quality"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.usefixtures("_duplicate_palaces")
+    def test_detects_duplicate_queries(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: Same query appears in multiple palaces.
+
+        Given two palaces each containing 'shared topic'
+        When running prune_check
+        Then duplicates should be reported with both locations
+        """
+        result = manager.prune_check()
+
+        assert result["total_duplicates"] == 1
+        assert "duplicates" in result
+        dup = result["duplicates"][0]
+        assert dup["query"] == "shared topic"
+        assert len(dup["locations"]) == 2
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.usefixtures("_stale_palace")
+    def test_custom_stale_days(self, manager: MemoryPalaceManager) -> None:
+        """Scenario: Custom stale_days threshold changes detection.
+
+        Given a palace with an entry 120 days old
+        When running prune_check with stale_days=365
+        Then no entries should be marked stale
+        """
+        result = manager.prune_check(stale_days=365)
+
+        assert result["total_stale"] == 0
