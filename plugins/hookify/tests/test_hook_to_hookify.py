@@ -11,6 +11,7 @@ try:
         DEFAULT_MIN_CONFIDENCE,
         ExtractedPattern,
         HookAnalyzer,
+        _detect_tool_event,
         analyze_hook,
         generate_hookify_rule,
     )
@@ -23,6 +24,7 @@ except ImportError:
         DEFAULT_MIN_CONFIDENCE,
         ExtractedPattern,
         HookAnalyzer,
+        _detect_tool_event,
         analyze_hook,
         generate_hookify_rule,
     )
@@ -631,3 +633,293 @@ class TestCLIThresholdArgs:
             cwd=str(Path(__file__).parent.parent),
         )
         assert "--min-confidence" in result.stdout
+
+
+class TestDetectToolEvent:
+    """Test tool-type detection from pattern fields."""
+
+    def test_command_patterns_map_to_bash(self):
+        """Given patterns on 'command' field, returns 'bash' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("cmd_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="regex",
+                    pattern="rm -rf",
+                    field="command",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "bash"
+
+    def test_file_path_patterns_map_to_file(self):
+        """Given patterns on 'file_path' field, returns 'file' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("path_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="ends_with",
+                    pattern=".env",
+                    field="file_path",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "file"
+
+    def test_content_patterns_map_to_file(self):
+        """Given patterns on 'content' field, returns 'file' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("content_hook.py"),
+            hook_type="PostToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="password",
+                    field="content",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "file"
+
+    def test_new_text_patterns_map_to_file(self):
+        """Given patterns on 'new_text' field, returns 'file' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("write_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="regex",
+                    pattern="API_KEY",
+                    field="new_text",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "file"
+
+    def test_old_text_patterns_map_to_file(self):
+        """Given patterns on 'old_text' field, returns 'file' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("edit_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="TODO",
+                    field="old_text",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "file"
+
+    def test_mixed_fields_fall_back_to_bash(self):
+        """Given patterns on both command and file fields, returns 'bash'."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("mixed_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="sudo",
+                    field="command",
+                ),
+                ExtractedPattern(
+                    pattern_type="ends_with",
+                    pattern=".py",
+                    field="file_path",
+                ),
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "bash"
+
+    def test_session_start_maps_to_prompt(self):
+        """Given SessionStart hook type, returns 'prompt' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("session_hook.py"),
+            hook_type="SessionStart",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="hello",
+                    field="user_prompt",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "prompt"
+
+    def test_stop_maps_to_stop(self):
+        """Given Stop hook type, returns 'stop' event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("stop_hook.py"),
+            hook_type="Stop",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="done",
+                    field="command",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "stop"
+
+    def test_no_patterns_defaults_to_bash(self):
+        """Given no patterns, returns 'bash' as the safe default."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("empty_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "bash"
+
+    def test_multiple_file_patterns_map_to_file(self):
+        """Given multiple patterns all on file fields, returns 'file'."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("multi_file_hook.py"),
+            hook_type="PostToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="ends_with",
+                    pattern=".env",
+                    field="file_path",
+                ),
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="API_KEY",
+                    field="content",
+                ),
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "file"
+
+    def test_user_prompt_field_defaults_to_bash(self):
+        """Given user_prompt field on PreToolUse, defaults to 'bash'.
+
+        The user_prompt field is not a file field or command field,
+        so it does not trigger either detection path, resulting in
+        the bash default.
+        """
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("prompt_check.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="please",
+                    field="user_prompt",
+                )
+            ],
+            convertible=True,
+        )
+
+        assert _detect_tool_event(analysis) == "bash"
+
+
+class TestGenerateHookifyRuleToolEvent:
+    """Test that generate_hookify_rule uses tool-type detection."""
+
+    def test_file_hook_generates_file_event(self):
+        """Given PreToolUse hook with file_path pattern, generates file event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("protect_env.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="ends_with",
+                    pattern=".env",
+                    field="file_path",
+                )
+            ],
+            convertible=True,
+        )
+
+        rule = generate_hookify_rule(analysis)
+
+        assert "event: file" in rule
+        assert "event: bash" not in rule
+
+    def test_command_hook_generates_bash_event(self):
+        """Given PreToolUse hook with command pattern, generates bash event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("block_rm.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="regex",
+                    pattern="rm -rf",
+                    field="command",
+                )
+            ],
+            convertible=True,
+        )
+
+        rule = generate_hookify_rule(analysis)
+
+        assert "event: bash" in rule
+
+    def test_content_hook_generates_file_event(self):
+        """Given PostToolUse hook with content pattern, generates file event."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("scan_content.py"),
+            hook_type="PostToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="password",
+                    field="content",
+                )
+            ],
+            convertible=True,
+        )
+
+        rule = generate_hookify_rule(analysis)
+
+        assert "event: file" in rule
