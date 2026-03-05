@@ -473,11 +473,33 @@ def format_skill_summary(metrics_by_skill: dict[str, SkillMetrics]) -> list[str]
     return lines
 
 
-def generate_learnings_md(result: AggregationResult) -> str:
+def extract_pinned_section(content: str) -> str:
+    """Extract the Pinned Learnings section from existing content.
+
+    Returns the section content (without header) or empty
+    string if not found.
+    """
+    if "## Pinned Learnings" not in content:
+        return ""
+
+    start = content.index("## Pinned Learnings")
+    after_header = content[start + len("## Pinned Learnings") :]
+    next_section = after_header.find("\n## ")
+    if next_section == -1:
+        section = after_header.strip()
+    else:
+        section = after_header[:next_section].strip()
+
+    return section
+
+
+def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") -> str:
     """Generate LEARNINGS.md content from aggregation result.
 
     Args:
         result: Aggregation result
+        existing_pinned: Content from an existing Pinned Learnings
+            section to preserve across regeneration
 
     Returns:
         Markdown content for LEARNINGS.md
@@ -494,6 +516,14 @@ def generate_learnings_md(result: AggregationResult) -> str:
         "---",
         "",
     ]
+
+    # Pinned section (preserved across regenerations)
+    if existing_pinned:
+        lines.append("## Pinned Learnings")
+        lines.append("")
+        lines.append(existing_pinned)
+        lines.append("")
+        lines.extend(["---", ""])
 
     # Add sections using helper functions
     if result.high_impact_issues:
