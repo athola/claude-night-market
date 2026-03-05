@@ -5,6 +5,8 @@ Tests the integration between /update-plugins, /fix-workflow, and proof-of-work
 to ensure automatic improvement tracking works correctly.
 """
 
+import json
+import sys
 from pathlib import Path
 
 # Project root
@@ -140,8 +142,6 @@ def test_infrastructure_accessible():
     assert history_file.exists(), "History file does not exist"
 
     # Verify it's valid JSON
-    import json
-
     with open(history_file) as f:
         data = json.load(f)
     assert isinstance(data, dict), "History file is not a valid JSON object"
@@ -159,8 +159,6 @@ def test_feedback_loop_documented():
 
 if __name__ == "__main__":
     # Run all tests
-    import sys
-
     tests = [
         test_update_plugins_has_phase_2,
         test_fix_workflow_has_phase_0,

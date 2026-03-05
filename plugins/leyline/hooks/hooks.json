@@ -21,6 +21,19 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "WebFetch|WebSearch|Bash",
+        "_comment": "Sanitize external content for prompt injection and code execution patterns",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/sanitize_external_content.py",
+            "timeout": 3
+          }
+        ]
+      }
     ]
   }
 }

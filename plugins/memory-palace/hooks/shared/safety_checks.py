@@ -64,6 +64,19 @@ _PROMPT_INJECTION_PATTERNS = [
     re.compile(r"(?i)system\s*:\s*you\s+are"),
 ]
 
+_CODE_EXECUTION_PATTERNS = [
+    re.compile(r"!!python/"),
+    re.compile(r"__import__\s*\("),
+    re.compile(r"(?<![`])eval\s*\("),
+    re.compile(r"(?<![`])exec\s*\("),
+    re.compile(r"os\.system\s*\("),
+    re.compile(r"subprocess\.\w+\([^)]{0,200}shell\s*=\s*True"),
+    re.compile(r"__globals__"),
+    re.compile(r"__builtins__"),
+    re.compile(r"__class__\.__mro__"),
+    re.compile(r"compile\s*\([^)]*exec"),
+]
+
 
 @dataclass
 class SafetyCheckResult:
@@ -198,6 +211,31 @@ def check_prompt_injection(content: str) -> SafetyCheckResult | None:
     return None
 
 
+def check_code_execution_risk(
+    content: str,
+) -> SafetyCheckResult | None:
+    """Check for code execution patterns in content.
+
+    Returns result if dangerous patterns found, None if clean.
+    Ignores patterns inside backtick-delimited code spans.
+    """
+    if not content:
+        return None
+
+    # Strip backtick-wrapped code spans before scanning
+    # so discussions ABOUT code don't trigger
+    sample = re.sub(r"`[^`]+`", "", content[:_MAX_REGEX_INPUT_LEN])
+
+    for pattern in _CODE_EXECUTION_PATTERNS:
+        if pattern.search(sample):
+            return SafetyCheckResult(
+                False,
+                "Code execution pattern detected",
+            )
+
+    return None
+
+
 def is_safe_content(content: str | bytes, config: dict[str, Any]) -> SafetyCheckResult:
     """Check if content is safe to process.
 
@@ -251,6 +289,11 @@ def _is_safe_content_impl(
 
     # 3. Data bomb checks (medium - samples with early exit)
     result = check_data_bombs(content, config)
+    if result:
+        return result
+
+    # 3.5. Code execution risk (fast - regex on sample)
+    result = check_code_execution_risk(content)
     if result:
         return result
 

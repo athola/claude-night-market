@@ -6,6 +6,7 @@ using the L1/L2 taxonomy defined in leyline:testing-quality-standards.
 
 import ast
 import re
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -189,8 +190,6 @@ class TestContentTestTemplatesModuleContent:
         """Given Python code blocks serve as copy-paste templates
         When Claude uses them to scaffold tests
         Then every block must be valid Python syntax."""
-        import textwrap
-
         python_blocks = re.findall(
             r"```python\n(.*?)\n```",
             module_content,

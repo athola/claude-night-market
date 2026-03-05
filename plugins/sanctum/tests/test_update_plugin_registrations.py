@@ -3,6 +3,7 @@
 
 import json
 import sys
+import unittest.mock
 from pathlib import Path
 
 import pytest
@@ -1116,8 +1117,6 @@ class TestFixPluginAdvanced:
 
     def test_fix_plugin_returns_false_on_corrupt_write(self, tmp_path: Path) -> None:
         """Verify fix_plugin returns False if written JSON is invalid."""
-        import unittest.mock
-
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
         config_dir = plugin_dir / ".claude-plugin"

@@ -462,6 +462,151 @@ class TestFindingClassification:
         assert len(patterns["entries"]) == 1
 
 
+class TestReviewEntryImportance:
+    """Test importance scoring on ReviewEntry."""
+
+    def test_default_importance_score(self) -> None:
+        entry = ReviewEntry(
+            source_pr="#1 - Test",
+            title="Test Entry",
+            room_type="patterns",
+            content={"decision": "test"},
+        )
+        assert entry.importance_score == 40
+
+    def test_decisions_get_boost(self) -> None:
+        entry = ReviewEntry(
+            source_pr="#1 - Arch",
+            title="Use hexagonal",
+            room_type="decisions",
+            content={"decision": "hexagonal"},
+        )
+        assert entry.importance_score >= 70
+
+    def test_explicit_importance(self) -> None:
+        entry = ReviewEntry(
+            source_pr="#1 - Test",
+            title="Test",
+            room_type="patterns",
+            content={"decision": "test"},
+            importance_score=85,
+        )
+        assert entry.importance_score == 85
+
+    def test_importance_in_serialization(self) -> None:
+        entry = ReviewEntry(
+            source_pr="#1 - Test",
+            title="Test",
+            room_type="patterns",
+            content={"decision": "test"},
+            importance_score=85,
+        )
+        data = entry.to_dict()
+        assert data["importance_score"] == 85
+
+        restored = ReviewEntry.from_dict(data)
+        assert restored.importance_score == 85
+
+    def test_importance_in_markdown(self) -> None:
+        entry = ReviewEntry(
+            source_pr="#1 - Test",
+            title="Test",
+            room_type="decisions",
+            content={"decision": "test"},
+            importance_score=90,
+        )
+        md = entry.to_markdown()
+        assert "importance_score: 90" in md
+
+
+class TestSearchSortByImportance:
+    """Test sort_by='importance' in search_review_chamber."""
+
+    def test_sort_by_importance(self, manager):
+        """Results sorted by importance_score descending."""
+        palace = manager.create_project_palace("owner/sort-repo")
+
+        # Low importance entry added first
+        low = ReviewEntry(
+            source_pr="#1",
+            title="Low priority pattern",
+            room_type="patterns",
+            content={"decision": "low"},
+            importance_score=20,
+        )
+        # High importance entry added second
+        high = ReviewEntry(
+            source_pr="#2",
+            title="High priority pattern",
+            room_type="patterns",
+            content={"decision": "high"},
+            importance_score=95,
+        )
+
+        manager.add_review_entry(palace["id"], low)
+        manager.add_review_entry(palace["id"], high)
+
+        results = manager.search_review_chamber(palace["id"], "", sort_by="importance")
+        assert len(results) == 2
+        assert results[0]["entry"]["title"] == "High priority pattern"
+        assert results[1]["entry"]["title"] == "Low priority pattern"
+
+    def test_default_sort_is_recency(self, manager):
+        """Default sort_by='recency' preserves original order."""
+        palace = manager.create_project_palace("owner/recency-repo")
+
+        entry = ReviewEntry(
+            source_pr="#1",
+            title="Some pattern",
+            room_type="patterns",
+            content={"decision": "test"},
+        )
+        manager.add_review_entry(palace["id"], entry)
+
+        # Should work without sort_by parameter
+        results = manager.search_review_chamber(palace["id"], "")
+        assert len(results) == 1
+
+
+class TestGetReviewChamberStatsTopEntries:
+    """Test that get_review_chamber_stats returns top_entries by importance."""
+
+    def test_stats_returns_top_entries_key(self, manager):
+        """Stats dict uses top_entries instead of recent_entries."""
+        palace = manager.create_project_palace("owner/stats-repo")
+
+        entry = ReviewEntry(
+            source_pr="#1",
+            title="Entry",
+            room_type="decisions",
+            content={},
+            importance_score=80,
+        )
+        manager.add_review_entry(palace["id"], entry)
+
+        stats = manager.get_review_chamber_stats(palace["id"])
+        assert "top_entries" in stats
+        assert "recent_entries" not in stats
+
+    def test_top_entries_sorted_by_importance(self, manager):
+        """top_entries are sorted by importance_score descending."""
+        palace = manager.create_project_palace("owner/top-repo")
+
+        for score in [30, 90, 50]:
+            entry = ReviewEntry(
+                source_pr=f"#{score}",
+                title=f"Entry {score}",
+                room_type="decisions",
+                content={},
+                importance_score=score,
+            )
+            manager.add_review_entry(palace["id"], entry)
+
+        stats = manager.get_review_chamber_stats(palace["id"])
+        scores = [e.get("importance_score", 40) for e in stats["top_entries"]]
+        assert scores == [90, 50, 30]
+
+
 class TestRoomStructure:
     """Tests for room structure constants."""
 

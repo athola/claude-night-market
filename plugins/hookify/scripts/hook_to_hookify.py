@@ -5,6 +5,15 @@ Analyzes Python hook files and extracts patterns that can be expressed
 as declarative hookify rules. Supports regex patterns, string matching,
 and simple conditional logic.
 
+Event mapping:
+    PreToolUse/PostToolUse hooks are mapped to hookify events based
+    on the fields their patterns target:
+    - Patterns on "command" -> event: bash
+    - Patterns on "file_path"/"content"/"new_text"/"old_text" -> event: file
+    - Mixed or unknown fields -> event: bash (safe default)
+    SessionStart -> event: prompt
+    Stop -> event: stop
+
 Usage:
     python hook_to_hookify.py <hook_file.py> [--output rules.md]
     python hook_to_hookify.py --scan <hooks_dir> [--output rules.md]
@@ -18,6 +27,12 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+# Configurable thresholds for hook conversion decisions.
+# Hooks with complexity > max are marked unconvertible.
+# Patterns with confidence < min are filtered out.
+DEFAULT_MAX_COMPLEXITY = 10
+DEFAULT_MIN_CONFIDENCE = 0.7
 
 
 @dataclass
@@ -179,11 +194,19 @@ class HookAnalyzer(ast.NodeVisitor):
         return names
 
 
-def analyze_hook(file_path: Path) -> HookAnalysis:
+def analyze_hook(
+    file_path: Path,
+    max_complexity: int = DEFAULT_MAX_COMPLEXITY,
+    min_confidence: float = DEFAULT_MIN_CONFIDENCE,
+) -> HookAnalysis:
     """Analyze a Python hook file and extract convertible patterns.
 
     Args:
         file_path: Path to the Python hook file
+        max_complexity: Maximum allowed complexity score. Hooks with
+            complexity above this value are marked unconvertible.
+        min_confidence: Minimum confidence threshold. Patterns below
+            this value are filtered out.
 
     Returns:
         HookAnalysis with extracted patterns and metadata
@@ -205,7 +228,8 @@ def analyze_hook(file_path: Path) -> HookAnalysis:
     analyzer = HookAnalyzer()
     analyzer.visit(tree)
 
-    analysis.patterns = analyzer.patterns
+    # Filter patterns by confidence threshold
+    analysis.patterns = [p for p in analyzer.patterns if p.confidence >= min_confidence]
     analysis.complexity_score = analyzer.complexity
 
     # Determine if fully convertible
@@ -215,7 +239,7 @@ def analyze_hook(file_path: Path) -> HookAnalysis:
     elif analyzer.has_file_io:
         analysis.convertible = False
         analysis.reason = "Contains file I/O - requires full Python hook"
-    elif analyzer.complexity > 10:
+    elif analyzer.complexity > max_complexity:
         analysis.convertible = False
         analysis.reason = "Too complex for declarative rules"
     elif not analysis.patterns:
@@ -247,6 +271,67 @@ def _detect_hook_type(file_path: Path, content: str) -> str:
     return "PreToolUse"  # Default
 
 
+def _detect_tool_event(analysis: HookAnalysis) -> str:
+    """Detect the hookify event type from extracted pattern fields.
+
+    PreToolUse and PostToolUse hooks can target different tools:
+    Bash, Edit, Write, Read, etc. The hookify event model maps
+    these to two categories:
+
+    - "bash": for hooks targeting command execution (Bash tool).
+      Detected when patterns reference the "command" field.
+    - "file": for hooks targeting file operations (Edit, Write,
+      MultiEdit, Read tools). Detected when patterns reference
+      "file_path", "content", "new_text", or "old_text" fields.
+
+    When a hook has patterns with mixed fields (some targeting
+    commands, some targeting files), we fall back to "bash" since
+    hookify rules can only have one event type per rule.
+
+    This function only applies to PreToolUse and PostToolUse
+    hooks. For SessionStart and Stop, the mapping is direct
+    (prompt and stop, respectively).
+
+    Args:
+        analysis: Hook analysis with extracted patterns
+
+    Returns:
+        Hookify event string: "bash", "file", "prompt", or "stop"
+    """
+    # Direct mappings for non-tool-use hook types
+    direct_map = {
+        "SessionStart": "prompt",
+        "Stop": "stop",
+    }
+    if analysis.hook_type in direct_map:
+        return direct_map[analysis.hook_type]
+
+    # For PreToolUse/PostToolUse, inspect pattern fields to
+    # determine whether the hook targets bash commands or file
+    # operations (Edit/Write/Read tools).
+    file_fields = {"file_path", "content", "new_text", "old_text"}
+    bash_fields = {"command"}
+
+    has_file = False
+    has_bash = False
+
+    for pattern in analysis.patterns:
+        if pattern.field in file_fields:
+            has_file = True
+        elif pattern.field in bash_fields:
+            has_bash = True
+
+    # If all patterns target file fields, use "file" event
+    if has_file and not has_bash:
+        return "file"
+
+    # Default: "bash" covers command-targeting hooks and mixed
+    # or indeterminate cases. This is the safe default because
+    # most PreToolUse/PostToolUse hooks guard against dangerous
+    # shell commands.
+    return "bash"
+
+
 def generate_hookify_rule(analysis: HookAnalysis) -> str:
     """Generate a hookify rule from analysis results.
 
@@ -259,14 +344,9 @@ def generate_hookify_rule(analysis: HookAnalysis) -> str:
     if not analysis.convertible or not analysis.patterns:
         return ""
 
-    # Map hook type to hookify event
-    event_map = {
-        "PreToolUse": "bash",
-        "PostToolUse": "bash",
-        "SessionStart": "prompt",
-        "Stop": "stop",
-    }
-    event = event_map.get(analysis.hook_type, "bash")
+    # Detect the appropriate hookify event by examining what
+    # tool the hook targets (bash commands vs file operations)
+    event = _detect_tool_event(analysis)
 
     # Build rule
     lines = [
@@ -341,6 +421,24 @@ def main() -> int:
         action="store_true",
         help="Show detailed analysis",
     )
+    parser.add_argument(
+        "--max-complexity",
+        type=int,
+        default=DEFAULT_MAX_COMPLEXITY,
+        help=(
+            "Maximum complexity score for convertible hooks "
+            f"(default: {DEFAULT_MAX_COMPLEXITY})"
+        ),
+    )
+    parser.add_argument(
+        "--min-confidence",
+        type=float,
+        default=DEFAULT_MIN_CONFIDENCE,
+        help=(
+            "Minimum confidence threshold for extracted patterns "
+            f"(default: {DEFAULT_MIN_CONFIDENCE})"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -355,7 +453,11 @@ def main() -> int:
         if f.name.startswith("test_") or "/__pycache__/" in str(f):
             continue
 
-        analysis = analyze_hook(f)
+        analysis = analyze_hook(
+            f,
+            max_complexity=args.max_complexity,
+            min_confidence=args.min_confidence,
+        )
         results.append(analysis)
 
         if args.verbose:

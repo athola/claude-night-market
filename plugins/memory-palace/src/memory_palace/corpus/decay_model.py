@@ -12,6 +12,7 @@ import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class DecayCurve(Enum):
 
     LINEAR = "linear"  # Uniform decay over time
     EXPONENTIAL = "exponential"  # Classic half-life decay
-    LOGARITHMIC = "logarithmic"  # Slow initial decay, accelerates later
+    LOGARITHMIC = "logarithmic"  # Fast initial decay, decelerates over time
 
 
 DECAY_CONFIG: dict[str, dict] = {
@@ -43,6 +44,45 @@ DECAY_CONFIG: dict[str, dict] = {
         "curve": DecayCurve.LOGARITHMIC,
     },
 }
+
+# Importance classification (0-100 scale)
+IMPORTANCE_CLASSES: dict[str, dict[str, Any]] = {
+    "constitutional": {"min_score": 90, "decay_floor": 0.5},
+    "architectural": {"min_score": 70, "decay_floor": 0.4},
+    "significant": {"min_score": 50, "decay_floor": 0.3},
+    "standard": {"min_score": 30, "decay_floor": 0.1},
+    "ephemeral": {"min_score": 0, "decay_floor": 0.0},
+}
+
+DEFAULT_IMPORTANCE_SCORE = 40
+MAX_IMPORTANCE_SCORE = 100
+CONSTITUTIONAL_MIN_SCORE: int = IMPORTANCE_CLASSES["constitutional"]["min_score"]
+
+
+def get_importance_class(score: int) -> str:
+    """Classify an importance score into a named class.
+
+    Args:
+        score: Importance score, must be 0-100 inclusive.
+
+    Raises:
+        ValueError: If score is outside 0-100 range.
+
+    """
+    if not (0 <= score <= MAX_IMPORTANCE_SCORE):
+        msg = f"importance_score must be 0-100, got {score}"
+        raise ValueError(msg)
+    for name, config in IMPORTANCE_CLASSES.items():
+        if score >= config["min_score"]:
+            return name
+    return "ephemeral"
+
+
+def get_decay_floor(score: int) -> float:
+    """Get the decay floor for a given importance score."""
+    cls = get_importance_class(score)
+    floor: float = IMPORTANCE_CLASSES[cls]["decay_floor"]
+    return floor
 
 
 @dataclass
@@ -72,6 +112,7 @@ class DecayModel:
         entry_id: str,
         maturity: str,
         last_validated: datetime,
+        importance_score: int | None = None,
     ) -> DecayState:
         """Calculate current decay state for an entry.
 
@@ -79,6 +120,7 @@ class DecayModel:
             entry_id: The ID of the knowledge entry
             maturity: The maturity level (seedling, growing, evergreen)
             last_validated: When the entry was last validated
+            importance_score: Importance score (0-100) for decay floor
 
         Returns:
             DecayState with current decay metrics
@@ -103,6 +145,12 @@ class DecayModel:
 
         # Clamp to valid range
         decay_factor = max(0.0, min(1.0, decay_factor))
+
+        # Enforce importance-based decay floor
+        if importance_score is None:
+            importance_score = DEFAULT_IMPORTANCE_SCORE
+        floor = get_decay_floor(importance_score)
+        decay_factor = max(decay_factor, floor)
 
         # Determine status
         status = self._determine_status(decay_factor)
@@ -206,7 +254,7 @@ class DecayModel:
 
     def get_stale_entries(
         self,
-        entries: list[dict],
+        entries: list[dict[str, Any]],
         threshold: float = STATUS_STALE_THRESHOLD,
     ) -> list[DecayState]:
         """Get entries with decay below threshold.
@@ -222,16 +270,25 @@ class DecayModel:
         stale: list[DecayState] = []
 
         for entry in entries:
-            entry_id = entry["id"]
+            entry_id = entry.get("id", "")
             maturity = entry.get("maturity", "growing")
+            importance_score = entry.get("importance_score", DEFAULT_IMPORTANCE_SCORE)
+
+            # Constitutional entries never appear as stale
+            if importance_score >= CONSTITUTIONAL_MIN_SCORE:
+                continue
 
             # Get validation date
-            validation_date = self._validation_dates.get(entry_id)
-            if validation_date is None:
-                # Use entry creation time or default to old date
-                validation_date = datetime.now(timezone.utc)
+            last_validated = self._validation_dates.get(entry_id)
+            if last_validated is None:
+                last_validated = datetime.now(timezone.utc)
 
-            state = self.calculate_decay(entry_id, maturity, validation_date)
+            state = self.calculate_decay(
+                entry_id,
+                maturity,
+                last_validated,
+                importance_score=importance_score,
+            )
 
             if state.decay_factor < threshold:
                 stale.append(state)

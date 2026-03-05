@@ -95,6 +95,13 @@ Apply everywhere regardless of directory:
 - Imperative mood for docstrings
 - No marketing language ("capable", "smooth", "elegant")
 - No first-person plural ("we can see", "let's explore")
+- Prose text wraps at 80 chars per line (hybrid wrapping:
+  prefer sentence/clause boundaries over arbitrary breaks)
+- Blank line before and after every heading
+- ATX headings only (`#` prefix, never setext underlines)
+- Blank line before every list (ordered or unordered)
+- Reference-style links when inline links push past 80 chars
+- Full formatting spec: `Skill(leyline:markdown-formatting)`
 
 ## Detection Patterns
 

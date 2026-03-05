@@ -388,6 +388,13 @@ fi
 - Grounded, specific language
 - Code blocks for all commands
 - Consistent heading hierarchy
+- Prose text wraps at 80 chars per line (hybrid wrapping:
+  prefer sentence/clause boundaries over arbitrary breaks)
+- Blank line before and after every heading
+- ATX headings only (`#` prefix, no setext underlines)
+- Blank line before every list
+- Reference-style links when inline links push past 80 chars
+- Full formatting spec: `Skill(leyline:markdown-formatting)`
 
 ## Error Handling
 

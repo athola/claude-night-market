@@ -7,6 +7,7 @@ search_review_chamber can use semantic search.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import yaml
@@ -217,8 +218,6 @@ class TestSemanticSearchIntegration:
 
     def test_search_review_chamber_semantic_flag(self, tmp_path: Path) -> None:
         """search_review_chamber with semantic=True uses embedding search."""
-        import json
-
         from memory_palace.project_palace import (
             ProjectPalaceManager,
             ReviewEntry,
@@ -266,8 +265,6 @@ class TestSemanticSearchIntegration:
         self, tmp_path: Path
     ) -> None:
         """search_review_chamber with semantic=False uses old text matching."""
-        import json
-
         from memory_palace.project_palace import (
             ProjectPalaceManager,
             ReviewEntry,

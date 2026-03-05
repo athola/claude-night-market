@@ -127,6 +127,22 @@ make fmt && make lint && make test
 # 5. Prepare PR
 ```
 
+## Shared Modules
+
+Sanctum uses shared modules under `commands/shared/`
+to deduplicate logic across commands.
+
+| Module | Used By | Purpose |
+|--------|---------|---------|
+| `test-plan-injection` | `/fix-pr`, `/pr-review` | Detect, generate, and inject test plans into PR descriptions |
+
+The test plan injection module checks whether a PR
+description already contains a test plan section
+(recognized heading + 3 or more checkbox items).
+When missing, it generates one from triage data and
+injects it before the review summary or appends it
+to the body.
+
 ## Skill Dependencies
 
 Most sanctum skills depend on `git-workspace-review`:

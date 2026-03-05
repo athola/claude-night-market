@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Shared test plan injection module for sanctum
+  (`commands/shared/test-plan-injection.md`) with
+  detection, generation, and injection logic
+- Test plan injection step in `/fix-pr` (step 6.5b)
+  and `/pr-review` (step 17.5) workflows
+- 627-line BDD test suite for test plan injection
+  covering detection patterns, generation templates,
+  and cross-reference validation
+
+## [1.5.5] - 2026-03-04
+
+### Added
+
+- Code execution risk detection for memory-palace safety
+  checks (YAML deserialization, eval/exec injection,
+  os.system, subprocess shell=True, dunder traversal)
+  with backtick-aware filtering
+- Importance-weighted decay floors for knowledge entries
+  (constitutional 0.5, architectural 0.4, significant
+  0.3, standard 0.1, ephemeral 0.0)
+- Content sanitization hook for leyline (two-tier threat
+  detection with prompt injection prevention)
+- Configurable complexity/confidence thresholds for
+  hookify rule suggestions
+- Tool-type detection in hookify event mapping (Bash
+  subcommand classification, WebFetch/WebSearch
+  identification)
+- Importance score field on ReviewEntry with room-type
+  defaults (decisions: 70, others: 40)
+- Constitutional entry exclusion from stale entry lists
+  in decay model
+- Pinned learnings preservation across LEARNINGS.md
+  regeneration in abstract aggregate script
+- Expanded GitHub Discussions fetch from 5 to 10 results
+  in leyline session-start hook
+- Shared `leyline:markdown-formatting` skill with hybrid
+  wrapping rules (80 chars, sentence-boundary preference)
+  and structural conventions (ATX headings, blank lines
+  around headings/lists, reference-style links)
+- New `.claude/rules/markdown-formatting.md` rule for
+  enforcing formatting during documentation generation
+- Prune-check tests for memory-palace palace manager
+  (stale entry, duplicate, low-quality detection)
+- Leyline Makefile `demo-formatting` target for skill
+  structure validation
+- 56 integration tests for sanctum
+  session_complete_notify hook (platform mocking, state
+  management, deduplication layers)
+
+### Fixed
+
+- Replaced inline `__import__("datetime").timedelta` with
+  proper import in `palace_manager.py`
+- D413 and PLR2004 lint violations in
+  session_complete_notify.py (missing blank line after
+  docstring section, magic number constants)
+
+### Changed
+
+- Updated scribe doc-generator generation-guidelines with
+  line wrapping section
+- Updated sanctum directory-style-rules shared rules with
+  formatting conventions
+- Updated sanctum update-readme, tutorial-updates, and
+  doc-consolidation skills with formatting references
+- Updated slop-scan-for-docs rule to include line length
+  verification as first post-write check
+
 ## [1.5.4] - 2026-03-03
 
 ### Added

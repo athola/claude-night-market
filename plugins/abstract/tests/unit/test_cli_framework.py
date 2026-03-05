@@ -7,6 +7,7 @@ and AbstractCLI base class behavior.
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from unittest.mock import patch
@@ -102,8 +103,6 @@ class TestOutputFormatterJson:
     @pytest.mark.unit
     def test_plain_dict(self):
         """Given a plain dict, output is valid JSON."""
-        import json
-
         result = OutputFormatter.format_json({"a": 1})
         parsed = json.loads(result)
         assert parsed == {"a": 1}
@@ -111,8 +110,6 @@ class TestOutputFormatterJson:
     @pytest.mark.unit
     def test_dataclass_serialised(self):
         """Given a dataclass instance, it is serialised via asdict."""
-        import json
-
         sample = _SampleData(name="hello", value=7)
         result = OutputFormatter.format_json(sample)
         parsed = json.loads(result)
@@ -121,8 +118,6 @@ class TestOutputFormatterJson:
     @pytest.mark.unit
     def test_list_of_dataclasses(self):
         """Given a list of dataclasses, each is serialised."""
-        import json
-
         items = [_SampleData(name="a", value=1), _SampleData(name="b", value=2)]
         result = OutputFormatter.format_json(items)
         parsed = json.loads(result)
@@ -131,8 +126,6 @@ class TestOutputFormatterJson:
     @pytest.mark.unit
     def test_list_of_plain_dicts(self):
         """Given a list of plain dicts, output is valid JSON array."""
-        import json
-
         data = [{"x": 1}, {"x": 2}]
         result = OutputFormatter.format_json(data)
         parsed = json.loads(result)
@@ -141,8 +134,6 @@ class TestOutputFormatterJson:
     @pytest.mark.unit
     def test_path_serialised_as_string(self):
         """Given a Path in a dict, output encodes it as string."""
-        import json
-
         result = OutputFormatter.format_json({"p": Path("/tmp/test")})
         parsed = json.loads(result)
         assert parsed["p"] == "/tmp/test"
@@ -373,8 +364,6 @@ class TestAbstractCLIRun:
         cli = _ConcreteCLI(CLIResult(success=True, data={"k": "v"}))
         cli.run(["--format", "json"])
         captured = capsys.readouterr()
-        import json
-
         parsed = json.loads(captured.out.strip())
         assert parsed == {"k": "v"}
 
@@ -394,8 +383,6 @@ class TestAbstractCLIFormatOutput:
     @pytest.mark.unit
     def test_json_format_delegates_to_formatter(self):
         """Given format=json, JSON output is produced."""
-        import json
-
         cli = _ConcreteCLI()
         result = CLIResult(success=True, data={"x": 1})
         output = cli.format_output(result, "json")

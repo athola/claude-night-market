@@ -3,7 +3,9 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+import os
 import sys
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -384,9 +386,6 @@ class TestShowStatus:
         template_file.write_text("old content")
 
         # Make source newer than template (touch source after template)
-        import os
-        import time
-
         # Set template mtime to past
         past_time = time.time() - 3600
         os.utime(template_file, (past_time, past_time))

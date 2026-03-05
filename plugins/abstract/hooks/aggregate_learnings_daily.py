@@ -36,6 +36,7 @@ for _d in _candidate_dirs:
 try:
     from aggregate_skill_logs import (  # noqa: E402
         aggregate_logs,
+        extract_pinned_section,
         generate_learnings_md,
         get_learnings_path,
         get_log_directory,
@@ -126,9 +127,17 @@ def _run_aggregate() -> Any:
 
 
 def _write_learnings(result: Any) -> None:
-    """Write LEARNINGS.md from aggregation result."""
-    content = generate_learnings_md(result)
+    """Write LEARNINGS.md from aggregation result.
+
+    Reads any existing Pinned Learnings section before
+    regenerating so that pinned entries survive the 30-day
+    rolling window.
+    """
     learnings_path = get_learnings_path()
+    existing_pinned = ""
+    if learnings_path.exists():
+        existing_pinned = extract_pinned_section(learnings_path.read_text())
+    content = generate_learnings_md(result, existing_pinned=existing_pinned)
     learnings_path.parent.mkdir(parents=True, exist_ok=True)
     learnings_path.write_text(content)
 

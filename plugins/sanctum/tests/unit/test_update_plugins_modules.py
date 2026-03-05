@@ -8,6 +8,7 @@ Tests for Phase 2-4 functionality:
 
 import json
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -331,8 +332,6 @@ class TestKnowledgeQueueChecker:
         Then items should be sorted high > medium > low
         """
         # Arrange
-        import time
-
         # Create low priority item
         low_file = temp_queue_dir / "low.md"
         low_content = "---\nstatus: pending\npriority: low\n---\n\nLow priority"

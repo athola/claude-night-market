@@ -7,6 +7,10 @@ This module tests the context warning hook that implements:
 """
 
 import json
+import os
+import time
+from io import StringIO
+from pathlib import Path
 
 import pytest
 
@@ -610,7 +614,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output minimal valid JSON.
         """
-        from io import StringIO
 
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -636,7 +639,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output WARNING alert with additionalContext.
         """
-        from io import StringIO
 
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -661,7 +663,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output JSON without additionalContext.
         """
-        from io import StringIO
 
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -687,7 +688,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return 0.
         """
-        from io import StringIO
 
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("not valid json {"))
@@ -714,7 +714,6 @@ class TestMainEntryPoint:
         When running main with no env var and estimation disabled
         Then it should use the hook input value.
         """
-        from io import StringIO
 
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
@@ -742,7 +741,6 @@ class TestMainEntryPoint:
         When running main
         Then env var should be used (OK, not CRITICAL).
         """
-        from io import StringIO
 
         hook_input = json.dumps({"context_usage": 0.55})  # Would be CRITICAL
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")  # OK
@@ -770,7 +768,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output CRITICAL alert.
         """
-        from io import StringIO
 
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.60")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -797,7 +794,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return minimal output.
         """
-        from io import StringIO
 
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         hook_input = json.dumps({"context_usage": -0.5})
@@ -824,7 +820,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output EMERGENCY alert with skill invocation guidance.
         """
-        from io import StringIO
 
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -853,7 +848,6 @@ class TestMainEntryPoint:
         When running main
         Then additionalContext should include bold headers and numbered steps.
         """
-        from io import StringIO
 
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.90")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
@@ -1102,8 +1096,6 @@ class TestFallbackContextEstimation:
         # Create the cwd directory and matching project dir using dash convention
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(exist_ok=True)
-        import os
-
         project_dir_name = str(fakecwd).replace(os.sep, "-")
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
@@ -1143,8 +1135,6 @@ class TestFallbackContextEstimation:
         When estimating context from session
         Then it should return None to avoid false alerts.
         """
-        import time
-
         home = tmp_path / "home" / "user"
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
@@ -1155,8 +1145,6 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
-
-        import os
 
         project_dir_name = str(fakecwd).replace(os.sep, "-")
         if not project_dir_name.startswith("-"):
@@ -1169,8 +1157,6 @@ class TestFallbackContextEstimation:
 
         # Make the file appear old (>60s) by backdating mtime
         old_time = time.time() - 120
-        import os
-
         os.utime(stale_file, (old_time, old_time))
 
         result = context_warning_full_module.estimate_context_from_session()
@@ -1199,8 +1185,6 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
-
-        import os
 
         project_dir_name = str(fakecwd).replace(os.sep, "-")
         if not project_dir_name.startswith("-"):
@@ -1249,8 +1233,6 @@ class TestFallbackContextEstimationCoverage:
         self, context_warning_full_module, monkeypatch, tmp_path
     ) -> None:
         """Project dir exists but has no JSONL files returns None."""
-        import os
-
         home = tmp_path / "home"
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
@@ -1277,8 +1259,6 @@ class TestFallbackContextEstimationCoverage:
         self, context_warning_full_module, monkeypatch, tmp_path
     ) -> None:
         """CLAUDE_SESSION_ID set but no match; falls back to newest."""
-        import os
-
         home = tmp_path / "home"
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
@@ -1309,8 +1289,6 @@ class TestFallbackContextEstimationCoverage:
         self, context_warning_full_module, monkeypatch, tmp_path
     ) -> None:
         """OSError during session discovery returns None."""
-        import os
-
         home = tmp_path / "home"
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
@@ -1746,8 +1724,6 @@ class TestResolveProjectDir:
         When resolving the project directory
         Then it should return the directory named -home-user-project.
         """
-        import os
-
         claude_projects = tmp_path / "projects"
         cwd = tmp_path / "home" / "user" / "project"
         cwd.mkdir(parents=True)
@@ -1792,14 +1768,10 @@ class TestResolveProjectDir:
         When resolving the project directory
         Then the directory name should start with a dash.
         """
-        import os
-
         claude_projects = tmp_path / "projects"
         # Use a path that, after replace, starts with a letter (no leading dash)
         # On Linux all absolute paths start with /, so after replace they start with -
         # Test the guard by constructing a path directly
-        from pathlib import Path
-
         cwd = Path("relative/path")
         dir_name = str(cwd).replace(os.sep, "-")
         # dir_name = "relative-path" — no leading dash

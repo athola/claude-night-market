@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import re
+
 
 class TestCatchupCommand:
     def _execute_catchup_workflow(self, state: dict | None = None) -> dict:
@@ -112,8 +114,6 @@ class TestUpdateDocsDirectoryRules:
 
     def _get_ruleset(self, file_path: str) -> dict:
         """Determine which ruleset applies to a file path."""
-        import re
-
         if file_path.startswith("book/"):
             return self.DIRECTORY_RULES["book/"]
         elif file_path.startswith("docs/"):

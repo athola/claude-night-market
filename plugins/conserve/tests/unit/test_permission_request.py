@@ -6,8 +6,11 @@ safe operations and auto-denies dangerous patterns.
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+import json
 import sys
+from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -23,6 +26,7 @@ from permission_request import (  # noqa: E402
     check_safe,
     evaluate_permission,
     format_hook_output,
+    main,
 )
 
 
@@ -560,11 +564,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output allow decision.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "ls -la"}}
@@ -588,11 +587,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output deny decision.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "sudo rm -rf /"}}
@@ -616,11 +610,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output without decision key.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "my-custom-command arg"}}
@@ -644,11 +633,6 @@ class TestMainEntryPoint:
         When running main
         Then it should not crash and return 0.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         with patch("sys.stdin", StringIO("not valid json {")):
             with patch("builtins.print") as mock_print:
@@ -669,11 +653,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output without decision.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         hook_input = json.dumps(
             {"tool_name": "Read", "tool_input": {"file_path": "/etc/passwd"}}
@@ -697,11 +676,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully.
         """
-        import json
-        from io import StringIO
-        from unittest.mock import patch
-
-        from permission_request import main
 
         hook_input = json.dumps({"tool_input": {"command": "ls"}})
 

@@ -25,10 +25,38 @@ import hashlib
 import json
 import os
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
 from .palace_manager import MemoryPalaceManager
+
+
+class RoomType(str, Enum):
+    """Room types in a project palace."""
+
+    ENTRANCE = "entrance"
+    LIBRARY = "library"
+    WORKSHOP = "workshop"
+    REVIEW_CHAMBER = "review-chamber"
+    GARDEN = "garden"
+
+
+class ReviewSubroom(str, Enum):
+    """Subroom types within the review-chamber."""
+
+    DECISIONS = "decisions"
+    PATTERNS = "patterns"
+    STANDARDS = "standards"
+    LESSONS = "lessons"
+
+
+class SortBy(str, Enum):
+    """Sort order for search results."""
+
+    RECENCY = "recency"
+    IMPORTANCE = "importance"
+
 
 # Review chamber room types
 REVIEW_CHAMBER_ROOMS = {
@@ -87,11 +115,12 @@ class ReviewEntry:
         self,
         source_pr: str,
         title: str,
-        room_type: str,
+        room_type: str | ReviewSubroom,
         content: dict[str, Any],
         participants: list[str] | None = None,
         related_rooms: list[str] | None = None,
         tags: list[str] | None = None,
+        importance_score: int | None = None,
     ) -> None:
         """Initialize a review entry.
 
@@ -103,6 +132,8 @@ class ReviewEntry:
             participants: List of PR participants
             related_rooms: Links to related palace rooms
             tags: Searchable tags
+            importance_score: Explicit importance (0-100). Defaults to 70
+                for decisions, 40 for other room types.
 
         """
         self.id = hashlib.sha256(
@@ -119,6 +150,13 @@ class ReviewEntry:
         self.last_accessed = datetime.now().isoformat()
         self.access_count = 0
 
+        if importance_score is not None:
+            self.importance_score = importance_score
+        elif room_type == ReviewSubroom.DECISIONS:
+            self.importance_score = 70
+        else:
+            self.importance_score = 40
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
@@ -133,6 +171,7 @@ class ReviewEntry:
             "created": self.created,
             "last_accessed": self.last_accessed,
             "access_count": self.access_count,
+            "importance_score": self.importance_score,
         }
 
     @classmethod
@@ -146,6 +185,7 @@ class ReviewEntry:
             participants=data.get("participants", []),
             related_rooms=data.get("related_rooms", []),
             tags=data.get("tags", []),
+            importance_score=data.get("importance_score"),
         )
         entry.id = data["id"]
         entry.created = data["created"]
@@ -163,6 +203,7 @@ class ReviewEntry:
             f"palace_location: review-chamber/{self.room_type}",
             f"related_rooms: {self.related_rooms}",
             f"tags: {self.tags}",
+            f"importance_score: {self.importance_score}",
             "---",
             "",
             f"## {self.title}",
@@ -401,13 +442,14 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(
+    def search_review_chamber(  # noqa: PLR0913
         self,
         palace_id: str,
         query: str,
-        room_type: str | None = None,
+        room_type: str | ReviewSubroom | None = None,
         tags: list[str] | None = None,
         semantic: bool = False,
+        sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Search the review chamber of a project palace.
 
@@ -418,6 +460,8 @@ class ProjectPalaceManager(MemoryPalaceManager):
             tags: Optional filter by tags
             semantic: When True, use embedding-based semantic search
                 instead of text substring matching
+            sort_by: Sort order for results. SortBy.RECENCY (default) or
+                SortBy.IMPORTANCE to sort by importance_score descending.
 
         Returns:
             List of matching review entries
@@ -435,16 +479,17 @@ class ProjectPalaceManager(MemoryPalaceManager):
             )
 
         return self._search_review_chamber_text(
-            palace, review_chamber, query, room_type, tags
+            palace, review_chamber, query, room_type, tags, sort_by
         )
 
-    def _search_review_chamber_text(
+    def _search_review_chamber_text(  # noqa: PLR0913
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
-        room_type: str | None,
+        room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
+        sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Text substring search (original behavior)."""
         results = []
@@ -473,6 +518,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     }
                 )
 
+        if sort_by == SortBy.IMPORTANCE:
+            results.sort(
+                key=lambda r: r["entry"].get("importance_score", 40),
+                reverse=True,
+            )
+
         return results
 
     def _search_review_chamber_semantic(
@@ -480,7 +531,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
-        room_type: str | None,
+        room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
     ) -> list[dict[str, Any]]:
         """Embedding-based semantic search across review chamber rooms."""
@@ -558,7 +609,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         stats: dict[str, Any] = {
             "total_entries": 0,
             "by_room": {},
-            "recent_entries": [],
+            "top_entries": [],
             "top_tags": {},
             "contributors": palace["metadata"].get("contributors", []),
         }
@@ -576,9 +627,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
                 for tag in entry.get("tags", []):
                     stats["top_tags"][tag] = stats["top_tags"].get(tag, 0) + 1
 
-        # Sort entries by creation date and get recent
-        all_entries.sort(key=lambda x: x.get("created", ""), reverse=True)
-        stats["recent_entries"] = all_entries[:5]
+        # Sort by importance (top entries) instead of recency
+        all_entries.sort(
+            key=lambda x: x.get("importance_score", 40),
+            reverse=True,
+        )
+        stats["top_entries"] = all_entries[:5]
 
         # Sort tags by frequency
         stats["top_tags"] = dict(
@@ -740,26 +794,26 @@ def _classify_finding(finding: dict[str, Any]) -> str | None:
     if severity == "BLOCKING" and any(
         kw in category for kw in ["architecture", "design", "pattern", "security"]
     ):
-        return "decisions"
+        return ReviewSubroom.DECISIONS
 
     # Recurring patterns (IN-SCOPE issues that represent patterns)
     if severity in ["BLOCKING", "IN-SCOPE"] and any(
         kw in category for kw in ["pattern", "recurring", "common", "best-practice"]
     ):
-        return "patterns"
+        return ReviewSubroom.PATTERNS
 
     # Quality standards (code quality findings)
     if severity in ["BLOCKING", "IN-SCOPE"] and any(
         kw in category for kw in ["quality", "style", "convention", "standard"]
     ):
-        return "standards"
+        return ReviewSubroom.STANDARDS
 
     # Lessons learned (post-mortems, retrospective insights)
     if any(kw in category for kw in ["lesson", "learning", "retrospective", "insight"]):
-        return "lessons"
+        return ReviewSubroom.LESSONS
 
     # High-severity findings are worth capturing as patterns
     if severity == "BLOCKING":
-        return "patterns"
+        return ReviewSubroom.PATTERNS
 
     return None

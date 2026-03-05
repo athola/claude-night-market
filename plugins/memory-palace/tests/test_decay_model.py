@@ -10,9 +10,13 @@ import pytest
 
 from memory_palace.corpus.decay_model import (
     DECAY_CONFIG,
+    DEFAULT_IMPORTANCE_SCORE,
+    IMPORTANCE_CLASSES,
     DecayCurve,
     DecayModel,
     DecayState,
+    get_decay_floor,
+    get_importance_class,
 )
 
 
@@ -292,3 +296,204 @@ class TestDecayModel:
         model.import_state(state_data)
         assert model.get_validation_date("entry-1") is not None
         assert model.get_validation_date("entry-2") is not None
+
+
+class TestImportanceClasses:
+    """Test importance classification constants and functions."""
+
+    def test_all_five_classes_exist(self) -> None:
+        """Should have all 5 importance classes defined."""
+        expected = [
+            "constitutional",
+            "architectural",
+            "significant",
+            "standard",
+            "ephemeral",
+        ]
+        for cls_name in expected:
+            assert cls_name in IMPORTANCE_CLASSES, f"Missing class: {cls_name}"
+        assert len(IMPORTANCE_CLASSES) == 5
+
+    @pytest.mark.parametrize(
+        "score, expected_class",
+        [
+            (100, "constitutional"),
+            (90, "constitutional"),
+            (89, "architectural"),
+            (70, "architectural"),
+            (69, "significant"),
+            (50, "significant"),
+            (49, "standard"),
+            (30, "standard"),
+            (29, "ephemeral"),
+            (0, "ephemeral"),
+        ],
+    )
+    def test_get_importance_class_boundaries(
+        self, score: int, expected_class: str
+    ) -> None:
+        """Should classify boundary scores correctly."""
+        assert get_importance_class(score) == expected_class
+
+    @pytest.mark.parametrize(
+        "score, expected_floor",
+        [
+            (100, 0.5),
+            (90, 0.5),
+            (70, 0.4),
+            (50, 0.3),
+            (30, 0.1),
+            (0, 0.0),
+        ],
+    )
+    def test_get_decay_floor_values(self, score: int, expected_floor: float) -> None:
+        """Should return correct decay floor for each class."""
+        assert get_decay_floor(score) == expected_floor
+
+    def test_default_importance_score_is_standard(self) -> None:
+        """Default importance score should fall in standard class."""
+        cls = get_importance_class(DEFAULT_IMPORTANCE_SCORE)
+        assert cls == "standard"
+
+
+class TestDecayModelWithImportance:
+    """Test DecayModel with importance-based decay floors."""
+
+    @pytest.fixture
+    def model(self) -> DecayModel:
+        """Create a fresh DecayModel instance."""
+        return DecayModel()
+
+    def test_constitutional_never_below_floor(self, model: DecayModel) -> None:
+        """Constitutional entry (score 100) should never decay below 0.5."""
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        state = model.calculate_decay(
+            entry_id="const-1",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=100,
+        )
+        assert state.decay_factor >= 0.5
+
+    def test_architectural_never_below_floor(self, model: DecayModel) -> None:
+        """Architectural entry (score 75) should never decay below 0.4."""
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        state = model.calculate_decay(
+            entry_id="arch-1",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=75,
+        )
+        assert state.decay_factor >= 0.4
+
+    def test_standard_decays_to_floor(self, model: DecayModel) -> None:
+        """Standard entry (score 35) should decay to 0.1 floor."""
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        state = model.calculate_decay(
+            entry_id="std-1",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=35,
+        )
+        assert state.decay_factor == pytest.approx(0.1, abs=0.01)
+
+    def test_ephemeral_can_reach_archived(self, model: DecayModel) -> None:
+        """Ephemeral entry (score 10) should be able to reach archived."""
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        state = model.calculate_decay(
+            entry_id="eph-1",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=10,
+        )
+        assert state.status == "archived"
+
+    def test_default_importance_is_standard(self, model: DecayModel) -> None:
+        """When no importance_score given, default should be standard."""
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        state = model.calculate_decay(
+            entry_id="def-1",
+            maturity="seedling",
+            last_validated=ancient,
+        )
+        # Default score 40 is standard class with floor 0.1
+        assert state.decay_factor >= 0.1
+
+    def test_constitutional_floor_overrides_maturity(self, model: DecayModel) -> None:
+        """Constitutional floor should override maturity-based decay.
+
+        Even a seedling with a 14-day half-life should stay above 0.5
+        when the importance score is constitutional (90+).
+        """
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
+        # Without importance, seedling at 500 days would be near zero
+        state_no_importance = model.calculate_decay(
+            entry_id="override-1",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=0,
+        )
+        state_constitutional = model.calculate_decay(
+            entry_id="override-2",
+            maturity="seedling",
+            last_validated=ancient,
+            importance_score=95,
+        )
+        # Ephemeral should have decayed far below constitutional floor
+        assert state_no_importance.decay_factor < 0.5
+        assert state_constitutional.decay_factor >= 0.5
+
+
+class TestGetStaleEntriesWithImportance:
+    """Test importance-aware stale entry filtering."""
+
+    @pytest.fixture
+    def model(self) -> DecayModel:
+        return DecayModel()
+
+    def test_excludes_constitutional_from_stale(self, model: DecayModel) -> None:
+        """Constitutional entries should not appear in stale list."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("const-1", now - timedelta(days=200))
+        model.validate_entry("normal-1", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "const-1", "maturity": "seedling", "importance_score": 95},
+                {"id": "normal-1", "maturity": "seedling", "importance_score": 40},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "const-1" not in entry_ids
+        assert "normal-1" in entry_ids
+
+    def test_architectural_can_appear_in_stale(self, model: DecayModel) -> None:
+        """Architectural entries CAN be stale but have floor-adjusted decay."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("arch-1", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "arch-1", "maturity": "seedling", "importance_score": 75},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "arch-1" in entry_ids
+        arch_state = [s for s in stale if s.entry_id == "arch-1"][0]
+        assert arch_state.decay_factor >= 0.4  # architectural floor
+
+    def test_default_importance_in_stale(self, model: DecayModel) -> None:
+        """Entries without importance_score use default (40)."""
+        now = datetime.now(timezone.utc)
+        model.validate_entry("no-score", now - timedelta(days=200))
+
+        stale = model.get_stale_entries(
+            entries=[
+                {"id": "no-score", "maturity": "seedling"},
+            ],
+            threshold=0.5,
+        )
+        entry_ids = [s.entry_id for s in stale]
+        assert "no-score" in entry_ids
