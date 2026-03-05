@@ -23,6 +23,59 @@ logger = logging.getLogger(__name__)
 MAX_ENTRIES_PER_SKILL = 20
 MAX_EXEMPLARS = 3
 
+STOP_WORDS: frozenset = frozenset(
+    {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "to",
+        "of",
+        "in",
+        "for",
+        "on",
+        "with",
+        "at",
+        "by",
+        "from",
+        "as",
+        "into",
+        "about",
+        "it",
+        "its",
+        "this",
+        "that",
+        "and",
+        "or",
+        "but",
+        "not",
+        "no",
+        "if",
+        "then",
+        "so",
+    }
+)
+
 
 @dataclass
 class ExecutionTrajectory:
@@ -110,11 +163,11 @@ class ExperienceLibrary:
         if not entries:
             return []
 
-        query_words = set(query.lower().split())
+        query_words = set(query.lower().split()) - STOP_WORDS
 
         scored: list[tuple[int, dict[str, Any]]] = []
         for entry in entries:
-            desc_words = set(entry["task_description"].lower().split())
+            desc_words = set(entry["task_description"].lower().split()) - STOP_WORDS
             overlap = len(query_words & desc_words)
             if overlap > 0:
                 scored.append((overlap, entry))
