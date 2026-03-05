@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess  # nosec: B404
+import sys
 
 
 class RollbackReviewer:
@@ -103,6 +104,10 @@ The skill was improved automatically but showed regression during the
 
         gh_path = shutil.which("gh")
         if not gh_path:
+            sys.stderr.write(
+                "rollback_reviewer: gh CLI not found, "
+                f"cannot create issue for {skill_name}\n"
+            )
             return None
 
         try:
@@ -125,6 +130,19 @@ The skill was improved automatically but showed regression during the
             )
             if result.returncode == 0:
                 return result.stdout.strip()
+            sys.stderr.write(
+                f"rollback_reviewer: gh issue create failed "
+                f"(exit {result.returncode}) for {skill_name}: "
+                f"{result.stderr.strip()}\n"
+            )
             return None
-        except (FileNotFoundError, subprocess.TimeoutExpired):
+        except FileNotFoundError:
+            sys.stderr.write(
+                f"rollback_reviewer: gh CLI not executable for {skill_name}\n"
+            )
+            return None
+        except subprocess.TimeoutExpired:
+            sys.stderr.write(
+                f"rollback_reviewer: gh issue create timed out for {skill_name}\n"
+            )
             return None

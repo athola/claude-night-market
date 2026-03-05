@@ -42,13 +42,18 @@ class ImprovementQueue:
         """Persist queue to disk using atomic write."""
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
         tmp_file = self.queue_file.with_suffix(".tmp")
-        tmp_file.write_text(
-            json.dumps(
-                {"skills": self.skills},
-                indent=2,
+        try:
+            tmp_file.write_text(
+                json.dumps(
+                    {"skills": self.skills},
+                    indent=2,
+                )
             )
-        )
-        tmp_file.replace(self.queue_file)
+            tmp_file.replace(self.queue_file)
+        except OSError as e:
+            sys.stderr.write(
+                f"improvement_queue: failed to save queue to {self.queue_file}: {e}\n"
+            )
 
     TRIGGER_THRESHOLD = 3
 

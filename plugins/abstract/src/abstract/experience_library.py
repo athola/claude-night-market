@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -135,7 +136,13 @@ class ExperienceLibrary:
         skill_dir = self._skill_dir(trajectory.skill_ref)
         task_hash = self._task_hash(trajectory.task_description)
         entry_file = skill_dir / f"{task_hash}.json"
-        entry_file.write_text(json.dumps(entry, indent=2))
+        try:
+            entry_file.write_text(json.dumps(entry, indent=2))
+        except OSError as e:
+            sys.stderr.write(
+                f"experience_library: failed to write entry {entry_file}: {e}\n"
+            )
+            return False
 
         self._prune(trajectory.skill_ref)
         return True
@@ -148,10 +155,14 @@ class ExperienceLibrary:
             try:
                 entries.append(json.loads(f.read_text()))
             except json.JSONDecodeError:
-                logger.warning("Malformed JSON in experience entry: %s", f)
+                sys.stderr.write(
+                    f"experience_library: corrupt JSON in entry {f}, skipping\n"
+                )
                 continue
-            except OSError:
-                logger.warning("Failed to read experience entry: %s", f)
+            except OSError as e:
+                sys.stderr.write(
+                    f"experience_library: failed to read entry {f}: {e}, skipping\n"
+                )
                 continue
         return entries
 
