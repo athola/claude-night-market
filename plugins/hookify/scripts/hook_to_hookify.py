@@ -19,6 +19,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+# Configurable thresholds for hook conversion decisions.
+# Hooks with complexity > max are marked unconvertible.
+# Patterns with confidence < min are filtered out.
+DEFAULT_MAX_COMPLEXITY = 10
+DEFAULT_MIN_CONFIDENCE = 0.7
+
 
 @dataclass
 class ExtractedPattern:
@@ -179,11 +185,19 @@ class HookAnalyzer(ast.NodeVisitor):
         return names
 
 
-def analyze_hook(file_path: Path) -> HookAnalysis:
+def analyze_hook(
+    file_path: Path,
+    max_complexity: int = DEFAULT_MAX_COMPLEXITY,
+    min_confidence: float = DEFAULT_MIN_CONFIDENCE,
+) -> HookAnalysis:
     """Analyze a Python hook file and extract convertible patterns.
 
     Args:
         file_path: Path to the Python hook file
+        max_complexity: Maximum allowed complexity score. Hooks with
+            complexity above this value are marked unconvertible.
+        min_confidence: Minimum confidence threshold. Patterns below
+            this value are filtered out.
 
     Returns:
         HookAnalysis with extracted patterns and metadata
@@ -205,7 +219,8 @@ def analyze_hook(file_path: Path) -> HookAnalysis:
     analyzer = HookAnalyzer()
     analyzer.visit(tree)
 
-    analysis.patterns = analyzer.patterns
+    # Filter patterns by confidence threshold
+    analysis.patterns = [p for p in analyzer.patterns if p.confidence >= min_confidence]
     analysis.complexity_score = analyzer.complexity
 
     # Determine if fully convertible
@@ -215,7 +230,7 @@ def analyze_hook(file_path: Path) -> HookAnalysis:
     elif analyzer.has_file_io:
         analysis.convertible = False
         analysis.reason = "Contains file I/O - requires full Python hook"
-    elif analyzer.complexity > 10:
+    elif analyzer.complexity > max_complexity:
         analysis.convertible = False
         analysis.reason = "Too complex for declarative rules"
     elif not analysis.patterns:
@@ -341,6 +356,24 @@ def main() -> int:
         action="store_true",
         help="Show detailed analysis",
     )
+    parser.add_argument(
+        "--max-complexity",
+        type=int,
+        default=DEFAULT_MAX_COMPLEXITY,
+        help=(
+            "Maximum complexity score for convertible hooks "
+            f"(default: {DEFAULT_MAX_COMPLEXITY})"
+        ),
+    )
+    parser.add_argument(
+        "--min-confidence",
+        type=float,
+        default=DEFAULT_MIN_CONFIDENCE,
+        help=(
+            "Minimum confidence threshold for extracted patterns "
+            f"(default: {DEFAULT_MIN_CONFIDENCE})"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -355,7 +388,11 @@ def main() -> int:
         if f.name.startswith("test_") or "/__pycache__/" in str(f):
             continue
 
-        analysis = analyze_hook(f)
+        analysis = analyze_hook(
+            f,
+            max_complexity=args.max_complexity,
+            min_confidence=args.min_confidence,
+        )
         results.append(analysis)
 
         if args.verbose:
