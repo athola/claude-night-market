@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -104,6 +105,7 @@ def main() -> None:
 
     except Exception as e:
         # Never block Claude Code on hook errors
+        sys.stderr.write(traceback.format_exc())
         sys.stderr.write(f"pre_skill_execution error: {e}\n")
         sys.exit(0)
 

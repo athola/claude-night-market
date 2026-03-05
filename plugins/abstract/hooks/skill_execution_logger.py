@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -396,6 +397,7 @@ def main() -> None:
         sys.exit(0)
 
     except Exception as e:
+        sys.stderr.write(traceback.format_exc())
         sys.stderr.write(f"skill_execution_logger error: {e}\n")
         sys.exit(0)
 
