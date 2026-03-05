@@ -73,12 +73,16 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
 explicit_package_bases = true
-mypy_path = ["src"]
+mypy_path = ["src", "scripts"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 [[tool.mypy.overrides]]
 module = ["yaml"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["migration_analyzer"]
+disable_error_code = ["import-not-found"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
