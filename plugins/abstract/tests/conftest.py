@@ -7,7 +7,11 @@ This module provides reusable test fixtures following TDD/BDD principles:
 - Edge case fixtures for boundary testing
 """
 
+from pathlib import Path
+
 import pytest
+
+from abstract.improvement_queue import ImprovementQueue
 
 # ============================================================================
 # Original Fixtures (Backward Compatibility)
@@ -312,3 +316,27 @@ category: testing
 
 Content here.
 """
+
+
+# ============================================================================
+# Improvement Queue Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def fresh_queue(tmp_path: Path) -> ImprovementQueue:
+    """Given a fresh, empty ImprovementQueue backed by a temp file."""
+    return ImprovementQueue(tmp_path / "queue.json")
+
+
+@pytest.fixture
+def flagged_queue(tmp_path: Path) -> ImprovementQueue:
+    """Given a queue with "abstract:test-skill" flagged 3 times at gap=0.4.
+
+    This is the standard preamble for tests that need a skill already at
+    the improvement threshold (flagged_count == 3).
+    """
+    queue = ImprovementQueue(tmp_path / "queue.json")
+    for i in range(3):
+        queue.flag_skill("abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}")
+    return queue

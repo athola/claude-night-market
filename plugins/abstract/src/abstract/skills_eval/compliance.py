@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import re
 from dataclasses import dataclass
@@ -11,6 +10,7 @@ from typing import Any, cast
 
 from ..frontmatter import FrontmatterProcessor
 from ..tokens import estimate_tokens
+from ..utils import safe_json_load
 
 logger = logging.getLogger(__name__)
 
@@ -191,12 +191,10 @@ class ComplianceChecker:
     def _load_rules(self) -> dict[str, Any]:
         """Load compliance rules from file or use defaults."""
         if self.rules_file and self.rules_file.exists():
-            try:
-                with open(self.rules_file, encoding="utf-8") as f:
-                    return cast(dict[str, Any], json.load(f))
-            except (json.JSONDecodeError, OSError) as e:
-                logger.error("Failed to load rules from %s: %s", self.rules_file, e)
-                # Fall through to defaults
+            data = safe_json_load(self.rules_file)
+            if data is not None:
+                return cast(dict[str, Any], data)
+            logger.error("Failed to load rules from %s", self.rules_file)
 
         # Default rules
         return {

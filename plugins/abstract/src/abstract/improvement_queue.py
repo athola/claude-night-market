@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .utils import safe_json_load
+
 
 class ImprovementQueue:
     """Manages the skill improvement queue."""
@@ -25,14 +27,14 @@ class ImprovementQueue:
     def _load(self) -> None:
         """Load queue from disk, creating if absent."""
         if self.queue_file.exists():
-            try:
-                data = json.loads(self.queue_file.read_text())
-                self.skills = data.get("skills", {})
-            except (json.JSONDecodeError, OSError) as e:
+            data = safe_json_load(self.queue_file)
+            if data is None:
                 sys.stderr.write(
-                    f"improvement_queue: corrupt queue file {self.queue_file}: {e}\n"
+                    f"improvement_queue: corrupt queue file {self.queue_file}\n"
                 )
                 self.skills = {}
+            else:
+                self.skills = data.get("skills", {})
         else:
             self._save()
 

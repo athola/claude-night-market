@@ -28,6 +28,7 @@ from abstract.utils import (
     load_skill_file,
     parse_frontmatter_fields,
     parse_yaml_frontmatter,
+    safe_json_load,
     validate_skill_frontmatter,
 )
 
@@ -537,4 +538,57 @@ class TestFindDependencyFile:
         skill_file = tmp_path / "SKILL.md"
         skill_file.write_text("")
         result = find_dependency_file(skill_file, "nonexistent-dep")
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
+# safe_json_load
+# ---------------------------------------------------------------------------
+
+
+class TestSafeJsonLoad:
+    """safe_json_load loads JSON from a path with a fallback default."""
+
+    @pytest.mark.unit
+    def test_loads_valid_json_file(self, tmp_path):
+        """Given a valid JSON file, returns parsed data."""
+        p = tmp_path / "data.json"
+        p.write_text('{"key": "value", "num": 42}')
+        result = safe_json_load(p)
+        assert result == {"key": "value", "num": 42}
+
+    @pytest.mark.unit
+    def test_returns_none_for_missing_file(self, tmp_path):
+        """Given a path that does not exist, returns None by default."""
+        result = safe_json_load(tmp_path / "missing.json")
+        assert result is None
+
+    @pytest.mark.unit
+    def test_returns_custom_default_for_missing_file(self, tmp_path):
+        """Given a missing file and a custom default, returns that default."""
+        result = safe_json_load(tmp_path / "missing.json", default={})
+        assert result == {}
+
+    @pytest.mark.unit
+    def test_returns_default_for_malformed_json(self, tmp_path):
+        """Given a file with invalid JSON, returns default."""
+        p = tmp_path / "bad.json"
+        p.write_text("{ not valid json }")
+        result = safe_json_load(p, default={"fallback": True})
+        assert result == {"fallback": True}
+
+    @pytest.mark.unit
+    def test_loads_json_list(self, tmp_path):
+        """Given a JSON file containing a list, returns that list."""
+        p = tmp_path / "list.json"
+        p.write_text("[1, 2, 3]")
+        result = safe_json_load(p)
+        assert result == [1, 2, 3]
+
+    @pytest.mark.unit
+    def test_returns_none_default_for_empty_file(self, tmp_path):
+        """Given an empty file, returns default (empty file is invalid JSON)."""
+        p = tmp_path / "empty.json"
+        p.write_text("")
+        result = safe_json_load(p)
         assert result is None
