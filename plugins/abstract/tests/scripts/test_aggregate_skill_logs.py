@@ -20,15 +20,24 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from aggregate_skill_logs import (  # noqa: E402
+    AggregationResult,
     SkillMetrics,
+    aggregate_logs,
     calculate_skill_metrics,
     detect_high_impact_issues,
     detect_low_rated_skills,
     detect_slow_skills,
     format_high_impact_issues,
+    format_low_rated_skills,
+    format_skill_summary,
+    format_slow_skills,
+    generate_learnings_md,
     get_learnings_path,
     get_log_directory,
     load_log_entries,
+)
+from aggregate_skill_logs import (
+    main as aggregate_main,
 )
 
 # ---------------------------------------------------------------------------
@@ -586,3 +595,475 @@ class TestFormatHighImpactIssues:
         """
         result = format_high_impact_issues([])
         assert all(isinstance(line, str) for line in result)
+
+
+# ---------------------------------------------------------------------------
+# Tests: load_log_entries with non-dir entries
+# ---------------------------------------------------------------------------
+
+
+class TestLoadLogEntriesNonDir:
+    """Test load_log_entries skips non-directory entries."""
+
+    @pytest.mark.unit
+    def test_non_dir_plugin_entry_skipped(self, tmp_path: Path) -> None:
+        """Files at plugin dir level are skipped."""
+        (tmp_path / "not-a-dir.txt").write_text("ignore me")
+        result = load_log_entries(tmp_path, days_back=30)
+        assert result == {}
+
+    @pytest.mark.unit
+    def test_non_dir_skill_entry_skipped(self, tmp_path: Path) -> None:
+        """Files at skill level are skipped."""
+        plugin_dir = tmp_path / "my-plugin"
+        plugin_dir.mkdir()
+        (plugin_dir / "not-a-skill.txt").write_text("ignore me")
+        result = load_log_entries(tmp_path, days_back=30)
+        assert result == {}
+
+    @pytest.mark.unit
+    def test_blank_line_in_jsonl_skipped(self, tmp_path: Path) -> None:
+        """Blank lines in JSONL file are skipped without error."""
+        plugin_dir = tmp_path / "my-plugin"
+        skill_dir = plugin_dir / "my-skill"
+        skill_dir.mkdir(parents=True)
+
+        entry = _make_entry()
+        log_file = skill_dir / "log.jsonl"
+        log_file.write_text(json.dumps(entry) + "\n\n" + json.dumps(entry) + "\n")
+
+        result = load_log_entries(tmp_path, days_back=30)
+        assert "my-plugin:my-skill" in result
+        assert len(result["my-plugin:my-skill"]) == 2
+
+
+# ---------------------------------------------------------------------------
+# Tests: format_slow_skills
+# ---------------------------------------------------------------------------
+
+
+class TestFormatSlowSkills:
+    """Test format_slow_skills produces markdown table."""
+
+    @pytest.mark.unit
+    def test_empty_list_returns_header_only(self) -> None:
+        """Empty slow_skills list returns section with header."""
+        result = format_slow_skills([])
+        assert isinstance(result, list)
+        assert any("Slow Execution" in line for line in result)
+
+    @pytest.mark.unit
+    def test_slow_skill_appears_in_table(self) -> None:
+        """Slow skill entry appears in table rows."""
+        slow_skills = [
+            {
+                "skill": "my-plugin:slow-skill",
+                "avg_duration_ms": 15000.0,
+                "max_duration_ms": 30000,
+                "executions": 5,
+            }
+        ]
+        result = format_slow_skills(slow_skills)
+        combined = "\n".join(result)
+        assert "slow-skill" in combined
+        assert "15.0" in combined
+
+    @pytest.mark.unit
+    def test_at_most_10_slow_skills_shown(self) -> None:
+        """Only up to 10 slow skills are included."""
+        slow_skills = [
+            {
+                "skill": f"p:skill-{i}",
+                "avg_duration_ms": float(10000 + i * 100),
+                "max_duration_ms": 20000,
+                "executions": i + 1,
+            }
+            for i in range(15)
+        ]
+        result = format_slow_skills(slow_skills)
+        data_rows = [
+            line
+            for line in result
+            if line.startswith("| `") and "skill" not in line.lower()
+        ]
+        assert len(data_rows) <= 10
+
+
+# ---------------------------------------------------------------------------
+# Tests: format_low_rated_skills
+# ---------------------------------------------------------------------------
+
+
+class TestFormatLowRatedSkills:
+    """Test format_low_rated_skills produces markdown sections."""
+
+    @pytest.mark.unit
+    def test_empty_list_returns_header(self) -> None:
+        """Empty list returns section header."""
+        result = format_low_rated_skills([])
+        assert isinstance(result, list)
+        assert any("Low User Ratings" in line for line in result)
+
+    @pytest.mark.unit
+    def test_skill_with_friction_and_suggestions(self) -> None:
+        """Skill with friction and suggestions appears in output."""
+        low_rated = [
+            {
+                "skill": "p:bad-skill",
+                "rating": 2.5,
+                "friction": ["too slow", "confusing output"],
+                "suggestions": ["add examples", "improve docs"],
+            }
+        ]
+        result = format_low_rated_skills(low_rated)
+        combined = "\n".join(result)
+        assert "bad-skill" in combined
+        assert "2.5" in combined
+        assert "too slow" in combined
+        assert "add examples" in combined
+
+    @pytest.mark.unit
+    def test_skill_without_friction_or_suggestions(self) -> None:
+        """Skill without friction/suggestions doesn't crash."""
+        low_rated = [
+            {
+                "skill": "p:plain-skill",
+                "rating": 2.0,
+                "friction": [],
+                "suggestions": [],
+            }
+        ]
+        result = format_low_rated_skills(low_rated)
+        assert isinstance(result, list)
+        assert any("plain-skill" in line for line in result)
+
+
+# ---------------------------------------------------------------------------
+# Tests: format_high_impact_issues with errors and friction
+# ---------------------------------------------------------------------------
+
+
+class TestFormatHighImpactIssuesWithErrors:
+    """Test format_high_impact_issues includes errors and friction."""
+
+    @pytest.mark.unit
+    def test_issue_with_errors_shown(self) -> None:
+        """Issue with errors list includes error entries."""
+        issues = [
+            {
+                "skill": "p:failing-skill",
+                "type": "high_failure_rate",
+                "severity": "high",
+                "metric": "success_rate",
+                "detail": "30% success rate",
+                "errors": ["error message 1", "error message 2"],
+                "friction": [],
+            }
+        ]
+        result = format_high_impact_issues(issues)
+        combined = "\n".join(result)
+        assert "error message 1" in combined
+
+    @pytest.mark.unit
+    def test_issue_with_friction_shown(self) -> None:
+        """Issue with friction list includes friction entries."""
+        issues = [
+            {
+                "skill": "p:slow-skill",
+                "type": "high_failure_rate",
+                "severity": "medium",
+                "metric": "success_rate",
+                "detail": "50% success",
+                "errors": [],
+                "friction": ["hard to use", "unclear output"],
+            }
+        ]
+        result = format_high_impact_issues(issues)
+        combined = "\n".join(result)
+        assert "hard to use" in combined
+
+
+# ---------------------------------------------------------------------------
+# Tests: format_skill_summary
+# ---------------------------------------------------------------------------
+
+
+class TestFormatSkillSummary:
+    """Test format_skill_summary creates table from metrics."""
+
+    @pytest.mark.unit
+    def test_metric_with_rating_shows_rating(self) -> None:
+        """Skill with avg_rating shows rating in table."""
+        metrics = {
+            "p:good-skill": _make_metrics(
+                skill="p:good-skill", avg_rating=4.5, total=10, success=9
+            )
+        }
+        result = format_skill_summary(metrics)
+        combined = "\n".join(result)
+        assert "4.5" in combined
+
+    @pytest.mark.unit
+    def test_metric_without_rating_shows_na(self) -> None:
+        """Skill without avg_rating shows N/A."""
+        metrics = {
+            "p:unrated-skill": _make_metrics(skill="p:unrated-skill", avg_rating=None)
+        }
+        result = format_skill_summary(metrics)
+        combined = "\n".join(result)
+        assert "N/A" in combined
+
+    @pytest.mark.unit
+    def test_top_20_skills_maximum(self) -> None:
+        """Only top 20 skills by executions shown."""
+        metrics = {
+            f"p:skill-{i}": _make_metrics(skill=f"p:skill-{i}", total=i + 1)
+            for i in range(25)
+        }
+        result = format_skill_summary(metrics)
+        data_rows = [
+            line for line in result if line.startswith("| `") and "Skill" not in line
+        ]
+        assert len(data_rows) <= 20
+
+
+# ---------------------------------------------------------------------------
+# Tests: generate_learnings_md
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateLearningsMd:
+    """Test generate_learnings_md creates complete markdown."""
+
+    @pytest.mark.unit
+    def test_empty_result_generates_string(self) -> None:
+        """Empty result still generates markdown."""
+        result = AggregationResult(
+            timestamp=datetime.now(timezone.utc),
+            skills_analyzed=0,
+            total_executions=0,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={},
+        )
+        content = generate_learnings_md(result)
+        assert isinstance(content, str)
+        assert "Skill Performance Learnings" in content
+
+    @pytest.mark.unit
+    def test_with_existing_pinned_includes_section(self) -> None:
+        """Existing pinned content is preserved."""
+        result = AggregationResult(
+            timestamp=datetime.now(timezone.utc),
+            skills_analyzed=0,
+            total_executions=0,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={},
+        )
+        content = generate_learnings_md(result, existing_pinned="My pinned note.")
+        assert "Pinned Learnings" in content
+        assert "My pinned note." in content
+
+    @pytest.mark.unit
+    def test_with_high_impact_issues_includes_section(self) -> None:
+        """Issues in result cause High-Impact Issues section."""
+        result = AggregationResult(
+            timestamp=datetime.now(timezone.utc),
+            skills_analyzed=1,
+            total_executions=5,
+            high_impact_issues=[
+                {
+                    "skill": "p:bad",
+                    "type": "high_failure_rate",
+                    "severity": "high",
+                    "metric": "success_rate",
+                    "detail": "20% success",
+                    "errors": [],
+                    "friction": [],
+                }
+            ],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={},
+        )
+        content = generate_learnings_md(result)
+        assert "High-Impact Issues" in content
+
+    @pytest.mark.unit
+    def test_with_slow_skills_includes_section(self) -> None:
+        """Slow skills in result cause Slow Execution section."""
+        result = AggregationResult(
+            timestamp=datetime.now(timezone.utc),
+            skills_analyzed=1,
+            total_executions=3,
+            high_impact_issues=[],
+            slow_skills=[
+                {
+                    "skill": "p:slow",
+                    "avg_duration_ms": 15000.0,
+                    "max_duration_ms": 20000,
+                    "executions": 3,
+                }
+            ],
+            low_rated_skills=[],
+            metrics_by_skill={},
+        )
+        content = generate_learnings_md(result)
+        assert "Slow Execution" in content
+
+    @pytest.mark.unit
+    def test_with_low_rated_skills_includes_section(self) -> None:
+        """Low-rated skills in result cause Low User Ratings section."""
+        result = AggregationResult(
+            timestamp=datetime.now(timezone.utc),
+            skills_analyzed=1,
+            total_executions=5,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[
+                {"skill": "p:bad", "rating": 2.0, "friction": [], "suggestions": []}
+            ],
+            metrics_by_skill={},
+        )
+        content = generate_learnings_md(result)
+        assert "Low User Ratings" in content
+
+
+# ---------------------------------------------------------------------------
+# Tests: aggregate_logs
+# ---------------------------------------------------------------------------
+
+
+class TestAggregateLogs:
+    """Test aggregate_logs runs full pipeline."""
+
+    @pytest.mark.unit
+    def test_aggregate_logs_empty_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """aggregate_logs with empty log dir returns empty result."""
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory",
+            lambda: tmp_path,
+        )
+        result = aggregate_logs(days_back=30)
+        assert result.skills_analyzed == 0
+        assert result.total_executions == 0
+        assert result.high_impact_issues == []
+
+    @pytest.mark.unit
+    def test_aggregate_logs_with_entries(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """aggregate_logs with entries returns skill metrics."""
+        plugin_dir = tmp_path / "my-plugin"
+        skill_dir = plugin_dir / "my-skill"
+        skill_dir.mkdir(parents=True)
+
+        entries = [_make_entry(outcome="success") for _ in range(8)] + [
+            _make_entry(outcome="failure") for _ in range(2)
+        ]
+        log_file = skill_dir / "log.jsonl"
+        log_file.write_text("\n".join(json.dumps(e) for e in entries))
+
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory",
+            lambda: tmp_path,
+        )
+        result = aggregate_logs(days_back=30)
+        assert result.skills_analyzed == 1
+        assert result.total_executions == 10
+
+
+# ---------------------------------------------------------------------------
+# Tests: main() function
+# ---------------------------------------------------------------------------
+
+
+class TestAggregateSkillLogsMain:
+    """Test main() entry point."""
+
+    @pytest.mark.unit
+    def test_main_with_empty_log_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main() with empty log dir writes LEARNINGS.md."""
+        learnings_path = tmp_path / "LEARNINGS.md"
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory",
+            lambda: tmp_path,
+        )
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_learnings_path",
+            lambda: learnings_path,
+        )
+        monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py"])
+
+        try:
+            aggregate_main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+        assert learnings_path.exists()
+
+    @pytest.mark.unit
+    def test_main_with_existing_pinned_learnings(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main() preserves existing pinned learnings."""
+        learnings_path = tmp_path / "LEARNINGS.md"
+        learnings_path.write_text(
+            "# Learnings\n\n## Pinned Learnings\n\nImportant note.\n\n## Other\n\nContent.\n"
+        )
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory",
+            lambda: tmp_path,
+        )
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_learnings_path",
+            lambda: learnings_path,
+        )
+        monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py"])
+
+        try:
+            aggregate_main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+        new_content = learnings_path.read_text()
+        assert "Pinned Learnings" in new_content
+
+    @pytest.mark.unit
+    def test_main_with_days_back_argument(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main() with days_back argument uses specified period."""
+        learnings_path = tmp_path / "LEARNINGS.md"
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory",
+            lambda: tmp_path,
+        )
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_learnings_path",
+            lambda: learnings_path,
+        )
+        monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py", "7"])
+
+        try:
+            aggregate_main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+    @pytest.mark.unit
+    def test_main_invalid_days_back_exits_1(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main() with invalid days_back exits 1."""
+        monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py", "abc"])
+
+        with pytest.raises(SystemExit) as exc_info:
+            aggregate_main()
+        assert exc_info.value.code == 1

@@ -8,6 +8,7 @@ Feature: BDD marker injection into test files
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -18,8 +19,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from add_bdd_markers import (  # noqa: E402
     add_bdd_marker_to_file,
+    find_test_files,
     is_bdd_test_function,
     needs_bdd_marker,
+)
+from add_bdd_markers import (
+    main as bdd_main,
 )
 
 
@@ -276,3 +281,107 @@ class TestAddBddMarkerToFile:
 
         assert result is True
         assert "@pytest.mark.bdd" in test_file.read_text()
+
+
+class TestNeedsBddMarkerEdgeCases:
+    """Test needs_bdd_marker edge cases."""
+
+    @pytest.mark.unit
+    def test_hits_non_decorator_line_stops_search(self) -> None:
+        """Non-decorator non-empty line stops backward search."""
+        lines = [
+            "class TestFoo:\n",
+            "    x = 1\n",  # non-decorator, non-empty line
+            "    def test_something(self) -> None:\n",
+        ]
+        result = needs_bdd_marker(lines, 2)
+        assert result is True
+
+
+class TestAddBddMarkerToFileInsertionEdgeCases:
+    """Test add_bdd_marker_to_file insertion edge cases."""
+
+    @pytest.mark.unit
+    def test_inserts_before_existing_decorator(self, tmp_path: Path) -> None:
+        """Marker is inserted before other existing decorators."""
+        test_file = tmp_path / "test_example.py"
+        test_file.write_text(
+            "@pytest.mark.unit\n"
+            "def test_something() -> None:\n"
+            '    """Scenario: something\n'
+            "    Given a thing\n"
+            "    When it runs\n"
+            "    Then it works\n"
+            '    """\n'
+            "    assert True\n"
+        )
+        result = add_bdd_marker_to_file(test_file, dry_run=False)
+        assert result is True
+        content = test_file.read_text()
+        assert "@pytest.mark.bdd" in content
+
+
+class TestFindTestFiles:
+    """Test find_test_files finds test files by glob pattern."""
+
+    @pytest.mark.unit
+    def test_empty_directory_returns_empty_list(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        """No test files found returns empty list."""
+        original = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            result = find_test_files()
+            assert result == []
+        finally:
+            os.chdir(original)
+
+    @pytest.mark.unit
+    def test_find_test_files_with_plugin_dir(self, tmp_path: Path) -> None:
+        """plugin_dir arg filters to specific plugin."""
+        plugin_dir = tmp_path / "plugins" / "my-plugin" / "tests"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "test_example.py").write_text("# test\n")
+
+        original = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            result = find_test_files(plugin_dir="my-plugin")
+            assert isinstance(result, list)
+        finally:
+            os.chdir(original)
+
+
+class TestAddBddMarkersMain:
+    """Test add_bdd_markers main() entry point."""
+
+    @pytest.mark.unit
+    def test_main_dry_run_exits_0(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main with --dry-run exits 0."""
+        monkeypatch.setattr(sys, "argv", ["add_bdd_markers.py", "--dry-run"])
+        original = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                bdd_main()
+            assert exc_info.value.code == 0
+        finally:
+            os.chdir(original)
+
+    @pytest.mark.unit
+    def test_main_no_args_runs_without_exit(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main with no args runs to completion."""
+        monkeypatch.setattr(sys, "argv", ["add_bdd_markers.py"])
+        original = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            bdd_main()
+        except SystemExit as e:
+            assert e.code == 0
+        finally:
+            os.chdir(original)

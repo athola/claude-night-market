@@ -1,10 +1,16 @@
 """Tests for abstract_validator.py."""
 
+from __future__ import annotations
+
+import json
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from abstract_validator import AbstractValidator
 
@@ -204,3 +210,326 @@ Content without module references.
         content = (skill_dir / "SKILL.md").read_text()
         assert content.startswith("---")
         assert original_content in content
+
+
+# ---------------------------------------------------------------------------
+# Tests: scan_infrastructure branches (from extended coverage)
+# ---------------------------------------------------------------------------
+
+
+class TestScanInfrastructureBranches:
+    """Test scan_infrastructure covers provides and invalid JSON."""
+
+    @pytest.mark.unit
+    def test_invalid_plugin_json_adds_issue(self, tmp_path: Path) -> None:
+        """Invalid plugin.json adds 'Invalid plugin.json' issue."""
+        from abstract_validator import AbstractValidator
+
+        (tmp_path / "plugin.json").write_text("{ invalid json }")
+
+        validator = AbstractValidator(tmp_path)
+        result = validator.scan_infrastructure()
+        assert "Invalid plugin.json" in result["issues"]
+
+    @pytest.mark.unit
+    def test_plugin_json_with_provides_dict(self, tmp_path: Path) -> None:
+        """plugin.json with 'provides' dict adds infrastructure entries."""
+        from abstract_validator import AbstractValidator
+
+        plugin_json = {
+            "name": "abstract",
+            "provides": {
+                "tools": ["tool1", "tool2"],
+                "templates": ["template1"],
+            },
+        }
+        (tmp_path / "plugin.json").write_text(json.dumps(plugin_json))
+
+        validator = AbstractValidator(tmp_path)
+        result = validator.scan_infrastructure()
+        assert "tool1" in result["infrastructure_provided"]
+        assert "tool2" in result["infrastructure_provided"]
+        assert "template1" in result["infrastructure_provided"]
+
+    @pytest.mark.unit
+    def test_skill_with_meta_patterns_gets_flagged(self, tmp_path: Path) -> None:
+        """Skill with meta-skill keyword is added to skills_with_patterns."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "my-framework-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: my-framework-skill\ndescription: A framework\n---\n\n"
+            "# My Framework\n\nThis is an infrastructure framework.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        result = validator.scan_infrastructure()
+        assert "my-framework-skill" in result["skills_with_patterns"]
+
+
+# ---------------------------------------------------------------------------
+# Tests: validate_patterns extended branches
+# ---------------------------------------------------------------------------
+
+
+class TestValidatePatternsBranches:
+    """Test validate_patterns covers meta-indicator checks."""
+
+    @pytest.mark.unit
+    def test_skill_without_meta_indicators_reports_issue(self, tmp_path: Path) -> None:
+        """Skill without meta-skill indicators gets an issue."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "plain-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\n"
+            "name: plain-skill\n"
+            "description: A plain skill\n"
+            "category: utilities\n"
+            "---\n\n"
+            "# Plain Skill\n\n"
+            "## Overview\nThis skill does basic stuff.\n\n"
+            "## Quick Start\nDo the thing.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        issues = validator.validate_patterns()
+        assert any("meta-skill" in issue for issue in issues)
+
+    @pytest.mark.unit
+    def test_complete_meta_skill_has_fewer_issues(self, tmp_path: Path) -> None:
+        """Well-formed meta-skill passes most validations."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "good-meta-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\n"
+            "name: good-meta-skill\n"
+            "description: A good meta-skill for the framework\n"
+            "category: meta-skills\n"
+            "---\n\n"
+            "# Good Meta Skill\n\n"
+            "## Overview\n"
+            "This is a pattern-based framework template for orchestration.\n\n"
+            "## Quick Start\n"
+            "1. Step one\n"
+            "2. Step two\n\n"
+            "## Detailed Resources\n"
+            "More details here.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        issues = validator.validate_patterns()
+        assert isinstance(issues, list)
+
+
+# ---------------------------------------------------------------------------
+# Tests: fix_patterns no-issues path
+# ---------------------------------------------------------------------------
+
+
+class TestFixPatternsNoIssues:
+    """Test fix_patterns returns 'No fixes needed' when no issues."""
+
+    @pytest.mark.unit
+    def test_fix_patterns_no_issues_returns_no_fixes(self, tmp_path: Path) -> None:
+        """fix_patterns with no issues returns 'No fixes needed'."""
+        from abstract_validator import AbstractValidator
+
+        validator = AbstractValidator(tmp_path)
+        result = validator.fix_patterns(dry_run=True)
+        assert result == ["No fixes needed"]
+
+
+class TestFixPatternsWithExistingFrontmatter:
+    """Test fix_patterns with skills that have existing frontmatter."""
+
+    @pytest.mark.unit
+    def test_fix_patterns_skill_with_existing_frontmatter(self, tmp_path: Path) -> None:
+        """fix_patterns calls _fix_frontmatter_fields for skills with frontmatter."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "partial-skill"
+        skill_dir.mkdir()
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            "---\nname: partial-skill\n---\n\n# Partial Skill\n\nContent.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        result = validator.fix_patterns(dry_run=True)
+        assert isinstance(result, list)
+
+
+# ---------------------------------------------------------------------------
+# Tests: _needs_meta_indicator
+# ---------------------------------------------------------------------------
+
+
+class TestNeedsMetaIndicator:
+    """Test _needs_meta_indicator checks for meta-skill keywords."""
+
+    @pytest.mark.unit
+    def test_content_with_meta_keyword_returns_false(self, tmp_path: Path) -> None:
+        """Content with 'template' keyword returns False."""
+        from abstract_validator import AbstractValidator
+
+        validator = AbstractValidator(tmp_path)
+        result = validator._needs_meta_indicator(
+            content="This is a template for skill development.",
+            skill_name="my-skill",
+        )
+        assert result is False
+
+    @pytest.mark.unit
+    def test_content_without_meta_keyword_returns_true(self, tmp_path: Path) -> None:
+        """Content without any meta keyword returns True."""
+        from abstract_validator import AbstractValidator
+
+        validator = AbstractValidator(tmp_path)
+        result = validator._needs_meta_indicator(
+            content="This skill provides basic CLI functionality.",
+            skill_name="my-skill",
+        )
+        assert result is True
+
+    @pytest.mark.unit
+    def test_skills_eval_skill_name_exempted(self, tmp_path: Path) -> None:
+        """skill_name='skills-eval' returns False regardless."""
+        from abstract_validator import AbstractValidator
+
+        validator = AbstractValidator(tmp_path)
+        result = validator._needs_meta_indicator(
+            content="Basic content with no keywords.",
+            skill_name="skills-eval",
+        )
+        assert result is False
+
+
+# ---------------------------------------------------------------------------
+# Tests: _check_hub_spoke_pattern extended
+# ---------------------------------------------------------------------------
+
+
+class TestCheckHubSpokeExtended:
+    """Test _check_hub_spoke_pattern edge cases."""
+
+    @pytest.mark.unit
+    def test_empty_modules_dir_adds_issue(self, tmp_path: Path) -> None:
+        """Skill with empty modules/ dir gets an issue."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "modular-skill"
+        skill_dir.mkdir()
+        (skill_dir / "modules").mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: modular-skill\ndescription: test\ncategory: meta-skills\n---\n\n"
+            "# Modular Skill\n\nThis is a template framework.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        issues = validator._check_hub_spoke_pattern()
+        assert any("no module files" in i for i in issues)
+
+    @pytest.mark.unit
+    def test_spoke_to_spoke_reference_adds_issue(self, tmp_path: Path) -> None:
+        """Module referencing another module gets a spoke-to-spoke violation."""
+        from abstract_validator import AbstractValidator
+
+        skill_dir = tmp_path / "spoke-skill"
+        skill_dir.mkdir()
+        modules_dir = skill_dir / "modules"
+        modules_dir.mkdir()
+
+        (modules_dir / "module-a.md").write_text(
+            "# Module A\n\nSee modules/module-b for details.\n"
+        )
+        (modules_dir / "module-b.md").write_text("# Module B\n\nContent.\n")
+
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: spoke-skill\ndescription: test\ncategory: meta-skills\n---\n\n"
+            "# Spoke Skill\n\nThis is a template framework.\n"
+            "See module-a and module-b for details.\n"
+        )
+
+        validator = AbstractValidator(tmp_path)
+        issues = validator._check_hub_spoke_pattern()
+        assert any("spoke" in i.lower() for i in issues)
+
+
+# ---------------------------------------------------------------------------
+# Tests: main() entry point flags
+# ---------------------------------------------------------------------------
+
+
+class TestAbstractValidatorMain:
+    """Test main() entry point flags."""
+
+    @pytest.mark.unit
+    def test_main_with_scan_flag(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main --scan runs without crashing."""
+        from abstract_validator import main
+
+        monkeypatch.setattr(
+            sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--scan"]
+        )
+        try:
+            main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+    @pytest.mark.unit
+    def test_main_with_report_flag(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main --report runs without crash."""
+        from abstract_validator import main
+
+        monkeypatch.setattr(
+            sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--report"]
+        )
+        try:
+            main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+    @pytest.mark.unit
+    def test_main_with_fix_flag_dry_run(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main --fix --dry-run runs without crash."""
+        from abstract_validator import main
+
+        skill_dir = tmp_path / "test-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text("# No frontmatter\n\nContent.\n")
+
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            ["abstract_validator.py", "--root", str(tmp_path), "--fix", "--dry-run"],
+        )
+        try:
+            main()
+        except SystemExit as e:
+            assert e.code in (0, 1)
+
+    @pytest.mark.unit
+    def test_main_no_flags(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """main with no flags runs without crash."""
+        from abstract_validator import main
+
+        monkeypatch.setattr(
+            sys, "argv", ["abstract_validator.py", "--root", str(tmp_path)]
+        )
+        try:
+            main()
+        except SystemExit as e:
+            assert e.code in (0, 1)

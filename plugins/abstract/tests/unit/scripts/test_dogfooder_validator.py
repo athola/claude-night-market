@@ -254,3 +254,202 @@ class TestGenerateMakefile:
 
         assert result is True
         assert not (plugin_dir / "Makefile").exists()
+
+
+class TestGenerateTargetLiveCommand:
+    """Feature: generate_target uses live commands when available
+
+    As a developer
+    I want generate_target to embed actual script invocations
+    So that demo targets run real tools instead of placeholders
+    """
+
+    @pytest.mark.unit
+    def test_live_command_branch_includes_running_message(self, tmp_path: Path) -> None:
+        """Scenario: Known plugin/command pair generates a live recipe
+        Given a plugin/command pair that exists in PLUGIN_TOOLS
+        When generate_target() is called
+        Then the recipe includes 'Running' and the actual command
+        """
+        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
+
+        gen = MakefileTargetGenerator(tmp_path)
+        result = gen.generate_target(
+            plugin="conserve",
+            command_name="bloat-scan",
+            invocation="/bloat-scan",
+            description="Demo bloat-scan (LIVE)",
+        )
+
+        assert "Running bloat-scan" in result
+        assert "bloat_detector.py" in result
+
+
+class TestGenerateDemoTargetsCliInvocation:
+    """Feature: generate_demo_targets handles CLI invocations
+
+    As a developer
+    I want CLI invocations to produce demo targets
+    So that all documented command types are covered
+    """
+
+    @pytest.mark.unit
+    def test_cli_invocation_generates_target(self, tmp_path: Path) -> None:
+        """Scenario: CLI invocation type generates cli-* targets
+        Given a command entry with type 'cli-invocation'
+        When generate_demo_targets() is called
+        Then a demo target for the CLI invocation is generated
+        """
+        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
+
+        gen = MakefileTargetGenerator(tmp_path)
+        commands = [
+            {
+                "type": "cli-invocation",
+                "invocation": "python scripts/analyze.py --scan",
+                "command": "analyze",
+            }
+        ]
+
+        result = gen.generate_demo_targets("myplugin", commands)
+
+        assert "demo-cli-python:" in result
+
+
+class TestGenerateMakefileLanguages:
+    """Feature: generate_makefile supports Rust and TypeScript
+
+    As a developer
+    I want Makefile generation for multiple languages
+    So that non-Python plugins get proper build targets
+    """
+
+    @pytest.mark.unit
+    def test_rust_makefile_generation(self, tmp_path: Path) -> None:
+        """Scenario: Plugin with Cargo.toml gets a Rust Makefile
+        Given a plugin directory with Cargo.toml
+        When generate_makefile() is called
+        Then a Makefile with cargo targets is created
+        """
+        from dogfooder.validator import generate_makefile  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "rust-plugin"
+        plugin_dir.mkdir()
+        (plugin_dir / "Cargo.toml").write_text('[package]\nname = "rust-plugin"\n')
+
+        result = generate_makefile(plugin_dir, "rust-plugin", dry_run=False)
+
+        assert result is True
+        content = (plugin_dir / "Makefile").read_text()
+        assert "cargo test" in content
+        assert "cargo clippy" in content
+
+    @pytest.mark.unit
+    def test_typescript_makefile_generation(self, tmp_path: Path) -> None:
+        """Scenario: Plugin with package.json gets a TypeScript Makefile
+        Given a plugin directory with package.json
+        When generate_makefile() is called
+        Then a Makefile with npm targets is created
+        """
+        from dogfooder.validator import generate_makefile  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "ts-plugin"
+        plugin_dir.mkdir()
+        (plugin_dir / "package.json").write_text('{"name": "ts-plugin"}')
+
+        result = generate_makefile(plugin_dir, "ts-plugin", dry_run=False)
+
+        assert result is True
+        content = (plugin_dir / "Makefile").read_text()
+        assert "npm" in content or "npx" in content
+
+    @pytest.mark.unit
+    def test_no_language_file_defaults_python(self, tmp_path: Path) -> None:
+        """Scenario: Plugin with no language files defaults to Python
+        Given a plugin directory with no pyproject.toml, Cargo.toml, or package.json
+        When generate_makefile() is called
+        Then a Python-style Makefile is created
+        """
+        from dogfooder.validator import generate_makefile  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "unknown-plugin"
+        plugin_dir.mkdir()
+
+        result = generate_makefile(plugin_dir, "unknown-plugin", dry_run=False)
+
+        assert result is True
+        content = (plugin_dir / "Makefile").read_text()
+        assert "uv run" in content or "pytest" in content
+
+
+class TestValidateWorkingDirectory:
+    """Feature: validate_working_directory ensures correct context
+
+    As a developer
+    I want to validate the working directory before file operations
+    So that operations target the right location
+    """
+
+    @pytest.mark.unit
+    def test_matching_directory_returns_true(self, tmp_path: Path) -> None:
+        """Scenario: Working directory matches root_dir
+        Given cwd equals root_dir
+        When validate_working_directory() is called
+        Then True is returned
+        """
+        import os  # noqa: PLC0415
+
+        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
+
+        original = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            result = validate_working_directory(tmp_path, "plugins")
+            assert result is True
+        finally:
+            os.chdir(original)
+
+    @pytest.mark.unit
+    def test_missing_plugin_makefile_returns_false(self, tmp_path: Path) -> None:
+        """Scenario: Specified plugin has no Makefile
+        Given a valid root_dir but plugin directory has no Makefile
+        When validate_working_directory(plugin_name='ghost') is called
+        Then False is returned
+        """
+        import os  # noqa: PLC0415
+
+        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
+
+        plugins = tmp_path / "plugins" / "ghost"
+        plugins.mkdir(parents=True)
+
+        original = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            result = validate_working_directory(tmp_path, "plugins", "ghost")
+            assert result is False
+        finally:
+            os.chdir(original)
+
+    @pytest.mark.unit
+    def test_valid_plugin_makefile_returns_true(self, tmp_path: Path) -> None:
+        """Scenario: Plugin with Makefile passes validation
+        Given a plugin directory containing a Makefile
+        When validate_working_directory(plugin_name='good') is called
+        Then True is returned
+        """
+        import os  # noqa: PLC0415
+
+        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "good"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        original = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            result = validate_working_directory(tmp_path, "plugins", "good")
+            assert result is True
+        finally:
+            os.chdir(original)

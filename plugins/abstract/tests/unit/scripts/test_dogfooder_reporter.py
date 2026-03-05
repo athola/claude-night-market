@@ -286,3 +286,476 @@ class TestProcessingConfigFromReporter:
         assert cfg.generate_missing is False
         assert cfg.dry_run is True
         assert cfg.verbose is False
+
+
+class TestAnalyzePluginEdgeCases:
+    """Feature: analyze_plugin handles edge cases
+
+    As a developer
+    I want analyze_plugin to handle missing README and Makefile scenarios
+    So that analysis degrades gracefully
+    """
+
+    @pytest.mark.unit
+    def test_no_readme_returns_status(self, tmp_path: Path) -> None:
+        """Scenario: Plugin directory has no README.md
+        Given a plugin directory without a README.md
+        When analyze_plugin() is called
+        Then it returns a dict with status 'no-readme'
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "no-readme-plugin"
+        plugin_dir.mkdir(parents=True)
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("no-readme-plugin")
+
+        assert finding["plugin"] == "no-readme-plugin"
+        assert finding["status"] == "no-readme"
+
+    @pytest.mark.unit
+    def test_no_makefile_without_generate_returns_status(self, tmp_path: Path) -> None:
+        """Scenario: Plugin has README but no Makefile and generate_missing=False
+        Given a plugin directory with README but no Makefile
+        When analyze_plugin(generate_missing=False) is called
+        Then it returns a dict with status 'no-makefile'
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "no-makefile-plugin"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "README.md").write_text("Some content.\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("no-makefile-plugin", generate_missing=False)
+
+        assert finding["plugin"] == "no-makefile-plugin"
+        assert finding["status"] == "no-makefile"
+
+
+class TestInsertionStrategies:
+    """Feature: Makefile content insertion strategies
+
+    As a developer
+    I want the dogfooder to insert generated targets at the right location
+    So that Makefile structure is preserved
+    """
+
+    @pytest.mark.unit
+    def test_insert_before_catchall_comment(self, tmp_path: Path) -> None:
+        """Scenario: Insert content before the catch-all guard comment
+        Given Makefile content with a catch-all guard comment
+        When _insert_content_before_catchall() is called
+        Then the new content appears before the comment
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        content = (
+            ".PHONY: help\n\nhelp:\n\t@echo help\n\n"
+            "# Guard against accidental file creation\n%::\n\t@:\n"
+        )
+        new_content = "new-target: ## New target\n\t@echo new\n"
+        catchall_pattern = "\n\n# Guard against accidental file creation"
+
+        result = dogfooder._insert_content_before_catchall(
+            content, new_content, catchall_pattern
+        )
+
+        assert "new-target:" in result
+        assert result.index("new-target:") < result.index(
+            "# Guard against accidental file creation"
+        )
+
+    @pytest.mark.unit
+    def test_insert_before_percent_colon(self, tmp_path: Path) -> None:
+        """Scenario: Insert content before %:: rule
+        Given Makefile content with a %:: catch-all rule
+        When _insert_content_before_percent_colon() is called
+        Then the new content appears before %::
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        content = ".PHONY: help\n\nhelp:\n\t@echo help\n\n%::\n\t@:\n"
+        new_content = "new-target: ## New target\n\t@echo new\n"
+
+        result = dogfooder._insert_content_before_percent_colon(content, new_content)
+
+        assert "new-target:" in result
+        assert result.index("new-target:") < result.index("%::")
+
+    @pytest.mark.unit
+    def test_determine_insertion_with_catchall(self, tmp_path: Path) -> None:
+        """Scenario: Strategy picks catchall insertion when both markers exist
+        Given Makefile content with both guard comment and %:: rule
+        When _determine_insertion_strategy() is called
+        Then content is inserted before the guard comment
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        content = (
+            ".PHONY: help\n\nhelp:\n\t@echo help\n\n"
+            "# Guard against accidental file creation\n%::\n\t@:\n"
+        )
+        new_content = "demo-cmd: ## Demo\n\t@echo demo\n"
+
+        result = dogfooder._determine_insertion_strategy(content, new_content)
+
+        assert "demo-cmd:" in result
+        assert result.index("demo-cmd:") < result.index("Guard against")
+
+    @pytest.mark.unit
+    def test_determine_insertion_with_percent_only(self, tmp_path: Path) -> None:
+        """Scenario: Strategy picks %:: insertion when no guard comment exists
+        Given Makefile content with %:: but no guard comment
+        When _determine_insertion_strategy() is called
+        Then content is inserted before %::
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        content = ".PHONY: help\n\nhelp:\n\t@echo help\n\n%::\n\t@:\n"
+        new_content = "demo-cmd: ## Demo\n\t@echo demo\n"
+
+        result = dogfooder._determine_insertion_strategy(content, new_content)
+
+        assert "demo-cmd:" in result
+        assert result.index("demo-cmd:") < result.index("%::")
+
+    @pytest.mark.unit
+    def test_determine_insertion_appends_when_no_markers(self, tmp_path: Path) -> None:
+        """Scenario: Strategy appends when no %:: or guard comment
+        Given plain Makefile content with no special markers
+        When _determine_insertion_strategy() is called
+        Then content is appended at the end
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        content = ".PHONY: help\n\nhelp:\n\t@echo help\n"
+        new_content = "demo-cmd: ## Demo\n\t@echo demo\n"
+
+        result = dogfooder._determine_insertion_strategy(content, new_content)
+
+        assert result.endswith("demo-cmd: ## Demo\n\t@echo demo\n\n")
+
+
+class TestApplyTargetsToMakefile:
+    """Feature: apply_targets_to_makefile writes filtered targets
+
+    As a developer
+    I want apply_targets_to_makefile to handle all edge cases
+    So that Makefile updates are safe and predictable
+    """
+
+    @pytest.mark.unit
+    def test_missing_makefile_returns_false(self, tmp_path: Path) -> None:
+        """Scenario: Makefile path does not exist
+        Given a finding with a nonexistent Makefile path
+        When apply_targets_to_makefile() is called
+        Then False is returned
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {"makefile": "plugins/ghost/Makefile"}
+
+        result = dogfooder.apply_targets_to_makefile(
+            "ghost", finding, "target: ## desc\n\t@echo ok\n"
+        )
+
+        assert result is False
+
+    @pytest.mark.unit
+    def test_all_duplicates_returns_true(self, tmp_path: Path) -> None:
+        """Scenario: All generated targets already exist
+        Given a Makefile that already has the generated target
+        When apply_targets_to_makefile() is called
+        Then True is returned without writing
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "dup" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text(".PHONY: help\n\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {"makefile": "plugins/dup/Makefile"}
+
+        result = dogfooder.apply_targets_to_makefile(
+            "dup", finding, "help: ## already exists\n\t@echo help\n"
+        )
+
+        assert result is True
+
+    @pytest.mark.unit
+    def test_dry_run_does_not_write(self, tmp_path: Path) -> None:
+        """Scenario: Dry run prints message without modifying Makefile
+        Given a valid Makefile with new targets to add
+        When apply_targets_to_makefile(dry_run=True) is called
+        Then True is returned and Makefile is unchanged
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "dry" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        original = ".PHONY: help\n\nhelp:\n\t@echo help\n"
+        makefile.write_text(original)
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {"makefile": "plugins/dry/Makefile"}
+
+        result = dogfooder.apply_targets_to_makefile(
+            "dry", finding, "new-target: ## New\n\t@echo new\n", dry_run=True
+        )
+
+        assert result is True
+        assert makefile.read_text() == original
+
+
+class TestBuildPhonyBlock:
+    """Feature: _build_phony_block formats .PHONY with line wrapping
+
+    As a developer
+    I want .PHONY lines to wrap at the length limit
+    So that Makefiles stay readable
+    """
+
+    @pytest.mark.unit
+    def test_short_targets_fit_on_one_line(self, tmp_path: Path) -> None:
+        """Scenario: Few short targets stay on one line
+        Given 3 short target names
+        When _build_phony_block() is called
+        Then all targets appear on a single .PHONY line
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        targets = ["help", "test", "lint"]
+        result = dogfooder._build_phony_block(targets)
+
+        joined = "\n".join(result)
+        assert ".PHONY:" in joined
+        assert "help" in joined
+        assert "\\" not in joined
+
+    @pytest.mark.unit
+    def test_many_long_targets_wrap(self, tmp_path: Path) -> None:
+        """Scenario: Many targets cause line wrapping
+        Given enough targets to exceed the PHONY_LINE_LENGTH_LIMIT
+        When _build_phony_block() is called
+        Then backslash continuations appear in the output
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        targets = [f"very-long-target-name-{i}" for i in range(15)]
+        result = dogfooder._build_phony_block(targets)
+
+        joined = "\n".join(result)
+        assert "\\" in joined
+
+
+class TestFixMakefilePronouce:
+    """Feature: fix_makefile_pronounce updates .PHONY declarations
+
+    As a developer
+    I want .PHONY to be updated when new targets are added
+    So that make tab-completion works for all targets
+    """
+
+    @pytest.mark.unit
+    def test_missing_makefile_returns_false(self, tmp_path: Path) -> None:
+        """Scenario: Makefile doesn't exist
+        Given a finding pointing to a nonexistent Makefile
+        When fix_makefile_pronounce() is called
+        Then False is returned
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {"makefile": "plugins/ghost/Makefile", "missing_targets": ["test"]}
+
+        result = dogfooder.fix_makefile_pronounce("ghost", finding)
+
+        assert result is False
+
+    @pytest.mark.unit
+    def test_no_missing_targets_returns_true(self, tmp_path: Path) -> None:
+        """Scenario: No missing targets
+        Given a finding with an empty missing_targets list
+        When fix_makefile_pronounce() is called
+        Then True is returned (nothing to do)
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "ok" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text(".PHONY: help\n\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {"makefile": "plugins/ok/Makefile", "missing_targets": []}
+
+        assert dogfooder.fix_makefile_pronounce("ok", finding) is True
+
+    @pytest.mark.unit
+    def test_no_phony_block_returns_false(self, tmp_path: Path) -> None:
+        """Scenario: Makefile has no .PHONY declaration
+        Given a Makefile without a .PHONY line
+        When fix_makefile_pronounce() is called
+        Then False is returned
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "nophony" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text("help:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {
+            "makefile": "plugins/nophony/Makefile",
+            "missing_targets": ["test"],
+        }
+
+        assert dogfooder.fix_makefile_pronounce("nophony", finding) is False
+
+    @pytest.mark.unit
+    def test_adds_new_targets_to_phony(self, tmp_path: Path) -> None:
+        """Scenario: New targets are added to .PHONY
+        Given a Makefile with .PHONY: help and a missing target 'test'
+        When fix_makefile_pronounce(dry_run=False) is called
+        Then the Makefile .PHONY line includes 'test'
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "addme" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text(".PHONY: help\n\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {
+            "makefile": "plugins/addme/Makefile",
+            "missing_targets": ["test"],
+        }
+
+        result = dogfooder.fix_makefile_pronounce("addme", finding, dry_run=False)
+
+        assert result is True
+        updated = makefile.read_text()
+        assert "test" in updated
+        assert ".PHONY:" in updated
+
+    @pytest.mark.unit
+    def test_dry_run_does_not_modify(self, tmp_path: Path) -> None:
+        """Scenario: Dry run leaves Makefile unchanged
+        Given a Makefile with a missing target
+        When fix_makefile_pronounce(dry_run=True) is called
+        Then True is returned but Makefile content is unchanged
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "dryfix" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        original = ".PHONY: help\n\nhelp:\n\t@echo help\n"
+        makefile.write_text(original)
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {
+            "makefile": "plugins/dryfix/Makefile",
+            "missing_targets": ["lint"],
+        }
+
+        result = dogfooder.fix_makefile_pronounce("dryfix", finding, dry_run=True)
+
+        assert result is True
+        assert makefile.read_text() == original
+
+    @pytest.mark.unit
+    def test_targets_already_in_phony_returns_true(self, tmp_path: Path) -> None:
+        """Scenario: Missing targets are already in .PHONY
+        Given a Makefile where .PHONY already lists the 'missing' targets
+        When fix_makefile_pronounce() is called
+        Then True is returned without modification
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        makefile = tmp_path / "plugins" / "already" / "Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text(".PHONY: help test\n\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = {
+            "makefile": "plugins/already/Makefile",
+            "missing_targets": ["test"],
+        }
+
+        assert dogfooder.fix_makefile_pronounce("already", finding) is True
+
+
+class TestAnalyzeAllVerbose:
+    """Feature: analyze_all with verbose flag prints details
+
+    As a developer
+    I want verbose output during analysis
+    So that I can see per-plugin progress
+    """
+
+    @pytest.mark.unit
+    def test_verbose_prints_plugin_details(self, tmp_path: Path, capsys) -> None:
+        """Scenario: verbose=True causes per-plugin output
+        Given a plugin directory with README and Makefile
+        When analyze_all() is called on a verbose MakefileDogfooder
+        Then plugin details are printed to stdout
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "verbose-test"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "README.md").write_text("Use `/do-thing`.\n")
+        (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path, verbose=True)
+        dogfooder.analyze_all()
+
+        captured = capsys.readouterr()
+        assert "verbose-test:" in captured.out
+        assert "Commands documented:" in captured.out
+
+
+class TestGenerateReportTruncation:
+    """Feature: generate_report truncates long missing target lists
+
+    As a developer
+    I want reports to stay readable even with many missing targets
+    So that output doesn't overwhelm
+    """
+
+    @pytest.mark.unit
+    def test_more_than_five_missing_shows_truncation(self, tmp_path: Path) -> None:
+        """Scenario: More than MAX_MISSING_DISPLAY targets triggers '... and N more'
+        Given a finding with 8 missing targets
+        When generate_report() is called
+        Then the report contains '... and 3 more'
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        dogfooder.report["findings"].append(
+            {
+                "plugin": "many-missing",
+                "coverage_percent": 20,
+                "commands_documented": 8,
+                "targets_missing": 8,
+                "missing_targets": [f"target-{i}" for i in range(8)],
+            }
+        )
+        dogfooder.report["plugins_analyzed"] = 1
+        dogfooder.report["commands_found"] = 8
+        dogfooder.report["targets_missing"] = 8
+
+        report = dogfooder.generate_report()
+
+        assert "... and 3 more" in report
