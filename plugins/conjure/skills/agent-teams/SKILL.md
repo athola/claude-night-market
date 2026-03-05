@@ -36,8 +36,8 @@ modules:
 - modules/crew-roles.md
 - modules/health-monitoring.md
 references:
-- delegation-core/../../leyline/skills/error-patterns/SKILL.md
-- delegation-core/../../leyline/skills/service-registry/SKILL.md
+- ../../../leyline/skills/error-patterns/SKILL.md
+- ../../../leyline/skills/service-registry/SKILL.md
 ---
 ## Table of Contents
 
