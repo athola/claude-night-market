@@ -121,7 +121,11 @@ Most sanctum skills require `git-workspace-review` as a foundation. Skills like 
 
 **Pre-PR**: Execute a preflight check, run quality gates such as `make fmt && make lint && make test`, and use `pr-prep` to generate the description.
 
-**Post-Review**: Use `/fix-pr` to triage comments, implement fixes, and resolve threads.
+**Post-Review**: Use `/fix-pr` to triage comments,
+implement fixes, and resolve threads.
+Both `/fix-pr` and `/pr-review` inject a test plan
+into PR descriptions when one is missing, using the
+shared `test-plan-injection` module.
 
 **Release**: Run a preflight check, bump the version with `version-updates`, update documentation with `doc-updates`, then commit and tag the release.
 

@@ -7,6 +7,7 @@ following TDD/BDD principles.
 Issue #60: Add unit tests for validate_budget.py
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -409,8 +410,6 @@ class TestPathArgument:
         When running main() with --path argument
         Then it should validate skills at that path.
         """
-        import subprocess
-
         result = subprocess.run(
             [
                 "python",
@@ -439,8 +438,6 @@ class TestPathArgument:
         When running main() with --path A
         Then it should find skills in path A, not path B.
         """
-        import subprocess
-
         # Create empty directory as cwd
         empty_cwd = tmp_path / "empty_cwd"
         empty_cwd.mkdir()
@@ -471,8 +468,6 @@ class TestPathArgument:
         When running main()
         Then it should use current directory as base.
         """
-        import subprocess
-
         # Run without --path, should use cwd
         result = subprocess.run(
             [

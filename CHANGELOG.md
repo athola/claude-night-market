@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Shared test plan injection module for sanctum
+  (`commands/shared/test-plan-injection.md`) with
+  detection, generation, and injection logic
+- Test plan injection step in `/fix-pr` (step 6.5b)
+  and `/pr-review` (step 17.5) workflows
+- 627-line BDD test suite for test plan injection
+  covering detection patterns, generation templates,
+  and cross-reference validation
+
 ## [1.5.5] - 2026-03-04
 
 ### Added

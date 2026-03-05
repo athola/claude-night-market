@@ -25,10 +25,38 @@ import hashlib
 import json
 import os
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
 from .palace_manager import MemoryPalaceManager
+
+
+class RoomType(str, Enum):
+    """Room types in a project palace."""
+
+    ENTRANCE = "entrance"
+    LIBRARY = "library"
+    WORKSHOP = "workshop"
+    REVIEW_CHAMBER = "review-chamber"
+    GARDEN = "garden"
+
+
+class ReviewSubroom(str, Enum):
+    """Subroom types within the review-chamber."""
+
+    DECISIONS = "decisions"
+    PATTERNS = "patterns"
+    STANDARDS = "standards"
+    LESSONS = "lessons"
+
+
+class SortBy(str, Enum):
+    """Sort order for search results."""
+
+    RECENCY = "recency"
+    IMPORTANCE = "importance"
+
 
 # Review chamber room types
 REVIEW_CHAMBER_ROOMS = {
@@ -87,7 +115,7 @@ class ReviewEntry:
         self,
         source_pr: str,
         title: str,
-        room_type: str,
+        room_type: str | ReviewSubroom,
         content: dict[str, Any],
         participants: list[str] | None = None,
         related_rooms: list[str] | None = None,
@@ -124,7 +152,7 @@ class ReviewEntry:
 
         if importance_score is not None:
             self.importance_score = importance_score
-        elif room_type == "decisions":
+        elif room_type == ReviewSubroom.DECISIONS:
             self.importance_score = 70
         else:
             self.importance_score = 40
@@ -418,10 +446,10 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self,
         palace_id: str,
         query: str,
-        room_type: str | None = None,
+        room_type: str | ReviewSubroom | None = None,
         tags: list[str] | None = None,
         semantic: bool = False,
-        sort_by: str = "recency",
+        sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Search the review chamber of a project palace.
 
@@ -432,8 +460,8 @@ class ProjectPalaceManager(MemoryPalaceManager):
             tags: Optional filter by tags
             semantic: When True, use embedding-based semantic search
                 instead of text substring matching
-            sort_by: Sort order for results. "recency" (default) or
-                "importance" to sort by importance_score descending.
+            sort_by: Sort order for results. SortBy.RECENCY (default) or
+                SortBy.IMPORTANCE to sort by importance_score descending.
 
         Returns:
             List of matching review entries
@@ -459,9 +487,9 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
-        room_type: str | None,
+        room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
-        sort_by: str = "recency",
+        sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Text substring search (original behavior)."""
         results = []
@@ -490,7 +518,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     }
                 )
 
-        if sort_by == "importance":
+        if sort_by == SortBy.IMPORTANCE:
             results.sort(
                 key=lambda r: r["entry"].get("importance_score", 40),
                 reverse=True,
@@ -503,7 +531,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
-        room_type: str | None,
+        room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
     ) -> list[dict[str, Any]]:
         """Embedding-based semantic search across review chamber rooms."""
@@ -766,26 +794,26 @@ def _classify_finding(finding: dict[str, Any]) -> str | None:
     if severity == "BLOCKING" and any(
         kw in category for kw in ["architecture", "design", "pattern", "security"]
     ):
-        return "decisions"
+        return ReviewSubroom.DECISIONS
 
     # Recurring patterns (IN-SCOPE issues that represent patterns)
     if severity in ["BLOCKING", "IN-SCOPE"] and any(
         kw in category for kw in ["pattern", "recurring", "common", "best-practice"]
     ):
-        return "patterns"
+        return ReviewSubroom.PATTERNS
 
     # Quality standards (code quality findings)
     if severity in ["BLOCKING", "IN-SCOPE"] and any(
         kw in category for kw in ["quality", "style", "convention", "standard"]
     ):
-        return "standards"
+        return ReviewSubroom.STANDARDS
 
     # Lessons learned (post-mortems, retrospective insights)
     if any(kw in category for kw in ["lesson", "learning", "retrospective", "insight"]):
-        return "lessons"
+        return ReviewSubroom.LESSONS
 
     # High-severity findings are worth capturing as patterns
     if severity == "BLOCKING":
-        return "patterns"
+        return ReviewSubroom.PATTERNS
 
     return None

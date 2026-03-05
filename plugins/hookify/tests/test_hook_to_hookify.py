@@ -1,5 +1,7 @@
 """Tests for hook_to_hookify conversion tool."""
 
+import ast
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -41,8 +43,6 @@ def hook(context):
     if re.search(r"rm -rf", context["command"]):
         return {"action": "block"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -58,8 +58,6 @@ def hook(context):
     if "sudo" in context["command"]:
         return {"action": "warn"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -75,8 +73,6 @@ def hook(context):
     if context["command"].startswith("git push"):
         return {"action": "warn"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -92,8 +88,6 @@ def hook(context):
     with open("file.txt") as f:
         data = f.read()
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -206,8 +200,6 @@ def hook(context):
     if context["file_path"].endswith(".py"):
         return {"action": "warn"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -223,8 +215,6 @@ def hook(context):
     if context["command"] == "rm -rf /":
         return {"action": "block"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -241,8 +231,6 @@ def hook(context):
     response = requests.get("http://example.com")
     return response
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -257,8 +245,6 @@ def hook(context):
     if "password" in context["content"]:
         return {"action": "block"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -274,8 +260,6 @@ def hook(context):
     if ".env" in file_path:
         return {"action": "block"}
 """
-        import ast
-
         tree = ast.parse(code)
         analyzer = HookAnalyzer()
         analyzer.visit(tree)
@@ -602,8 +586,6 @@ class TestCLIThresholdArgs:
 
     def test_cli_accepts_max_complexity_arg(self):
         """The argparse parser should accept --max-complexity."""
-        import subprocess
-
         result = subprocess.run(
             [
                 sys.executable,
@@ -619,8 +601,6 @@ class TestCLIThresholdArgs:
 
     def test_cli_accepts_min_confidence_arg(self):
         """The argparse parser should accept --min-confidence."""
-        import subprocess
-
         result = subprocess.run(
             [
                 sys.executable,

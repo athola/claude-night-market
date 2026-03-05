@@ -4,6 +4,7 @@ This module tests the MECW principles, context analysis, and optimization
 functionality following TDD/BDD principles.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -538,8 +539,6 @@ class TestSubagentCoordinationModuleContent:
         Then each capability must have a version gate so Claude doesn't
         recommend features unavailable in the user's version.
         """
-        import re
-
         worktree_section_match = re.search(
             r"### Worktree Isolation.*?(?=###|\Z)", module_content, re.DOTALL
         )
@@ -565,9 +564,6 @@ class TestSubagentCoordinationModuleContent:
         This prevents Claude from citing nonexistent versions.
         Checks both main and 2025 archive compatibility files.
         """
-        import re
-        from pathlib import Path
-
         versions = set(re.findall(r"2\.1\.(\d+)", module_content))
         compat_dir = (
             Path(__file__).parents[FOUR] / "abstract" / "docs" / "compatibility"

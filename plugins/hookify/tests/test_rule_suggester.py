@@ -1,5 +1,6 @@
 """Tests for context-aware rule suggester."""
 
+import json
 import tempfile
 from pathlib import Path
 
@@ -321,8 +322,6 @@ class TestNewLanguageTemplates:
 
     def test_detect_context_go_project(self):
         """detect_context returns go in languages for a go.mod project."""
-        import tempfile
-
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
             (path / "go.mod").touch()
@@ -333,8 +332,6 @@ class TestNewLanguageTemplates:
 
     def test_detect_context_rust_project(self):
         """detect_context returns rust in languages for a Cargo.toml project."""
-        import tempfile
-
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
             (path / "Cargo.toml").touch()
@@ -345,8 +342,6 @@ class TestNewLanguageTemplates:
 
     def test_detect_context_typescript_project(self):
         """detect_context returns typescript in languages for package.json + tsconfig.json."""
-        import tempfile
-
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
             (path / "package.json").touch()
@@ -393,8 +388,6 @@ class TestFormatSuggestions:
 
     def test_formats_as_json(self):
         """Given json format, returns valid JSON output."""
-        import json
-
         ctx = ProjectContext(has_git=True, languages=["python"])
         suggestions = [
             RuleSuggestion(

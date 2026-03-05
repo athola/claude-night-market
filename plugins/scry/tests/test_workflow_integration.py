@@ -12,6 +12,7 @@ Following TDD/BDD principles with Given/When/Then docstrings.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -420,8 +421,6 @@ class TestGifDemoScript:
         When checking permissions
         Then it should be executable.
         """
-        import os
-
         gif_demo = scripts_dir / "gif_demo.sh"
         if not gif_demo.exists():
             pytest.skip("gif_demo.sh not found")

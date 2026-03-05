@@ -6,6 +6,8 @@ thresholds, anti-patterns, and quality metrics.
 Following TDD/BDD principles to ensure testing standards are validated.
 """
 
+import ast
+import re
 from pathlib import Path
 
 import pytest
@@ -472,9 +474,6 @@ class TestContentAssertionLevelsModuleContent:
         """Given Python code blocks in the module
         When Claude copies them as test scaffolding
         Then every block must be valid Python syntax."""
-        import ast
-        import re
-
         # Anchor closing fence to line start to avoid matching
         # triple backticks inside code block string literals
         python_blocks = re.findall(

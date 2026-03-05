@@ -10,6 +10,7 @@ Issue #50: Add integration tests for doc-updates workflow phases
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -643,8 +644,6 @@ class TestDocUpdatesWorkflowIntegration:
         When extracting versions for accuracy checking
         Then correct versions should be returned.
         """
-        import json
-
         plugin_json = (
             mock_project_structure
             / "plugins"

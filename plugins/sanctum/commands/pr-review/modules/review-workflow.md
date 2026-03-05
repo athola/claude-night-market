@@ -940,6 +940,110 @@ After posting the test plan, update the PR description with a summary of the rev
     - Closes #XX (from commit messages or scope artifacts)
     ```
 
+17.5. **Inject Test Plan into PR Description**
+
+    > **Module**: [test-plan-injection](../../shared/test-plan-injection.md)
+
+    Before sending `$NEW_BODY` to the API, check whether
+    it contains a detailed test plan section. If missing,
+    generate one from the Phase 5 test plan data and
+    inject it into the body.
+
+    ```bash
+    # --- Detection ---
+    # Match recognized test plan headings
+    TEST_PLAN_HEADING='##+ (Test [Pp]lan|Manual Test|Verification Steps)'
+
+    HAS_HEADING=$(echo "$NEW_BODY" | grep -ciE "$TEST_PLAN_HEADING" || true)
+    CHECKBOX_COUNT=$(echo "$NEW_BODY" | grep -c '- \[[ x]\]' || true)
+
+    if [[ "$HAS_HEADING" -gt 0 ]] && [[ "$CHECKBOX_COUNT" -ge 3 ]]; then
+      echo "Test plan already present in PR description, skipping injection"
+    else
+      echo "No detailed test plan found, injecting..."
+
+      # --- Generation ---
+      # Build condensed test plan from Phase 5 data
+      # (blocking/in-scope issues already in context from step 13)
+
+      TEST_PLAN="## Test Plan
+
+    ### Prerequisites
+    - [ ] Branch is up to date with base branch
+    - [ ] Dependencies installed (\`uv sync\` or \`npm install\`)
+
+    ### Verification Steps
+    "
+      # Append per-area steps from blocking/in-scope issues
+      AREA_NUM=1
+      for ISSUE in "${BLOCKING_ISSUES[@]}" "${IN_SCOPE_ISSUES[@]}"; do
+        ISSUE_ID=$(echo "$ISSUE" | cut -d'|' -f1)
+        ISSUE_FILE=$(echo "$ISSUE" | cut -d'|' -f2)
+        ISSUE_DESC=$(echo "$ISSUE" | cut -d'|' -f3)
+
+        TEST_PLAN+="
+    #### $AREA_NUM. $ISSUE_ID: $ISSUE_DESC
+    **Files:** \`$ISSUE_FILE\`
+
+    1. [ ] Review the fix at \`$ISSUE_FILE\`
+    2. [ ] Run relevant tests for this area
+    3. [ ] Expected: issue resolved, no regression
+    "
+        AREA_NUM=$((AREA_NUM + 1))
+      done
+
+      # Add build and quality gates
+      TEST_PLAN+="
+    ### Build & Quality Gates
+    \`\`\`bash
+    make test && make lint
+    \`\`\`
+
+    ### Summary
+    | Area | Steps | Verified |
+    |------|-------|----------|"
+
+      for ISSUE in "${BLOCKING_ISSUES[@]}" "${IN_SCOPE_ISSUES[@]}"; do
+        ISSUE_ID=$(echo "$ISSUE" | cut -d'|' -f1)
+        TEST_PLAN+="
+    | $ISSUE_ID | 3 | [ ] |"
+      done
+
+      # --- Injection ---
+      # Insert before Code Review Summary if it exists
+      if echo "$NEW_BODY" | grep -q '### Code Review Summary'; then
+        # Insert test plan before the review summary
+        NEW_BODY=$(echo "$NEW_BODY" | sed "/### Code Review Summary/i\\
+\\
+${TEST_PLAN}\\
+\\
+---\\
+")
+      else
+        # Append after existing content
+        NEW_BODY="${NEW_BODY}
+
+    ---
+
+    ${TEST_PLAN}"
+      fi
+
+      echo "Test plan injected into PR description"
+    fi
+    ```
+
+    **For the prepend flow** (existing description case):
+    also check the combined `$NEW_BODY` after prepending
+    the review summary. If the original body lacked a test
+    plan, the injection adds one between the changes
+    section and the review summary.
+
+    **Test plan content sources:**
+    - Blocking issues (B1, B2, ...) from Phase 3 triage
+    - In-scope issues (S1, S2, ...) from Phase 3 triage
+    - Build commands detected from `Makefile` or
+      `pyproject.toml`
+
 18. **Update PR Description via API**
 
     ```bash

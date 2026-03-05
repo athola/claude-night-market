@@ -1,6 +1,7 @@
 """Tests for scry plugin structure and validation."""
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -118,8 +119,6 @@ class TestScriptsStructure:
 
     def test_gif_demo_script_executable(self, scripts_dir: Path) -> None:
         """gif_demo.sh should be executable."""
-        import os
-
         gif_demo = scripts_dir / "gif_demo.sh"
         assert os.access(gif_demo, os.X_OK), "gif_demo.sh is not executable"
 

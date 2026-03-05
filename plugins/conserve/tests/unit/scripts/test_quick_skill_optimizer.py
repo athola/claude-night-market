@@ -5,6 +5,7 @@ This module tests the quick skill optimizer following TDD/BDD principles.
 """
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
 
@@ -239,8 +240,6 @@ def function_to_extract():
         tools_dir = tmp_path / "tools"
         tool_files = list(tools_dir.glob("*.py"))
         if tool_files:
-            import os
-
             assert os.access(tool_files[0], os.X_OK)
 
 

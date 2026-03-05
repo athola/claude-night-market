@@ -8,6 +8,7 @@ implementation files have corresponding test files.
 """
 
 import json
+from io import StringIO
 from pathlib import Path
 
 import pytest
@@ -524,8 +525,6 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 without output.
         """
-        from io import StringIO
-
         input_data = json.dumps(
             {
                 "tool_name": "Read",
@@ -548,8 +547,6 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 without output.
         """
-        from io import StringIO
-
         input_data = json.dumps(
             {
                 "tool_name": "Bash",
@@ -574,8 +571,6 @@ class TestMainEntryPoint:
         When running main
         Then it should check for test file existence.
         """
-        from io import StringIO
-
         # Create mock plugin structure
         plugin_root = tmp_path / "plugins" / "imbue"
         plugin_root.mkdir(parents=True)
@@ -614,8 +609,6 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 without crashing.
         """
-        from io import StringIO
-
         monkeypatch.setattr("sys.stdin", StringIO("not valid json"))
 
         with pytest.raises(SystemExit) as exc_info:
@@ -634,8 +627,6 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 (allow without warning).
         """
-        from io import StringIO
-
         readme_path = tmp_path / "README.md"
 
         input_data = json.dumps(
@@ -662,8 +653,6 @@ class TestMainEntryPoint:
         When running main
         Then it should enforce the TDD gate with exit code 2.
         """
-        from io import StringIO
-
         # Create mock plugin structure
         plugin_root = tmp_path / "plugins" / "imbue"
         plugin_root.mkdir(parents=True)
@@ -703,8 +692,6 @@ class TestMainEntryPoint:
         When running main
         Then it should enforce the TDD gate with exit code 2.
         """
-        from io import StringIO
-
         # Create mock plugin structure
         plugin_root = tmp_path / "plugins" / "imbue"
         plugin_root.mkdir(parents=True)
@@ -744,8 +731,6 @@ class TestMainEntryPoint:
         When running main
         Then it should exit with code 2 and a short reminder (not the full template).
         """
-        from io import StringIO
-
         # Create mock plugin structure with existing implementation
         plugin_root = tmp_path / "plugins" / "imbue"
         plugin_root.mkdir(parents=True)

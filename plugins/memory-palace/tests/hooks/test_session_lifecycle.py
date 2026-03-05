@@ -10,6 +10,7 @@ So that history is captured without any manual action.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -128,8 +129,6 @@ class TestDeriveSessionId:
         Then the result contains only alphanumeric characters and hyphens.
         """
         result = lc._derive_session_id({"session_id": "any/path with spaces!"})
-        import re
-
         assert re.match(r"^[A-Za-z0-9\-]+$", result), (
             f"Unsafe characters in session ID: {result!r}"
         )
