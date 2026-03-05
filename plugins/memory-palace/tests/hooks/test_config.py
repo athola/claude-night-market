@@ -58,33 +58,33 @@ class TestIsPathExcluded:
 
     def test_git_excluded(self) -> None:
         """Git directories should be excluded."""
-        assert is_path_excluded(".git/config") is True
-        assert is_path_excluded("project/.git/HEAD") is True
+        assert is_path_excluded(".git/config")
+        assert is_path_excluded("project/.git/HEAD")
 
     def test_node_modules_excluded(self) -> None:
         """node_modules should be excluded."""
-        assert is_path_excluded("node_modules/package/index.js") is True
+        assert is_path_excluded("node_modules/package/index.js")
 
     def test_venv_excluded(self) -> None:
         """Virtual environments should be excluded."""
-        assert is_path_excluded(".venv/lib/python3.11/site.py") is True
-        assert is_path_excluded("venv/bin/activate") is True
+        assert is_path_excluded(".venv/lib/python3.11/site.py")
+        assert is_path_excluded("venv/bin/activate")
 
     def test_env_files_excluded(self) -> None:
         """Environment files should be excluded."""
-        assert is_path_excluded(".env") is True
-        assert is_path_excluded(".env.local") is True
+        assert is_path_excluded(".env")
+        assert is_path_excluded(".env.local")
 
     def test_lock_files_excluded(self) -> None:
         """Lock files should be excluded."""
-        assert is_path_excluded("package-lock.json") is True
-        assert is_path_excluded("uv.lock") is True
-        assert is_path_excluded("poetry.lock") is True
+        assert is_path_excluded("package-lock.json")
+        assert is_path_excluded("uv.lock")
+        assert is_path_excluded("poetry.lock")
 
     def test_normal_paths_not_excluded(self) -> None:
         """Normal paths should not be excluded."""
-        assert is_path_excluded("docs/readme.md") is False
-        assert is_path_excluded("src/main.py") is False
+        assert not is_path_excluded("docs/readme.md")
+        assert not is_path_excluded("src/main.py")
 
 
 class TestIsKnowledgePath:
@@ -92,29 +92,29 @@ class TestIsKnowledgePath:
 
     def test_docs_is_knowledge(self) -> None:
         """docs/ should be a knowledge path."""
-        assert is_knowledge_path("docs/guide.md") is True
-        assert is_knowledge_path("docs/api/reference.md") is True
+        assert is_knowledge_path("docs/guide.md")
+        assert is_knowledge_path("docs/api/reference.md")
 
     def test_knowledge_corpus_under_docs_is_knowledge(self) -> None:
         """docs/ subdirectories should be recognized as knowledge paths."""
-        assert is_knowledge_path("docs/knowledge-corpus/article.md") is True
+        assert is_knowledge_path("docs/knowledge-corpus/article.md")
 
     def test_bare_knowledge_corpus_not_knowledge(self) -> None:
         """knowledge-corpus/ was removed in 1.5.0; no longer a knowledge path."""
-        assert is_knowledge_path("knowledge-corpus/article.md") is False
+        assert not is_knowledge_path("knowledge-corpus/article.md")
 
     def test_references_is_knowledge(self) -> None:
         """references/ should be a knowledge path."""
-        assert is_knowledge_path("references/paper.md") is True
+        assert is_knowledge_path("references/paper.md")
 
     def test_src_not_knowledge(self) -> None:
         """src/ should not be a knowledge path."""
-        assert is_knowledge_path("src/main.py") is False
+        assert not is_knowledge_path("src/main.py")
 
     def test_random_files_not_knowledge(self) -> None:
         """Random files should not be knowledge paths."""
-        assert is_knowledge_path("README.md") is False
-        assert is_knowledge_path("config.yaml") is False
+        assert not is_knowledge_path("README.md")
+        assert not is_knowledge_path("config.yaml")
 
 
 class TestIsPathSafe:
@@ -122,19 +122,19 @@ class TestIsPathSafe:
 
     def test_normal_path_safe(self) -> None:
         """Normal paths should be safe."""
-        assert is_path_safe("/home/user/docs/file.md") is True
-        assert is_path_safe("docs/guide.md") is True
+        assert is_path_safe("/home/user/docs/file.md")
+        assert is_path_safe("docs/guide.md")
 
     def test_traversal_unsafe(self) -> None:
         """Path traversal attempts should be unsafe."""
-        assert is_path_safe("../../../etc/passwd") is False
-        assert is_path_safe("docs/../../../etc/passwd") is False
+        assert not is_path_safe("../../../etc/passwd")
+        assert not is_path_safe("docs/../../../etc/passwd")
 
     def test_sensitive_paths_unsafe(self) -> None:
         """Sensitive system paths should be unsafe."""
-        assert is_path_safe("/etc/passwd") is False
-        assert is_path_safe("/root/.bashrc") is False
-        assert is_path_safe("/var/log/syslog") is False
+        assert not is_path_safe("/etc/passwd")
+        assert not is_path_safe("/root/.bashrc")
+        assert not is_path_safe("/var/log/syslog")
 
 
 class TestShouldProcessPath:
@@ -142,25 +142,25 @@ class TestShouldProcessPath:
 
     def test_knowledge_path_processed(self) -> None:
         """Knowledge paths should be processed."""
-        assert should_process_path("docs/guide.md") is True
+        assert should_process_path("docs/guide.md")
 
     def test_excluded_not_processed(self) -> None:
         """Excluded paths should not be processed."""
-        assert should_process_path(".git/config") is False
-        assert should_process_path("node_modules/readme.md") is False
+        assert not should_process_path(".git/config")
+        assert not should_process_path("node_modules/readme.md")
 
     def test_non_knowledge_not_processed(self) -> None:
         """Non-knowledge paths should not be processed."""
-        assert should_process_path("src/main.py") is False
+        assert not should_process_path("src/main.py")
 
     def test_traversal_not_processed(self) -> None:
         """Path traversal should not be processed."""
-        assert should_process_path("docs/../../etc/passwd") is False
+        assert not should_process_path("docs/../../etc/passwd")
 
     def test_excluded_knowledge_not_processed(self) -> None:
         """Excluded paths in knowledge dirs should not be processed."""
         # If there was a .env in docs, it should still be excluded
-        assert should_process_path("docs/.env") is False
+        assert not should_process_path("docs/.env")
 
 
 class TestYamlUnavailable:
@@ -176,36 +176,28 @@ class TestYamlUnavailable:
         config_module._config_cache = None
         config_module._config_mtime = 0
 
-    def test_get_config_returns_defaults_when_yaml_unavailable(self) -> None:
+    def test_get_config_returns_defaults_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, get_config should return CONFIG_DEFAULTS."""
-        original_yaml = config_module.yaml
-        try:
-            config_module.yaml = None
-            result = get_config()
-            assert result == CONFIG_DEFAULTS
-            assert result["enabled"] is True
-            assert result["research_mode"] == "cache_first"
-        finally:
-            config_module.yaml = original_yaml
+        monkeypatch.setattr(config_module, "yaml", None)
+        result = get_config()
+        assert result == CONFIG_DEFAULTS
+        assert result["enabled"]
+        assert result["research_mode"] == "cache_first"
 
-    def test_get_config_caches_defaults_when_yaml_unavailable(self) -> None:
+    def test_get_config_caches_defaults_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, repeated calls should return cached defaults."""
-        original_yaml = config_module.yaml
-        try:
-            config_module.yaml = None
-            result1 = get_config()
-            result2 = get_config()
-            assert result1 is result2  # Same object from cache
-        finally:
-            config_module.yaml = original_yaml
+        monkeypatch.setattr(config_module, "yaml", None)
+        result1 = get_config()
+        result2 = get_config()
+        assert result1 is result2  # Same object from cache
 
-    def test_path_functions_work_with_default_config(self) -> None:
+    def test_path_functions_work_with_default_config(self, monkeypatch: object) -> None:
         """Path utility functions should work with default-only config."""
-        original_yaml = config_module.yaml
-        try:
-            config_module.yaml = None
-            assert is_path_excluded(".git/config") is True
-            assert is_knowledge_path("docs/guide.md") is True
-            assert should_process_path("docs/guide.md") is True
-        finally:
-            config_module.yaml = original_yaml
+        monkeypatch.setattr(config_module, "yaml", None)
+        assert is_path_excluded(".git/config")
+        assert is_knowledge_path("docs/guide.md")
+        assert should_process_path("docs/guide.md")

@@ -76,11 +76,11 @@ class TestIsKnown:
         """Unknown content should return False."""
         # Generate a unique hash that won't be in any index
         unique_hash = get_content_hash(f"unique-{os.urandom(16).hex()}")
-        assert is_known(content_hash=unique_hash) is False
+        assert not is_known(content_hash=unique_hash)
 
     def test_unknown_url_returns_false(self) -> None:
         """Unknown URLs should return False."""
-        assert is_known(url="https://definitely-not-indexed-12345.com/page") is False
+        assert not is_known(url="https://definitely-not-indexed-12345.com/page")
 
 
 class TestNeedsUpdate:
@@ -89,7 +89,7 @@ class TestNeedsUpdate:
     def test_new_content_needs_update(self) -> None:
         """New content (not in index) should need update."""
         unique_hash = get_content_hash(f"new-{os.urandom(16).hex()}")
-        assert needs_update(unique_hash, url="https://new-url-12345.com") is True
+        assert needs_update(unique_hash, url="https://new-url-12345.com")
 
 
 class TestGetIndexStats:
@@ -130,51 +130,43 @@ class TestYamlUnavailable:
         dedup_module._index_cache = None
         dedup_module._index_mtime = 0
 
-    def test_load_index_returns_empty_when_yaml_unavailable(self) -> None:
+    def test_load_index_returns_empty_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, _load_index returns empty structure."""
-        original_yaml = dedup_module.yaml
-        try:
-            dedup_module.yaml = None
-            index = dedup_module._load_index()
-            assert index == {"entries": {}, "hashes": {}}
-        finally:
-            dedup_module.yaml = original_yaml
+        monkeypatch.setattr(dedup_module, "yaml", None)
+        index = dedup_module._load_index()
+        assert index == {"entries": {}, "hashes": {}}
 
-    def test_is_known_returns_false_when_yaml_unavailable(self) -> None:
+    def test_is_known_returns_false_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, nothing is known."""
-        original_yaml = dedup_module.yaml
-        try:
-            dedup_module.yaml = None
-            assert is_known(content_hash="sha256:abc123") is False
-            assert is_known(url="https://example.com") is False
-        finally:
-            dedup_module.yaml = original_yaml
+        monkeypatch.setattr(dedup_module, "yaml", None)
+        assert not is_known(content_hash="sha256:abc123")
+        assert not is_known(url="https://example.com")
 
-    def test_update_index_caches_only_when_yaml_unavailable(self) -> None:
+    def test_update_index_caches_only_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, update_index stores in memory but doesn't persist."""
-        original_yaml = dedup_module.yaml
-        try:
-            dedup_module.yaml = None
-            content_hash = get_content_hash("test content for no-yaml")
-            update_index(
-                content_hash=content_hash,
-                stored_at="docs/test.md",
-                importance_score=50,
-            )
-            # Should be cached in memory
-            assert dedup_module._index_cache is not None
-            assert content_hash in dedup_module._index_cache.get("hashes", {})
-        finally:
-            dedup_module.yaml = original_yaml
+        monkeypatch.setattr(dedup_module, "yaml", None)
+        content_hash = get_content_hash("test content for no-yaml")
+        update_index(
+            content_hash=content_hash,
+            stored_at="docs/test.md",
+            importance_score=50,
+        )
+        # Should be cached in memory
+        assert dedup_module._index_cache is not None
+        assert content_hash in dedup_module._index_cache.get("hashes", {})
 
-    def test_get_index_stats_works_when_yaml_unavailable(self) -> None:
+    def test_get_index_stats_works_when_yaml_unavailable(
+        self, monkeypatch: object
+    ) -> None:
         """When yaml is None, stats should still return valid structure."""
-        original_yaml = dedup_module.yaml
-        try:
-            dedup_module.yaml = None
-            stats = get_index_stats()
-            assert isinstance(stats, dict)
-            assert stats["total_entries"] == 0
-            assert stats["total_hashes"] == 0
-        finally:
-            dedup_module.yaml = original_yaml
+        monkeypatch.setattr(dedup_module, "yaml", None)
+        stats = get_index_stats()
+        assert isinstance(stats, dict)
+        assert stats["total_entries"] == 0
+        assert stats["total_hashes"] == 0
