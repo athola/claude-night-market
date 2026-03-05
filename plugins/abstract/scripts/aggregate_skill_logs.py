@@ -561,9 +561,14 @@ def main() -> None:
     print(f"Aggregating logs from last {days_back} days...")
     result = aggregate_logs(days_back)
 
-    # Generate LEARNINGS.md
+    # Preserve existing pinned learnings across regeneration
     learnings_path = get_learnings_path()
-    learnings_content = generate_learnings_md(result)
+    existing_pinned = ""
+    if learnings_path.exists():
+        existing_pinned = extract_pinned_section(learnings_path.read_text())
+
+    # Generate LEARNINGS.md
+    learnings_content = generate_learnings_md(result, existing_pinned=existing_pinned)
 
     # Write to file
     learnings_path.parent.mkdir(parents=True, exist_ok=True)

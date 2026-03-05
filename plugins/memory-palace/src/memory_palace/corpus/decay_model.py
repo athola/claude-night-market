@@ -27,7 +27,7 @@ class DecayCurve(Enum):
 
     LINEAR = "linear"  # Uniform decay over time
     EXPONENTIAL = "exponential"  # Classic half-life decay
-    LOGARITHMIC = "logarithmic"  # Slow initial decay, accelerates later
+    LOGARITHMIC = "logarithmic"  # Fast initial decay, decelerates over time
 
 
 DECAY_CONFIG: dict[str, dict] = {
@@ -55,11 +55,23 @@ IMPORTANCE_CLASSES: dict[str, dict[str, Any]] = {
 }
 
 DEFAULT_IMPORTANCE_SCORE = 40
+MAX_IMPORTANCE_SCORE = 100
 CONSTITUTIONAL_MIN_SCORE: int = IMPORTANCE_CLASSES["constitutional"]["min_score"]
 
 
 def get_importance_class(score: int) -> str:
-    """Classify an importance score into a named class."""
+    """Classify an importance score into a named class.
+
+    Args:
+        score: Importance score, must be 0-100 inclusive.
+
+    Raises:
+        ValueError: If score is outside 0-100 range.
+
+    """
+    if not (0 <= score <= MAX_IMPORTANCE_SCORE):
+        msg = f"importance_score must be 0-100, got {score}"
+        raise ValueError(msg)
     for name, config in IMPORTANCE_CLASSES.items():
         if score >= config["min_score"]:
             return name

@@ -80,27 +80,17 @@ at 80 chars (prefer sentence/clause boundaries), blank lines
 around headings, ATX headings only, blank line before lists,
 and reference-style links for long URLs.
 
-## When NOT To Use
-
-- Files are already in docs/ or skills/ locations
-- Files are intentionally
-  temporary scratch notes
-- Source files have no extractable value
-- Files are already in docs/ or skills/ locations
-
 ## Quick Start
 
 ```
 /consolidate-docs
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 Or invoke directly:
+
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 I have some report files that need consolidating into permanent docs.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Two-Phase Workflow
 
@@ -172,7 +162,6 @@ Present consolidation plan to user:
 
 Proceed with consolidation? [Y/n]
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 5: Execute Merges
 
@@ -197,7 +186,6 @@ Phase 1 tasks are delegated to haiku-class models for efficiency:
 - score_value()
 - find_semantic_matches()
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 Phase 2 stays on the main model for careful merge execution.
 
@@ -245,7 +233,6 @@ Works with other sanctum skills:
 ## Example Session
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 User: I have API_REVIEW_REPORT.md from our review session. Can you consolidate it?
 
 Claude: I'll consolidate the report into permanent documentation.
@@ -283,7 +270,6 @@ Deleted: API_REVIEW_REPORT.md
 
 Consolidation complete. Review the created files and commit when ready.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Troubleshooting
 

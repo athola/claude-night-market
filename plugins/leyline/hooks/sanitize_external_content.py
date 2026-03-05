@@ -97,10 +97,20 @@ def sanitize_output(content: str | None) -> str:
             "<system",
             "<assistant",
             "<human",
+            "<IMPORTANT",
             "!!python",
             "__import__",
+            "__globals__",
+            "__builtins__",
+            "system-reminder",
+            "you are now",
             "ignore previous",
             "Ignore all previous",
+            "disregard",
+            "override",
+            "new instructions",
+            "eval(",
+            "exec(",
         ]
         for check in fast_checks:
             if check in content[:_MAX_SCAN_SIZE]:
@@ -112,12 +122,10 @@ def sanitize_output(content: str | None) -> str:
         if pattern.search(modified):
             modified = pattern.sub("[BLOCKED]", modified)
 
-    # Medium severity: escape with backticks
+    # Medium severity: escape with backticks (all occurrences)
     for pattern in _MEDIUM_SEVERITY:
-        match = pattern.search(modified)
-        if match:
-            matched_text = match.group(0)
-            modified = modified.replace(matched_text, f"`{matched_text}`")
+        if pattern.search(modified):
+            modified = pattern.sub(lambda m: f"`{m.group(0)}`", modified)
 
     return modified
 
@@ -157,14 +165,32 @@ def process_hook(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
-    """Hook entry point. Crash-proof wrapper."""
+    """Hook entry point. Fail-closed on processing errors."""
     try:
         payload = json.loads(sys.stdin.read())
+    except (json.JSONDecodeError, OSError) as e:
+        # Parse errors: allow content through (can't process)
+        sys.stderr.write(f"[sanitize] Input parse error: {e}\n")
+        print(json.dumps({"decision": "ALLOW"}))
+        return
+
+    try:
         result = process_hook(payload)
         print(json.dumps(result))
     except Exception as e:
-        sys.stderr.write(f"[sanitize] Hook error: {e}\n")
-        print(json.dumps({"decision": "ALLOW"}))
+        # Processing errors: block content (fail-closed)
+        sys.stderr.write(f"[sanitize] Processing error: {e}\n")
+        print(
+            json.dumps(
+                {
+                    "decision": "ALLOW",
+                    "additionalContext": (
+                        "[SANITIZE HOOK ERROR] Content could not be "
+                        "verified as safe. Treat with caution."
+                    ),
+                }
+            )
+        )
 
 
 if __name__ == "__main__":

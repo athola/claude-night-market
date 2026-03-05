@@ -27,7 +27,7 @@ from pathlib import Path
 # Configuration (can be overridden via environment variables)
 DEBOUNCE_SECONDS = int(os.environ.get("CLAUDE_NOTIFY_DEBOUNCE", "5"))
 CONTENT_DEDUP_SECONDS = int(os.environ.get("CLAUDE_NOTIFY_CONTENT_DEDUP", "30"))
-BACKGROUND_MODE_ARG_COUNT = 4  # --background, session_id, cwd
+BACKGROUND_MODE_ARG_COUNT = 4  # script, --background, session_id, cwd
 
 
 @dataclass
@@ -472,8 +472,10 @@ def clear_notification_state() -> None:
         session_id = get_session_id()
         state = NotificationState.load(session_id)
         state.clear_input_flag()
-    except Exception:  # noqa: S110, BLE001
-        pass  # Non-critical, fail silently
+    except Exception as e:  # noqa: BLE001
+        print(
+            f"[session_complete_notify] clear_notification_state: {e}", file=sys.stderr
+        )
 
 
 def main() -> None:
@@ -495,9 +497,8 @@ def main() -> None:
             stderr=subprocess.DEVNULL,
             start_new_session=True,  # Detach from parent
         )
-    except Exception:  # noqa: S110 (intentional silent fail for non-critical notifications)
-        # Fail silently - notifications are non-critical
-        pass
+    except Exception as e:  # noqa: BLE001
+        print(f"[session_complete_notify] Popen failed: {e}", file=sys.stderr)
 
     # Exit immediately - notification runs in background
     sys.exit(0)
@@ -534,9 +535,8 @@ def run_notification(session_id: str, cwd: str) -> None:
             # Record successful notification
             state.record_notification(msg_hash)
 
-    except Exception:  # noqa: S110, BLE001 (intentional silent fail for non-critical)
-        # Silently fail - notifications are non-critical
-        pass
+    except Exception as e:  # noqa: BLE001
+        print(f"[session_complete_notify] run_notification: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

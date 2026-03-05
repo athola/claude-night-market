@@ -157,12 +157,12 @@ class ReviewEntry:
             participants=data.get("participants", []),
             related_rooms=data.get("related_rooms", []),
             tags=data.get("tags", []),
+            importance_score=data.get("importance_score"),
         )
         entry.id = data["id"]
         entry.created = data["created"]
         entry.last_accessed = data.get("last_accessed", entry.created)
         entry.access_count = data.get("access_count", 0)
-        entry.importance_score = data.get("importance_score", 40)
         return entry
 
     def to_markdown(self) -> str:

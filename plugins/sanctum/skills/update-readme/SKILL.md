@@ -40,12 +40,8 @@ Run `Skill(sanctum:git-workspace-review)` first to capture repo context and diff
 
 ## When NOT To Use
 
-- Updating inline
-  docs - use doc-updates
-- Consolidating ephemeral reports - use doc-consolidation
-- Updating inline
-  docs - use doc-updates
-- Consolidating ephemeral reports - use doc-consolidation
+- Updating inline docs: use doc-updates
+- Consolidating ephemeral reports: use doc-consolidation
 
 ## Required TodoWrite Items
 1. `update-readme:language-audit`

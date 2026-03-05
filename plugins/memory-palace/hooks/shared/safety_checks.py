@@ -70,7 +70,7 @@ _CODE_EXECUTION_PATTERNS = [
     re.compile(r"(?<![`])eval\s*\("),
     re.compile(r"(?<![`])exec\s*\("),
     re.compile(r"os\.system\s*\("),
-    re.compile(r"subprocess\.\w+\(.*shell\s*=\s*True"),
+    re.compile(r"subprocess\.\w+\([^)]{0,200}shell\s*=\s*True"),
     re.compile(r"__globals__"),
     re.compile(r"__builtins__"),
     re.compile(r"__class__\.__mro__"),
