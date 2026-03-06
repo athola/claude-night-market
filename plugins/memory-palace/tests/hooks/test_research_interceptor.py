@@ -559,6 +559,7 @@ class TestEndToEnd:
                 "research_interceptor.AutonomyStateStore",
                 return_value=mock_autonomy_store,
             ),
+            patch.object(research_interceptor, "_HAS_MEMORY_PALACE", True),
             pytest.raises(SystemExit),
         ):
             research_interceptor.main()
@@ -598,6 +599,7 @@ class TestEndToEnd:
                 "research_interceptor.AutonomyStateStore",
                 side_effect=PermissionError("nope"),
             ),
+            patch.object(research_interceptor, "_HAS_MEMORY_PALACE", True),
             pytest.raises(SystemExit),
         ):
             research_interceptor.main()
@@ -640,6 +642,7 @@ class TestEndToEnd:
                 "research_interceptor.search_local_knowledge", return_value=mock_results
             ),
             patch("research_interceptor.TelemetryLogger", return_value=mock_logger),
+            patch.object(research_interceptor, "_HAS_MEMORY_PALACE", True),
             pytest.raises(SystemExit),
         ):
             research_interceptor.main()
@@ -680,6 +683,7 @@ class TestEndToEnd:
             patch("shared.config.get_config", return_value=mock_config),
             patch("research_interceptor.search_local_knowledge", return_value=[]),
             patch.object(research_interceptor, "PLUGIN_ROOT", tmp_path),
+            patch.object(research_interceptor, "_HAS_MEMORY_PALACE", True),
             pytest.raises(SystemExit),
         ):
             research_interceptor.main()

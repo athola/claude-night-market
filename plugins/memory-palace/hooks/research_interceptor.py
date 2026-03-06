@@ -160,14 +160,12 @@ class CacheInterceptDecision:
     autonomy_domains: list[str] = field(default_factory=list)
 
 
-_NOVELTY_BY_REDUNDANCY: dict[Any, float] = {}
-if _HAS_MEMORY_PALACE:
-    _NOVELTY_BY_REDUNDANCY = {
-        RedundancyLevel.EXACT_MATCH: 0.05,
-        RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
-        RedundancyLevel.PARTIAL_OVERLAP: 0.45,
-        RedundancyLevel.NOVEL: 0.9,
-    }
+_NOVELTY_BY_REDUNDANCY: dict[Any, float] = {
+    RedundancyLevel.EXACT_MATCH: 0.05,
+    RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
+    RedundancyLevel.PARTIAL_OVERLAP: 0.45,
+    RedundancyLevel.NOVEL: 0.9,
+}
 
 
 def extract_query_intent(tool_name: str, tool_input: dict[str, Any]) -> str:
@@ -213,8 +211,6 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
 
 
 def _classify_redundancy(score: float) -> RedundancyLevel | None:
-    if not _HAS_MEMORY_PALACE:
-        return None
     if score >= 0.9:
         return RedundancyLevel.EXACT_MATCH
     if score >= 0.8:
