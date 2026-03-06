@@ -132,6 +132,25 @@ memory-palace/
 - [PR Review Chamber](skills/review-chamber/SKILL.md) for review knowledge capture
 - [Skill Execution Memory](commands/skill-logs.md) for execution history and metrics
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Palace architecture examples could include a walkthrough
+  showing how spatial metaphors map to real knowledge
+- The semantic deduplication threshold (FAISS cosine
+  similarity) is an opportunity to document how to tune
+  it for different content densities
+- Hook descriptions would benefit from latency
+  expectations so users understand the per-operation cost
+- The research interceptor cache hit/miss ratio could be
+  surfaced as a quick health metric in `/palace` output
+- Garden maintenance workflows could include a short
+  guide on pruning stale nodes
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT

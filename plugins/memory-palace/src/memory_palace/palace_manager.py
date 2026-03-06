@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -88,6 +89,11 @@ class MemoryPalaceManager:
         except FileNotFoundError:
             # Return empty config; defaults will be used
             return {}
+        except (json.JSONDecodeError, PermissionError, OSError) as e:
+            sys.stderr.write(
+                f"palace_manager: failed to load config {self.config_path}: {e}\n"
+            )
+            return {}
 
     def ensure_directories(self) -> None:
         """Validate necessary palace directories exist."""
@@ -153,9 +159,18 @@ class MemoryPalaceManager:
         """
         palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):
-            with open(palace_file) as f:
-                palace_data: dict[str, Any] = json.load(f)
-                return palace_data
+            try:
+                with open(palace_file) as f:
+                    palace_data: dict[str, Any] = json.load(f)
+                    return palace_data
+            except json.JSONDecodeError as e:
+                sys.stderr.write(
+                    f"palace_manager: corrupt palace file {palace_file}: {e}\n"
+                )
+                return None
+            except OSError as e:
+                sys.stderr.write(f"palace_manager: failed to read {palace_file}: {e}\n")
+                return None
         return None
 
     def save_palace(self, palace: dict[str, Any]) -> None:
@@ -203,6 +218,7 @@ class MemoryPalaceManager:
         global_stats: dict[str, Any] = {
             "total_palaces": 0,
             "total_concepts": 0,
+            "total_locations": 0,
             "domains": domains,
         }
         index: dict[str, Any] = {
@@ -233,6 +249,9 @@ class MemoryPalaceManager:
                     global_stats["total_concepts"] += palace["metadata"][
                         "concept_count"
                     ]
+                    global_stats["total_locations"] += len(
+                        palace.get("layout", {}).get("rooms", [])
+                    )
 
                     domain = palace["domain"]
                     domains[domain] = domains.get(domain, 0) + 1
@@ -425,7 +444,12 @@ class MemoryPalaceManager:
         # Return a default empty index if the file doesn't exist
         return {
             "palaces": [],
-            "global_stats": {"total_palaces": 0, "total_concepts": 0, "domains": {}},
+            "global_stats": {
+                "total_palaces": 0,
+                "total_concepts": 0,
+                "total_locations": 0,
+                "domains": {},
+            },
         }
 
     def list_palaces(self) -> list[dict[str, Any]]:
@@ -485,7 +509,11 @@ class MemoryPalaceManager:
                 try:
                     entry = json.loads(line)
                 except json.JSONDecodeError:
-                    entries_to_keep.append(line)
+                    # Intentionally drop corrupt entries rather than rewriting them,
+                    # because partial JSON cannot be reliably recovered.
+                    sys.stderr.write(
+                        f"palace_manager: dropping malformed queue entry: {line[:100]}\n"
+                    )
                     continue
 
                 # Extract domain from entry (from query or tags)
@@ -624,8 +652,11 @@ class MemoryPalaceManager:
                     if entry_time < cutoff:
                         palace_recs["stale"].append(entry_id)
                         results["total_stale"] += 1
-                except (ValueError, AttributeError):
-                    pass
+                except (ValueError, AttributeError) as e:
+                    sys.stderr.write(
+                        f"palace_manager: failed to parse timestamp for entry "
+                        f"{entry_id}: {e}\n"
+                    )
 
                 # Check quality
                 if novelty < LOW_QUALITY_THRESHOLD:

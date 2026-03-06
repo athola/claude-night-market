@@ -9,6 +9,7 @@ BDD-style tests organized by behavior:
 """
 
 import json
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -1059,3 +1060,109 @@ class TestPruneCheck:
         result = manager.prune_check(stale_days=365)
 
         assert result["total_stale"] == 0
+
+
+class TestMalformedQueueEntries:
+    """Tests for Issue #265: malformed queue lines are skipped."""
+
+    def test_malformed_queue_lines_are_skipped(
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Malformed JSON lines are dropped, not persisted back."""
+        manager = MemoryPalaceManager(
+            config_path=str(temp_config_file),
+            palaces_dir_override=str(temp_palaces_dir),
+        )
+
+        queue_path = tmp_path / "intake_queue.jsonl"
+        valid_entry = json.dumps({"query": "test topic", "content": "data"})
+        queue_path.write_text(f"NOT VALID JSON\n{valid_entry}\n{{bad json}}\n")
+
+        result = manager.sync_from_queue(str(queue_path))
+
+        # The malformed lines should NOT be in the file afterward
+        remaining = queue_path.read_text()
+        assert "NOT VALID JSON" not in remaining
+        assert "{bad json}" not in remaining
+
+    def test_malformed_queue_lines_emit_stderr_warning(
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Malformed lines produce a warning on stderr."""
+        manager = MemoryPalaceManager(
+            config_path=str(temp_config_file),
+            palaces_dir_override=str(temp_palaces_dir),
+        )
+
+        queue_path = tmp_path / "intake_queue.jsonl"
+        queue_path.write_text("NOT VALID JSON\n")
+
+        manager.sync_from_queue(str(queue_path))
+
+        captured = capsys.readouterr()
+        assert "dropping malformed queue entry" in captured.err
+
+
+class TestConfigLoadErrors:
+    """Tests for Issue #266: config load handles more error types."""
+
+    def test_corrupt_json_config_returns_empty_dict(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Corrupt JSON config returns empty dict with warning."""
+        config_file = tmp_path / "bad_config.json"
+        config_file.write_text("{not valid json!!!")
+
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        (palaces_dir / "backups").mkdir()
+
+        manager = MemoryPalaceManager(
+            config_path=str(config_file),
+            palaces_dir_override=str(palaces_dir),
+        )
+
+        assert manager.config == {}
+
+        captured = capsys.readouterr()
+        assert "failed to load config" in captured.err
+
+    @pytest.mark.skipif(
+        os.getuid() == 0, reason="Cannot test permission errors as root"
+    )
+    def test_config_load_permission_error_returns_empty_dict(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """PermissionError on config returns empty dict with warning."""
+        config_file = tmp_path / "locked_config.json"
+        config_file.write_text('{"key": "value"}')
+        config_file.chmod(0o000)
+
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        (palaces_dir / "backups").mkdir()
+
+        try:
+            manager = MemoryPalaceManager(
+                config_path=str(config_file),
+                palaces_dir_override=str(palaces_dir),
+            )
+
+            assert manager.config == {}
+
+            captured = capsys.readouterr()
+            assert "failed to load config" in captured.err
+        finally:
+            # Restore permissions for cleanup
+            config_file.chmod(0o644)

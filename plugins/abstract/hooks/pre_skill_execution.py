@@ -60,8 +60,9 @@ def main() -> None:
         # Parse tool input
         try:
             tool_input = json.loads(tool_input_str)
-        except json.JSONDecodeError:
-            sys.exit(0)  # Silently skip malformed input
+        except json.JSONDecodeError as e:
+            sys.stderr.write(f"pre_skill_execution: malformed input: {e}\n")
+            sys.exit(0)
 
         # Parse skill name
         plugin, skill = parse_skill_name(tool_input)

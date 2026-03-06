@@ -19,6 +19,7 @@ from memory_palace.session_history import (
     SessionHistoryManager,
     SessionQuery,
     SessionRecord,
+    _validate_session_id,
 )
 
 # ---------------------------------------------------------------------------
@@ -760,3 +761,126 @@ class TestSessionHistoryManager:
 
         index = mgr._load_index()
         assert index["stats"]["total"] == 1
+
+
+# ---------------------------------------------------------------------------
+# TestSessionIdSanitization
+# ---------------------------------------------------------------------------
+
+
+class TestSessionIdSanitization:
+    """
+    Feature: Session ID path-traversal prevention
+
+    As a security-conscious system
+    I want session IDs validated before use in file paths
+    So that malicious IDs cannot escape the sessions directory.
+    """
+
+    @pytest.mark.unit
+    def test_normal_session_id_accepted(self, tmp_path: Path) -> None:
+        """
+        Scenario: A well-formed session ID works normally
+        Given a session ID with alphanumerics, hyphens, and dots
+        When record_session and get_session are called
+        Then the record is stored and retrieved successfully.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        record = _make_record("sess-001.abc_XYZ")
+        path = mgr.record_session(record)
+        assert path.exists()
+
+        retrieved = mgr.get_session("sess-001.abc_XYZ")
+        assert retrieved is not None
+        assert retrieved.session_id == "sess-001.abc_XYZ"
+
+    @pytest.mark.unit
+    def test_path_traversal_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: Classic path-traversal attack is blocked
+        Given a session ID of '../../../etc/passwd'
+        When record_session is called
+        Then a ValueError is raised
+        And get_session returns None
+        And delete_session returns False.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.record_session(_make_record("../../../etc/passwd"))
+
+        assert mgr.get_session("../../../etc/passwd") is None
+        assert mgr.delete_session("../../../etc/passwd") is False
+
+    @pytest.mark.unit
+    def test_encoded_traversal_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: URL-encoded path-traversal variant is blocked
+        Given a session ID of '..%2F..%2Fetc'
+        When record_session is called
+        Then a ValueError is raised.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.record_session(_make_record("..%2F..%2Fetc"))
+
+        assert mgr.get_session("..%2F..%2Fetc") is None
+
+    @pytest.mark.unit
+    def test_empty_session_id_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: Empty string session ID is blocked
+        Given an empty session ID
+        When record_session is called
+        Then a ValueError is raised
+        And get_session returns None.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.record_session(_make_record(""))
+
+        assert mgr.get_session("") is None
+
+    @pytest.mark.unit
+    def test_session_id_with_path_separators_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: Session IDs containing slashes are blocked
+        Given session IDs with forward or backward slashes
+        When record_session is called
+        Then a ValueError is raised for each.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.record_session(_make_record("foo/bar"))
+
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.record_session(_make_record("foo\\bar"))
+
+        assert mgr.get_session("foo/bar") is None
+        assert mgr.get_session("foo\\bar") is None
+
+    @pytest.mark.unit
+    def test_validate_session_id_helper(self) -> None:
+        """
+        Scenario: The _validate_session_id helper covers edge cases
+        Given various valid and invalid IDs
+        Then the helper returns the correct boolean.
+        """
+        # Valid
+        assert _validate_session_id("sess-001") is True
+        assert _validate_session_id("a") is True
+        assert _validate_session_id("ABC.def-123_ghi") is True
+
+        # Invalid
+        assert _validate_session_id("") is False
+        assert _validate_session_id("..") is False
+        assert _validate_session_id("../etc") is False
+        assert _validate_session_id("/absolute") is False
+        assert _validate_session_id(".hidden") is False
+        assert _validate_session_id("-start") is False
+        assert _validate_session_id("_start") is False
+        assert _validate_session_id("has space") is False
+        assert _validate_session_id("a/../b") is False

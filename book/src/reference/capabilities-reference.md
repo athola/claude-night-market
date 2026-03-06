@@ -111,6 +111,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |
+| `stewardship` | [leyline](../plugins/leyline.md) | Cross-cutting stewardship principles with layer-specific guidance |
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
@@ -214,6 +215,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/speckit-specify` | spec-kit | Create specification |
 | `/speckit-startup` | spec-kit | Bootstrap workflow |
 | `/speckit-tasks` | spec-kit | Generate tasks |
+| `/stewardship-health` | imbue | Display stewardship health dimensions for plugins |
 | `/structured-review` | imbue | Structured review workflow |
 | `/style-learn` | scribe | Create style profile from examples |
 | `/test-review` | pensive | Test quality review |

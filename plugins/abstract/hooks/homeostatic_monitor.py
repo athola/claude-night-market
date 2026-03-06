@@ -31,6 +31,26 @@ except ImportError:
 STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
 
+# Stewardship integration: lightweight velocity read
+
+
+def _stewardship_velocity(claude_home: Path) -> int:
+    """Count stewardship actions (0 if tracker absent)."""
+    actions_file = claude_home / "stewardship" / "actions.jsonl"
+    if not actions_file.exists():
+        return 0
+    try:
+        return sum(
+            1
+            for line in actions_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+    except FileNotFoundError:
+        return 0
+    except OSError as e:
+        sys.stderr.write(f"homeostatic_monitor: failed to read {actions_file}: {e}\n")
+        return 0
+
 
 def get_claude_home() -> Path:
     """Get Claude home directory."""
@@ -90,6 +110,8 @@ def main() -> None:
 
         gap = calculate_stability_gap(skill_history)
 
+        velocity = _stewardship_velocity(claude_home)
+
         if gap <= STABILITY_GAP_THRESHOLD:
             # Skill is healthy, no action needed
             output = {
@@ -99,6 +121,7 @@ def main() -> None:
                     "skill": skill_ref,
                     "stability_gap": gap,
                     "status": "healthy",
+                    "stewardship_actions": velocity,
                 }
             }
             print(json.dumps(output))
@@ -116,6 +139,7 @@ def main() -> None:
                     "skill": skill_ref,
                     "stability_gap": gap,
                     "status": "degrading",
+                    "stewardship_actions": velocity,
                 }
             }
             print(json.dumps(output))
@@ -146,6 +170,7 @@ def main() -> None:
                 "status": status,
                 "flagged_count": entry["flagged_count"],
                 "improvement_triggered": trigger,
+                "stewardship_actions": velocity,
             }
         }
         print(json.dumps(output))

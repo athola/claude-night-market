@@ -172,6 +172,43 @@ class TestMakefileDogfooderFromReporter:
         assert "findings" in parsed
 
     @pytest.mark.unit
+    def test_analyze_plugin_coverage_uses_matching_targets(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: coverage_percent reflects only matching required targets
+        Given a Makefile with 10 unrelated targets and 1 matching demo target
+        When analyze_plugin() is called for a command /my-cmd
+        Then coverage_percent is 50 (1 of 2 required targets present)
+             not inflated by unrelated targets
+        """
+        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
+
+        plugin_dir = tmp_path / "plugins" / "cov-test"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "README.md").write_text("Use `/my-cmd` to do things.\n")
+
+        # Makefile has demo-my-cmd but NOT test-my-cmd, plus many unrelated targets
+        makefile_lines = [
+            ".PHONY: help test lint clean build demo-my-cmd a b c d e",
+            "help:",
+            "\t@echo help",
+            "demo-my-cmd:",
+            "\t@echo demo",
+        ]
+        for t in ["test", "lint", "clean", "build", "a", "b", "c", "d", "e"]:
+            makefile_lines.append(f"{t}:")
+            makefile_lines.append(f"\t@echo {t}")
+        (plugin_dir / "Makefile").write_text("\n".join(makefile_lines) + "\n")
+
+        dogfooder = MakefileDogfooder(root_dir=tmp_path)
+        finding = dogfooder.analyze_plugin("cov-test")
+
+        # Required: demo-my-cmd + test-my-cmd (2 targets)
+        # Present: only demo-my-cmd (1 target)
+        # Coverage should be 50%, not inflated by unrelated targets
+        assert finding["coverage_percent"] == 50
+
+    @pytest.mark.unit
     def test_calc_coverage_zero_required_returns_100(self) -> None:
         """Scenario: _calc_coverage returns 100 when no targets are required
         Given required=0 and exist=0

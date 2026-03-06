@@ -113,7 +113,7 @@ class MakefileDogfooder:
         required_targets: set[str] = set()
         for cmd in commands:
             if cmd.get("type") == "slash-command":
-                target_name = cmd["command"].replace("/", "").lstrip("/")
+                target_name = cmd["command"].replace("/", "")
                 required_targets.add(f"demo-{target_name}")
                 required_targets.add(f"test-{target_name}")
 
@@ -129,7 +129,7 @@ class MakefileDogfooder:
             "missing_targets": sorted(missing_targets),
             "coverage_percent": self._calc_coverage(
                 len(required_targets),
-                len(analyzer.targets),
+                len(required_targets) - len(missing_targets),
             ),
         }
 

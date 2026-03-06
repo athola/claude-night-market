@@ -210,6 +210,24 @@ These patterns reflect industry standards. Each paradigm skill includes:
 - Risk mitigation strategies.
 - Evolution pathways.
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Each paradigm skill is an opportunity to add a short
+  real-world case study showing the pattern in production
+- The Quick Reference Matrix could include a "when to
+  avoid" column to help users rule out poor fits faster
+- Learning path durations are estimates that would
+  benefit from community feedback on actual completion
+- Migration path guidance could link to concrete commit
+  diffs showing a monolith-to-microservice transition
+- Architecture decision triggers could include threshold
+  numbers calibrated to open-source team sizes
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT License.

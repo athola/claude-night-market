@@ -7,7 +7,9 @@ The hook fires on PreToolUse for Write/Edit operations and checks whether
 implementation files have corresponding test files.
 """
 
+import importlib.util
 import json
+import sys
 from io import StringIO
 from pathlib import Path
 
@@ -25,9 +27,6 @@ class TestIsImplementationFile:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 
@@ -217,9 +216,6 @@ class TestFindTestFile:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 
@@ -317,9 +313,6 @@ class TestFormatTddBddReminder:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 
@@ -451,9 +444,6 @@ class TestIsNewFile:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 
@@ -503,9 +493,6 @@ class TestMainEntryPoint:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 
@@ -775,9 +762,6 @@ class TestFindPluginRoot:
     @pytest.fixture
     def tdd_gate_module(self):
         """Import the tdd_bdd_gate module."""
-        import importlib.util
-        import sys
-
         hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
         module_path = hooks_path / "tdd_bdd_gate.py"
 

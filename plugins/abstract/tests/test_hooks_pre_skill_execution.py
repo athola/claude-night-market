@@ -36,7 +36,7 @@ class TestPreSkillExecutionBasics:
         Then: It should exit with code 0 (success)
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -58,7 +58,7 @@ class TestPreSkillExecutionBasics:
         Then: It should return valid JSON with hookSpecificOutput
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -85,7 +85,7 @@ class TestPreSkillExecutionBasics:
         Then: Output should include hookEventName = "PreToolUse"
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -115,7 +115,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = "sanctum:pr-review"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -142,7 +142,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = "standalone-skill"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -166,7 +166,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = " abstract : skill-auditor "
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -195,7 +195,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -222,7 +222,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -251,7 +251,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -282,7 +282,7 @@ class TestStateFileCreation:
         # Given
         skill_ref = "abstract:skill-auditor"
         tool_input = {"skill": skill_ref, "param1": "value1"}
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps(tool_input),
@@ -315,7 +315,7 @@ class TestInvocationIdGeneration:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -347,7 +347,7 @@ class TestInvocationIdGeneration:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -382,7 +382,7 @@ class TestErrorHandling:
         Then: It should exit with code 0 (not block Claude Code)
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             "CLAUDE_TOOL_NAME": "Skill",
             "CLAUDE_TOOL_INPUT": "invalid json{{{",
@@ -396,6 +396,29 @@ class TestErrorHandling:
         # Then
         assert result["returncode"] == 0, "Should exit gracefully"
 
+    def test_should_write_stderr_on_malformed_json(self, tmp_path: Path) -> None:
+        """Test hook writes diagnostic to stderr on malformed JSON.
+
+        Given: Malformed JSON in CLAUDE_TOOL_INPUT
+        When: The hook executes
+        Then: It should write a diagnostic message to stderr
+        """
+        # Given
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": "invalid json{{{",
+            "CLAUDE_SESSION_ID": "test-session",
+            "CLAUDE_HOME": str(tmp_path),
+        }
+
+        # When
+        result = run_hook(hook_path, env)
+
+        # Then
+        assert "pre_skill_execution" in result["stderr"]
+        assert "malformed" in result["stderr"]
+
     def test_should_exit_gracefully_with_exception(
         self, pre_skill_env: dict[str, str], tmp_path: Path
     ) -> None:
@@ -406,7 +429,7 @@ class TestErrorHandling:
         Then: It should exit with code 0 and write to stderr
         """
         # Given - Use invalid CLAUDE_HOME to trigger error
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": "/invalid/path/that/does/not/exist",
@@ -432,7 +455,7 @@ class TestToolFiltering:
         Then: It should exit without creating state files
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             **non_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -455,7 +478,7 @@ class TestToolFiltering:
         Then: It should exit without error
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
         env = {
             "CLAUDE_TOOL_INPUT": '{"skill": "test:skill"}',
             "CLAUDE_SESSION_ID": "test-session",
@@ -474,7 +497,7 @@ class TestToolFiltering:
 # ============================================================================
 
 
-def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, any]:
+def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, object]:
     """Run a hook script with the given environment.
 
     Args:

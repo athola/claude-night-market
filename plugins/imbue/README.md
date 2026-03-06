@@ -81,3 +81,20 @@ For **Multi-Perspective Code Analysis**, fork sessions to isolate security, perf
 ### Standards
 
 Each fork must maintain a clear analytical scope. Save evidence logs to files before closing a fork. Synthesize findings from all forks into a final summary. Use perspective-based names for session IDs, such as `security-audit-pr-42`.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- The RICE/WSJF scoring framework in `feature-review`
+  is an opportunity to add a worked example with real
+  numbers so new users can calibrate their own scores
+- `tdd_bdd_gate.py` hook logic would benefit from
+  comments explaining each guard clause for maintainers
+- Scope-guard thresholds could document how to tune them
+  for projects of different sizes
+- Proof-of-work templates are an opportunity to include
+  sample evidence artifacts alongside the template
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
