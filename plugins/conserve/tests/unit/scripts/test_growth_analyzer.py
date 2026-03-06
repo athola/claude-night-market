@@ -501,7 +501,7 @@ class TestGrowthAnalyzerEdgeCases:
         # Assert
         if "mecw_violation_turns" in result["projections"]:
             # Zero growth means it never hits limit
-            import math
+            import math  # noqa: PLC0415
 
             assert (
                 result["projections"]["mecw_violation_turns"] == math.inf

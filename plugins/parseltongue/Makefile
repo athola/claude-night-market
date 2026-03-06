@@ -240,31 +240,15 @@ demo-parseltongue-commands: demo-analyze-tests demo-run-profiler demo-check-asyn
 	@echo ""
 
 
-test-analyze-tests: ## Test analyze-tests command workflow
-	@echo "=== Testing analyze-tests workflow ==="
-	@echo "Validating: /analyze-tests"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-analyze-tests: ## Test analyze-tests command (runs test analysis tests)
+	$(PYTEST) tests/ -v -k "analyze" || $(PYTEST) tests/ -v --tb=short
 
+test-run-profiler: ## Test run-profiler command (runs performance tests)
+	$(PYTEST) tests/ -v -m "performance" --tb=short 2>/dev/null || \
+		$(PYTEST) tests/ -v -k "profiler or performance" --tb=short
 
-test-run-profiler: ## Test run-profiler command workflow
-	@echo "=== Testing run-profiler workflow ==="
-	@echo "Validating: /run-profiler"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-check-async: ## Test check-async command workflow
-	@echo "=== Testing check-async workflow ==="
-	@echo "Validating: /check-async"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-check-async: ## Test check-async command (runs async pattern tests)
+	$(PYTEST) tests/test_async_patterns.py tests/test_async_edge_cases.py -v
 
 
 

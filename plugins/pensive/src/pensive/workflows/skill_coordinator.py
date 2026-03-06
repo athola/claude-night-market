@@ -60,7 +60,7 @@ class SkillCoordinator:
         for skill_name in skill_names:
             try:
                 # Use dispatch_agent for each skill
-                import asyncio
+                import asyncio  # noqa: PLC0415
 
                 # Run the async dispatch in a sync context
                 try:

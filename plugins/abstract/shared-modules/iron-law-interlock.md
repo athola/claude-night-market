@@ -212,4 +212,4 @@ See [Iron Law Interlock](../../../abstract/shared-modules/iron-law-interlock.md)
 
 - [enforcement-language.md](enforcement-language.md) - Language intensity calibration
 - [anti-rationalization.md](anti-rationalization.md) - Bypass prevention patterns
-- [iron-law-enforcement.md](../../imbue/skills/proof-of-work/modules/iron-law-enforcement.md) - Full TDD enforcement
+- [iron-law-enforcement.md](iron-law-enforcement.md) - Full TDD enforcement

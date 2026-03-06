@@ -13,6 +13,10 @@ from pathlib import Path
 import yaml
 
 from memory_palace.corpus.embedding_index import EmbeddingIndex
+from memory_palace.project_palace import (
+    ProjectPalaceManager,
+    ReviewEntry,
+)
 
 
 class TestRoomPartitioning:
@@ -218,11 +222,6 @@ class TestSemanticSearchIntegration:
 
     def test_search_review_chamber_semantic_flag(self, tmp_path: Path) -> None:
         """search_review_chamber with semantic=True uses embedding search."""
-        from memory_palace.project_palace import (
-            ProjectPalaceManager,
-            ReviewEntry,
-        )
-
         # Set up palace manager with temp dir
         palaces_dir = tmp_path / "memory-palaces"
         palaces_dir.mkdir()
@@ -265,11 +264,6 @@ class TestSemanticSearchIntegration:
         self, tmp_path: Path
     ) -> None:
         """search_review_chamber with semantic=False uses old text matching."""
-        from memory_palace.project_palace import (
-            ProjectPalaceManager,
-            ReviewEntry,
-        )
-
         palaces_dir = tmp_path / "memory-palaces"
         palaces_dir.mkdir()
         config_path = tmp_path / "config" / "settings.json"

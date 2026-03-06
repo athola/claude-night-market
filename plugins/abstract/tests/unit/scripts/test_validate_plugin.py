@@ -17,7 +17,18 @@ import pytest
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 
-from validate_plugin import PluginValidator
+from validate_plugin import PluginValidator, main
+
+
+def _make_plugin(tmp_path: Path, config: dict) -> Path:
+    """Create a minimal plugin directory structure."""
+    plugin_dir = tmp_path / "myplugin"
+    plugin_dir.mkdir()
+    claude_dir = plugin_dir / ".claude-plugin"
+    claude_dir.mkdir()
+    json_file = claude_dir / "plugin.json"
+    json_file.write_text(json.dumps(config))
+    return plugin_dir
 
 
 @pytest.fixture
@@ -356,3 +367,459 @@ class TestDeprecatedSharedDirectory:
         v._validate_directory_structure()
 
         assert not any("Deprecated pattern" in msg for msg in v.issues["warnings"])
+
+
+# ---------------------------------------------------------------------------
+# Tests merged from coverage sprint (validate_plugin full coverage)
+# ---------------------------------------------------------------------------
+
+
+class TestValidatePluginJsonExists:
+    """Plugin.json must exist in .claude-plugin/."""
+
+    @pytest.mark.unit
+    def test_missing_json_adds_critical(self, tmp_path: Path) -> None:
+        """No plugin.json adds a critical issue."""
+        pd = tmp_path / "myplugin"
+        pd.mkdir()
+        (pd / ".claude-plugin").mkdir()
+        v = PluginValidator(pd)
+        v.validate()
+        assert any(
+            ".claude-plugin/plugin.json not found" in i for i in v.issues["critical"]
+        )
+
+    @pytest.mark.unit
+    def test_json_at_wrong_location_adds_critical(self, tmp_path: Path) -> None:
+        """plugin.json at root instead of .claude-plugin/ adds critical."""
+        pd = tmp_path / "myplugin"
+        pd.mkdir()
+        (pd / ".claude-plugin").mkdir()
+        (pd / "plugin.json").write_text(json.dumps({"name": "myplugin"}))
+        v = PluginValidator(pd)
+        v.validate()
+        assert any("root but should be" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_invalid_json_adds_critical(self, tmp_path: Path) -> None:
+        """Invalid JSON content adds a critical issue."""
+        pd = tmp_path / "myplugin"
+        pd.mkdir()
+        cd = pd / ".claude-plugin"
+        cd.mkdir()
+        (cd / "plugin.json").write_text("{invalid json}")
+        v = PluginValidator(pd)
+        v.validate()
+        assert any("not valid JSON" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_non_dict_json_adds_critical(self, tmp_path: Path) -> None:
+        """plugin.json containing an array adds a critical issue."""
+        pd = tmp_path / "myplugin"
+        pd.mkdir()
+        cd = pd / ".claude-plugin"
+        cd.mkdir()
+        (cd / "plugin.json").write_text("[1, 2, 3]")
+        v = PluginValidator(pd)
+        v.validate()
+        assert any("JSON object" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_valid_json_sets_config(self, tmp_path: Path) -> None:
+        """Valid plugin.json sets the config on the validator."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        assert v.config is not None
+        assert v.config["name"] == "my-plugin"
+
+
+class TestValidatePluginName:
+    """Plugin name must follow kebab-case convention."""
+
+    @pytest.mark.unit
+    def test_valid_kebab_case_name(self, tmp_path: Path) -> None:
+        """kebab-case name produces no critical issues."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_plugin_name()
+        assert not any("Invalid plugin name" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_missing_name_adds_critical(self, tmp_path: Path) -> None:
+        """Missing name field adds a critical issue."""
+        pd = _make_plugin(tmp_path, {"version": "1.0.0"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_plugin_name()
+        assert any("Missing required field: name" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_non_string_name_adds_critical(self, tmp_path: Path) -> None:
+        """Non-string name adds a critical issue."""
+        pd = _make_plugin(tmp_path, {"name": 123})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_plugin_name()
+        assert any("must be a string" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_invalid_name_format_adds_critical(self, tmp_path: Path) -> None:
+        """CamelCase name adds a critical issue."""
+        pd = _make_plugin(tmp_path, {"name": "MyPlugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_plugin_name()
+        assert any("Invalid plugin name" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_name_with_underscores_fails(self, tmp_path: Path) -> None:
+        """Name with underscores fails kebab-case check."""
+        pd = _make_plugin(tmp_path, {"name": "my_plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_plugin_name()
+        assert any("Invalid plugin name" in i for i in v.issues["critical"])
+
+
+class TestValidateRecommendedFields:
+    """Recommended metadata fields generate recommendations."""
+
+    @pytest.mark.unit
+    def test_missing_version_generates_recommendation(self, tmp_path: Path) -> None:
+        """Missing version field generates a recommendation."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_recommended_fields()
+        assert any("version" in i for i in v.issues["recommendations"])
+
+    @pytest.mark.unit
+    def test_valid_semver_version_no_warning(self, tmp_path: Path) -> None:
+        """Correct semantic version produces no warning."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "version": "1.2.3"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_recommended_fields()
+        assert not v.issues["warnings"]
+
+    @pytest.mark.unit
+    def test_non_string_version_adds_warning(self, tmp_path: Path) -> None:
+        """Non-string version adds a warning."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "version": 123})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_recommended_fields()
+        assert any("string" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_invalid_version_format_adds_warning(self, tmp_path: Path) -> None:
+        """Version without dots adds a warning."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "version": "v1"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_recommended_fields()
+        assert any("semantic versioning" in i for i in v.issues["warnings"])
+
+
+class TestValidateDependencies:
+    """Dependencies format validation."""
+
+    @pytest.mark.unit
+    def test_no_dependencies_no_issues(self, tmp_path: Path) -> None:
+        """Missing dependencies field is allowed."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_dependencies()
+        assert not v.issues["warnings"]
+
+    @pytest.mark.unit
+    def test_list_dependencies_adds_recommendation(self, tmp_path: Path) -> None:
+        """Array-style dependencies add a recommendation."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "dependencies": ["abstract"]})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_dependencies()
+        assert any("object" in i for i in v.issues["recommendations"])
+
+    @pytest.mark.unit
+    def test_dict_dependencies_valid_semver(self, tmp_path: Path) -> None:
+        """Object dependencies with valid semver produce no warnings."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": ">=2.0.0"}}
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_dependencies()
+        assert not v.issues["warnings"]
+
+    @pytest.mark.unit
+    def test_dict_dependencies_non_string_version(self, tmp_path: Path) -> None:
+        """Non-string version in dependencies adds a warning."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": 2}}
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_dependencies()
+        assert any("should be a string" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_dict_dependencies_invalid_version_format(self, tmp_path: Path) -> None:
+        """Invalid semver format in dependencies adds a warning."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": "latest"}}
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_dependencies()
+        assert any("semantic versioning" in i for i in v.issues["warnings"])
+
+
+class TestValidateDirectoryStructureExtended:
+    """Directory structure extended tests."""
+
+    @pytest.mark.unit
+    def test_missing_skills_dir_adds_warning(self, tmp_path: Path) -> None:
+        """skills referenced but directory missing adds warning."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_directory_structure()
+        assert any("skills/" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_wrong_location_adds_critical(self, tmp_path: Path) -> None:
+        """skills dir inside .claude-plugin adds critical issue."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        wrong = pd / ".claude-plugin" / "skills"
+        wrong.mkdir()
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_directory_structure()
+        assert any("should be at plugin root" in i for i in v.issues["critical"])
+
+
+class TestValidateSkills:
+    """Skill files are validated for frontmatter."""
+
+    @pytest.mark.unit
+    def test_skill_with_valid_frontmatter(self, tmp_path: Path) -> None:
+        """Skill with name and description produces no warnings."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        sd = pd / "skills" / "my-skill"
+        sd.mkdir(parents=True)
+        (sd / "SKILL.md").write_text(
+            "---\nname: my-skill\ndescription: A skill\n---\n\n# My Skill\n"
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_skills()
+        assert not any("missing 'name'" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_skill_without_frontmatter_adds_warning(self, tmp_path: Path) -> None:
+        """Skill without --- frontmatter adds warning."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        sd = pd / "skills" / "my-skill"
+        sd.mkdir(parents=True)
+        (sd / "SKILL.md").write_text("# Just a heading\nNo frontmatter.\n")
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_skills()
+        assert any(
+            "should start with YAML frontmatter" in i for i in v.issues["warnings"]
+        )
+
+    @pytest.mark.unit
+    def test_skill_missing_name_adds_warning(self, tmp_path: Path) -> None:
+        """Skill without name in frontmatter adds a warning."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        sd = pd / "skills" / "my-skill"
+        sd.mkdir(parents=True)
+        (sd / "SKILL.md").write_text("---\ndescription: A skill\n---\n\n# Content\n")
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_skills()
+        assert any("missing 'name'" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_skill_missing_description_adds_recommendation(
+        self, tmp_path: Path
+    ) -> None:
+        """Skill without description adds recommendation."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        sd = pd / "skills" / "my-skill"
+        sd.mkdir(parents=True)
+        (sd / "SKILL.md").write_text("---\nname: my-skill\n---\n\n# Content\n")
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_skills()
+        assert any("missing 'description'" in i for i in v.issues["recommendations"])
+
+    @pytest.mark.unit
+    def test_skills_not_a_list_no_crash(self, tmp_path: Path) -> None:
+        """skills field that is not a list is handled gracefully."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "skills": "not-a-list"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_skills()
+
+
+class TestValidateClaudeConfig:
+    """Claude-specific config validation."""
+
+    @pytest.mark.unit
+    def test_missing_claude_key_adds_recommendation(self, tmp_path: Path) -> None:
+        """No claude config key adds a recommendation."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_claude_config()
+        assert any("claude" in i for i in v.issues["recommendations"])
+
+    @pytest.mark.unit
+    def test_non_dict_claude_adds_warning(self, tmp_path: Path) -> None:
+        """claude config that is not a dict adds a warning."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "claude": "string"})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_claude_config()
+        assert any("JSON object" in i for i in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_valid_claude_config_no_critical(self, tmp_path: Path) -> None:
+        """Valid dict claude config adds no critical issues."""
+        pd = _make_plugin(
+            tmp_path,
+            {"name": "my-plugin", "claude": {"skill_prefix": "my"}},
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_claude_config()
+        assert not v.issues["critical"]
+
+
+class TestValidatePathsExtended:
+    """Path references validation."""
+
+    @pytest.mark.unit
+    def test_valid_skills_path_no_critical(self, tmp_path: Path) -> None:
+        """Existing skills path produces no critical issues."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
+        )
+        sd = pd / "skills" / "my-skill"
+        sd.mkdir(parents=True)
+        (sd / "SKILL.md").write_text("---\nname: my-skill\n---\n\n# Skill\n")
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_paths()
+        assert not any("path not found" in i for i in v.issues["critical"])
+
+    @pytest.mark.unit
+    def test_missing_skills_path_adds_critical(self, tmp_path: Path) -> None:
+        """Missing skills path adds a critical issue."""
+        pd = _make_plugin(
+            tmp_path, {"name": "my-plugin", "skills": ["./skills/missing"]}
+        )
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        v._validate_paths()
+        assert any("path not found" in i for i in v.issues["critical"])
+
+
+class TestValidateHooksPathExtended:
+    """Hooks path validation."""
+
+    @pytest.mark.unit
+    def test_valid_hooks_json(self, tmp_path: Path) -> None:
+        """Valid hooks.json produces no critical issues."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "hooks": "./hooks.json"})
+        (pd / "hooks.json").write_text(json.dumps({"events": []}))
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        config = v._require_config()
+        v._validate_hooks_path(config)
+        assert not v.issues["critical"]
+
+    @pytest.mark.unit
+    def test_non_string_hooks_value_skipped(self, tmp_path: Path) -> None:
+        """hooks value that is not a string is skipped gracefully."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "hooks": {"key": "val"}})
+        v = PluginValidator(pd)
+        v._validate_plugin_json_exists()
+        config = v._require_config()
+        v._validate_hooks_path(config)
+        assert not any("hooks" in i for i in v.issues["critical"])
+
+
+class TestValidateIntegration:
+    """Full validation returns correct exit codes."""
+
+    @pytest.mark.unit
+    def test_valid_plugin_returns_zero(self, tmp_path: Path) -> None:
+        """Valid plugin structure returns exit code 0."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin", "version": "1.0.0"})
+        v = PluginValidator(pd)
+        assert v.validate() == 0
+
+    @pytest.mark.unit
+    def test_invalid_plugin_returns_one(self, tmp_path: Path) -> None:
+        """Plugin with critical issues returns exit code 1."""
+        pd = tmp_path / "bad-plugin"
+        pd.mkdir()
+        (pd / ".claude-plugin").mkdir()
+        v = PluginValidator(pd)
+        assert v.validate() == 1
+
+
+class TestMain:
+    """main() CLI entry point."""
+
+    @pytest.mark.unit
+    def test_main_no_args_returns_one(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """No arguments to main returns 1."""
+        monkeypatch.setattr(sys, "argv", ["validate_plugin.py"])
+        assert main() == 1
+
+    @pytest.mark.unit
+    def test_main_nonexistent_path(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Non-existent path argument returns 1."""
+        monkeypatch.setattr(
+            sys, "argv", ["validate_plugin.py", str(tmp_path / "nonexistent")]
+        )
+        assert main() == 1
+
+    @pytest.mark.unit
+    def test_main_file_path(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """File path (not directory) argument returns 1."""
+        f = tmp_path / "file.txt"
+        f.write_text("data")
+        monkeypatch.setattr(sys, "argv", ["validate_plugin.py", str(f)])
+        assert main() == 1
+
+    @pytest.mark.unit
+    def test_main_valid_plugin(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Valid plugin directory runs successfully."""
+        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+        monkeypatch.setattr(sys, "argv", ["validate_plugin.py", str(pd)])
+        assert main() == 0

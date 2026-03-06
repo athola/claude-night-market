@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -187,3 +188,29 @@ def sample_plugin_json() -> dict[str, Any]:
 @pytest.fixture
 def mock_bash_tool() -> Mock:
     return Mock()
+
+
+# ============================================================================
+# Continuous Improvement Integration Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def minimal_plugin_dir(tmp_path: Path) -> Path:
+    """Create a minimal plugin directory with empty skills list.
+
+    Given a tmp directory containing:
+    - test-plugin/
+      - .claude-plugin/
+        - plugin.json (name + empty skills list)
+
+    Returns the plugin directory (tmp_path / "test-plugin").
+    """
+    plugin_dir = tmp_path / "test-plugin"
+    plugin_dir.mkdir()
+    config_dir = plugin_dir / ".claude-plugin"
+    config_dir.mkdir()
+    (config_dir / "plugin.json").write_text(
+        json.dumps({"name": "test-plugin", "skills": []}, indent=2)
+    )
+    return plugin_dir

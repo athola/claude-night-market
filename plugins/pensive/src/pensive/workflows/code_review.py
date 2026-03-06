@@ -191,7 +191,7 @@ class CodeReviewWorkflow:
         if skill_name in skill_map:
             module_path, class_name = skill_map[skill_name].rsplit(".", 1)
             try:
-                import importlib
+                import importlib  # noqa: PLC0415
 
                 module = importlib.import_module(module_path)
                 skill_class = getattr(module, class_name)

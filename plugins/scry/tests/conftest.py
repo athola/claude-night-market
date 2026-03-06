@@ -77,7 +77,7 @@ def has_playwright() -> bool:
         return False
     except OSError as e:
         # Other OS-level errors (permissions, etc.)
-        import warnings
+        import warnings  # noqa: PLC0415
 
         warnings.warn(f"Playwright check failed with OSError: {e}", stacklevel=2)
         return False

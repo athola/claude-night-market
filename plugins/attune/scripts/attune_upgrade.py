@@ -5,6 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from attune_init import copy_templates  # type: ignore[import]
 from project_detector import ProjectDetector  # type: ignore[import]
 from template_engine import get_default_variables  # type: ignore[import]
 
@@ -204,8 +205,6 @@ class ProjectUpgrader:
             List of files that were/would be created or updated
 
         """
-        from attune_init import copy_templates  # type: ignore[import]
-
         affected_files = []
 
         # Get missing files
@@ -277,7 +276,7 @@ class ProjectUpgrader:
         if self.language == "python":
             pyproject = self.project_path / "pyproject.toml"
             if pyproject.exists():
-                import re
+                import re  # noqa: PLC0415
 
                 content = pyproject.read_text()
 

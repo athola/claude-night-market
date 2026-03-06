@@ -31,7 +31,7 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402
 
 def _unit_vectors(n: int, dim: int = 4) -> list[list[float]]:
     """Return n simple unit vectors for testing (each different)."""
-    import math
+    import math  # noqa: PLC0415
 
     vecs = []
     for i in range(n):
@@ -251,7 +251,7 @@ class TestSemanticDeduplicatorFaiss:
         vec_a = [1.0, 0.0, 0.0, 0.0]
         # low similarity vector: mostly orthogonal
         vec_b = [0.1, 0.99, 0.0, 0.0]
-        import math
+        import math  # noqa: PLC0415
 
         norm = math.sqrt(sum(v * v for v in vec_b))
         vec_b = [v / norm for v in vec_b]
@@ -439,7 +439,7 @@ class TestModuleLevelHelpers:
         When _hash_to_vector is called
         Then the result has L2 norm approximately 1.0
         """
-        import math
+        import math  # noqa: PLC0415
 
         vec = _hash_to_vector("normalize me", 128)
         norm = math.sqrt(sum(v * v for v in vec))
@@ -477,7 +477,7 @@ class TestModuleLevelHelpers:
         When _cosine_similarity_numpy is called
         Then the score is 1.0
         """
-        import numpy as np
+        import numpy as np  # noqa: PLC0415
 
         vec = np.array([1.0, 0.0, 0.0], dtype="float32")
         assert abs(_cosine_similarity_numpy(vec, vec) - 1.0) < 1e-6
@@ -490,7 +490,7 @@ class TestModuleLevelHelpers:
         When _cosine_similarity_numpy is called
         Then the score is 0.0
         """
-        import numpy as np
+        import numpy as np  # noqa: PLC0415
 
         a = np.array([1.0, 0.0, 0.0], dtype="float32")
         b = np.array([0.0, 1.0, 0.0], dtype="float32")
@@ -504,7 +504,7 @@ class TestModuleLevelHelpers:
         When _cosine_similarity_numpy is called
         Then the score is 0.0 (not NaN or error)
         """
-        import numpy as np
+        import numpy as np  # noqa: PLC0415
 
         zero = np.array([0.0, 0.0, 0.0], dtype="float32")
         nonzero = np.array([1.0, 0.0, 0.0], dtype="float32")

@@ -27,6 +27,7 @@ estimated_tokens: 500
 progressive_loading: true
 modules:
 - modules/comment-guidelines.md
+- modules/educational-insights.md
 - modules/github-comments.md
 - modules/knowledge-capture.md
 - modules/version-validation.md
@@ -281,7 +282,12 @@ Identified during MR !<number> review.
 
 ### Phase 6: Generate Report
 
-Structure the report by classification:
+Structure the report by classification. Every BLOCKING and
+IN-SCOPE finding MUST include educational insights per
+`modules/educational-insights.md`: **Why** (the principle),
+**Proof** (link to best practice), and a **Teachable Moment**
+(generalized lesson). SUGGESTION findings include Why and
+optionally Proof. BACKLOG items need only a brief rationale.
 
 ```markdown
 ## PR #X: Title
@@ -292,16 +298,36 @@ Structure the report by classification:
 2. [x] Requirement B - Implemented
 3. [ ] Requirement C - **Missing**
 
-### Blocking (0)
-None - no critical issues found.
+### Blocking (1)
+1. [B1] SQL injection via string concatenation
+   - **Location**: `db/queries.py:89`
+   - **Issue**: User input interpolated directly into SQL
+   - **Why**: String-interpolated SQL allows attackers to
+     execute arbitrary queries (CWE-89). This is the #1
+     web application vulnerability per OWASP Top 10.
+   - **Proof**: [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
+   - **Teachable Moment**: Always use parameterized queries
+     or an ORM. This applies everywhere user input reaches
+     a database, cache, or search engine query.
+   - **Fix**: Use parameterized query:
+     `cursor.execute("SELECT * FROM t WHERE id = ?", (uid,))`
 
-### In-Scope (2)
+### In-Scope (1)
 1. [S1] Missing validation for edge case
-   - Location: api.py:45
-   - Requirement: "Handle empty input gracefully"
+   - **Location**: `api.py:45`
+   - **Issue**: Empty input not handled per requirement
+   - **Why**: Defensive validation at API boundaries
+     prevents cascading failures in downstream logic.
+   - **Proof**: [Postel's Law](https://en.wikipedia.org/wiki/Robustness_principle)
+   - **Teachable Moment**: Validate inputs at system
+     boundaries (API handlers, CLI args, file parsers)
+     but trust internal function contracts.
 
 ### Suggestions (1)
 1. [G1] Consider extracting helper function
+   - **Why**: The repeated pattern on lines 30-35 and
+     72-77 violates DRY. Extracting it reduces future
+     bug surface.
    - Author's discretion
 
 ### Backlog → GitHub Issues (3)
@@ -311,9 +337,8 @@ None - no critical issues found.
 
 ### Recommendation
 **APPROVE WITH CHANGES**
-Address S1 (in-scope issue) before merge.
+Address B1 and S1 before merge.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 7: Knowledge Capture
 

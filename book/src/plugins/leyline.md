@@ -19,7 +19,9 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `quota-management` | Rate limiting and quotas | Building services that consume APIs |
 | `usage-logging` | Telemetry tracking | Logging tool usage for analytics |
 | `service-registry` | Service discovery patterns | Managing external tool connections |
-| `error-patterns` | Standardized error handling with agent damage-control module | Production-grade error recovery and multi-agent crash handling |
+| `error-patterns` | Standardized error handling patterns | Production-grade error recovery |
+| `damage-control` | Recovery protocols for broken agent state | Crash recovery, context overflow, merge conflicts |
+| `content-sanitization` | Sanitization for external content | Loading Issues, PRs, Discussions, or WebFetch results |
 | `markdown-formatting` | Line wrapping and style conventions | Generating or editing markdown prose |
 | `authentication-patterns` | Auth flow patterns | Handling API keys and OAuth |
 | `evaluation-framework` | Decision thresholds | Building evaluation criteria |

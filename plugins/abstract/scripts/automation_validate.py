@@ -4,6 +4,8 @@
 Validates skill structure and compliance.
 """
 
+from __future__ import annotations
+
 import argparse
 import subprocess  # nosec: B404
 import sys

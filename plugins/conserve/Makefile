@@ -250,123 +250,34 @@ demo-unbloat: ## Demo unbloat command (LIVE)
 	@echo ""
 	@echo "Use /unbloat for full workflow."
 
-
-	@echo "=== unbloat Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /unbloat"
-	@echo "Plugin: conserve"
-	@echo ""
-	@echo "This demonstrates unbloat usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /unbloat for full workflow."
-
-
 demo-ai-hygiene-audit: ## Demo ai-hygiene-audit command (LIVE)
 	@echo "=== ai-hygiene-audit Demo (LIVE) ==="
 	@echo ""
 	@echo "Running ai-hygiene-audit on conserve plugin..."
 	@echo ""
-	echo 'AI hygiene audit: Check for TODO/FIXME in skills/' && grep -r 'TODO\|FIXME' skills/ | wc -l | xargs -I{} echo 'Found {} items' || echo "  [INFO] Tool execution completed"
+	@grep -r 'TODO\|FIXME' skills/ 2>/dev/null | wc -l | xargs -I{} echo 'Found {} TODO/FIXME items' || echo "  [INFO] No skills/ directory found"
 	@echo ""
 	@echo "Use /ai-hygiene-audit for full workflow."
 
-
-	@echo "=== bloat-scan Demo (LIVE) ==="
-	@echo ""
-	@echo "Running bloat-scan on conserve plugin..."
-	@echo ""
-	$(UV_RUN) python scripts/detect_duplicates.py . --report || echo "  [INFO] Tool execution completed"
-	@echo ""
-	@echo "Use /bloat-scan for full workflow."
-
-
-	@echo "=== unbloat Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /unbloat"
-	@echo "Plugin: conserve"
-	@echo ""
-	@echo "This demonstrates unbloat usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /unbloat for full workflow."
-
-
-	@echo "=== ai-hygiene-audit Demo (LIVE) ==="
-	@echo ""
-	@echo "Running ai-hygiene-audit on conserve plugin..."
-	@echo ""
-	echo 'AI hygiene audit: Check for TODO/FIXME in skills/' && grep -r 'TODO\|FIXME' skills/ | wc -l | xargs -I{} echo 'Found {} items' || echo "  [INFO] Tool execution completed"
-	@echo ""
-	@echo "Use /ai-hygiene-audit for full workflow."
-
-
-demo-conserve-commands: demo-bloat-scan demo-unbloat demo-unbloat demo-ai-hygiene-audit demo-bloat-scan demo-unbloat demo-ai-hygiene-audit ## Run all conserve documented command demos
+demo-conserve-commands: demo-bloat-scan demo-unbloat demo-ai-hygiene-audit ## Run all conserve documented command demos
 	@echo ""
 	@echo "=== Conserve All Commands Demo Complete ==="
-	@echo "Ran 7 documented commands"
 	@echo ""
 
+test-bloat-scan: ## Test bloat-scan command (runs bloat detection unit tests)
+	@echo "Running bloat-scan tests..."
+	$(PYTEST) tests/ -v -k "bloat" || $(PYTEST) tests/unit/ -v
 
-test-bloat-scan: ## Test bloat-scan command workflow
-	@echo "=== Testing bloat-scan workflow ==="
-	@echo "Validating: /bloat-scan"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
+test-unbloat: ## Test unbloat command (runs unbloat-related unit tests)
+	@echo "Running unbloat tests..."
+	$(PYTEST) tests/ -v -k "unbloat or safe_replace" || $(PYTEST) tests/unit/ -v
 
-
-test-unbloat: ## Test unbloat command workflow
-	@echo "=== Testing unbloat workflow ==="
-	@echo "Validating: /unbloat"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing unbloat workflow ==="
-	@echo "Validating: /unbloat"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-ai-hygiene-audit: ## Test ai-hygiene-audit command workflow
-	@echo "=== Testing ai-hygiene-audit workflow ==="
-	@echo "Validating: /ai-hygiene-audit"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing bloat-scan workflow ==="
-	@echo "Validating: /bloat-scan"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing unbloat workflow ==="
-	@echo "Validating: /unbloat"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing ai-hygiene-audit workflow ==="
-	@echo "Validating: /ai-hygiene-audit"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-
+test-ai-hygiene-audit: ## Test ai-hygiene-audit command (runs hygiene unit tests)
+	@echo "Running ai-hygiene-audit tests..."
+	$(PYTEST) tests/ -v -k "hygiene or audit" || $(PYTEST) tests/unit/ -v
 
 # Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

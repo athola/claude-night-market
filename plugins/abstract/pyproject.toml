@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.5.5"
+version = "1.5.6"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -73,12 +73,16 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
 explicit_package_bases = true
-mypy_path = ["src"]
+mypy_path = ["src", "scripts"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 [[tool.mypy.overrides]]
 module = ["yaml"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["migration_analyzer"]
+disable_error_code = ["import-not-found"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
@@ -120,7 +124,4 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-# Lowered from 65 to 55 after fixing --cov path (was --cov=abstract, now
-# --cov=src/abstract --cov=scripts). Scripts coverage is low (~40%) because
-# most are CLI tools tested manually. TODO: add integration tests for scripts.
-fail_under = 55
+fail_under = 90

@@ -23,6 +23,7 @@ from validate_budget import (
     Component,
     analyze_file,
     extract_description,
+    main,
 )
 
 
@@ -337,9 +338,6 @@ class TestMainFunctionIntegration:
         # Clear sys.argv to avoid pytest args being parsed by argparse
         monkeypatch.setattr("sys.argv", ["validate_budget.py"])
 
-        # Import main here to get fresh module
-        from validate_budget import main
-
         with pytest.raises(SystemExit) as exc_info:
             main()
 
@@ -358,8 +356,6 @@ class TestMainFunctionIntegration:
         """
         monkeypatch.chdir(temp_plugin_structure)
         monkeypatch.setattr("sys.argv", ["validate_budget.py"])
-
-        from validate_budget import main
 
         with pytest.raises(SystemExit):
             main()
@@ -381,8 +377,6 @@ class TestMainFunctionIntegration:
         """
         monkeypatch.chdir(empty_plugin_structure)
         monkeypatch.setattr("sys.argv", ["validate_budget.py"])
-
-        from validate_budget import main
 
         with pytest.raises(SystemExit) as exc_info:
             main()
@@ -549,8 +543,6 @@ description: Should be excluded
 
         monkeypatch.chdir(tmp_path)
         monkeypatch.setattr("sys.argv", ["validate_budget.py"])
-
-        from validate_budget import main
 
         with pytest.raises(SystemExit) as exc_info:
             main()

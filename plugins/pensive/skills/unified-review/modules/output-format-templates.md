@@ -48,14 +48,33 @@ Standard templates for consistent review deliverables.
 **Evidence**:
 [Code snippet, measurement, or observation]
 
-**Impact**:
-[Why this matters, consequences if not addressed]
+**Why This Matters**:
+[The underlying principle or rule being violated.
+Explain the concept, not just the symptom.]
+
+**Proof**:
+[Link to authoritative best-practice documentation.
+Prefer: language docs, OWASP, PEPs, style guides,
+RFCs. Summarize what the link teaches.]
+
+**Teachable Moment**:
+[How this lesson generalizes beyond this specific
+finding. When else would this principle apply?]
 
 **Recommendation**:
 [Specific, actionable steps to resolve]
 
 **References**: [Evidence appendix section or external docs]
 ```
+
+### Educational Depth by Severity
+
+| Severity | Why | Proof Link | Teachable Moment |
+|----------|-----|------------|------------------|
+| Critical | Required | Required | Required |
+| High | Required | Required | Required |
+| Medium | Required | If available | Optional |
+| Low | Brief | Optional | Optional |
 
 ## Severity Definitions
 

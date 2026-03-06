@@ -44,7 +44,13 @@ def read_history(claude_home: Path) -> dict:
         return {}
     try:
         return json.loads(history_file.read_text())
-    except (json.JSONDecodeError, OSError):
+    except json.JSONDecodeError:
+        sys.stderr.write(f"homeostatic_monitor: corrupt history file {history_file}\n")
+        return {}
+    except OSError as e:
+        sys.stderr.write(
+            f"homeostatic_monitor: failed to read history file {history_file}: {e}\n"
+        )
         return {}
 
 

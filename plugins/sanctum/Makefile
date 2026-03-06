@@ -329,97 +329,181 @@ demo-sanctum-commands: demo-rename demo-resume demo-git-catchup demo-commit-msg 
 	@echo ""
 
 
-test-rename: ## Test rename command workflow
-	@echo "=== Testing rename workflow ==="
-	@echo "Validating: /rename"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+test-rename: ## Test rename command (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: rename is a skill-only command with no unit tests"
+
+test-resume: ## Test resume command (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: resume is a skill-only command with no unit tests"
+
+test-git-catchup: ## Test git-catchup command (runs git workspace tests)
+	$(PYTEST) tests/test_git_workspace_review.py -v || \
+		$(PYTEST) . -v -k "git_catchup or git-catchup"
+
+test-commit-msg: ## Test commit-msg command (runs commit message tests)
+	$(PYTEST) tests/test_commit_messages.py -v
+
+test-do-issue: ## Test do-issue command (runs do-issue tests)
+	$(PYTEST) tests/test_do_issue.py -v
+
+test-fix-workflow: ## Test fix-workflow command (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: fix-workflow is a skill-only command with no unit tests"
+
+test-fix-pr: ## Test fix-pr command (runs fix-pr war room tests)
+	$(PYTEST) tests/test_fix_pr_war_room.py -v || \
+		$(PYTEST) . -v -k "fix_pr or fix-pr"
+
+test-pr: ## Test pr command (runs PR prep and review tests)
+	$(PYTEST) tests/test_pr_prep.py tests/test_pr_review_workflow.py -v
+
+test-update-docs: ## Test update-docs command (runs doc update workflow tests)
+	$(PYTEST) tests/test_doc_updates_workflow.py -v || \
+		$(PYTEST) . -v -k "update_docs or doc_updates"
+
+test-update-readme: ## Test update-readme command (runs doc update workflow tests)
+	$(PYTEST) tests/test_doc_updates_workflow.py -v -k "readme" || \
+		$(PYTEST) . -v -k "update_readme or readme"
+
+test-pr-review: ## Test pr-review command (runs PR review tests)
+	$(PYTEST) tests/test_pr_review_workflow.py tests/test_pr_review_war_room.py -v
+
+test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
+	$(PYTEST) tests/test_pr_prep.py -v
+
+test-merge-docs: ## Test merge-docs command (runs doc update tests)
+	$(PYTEST) tests/test_doc_updates_workflow.py -v -k "merge" || \
+		$(PYTEST) . -v -k "merge_docs or merge-docs"
+
+test-resolve-threads: ## Test resolve-threads command (not applicable: skill-only)
+	@echo "Not applicable: resolve-threads is a skill-only command with no unit tests"
+
+test-create-tag: ## Test create-tag command (not applicable: skill-only, runs against live git)
+	@echo "Not applicable: create-tag operates on live git tags and has no unit tests"
+
+test-update-plugins: ## Test update-plugins command (runs plugin registration tests)
+	$(PYTEST) tests/test_update_plugin_registrations.py \
+		tests/test_update_plugin_registrations_simple.py -v
+
+test-update-tests: ## Test update-tests command (not applicable: skill-only)
+	@echo "Not applicable: update-tests is a skill-only command with no unit tests"
+
+test-update-tutorial: ## Test update-tutorial command (not applicable: skill-only)
+	@echo "Not applicable: update-tutorial is a skill-only command with no unit tests"
+
+test-update-version: ## Test update-version command (runs version update tests)
+	$(PYTEST) tests/test_update_versions.py -v
+
+test-update-dependencies: ## Test update-dependencies command (not applicable: skill-only)
+	@echo "Not applicable: update-dependencies is a skill-only command with no unit tests"
+
+demo-create-tag: ## Demo create-tag command (LIVE)
+	@echo "=== create-tag Demo (LIVE) ==="
 	@echo ""
-
-
-test-resume: ## Test resume command workflow
-	@echo "=== Testing resume workflow ==="
-	@echo "Validating: /resume"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "Command: /create-tag"
+	@echo "Plugin: sanctum"
 	@echo ""
-
-
-test-git-catchup: ## Test git-catchup command workflow
-	@echo "=== Testing git-catchup workflow ==="
-	@echo "Validating: /git-catchup"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "This demonstrates create-tag usage."
+	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
+	@echo "Use /create-tag for full workflow."
 
-
-test-commit-msg: ## Test commit-msg command workflow
-	@echo "=== Testing commit-msg workflow ==="
-	@echo "Validating: /commit-msg"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+demo-merge-docs: ## Demo merge-docs command (LIVE)
+	@echo "=== merge-docs Demo (LIVE) ==="
 	@echo ""
-
-
-test-do-issue: ## Test do-issue command workflow
-	@echo "=== Testing do-issue workflow ==="
-	@echo "Validating: /do-issue"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "Command: /merge-docs"
+	@echo "Plugin: sanctum"
 	@echo ""
-
-
-test-fix-workflow: ## Test fix-workflow command workflow
-	@echo "=== Testing fix-workflow workflow ==="
-	@echo "Validating: /fix-workflow"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "This demonstrates merge-docs usage."
+	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
+	@echo "Use /merge-docs for full workflow."
 
-
-test-fix-pr: ## Test fix-pr command workflow
-	@echo "=== Testing fix-pr workflow ==="
-	@echo "Validating: /fix-pr"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+demo-pr-review: ## Demo pr-review command (LIVE)
+	@echo "=== pr-review Demo (LIVE) ==="
 	@echo ""
-
-
-test-pr: ## Test pr command workflow
-	@echo "=== Testing pr workflow ==="
-	@echo "Validating: /pr"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "Command: /pr-review"
+	@echo "Plugin: sanctum"
 	@echo ""
-
-
-test-update-docs: ## Test update-docs command workflow
-	@echo "=== Testing update-docs workflow ==="
-	@echo "Validating: /update-docs"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+	@echo "This demonstrates pr-review usage."
+	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
+	@echo "Use /pr-review for full workflow."
 
-
-test-update-readme: ## Test update-readme command workflow
-	@echo "=== Testing update-readme workflow ==="
-	@echo "Validating: /update-readme"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+demo-prepare-pr: ## Demo prepare-pr command (LIVE)
+	@echo "=== prepare-pr Demo (LIVE) ==="
 	@echo ""
+	@echo "Command: /prepare-pr"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates prepare-pr usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /prepare-pr for full workflow."
 
+demo-resolve-threads: ## Demo resolve-threads command (LIVE)
+	@echo "=== resolve-threads Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /resolve-threads"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates resolve-threads usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /resolve-threads for full workflow."
 
+demo-update-dependencies: ## Demo update-dependencies command (LIVE)
+	@echo "=== update-dependencies Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-dependencies"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-dependencies usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-dependencies for full workflow."
 
+demo-update-plugins: ## Demo update-plugins command (LIVE)
+	@echo "=== update-plugins Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-plugins"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-plugins usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-plugins for full workflow."
+
+demo-update-tests: ## Demo update-tests command (LIVE)
+	@echo "=== update-tests Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-tests"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-tests usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-tests for full workflow."
+
+demo-update-tutorial: ## Demo update-tutorial command (LIVE)
+	@echo "=== update-tutorial Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-tutorial"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-tutorial usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-tutorial for full workflow."
+
+demo-update-version: ## Demo update-version command (LIVE)
+	@echo "=== update-version Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-version"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-version usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-version for full workflow."
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

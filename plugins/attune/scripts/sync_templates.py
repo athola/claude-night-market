@@ -65,7 +65,7 @@ class TemplateSynchronizer:
         """
         if language == "python":
             # Replace specific project name with template variable
-            import re
+            import re  # noqa: PLC0415
 
             # Common project-specific replacements
             replacements = [
@@ -91,7 +91,7 @@ class TemplateSynchronizer:
                 content = re.sub(pattern, replacement, content)
 
         elif language == "rust":
-            import re
+            import re  # noqa: PLC0415
 
             replacements = [
                 (r'name = "[\w-]+"', 'name = "{{PROJECT_NAME}}"'),

@@ -6,9 +6,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Add scripts directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
-
 from update_plugin_registrations import PluginAuditor
 
 

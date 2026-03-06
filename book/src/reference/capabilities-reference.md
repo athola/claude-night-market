@@ -37,7 +37,9 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
+| `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
+| `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
@@ -113,6 +115,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
+| `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |

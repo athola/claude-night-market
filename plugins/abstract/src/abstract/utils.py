@@ -6,16 +6,19 @@ Provide utility functions for:
 - Frontmatter extraction and validation
 - Skill file discovery and loading
 - Analysis helpers (scoring, sections, dependencies)
+- JSON loading helpers
 
 For token-related utilities, use the `tokens` module directly.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
 from pathlib import Path
+from typing import Any
 
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
@@ -43,6 +46,8 @@ __all__ = [
     "load_skill_file",
     "parse_frontmatter_fields",
     "parse_yaml_frontmatter",
+    # JSON utilities
+    "safe_json_load",
     "validate_skill_frontmatter",
 ]
 
@@ -122,6 +127,25 @@ def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfi
             logger.debug(f"Failed to load config from {config_file}: {e}")
 
     return AbstractConfig()
+
+
+def safe_json_load(path: Path, default: Any = None) -> Any:
+    """Load JSON from a file, returning a default value on any error.
+
+    Args:
+        path: Path to the JSON file.
+        default: Value to return if the file is missing or malformed.
+
+    Returns:
+        Parsed JSON data, or default on FileNotFoundError, OSError,
+        or json.JSONDecodeError.
+
+    """
+    try:
+        return json.loads(path.read_text())
+    except (FileNotFoundError, OSError, json.JSONDecodeError) as e:
+        logger.debug("safe_json_load: %s: %s", path, e)
+        return default
 
 
 def extract_frontmatter(content: str) -> tuple[str, str]:

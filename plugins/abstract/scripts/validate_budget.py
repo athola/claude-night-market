@@ -96,7 +96,7 @@ def collect_components(base: Path) -> list[Component]:
 
     # Find all skills
     for skill_file in base.rglob("plugins/*/skills/*/SKILL.md"):
-        if ".worktrees" not in str(skill_file) and ".git" not in str(skill_file):
+        if "worktrees" not in str(skill_file) and ".git" not in str(skill_file):
             try:
                 comp = analyze_file(skill_file, "skill")
                 components.append(comp)
@@ -105,7 +105,7 @@ def collect_components(base: Path) -> list[Component]:
 
     # Find all commands
     for cmd_file in base.rglob("plugins/*/commands/*.md"):
-        if ".worktrees" not in str(cmd_file) and ".git" not in str(cmd_file):
+        if "worktrees" not in str(cmd_file) and ".git" not in str(cmd_file):
             try:
                 comp = analyze_file(cmd_file, "command")
                 components.append(comp)

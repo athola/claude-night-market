@@ -12,6 +12,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -48,6 +49,93 @@ try:
 except (ImportError, ModuleNotFoundError) as e:
     logger.debug("memory_palace package not available: %s", e)
 
+    # Fallback stubs so names exist at module level for patching and
+    # graceful degradation on system Python 3.9 without pyyaml.
+    @dataclass
+    class DomainAlignment:  # type: ignore[no-redef]
+        configured_domains: list = field(default_factory=list)  # type: ignore[type-arg]
+        matched_domains: list = field(default_factory=list)  # type: ignore[type-arg]
+
+        @property
+        def is_aligned(self) -> bool:
+            return bool(self.matched_domains)
+
+    @dataclass
+    class IntakeFlagPayload:  # type: ignore[no-redef]
+        query: str = ""
+        should_flag_for_intake: bool = False
+        novelty_score: float = 0.0
+        domain_alignment: Any = None
+        delta_reasoning: str = ""
+        duplicate_entry_ids: list = field(default_factory=list)  # type: ignore[type-arg]
+
+        def to_dict(self) -> dict:  # type: ignore[type-arg]
+            return {
+                "query": self.query,
+                "should_flag_for_intake": self.should_flag_for_intake,
+                "novelty_score": self.novelty_score,
+                "delta_reasoning": self.delta_reasoning,
+                "duplicate_entry_ids": self.duplicate_entry_ids,
+            }
+
+    class RedundancyLevel(Enum):  # type: ignore[no-redef]
+        EXACT_MATCH = "exact_match"
+        HIGHLY_REDUNDANT = "redundant"
+        PARTIAL_OVERLAP = "partial"
+        NOVEL = "novel"
+
+    @dataclass
+    class AutonomyProfile:  # type: ignore[no-redef]
+        global_level: int = 0
+        domain_controls: dict = field(default_factory=dict)  # type: ignore[type-arg]
+
+        def effective_level_for(self, domains: Any = None) -> int:
+            return self.global_level
+
+        def should_auto_approve_duplicates(self, domains: Any = None) -> bool:
+            return self.effective_level_for(domains) >= 1
+
+        def should_auto_approve_partial(self, domains: Any = None) -> bool:
+            return self.effective_level_for(domains) >= 2
+
+        def should_auto_approve_all(self, domains: Any = None) -> bool:
+            return self.effective_level_for(domains) >= 3
+
+    class CacheLookup:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def search(self, *args: Any, **kwargs: Any) -> list:  # type: ignore[type-arg]
+            return []
+
+    class AutonomyStateStore:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def load_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
+            return AutonomyProfile()
+
+        def build_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
+            return AutonomyProfile()
+
+    class ResearchTelemetryEvent:  # type: ignore[no-redef]
+        @staticmethod
+        def build(*args: Any, **kwargs: Any) -> Any:
+            from types import SimpleNamespace
+
+            return SimpleNamespace(**kwargs)
+
+    class TelemetryLogger:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def emit(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    def resolve_telemetry_path(*args: Any, **kwargs: Any) -> Path:  # type: ignore[misc]
+        return Path("/dev/null")
+
+
 # Freshness indicators - if present, likely needs web
 _FRESHNESS_PATTERNS = re.compile(
     r"\b(latest|recent|new|current|2025|2024|today|now|update)\b",
@@ -83,14 +171,12 @@ class CacheInterceptDecision:
     autonomy_domains: list[str] = field(default_factory=list)
 
 
-_NOVELTY_BY_REDUNDANCY: dict[Any, float] = {}
-if _HAS_MEMORY_PALACE:
-    _NOVELTY_BY_REDUNDANCY = {
-        RedundancyLevel.EXACT_MATCH: 0.05,
-        RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
-        RedundancyLevel.PARTIAL_OVERLAP: 0.45,
-        RedundancyLevel.NOVEL: 0.9,
-    }
+_NOVELTY_BY_REDUNDANCY: dict[Any, float] = {
+    RedundancyLevel.EXACT_MATCH: 0.05,
+    RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
+    RedundancyLevel.PARTIAL_OVERLAP: 0.45,
+    RedundancyLevel.NOVEL: 0.9,
+}
 
 
 def extract_query_intent(tool_name: str, tool_input: dict[str, Any]) -> str:
@@ -136,8 +222,6 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
 
 
 def _classify_redundancy(score: float) -> RedundancyLevel | None:
-    if not _HAS_MEMORY_PALACE:
-        return None
     if score >= 0.9:
         return RedundancyLevel.EXACT_MATCH
     if score >= 0.8:

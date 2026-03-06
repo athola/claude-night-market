@@ -5,58 +5,31 @@ Addresses issue #104 from PR #100 review.
 """
 
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from update_plugin_registrations import PluginAuditor
+from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
 
 class TestPhase2SkillPerformanceAnalysis:
     """Verify Phase 2 performance analysis actually executes and returns results."""
 
-    def test_analyze_skill_performance_returns_dict(self, tmp_path):
+    def test_analyze_skill_performance_returns_dict(self, minimal_plugin_dir):
         """Phase 2 analysis returns a dict with expected structure."""
-        # Create minimal plugin structure
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin", "skills": []}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
         result = auditor.analyze_skill_performance("test-plugin")
         assert isinstance(result, dict)
 
-    def test_analyze_skill_performance_has_expected_keys(self, tmp_path):
+    def test_analyze_skill_performance_has_expected_keys(self, minimal_plugin_dir):
         """Phase 2 result contains all required analysis categories."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin", "skills": []}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
         result = auditor.analyze_skill_performance("test-plugin")
         assert "unstable_skills" in result
         assert "recent_failures" in result
         assert "low_success_rate" in result
 
-    def test_analyze_skill_performance_empty_when_no_logs(self, tmp_path):
+    def test_analyze_skill_performance_empty_when_no_logs(self, minimal_plugin_dir):
         """Phase 2 returns empty lists when no log directory exists."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin", "skills": []}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
         result = auditor.analyze_skill_performance("test-plugin")
         # Default log_dir (~/.claude/skills/logs) likely doesn't exist in test env
         assert result["unstable_skills"] == []
@@ -91,7 +64,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_with_log_data(self, tmp_path):
         """Phase 2 picks up failures from actual log files."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         # Create a log directory with sample data
         # Use naive timestamp (no Z suffix) to match datetime.now() used in cutoff_date
@@ -114,7 +86,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_detects_low_success_rate(self, tmp_path):
         """Phase 2 flags skills with success rate below 80%."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         log_dir = tmp_path / "logs"
         log_dir.mkdir()
@@ -151,7 +122,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_detects_unstable_skills(self, tmp_path):
         """Phase 2 flags skills with stability_gap > 0.3."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         log_dir = tmp_path / "logs"
         log_dir.mkdir()
@@ -174,32 +144,16 @@ class TestPhase2SkillPerformanceAnalysis:
 class TestPhase3MetaEvaluation:
     """Verify Phase 3 meta-evaluation executes and returns results."""
 
-    def test_check_meta_evaluation_returns_dict(self, tmp_path):
+    def test_check_meta_evaluation_returns_dict(self, minimal_plugin_dir):
         """Phase 3 meta-evaluation returns a dict."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin"}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
+        result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
         assert isinstance(result, dict)
 
-    def test_check_meta_evaluation_has_expected_keys(self, tmp_path):
+    def test_check_meta_evaluation_has_expected_keys(self, minimal_plugin_dir):
         """Phase 3 result contains all required check categories."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin"}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
+        result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
         assert "missing_toc" in result
         assert "missing_verification" in result
         assert "missing_tests" in result
@@ -399,22 +353,14 @@ class TestEndToEndWorkflow:
         meta_result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
         assert "code-review" in meta_result["missing_verification"]
 
-    def test_pipeline_phases_are_independent(self, tmp_path):
+    def test_pipeline_phases_are_independent(self, minimal_plugin_dir):
         """Each phase can run independently without prior phases."""
-        plugin_dir = tmp_path / "test-plugin"
-        plugin_dir.mkdir()
-        config_dir = plugin_dir / ".claude-plugin"
-        config_dir.mkdir()
-        (config_dir / "plugin.json").write_text(
-            json.dumps({"name": "test-plugin", "skills": []}, indent=2)
-        )
-
-        auditor = PluginAuditor(tmp_path, dry_run=True)
+        auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
 
         # Phase 2 without Phase 1
         perf_result = auditor.analyze_skill_performance("test-plugin")
         assert isinstance(perf_result, dict)
 
         # Phase 3 without Phase 1 or 2
-        meta_result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        meta_result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
         assert isinstance(meta_result, dict)

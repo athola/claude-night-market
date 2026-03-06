@@ -9,6 +9,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+from update_plugins_modules.constants import CACHE_EXCLUDES
+
 
 class TestCacheExcludes:
     """
@@ -22,14 +24,12 @@ class TestCacheExcludes:
     @pytest.mark.unit
     def test_cache_excludes_is_frozenset(self):
         """Scenario: CACHE_EXCLUDES is immutable."""
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         assert isinstance(CACHE_EXCLUDES, frozenset)
 
     @pytest.mark.unit
     def test_cache_excludes_contains_python_caches(self):
         """Scenario: Python cache directories are excluded."""
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         for name in ("__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"):
             assert name in CACHE_EXCLUDES, f"{name} missing from CACHE_EXCLUDES"
@@ -37,7 +37,6 @@ class TestCacheExcludes:
     @pytest.mark.unit
     def test_cache_excludes_contains_venvs(self):
         """Scenario: Virtual environment directories are excluded."""
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         for name in (".venv", "venv"):
             assert name in CACHE_EXCLUDES
@@ -45,14 +44,12 @@ class TestCacheExcludes:
     @pytest.mark.unit
     def test_cache_excludes_contains_node_modules(self):
         """Scenario: Node.js directories are excluded."""
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         assert "node_modules" in CACHE_EXCLUDES
 
     @pytest.mark.unit
     def test_cache_excludes_contains_vcs_dirs(self):
         """Scenario: Version control directories are excluded."""
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         assert ".git" in CACHE_EXCLUDES
 
@@ -64,7 +61,6 @@ class TestCacheExcludes:
         When CACHE_EXCLUDES is used as the shared constant
         Then it must contain every directory the old auditor excluded
         """
-        from update_plugins_modules.constants import CACHE_EXCLUDES
 
         legacy_entries = {
             ".venv",

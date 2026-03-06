@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +23,59 @@ logger = logging.getLogger(__name__)
 
 MAX_ENTRIES_PER_SKILL = 20
 MAX_EXEMPLARS = 3
+
+STOP_WORDS: frozenset = frozenset(
+    {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "to",
+        "of",
+        "in",
+        "for",
+        "on",
+        "with",
+        "at",
+        "by",
+        "from",
+        "as",
+        "into",
+        "about",
+        "it",
+        "its",
+        "this",
+        "that",
+        "and",
+        "or",
+        "but",
+        "not",
+        "no",
+        "if",
+        "then",
+        "so",
+    }
+)
 
 
 @dataclass
@@ -82,7 +136,13 @@ class ExperienceLibrary:
         skill_dir = self._skill_dir(trajectory.skill_ref)
         task_hash = self._task_hash(trajectory.task_description)
         entry_file = skill_dir / f"{task_hash}.json"
-        entry_file.write_text(json.dumps(entry, indent=2))
+        try:
+            entry_file.write_text(json.dumps(entry, indent=2))
+        except OSError as e:
+            sys.stderr.write(
+                f"experience_library: failed to write entry {entry_file}: {e}\n"
+            )
+            return False
 
         self._prune(trajectory.skill_ref)
         return True
@@ -95,10 +155,14 @@ class ExperienceLibrary:
             try:
                 entries.append(json.loads(f.read_text()))
             except json.JSONDecodeError:
-                logger.warning("Malformed JSON in experience entry: %s", f)
+                sys.stderr.write(
+                    f"experience_library: corrupt JSON in entry {f}, skipping\n"
+                )
                 continue
-            except OSError:
-                logger.warning("Failed to read experience entry: %s", f)
+            except OSError as e:
+                sys.stderr.write(
+                    f"experience_library: failed to read entry {f}: {e}, skipping\n"
+                )
                 continue
         return entries
 
@@ -110,11 +174,11 @@ class ExperienceLibrary:
         if not entries:
             return []
 
-        query_words = set(query.lower().split())
+        query_words = set(query.lower().split()) - STOP_WORDS
 
         scored: list[tuple[int, dict[str, Any]]] = []
         for entry in entries:
-            desc_words = set(entry["task_description"].lower().split())
+            desc_words = set(entry["task_description"].lower().split()) - STOP_WORDS
             overlap = len(query_words & desc_words)
             if overlap > 0:
                 scored.append((overlap, entry))

@@ -68,8 +68,8 @@ def copy_templates(
         List of created file paths
 
     """
-    import shutil
-    from datetime import datetime
+    import shutil  # noqa: PLC0415
+    from datetime import datetime  # noqa: PLC0415
 
     engine = TemplateEngine(variables)
     template_dir = templates_root / language

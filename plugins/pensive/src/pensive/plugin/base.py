@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from pensive.workflows.code_review import CodeReviewWorkflow
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -36,8 +38,6 @@ class PensivePlugin:
         Returns:
             Review results dictionary
         """
-        from pensive.workflows.code_review import CodeReviewWorkflow
-
         workflow = CodeReviewWorkflow(config=self.config)
         return workflow.execute_full_review(repo_path)
 

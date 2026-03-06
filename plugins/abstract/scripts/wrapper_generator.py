@@ -17,6 +17,7 @@ def generate_wrapper(
     command_name: str,
     target_superpower: str,
     output_path: Path | None = None,
+    dry_run: bool = False,
 ) -> str:
     """Generate a wrapper class for delegating to a superpower.
 
@@ -25,6 +26,7 @@ def generate_wrapper(
         command_name: Name of the command (e.g., "pr-review", "refine-code")
         target_superpower: Name of the superpower to wrap (e.g., "CodeReviewer")
         output_path: Optional path to write the wrapper file
+        dry_run: Preview generated code without writing to disk
 
     Returns:
         Generated wrapper code as string
@@ -104,9 +106,13 @@ def main() -> {class_name}Wrapper:
 
     # Write to file if output_path provided
     if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(wrapper_code)
-        print(f"✓ Generated wrapper: {output_path}")
+        if dry_run:
+            print(f"[DRY RUN] Would write: {output_path}")
+            print(wrapper_code)
+        else:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(wrapper_code)
+            print(f"✓ Generated wrapper: {output_path}")
 
     return wrapper_code
 
@@ -187,6 +193,11 @@ def main() -> None:
         default=Path.cwd(),
         help="Repository root path (default: current directory)",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview changes without writing files",
+    )
 
     args = parser.parse_args()
 
@@ -205,14 +216,23 @@ def main() -> None:
         for plugin, command, superpower in wrappers:
             print(f"  - {plugin}/{command} -> {superpower}")
 
-            # Generate wrapper
             output_dir = repo_root / "plugins" / plugin / "wrappers"
             output_file = output_dir / f"{command.replace('-', '_')}_wrapper.py"
-            generate_wrapper(plugin, command, superpower, output_file)
+
+            if args.dry_run:
+                print(f"[DRY RUN] Would generate wrapper: {output_file}")
+            else:
+                generate_wrapper(plugin, command, superpower, output_file)
 
     elif args.plugin and args.command and args.superpower:
         # Manual mode
-        code = generate_wrapper(args.plugin, args.command, args.superpower, args.output)
+        code = generate_wrapper(
+            args.plugin,
+            args.command,
+            args.superpower,
+            args.output,
+            dry_run=args.dry_run,
+        )
 
         if not args.output:
             # Print to stdout if no output file specified

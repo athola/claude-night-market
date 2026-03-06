@@ -19,6 +19,7 @@ Scribe helps maintain high-quality documentation by detecting AI-generated conte
 | `slop-detector` | Detect AI-generated content markers | Scanning docs for AI tells |
 | `style-learner` | Extract writing style from exemplar text | Creating style profiles |
 | `doc-generator` | Generate/remediate documentation | Writing or fixing docs |
+| `tech-tutorial` | Plan, draft, and refine technical tutorials | Writing step-by-step developer guides |
 
 ## Commands
 

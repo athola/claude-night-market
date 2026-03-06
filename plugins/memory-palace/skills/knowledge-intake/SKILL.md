@@ -118,8 +118,9 @@ When a user shares a link:
 4. STORE    → Create structured knowledge entry
 5. VALIDATE → Scribe verification (slop scan + doc verify)
 6. CONNECT  → Link to existing palace structures
-7. APPLY    → Route to codebase or infrastructure updates
-8. PRUNE    → Identify displaced/outdated knowledge
+7. PROMOTE  → Offer Discussion promotion (score 80+)
+8. APPLY    → Route to codebase or infrastructure updates
+9. PRUNE    → Identify displaced/outdated knowledge
 ```
 
 ### Step 5: Scribe Validation (Required)
@@ -144,6 +145,20 @@ Run `Skill(scribe:doc-verify)` to validate:
 
 **DO NOT finalize entries with slop score > 2.5** - rewrite with concrete specifics.
 **Verification:** Run the command with `--help` flag to verify availability.
+
+### Step 7: Discussion Promotion (Score 80+ Only)
+
+When the evaluation score is 80-100 (evergreen), follow
+`modules/discussion-promotion.md` to offer promoting the
+entry to the "Knowledge" Discussion category.
+
+- If the entry already has a `discussion_url` field, offer
+  "Update Discussion" instead
+- If the user declines or promotion fails, continue to
+  Step 8 (APPLY)
+- If the score is below 80, skip this step entirely
+
+This step is optional. It never blocks the intake workflow.
 
 ## Evaluation Framework
 
@@ -567,7 +582,9 @@ processed → [Archive] → queue/archive/
 - **Storage Patterns**: See `modules/storage-patterns.md`
 - **KonMari Tidying Philosophy**: See `modules/konmari-tidying.md`
 - **Tidying Workflows**: See `modules/pruning-workflows.md`
-- **Discussion Promotion**: See `modules/discussion-promotion.md`
+- **Discussion Promotion**: Invoked in Step 7 (PROMOTE)
+  for evergreen entries (score 80+).
+  See `modules/discussion-promotion.md` for full workflow.
 
 ## Hook Integration
 

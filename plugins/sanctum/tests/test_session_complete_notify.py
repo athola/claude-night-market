@@ -198,7 +198,7 @@ class TestZellijTabDetection:
     def test_handles_timeout(self) -> None:
         """Given command timeout, returns None gracefully."""
         with patch("session_complete_notify.subprocess.run") as mock_run:
-            from subprocess import TimeoutExpired
+            from subprocess import TimeoutExpired  # noqa: PLC0415
 
             mock_run.side_effect = TimeoutExpired("zellij", 0.5)
             result = get_zellij_tab_name()
@@ -657,7 +657,7 @@ class TestIntegrationWithNotifySend:
     @pytest.mark.integration
     def test_actual_linux_notification(self) -> None:
         """Given notify-send installed, sends actual notification."""
-        import shutil
+        import shutil  # noqa: PLC0415
 
         if not shutil.which("notify-send"):
             pytest.skip("notify-send not found on system")

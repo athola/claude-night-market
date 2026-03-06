@@ -75,7 +75,7 @@ class TestPensiveIntegration:
         # Act
         skills_to_execute = ["code-reviewer", "api-review"]
         with patch(
-            "pensive.workflows.skill_coordinator.dispatch_agent",
+            "pensive.skills.unified_review.coordinator_dispatch",
         ) as mock_dispatch:
             # Mock different skill responses
             mock_dispatch.side_effect = [

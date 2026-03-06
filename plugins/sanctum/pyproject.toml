@@ -1,6 +1,6 @@
 [project]
 name = "sanctum"
-version = "1.5.5"
+version = "1.5.6"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
@@ -65,6 +65,7 @@ exclude = ['^\.venv', '^\.uv-cache']
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+pythonpath = ["scripts", "hooks", "src"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
