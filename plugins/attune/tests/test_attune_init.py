@@ -1032,7 +1032,7 @@ class TestCopyTemplatesBackup:
         """Given backup=True, when copying, then backup subdir name matches
         YYYYMMDD_HHMMSS timestamp pattern.
         """
-        import re
+        import re  # noqa: PLC0415
 
         # Given
         templates_root = tmp_path / "templates"

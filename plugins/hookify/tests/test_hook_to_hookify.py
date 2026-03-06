@@ -12,6 +12,7 @@ try:
         DEFAULT_MAX_COMPLEXITY,
         DEFAULT_MIN_CONFIDENCE,
         ExtractedPattern,
+        HookAnalysis,
         HookAnalyzer,
         _detect_tool_event,
         analyze_hook,
@@ -25,6 +26,7 @@ except ImportError:
         DEFAULT_MAX_COMPLEXITY,
         DEFAULT_MIN_CONFIDENCE,
         ExtractedPattern,
+        HookAnalysis,
         HookAnalyzer,
         _detect_tool_event,
         analyze_hook,
@@ -141,8 +143,6 @@ class TestGenerateHookifyRule:
 
     def test_generates_simple_rule(self):
         """Given analysis with one pattern, generates valid rule."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("test_hook.py"),
             hook_type="PreToolUse",
@@ -164,8 +164,6 @@ class TestGenerateHookifyRule:
 
     def test_generates_conditions_for_multiple_patterns(self):
         """Given analysis with multiple patterns, generates conditions."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("multi_hook.py"),
             hook_type="PreToolUse",
@@ -307,8 +305,6 @@ class TestGenerateHookifyRuleEdgeCases:
 
     def test_returns_empty_for_unconvertible(self):
         """Given unconvertible analysis, returns empty string."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("complex.py"),
             convertible=False,
@@ -321,8 +317,6 @@ class TestGenerateHookifyRuleEdgeCases:
 
     def test_generates_single_non_regex_pattern(self):
         """Given single non-regex pattern, generates conditions block."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("contains_hook.py"),
             hook_type="PreToolUse",
@@ -620,8 +614,6 @@ class TestDetectToolEvent:
 
     def test_command_patterns_map_to_bash(self):
         """Given patterns on 'command' field, returns 'bash' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("cmd_hook.py"),
             hook_type="PreToolUse",
@@ -639,8 +631,6 @@ class TestDetectToolEvent:
 
     def test_file_path_patterns_map_to_file(self):
         """Given patterns on 'file_path' field, returns 'file' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("path_hook.py"),
             hook_type="PreToolUse",
@@ -658,8 +648,6 @@ class TestDetectToolEvent:
 
     def test_content_patterns_map_to_file(self):
         """Given patterns on 'content' field, returns 'file' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("content_hook.py"),
             hook_type="PostToolUse",
@@ -677,8 +665,6 @@ class TestDetectToolEvent:
 
     def test_new_text_patterns_map_to_file(self):
         """Given patterns on 'new_text' field, returns 'file' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("write_hook.py"),
             hook_type="PreToolUse",
@@ -696,8 +682,6 @@ class TestDetectToolEvent:
 
     def test_old_text_patterns_map_to_file(self):
         """Given patterns on 'old_text' field, returns 'file' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("edit_hook.py"),
             hook_type="PreToolUse",
@@ -715,8 +699,6 @@ class TestDetectToolEvent:
 
     def test_mixed_fields_fall_back_to_bash(self):
         """Given patterns on both command and file fields, returns 'bash'."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("mixed_hook.py"),
             hook_type="PreToolUse",
@@ -739,8 +721,6 @@ class TestDetectToolEvent:
 
     def test_session_start_maps_to_prompt(self):
         """Given SessionStart hook type, returns 'prompt' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("session_hook.py"),
             hook_type="SessionStart",
@@ -758,8 +738,6 @@ class TestDetectToolEvent:
 
     def test_stop_maps_to_stop(self):
         """Given Stop hook type, returns 'stop' event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("stop_hook.py"),
             hook_type="Stop",
@@ -777,8 +755,6 @@ class TestDetectToolEvent:
 
     def test_no_patterns_defaults_to_bash(self):
         """Given no patterns, returns 'bash' as the safe default."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("empty_hook.py"),
             hook_type="PreToolUse",
@@ -790,8 +766,6 @@ class TestDetectToolEvent:
 
     def test_multiple_file_patterns_map_to_file(self):
         """Given multiple patterns all on file fields, returns 'file'."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("multi_file_hook.py"),
             hook_type="PostToolUse",
@@ -819,8 +793,6 @@ class TestDetectToolEvent:
         so it does not trigger either detection path, resulting in
         the bash default.
         """
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("prompt_check.py"),
             hook_type="PreToolUse",
@@ -842,8 +814,6 @@ class TestGenerateHookifyRuleToolEvent:
 
     def test_file_hook_generates_file_event(self):
         """Given PreToolUse hook with file_path pattern, generates file event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("protect_env.py"),
             hook_type="PreToolUse",
@@ -864,8 +834,6 @@ class TestGenerateHookifyRuleToolEvent:
 
     def test_command_hook_generates_bash_event(self):
         """Given PreToolUse hook with command pattern, generates bash event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("block_rm.py"),
             hook_type="PreToolUse",
@@ -885,8 +853,6 @@ class TestGenerateHookifyRuleToolEvent:
 
     def test_content_hook_generates_file_event(self):
         """Given PostToolUse hook with content pattern, generates file event."""
-        from scripts.hook_to_hookify import HookAnalysis
-
         analysis = HookAnalysis(
             file_path=Path("scan_content.py"),
             hook_type="PostToolUse",

@@ -107,24 +107,42 @@ If the file was produced by a known task that is now
 missing from the task list, add a task record for it
 retroactively and mark it `completed`.
 
-If the origin is unknown, treat the file as an orphan:
+If the origin is unknown, treat the file as an orphan.
+Always use named stashes with descriptive messages so the
+work can be located later:
 
 ```
-git stash push -m "orphan: <file> from unknown task" -- <file>
+git stash push -m "orphan: <file> from unknown task [$(date +%F)]" -- <file>
+git stash list   # verify the stash was created and note its index
 ```
 
-Then decide separately whether to adopt or discard.
+Record the stash index and message in the task list so it
+is not lost. Then decide separately whether to adopt or
+discard.
 
 #### Staged changes with no corresponding in-progress task
 
 ```
-git diff --cached       # what is staged
-git stash               # move it out of the way
+git diff --cached       # inspect what is staged
+git stash push -m "unowned-staged: $(date +%F)"   # named stash
+git stash list          # verify creation
 ```
 
-Then reconcile: find the task this work belongs to and
-reassign the stash to it, or discard if the work is
+Record the stash index in the task list. Then reconcile:
+find the task this work belongs to and reassign the stash
+to it, or discard only after confirming the work is
 superseded.
+
+**Stash safety rules:**
+
+- Always use `git stash push -m "<description>"` (never
+  bare `git stash` which creates unnamed entries)
+- Immediately verify with `git stash list` after pushing
+- Record the stash ref (e.g., `stash@{0}`) in the task
+  description so it can be found across sessions
+- Apply with `git stash pop stash@{N}` using the explicit
+  index, not bare `git stash pop` which always takes the
+  most recent entry
 
 ### Step 4: Re-verify after reconciliation
 

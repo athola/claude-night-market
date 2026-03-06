@@ -71,13 +71,20 @@ If the current version of the file is internally consistent
 (parses, tests pass for that file), the partial write is safe
 to keep and the task can resume from the last completed step.
 
-If the file is corrupt or partially written:
+If the file is corrupt or partially written, recover from
+git history rather than using destructive restore commands:
 
 ```
-git checkout HEAD -- <file>    # restore last committed version
+git show HEAD:<file> > <file>.recovered   # extract last committed version
+git diff HEAD -- <file>                   # review what changed
+# Compare <file> with <file>.recovered to salvage valid work
+# Then replace <file> with the corrected version
+rm <file>.recovered
 ```
 
-Then restart the task from the beginning.
+Never use `git checkout -- <file>` as it discards work
+irreversibly. Always inspect the diff first so partial
+progress can be preserved.
 
 ### Step 4: Decide: resume or restart
 
@@ -106,10 +113,25 @@ git add <files>                # re-stage work that survived
 If restarting:
 
 ```
-git checkout HEAD -- <files>   # revert all touched files
+# Review what changed before reverting anything
+git diff HEAD -- <files>
+
+# Extract committed versions for comparison
+for f in <files>; do
+  git show HEAD:"$f" > "$f.baseline"
+done
+
+# After confirming no salvageable work, restore from history
+for f in <files>; do
+  git show HEAD:"$f" > "$f"
+  rm -f "$f.baseline"
+done
 git reset HEAD <files>         # unstage
 # Update task list: reset task to pending
 ```
+
+Never use `git checkout -- <files>` as it discards all
+changes without review. Always diff first.
 
 Mark the crashed task with a note in its description recording
 the crash and the recovery action taken.

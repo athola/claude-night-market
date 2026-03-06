@@ -15,6 +15,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
+from dogfooder.validator import (
+    MakefileTargetGenerator,
+    generate_makefile,
+    run_preflight_checks,
+    validate_working_directory,
+)
+
 
 class TestDogfooderValidatorImports:
     """Feature: dogfooder.validator module exports correct symbols
@@ -31,8 +38,6 @@ class TestDogfooderValidatorImports:
         When I import MakefileTargetGenerator from dogfooder.validator
         Then the import succeeds and the symbol is a class
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         assert isinstance(MakefileTargetGenerator, type)
 
     @pytest.mark.unit
@@ -42,8 +47,6 @@ class TestDogfooderValidatorImports:
         When I import generate_makefile from dogfooder.validator
         Then the import succeeds and the symbol is callable
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         assert callable(generate_makefile)
 
     @pytest.mark.unit
@@ -53,8 +56,6 @@ class TestDogfooderValidatorImports:
         When I import run_preflight_checks from dogfooder.validator
         Then the import succeeds and the symbol is callable
         """
-        from dogfooder.validator import run_preflight_checks  # noqa: PLC0415
-
         assert callable(run_preflight_checks)
 
     @pytest.mark.unit
@@ -64,8 +65,6 @@ class TestDogfooderValidatorImports:
         When I import validate_working_directory from dogfooder.validator
         Then the import succeeds and the symbol is callable
         """
-        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
-
         assert callable(validate_working_directory)
 
 
@@ -84,8 +83,6 @@ class TestMakefileTargetGeneratorFromValidator:
         When generate_target() is called
         Then the result contains a properly formatted Makefile target
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         result = gen.generate_target(
             plugin="myplugin",
@@ -104,8 +101,6 @@ class TestMakefileTargetGeneratorFromValidator:
         When generate_demo_targets() is called
         Then a test-<name> target is generated for each command
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         commands = [{"type": "slash-command", "command": "check", "args": ""}]
 
@@ -121,8 +116,6 @@ class TestMakefileTargetGeneratorFromValidator:
         When generate_demo_targets() is called
         Then a demo-<plugin>-commands aggregate target is generated
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         commands = [
             {"type": "slash-command", "command": "cmd-one", "args": ""},
@@ -140,8 +133,6 @@ class TestMakefileTargetGeneratorFromValidator:
         When _get_live_command() is called
         Then None is returned
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         result = gen._get_live_command("nonexistent-plugin", "nonexistent-cmd")
 
@@ -154,8 +145,6 @@ class TestMakefileTargetGeneratorFromValidator:
         When _get_live_command() is called
         Then a non-empty string is returned
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         result = gen._get_live_command("conserve", "bloat-scan")
 
@@ -177,8 +166,6 @@ class TestGenerateDemoTargetsNoDuplicate:
         When generate_demo_targets() is called
         Then demo-{plugin}-commands: appears exactly once
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         commands = [
             {"type": "slash-command", "command": "cmd-one", "args": ""},
@@ -205,8 +192,6 @@ class TestRunPreflightChecks:
         When run_preflight_checks() is called
         Then True is returned
         """
-        from dogfooder.validator import run_preflight_checks  # noqa: PLC0415
-
         plugins = tmp_path / "plugins"
         plugins.mkdir()
 
@@ -219,8 +204,6 @@ class TestRunPreflightChecks:
         When run_preflight_checks() is called
         Then False is returned
         """
-        from dogfooder.validator import run_preflight_checks  # noqa: PLC0415
-
         nonexistent = tmp_path / "ghost"
 
         assert run_preflight_checks(nonexistent, "plugins") is False
@@ -232,8 +215,6 @@ class TestRunPreflightChecks:
         When run_preflight_checks() is called
         Then False is returned
         """
-        from dogfooder.validator import run_preflight_checks  # noqa: PLC0415
-
         # tmp_path exists but has no plugins/ child
         assert run_preflight_checks(tmp_path, "plugins") is False
 
@@ -253,8 +234,6 @@ class TestGenerateMakefile:
         When generate_makefile() is called without dry_run
         Then a Makefile is created in the plugin directory
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         plugin_dir = tmp_path / "myplugin"
         plugin_dir.mkdir()
         (plugin_dir / "pyproject.toml").write_text("[project]\nname = 'myplugin'\n")
@@ -271,8 +250,6 @@ class TestGenerateMakefile:
         When generate_makefile() is called with dry_run=True
         Then True is returned but no Makefile is written
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         plugin_dir = tmp_path / "myplugin"
         plugin_dir.mkdir()
         (plugin_dir / "pyproject.toml").write_text("[project]\nname = 'myplugin'\n")
@@ -298,8 +275,6 @@ class TestGenerateTargetLiveCommand:
         When generate_target() is called
         Then the recipe includes 'Running' and the actual command
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         result = gen.generate_target(
             plugin="conserve",
@@ -327,8 +302,6 @@ class TestGenerateDemoTargetsCliInvocation:
         When generate_demo_targets() is called
         Then a demo target for the CLI invocation is generated
         """
-        from dogfooder.validator import MakefileTargetGenerator  # noqa: PLC0415
-
         gen = MakefileTargetGenerator(tmp_path)
         commands = [
             {
@@ -358,8 +331,6 @@ class TestGenerateMakefileLanguages:
         When generate_makefile() is called
         Then a Makefile with cargo targets is created
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         plugin_dir = tmp_path / "rust-plugin"
         plugin_dir.mkdir()
         (plugin_dir / "Cargo.toml").write_text('[package]\nname = "rust-plugin"\n')
@@ -378,8 +349,6 @@ class TestGenerateMakefileLanguages:
         When generate_makefile() is called
         Then a Makefile with npm targets is created
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         plugin_dir = tmp_path / "ts-plugin"
         plugin_dir.mkdir()
         (plugin_dir / "package.json").write_text('{"name": "ts-plugin"}')
@@ -397,8 +366,6 @@ class TestGenerateMakefileLanguages:
         When generate_makefile() is called
         Then a Python-style Makefile is created
         """
-        from dogfooder.validator import generate_makefile  # noqa: PLC0415
-
         plugin_dir = tmp_path / "unknown-plugin"
         plugin_dir.mkdir()
 
@@ -426,8 +393,6 @@ class TestValidateWorkingDirectory:
         """
         import os  # noqa: PLC0415
 
-        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
-
         original = os.getcwd()
         try:
             os.chdir(tmp_path)
@@ -444,8 +409,6 @@ class TestValidateWorkingDirectory:
         Then False is returned
         """
         import os  # noqa: PLC0415
-
-        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
 
         plugins = tmp_path / "plugins" / "ghost"
         plugins.mkdir(parents=True)
@@ -466,8 +429,6 @@ class TestValidateWorkingDirectory:
         Then True is returned
         """
         import os  # noqa: PLC0415
-
-        from dogfooder.validator import validate_working_directory  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "good"
         plugin_dir.mkdir(parents=True)

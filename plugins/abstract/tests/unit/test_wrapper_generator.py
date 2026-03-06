@@ -5,6 +5,7 @@ Covers generate_wrapper(), auto_detect_wrappers(), and CLI main().
 
 from __future__ import annotations
 
+import importlib
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -14,6 +15,7 @@ import pytest
 # Add scripts directory to path so the module can be imported directly.
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+import wrapper_generator  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Module import fixture
@@ -21,18 +23,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 
 @pytest.fixture()
-def wg(monkeypatch: pytest.MonkeyPatch):
-    """Import wrapper_generator with a clean module state.
+def wg():
+    """Reload wrapper_generator with a clean module state.
 
-    Re-importing ensures monkeypatches on module-level state don't bleed
+    Reloading ensures monkeypatches on module-level state don't bleed
     between tests.
     """
-    if "wrapper_generator" in sys.modules:
-        del sys.modules["wrapper_generator"]
-
-    import wrapper_generator  # noqa: PLC0415
-
-    return wrapper_generator
+    return importlib.reload(wrapper_generator)
 
 
 # ---------------------------------------------------------------------------

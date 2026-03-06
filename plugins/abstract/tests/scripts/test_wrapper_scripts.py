@@ -16,6 +16,12 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from compliance_checker import ComplianceChecker
+from improvement_suggester import ImprovementSuggester
+from skills_auditor import SkillsAuditor
+from token_usage_tracker import TokenUsageTracker
+from tool_performance_analyzer import ToolPerformanceAnalyzer
+from update_changelog import main, update_changelog
 
 # ---------------------------------------------------------------------------
 # token_usage_tracker.py
@@ -28,8 +34,6 @@ class TestTokenUsageTracker:
     @pytest.mark.unit
     def test_import_and_instantiate(self, tmp_path: Path) -> None:
         """Scenario: TokenUsageTracker can be imported and instantiated."""
-        from token_usage_tracker import TokenUsageTracker
-
         tracker = TokenUsageTracker(tmp_path)
         assert tracker.skills_dir == tmp_path
         assert tracker.optimal_limit == 2000
@@ -41,8 +45,6 @@ class TestTokenUsageTracker:
         When track_usage is called
         Then total_skills is 0
         """
-        from token_usage_tracker import TokenUsageTracker
-
         tracker = TokenUsageTracker(tmp_path)
         result = tracker.track_usage()
         assert result["total_skills"] == 0
@@ -55,8 +57,6 @@ class TestTokenUsageTracker:
         When track_usage is called
         Then total_skills is 2
         """
-        from token_usage_tracker import TokenUsageTracker
-
         skill_dir1 = tmp_path / "skill1"
         skill_dir1.mkdir()
         (skill_dir1 / "SKILL.md").write_text("x" * 800)  # 200 tokens
@@ -73,8 +73,6 @@ class TestTokenUsageTracker:
     @pytest.mark.unit
     def test_track_usage_optimal_vs_over_limit(self, tmp_path: Path) -> None:
         """Scenario: Files classified as optimal or over-limit correctly."""
-        from token_usage_tracker import TokenUsageTracker
-
         # Small file (under optimal_limit of 2000 tokens)
         skill_dir = tmp_path / "small-skill"
         skill_dir.mkdir()
@@ -88,8 +86,6 @@ class TestTokenUsageTracker:
     @pytest.mark.unit
     def test_get_usage_report_returns_string(self, tmp_path: Path) -> None:
         """Scenario: get_usage_report returns a formatted string."""
-        from token_usage_tracker import TokenUsageTracker
-
         tracker = TokenUsageTracker(tmp_path)
         report = tracker.get_usage_report()
         assert isinstance(report, str)
@@ -98,8 +94,6 @@ class TestTokenUsageTracker:
     @pytest.mark.unit
     def test_custom_optimal_limit(self, tmp_path: Path) -> None:
         """Scenario: Custom optimal_limit is stored correctly."""
-        from token_usage_tracker import TokenUsageTracker
-
         tracker = TokenUsageTracker(tmp_path, optimal_limit=500, max_limit=1000)
         assert tracker.optimal_limit == 500
         assert tracker.max_limit == 1000
@@ -116,16 +110,12 @@ class TestToolPerformanceAnalyzer:
     @pytest.mark.unit
     def test_import_and_instantiate(self, tmp_path: Path) -> None:
         """Scenario: ToolPerformanceAnalyzer can be imported and instantiated."""
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
-
         analyzer = ToolPerformanceAnalyzer(tmp_path)
         assert analyzer.skills_dir == tmp_path
 
     @pytest.mark.unit
     def test_analyze_tools_empty_dir(self, tmp_path: Path) -> None:
         """Scenario: Empty directory returns zero tools."""
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
-
         analyzer = ToolPerformanceAnalyzer(tmp_path)
         result = analyzer.analyze_tools()
         assert result["total_tools"] == 0
@@ -134,8 +124,6 @@ class TestToolPerformanceAnalyzer:
     @pytest.mark.unit
     def test_get_performance_report_returns_string(self, tmp_path: Path) -> None:
         """Scenario: get_performance_report returns a string."""
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
-
         analyzer = ToolPerformanceAnalyzer(tmp_path)
         report = analyzer.get_performance_report()
         assert isinstance(report, str)
@@ -153,16 +141,12 @@ class TestComplianceCheckerWrapper:
     @pytest.mark.unit
     def test_import_compliance_checker(self, tmp_path: Path) -> None:
         """Scenario: ComplianceChecker can be imported."""
-        from compliance_checker import ComplianceChecker
-
         checker = ComplianceChecker(tmp_path)
         assert checker is not None
 
     @pytest.mark.unit
     def test_check_compliance_empty_dir(self, tmp_path: Path) -> None:
         """Scenario: check_compliance on empty dir returns results dict."""
-        from compliance_checker import ComplianceChecker
-
         checker = ComplianceChecker(tmp_path)
         results = checker.check_compliance()
         assert isinstance(results, dict)
@@ -179,8 +163,6 @@ class TestImprovementSuggesterWrapper:
     @pytest.mark.unit
     def test_import_improvement_suggester(self, tmp_path: Path) -> None:
         """Scenario: ImprovementSuggester can be imported."""
-        from improvement_suggester import ImprovementSuggester
-
         suggester = ImprovementSuggester(tmp_path)
         assert suggester is not None
 
@@ -196,16 +178,12 @@ class TestSkillsAuditorWrapper:
     @pytest.mark.unit
     def test_import_skills_auditor(self, tmp_path: Path) -> None:
         """Scenario: SkillsAuditor can be imported."""
-        from skills_auditor import SkillsAuditor
-
         auditor = SkillsAuditor(tmp_path)
         assert auditor is not None
 
     @pytest.mark.unit
     def test_audit_skills_empty_dir(self, tmp_path: Path) -> None:
         """Scenario: audit_skills on empty dir returns results."""
-        from skills_auditor import SkillsAuditor
-
         auditor = SkillsAuditor(tmp_path)
         results = auditor.audit_skills()
         assert isinstance(results, dict)
@@ -227,9 +205,7 @@ class TestUpdateChangelog:
         When update_changelog is called
         Then no crash and no output
         """
-        import os
-
-        from update_changelog import update_changelog
+        import os  # noqa: PLC0415
 
         entries = {"Added": ["New feature."]}
         original = os.getcwd()
@@ -242,9 +218,7 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_no_unreleased_section(self, tmp_path: Path) -> None:
         """Scenario: update_changelog silently exits when no Unreleased section."""
-        import os
-
-        from update_changelog import update_changelog
+        import os  # noqa: PLC0415
 
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text("# Changelog\n\n## [1.0.0] - 2024-01-01\n\nContent.\n")
@@ -262,9 +236,7 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_inserts_entry(self, tmp_path: Path) -> None:
         """Scenario: update_changelog inserts new entries after Unreleased section."""
-        import os
-
-        from update_changelog import update_changelog
+        import os  # noqa: PLC0415
 
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
@@ -284,9 +256,7 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_with_version(self, tmp_path: Path) -> None:
         """Scenario: update_changelog uses provided version in entry header."""
-        import os
-
-        from update_changelog import update_changelog
+        import os  # noqa: PLC0415
 
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
@@ -305,9 +275,7 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_deduplicates_entries(self, tmp_path: Path) -> None:
         """Scenario: Duplicate changelog entries are removed."""
-        import os
-
-        from update_changelog import update_changelog
+        import os  # noqa: PLC0415
 
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
@@ -330,9 +298,7 @@ class TestUpdateChangelog:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: main --validate-only with valid changelog exits 0."""
-        import os
-
-        from update_changelog import main
+        import os  # noqa: PLC0415
 
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
@@ -354,9 +320,7 @@ class TestUpdateChangelog:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: main --validate-only with no changelog exits 1."""
-        import os
-
-        from update_changelog import main
+        import os  # noqa: PLC0415
 
         original = os.getcwd()
         os.chdir(tmp_path)

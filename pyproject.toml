@@ -131,6 +131,7 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
+    "PLC0415",  # import-outside-top-level
 ]
 extend-ignore = [
     "E501",  # Line too long (handled by formatter)
@@ -158,6 +159,8 @@ extend-ignore = [
     "ARG002",  # unused-method-argument
 ]
 "**/__init__.py" = ["F401"]  # Unused imports in __init__.py
+"**/hooks/*.py" = ["PLC0415"]  # Hooks use deferred imports for optional deps
+"**/hooks/shared/*.py" = ["PLC0415"]  # Hook shared modules use deferred imports
 
 [tool.mypy]
 python_version = "3.12"

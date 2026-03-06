@@ -5,6 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
+from pensive.workflows.skill_coordinator import (
+    dispatch_agent as coordinator_dispatch,
+)
+
 from .base import AnalysisResult, BaseReviewSkill
 
 
@@ -18,11 +22,7 @@ def dispatch_agent(skill_name: str, _context: Any) -> str:
     Returns:
         Skill execution result
     """
-    import asyncio
-
-    from pensive.workflows.skill_coordinator import (
-        dispatch_agent as coordinator_dispatch,
-    )
+    import asyncio  # noqa: PLC0415
 
     # Run the async dispatch synchronously
     # Use asyncio.new_event_loop() to avoid deprecation warning

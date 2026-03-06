@@ -16,6 +16,12 @@ import pytest
 # Allow importing from the scripts directory
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
+from dogfooder.parser import (
+    DocumentationCommandExtractor,
+    MakefileAnalyzer,
+    load_target_catalog,
+)
+
 
 class TestDogfooderParserImports:
     """Feature: dogfooder.parser module exports correct symbols
@@ -32,8 +38,6 @@ class TestDogfooderParserImports:
         When I import load_target_catalog from dogfooder.parser
         Then the import succeeds and the symbol is callable
         """
-        from dogfooder.parser import load_target_catalog  # noqa: PLC0415
-
         assert callable(load_target_catalog)
 
     @pytest.mark.unit
@@ -43,8 +47,6 @@ class TestDogfooderParserImports:
         When I import DocumentationCommandExtractor from dogfooder.parser
         Then the import succeeds and the symbol is a class
         """
-        from dogfooder.parser import DocumentationCommandExtractor  # noqa: PLC0415
-
         assert isinstance(DocumentationCommandExtractor, type)
 
     @pytest.mark.unit
@@ -54,8 +56,6 @@ class TestDogfooderParserImports:
         When I import MakefileAnalyzer from dogfooder.parser
         Then the import succeeds and the symbol is a class
         """
-        from dogfooder.parser import MakefileAnalyzer  # noqa: PLC0415
-
         assert isinstance(MakefileAnalyzer, type)
 
 
@@ -74,8 +74,6 @@ class TestLoadTargetCatalogFromParser:
         When load_target_catalog() is called from dogfooder.parser
         Then it returns a dict with the expected top-level keys
         """
-        from dogfooder.parser import load_target_catalog  # noqa: PLC0415
-
         catalog = load_target_catalog()
 
         assert isinstance(catalog, dict)
@@ -91,8 +89,6 @@ class TestLoadTargetCatalogFromParser:
         When load_target_catalog() is called
         Then it resolves ../../data/makefile_target_catalog.yaml correctly
         """
-        from dogfooder.parser import load_target_catalog  # noqa: PLC0415
-
         # Verify no exception is raised and result is non-empty
         catalog = load_target_catalog()
         assert len(catalog) > 0
@@ -113,8 +109,6 @@ class TestDocumentationCommandExtractorFromParser:
         When extract_from_file() is called
         Then the slash commands are returned with correct metadata
         """
-        from dogfooder.parser import DocumentationCommandExtractor  # noqa: PLC0415
-
         readme = tmp_path / "README.md"
         readme.write_text("Use `/my-command` to do things.\n")
 
@@ -132,8 +126,6 @@ class TestDocumentationCommandExtractorFromParser:
         When extract_all() is called
         Then results are keyed by relative file path
         """
-        from dogfooder.parser import DocumentationCommandExtractor  # noqa: PLC0415
-
         plugin_a = tmp_path / "plugins" / "alpha"
         plugin_a.mkdir(parents=True)
         (plugin_a / "README.md").write_text("Use `/cmd-a`.\n")
@@ -155,8 +147,6 @@ class TestDocumentationCommandExtractorFromParser:
         When extract_from_file() is called
         Then an empty list is returned
         """
-        from dogfooder.parser import DocumentationCommandExtractor  # noqa: PLC0415
-
         doc = tmp_path / "doc.md"
         doc.write_text("# Just a heading\n\nNo commands here.\n")
 
@@ -179,8 +169,6 @@ class TestMakefileAnalyzerFromParser:
         When has_target('help') is called
         Then True is returned
         """
-        from dogfooder.parser import MakefileAnalyzer  # noqa: PLC0415
-
         mf = tmp_path / "Makefile"
         mf.write_text(".PHONY: help\nhelp:\n\t@echo help\n")
 
@@ -194,8 +182,6 @@ class TestMakefileAnalyzerFromParser:
         When has_target('demo-foo') is called
         Then False is returned
         """
-        from dogfooder.parser import MakefileAnalyzer  # noqa: PLC0415
-
         mf = tmp_path / "Makefile"
         mf.write_text(".PHONY: help\nhelp:\n\t@echo help\n")
 
@@ -209,8 +195,6 @@ class TestMakefileAnalyzerFromParser:
         When get_missing_targets() is called
         Then only 'demo-foo' is returned as missing
         """
-        from dogfooder.parser import MakefileAnalyzer  # noqa: PLC0415
-
         mf = tmp_path / "Makefile"
         mf.write_text(".PHONY: help\nhelp:\n\t@echo help\n")
 
@@ -225,8 +209,6 @@ class TestMakefileAnalyzerFromParser:
         When MakefileAnalyzer is constructed
         Then targets is an empty dict and has_target always returns False
         """
-        from dogfooder.parser import MakefileAnalyzer  # noqa: PLC0415
-
         mf = tmp_path / "Makefile"  # not created
 
         analyzer = MakefileAnalyzer(mf)

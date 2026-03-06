@@ -11,6 +11,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import context_optimizer
+from context_optimizer import ContextOptimizer, ContextOptimizerCLI
+
+from abstract.config import AbstractConfig
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -20,16 +24,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 @pytest.fixture
 def default_config():
     """Default AbstractConfig with context_optimizer populated."""
-    from abstract.config import AbstractConfig
-
     return AbstractConfig()
 
 
 @pytest.fixture
 def optimizer(default_config):
     """ContextOptimizer with default config."""
-    from context_optimizer import ContextOptimizer
-
     return ContextOptimizer(default_config)
 
 
@@ -55,8 +55,6 @@ class TestContextOptimizerInit:
     @pytest.mark.unit
     def test_init_with_valid_config(self, default_config) -> None:
         """Initializes with valid config without error."""
-        from context_optimizer import ContextOptimizer
-
         optimizer = ContextOptimizer(default_config)
         assert optimizer is not None
         assert optimizer.config is default_config
@@ -64,10 +62,6 @@ class TestContextOptimizerInit:
     @pytest.mark.unit
     def test_init_without_context_optimizer_raises(self) -> None:
         """Config without context_optimizer sub-config raises ValueError."""
-        from context_optimizer import ContextOptimizer
-
-        from abstract.config import AbstractConfig
-
         config = AbstractConfig()
         config.context_optimizer = None
         with pytest.raises(ValueError, match="not initialized"):
@@ -252,10 +246,6 @@ class TestAnalyzeDirectory:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """analyze_directory skips files that raise exceptions."""
-        from context_optimizer import ContextOptimizer
-
-        from abstract.config import AbstractConfig
-
         config = AbstractConfig()
         opt = ContextOptimizer(config)
 
@@ -339,16 +329,12 @@ class TestContextOptimizerCLI:
     @pytest.mark.unit
     def test_cli_can_be_instantiated(self) -> None:
         """ContextOptimizerCLI instantiates without crash."""
-        from context_optimizer import ContextOptimizerCLI
-
         cli = ContextOptimizerCLI()
         assert cli is not None
 
     @pytest.mark.unit
     def test_cli_format_text_analyze_command(self, tmp_path: Path) -> None:
         """format_text for analyze command returns string."""
-        from context_optimizer import ContextOptimizerCLI
-
         cli = ContextOptimizerCLI()
         data = {
             "command": "analyze",
@@ -364,10 +350,6 @@ class TestContextOptimizerCLI:
     @pytest.mark.unit
     def test_cli_format_text_report_command(self, tmp_path: Path) -> None:
         """format_text for report command with empty results."""
-        from context_optimizer import ContextOptimizer, ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         config = AbstractConfig()
         opt = ContextOptimizer(config)
@@ -383,10 +365,6 @@ class TestContextOptimizerCLI:
     @pytest.mark.unit
     def test_cli_format_text_stats_command(self, tmp_path: Path) -> None:
         """format_text for stats command."""
-        from context_optimizer import ContextOptimizer, ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         config = AbstractConfig()
         opt = ContextOptimizer(config)
@@ -402,10 +380,6 @@ class TestContextOptimizerCLI:
     @pytest.mark.unit
     def test_format_text_report_with_results(self, tmp_path: Path) -> None:
         """format_text for report with actual results shows detail."""
-        from context_optimizer import ContextOptimizer, ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         config = AbstractConfig()
         opt = ContextOptimizer(config)
@@ -438,10 +412,6 @@ class TestContextOptimizerCLIExecute:
     @pytest.mark.unit
     def test_execute_analyze_command(self, tmp_path: Path, skill_file: Path) -> None:
         """execute with analyze command returns size info."""
-        from context_optimizer import ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="analyze",
@@ -451,8 +421,6 @@ class TestContextOptimizerCLIExecute:
             format="text",
             verbose=0,
         )
-
-        import context_optimizer
 
         original_load = context_optimizer.load_config_with_defaults
         original_root = context_optimizer.find_project_root
@@ -478,11 +446,6 @@ class TestContextOptimizerCLIExecute:
     @pytest.mark.unit
     def test_execute_report_command(self, tmp_path: Path, skill_file: Path) -> None:
         """execute with report command returns directory analysis."""
-        import context_optimizer
-        from context_optimizer import ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="report",
@@ -516,11 +479,6 @@ class TestContextOptimizerCLIExecute:
     @pytest.mark.unit
     def test_execute_stats_command(self, tmp_path: Path) -> None:
         """execute with stats command returns directory analysis."""
-        import context_optimizer
-        from context_optimizer import ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="stats",
@@ -554,11 +512,6 @@ class TestContextOptimizerCLIExecute:
     @pytest.mark.unit
     def test_execute_analyze_nonexistent_file(self, tmp_path: Path) -> None:
         """execute with analyze on nonexistent file returns failure."""
-        import context_optimizer
-        from context_optimizer import ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         nonexistent = tmp_path / "nonexistent.md"
         args = argparse.Namespace(
@@ -594,11 +547,6 @@ class TestContextOptimizerCLIExecute:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """execute when analyze_skill_size raises returns failure."""
-        import context_optimizer
-        from context_optimizer import ContextOptimizer, ContextOptimizerCLI
-
-        from abstract.config import AbstractConfig
-
         cli = ContextOptimizerCLI()
         sf = tmp_path / "SKILL.md"
         sf.write_text("---\nname: x\n---\n\n# Skill\n")

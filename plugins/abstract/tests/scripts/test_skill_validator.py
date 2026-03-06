@@ -160,7 +160,7 @@ class TestReadFileException:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """File that cannot be read adds error and returns None."""
-        from pathlib import Path as _Path
+        from pathlib import Path as _Path  # noqa: PLC0415
 
         skill_file = tmp_path / "SKILL.md"
         skill_file.write_text("valid content")
@@ -681,7 +681,7 @@ class TestSkillValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """main() with no --path uses cwd/SKILL.md, exits 2 if missing."""
-        import os
+        import os  # noqa: PLC0415
 
         monkeypatch.setattr(sys, "argv", ["skill_validator.py"])
         original = os.getcwd()

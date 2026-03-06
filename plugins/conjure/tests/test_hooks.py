@@ -13,7 +13,7 @@ HOOKS_DIR = Path(__file__).parent.parent / "hooks" / "gemini"
 
 def load_hook_module(name: str, file_path: Path):
     """Load a Python module from a file without .py extension."""
-    import importlib.machinery
+    import importlib.machinery  # noqa: PLC0415
 
     # Use SourceFileLoader for files without .py extension
     loader = importlib.machinery.SourceFileLoader(name, str(file_path))

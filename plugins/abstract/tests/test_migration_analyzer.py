@@ -27,7 +27,7 @@ from migration_analyzer import (  # noqa: E402
 @pytest.fixture
 def analyzer(tmp_path: Path) -> MigrationAnalyzer:
     """Given a MigrationAnalyzer operating in tmp_path."""
-    import os
+    import os  # noqa: PLC0415
 
     original = os.getcwd()
     os.chdir(tmp_path)
@@ -38,7 +38,7 @@ def analyzer(tmp_path: Path) -> MigrationAnalyzer:
 @pytest.fixture
 def analyzer_with_commands(tmp_path: Path) -> tuple[MigrationAnalyzer, Path]:
     """Given an analyzer with a commands/ directory."""
-    import os
+    import os  # noqa: PLC0415
 
     commands_dir = tmp_path / "commands"
     commands_dir.mkdir()
@@ -289,7 +289,7 @@ class TestLoadOverlapMappings:
         When _load_overlap_mappings is called
         Then custom mappings are returned
         """
-        import os
+        import os  # noqa: PLC0415
 
         data_dir = tmp_path / "data"
         data_dir.mkdir()

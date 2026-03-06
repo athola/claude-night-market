@@ -316,7 +316,7 @@ class TestUpgrade:
         assert "Would add" in captured.out
         assert result == []
 
-    @patch("attune_init.copy_templates")
+    @patch("attune_upgrade.copy_templates")
     def test_upgrade_calls_copy_templates_with_missing(
         self, mock_copy_templates, mock_project_path
     ):

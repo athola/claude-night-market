@@ -17,6 +17,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from token_estimator import TokenEstimator, TokenEstimatorCLI
+
 
 class TestTokenEstimatorCLI:
     """Feature: TokenEstimatorCLI execute and format_text."""
@@ -36,8 +38,6 @@ class TestTokenEstimatorCLI:
     @pytest.fixture
     def cli(self):
         """Create a TokenEstimatorCLI instance."""
-        from token_estimator import TokenEstimatorCLI
-
         return TokenEstimatorCLI()
 
     @pytest.mark.unit
@@ -112,8 +112,6 @@ class TestTokenEstimatorCLI:
     @pytest.mark.unit
     def test_format_text_with_list_data(self, cli, skill_file: Path) -> None:
         """Scenario: format_text with a list of results returns string."""
-        from token_estimator import TokenEstimator
-
         estimator = TokenEstimator()
         result = estimator.analyze_file(skill_file)
         output = cli.format_text([result])
@@ -123,8 +121,6 @@ class TestTokenEstimatorCLI:
     @pytest.mark.unit
     def test_format_text_with_multiple_results(self, cli, tmp_path: Path) -> None:
         """Scenario: format_text with multiple results inserts separators."""
-        from token_estimator import TokenEstimator
-
         # Create two skill files
         for name in ["skill-a", "skill-b"]:
             skill_dir = tmp_path / name
@@ -145,8 +141,6 @@ class TestTokenEstimatorCLI:
     @pytest.mark.unit
     def test_format_text_with_single_result_dict(self, cli, skill_file: Path) -> None:
         """Scenario: format_text with a dict (not list) still works."""
-        from token_estimator import TokenEstimator
-
         estimator = TokenEstimator()
         result = estimator.analyze_file(skill_file)
         # format_text handles non-list data via the else branch
@@ -156,8 +150,6 @@ class TestTokenEstimatorCLI:
     @pytest.mark.unit
     def test_format_text_good_token_range(self, tmp_path: Path) -> None:
         """Scenario: File with 800-2000 tokens gets GOOD recommendation."""
-        from token_estimator import TokenEstimator
-
         skill_file = tmp_path / "SKILL.md"
         # ~1000 tokens = ~4000 chars
         skill_file.write_text("---\nname: x\n---\n\n# Skill\n\n" + "word " * 3500)

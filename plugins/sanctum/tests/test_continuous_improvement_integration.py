@@ -7,6 +7,7 @@ Addresses issue #104 from PR #100 review.
 import json
 
 from update_plugin_registrations import PluginAuditor
+from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
 
 class TestPhase2SkillPerformanceAnalysis:
@@ -63,7 +64,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_with_log_data(self, tmp_path):
         """Phase 2 picks up failures from actual log files."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         # Create a log directory with sample data
         # Use naive timestamp (no Z suffix) to match datetime.now() used in cutoff_date
@@ -86,7 +86,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_detects_low_success_rate(self, tmp_path):
         """Phase 2 flags skills with success rate below 80%."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         log_dir = tmp_path / "logs"
         log_dir.mkdir()
@@ -123,7 +122,6 @@ class TestPhase2SkillPerformanceAnalysis:
 
     def test_analyze_skill_performance_detects_unstable_skills(self, tmp_path):
         """Phase 2 flags skills with stability_gap > 0.3."""
-        from update_plugins_modules.performance_analysis import PerformanceAnalyzer
 
         log_dir = tmp_path / "logs"
         log_dir.mkdir()

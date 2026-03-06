@@ -96,7 +96,7 @@ class SarifFormatter:
         Returns:
             SARIF JSON string
         """
-        import json
+        import json  # noqa: PLC0415
 
         sarif = {
             "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
@@ -186,6 +186,6 @@ class SarifFormatter:
 
     def to_json(self, results: dict[str, Any]) -> str:
         """Format results as SARIF JSON string (legacy method)."""
-        import json
+        import json  # noqa: PLC0415
 
         return json.dumps(results)

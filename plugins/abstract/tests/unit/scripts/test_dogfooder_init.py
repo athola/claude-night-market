@@ -15,6 +15,19 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
+import dogfooder
+from dogfooder import (
+    DocumentationCommandExtractor,
+    MakefileAnalyzer,
+    MakefileDogfooder,
+    MakefileTargetGenerator,
+    ProcessingConfig,
+    generate_makefile,
+    load_target_catalog,
+    run_preflight_checks,
+    validate_working_directory,
+)
+
 
 class TestDogfooderPackageExports:
     """Feature: dogfooder package exports all public symbols
@@ -32,8 +45,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import load_target_catalog'
         Then the import succeeds
         """
-        from dogfooder import load_target_catalog  # noqa: PLC0415
-
         assert callable(load_target_catalog)
 
     @pytest.mark.unit
@@ -43,8 +54,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import DocumentationCommandExtractor'
         Then the import succeeds
         """
-        from dogfooder import DocumentationCommandExtractor  # noqa: PLC0415
-
         assert isinstance(DocumentationCommandExtractor, type)
 
     @pytest.mark.unit
@@ -54,8 +63,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import MakefileAnalyzer'
         Then the import succeeds
         """
-        from dogfooder import MakefileAnalyzer  # noqa: PLC0415
-
         assert isinstance(MakefileAnalyzer, type)
 
     @pytest.mark.unit
@@ -65,8 +72,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import MakefileTargetGenerator'
         Then the import succeeds
         """
-        from dogfooder import MakefileTargetGenerator  # noqa: PLC0415
-
         assert isinstance(MakefileTargetGenerator, type)
 
     @pytest.mark.unit
@@ -76,8 +81,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import MakefileDogfooder'
         Then the import succeeds
         """
-        from dogfooder import MakefileDogfooder  # noqa: PLC0415
-
         assert isinstance(MakefileDogfooder, type)
 
     @pytest.mark.unit
@@ -87,8 +90,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import generate_makefile'
         Then the import succeeds
         """
-        from dogfooder import generate_makefile  # noqa: PLC0415
-
         assert callable(generate_makefile)
 
     @pytest.mark.unit
@@ -98,8 +99,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import run_preflight_checks'
         Then the import succeeds
         """
-        from dogfooder import run_preflight_checks  # noqa: PLC0415
-
         assert callable(run_preflight_checks)
 
     @pytest.mark.unit
@@ -109,8 +108,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import validate_working_directory'
         Then the import succeeds
         """
-        from dogfooder import validate_working_directory  # noqa: PLC0415
-
         assert callable(validate_working_directory)
 
     @pytest.mark.unit
@@ -120,8 +117,6 @@ class TestDogfooderPackageExports:
         When I run 'from dogfooder import ProcessingConfig'
         Then the import succeeds
         """
-        from dogfooder import ProcessingConfig  # noqa: PLC0415
-
         assert isinstance(ProcessingConfig, type)
 
     @pytest.mark.unit
@@ -131,8 +126,6 @@ class TestDogfooderPackageExports:
         When __all__ is inspected
         Then it contains every name the tests expect to import
         """
-        import dogfooder  # noqa: PLC0415
-
         expected = {
             "load_target_catalog",
             "DocumentationCommandExtractor",

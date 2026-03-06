@@ -86,14 +86,18 @@ Class A:
 
 ```
 # Accept current branch (ours)
-git checkout --ours <file> && git add <file>
+git restore --ours <file> && git add <file>
 
 # Or accept incoming (theirs)
-git checkout --theirs <file> && git add <file>
+git restore --theirs <file> && git add <file>
 
 # Or run formatter and accept
 <formatter> <file> && git add <file>
 ```
+
+Use `git restore` instead of `git checkout` for file-level
+operations. The `restore` command is scoped to working tree
+changes and cannot accidentally switch branches.
 
 Class B: Edit the file manually to include both additions,
 then:
@@ -110,7 +114,18 @@ before marking complete.
 Do not attempt to resolve Class C or D conflicts
 autonomously. Instead:
 
-1. Abort the merge or rebase to restore clean state:
+1. Before aborting, verify no uncommitted work will be lost:
+
+```
+# Check for changes outside the conflict that should be saved
+git stash list
+git diff --stat
+
+# If there are non-conflict changes worth keeping, stash them
+git stash push -m "pre-abort-save: work outside conflict scope"
+```
+
+2. Abort the merge or rebase to restore clean state:
 
 ```
 git merge --abort
@@ -118,7 +133,11 @@ git merge --abort
 git rebase --abort
 ```
 
-2. Record the conflict details in the task list:
+After aborting, verify the branch is in the expected state
+with `git log --oneline -5` and `git status`. If a stash
+was created above, verify it appears in `git stash list`.
+
+3. Record the conflict details in the task list:
 
 ```
 ## Conflict Escalation — [timestamp]
@@ -130,7 +149,7 @@ Specific conflict: [line numbers, function names, what each side did]
 Recommended action: [your best read on the safest path]
 ```
 
-3. Mark the affected task as blocked and assign to human.
+4. Mark the affected task as blocked and assign to human.
 
 ### Step 5: Verify after resolution
 

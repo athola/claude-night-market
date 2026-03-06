@@ -587,7 +587,7 @@ class TestTasksManagerFileBasedExtended:
     @pytest.mark.unit
     def test_update_task_status_extra_kwargs(self, manager: TasksManager) -> None:
         """Scenario: update_task_status stores extra kwargs in state."""
-        import json
+        import json  # noqa: PLC0415
 
         t1 = manager.ensure_task_exists("Task")
         manager.update_task_status(str(t1), "in_progress", note="working on it")
@@ -597,7 +597,7 @@ class TestTasksManagerFileBasedExtended:
     @pytest.mark.unit
     def test_update_complete_updates_metrics(self, manager: TasksManager) -> None:
         """Scenario: Completing a task updates the tasks_complete metric."""
-        import json
+        import json  # noqa: PLC0415
 
         t1 = manager.ensure_task_exists("Task A")
         t2 = manager.ensure_task_exists("Task B")
@@ -689,8 +689,6 @@ class TestTasksManagerTasksMode:
         tasks_manager._task_list = fake_list
 
         # Directly test _create_subtasks
-        from abstract.tasks_manager_base import AmbiguityResult, AmbiguityType
-
         ambiguity = AmbiguityResult(
             is_ambiguous=True,
             ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,
@@ -704,8 +702,6 @@ class TestTasksManagerTasksMode:
         self, tasks_manager: TasksManager
     ) -> None:
         """Scenario: Ambiguity with no components creates Part 1 / Part 2."""
-        from abstract.tasks_manager_base import AmbiguityResult, AmbiguityType
-
         ambiguity = AmbiguityResult(
             is_ambiguous=True,
             ambiguity_type=AmbiguityType.CROSS_CUTTING,
@@ -743,8 +739,8 @@ class TestDefaultAskUser:
             use_tasks=False,
         )
 
-        import io
-        import sys
+        import io  # noqa: PLC0415
+        import sys  # noqa: PLC0415
 
         old_stdin = sys.stdin
         sys.stdin = io.StringIO("")  # EOF immediately

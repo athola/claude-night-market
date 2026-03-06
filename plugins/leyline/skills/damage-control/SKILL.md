@@ -89,21 +89,17 @@ and does not silently discard work.
 
 Use this decision tree to route to the correct module:
 
-```
-Failure detected
-    |
-    ├── Agent process crashed or exited unexpectedly
-    |       └── modules/crash-recovery.md
-    |
-    ├── Context limit hit or prior decisions are unavailable
-    |       └── modules/context-overflow.md
-    |
-    ├── git merge / rebase / cherry-pick produced conflicts
-    |       └── modules/merge-conflict-resolution.md
-    |
-    └── State is internally inconsistent (task list vs disk
-        vs git index disagree)
-            └── modules/state-reconciliation.md
+```mermaid
+flowchart TD
+    A[Failure detected] --> B{Agent process crashed\nor exited unexpectedly?}
+    B -->|Yes| C[modules/crash-recovery.md]
+    B -->|No| D{Context limit hit or\nprior decisions unavailable?}
+    D -->|Yes| E[modules/context-overflow.md]
+    D -->|No| F{git merge / rebase /\ncherry-pick conflicts?}
+    F -->|Yes| G[modules/merge-conflict-resolution.md]
+    F -->|No| H{State internally inconsistent?\ntask list vs disk vs git index}
+    H -->|Yes| I[modules/state-reconciliation.md]
+    H -->|No| J[No damage-control needed]
 ```
 
 When multiple failure types overlap, start with

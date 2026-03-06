@@ -55,7 +55,7 @@ class TestFetchGitHubActionVersion:
     def test_fetch_github_action_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching version, then returns None."""
         # Given
-        from urllib.error import URLError
+        from urllib.error import URLError  # noqa: PLC0415
 
         mock_urlopen.side_effect = URLError("Network error")
 
@@ -232,7 +232,7 @@ class TestFetchPyPILatestVersion:
     def test_fetch_pypi_latest_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching PyPI version, then returns None."""
         # Given
-        from urllib.error import URLError
+        from urllib.error import URLError  # noqa: PLC0415
 
         mock_urlopen.side_effect = URLError("Network error")
 
@@ -308,7 +308,7 @@ class TestFetchNPMLatestVersion:
     def test_fetch_npm_latest_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching npm version, then returns None."""
         # Given
-        from urllib.error import URLError
+        from urllib.error import URLError  # noqa: PLC0415
 
         mock_urlopen.side_effect = URLError("Network error")
 

@@ -12,7 +12,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from abstract_validator import AbstractValidator
+from abstract_validator import AbstractValidator, main
 
 
 class TestAbstractValidator:
@@ -223,8 +223,6 @@ class TestScanInfrastructureBranches:
     @pytest.mark.unit
     def test_invalid_plugin_json_adds_issue(self, tmp_path: Path) -> None:
         """Invalid plugin.json adds 'Invalid plugin.json' issue."""
-        from abstract_validator import AbstractValidator
-
         (tmp_path / "plugin.json").write_text("{ invalid json }")
 
         validator = AbstractValidator(tmp_path)
@@ -234,8 +232,6 @@ class TestScanInfrastructureBranches:
     @pytest.mark.unit
     def test_plugin_json_with_provides_dict(self, tmp_path: Path) -> None:
         """plugin.json with 'provides' dict adds infrastructure entries."""
-        from abstract_validator import AbstractValidator
-
         plugin_json = {
             "name": "abstract",
             "provides": {
@@ -254,8 +250,6 @@ class TestScanInfrastructureBranches:
     @pytest.mark.unit
     def test_skill_with_meta_patterns_gets_flagged(self, tmp_path: Path) -> None:
         """Skill with meta-skill keyword is added to skills_with_patterns."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "my-framework-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(
@@ -279,8 +273,6 @@ class TestValidatePatternsBranches:
     @pytest.mark.unit
     def test_skill_without_meta_indicators_reports_issue(self, tmp_path: Path) -> None:
         """Skill without meta-skill indicators gets an issue."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "plain-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(
@@ -301,8 +293,6 @@ class TestValidatePatternsBranches:
     @pytest.mark.unit
     def test_complete_meta_skill_has_fewer_issues(self, tmp_path: Path) -> None:
         """Well-formed meta-skill passes most validations."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "good-meta-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(
@@ -337,8 +327,6 @@ class TestFixPatternsNoIssues:
     @pytest.mark.unit
     def test_fix_patterns_no_issues_returns_no_fixes(self, tmp_path: Path) -> None:
         """fix_patterns with no issues returns 'No fixes needed'."""
-        from abstract_validator import AbstractValidator
-
         validator = AbstractValidator(tmp_path)
         result = validator.fix_patterns(dry_run=True)
         assert result == ["No fixes needed"]
@@ -350,8 +338,6 @@ class TestFixPatternsWithExistingFrontmatter:
     @pytest.mark.unit
     def test_fix_patterns_skill_with_existing_frontmatter(self, tmp_path: Path) -> None:
         """fix_patterns calls _fix_frontmatter_fields for skills with frontmatter."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "partial-skill"
         skill_dir.mkdir()
         skill_file = skill_dir / "SKILL.md"
@@ -375,8 +361,6 @@ class TestNeedsMetaIndicator:
     @pytest.mark.unit
     def test_content_with_meta_keyword_returns_false(self, tmp_path: Path) -> None:
         """Content with 'template' keyword returns False."""
-        from abstract_validator import AbstractValidator
-
         validator = AbstractValidator(tmp_path)
         result = validator._needs_meta_indicator(
             content="This is a template for skill development.",
@@ -387,8 +371,6 @@ class TestNeedsMetaIndicator:
     @pytest.mark.unit
     def test_content_without_meta_keyword_returns_true(self, tmp_path: Path) -> None:
         """Content without any meta keyword returns True."""
-        from abstract_validator import AbstractValidator
-
         validator = AbstractValidator(tmp_path)
         result = validator._needs_meta_indicator(
             content="This skill provides basic CLI functionality.",
@@ -399,8 +381,6 @@ class TestNeedsMetaIndicator:
     @pytest.mark.unit
     def test_skills_eval_skill_name_exempted(self, tmp_path: Path) -> None:
         """skill_name='skills-eval' returns False regardless."""
-        from abstract_validator import AbstractValidator
-
         validator = AbstractValidator(tmp_path)
         result = validator._needs_meta_indicator(
             content="Basic content with no keywords.",
@@ -420,8 +400,6 @@ class TestCheckHubSpokeExtended:
     @pytest.mark.unit
     def test_empty_modules_dir_adds_issue(self, tmp_path: Path) -> None:
         """Skill with empty modules/ dir gets an issue."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "modular-skill"
         skill_dir.mkdir()
         (skill_dir / "modules").mkdir()
@@ -437,8 +415,6 @@ class TestCheckHubSpokeExtended:
     @pytest.mark.unit
     def test_spoke_to_spoke_reference_adds_issue(self, tmp_path: Path) -> None:
         """Module referencing another module gets a spoke-to-spoke violation."""
-        from abstract_validator import AbstractValidator
-
         skill_dir = tmp_path / "spoke-skill"
         skill_dir.mkdir()
         modules_dir = skill_dir / "modules"
@@ -473,8 +449,6 @@ class TestAbstractValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """main --scan runs without crashing."""
-        from abstract_validator import main
-
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--scan"]
         )
@@ -488,8 +462,6 @@ class TestAbstractValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """main --report runs without crash."""
-        from abstract_validator import main
-
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--report"]
         )
@@ -503,8 +475,6 @@ class TestAbstractValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """main --fix --dry-run runs without crash."""
-        from abstract_validator import main
-
         skill_dir = tmp_path / "test-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text("# No frontmatter\n\nContent.\n")
@@ -524,8 +494,6 @@ class TestAbstractValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """main with no flags runs without crash."""
-        from abstract_validator import main
-
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path)]
         )

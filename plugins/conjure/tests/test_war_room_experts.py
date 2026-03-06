@@ -13,6 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from scripts.war_room.experts import _COMMAND_RESOLVERS
 from scripts.war_room_orchestrator import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
@@ -150,8 +151,6 @@ class TestCommandResolution:
             phases=["test"],
             command_resolver="bad_resolver",
         )
-
-        from scripts.war_room.experts import _COMMAND_RESOLVERS
 
         with patch.dict(_COMMAND_RESOLVERS, {"bad_resolver": bad_resolver}):
             with pytest.raises(RuntimeError, match="did not return list"):

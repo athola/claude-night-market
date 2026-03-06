@@ -17,12 +17,12 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from compatibility_validator import CompatibilityValidator, main
+
 
 @pytest.fixture
 def validator():
     """Create a CompatibilityValidator instance."""
-    from compatibility_validator import CompatibilityValidator
-
     return CompatibilityValidator()
 
 
@@ -57,7 +57,7 @@ class TestParseMarkdownCommandException:
         self, validator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: Exception during parsing returns empty features gracefully."""
-        import builtins
+        import builtins  # noqa: PLC0415
 
         md_file = tmp_path / "test.md"
         md_file.write_text("---\nname: test\n---\n\nContent.\n")
@@ -282,7 +282,7 @@ class TestParsePythonWrapper:
         self, validator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: Python file that can't be read returns empty features."""
-        import builtins
+        import builtins  # noqa: PLC0415
 
         py_file = tmp_path / "unreadable.py"
         py_file.write_text("def func(): pass\n")
@@ -414,8 +414,6 @@ class TestCompatibilityValidatorMain:
         When main is called
         Then it exits 0 (no critical missing features from empty comparison)
         """
-        from compatibility_validator import main
-
         orig = str(tmp_path / "nonexistent.md")
         wrap = str(tmp_path / "nonexistent.py")
         monkeypatch.setattr(sys, "argv", ["compatibility_validator.py", orig, wrap])
@@ -429,8 +427,6 @@ class TestCompatibilityValidatorMain:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: main --verbose with real files runs without crash."""
-        from compatibility_validator import main
-
         # Create a markdown command file
         orig_file = tmp_path / "command.md"
         orig_file.write_text(

@@ -15,6 +15,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+from tool_performance_analyzer import ToolPerformanceAnalyzer
+
 
 class TestToolPerformanceAnalyzerExtended:
     """Feature: ToolPerformanceAnalyzer with executable tools."""
@@ -26,7 +28,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then total_tools is 1 and the tool is in results
         """
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
 
         # Create a simple executable Python script
         tool_file = tmp_path / "my-tool.py"
@@ -45,7 +46,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then the test file is not counted as a tool
         """
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
 
         test_tool = tmp_path / "test_helper.py"
         test_tool.write_text("#!/usr/bin/env python3\npass\n")
@@ -58,7 +58,6 @@ class TestToolPerformanceAnalyzerExtended:
     @pytest.mark.unit
     def test_analyze_tools_excludes_hidden_files(self, tmp_path: Path) -> None:
         """Scenario: Hidden files (starting with '.') are excluded."""
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
 
         hidden_tool = tmp_path / ".hidden-tool"
         hidden_tool.write_text("#!/usr/bin/env python3\npass\n")
@@ -75,7 +74,6 @@ class TestToolPerformanceAnalyzerExtended:
         When get_performance_report is called
         Then the report includes 'Detailed Results' section
         """
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
 
         tool_file = tmp_path / "my-tool.py"
         tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")
@@ -93,7 +91,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then the tool result dict has execution_time, exit_code, success
         """
-        from tool_performance_analyzer import ToolPerformanceAnalyzer
 
         tool_file = tmp_path / "my-tool.py"
         tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")

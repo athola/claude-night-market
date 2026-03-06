@@ -165,7 +165,7 @@ class ArchitectureResearcher:
 
     def save_research_session(self, output_path: Path) -> None:
         """Save research session to JSON file."""
-        import json
+        import json  # noqa: PLC0415
 
         session_data = {
             "context": {

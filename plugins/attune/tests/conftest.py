@@ -14,6 +14,8 @@ import pytest
 # Add the scripts directory to Python path for importing attune scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
+from validate_project import ValidationResult
+
 
 @pytest.fixture
 def attune_plugin_root():
@@ -223,7 +225,6 @@ def mock_subprocess():
 @pytest.fixture
 def mock_validation_result():
     """Create a mock ValidationResult for testing."""
-    from validate_project import ValidationResult
 
     def create_result(name: str, passed: bool, message: str, category: str):
         return ValidationResult(name, passed, message, category)
