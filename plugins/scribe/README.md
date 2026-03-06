@@ -202,6 +202,24 @@ Scribe integrates with other claude-night-market plugins:
 - **conserve:bloat-detector**: Token and content optimization
 - **pensive:review skills**: Code review integration
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Slop detection patterns are an opportunity to add
+  real before/after examples showing how each pattern
+  was caught and rewritten
+- Style learner templates could include sample style
+  profiles for common writing contexts (technical docs,
+  tutorials, API references)
+- The doc-generator skill would benefit from documenting
+  which input formats produce the best output quality
+- Tutorial generation could include a troubleshooting
+  section for common VHS/Playwright recording failures
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT

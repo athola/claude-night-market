@@ -76,3 +76,19 @@ make test-coverage # Coverage report
 ```
 
 Tests validate skill discoverability and structure.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- An opportunity to improve skill evaluation rubrics with
+  concrete before/after examples from real sessions
+- Hook stability tests could cover more edge cases,
+  especially around Python 3.9 compatibility boundaries
+- Shared modules like `iron-law-interlock.md` would benefit
+  from inline examples showing correct and incorrect usage
+- Skill trigger patterns in `trigger-patterns.md` have room
+  for additional real-world discovery scenarios
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

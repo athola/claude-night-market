@@ -572,6 +572,36 @@ class TestErrorHandling:
         # Then
         assert result["returncode"] == 0
 
+    def test_should_warn_on_corrupt_history_file(
+        self, post_skill_env: dict[str, str], tmp_path: Path
+    ) -> None:
+        """Test hook writes stderr when history file is corrupt.
+
+        Given: A corrupt .history.json file
+        When: The hook executes
+        Then: It should log a warning to stderr and continue
+        """
+        # Given
+        skill_ref = "abstract:skill-auditor"
+        hook_path = Path("hooks/skill_execution_logger.py")
+        history_file = tmp_path / "skills" / "logs" / ".history.json"
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        history_file.write_text("{corrupt json!!!")
+
+        env = {
+            **post_skill_env,
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
+            "CLAUDE_HOME": str(tmp_path),
+        }
+
+        # When
+        result = run_hook(hook_path, env)
+
+        # Then
+        assert result["returncode"] == 0
+        assert "skill_execution_logger" in result["stderr"]
+        assert "failed to load history" in result["stderr"]
+
     def test_should_skip_non_skill_tools(
         self, non_skill_env: dict[str, str], tmp_path: Path
     ) -> None:

@@ -62,6 +62,23 @@ parseltongue/
 - Python 3.12 or later (supported back to 3.9).
 - `uv` recommended for dependency isolation.
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Each skill (testing, performance, async, packaging) is
+  an opportunity to add a minimal working example that
+  users can copy and adapt for their own projects
+- The profiling skill could document common pitfalls
+  when interpreting cProfile output for async code
+- Framework integration notes (FastAPI, Django) would
+  benefit from version-specific guidance and caveats
+- Python 3.9 compatibility boundaries deserve a note
+  clarifying which features require newer versions
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT

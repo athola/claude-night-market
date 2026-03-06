@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -87,6 +88,11 @@ class MemoryPalaceManager:
                 return data
         except FileNotFoundError:
             # Return empty config; defaults will be used
+            return {}
+        except (json.JSONDecodeError, PermissionError, OSError) as e:
+            sys.stderr.write(
+                f"palace_manager: failed to load config {self.config_path}: {e}\n"
+            )
             return {}
 
     def ensure_directories(self) -> None:
@@ -485,7 +491,9 @@ class MemoryPalaceManager:
                 try:
                     entry = json.loads(line)
                 except json.JSONDecodeError:
-                    entries_to_keep.append(line)
+                    sys.stderr.write(
+                        f"palace_manager: skipping malformed queue entry: {line[:100]}\n"
+                    )
                     continue
 
                 # Extract domain from entry (from query or tags)

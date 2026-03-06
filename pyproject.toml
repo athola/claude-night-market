@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.5.6"
+version = "1.5.7"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -146,6 +146,7 @@ extend-ignore = [
     "S101",  # Use of assert in tests
     "E501",  # Line too long in tests
     "B011",  # Do not assert False
+    "PLC0415",  # import-outside-top-level (deferred imports in test functions)
     "PLR2004",  # Magic values in tests
     "S603",  # subprocess without shell=true
     "S607",  # Start process with partial path

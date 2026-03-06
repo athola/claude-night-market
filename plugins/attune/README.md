@@ -256,3 +256,21 @@ MIT
 - [simple-resume](https://github.com/athola/simple-resume) - Python reference project
 - [skrills](https://github.com/athola/skrills) - Rust reference project
 - [claude-night-market](https://github.com/athola/claude-night-market) - Plugin marketplace
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- War room deliberation templates are an opportunity to
+  add real decision examples showing how RS scoring
+  guided an actual project choice
+- The mission orchestrator state recovery could document
+  edge cases where `.attune/mission-state.json` becomes
+  stale or corrupted
+- Brainstorming question patterns would benefit from
+  domain-specific variants for different project types
+- Phase transition checkpoints could include timing data
+  from past missions to set contributor expectations
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

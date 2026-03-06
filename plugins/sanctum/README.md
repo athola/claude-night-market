@@ -140,3 +140,22 @@ For **Alternative Implementations**, fork a session to try different approaches,
 ### Standards
 
 Use descriptive session IDs like `pr-123-security-focused` instead of generic names. Keep each fork focused on a single approach. Extract insights to files before closing and document the reasoning for the final choice.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Skill dependency chains (most skills depend on
+  `git-workspace-review`) are an opportunity to document
+  as a visual graph for new contributors
+- Hook descriptions in `hooks.json` could include
+  expected latency so downstream consumers know the cost
+- The shared `test-plan-injection` module would benefit
+  from examples of well-formed test plans
+- Commit message conventions could link to real examples
+  from this repository's own git history
+- Workflow patterns (Pre-Commit, Pre-PR, Release) are an
+  opportunity to add copy-pasteable shell snippets
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

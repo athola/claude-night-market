@@ -396,6 +396,29 @@ class TestErrorHandling:
         # Then
         assert result["returncode"] == 0, "Should exit gracefully"
 
+    def test_should_write_stderr_on_malformed_json(self, tmp_path: Path) -> None:
+        """Test hook writes diagnostic to stderr on malformed JSON.
+
+        Given: Malformed JSON in CLAUDE_TOOL_INPUT
+        When: The hook executes
+        Then: It should write a diagnostic message to stderr
+        """
+        # Given
+        hook_path = Path("hooks/pre_skill_execution.py")
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": "invalid json{{{",
+            "CLAUDE_SESSION_ID": "test-session",
+            "CLAUDE_HOME": str(tmp_path),
+        }
+
+        # When
+        result = run_hook(hook_path, env)
+
+        # Then
+        assert "pre_skill_execution" in result["stderr"]
+        assert "malformed" in result["stderr"]
+
     def test_should_exit_gracefully_with_exception(
         self, pre_skill_env: dict[str, str], tmp_path: Path
     ) -> None:

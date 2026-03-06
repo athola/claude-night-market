@@ -102,3 +102,20 @@ For headless sessions, use `claude -p "/context" --verbose --output-format json`
 ## Requirements
 
 Python 3.9+ and Claude Code.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Context threshold levels (LOW, WARNING, CRITICAL,
+  EMERGENCY) are an opportunity to add tuning guidance
+  for projects with different context budgets
+- The MECW principle could use a short worked example
+  showing how 50% pressure maps to real token counts
+- `/ai-hygiene-audit` detection patterns would benefit
+  from additional examples of vibe-coding antipatterns
+- Discovery strategy tiers (LSP, targeted reads, ripgrep)
+  could include timing benchmarks from real sessions
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

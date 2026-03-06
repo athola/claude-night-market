@@ -76,6 +76,23 @@ Executes implementation tasks according to the task plan.
 
 - **abstract**: Provides meta-skills infrastructure.
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- The workflow example is an opportunity to include a
+  sample specification so users can see the expected
+  format before running `/speckit-specify`
+- Task dependency ordering could document how circular
+  dependencies are detected and reported
+- The `/speckit-checklist` output would benefit from an
+  example showing a passing vs. failing quality check
+- Integration with the abstract plugin could be clarified
+  with a diagram showing which abstract skills are called
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT

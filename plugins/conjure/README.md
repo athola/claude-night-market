@@ -167,6 +167,23 @@ make test
 
 See `CHANGELOG.md` for release notes and `LICENSE` (MIT).
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Service selection criteria in `delegate-auto` are an
+  opportunity to document the decision logic so users
+  understand why one service was chosen over another
+- Quota tracker error messages could guide users toward
+  specific fixes when limits are reached
+- The delegation executor would benefit from a quick
+  troubleshooting section for common API failures
+- Token estimation accuracy (tiktoken vs. heuristic)
+  could include a comparison table showing divergence
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## License
 
 MIT

@@ -475,7 +475,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         if semantic:
             return self._search_review_chamber_semantic(
-                palace, review_chamber, query, room_type, tags
+                palace, review_chamber, query, room_type, tags, sort_by
             )
 
         return self._search_review_chamber_text(
@@ -526,13 +526,14 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_semantic(
+    def _search_review_chamber_semantic(  # noqa: PLR0913
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
         room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
+        sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Embedding-based semantic search across review chamber rooms."""
         from .corpus.embedding_index import EmbeddingIndex  # noqa: PLC0415
@@ -588,6 +589,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     "palace_name": palace["name"],
                     "score": score,
                 }
+            )
+
+        if sort_by == SortBy.IMPORTANCE:
+            results.sort(
+                key=lambda r: r["entry"].get("importance_score", 0),
+                reverse=True,
             )
 
         return results
