@@ -14,6 +14,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 
 def record_action(
@@ -28,7 +29,6 @@ def record_action(
     Creates the directory and file if they don't exist.
     Append-only: never rewrites the file.
     """
-    base_dir = Path(base_dir)
     base_dir.mkdir(parents=True, exist_ok=True)
 
     entry = {
@@ -47,13 +47,12 @@ def record_action(
 def read_actions(
     base_dir: Path,
     plugin: str | None = None,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Read stewardship actions from the JSONL tracking file.
 
     Returns all actions, optionally filtered by plugin name.
     Skips corrupt lines gracefully.
     """
-    base_dir = Path(base_dir)
     actions_file = base_dir / "actions.jsonl"
 
     if not actions_file.exists():

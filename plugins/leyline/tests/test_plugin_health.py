@@ -33,7 +33,7 @@ class TestDocFreshness:
         readme.write_text("# Test")
 
         result = measure_doc_freshness(plugin_dir)
-        assert "days" in result or "today" in result.lower()
+        assert result == "docs updated today"
 
     @pytest.mark.unit
     def test_reports_not_measured_when_no_docs(self, tmp_path: Path) -> None:
@@ -75,7 +75,7 @@ class TestImprovementVelocity:
         )
 
         result = measure_improvement_velocity(actions_dir, "sanctum")
-        assert "2" in result
+        assert result == "2 stewardship actions recorded"
 
     @pytest.mark.unit
     def test_reports_not_measured_when_no_tracker(self, tmp_path: Path) -> None:
@@ -141,3 +141,74 @@ class TestGetPluginHealth:
 
         for key, value in health.items():
             assert value == "not measured"
+
+
+class TestIndividualDimensions:
+    """Test individual health dimensions with positive-path data."""
+
+    @pytest.mark.unit
+    def test_coverage_reports_available_when_coverage_file_exists(
+        self, tmp_path: Path
+    ) -> None:
+        """Given a plugin with .coverage file, reports coverage available."""
+        from plugin_health import measure_test_coverage
+
+        plugin_dir = tmp_path / "plugins" / "test-plugin"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / ".coverage").write_text("")
+
+        result = measure_test_coverage(plugin_dir)
+        assert "coverage data available" in result
+
+    @pytest.mark.unit
+    def test_code_quality_reports_indicators(self, tmp_path: Path) -> None:
+        """Given a plugin with pyproject.toml and tests, reports quality indicators."""
+        from plugin_health import measure_code_quality
+
+        plugin_dir = tmp_path / "plugins" / "test-plugin"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "pyproject.toml").write_text("[tool.pytest]")
+        test_dir = plugin_dir / "tests"
+        test_dir.mkdir()
+        (test_dir / "test_example.py").write_text("def test_x(): pass")
+        (plugin_dir / "Makefile").write_text("test:\n\tpytest")
+
+        result = measure_code_quality(plugin_dir)
+        assert "pyproject.toml configured" in result
+        assert "tests present" in result
+        assert "Makefile targets available" in result
+
+    @pytest.mark.unit
+    def test_contributor_friendliness_reports_indicators(self, tmp_path: Path) -> None:
+        """Given a plugin with README containing stewardship and examples, reports all."""
+        from plugin_health import measure_contributor_friendliness
+
+        plugin_dir = tmp_path / "plugins" / "test-plugin"
+        plugin_dir.mkdir(parents=True)
+        (plugin_dir / "README.md").write_text(
+            "# Plugin\n\n## Stewardship\n\nCare.\n\n```python\nprint()\n```\n"
+        )
+
+        result = measure_contributor_friendliness(plugin_dir)
+        assert "README present" in result
+        assert "stewardship section" in result
+        assert "code examples" in result
+
+    @pytest.mark.unit
+    def test_doc_freshness_singular_day(self, tmp_path: Path) -> None:
+        """Given a plugin with docs updated exactly 1 day ago, reports singular."""
+        import os
+        import time
+
+        from plugin_health import measure_doc_freshness
+
+        plugin_dir = tmp_path / "plugins" / "test-plugin"
+        plugin_dir.mkdir(parents=True)
+        readme = plugin_dir / "README.md"
+        readme.write_text("# Test")
+        # Set mtime to 1 day ago
+        one_day_ago = time.time() - 86400
+        os.utime(readme, (one_day_ago, one_day_ago))
+
+        result = measure_doc_freshness(plugin_dir)
+        assert result == "docs updated 1 day ago"

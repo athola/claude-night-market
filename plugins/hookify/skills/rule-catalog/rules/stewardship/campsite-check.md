@@ -6,7 +6,7 @@ action: info
 conditions:
   - field: user_prompt
     operator: regex_match
-    pattern: \b(commit|done|complete|finish|PR|pull.request|prepare.pr|merge)\b
+    pattern: \b(commit|done|complete|finish|PR|pull\.request|prepare\.pr|merge)\b
 ---
 
 **Stewardship: Leave the campsite better than you found it.**

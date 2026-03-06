@@ -9,6 +9,7 @@ BDD-style tests organized by behavior:
 """
 
 import json
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -1106,7 +1107,7 @@ class TestMalformedQueueEntries:
         manager.sync_from_queue(str(queue_path))
 
         captured = capsys.readouterr()
-        assert "skipping malformed queue entry" in captured.err
+        assert "dropping malformed queue entry" in captured.err
 
 
 class TestConfigLoadErrors:
@@ -1135,6 +1136,9 @@ class TestConfigLoadErrors:
         captured = capsys.readouterr()
         assert "failed to load config" in captured.err
 
+    @pytest.mark.skipif(
+        os.getuid() == 0, reason="Cannot test permission errors as root"
+    )
     def test_config_load_permission_error_returns_empty_dict(
         self,
         tmp_path: Path,

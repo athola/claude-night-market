@@ -32,16 +32,23 @@ STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
 
 # Stewardship integration: lightweight velocity read
-_STEWARDSHIP_ACTIONS = Path.home() / ".claude" / "stewardship" / "actions.jsonl"
 
 
-def _stewardship_velocity() -> int:
+def _stewardship_velocity(claude_home: Path) -> int:
     """Count stewardship actions (0 if tracker absent)."""
+    actions_file = claude_home / "stewardship" / "actions.jsonl"
+    if not actions_file.exists():
+        return 0
     try:
         return sum(
-            1 for line in _STEWARDSHIP_ACTIONS.read_text().splitlines() if line.strip()
+            1
+            for line in actions_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
         )
-    except OSError:
+    except FileNotFoundError:
+        return 0
+    except OSError as e:
+        sys.stderr.write(f"homeostatic_monitor: failed to read {actions_file}: {e}\n")
         return 0
 
 
@@ -103,7 +110,7 @@ def main() -> None:
 
         gap = calculate_stability_gap(skill_history)
 
-        velocity = _stewardship_velocity()
+        velocity = _stewardship_velocity(claude_home)
 
         if gap <= STABILITY_GAP_THRESHOLD:
             # Skill is healthy, no action needed

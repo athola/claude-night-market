@@ -15,9 +15,11 @@ Part of the stewardship framework. See: STEWARDSHIP.md
 
 from __future__ import annotations
 
-import json
 import time
+from datetime import datetime
 from pathlib import Path
+
+from stewardship_tracker import read_actions
 
 NOT_MEASURED = "not measured"
 
@@ -28,7 +30,6 @@ def measure_doc_freshness(plugin_dir: Path) -> str:
     Returns a descriptive string like "updated 3 days ago"
     or "not measured" if no .md files exist.
     """
-    plugin_dir = Path(plugin_dir)
     if not plugin_dir.exists():
         return NOT_MEASURED
 
@@ -53,11 +54,9 @@ def measure_test_coverage(plugin_dir: Path) -> str:
     Looks for a coverage report file. Returns "not measured"
     if unavailable.
     """
-    plugin_dir = Path(plugin_dir)
     coverage_file = plugin_dir / ".coverage"
-    htmlcov = plugin_dir / "htmlcov" / "index.html"
 
-    if coverage_file.exists() or htmlcov.exists():
+    if coverage_file.exists():
         return "coverage data available (run pytest --cov for details)"
 
     return NOT_MEASURED
@@ -68,7 +67,6 @@ def measure_code_quality(plugin_dir: Path) -> str:
 
     Checks for presence of quality tooling configuration.
     """
-    plugin_dir = Path(plugin_dir)
     if not plugin_dir.exists():
         return NOT_MEASURED
 
@@ -91,7 +89,6 @@ def measure_contributor_friendliness(plugin_dir: Path) -> str:
 
     Checks for README, stewardship section, examples.
     """
-    plugin_dir = Path(plugin_dir)
     if not plugin_dir.exists():
         return NOT_MEASURED
 
@@ -117,29 +114,27 @@ def measure_improvement_velocity(
 ) -> str:
     """Count stewardship actions for a plugin in the last 30 days.
 
-    Reads from the JSONL tracker file.
+    Delegates JSONL parsing to stewardship_tracker.read_actions(),
+    then filters by timestamp.
     """
-    actions_dir = Path(actions_dir)
-    actions_file = actions_dir / "actions.jsonl"
-
-    if not actions_file.exists():
+    actions = read_actions(actions_dir, plugin=plugin_name)
+    if not actions and not (actions_dir / "actions.jsonl").exists():
         return NOT_MEASURED
 
+    cutoff = time.time() - (30 * 86400)
     count = 0
-    try:
-        with open(actions_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
+    for entry in actions:
+        timestamp_str = entry.get("timestamp", "")
+        if timestamp_str:
+            try:
+                entry_time = datetime.fromisoformat(
+                    timestamp_str.replace("Z", "+00:00")
+                )
+                if entry_time.timestamp() < cutoff:
                     continue
-                try:
-                    entry = json.loads(line)
-                    if entry.get("plugin") == plugin_name:
-                        count += 1
-                except json.JSONDecodeError:
-                    continue
-    except OSError:
-        return NOT_MEASURED
+            except (ValueError, AttributeError):
+                pass
+        count += 1
 
     if count == 0:
         return "no stewardship actions recorded"

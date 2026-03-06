@@ -422,26 +422,18 @@ class TestAutoPromoteErrorIsolation:
     def test_auto_promote_exception_is_swallowed(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Given: auto_promote raises an exception
+        """Given: _promote raises an exception
         When: run_auto_promote() is called
         Then: Exception is silently caught (hook must not crash)
         """
-        monkeypatch.setattr(
-            hook_module,
-            "run_auto_promote",
-            hook_module.run_auto_promote,  # Use actual function
-        )
-        # Mock the import to raise
-        import builtins  # noqa: PLC0415
+        # Ensure the scripts-available flag is set so run_auto_promote
+        # actually calls _promote rather than returning early.
+        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
 
-        original_import = builtins.__import__
+        def boom():
+            raise RuntimeError("boom")
 
-        def mock_import(name, *args, **kwargs):
-            if name == "auto_promote_learnings":
-                raise ImportError("module not found")
-            return original_import(name, *args, **kwargs)
-
-        monkeypatch.setattr(builtins, "__import__", mock_import)
+        monkeypatch.setattr(hook_module, "_promote", boom)
 
         # Should not raise
         hook_module.run_auto_promote()

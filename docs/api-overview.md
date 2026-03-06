@@ -9,7 +9,7 @@ Claude Night Market consists of 16 plugins that provide CLI commands, Python pac
 
 ## API Inventory
 
-The ecosystem includes 96 CLI commands, 120 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 20 execution hooks.
+The ecosystem includes 98 CLI commands, 125 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 20 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
@@ -19,8 +19,8 @@ The ecosystem includes 96 CLI commands, 120 modular skills, 41 specialized agent
 | conjure | 1.5.7 | 0 | 4 | 0 | No | - |
 | conserve | 1.5.7 | 4 | 10 | 5 | No | - |
 | hookify | 1.5.7 | 6 | 2 | 0 | No | - |
-| imbue | 1.5.7 | 2 | 9 | 1 | No | - |
-| leyline | 1.5.7 | 2 | 12 | 0 | Yes | - |
+| imbue | 1.5.7 | 3 | 9 | 1 | No | - |
+| leyline | 1.5.7 | 2 | 16 | 0 | Yes | - |
 | memory-palace | 1.5.7 | 5 | 6 | 4 | Yes | - |
 | minister | 1.5.7 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.5.7 | 3 | 4 | 4 | No | - |

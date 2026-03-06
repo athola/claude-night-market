@@ -240,6 +240,8 @@ def generate_makefile(
         makefile_content = _generate_rust_makefile(plugin_name)
     elif language == "typescript":
         makefile_content = _generate_typescript_makefile(plugin_name)
+    else:
+        makefile_content = _generate_python_makefile(plugin_name)
 
     # Write Makefile
     makefile_path = plugin_dir / "Makefile"

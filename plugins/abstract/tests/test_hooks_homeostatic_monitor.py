@@ -11,6 +11,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+_has_queue = True
+try:
+    import abstract.improvement_queue  # noqa: F401
+except ImportError:
+    _has_queue = False
+
 
 def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, object]:
     """Run a hook script with the given environment."""
@@ -67,6 +75,9 @@ class TestHomeostaticMonitorBasics:
         result = run_hook(hook_path, env)
         assert result["returncode"] == 0
 
+    @pytest.mark.skipif(
+        not _has_queue, reason="abstract.improvement_queue not available"
+    )
     def test_should_flag_degrading_skill(self, tmp_path: Path) -> None:
         """Given stability gap > 0.3, when hook runs, then skill flagged in queue."""
         hook_path = Path(__file__).parent.parent / "hooks" / "homeostatic_monitor.py"
@@ -156,3 +167,38 @@ class TestStewardshipVelocityIntegration:
         result = run_hook(hook_path, env)
         output = json.loads(result["stdout"])
         assert output["hookSpecificOutput"]["stewardship_actions"] == 0
+
+    def test_stewardship_actions_nonzero_when_tracker_has_entries(
+        self, tmp_path: Path
+    ) -> None:
+        """Given a stewardship tracker with entries, stewardship_actions > 0."""
+        hook_path = Path(__file__).parent.parent / "hooks" / "homeostatic_monitor.py"
+        history = {
+            "abstract:test-skill": {
+                "accuracies": [1, 1, 1],
+                "durations": [100, 200, 150],
+            }
+        }
+        history_file = tmp_path / "skills" / "logs" / ".history.json"
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        history_file.write_text(json.dumps(history))
+
+        # Create stewardship actions file
+        stewardship_dir = tmp_path / "stewardship"
+        stewardship_dir.mkdir(parents=True)
+        actions_file = stewardship_dir / "actions.jsonl"
+        actions_file.write_text(
+            '{"plugin":"abstract","action_type":"fix","file":"x.py","description":"d"}\n'
+            '{"plugin":"leyline","action_type":"doc","file":"y.md","description":"d"}\n'
+        )
+
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": json.dumps({"skill": "abstract:test-skill"}),
+            "CLAUDE_TOOL_OUTPUT": "Success",
+            "CLAUDE_SESSION_ID": "test-session",
+            "CLAUDE_HOME": str(tmp_path),
+        }
+        result = run_hook(hook_path, env)
+        output = json.loads(result["stdout"])
+        assert output["hookSpecificOutput"]["stewardship_actions"] == 2

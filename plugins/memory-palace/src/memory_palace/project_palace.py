@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -474,13 +475,21 @@ class ProjectPalaceManager(MemoryPalaceManager):
         review_chamber = palace["rooms"]["review-chamber"]
 
         if semantic:
-            return self._search_review_chamber_semantic(
+            results = self._search_review_chamber_semantic(
+                palace, review_chamber, query, room_type, tags, sort_by
+            )
+        else:
+            results = self._search_review_chamber_text(
                 palace, review_chamber, query, room_type, tags, sort_by
             )
 
-        return self._search_review_chamber_text(
-            palace, review_chamber, query, room_type, tags, sort_by
-        )
+        if sort_by == SortBy.IMPORTANCE:
+            results.sort(
+                key=lambda r: r["entry"].get("importance_score", 0),
+                reverse=True,
+            )
+
+        return results
 
     def _search_review_chamber_text(  # noqa: PLR0913
         self,
@@ -517,12 +526,6 @@ class ProjectPalaceManager(MemoryPalaceManager):
                         "palace_name": palace["name"],
                     }
                 )
-
-        if sort_by == SortBy.IMPORTANCE:
-            results.sort(
-                key=lambda r: r["entry"].get("importance_score", 40),
-                reverse=True,
-            )
 
         return results
 
@@ -589,12 +592,6 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     "palace_name": palace["name"],
                     "score": score,
                 }
-            )
-
-        if sort_by == SortBy.IMPORTANCE:
-            results.sort(
-                key=lambda r: r["entry"].get("importance_score", 0),
-                reverse=True,
             )
 
         return results
@@ -713,8 +710,10 @@ class ProjectPalaceManager(MemoryPalaceManager):
                     index["stats"]["total_review_entries"] += palace["metadata"].get(
                         "review_entries", 0
                     )
-            except (json.JSONDecodeError, KeyError):
-                pass
+            except (json.JSONDecodeError, KeyError) as e:
+                sys.stderr.write(
+                    f"project_palace: skipping malformed palace file {file_path}: {e}\n"
+                )
 
         index_file = os.path.join(self.project_palaces_dir, "project_index.json")
         with open(index_file, "w") as f:

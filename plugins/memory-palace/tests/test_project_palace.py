@@ -10,7 +10,6 @@ from memory_palace.project_palace import (
     REVIEW_CHAMBER_ROOMS,
     ProjectPalaceManager,
     ReviewEntry,
-    SortBy,
     capture_pr_review_knowledge,
 )
 
@@ -608,8 +607,9 @@ class TestSemanticSearchSortByImportance:
         def fake_semantic(
             self_inner, palace_arg, chamber, query, room_type, tags, sort_by
         ):
-            # Build unsorted-by-importance results (similarity order)
-            unsorted = [
+            # Return in similarity order (NOT importance order).
+            # The production search_review_chamber must apply the sort.
+            return [
                 {
                     "room": "review-chamber/patterns",
                     "entry": low.to_dict(),
@@ -632,13 +632,6 @@ class TestSemanticSearchSortByImportance:
                     "score": 0.70,
                 },
             ]
-            # Apply the importance sort that the real method should do
-            if sort_by == SortBy.IMPORTANCE:
-                unsorted.sort(
-                    key=lambda r: r["entry"].get("importance_score", 0),
-                    reverse=True,
-                )
-            return unsorted
 
         with patch.object(
             ProjectPalaceManager,
@@ -682,7 +675,10 @@ class TestSemanticSearchSortByImportance:
         def fake_semantic(
             self_inner, palace_arg, chamber, query, room_type, tags, sort_by
         ):
-            unsorted = [
+            # Return in similarity order (low-importance first).
+            # The production search_review_chamber must NOT re-sort
+            # when sort_by is not IMPORTANCE.
+            return [
                 {
                     "room": "review-chamber/patterns",
                     "entry": low.to_dict(),
@@ -698,12 +694,6 @@ class TestSemanticSearchSortByImportance:
                     "score": 0.50,
                 },
             ]
-            if sort_by == SortBy.IMPORTANCE:
-                unsorted.sort(
-                    key=lambda r: r["entry"].get("importance_score", 0),
-                    reverse=True,
-                )
-            return unsorted
 
         with patch.object(
             ProjectPalaceManager,

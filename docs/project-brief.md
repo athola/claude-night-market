@@ -6,7 +6,7 @@
 
 ## Problem Statement
 
-**Who**: Plugin users (124 skills, 97 commands across 16 plugins),
+**Who**: Plugin users (125 skills, 98 commands across 16 plugins),
 plugin contributors, and the plugins themselves as living systems.
 
 **What**: The Night Market ecosystem has quality enforcement (pre-commit
@@ -214,7 +214,7 @@ drawn from research:
 Lightweight hooks and hookify rules that surface improvement
 opportunities at the point of work:
 
-- **Campsite Check** (Stop hook): After working in a plugin,
+- **Campsite Check** (prompt event rule): After working in a plugin,
   suggest 1-2 small improvements the contributor could make
 - **Stewardship Actions**: Track small improvements (README
   updates, test additions, documentation fixes) as "stewardship
