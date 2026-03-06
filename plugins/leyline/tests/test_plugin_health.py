@@ -9,9 +9,19 @@ Feature: Plugin Health Measurement
 
 from __future__ import annotations
 
+import os
+import time
 from pathlib import Path
 
 import pytest
+from plugin_health import (
+    get_plugin_health,
+    measure_code_quality,
+    measure_contributor_friendliness,
+    measure_doc_freshness,
+    measure_improvement_velocity,
+    measure_test_coverage,
+)
 
 
 class TestDocFreshness:
@@ -25,8 +35,6 @@ class TestDocFreshness:
         When measuring documentation freshness
         Then it reports the age of the most recent .md file
         """
-        from plugin_health import measure_doc_freshness
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         readme = plugin_dir / "README.md"
@@ -43,8 +51,6 @@ class TestDocFreshness:
         When measuring documentation freshness
         Then it reports "not measured"
         """
-        from plugin_health import measure_doc_freshness
-
         plugin_dir = tmp_path / "plugins" / "empty-plugin"
         plugin_dir.mkdir(parents=True)
 
@@ -63,8 +69,6 @@ class TestImprovementVelocity:
         When measuring improvement velocity
         Then it reports the count of recent actions
         """
-        from plugin_health import measure_improvement_velocity
-
         actions_dir = tmp_path / "stewardship"
         actions_dir.mkdir(parents=True)
         actions_file = actions_dir / "actions.jsonl"
@@ -85,8 +89,6 @@ class TestImprovementVelocity:
         When measuring improvement velocity
         Then it reports "not measured"
         """
-        from plugin_health import measure_improvement_velocity
-
         actions_dir = tmp_path / "empty"
         result = measure_improvement_velocity(actions_dir, "sanctum")
         assert result == "not measured"
@@ -103,8 +105,6 @@ class TestGetPluginHealth:
         When getting the full health report
         Then it contains all 5 dimension keys
         """
-        from plugin_health import get_plugin_health
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / "README.md").write_text("# Test")
@@ -131,8 +131,6 @@ class TestGetPluginHealth:
         When getting the health report
         Then all dimensions report "not measured"
         """
-        from plugin_health import get_plugin_health
-
         health = get_plugin_health(
             plugin_dir=tmp_path / "nonexistent",
             actions_dir=tmp_path / "stewardship",
@@ -151,8 +149,6 @@ class TestIndividualDimensions:
         self, tmp_path: Path
     ) -> None:
         """Given a plugin with .coverage file, reports coverage available."""
-        from plugin_health import measure_test_coverage
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / ".coverage").write_text("")
@@ -163,8 +159,6 @@ class TestIndividualDimensions:
     @pytest.mark.unit
     def test_code_quality_reports_indicators(self, tmp_path: Path) -> None:
         """Given a plugin with pyproject.toml and tests, reports quality indicators."""
-        from plugin_health import measure_code_quality
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / "pyproject.toml").write_text("[tool.pytest]")
@@ -181,8 +175,6 @@ class TestIndividualDimensions:
     @pytest.mark.unit
     def test_contributor_friendliness_reports_indicators(self, tmp_path: Path) -> None:
         """Given a plugin with README containing stewardship and examples, reports all."""
-        from plugin_health import measure_contributor_friendliness
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / "README.md").write_text(
@@ -197,11 +189,6 @@ class TestIndividualDimensions:
     @pytest.mark.unit
     def test_doc_freshness_singular_day(self, tmp_path: Path) -> None:
         """Given a plugin with docs updated exactly 1 day ago, reports singular."""
-        import os
-        import time
-
-        from plugin_health import measure_doc_freshness
-
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         readme = plugin_dir / "README.md"

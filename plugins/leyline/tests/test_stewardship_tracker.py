@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 
 import pytest
+from stewardship_tracker import read_actions, record_action
 
 
 class TestRecordAction:
@@ -26,8 +27,6 @@ class TestRecordAction:
         When a stewardship action is recorded
         Then a valid JSON line is appended to the actions file
         """
-        from stewardship_tracker import record_action
-
         actions_dir = tmp_path / "stewardship"
         record_action(
             base_dir=actions_dir,
@@ -57,8 +56,6 @@ class TestRecordAction:
         When an action is recorded
         Then the directory is created automatically
         """
-        from stewardship_tracker import record_action
-
         actions_dir = tmp_path / "nonexistent" / "stewardship"
         record_action(
             base_dir=actions_dir,
@@ -79,8 +76,6 @@ class TestRecordAction:
         When a second action is recorded
         Then both entries exist in the file
         """
-        from stewardship_tracker import record_action
-
         actions_dir = tmp_path / "stewardship"
         record_action(
             base_dir=actions_dir,
@@ -117,8 +112,6 @@ class TestReadActions:
         When querying actions for a specific plugin
         Then only that plugin's actions are returned
         """
-        from stewardship_tracker import read_actions, record_action
-
         actions_dir = tmp_path / "stewardship"
         record_action(
             base_dir=actions_dir,
@@ -147,8 +140,6 @@ class TestReadActions:
         When querying without a filter
         Then all actions are returned
         """
-        from stewardship_tracker import read_actions, record_action
-
         actions_dir = tmp_path / "stewardship"
         record_action(
             base_dir=actions_dir,
@@ -176,8 +167,6 @@ class TestReadActions:
         When querying actions
         Then an empty list is returned
         """
-        from stewardship_tracker import read_actions
-
         actions_dir = tmp_path / "empty"
         result = read_actions(actions_dir)
         assert result == []
@@ -190,8 +179,6 @@ class TestReadActions:
         When reading actions
         Then only the valid entry is returned
         """
-        from stewardship_tracker import read_actions
-
         actions_dir = tmp_path / "stewardship"
         actions_dir.mkdir(parents=True)
         actions_file = actions_dir / "actions.jsonl"

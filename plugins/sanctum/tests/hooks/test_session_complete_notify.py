@@ -16,6 +16,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import session_complete_notify as mod
 from session_complete_notify import (
     CONTENT_DEDUP_SECONDS,
     DEBOUNCE_SECONDS,
@@ -399,8 +400,6 @@ class TestMainBlockArgumentParsing:
 
         Returns the dict of patch mocks so callers can assert on them.
         """
-        import session_complete_notify as mod
-
         patches = patches or {}
         with patch.object(sys, "argv", argv):
             # Re-execute the module-level __main__ guard

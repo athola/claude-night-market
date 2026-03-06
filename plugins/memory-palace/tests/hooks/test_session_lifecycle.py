@@ -9,6 +9,7 @@ So that history is captured without any manual action.
 
 from __future__ import annotations
 
+import io
 import json
 import re
 import sys
@@ -392,8 +393,6 @@ class TestMainIntegration:
         When main() runs
         Then a session JSON file exists in data/sessions/.
         """
-        import io
-
         payload = _minimal_payload(session_id="test-main-001")
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
 
@@ -421,8 +420,6 @@ class TestMainIntegration:
         When main() runs
         Then it exits with code 0 (never blocks the session).
         """
-        import io
-
         monkeypatch.setattr("sys.stdin", io.StringIO("{ not valid json }"))
 
         with pytest.raises(SystemExit) as exc_info:
@@ -439,8 +436,6 @@ class TestMainIntegration:
         When main() runs
         Then it exits with code 0 silently.
         """
-        import io
-
         monkeypatch.setattr(lc, "_HAS_SESSION_HISTORY", False)
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_minimal_payload())))
 
@@ -458,7 +453,6 @@ class TestMainIntegration:
         When main() runs
         Then it exits with code 0 (session end must not be blocked).
         """
-        import io
 
         class _BrokenManager(SessionHistoryManager):
             def record_session(self, record: object) -> object:  # type: ignore[override]
@@ -484,8 +478,6 @@ class TestMainIntegration:
         When main() runs
         Then no session file is written.
         """
-        import io
-
         mgr = SessionHistoryManager(data_dir=tmp_path)
         monkeypatch.setattr(lc, "SessionHistoryManager", lambda *a, **kw: mgr)
 

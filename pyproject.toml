@@ -146,7 +146,6 @@ extend-ignore = [
     "S101",  # Use of assert in tests
     "E501",  # Line too long in tests
     "B011",  # Do not assert False
-    "PLC0415",  # import-outside-top-level (deferred imports in test functions)
     "PLR2004",  # Magic values in tests
     "S603",  # subprocess without shell=true
     "S607",  # Start process with partial path
