@@ -70,7 +70,13 @@ except (ImportError, ModuleNotFoundError) as e:
         duplicate_entry_ids: list = field(default_factory=list)  # type: ignore[type-arg]
 
         def to_dict(self) -> dict:  # type: ignore[type-arg]
-            return {}
+            return {
+                "query": self.query,
+                "should_flag_for_intake": self.should_flag_for_intake,
+                "novelty_score": self.novelty_score,
+                "delta_reasoning": self.delta_reasoning,
+                "duplicate_entry_ids": self.duplicate_entry_ids,
+            }
 
     class RedundancyLevel(Enum):  # type: ignore[no-redef]
         EXACT_MATCH = "exact_match"
@@ -109,10 +115,15 @@ except (ImportError, ModuleNotFoundError) as e:
         def load_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
             return AutonomyProfile()
 
+        def build_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
+            return AutonomyProfile()
+
     class ResearchTelemetryEvent:  # type: ignore[no-redef]
         @staticmethod
-        def build(*args: Any, **kwargs: Any) -> dict:  # type: ignore[type-arg]
-            return {}
+        def build(*args: Any, **kwargs: Any) -> Any:
+            from types import SimpleNamespace
+
+            return SimpleNamespace(**kwargs)
 
     class TelemetryLogger:  # type: ignore[no-redef]
         def __init__(self, *args: Any, **kwargs: Any) -> None:
