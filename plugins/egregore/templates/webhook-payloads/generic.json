@@ -1,0 +1,6 @@
+{
+  "event": "{{event}}",
+  "detail": "{{detail}}",
+  "source": "egregore",
+  "timestamp": "{{timestamp}}"
+}
