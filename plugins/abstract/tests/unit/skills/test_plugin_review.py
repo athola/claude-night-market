@@ -193,3 +193,139 @@ class TestPluginReviewSkillStructure:
         assert "- validate_plugin.py" in skill_content
         assert "- skill_analyzer.py" in skill_content
         assert "- generate_dependency_map.py" in skill_content
+
+
+class TestPluginReviewModules:
+    """Feature: Plugin review modules exist for each tier.
+
+    As a plugin maintainer
+    I want tier-specific review modules
+    So that progressive loading works correctly
+    """
+
+    @pytest.fixture
+    def modules_dir(self) -> Path:
+        """Path to the plugin-review modules directory."""
+        return (
+            Path(__file__).parents[3]
+            / "skills" / "plugin-review" / "modules"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branch_tier_module_exists(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Branch tier module exists.
+
+        Given the plugin-review skill
+        When looking for the branch tier module
+        Then tier-branch.md should exist
+        """
+        assert (modules_dir / "tier-branch.md").exists()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_pr_tier_module_exists(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: PR tier module exists.
+
+        Given the plugin-review skill
+        When looking for the PR tier module
+        Then tier-pr.md should exist
+        """
+        assert (modules_dir / "tier-pr.md").exists()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_release_tier_module_exists(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Release tier module exists.
+
+        Given the plugin-review skill
+        When looking for the release tier module
+        Then tier-release.md should exist
+        """
+        assert (modules_dir / "tier-release.md").exists()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_dependency_detection_module_exists(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Dependency detection module exists.
+
+        Given the plugin-review skill
+        When looking for the dependency detection module
+        Then dependency-detection.md should exist
+        """
+        assert (modules_dir / "dependency-detection.md").exists()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branch_module_defines_checks(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Branch module defines required checks.
+
+        Given the branch tier module
+        When reading its content
+        Then it should define test, lint, typecheck gates
+        """
+        content = (modules_dir / "tier-branch.md").read_text()
+        assert "Test Gate" in content
+        assert "Lint Gate" in content
+        assert "Typecheck Gate" in content
+        assert "Registration Audit" in content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_pr_module_references_eval_skills(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: PR module invokes evaluation skills.
+
+        Given the PR tier module
+        When reading its content
+        Then it should reference skills-eval, hooks-eval,
+        test-review, and bloat-scan
+        """
+        content = (modules_dir / "tier-pr.md").read_text()
+        assert "skills-eval" in content
+        assert "hooks-eval" in content
+        assert "test-review" in content
+        assert "bloat-scan" in content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_release_module_requires_plan_mode(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Release module mentions plan mode.
+
+        Given the release tier module
+        When reading its content
+        Then it should mention plan mode for 4+ agents
+        """
+        content = (modules_dir / "tier-release.md").read_text()
+        assert "plan mode" in content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_dependency_module_explains_detection(
+        self, modules_dir: Path,
+    ) -> None:
+        """Scenario: Dependency module explains affected/related.
+
+        Given the dependency detection module
+        When reading its content
+        Then it should explain affected and related concepts
+        """
+        content = (
+            modules_dir / "dependency-detection.md"
+        ).read_text()
+        assert "Affected" in content
+        assert "Related" in content
+        assert "plugin-dependencies.json" in content
