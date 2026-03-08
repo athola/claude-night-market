@@ -28,6 +28,7 @@
     "./skills/hooks-eval",
     "./skills/methodology-curator",
     "./skills/modular-skills",
+    "./skills/plugin-review",
     "./skills/rules-eval",
     "./skills/shared-patterns",
     "./skills/skill-authoring",
