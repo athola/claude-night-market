@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-08",
+  "dependencies": {
+    "abstract": {
+      "dependents": [
+        "*"
+      ],
+      "type": "build",
+      "reason": "Shared infrastructure"
+    },
+    "leyline": {
+      "dependents": [
+        "conjure"
+      ],
+      "type": "build",
+      "reason": "Shared infrastructure"
+    }
+  },
+  "reverse_index": {
+    "archetypes": [
+      "abstract"
+    ],
+    "attune": [
+      "abstract"
+    ],
+    "conjure": [
+      "abstract",
+      "leyline"
+    ],
+    "conserve": [
+      "abstract"
+    ],
+    "egregore": [
+      "abstract"
+    ],
+    "hookify": [
+      "abstract"
+    ],
+    "imbue": [
+      "abstract"
+    ],
+    "leyline": [
+      "abstract"
+    ],
+    "memory-palace": [
+      "abstract"
+    ],
+    "minister": [
+      "abstract"
+    ],
+    "parseltongue": [
+      "abstract"
+    ],
+    "pensive": [
+      "abstract"
+    ],
+    "sanctum": [
+      "abstract"
+    ],
+    "scribe": [
+      "abstract"
+    ],
+    "scry": [
+      "abstract"
+    ],
+    "spec-kit": [
+      "abstract"
+    ]
+  }
+}
