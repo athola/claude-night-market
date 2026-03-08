@@ -4,20 +4,13 @@ This module tests the deliverable formatting and template functionality,
 following TDD/BDD principles and testing all output formatting scenarios.
 """
 
+from __future__ import annotations
+
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
-
-# Constants for PLR2004 magic values
-TWO = 2
-THREE = 3
-FIVE = 5
-TWO_POINT_ZERO = 2.0
-FOUR = 4
-TEN = 10
-TWO_HUNDRED = 200
 
 
 class TestStructuredOutputSkill:
@@ -545,7 +538,7 @@ Common template variables that should be populated:
         assert "```" in appendix_output  # Code blocks present
 
         # Verify navigation capability
-        assert len(evidence_index) > 0
+        assert len(evidence_index) >= 1
         assert "E1" in evidence_index
         assert evidence_index["E1"] == ["F1"]
 

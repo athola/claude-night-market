@@ -4,6 +4,8 @@ This module tests the change categorization and risk assessment functionality,
 following TDD/BDD principles and testing all diff analysis scenarios.
 """
 
+from __future__ import annotations
+
 import re
 import time
 

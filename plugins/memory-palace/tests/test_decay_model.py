@@ -25,9 +25,9 @@ class TestDecayCurve:
 
     def test_decay_curves_defined(self) -> None:
         """Should have all expected decay curves."""
-        assert DecayCurve.LINEAR is not None
-        assert DecayCurve.EXPONENTIAL is not None
-        assert DecayCurve.LOGARITHMIC is not None
+        assert DecayCurve.LINEAR.value == "linear"
+        assert DecayCurve.EXPONENTIAL.value == "exponential"
+        assert DecayCurve.LOGARITHMIC.value == "logarithmic"
 
 
 class TestDecayConfig:
@@ -197,7 +197,7 @@ class TestDecayModel:
         model.validate_entry("entry-1", now)
 
         validation_date = model.get_validation_date("entry-1")
-        assert validation_date is not None
+        assert isinstance(validation_date, datetime)
         assert validation_date == now
 
     def test_get_validation_date_unknown_entry(self, model: DecayModel) -> None:
@@ -294,8 +294,8 @@ class TestDecayModel:
         }
 
         model.import_state(state_data)
-        assert model.get_validation_date("entry-1") is not None
-        assert model.get_validation_date("entry-2") is not None
+        assert isinstance(model.get_validation_date("entry-1"), datetime)
+        assert isinstance(model.get_validation_date("entry-2"), datetime)
 
 
 class TestImportanceClasses:

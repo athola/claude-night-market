@@ -268,20 +268,19 @@ def get_all_language_patterns(languages: list[str] | None = None) -> dict[str, d
     return result
 
 
+LANGUAGE_NAMES: dict[str, str] = {
+    "de": "German",
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "it": "Italian",
+    "pt": "Portuguese",
+}
+
+
 def list_supported_languages() -> list[dict[str, str]]:
     """List all supported languages with their names."""
-    result: list[dict[str, str]] = []
-    for lang_code in sorted(SUPPORTED_LANGUAGES):
-        pattern_file = DATA_DIR / f"{lang_code}.yaml"
-        if pattern_file.exists():
-            with open(pattern_file) as f:
-                data = yaml.safe_load(f)
-                result.append(
-                    {
-                        "code": lang_code,
-                        "name": data.get("name", lang_code),
-                    }
-                )
-        else:
-            result.append({"code": lang_code, "name": lang_code})
-    return result
+    return [
+        {"code": code, "name": LANGUAGE_NAMES.get(code, code)}
+        for code in sorted(SUPPORTED_LANGUAGES)
+    ]

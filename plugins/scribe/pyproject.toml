@@ -1,0 +1,37 @@
+[project]
+name = "scribe"
+version = "1.6.0"
+description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
+requires-python = ">=3.10"
+dependencies = ["pyyaml"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    ".ruff_cache",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["src/scribe"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+]
+fail_under = 85

@@ -19,11 +19,11 @@ echo
 # Function to check status
 check_status() {
     local name="$1"
-    local command="$2"
+    local cmd_name="$2"
     local description="$3"
 
     echo -n "Checking $name... "
-    if eval "$command" > /dev/null 2>&1; then
+    if command -v "$cmd_name" > /dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} $description"
         return 0
     else
@@ -35,9 +35,10 @@ check_status() {
 # Function to get path
 get_path() {
     local name="$1"
-    local path=$(which "$name" 2>/dev/null || echo "")
-    if [ -n "$path" ]; then
-        echo -e "  ${BLUE}→${NC} $path"
+    local cmd_path
+    cmd_path=$(command -v "$name" 2>/dev/null || echo "")
+    if [ -n "$cmd_path" ]; then
+        echo -e "  ${BLUE}→${NC} $cmd_path"
     fi
 }
 
@@ -87,7 +88,7 @@ echo -e "${YELLOW}3. Language Servers Installed${NC}"
 echo "─────────────────────────────"
 
 # Python - pyright
-if check_status "Python (pyright)" "command -v pyright" "pyright installed"; then
+if check_status "Python (pyright)" pyright "pyright installed"; then
     get_path "pyright"
     pyright_ver=$(pyright --version 2>/dev/null | head -1 || echo "unknown")
     echo -e "  ${BLUE}→${NC} $pyright_ver"
@@ -104,7 +105,7 @@ fi
 echo
 
 # TypeScript/JavaScript
-if check_status "TypeScript/JS (typescript-language-server)" "command -v typescript-language-server" "typescript-language-server installed"; then
+if check_status "TypeScript/JS (typescript-language-server)" typescript-language-server "typescript-language-server installed"; then
     get_path "typescript-language-server"
     ts_ver=$(typescript-language-server --version 2>/dev/null || echo "unknown")
     echo -e "  ${BLUE}→${NC} Version: $ts_ver"
@@ -113,7 +114,7 @@ fi
 echo
 
 # Rust
-if check_status "Rust (rust-analyzer)" "command -v rust-analyzer" "rust-analyzer installed"; then
+if check_status "Rust (rust-analyzer)" rust-analyzer "rust-analyzer installed"; then
     get_path "rust-analyzer"
 else
     echo -e "  ${BLUE}ℹ${NC}  Optional: Install with 'rustup component add rust-analyzer'"
@@ -169,7 +170,7 @@ lsp_processes=$(ps aux | grep -E "pyright|typescript-language-server|rust-analyz
 if [ -n "$lsp_processes" ]; then
     echo -e "${GREEN}✓${NC} Language servers are running:"
     echo "$lsp_processes" | while read -r line; do
-        echo -e "  ${BLUE}→${NC} $(echo $line | awk '{print $11, $12, $13}')"
+        echo -e "  ${BLUE}→${NC} $(echo "$line" | awk '{print $11, $12, $13}')"
     done
 else
     echo -e "${YELLOW}⚠${NC}  No language servers currently running"

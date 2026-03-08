@@ -22,6 +22,9 @@ from pathlib import Path
 
 import pytest
 
+# Resolve plugin root from test file location so hook paths are CWD-independent
+_PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+
 
 class TestPreSkillExecutionBasics:
     """Test basic hook execution and output."""
@@ -36,7 +39,7 @@ class TestPreSkillExecutionBasics:
         Then: It should exit with code 0 (success)
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -58,7 +61,7 @@ class TestPreSkillExecutionBasics:
         Then: It should return valid JSON with hookSpecificOutput
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -85,7 +88,7 @@ class TestPreSkillExecutionBasics:
         Then: Output should include hookEventName = "PreToolUse"
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -115,7 +118,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = "sanctum:pr-review"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -142,7 +145,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = "standalone-skill"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -166,7 +169,7 @@ class TestSkillNameParsing:
         """
         # Given
         skill_ref = " abstract : skill-auditor "
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -195,7 +198,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -222,7 +225,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -251,7 +254,7 @@ class TestStateFileCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -282,7 +285,7 @@ class TestStateFileCreation:
         # Given
         skill_ref = "abstract:skill-auditor"
         tool_input = {"skill": skill_ref, "param1": "value1"}
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps(tool_input),
@@ -315,7 +318,7 @@ class TestInvocationIdGeneration:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -347,7 +350,7 @@ class TestInvocationIdGeneration:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -382,7 +385,7 @@ class TestErrorHandling:
         Then: It should exit with code 0 (not block Claude Code)
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             "CLAUDE_TOOL_NAME": "Skill",
             "CLAUDE_TOOL_INPUT": "invalid json{{{",
@@ -406,7 +409,7 @@ class TestErrorHandling:
         Then: It should exit with code 0 and write to stderr
         """
         # Given - Use invalid CLAUDE_HOME to trigger error
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **pre_skill_env,
             "CLAUDE_HOME": "/invalid/path/that/does/not/exist",
@@ -432,7 +435,7 @@ class TestToolFiltering:
         Then: It should exit without creating state files
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **non_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -455,7 +458,7 @@ class TestToolFiltering:
         Then: It should exit without error
         """
         # Given
-        hook_path = Path("hooks/pre_skill_execution.py")
+        hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             "CLAUDE_TOOL_INPUT": '{"skill": "test:skill"}',
             "CLAUDE_SESSION_ID": "test-session",

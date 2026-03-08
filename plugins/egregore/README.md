@@ -72,10 +72,15 @@ night-market skill (attune, pensive, sanctum, conserve).
 pattern. At 80% context, saves state and spawns a fresh
 agent that reads the manifest and continues.
 
-**Token window exhaustion:** When hitting a rate limit,
-egregore saves a cooldown timestamp to `budget.json` and
-exits. The watchdog checks every 5 minutes and relaunches
-after the cooldown passes.
+**Token window exhaustion (2.1.71+):** When hitting a rate
+limit, egregore schedules a one-shot resume via `CronCreate`
+at the cooldown expiry time. The session stays alive and
+self-recovers with full context preserved. No watchdog
+needed for rate limits.
+
+**Token window exhaustion (pre-2.1.71 fallback):** Saves a
+cooldown timestamp to `budget.json` and exits. The watchdog
+checks every 5 minutes and relaunches after cooldown.
 
 **Crashes:** The watchdog detects stale pidfiles (process
 died) and relaunches automatically. An alert is created
@@ -137,8 +142,9 @@ Stored in `.egregore/config.json`:
 | Loop mechanism | Stop hook re-injects same prompt | Stop hook reads manifest, injects current step |
 | State awareness | None (reads files each time) | Full pipeline state in manifest.json |
 | Session management | None | Continuation agents + watchdog daemon |
-| Token budgets | None | Reactive cooldown with auto-resume |
+| Token budgets | None | In-session CronCreate recovery (2.1.71+) + watchdog fallback |
 | Crash recovery | None | Watchdog + GitHub issue alerts |
+| Progress visibility | None | `/loop 5m /egregore:status` auto-scheduled |
 | Decision making | Blind repetition | Autonomous with decision logging |
 | Pipeline | None | 16-step across 4 stages |
 
@@ -167,6 +173,49 @@ make test       # Run tests (75 tests)
 make lint       # Run linting
 make check      # Run all checks
 ```
+
+## Quality Stage
+
+The QUALITY stage enforces project conventions and code
+quality before work items reach SHIP. Three components:
+
+```
+Orchestrator Agent
+  │
+  ├── manifest.py (existing)
+  │     └── WorkItem.quality_config
+  │
+  ├── quality-gate skill
+  │     ├── routing table
+  │     ├── verdict calculation
+  │     └── mode selection (self/PR)
+  │
+  ├── conventions.py
+  │     ├── load_codex()
+  │     ├── check_conventions()
+  │     └── built-in checkers
+  │
+  └── codex.yml
+        └── C1-C5 convention definitions
+```
+
+**Data flow**: orchestrator reaches quality stage, reads
+the work item's `quality_config`, invokes the quality-gate
+skill for each step. The skill loads `codex.yml`, runs
+convention checks, invokes mapped skills (pensive, conserve,
+sanctum), collects findings, and calculates a verdict:
+pass, pass-with-warnings, or fix-required.
+
+**Conventions enforced** (from PR history analysis):
+
+- **C1**: No ephemeral artifacts committed
+- **C2**: Markdown prose wraps at 80 chars
+- **C3**: No AI slop markers in documentation
+- **C4**: Python 3.9 compatibility in hooks
+- **C5**: Scope-guard compliance (line/file thresholds)
+
+**Modes**: self-review (pre-PR, runs all 5 quality steps)
+and PR-review (invoked by other agents for cross-review).
 
 ## Roadmap
 

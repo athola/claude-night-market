@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -221,7 +221,7 @@ class EmbeddingIndex:
         store.setdefault("metadata", {})
 
         provider_block: dict[str, Any] = {
-            "updated_at": datetime.now().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
 
         # Persist flat entries when present

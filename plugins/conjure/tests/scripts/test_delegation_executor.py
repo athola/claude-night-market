@@ -17,6 +17,7 @@ from delegation_executor import (
     Delegator,
     ExecutionResult,
     ServiceConfig,
+    estimate_tokens,
     main,
 )
 
@@ -106,17 +107,36 @@ class TestDelegator:
     def test_load_configurations_with_custom_config(
         self,
         temp_config_dir,
-        sample_config_file,
     ) -> None:
         """Given custom config file when loading configurations.
 
         then should merge with defaults.
         """
+        import json
+
+        config_file = temp_config_dir / "config.json"
+        custom_config = {
+            "services": {
+                "custom_service": {
+                    "name": "custom_service",
+                    "command": "custom",
+                    "auth_method": "api_key",
+                    "auth_env_var": "CUSTOM_API_KEY",
+                    "quota_limits": {
+                        "requests_per_minute": 30,
+                        "requests_per_day": 500,
+                        "tokens_per_day": 500000,
+                    },
+                },
+            },
+        }
+        config_file.write_text(json.dumps(custom_config))
+
         delegator = Delegator(config_dir=temp_config_dir)
 
         # Check that custom service was added
-        assert "custom_service" in delegator.SERVICES
-        custom_service = delegator.SERVICES["custom_service"]
+        assert "custom_service" in delegator.services
+        custom_service = delegator.services["custom_service"]
         assert custom_service.command == "custom"
         assert custom_service.auth_env_var == "CUSTOM_API_KEY"
 
@@ -164,43 +184,26 @@ class TestDelegator:
         assert is_available is False
         assert any("GEMINI_API_KEY" in issue for issue in issues)
 
-    @patch("delegation_executor.tiktoken.get_encoding")
-    def test_estimate_tokens_with_encoder(
+    def test_estimate_tokens_with_files(
         self,
-        mock_get_encoding,
         sample_files,
-        temp_config_dir,
     ) -> None:
-        """Given tiktoken available when estimating tokens then should use encoder."""
-        mock_encoder = MagicMock()
-        mock_encoder.encode.return_value = list(range(50))  # 50 tokens
-        mock_get_encoding.return_value = mock_encoder
-
-        delegator = Delegator(config_dir=temp_config_dir)
-
+        """Given files when estimating tokens then should count chars/4 heuristic."""
         file_paths = [str(f) for f in sample_files]
-        tokens = delegator.estimate_tokens(file_paths, "test prompt")
+        tokens = estimate_tokens(file_paths, "test prompt")
 
-        # Should count prompt tokens + file tokens + overhead
-        assert tokens > MIN_TOKEN_COUNT_THRESHOLD  # More than just the prompt
-        mock_get_encoding.assert_called_once_with("cl100k_base")
+        # Should count prompt tokens + file content tokens via heuristic
+        assert isinstance(tokens, int)
+        assert tokens > 0
+        # Tokens from files should exceed prompt-only estimate
+        prompt_only = estimate_tokens([], "test prompt")
+        assert tokens > prompt_only
 
-    @patch("delegation_executor.tiktoken.get_encoding")
-    def test_estimate_tokens_without_encoder(
-        self,
-        mock_get_encoding,
-        sample_files,
-        temp_config_dir,
-    ) -> None:
-        """Given no tiktoken when estimating tokens then should use heuristic."""
-        mock_get_encoding.side_effect = Exception("tiktoken not available")
+    def test_estimate_tokens_prompt_only(self) -> None:
+        """Given prompt only when estimating tokens then should use heuristic."""
+        tokens = estimate_tokens([], "test prompt with some words here")
 
-        delegator = Delegator(config_dir=temp_config_dir)
-
-        file_paths = [str(f) for f in sample_files]
-        tokens = delegator.estimate_tokens(file_paths, "test prompt")
-
-        # Should use heuristic estimation
+        # Should use heuristic estimation (len // 4)
         assert isinstance(tokens, int)
         assert tokens > 0
 
@@ -251,7 +254,7 @@ class TestDelegator:
 
     @pytest.mark.bdd
     @patch("subprocess.run")
-    @patch("delegation_executor.Delegator.estimate_tokens")
+    @patch("delegation_executor.estimate_tokens")
     def test_execute_success(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given successful command when executing.
 
@@ -274,7 +277,7 @@ class TestDelegator:
 
     @pytest.mark.bdd
     @patch("subprocess.run")
-    @patch("delegation_executor.Delegator.estimate_tokens")
+    @patch("delegation_executor.estimate_tokens")
     def test_execute_failure(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given failed command when executing then should return negative result."""
         mock_run.return_value.returncode = 1
@@ -306,7 +309,7 @@ class TestDelegator:
         assert result.exit_code == TIMEOUT_EXIT_CODE
 
     @patch("subprocess.run")
-    @patch("delegation_executor.Delegator.estimate_tokens")
+    @patch("delegation_executor.estimate_tokens")
     @patch("builtins.open", new_callable=mock_open)
     def test_log_usage(
         self, mock_file, mock_estimate, mock_run, temp_config_dir
@@ -407,7 +410,7 @@ class TestDelegatorCli:
     def test_cli_list_services(self, mock_delegator_class) -> None:
         """Given --list-services flag when running CLI then should list services."""
         mock_delegator = MagicMock()
-        mock_delegator.SERVICES = {
+        mock_delegator.services = {
             "gemini": ServiceConfig("gemini", "gemini", "api_key"),
             "qwen": ServiceConfig("qwen", "qwen", "cli"),
         }
@@ -416,7 +419,7 @@ class TestDelegatorCli:
         with patch("builtins.print") as mock_print:
             main()
 
-        mock_print.assert_any_call("Available services:")
+        mock_print.assert_any_call("  gemini: gemini (auth: api_key)")
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--usage"])
@@ -433,7 +436,7 @@ class TestDelegatorCli:
         with patch("builtins.print") as mock_print:
             main()
 
-        mock_print.assert_any_call("Delegation Usage Summary")
+        mock_print.assert_any_call("Total requests: 10")
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--verify", "gemini"])

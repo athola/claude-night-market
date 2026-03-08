@@ -482,17 +482,17 @@ def print_report(validator: SkillValidator, result: ValidationResult) -> None:
     # Errors
     if result.errors:
         for _error in result.errors:
-            pass
+            print(f"  ERROR: {_error}")
 
     # Warnings
     if result.warnings:
         for _warning in result.warnings:
-            pass
+            print(f"  WARNING: {_warning}")
 
     # Info
     if result.info:
         for _info in result.info:
-            pass
+            print(f"  INFO: {_info}")
 
     # Summary
 

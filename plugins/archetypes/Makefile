@@ -3,7 +3,8 @@
 #
 # This is a minimal Makefile for a markdown-only plugin
 
-.PHONY: help status clean demo-paradigms demo-skills plugin-check debug-variables
+.PHONY: help status clean demo-paradigms demo-skills plugin-check debug-variables \
+	typecheck type-check lint format test
 
 # Include shared configuration for markdown-only plugins
 ABSTRACT_DIR := ../abstract

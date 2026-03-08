@@ -43,7 +43,8 @@ class TestSkillStructure:
         assert "description:" in content
         assert "Gemini" in content  # Description contains Gemini reference
         assert "category: delegation-implementation" in content
-        assert "dependencies: [delegation-core]" in content
+        assert "dependencies:" in content
+        assert "delegation-core" in content
 
         # Check for required sections (trigger logic now in frontmatter description)
         assert "# Exit Criteria" in content

@@ -46,7 +46,7 @@ class TestResearchTelemetryEventBuild:
             intake_delta_reasoning="test",
             duplicate_entry_ids=None,
         )
-        assert event.timestamp is not None
+        assert isinstance(event.timestamp, str)
         assert "T" in event.timestamp  # ISO format
         assert event.query_id == "q-1"
         assert event.decision == "augment"

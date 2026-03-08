@@ -4,6 +4,8 @@ This module provides common test fixtures, mocks, and utilities for testing
 the imbue plugin's skills, commands, and agents following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import shutil
 import subprocess
 import sys
@@ -15,12 +17,11 @@ from unittest.mock import Mock
 import pytest
 
 # Add the plugin root to Python path so `scripts.*` imports work.
-sys.path.insert(0, str(Path(__file__).parent.parent))
+_PLUGIN_ROOT = str(Path(__file__).resolve().parent.parent)
+if _PLUGIN_ROOT not in sys.path:
+    sys.path.insert(0, _PLUGIN_ROOT)
 
-try:
-    from scripts.imbue_validator import ImbueValidator
-except ImportError:
-    ImbueValidator = None
+from scripts.imbue_validator import ImbueValidator  # noqa: E402
 
 
 @pytest.fixture
@@ -282,16 +283,20 @@ def mock_todo_write():
 
 @pytest.fixture
 def mock_claude_tools():
-    """Mock Claude Code tools."""
+    """Mock Claude Code tools with spec constraints.
+
+    Each tool mock is constrained with a callable spec to prevent
+    attribute access on non-existent methods.
+    """
     tools = {
-        "Read": Mock(),
-        "Glob": Mock(),
-        "Grep": Mock(),
-        "Bash": Mock(),
-        "Write": Mock(),
-        "Edit": Mock(),
-        "TodoWrite": Mock(),
-        "AskUserQuestion": Mock(),
+        "Read": Mock(spec=callable),
+        "Glob": Mock(spec=callable),
+        "Grep": Mock(spec=callable),
+        "Bash": Mock(spec=callable),
+        "Write": Mock(spec=callable),
+        "Edit": Mock(spec=callable),
+        "TodoWrite": Mock(spec=callable),
+        "AskUserQuestion": Mock(spec=callable),
     }
 
     # Configure default return values
@@ -389,18 +394,8 @@ def sample_review_findings():
 
 @pytest.fixture
 def mock_imbue_validator(imbue_plugin_root):
-    """Create ImbueValidator instance with mocked dependencies."""
-    if ImbueValidator is not None:
-        # Initialize with real plugin root but mock file operations
-        return ImbueValidator(str(imbue_plugin_root))
-    else:
-        # If the module doesn't exist yet, create a mock
-        mock_validator = Mock()
-        mock_validator.plugin_root = str(imbue_plugin_root)
-        mock_validator.scan_review_workflows = Mock(return_value=[])
-        mock_validator.validate_review_workflows = Mock(return_value=[])
-        mock_validator.generate_report = Mock(return_value="Mock report")
-        return mock_validator
+    """Create ImbueValidator instance with real plugin root."""
+    return ImbueValidator(str(imbue_plugin_root))
 
 
 @pytest.fixture

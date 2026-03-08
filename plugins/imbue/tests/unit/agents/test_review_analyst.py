@@ -4,6 +4,8 @@ This module tests the autonomous review agent capabilities and workflow integrat
 following TDD/BDD principles and testing all agent scenarios.
 """
 
+from __future__ import annotations
+
 import time
 from datetime import datetime, timezone
 from unittest.mock import Mock
@@ -286,7 +288,7 @@ class TestReviewAnalystAgent:
 
         # Verify each finding has evidence references
         for finding in sample_agent_findings:
-            assert len(finding["evidence_refs"]) > 0
+            assert len(finding["evidence_refs"]) >= 1
             # Verify evidence references correspond to logged evidence
             for ref in finding["evidence_refs"]:
                 evidence_exists = any(e["id"] == ref for e in evidence_log["evidence"])
@@ -394,7 +396,8 @@ class TestReviewAnalystAgent:
         for severity, findings in categorized_findings.items():
             for finding in findings:
                 assert "severity_justification" in finding
-                assert finding["severity_justification"]["rationale"] is not None
+                assert isinstance(finding["severity_justification"]["rationale"], str)
+                assert len(finding["severity_justification"]["rationale"]) >= 1
                 assert "cvss_score" in finding["severity_justification"]
                 assert finding["severity_justification"]["matches_criteria"] is True
 

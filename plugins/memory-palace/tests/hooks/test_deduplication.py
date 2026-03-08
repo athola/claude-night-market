@@ -158,7 +158,7 @@ class TestYamlUnavailable:
             importance_score=50,
         )
         # Should be cached in memory
-        assert dedup_module._index_cache is not None
+        assert isinstance(dedup_module._index_cache, dict)
         assert content_hash in dedup_module._index_cache.get("hashes", {})
 
     def test_get_index_stats_works_when_yaml_unavailable(

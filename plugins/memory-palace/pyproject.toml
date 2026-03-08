@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.5.6"
+version = "1.6.0"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -126,6 +126,10 @@ explicit_package_bases = true
 namespace_packages = true
 mypy_path = "src"
 exclude = ['^\.venv', '^\.uv-cache']
+
+[[tool.mypy.overrides]]
+module = ["shared.*"]
+ignore_missing_imports = true
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

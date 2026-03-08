@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import json
 import random
-from datetime import datetime, timedelta
+from dataclasses import asdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -263,25 +264,8 @@ def populated_tracker(temp_data_file: Path, sample_tasks: list[Task]) -> Project
 def seeded_data_file(temp_data_file: Path, sample_tasks: list[Task]) -> Path:
     """Provide a data file pre-seeded with sample tasks for load testing."""
     data = {
-        "tasks": [
-            {
-                "id": t.id,
-                "title": t.title,
-                "initiative": t.initiative,
-                "phase": t.phase,
-                "priority": t.priority,
-                "status": t.status,
-                "owner": t.owner,
-                "effort_hours": t.effort_hours,
-                "completion_percent": t.completion_percent,
-                "due_date": t.due_date,
-                "created_date": t.created_date,
-                "updated_date": t.updated_date,
-                "github_issue": t.github_issue,
-            }
-            for t in sample_tasks
-        ],
-        "last_updated": datetime.now().isoformat(),
+        "tasks": [asdict(t) for t in sample_tasks],
+        "last_updated": datetime.now(timezone.utc).isoformat(),
     }
     temp_data_file.parent.mkdir(parents=True, exist_ok=True)
     with open(temp_data_file, "w", encoding="utf-8") as f:

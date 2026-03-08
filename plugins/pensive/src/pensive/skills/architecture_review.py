@@ -455,8 +455,6 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 "violations": lsp_violations,
                 "issues": lsp_issues,
             },
-            "interface_segregation": {"violations": 0, "issues": []},
-            "dependency_inversion": {"violations": 0, "issues": []},
         }
 
     def analyze_adrs(self, context: Any) -> dict[str, Any]:

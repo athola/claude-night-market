@@ -8,17 +8,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-async def dispatch_agent(skill_name: str, _context: Any) -> str:
-    """Dispatch an agent to execute a specific skill.
-
-    Args:
-        skill_name: Name of the skill to execute
-        _context: Analysis context
-
-    Returns:
-        Skill execution result
-    """
-    # Placeholder implementation for agent dispatch
+def dispatch_agent(skill_name: str, _context: Any) -> str:
     return f"{skill_name} execution result"
 
 
@@ -41,12 +31,12 @@ class SkillCoordinator:
         """Get list of registered skills."""
         return self._skills
 
-    def execute_skills_concurrently(
+    def execute_skills(
         self,
         skill_names: list[str],
         repo_path: Path | str,
     ) -> list[str]:
-        """Execute multiple skills concurrently.
+        """Execute multiple skills sequentially.
 
         Args:
             skill_names: List of skill names to execute
@@ -59,19 +49,12 @@ class SkillCoordinator:
 
         for skill_name in skill_names:
             try:
-                # Use dispatch_agent for each skill
-                import asyncio  # noqa: PLC0415
-
-                # Run the async dispatch in a sync context
-                try:
-                    loop = asyncio.get_event_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-
-                result = loop.run_until_complete(dispatch_agent(skill_name, repo_path))
+                result = dispatch_agent(skill_name, repo_path)
                 results.append(result)
             except Exception as e:
                 results.append(f"Error: {e}")
 
         return results
+
+    # Backwards-compatible alias
+    execute_skills_concurrently = execute_skills

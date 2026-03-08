@@ -31,14 +31,27 @@ class ValidationResult(TypedDict):
     info: list[str]
 
 
-# Known hook event types
+# Known hook event types (Claude Code 2.1.50 complete set)
 KNOWN_EVENTS = {
+    "Setup",
+    "SessionStart",
+    "SessionEnd",
+    "UserPromptSubmit",
     "PreToolUse",
     "PostToolUse",
-    "UserPromptSubmit",
-    "Stop",
+    "PostToolUseFailure",
+    "PermissionRequest",
+    "Notification",
+    "SubagentStart",
     "SubagentStop",
+    "Stop",
+    "TeammateIdle",
+    "TaskCompleted",
+    "ConfigChange",
+    "InstructionsLoaded",
     "PreCompact",
+    "WorktreeCreate",
+    "WorktreeRemove",
 }
 
 # Required fields for JSON hooks
@@ -54,6 +67,10 @@ EXPECTED_CALLBACKS = {
         "args": ["self", "tool_name", "tool_input", "tool_output"],
         "return_annotation": "str | None",
     },
+    "on_post_tool_use_failure": {
+        "args": ["self", "tool_name", "tool_input", "error"],
+        "return_annotation": "str | None",
+    },
     "on_user_prompt_submit": {
         "args": ["self", "message"],
         "return_annotation": "str | None",
@@ -62,8 +79,24 @@ EXPECTED_CALLBACKS = {
         "args": ["self", "reason", "result"],
         "return_annotation": "None",
     },
+    "on_subagent_start": {
+        "args": ["self", "subagent_id", "task"],
+        "return_annotation": "None",
+    },
     "on_subagent_stop": {
         "args": ["self", "subagent_id", "result"],
+        "return_annotation": "None",
+    },
+    "on_permission_request": {
+        "args": ["self", "tool_name", "tool_input"],
+        "return_annotation": "dict | None",
+    },
+    "on_teammate_idle": {
+        "args": ["self", "teammate_id"],
+        "return_annotation": "None",
+    },
+    "on_task_completed": {
+        "args": ["self", "task_id", "result"],
         "return_annotation": "None",
     },
     "on_pre_compact": {
@@ -477,17 +510,17 @@ def print_result(result: ValidationResult, verbose: bool = False) -> None:
     # Print info (if verbose)
     if verbose and result["info"]:
         for _msg in result["info"]:
-            pass
+            print(f"  INFO: {_msg}")
 
     # Print warnings
     if result["warnings"]:
         for _msg in result["warnings"]:
-            pass
+            print(f"  WARNING: {_msg}")
 
     # Print errors
     if result["errors"]:
         for _msg in result["errors"]:
-            pass
+            print(f"  ERROR: {_msg}")
 
     # Print summary
     if result["valid"]:

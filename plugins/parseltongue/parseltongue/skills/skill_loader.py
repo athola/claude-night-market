@@ -34,7 +34,7 @@ class SkillLoader:
             List of available skill names
         """
         return [
-            "async_analyzer",
+            "async_analysis",
             "language_detection",
             "pattern_matching",
             "testing_guide",
@@ -60,3 +60,33 @@ class SkillLoader:
             }
 
         return {"valid": True, "issues": [], "recommendations": []}
+
+    def validate_metadata(
+        self, metadata: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Validate skill metadata.
+
+        Args:
+            metadata: Metadata dictionary to validate
+
+        Returns:
+            Validation result with errors list
+        """
+        errors: list[str] = []
+
+        name = metadata.get("name")
+        if not name:
+            errors.append("name is empty or missing")
+
+        description = metadata.get("description")
+        if description is None:
+            errors.append("description is None")
+
+        tools = metadata.get("tools")
+        if tools is not None and not isinstance(tools, list):
+            errors.append("tools must be a list")
+
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+        }

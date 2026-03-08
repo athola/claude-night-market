@@ -58,7 +58,7 @@ relaunching too early and hitting the same rate limit again.
 If no retry-after header is present, use a default cooldown
 of 30 minutes plus padding.
 
-## Graceful Shutdown Protocol
+## Rate Limit Recovery
 
 When a rate limit is detected:
 
@@ -72,9 +72,46 @@ When a rate limit is detected:
 4. **Alert overseer**: send a notification via the configured
    channel (see `notify.py`) with the rate limit details and
    expected resume time.
-5. **Exit cleanly**: exit with code 0. A non-zero exit would
-   trigger the watchdog's crash handler instead of the
-   cooldown-aware restart path.
+
+### In-Session Recovery (2.1.71+, preferred)
+
+Use `CronCreate` to schedule a one-shot resume at the
+cooldown expiry time:
+
+```
+CronCreate(
+  cron_expression: "<min> <hour> * * *",
+  prompt: "Cooldown expired. Read .egregore/manifest.json
+    and resume the pipeline. Invoke
+    Skill(egregore:summon) to continue.",
+  recurring: false
+)
+```
+
+**Advantages over watchdog restart:**
+
+- Session stays alive: no context loss, no manifest
+  re-read overhead, no fresh session startup cost
+- Exact timing: fires at cooldown_until instead of
+  polling every 5 minutes
+- No OS-level setup: works without launchd/systemd
+
+The session remains idle between the rate limit and the
+scheduled prompt. When the cron fires, the orchestration
+loop resumes with the full conversation context intact.
+
+### Fallback: Exit and Watchdog
+
+If `CronCreate` is unavailable (pre-2.1.71), the cooldown
+exceeds 3 days (cron task auto-expiry), or the session
+itself needs to exit for other reasons:
+
+5. **Exit cleanly**: exit with code 0. A non-zero exit
+   would trigger the watchdog's crash handler instead of
+   the cooldown-aware restart path.
+
+The watchdog checks `budget.json` before relaunching and
+waits until the cooldown expires.
 
 ## Pre-Launch Cooldown Check
 

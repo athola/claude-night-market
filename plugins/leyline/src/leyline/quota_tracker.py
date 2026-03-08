@@ -17,7 +17,7 @@ import argparse
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Quota threshold constants
@@ -131,8 +131,8 @@ class QuotaTracker:
             self.usage.tokens_this_minute = 0
 
         # Reset daily counters if new day
-        last_date = datetime.fromtimestamp(self.usage.last_request_time).date()
-        current_date = datetime.now().date()
+        last_date = datetime.fromtimestamp(self.usage.last_request_time, tz=timezone.utc).date()
+        current_date = datetime.now(timezone.utc).date()
         if current_date > last_date:
             self.usage.requests_today = 0
             self.usage.tokens_today = 0
@@ -170,14 +170,22 @@ class QuotaTracker:
         self._cleanup_old_data()
         warnings = []
 
-        # Calculate usage percentages
+        # Calculate usage percentages (guard against zero config limits)
         rpm_percent = (
-            self.usage.requests_this_minute / self.config.requests_per_minute
-        ) * 100
-        daily_percent = (self.usage.requests_today / self.config.requests_per_day) * 100
+            (self.usage.requests_this_minute / self.config.requests_per_minute) * 100
+            if self.config.requests_per_minute > 0
+            else 100.0
+        )
+        daily_percent = (
+            (self.usage.requests_today / self.config.requests_per_day) * 100
+            if self.config.requests_per_day > 0
+            else 100.0
+        )
         tpm_percent = (
-            self.usage.tokens_this_minute / self.config.tokens_per_minute
-        ) * 100
+            (self.usage.tokens_this_minute / self.config.tokens_per_minute) * 100
+            if self.config.tokens_per_minute > 0
+            else 100.0
+        )
 
         # Determine status level
         max_usage = max(rpm_percent, daily_percent, tpm_percent)

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import csv
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from minister.project_tracker import InitiativeTracker, ProjectTracker, Task
@@ -236,7 +236,7 @@ class TestDataPersistence:
             created_date="2025-01-01T10:00:00",
             updated_date="2025-01-01T10:00:00",
         )
-        before_save = datetime.now()
+        before_save = datetime.now(timezone.utc)
 
         # Act
         empty_tracker.add_task(task)
@@ -421,7 +421,7 @@ class TestUpdateTask:
         # Arrange
         task_id = populated_tracker.data.tasks[0].id
         original_date = populated_tracker.data.tasks[0].updated_date
-        before_update = datetime.now()
+        before_update = datetime.now(timezone.utc)
 
         # Act
         populated_tracker.update_task(task_id, {"status": "Done"})
@@ -751,7 +751,7 @@ class TestCalculateOverallMetrics:
         THEN burn rate reflects hours per week.
         """
         # Arrange - Create tasks 14 days ago, complete some
-        base_date = datetime.now() - timedelta(days=14)
+        base_date = datetime.now(timezone.utc) - timedelta(days=14)
         for i in range(4):
             task = Task(
                 id=f"TSK-{i}",
@@ -765,7 +765,7 @@ class TestCalculateOverallMetrics:
                 completion_percent=100.0 if i < 2 else 0.0,
                 due_date="2025-01-15",
                 created_date=base_date.isoformat(),
-                updated_date=datetime.now().isoformat(),
+                updated_date=datetime.now(timezone.utc).isoformat(),
             )
             empty_tracker.add_task(task)
 
@@ -784,7 +784,7 @@ class TestCalculateOverallMetrics:
         THEN values are rounded to one decimal.
         """
         # Arrange
-        base_date = datetime.now() - timedelta(days=7)
+        base_date = datetime.now(timezone.utc) - timedelta(days=7)
         for i in range(7):
             task = Task(
                 id=f"TSK-{i}",
@@ -798,7 +798,7 @@ class TestCalculateOverallMetrics:
                 completion_percent=100.0 if i < 2 else 0.0,
                 due_date="2025-01-15",
                 created_date=base_date.isoformat(),
-                updated_date=datetime.now().isoformat(),
+                updated_date=datetime.now(timezone.utc).isoformat(),
             )
             empty_tracker.add_task(task)
 

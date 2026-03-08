@@ -11,39 +11,14 @@ IMPORTANT: Must use Python 3.9 compatible syntax.
 from __future__ import annotations
 
 import json
-import os
 import sys
-from pathlib import Path
 
-
-def find_manifest() -> Path:
-    """Find manifest.json walking up from CWD."""
-    cwd = Path(os.getcwd())
-    for directory in [cwd] + list(cwd.parents):
-        candidate = directory / ".egregore" / "manifest.json"
-        if candidate.exists():
-            return candidate
-    return cwd / ".egregore" / "manifest.json"
-
-
-def has_active_work(manifest_path: Path) -> bool:
-    """Check if manifest has active or paused work items."""
-    if not manifest_path.exists():
-        return False
-    try:
-        data = json.loads(manifest_path.read_text())
-        items = data.get("work_items", [])
-        return any(item.get("status") in ("active", "paused") for item in items)
-    except (json.JSONDecodeError, OSError):
-        return False
+from _manifest_utils import consume_stdin, find_manifest, has_active_work
 
 
 def main() -> None:
     """Stop hook entry point."""
-    try:
-        json.load(sys.stdin)  # consume stdin
-    except (json.JSONDecodeError, ValueError):
-        pass
+    consume_stdin()
 
     manifest_path = find_manifest()
 

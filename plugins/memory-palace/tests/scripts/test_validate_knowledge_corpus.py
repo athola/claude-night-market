@@ -38,7 +38,7 @@ queries:
 # Content here
 """
         result = extract_frontmatter(content)
-        assert result is not None
+        assert isinstance(result, dict)
         assert result["title"] == "Test Entry"
         assert result["maturity"] == "seedling"
         assert len(result["tags"]) == 2

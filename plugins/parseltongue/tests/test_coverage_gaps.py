@@ -13,7 +13,6 @@ class TestLanguageDetectionCoverageGaps:
     """Tests for uncovered paths in language detection."""
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "filename,expected_language,code,min_confidence",
         [
@@ -23,7 +22,7 @@ class TestLanguageDetectionCoverageGaps:
             ("main.rs", "rust", "fn main() {}", None),
         ],
     )
-    async def test_detect_language_from_filename_extension(
+    def test_detect_language_from_filename_extension(
         self,
         language_detection_skill,
         filename,
@@ -32,14 +31,13 @@ class TestLanguageDetectionCoverageGaps:
         min_confidence,
     ) -> None:
         """Given filename with extension, detect language via file extension."""
-        result = await language_detection_skill.detect_language(code, filename=filename)
+        result = language_detection_skill.detect_language(code, filename=filename)
         assert result["language"] == expected_language
         if min_confidence is not None:
             assert result["confidence"] >= min_confidence
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_typescript_parameter_types(
+    def test_detect_typescript_parameter_types(
         self, language_detection_skill
     ) -> None:
         """Given TypeScript with parameter types, detect TypeScript."""
@@ -48,14 +46,13 @@ function greet(name: string, age: number): void {
     console.log(name, age);
 }
 """
-        result = await language_detection_skill.detect_language(code)
+        result = language_detection_skill.detect_language(code)
         assert result["language"] == "typescript"
         features = result.get("features", [])
         assert "type_annotations" in features
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_analyze_features_go_language(self, language_detection_skill) -> None:
+    def test_analyze_features_go_language(self, language_detection_skill) -> None:
         """Given Go code, analyze Go-specific features."""
         go_code = """
 package main
@@ -67,36 +64,33 @@ func main() {
     }()
 }
 """
-        result = await language_detection_skill.analyze_features(go_code, "go")
+        result = language_detection_skill.analyze_features(go_code, "go")
         assert "features" in result
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_analyze_dependencies_empty_code(
+    def test_analyze_dependencies_empty_code(
         self, language_detection_skill
     ) -> None:
         """Given empty code, return empty dependencies."""
-        result = await language_detection_skill.analyze_dependencies("", "python")
+        result = language_detection_skill.analyze_dependencies("", "python")
         assert "dependencies" in result
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_analyze_complexity_simple_code(
+    def test_analyze_complexity_simple_code(
         self, language_detection_skill
     ) -> None:
         """Given simple code, return low complexity."""
         code = "x = 1"
-        result = await language_detection_skill.analyze_complexity(code, "python")
+        result = language_detection_skill.analyze_complexity(code, "python")
         assert result["cyclomatic_complexity"] <= 5
         assert result["complexity_level"] in ["low", "medium"]
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_primary_language_empty(
+    def test_detect_primary_language_empty(
         self, language_detection_skill
     ) -> None:
         """Given empty code, return unknown as primary."""
-        result = await language_detection_skill.detect_primary_language("")
+        result = language_detection_skill.detect_primary_language("")
         assert result["primary_language"] == "unknown"
 
 
@@ -104,8 +98,7 @@ class TestPatternMatchingCoverageGaps:
     """Tests for uncovered paths in pattern matching."""
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_match_patterns_with_nested_loops(
+    def test_match_patterns_with_nested_loops(
         self, pattern_matching_skill
     ) -> None:
         """Given Python code with nested loops, detect pattern."""
@@ -114,7 +107,7 @@ for i in items:
     for j in other_items:
         process(i, j)
 """
-        result = await pattern_matching_skill.match_patterns(code, "python")
+        result = pattern_matching_skill.match_patterns(code, "python")
         assert "patterns" in result
         assert "confidence" in result
 

@@ -6,6 +6,8 @@ enforcement patterns, following TDD/BDD principles.
 The Iron Law: NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest

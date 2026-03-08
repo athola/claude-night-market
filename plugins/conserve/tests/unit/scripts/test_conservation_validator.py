@@ -4,6 +4,8 @@ This module tests the conservation workflow validation, pattern matching,
 and report generation functionality following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import json
 import time
 
@@ -74,6 +76,7 @@ class TestConservationValidator:
         patterns = mock_conservation_validator.scan_conservation_workflows()
 
         # Assert
+        mock_conservation_validator.scan_conservation_workflows.assert_called_once()
         assert len(patterns) == THREE
         assert any(p["type"] == "mecw_principles" for p in patterns)
         assert any(p["type"] == "token_conservation" for p in patterns)
@@ -252,18 +255,16 @@ class TestConservationValidator:
         report = mock_conservation_validator.generate_report()
 
         # Assert
+        mock_conservation_validator.generate_report.assert_called_once()
         report_data = json.loads(report)
         assert "mecw_analysis" in report_data
         assert "token_analysis" in report_data
         assert "performance_analysis" in report_data
 
         mecw = report_data["mecw_analysis"]
-        assert (
-            mecw["compliant_skills"] < mecw["total_skills"]
-        )  # Some optimization needed
-        assert (
-            mecw["average_utilization"] < FIFTY_POINT_ZERO
-        )  # Should be under MECW threshold
+        assert mecw["compliant_skills"] == 4
+        assert mecw["total_skills"] == 5
+        assert mecw["average_utilization"] == 35.2
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -314,6 +315,7 @@ class TestConservationValidator:
         )
 
         # Assert
+        mock_conservation_validator.identify_optimization_opportunities.assert_called_once()
         assert len(opportunities) == THREE
         high_severity = [opp for opp in opportunities if opp["severity"] == "high"]
         assert len(high_severity) == 1
@@ -377,6 +379,7 @@ class TestConservationValidator:
                 errors.append({"file": skill_file, "error": str(e)})
 
         # Assert
+        assert mock_conservation_validator.validate_skill_file.call_count == THREE
         assert len(errors) == THREE
         assert any("Invalid YAML syntax" in error["error"] for error in errors)
         assert any("Missing required field" in error["error"] for error in errors)
@@ -416,6 +419,7 @@ class TestConservationValidator:
         end_time = time.time()
 
         # Assert
+        mock_conservation_validator.scan_conservation_workflows.assert_called_once()
         processing_time = end_time - start_time
         assert processing_time < TWO_POINT_ZERO  # Should complete within 2 seconds
         assert len(results) == HUNDRED
@@ -450,10 +454,10 @@ class TestConservationValidator:
         dependency_check = mock_conservation_validator.check_dependencies()
 
         # Assert
+        mock_conservation_validator.check_dependencies.assert_called_once()
         assert "abstract" in dependency_check
         abstract_dep = dependency_check["abstract"]
         assert abstract_dep["compatibility"] is True
-        # Version compatibility is checked via the 'compatibility' field
         assert abstract_dep["current_version"] == "2.1.0"
         assert abstract_dep["required_version"] == ">=2.0.0"
 
@@ -498,6 +502,7 @@ class TestConservationWorkflowValidation:
         validation_result = mock_conservation_validator.validate_workflow_phases()
 
         # Assert
+        mock_conservation_validator.validate_workflow_phases.assert_called_once()
         assert len(validation_result["validated_phases"]) == FIVE
         assert len(validation_result["missing_phases"]) == 0
         assert validation_result["workflow_completeness"] == 1.0
@@ -532,18 +537,9 @@ class TestConservationWorkflowValidation:
         metrics = mock_conservation_validator.measure_efficiency()
 
         # Assert
-        assert (
-            metrics["token_savings_percentage"] > TWENTY_POINT_ZERO
-        )  # Significant savings
-        assert (
-            metrics["performance_improvement_percentage"] > TEN_POINT_ZERO
-        )  # Notable improvement
-        assert (
-            metrics["resource_optimization_score"] > ZERO_POINT_EIGHT
-        )  # Good optimization
-        assert metrics["overall_efficiency_grade"] in [
-            "A",
-            "A-",
-            "B+",
-            "B",
-        ]  # Acceptable grades
+        mock_conservation_validator.measure_efficiency.assert_called_once()
+        assert metrics["token_savings_percentage"] == 23.5
+        assert metrics["performance_improvement_percentage"] == 15.8
+        assert metrics["resource_optimization_score"] == 0.82
+        assert metrics["context_efficiency_ratio"] == 0.91
+        assert metrics["overall_efficiency_grade"] == "A-"

@@ -78,6 +78,18 @@ Indefinite mode (runs until dismissed):
 5. On completion, a summary is posted and the manifest
    is marked done.
 
+## Progress Monitoring (2.1.71+)
+
+While the egregore runs, you can monitor progress with
+`/loop`:
+
+```
+/loop 5m /egregore:status
+```
+
+This emits a status summary every 5 minutes between turns.
+The egregore also schedules this automatically on startup.
+
 ## See Also
 
 - `/egregore:status` to check progress.

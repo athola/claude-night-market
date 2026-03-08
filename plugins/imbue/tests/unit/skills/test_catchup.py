@@ -4,23 +4,13 @@ This module tests the repository catchup and change summarization functionality,
 following TDD/BDD principles and testing all catchup scenarios.
 """
 
+from __future__ import annotations
+
 import contextlib
 import time
 from unittest.mock import call
 
 import pytest
-
-# Constants for PLR2004 magic values
-TWO = 2
-TWO_POINT_ZERO = 2.0
-THREE = 3
-FOUR = 4
-FIVE = 5
-SEVEN = 7
-EIGHT = 8
-TEN = 10
-HUNDRED = 100
-FIVE_HUNDRED = 500
 
 
 class TestCatchupSkill:
@@ -544,32 +534,41 @@ Untracked files:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
+    @pytest.mark.parametrize(
+        "baseline_spec,expected_command",
+        [
+            ("HEAD~5", "git rev-parse HEAD~5"),
+            ("main", "git rev-parse main"),
+            ("yesterday", "git log --since='yesterday' --format=format:%H | tail -1"),
+            ("--tags", "git describe --tags"),
+            ("origin/feature", "git rev-parse origin/feature"),
+        ],
+        ids=[
+            "relative-ref",
+            "branch-name",
+            "date-based",
+            "tag-based",
+            "remote-branch",
+        ],
+    )
+    def test_catchup_handles_different_baselines(
+        self, mock_claude_tools, baseline_spec, expected_command,
+    ) -> None:
         """Scenario: Catchup handles various baseline specifications.
 
         Given different baseline reference formats
         When establishing baseline for catchup
         Then it should handle relative refs, dates, and branches.
         """
-        # Test cases for different baseline specifications
-        test_cases = [
-            ("HEAD~5", "git rev-parse HEAD~5"),
-            ("main", "git rev-parse main"),
-            ("yesterday", "git log --since='yesterday' --format=format:%H | tail -1"),
-            ("--tags", "git describe --tags"),
-            ("origin/feature", "git rev-parse origin/feature"),
-        ]
+        # Arrange
+        mock_claude_tools["Bash"].return_value = "baseline-hash"
 
-        for _baseline_spec, expected_command in test_cases:
-            # Arrange
-            mock_claude_tools["Bash"].return_value = "baseline-hash"
+        # Act
+        baseline = mock_claude_tools["Bash"](expected_command)
 
-            # Act
-            baseline = mock_claude_tools["Bash"](expected_command)
-
-            # Assert
-            assert baseline == "baseline-hash"
-            mock_claude_tools["Bash"].assert_called_with(expected_command)
+        # Assert
+        assert baseline == "baseline-hash"
+        mock_claude_tools["Bash"].assert_called_with(expected_command)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -650,31 +649,34 @@ Untracked files:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_catchup_error_handling(self, mock_claude_tools) -> None:
+    @pytest.mark.parametrize(
+        "error_output,error_type,expected_prefix",
+        [
+            ("fatal: not a git repository", "not_a_repo", "fatal:"),
+            ("fatal: not a valid object name: INVALID_REF", "invalid_baseline", "fatal:"),
+            ("error: git command not found", "git_not_available", "error:"),
+        ],
+        ids=["not-a-repo", "invalid-baseline", "git-not-found"],
+    )
+    def test_catchup_error_handling(
+        self, mock_claude_tools, error_output, error_type, expected_prefix,
+    ) -> None:
         """Scenario: Catchup handles repository errors gracefully.
 
         Given various git repository issues
         When running catchup analysis
         Then it should handle errors and provide meaningful feedback.
         """
-        # Test cases for repository errors
-        error_cases = [
-            ("fatal: not a git repository", "not_a_repo"),
-            ("fatal: not a valid object name: INVALID_REF", "invalid_baseline"),
-            ("error: git command not found", "git_not_available"),
-        ]
+        # Arrange
+        mock_claude_tools["Bash"].return_value = error_output
 
-        for error_output, _error_type in error_cases:
-            # Arrange
-            mock_claude_tools["Bash"].return_value = error_output
+        # Act - handle error gracefully
+        with contextlib.suppress(Exception):
+            result = mock_claude_tools["Bash"]("git status")
 
-            # Act - handle error gracefully
-            with contextlib.suppress(Exception):
-                mock_claude_tools["Bash"]("git status")
-
-            # Assert
-            # In a real implementation, this would return error info rather than raising
-            assert "fatal:" in error_output or "error:" in error_output
+        # Assert
+        assert result.startswith(expected_prefix)
+        mock_claude_tools["Bash"].assert_called_with("git status")
 
     @pytest.mark.bdd
     @pytest.mark.performance

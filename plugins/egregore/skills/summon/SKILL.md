@@ -162,7 +162,12 @@ If the last skill call returned a rate limit error:
    `budget.record_rate_limit(cooldown_minutes)`.
 2. Save `budget.json`.
 3. Alert the overseer (see `notify.py`).
-4. Exit gracefully. The watchdog will check cooldown before
+4. **Schedule in-session recovery** (2.1.71+): use
+   `CronCreate` to schedule a one-shot resume prompt at
+   the cooldown expiry time. The session stays alive and
+   resumes automatically with context preserved.
+5. **Fallback** (pre-2.1.71 or cooldown > 3 days): exit
+   gracefully. The watchdog checks cooldown before
    relaunching.
 
 ### 8. Repeat
@@ -216,6 +221,24 @@ To avoid losing state when the window fills:
 
 This protocol ensures zero lost progress across context
 boundaries.
+
+## Progress Monitoring (2.1.71+)
+
+After loading state (step 1), schedule a recurring progress
+pulse using `/loop`:
+
+```
+CronCreate(
+  cron_expression: "*/5 * * * *",
+  prompt: "/egregore:status",
+  recurring: true
+)
+```
+
+This emits a status summary every 5 minutes between turns,
+giving visibility into autonomous runs without interrupting
+the pipeline. The cron task is session-scoped and auto-expires
+after 3 days. Use `CronDelete` to cancel early if needed.
 
 ## Token Budget Protocol
 

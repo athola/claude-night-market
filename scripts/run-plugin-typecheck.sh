@@ -6,7 +6,7 @@
 #   ./scripts/run-plugin-typecheck.sh --all
 #   ./scripts/run-plugin-typecheck.sh --changed (runs type checks for plugins with changes)
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -130,12 +130,12 @@ elif [ "$1" == "--changed" ]; then
     fi
 
     # Run type checking for each changed plugin
-    for plugin_dir in $CHANGED_PLUGINS; do
+    while IFS= read -r plugin_dir; do
         if [ -d "$plugin_dir" ]; then
             run_plugin_typecheck "$plugin_dir" || true
             echo
         fi
-    done
+    done <<< "$CHANGED_PLUGINS"
 
 else
     # Run type checking for specified plugins

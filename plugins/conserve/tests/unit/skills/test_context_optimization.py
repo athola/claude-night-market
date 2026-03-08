@@ -4,6 +4,8 @@ This module tests the MECW principles, context analysis, and optimization
 functionality following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -208,6 +210,10 @@ tags:
         assert utilization_percentage == FORTY_TWO_POINT_FIVE
         assert status == "OPTIMAL"
         assert priority == "P3"
+        # Verify mock_claude_tools["Bash"] was called exactly twice
+        assert mock_claude_tools["Bash"].call_count == TWO
+        mock_claude_tools["Bash"].assert_any_call("echo $CURRENT_CONTEXT_TOKENS")
+        mock_claude_tools["Bash"].assert_any_call("echo $CONTEXT_WINDOW_SIZE")
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -402,6 +408,10 @@ tags:
         assert utilization == NINETY_POINT_ZERO
         assert strategy == "aggressive_compression"
         assert target_tokens == HUNDRED_EIGHT_THOUSAND  # 60% of window size
+        # Verify mock was called once with the expected command
+        mock_claude_tools["Bash"].assert_called_once_with(
+            "echo $CURRENT_CONTEXT_TOKENS"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -449,6 +459,8 @@ tags:
             for strategy in fallback_strategies
         )
         assert all("invalid" in error.lower() for error in error_log)
+        # Verify Bash mock was not directly called (we iterated side_effect)
+        assert mock_claude_tools["Bash"].call_count == 0
 
     @pytest.mark.unit
     def test_context_optimization_token_budget_conservation(

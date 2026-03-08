@@ -4,6 +4,8 @@ This module tests the autonomous context optimization agent
 following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import pytest
 
 # Constants for PLR2004 magic values

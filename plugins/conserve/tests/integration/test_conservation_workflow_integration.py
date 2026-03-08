@@ -3,6 +3,8 @@
 This module tests end-to-end conservation workflows following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import pytest
 
 # Constants for test thresholds
@@ -114,8 +116,10 @@ class TestConservationWorkflowIntegration:
 
         # Verify workflow cohesion
         assert workflow_results["context_analysis"]["optimization_needed"] is True
-        assert workflow_results["result_integration"]["total_tokens_saved"] > 0
-        assert "summary" in workflow_results["feedback_generation"]
+        assert workflow_results["result_integration"]["total_tokens_saved"] == 2000
+        assert workflow_results["feedback_generation"]["summary"] == (
+            "Optimization completed with 2000 tokens saved"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.integration

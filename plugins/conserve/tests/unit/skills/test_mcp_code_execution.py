@@ -4,6 +4,8 @@ This module tests MCP pattern optimization, subagent coordination,
 and external tool delegation following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import pytest
 
 # Constants for PLR2004 magic values

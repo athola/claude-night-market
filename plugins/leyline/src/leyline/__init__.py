@@ -11,7 +11,7 @@ from leyline.mecw import (
     calculate_context_pressure,
     check_mecw_compliance,
 )
-from leyline.quota_tracker import QuotaConfig, QuotaTracker
+from leyline.quota_tracker import QuotaConfig, QuotaStatus, QuotaTracker, UsageStats
 from leyline.tokens import (
     FILE_OVERHEAD_TOKENS,
     FILE_TOKEN_RATIOS,
@@ -19,7 +19,7 @@ from leyline.tokens import (
     estimate_tokens,
 )
 
-__version__ = "1.5.6"
+__version__ = "1.6.0"
 
 __all__ = [
     "FILE_OVERHEAD_TOKENS",
@@ -31,7 +31,9 @@ __all__ = [
     "MECWStatus",
     # Quota tracking
     "QuotaConfig",
+    "QuotaStatus",
     "QuotaTracker",
+    "UsageStats",
     "calculate_context_pressure",
     "check_mecw_compliance",
     "estimate_file_tokens",

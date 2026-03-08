@@ -15,25 +15,6 @@ from unittest.mock import Mock
 
 import pytest
 
-# Skip test files that depend on planned architecture not yet implemented
-# These tests reference methods and modules that are part of planned
-# expansion but not yet built. The skill classes exist but methods like
-# analyze_test_structure, identify_anti_patterns, etc. aren't implemented.
-# Re-enable these tests as the implementations are completed.
-collect_ignore = [
-    "test_async_edge_cases.py",  # Tests methods not on AsyncAnalysisSkill
-    "test_async_patterns.py",  # Tests methods not on AsyncAnalysisSkill
-    "test_code_transformation.py",  # Tests methods not on CodeTransformationSkill
-    "test_compatibility_checker.py",  # Tests methods not on CompatibilityCheckerSkill
-    "test_coverage_gaps.py",  # Tests methods across multiple skills
-    "test_edge_cases.py",  # Imports from parseltongue.config/agents
-    "test_integration.py",  # Imports from parseltongue.config/agents
-    "test_language_detection.py",  # Imports from parseltongue.config/agents
-    "test_pattern_matching.py",  # Tests methods not on PatternMatchingSkill
-    "test_skill_loader.py",  # Tests unimplemented SkillLoader methods
-    "test_testing_guidance.py",  # Tests methods not on TestingGuideSkill
-]
-
 # Test data constants
 PYTHON_SAMPLE_CODE = '''
 from typing import List, Optional
@@ -200,7 +181,7 @@ type UserServiceConfig = {
 class UserService {
     private users: Map<number, User> = new Map();
     private nextId: number = 1;
-    private config: UserServiceConfig;
+    private readonly config: UserServiceConfig;
 
     constructor(config: UserServiceConfig = {}) {
         this.config = {
@@ -300,6 +281,20 @@ class AsyncDataService:
         """Internal processing method."""
         await asyncio.sleep(0.1)  # Simulate work
         return {"processed": True, "data": data}
+
+async def fetch_with_retry(url: str, max_retries: int = 3) -> dict:
+    """Fetch data with retry logic."""
+    for attempt in range(max_retries):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    response.raise_for_status()
+                    return await response.json()
+        except aiohttp.ClientError:
+            if attempt == max_retries - 1:
+                raise
+            await asyncio.sleep(2 ** attempt)
+    return {}
 '''
 
 # DSL/Pattern examples for parseltongue
@@ -597,6 +592,16 @@ async def risky_operation():
     data = await fetch_from_api()
     return data.json()  # No error handling
         """,
+        "blocking_io": """
+# Blocking I/O in async context
+def sync_operation():
+    time.sleep(1)  # Blocks event loop
+    return result
+
+async def async_function():
+    result = sync_operation()  # Bad: blocking call in async
+    return result
+        """,
     }
 
 
@@ -675,3 +680,60 @@ def pytest_configure(config) -> None:
         "markers",
         "language_detection: Mark test as language detection test",
     )
+    config.addinivalue_line("markers", "bdd: Mark test as BDD-style test")
+
+
+@pytest.fixture
+def async_analysis_skill():
+    """Create an AsyncAnalysisSkill instance for testing."""
+    from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+
+    return AsyncAnalysisSkill()
+
+
+@pytest.fixture
+def code_transformation_skill():
+    """Create a CodeTransformationSkill instance for testing."""
+    from parseltongue.skills.code_transformation import CodeTransformationSkill
+
+    return CodeTransformationSkill()
+
+
+@pytest.fixture
+def compatibility_checker():
+    """Create a CompatibilityChecker instance for testing."""
+    from parseltongue.skills.compatibility_checker import CompatibilityChecker
+
+    return CompatibilityChecker()
+
+
+@pytest.fixture
+def pattern_matching_skill():
+    """Create a PatternMatchingSkill instance for testing."""
+    from parseltongue.skills.pattern_matching import PatternMatchingSkill
+
+    return PatternMatchingSkill()
+
+
+@pytest.fixture
+def testing_guide_skill():
+    """Create a TestingGuideSkill instance for testing."""
+    from parseltongue.skills.testing_guide import TestingGuideSkill
+
+    return TestingGuideSkill()
+
+
+@pytest.fixture
+def skill_loader():
+    """Create a SkillLoader instance for testing."""
+    from parseltongue.skills.skill_loader import SkillLoader
+
+    return SkillLoader()
+
+
+@pytest.fixture
+def language_detection_skill():
+    """Create a LanguageDetectionSkill instance for testing."""
+    from parseltongue.skills.language_detection import LanguageDetectionSkill
+
+    return LanguageDetectionSkill()

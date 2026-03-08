@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.5.6"
+version = "1.6.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -116,6 +116,7 @@ omit = [
     "*/site-packages/*",
     "setup.py",
     "src/pensive/_version.py",
+    "src/pensive/skills/rust_review_data.py",
 ]
 
 [tool.coverage.report]

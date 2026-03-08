@@ -122,13 +122,16 @@ class GrowthAnalyzer:
             if turn > turns:
                 continue
 
-            # Compound growth with acceleration
-            projected_usage = current_usage * ((1 + growth_rate) ** turn)
+            # Compound growth with acceleration (with overflow protection)
+            try:
+                projected_usage = current_usage * ((1 + growth_rate) ** turn)
 
-            # Add acceleration effect
-            if acceleration > 0:
-                accel_factor = 1 + (acceleration * turn * (turn - 1) / 2)
-                projected_usage *= accel_factor
+                # Add acceleration effect (quadratic model)
+                if acceleration > 0:
+                    accel_factor = 1 + (acceleration * turn * (turn - 1) / 2)
+                    projected_usage *= accel_factor
+            except OverflowError:
+                projected_usage = float("inf")
 
             projections[f"{turn}_turns"] = {
                 "projected_usage": round(projected_usage, 2),
@@ -164,17 +167,29 @@ class GrowthAnalyzer:
         if growth_rate <= 0:
             return float("inf")
 
+        # Guard against log domain errors (growth_rate must be > 0 for log)
+        if growth_rate >= 1.0:
+            return 1  # Doubling+ per turn guarantees immediate violation
+
         # Simple estimation for positive growth without acceleration
         if acceleration <= 0:
-            return math.ceil(math.log(100 / current_usage) / math.log(1 + growth_rate))
+            return math.ceil(
+                math.log(MECW_USAGE_LIMIT / current_usage)
+                / math.log(1 + growth_rate)
+            )
 
-        # For positive acceleration, use iterative approach
+        # For positive acceleration, use iterative approach with
+        # the same quadratic model as _project_growth
         usage = current_usage
         turns = 0
-        while usage < MECW_USAGE_LIMIT and turns < SAFETY_LIMIT_TURNS:  # Safety limit
+        while usage < MECW_USAGE_LIMIT and turns < SAFETY_LIMIT_TURNS:
             turns += 1
-            growth = usage * growth_rate + usage * acceleration * turns
-            usage += growth
+            try:
+                projected = current_usage * ((1 + growth_rate) ** turns)
+                accel_factor = 1 + (acceleration * turns * (turns - 1) / 2)
+                usage = projected * accel_factor
+            except OverflowError:
+                return turns
 
         return turns if usage >= MECW_USAGE_LIMIT else float("inf")
 

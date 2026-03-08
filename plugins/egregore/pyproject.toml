@@ -12,18 +12,24 @@ authors = [
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0",
+]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.14.13,<1.0",
     "mypy>=1.11.0,<2.0",
+    "types-PyYAML>=6.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["scripts", "hooks"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"conventions/codex.yml" = "conventions/codex.yml"
 
 [tool.ruff]
 line-length = 88
@@ -35,7 +41,7 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = ["S101", "E203", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "PLC0415"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415", "PLC0415"]
 
 [tool.mypy]
 python_version = "3.9"

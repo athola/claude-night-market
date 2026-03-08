@@ -10,26 +10,98 @@ Tests complete orchestration flows:
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from scripts.war_room_orchestrator import (
     WarRoomOrchestrator,
     _expert_availability,
     _haiku_fallback_notices,
 )
 
+# Phase method names that get mocked in convene tests
+_CONVENE_PHASES = (
+    "_phase_intel",
+    "_phase_assessment",
+    "_phase_coa_development",
+    "_should_escalate",
+    "_phase_red_team",
+    "_phase_voting",
+    "_phase_premortem",
+    "_phase_synthesis",
+)
+
+_DELPHI_PHASES = (
+    "_phase_intel",
+    "_phase_assessment",
+    "_phase_coa_development",
+    "_phase_red_team",
+    "_phase_voting",
+    "_compute_convergence",
+    "_delphi_revision_round",
+    "_phase_premortem",
+    "_phase_synthesis",
+)
+
+
+@pytest.fixture
+def orchestrator(tmp_path: Path) -> WarRoomOrchestrator:
+    """Create orchestrator with temp Strategeion path."""
+    return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+
+@pytest.fixture
+def convene_mocks(orchestrator: WarRoomOrchestrator):
+    """Patch all convene phase methods and yield a name-to-mock dict.
+
+    Each phase is patched as an AsyncMock. The caller can
+    configure individual mocks via the returned dict.
+    """
+    with ExitStack() as stack:
+        mocks: dict[str, AsyncMock] = {}
+        for name in _CONVENE_PHASES:
+            mock = stack.enter_context(
+                patch.object(
+                    orchestrator,
+                    name,
+                    new_callable=AsyncMock,
+                )
+            )
+            mocks[name] = mock
+        # Default: no escalation
+        mocks["_should_escalate"].return_value = False
+        yield mocks
+
+
+@pytest.fixture
+def delphi_mocks(orchestrator: WarRoomOrchestrator):
+    """Patch all Delphi-flow phase methods and yield a name-to-mock dict."""
+    with ExitStack() as stack:
+        mocks: dict[str, AsyncMock] = {}
+        for name in _DELPHI_PHASES:
+            kw = {"new_callable": AsyncMock} if name != "_compute_convergence" else {}
+            mock = stack.enter_context(
+                patch.object(orchestrator, name, **kw)
+            )
+            mocks[name] = mock
+        yield mocks
+
+
+# -------------------------------------------------------------------
+# Hook auto-trigger detection
+# -------------------------------------------------------------------
 
 class TestHookAutoTrigger:
     """Test Phase 4: Hook auto-trigger detection."""
 
     def test_suggest_war_room_strategic_keywords(self) -> None:
-        """Strategic keywords trigger War Room suggestion with multiple matches."""
-        # Multiple strategic keywords needed to hit threshold
+        """Strategic keywords trigger War Room suggestion."""
         result = WarRoomOrchestrator.should_suggest_war_room(
-            "This is a critical architectural decision with significant trade-offs. "
-            "Should we migrate to a new platform?"
+            "This is a critical architectural decision with significant "
+            "trade-offs. Should we migrate to a new platform?"
         )
 
         assert result["suggest"] is True
@@ -42,8 +114,8 @@ class TestHookAutoTrigger:
     def test_suggest_war_room_multi_option(self) -> None:
         """Multi-option plus other keywords triggers suggestion."""
         result = WarRoomOrchestrator.should_suggest_war_room(
-            "We're facing a complex choice between microservices or monolith "
-            "with significant architectural implications"
+            "We're facing a complex choice between microservices or "
+            "monolith with significant architectural implications"
         )
 
         assert result["suggest"] is True
@@ -61,8 +133,8 @@ class TestHookAutoTrigger:
     def test_suggest_war_room_trade_off(self) -> None:
         """Trade-off with complexity triggers suggestion."""
         result = WarRoomOrchestrator.should_suggest_war_room(
-            "There's a complex trade-off here that could be risky and "
-            "requires considering multiple approaches"
+            "There's a complex trade-off here that could be risky "
+            "and requires considering multiple approaches"
         )
 
         assert result["suggest"] is True
@@ -72,159 +144,95 @@ class TestHookAutoTrigger:
         """Complexity threshold is configurable."""
         message = "Should we refactor this module?"
 
-        # Default threshold
         default_result = WarRoomOrchestrator.should_suggest_war_room(message)
-
-        # Lower threshold
         low_result = WarRoomOrchestrator.should_suggest_war_room(
             message, complexity_threshold=0.2
         )
-
-        # Higher threshold
         high_result = WarRoomOrchestrator.should_suggest_war_room(
             message, complexity_threshold=0.95
         )
 
-        # Same confidence, different suggestions based on threshold
         assert low_result["confidence"] == default_result["confidence"]
-        assert low_result["suggest"] is True  # Low threshold = easier to trigger
-        assert high_result["suggest"] is False  # High threshold = harder to trigger
+        assert low_result["suggest"] is True
+        assert high_result["suggest"] is False
 
-    def test_suggest_war_room_returns_correct_reason(self) -> None:
-        """should_suggest_war_room returns appropriate reason strings."""
-        # Test multi-option reason
+    def test_reason_multi_option(self) -> None:
+        """Multi-option messages produce 'Multiple approaches' reason."""
         result = WarRoomOrchestrator.should_suggest_war_room(
             "Should we use microservices or monolith architecture?"
         )
         assert result["suggest"] is True
         assert "Multiple approaches" in result["reason"]
 
-        # Test strategic reason (without multi-option)
+    def test_reason_strategic(self) -> None:
+        """Strategic messages without multi-option produce strategic reason."""
         result = WarRoomOrchestrator.should_suggest_war_room(
             "This is a critical architectural migration decision"
         )
         assert result["suggest"] is True
         assert "Strategic decision" in result["reason"]
 
-        # Test high-stakes reason (stakes keywords only)
+    def test_reason_high_stakes(self) -> None:
+        """High-stakes-only messages still trigger suggestion."""
         result = WarRoomOrchestrator.should_suggest_war_room(
             "This is a risky uncertain complicated task that is critical"
         )
         assert result["suggest"] is True
 
 
+# -------------------------------------------------------------------
+# Full convene() flow
+# -------------------------------------------------------------------
+
 class TestFullConveneFlow:
     """Test full convene() flow with all phases."""
 
-    @pytest.fixture
-    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
-        """Create orchestrator with temp Strategeion path."""
-        return WarRoomOrchestrator(strategeion_path=tmp_path)
-
     @pytest.mark.asyncio
-    async def test_convene_full_flow_mocked(
-        self, orchestrator: WarRoomOrchestrator
+    async def test_convene_completes_all_phases(
+        self,
+        orchestrator: WarRoomOrchestrator,
+        convene_mocks: dict[str, AsyncMock],
     ) -> None:
-        """Test full convene() flow with all phases mocked."""
-        # Mock all phase methods
-        with patch.object(
-            orchestrator, "_phase_intel", new_callable=AsyncMock
-        ) as mock_intel:
-            with patch.object(
-                orchestrator, "_phase_assessment", new_callable=AsyncMock
-            ) as mock_assessment:
-                with patch.object(
-                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
-                ) as mock_coa:
-                    with patch.object(
-                        orchestrator, "_should_escalate", new_callable=AsyncMock
-                    ) as mock_escalate:
-                        with patch.object(
-                            orchestrator, "_phase_red_team", new_callable=AsyncMock
-                        ) as mock_red_team:
-                            with patch.object(
-                                orchestrator, "_phase_voting", new_callable=AsyncMock
-                            ) as mock_voting:
-                                with patch.object(
-                                    orchestrator,
-                                    "_phase_premortem",
-                                    new_callable=AsyncMock,
-                                ) as mock_premortem:
-                                    with patch.object(
-                                        orchestrator,
-                                        "_phase_synthesis",
-                                        new_callable=AsyncMock,
-                                    ) as mock_synthesis:
-                                        mock_escalate.return_value = False
-
-                                        session = await orchestrator.convene(
-                                            problem="Test full flow",
-                                            context_files=["*.py"],
-                                            mode="lightweight",
-                                        )
+        """convene() calls every phase and sets status to completed."""
+        session = await orchestrator.convene(
+            problem="Test full flow",
+            context_files=["*.py"],
+            mode="lightweight",
+        )
 
         assert session.status == "completed"
         assert session.session_id.startswith("war-room-")
-        mock_intel.assert_called_once()
-        mock_assessment.assert_called_once()
-        mock_coa.assert_called_once()
-        mock_red_team.assert_called_once()
-        mock_voting.assert_called_once()
-        mock_premortem.assert_called_once()
-        mock_synthesis.assert_called_once()
+        for name in _CONVENE_PHASES:
+            if name != "_should_escalate":
+                convene_mocks[name].assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_convene_with_escalation(
-        self, orchestrator: WarRoomOrchestrator
+    async def test_convene_triggers_escalation(
+        self,
+        orchestrator: WarRoomOrchestrator,
+        convene_mocks: dict[str, AsyncMock],
     ) -> None:
-        """Test convene() flow triggers escalation when needed."""
-        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
-            with patch.object(
-                orchestrator, "_phase_assessment", new_callable=AsyncMock
-            ):
-                with patch.object(
-                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
-                ):
-                    with patch.object(
-                        orchestrator, "_should_escalate", new_callable=AsyncMock
-                    ) as mock_escalate:
-                        with patch.object(
-                            orchestrator, "_escalate", new_callable=AsyncMock
-                        ) as mock_do_escalate:
-                            with patch.object(
-                                orchestrator, "_phase_red_team", new_callable=AsyncMock
-                            ):
-                                with patch.object(
-                                    orchestrator,
-                                    "_phase_voting",
-                                    new_callable=AsyncMock,
-                                ):
-                                    with patch.object(
-                                        orchestrator,
-                                        "_phase_premortem",
-                                        new_callable=AsyncMock,
-                                    ):
-                                        with patch.object(
-                                            orchestrator,
-                                            "_phase_synthesis",
-                                            new_callable=AsyncMock,
-                                        ):
-                                            mock_escalate.return_value = True
-
-                                            session = await orchestrator.convene(
-                                                problem="Complex problem",
-                                                mode="lightweight",
-                                            )
+        """convene() escalates to full_council when _should_escalate is True."""
+        convene_mocks["_should_escalate"].return_value = True
+        # Add _escalate mock (not in the default fixture)
+        with patch.object(
+            orchestrator, "_escalate", new_callable=AsyncMock
+        ) as mock_escalate:
+            session = await orchestrator.convene(
+                problem="Complex problem",
+                mode="lightweight",
+            )
 
         assert session.escalated is True
         assert session.mode == "full_council"
-        mock_do_escalate.assert_called_once()
+        mock_escalate.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_convene_failure_persists_session(
-        self, orchestrator: WarRoomOrchestrator
+        self,
+        orchestrator: WarRoomOrchestrator,
     ) -> None:
-        """Test convene() persists session even on failure."""
+        """convene() persists session even on failure."""
         with patch.object(
             orchestrator, "_phase_intel", new_callable=AsyncMock
         ) as mock_intel:
@@ -233,156 +241,63 @@ class TestFullConveneFlow:
             with pytest.raises(RuntimeError, match="Simulated failure"):
                 await orchestrator.convene(problem="Failing test")
 
-        # Session should still be persisted
         sessions = orchestrator.list_sessions()
         assert len(sessions) == 1
         assert "failed" in sessions[0]["status"]
 
     @pytest.mark.asyncio
     async def test_convene_clears_availability_cache(
-        self, orchestrator: WarRoomOrchestrator
+        self,
+        orchestrator: WarRoomOrchestrator,
+        convene_mocks: dict[str, AsyncMock],
     ) -> None:
-        """convene clears availability cache at start of session."""
-        # Pre-populate cache
+        """convene() clears availability cache at start of session."""
         _expert_availability["test:model"] = True
 
-        # Mock all phases to do nothing
-        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
-            with patch.object(
-                orchestrator, "_phase_assessment", new_callable=AsyncMock
-            ):
-                with patch.object(
-                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
-                ):
-                    with patch.object(
-                        orchestrator,
-                        "_should_escalate",
-                        new_callable=AsyncMock,
-                        return_value=False,
-                    ):
-                        with patch.object(
-                            orchestrator, "_phase_red_team", new_callable=AsyncMock
-                        ):
-                            with patch.object(
-                                orchestrator, "_phase_voting", new_callable=AsyncMock
-                            ):
-                                with patch.object(
-                                    orchestrator,
-                                    "_phase_premortem",
-                                    new_callable=AsyncMock,
-                                ):
-                                    with patch.object(
-                                        orchestrator,
-                                        "_phase_synthesis",
-                                        new_callable=AsyncMock,
-                                    ):
-                                        await orchestrator.convene("test problem")
+        await orchestrator.convene("test problem")
 
-        # Cache should have been cleared
         assert "test:model" not in _expert_availability
 
     @pytest.mark.asyncio
     async def test_convene_captures_fallback_notice(
-        self, orchestrator: WarRoomOrchestrator
+        self,
+        orchestrator: WarRoomOrchestrator,
+        convene_mocks: dict[str, AsyncMock],
     ) -> None:
-        """convene captures fallback notices in session artifacts."""
-
-        # Mock _phase_intel to add a fallback notice (simulating fallback during session)
-        async def mock_intel_with_fallback(*_args, **_kwargs):
+        """convene() captures fallback notices in session artifacts."""
+        async def mock_intel_with_fallback(*_a, **_k):
             _haiku_fallback_notices.append("Test fallback notice")
 
-        # Mock all phases, with intel adding a fallback notice
-        with patch.object(
-            orchestrator, "_phase_intel", side_effect=mock_intel_with_fallback
-        ):
-            with patch.object(
-                orchestrator, "_phase_assessment", new_callable=AsyncMock
-            ):
-                with patch.object(
-                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
-                ):
-                    with patch.object(
-                        orchestrator,
-                        "_should_escalate",
-                        new_callable=AsyncMock,
-                        return_value=False,
-                    ):
-                        with patch.object(
-                            orchestrator, "_phase_red_team", new_callable=AsyncMock
-                        ):
-                            with patch.object(
-                                orchestrator, "_phase_voting", new_callable=AsyncMock
-                            ):
-                                with patch.object(
-                                    orchestrator,
-                                    "_phase_premortem",
-                                    new_callable=AsyncMock,
-                                ):
-                                    with patch.object(
-                                        orchestrator,
-                                        "_phase_synthesis",
-                                        new_callable=AsyncMock,
-                                    ):
-                                        session = await orchestrator.convene(
-                                            "test problem"
-                                        )
+        convene_mocks["_phase_intel"].side_effect = mock_intel_with_fallback
+
+        session = await orchestrator.convene("test problem")
 
         assert "fallback_notice" in session.artifacts
         assert "Test fallback notice" in session.artifacts["fallback_notice"]
 
 
+# -------------------------------------------------------------------
+# Delphi convene flow
+# -------------------------------------------------------------------
+
 class TestDelphiConvene:
     """Test Delphi convene flow."""
 
-    @pytest.fixture
-    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
-        """Create orchestrator with temp Strategeion path."""
-        return WarRoomOrchestrator(strategeion_path=tmp_path)
-
     @pytest.mark.asyncio
     async def test_convene_delphi_full_flow(
-        self, orchestrator: WarRoomOrchestrator
+        self,
+        orchestrator: WarRoomOrchestrator,
+        delphi_mocks: dict[str, AsyncMock],
     ) -> None:
-        """Test Delphi convene flow with convergence."""
-        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
-            with patch.object(
-                orchestrator, "_phase_assessment", new_callable=AsyncMock
-            ):
-                with patch.object(
-                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
-                ):
-                    with patch.object(
-                        orchestrator, "_phase_red_team", new_callable=AsyncMock
-                    ):
-                        with patch.object(
-                            orchestrator, "_phase_voting", new_callable=AsyncMock
-                        ):
-                            with patch.object(
-                                orchestrator, "_compute_convergence"
-                            ) as mock_conv:
-                                with patch.object(
-                                    orchestrator,
-                                    "_delphi_revision_round",
-                                    new_callable=AsyncMock,
-                                ):
-                                    with patch.object(
-                                        orchestrator,
-                                        "_phase_premortem",
-                                        new_callable=AsyncMock,
-                                    ):
-                                        with patch.object(
-                                            orchestrator,
-                                            "_phase_synthesis",
-                                            new_callable=AsyncMock,
-                                        ):
-                                            # First call low, then high to exit loop
-                                            mock_conv.side_effect = [0.5, 0.9]
+        """Delphi convene iterates until convergence threshold is met."""
+        # First call below threshold, second above
+        delphi_mocks["_compute_convergence"].side_effect = [0.5, 0.9]
 
-                                            session = await orchestrator.convene_delphi(
-                                                problem="Delphi test",
-                                                max_rounds=3,
-                                                convergence_threshold=0.85,
-                                            )
+        session = await orchestrator.convene_delphi(
+            problem="Delphi test",
+            max_rounds=3,
+            convergence_threshold=0.85,
+        )
 
         assert session.status == "completed"
         assert session.metrics["delphi_mode"] is True
@@ -390,7 +305,8 @@ class TestDelphiConvene:
 
     @pytest.mark.asyncio
     async def test_convene_delphi_failure_persists(
-        self, orchestrator: WarRoomOrchestrator
+        self,
+        orchestrator: WarRoomOrchestrator,
     ) -> None:
         """Delphi convene persists session on failure."""
         with patch.object(
@@ -399,9 +315,10 @@ class TestDelphiConvene:
             mock_intel.side_effect = RuntimeError("Delphi failure")
 
             with pytest.raises(RuntimeError, match="Delphi failure"):
-                await orchestrator.convene_delphi(problem="Failing Delphi test")
+                await orchestrator.convene_delphi(
+                    problem="Failing Delphi test",
+                )
 
-        # Session should still be persisted
         sessions = orchestrator.list_sessions()
         assert len(sessions) == 1
         assert "failed" in sessions[0]["status"]

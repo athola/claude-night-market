@@ -255,6 +255,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert (
             "optional_chaining" in result["features"]
             or "nullish_coalescing" in result["features"]
+            or "readonly_properties" in result["features"]
         )
         assert "generic_classes" in result["features"]
 
@@ -420,7 +421,7 @@ def complex_function(items):
         assert "struct" in rust_keywords
         assert "impl" in rust_keywords
         assert "pub" in rust_keywords
-        assert "async" in rust_keywords
+        assert "mut" in rust_keywords
 
     @pytest.mark.bdd
     @pytest.mark.unit

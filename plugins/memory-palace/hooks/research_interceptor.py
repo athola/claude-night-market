@@ -202,9 +202,8 @@ def is_evergreen(query: str) -> bool:
 
 def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str, Any]]:
     """Search local knowledge corpus for matches."""
-    corpus_dir_rel = config.get("corpus_dir", "")
+    corpus_dir_rel = config.get("corpus_dir", "data/wiki")
     if not corpus_dir_rel:
-        # corpus_dir removed in 1.5.0 consolidation
         return []
     try:
         corpus_dir = PLUGIN_ROOT / corpus_dir_rel

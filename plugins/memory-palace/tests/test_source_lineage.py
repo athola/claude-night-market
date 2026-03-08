@@ -22,12 +22,12 @@ class TestSourceType:
 
     def test_all_source_types_defined(self) -> None:
         """Should have all expected source types."""
-        assert SourceType.WEB_ARTICLE is not None
-        assert SourceType.DOCUMENTATION is not None
-        assert SourceType.RESEARCH_PAPER is not None
-        assert SourceType.CODE_EXAMPLE is not None
-        assert SourceType.USER_INPUT is not None
-        assert SourceType.DERIVED is not None
+        assert SourceType.WEB_ARTICLE.value == "web_article"
+        assert SourceType.DOCUMENTATION.value == "documentation"
+        assert SourceType.RESEARCH_PAPER.value == "research_paper"
+        assert SourceType.CODE_EXAMPLE.value == "code_example"
+        assert SourceType.USER_INPUT.value == "user_input"
+        assert SourceType.DERIVED.value == "derived"
 
 
 class TestSourceReference:
@@ -231,7 +231,7 @@ class TestSourceLineageManager:
         manager.register_lineage(lineage)
 
         retrieved = manager.get_lineage("entry-1")
-        assert retrieved is not None
+        assert isinstance(retrieved, (FullLineage, SimpleLineage))
         assert retrieved.entry_id == "entry-1"
 
     def test_get_lineage_unknown_entry(self, manager: SourceLineageManager) -> None:
@@ -384,8 +384,8 @@ class TestSourceLineageManager:
         }
 
         manager.import_lineage(lineage_data)
-        assert manager.get_lineage("entry-1") is not None
-        assert manager.get_lineage("entry-2") is not None
+        assert isinstance(manager.get_lineage("entry-1"), FullLineage)
+        assert isinstance(manager.get_lineage("entry-2"), SimpleLineage)
 
     def test_get_derivation_tree(self, manager: SourceLineageManager) -> None:
         """Should build derivation tree for an entry."""

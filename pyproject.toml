@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.5.6"
+version = "1.6.0"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,15 +12,12 @@ dependencies = [
   "pytest-asyncio>=0.23.0",
   "pytest-cov>=6.0.0",
   "pytest-mock>=3.14.0",
-  "pytest-bdd>=7.2.0",
   "pytest-xdist>=3.6.0",
   "pytest-json-report>=1.5.0",
   "coverage[toml]>=7.6.0",
   "jsonschema>=4.22.0",
   "pyyaml>=6.0.2",
-  "toml>=0.10.2",
   "rich>=13.9.0",
-  "click>=8.1.7",
   "psutil>=5.9.8"
 ]
 

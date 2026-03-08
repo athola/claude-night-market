@@ -50,7 +50,7 @@ class BudgetConfig:
 
 
 @dataclass
-class EgregorConfig:
+class EgregoreConfig:
     """Top-level egregore configuration."""
 
     overseer: OverseerConfig = field(default_factory=OverseerConfig)
@@ -59,18 +59,8 @@ class EgregorConfig:
     budget: BudgetConfig = field(default_factory=BudgetConfig)
 
 
-def default_config() -> EgregorConfig:
-    """Return a new EgregorConfig with all default values.
-
-    Returns:
-        An EgregorConfig instance with default settings.
-
-    """
-    return EgregorConfig()
-
-
-def save_config(cfg: EgregorConfig, path: Path) -> None:
-    """Serialize an EgregorConfig to a JSON file.
+def save_config(cfg: EgregoreConfig, path: Path) -> None:
+    """Serialize an EgregoreConfig to a JSON file.
 
     Args:
         cfg: The configuration to save.
@@ -82,8 +72,8 @@ def save_config(cfg: EgregorConfig, path: Path) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def load_config(path: Path) -> EgregorConfig:
-    """Load an EgregorConfig from a JSON file.
+def load_config(path: Path) -> EgregoreConfig:
+    """Load an EgregoreConfig from a JSON file.
 
     If the file does not exist, returns a default configuration.
 
@@ -91,14 +81,14 @@ def load_config(path: Path) -> EgregorConfig:
         path: File path to read JSON from.
 
     Returns:
-        An EgregorConfig instance.
+        An EgregoreConfig instance.
 
     """
     if not path.exists():
-        return default_config()
+        return EgregoreConfig()
 
     data = json.loads(path.read_text())
-    return EgregorConfig(
+    return EgregoreConfig(
         overseer=OverseerConfig(**data.get("overseer", {})),
         alerts=AlertsConfig(**data.get("alerts", {})),
         pipeline=PipelineConfig(**data.get("pipeline", {})),

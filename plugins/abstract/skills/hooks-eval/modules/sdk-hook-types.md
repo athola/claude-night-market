@@ -12,38 +12,116 @@ Supported hook event types in the Python SDK.
 from typing import Literal
 
 HookEvent = Literal[
+    "Setup",             # Called when plugin installed/enabled
+    "SessionStart",      # Called when session begins
+    "SessionEnd",        # Called when session ends normally
+    "UserPromptSubmit",  # Called when user submits a prompt
     "PreToolUse",        # Called before tool execution
     "PostToolUse",       # Called after tool execution
-    "PermissionRequest", # Called when permission dialog would appear (Claude Code CLI only)
-    "UserPromptSubmit",  # Called when user submits a prompt
-    "Stop",              # Called when stopping execution
+    "PostToolUseFailure",# Called when tool execution fails (2.1.20+)
+    "PermissionRequest", # Called when permission dialog would appear
+    "Notification",      # Called on system notification (2.1.20+)
+    "SubagentStart",     # Called when subagent spawns (2.1.20+)
     "SubagentStop",      # Called when a subagent stops
+    "Stop",              # Called when stopping execution
     "TeammateIdle",      # Called when teammate agent becomes idle (2.1.33+)
     "TaskCompleted",     # Called when a task finishes execution (2.1.33+)
-    "PreCompact"         # Called before message compaction
+    "ConfigChange",      # Called when config is modified (2.1.49+)
+    "InstructionsLoaded",# Called when instructions are loaded (2.1.33+)
+    "PreCompact",        # Called before message compaction
+    "WorktreeCreate",    # Called when git worktree is created (2.1.50+)
+    "WorktreeRemove",    # Called when git worktree is removed (2.1.50+)
 ]
 ```
 
-**Important**: Due to setup limitations, the Python SDK does **not** support:
-- `SessionStart`
-- `SessionEnd`
-- `Notification`
+**SDK vs CLI availability**: Most events work in both JSON
+hooks (CLI) and Python SDK hooks. `PermissionRequest` is
+CLI-only. `Setup`, `SessionStart`, `SessionEnd`, and
+`Notification` are CLI-only (JSON hooks).
+`WorktreeCreate` and `WorktreeRemove` are command-only
+hooks (no Python SDK callback). They do not support
+matchers.
 
 ### Event Descriptions
 
 | Event | Trigger | Common Uses |
 |-------|---------|-------------|
+| `Setup` | Plugin installed/enabled | One-time initialization |
+| `SessionStart` | Session begins | Initialize state, load config |
+| `SessionEnd` | Session ends normally | Cleanup, persist state |
+| `UserPromptSubmit` | User submits input | Input validation, preprocessing, redaction |
 | `PreToolUse` | Before any tool runs | Validation, blocking dangerous commands, logging |
 | `PostToolUse` | After tool completes | Audit logging, result transformation, cleanup |
-| `PermissionRequest` | Permission dialog would appear | Auto-approve safe ops, block dangerous commands, modify inputs |
-| `UserPromptSubmit` | User submits input | Input validation, preprocessing, redaction |
-| `Stop` | Agent stops | Cleanup, final logging, state persistence |
+| `PostToolUseFailure` | Tool execution fails | Error handling, fallback logic (2.1.20+) |
+| `PermissionRequest` | Permission dialog would appear | Auto-approve safe ops, block dangerous commands |
+| `Notification` | System notification | Forward alerts, log events (2.1.20+) |
+| `SubagentStart` | Subagent spawns | Track agent lifecycle (2.1.20+) |
 | `SubagentStop` | Subagent completes | Coordination, result aggregation |
-| `TeammateIdle` | Teammate agent becomes idle | Work assignment, load balancing (2.1.33+) |
-| `TaskCompleted` | Task finishes execution | Coordination, chaining, reporting (2.1.33+) |
+| `Stop` | Agent stops | Cleanup, final logging, state persistence |
+| `TeammateIdle` | Teammate agent idle | Work assignment, load balancing (2.1.33+) |
+| `TaskCompleted` | Task finishes | Coordination, chaining, reporting (2.1.33+) |
+| `ConfigChange` | Config modified | React to settings changes (2.1.49+) |
+| `InstructionsLoaded` | Instructions loaded | Augment instructions (2.1.33+) |
 | `PreCompact` | Before message compaction | Context preservation, important info extraction |
+| `WorktreeCreate` | Git worktree created | Initialize worktree state (2.1.50+) |
+| `WorktreeRemove` | Git worktree removed | Cleanup worktree state (2.1.50+) |
 
-**Note**: `PermissionRequest` is a Claude Code CLI-specific hook and is not available in the Python SDK. It runs via shell commands configured in hooks.json.
+### Hook Event Fields: agent_id and agent_type (2.1.69+)
+
+All hook events now include `agent_id` (for subagent
+sessions) and `agent_type` (for subagent and `--agent`
+sessions). Evaluate whether hooks under review should
+filter or branch on these fields for agent-specific
+behavior.
+
+### TeammateIdle / TaskCompleted: continue: false (2.1.69+)
+
+`TeammateIdle` and `TaskCompleted` hooks now support
+returning `{"continue": false, "stopReason": "..."}` to
+stop the teammate, matching `Stop` hook behavior.
+Evaluate whether hooks that respond to these events
+should use this capability for graceful teammate
+shutdown.
+
+### WorktreeCreate / WorktreeRemove Plugin Fix (2.1.69+)
+
+Plugin-registered WorktreeCreate and WorktreeRemove
+hooks were silently ignored before 2.1.69. They now
+fire correctly. If evaluating plugins that register
+these hooks, verify they were tested on 2.1.69+.
+
+### Cron Scheduling Tools (2.1.71+)
+
+Three new built-in tools: `CronCreate`, `CronList`,
+`CronDelete`. These appear as tool names in
+`PreToolUse` and `PostToolUse` hook events. The `/loop`
+command uses `CronCreate` internally. Evaluate whether
+hooks matching on tool names need to handle these new
+tools (e.g., quota tracking, audit logging).
+
+### Heredoc Permission Fix (2.1.71+)
+
+Compound bash commands containing heredoc commit
+messages no longer trigger false-positive permission
+prompts. `PermissionRequest` hooks should not expect
+to see these commands. The fix applies to the built-in
+allowlist pattern matching, not to hook behavior.
+
+### HTTP Hooks (2.1.63+)
+
+Hooks can use `"type": "http"` to POST JSON to a URL
+instead of running shell commands. Evaluate whether
+hooks under review could benefit from HTTP execution
+(enterprise environments, sandboxed runtimes, webhook
+integrations).
+
+### Security: Workspace Trust (2.1.51+)
+
+`statusLine` and `fileSuggestion` hook commands now
+require workspace trust acceptance in interactive mode.
+Hooks that output these commands will fail silently in
+untrusted workspaces. Evaluate whether any hooks under
+review depend on these output types.
 
 ## Type Definitions
 
@@ -293,6 +371,44 @@ async for message in query(
 {
     "messages": [...],             # Messages to be compacted
     "token_count": 50000           # Current token count
+}
+```
+
+### WorktreeCreate Input (2.1.50+, command-only)
+
+WorktreeCreate hooks are command-only (`type: "command"`).
+They do not support matchers and always fire on every
+worktree creation. The hook MUST print the absolute path
+to the created worktree directory on stdout. If the hook
+fails or produces no output, worktree creation fails.
+
+```python
+# Input (JSON on stdin)
+{
+    "session_id": "sess_abc123",
+    "hook_event_name": "WorktreeCreate",
+    "cwd": "/path/to/project",
+    "transcript_path": "/Users/.../.claude/projects/.../session.jsonl",
+    "name": "feature-branch"        # Requested worktree name
+}
+# Output: print absolute worktree path on stdout
+# e.g., print("/tmp/worktrees/feature-branch")
+```
+
+### WorktreeRemove Input (2.1.50+, command-only)
+
+WorktreeRemove hooks cannot block removal. They fire for
+cleanup (removing VCS state, archiving changes). No
+matchers supported.
+
+```python
+# Input (JSON on stdin)
+{
+    "session_id": "sess_abc123",
+    "hook_event_name": "WorktreeRemove",
+    "cwd": "/path/to/project",
+    "transcript_path": "/Users/.../.claude/projects/.../session.jsonl",
+    "worktree_path": "/tmp/worktrees/feature-branch"
 }
 ```
 

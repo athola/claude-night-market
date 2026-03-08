@@ -8,7 +8,7 @@ from __future__ import annotations
 import importlib
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 
@@ -33,7 +33,7 @@ def wg():
 
 
 # ---------------------------------------------------------------------------
-# generate_wrapper - return value
+# generate_wrapper - return value (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -47,64 +47,55 @@ class TestGenerateWrapperReturnValue:
         assert isinstance(result, str)
 
     @pytest.mark.unit
-    def test_class_name_single_word_command(self, wg) -> None:
-        """Given a single-word command, class name is capitalised correctly."""
-        result = wg.generate_wrapper("myplugin", "review", "Reviewer")
-        assert "ReviewWrapper" in result
+    @pytest.mark.parametrize(
+        ("plugin", "command", "superpower", "expected_class"),
+        [
+            ("myplugin", "review", "Reviewer", "ReviewWrapper"),
+            ("sanctum", "pr-review", "CodeReviewer", "PrReviewWrapper"),
+            ("plugin", "do-some-thing", "Doer", "DoSomeThingWrapper"),
+        ],
+        ids=["single-word", "hyphenated", "three-segment"],
+    )
+    def test_class_name_derived_from_command(
+        self, wg, plugin, command, superpower, expected_class
+    ) -> None:
+        """Given a command name, generated class name follows PascalCase."""
+        result = wg.generate_wrapper(plugin, command, superpower)
+        assert expected_class in result
 
     @pytest.mark.unit
-    def test_class_name_hyphenated_command(self, wg) -> None:
-        """Given a hyphenated command, class name joins words in PascalCase."""
-        result = wg.generate_wrapper("sanctum", "pr-review", "CodeReviewer")
-        assert "PrReviewWrapper" in result
-
-    @pytest.mark.unit
-    def test_class_name_multi_segment_command(self, wg) -> None:
-        """Given three-segment command, class name has three capitalised words."""
-        result = wg.generate_wrapper("plugin", "do-some-thing", "Doer")
-        assert "DoSomeThingWrapper" in result
-
-    @pytest.mark.unit
-    def test_output_contains_plugin_name(self, wg) -> None:
-        """Given plugin_name='myplugin', generated code references it."""
-        result = wg.generate_wrapper("myplugin", "cmd", "Super")
-        assert "myplugin" in result
-
-    @pytest.mark.unit
-    def test_output_contains_command_name(self, wg) -> None:
-        """Given command_name='my-cmd', generated code references it."""
-        result = wg.generate_wrapper("plugin", "my-cmd", "Super")
-        assert "my-cmd" in result
-
-    @pytest.mark.unit
-    def test_output_contains_superpower_name(self, wg) -> None:
-        """Given target_superpower='CodeReviewer', generated code imports it."""
-        result = wg.generate_wrapper("plugin", "cmd", "CodeReviewer")
-        assert "CodeReviewer" in result
-
-    @pytest.mark.unit
-    def test_output_contains_import_statement(self, wg) -> None:
-        """Given any superpower, generated code has an import from abstract."""
-        result = wg.generate_wrapper("plugin", "cmd", "MySuper")
-        assert "from abstract.superpowers." in result
-
-    @pytest.mark.unit
-    def test_import_uses_lowercase_superpower(self, wg) -> None:
-        """Given superpower='CodeReviewer', import path uses lowercase name."""
-        result = wg.generate_wrapper("plugin", "cmd", "CodeReviewer")
-        assert "from abstract.superpowers.codereviewer import CodeReviewer" in result
-
-    @pytest.mark.unit
-    def test_output_contains_execute_method(self, wg) -> None:
-        """Generated code always contains an execute() method."""
-        result = wg.generate_wrapper("plugin", "cmd", "Super")
-        assert "def execute(" in result
-
-    @pytest.mark.unit
-    def test_output_contains_map_parameters_method(self, wg) -> None:
-        """Generated code always contains a _map_parameters() method."""
-        result = wg.generate_wrapper("plugin", "cmd", "Super")
-        assert "def _map_parameters(" in result
+    @pytest.mark.parametrize(
+        ("plugin", "command", "superpower", "expected_substring"),
+        [
+            ("myplugin", "cmd", "Super", "myplugin"),
+            ("plugin", "my-cmd", "Super", "my-cmd"),
+            ("plugin", "cmd", "CodeReviewer", "CodeReviewer"),
+            ("plugin", "cmd", "MySuper", "from abstract.superpowers."),
+            (
+                "plugin",
+                "cmd",
+                "CodeReviewer",
+                "from abstract.superpowers.codereviewer import CodeReviewer",
+            ),
+            ("plugin", "cmd", "Super", "def execute("),
+            ("plugin", "cmd", "Super", "def _map_parameters("),
+        ],
+        ids=[
+            "contains-plugin-name",
+            "contains-command-name",
+            "contains-superpower-name",
+            "contains-import-statement",
+            "import-uses-lowercase",
+            "contains-execute-method",
+            "contains-map-parameters",
+        ],
+    )
+    def test_output_contains_expected_content(
+        self, wg, plugin, command, superpower, expected_substring
+    ) -> None:
+        """Given arguments, generated code contains expected substring."""
+        result = wg.generate_wrapper(plugin, command, superpower)
+        assert expected_substring in result
 
     @pytest.mark.unit
     def test_output_no_file_written_when_no_output_path(self, wg, tmp_path) -> None:
@@ -231,45 +222,43 @@ class TestAutoDetectWrappersSuperpowerRef:
     """auto_detect_wrappers detects commands that reference superpowers."""
 
     @pytest.mark.unit
-    def test_detects_superpower_keyword(self, wg, tmp_path) -> None:
-        """Given a command file containing 'superpower:', it is detected."""
+    @pytest.mark.parametrize(
+        ("file_content", "expected_count"),
+        [
+            ("superpower: BaseSuperpower\n", 1),
+            ("This command delegates to a superpower.\n", 1),
+            ("This command does its own thing.\n", 0),
+            ("SUPERPOWER: SomePower\n", 1),
+        ],
+        ids=[
+            "superpower-keyword",
+            "delegates-to-keyword",
+            "no-reference-skipped",
+            "case-insensitive",
+        ],
+    )
+    def test_detects_superpower_references(
+        self, wg, tmp_path, file_content, expected_count
+    ) -> None:
+        """Given command file content, correct number of results returned."""
         plugins_dir = tmp_path / "plugins"
         cmds = plugins_dir / "myplugin" / "commands"
         cmds.mkdir(parents=True)
-        (cmds / "do-work.md").write_text("superpower: BaseSuperpower\n")
+        (cmds / "do-work.md").write_text(file_content)
         result = wg.auto_detect_wrappers(tmp_path)
-        assert len(result) == 1
-        assert result[0][0] == "myplugin"
-        assert result[0][1] == "do-work"
+        assert len(result) == expected_count
 
     @pytest.mark.unit
-    def test_detects_delegates_to_keyword(self, wg, tmp_path) -> None:
-        """Given a command file containing 'delegates to', it is detected."""
-        plugins_dir = tmp_path / "plugins"
-        cmds = plugins_dir / "myplugin" / "commands"
-        cmds.mkdir(parents=True)
-        (cmds / "run-task.md").write_text("This command delegates to a superpower.\n")
-        result = wg.auto_detect_wrappers(tmp_path)
-        assert len(result) == 1
-
-    @pytest.mark.unit
-    def test_command_without_reference_is_skipped(self, wg, tmp_path) -> None:
-        """Given a command file with no superpower reference, it is skipped."""
-        plugins_dir = tmp_path / "plugins"
-        cmds = plugins_dir / "myplugin" / "commands"
-        cmds.mkdir(parents=True)
-        (cmds / "standalone.md").write_text("This command does its own thing.\n")
-        result = wg.auto_detect_wrappers(tmp_path)
-        assert result == []
-
-    @pytest.mark.unit
-    def test_returns_base_superpower_placeholder(self, wg, tmp_path) -> None:
-        """Given detected command, third tuple element is 'BaseSuperpower'."""
+    def test_returns_correct_tuple_structure(self, wg, tmp_path) -> None:
+        """Given detected command, tuple has (plugin, command, superpower)."""
         plugins_dir = tmp_path / "plugins"
         cmds = plugins_dir / "myplugin" / "commands"
         cmds.mkdir(parents=True)
         (cmds / "do-it.md").write_text("superpower: something\n")
         result = wg.auto_detect_wrappers(tmp_path)
+        assert len(result) == 1
+        assert result[0][0] == "myplugin"
+        assert result[0][1] == "do-it"
         assert result[0][2] == "BaseSuperpower"
 
     @pytest.mark.unit
@@ -296,19 +285,9 @@ class TestAutoDetectWrappersSuperpowerRef:
         plugin_names = {r[0] for r in result}
         assert plugin_names == {"alpha", "beta"}
 
-    @pytest.mark.unit
-    def test_superpower_keyword_case_insensitive(self, wg, tmp_path) -> None:
-        """Given 'SUPERPOWER:' in uppercase, it is still detected."""
-        plugins_dir = tmp_path / "plugins"
-        cmds = plugins_dir / "myplugin" / "commands"
-        cmds.mkdir(parents=True)
-        (cmds / "cmd.md").write_text("SUPERPOWER: SomePower\n")
-        result = wg.auto_detect_wrappers(tmp_path)
-        assert len(result) == 1
-
 
 # ---------------------------------------------------------------------------
-# CLI main() - --auto-detect mode
+# CLI main() - --auto-detect mode (with mock verification)
 # ---------------------------------------------------------------------------
 
 
@@ -320,13 +299,15 @@ class TestMainAutoDetect:
         self, wg, tmp_path, capsys
     ) -> None:
         """Given --auto-detect and no wrappers found, prints informational msg."""
-        with patch.object(wg, "auto_detect_wrappers", return_value=[]):
+        mock_detect = Mock(return_value=[])
+        with patch.object(wg, "auto_detect_wrappers", mock_detect):
             with patch(
                 "sys.argv",
                 ["wrapper_generator.py", "--auto-detect", "--repo-root", str(tmp_path)],
             ):
                 wg.main()
 
+        mock_detect.assert_called_once()
         captured = capsys.readouterr()
         assert "No wrappers detected" in captured.out
 
@@ -337,14 +318,11 @@ class TestMainAutoDetect:
         """Given --auto-detect with detected wrappers, generate_wrapper is called."""
         detected = [("myplugin", "do-work", "BaseSuperpower")]
 
-        calls = []
+        mock_detect = Mock(return_value=detected)
+        mock_generate = Mock(return_value="# generated code")
 
-        def fake_generate(plugin, cmd, sp, output_path=None):
-            calls.append((plugin, cmd, sp, output_path))
-            return "# generated code"
-
-        with patch.object(wg, "auto_detect_wrappers", return_value=detected):
-            with patch.object(wg, "generate_wrapper", side_effect=fake_generate):
+        with patch.object(wg, "auto_detect_wrappers", mock_detect):
+            with patch.object(wg, "generate_wrapper", mock_generate):
                 with patch(
                     "sys.argv",
                     [
@@ -356,23 +334,23 @@ class TestMainAutoDetect:
                 ):
                     wg.main()
 
-        assert len(calls) == 1
-        assert calls[0][0] == "myplugin"
-        assert calls[0][1] == "do-work"
+        mock_detect.assert_called_once()
+        mock_generate.assert_called_once()
+        gen_args = mock_generate.call_args
+        assert gen_args[0][0] == "myplugin"
+        assert gen_args[0][1] == "do-work"
+        assert gen_args[0][2] == "BaseSuperpower"
 
     @pytest.mark.unit
     def test_auto_detect_output_path_uses_repo_root(self, wg, tmp_path, capsys) -> None:
         """Given --auto-detect, output files are written under repo_root/plugins."""
         detected = [("alpha", "my-cmd", "BaseSuperpower")]
 
-        captured_paths = []
+        mock_detect = Mock(return_value=detected)
+        mock_generate = Mock(return_value="# code")
 
-        def fake_generate(plugin, cmd, sp, output_path=None):
-            captured_paths.append(output_path)
-            return "# code"
-
-        with patch.object(wg, "auto_detect_wrappers", return_value=detected):
-            with patch.object(wg, "generate_wrapper", side_effect=fake_generate):
+        with patch.object(wg, "auto_detect_wrappers", mock_detect):
+            with patch.object(wg, "generate_wrapper", mock_generate):
                 with patch(
                     "sys.argv",
                     [
@@ -384,26 +362,29 @@ class TestMainAutoDetect:
                 ):
                     wg.main()
 
-        assert len(captured_paths) == 1
-        assert "alpha" in str(captured_paths[0])
-        assert "my_cmd_wrapper.py" in str(captured_paths[0])
+        mock_generate.assert_called_once()
+        output_path = mock_generate.call_args[0][3]
+        assert "alpha" in str(output_path)
+        assert "my_cmd_wrapper.py" in str(output_path)
 
     @pytest.mark.unit
     def test_auto_detect_prints_scanning_message(self, wg, tmp_path, capsys) -> None:
         """Given --auto-detect, a 'Scanning' message is printed."""
-        with patch.object(wg, "auto_detect_wrappers", return_value=[]):
+        mock_detect = Mock(return_value=[])
+        with patch.object(wg, "auto_detect_wrappers", mock_detect):
             with patch(
                 "sys.argv",
                 ["wrapper_generator.py", "--auto-detect", "--repo-root", str(tmp_path)],
             ):
                 wg.main()
 
+        mock_detect.assert_called_once()
         captured = capsys.readouterr()
         assert "Scanning" in captured.out or "scanning" in captured.out.lower()
 
 
 # ---------------------------------------------------------------------------
-# CLI main() - manual mode
+# CLI main() - manual mode (with mock verification)
 # ---------------------------------------------------------------------------
 
 
@@ -413,13 +394,9 @@ class TestMainManualMode:
     @pytest.mark.unit
     def test_manual_mode_calls_generate_wrapper(self, wg, capsys) -> None:
         """Given --plugin/--command/--superpower, generate_wrapper is called."""
-        calls = []
+        mock_generate = Mock(return_value="# code")
 
-        def fake_generate(plugin, cmd, sp, output_path=None, dry_run=False):
-            calls.append((plugin, cmd, sp, output_path))
-            return "# code"
-
-        with patch.object(wg, "generate_wrapper", side_effect=fake_generate):
+        with patch.object(wg, "generate_wrapper", mock_generate):
             with patch(
                 "sys.argv",
                 [
@@ -434,13 +411,15 @@ class TestMainManualMode:
             ):
                 wg.main()
 
-        assert len(calls) == 1
-        assert calls[0] == ("sanctum", "pr-review", "CodeReviewer", None)
+        mock_generate.assert_called_once_with(
+            "sanctum", "pr-review", "CodeReviewer", None, dry_run=False
+        )
 
     @pytest.mark.unit
     def test_manual_mode_prints_code_to_stdout(self, wg, capsys) -> None:
         """Given no --output flag, generated code is printed to stdout."""
-        with patch.object(wg, "generate_wrapper", return_value="# generated"):
+        mock_generate = Mock(return_value="# generated")
+        with patch.object(wg, "generate_wrapper", mock_generate):
             with patch(
                 "sys.argv",
                 [
@@ -455,6 +434,7 @@ class TestMainManualMode:
             ):
                 wg.main()
 
+        mock_generate.assert_called_once()
         captured = capsys.readouterr()
         assert "# generated" in captured.out
 
@@ -462,13 +442,9 @@ class TestMainManualMode:
     def test_manual_mode_with_output_flag_writes_file(self, wg, tmp_path) -> None:
         """Given --output, generate_wrapper receives the output path."""
         out_file = tmp_path / "wrapper.py"
-        calls = []
+        mock_generate = Mock(return_value="# code")
 
-        def fake_generate(plugin, cmd, sp, output_path=None, dry_run=False):
-            calls.append(output_path)
-            return "# code"
-
-        with patch.object(wg, "generate_wrapper", side_effect=fake_generate):
+        with patch.object(wg, "generate_wrapper", mock_generate):
             with patch(
                 "sys.argv",
                 [
@@ -485,8 +461,8 @@ class TestMainManualMode:
             ):
                 wg.main()
 
-        assert len(calls) == 1
-        assert calls[0] == out_file
+        mock_generate.assert_called_once()
+        assert mock_generate.call_args[0][3] == out_file
 
     @pytest.mark.unit
     def test_manual_mode_with_output_flag_suppresses_stdout(
@@ -495,7 +471,8 @@ class TestMainManualMode:
         """Given --output, generated code is NOT printed to stdout."""
         out_file = tmp_path / "wrapper.py"
 
-        with patch.object(wg, "generate_wrapper", return_value="# code"):
+        mock_generate = Mock(return_value="# code")
+        with patch.object(wg, "generate_wrapper", mock_generate):
             with patch(
                 "sys.argv",
                 [
@@ -512,12 +489,13 @@ class TestMainManualMode:
             ):
                 wg.main()
 
+        mock_generate.assert_called_once()
         captured = capsys.readouterr()
         assert "# code" not in captured.out
 
 
 # ---------------------------------------------------------------------------
-# CLI main() - error handling
+# CLI main() - error handling (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -525,50 +503,12 @@ class TestMainErrorHandling:
     """main() raises SystemExit when required arguments are missing."""
 
     @pytest.mark.unit
-    def test_no_args_raises_system_exit(self, wg) -> None:
-        """Given no arguments, main() calls parser.error() -> SystemExit."""
-        with patch("sys.argv", ["wrapper_generator.py"]):
-            with pytest.raises(SystemExit) as exc_info:
-                wg.main()
-        assert exc_info.value.code != 0
-
-    @pytest.mark.unit
-    def test_missing_command_raises_system_exit(self, wg) -> None:
-        """Given --plugin without --command or --superpower, SystemExit raised."""
-        with patch(
-            "sys.argv",
-            [
-                "wrapper_generator.py",
-                "--plugin",
-                "sanctum",
-            ],
-        ):
-            with pytest.raises(SystemExit) as exc_info:
-                wg.main()
-        assert exc_info.value.code != 0
-
-    @pytest.mark.unit
-    def test_missing_superpower_raises_system_exit(self, wg) -> None:
-        """Given --plugin and --command but no --superpower, SystemExit raised."""
-        with patch(
-            "sys.argv",
-            [
-                "wrapper_generator.py",
-                "--plugin",
-                "sanctum",
-                "--command",
-                "cmd",
-            ],
-        ):
-            with pytest.raises(SystemExit) as exc_info:
-                wg.main()
-        assert exc_info.value.code != 0
-
-    @pytest.mark.unit
-    def test_missing_plugin_raises_system_exit(self, wg) -> None:
-        """Given --command and --superpower but no --plugin, SystemExit raised."""
-        with patch(
-            "sys.argv",
+    @pytest.mark.parametrize(
+        "argv",
+        [
+            ["wrapper_generator.py"],
+            ["wrapper_generator.py", "--plugin", "sanctum"],
+            ["wrapper_generator.py", "--plugin", "sanctum", "--command", "cmd"],
             [
                 "wrapper_generator.py",
                 "--command",
@@ -576,7 +516,17 @@ class TestMainErrorHandling:
                 "--superpower",
                 "Super",
             ],
-        ):
+        ],
+        ids=[
+            "no-args",
+            "missing-command-and-superpower",
+            "missing-superpower",
+            "missing-plugin",
+        ],
+    )
+    def test_missing_args_raises_system_exit(self, wg, argv) -> None:
+        """Given incomplete arguments, main() raises SystemExit != 0."""
+        with patch("sys.argv", argv):
             with pytest.raises(SystemExit) as exc_info:
                 wg.main()
         assert exc_info.value.code != 0

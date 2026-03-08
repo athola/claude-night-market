@@ -91,12 +91,13 @@ class ImbueValidator:
         self.skill_files = list(plugin_root.rglob("SKILL.md"))
         self.plugin_config = plugin_json
 
-    def scan_review_workflows(self) -> ImbueValidationResult:
-        """Scan for review workflow skills and evidence patterns."""
+    def scan_and_validate(self) -> tuple[ImbueValidationResult, list[str]]:
+        """Scan for review workflow skills and validate in a single pass."""
         skills_found: set[str] = set()
         review_workflow_skills: set[str] = set()
         evidence_logging_patterns: set[str] = set()
-        issues: list[str] = []
+        scan_issues: list[str] = []
+        validation_issues: list[str] = []
 
         # Load plugin configuration
         if self.plugin_config.exists():
@@ -104,19 +105,17 @@ class ImbueValidator:
                 plugin_config_content = self.plugin_config.read_text()
                 json.loads(plugin_config_content)
             except (OSError, UnicodeDecodeError) as e:
-                issues.append(
+                scan_issues.append(
                     f"Unable to read plugin.json at {self.plugin_config}: {e}"
                 )
             except json.JSONDecodeError as e:
-                issues.append(f"Invalid plugin.json at line {e.lineno}: {e.msg}")
+                scan_issues.append(f"Invalid plugin.json at line {e.lineno}: {e.msg}")
             else:
-                # Imbue provides review workflow infrastructure to other plugins
                 evidence_logging_patterns.add("review-workflows")
                 evidence_logging_patterns.add("evidence-logging")
                 evidence_logging_patterns.add("structured-output")
                 evidence_logging_patterns.add("workflow-orchestration")
 
-        # Scan skills for review workflow patterns
         for skill_file in self.skill_files:
             skill_name = skill_file.parent.name
             skills_found.add(skill_name)
@@ -124,15 +123,17 @@ class ImbueValidator:
             try:
                 content = skill_file.read_text()
             except (OSError, UnicodeDecodeError) as e:
-                issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
+                scan_issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
                 continue
 
+            # --- Scan phase: classify skill ---
             frontmatter = None
             if content.startswith("---"):
                 parts = content.split("---", 2)
                 if len(parts) >= FRONTMATTER_PARTS_COUNT:
                     frontmatter = parts[1]
 
+            is_review_skill = False
             if frontmatter:
                 has_review_category = re.search(
                     r"^\s*category:\s*review-patterns\b",
@@ -146,46 +147,25 @@ class ImbueValidator:
                 )
                 if has_review_category or has_review_usage:
                     review_workflow_skills.add(skill_name)
-                    continue
+                    is_review_skill = True
 
-            # Check for review workflow patterns
-            review_patterns = [
-                r"workflow",
-                r"evidence",
-                r"structured",
-                r"output",
-                r"orchestrat",
-                r"checklist",
-                r"deliverable",
-            ]
+            if not is_review_skill:
+                review_patterns = [
+                    r"workflow",
+                    r"evidence",
+                    r"structured",
+                    r"output",
+                    r"orchestrat",
+                    r"checklist",
+                    r"deliverable",
+                ]
+                for pattern in review_patterns:
+                    if re.search(pattern, content, re.IGNORECASE):
+                        review_workflow_skills.add(skill_name)
+                        break
 
-            for pattern in review_patterns:
-                if re.search(pattern, content, re.IGNORECASE):
-                    review_workflow_skills.add(skill_name)
-                    break
-
-        return ImbueValidationResult(
-            skills_found=skills_found,
-            review_workflow_skills=review_workflow_skills,
-            evidence_logging_patterns=evidence_logging_patterns,
-            issues=issues,
-        )
-
-    def validate_review_workflows(self) -> list[str]:
-        """Validate that skills follow review workflow patterns."""
-        issues: list[str] = []
-
-        for skill_file in self.skill_files:
-            skill_name = skill_file.parent.name
-            try:
-                content = skill_file.read_text()
-            except (OSError, UnicodeDecodeError) as e:
-                issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
-                continue
-
-            # Check for review-specific indicators
+            # --- Validate phase: check review workflow compliance ---
             if skill_name == "review-core":
-                # Core skill with detailed review functionality
                 review_components = [
                     r"checklist",
                     r"deliverable",
@@ -193,19 +173,16 @@ class ImbueValidator:
                     r"structured",
                     r"workflow",
                 ]
-
                 missing_components = []
                 for component in review_components:
                     if not re.search(component, content, re.IGNORECASE):
                         missing_components.append(component)
-
                 if missing_components:
                     missing_str = ", ".join(missing_components)
-                    issues.append(
+                    validation_issues.append(
                         f"{skill_name}: Missing review components: {missing_str}"
                     )
 
-            # Check for evidence logging patterns
             evidence_patterns = [
                 r"log",
                 r"track",
@@ -214,22 +191,38 @@ class ImbueValidator:
                 r"capture",
                 r"evidence",
             ]
-
             has_evidence = any(
                 re.search(pattern, content, re.IGNORECASE)
                 for pattern in evidence_patterns
             )
-
             if not has_evidence and skill_name not in ["review-core"]:
-                issues.append(f"{skill_name}: Should have evidence logging patterns")
+                validation_issues.append(
+                    f"{skill_name}: Should have evidence logging patterns"
+                )
 
-        return issues
+        scan_result = ImbueValidationResult(
+            skills_found=skills_found,
+            review_workflow_skills=review_workflow_skills,
+            evidence_logging_patterns=evidence_logging_patterns,
+            issues=scan_issues,
+        )
+        return scan_result, validation_issues
+
+    def scan_review_workflows(self) -> ImbueValidationResult:
+        """Scan for review workflow skills and evidence patterns."""
+        result, _ = self.scan_and_validate()
+        return result
+
+    def validate_review_workflows(self) -> list[str]:
+        """Validate that skills follow review workflow patterns."""
+        _, validation_issues = self.scan_and_validate()
+        return validation_issues
 
     def generate_report(self) -> str:
         """Generate detailed validation report."""
-        result = self.scan_review_workflows()
+        result, validation_issues = self.scan_and_validate()
         issues = list(
-            dict.fromkeys(result["issues"] + self.validate_review_workflows())
+            dict.fromkeys(result["issues"] + validation_issues)
         )
 
         report = ["Imbue Plugin Review Workflow Report", "=" * 50]

@@ -323,6 +323,7 @@ Some body text here.
         assert result.level == RedundancyLevel.NOVEL
         assert result.overlap_score == 0.0
         assert len(result.matching_entries) == 0
+        mock_filter._mock_cache.search.assert_called()
 
     def test_check_redundancy_exact_match(self, mock_filter) -> None:
         """Should detect exact content match."""
@@ -340,6 +341,10 @@ Some body text here.
 
         assert result.level == RedundancyLevel.EXACT_MATCH
         assert result.overlap_score == 1.0
+        mock_filter._mock_cache.search.assert_called()
+        mock_filter._mock_cache.get_entry_content.assert_called_with(
+            "existing-entry",
+        )
 
     def test_check_redundancy_highly_redundant(self, mock_filter) -> None:
         """Should detect highly redundant content (>= 80% overlap)."""
@@ -356,6 +361,10 @@ Some body text here.
 
         assert result.level == RedundancyLevel.HIGHLY_REDUNDANT
         assert result.overlap_score >= OVERLAP_STRONG
+        mock_filter._mock_cache.search.assert_called()
+        mock_filter._mock_cache.get_entry_content.assert_called_with(
+            "similar-entry",
+        )
 
     def test_check_redundancy_partial_overlap(self, mock_filter) -> None:
         """Should detect partial overlap (40-80%)."""
@@ -787,8 +796,8 @@ It covers **new concepts** and *fresh ideas*.
             tags=["test"],
         )
 
-        assert redundancy is not None
-        assert integration is not None
+        assert isinstance(redundancy, RedundancyCheck)
+        assert isinstance(integration, IntegrationPlan)
         assert "signal_type" in rl_signal
         assert "content_hash" in rl_signal
         assert len(rl_signal["content_hash"]) == 16  # SHA256[:16]

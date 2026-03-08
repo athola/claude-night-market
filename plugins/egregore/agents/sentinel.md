@@ -4,7 +4,7 @@ description: |
   Monitors egregore's resource budget and handles graceful
   shutdown when token windows are exhausted. Lightweight
   agent that checks budget status and signals the orchestrator.
-model_preference: default
+model: haiku
 tools:
   - Read
   - Write

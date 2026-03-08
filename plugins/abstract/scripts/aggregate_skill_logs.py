@@ -32,7 +32,7 @@ LOW_USER_RATING_THRESHOLD = 3.5  # For detection in aggregate view
 
 
 @dataclass
-class SkillMetrics:
+class SkillLogSummary:
     """Metrics for a single skill."""
 
     skill: str
@@ -61,7 +61,7 @@ class AggregationResult:
     high_impact_issues: list[dict[str, Any]]
     slow_skills: list[dict[str, Any]]
     low_rated_skills: list[dict[str, Any]]
-    metrics_by_skill: dict[str, SkillMetrics]
+    metrics_by_skill: dict[str, SkillLogSummary]
 
 
 def get_log_directory() -> Path:
@@ -124,7 +124,9 @@ def load_log_entries(
     return dict(entries_by_skill)
 
 
-def calculate_skill_metrics(skill: str, entries: list[dict[str, Any]]) -> SkillMetrics:
+def calculate_skill_metrics(
+    skill: str, entries: list[dict[str, Any]]
+) -> SkillLogSummary:
     """Calculate metrics for a single skill.
 
     Args:
@@ -132,7 +134,7 @@ def calculate_skill_metrics(skill: str, entries: list[dict[str, Any]]) -> SkillM
         entries: List of log entries for this skill
 
     Returns:
-        SkillMetrics object
+        SkillLogSummary object
 
     """
     plugin, skill_name = skill.split(":", 1)
@@ -187,7 +189,7 @@ def calculate_skill_metrics(skill: str, entries: list[dict[str, Any]]) -> SkillM
         e.get("error", "Unknown error") for e in entries if e["outcome"] == "failure"
     ][-5:]
 
-    return SkillMetrics(
+    return SkillLogSummary(
         skill=skill,
         plugin=plugin,
         skill_name=skill_name,
@@ -206,7 +208,7 @@ def calculate_skill_metrics(skill: str, entries: list[dict[str, Any]]) -> SkillM
 
 
 def detect_high_impact_issues(
-    metrics_by_skill: dict[str, SkillMetrics],
+    metrics_by_skill: dict[str, SkillLogSummary],
 ) -> list[dict[str, Any]]:
     """Detect high-impact issues across all skills.
 
@@ -264,11 +266,12 @@ def detect_high_impact_issues(
                 }
             )
 
-    return sorted(issues, key=lambda x: (x["severity"] == "high", -1), reverse=True)
+    _ORDER = {"high": 0, "medium": 1, "low": 2}
+    return sorted(issues, key=lambda x: _ORDER.get(x["severity"], 2))
 
 
 def detect_slow_skills(
-    metrics_by_skill: dict[str, SkillMetrics],
+    metrics_by_skill: dict[str, SkillLogSummary],
     threshold_ms: int = SLOW_EXECUTION_THRESHOLD_MS,
 ) -> list[dict[str, Any]]:
     """Detect skills with slow execution times.
@@ -298,7 +301,7 @@ def detect_slow_skills(
 
 
 def detect_low_rated_skills(
-    metrics_by_skill: dict[str, SkillMetrics],
+    metrics_by_skill: dict[str, SkillLogSummary],
     threshold: float = LOW_USER_RATING_THRESHOLD,
 ) -> list[dict[str, Any]]:
     """Detect skills with low user ratings.
@@ -449,7 +452,7 @@ def format_low_rated_skills(low_rated: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
-def format_skill_summary(metrics_by_skill: dict[str, SkillMetrics]) -> list[str]:
+def format_skill_summary(metrics_by_skill: dict[str, SkillLogSummary]) -> list[str]:
     """Format skill performance summary table."""
     lines = [
         "## Skill Performance Summary",

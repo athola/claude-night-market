@@ -3,10 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
-.PHONY: check-deps ci-check clean clean-gif-temp debug-variables demo-gif demo-playwright \
-	demo-record-browser demo-record-terminal demo-skills demo-vhs help lint plugin-check status test \
-	test-integration test-record-browser test-record-terminal test-unit validate
+.PHONY: help validate check-deps status debug-variables \
+	lint typecheck test test-unit test-coverage test-integration ci-check \
+	demo-vhs demo-playwright demo-gif demo-skills \
+	demo-record-terminal demo-record-browser demo-scry-commands \
+	test-record-terminal test-record-browser \
+	clean clean-gif-temp plugin-check
+
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts
 
@@ -86,12 +89,22 @@ typecheck: ## Run type checking on test files
 
 test: test-unit ## Run all scry tests
 
+test-coverage: ## Run tests with coverage measurement
+	@echo "=== Scry Test Coverage ==="
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run pytest tests/ -v -m "not integration" --tb=short \
+			--cov=scripts --cov-report=term-missing --cov-branch; \
+	else \
+		echo "  [SKIP] uv not installed"; \
+	fi
+	@echo "=== Coverage Complete ==="
+
 test-unit: ## Run unit tests (no external dependencies)
 	@echo "=== Scry Unit Tests ==="
-	@if command -v pytest >/dev/null 2>&1; then \
-		pytest tests/ -v -m "not integration" --tb=short; \
-	elif command -v uv >/dev/null 2>&1; then \
+	@if command -v uv >/dev/null 2>&1; then \
 		uv run pytest tests/ -v -m "not integration" --tb=short; \
+	elif command -v pytest >/dev/null 2>&1; then \
+		pytest tests/ -v -m "not integration" --tb=short; \
 	else \
 		echo "  [SKIP] pytest not installed"; \
 	fi
@@ -99,10 +112,10 @@ test-unit: ## Run unit tests (no external dependencies)
 
 test-integration: ## Run integration tests (requires ffmpeg/vhs)
 	@echo "=== Scry Integration Tests ==="
-	@if command -v pytest >/dev/null 2>&1; then \
-		pytest tests/ -v -m "integration" --tb=short; \
-	elif command -v uv >/dev/null 2>&1; then \
+	@if command -v uv >/dev/null 2>&1; then \
 		uv run pytest tests/ -v -m "integration" --tb=short; \
+	elif command -v pytest >/dev/null 2>&1; then \
+		pytest tests/ -v -m "integration" --tb=short; \
 	else \
 		echo "  [SKIP] pytest not installed"; \
 	fi
@@ -185,6 +198,43 @@ demo-skills: ## Validate scry skill and agent structure
 	@echo "Agent coverage:"
 	@echo "  media-recorder:     $$(test -f agents/media-recorder.md && echo '[OK]' || echo '[pending]')"
 
+demo-record-terminal: ## Demo record-terminal command (LIVE)
+	@echo "=== record-terminal Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-terminal"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-terminal usage."
+	@echo "Execute manually in Claude Code for full functionality."
+
+demo-record-browser: ## Demo record-browser command (LIVE)
+	@echo "=== record-browser Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-browser"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-browser usage."
+	@echo "Execute manually in Claude Code for full functionality."
+
+demo-scry-commands: demo-record-terminal demo-record-browser ## Run all scry documented command demos
+	@echo ""
+	@echo "=== Scry All Commands Demo Complete ==="
+
+# ---------- Test Targets ----------
+test-record-terminal: ## Test record-terminal command workflow
+	@echo "=== Testing record-terminal workflow ==="
+	@echo "Validating: /record-terminal"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+
+test-record-browser: ## Test record-browser command workflow
+	@echo "=== Testing record-browser workflow ==="
+	@echo "Validating: /record-browser"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+
 plugin-check: validate check-deps demo-vhs demo-playwright demo-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Scry Plugin Check Complete ==="
@@ -199,114 +249,6 @@ clean: ## Clean up generated files
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
-
-demo-record-terminal: ## Demo record-terminal command (LIVE)
-	@echo "=== record-terminal Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /record-terminal"
-	@echo "Plugin: scry"
-	@echo ""
-	@echo "This demonstrates record-terminal usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /record-terminal for full workflow."
-
-
-demo-record-browser: ## Demo record-browser command (LIVE)
-	@echo "=== record-browser Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /record-browser"
-	@echo "Plugin: scry"
-	@echo ""
-	@echo "This demonstrates record-browser usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /record-browser for full workflow."
-
-
-	@echo "=== record-terminal Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /record-terminal"
-	@echo "Plugin: scry"
-	@echo ""
-	@echo "This demonstrates record-terminal usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /record-terminal for full workflow."
-
-
-	@echo "=== record-terminal Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /record-terminal"
-	@echo "Plugin: scry"
-	@echo ""
-	@echo "This demonstrates record-terminal usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /record-terminal for full workflow."
-
-
-	@echo "=== record-browser Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /record-browser"
-	@echo "Plugin: scry"
-	@echo ""
-	@echo "This demonstrates record-browser usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /record-browser for full workflow."
-
-
-demo-scry-commands: demo-record-terminal demo-record-browser demo-record-terminal demo-record-terminal demo-record-browser ## Run all scry documented command demos
-	@echo ""
-	@echo "=== Scry All Commands Demo Complete ==="
-	@echo "Ran 5 documented commands"
-	@echo ""
-
-
-test-record-terminal: ## Test record-terminal command workflow
-	@echo "=== Testing record-terminal workflow ==="
-	@echo "Validating: /record-terminal"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-record-browser: ## Test record-browser command workflow
-	@echo "=== Testing record-browser workflow ==="
-	@echo "Validating: /record-browser"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing record-terminal workflow ==="
-	@echo "Validating: /record-terminal"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing record-terminal workflow ==="
-	@echo "Validating: /record-terminal"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing record-browser workflow ==="
-	@echo "Validating: /record-browser"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

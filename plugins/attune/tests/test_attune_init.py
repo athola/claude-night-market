@@ -263,19 +263,54 @@ class TestCopyTemplates:
 class TestCreateProjectStructure:
     """Test project structure creation behavior."""
 
-    def test_create_python_project_structure(self, tmp_path):
-        """Given Python language, when creating structure, then creates Python directories."""
+    @pytest.mark.parametrize(
+        ("language", "expected_files"),
+        [
+            ("python", ["src/test_module/__init__.py"]),
+            ("rust", ["src/main.rs", "src/lib.rs"]),
+            ("typescript", ["src/index.ts", "src/App.tsx"]),
+        ],
+        ids=["python-dirs", "rust-dirs", "typescript-dirs"],
+    )
+    def test_create_project_structure_creates_expected_files(
+        self, tmp_path, language, expected_files
+    ):
+        """Given a language, when creating structure, then expected files exist."""
         # Given
-        project_dir = tmp_path / "python-project"
+        project_dir = tmp_path / f"{language}-project"
         project_dir.mkdir()
 
         # When
-        create_project_structure(project_dir, "python", "test_module", "test-project")
+        create_project_structure(project_dir, language, "test_module", "test-project")
 
         # Then
-        src_dir = project_dir / "src" / "test_module"
-        assert src_dir.exists()
-        assert (src_dir / "__init__.py").exists()
+        for rel_path in expected_files:
+            assert (project_dir / rel_path).exists(), f"Missing {rel_path}"
+
+    @pytest.mark.parametrize(
+        ("language", "project_name"),
+        [
+            ("python", "my-project"),
+            ("rust", "rust-project"),
+            ("typescript", "my-ts-project"),
+        ],
+        ids=["python-readme", "rust-readme", "typescript-readme"],
+    )
+    def test_create_project_creates_readme_with_name(
+        self, tmp_path, language, project_name
+    ):
+        """Given a language, when creating structure, then README.md contains the project name."""
+        # Given
+        project_dir = tmp_path / f"{language}-project"
+        project_dir.mkdir()
+
+        # When
+        create_project_structure(project_dir, language, "test_module", project_name)
+
+        # Then
+        readme = project_dir / "README.md"
+        assert readme.exists()
+        assert project_name in readme.read_text()
 
     def test_create_python_project_creates_tests_directory(self, tmp_path):
         """Given Python language, when creating structure, then creates tests directory."""
@@ -290,80 +325,6 @@ class TestCreateProjectStructure:
         tests_dir = project_dir / "tests"
         assert tests_dir.exists()
         assert (tests_dir / "__init__.py").exists()
-
-    def test_create_python_project_creates_readme(self, tmp_path):
-        """Given Python language, when creating structure, then creates README.md."""
-        # Given
-        project_dir = tmp_path / "python-project"
-        project_dir.mkdir()
-
-        # When
-        create_project_structure(project_dir, "python", "test_module", "my-project")
-
-        # Then
-        readme = project_dir / "README.md"
-        assert readme.exists()
-        assert "my-project" in readme.read_text()
-
-    def test_create_rust_project_structure(self, tmp_path):
-        """Given Rust language, when creating structure, then creates Rust directories."""
-        # Given
-        project_dir = tmp_path / "rust-project"
-        project_dir.mkdir()
-
-        # When
-        create_project_structure(project_dir, "rust", "test_module", "test-project")
-
-        # Then
-        src_dir = project_dir / "src"
-        assert src_dir.exists()
-        assert (src_dir / "main.rs").exists()
-        assert (src_dir / "lib.rs").exists()
-
-    def test_create_rust_project_creates_readme(self, tmp_path):
-        """Given Rust language, when creating structure, then creates README.md."""
-        # Given
-        project_dir = tmp_path / "rust-project"
-        project_dir.mkdir()
-
-        # When
-        create_project_structure(project_dir, "rust", "test_module", "rust-project")
-
-        # Then
-        readme = project_dir / "README.md"
-        assert readme.exists()
-        assert "rust-project" in readme.read_text()
-
-    def test_create_typescript_project_structure(self, tmp_path):
-        """Given TypeScript language, when creating structure, then creates TypeScript directories."""
-        # Given
-        project_dir = tmp_path / "ts-project"
-        project_dir.mkdir()
-
-        # When
-        create_project_structure(project_dir, "typescript", "test_module", "ts-project")
-
-        # Then
-        src_dir = project_dir / "src"
-        assert src_dir.exists()
-        assert (src_dir / "index.ts").exists()
-        assert (src_dir / "App.tsx").exists()
-
-    def test_create_typescript_project_creates_readme(self, tmp_path):
-        """Given TypeScript language, when creating structure, then creates README.md."""
-        # Given
-        project_dir = tmp_path / "ts-project"
-        project_dir.mkdir()
-
-        # When
-        create_project_structure(
-            project_dir, "typescript", "test_module", "my-ts-project"
-        )
-
-        # Then
-        readme = project_dir / "README.md"
-        assert readme.exists()
-        assert "my-ts-project" in readme.read_text()
 
     def test_create_project_structure_skips_existing_files(self, tmp_path):
         """Given existing files, when creating structure, then skips existing files."""

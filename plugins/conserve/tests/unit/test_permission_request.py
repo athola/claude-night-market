@@ -6,6 +6,8 @@ safe operations and auto-denies dangerous patterns.
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from io import StringIO
@@ -574,6 +576,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert data["hookSpecificOutput"]["decision"]["behavior"] == "allow"
@@ -597,6 +600,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert data["hookSpecificOutput"]["decision"]["behavior"] == "deny"
@@ -620,6 +624,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "decision" not in data["hookSpecificOutput"]
@@ -639,7 +644,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
-                # Should output valid JSON
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "hookSpecificOutput" in data
@@ -663,6 +668,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "decision" not in data["hookSpecificOutput"]
@@ -684,6 +690,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "hookSpecificOutput" in data

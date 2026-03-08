@@ -59,6 +59,7 @@ class WorkItem:
     max_attempts: int = 3
     status: str = "active"
     failure_reason: str | None = None
+    quality_config: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
@@ -75,6 +76,7 @@ class WorkItem:
             "max_attempts": self.max_attempts,
             "status": self.status,
             "failure_reason": self.failure_reason,
+            "quality_config": dict(self.quality_config),
         }
 
     @classmethod
@@ -93,6 +95,7 @@ class WorkItem:
             max_attempts=data.get("max_attempts", 3),
             status=data.get("status", "active"),
             failure_reason=data.get("failure_reason"),
+            quality_config=data.get("quality_config", {}),
         )
 
 

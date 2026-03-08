@@ -64,10 +64,24 @@ The script will:
 ### Plugin fails to reinstall
 - **Local plugins**: validate source directory still exists
 - **Remote plugins**: Check network connectivity
-- **Version mismatch**: Plugin may have been removed from marketplace
+- **Version mismatch**: Plugin may have been removed
+  from marketplace
+- **Git timeout**: If reinstall fails with timeout errors
+  on large repos or slow networks, increase the git
+  timeout via environment variable:
+  ```bash
+  export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=240000  # 4 minutes
+  ```
+  The default is 120s (increased from 30s in 2.1.51).
 
 ### Hooks still reference old paths
 After reinstall, if hooks still fail:
 1. Check `~/.claude/plugins/cache/` for stale directories
 2. Manually remove orphaned cache entries
 3. Restart Claude Code
+
+### npm registry plugins (2.1.51+)
+Plugins installed from npm sources now support custom
+registries and specific version pinning. If your
+organization uses a private npm registry, plugins can
+be installed from it directly.

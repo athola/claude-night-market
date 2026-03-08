@@ -135,11 +135,17 @@ class PRPrepAnalyzer:
             Updated quality gates
 
         """
-        # Simple validation - in real implementation would check actual conditions
         updated_gates = dict(gates)
-        updated_gates["describes_changes"] = True
-        updated_gates["has_documentation"] = True
-        updated_gates["has_tests"] = True
+        changed_files = context.get("changed_files", [])
+        paths = [f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files]
+
+        updated_gates["has_tests"] = any(
+            "test" in p.lower() for p in paths
+        )
+        updated_gates["has_documentation"] = any(
+            p.endswith(".md") for p in paths
+        )
+        updated_gates["describes_changes"] = bool(changed_files)
         return updated_gates
 
     @staticmethod
@@ -201,7 +207,12 @@ class PRPrepAnalyzer:
             Generated PR description text.
 
         """
-        if not context.get("changed_files"):
+        changed_files = context.get("changed_files", [])
+        if not changed_files:
             return "No changes detected"
 
-        return "Generated PR description"
+        paths = [f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files]
+        lines = [f"## Changes ({len(paths)} files)", ""]
+        for p in paths:
+            lines.append(f"- {p}")
+        return "\n".join(lines)

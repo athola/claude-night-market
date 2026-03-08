@@ -29,7 +29,18 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
 fi
 
 # Performance optimization: cache results for 60 seconds
-CACHE_FILE="${TMPDIR:-/tmp}/scope-guard-cache-$(git rev-parse --show-toplevel | md5sum | cut -d' ' -f1).txt"
+# Portable hash: md5sum (Linux) or md5 (macOS)
+_hash_str() {
+    if command -v md5sum >/dev/null 2>&1; then
+        echo "$1" | md5sum | cut -d' ' -f1
+    elif command -v md5 >/dev/null 2>&1; then
+        echo "$1" | md5 -q
+    else
+        # Fallback: use cksum
+        echo "$1" | cksum | cut -d' ' -f1
+    fi
+}
+CACHE_FILE="${TMPDIR:-/tmp}/scope-guard-cache-$(_hash_str "$(git rev-parse --show-toplevel)").txt"
 CACHE_TTL="${SCOPE_GUARD_CACHE_TTL:-60}"  # seconds
 
 if [ -f "$CACHE_FILE" ]; then

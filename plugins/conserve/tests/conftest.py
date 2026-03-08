@@ -4,6 +4,8 @@ This module provides common test fixtures, mocks, and utilities for testing
 the conservation plugin's skills, commands, and agents following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import importlib.util
 import sys
 import uuid

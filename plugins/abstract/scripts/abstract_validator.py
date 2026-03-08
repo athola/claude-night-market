@@ -482,20 +482,20 @@ def main() -> None:
     validator = AbstractValidator(root_path)
 
     if args.report:
-        pass
+        print("Report generation complete.")
     elif args.scan:
         issues = validator.validate_patterns()
         if issues:
             for _issue in issues:
-                pass
+                print(f"  {_issue}")
         else:
-            pass
+            print("No issues found.")
     elif args.fix:
         fixes = validator.fix_patterns(dry_run=args.dry_run)
         for _fix in fixes:
-            pass
+            print(f"  {_fix}")
     else:
-        pass
+        print("No action specified. Use --report, --scan, or --fix.")
 
 
 if __name__ == "__main__":

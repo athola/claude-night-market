@@ -1,0 +1,15 @@
+[project]
+name = "archetypes"
+version = "1.6.0"
+description = "Architecture paradigm selection and implementation planning for software systems"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    ".ruff_cache",
+]

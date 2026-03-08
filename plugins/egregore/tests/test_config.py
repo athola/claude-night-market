@@ -8,24 +8,23 @@ from pathlib import Path
 from config import (
     AlertsConfig,
     BudgetConfig,
-    EgregorConfig,
+    EgregoreConfig,
     OverseerConfig,
     PipelineConfig,
-    default_config,
     load_config,
     save_config,
 )
 
 
 class TestDefaultConfig:
-    """Test default_config returns correct defaults."""
+    """Test EgregoreConfig returns correct defaults."""
 
-    def test_returns_egregor_config(self) -> None:
-        cfg = default_config()
-        assert isinstance(cfg, EgregorConfig)
+    def test_returns_egregore_config(self) -> None:
+        cfg = EgregoreConfig()
+        assert isinstance(cfg, EgregoreConfig)
 
     def test_overseer_defaults(self) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         assert isinstance(cfg.overseer, OverseerConfig)
         assert cfg.overseer.method == "github-repo-owner"
         assert cfg.overseer.email is None
@@ -33,7 +32,7 @@ class TestDefaultConfig:
         assert cfg.overseer.webhook_format == "generic"
 
     def test_alerts_defaults(self) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         assert isinstance(cfg.alerts, AlertsConfig)
         assert cfg.alerts.on_crash is True
         assert cfg.alerts.on_rate_limit is True
@@ -42,14 +41,14 @@ class TestDefaultConfig:
         assert cfg.alerts.on_watchdog_relaunch is True
 
     def test_pipeline_defaults(self) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         assert isinstance(cfg.pipeline, PipelineConfig)
         assert cfg.pipeline.max_attempts_per_step == 3
         assert cfg.pipeline.skip_brainstorm_for_issues is True
         assert cfg.pipeline.auto_merge is False
 
     def test_budget_defaults(self) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         assert isinstance(cfg.budget, BudgetConfig)
         assert cfg.budget.window_type == "5h"
         assert cfg.budget.cooldown_padding_minutes == 10
@@ -59,13 +58,13 @@ class TestSaveLoadConfig:
     """Test save/load roundtrip for config."""
 
     def test_save_creates_file(self, tmp_path: Path) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         path = tmp_path / "config.json"
         save_config(cfg, path)
         assert path.exists()
 
     def test_save_produces_valid_json(self, tmp_path: Path) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         path = tmp_path / "config.json"
         save_config(cfg, path)
         data = json.loads(path.read_text())
@@ -76,7 +75,7 @@ class TestSaveLoadConfig:
         assert "budget" in data
 
     def test_roundtrip_preserves_values(self, tmp_path: Path) -> None:
-        cfg = default_config()
+        cfg = EgregoreConfig()
         path = tmp_path / "config.json"
         save_config(cfg, path)
         loaded = load_config(path)
@@ -108,7 +107,7 @@ class TestSaveLoadConfig:
         )
 
     def test_roundtrip_with_custom_values(self, tmp_path: Path) -> None:
-        cfg = EgregorConfig(
+        cfg = EgregoreConfig(
             overseer=OverseerConfig(
                 method="email",
                 email="test@example.com",
@@ -149,7 +148,7 @@ class TestSaveLoadConfig:
     def test_load_missing_file_returns_default(self, tmp_path: Path) -> None:
         path = tmp_path / "nonexistent.json"
         cfg = load_config(path)
-        default = default_config()
+        default = EgregoreConfig()
 
         assert cfg.overseer.method == default.overseer.method
         assert cfg.alerts.on_crash == default.alerts.on_crash

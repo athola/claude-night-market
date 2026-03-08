@@ -1,11 +1,6 @@
 # Claude Night Market - Root Makefile
 # Delegates to plugin Makefiles for build operations
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo \
-        abstract abstract-% conjure conjure-% conserve conserve-% \
-        imbue imbue-% memory-palace memory-palace-% parseltongue parseltongue-% \
-        pensive pensive-% sanctum sanctum-% spec-kit spec-kit-%
-
 # Default shell with error handling
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
@@ -16,23 +11,25 @@ PATH := $(UV_TOOL_DIR)/ruff/bin:$(PATH)
 
 # Plugin directories
 PLUGINS_DIR := plugins
-ABSTRACT_DIR := $(PLUGINS_DIR)/abstract
-CONJURE_DIR := $(PLUGINS_DIR)/conjure
-CONSERVE_DIR := $(PLUGINS_DIR)/conserve
-IMBUE_DIR := $(PLUGINS_DIR)/imbue
-MEMORY_PALACE_DIR := $(PLUGINS_DIR)/memory-palace
-PARSELTONGUE_DIR := $(PLUGINS_DIR)/parseltongue
-PENSIVE_DIR := $(PLUGINS_DIR)/pensive
-SANCTUM_DIR := $(PLUGINS_DIR)/sanctum
-SPEC_KIT_DIR := $(PLUGINS_DIR)/spec-kit
-ARCHETYPES_DIR := $(PLUGINS_DIR)/archetypes
-LEYLINE_DIR := $(PLUGINS_DIR)/leyline
-SHARED_DIR := $(PLUGINS_DIR)/shared
-MINISTER_DIR := $(PLUGINS_DIR)/minister
 
 # All plugin directories for iteration (auto-detected)
 PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
+ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
+
+# Generate delegation targets dynamically for all plugins with Makefiles.
+# This replaces ~70 lines of manual per-plugin delegation with a single
+# template that auto-covers any plugin that has a Makefile.
+define plugin_delegation
+.PHONY: $(1) $(1)-%
+$(1)-%:
+	@$$(MAKE) -C $$(PLUGINS_DIR)/$(1) $$*
+$(1):
+	@$$(MAKE) -C $$(PLUGINS_DIR)/$(1)
+endef
+$(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
+
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -55,20 +52,13 @@ help: ## Show this help message
 	@echo "  check-examples    Verify all plugins have proper examples"
 	@echo ""
 	@echo "Plugin delegation (run with 'make <plugin>-<target>'):"
-	@echo "  abstract-*        Abstract plugin targets (e.g., abstract-test)"
-	@echo "  conjure-*         Conjure plugin targets"
-	@echo "  conserve-*        Conserve plugin targets"
-	@echo "  imbue-*           Imbue plugin targets"
-	@echo "  memory-palace-*   Memory Palace plugin targets"
-	@echo "  parseltongue-*    Parseltongue plugin targets"
-	@echo "  pensive-*         Pensive plugin targets"
-	@echo "  sanctum-*         Sanctum plugin targets"
-	@echo "  spec-kit-*        Spec-Kit plugin targets"
+	@echo "  Detected plugins: $(ALL_PLUGIN_NAMES)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make abstract-help      Show abstract plugin targets"
 	@echo "  make pensive-test       Run pensive tests"
 	@echo "  make sanctum-lint       Run sanctum linting"
+	@echo "  make egregore-check     Run egregore checks"
 	@echo ""
 	@echo "Or use 'make -C <plugin-dir> <target>' directly"
 
@@ -82,88 +72,25 @@ lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "=== Running Lint on ALL Code ==="
 	@echo ""
 	@echo ">>> Running ruff format on plugins/..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "❌ Ruff format failed" && exit 1)
-	@echo "✓ Ruff format passed"
+	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
+	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running ruff check with auto-fix on plugins/..."
-	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "❌ Ruff check failed" && exit 1)
-	@echo "✓ Ruff check passed"
+	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "Ruff check failed" && exit 1)
+	@echo "Ruff check passed"
 	@echo ""
 	@echo ">>> Running ruff format again (to fix any formatting from check)..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "❌ Ruff format failed" && exit 1)
-	@echo "✓ Ruff format passed"
+	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
+	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running bandit security checks on plugins/..."
-	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "❌ Bandit failed" && exit 1)
-	@echo "✓ Bandit passed"
+	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "Bandit failed" && exit 1)
+	@echo "Bandit passed"
 	@echo ""
 	@echo "=== Lint Complete (All Code Checked) ==="
 
 typecheck: ## Run type checking on all plugins (ALL code, not just changed)
 	@./scripts/run-plugin-typecheck.sh --all
-
-# Plugin delegation - Abstract
-abstract-%:
-	@$(MAKE) -C $(ABSTRACT_DIR) $*
-
-abstract:
-	@$(MAKE) -C $(ABSTRACT_DIR)
-
-# Plugin delegation - Conjure
-conjure-%:
-	@$(MAKE) -C $(CONJURE_DIR) $*
-
-conjure:
-	@$(MAKE) -C $(CONJURE_DIR)
-
-# Plugin delegation - Conserve
-conserve-%:
-	@$(MAKE) -C $(CONSERVE_DIR) $*
-
-conserve:
-	@$(MAKE) -C $(CONSERVE_DIR)
-
-# Plugin delegation - Imbue
-imbue-%:
-	@$(MAKE) -C $(IMBUE_DIR) $*
-
-imbue:
-	@$(MAKE) -C $(IMBUE_DIR)
-
-# Plugin delegation - Memory Palace
-memory-palace-%:
-	@$(MAKE) -C $(MEMORY_PALACE_DIR) $*
-
-memory-palace:
-	@$(MAKE) -C $(MEMORY_PALACE_DIR)
-
-# Plugin delegation - Parseltongue
-parseltongue-%:
-	@$(MAKE) -C $(PARSELTONGUE_DIR) $*
-
-parseltongue:
-	@$(MAKE) -C $(PARSELTONGUE_DIR)
-
-# Plugin delegation - Pensive
-pensive-%:
-	@$(MAKE) -C $(PENSIVE_DIR) $*
-
-pensive:
-	@$(MAKE) -C $(PENSIVE_DIR)
-
-# Plugin delegation - Sanctum
-sanctum-%:
-	@$(MAKE) -C $(SANCTUM_DIR) $*
-
-sanctum:
-	@$(MAKE) -C $(SANCTUM_DIR)
-
-# Plugin delegation - Spec-Kit
-spec-kit-%:
-	@$(MAKE) -C $(SPEC_KIT_DIR) $*
-
-spec-kit:
-	@$(MAKE) -C $(SPEC_KIT_DIR)
 
 status: ## Show status of all plugins
 	@echo "=== Plugin Status ==="
@@ -188,7 +115,7 @@ validate-all: ## Validate all plugin structures
 	@for plugin in $(ALL_PLUGINS); do \
 		echo ""; \
 		echo ">>> Validating $$plugin:"; \
-		python3 $(ABSTRACT_DIR)/scripts/validate_plugin.py $$plugin || echo "  (validation failed)"; \
+		python3 plugins/abstract/scripts/validate_plugin.py $$plugin || echo "  (validation failed)"; \
 	done
 
 plugin-check: ## Run demo/dogfood checks across all plugins
@@ -232,10 +159,5 @@ demo: ## Demonstrate Claude Night Market capabilities
 	@echo "Per-Plugin Commands:"
 	@echo "  make <plugin>-help  - Show plugin-specific targets"
 	@echo "  make <plugin>-test  - Run plugin tests"
-	@echo ""
-	@echo "New in v1.1.2 - Bloat Detection:"
-	@echo "  make conserve-demo-bloat      - Demo bloat detection on conserve plugin"
-	@echo "  /bloat-scan --level 2         - Run bloat scan in Claude Code"
-	@echo "  /unbloat --from-scan report   - Safe bloat remediation"
 	@echo ""
 	@echo "Example: make abstract-help"

@@ -359,11 +359,11 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.get_config",
                 return_value=_default_config(),
-            ),
+            ) as mock_get_config,
             patch(
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
-            ),
+            ) as mock_is_safe,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -374,6 +374,8 @@ class TestMainWebFetchHandling:
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "skipped" in ctx
         assert "contains secrets" in ctx
+        mock_get_config.assert_called_once()
+        mock_is_safe.assert_called_once()
 
     @pytest.mark.unit
     def test_known_url_no_changes(self, capsys: pytest.CaptureFixture[str]):
@@ -403,9 +405,9 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
-            ),
-            patch("web_research_handler.is_known", return_value=True),
-            patch("web_research_handler.needs_update", return_value=False),
+            ) as mock_is_safe,
+            patch("web_research_handler.is_known", return_value=True) as mock_known,
+            patch("web_research_handler.needs_update", return_value=False) as mock_update,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -416,6 +418,9 @@ class TestMainWebFetchHandling:
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "knowledge-intake" in ctx
+        mock_is_safe.assert_called_once()
+        mock_known.assert_called_once()
+        mock_update.assert_called_once()
 
     @pytest.mark.unit
     def test_known_url_with_changes(self, capsys: pytest.CaptureFixture[str]):
@@ -441,8 +446,8 @@ class TestMainWebFetchHandling:
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
             ),
-            patch("web_research_handler.is_known", return_value=True),
-            patch("web_research_handler.needs_update", return_value=True),
+            patch("web_research_handler.is_known", return_value=True) as mock_known,
+            patch("web_research_handler.needs_update", return_value=True) as mock_update,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -452,6 +457,8 @@ class TestMainWebFetchHandling:
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "has changed" in ctx
+        mock_known.assert_called_once()
+        mock_update.assert_called_once()
 
     @pytest.mark.unit
     def test_new_content_auto_captured(self, capsys: pytest.CaptureFixture[str]):
@@ -477,12 +484,12 @@ class TestMainWebFetchHandling:
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
             ),
-            patch("web_research_handler.is_known", return_value=False),
-            patch("web_research_handler.get_content_hash", return_value="abc123"),
+            patch("web_research_handler.is_known", return_value=False) as mock_known,
+            patch("web_research_handler.get_content_hash", return_value="abc123") as mock_hash,
             patch(
                 "web_research_handler.store_webfetch_content",
                 return_value="/tmp/stored.md",
-            ),
+            ) as mock_store,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -493,6 +500,9 @@ class TestMainWebFetchHandling:
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "Auto-captured" in ctx
         assert "pending_review" in ctx
+        mock_known.assert_called_once()
+        mock_hash.assert_called_once()
+        mock_store.assert_called_once()
 
     @pytest.mark.unit
     def test_auto_capture_disabled_shows_reminder(
@@ -520,8 +530,8 @@ class TestMainWebFetchHandling:
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
             ),
-            patch("web_research_handler.is_known", return_value=False),
-            patch("web_research_handler.get_content_hash", return_value="abc123"),
+            patch("web_research_handler.is_known", return_value=False) as mock_known,
+            patch("web_research_handler.get_content_hash", return_value="abc123") as mock_hash,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -531,6 +541,8 @@ class TestMainWebFetchHandling:
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "knowledge-intake" in ctx
+        mock_known.assert_called_once()
+        mock_hash.assert_called_once()
 
 
 class TestMainWebSearchHandling:
@@ -559,12 +571,12 @@ class TestMainWebSearchHandling:
                 "web_research_handler.get_config",
                 return_value=_default_config(auto_capture=True),
             ),
-            patch("web_research_handler.is_known", return_value=False),
-            patch("web_research_handler._recent_intake_pending", return_value=False),
+            patch("web_research_handler.is_known", return_value=False) as mock_known,
+            patch("web_research_handler._recent_intake_pending", return_value=False) as mock_pending,
             patch(
                 "web_research_handler.store_websearch_results",
                 return_value="/tmp/search.md",
-            ),
+            ) as mock_store,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -575,6 +587,9 @@ class TestMainWebSearchHandling:
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "Auto-captured" in ctx
         assert "python async patterns" in ctx
+        mock_pending.assert_called_once()
+        mock_store.assert_called_once()
+        mock_known.assert_called_once()
 
     @pytest.mark.unit
     def test_known_results_noted(self, capsys: pytest.CaptureFixture[str]):
@@ -599,8 +614,8 @@ class TestMainWebSearchHandling:
                 "web_research_handler.get_config",
                 return_value=_default_config(),
             ),
-            patch("web_research_handler.is_known", return_value=True),
-            patch("web_research_handler._recent_intake_pending", return_value=False),
+            patch("web_research_handler.is_known", return_value=True) as mock_known,
+            patch("web_research_handler._recent_intake_pending", return_value=False) as mock_pending,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -610,6 +625,8 @@ class TestMainWebSearchHandling:
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
         assert "already stored" in ctx
+        mock_known.assert_called_once()
+        mock_pending.assert_called_once()
 
     @pytest.mark.unit
     def test_intake_already_pending_no_duplicate_prompt(
@@ -628,7 +645,7 @@ class TestMainWebSearchHandling:
                 "web_research_handler.get_config",
                 return_value=_default_config(),
             ),
-            patch("web_research_handler._recent_intake_pending", return_value=True),
+            patch("web_research_handler._recent_intake_pending", return_value=True) as mock_pending,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
@@ -636,6 +653,7 @@ class TestMainWebSearchHandling:
         assert exc_info.value.code == 0
         # Should be silent when intake is already pending
         assert capsys.readouterr().out.strip() == ""
+        mock_pending.assert_called_once()
 
 
 class TestMainDisabledConfig:
@@ -655,13 +673,14 @@ class TestMainDisabledConfig:
             patch(
                 "web_research_handler.get_config",
                 return_value={"enabled": False},
-            ),
+            ) as mock_get_config,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
+        mock_get_config.assert_called_once()
 
     @pytest.mark.unit
     def test_lifecycle_flag_disabled(self, capsys: pytest.CaptureFixture[str]):
@@ -680,10 +699,11 @@ class TestMainDisabledConfig:
                     "enabled": True,
                     "feature_flags": {"lifecycle": False},
                 },
-            ),
+            ) as mock_get_config,
         ):
             with pytest.raises(SystemExit) as exc_info:
                 web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
+        mock_get_config.assert_called_once()

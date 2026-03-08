@@ -8,7 +8,7 @@
 #   --fix     Auto-fix linting issues where possible
 #   --report  Generate detailed report file
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -24,6 +24,12 @@ AUTO_FIX=false
 GENERATE_REPORT=false
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 REPORT_FILE="audit/quality-report-${TIMESTAMP}.md"
+
+# Cleanup temp files on exit
+LINT_OUTPUT=""
+TYPECHECK_OUTPUT=""
+TEST_OUTPUT=""
+trap 'rm -f "$LINT_OUTPUT" "$TYPECHECK_OUTPUT" "$TEST_OUTPUT"' EXIT
 
 # Parse arguments
 for arg in "$@"; do
@@ -74,7 +80,8 @@ if [ "$AUTO_FIX" = true ]; then
     echo -e "${YELLOW}Running with auto-fix enabled...${NC}"
 fi
 
-if ./scripts/run-plugin-lint.sh --all 2>&1 | tee "$LINT_OUTPUT"; then
+# Use process substitution to avoid masking exit code through tee
+if ./scripts/run-plugin-lint.sh --all 2>&1 | tee "$LINT_OUTPUT"; LINT_EXIT=${PIPESTATUS[0]}; [ "$LINT_EXIT" -eq 0 ]; then
     echo -e "${GREEN}✓ All plugins passed linting${NC}"
     LINT_STATUS="PASS"
 else
@@ -103,7 +110,7 @@ echo -e "${BLUE}════ Phase 2: Type Checking All Plugins ════${NC
 echo
 
 TYPECHECK_OUTPUT=$(mktemp)
-if ./scripts/run-plugin-typecheck.sh --all 2>&1 | tee "$TYPECHECK_OUTPUT"; then
+if ./scripts/run-plugin-typecheck.sh --all 2>&1 | tee "$TYPECHECK_OUTPUT"; TC_EXIT=${PIPESTATUS[0]}; [ "$TC_EXIT" -eq 0 ]; then
     echo -e "${GREEN}✓ All plugins passed type checking${NC}"
     TYPECHECK_STATUS="PASS"
 else
@@ -132,7 +139,7 @@ echo -e "${BLUE}════ Phase 3: Testing All Plugins ════${NC}"
 echo
 
 TEST_OUTPUT=$(mktemp)
-if ./scripts/run-plugin-tests.sh --all 2>&1 | tee "$TEST_OUTPUT"; then
+if ./scripts/run-plugin-tests.sh --all 2>&1 | tee "$TEST_OUTPUT"; TEST_EXIT=${PIPESTATUS[0]}; [ "$TEST_EXIT" -eq 0 ]; then
     echo -e "${GREEN}✓ All plugins passed tests${NC}"
     TEST_STATUS="PASS"
 else
@@ -228,10 +235,7 @@ else
     echo "3. Re-run monthly: ./scripts/check-all-quality.sh --report"
 fi
 
-# Cleanup
-rm -f "$LINT_OUTPUT" "$TYPECHECK_OUTPUT" "$TEST_OUTPUT"
-
-# Exit with appropriate code
+# Exit with appropriate code (temp files cleaned up via EXIT trap)
 if [ $TOTAL_FAILED -gt 0 ]; then
     exit 1
 fi

@@ -3,9 +3,10 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
-.PHONY: clean debug-variables demo-attune demo-brainstorm demo-init demo-skills dev-setup help \
-	plugin-check status test-attune test-integration test-verbose
+.PHONY: help dev-setup clean status debug-variables \
+	test test-integration test-verbose \
+	demo-init demo-brainstorm demo-skills demo-attune demo-attune-commands \
+	test-attune plugin-check typecheck
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests
@@ -139,17 +140,6 @@ demo-skills: ## Validate attune skill structure
 	@echo "  precommit-setup:      $$(test -f skills/precommit-setup/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  workflow-setup:       $$(test -f skills/workflow-setup/SKILL.md && echo '[OK]' || echo '[X]')"
 
-plugin-check: demo-init demo-brainstorm demo-skills ## Run all demo workflows
-	@echo ""
-	@echo "=== Attune Plugin Check Complete ==="
-
-# Include local overrides if they exist (before catch-all rule)
-Makefile.local:;
--include Makefile.local
-
-# Note: catch-all rule removed to allow included targets from python.mk to work
-# The
-
 demo-attune: ## Demo attune command (LIVE)
 	@echo "=== attune Demo (LIVE) ==="
 	@echo ""
@@ -161,112 +151,12 @@ demo-attune: ## Demo attune command (LIVE)
 	@echo ""
 	@echo "Use /attune :validate for full workflow."
 
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-	@echo "=== attune Demo (LIVE) ==="
-	@echo ""
-	@echo "Command: /attune"
-	@echo "Plugin: attune"
-	@echo ""
-	@echo "This demonstrates attune usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /attune for full workflow."
-
-
-demo-attune-commands: demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune ## Run all attune documented command demos
+demo-attune-commands: demo-attune ## Run all attune documented command demos
 	@echo ""
 	@echo "=== Attune All Commands Demo Complete ==="
-	@echo "Ran 10 documented commands"
-	@echo ""
 
+test: lint type-check ## Run all tests
+	$(PYTEST) $(PYTEST_TARGETS)
 
 test-attune: ## Test attune command workflow
 	@echo "=== Testing attune workflow ==="
@@ -276,82 +166,16 @@ test-attune: ## Test attune command workflow
 	@echo "Status: [ ] Manual test required"
 	@echo ""
 
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
+plugin-check: demo-init demo-brainstorm demo-skills ## Run all demo workflows
 	@echo ""
+	@echo "=== Attune Plugin Check Complete ==="
 
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing attune workflow ==="
-	@echo "Validating: /attune"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-# Re-export aliases from python.mk before catch-all (catch-all overrides includes)
-.PHONY: typecheck
+# Re-export aliases from python.mk before catch-all
 typecheck: type-check
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
 
 # Catch-all rule
 %::

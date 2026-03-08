@@ -80,6 +80,9 @@ docs/backlog/
 docs/archive/
 **/*/docs/plans/
 
+# Attune ephemeral state
+.attune/
+
 # Git worktrees
 .worktrees/
 

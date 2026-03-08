@@ -113,17 +113,13 @@ def is_tasks_available() -> bool:
         return False
 
     try:
-        parts = [int(p) for p in version.split(".")]
-        if parts[0] > _MIN_MAJOR:
-            return True
-        if parts[0] == _MIN_MAJOR and parts[1] > _MIN_MINOR:
-            return True
-        if parts[0] == _MIN_MAJOR and parts[1] == _MIN_MINOR and parts[2] >= _MIN_PATCH:
-            return True
+        return tuple(int(p) for p in version.split(".")[:3]) >= (
+            _MIN_MAJOR,
+            _MIN_MINOR,
+            _MIN_PATCH,
+        )
     except (ValueError, IndexError):
-        pass
-
-    return False
+        return False
 
 
 _MULTI_COMPONENT_THRESHOLD = 2
@@ -194,13 +190,13 @@ def detect_ambiguity(
 
     # Check for circular dependency risk
     existing_tasks = context.get("existing_tasks", [])
+    task_lower = task_description.lower()
+    task_services = set(
+        re.findall(r"\b(\w+(?:service|manager|handler))\b", task_lower, re.I)
+    )
     for existing in existing_tasks:
         existing_desc = existing.get("description", "").lower()
-        task_lower = task_description.lower()
 
-        task_services = set(
-            re.findall(r"\b(\w+(?:service|manager|handler))\b", task_lower, re.I)
-        )
         existing_services = set(
             re.findall(r"\b(\w+(?:service|manager|handler))\b", existing_desc, re.I)
         )

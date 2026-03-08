@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -243,7 +243,7 @@ class KeywordIndexer:
             "metadata": {
                 "total_entries": len(entries),
                 "total_keywords": len(keyword_to_entries),
-                "last_updated": datetime.now().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             },
         }
 

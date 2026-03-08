@@ -44,7 +44,7 @@ class TestCommandFrontmatterParsing:
         """Extracts description from frontmatter."""
         result = CommandValidator.parse_frontmatter(sample_command_content)
         assert result.is_valid
-        assert result.description is not None
+        assert isinstance(result.description, str), "description should be a string"
         assert len(result.description) > 0
 
 

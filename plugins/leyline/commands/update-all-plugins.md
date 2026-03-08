@@ -66,9 +66,23 @@ This command currently has no options. It updates all plugins from all marketpla
 
 ## Notes
 - Requires network access to check for updates
-- A restart of Claude Code is required after updates to apply changes
-- The command will continue updating even if some plugins fail
+- Use `/reload-plugins` (2.1.69+) to activate pending
+  plugin changes without restarting Claude Code. For
+  older versions, a full restart is still required.
+- The command will continue updating even if some
+  plugins fail
+- Plugin installation status is now accurate in
+  `/plugin` menu (2.1.70+). Previous versions could
+  show plugins as inaccurately installed or report
+  "not found in marketplace" on fresh startup.
+- `/plugin uninstall` (2.1.71+) now disables
+  project-scoped plugins in `.claude/settings.local.json`
+  instead of modifying `.claude/settings.json`, so
+  uninstalls don't affect teammates via version control
 - Updates are applied at the user scope by default
+- If updates fail with git timeout errors, set
+  `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` (default: 120s,
+  increased from 30s in 2.1.51)
 
 ## Auto-Update Configuration (2.0.70+)
 

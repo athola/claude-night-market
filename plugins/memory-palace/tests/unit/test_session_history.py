@@ -205,7 +205,7 @@ class TestSessionHistoryManager:
         mgr.record_session(original)
 
         retrieved = mgr.get_session("sess-001")
-        assert retrieved is not None
+        assert isinstance(retrieved, SessionRecord)
         assert retrieved.session_id == "sess-001"
         assert retrieved.summary == "Fixed bug in parser"
 
@@ -244,7 +244,7 @@ class TestSessionHistoryManager:
         assert len(entries) == 1
 
         retrieved = mgr.get_session("sess-dup")
-        assert retrieved is not None
+        assert isinstance(retrieved, SessionRecord)
         assert retrieved.summary == "updated"
 
     @pytest.mark.unit
@@ -686,7 +686,7 @@ class TestSessionHistoryManager:
 
         mgr.delete_session("remove")
 
-        assert mgr.get_session("keep") is not None
+        assert isinstance(mgr.get_session("keep"), SessionRecord)
         assert mgr.get_session("remove") is None
 
     # ------------------------------------------------------------------
@@ -712,7 +712,7 @@ class TestSessionHistoryManager:
 
         assert pruned == 1
         assert mgr.get_session("old-sess") is None
-        assert mgr.get_session("new-sess") is not None
+        assert isinstance(mgr.get_session("new-sess"), SessionRecord)
 
     @pytest.mark.unit
     def test_prune_returns_count_of_removed(self, tmp_path: Path) -> None:

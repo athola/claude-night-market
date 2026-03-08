@@ -105,6 +105,7 @@ class TestAnalyzeHook:
         """Given a simple pattern-based hook, marks as convertible."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"dangerous", context["command"]):
@@ -123,6 +124,7 @@ def hook(context):
         """Given a hook with network calls, marks as not convertible."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import requests
 def hook(context):
     response = requests.get("http://api.example.com")
@@ -286,6 +288,7 @@ class TestAnalyzeHookEdgeCases:
         """Given hook with no extractable patterns, marks unconvertible."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 def hook(context):
     # Does nothing recognizable
     return None
@@ -354,6 +357,7 @@ class TestDefaultThresholds:
         # should be marked unconvertible (> 10 fails, but we need > threshold)
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"dangerous", context["command"]):
@@ -374,6 +378,7 @@ def hook(context):
         # An equality pattern has confidence 0.8 which is above default 0.7
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 def hook(context):
     if context["command"] == "rm -rf /":
         return {"action": "block"}
@@ -397,6 +402,7 @@ class TestCustomMaxComplexity:
         """A hook at complexity 0 is rejected when max_complexity is -1."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"danger", context["command"]):
@@ -417,6 +423,7 @@ def hook(context):
         # Same file I/O hook but with a generous threshold
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     with open("config.txt") as f:
@@ -442,6 +449,7 @@ def hook(context):
         """Hook with complexity == max_complexity should be convertible."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"danger", context["command"]):
@@ -474,6 +482,7 @@ def hook(context):
             # is NOT > 0, so it passes. But if we set max_complexity=-1,
             # complexity 0 > -1 so it fails.
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if re.search(r"danger", context["command"]):
@@ -498,6 +507,7 @@ class TestCustomMinConfidence:
         # Equality pattern has confidence 0.8, contains has 0.85
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 def hook(context):
     if context["command"] == "rm -rf /":
         return {"action": "block"}
@@ -518,6 +528,7 @@ def hook(context):
         """All patterns should be kept when min_confidence is very low."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 def hook(context):
     if context["command"] == "rm -rf /":
         return {"action": "block"}
@@ -537,6 +548,7 @@ def hook(context):
         """Pattern with confidence == min_confidence should be kept."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 def hook(context):
     if context["command"] == "rm -rf /":
         return {"action": "block"}
@@ -555,6 +567,7 @@ def hook(context):
         """Only patterns below min_confidence should be removed."""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write("""
+# PreToolUse
 import re
 def hook(context):
     if context["command"] == "rm -rf /":

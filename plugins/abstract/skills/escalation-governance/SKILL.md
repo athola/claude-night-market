@@ -217,9 +217,37 @@ Agent starts task at assigned model
 |--------------|-------------|------|
 | Haiku → Sonnet | Stay on Haiku | Task is still deterministic, just needs more context |
 | Sonnet → Opus | Opus@medium | Moderate reasoning, not deep architectural analysis |
-| Opus@default → "maybe try again" | Opus@max | Genuine complexity that needs maximum reasoning depth |
+| Opus@medium → "maybe try again" | Opus@high or "ultrathink" | Genuine complexity needing deeper reasoning |
 
-Effort controls do NOT replace the escalation governance framework — they provide an additional axis. The Iron Law still applies: investigate before changing either model or effort level.
+**Default effort change (2.1.68+)**: Opus 4.6 now
+defaults to **medium effort** for Max and Team
+subscribers. Use `/model` to change effort level, or
+type "ultrathink" in your prompt to enable high effort
+for the next turn.
+
+**Opus 4/4.1 removed (2.1.68+)**: Opus 4 and 4.1 are
+no longer available on the first-party API. Users with
+these models pinned are automatically migrated to
+Opus 4.6. No action needed for agents using `model`
+frontmatter, as the migration is transparent.
+
+**Sonnet 4.5 → 4.6 migration (2.1.69+)**: Sonnet 4.5
+users on Pro/Max/Team Premium are automatically migrated
+to Sonnet 4.6. Agent model frontmatter referencing
+Sonnet resolves transparently. The `--model` flags for
+`claude-opus-4-0` and `claude-opus-4-1` now correctly
+resolve to Opus 4.6 instead of deprecated versions.
+
+**Effort parameter fix (2.1.70+)**: Fixed API 400 error
+`This model does not support the effort parameter` when
+using custom Bedrock inference profiles or non-standard
+Claude model identifiers. Effort controls now work
+reliably across all deployment configurations.
+
+Effort controls do NOT replace the escalation governance
+framework: they provide an additional axis. The Iron Law
+still applies: investigate before changing either model
+or effort level.
 
 ## Troubleshooting
 

@@ -22,6 +22,12 @@ class MyHooks(AgentHooks):
         """Hook after tool execution."""
         pass
 
+    async def on_post_tool_use_failure(
+        self, tool_name: str, tool_input: dict, error: str
+    ) -> str | None:
+        """Hook when tool execution fails (2.1.20+)."""
+        pass
+
     async def on_user_prompt_submit(self, message: str) -> str | None:
         """Hook when user submits a message."""
         pass
@@ -30,8 +36,26 @@ class MyHooks(AgentHooks):
         """Hook when agent stops."""
         pass
 
+    async def on_subagent_start(self, subagent_id: str, task: Any) -> None:
+        """Hook when subagent spawns (2.1.20+)."""
+        pass
+
     async def on_subagent_stop(self, subagent_id: str, result: Any) -> None:
         """Hook when subagent completes."""
+        pass
+
+    async def on_permission_request(
+        self, tool_name: str, tool_input: dict
+    ) -> dict | None:
+        """Hook when permission dialog would appear."""
+        pass
+
+    async def on_teammate_idle(self, teammate_id: str) -> None:
+        """Hook when teammate agent becomes idle (2.1.33+)."""
+        pass
+
+    async def on_task_completed(self, task_id: str, result: Any) -> None:
+        """Hook when task finishes execution (2.1.33+)."""
         pass
 
     async def on_pre_compact(self, context_size: int) -> dict | None:

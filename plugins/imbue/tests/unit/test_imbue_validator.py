@@ -4,6 +4,8 @@ This module tests the core validation functionality of the imbue validator,
 following TDD/BDD principles and testing all business logic scenarios.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import sys
@@ -13,20 +15,11 @@ from unittest.mock import patch
 
 import pytest
 
-# Import the validator - handle both development and test environments
-try:
-    from scripts.imbue_validator import (
-        ImbueValidationResult,
-        ImbueValidator,
-    )
-    from scripts.imbue_validator import (
-        main as imbue_main,
-    )
-except ImportError:
-    # For testing before module exists
-    ImbueValidator = None
-    ImbueValidationResult = None
-    imbue_main = None
+from scripts.imbue_validator import (
+    ImbueValidationResult,
+    ImbueValidator,
+    main as imbue_main,
+)
 
 
 class TestImbueValidator:
@@ -123,9 +116,6 @@ This skill doesn't do reviews.
         When initializing ImbueValidator
         Then it should load skill files and configuration.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
-
         # Arrange & Act
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -143,8 +133,6 @@ This skill doesn't do reviews.
         When initializing ImbueValidator
         Then it should initialize with empty skill list.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange & Act
         validator = ImbueValidator(Path("/nonexistent/directory"))
@@ -164,8 +152,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange & Act
         with caplog.at_level(logging.WARNING):
@@ -192,8 +178,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create empty directory
         empty_dir = tmp_path / "empty-plugin"
@@ -222,8 +206,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create directory with some files but no plugin structure
         malformed_dir = tmp_path / "malformed-plugin"
@@ -256,8 +238,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange & Act
         validator = ImbueValidator(mock_plugin_structure)
@@ -279,8 +259,6 @@ This skill doesn't do reviews.
         Then it should identify review-pattern skills
         And ignore non-review skills.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
@@ -310,8 +288,6 @@ This skill doesn't do reviews.
         Then it should match multiple patterns
         And categorize appropriately.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - add a skill with workflow keyword
         workflow_dir = mock_plugin_structure / "skills" / "workflow-skill"
@@ -348,8 +324,6 @@ This provides workflow orchestration.
         Then it should add evidence logging patterns
         And parse JSON without errors.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
@@ -376,8 +350,6 @@ This provides workflow orchestration.
         Then it should record error in issues
         And continue processing skills.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - write invalid JSON
         (mock_plugin_structure / "plugin.json").write_text("invalid json content")
@@ -402,8 +374,6 @@ This provides workflow orchestration.
         Then it should record an issue instead of crashing
         And continue processing skills.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - write bytes that are invalid UTF-8
         (mock_plugin_structure / "plugin.json").write_bytes(b"\xff")
@@ -432,8 +402,6 @@ This provides workflow orchestration.
         Then it should record an issue instead of crashing
         And continue processing other skills.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - make one skill file invalid UTF-8
         (mock_plugin_structure / "skills" / "other-skill" / "SKILL.md").write_bytes(
@@ -462,8 +430,6 @@ This provides workflow orchestration.
         Then it should identify missing components
         And report specific issues.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create review-core skill missing deliverable component
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
@@ -491,8 +457,11 @@ This skill has checklist but no deliverable section.
         review_core_issues = [
             issue for issue in issues if issue.startswith("review-core:")
         ]
-        assert len(review_core_issues) > 0
-        assert any("Missing review components" in issue for issue in review_core_issues)
+        assert len(review_core_issues) >= 1
+        missing_component_issues = [
+            i for i in review_core_issues if "Missing review components" in i
+        ]
+        assert len(missing_component_issues) == 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -506,8 +475,6 @@ This skill has checklist but no deliverable section.
         Then it should flag missing evidence patterns
         Except for review-core skill.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create skill without evidence patterns
         no_evidence_dir = mock_plugin_structure / "skills" / "no-audit"
@@ -546,8 +513,6 @@ This skill has checklist but no deliverable section.
         When validating review workflows
         Then it should not flag review-core for missing evidence patterns.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - review-core skill without explicit evidence keywords
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
@@ -585,8 +550,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should include all sections with appropriate content.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
@@ -612,8 +575,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should list all issues with numbering.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create issues
         (mock_plugin_structure / "plugin.json").write_text("invalid json")
@@ -641,8 +602,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should display success message.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - validate all skills have proper patterns
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
@@ -669,8 +628,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When scanning for review workflows
         Then it should match patterns regardless of case.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - create skill with uppercase patterns
         mixed_case_dir = mock_plugin_structure / "skills" / "mixed-case"
@@ -704,8 +661,6 @@ Also includes EVIDENCE logging.
         When scanning for review workflows
         Then it should return empty results.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange
         empty_dir = tmp_path / "empty-plugin"
@@ -716,9 +671,9 @@ Also includes EVIDENCE logging.
         result = validator.scan_review_workflows()
 
         # Assert
-        assert len(result["skills_found"]) == 0
-        assert len(result["review_workflow_skills"]) == 0
-        assert len(result["issues"]) == 0
+        assert result["skills_found"] == set()
+        assert result["review_workflow_skills"] == set()
+        assert result["issues"] == []
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -729,8 +684,6 @@ Also includes EVIDENCE logging.
         When scanning for review workflows
         Then it should continue processing skills.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange - remove plugin.json
         (mock_plugin_structure / "plugin.json").unlink()
@@ -751,8 +704,6 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan exits non-zero when issues exist."""
-        if imbue_main is None:
-            pytest.skip("imbue_main not available")
 
         with patch.object(
             sys,
@@ -773,8 +724,6 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan prints results and exits cleanly when no issues."""
-        if imbue_main is None:
-            pytest.skip("imbue_main not available")
 
         # validate all skills mention evidence so validation passes.
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
@@ -799,8 +748,6 @@ Also includes EVIDENCE logging.
     @pytest.mark.unit
     def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
         """Scenario: CLI report prints a full report."""
-        if imbue_main is None:
-            pytest.skip("imbue_main not available")
 
         with patch.object(
             sys,
@@ -830,8 +777,6 @@ class TestImbueValidatorIntegration:
         When running validation
         Then it should process actual skills and configuration.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Arrange & Act
         validator = ImbueValidator(imbue_plugin_root)
@@ -839,15 +784,15 @@ class TestImbueValidatorIntegration:
         issues = validator.validate_review_workflows()
         report = validator.generate_report()
 
-        # Assert - these tests adapt to the actual plugin structure
-        assert isinstance(result, dict)
-        assert "skills_found" in result
-        assert "review_workflow_skills" in result
-        assert "evidence_logging_patterns" in result
-        assert "issues" in result
+        # Assert - verify actual plugin structure produces valid results
+        assert isinstance(result["skills_found"], set)
+        assert len(result["skills_found"]) >= 1
+        assert isinstance(result["review_workflow_skills"], set)
+        assert isinstance(result["evidence_logging_patterns"], set)
+        assert isinstance(result["issues"], list)
         assert isinstance(issues, list)
         assert isinstance(report, str)
-        assert len(report) > 0
+        assert "Imbue Plugin Review Workflow Report" in report
 
     @pytest.mark.bdd
     @pytest.mark.integration
@@ -858,8 +803,6 @@ class TestImbueValidatorIntegration:
         When running validation
         Then it should handle permissions gracefully.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         plugin_root = tmp_path / "permission-test"
         plugin_root.mkdir()
@@ -874,11 +817,10 @@ class TestImbueValidatorIntegration:
         skill_file.chmod(0)
 
         validator = ImbueValidator(plugin_root)
-        issues = validator.validate_review_workflows()
-        assert any("Unable to read" in issue for issue in issues)
+        result = validator.scan_review_workflows()
+        assert any("Unable to read" in issue for issue in result["issues"])
 
 
-@pytest.mark.skipif(ImbueValidator is None, reason="ImbueValidator not available")
 class TestImbueValidatorPerformance:
     """Feature: Imbue validator performance with large plugins.
 
@@ -979,8 +921,6 @@ class TestImbueValidatorEdgeCases:
         When running main()
         Then it should print help information.
         """
-        if imbue_main is None:
-            pytest.skip("imbue_main not available")
 
         with patch.object(sys, "argv", ["prog"]):
             imbue_main()
@@ -997,8 +937,6 @@ class TestImbueValidatorEdgeCases:
         When initializing ImbueValidator
         Then it should handle the error gracefully and log a warning.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Create a directory
         test_dir = tmp_path / "test-plugin"
@@ -1024,8 +962,6 @@ class TestImbueValidatorEdgeCases:
         When scanning for review workflows
         Then it should not be classified as a review workflow skill.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         # Create plugin structure
         plugin_root = tmp_path / "test-plugin"
@@ -1067,8 +1003,6 @@ Just plain utility operations.
         When scanning for review workflows
         Then it should be classified as a review workflow skill via frontmatter.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "categorized-review"
@@ -1101,8 +1035,6 @@ No keywords needed in the body.
         When scanning for review workflows
         Then it should be classified as a review workflow skill.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "usage-review"
@@ -1140,8 +1072,6 @@ No keywords needed in the body.
 
         This covers branch 133->136 where frontmatter remains None.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "incomplete-fm"
@@ -1174,8 +1104,6 @@ It contains workflow patterns in the content.
 
         This also covers branch 133->136.
         """
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
 
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "broken-fm"

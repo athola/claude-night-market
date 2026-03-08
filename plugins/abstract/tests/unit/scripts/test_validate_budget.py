@@ -406,7 +406,7 @@ class TestPathArgument:
         """
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 str(Path(__file__).parents[3] / "scripts" / "validate_budget.py"),
                 "--path",
                 str(temp_plugin_structure),
@@ -438,7 +438,7 @@ class TestPathArgument:
 
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 str(Path(__file__).parents[3] / "scripts" / "validate_budget.py"),
                 "--path",
                 str(temp_plugin_structure),
@@ -465,7 +465,7 @@ class TestPathArgument:
         # Run without --path, should use cwd
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 str(Path(__file__).parents[3] / "scripts" / "validate_budget.py"),
                 "--help",
             ],

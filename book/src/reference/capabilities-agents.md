@@ -19,6 +19,8 @@ tools: [Read, Write, Edit, Bash, Glob, Grep]  # Available tools
   # Task(agent-name) restricts sub-agent spawning (2.1.33+)
 model: haiku|sonnet|opus                        # Base model
 permissionMode: acceptEdits                     # Permission automation
+background: true                                # Always run in background (2.1.20+)
+isolation: worktree                             # Git worktree isolation (2.1.33+)
 memory: user|project|local                      # Persistent memory scope (2.1.33+)
 skills: plugin:skill1, plugin:skill2            # Auto-loaded skills
 escalation:
@@ -32,6 +34,14 @@ hooks:
       command: "echo 'logged'"
 ---
 ```
+
+**Background Mode (2.1.20+)**: When `background: true` is set, the
+agent runs in the background without blocking the parent session.
+Permission prompts are collected before the agent launches.
+
+**Worktree Isolation (2.1.33+)**: When `isolation: worktree` is set,
+the agent runs in a dedicated git worktree, preventing file conflicts
+with the parent session or other agents.
 
 **Permission Modes**:
 | Mode | Description |

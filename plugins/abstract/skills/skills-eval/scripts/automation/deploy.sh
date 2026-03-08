@@ -2,7 +2,7 @@
 # Deployment script for Skills Evaluation Framework
 # Sets up and validates the evaluation environment
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_EVAL_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
@@ -23,8 +23,8 @@ fi
 
 # Make all tools executable
 echo " Making scripts executable..."
-find "$SKILLS_EVAL_DIR/scripts" -type f -name "*" -exec chmod +x {} \;
-find "$MODULAR_SKILLS_DIR/scripts" -type f -name "*" -exec chmod +x {} \;
+find "$SKILLS_EVAL_DIR/scripts" -type f \( -name "*.sh" -o -name "*.py" -o ! -name "*.*" \) -exec chmod +x {} \;
+find "$MODULAR_SKILLS_DIR/scripts" -type f \( -name "*.sh" -o -name "*.py" -o ! -name "*.*" \) -exec chmod +x {} \;
 
 # Test basic functionality
 echo "Testing scripts..."

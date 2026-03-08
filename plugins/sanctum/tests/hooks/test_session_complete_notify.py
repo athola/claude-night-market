@@ -638,14 +638,10 @@ class TestTerminalInfoDetection:
         ):
             result = get_terminal_info()
 
-        # tmux path didn't yield info, but TMUX env is set so the elif
-        # for TERM_PROGRAM is not reached. This tests the actual code path.
-        # If _get_tmux_session returns None, no session_prefix from tmux.
-        # The code has no explicit fallthrough here - it checks TMUX env
-        # and only sets prefix if tmux_info is truthy, so prefix stays "".
-        # Then it does NOT enter the elif for TERM_PROGRAM because TMUX
-        # is set. So result is just project name.
-        assert result == "app"
+        # With the refactored _detect_terminal_context(), when TMUX is set
+        # but _get_tmux_session() returns None, the detection correctly
+        # falls through to TERM_PROGRAM. This is the improved behavior.
+        assert result == "Alacritty - app"
 
     @pytest.mark.integration
     def test_term_program_detection(self, monkeypatch: pytest.MonkeyPatch) -> None:

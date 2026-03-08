@@ -6,7 +6,7 @@
 #   ./scripts/run-plugin-tests.sh --all
 #   ./scripts/run-plugin-tests.sh --changed (runs tests for plugins with changes)
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -24,7 +24,8 @@ SKIPPED_PLUGINS=()
 run_plugin_tests() {
     local plugin_dir="$1"
     local plugin_name=$(basename "$plugin_dir")
-    local temp_output="/tmp/test_output_${plugin_name}_$$"
+    local temp_output
+    temp_output=$(mktemp "/tmp/test_output_${plugin_name}_XXXXXX")
 
     echo -e "${YELLOW}Testing $plugin_name...${NC}"
 
@@ -119,12 +120,12 @@ elif [ "$1" == "--changed" ]; then
     fi
 
     # Run tests for each changed plugin
-    for plugin_dir in $CHANGED_PLUGINS; do
+    while IFS= read -r plugin_dir; do
         if [ -d "$plugin_dir" ]; then
             run_plugin_tests "$plugin_dir" || true
             echo
         fi
-    done
+    done <<< "$CHANGED_PLUGINS"
 
 else
     # Run tests for specified plugins

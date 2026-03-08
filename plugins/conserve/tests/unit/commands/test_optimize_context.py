@@ -4,6 +4,8 @@ This module tests the optimize-context command orchestration,
 parameter handling, and skill coordination following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 import pytest
 
 # Constants for PLR2004 magic values
@@ -240,281 +242,206 @@ class TestOptimizeContextCommand:
         assert summary["total_tokens_saved"] == TWO_THOUSAND
         assert summary["workflow_success"] is True
 
+    @pytest.fixture
+    def _aggressiveness_strategies(self):
+        """Strategy configurations keyed by aggressiveness level."""
+        return {
+            "light": [
+                {"name": "basic_compression", "savings": 350, "risk": "low"},
+                {"name": "redundant_removal", "savings": 250, "risk": "low"},
+            ],
+            "moderate": [
+                {"name": "context_compression", "savings": 800, "risk": "medium"},
+                {"name": "prompt_optimization", "savings": 500, "risk": "low"},
+                {"name": "targeted_removal", "savings": 450, "risk": "medium"},
+            ],
+            "aggressive": [
+                {"name": "deep_compression", "savings": 1200, "risk": "high"},
+                {"name": "aggressive_pruning", "savings": 900, "risk": "high"},
+                {"name": "delegation", "savings": 1400, "risk": "medium"},
+            ],
+        }
+
+    def _compute_optimization_result(self, level, strategies):
+        """Compute optimization result from a strategy list."""
+        risk_order = {"low": 1, "medium": 2, "high": 3}
+        total_savings = sum(s["savings"] for s in strategies)
+        max_risk = max(strategies, key=lambda s: risk_order[s["risk"]])["risk"]
+        avg_risk_score = sum(
+            risk_order[s["risk"]] for s in strategies
+        ) / len(strategies)
+        return {
+            "aggressiveness": level,
+            "strategies_applied": [s["name"] for s in strategies],
+            "total_savings": total_savings,
+            "max_risk_level": max_risk,
+            "avg_risk_score": avg_risk_score,
+            "improvement_percentage": (total_savings / 5000) * 100,
+        }
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_adapts_optimization_based_on_aggressiveness(
+    @pytest.mark.parametrize(
+        ("level", "expected_strategy", "expected_risk", "min_improvement"),
+        [
+            ("light", "basic_compression", "low", TEN),
+            ("moderate", "context_compression", "medium", THIRTY),
+            ("aggressive", "deep_compression", "high", FIFTY),
+        ],
+    )
+    def test_aggressiveness_level_selects_correct_strategies(
         self,
-        mock_claude_tools,
+        _aggressiveness_strategies,
+        level,
+        expected_strategy,
+        expected_risk,
+        min_improvement,
     ) -> None:
-        """Scenario: Command adapts optimization based on aggressiveness level.
+        """Scenario: Each aggressiveness level selects correct strategies.
 
-        Given different aggressiveness parameters
-        When applying optimization strategies
-        Then it should adjust optimization intensity
-        And balance effectiveness with risk.
+        Given an aggressiveness level
+        When computing optimization strategies
+        Then the strategy set, risk level, and improvement match.
         """
-        # Arrange
-        aggressiveness_levels = [
-            {
-                "level": "light",
-                "description": "Conservative optimization with minimal changes",
-                "expected_strategies": ["basic_compression", "redundant_removal"],
-                "risk_tolerance": "low",
-                "expected_improvement": 15,  # percentage
-            },
-            {
-                "level": "moderate",
-                "description": "Balanced optimization with reasonable changes",
-                "expected_strategies": [
-                    "context_compression",
-                    "prompt_optimization",
-                    "targeted_removal",
-                ],
-                "risk_tolerance": "medium",
-                "expected_improvement": 35,
-            },
-            {
-                "level": "aggressive",
-                "description": "Maximum optimization with significant changes",
-                "expected_strategies": [
-                    "deep_compression",
-                    "aggressive_pruning",
-                    "delegation",
-                ],
-                "risk_tolerance": "high",
-                "expected_improvement": 60,
-            },
-        ]
+        strategies = _aggressiveness_strategies[level]
+        result = self._compute_optimization_result(level, strategies)
 
-        # Act - simulate optimization for each aggressiveness level
-        optimization_results = []
-
-        for level_config in aggressiveness_levels:
-            # Select strategies based on aggressiveness
-            # Savings calibrated to achieve expected improvement
-            # percentages (baseline 5000)
-            if level_config["level"] == "light":
-                applied_strategies = [
-                    {"name": "basic_compression", "savings": 350, "risk": "low"},
-                    {"name": "redundant_removal", "savings": 250, "risk": "low"},
-                ]  # Total: 600 = 12% improvement
-            elif level_config["level"] == "moderate":
-                applied_strategies = [
-                    {"name": "context_compression", "savings": 800, "risk": "medium"},
-                    {"name": "prompt_optimization", "savings": 500, "risk": "low"},
-                    {"name": "targeted_removal", "savings": 450, "risk": "medium"},
-                ]  # Total: 1750 = 35% improvement
-            else:  # aggressive
-                applied_strategies = [
-                    {"name": "deep_compression", "savings": 1200, "risk": "high"},
-                    {"name": "aggressive_pruning", "savings": 900, "risk": "high"},
-                    {"name": "delegation", "savings": 1400, "risk": "medium"},
-                ]  # Total: 3500 = 70% improvement
-
-            total_savings = sum(strategy["savings"] for strategy in applied_strategies)
-            # Use proper risk ordering (not lexicographic string comparison)
-            risk_order = {"low": 1, "medium": 2, "high": 3}
-            max_risk = max(applied_strategies, key=lambda s: risk_order[s["risk"]])[
-                "risk"
-            ]
-            avg_risk = [
-                {"low": 1, "medium": 2, "high": 3}[strategy["risk"]]
-                for strategy in applied_strategies
-            ]
-            avg_risk_score = sum(avg_risk) / len(avg_risk)
-
-            result = {
-                "aggressiveness": level_config["level"],
-                "strategies_applied": [s["name"] for s in applied_strategies],
-                "total_savings": total_savings,
-                "max_risk_level": max_risk,
-                "avg_risk_score": avg_risk_score,
-                "improvement_percentage": (total_savings / 5000)
-                * 100,  # Assume 5000 baseline tokens
-            }
-
-            optimization_results.append(result)
-
-        # Assert
-        assert len(optimization_results) == THREE
-
-        # Check light optimization
-        light_result = next(
-            r for r in optimization_results if r["aggressiveness"] == "light"
-        )
-        assert "basic_compression" in light_result["strategies_applied"]
-        assert light_result["max_risk_level"] == "low"
-        assert light_result["improvement_percentage"] >= TEN
-
-        # Check moderate optimization
-        moderate_result = next(
-            r for r in optimization_results if r["aggressiveness"] == "moderate"
-        )
-        assert "context_compression" in moderate_result["strategies_applied"]
-        assert moderate_result["max_risk_level"] == "medium"
-        assert moderate_result["improvement_percentage"] >= THIRTY
-
-        # Check aggressive optimization
-        aggressive_result = next(
-            r for r in optimization_results if r["aggressiveness"] == "aggressive"
-        )
-        assert "deep_compression" in aggressive_result["strategies_applied"]
-        assert aggressive_result["max_risk_level"] == "high"
-        assert aggressive_result["improvement_percentage"] >= FIFTY
-
-        # Verify progression - more aggressive should save more tokens
-        assert (
-            light_result["total_savings"]
-            < moderate_result["total_savings"]
-            < aggressive_result["total_savings"]
-        )
+        assert expected_strategy in result["strategies_applied"]
+        assert result["max_risk_level"] == expected_risk
+        assert result["improvement_percentage"] >= min_improvement
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_handles_different_target_types(self, mock_claude_tools) -> None:
-        """Scenario: Command handles different optimization target types.
+    def test_aggressiveness_savings_increase_with_intensity(
+        self, _aggressiveness_strategies
+    ) -> None:
+        """Scenario: More aggressive optimization saves more tokens.
 
-        Given various target types (file, directory, session)
-        When optimizing different targets
-        Then it should apply appropriate optimization strategies
-        And handle target-specific requirements.
+        Given all three aggressiveness levels
+        When comparing total savings
+        Then savings should increase: light < moderate < aggressive.
         """
-        # Arrange
-        target_scenarios = [
-            {
+        results = {
+            level: self._compute_optimization_result(level, strats)
+            for level, strats in _aggressiveness_strategies.items()
+        }
+
+        assert (
+            results["light"]["total_savings"]
+            < results["moderate"]["total_savings"]
+            < results["aggressive"]["total_savings"]
+        )
+
+    @pytest.fixture
+    def _target_type_configs(self):
+        """Optimization approach configs keyed by target type."""
+        return {
+            "file": {
                 "target": "src/main.py",
-                "type": "file",
-                "expected_strategies": ["file_specific_compression", "code_analysis"],
                 "scope": "individual_file",
+                "analysis_method": "individual_file_analysis",
+                "compression_level": "targeted",
+                "context_preservation": "high",
+                "strategies": [
+                    {"name": "file_specific_compression", "effectiveness": 0.7},
+                    {"name": "code_analysis", "effectiveness": 0.8},
+                ],
             },
-            {
+            "directory": {
                 "target": "src/",
-                "type": "directory",
-                "expected_strategies": ["bulk_compression", "dependency_analysis"],
                 "scope": "codebase_section",
+                "analysis_method": "bulk_analysis",
+                "compression_level": "detailed",
+                "context_preservation": "medium",
+                "strategies": [
+                    {"name": "bulk_compression", "effectiveness": 0.6},
+                    {"name": "dependency_analysis", "effectiveness": 0.5},
+                ],
             },
-            {
+            "session": {
                 "target": "current_session",
-                "type": "session",
-                "expected_strategies": [
-                    "session_optimization",
-                    "context_window_management",
-                ],
                 "scope": "entire_session",
-            },
-            {
-                "target": "docs/api.md",
-                "type": "documentation",
-                "expected_strategies": [
-                    "documentation_compression",
-                    "content_summarization",
+                "analysis_method": "session_wide_analysis",
+                "compression_level": "global",
+                "context_preservation": "selective",
+                "strategies": [
+                    {"name": "session_optimization", "effectiveness": 0.8},
+                    {"name": "context_window_management", "effectiveness": 0.7},
                 ],
-                "scope": "documentation_file",
             },
+            "documentation": {
+                "target": "docs/api.md",
+                "scope": "documentation_file",
+                "analysis_method": "content_analysis",
+                "compression_level": "summarization",
+                "context_preservation": "high",
+                "strategies": [
+                    {"name": "documentation_compression", "effectiveness": 0.75},
+                    {"name": "content_summarization", "effectiveness": 0.85},
+                ],
+            },
+        }
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("target_type", "expected_method", "expected_preservation"),
+        [
+            ("file", "individual_file_analysis", "high"),
+            ("directory", "bulk_analysis", "medium"),
+            ("session", "session_wide_analysis", "selective"),
+            ("documentation", "content_analysis", "high"),
+        ],
+    )
+    def test_target_type_selects_correct_approach(
+        self,
+        _target_type_configs,
+        target_type,
+        expected_method,
+        expected_preservation,
+    ) -> None:
+        """Scenario: Each target type selects the correct optimization approach.
+
+        Given a specific target type
+        When determining optimization approach
+        Then analysis method and context preservation match expectations.
+        """
+        config = _target_type_configs[target_type]
+
+        assert config["analysis_method"] == expected_method
+        assert config["context_preservation"] == expected_preservation
+
+        effectiveness = sum(
+            s["effectiveness"] for s in config["strategies"]
+        ) / len(config["strategies"])
+        assert effectiveness >= ZERO_POINT_FIVE
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_all_target_types_have_required_fields(
+        self, _target_type_configs
+    ) -> None:
+        """Scenario: All target type configs have required fields.
+
+        Given all target type configurations
+        When checking field presence
+        Then each must have target, scope, strategies, and effectiveness >= 0.5.
+        """
+        required_fields = [
+            "target",
+            "scope",
+            "analysis_method",
+            "compression_level",
+            "context_preservation",
+            "strategies",
         ]
 
-        # Act - simulate optimization for different target types
-        target_optimization_results = []
-
-        for scenario in target_scenarios:
-            # Determine optimization approach based on target type
-            if scenario["type"] == "file":
-                optimization_approach = {
-                    "analysis_method": "individual_file_analysis",
-                    "compression_level": "targeted",
-                    "context_preservation": "high",
-                    "strategies": [
-                        {"name": "file_specific_compression", "effectiveness": 0.7},
-                        {"name": "code_analysis", "effectiveness": 0.8},
-                    ],
-                }
-            elif scenario["type"] == "directory":
-                optimization_approach = {
-                    "analysis_method": "bulk_analysis",
-                    "compression_level": "detailed",
-                    "context_preservation": "medium",
-                    "strategies": [
-                        {"name": "bulk_compression", "effectiveness": 0.6},
-                        {"name": "dependency_analysis", "effectiveness": 0.5},
-                    ],
-                }
-            elif scenario["type"] == "session":
-                optimization_approach = {
-                    "analysis_method": "session_wide_analysis",
-                    "compression_level": "global",
-                    "context_preservation": "selective",
-                    "strategies": [
-                        {"name": "session_optimization", "effectiveness": 0.8},
-                        {"name": "context_window_management", "effectiveness": 0.7},
-                    ],
-                }
-            else:  # documentation
-                optimization_approach = {
-                    "analysis_method": "content_analysis",
-                    "compression_level": "summarization",
-                    "context_preservation": "high",
-                    "strategies": [
-                        {"name": "documentation_compression", "effectiveness": 0.75},
-                        {"name": "content_summarization", "effectiveness": 0.85},
-                    ],
-                }
-
-            # Calculate expected effectiveness
-            overall_effectiveness = sum(
-                s["effectiveness"] for s in optimization_approach["strategies"]
-            ) / len(optimization_approach["strategies"])
-
-            result = {
-                "target": scenario["target"],
-                "type": scenario["type"],
-                "scope": scenario["scope"],
-                "analysis_method": optimization_approach["analysis_method"],
-                "compression_level": optimization_approach["compression_level"],
-                "context_preservation": optimization_approach["context_preservation"],
-                "strategies_applied": [
-                    s["name"] for s in optimization_approach["strategies"]
-                ],
-                "expected_effectiveness": overall_effectiveness,
-            }
-
-            target_optimization_results.append(result)
-
-        # Assert
-        assert len(target_optimization_results) == FOUR
-
-        # Check file optimization
-        file_result = next(
-            r for r in target_optimization_results if r["type"] == "file"
-        )
-        assert file_result["target"] == "src/main.py"
-        assert file_result["analysis_method"] == "individual_file_analysis"
-        assert file_result["context_preservation"] == "high"
-
-        # Check directory optimization
-        dir_result = next(
-            r for r in target_optimization_results if r["type"] == "directory"
-        )
-        assert dir_result["target"] == "src/"
-        assert dir_result["compression_level"] == "detailed"
-        assert "bulk_compression" in dir_result["strategies_applied"]
-
-        # Check session optimization
-        session_result = next(
-            r for r in target_optimization_results if r["type"] == "session"
-        )
-        assert session_result["target"] == "current_session"
-        assert session_result["analysis_method"] == "session_wide_analysis"
-        assert session_result["context_preservation"] == "selective"
-
-        # Verify all results have required fields
-        for result in target_optimization_results:
-            assert "target" in result
-            assert "type" in result
-            assert "strategies_applied" in result
-            assert "expected_effectiveness" in result
-            assert (
-                result["expected_effectiveness"] >= ZERO_POINT_FIVE
-            )  # Should be reasonably effective
+        assert len(_target_type_configs) == FOUR
+        for target_type, config in _target_type_configs.items():
+            for field in required_fields:
+                assert field in config, (
+                    f"Target type {target_type} missing field '{field}'"
+                )
 
     @pytest.mark.bdd
     @pytest.mark.unit

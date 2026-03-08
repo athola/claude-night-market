@@ -26,7 +26,7 @@ help: ## Show this help message
 
 # ---------- Dependencies ----------
 deps: ## Install and sync dependencies
-	uv sync
+	$(UV) sync
 
 # ---------- Testing ----------
 test: ## Run all tests
@@ -68,7 +68,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 install-hooks: ## Install pre-commit hooks
 	@echo "Installing pre-commit hooks..."
 	@if [ -f .pre-commit-config.yaml ]; then \
-		uv run pre-commit install; \
+		$(UV_RUN) pre-commit install; \
 	else \
 		echo "No .pre-commit-config.yaml found"; \
 	fi
@@ -98,7 +98,7 @@ demo-tokens: ## Demo token estimation on leyline source
 	@echo "Total lines: $$(find src/ -name '*.py' -exec cat {} \; 2>/dev/null | wc -l)"
 	@echo ""
 	@echo "Step 2: Token module check"
-	@uv run python -c "from leyline.tokens import estimate_tokens; print(f'Token estimator available')" 2>/dev/null || echo "  (token module not loaded)"
+	@$(UV_RUN) python -c "from leyline.tokens import estimate_tokens; print(f'Token estimator available')" 2>/dev/null || echo "  (token module not loaded)"
 	@echo ""
 	@echo "Token demo complete."
 
@@ -107,10 +107,10 @@ demo-quota: ## Demo quota tracking
 	@echo "Demonstrating quota tracking capabilities..."
 	@echo ""
 	@echo "Step 1: Quota tracker check"
-	@uv run python -c "from leyline.quota_tracker import QuotaTracker; print('QuotaTracker available')" 2>/dev/null || echo "  (quota tracker not loaded)"
+	@$(UV_RUN) python -c "from leyline.quota_tracker import QuotaTracker; print('QuotaTracker available')" 2>/dev/null || echo "  (quota tracker not loaded)"
 	@echo ""
 	@echo "Step 2: MECW module check"
-	@uv run python -c "from leyline.mecw import *; print('MECW utilities available')" 2>/dev/null || echo "  (MECW module not loaded)"
+	@$(UV_RUN) python -c "from leyline.mecw import *; print('MECW utilities available')" 2>/dev/null || echo "  (MECW module not loaded)"
 	@echo ""
 	@echo "Quota demo complete."
 
@@ -137,7 +137,7 @@ demo-formatting: ## Validate markdown-formatting skill structure
 	@head -10 skills/markdown-formatting/SKILL.md | grep -E '^(name|category|estimated_tokens):' | sed 's/^/  /'
 	@echo ""
 	@echo "Checking prose compliance (lines > 80 chars outside code blocks):"
-	@python3 -c "\
+	@$(PYTHON) -c "\
 	in_code = False; violations = 0; \
 	[exec('in_code = not in_code') if l.startswith('\`\`\`') \
 	else exec('violations += 1') if not in_code and len(l.rstrip()) > 80 \

@@ -6,6 +6,8 @@ This module tests the context warning hook that implements:
 - 80% emergency threshold (triggers auto-clear workflow)
 """
 
+from __future__ import annotations
+
 import json
 import os
 import time
@@ -89,7 +91,7 @@ class TestContextWarningHook:
         assert alert.severity == ContextSeverity.WARNING
         assert alert.usage_percent == FORTY_PERCENT
         assert "WARNING" in alert.message
-        assert len(alert.recommendations) > 0
+        assert len(alert.recommendations) >= 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -137,7 +139,7 @@ class TestContextWarningHook:
         assert alert.severity == ContextSeverity.CRITICAL
         assert alert.usage_percent == FIFTY_PERCENT
         assert "CRITICAL" in alert.message
-        assert len(alert.recommendations) > 0
+        assert len(alert.recommendations) >= 1
         assert any("immediate" in rec.lower() for rec in alert.recommendations)
 
     @pytest.mark.bdd

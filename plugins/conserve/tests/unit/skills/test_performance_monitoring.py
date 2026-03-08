@@ -4,6 +4,8 @@ This module tests CPU/GPU performance monitoring, resource tracking,
 and alert functionality following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 import pytest
@@ -108,19 +110,6 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    @pytest.mark.skip(reason="Aspirational: tests hardcoded list, not production code")
-    def test_cpu_gpu_performance_creates_required_todowrite_items(
-        self,
-        mock_todo_write,
-    ) -> None:
-        """Scenario: CPU/GPU performance creates required TodoWrite items.
-
-        NOTE: This test asserts on a hardcoded list constructed inline,
-        not on any production code. Skipped until a real module exists.
-        """
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
     def test_metrics_collection_gathers_comprehensive_data(
         self,
         mock_performance_monitor,
@@ -212,12 +201,15 @@ tags:
         for scenario in test_scenarios:
             alerts = mock_performance_monitor.check_thresholds(scenario["metrics"])
 
-            if scenario["expected_alerts"]:
-                assert len(alerts) > 0
-                for expected_alert in scenario["expected_alerts"]:
-                    assert any(expected_alert in alert for alert in alerts)
-            else:
-                assert len(alerts) == 0
+            assert len(alerts) == len(scenario["expected_alerts"]), (
+                f"Scenario {scenario['name']}: expected "
+                f"{len(scenario['expected_alerts'])} alerts, got {len(alerts)}"
+            )
+            for expected_alert in scenario["expected_alerts"]:
+                assert expected_alert in alerts, (
+                    f"Scenario {scenario['name']}: missing alert "
+                    f"'{expected_alert}' in {alerts}"
+                )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -266,15 +258,17 @@ tags:
         ]
         [alert for alert in all_alerts if "warning" in alert.lower() or "80%" in alert]
 
-        # Assert
-        assert len(all_alerts) >= 1
-        # Critical alerts should be processed first
-        if critical_alerts:
-            assert len(critical_alerts) >= 1
+        # Assert -- first scenario produces 2 alerts (CPU+token),
+        # second produces 0 (CPU 45% is under threshold)
+        assert len(all_alerts) == TWO
+        assert all_alerts == [
+            "High CPU usage detected",
+            "High token usage detected",
+        ]
 
-        # All alerts should have remediation suggestions
+        # All alerts should have substantive messages
         for alert in all_alerts:
-            assert len(alert) > TEN  # Substantive alert message
+            assert len(alert) > TEN
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -511,8 +505,15 @@ tags:
         assert performance_status["gpu_usage"] == "N/A"
         assert performance_status["cpu_monitoring"] == "active"
         assert performance_status["memory_monitoring"] == "active"
-        # Note: error_count can be 0 because the mock returns valid strings
-        # that don't trigger exceptions - this is expected graceful handling
+        # Verify the Bash mock was called exactly twice
+        assert mock_claude_tools["Bash"].call_count == TWO
+        mock_claude_tools["Bash"].assert_any_call(
+            "nvidia-smi --list-gpus | wc -l"
+        )
+        mock_claude_tools["Bash"].assert_any_call(
+            "nvidia-smi --query-gpu=utilization.gpu "
+            "--format=csv,noheader,nounits"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -624,19 +625,16 @@ tags:
         # Act - generate detailed report
         report = mock_performance_monitor.generate_report()
 
-        # Assert
-        assert "average_cpu" in report
-        assert "peak_memory" in report
-        assert "total_tokens" in report
-        assert "efficiency_score" in report
+        # Assert -- mock returns static values
+        assert report == {
+            "average_cpu": 25.3,
+            "peak_memory": 2048,
+            "total_tokens": 50000,
+            "efficiency_score": 0.88,
+        }
 
-        # Validate report content quality (mock returns static values)
-        assert report["average_cpu"] > 0  # Mock returns 25.3
-        assert report["peak_memory"] > 0  # Mock returns 2048
-        assert report["efficiency_score"] > 0  # Mock returns 0.88
-
-        # Verify report provides insights
-        assert isinstance(report["average_cpu"], (int, float))
-        assert isinstance(report["peak_memory"], (int, float))
-        assert isinstance(report["total_tokens"], (int, float))
-        assert isinstance(report["efficiency_score"], (int, float))
+        # Verify report field types
+        assert isinstance(report["average_cpu"], float)
+        assert isinstance(report["peak_memory"], int)
+        assert isinstance(report["total_tokens"], int)
+        assert isinstance(report["efficiency_score"], float)

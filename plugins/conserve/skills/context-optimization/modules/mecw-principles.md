@@ -88,7 +88,46 @@ With Opus 4.6, context windows vary: 200K standard, 1M beta. MECW thresholds sca
 | **200K** | 60K tokens | 100K tokens | 160K tokens |
 | **1M (beta)** | 300K tokens | 500K tokens | 800K tokens |
 
-Server-side compaction (Opus 4.6) provides an additional safety net — the API automatically summarizes earlier conversation parts when approaching limits. This does not replace MECW discipline but reduces catastrophic failure risk.
+Server-side compaction (Opus 4.6) provides an additional
+safety net: the API automatically summarizes earlier
+conversation parts when approaching limits. This does not
+replace MECW discipline but reduces catastrophic failure
+risk.
+
+### Tool Result Disk Persistence (2.1.51+)
+
+Tool results larger than **50K characters** are now
+persisted to disk instead of kept inline in the
+conversation context. Previously the threshold was 100K.
+This means large tool outputs (file reads, grep results,
+web fetches) consume less context window space. Factor
+this into MECW calculations: tool-heavy workflows now
+have better context longevity than before.
+
+### Compaction Image Preservation (2.1.70+)
+
+Compaction now preserves images in the summarizer
+request, allowing prompt cache reuse across compaction
+boundaries. This makes compaction faster and cheaper,
+especially for image-heavy sessions (screenshots,
+diagrams). Previously, images were dropped during
+compaction, busting the prompt cache.
+
+### Read Tool Image Safety (2.1.71+)
+
+The Read tool previously put oversized images into
+context when image processing failed, breaking
+subsequent turns in long image-heavy sessions. Fixed
+in 2.1.71: failed image processing no longer injects
+oversized data into context. This protects MECW
+compliance in sessions that read many images.
+
+### Resume Token Savings (2.1.70+)
+
+Skill listings are no longer re-injected on every
+`--resume` invocation, saving ~600 tokens per resume.
+This improves context efficiency for workflows that
+frequently resume sessions.
 
 **"Summarize from here" (2.1.32+)**: Partial conversation summarization via the message selector provides a manual middle ground between `/compact` (full) and `/new` (clean slate). Use when only older context is stale.
 - **Conservation plugin** provides proactive optimization recommendations when approaching thresholds

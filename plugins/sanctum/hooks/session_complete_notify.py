@@ -110,45 +110,80 @@ class NotificationState:
         self.save()
 
 
-def get_session_id() -> str:
-    """Generate a unique session identifier for the current terminal."""
-    parts: list[str] = []
+def _detect_terminal_context() -> dict[str, str | None]:
+    """Detect terminal multiplexer/session context.
 
-    # Include project directory
-    cwd = os.getcwd()
-    project_name = os.path.basename(cwd)
-    parts.append(project_name)
-
-    # Priority 1: Zellij session + tab
+    Returns a dict with keys:
+        kind: 'zellij', 'tmux', 'tty', 'term_program', or 'fallback'
+        session_name: session/program identifier (may be None)
+        tab_name: tab or window name (may be None)
+    """
     zellij_session = os.environ.get("ZELLIJ_SESSION_NAME", "")
     if zellij_session:
-        parts.insert(0, f"zellij_{zellij_session}")
-        tab_name = get_zellij_tab_name()
-        if tab_name:
-            parts.insert(1, tab_name)
-        return "_".join(parts)
+        return {
+            "kind": "zellij",
+            "session_name": zellij_session,
+            "tab_name": get_zellij_tab_name(),
+        }
 
-    # Priority 2: tmux session:window
     if os.environ.get("TMUX", ""):
         tmux_info = _get_tmux_session()
         if tmux_info:
-            parts.insert(0, f"tmux_{tmux_info.replace(':', '_')}")
-            return "_".join(parts)
+            return {
+                "kind": "tmux",
+                "session_name": tmux_info,
+                "tab_name": None,
+            }
 
-    # Priority 3: SSH + TTY
-    if tty := os.environ.get("SSH_TTY", os.environ.get("TTY", "")):
-        parts.insert(0, f"tty_{os.path.basename(tty)}")
-        return "_".join(parts)
+    tty = os.environ.get("SSH_TTY", os.environ.get("TTY", os.environ.get("GPG_TTY", "")))
+    if tty:
+        return {
+            "kind": "tty",
+            "session_name": os.path.basename(tty),
+            "tab_name": None,
+        }
 
-    # Priority 4: Terminal program + PID
-    if term_program := os.environ.get("TERM_PROGRAM", ""):
+    term_program = os.environ.get("TERM_PROGRAM", "")
+    if term_program:
         ppid = os.environ.get("PPID", str(os.getppid()))
-        parts.insert(0, f"{term_program}_{ppid}")
-        return "_".join(parts)
+        return {
+            "kind": "term_program",
+            "session_name": f"{term_program}_{ppid}",
+            "tab_name": None,
+        }
 
-    # Fallback: just use project name with parent PID
     ppid = os.environ.get("PPID", str(os.getppid()))
-    parts.insert(0, f"term_{ppid}")
+    return {
+        "kind": "fallback",
+        "session_name": f"term_{ppid}",
+        "tab_name": None,
+    }
+
+
+def get_session_id() -> str:
+    """Generate a unique session identifier for the current terminal."""
+    cwd = os.getcwd()
+    project_name = os.path.basename(cwd)
+    ctx = _detect_terminal_context()
+    kind = ctx["kind"]
+    session_name = ctx["session_name"]
+    tab_name = ctx["tab_name"]
+
+    parts: list[str] = [project_name]
+
+    if kind == "zellij":
+        parts.insert(0, f"zellij_{session_name}")
+        if tab_name:
+            parts.insert(1, tab_name)
+    elif kind == "tmux":
+        parts.insert(0, f"tmux_{session_name.replace(':', '_')}")
+    elif kind == "tty":
+        parts.insert(0, f"tty_{session_name}")
+    elif kind == "term_program":
+        parts.insert(0, session_name)
+    else:
+        parts.insert(0, session_name)
+
     return "_".join(parts)
 
 
@@ -197,39 +232,33 @@ def _get_tmux_session() -> str | None:
 
 def get_terminal_info() -> str:
     """Get terminal/session identifier for the notification."""
-    # Get working directory as context
     cwd = os.getcwd()
     project_name = os.path.basename(cwd)
+    ctx = _detect_terminal_context()
+    kind = ctx["kind"]
+    session_name = ctx["session_name"]
+    tab_name = ctx["tab_name"]
+
     session_prefix = ""
-
-    # Priority 1: Check for Zellij session (popular terminal multiplexer)
-    zellij_session = os.environ.get("ZELLIJ_SESSION_NAME", "")
-    if zellij_session:
-        tab_name = get_zellij_tab_name()
-        if tab_name and tab_name != "Tab #1":  # Skip default tab name
-            session_prefix = f"zellij:{zellij_session}|{tab_name}"
+    if kind == "zellij":
+        if tab_name and tab_name != "Tab #1":
+            session_prefix = f"zellij:{session_name}|{tab_name}"
         else:
-            session_prefix = f"zellij:{zellij_session}"
+            session_prefix = f"zellij:{session_name}"
+    elif kind == "tmux":
+        session_prefix = f"tmux:{session_name}"
+    elif kind == "tty":
+        if os.environ.get("SSH_TTY", ""):
+            session_prefix = "SSH"
+        else:
+            session_prefix = os.path.basename(
+                os.environ.get("TTY", os.environ.get("GPG_TTY", ""))
+            )
+    elif kind == "term_program":
+        # Strip the _ppid suffix for display
+        term_program = os.environ.get("TERM_PROGRAM", "")
+        session_prefix = term_program if term_program else session_name
 
-    # Priority 2: Check for tmux/screen session
-    elif os.environ.get("TMUX", ""):
-        tmux_info = _get_tmux_session()
-        if tmux_info:
-            session_prefix = f"tmux:{tmux_info}"
-
-    # Priority 3: Use TERM_PROGRAM (e.g., iTerm, Terminal.app)
-    elif term_program := os.environ.get("TERM_PROGRAM", ""):
-        session_prefix = term_program
-
-    # Priority 4: SSH session indicator
-    elif os.environ.get("SSH_TTY", ""):
-        session_prefix = "SSH"
-
-    # Priority 5: TTY name
-    elif tty := os.environ.get("TTY", os.environ.get("GPG_TTY", "")):
-        session_prefix = os.path.basename(tty)
-
-    # Format final output
     if session_prefix:
         return f"{session_prefix} - {project_name}"
     return project_name
@@ -462,14 +491,19 @@ def send_notification(title: str, message: str) -> bool:
         return False
 
 
-def clear_notification_state() -> None:
+def clear_notification_state(session_id: str | None = None) -> None:
     """Clear the 'notified since input' flag for current session.
 
     Called by UserPromptSubmit hook to signal user has interacted,
     allowing the next Stop event to trigger a notification.
+
+    Args:
+        session_id: Pre-computed session identifier. If None, computes it.
+
     """
     try:
-        session_id = get_session_id()
+        if session_id is None:
+            session_id = get_session_id()
         state = NotificationState.load(session_id)
         state.clear_input_flag()
     except Exception as e:  # noqa: BLE001

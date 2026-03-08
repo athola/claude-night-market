@@ -83,7 +83,7 @@ class TestErrorHandling:
         auditor = PluginAuditor(tmp_path, dry_run=True)
         result = auditor.read_plugin_json(plugin_dir)
 
-        assert result is not None
+        assert isinstance(result, dict), "read_plugin_json should return a dict"
         assert result["name"] == "test-plugin"
 
     def test_fix_plugin_handles_missing_plugin_json(self, tmp_path: Path) -> None:

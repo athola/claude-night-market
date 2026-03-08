@@ -159,37 +159,6 @@ class TestCLISmokeTests:
             except SystemExit:
                 pass
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_quick_skill_optimizer_cli(self, tmp_path: Path) -> None:
-        """Smoke test: quick_skill_optimizer CLI."""
-        # Arrange
-        quick_skill_optimizer = load_module("quick_skill_optimizer")
-        skill_file = tmp_path / "SKILL.md"
-        skill_file.write_text("# Test\n")
-
-        # Act
-        with patch("sys.argv", ["quick_skill_optimizer.py", str(skill_file)]):
-            try:
-                quick_skill_optimizer.main()
-            except (SystemExit, AttributeError):
-                pass
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_aggressive_skill_optimizer_cli(self, tmp_path: Path) -> None:
-        """Smoke test: aggressive_skill_optimizer CLI."""
-        # Arrange
-        aggressive_skill_optimizer = load_module("aggressive_skill_optimizer")
-        skill_file = tmp_path / "SKILL.md"
-        skill_file.write_text("# Test\n")
-
-        # Act
-        with patch("sys.argv", ["aggressive_skill_optimizer.py", str(skill_file)]):
-            try:
-                aggressive_skill_optimizer.main()
-            except (SystemExit, AttributeError):
-                pass
 
 
 if __name__ == "__main__":

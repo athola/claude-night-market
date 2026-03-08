@@ -60,7 +60,20 @@ Before ANY Task invocation:
 
 ## Claude.ai MCP Connector Sync (Claude Code 2.1.46+)
 
-Claude.ai MCP connectors (configured at claude.ai/settings/connectors) are now available in Claude Code. These tools should sync to subagents via the same mechanism as the 2.1.30+ SDK MCP fix, but this has not been independently verified for claude.ai-sourced connectors. If subagents report missing MCP tools that are visible in the parent's `/mcp`, check whether the tools originate from claude.ai connectors.
+Claude.ai MCP connectors (configured at
+claude.ai/settings/connectors) are now available in
+Claude Code. These tools should sync to subagents via
+the same mechanism as the 2.1.30+ SDK MCP fix, but this
+has not been independently verified for claude.ai-sourced
+connectors. If subagents report missing MCP tools that
+are visible in the parent's `/mcp`, check whether the
+tools originate from claude.ai connectors.
+
+To opt out of claude.ai MCP servers entirely (2.1.63+),
+set `ENABLE_CLAUDEAI_MCP_SERVERS=false`. This prevents
+claude.ai-configured connectors from loading in Claude
+Code sessions. Useful for controlled environments where
+only locally-configured MCP servers should be available.
 
 ## Sub-Agent Spawning Restrictions (Claude Code 2.1.33+)
 

@@ -8,7 +8,9 @@ import time
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 import cachetools  # type: ignore[import-untyped]
 
@@ -182,7 +184,7 @@ def cached(
     ttl: int | None = None,
     key: str | None = None,
     data_arg: str | None = None,
-) -> Any:
+) -> Callable[[F], F]:
     """Cache function results with TTL.
 
     Args:
@@ -192,7 +194,7 @@ def cached(
 
     """
 
-    def decorator(func: Callable) -> Any:
+    def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             cache = get_cache()
@@ -224,7 +226,7 @@ def cached(
 
             return result
 
-        return wrapper
+        return wrapper  # type: ignore[return-value]
 
     return decorator
 
@@ -242,7 +244,7 @@ class CacheManager:
     }
 
     @classmethod
-    def cache_result(cls, category: str, key: str | None = None) -> Any:
+    def cache_result(cls, category: str, key: str | None = None) -> Callable[[F], F]:
         """Create a decorator with category-based TTL."""
         ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
         return cached(ttl=ttl, key=key)

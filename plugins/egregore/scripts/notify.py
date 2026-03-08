@@ -12,6 +12,7 @@ import enum
 import json
 import logging
 import subprocess
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -27,8 +28,20 @@ class AlertEvent(enum.Enum):
     WATCHDOG_RELAUNCH = "watchdog_relaunch"
 
 
-def build_issue_body(  # noqa: PLR0913
+@dataclass
+class AlertContext:
+    """Shared context for alert notifications."""
+
+    work_item_id: str = ""
+    work_item_ref: str = ""
+    stage: str = ""
+    step: str = ""
+    detail: str = ""
+
+
+def build_issue_body(
     event: AlertEvent,
+    ctx: AlertContext | None = None,
     work_item_id: str = "",
     work_item_ref: str = "",
     stage: str = "",
@@ -39,6 +52,8 @@ def build_issue_body(  # noqa: PLR0913
 
     Args:
         event: The alert event type.
+        ctx: AlertContext with shared parameters. When provided,
+            individual keyword arguments are ignored.
         work_item_id: Identifier for the work item (e.g. "WI-42").
         work_item_ref: Reference for the work item (e.g. branch name).
         stage: Pipeline stage where the event occurred.
@@ -49,6 +64,12 @@ def build_issue_body(  # noqa: PLR0913
         Markdown-formatted issue body string.
 
     """
+    if ctx is not None:
+        work_item_id = ctx.work_item_id
+        work_item_ref = ctx.work_item_ref
+        stage = ctx.stage
+        step = ctx.step
+        detail = ctx.detail
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines: list[str] = [
         f"## Egregore Alert: {event.value}",
@@ -202,11 +223,12 @@ def send_webhook(
         return False
 
 
-def alert(  # noqa: PLR0913
+def alert(
     event: AlertEvent,
     overseer_method: str = "github-repo-owner",
     webhook_url: str | None = None,
     webhook_format: str = "generic",
+    ctx: AlertContext | None = None,
     work_item_id: str = "",
     work_item_ref: str = "",
     stage: str = "",
@@ -225,6 +247,8 @@ def alert(  # noqa: PLR0913
         webhook_url: Webhook URL for additional notification.
         webhook_format: Webhook payload format ("slack", "discord",
             or "generic").
+        ctx: AlertContext with shared parameters. When provided,
+            individual keyword arguments are ignored.
         work_item_id: Identifier for the work item.
         work_item_ref: Reference for the work item.
         stage: Pipeline stage where the event occurred.
@@ -235,6 +259,13 @@ def alert(  # noqa: PLR0913
         True if at least one notification was sent successfully.
 
     """
+    if ctx is not None:
+        work_item_id = ctx.work_item_id
+        work_item_ref = ctx.work_item_ref
+        stage = ctx.stage
+        step = ctx.step
+        detail = ctx.detail
+
     success = False
 
     body = build_issue_body(

@@ -17,6 +17,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,11 @@ from memory_palace.corpus.marginal_value import (
     IntegrationPlan,
     MarginalValueFilter,
 )
+
+# Make hooks/shared importable for slugify reuse
+_HOOKS_DIR = str(Path(__file__).resolve().parent.parent / "hooks")
+if _HOOKS_DIR not in sys.path:
+    sys.path.insert(0, _HOOKS_DIR)
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PLUGIN_ROOT.parents[1]
@@ -75,10 +81,14 @@ class Candidate:
 
 
 def slugify(value: str) -> str:
-    """Convert a string to a filesystem-safe slug."""
-    slug = "".join(ch.lower() if ch.isalnum() else "-" for ch in value)
-    slug = "-".join(filter(None, slug.split("-")))
-    return slug or "intake-entry"
+    """Convert a string to a filesystem-safe slug.
+
+    Delegates to the shared implementation with a fallback default
+    appropriate for intake entries.
+    """
+    from shared.text_utils import slugify as _slugify  # noqa: PLC0415
+
+    return _slugify(value) or "intake-entry"
 
 
 def load_candidate(path: Path) -> Candidate:

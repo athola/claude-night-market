@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from budget import Budget, load_budget, save_budget
-from config import default_config, load_config, save_config
+from config import EgregoreConfig, load_config, save_config
 from manifest import Manifest, load_manifest, save_manifest
 
 
@@ -36,7 +36,7 @@ def test_roundtrip_all_state(tmp_path):
     assert len(loaded_m.work_items) == 1
 
     # Config
-    cfg = default_config()
+    cfg = EgregoreConfig()
     save_config(cfg, egregore_dir / "config.json")
     loaded_cfg = load_config(egregore_dir / "config.json")
     assert loaded_cfg.alerts.on_crash is True

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.5.6"
+version = "1.6.0"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -115,7 +115,6 @@ omit = [
     "*/site-packages/*",
     "setup.py",
     "parseltongue/_version.py",
-    "parseltongue/skills/*",
 ]
 
 [tool.coverage.report]
@@ -203,9 +202,24 @@ unfixable = [
 "__init__.py" = [
     "F401",   # Unused import
 ]
+# Skill modules are single-class files with many analysis methods.
+# Split into packages if any file exceeds 1500 LOC.
 "parseltongue/skills/async_analysis.py" = [
+    "PLR0904", # Too many public methods - single analysis class
     "PLR0912", # Too many branches - inherent in AST analysis code
 ]
+"parseltongue/skills/pattern_matching.py" = [
+    "PLR0904", # Too many public methods - single pattern recognition class
+]
+"parseltongue/skills/testing_guide.py" = [
+    "PLR0904", # Too many public methods - single guide class
+]
+"parseltongue/skills/language_detection.py" = [
+    "PLR0904", # Too many public methods - single detection class
+]
+
+[tool.ruff.lint.pylint]
+max-public-methods = 20
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

@@ -387,22 +387,29 @@ def suggest_rules(ctx: ProjectContext) -> list[RuleSuggestion]:
         ctx: Detected project context
 
     Returns:
-        List of suggested rules sorted by relevance
+        List of suggested rules sorted by relevance, deduplicated by name
     """
-    suggestions = []
+    suggestions: list[RuleSuggestion] = []
+    seen_names: set[str] = set()
+
+    def _add(rules: list[RuleSuggestion]) -> None:
+        for rule in rules:
+            if rule.name not in seen_names:
+                seen_names.add(rule.name)
+                suggestions.append(rule)
 
     # Always suggest git rules if git detected
     if ctx.has_git:
-        suggestions.extend(RULE_TEMPLATES["git"])
+        _add(RULE_TEMPLATES["git"])
 
     # Language-specific rules
     for lang in ctx.languages:
         if lang in RULE_TEMPLATES:
-            suggestions.extend(RULE_TEMPLATES[lang])
+            _add(RULE_TEMPLATES[lang])
 
     # Docker rules
     if ctx.has_docker:
-        suggestions.extend(RULE_TEMPLATES["docker"])
+        _add(RULE_TEMPLATES["docker"])
 
     # Sort by relevance
     suggestions.sort(key=lambda s: s.relevance, reverse=True)

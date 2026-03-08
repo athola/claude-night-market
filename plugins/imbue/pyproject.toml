@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.5.6"
+version = "1.6.0"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -148,7 +148,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["scripts"]
+source = ["scripts", "hooks"]
 branch = true
 omit = [
     "*/tests/*",

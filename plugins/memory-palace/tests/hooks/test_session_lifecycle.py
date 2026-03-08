@@ -341,7 +341,7 @@ class TestBuildRecord:
         Then record.ended_at is a non-empty ISO date string.
         """
         record = lc._build_record(_minimal_payload())
-        assert record.ended_at is not None
+        assert isinstance(record.ended_at, str)
         assert "T" in record.ended_at  # ISO 8601 separator
 
     @pytest.mark.unit

@@ -4,6 +4,8 @@ This module tests the validation tool performance with large plugins
 and complex scenarios, ensuring it scales appropriately.
 """
 
+from __future__ import annotations
+
 import concurrent.futures
 import gc
 import re
@@ -176,7 +178,8 @@ Test command for performance testing.
             len(scan_result["review_workflow_skills"]) >= MIN_REVIEW_WORKFLOW_SKILLS
         )  # About half should match patterns
         assert isinstance(validation_issues, list)
-        assert len(report) > 0  # Report should be generated
+        assert isinstance(report, str)
+        assert "Imbue Plugin Review Workflow Report" in report
 
         # Memory usage check (basic)
 

@@ -15,7 +15,7 @@ from typing import Any
 import yaml
 
 
-def _parse_yaml_frontmatter(content: str) -> dict[str, Any] | None:
+def parse_frontmatter(content: str) -> dict[str, Any] | None:
     """Parse YAML frontmatter from markdown content."""
     if not content.strip().startswith("---"):
         return None
@@ -239,7 +239,7 @@ class SkillValidator:
             )
 
         # Parse frontmatter
-        frontmatter = _parse_yaml_frontmatter(content)
+        frontmatter = parse_frontmatter(content)
         if frontmatter is None:
             errors.append("Invalid YAML frontmatter")
             return SkillValidationResult(
@@ -371,7 +371,7 @@ class SkillValidator:
                 warnings.append(f"Potentially invalid skill reference format: {ref}")
 
         # Parse frontmatter to get skill name
-        frontmatter = _parse_yaml_frontmatter(content)
+        frontmatter = parse_frontmatter(content)
         skill_name = frontmatter.get("name") if frontmatter else None
 
         return SkillValidationResult(
@@ -397,7 +397,7 @@ class SkillValidator:
                 refs.append(match)
 
         # Also check frontmatter dependencies
-        frontmatter = _parse_yaml_frontmatter(content)
+        frontmatter = parse_frontmatter(content)
         if frontmatter and "dependencies" in frontmatter:
             deps = frontmatter["dependencies"]
             if isinstance(deps, list):
@@ -448,7 +448,7 @@ class CommandValidator:
             )
 
         # Parse frontmatter
-        frontmatter = _parse_yaml_frontmatter(content)
+        frontmatter = parse_frontmatter(content)
         if frontmatter is None:
             errors.append("Invalid YAML frontmatter")
             return CommandValidationResult(
@@ -565,7 +565,7 @@ class CommandValidator:
                     warnings.append(f"Referenced skill '{ref}' not found locally")
 
         # Parse for command name
-        frontmatter = _parse_yaml_frontmatter(content)
+        frontmatter = parse_frontmatter(content)
         description = frontmatter.get("description") if frontmatter else None
 
         heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)

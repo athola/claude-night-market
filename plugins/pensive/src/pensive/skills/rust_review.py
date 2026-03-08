@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
-from .base import BaseReviewSkill
+from .base import AnalysisResult, BaseReviewSkill
 
 # Rust analysis thresholds
 MIN_TEST_COVERAGE = 0.8  # Minimum acceptable test coverage
@@ -27,6 +27,19 @@ class RustReviewSkill(BaseReviewSkill):
 
     skill_name: ClassVar[str] = "rust_review"
     supported_languages: ClassVar[list[str]] = ["rust"]
+
+    def _get_lines(self, content: str) -> list[str]:
+        if not hasattr(self, '_cached_content') or self._cached_content is not content:
+            self._cached_content = content
+            self._cached_lines = content.splitlines()
+        return self._cached_lines
+
+    def _has_safety_doc(self, lines: list[str], line_idx: int, lookback: int = 5) -> bool:
+        pattern = r"(?i)safety|# SAFETY|/// # Safety"
+        for j in range(max(0, line_idx - lookback), line_idx):
+            if re.search(pattern, lines[j]):
+                return True
+        return False
 
     def analyze_unsafe_code(
         self,
@@ -49,42 +62,23 @@ class RustReviewSkill(BaseReviewSkill):
         unsafe_block_pattern = r"unsafe\s*\{"
         unsafe_fn_pattern = r"unsafe\s+fn\s+(\w+)"
 
-        # Check for safety documentation (/// # Safety or // Safety)
-        safety_doc_pattern = r"(?://+|///)\s*#?\s*Safety"
-
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            # Check for unsafe blocks
             if re.search(unsafe_block_pattern, line):
-                # Look back a few lines for safety documentation
-                has_docs = False
-                for j in range(max(0, i - 5), i):
-                    if re.search(safety_doc_pattern, lines[j], re.IGNORECASE):
-                        has_docs = True
-                        break
-
                 unsafe_blocks.append(
                     {
                         "line": i + 1,
                         "type": "unsafe_block",
-                        "lacks_documentation": not has_docs,
+                        "lacks_documentation": not self._has_safety_doc(lines, i),
                     }
                 )
 
-            # Check for unsafe functions
             if re.search(unsafe_fn_pattern, line):
-                # Look back for safety documentation
-                has_docs = False
-                for j in range(max(0, i - 5), i):
-                    if re.search(safety_doc_pattern, lines[j], re.IGNORECASE):
-                        has_docs = True
-                        break
-
                 unsafe_blocks.append(
                     {
                         "line": i + 1,
                         "type": "unsafe_function",
-                        "lacks_documentation": not has_docs,
+                        "lacks_documentation": not self._has_safety_doc(lines, i),
                     }
                 )
 
@@ -111,7 +105,7 @@ class RustReviewSkill(BaseReviewSkill):
         reference_cycles = []
         borrow_checker_issues = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect use after move patterns
             if "data.value" in line and "println!" in line:
@@ -181,7 +175,7 @@ class RustReviewSkill(BaseReviewSkill):
         thread_safety_issues: list[dict[str, Any]] = []
         safe_patterns: list[dict[str, Any]] = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect RefCell usage (not thread-safe)
             if "RefCell" in line and "use std::cell::RefCell" not in line:
@@ -242,7 +236,7 @@ class RustReviewSkill(BaseReviewSkill):
         use_after_free = []
         lifetime_issues = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect raw pointer operations
             if re.search(r"\*\w+\.offset\(", line):
@@ -322,7 +316,7 @@ class RustReviewSkill(BaseReviewSkill):
         unwrap_usage = []
         index_panics = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect explicit panic! calls
             if re.search(r"panic!\s*\(", line):
@@ -386,7 +380,7 @@ class RustReviewSkill(BaseReviewSkill):
         missing_awaits = []
         send_sync_issues = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         in_async_fn = False
 
         for i, line in enumerate(lines):
@@ -467,7 +461,7 @@ class RustReviewSkill(BaseReviewSkill):
         security_concerns = []
         feature_analysis = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         in_dependencies = False
         in_features = False
 
@@ -559,7 +553,7 @@ class RustReviewSkill(BaseReviewSkill):
         derive_macros = []
         problematic_patterns = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect derive macros
             if re.search(r"#\[derive\(", line):
@@ -640,7 +634,7 @@ class RustReviewSkill(BaseReviewSkill):
         object_safety_issues: list[dict[str, Any]] = []
         missing_methods: list[str] = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         current_trait = None
         trait_methods: list[str] = []
 
@@ -731,7 +725,7 @@ class RustReviewSkill(BaseReviewSkill):
         bounded_generics = []
         unconstrained_usage = []
 
-        lines = content.split("\n")
+        lines = self._get_lines(content)
         current_struct = None
 
         for i, line in enumerate(lines):
@@ -826,7 +820,7 @@ class RustReviewSkill(BaseReviewSkill):
                         "description": "Using selective features for dependencies",
                     }
                 )
-        except Exception:
+        except (FileNotFoundError, OSError):
             pass
 
         # Check .cargo/config.toml
@@ -849,7 +843,7 @@ class RustReviewSkill(BaseReviewSkill):
                         "description": "Custom linker configured",
                     }
                 )
-        except Exception:
+        except (FileNotFoundError, OSError):
             pass
 
         # Generate recommendations
@@ -874,6 +868,27 @@ class RustReviewSkill(BaseReviewSkill):
             "dependency_optimization": dependency_optimization,
             "recommendations": recommendations,
         }
+
+    def analyze(self, context: Any, file_path: str = "") -> AnalysisResult:
+        result = AnalysisResult()
+        info: dict[str, Any] = {}
+
+        if file_path:
+            info["unsafe_code"] = self.analyze_unsafe_code(context, file_path)
+            info["ownership"] = self.analyze_ownership(context, file_path)
+            info["data_races"] = self.analyze_data_races(context, file_path)
+            info["memory_safety"] = self.analyze_memory_safety(context, file_path)
+            info["panic_propagation"] = self.analyze_panic_propagation(context, file_path)
+            info["async_patterns"] = self.analyze_async_patterns(context, file_path)
+            info["macros"] = self.analyze_macros(context, file_path)
+            info["traits"] = self.analyze_traits(context, file_path)
+            info["const_generics"] = self.analyze_const_generics(context, file_path)
+
+        info["dependencies"] = self.analyze_dependencies(context)
+        info["build_configuration"] = self.analyze_build_configuration(context)
+
+        result.info = info
+        return result
 
     def create_rust_security_report(
         self,

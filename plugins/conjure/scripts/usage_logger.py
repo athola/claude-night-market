@@ -12,7 +12,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +47,7 @@ class GeminiUsageLogger:
 
     def log_usage(self, entry: UsageEntry) -> None:
         """Log a Gemini CLI usage event."""
-        timestamp = datetime.now().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
 
         log_entry = {
             "timestamp": timestamp,
@@ -77,7 +77,7 @@ class GeminiUsageLogger:
                     last_activity = datetime.fromisoformat(
                         session_data.get("last_activity", ""),
                     )
-                    elapsed = (datetime.now() - last_activity).seconds
+                    elapsed = (datetime.now(timezone.utc) - last_activity).seconds
                     if elapsed < SESSION_TIMEOUT_SECONDS:
                         return str(session_data.get("session_id", "unknown"))
             except (json.JSONDecodeError, ValueError, OSError) as e:
@@ -87,8 +87,8 @@ class GeminiUsageLogger:
         session_id = f"session_{int(time.time())}"
         session_data = {
             "session_id": session_id,
-            "start_time": datetime.now().isoformat(),
-            "last_activity": datetime.now().isoformat(),
+            "start_time": datetime.now(timezone.utc).isoformat(),
+            "last_activity": datetime.now(timezone.utc).isoformat(),
         }
 
         with open(self.session_file, "w") as f:
@@ -131,7 +131,7 @@ class GeminiUsageLogger:
         if not self.usage_log.exists():
             return {"total_requests": 0, "total_tokens": 0, "success_rate": 0.0}
 
-        cutoff_time = datetime.now().timestamp() - (hours * 3600)
+        cutoff_time = datetime.now(timezone.utc).timestamp() - (hours * 3600)
         total_requests = 0
         total_tokens = 0
         successful_requests = 0
@@ -231,13 +231,27 @@ def main() -> None:
             pass
 
     elif args.report:
-        usage_logger.get_usage_summary()
+        summary = usage_logger.get_usage_summary()
+        print(f"Requests: {summary['total_requests']}")
+        print(f"Tokens: {summary['total_tokens']}")
+        print(f"Success rate: {summary['success_rate']:.1f}%")
 
-    elif args.validate or args.status:
-        pass
+    elif args.validate:
+        print(f"Log directory: {usage_logger.log_dir}")
+        print(f"Log exists: {usage_logger.usage_log.exists()}")
+        print(f"Session file exists: {usage_logger.session_file.exists()}")
+
+    elif args.status:
+        if usage_logger.session_file.exists():
+            with open(usage_logger.session_file) as f:
+                session = json.load(f)
+            for k, v in session.items():
+                print(f"  {k}: {v}")
+        else:
+            print("No active session")
 
     else:
-        pass
+        print("Use --help for available commands")
 
 
 if __name__ == "__main__":

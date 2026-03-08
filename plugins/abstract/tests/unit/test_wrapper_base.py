@@ -1,60 +1,41 @@
 """Tests for wrapper_base module.
 
-Covers SuperpowerWrapper and detect_breaking_changes.
+Covers SuperpowerWrapper and _detect_breaking_changes.
 """
 
 from __future__ import annotations
 
 import pytest
 
-from abstract.wrapper_base import SuperpowerWrapper, detect_breaking_changes
+from abstract.wrapper_base import SuperpowerWrapper, _detect_breaking_changes
 
 # ---------------------------------------------------------------------------
-# detect_breaking_changes
+# _detect_breaking_changes
 # ---------------------------------------------------------------------------
 
 
 class TestDetectBreakingChanges:
-    """detect_breaking_changes analyzes Python files for API changes."""
+    """_detect_breaking_changes raises NotImplementedError (stub)."""
 
     @pytest.mark.unit
-    def test_empty_list_returns_empty(self):
-        """Given empty file list, returns empty list."""
-        result = detect_breaking_changes([])
-        assert result == []
+    def test_empty_list_raises(self):
+        """Given empty file list, raises NotImplementedError."""
+        with pytest.raises(NotImplementedError):
+            _detect_breaking_changes([])
 
     @pytest.mark.unit
-    def test_nonexistent_file_is_skipped(self, tmp_path):
-        """Given a path that doesn't exist, it is silently skipped."""
-        result = detect_breaking_changes([str(tmp_path / "missing.py")])
-        assert result == []
+    def test_nonexistent_file_raises(self, tmp_path):
+        """Given a path that doesn't exist, raises NotImplementedError."""
+        with pytest.raises(NotImplementedError):
+            _detect_breaking_changes([str(tmp_path / "missing.py")])
 
     @pytest.mark.unit
-    def test_non_python_file_is_skipped(self, tmp_path):
-        """Given a non-.py file, it is skipped."""
-        md_file = tmp_path / "README.md"
-        md_file.write_text("# Readme")
-        result = detect_breaking_changes([str(md_file)])
-        assert result == []
-
-    @pytest.mark.unit
-    def test_valid_python_file_is_analyzed(self, tmp_path):
-        """Given a valid Python file, no error is raised and list is returned."""
+    def test_valid_python_file_raises(self, tmp_path):
+        """Given a valid Python file, raises NotImplementedError."""
         py_file = tmp_path / "module.py"
         py_file.write_text("def hello():\n    return 'hello'\n")
-        result = detect_breaking_changes([str(py_file)])
-        # Current implementation returns empty list (analysis not yet implemented)
-        assert isinstance(result, list)
-
-    @pytest.mark.unit
-    def test_multiple_files_processed(self, tmp_path):
-        """Given multiple files, all are processed."""
-        for name in ["a.py", "b.py"]:
-            (tmp_path / name).write_text("x = 1\n")
-        result = detect_breaking_changes(
-            [str(tmp_path / "a.py"), str(tmp_path / "b.py")]
-        )
-        assert isinstance(result, list)
+        with pytest.raises(NotImplementedError):
+            _detect_breaking_changes([str(py_file)])
 
 
 # ---------------------------------------------------------------------------
@@ -250,15 +231,11 @@ class TestSuperpowerWrapperTranslateEdgeCases:
 
     @pytest.mark.unit
     def test_detect_breaking_changes_unreadable_file(self, tmp_path):
-        """Given a Python file that raises OSError, it is skipped gracefully."""
+        """Given a Python file, raises NotImplementedError (stub)."""
         py_file = tmp_path / "unreadable.py"
         py_file.write_text("x = 1")
-        py_file.chmod(0o000)
-        try:
-            result = detect_breaking_changes([str(py_file)])
-            assert isinstance(result, list)
-        finally:
-            py_file.chmod(0o644)
+        with pytest.raises(NotImplementedError):
+            _detect_breaking_changes([str(py_file)])
 
     @pytest.mark.unit
     def test_config_non_dict_raises_value_error(self, tmp_path):

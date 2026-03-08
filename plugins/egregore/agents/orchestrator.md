@@ -13,9 +13,9 @@ description: |
   5. Handles failures (retry or mark failed)
   6. Monitors context budget via continuation agents
   7. Monitors token budget via graceful shutdown
+model: opus
   8. Alerts overseer on events via GitHub issues/webhooks
   9. Repeats until all work items are completed or failed
-model_preference: default
 tools:
   - Read
   - Write
@@ -27,6 +27,9 @@ tools:
   - Task
   - TodoRead
   - TodoWrite
+  - CronCreate
+  - CronList
+  - CronDelete
 ---
 
 # Orchestrator Agent
@@ -75,6 +78,19 @@ Understand the current state before doing anything else:
 - What pipeline stage and step is each active item on?
 - Is there a cooldown in effect from a prior rate limit?
 
+Then schedule a progress pulse (2.1.71+):
+
+```
+CronCreate(
+  cron_expression: "*/5 * * * *",
+  prompt: "/egregore:status",
+  recurring: true
+)
+```
+
+This emits a status summary every 5 minutes between turns,
+giving live visibility into autonomous runs.
+
 ## Orchestration Loop
 
 For each active work item, execute this loop:
@@ -84,18 +100,24 @@ For each active work item, execute this loop:
 
 2. **Map step to skill.** Use the Pipeline-to-Skill table:
 
-| Stage   | Step        | Skill / Action            |
-|---------|-------------|---------------------------|
-| intake  | parse       | Handle directly           |
-| intake  | validate    | Handle directly           |
-| intake  | prioritize  | Handle directly           |
-| build   | plan        | `Skill(egregore:summon)` plan module  |
-| build   | implement   | `Skill(egregore:summon)` implement module |
-| build   | test        | `Skill(egregore:summon)` test module |
-| quality | lint        | `Skill(egregore:summon)` lint module |
-| quality | review      | `Skill(egregore:summon)` review module |
-| ship    | pr          | `Skill(egregore:summon)` pr module |
-| ship    | notify      | `Skill(egregore:summon)` notify module |
+| Stage   | Step             | Skill / Action                          |
+|---------|------------------|-----------------------------------------|
+| intake  | parse            | Handle directly                         |
+| intake  | validate         | Handle directly                         |
+| intake  | prioritize       | Handle directly                         |
+| build   | brainstorm       | `Skill(attune:project-brainstorming)`   |
+| build   | specify          | `Skill(attune:project-specification)`   |
+| build   | blueprint        | `Skill(attune:project-planning)`        |
+| build   | execute          | `Skill(attune:project-execution)`       |
+| quality | code-review      | `Skill(egregore:quality-gate)` step=code-review |
+| quality | unbloat          | `Skill(egregore:quality-gate)` step=unbloat |
+| quality | code-refinement  | `Skill(egregore:quality-gate)` step=code-refinement |
+| quality | update-tests     | `Skill(egregore:quality-gate)` step=update-tests |
+| quality | update-docs      | `Skill(egregore:quality-gate)` step=update-docs |
+| ship    | prepare-pr       | `Skill(sanctum:pr-prep)`                |
+| ship    | pr-review        | `Skill(sanctum:pr-review)`              |
+| ship    | fix-pr           | `Skill(sanctum:fix-pr)`                 |
+| ship    | merge            | Handle directly (gh pr merge)           |
 
 3. **For intake steps** (parse, validate, prioritize):
    handle these directly. Parse the issue body, validate
@@ -103,6 +125,14 @@ For each active work item, execute this loop:
 
 4. **For build/quality/ship steps**: invoke the mapped
    `Skill()` call. Pass the work item context.
+
+   **Quality stage specifics**: For all quality steps,
+   invoke `Skill(egregore:quality-gate)` with the step
+   name. The quality-gate skill handles convention checks,
+   skill routing, and verdict calculation. Check the work
+   item's `quality_config` field for step skip/only lists.
+   The default mode is "self-review" for egregore's own
+   work items.
 
 5. **On success**: advance the pipeline. Update
    `pipeline_stage` and `pipeline_step` to the next step.
@@ -157,11 +187,30 @@ When you encounter a rate limit error:
 
 3. **Save all state** to manifest.json.
 
-4. **Exit cleanly.** The watchdog process monitors the
-   pidfile and budget.json. It will relaunch the
-   orchestrator after the cooldown period expires.
+4. **Schedule in-session recovery** (2.1.71+, preferred):
+   Use `CronCreate` to schedule a one-shot resume prompt
+   at the cooldown expiry time. This keeps the session
+   alive and avoids restart overhead:
 
-Do not retry in a loop. Do not sleep. Save and exit.
+   ```
+   CronCreate(
+     cron_expression: "<minute> <hour> * * *",
+     prompt: "Cooldown expired. Read .egregore/manifest.json and resume the pipeline from the current step. Invoke Skill(egregore:summon) to continue.",
+     recurring: false
+   )
+   ```
+
+   Calculate the cron expression from `cooldown_until`.
+   The session stays idle until the scheduled prompt
+   fires, then the orchestration loop resumes with full
+   context preserved.
+
+5. **Fallback: exit cleanly.** If `CronCreate` is
+   unavailable (pre-2.1.71) or the cooldown exceeds 3
+   days, exit with code 0. The watchdog will relaunch
+   after the cooldown period expires.
+
+Do not retry in a loop. Do not sleep. Schedule or exit.
 
 ## Failure Handling
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 # Gemini CLI Status Monitor
 
+set -euo pipefail
+
 echo "**Gemini CLI Status Report**"
 echo "=================================="
 echo

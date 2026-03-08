@@ -7,6 +7,8 @@ Following TDD/BDD principles to ensure workflow issues are properly
 detected, classified, and reported.
 """
 
+from __future__ import annotations
+
 from collections import Counter
 
 import pytest

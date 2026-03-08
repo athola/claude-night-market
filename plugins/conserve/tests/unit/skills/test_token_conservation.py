@@ -4,6 +4,8 @@ This module tests token optimization, quota management, and conservation
 functionality following TDD/BDD principles.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 import pytest

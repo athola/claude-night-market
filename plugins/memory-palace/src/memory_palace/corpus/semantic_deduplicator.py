@@ -38,7 +38,8 @@ def _cosine_similarity_numpy(vec_a: np.ndarray, vec_b: np.ndarray) -> float:  # 
     assert np is not None  # noqa: S101  # caller guarantees numpy is available  # nosec B101
     norm_a = float(np.linalg.norm(vec_a))
     norm_b = float(np.linalg.norm(vec_b))
-    if norm_a == 0.0 or norm_b == 0.0:
+    _NEAR_ZERO = 1e-10  # noqa: N806
+    if norm_a < _NEAR_ZERO or norm_b < _NEAR_ZERO:
         return 0.0
     return float(np.dot(vec_a, vec_b) / (norm_a * norm_b))
 
@@ -291,6 +292,8 @@ def _best_match_from_dict(
     Returns the entry_id of the closest match and its similarity score.
     Requires numpy (only called from the FAISS path where numpy is available).
     """
+    if not embeddings:
+        return None, 0.0
     query_vec = np.array(
         _hash_to_vector(content, len(next(iter(embeddings.values())))), dtype="float32"
     )  # type: ignore[call-overload]

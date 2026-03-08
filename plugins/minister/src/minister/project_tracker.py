@@ -13,7 +13,7 @@ import csv
 import json
 import sys
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -71,17 +71,17 @@ class ProjectTracker:
                 data = json.load(file)
             tasks = [Task(**task) for task in data.get("tasks", [])]
             return InitiativeTracker(
-                tasks, data.get("last_updated", datetime.now().isoformat())
+                tasks, data.get("last_updated", datetime.now(timezone.utc).isoformat())
             )
 
-        return InitiativeTracker([], datetime.now().isoformat())
+        return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
 
     def _save_data(self) -> None:
         """Save tracking data to file."""
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "tasks": [asdict(task) for task in self.data.tasks],
-            "last_updated": datetime.now().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
         }
         with open(self.data_file, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=2)
@@ -97,7 +97,7 @@ class ProjectTracker:
             if task.id == task_id:
                 for key, value in updates.items():
                     setattr(task, key, value)
-                task.updated_date = datetime.now().isoformat()
+                task.updated_date = datetime.now(timezone.utc).isoformat()
                 self._save_data()
                 return
 
@@ -174,19 +174,26 @@ class ProjectTracker:
                 "burn_rate": 0,
             }
 
-        total_tasks = len(all_tasks)
-        completed_tasks = len([task for task in all_tasks if task.status == "Done"])
-        overall_completion = (completed_tasks / total_tasks) * 100
-        total_effort = sum(task.effort_hours for task in all_tasks)
+        total_effort = 0.0
+        completed_effort = 0.0
+        completed_count = 0
+        earliest: str | None = None
+        for task in all_tasks:
+            total_effort += task.effort_hours
+            if earliest is None or task.created_date < earliest:
+                earliest = task.created_date
+            if task.status == "Done":
+                completed_count += 1
+                completed_effort += task.effort_hours
 
-        start_date = datetime.fromisoformat(
-            min(task.created_date for task in all_tasks)
-        )
-        weeks_elapsed = max(1, (datetime.now() - start_date).days / 7)
-        burn_rate = (
-            sum(task.effort_hours for task in all_tasks if task.status == "Done")
-            / weeks_elapsed
-        )
+        total_tasks = len(all_tasks)
+        overall_completion = (completed_count / total_tasks) * 100
+
+        start_date = datetime.fromisoformat(earliest)  # type: ignore[arg-type]
+        if start_date.tzinfo is None:
+            start_date = start_date.replace(tzinfo=timezone.utc)
+        weeks_elapsed = max(1, (datetime.now(timezone.utc) - start_date).days / 7)
+        burn_rate = completed_effort / weeks_elapsed
 
         return {
             "total_tasks": total_tasks,
@@ -350,8 +357,8 @@ def run_cli(argv: list[str] | None = None) -> int:
                 effort_hours=args.effort,
                 completion_percent=0,
                 due_date=args.due,
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
+                created_date=datetime.now(timezone.utc).isoformat(),
+                updated_date=datetime.now(timezone.utc).isoformat(),
                 github_issue=args.github_issue,
             )
             tracker.add_task(task)
@@ -361,7 +368,7 @@ def run_cli(argv: list[str] | None = None) -> int:
                 "title": task.title,
                 "initiative": task.initiative,
             }
-            output_result(add_result, args)
+            _output_result(add_result, args)
 
         elif args.command == "update":
             updates: dict[str, Any] = {}
@@ -379,7 +386,7 @@ def run_cli(argv: list[str] | None = None) -> int:
                     "task_id": args.id,
                     "updates": updates,
                 }
-                output_result(update_result, args)
+                _output_result(update_result, args)
             else:
                 # No updates is not an error - just a no-op
                 no_update_result: dict[str, Any] = {
@@ -387,16 +394,14 @@ def run_cli(argv: list[str] | None = None) -> int:
                     "task_id": args.id,
                     "message": "No updates specified",
                 }
-                output_result(no_update_result, args)
+                _output_result(no_update_result, args)
 
         elif args.command == "status":
-            # Status report returns complex data - get it from tracker
-            # For now, return simple status
-            status_result: dict[str, Any] = {
-                "command": "status",
-                "report": "Status report generated",
-            }
-            output_result(status_result, args)
+            report = tracker.get_status_report()
+            if hasattr(args, "github_comment") and args.github_comment:
+                print(tracker.format_github_comment(report))
+            else:
+                _output_result({"command": "status", "report": report}, args)
 
         elif args.command == "export":
             output_path = Path(args.output)
@@ -406,16 +411,16 @@ def run_cli(argv: list[str] | None = None) -> int:
                 "output_file": str(output_path),
                 "tasks_exported": len(tracker.data.tasks),
             }
-            output_result(export_result, args)
+            _output_result(export_result, args)
 
         return 0
 
     except Exception as e:
-        output_error(f"Error executing command: {e}", args)
+        _output_error(f"Error executing command: {e}", args)
         return 1
 
 
-def output_result(result: dict[str, Any], args: argparse.Namespace) -> None:
+def _output_result(result: dict[str, Any], args: argparse.Namespace) -> None:
     """Print the result in the specified format."""
     if args.output_json:
         print(
@@ -436,7 +441,7 @@ def output_result(result: dict[str, Any], args: argparse.Namespace) -> None:
                 print(f"  {key}: {value}")
 
 
-def output_error(message: str, args: argparse.Namespace) -> None:
+def _output_error(message: str, args: argparse.Namespace) -> None:
     """Output error in requested format."""
     if args.output_json:
         print(

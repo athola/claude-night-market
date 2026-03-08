@@ -11,35 +11,21 @@ IMPORTANT: Must use Python 3.9 compatible syntax.
 from __future__ import annotations
 
 import json
-import os
 import sys
-from pathlib import Path
 
-
-def find_manifest() -> Path:
-    """Find manifest.json walking up from CWD."""
-    cwd = Path(os.getcwd())
-    for directory in [cwd] + list(cwd.parents):
-        candidate = directory / ".egregore" / "manifest.json"
-        if candidate.exists():
-            return candidate
-    return cwd / ".egregore" / "manifest.json"
+from _manifest_utils import consume_stdin, find_manifest, load_manifest_data
 
 
 def main() -> None:
     """SessionStart hook entry point."""
-    try:
-        json.load(sys.stdin)  # consume stdin
-    except (json.JSONDecodeError, ValueError):
-        pass
+    consume_stdin()
 
     manifest_path = find_manifest()
     if not manifest_path.exists():
         sys.exit(0)
 
-    try:
-        data = json.loads(manifest_path.read_text())
-    except (json.JSONDecodeError, OSError):
+    data = load_manifest_data(manifest_path)
+    if data is None:
         sys.exit(0)
 
     items = data.get("work_items", [])
