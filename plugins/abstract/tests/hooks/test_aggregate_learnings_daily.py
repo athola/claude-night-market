@@ -573,7 +573,7 @@ class TestWriteLearningsIntegration:
         try:
             from aggregate_skill_logs import (  # noqa: PLC0415
                 AggregationResult,
-                SkillMetrics,
+                SkillLogSummary,
             )
         except ImportError:
             import sys as _sys  # noqa: PLC0415
@@ -583,10 +583,10 @@ class TestWriteLearningsIntegration:
                 _sys.path.insert(0, str(scripts_dir))
             from aggregate_skill_logs import (  # noqa: PLC0415
                 AggregationResult,
-                SkillMetrics,
+                SkillLogSummary,
             )
 
-        metrics = SkillMetrics(
+        metrics = SkillLogSummary(
             skill="abstract:test-skill",
             plugin="abstract",
             skill_name="test-skill",
@@ -652,7 +652,7 @@ class TestWriteLearningsIntegration:
         try:
             from aggregate_skill_logs import (  # noqa: PLC0415
                 AggregationResult,
-                SkillMetrics,
+                SkillLogSummary,
             )
         except ImportError:
             import sys as _sys  # noqa: PLC0415
@@ -662,10 +662,10 @@ class TestWriteLearningsIntegration:
                 _sys.path.insert(0, str(scripts_dir))
             from aggregate_skill_logs import (  # noqa: PLC0415
                 AggregationResult,
-                SkillMetrics,
+                SkillLogSummary,
             )
 
-        metrics = SkillMetrics(
+        metrics = SkillLogSummary(
             skill="leyline:fmt",
             plugin="leyline",
             skill_name="fmt",
