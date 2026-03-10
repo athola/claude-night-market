@@ -1,10 +1,12 @@
 """Tests for usage_logger.py following TDD/BDD principles."""
 
+from __future__ import annotations
+
 import json
 
 # Import the module under test
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -179,7 +181,6 @@ class TestGeminiUsageLogger:
 
         # Create an existing session file - use timezone-aware datetimes
         # because the source uses datetime.now(timezone.utc) for comparison
-        from datetime import timezone
         existing_session = {
             "session_id": "existing_session_456",
             "start_time": datetime.now(timezone.utc).isoformat(),
@@ -207,12 +208,9 @@ class TestGeminiUsageLogger:
 
         # Create an expired session file (older than 1 hour)
         # Use timezone-aware datetimes to match the source's datetime.now(timezone.utc)
-        from datetime import timezone
         expired_session = {
             "session_id": "expired_session_789",
-            "start_time": (
-                datetime.now(timezone.utc) - timedelta(hours=2)
-            ).isoformat(),
+            "start_time": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
             "last_activity": (
                 datetime.now(timezone.utc) - timedelta(hours=2)
             ).isoformat(),

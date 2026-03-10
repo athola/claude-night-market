@@ -57,7 +57,9 @@ def scan_makefile_deps(plugin_dir: Path, all_plugins: list) -> list:
                 )
             continue
 
-        # Match direct includes like -include ../someplugin/path
+        # Fallback: match literal includes like -include ../someplugin/path
+        # NOTE: Real Makefiles use variable-expanded paths caught above.
+        # This branch exists for repos that use literal relative paths.
         inc_match = re.match(r"^-?include\s+.*\.\./(\w[\w-]*)/(.+)", line)
         if inc_match:
             dep_plugin = inc_match.group(1)
@@ -84,6 +86,7 @@ def scan_pyproject_deps(
         return []
 
     deps = []
+    seen = set()
     content = pyproject.read_text(encoding="utf-8")
 
     # Build a mapping of normalized names to original plugin names
@@ -104,13 +107,15 @@ def scan_pyproject_deps(
                 rf"^{re.escape(norm_name)}(\s*[><=!]|$)",
                 line_stripped,
             ):
-                deps.append(
-                    {
-                        "plugin": orig_name,
-                        "type": "runtime",
-                        "reason": "pyproject.toml dependency",
-                    }
-                )
+                if orig_name not in seen:
+                    seen.add(orig_name)
+                    deps.append(
+                        {
+                            "plugin": orig_name,
+                            "type": "runtime",
+                            "reason": "pyproject.toml dependency",
+                        }
+                    )
                 break
     return deps
 

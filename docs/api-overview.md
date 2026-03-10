@@ -25,13 +25,13 @@ with public APIs. We also maintain 25 execution hooks.
 | conserve | 1.6.0 | 4 | 10 | 5 | No | - |
 | hookify | 1.6.0 | 6 | 2 | 0 | No | - |
 | imbue | 1.6.0 | 2 | 9 | 1 | No | - |
-| leyline | 1.6.0 | 2 | 12 | 0 | Yes | - |
+| leyline | 1.6.0 | 2 | 15 | 0 | Yes | - |
 | memory-palace | 1.6.0 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.0 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.6.0 | 3 | 4 | 4 | No | - |
 | pensive | 1.6.0 | 12 | 11 | 4 | Yes | - |
-| sanctum | 1.6.0 | 17 | 14 | 9 | Yes | - |
-| scribe | 1.6.0 | 3 | 3 | 3 | No | - |
+| sanctum | 1.6.0 | 18 | 14 | 9 | Yes | - |
+| scribe | 1.6.0 | 3 | 4 | 3 | No | - |
 | scry | 1.6.0 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.6.0 | 9 | 3 | 3 | Yes | - |
 | egregore | 1.6.0 | 5 | 4 | 2 | No | - |

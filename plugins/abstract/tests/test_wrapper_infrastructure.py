@@ -237,20 +237,14 @@ class TestDetectBreakingChanges:
     """Test _detect_breaking_changes() with edge cases - addressing issue #33."""
 
     def test_detect_breaking_changes_empty_file_list(self) -> None:
-        """_detect_breaking_changes raises NotImplementedError (stub)."""
-        try:
-            _detect_breaking_changes([])
-            assert False, "Should have raised NotImplementedError"
-        except NotImplementedError:
-            pass
+        """_detect_breaking_changes returns empty list for empty input."""
+        result = _detect_breaking_changes([])
+        assert result == []
 
     def test_detect_breaking_changes_returns_appropriate_structure(self) -> None:
-        """_detect_breaking_changes raises NotImplementedError (stub)."""
-        try:
-            _detect_breaking_changes([])
-            assert False, "Should have raised NotImplementedError"
-        except NotImplementedError:
-            pass
+        """_detect_breaking_changes returns a list (possibly empty)."""
+        result = _detect_breaking_changes([])
+        assert isinstance(result, list)
 
 
 if __name__ == "__main__":

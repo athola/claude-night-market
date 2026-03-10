@@ -169,24 +169,50 @@ def parse_contributing_guide(
 
 _CATEGORY_KEYWORDS: dict[str, list[str]] = {
     "testing": [
-        "test", "coverage", "pytest", "unittest", "ci",
-        "continuous integration", "tox", "nox",
+        "test",
+        "coverage",
+        "pytest",
+        "unittest",
+        "ci",
+        "continuous integration",
+        "tox",
+        "nox",
     ],
     "linting": [
-        "lint", "ruff", "flake8", "pylint", "mypy",
-        "type check", "black", "isort", "format",
+        "lint",
+        "ruff",
+        "flake8",
+        "pylint",
+        "mypy",
+        "type check",
+        "black",
+        "isort",
+        "format",
     ],
     "documentation": [
-        "doc", "changelog", "readme", "docstring",
-        "release note", "comment",
+        "doc",
+        "changelog",
+        "readme",
+        "docstring",
+        "release note",
+        "comment",
     ],
     "style": [
-        "style", "convention", "naming", "import",
-        "line length", "pep", "type hint",
+        "style",
+        "convention",
+        "naming",
+        "import",
+        "line length",
+        "pep",
+        "type hint",
     ],
     "security": [
-        "security", "vulnerability", "cve", "secret",
-        "credential", "auth",
+        "security",
+        "vulnerability",
+        "cve",
+        "secret",
+        "credential",
+        "auth",
     ],
 }
 
@@ -301,9 +327,11 @@ def fetch_contributing_guide(
     try:
         result = subprocess.run(  # noqa: S603, S607
             [
-                _GH_CLI, "api",
+                _GH_CLI,
+                "api",
                 f"repos/{owner}/{repo}/contents/CONTRIBUTING.md",
-                "--jq", ".content",
+                "--jq",
+                ".content",
             ],
             capture_output=True,
             text=True,
@@ -316,7 +344,7 @@ def fetch_contributing_guide(
             "utf-8", errors="replace"
         )
         return content
-    except (subprocess.TimeoutExpired, OSError):
+    except (subprocess.TimeoutExpired, OSError, ValueError):
         return None
 
 
@@ -332,8 +360,7 @@ def post_discussion(
     Returns the discussion URL on success, None on failure.
     """
     repo_query = (
-        f'{{ repository(owner: "{repo_owner}",'
-        f' name: "{repo_name}") {{ id }} }}'
+        f'{{ repository(owner: "{repo_owner}", name: "{repo_name}") {{ id }} }}'
     )
     try:
         result = subprocess.run(  # noqa: S603, S607
@@ -351,9 +378,19 @@ def post_discussion(
     except (subprocess.TimeoutExpired, OSError, KeyError):
         return None
 
-    # Escape body for GraphQL
-    escaped_body = body.replace("\\", "\\\\").replace('"', '\\"')
-    escaped_title = title.replace("\\", "\\\\").replace('"', '\\"')
+    # Escape body for inline GraphQL string literal
+    escaped_body = (
+        body.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
+    escaped_title = (
+        title.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
 
     mutation = (
         "mutation {"

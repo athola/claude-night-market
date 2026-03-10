@@ -255,7 +255,7 @@ This command orchestrates multiple evaluation tools:
 1. **Plugin structure validation**: `validate_plugin.py`
 2. **Skills evaluation**: `skill_analyzer.py --scan-all`
 3. **Token analysis**: `context_optimizer.py report`
-4. **Hooks evaluation**: `hooks_auditor.py` (if hooks exist)
+4. **Hooks evaluation**: `Skill(abstract:hooks-eval)` (if hooks exist)
 5. **Bloat detection**: Uses conserve:bloat-detector patterns
 6. **Aggregate results**: Combine scores and generate report
 

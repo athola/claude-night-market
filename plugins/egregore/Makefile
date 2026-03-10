@@ -2,7 +2,8 @@
 # Autonomous agent orchestrator
 
 .PHONY: help deps fix check clean \
-	status debug-variables plugin-check demo-skills
+	status debug-variables plugin-check demo-skills \
+	lint format type-check typecheck security test-unit test
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests

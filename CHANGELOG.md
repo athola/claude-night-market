@@ -129,9 +129,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to reflect medium as default effort (2.1.68)
 - Updated model-optimization-guide effort controls
   section with medium default and ultrathink (2.1.68)
-
-### Changed
-
 - Updated hook event version annotations for
   WorktreeCreate/WorktreeRemove (2.1.49+ to 2.1.50+)
   across 7 files (hook validator, frontmatter parser,

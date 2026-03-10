@@ -15,27 +15,43 @@ from abstract.wrapper_base import SuperpowerWrapper, _detect_breaking_changes
 
 
 class TestDetectBreakingChanges:
-    """_detect_breaking_changes raises NotImplementedError (stub)."""
+    """_detect_breaking_changes detects API changes between working tree and HEAD."""
 
     @pytest.mark.unit
-    def test_empty_list_raises(self):
-        """Given empty file list, raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            _detect_breaking_changes([])
+    def test_empty_list_returns_empty(self):
+        """Given empty file list, returns empty list."""
+        result = _detect_breaking_changes([])
+        assert result == []
 
     @pytest.mark.unit
-    def test_nonexistent_file_raises(self, tmp_path):
-        """Given a path that doesn't exist, raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            _detect_breaking_changes([str(tmp_path / "missing.py")])
+    def test_nonexistent_file_returns_empty(self, tmp_path):
+        """Given a path that doesn't exist, returns empty list."""
+        result = _detect_breaking_changes([str(tmp_path / "missing.py")])
+        assert result == []
 
     @pytest.mark.unit
-    def test_valid_python_file_raises(self, tmp_path):
-        """Given a valid Python file, raises NotImplementedError."""
+    def test_valid_python_file_no_git_returns_empty(self, tmp_path):
+        """Given a valid Python file with no git history, returns empty list."""
         py_file = tmp_path / "module.py"
         py_file.write_text("def hello():\n    return 'hello'\n")
-        with pytest.raises(NotImplementedError):
-            _detect_breaking_changes([str(py_file)])
+        result = _detect_breaking_changes([str(py_file)])
+        assert result == []
+
+    @pytest.mark.unit
+    def test_non_python_file_skipped(self, tmp_path):
+        """Given a non-Python file, it is skipped."""
+        txt_file = tmp_path / "readme.txt"
+        txt_file.write_text("hello")
+        result = _detect_breaking_changes([str(txt_file)])
+        assert result == []
+
+    @pytest.mark.unit
+    def test_syntax_error_file_returns_empty(self, tmp_path):
+        """Given a Python file with syntax errors, returns empty list."""
+        py_file = tmp_path / "bad.py"
+        py_file.write_text("def broken(\n")
+        result = _detect_breaking_changes([str(py_file)])
+        assert result == []
 
 
 # ---------------------------------------------------------------------------
@@ -230,12 +246,12 @@ class TestSuperpowerWrapperTranslateEdgeCases:
     """Edge cases in translate_parameters."""
 
     @pytest.mark.unit
-    def test_detect_breaking_changes_unreadable_file(self, tmp_path):
-        """Given a Python file, raises NotImplementedError (stub)."""
+    def test_detect_breaking_changes_no_git_history(self, tmp_path):
+        """Given a Python file with no git history, returns empty list."""
         py_file = tmp_path / "unreadable.py"
         py_file.write_text("x = 1")
-        with pytest.raises(NotImplementedError):
-            _detect_breaking_changes([str(py_file)])
+        result = _detect_breaking_changes([str(py_file)])
+        assert result == []
 
     @pytest.mark.unit
     def test_config_non_dict_raises_value_error(self, tmp_path):
