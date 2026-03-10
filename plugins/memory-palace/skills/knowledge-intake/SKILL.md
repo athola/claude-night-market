@@ -22,7 +22,7 @@ dependencies:
 - leyline:evaluation-framework
 - leyline:storage-templates
 - scribe:slop-detector
-- scribe:doc-verify
+- scribe:doc-generator
 scripts: []
 usage_patterns:
 - resource-intake
@@ -132,7 +132,7 @@ Run `Skill(scribe:slop-detector)` on the new entry:
 - No Tier 1 markers (delve, tapestry, comprehensive, leveraging, etc.)
 - Hedge word density < 15 per 1000 words
 
-Run `Skill(scribe:doc-verify)` to validate:
+Use `Agent(scribe:doc-verifier)` to validate:
 - All file paths and URLs exist
 - All cross-references valid
 - Source attributions accurate
@@ -140,7 +140,8 @@ Run `Skill(scribe:doc-verify)` to validate:
 ```bash
 # Quick validation for knowledge corpus entry
 /slop-scan docs/knowledge-corpus/[entry-name].md
-/doc-verify docs/knowledge-corpus/[entry-name].md
+# Doc verification is now agent-only:
+Agent(scribe:doc-verifier) "Verify docs/knowledge-corpus/[entry-name].md"
 ```
 
 **DO NOT finalize entries with slop score > 2.5** - rewrite with concrete specifics.

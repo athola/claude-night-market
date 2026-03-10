@@ -27,8 +27,10 @@ Triggers `/plugin-review --tier branch` on affected plugins.
 Runs quick quality gates (test, lint, typecheck, registration)
 on changed plugins and side-effect checks on related plugins.
 
-### Phase 3-4 (On-Demand Modules)
+### Phase 2-4 (On-Demand Modules)
 
+- See `modules/phase2-performance.md` for skill-review
+  and performance analysis
 - See `modules/phase3-meta-eval.md` for recursive quality
   validation
 - See `modules/phase4-queue.md` for knowledge queue promotion

@@ -105,7 +105,7 @@ For detailed implementation guidance:
 Before deploying, verify that the RED, GREEN, and REFACTOR phases are complete and documented. Frontmatter must be valid, descriptions optimized, and line counts kept under 500 lines. Ensure all module references are valid and at least one concrete example is included.
 
 ### Scribe Validation
-All markdown files must pass scribe validation. This includes a slop scan to ensure a score under 2.5 and doc verification to confirm all file paths and command examples work. Bullet-to-prose ratios must remain under 60% to maintain readability. Use `Skill(scribe:slop-detector)` and `Skill(scribe:doc-verify)` for these checks.
+All markdown files must pass scribe validation. This includes a slop scan to ensure a score under 2.5 and doc verification to confirm all file paths and command examples work. Bullet-to-prose ratios must remain under 60% to maintain readability. Use `Skill(scribe:slop-detector)` and `Agent(scribe:doc-verifier)` for these checks.
 
 ## Integration and Best Practices
 

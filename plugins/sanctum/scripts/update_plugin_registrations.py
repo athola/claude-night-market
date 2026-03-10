@@ -208,7 +208,7 @@ class PluginAuditor:
             for pattern in patterns:
                 matches = re.findall(pattern, content)
                 references.update(matches)
-        except OSError as exc:
+        except (OSError, UnicodeDecodeError) as exc:
             print(
                 f"[update_plugin_registrations] cannot read {md_file}: {exc}",
                 file=sys.stderr,
@@ -575,8 +575,15 @@ class PluginAuditor:
         plugin_path = self.plugins_root / plugin_name
         plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
 
-        with plugin_json_path.open(encoding="utf-8") as f:
-            plugin_data = json.load(f)
+        try:
+            with plugin_json_path.open(encoding="utf-8") as f:
+                plugin_data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"[ERROR] {plugin_name}: failed to read {plugin_json_path}: {exc}",
+                file=sys.stderr,
+            )
+            return None
 
         return plugin_path, plugin_json_path, plugin_data
 

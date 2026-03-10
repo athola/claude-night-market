@@ -327,4 +327,4 @@ If a skill cannot be loaded:
 - `/git-catchup` - Understand recent git changes
 - `/slop-scan` - Direct AI slop detection (scribe plugin)
 - `/doc-polish` - Interactive documentation cleanup (scribe plugin)
-- `/doc-verify` - QA validation with proof-of-work (scribe plugin)
+- `Agent(scribe:doc-verifier)` - QA validation with proof-of-work (scribe plugin, agent-only)

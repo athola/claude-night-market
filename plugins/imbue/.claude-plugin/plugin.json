@@ -15,6 +15,7 @@
   ],
   "commands": [
     "./commands/catchup.md",
+    "./commands/stewardship-health.md",
     "./commands/structured-review.md"
   ],
   "agents": [

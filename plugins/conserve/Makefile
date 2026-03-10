@@ -35,22 +35,18 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	@echo "Note: tools/dependency_manager.py not yet implemented - using uv check"
 	uv pip check || true
 
 fix: ## Show dependency fixes (dry run)
-	@echo "Auto-fixing dependency issues..."
-	@echo "Note: tools/dependency_manager.py not yet implemented"
-	@echo "Run 'uv sync' to validate dependencies are current"
+	@echo "Checking for dependency issues..."
+	uv sync --dry-run
 
 fix-apply: ## Apply dependency fixes
 	@echo "Applying dependency fixes..."
-	@echo "Note: tools/dependency_manager.py not yet implemented"
 	uv sync
 
 deps-report: ## Generate detailed dependency report
 	@echo "Generating detailed dependency report..."
-	@echo "Note: tools/dependency_manager.py not yet implemented"
 	uv pip list
 
 # ---------- Code Quality ----------
@@ -68,7 +64,6 @@ install-hooks: ## Install pre-commit hooks
 
 validate-all: ## Run full validation suite
 	@echo "Running full validation..."
-	@echo "Note: tools/safe_replacer.py and tools/dependency_manager.py not yet implemented"
 	uv pip check || true
 	uv run pre-commit run --all-files || true
 
@@ -155,8 +150,11 @@ benchmark: ## Run performance benchmarks (bloat detection speed)
 	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
 
 memory-profile: ## Profile memory usage
-	@echo "Memory profiling not yet configured for conserve"
-	@echo "Install memory_profiler: pip install memory_profiler"
+	@if command -v python3 -c "import memory_profiler" 2>/dev/null; then \
+		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
+	else \
+		echo "Install memory_profiler: pip install memory_profiler"; \
+	fi
 
 # ---------- Demo/Dogfood Targets (LIVE) ----------
 demo-context: ## Demo context optimization (LIVE)

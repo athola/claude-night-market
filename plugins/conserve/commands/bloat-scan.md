@@ -57,6 +57,9 @@ Execute progressive bloat detection across code, documentation, and dependencies
 | `--report <file>` | Save report to file | stdout |
 | `--dry-run` | Preview findings without taking action | false |
 | `--exclude <pattern>` | Additional exclude patterns beyond defaults | `.bloat-ignore` |
+| `--growth [path]` | Run growth velocity analysis on path | cwd |
+| `--threshold <lines>` | Override default line limit for threshold alerts | varies by file type |
+| `--compare` | Compare before/after optimization (use with `--growth`) | false |
 
 **Note**: Cache directories (`.venv/`, `node_modules/`, `.pytest_cache/`, etc.) are automatically excluded from all scans.
 

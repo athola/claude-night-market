@@ -1,6 +1,6 @@
 """GitHub issue creation for human-gated rollback review.
 
-When the re-evaluation timer detects regression, this module
+When the re-evaluation window (execution-count-based) detects regression, this module
 generates a GitHub issue with all context needed for a human
 to decide whether to rollback.
 

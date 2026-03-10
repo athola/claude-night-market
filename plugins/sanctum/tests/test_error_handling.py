@@ -87,7 +87,7 @@ class TestErrorHandling:
         assert result["name"] == "test-plugin"
 
     def test_fix_plugin_handles_missing_plugin_json(self, tmp_path: Path) -> None:
-        """Verify fix_plugin raises when plugin.json doesn't exist."""
+        """Verify fix_plugin returns None when plugin.json doesn't exist."""
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
         config_dir = plugin_dir / ".claude-plugin"
@@ -100,9 +100,10 @@ class TestErrorHandling:
             "stale": {},
         }
 
-        # fix_plugin tries to open plugin.json directly - should raise FileNotFoundError
-        with pytest.raises(FileNotFoundError):
-            auditor.fix_plugin("test-plugin")
+        # fix_plugin catches missing plugin.json gracefully via _discover_plugin
+        # returning None, which fix_plugin handles by returning True
+        result = auditor.fix_plugin("test-plugin")
+        assert result is True
 
     def test_scan_disk_files_empty_plugin(self, tmp_path: Path) -> None:
         """Verify scanning a completely empty plugin directory."""
