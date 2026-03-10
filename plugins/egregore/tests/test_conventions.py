@@ -22,7 +22,8 @@ class TestLoadCodex:
     def test_loads_valid_codex(self, tmp_path: Path) -> None:
         """Load a valid codex YAML and parse all conventions."""
         codex_path = tmp_path / "codex.yml"
-        codex_path.write_text(textwrap.dedent("""\
+        codex_path.write_text(
+            textwrap.dedent("""\
             version: 1
             conventions:
               - id: C1
@@ -34,7 +35,8 @@ class TestLoadCodex:
                 exempt_paths: []
                 severity: blocking
                 enabled: true
-        """))
+        """)
+        )
         conventions = load_codex(codex_path)
         assert len(conventions) == 1
         assert conventions[0].id == "C1"
@@ -45,7 +47,8 @@ class TestLoadCodex:
     def test_filters_disabled_conventions(self, tmp_path: Path) -> None:
         """Disabled conventions are excluded from the result."""
         codex_path = tmp_path / "codex.yml"
-        codex_path.write_text(textwrap.dedent("""\
+        codex_path.write_text(
+            textwrap.dedent("""\
             version: 1
             conventions:
               - id: C1
@@ -62,7 +65,8 @@ class TestLoadCodex:
                 grep_pattern: 'bar'
                 severity: warning
                 enabled: false
-        """))
+        """)
+        )
         conventions = load_codex(codex_path)
         assert len(conventions) == 1
         assert conventions[0].id == "C1"
@@ -77,12 +81,14 @@ class TestLoadCodex:
     def test_rejects_missing_required_fields(self, tmp_path: Path) -> None:
         """Convention missing required fields raises error."""
         codex_path = tmp_path / "codex.yml"
-        codex_path.write_text(textwrap.dedent("""\
+        codex_path.write_text(
+            textwrap.dedent("""\
             version: 1
             conventions:
               - id: C1
                 name: missing-fields
-        """))
+        """)
+        )
         with pytest.raises(ValueError, match="check_type"):
             load_codex(codex_path)
 
@@ -93,9 +99,7 @@ class TestLoadCodex:
 
     def test_loads_real_codex(self) -> None:
         """Load the actual project codex.yml."""
-        codex_path = (
-            Path(__file__).parent.parent / "conventions" / "codex.yml"
-        )
+        codex_path = Path(__file__).parent.parent / "conventions" / "codex.yml"
         if not codex_path.exists():
             pytest.skip("codex.yml not found")
         conventions = load_codex(codex_path)
@@ -164,11 +168,13 @@ class TestCheckConventions:
     ) -> None:
         """C1: detect import inside a function body."""
         py_file = tmp_path / "bad.py"
-        py_file.write_text(textwrap.dedent("""\
+        py_file.write_text(
+            textwrap.dedent("""\
             def my_func():
                 import os
                 return os.getcwd()
-        """))
+        """)
+        )
         findings = check_conventions([py_file], [c1_convention])
         assert len(findings) == 1
         assert findings[0].convention_id == "C1"
@@ -180,12 +186,14 @@ class TestCheckConventions:
     ) -> None:
         """C1: top-level imports produce no findings."""
         py_file = tmp_path / "good.py"
-        py_file.write_text(textwrap.dedent("""\
+        py_file.write_text(
+            textwrap.dedent("""\
             import os
 
             def my_func():
                 return os.getcwd()
-        """))
+        """)
+        )
         findings = check_conventions([py_file], [c1_convention])
         assert len(findings) == 0
 
@@ -196,11 +204,13 @@ class TestCheckConventions:
         hooks_dir = tmp_path / "hooks"
         hooks_dir.mkdir()
         hook_file = hooks_dir / "my_hook.py"
-        hook_file.write_text(textwrap.dedent("""\
+        hook_file.write_text(
+            textwrap.dedent("""\
             def run():
                 import yaml
                 return yaml.safe_load("{}")
-        """))
+        """)
+        )
         findings = check_conventions([hook_file], [c1_convention])
         assert len(findings) == 0
 
@@ -232,9 +242,7 @@ class TestCheckConventions:
         findings = check_conventions([md], [c3_convention])
         assert len(findings) == 1
 
-    def test_c4_detects_noqa(
-        self, tmp_path: Path, c4_convention: Convention
-    ) -> None:
+    def test_c4_detects_noqa(self, tmp_path: Path, c4_convention: Convention) -> None:
         """C4: detect noqa comment."""
         py_file = tmp_path / "messy.py"
         py_file.write_text("x = 1  # noqa: E501\n")
@@ -290,9 +298,7 @@ class TestCheckConventions:
         """Multiple violations in one file produce multiple findings."""
         py_file = tmp_path / "multi.py"
         py_file.write_text(
-            "x = 1  # noqa\n"
-            "y = 2  # type: ignore\n"
-            "z = 3  # pylint: disable=C0114\n"
+            "x = 1  # noqa\ny = 2  # type: ignore\nz = 3  # pylint: disable=C0114\n"
         )
         findings = check_conventions([py_file], [c4_convention])
         assert len(findings) == 3
@@ -305,13 +311,8 @@ class TestCheckConventions:
     ) -> None:
         """Multiple conventions checked against same file."""
         py_file = tmp_path / "double.py"
-        py_file.write_text(
-            "def f():\n"
-            "    import os  # noqa\n"
-        )
-        findings = check_conventions(
-            [py_file], [c1_convention, c4_convention]
-        )
+        py_file.write_text("def f():\n    import os  # noqa\n")
+        findings = check_conventions([py_file], [c1_convention, c4_convention])
         ids = {f.convention_id for f in findings}
         assert "C1" in ids
         assert "C4" in ids
@@ -329,17 +330,13 @@ class TestCheckConventions:
 class TestCheckDocConsolidation:
     """Tests for C5 custom checker."""
 
-    def test_detects_new_standalone_markdown(
-        self, tmp_path: Path
-    ) -> None:
+    def test_detects_new_standalone_markdown(self, tmp_path: Path) -> None:
         """C5: new markdown files outside skills/modules flagged."""
         from conventions import check_doc_consolidation
 
         new_md = tmp_path / "GUIDE.md"
         new_md.write_text("# Guide\nSome content\n")
-        findings = check_doc_consolidation(
-            [new_md], base_dir=tmp_path
-        )
+        findings = check_doc_consolidation([new_md], base_dir=tmp_path)
         assert len(findings) == 1
         assert findings[0].convention_id == "C5"
 
@@ -351,9 +348,7 @@ class TestCheckDocConsolidation:
         skills_dir.mkdir(parents=True)
         skill_md = skills_dir / "SKILL.md"
         skill_md.write_text("# Skill\n")
-        findings = check_doc_consolidation(
-            [skill_md], base_dir=tmp_path
-        )
+        findings = check_doc_consolidation([skill_md], base_dir=tmp_path)
         assert len(findings) == 0
 
     def test_allows_modules_markdown(self, tmp_path: Path) -> None:
@@ -364,9 +359,7 @@ class TestCheckDocConsolidation:
         modules_dir.mkdir()
         mod_md = modules_dir / "feature.md"
         mod_md.write_text("# Module\n")
-        findings = check_doc_consolidation(
-            [mod_md], base_dir=tmp_path
-        )
+        findings = check_doc_consolidation([mod_md], base_dir=tmp_path)
         assert len(findings) == 0
 
     def test_allows_readme(self, tmp_path: Path) -> None:
@@ -375,7 +368,5 @@ class TestCheckDocConsolidation:
 
         readme = tmp_path / "README.md"
         readme.write_text("# Readme\n")
-        findings = check_doc_consolidation(
-            [readme], base_dir=tmp_path
-        )
+        findings = check_doc_consolidation([readme], base_dir=tmp_path)
         assert len(findings) == 0

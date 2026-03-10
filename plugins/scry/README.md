@@ -45,3 +45,19 @@ Scry manages terminal and browser recordings to create technical demos and tutor
 To create a tutorial, use `vhs-recording` for terminal demonstrations and `browser-recording` for web interface walkthroughs. These assets can then be merged using the `media-composition` skill. For standalone demos, record terminal sessions directly with `/record-terminal` and optimize the final output through `gif-generation`.
 
 Playwright is recommended for automated recording and CI/CD environments, while Claude Code's native Chrome integration is often better for interactive debugging. When generating media, Claude Code 2.0.73+ supports clickable image links that allow for immediate verification of recording quality within the default viewer.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- VHS tape script examples are an opportunity to include
+  annotated templates showing common recording patterns
+- The media composition skill could document resolution
+  and frame rate recommendations for different outputs
+- GIF optimization settings would benefit from a table
+  showing file size vs. quality trade-offs at each level
+- Browser recording could include a quick checklist of
+  prerequisites (Playwright version, browser binaries)
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

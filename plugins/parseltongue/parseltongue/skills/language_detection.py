@@ -22,31 +22,71 @@ class LanguageDetectionSkill:
 
     # Language keyword sets
     _PYTHON_KW = {
-        "def", "class", "import", "from", "async", "await",
-        "yield", "lambda", "with", "elif", "except", "raise",
-        "pass", "True", "False", "None",
+        "def",
+        "class",
+        "import",
+        "from",
+        "async",
+        "await",
+        "yield",
+        "lambda",
+        "with",
+        "elif",
+        "except",
+        "raise",
+        "pass",
+        "True",
+        "False",
+        "None",
     }
     _JS_KW = {
-        "function", "const", "let", "var", "class", "constructor",
-        "this", "prototype", "async", "await", "new", "typeof",
-        "undefined", "null", "=>",
+        "function",
+        "const",
+        "let",
+        "var",
+        "class",
+        "constructor",
+        "this",
+        "prototype",
+        "async",
+        "await",
+        "new",
+        "typeof",
+        "undefined",
+        "null",
+        "=>",
     }
     _TS_KW = {
-        "interface", "type", "enum", "namespace", "declare",
-        "readonly", "abstract", "implements",
+        "interface",
+        "type",
+        "enum",
+        "namespace",
+        "declare",
+        "readonly",
+        "abstract",
+        "implements",
     }
     _RUST_KW = {
-        "fn", "let", "mut", "impl", "struct", "enum", "trait",
-        "pub", "use", "mod", "crate", "match", "unsafe",
+        "fn",
+        "let",
+        "mut",
+        "impl",
+        "struct",
+        "enum",
+        "trait",
+        "pub",
+        "use",
+        "mod",
+        "crate",
+        "match",
+        "unsafe",
     }
 
     def __init__(self) -> None:
         """Initialize the language detection skill."""
         pass
 
-    def detect_language(
-        self, code: str, filename: str = ""
-    ) -> dict[str, Any]:
+    def detect_language(self, code: str, filename: str = "") -> dict[str, Any]:
         """Detect the programming language of the provided code.
 
         Args:
@@ -69,9 +109,7 @@ class LanguageDetectionSkill:
         # Try filename first
         for ext, (language, confidence) in self._EXT_MAP.items():
             if filename.endswith(ext):
-                features = self._detect_features_for_language(
-                    code, language
-                )
+                features = self._detect_features_for_language(code, language)
                 return {
                     "language": language,
                     "confidence": confidence,
@@ -189,9 +227,7 @@ class LanguageDetectionSkill:
             confidence = max(confidence, 0.91)
 
         features = self._detect_features_for_language(code, best_lang)
-        reasoning.append(
-            f"Detected {best_lang} with score {best_score:.1f}"
-        )
+        reasoning.append(f"Detected {best_lang} with score {best_score:.1f}")
 
         return {
             "language": best_lang,
@@ -201,9 +237,7 @@ class LanguageDetectionSkill:
             "reasoning": reasoning,
         }
 
-    def _detect_features_for_language(
-        self, code: str, language: str
-    ) -> list[str]:
+    def _detect_features_for_language(self, code: str, language: str) -> list[str]:
         """Detect language-specific features in code."""
         features: list[str] = []
 
@@ -241,18 +275,14 @@ class LanguageDetectionSkill:
                 features.append("structs")
             if "trait " in code or "impl " in code:
                 features.append("traits")
-            if re.search(r"&'\w+", code) or re.search(
-                r"&(?:self|mut\s|\[)", code
-            ):
+            if re.search(r"&'\w+", code) or re.search(r"&(?:self|mut\s|\[)", code):
                 features.append("lifetime_annotations")
             if "Result<" in code or "Err(" in code:
                 features.append("error_handling")
 
         return features
 
-    def analyze_features(
-        self, code: str, language: str
-    ) -> dict[str, Any]:
+    def analyze_features(self, code: str, language: str) -> dict[str, Any]:
         """Analyze language-specific features in code.
 
         Args:
@@ -276,24 +306,12 @@ class LanguageDetectionSkill:
             return {"features": features}
 
         if language == "python":
-            features["functions"] = len(
-                re.findall(r"\bdef\s+\w+", code)
-            )
-            features["classes"] = len(
-                re.findall(r"\bclass\s+\w+", code)
-            )
-            features["class_names"] = re.findall(
-                r"\bclass\s+(\w+)", code
-            )
-            features["imports"] = len(
-                re.findall(r"\b(?:import|from)\s+\w+", code)
-            )
-            features["decorators"] = len(
-                re.findall(r"@\w+", code)
-            )
-            features["async_methods"] = len(
-                re.findall(r"\basync\s+def\s+", code)
-            )
+            features["functions"] = len(re.findall(r"\bdef\s+\w+", code))
+            features["classes"] = len(re.findall(r"\bclass\s+\w+", code))
+            features["class_names"] = re.findall(r"\bclass\s+(\w+)", code)
+            features["imports"] = len(re.findall(r"\b(?:import|from)\s+\w+", code))
+            features["decorators"] = len(re.findall(r"@\w+", code))
+            features["async_methods"] = len(re.findall(r"\basync\s+def\s+", code))
 
             # Detect keywords
             for kw in self._PYTHON_KW:
@@ -309,15 +327,9 @@ class LanguageDetectionSkill:
                 features["async"] = True
 
         elif language == "javascript":
-            features["classes"] = len(
-                re.findall(r"\bclass\s+\w+", code)
-            )
-            features["class_names"] = re.findall(
-                r"\bclass\s+(\w+)", code
-            )
-            features["async_methods"] = len(
-                re.findall(r"\basync\s+\w+", code)
-            )
+            features["classes"] = len(re.findall(r"\bclass\s+\w+", code))
+            features["class_names"] = re.findall(r"\bclass\s+(\w+)", code)
+            features["async_methods"] = len(re.findall(r"\basync\s+\w+", code))
             features["data_structures"] = {
                 "Map": len(re.findall(r"\bnew\s+Map\b", code)),
                 "Set": len(re.findall(r"\bnew\s+Set\b", code)),
@@ -325,12 +337,8 @@ class LanguageDetectionSkill:
             }
 
         elif language == "typescript":
-            features["interfaces"] = len(
-                re.findall(r"\binterface\s+\w+", code)
-            )
-            features["interface_names"] = re.findall(
-                r"\binterface\s+(\w+)", code
-            )
+            features["interfaces"] = len(re.findall(r"\binterface\s+\w+", code))
+            features["interface_names"] = re.findall(r"\binterface\s+(\w+)", code)
             features["type_annotations"] = len(
                 re.findall(
                     r":\s*(?:string|number|boolean|void|any|"
@@ -338,26 +346,14 @@ class LanguageDetectionSkill:
                     code,
                 )
             )
-            features["optional_properties"] = len(
-                re.findall(r"\w+\?\s*:", code)
-            )
-            features["classes"] = len(
-                re.findall(r"\bclass\s+\w+", code)
-            )
-            features["class_names"] = re.findall(
-                r"\bclass\s+(\w+)", code
-            )
+            features["optional_properties"] = len(re.findall(r"\w+\?\s*:", code))
+            features["classes"] = len(re.findall(r"\bclass\s+\w+", code))
+            features["class_names"] = re.findall(r"\bclass\s+(\w+)", code)
 
         elif language == "rust":
-            features["structs"] = len(
-                re.findall(r"\bstruct\s+\w+", code)
-            )
-            features["struct_names"] = re.findall(
-                r"\bstruct\s+(\w+)", code
-            )
-            features["impl_blocks"] = len(
-                re.findall(r"\bimpl\s+\w+", code)
-            )
+            features["structs"] = len(re.findall(r"\bstruct\s+\w+", code))
+            features["struct_names"] = re.findall(r"\bstruct\s+(\w+)", code)
+            features["impl_blocks"] = len(re.findall(r"\bimpl\s+\w+", code))
             features["error_handling"] = {
                 "Result": len(re.findall(r"\bResult<", code)),
                 "Option": len(re.findall(r"\bOption<", code)),
@@ -372,15 +368,9 @@ class LanguageDetectionSkill:
                     features["keywords"].append(kw)
 
         elif language == "go":
-            features["functions"] = len(
-                re.findall(r"\bfunc\s+\w+", code)
-            )
-            features["goroutines"] = len(
-                re.findall(r"\bgo\s+func\b", code)
-            )
-            features["channels"] = len(
-                re.findall(r"\bmake\(chan\b", code)
-            )
+            features["functions"] = len(re.findall(r"\bfunc\s+\w+", code))
+            features["goroutines"] = len(re.findall(r"\bgo\s+func\b", code))
+            features["channels"] = len(re.findall(r"\bmake\(chan\b", code))
 
         return {"features": features}
 
@@ -510,9 +500,7 @@ class LanguageDetectionSkill:
             features.append("async_await")
             edition = "2018"
 
-        if re.search(r"\bArc<", code) or re.search(
-            r"\bMutex<", code
-        ):
+        if re.search(r"\bArc<", code) or re.search(r"\bMutex<", code):
             features.append("async_await")
             edition = max(edition, "2018")
 
@@ -528,9 +516,7 @@ class LanguageDetectionSkill:
 
         return {"edition": edition, "features": features}
 
-    def detect_frameworks(
-        self, code: str, language: str
-    ) -> dict[str, Any]:
+    def detect_frameworks(self, code: str, language: str) -> dict[str, Any]:
         """Detect frameworks and libraries used in code.
 
         Args:
@@ -566,9 +552,7 @@ class LanguageDetectionSkill:
 
         return {"frameworks": frameworks}
 
-    def detect_design_patterns(
-        self, code: str, language: str
-    ) -> dict[str, Any]:
+    def detect_design_patterns(self, code: str, language: str) -> dict[str, Any]:
         """Detect design patterns in code.
 
         Args:
@@ -633,9 +617,7 @@ class LanguageDetectionSkill:
             "detected_languages": detected,
         }
 
-    def analyze_complexity(
-        self, code: str, language: str = "python"
-    ) -> dict[str, Any]:
+    def analyze_complexity(self, code: str, language: str = "python") -> dict[str, Any]:
         """Analyze code complexity metrics.
 
         Args:
@@ -656,8 +638,15 @@ class LanguageDetectionSkill:
 
         # Calculate cyclomatic complexity
         branch_keywords = [
-            "if ", "elif ", "else:", "for ", "while ",
-            "except ", "case ", "and ", "or ",
+            "if ",
+            "elif ",
+            "else:",
+            "for ",
+            "while ",
+            "except ",
+            "case ",
+            "and ",
+            "or ",
         ]
         complexity = 1
         for kw in branch_keywords:
@@ -686,9 +675,7 @@ class LanguageDetectionSkill:
         recommendations: list[str] = []
         if max_depth > 4:
             suggestions.append("Reduce nesting depth")
-            recommendations.append(
-                "Extract deeply nested code into helper functions"
-            )
+            recommendations.append("Extract deeply nested code into helper functions")
         if complexity > 10:
             suggestions.append("Reduce cyclomatic complexity")
             recommendations.append("Break up complex functions")
@@ -701,9 +688,7 @@ class LanguageDetectionSkill:
             "recommendations": recommendations,
         }
 
-    def analyze_async_features(
-        self, code: str, language: str
-    ) -> dict[str, Any]:
+    def analyze_async_features(self, code: str, language: str) -> dict[str, Any]:
         """Analyze async-specific features in code.
 
         Args:
@@ -726,15 +711,11 @@ class LanguageDetectionSkill:
             async_features["async_context_managers"] = len(
                 re.findall(r"\basync\s+with\b", code)
             ) + len(re.findall(r"__aenter__", code))
-            async_features["await_calls"] = len(
-                re.findall(r"\bawait\s+", code)
-            )
+            async_features["await_calls"] = len(re.findall(r"\bawait\s+", code))
 
         return {"async_features": async_features}
 
-    def analyze_dependencies(
-        self, code: str, language: str
-    ) -> dict[str, Any]:
+    def analyze_dependencies(self, code: str, language: str) -> dict[str, Any]:
         """Analyze code dependencies and imports.
 
         Args:
@@ -755,30 +736,51 @@ class LanguageDetectionSkill:
 
         if language == "python":
             stdlib_modules = {
-                "os", "sys", "re", "json", "typing", "asyncio",
-                "pathlib", "collections", "functools", "itertools",
-                "math", "datetime", "logging", "io", "abc",
-                "dataclasses", "contextlib", "unittest", "tempfile",
-                "shutil", "subprocess", "threading", "multiprocessing",
-                "copy", "enum", "warnings", "textwrap", "hashlib",
-                "time", "signal", "socket", "http", "urllib",
+                "os",
+                "sys",
+                "re",
+                "json",
+                "typing",
+                "asyncio",
+                "pathlib",
+                "collections",
+                "functools",
+                "itertools",
+                "math",
+                "datetime",
+                "logging",
+                "io",
+                "abc",
+                "dataclasses",
+                "contextlib",
+                "unittest",
+                "tempfile",
+                "shutil",
+                "subprocess",
+                "threading",
+                "multiprocessing",
+                "copy",
+                "enum",
+                "warnings",
+                "textwrap",
+                "hashlib",
+                "time",
+                "signal",
+                "socket",
+                "http",
+                "urllib",
             }
 
             # Parse import statements
-            for match in re.finditer(
-                r"^import\s+(\w+)", code, re.MULTILINE
-            ):
+            for match in re.finditer(r"^import\s+(\w+)", code, re.MULTILINE):
                 mod = match.group(1)
                 if mod in stdlib_modules:
                     if mod not in dependencies["standard_library"]:
                         dependencies["standard_library"].append(mod)
-                else:
-                    if mod not in dependencies["third_party"]:
-                        dependencies["third_party"].append(mod)
+                elif mod not in dependencies["third_party"]:
+                    dependencies["third_party"].append(mod)
 
-            for match in re.finditer(
-                r"^from\s+(\S+)\s+import", code, re.MULTILINE
-            ):
+            for match in re.finditer(r"^from\s+(\S+)\s+import", code, re.MULTILINE):
                 raw_mod = match.group(1)
                 if raw_mod.startswith("."):
                     if raw_mod not in dependencies["local"]:
@@ -786,16 +788,9 @@ class LanguageDetectionSkill:
                 else:
                     mod = raw_mod.split(".")[0]
                     if mod in stdlib_modules:
-                        if mod not in dependencies[
-                            "standard_library"
-                        ]:
-                            dependencies[
-                                "standard_library"
-                            ].append(mod)
-                    else:
-                        if mod not in dependencies["third_party"]:
-                            dependencies["third_party"].append(
-                                mod
-                            )
+                        if mod not in dependencies["standard_library"]:
+                            dependencies["standard_library"].append(mod)
+                    elif mod not in dependencies["third_party"]:
+                        dependencies["third_party"].append(mod)
 
         return {"dependencies": dependencies}

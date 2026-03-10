@@ -17,7 +17,7 @@ import argparse
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Quota threshold constants
@@ -131,8 +131,10 @@ class QuotaTracker:
             self.usage.tokens_this_minute = 0
 
         # Reset daily counters if new day
-        last_date = datetime.fromtimestamp(self.usage.last_request_time, tz=timezone.utc).date()
-        current_date = datetime.now(timezone.utc).date()
+        last_date = datetime.fromtimestamp(
+            self.usage.last_request_time, tz=UTC
+        ).date()
+        current_date = datetime.now(UTC).date()
         if current_date > last_date:
             self.usage.requests_today = 0
             self.usage.tokens_today = 0

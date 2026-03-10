@@ -267,9 +267,9 @@ class TestOptimizeContextCommand:
         risk_order = {"low": 1, "medium": 2, "high": 3}
         total_savings = sum(s["savings"] for s in strategies)
         max_risk = max(strategies, key=lambda s: risk_order[s["risk"]])["risk"]
-        avg_risk_score = sum(
-            risk_order[s["risk"]] for s in strategies
-        ) / len(strategies)
+        avg_risk_score = sum(risk_order[s["risk"]] for s in strategies) / len(
+            strategies
+        )
         return {
             "aggressiveness": level,
             "strategies_applied": [s["name"] for s in strategies],
@@ -411,16 +411,14 @@ class TestOptimizeContextCommand:
         assert config["analysis_method"] == expected_method
         assert config["context_preservation"] == expected_preservation
 
-        effectiveness = sum(
-            s["effectiveness"] for s in config["strategies"]
-        ) / len(config["strategies"])
+        effectiveness = sum(s["effectiveness"] for s in config["strategies"]) / len(
+            config["strategies"]
+        )
         assert effectiveness >= ZERO_POINT_FIVE
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_all_target_types_have_required_fields(
-        self, _target_type_configs
-    ) -> None:
+    def test_all_target_types_have_required_fields(self, _target_type_configs) -> None:
         """Scenario: All target type configs have required fields.
 
         Given all target type configurations

@@ -35,9 +35,7 @@ class CompatibilityChecker:
         min_version = "3.0"
 
         # Check for from __future__ import annotations (3.7+)
-        if re.search(
-            r"from\s+__future__\s+import\s+annotations", code
-        ):
+        if re.search(r"from\s+__future__\s+import\s+annotations", code):
             issues.append(
                 {
                     "feature": "from __future__ import annotations",
@@ -67,9 +65,9 @@ class CompatibilityChecker:
                 )
 
         # Check for union type syntax X | Y (3.10+)
-        if re.search(
-            r":\s*\w+\s*\|\s*\w+", code
-        ) or re.search(r"->\s*\w+\s*\|\s*\w+", code):
+        if re.search(r":\s*\w+\s*\|\s*\w+", code) or re.search(
+            r"->\s*\w+\s*\|\s*\w+", code
+        ):
             features_found.append(
                 {"feature": "union_type_syntax", "min_version": "3.10"}
             )
@@ -83,9 +81,7 @@ class CompatibilityChecker:
 
         # Check for dataclass slots=True (3.10+)
         if re.search(r"@dataclass\(.*slots\s*=\s*True", code):
-            features_found.append(
-                {"feature": "dataclass_slots", "min_version": "3.10"}
-            )
+            features_found.append({"feature": "dataclass_slots", "min_version": "3.10"})
             issues.append(
                 {
                     "feature": "dataclass_slots",
@@ -115,9 +111,7 @@ class CompatibilityChecker:
 
             # f-strings (3.6+)
             if isinstance(node, ast.JoinedStr):
-                features_found.append(
-                    {"feature": "fstrings", "min_version": "3.6"}
-                )
+                features_found.append({"feature": "fstrings", "min_version": "3.6"})
 
             # async/await (3.5+)
             if isinstance(
@@ -129,19 +123,13 @@ class CompatibilityChecker:
                     ast.AsyncWith,
                 ),
             ):
-                features_found.append(
-                    {"feature": "async_await", "min_version": "3.5"}
-                )
+                features_found.append({"feature": "async_await", "min_version": "3.5"})
 
             # Type hints (3.5+)
             if isinstance(node, ast.FunctionDef) and node.returns is not None:
-                features_found.append(
-                    {"feature": "type_hints", "min_version": "3.5"}
-                )
+                features_found.append({"feature": "type_hints", "min_version": "3.5"})
             if isinstance(node, ast.AnnAssign):
-                features_found.append(
-                    {"feature": "type_hints", "min_version": "3.5"}
-                )
+                features_found.append({"feature": "type_hints", "min_version": "3.5"})
 
         # Deduplicate features
         seen: set[str] = set()
@@ -166,17 +154,14 @@ class CompatibilityChecker:
             )
         if not unique_features:
             recommendations.append(
-                "No version-specific features detected. "
-                "Code is broadly compatible."
+                "No version-specific features detected. Code is broadly compatible."
             )
 
         # Group features by version
         features_by_version: dict[str, list[str]] = {}
         for f in unique_features:
             ver = f["min_version"]
-            features_by_version.setdefault(ver, []).append(
-                f["feature"]
-            )
+            features_by_version.setdefault(ver, []).append(f["feature"])
 
         return {
             "minimum_version": min_version,

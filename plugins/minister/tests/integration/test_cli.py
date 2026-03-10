@@ -1116,6 +1116,7 @@ def test_cli_error_path_outputs_json_when_flag_set(
     WHEN run_cli executes
     THEN the error is output as JSON with success=false.
     """
+
     # Patch ProjectTracker.__init__ to raise an exception
     def broken_init(self, data_file=None, initiatives=None):
         msg = "disk full"
@@ -1123,10 +1124,12 @@ def test_cli_error_path_outputs_json_when_flag_set(
 
     monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
 
-    result = run_cli([
-        "--output-json",
-        "status",
-    ])
+    result = run_cli(
+        [
+            "--output-json",
+            "status",
+        ]
+    )
 
     assert result == 1
     captured = capsys.readouterr()
@@ -1144,6 +1147,7 @@ def test_cli_error_path_outputs_stderr_when_no_json_flag(
     WHEN run_cli executes
     THEN the error goes to stderr as plain text.
     """
+
     def broken_init(self, data_file=None, initiatives=None):
         msg = "permission denied"
         raise PermissionError(msg)
@@ -1166,24 +1170,35 @@ def test_cli_add_error_outputs_json(
     WHEN running add command
     THEN JSON error output is produced.
     """
+
     def broken_init(self, data_file=None, initiatives=None):
         msg = "corrupt data"
         raise ValueError(msg)
 
     monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
 
-    result = run_cli([
-        "--output-json",
-        "add",
-        "--id", "X-001",
-        "--title", "Fail",
-        "--initiative", "Test",
-        "--phase", "Phase 1",
-        "--priority", "High",
-        "--owner", "dev",
-        "--effort", "1",
-        "--due", "2025-01-01",
-    ])
+    result = run_cli(
+        [
+            "--output-json",
+            "add",
+            "--id",
+            "X-001",
+            "--title",
+            "Fail",
+            "--initiative",
+            "Test",
+            "--phase",
+            "Phase 1",
+            "--priority",
+            "High",
+            "--owner",
+            "dev",
+            "--effort",
+            "1",
+            "--due",
+            "2025-01-01",
+        ]
+    )
 
     assert result == 1
     parsed = json.loads(capsys.readouterr().out)
@@ -1200,17 +1215,21 @@ def test_cli_export_error_outputs_json(
     WHEN running export command
     THEN JSON error output is produced.
     """
+
     def broken_init(self, data_file=None, initiatives=None):
         msg = "file locked"
-        raise IOError(msg)
+        raise OSError(msg)
 
     monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
 
-    result = run_cli([
-        "--output-json",
-        "export",
-        "--output", "/tmp/never.csv",
-    ])
+    result = run_cli(
+        [
+            "--output-json",
+            "export",
+            "--output",
+            "/tmp/never.csv",
+        ]
+    )
 
     assert result == 1
     parsed = json.loads(capsys.readouterr().out)

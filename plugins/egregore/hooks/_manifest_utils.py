@@ -19,7 +19,7 @@ def consume_stdin() -> None:
         pass
 
 
-def load_manifest_data(manifest_path: Path) -> "dict | None":
+def load_manifest_data(manifest_path: Path) -> dict | None:
     """Load and parse manifest JSON, returning None on failure."""
     try:
         return json.loads(manifest_path.read_text())
@@ -44,9 +44,6 @@ def has_active_work(manifest_path: Path) -> bool:
     try:
         data = json.loads(manifest_path.read_text())
         items = data.get("work_items", [])
-        return any(
-            item.get("status") in ("active", "paused")
-            for item in items
-        )
+        return any(item.get("status") in ("active", "paused") for item in items)
     except (json.JSONDecodeError, OSError):
         return False

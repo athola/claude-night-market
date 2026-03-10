@@ -66,6 +66,22 @@ Detects languages, frameworks, and tooling to recommend appropriate rules.
 
 Hookify is fully functional without optional dependencies. The abstract plugin provides additional guidance for advanced hook development patterns.
 
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Bundled rule descriptions are an opportunity to add
+  "why" annotations explaining the risk each rule guards
+- The rule suggester output could include confidence
+  scores so users know which suggestions are strongest
+- User override examples in `.claude/` would benefit
+  from a minimal template showing the override format
+- `/hookify:from-hook` conversion could document edge
+  cases where Python hooks do not map cleanly to rules
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.
+
 ## Credits
 
 Inspired by the original [hookify plugin](https://github.com/anthropics/claude-code/tree/main/plugins/hookify) by Daisy Hollman at Anthropic.

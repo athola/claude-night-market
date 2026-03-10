@@ -422,26 +422,18 @@ class TestAutoPromoteErrorIsolation:
     def test_auto_promote_exception_is_swallowed(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Given: auto_promote raises an exception
+        """Given: _promote raises an exception
         When: run_auto_promote() is called
         Then: Exception is silently caught (hook must not crash)
         """
-        monkeypatch.setattr(
-            hook_module,
-            "run_auto_promote",
-            hook_module.run_auto_promote,  # Use actual function
-        )
-        # Mock the import to raise
-        import builtins  # noqa: PLC0415
+        # Ensure the scripts-available flag is set so run_auto_promote
+        # actually calls _promote rather than returning early.
+        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
 
-        original_import = builtins.__import__
+        def boom():
+            raise RuntimeError("boom")
 
-        def mock_import(name, *args, **kwargs):
-            if name == "auto_promote_learnings":
-                raise ImportError("module not found")
-            return original_import(name, *args, **kwargs)
-
-        monkeypatch.setattr(builtins, "__import__", mock_import)
+        monkeypatch.setattr(hook_module, "_promote", boom)
 
         # Should not raise
         hook_module.run_auto_promote()
@@ -534,3 +526,177 @@ class TestTimestampOverwrite:
         new_ts = float(timestamp_path.read_text().strip())
         assert new_ts > old_time
         assert abs(new_ts - time.time()) < 5
+
+
+# ---------------------------------------------------------------------------
+# _write_learnings integration test
+# ---------------------------------------------------------------------------
+
+
+class TestWriteLearningsIntegration:
+    """Integration test for _write_learnings with real file I/O."""
+
+    def test_write_learnings_preserves_pinned_section(
+        self,
+        hook_module,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Given: An existing LEARNINGS.md with a Pinned Learnings section
+        When: _write_learnings() is called with a real AggregationResult
+        Then: The output file contains both new content AND the
+              preserved pinned learnings
+        """
+        from datetime import datetime, timezone  # noqa: PLC0415
+
+        learnings_file = tmp_path / "skills" / "LEARNINGS.md"
+        learnings_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Seed LEARNINGS.md with a pinned section
+        learnings_file.write_text(
+            "# Skill Performance Learnings\n"
+            "\n"
+            "## Pinned Learnings\n"
+            "\n"
+            "- Always retry on transient 503 errors\n"
+            "- Prefer batch reads over single-file reads\n"
+            "\n"
+            "## High-Impact Issues\n"
+            "\n"
+            "old content that will be regenerated\n"
+        )
+
+        # Point get_learnings_path at the temp file
+        monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
+
+        # Build a minimal but real AggregationResult
+        try:
+            from aggregate_skill_logs import (  # noqa: PLC0415
+                AggregationResult,
+                SkillMetrics,
+            )
+        except ImportError:
+            import sys as _sys  # noqa: PLC0415
+
+            scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
+            if str(scripts_dir) not in _sys.path:
+                _sys.path.insert(0, str(scripts_dir))
+            from aggregate_skill_logs import (  # noqa: PLC0415
+                AggregationResult,
+                SkillMetrics,
+            )
+
+        metrics = SkillMetrics(
+            skill="abstract:test-skill",
+            plugin="abstract",
+            skill_name="test-skill",
+            total_executions=10,
+            success_count=8,
+            failure_count=2,
+            partial_count=0,
+            avg_duration_ms=1500.0,
+            max_duration_ms=3000,
+            success_rate=80.0,
+            avg_rating=4.2,
+            common_friction=["slow response"],
+            improvement_suggestions=["cache results"],
+            recent_errors=["timeout"],
+        )
+
+        result = AggregationResult(
+            timestamp=datetime(2026, 3, 1, 12, 0, 0, tzinfo=timezone.utc),
+            skills_analyzed=1,
+            total_executions=10,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={"abstract:test-skill": metrics},
+        )
+
+        # Call the real _write_learnings (no mock)
+        hook_module._write_learnings(result)
+
+        # Verify the file was written
+        assert learnings_file.exists()
+        content = learnings_file.read_text()
+
+        # Pinned learnings must survive regeneration
+        assert "## Pinned Learnings" in content
+        assert "Always retry on transient 503 errors" in content
+        assert "Prefer batch reads over single-file reads" in content
+
+        # New aggregated content must be present
+        assert "# Skill Performance Learnings" in content
+        assert "Skills Analyzed" in content
+        assert "abstract:test-skill" in content
+
+        # Old non-pinned content must NOT survive
+        assert "old content that will be regenerated" not in content
+
+    def test_write_learnings_creates_file_when_none_exists(
+        self,
+        hook_module,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Given: No existing LEARNINGS.md file
+        When: _write_learnings() is called
+        Then: A new file is created with the aggregated content
+        """
+        from datetime import datetime, timezone  # noqa: PLC0415
+
+        learnings_file = tmp_path / "new_dir" / "LEARNINGS.md"
+
+        monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
+
+        try:
+            from aggregate_skill_logs import (  # noqa: PLC0415
+                AggregationResult,
+                SkillMetrics,
+            )
+        except ImportError:
+            import sys as _sys  # noqa: PLC0415
+
+            scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
+            if str(scripts_dir) not in _sys.path:
+                _sys.path.insert(0, str(scripts_dir))
+            from aggregate_skill_logs import (  # noqa: PLC0415
+                AggregationResult,
+                SkillMetrics,
+            )
+
+        metrics = SkillMetrics(
+            skill="leyline:fmt",
+            plugin="leyline",
+            skill_name="fmt",
+            total_executions=5,
+            success_count=5,
+            failure_count=0,
+            partial_count=0,
+            avg_duration_ms=200.0,
+            max_duration_ms=500,
+            success_rate=100.0,
+            avg_rating=None,
+            common_friction=[],
+            improvement_suggestions=[],
+            recent_errors=[],
+        )
+
+        result = AggregationResult(
+            timestamp=datetime(2026, 3, 1, 12, 0, 0, tzinfo=timezone.utc),
+            skills_analyzed=1,
+            total_executions=5,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={"leyline:fmt": metrics},
+        )
+
+        hook_module._write_learnings(result)
+
+        assert learnings_file.exists()
+        content = learnings_file.read_text()
+        assert "# Skill Performance Learnings" in content
+        assert "leyline:fmt" in content
+        # No pinned section when there was no pre-existing file
+        assert "## Pinned Learnings" not in content

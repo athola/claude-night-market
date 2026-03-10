@@ -7,7 +7,6 @@ import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from notify import (
     AlertContext,
     AlertEvent,
@@ -129,9 +128,7 @@ class TestCreateGithubAlert:
     @patch("subprocess.run")
     def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:
         """Given gh CLI returns error, when creating alert, then returns False."""
-        mock_run.return_value = MagicMock(
-            returncode=1, stderr="auth required"
-        )
+        mock_run.return_value = MagicMock(returncode=1, stderr="auth required")
         result = create_github_alert(title="Fail", body="Body")
         assert result is False
 
@@ -183,9 +180,7 @@ class TestSendWebhook:
         ids=["slack-format", "discord-format"],
     )
     @patch("subprocess.run")
-    def test_chat_formats(
-        self, mock_run: MagicMock, fmt: str, key: str
-    ) -> None:
+    def test_chat_formats(self, mock_run: MagicMock, fmt: str, key: str) -> None:
         """Given slack/discord format, when sending webhook, then uses correct payload key."""
         mock_run.return_value = MagicMock(returncode=0)
         result = send_webhook(
@@ -205,22 +200,14 @@ class TestSendWebhook:
     @patch("subprocess.run")
     def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:
         """Given curl returns error, when sending webhook, then returns False."""
-        mock_run.return_value = MagicMock(
-            returncode=1, stderr="connection refused"
-        )
-        result = send_webhook(
-            url="https://bad.url", event=AlertEvent.CRASH
-        )
+        mock_run.return_value = MagicMock(returncode=1, stderr="connection refused")
+        result = send_webhook(url="https://bad.url", event=AlertEvent.CRASH)
         assert result is False
 
     @patch("subprocess.run", side_effect=FileNotFoundError)
-    def test_returns_false_when_curl_not_found(
-        self, mock_run: MagicMock
-    ) -> None:
+    def test_returns_false_when_curl_not_found(self, mock_run: MagicMock) -> None:
         """Given curl is missing, when sending webhook, then returns False."""
-        result = send_webhook(
-            url="https://example.com", event=AlertEvent.CRASH
-        )
+        result = send_webhook(url="https://example.com", event=AlertEvent.CRASH)
         assert result is False
 
     @patch(
@@ -229,9 +216,7 @@ class TestSendWebhook:
     )
     def test_returns_false_on_timeout(self, mock_run: MagicMock) -> None:
         """Given curl times out, when sending webhook, then returns False."""
-        result = send_webhook(
-            url="https://example.com", event=AlertEvent.CRASH
-        )
+        result = send_webhook(url="https://example.com", event=AlertEvent.CRASH)
         assert result is False
 
     @patch("subprocess.run")
@@ -270,9 +255,7 @@ class TestAlert:
         assert "egregore" in call_kwargs["labels"]
 
     @patch("notify.create_github_alert", return_value=True)
-    def test_alert_includes_work_item_id_in_title(
-        self, mock_create: MagicMock
-    ) -> None:
+    def test_alert_includes_work_item_id_in_title(self, mock_create: MagicMock) -> None:
         """Given a work_item_id, when alerting, then title includes it."""
         alert(
             event=AlertEvent.PIPELINE_FAILURE,
@@ -311,9 +294,7 @@ class TestAlert:
         assert result is False
 
     @patch("notify.create_github_alert", return_value=True)
-    def test_alert_with_context_object(
-        self, mock_create: MagicMock
-    ) -> None:
+    def test_alert_with_context_object(self, mock_create: MagicMock) -> None:
         """Given an AlertContext, when alerting, then uses context fields."""
         ctx = AlertContext(
             work_item_id="WI-77",
@@ -330,9 +311,7 @@ class TestAlert:
         assert "Rollout complete" in body
 
     @patch("notify.create_github_alert", return_value=False)
-    def test_no_webhook_url_skips_webhook(
-        self, mock_create: MagicMock
-    ) -> None:
+    def test_no_webhook_url_skips_webhook(self, mock_create: MagicMock) -> None:
         """Given no webhook_url, when alerting, then only tries GitHub."""
         result = alert(
             event=AlertEvent.CRASH,
@@ -342,9 +321,7 @@ class TestAlert:
         mock_create.assert_called_once()
 
     @patch("notify.send_webhook", return_value=True)
-    def test_non_github_method_skips_github(
-        self, mock_wh: MagicMock
-    ) -> None:
+    def test_non_github_method_skips_github(self, mock_wh: MagicMock) -> None:
         """Given non-github overseer method, when alerting, then skips GitHub issue."""
         result = alert(
             event=AlertEvent.WATCHDOG_RELAUNCH,

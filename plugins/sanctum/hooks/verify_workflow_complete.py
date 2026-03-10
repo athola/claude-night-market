@@ -29,6 +29,9 @@ verify these were done:
 - [ ] `/sanctum:update-readme`
 - [ ] `/sanctum:update-tests`
 
+### Stewardship
+- [ ] Left the campsite better? (See `Skill(leyline:stewardship)`)
+
 ⚠️ If proof-of-work was skipped, implementation may have untested assumptions!
 If not applicable (simple fix, research, etc.), disregard this reminder.
 """.strip()

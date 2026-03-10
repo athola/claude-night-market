@@ -552,7 +552,10 @@ Untracked files:
         ],
     )
     def test_catchup_handles_different_baselines(
-        self, mock_claude_tools, baseline_spec, expected_command,
+        self,
+        mock_claude_tools,
+        baseline_spec,
+        expected_command,
     ) -> None:
         """Scenario: Catchup handles various baseline specifications.
 
@@ -653,13 +656,21 @@ Untracked files:
         "error_output,error_type,expected_prefix",
         [
             ("fatal: not a git repository", "not_a_repo", "fatal:"),
-            ("fatal: not a valid object name: INVALID_REF", "invalid_baseline", "fatal:"),
+            (
+                "fatal: not a valid object name: INVALID_REF",
+                "invalid_baseline",
+                "fatal:",
+            ),
             ("error: git command not found", "git_not_available", "error:"),
         ],
         ids=["not-a-repo", "invalid-baseline", "git-not-found"],
     )
     def test_catchup_error_handling(
-        self, mock_claude_tools, error_output, error_type, expected_prefix,
+        self,
+        mock_claude_tools,
+        error_output,
+        error_type,
+        expected_prefix,
     ) -> None:
         """Scenario: Catchup handles repository errors gracefully.
 

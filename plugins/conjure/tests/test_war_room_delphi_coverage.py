@@ -19,6 +19,7 @@ from scripts.war_room_orchestrator import WarRoomOrchestrator
 # compute_convergence
 # -------------------------------------------------------------------
 
+
 class TestComputeConvergence:
     """Test compute_convergence edge cases for full branch coverage."""
 
@@ -118,6 +119,7 @@ class TestComputeConvergence:
 # delphi_revision_round
 # -------------------------------------------------------------------
 
+
 class TestDelphiRevisionRound:
     """Test delphi_revision_round for uncovered branches."""
 
@@ -153,7 +155,9 @@ class TestDelphiRevisionRound:
         )
 
         with patch.object(
-            orchestrator, "_invoke_parallel", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_parallel",
+            new_callable=AsyncMock,
         ) as mock_parallel:
             mock_parallel.return_value = {
                 "chief_strategist": "Revised A",
@@ -192,7 +196,9 @@ class TestDelphiRevisionRound:
         }
 
         with patch.object(
-            orchestrator, "_invoke_parallel", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_parallel",
+            new_callable=AsyncMock,
         ) as mock_parallel:
             mock_parallel.return_value = {
                 "chief_strategist": "Revised CS",
@@ -221,7 +227,9 @@ class TestDelphiRevisionRound:
         session.artifacts["coa"] = {"raw_coas": {}}
 
         with patch.object(
-            orchestrator, "_invoke_parallel", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_parallel",
+            new_callable=AsyncMock,
         ) as mock_parallel:
             mock_parallel.return_value = {}
 
@@ -249,7 +257,9 @@ class TestDelphiRevisionRound:
         }
 
         with patch.object(
-            orchestrator, "_invoke_parallel", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_parallel",
+            new_callable=AsyncMock,
         ) as mock_parallel:
             mock_parallel.return_value = {
                 "chief_strategist": "Revised",

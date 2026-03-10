@@ -27,22 +27,30 @@ class TestDelegationExecutorEdgeCases:
     """Test edge cases for delegation executor."""
 
     def test_delegator_initialization_with_invalid_config(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Invalid config structure falls back to default services."""
         config_file = tmp_path / "config.json"
-        config_file.write_text(json.dumps({
-            "services": {
-                "test_service": {"name": "test"},
-            },
-        }, indent=2))
+        config_file.write_text(
+            json.dumps(
+                {
+                    "services": {
+                        "test_service": {"name": "test"},
+                    },
+                },
+                indent=2,
+            )
+        )
 
         delegator = Delegator(config_dir=tmp_path)
         assert "gemini" in delegator.services
 
     @patch("subprocess.run")
     def test_service_verification_auth_failure(
-        self, mock_run: MagicMock, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Auth check failure reports authentication issue."""
         mock_run.side_effect = [
@@ -81,7 +89,9 @@ class TestDelegationExecutorEdgeCases:
     ) -> None:
         """Delegator handles files with various content types."""
         mock_run.return_value = MagicMock(
-            returncode=0, stdout="Success", stderr="",
+            returncode=0,
+            stdout="Success",
+            stderr="",
         )
 
         delegator = Delegator(config_dir=tmp_path)
@@ -89,7 +99,9 @@ class TestDelegationExecutorEdgeCases:
         test_file.write_text(file_content)
 
         result = delegator.execute(
-            "gemini", "Process content", files=[str(test_file)],
+            "gemini",
+            "Process content",
+            files=[str(test_file)],
         )
 
         assert isinstance(result, ExecutionResult)
@@ -101,7 +113,9 @@ class TestDelegationExecutorEdgeCases:
 
     @patch("subprocess.run")
     def test_execution_with_zero_timeout(
-        self, mock_run: MagicMock, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Zero timeout results in a timeout error response."""
         mock_run.side_effect = Exception(
@@ -122,15 +136,22 @@ class TestQuotaTrackerEdgeCases:
     def test_corrupted_usage_file(self, tmp_path: Path) -> None:
         """Corrupted usage data doesn't crash get_quota_status."""
         usage_file = tmp_path / "usage.json"
-        usage_file.write_text(json.dumps({
-            "requests": [{
-                "timestamp": datetime.now().isoformat(),
-                "tokens": -100,
-                "success": True,
-            }],
-            "daily_tokens": -50,
-            "last_reset": datetime.now().isoformat(),
-        }, indent=2))
+        usage_file.write_text(
+            json.dumps(
+                {
+                    "requests": [
+                        {
+                            "timestamp": datetime.now().isoformat(),
+                            "tokens": -100,
+                            "success": True,
+                        }
+                    ],
+                    "daily_tokens": -50,
+                    "last_reset": datetime.now().isoformat(),
+                },
+                indent=2,
+            )
+        )
 
         tracker = GeminiQuotaTracker()
         tracker.usage_file = usage_file
@@ -151,7 +172,8 @@ class TestUsageLoggerEdgeCases:
     """Test edge cases for usage logger."""
 
     def test_concurrent_access_recreates_corrupted_session(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Corrupted session files are recreated safely."""
         session_file = tmp_path / "current_session.json"
@@ -238,15 +260,15 @@ class TestNetworkErrorEdgeCases:
         result = delegator.execute("gemini", "test prompt")
 
         assert result.success is False
-        assert any(
-            kw in result.stderr.lower() for kw in expected_keywords
-        )
+        assert any(kw in result.stderr.lower() for kw in expected_keywords)
         # Verify subprocess.run was called
         mock_run.assert_called_once()
 
     @patch("subprocess.run")
     def test_missing_api_key_detected(
-        self, mock_run: MagicMock, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Missing API key is detected during verification."""
         delegator = Delegator(config_dir=tmp_path)
@@ -260,7 +282,9 @@ class TestNetworkErrorEdgeCases:
 
     @patch("subprocess.run")
     def test_empty_api_key_treated_as_missing(
-        self, mock_run: MagicMock, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Empty API key string is treated as missing."""
         delegator = Delegator(config_dir=tmp_path)
@@ -277,11 +301,15 @@ class TestConcurrentDelegation:
 
     @patch("subprocess.run")
     def test_concurrent_execute_calls(
-        self, mock_run: MagicMock, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Concurrent execute calls complete without corruption."""
         mock_run.return_value = MagicMock(
-            returncode=0, stdout="ok", stderr="",
+            returncode=0,
+            stdout="ok",
+            stderr="",
         )
 
         delegator = Delegator(config_dir=tmp_path)
@@ -290,7 +318,9 @@ class TestConcurrentDelegation:
 
         def delegate_worker(worker_id: int) -> None:
             result = delegator.execute(
-                "gemini", f"Task {worker_id}", files=[],
+                "gemini",
+                f"Task {worker_id}",
+                files=[],
             )
             results_queue.put(result)
 

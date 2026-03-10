@@ -170,7 +170,9 @@ class ProjectValidator:
         if language == "python":
             # Check for type checking config
             pyproject = self.project_path / "pyproject.toml"
-            has_mypy_config = pyproject.exists() and "[tool.mypy]" in pyproject.read_text()
+            has_mypy_config = (
+                pyproject.exists() and "[tool.mypy]" in pyproject.read_text()
+            )
             self.results.append(
                 ValidationResult(
                     "type-checking",

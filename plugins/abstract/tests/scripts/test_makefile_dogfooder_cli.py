@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -34,9 +34,7 @@ def _make_plugin_tree(tmp_path: Path, name: str = "testplugin") -> Path:
     plugin_dir = tmp_path / "plugins" / name
     plugin_dir.mkdir(parents=True)
     (plugin_dir / "README.md").write_text("Use `/my-cmd` here.\n")
-    (plugin_dir / "Makefile").write_text(
-        ".PHONY: help\nhelp:\n\t@echo help\n"
-    )
+    (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")
     return tmp_path
 
 

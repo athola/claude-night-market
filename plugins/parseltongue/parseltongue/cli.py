@@ -16,7 +16,9 @@ def main(argv: list[str] | None = None) -> int:
     if not argv:
         print("Parseltongue - Python Analysis Tools")
         print("Usage: parseltongue <command> <path>")
-        print("Commands: analyze-async, check-compat, detect-patterns, test-guide, transform")
+        print(
+            "Commands: analyze-async, check-compat, detect-patterns, test-guide, transform"
+        )
         return 0
 
     parser = argparse.ArgumentParser(
@@ -25,10 +27,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "command",
-        choices=["analyze-async", "check-compat", "detect-patterns", "test-guide", "transform"],
+        choices=[
+            "analyze-async",
+            "check-compat",
+            "detect-patterns",
+            "test-guide",
+            "transform",
+        ],
     )
     parser.add_argument("path", type=Path, help="File or directory to analyze")
-    parser.add_argument("--target-version", default="3.9", help="Target Python version (for compat check)")
+    parser.add_argument(
+        "--target-version",
+        default="3.9",
+        help="Target Python version (for compat check)",
+    )
 
     args = parser.parse_args(argv)
 
@@ -57,26 +69,31 @@ def main(argv: list[str] | None = None) -> int:
 def _run_command(command: str, code: str, target_version: str) -> dict:
     if command == "analyze-async":
         from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+
         skill = AsyncAnalysisSkill()
         return asyncio.run(skill.analyze_async_functions(code))
 
     elif command == "check-compat":
         from parseltongue.skills.compatibility_checker import CompatibilityChecker
+
         skill = CompatibilityChecker()
         return skill.check_compatibility(code, [target_version])
 
     elif command == "detect-patterns":
         from parseltongue.skills.pattern_matching import PatternMatchingSkill
+
         skill = PatternMatchingSkill()
         return asyncio.run(skill.find_patterns(code))
 
     elif command == "test-guide":
         from parseltongue.skills.testing_guide import TestingGuideSkill
+
         skill = TestingGuideSkill()
         return asyncio.run(skill.analyze_testing(code))
 
     elif command == "transform":
         from parseltongue.skills.code_transformation import CodeTransformationSkill
+
         skill = CodeTransformationSkill()
         return asyncio.run(skill.transform_code(code))
 

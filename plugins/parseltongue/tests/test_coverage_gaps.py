@@ -37,9 +37,7 @@ class TestLanguageDetectionCoverageGaps:
             assert result["confidence"] >= min_confidence
 
     @pytest.mark.unit
-    def test_detect_typescript_parameter_types(
-        self, language_detection_skill
-    ) -> None:
+    def test_detect_typescript_parameter_types(self, language_detection_skill) -> None:
         """Given TypeScript with parameter types, detect TypeScript."""
         code = """
 function greet(name: string, age: number): void {
@@ -68,17 +66,13 @@ func main() {
         assert "features" in result
 
     @pytest.mark.unit
-    def test_analyze_dependencies_empty_code(
-        self, language_detection_skill
-    ) -> None:
+    def test_analyze_dependencies_empty_code(self, language_detection_skill) -> None:
         """Given empty code, return empty dependencies."""
         result = language_detection_skill.analyze_dependencies("", "python")
         assert "dependencies" in result
 
     @pytest.mark.unit
-    def test_analyze_complexity_simple_code(
-        self, language_detection_skill
-    ) -> None:
+    def test_analyze_complexity_simple_code(self, language_detection_skill) -> None:
         """Given simple code, return low complexity."""
         code = "x = 1"
         result = language_detection_skill.analyze_complexity(code, "python")
@@ -86,9 +80,7 @@ func main() {
         assert result["complexity_level"] in ["low", "medium"]
 
     @pytest.mark.unit
-    def test_detect_primary_language_empty(
-        self, language_detection_skill
-    ) -> None:
+    def test_detect_primary_language_empty(self, language_detection_skill) -> None:
         """Given empty code, return unknown as primary."""
         result = language_detection_skill.detect_primary_language("")
         assert result["primary_language"] == "unknown"
@@ -98,9 +90,7 @@ class TestPatternMatchingCoverageGaps:
     """Tests for uncovered paths in pattern matching."""
 
     @pytest.mark.unit
-    def test_match_patterns_with_nested_loops(
-        self, pattern_matching_skill
-    ) -> None:
+    def test_match_patterns_with_nested_loops(self, pattern_matching_skill) -> None:
         """Given Python code with nested loops, detect pattern."""
         code = """
 for i in items:

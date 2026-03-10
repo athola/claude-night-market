@@ -61,9 +61,7 @@ class SkillLoader:
 
         return {"valid": True, "issues": [], "recommendations": []}
 
-    def validate_metadata(
-        self, metadata: dict[str, Any]
-    ) -> dict[str, Any]:
+    def validate_metadata(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Validate skill metadata.
 
         Args:

@@ -12,7 +12,7 @@ review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 102 CLI commands, 129 modular
+The ecosystem includes 102 CLI commands, 130 modular
 skills, 43 specialized agents, and 7 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
@@ -25,7 +25,7 @@ with public APIs. We also maintain 25 execution hooks.
 | conserve | 1.6.0 | 4 | 10 | 5 | No | - |
 | hookify | 1.6.0 | 6 | 2 | 0 | No | - |
 | imbue | 1.6.0 | 2 | 9 | 1 | No | - |
-| leyline | 1.6.0 | 2 | 15 | 0 | Yes | - |
+| leyline | 1.6.0 | 2 | 16 | 0 | Yes | - |
 | memory-palace | 1.6.0 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.0 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.6.0 | 3 | 4 | 4 | No | - |
@@ -60,7 +60,7 @@ Behavioral rules engine with markdown-based configuration. Commands convert Pyth
 Structured review workflows. Offers commands for catchups and structured reviews (`catchup`, `structured-review`). Skills include `proof-of-work`, `scope-guard`, and `rigorous-reasoning`.
 
 ### Leyline (v1.6.0)
-Shared patterns and utilities library. Allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling (including agent crash recovery via `error-patterns`), testing standards, cross-platform git forge detection via `git-platform`, and 4-tier risk routing via `risk-classification`.
+Shared patterns and utilities library. Allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling (including agent crash recovery via `error-patterns`), testing standards, cross-platform git forge detection via `git-platform`, 4-tier risk routing via `risk-classification`, and stewardship principles.
 
 ### Memory-Palace (v1.6.0)
 Knowledge management organization. Commands like `garden` and `palace` help users navigate and structure information. Skills focus on knowledge intake and retrieval.

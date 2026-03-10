@@ -279,10 +279,9 @@ class PluginAuditor:
                     continue
                 if hook_file.is_file() and hook_file.suffix in [".sh", ".py"]:
                     # Skip test files, __init__.py, and _private helpers
-                    if (
-                        not hook_file.name.startswith("test_")
-                        and not hook_file.name.startswith("_")
-                    ):
+                    if not hook_file.name.startswith(
+                        "test_"
+                    ) and not hook_file.name.startswith("_"):
                         rel_path = f"./hooks/{hook_file.name}"
                         results["hooks"].append(rel_path)
 

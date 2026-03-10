@@ -21,7 +21,6 @@ Provides detailed analysis of async Python code including:
 from __future__ import annotations
 
 import ast
-import re
 from typing import Any
 
 
@@ -181,15 +180,9 @@ class AsyncAnalysisSkill:
                                         elt = list_comp.elt
                                         if isinstance(elt, ast.Call):
                                             if isinstance(elt.func, ast.Name):
-                                                concurrent_calls.append(
-                                                    elt.func.id
-                                                )
-                                            elif isinstance(
-                                                elt.func, ast.Attribute
-                                            ):
-                                                concurrent_calls.append(
-                                                    elt.func.attr
-                                                )
+                                                concurrent_calls.append(elt.func.id)
+                                            elif isinstance(elt.func, ast.Attribute):
+                                                concurrent_calls.append(elt.func.attr)
                                 elif isinstance(arg, ast.Call):
                                     if isinstance(arg.func, ast.Name):
                                         concurrent_calls.append(arg.func.id)
@@ -259,12 +252,12 @@ class AsyncAnalysisSkill:
                 # Check if sync function contains blocking calls
                 for child in ast.walk(node):
                     if isinstance(child, ast.Call):
-                        if self._is_call_to(
-                            child, "time.sleep"
-                        ) or self._is_call_to(child, "sleep"):
-                            sync_func_blocking.setdefault(
-                                node.name, []
-                            ).append("time_sleep")
+                        if self._is_call_to(child, "time.sleep") or self._is_call_to(
+                            child, "sleep"
+                        ):
+                            sync_func_blocking.setdefault(node.name, []).append(
+                                "time_sleep"
+                            )
 
         # Check for blocking calls in async functions
         for node in ast.walk(tree):
@@ -272,9 +265,9 @@ class AsyncAnalysisSkill:
                 for child in ast.walk(node):
                     if isinstance(child, ast.Call):
                         # time.sleep
-                        if self._is_call_to(
-                            child, "time.sleep"
-                        ) or self._is_call_to(child, "sleep"):
+                        if self._is_call_to(child, "time.sleep") or self._is_call_to(
+                            child, "sleep"
+                        ):
                             blocking_patterns["time_sleep"] = {
                                 "blocks_event_loop": True,
                             }
@@ -283,21 +276,16 @@ class AsyncAnalysisSkill:
                             )
 
                         # requests library
-                        if self._is_call_to(
-                            child, "requests.get"
-                        ) or self._is_call_to(child, "requests.post"):
+                        if self._is_call_to(child, "requests.get") or self._is_call_to(
+                            child, "requests.post"
+                        ):
                             blocking_patterns["requests"] = {
                                 "blocks_event_loop": True,
                             }
-                            recommendations.append(
-                                "Replace requests with aiohttp"
-                            )
+                            recommendations.append("Replace requests with aiohttp")
 
                         # open() for file I/O
-                        if (
-                            isinstance(child.func, ast.Name)
-                            and child.func.id == "open"
-                        ):
+                        if isinstance(child.func, ast.Name) and child.func.id == "open":
                             blocking_patterns["file_io"] = {
                                 "blocks_event_loop": True,
                             }
@@ -322,16 +310,13 @@ class AsyncAnalysisSkill:
                             )
                             # Propagate blocking calls from the
                             # sync function
-                            for blocking in sync_func_blocking.get(
-                                call_name, []
-                            ):
+                            for blocking in sync_func_blocking.get(call_name, []):
                                 if blocking == "time_sleep":
                                     blocking_patterns["time_sleep"] = {
                                         "blocks_event_loop": True,
                                     }
                                     recommendations.append(
-                                        "Replace time.sleep() "
-                                        "with asyncio.sleep()"
+                                        "Replace time.sleep() with asyncio.sleep()"
                                     )
 
         blocking_patterns["recommendations"] = list(set(recommendations))
@@ -440,9 +425,7 @@ class AsyncAnalysisSkill:
                                 elif isinstance(handler.type, ast.Attribute):
                                     exception_types.append(
                                         f"{handler.type.value.id}.{handler.type.attr}"
-                                        if isinstance(
-                                            handler.type.value, ast.Name
-                                        )
+                                        if isinstance(handler.type.value, ast.Name)
                                         else handler.type.attr
                                     )
 
@@ -496,9 +479,7 @@ class AsyncAnalysisSkill:
                 for i, arg in enumerate(node.args.args):
                     if arg.arg == "timeout" and node.args.defaults:
                         # Find the matching default value
-                        defaults_offset = len(node.args.args) - len(
-                            node.args.defaults
-                        )
+                        defaults_offset = len(node.args.args) - len(node.args.defaults)
                         default_index = i - defaults_offset
                         if 0 <= default_index < len(node.args.defaults):
                             default = node.args.defaults[default_index]
@@ -627,8 +608,7 @@ class AsyncAnalysisSkill:
                         "creates_session": creates_session,
                         "closes_session": closes_session,
                         "uses_context_manager": uses_context_manager,
-                        "cleanup_in_finally": cleanup_in_finally
-                        or has_aexit,
+                        "cleanup_in_finally": cleanup_in_finally or has_aexit,
                     }
 
         result: dict[str, Any] = {"services": services}
@@ -671,8 +651,7 @@ class AsyncAnalysisSkill:
                 for child in ast.walk(node):
                     if isinstance(child, ast.For):
                         has_await = any(
-                            isinstance(item, ast.Await)
-                            for item in ast.walk(child)
+                            isinstance(item, ast.Await) for item in ast.walk(child)
                         )
 
                         if has_await:
@@ -791,8 +770,7 @@ class AsyncAnalysisSkill:
                 if accesses > 0 and function_name not in safe_patterns:
                     unsynchronized[function_name] = {"accesses": accesses}
                     recommendations.append(
-                        f"Add asyncio.Lock to protect shared state "
-                        f"in '{function_name}'"
+                        f"Add asyncio.Lock to protect shared state in '{function_name}'"
                     )
 
         # Check for classes with shared state
@@ -817,9 +795,7 @@ class AsyncAnalysisSkill:
                     unsynchronized[node.name] = {
                         "warning": "Shared state without synchronization",
                     }
-                    recommendations.append(
-                        f"Add asyncio.Lock to class '{node.name}'"
-                    )
+                    recommendations.append(f"Add asyncio.Lock to class '{node.name}'")
                 elif has_shared_state and class_uses_lock:
                     safe_patterns[node.name] = {"uses_lock": True}
 
@@ -868,9 +844,7 @@ class AsyncAnalysisSkill:
                         uses_pytest_asyncio = True
 
             # Check for AsyncMock
-            if isinstance(node, ast.Call) and self._is_call_to(
-                node, "AsyncMock"
-            ):
+            if isinstance(node, ast.Call) and self._is_call_to(node, "AsyncMock"):
                 uses_asyncmock = True
 
         # Check for timeout testing patterns
@@ -915,17 +889,11 @@ class AsyncAnalysisSkill:
 
         # Count event loop API calls
         if "get_event_loop" in code:
-            loop_management["get_event_loop_usage"] = code.count(
-                "get_event_loop"
-            )
+            loop_management["get_event_loop_usage"] = code.count("get_event_loop")
         if "new_event_loop" in code:
-            loop_management["new_event_loop_usage"] = code.count(
-                "new_event_loop"
-            )
+            loop_management["new_event_loop_usage"] = code.count("new_event_loop")
         if "get_running_loop" in code:
-            loop_management["get_running_loop_usage"] = code.count(
-                "get_running_loop"
-            )
+            loop_management["get_running_loop_usage"] = code.count("get_running_loop")
 
         # Check for callback patterns
         for pattern in ["call_soon", "call_later", "call_at"]:
@@ -981,10 +949,7 @@ class AsyncAnalysisSkill:
         # Check for resource cleanup
         resource_result = await self.analyze_resource_management(code)
         services = resource_result["resource_management"].get("services", {})
-        if any(s.get("closes_session", False) for s in services.values()):
-            good_practices["resource_cleanup"] = True
-            score += 1
-        elif "__aexit__" in code:
+        if any(s.get("closes_session", False) for s in services.values()) or "__aexit__" in code:
             good_practices["resource_cleanup"] = True
             score += 1
         else:
@@ -995,9 +960,7 @@ class AsyncAnalysisSkill:
             good_practices["concurrent_processing"] = True
             score += 1
         else:
-            recommendations.append(
-                "Consider concurrent processing with asyncio.gather"
-            )
+            recommendations.append("Consider concurrent processing with asyncio.gather")
 
         compliance_score = score / total_checks if total_checks > 0 else 0.0
 
@@ -1104,9 +1067,7 @@ class AsyncAnalysisSkill:
                     }
                 )
             if "sync_function_call" in bp:
-                func_name = bp["sync_function_call"].get(
-                    "function_name", "sync_func"
-                )
+                func_name = bp["sync_function_call"].get("function_name", "sync_func")
                 improvements.append(
                     {
                         "category": "blocking_call",
@@ -1157,8 +1118,7 @@ class AsyncAnalysisSkill:
                     "issue": "Shared state without synchronization",
                     "recommendation": "Use asyncio.Lock",
                     "code_before": "self.counter += 1",
-                    "code_after": "async with self.lock:\n"
-                    "    self.counter += 1",
+                    "code_after": "async with self.lock:\n    self.counter += 1",
                     "explanation": "Protect shared state with asyncio.Lock "
                     "to prevent race conditions",
                 }
@@ -1177,19 +1137,13 @@ class AsyncAnalysisSkill:
             True if the call matches the target
         """
         if isinstance(node.func, ast.Name):
-            return (
-                node.func.id == target
-                or node.func.id == target.split(".")[-1]
-            )
+            return node.func.id == target or node.func.id == target.split(".")[-1]
 
         if isinstance(node.func, ast.Attribute):
             if "." in target:
                 module, func = target.rsplit(".", 1)
                 if isinstance(node.func.value, ast.Name):
-                    return (
-                        node.func.value.id == module
-                        and node.func.attr == func
-                    )
+                    return node.func.value.id == module and node.func.attr == func
             return node.func.attr == target.split(".")[-1]
 
         return False

@@ -23,15 +23,13 @@ Tests cover:
 from __future__ import annotations
 
 import json
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch, call
+from unittest.mock import Mock, patch
 
 import pytest
 
-from memory_palace.garden_metrics import compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
 
 # Import the CLI module under test
@@ -42,7 +40,6 @@ from scripts.memory_palace_cli import (
     build_parser,
     main,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -78,34 +75,42 @@ def _garden_data_with_plots(
 
     plots: list[dict[str, Any]] = []
     for i in range(fresh):
-        plots.append({
-            "name": f"fresh-{i}",
-            "inbound_links": [],
-            "outbound_links": [],
-            "last_tended": now.isoformat(),
-        })
+        plots.append(
+            {
+                "name": f"fresh-{i}",
+                "inbound_links": [],
+                "outbound_links": [],
+                "last_tended": now.isoformat(),
+            }
+        )
     for i in range(stale_days):
         old = now - timedelta(days=10)
-        plots.append({
-            "name": f"stale-{i}",
-            "inbound_links": [],
-            "outbound_links": [],
-            "last_tended": old.isoformat(),
-        })
+        plots.append(
+            {
+                "name": f"stale-{i}",
+                "inbound_links": [],
+                "outbound_links": [],
+                "last_tended": old.isoformat(),
+            }
+        )
     for i in range(archive_days):
         old = now - timedelta(days=60)
-        plots.append({
-            "name": f"archive-{i}",
-            "inbound_links": [],
-            "outbound_links": [],
-            "last_tended": old.isoformat(),
-        })
+        plots.append(
+            {
+                "name": f"archive-{i}",
+                "inbound_links": [],
+                "outbound_links": [],
+                "last_tended": old.isoformat(),
+            }
+        )
     for i in range(never_tended):
-        plots.append({
-            "name": f"untended-{i}",
-            "inbound_links": [],
-            "outbound_links": [],
-        })
+        plots.append(
+            {
+                "name": f"untended-{i}",
+                "inbound_links": [],
+                "outbound_links": [],
+            }
+        )
     return {"garden": {"plots": plots}}
 
 
@@ -222,27 +227,25 @@ class TestIsEnabled:
         cli.claude_config = cfg
         assert cli.is_enabled() is False
 
-    def test_returns_true_when_permission_present(
-        self, tmp_path: Path
-    ) -> None:
+    def test_returns_true_when_permission_present(self, tmp_path: Path) -> None:
         """Given matching permission entry, is_enabled returns True."""
         cli = MemoryPalaceCLI()
         plugin_dir_str = str(cli.plugin_dir)
         cfg = tmp_path / "settings.json"
         cfg.write_text(
-            json.dumps({
-                "permissions": {
-                    "allow": [f"Read({plugin_dir_str}/**)"],
-                },
-            }),
+            json.dumps(
+                {
+                    "permissions": {
+                        "allow": [f"Read({plugin_dir_str}/**)"],
+                    },
+                }
+            ),
             encoding="utf-8",
         )
         cli.claude_config = cfg
         assert cli.is_enabled() is True
 
-    def test_returns_false_when_no_matching_permission(
-        self, tmp_path: Path
-    ) -> None:
+    def test_returns_false_when_no_matching_permission(self, tmp_path: Path) -> None:
         """Given permissions without plugin dir, is_enabled returns False."""
         cfg = tmp_path / "settings.json"
         cfg.write_text(
@@ -279,12 +282,14 @@ class TestEnablePlugin:
         cli = MemoryPalaceCLI()
         cfg = tmp_path / "settings.json"
         cfg.write_text(
-            json.dumps({
-                "permissions": {
-                    "allow": ["Bash(echo*)"],
-                    "deny": [],
-                },
-            }),
+            json.dumps(
+                {
+                    "permissions": {
+                        "allow": ["Bash(echo*)"],
+                        "deny": [],
+                    },
+                }
+            ),
             encoding="utf-8",
         )
         cli.claude_config = cfg
@@ -324,14 +329,16 @@ class TestDisablePlugin:
         plugin_dir_str = str(cli.plugin_dir)
         cfg = tmp_path / "settings.json"
         cfg.write_text(
-            json.dumps({
-                "permissions": {
-                    "allow": [
-                        f"Read({plugin_dir_str}/**)",
-                        "Bash(echo*)",
-                    ],
-                },
-            }),
+            json.dumps(
+                {
+                    "permissions": {
+                        "allow": [
+                            f"Read({plugin_dir_str}/**)",
+                            "Bash(echo*)",
+                        ],
+                    },
+                }
+            ),
             encoding="utf-8",
         )
         cli.claude_config = cfg
@@ -399,11 +406,13 @@ class TestShowStatus:
         plugin_dir_str = str(cli.plugin_dir)
         cfg = tmp_path / "settings.json"
         cfg.write_text(
-            json.dumps({
-                "permissions": {
-                    "allow": [f"Read({plugin_dir_str}/**)"],
-                },
-            }),
+            json.dumps(
+                {
+                    "permissions": {
+                        "allow": [f"Read({plugin_dir_str}/**)"],
+                    },
+                }
+            ),
             encoding="utf-8",
         )
         cli.claude_config = cfg
@@ -792,7 +801,9 @@ class TestCreatePalace:
 
         assert result is True
         mock_manager.create_palace.assert_called_once_with(
-            "Test", "testing", "building",
+            "Test",
+            "testing",
+            "building",
         )
 
     def test_empty_name_returns_false(
@@ -1092,7 +1103,8 @@ class TestSearchPalaces:
         assert "Python Palace" in out
         assert "decorators" in out
         mock_manager.search_palaces.assert_called_once_with(
-            "decorators", "semantic",
+            "decorators",
+            "semantic",
         )
 
     def test_no_results(
@@ -1290,7 +1302,8 @@ class TestExportImportCLI:
             cli.import_palaces("/tmp/in.json", keep_existing=False)
 
         mock_manager.import_state.assert_called_once_with(
-            "/tmp/in.json", keep_existing=False,
+            "/tmp/in.json",
+            keep_existing=False,
         )
 
     def test_import_error_prints_message(
@@ -1328,9 +1341,7 @@ class TestBuildParser:
         ],
         ids=["enable", "disable", "status", "skills", "install", "list"],
     )
-    def test_simple_commands(
-        self, argv: list[str], expected_cmd: str
-    ) -> None:
+    def test_simple_commands(self, argv: list[str], expected_cmd: str) -> None:
         """Given a simple subcommand, parser sets command correctly."""
         parser = build_parser()
         args = parser.parse_args(argv)
@@ -1380,12 +1391,18 @@ class TestBuildParser:
     def test_garden_metrics_command(self) -> None:
         """Given 'garden metrics', parser captures garden_cmd."""
         parser = build_parser()
-        args = parser.parse_args([
-            "garden", "metrics",
-            "--path", "/tmp/g.json",
-            "--format", "brief",
-            "--now", "2025-01-01T00:00:00",
-        ])
+        args = parser.parse_args(
+            [
+                "garden",
+                "metrics",
+                "--path",
+                "/tmp/g.json",
+                "--format",
+                "brief",
+                "--now",
+                "2025-01-01T00:00:00",
+            ]
+        )
         assert args.command == "garden"
         assert args.garden_cmd == "metrics"
         assert args.path == "/tmp/g.json"
@@ -1394,15 +1411,21 @@ class TestBuildParser:
     def test_garden_tend_command(self) -> None:
         """Given 'garden tend' with options, parser captures them."""
         parser = build_parser()
-        args = parser.parse_args([
-            "garden", "tend",
-            "--prune-days", "5",
-            "--stale-days", "14",
-            "--archive-days", "60",
-            "--apply",
-            "--prometheus",
-            "--palaces",
-        ])
+        args = parser.parse_args(
+            [
+                "garden",
+                "tend",
+                "--prune-days",
+                "5",
+                "--stale-days",
+                "14",
+                "--archive-days",
+                "60",
+                "--apply",
+                "--prometheus",
+                "--palaces",
+            ]
+        )
         assert args.command == "garden"
         assert args.garden_cmd == "tend"
         assert args.prune_days == 5
@@ -1415,18 +1438,27 @@ class TestBuildParser:
     def test_export_command(self) -> None:
         """Given 'export --destination path', parser captures dest."""
         parser = build_parser()
-        args = parser.parse_args([
-            "export", "--destination", "/tmp/out.json",
-        ])
+        args = parser.parse_args(
+            [
+                "export",
+                "--destination",
+                "/tmp/out.json",
+            ]
+        )
         assert args.command == "export"
         assert args.destination == "/tmp/out.json"
 
     def test_import_command(self) -> None:
         """Given 'import --source path --overwrite', parser captures."""
         parser = build_parser()
-        args = parser.parse_args([
-            "import", "--source", "/tmp/in.json", "--overwrite",
-        ])
+        args = parser.parse_args(
+            [
+                "import",
+                "--source",
+                "/tmp/in.json",
+                "--overwrite",
+            ]
+        )
         assert args.command == "import"
         assert args.source == "/tmp/in.json"
         assert args.overwrite is True
@@ -1456,9 +1488,7 @@ class TestMainDispatch:
     def test_no_command_prints_help(self) -> None:
         """Given no arguments, main prints help."""
         with patch("sys.argv", ["prog"]):
-            with patch(
-                "scripts.memory_palace_cli.build_parser"
-            ) as mock_bp:
+            with patch("scripts.memory_palace_cli.build_parser") as mock_bp:
                 mock_parser = Mock()
                 mock_parser.parse_args.return_value = Mock(command=None)
                 mock_bp.return_value = mock_parser
@@ -1476,14 +1506,10 @@ class TestMainDispatch:
         ],
         ids=["enable", "disable", "status", "skills", "list"],
     )
-    def test_simple_command_dispatch(
-        self, command: str, method: str
-    ) -> None:
+    def test_simple_command_dispatch(self, command: str, method: str) -> None:
         """Given a simple command, main calls the right CLI method."""
         with patch("sys.argv", ["prog", command]):
-            with patch(
-                "scripts.memory_palace_cli.MemoryPalaceCLI"
-            ) as mock_cls:
+            with patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls:
                 mock_cli = Mock()
                 mock_cls.return_value = mock_cli
                 main()
@@ -1503,17 +1529,13 @@ class TestPalacesDir:
         cli = MemoryPalaceCLI()
         assert cli._palaces_dir("/custom") == "/custom"
 
-    def test_falls_back_to_env(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_falls_back_to_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Given no override, use PALACES_DIR env var."""
         monkeypatch.setenv("PALACES_DIR", "/from/env")
         cli = MemoryPalaceCLI()
         assert cli._palaces_dir() == "/from/env"
 
-    def test_returns_none_when_no_source(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_none_when_no_source(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Given no override and no env var, returns None."""
         monkeypatch.delenv("PALACES_DIR", raising=False)
         cli = MemoryPalaceCLI()

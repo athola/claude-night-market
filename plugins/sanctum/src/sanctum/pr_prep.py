@@ -137,14 +137,12 @@ class PRPrepAnalyzer:
         """
         updated_gates = dict(gates)
         changed_files = context.get("changed_files", [])
-        paths = [f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files]
+        paths = [
+            f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files
+        ]
 
-        updated_gates["has_tests"] = any(
-            "test" in p.lower() for p in paths
-        )
-        updated_gates["has_documentation"] = any(
-            p.endswith(".md") for p in paths
-        )
+        updated_gates["has_tests"] = any("test" in p.lower() for p in paths)
+        updated_gates["has_documentation"] = any(p.endswith(".md") for p in paths)
         updated_gates["describes_changes"] = bool(changed_files)
         return updated_gates
 
@@ -211,7 +209,9 @@ class PRPrepAnalyzer:
         if not changed_files:
             return "No changes detected"
 
-        paths = [f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files]
+        paths = [
+            f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files
+        ]
         lines = [f"## Changes ({len(paths)} files)", ""]
         for p in paths:
             lines.append(f"- {p}")

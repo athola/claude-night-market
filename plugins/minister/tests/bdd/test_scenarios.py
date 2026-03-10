@@ -15,13 +15,12 @@ Each scenario tests end-to-end functionality as experienced by actual users:
 from __future__ import annotations
 
 import csv
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 from minister.project_tracker import ProjectTracker, Task
-
 
 # ── Shared task-creation helpers ────────────────────────
 
@@ -41,7 +40,7 @@ def _make_task(
     github_issue: str | None = None,
 ) -> Task:
     """Build a Task with sensible defaults for BDD tests."""
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     return Task(
         id=task_id,
         title=title,
@@ -67,31 +66,48 @@ def kickoff_tasks() -> list[Task]:
     """Five tasks across three initiatives for kickoff scenarios."""
     return [
         _make_task(
-            "GHYG-001", "Configure project board",
+            "GHYG-001",
+            "Configure project board",
             "GitHub Projects Hygiene",
-            priority="High", owner="tech-lead", effort_hours=3.0,
+            priority="High",
+            owner="tech-lead",
+            effort_hours=3.0,
         ),
         _make_task(
-            "GHYG-002", "Create label taxonomy",
+            "GHYG-002",
+            "Create label taxonomy",
             "GitHub Projects Hygiene",
-            owner="admin", effort_hours=2.0, due_date="2025-01-18",
+            owner="admin",
+            effort_hours=2.0,
+            due_date="2025-01-18",
         ),
         _make_task(
-            "PR-001", "Define PR template",
+            "PR-001",
+            "Define PR template",
             "Pull Request Readiness",
-            phase="Phase 2", priority="High",
-            owner="senior-dev", effort_hours=4.0, due_date="2025-01-20",
+            phase="Phase 2",
+            priority="High",
+            owner="senior-dev",
+            effort_hours=4.0,
+            due_date="2025-01-20",
         ),
         _make_task(
-            "PR-002", "Set up CI checks",
+            "PR-002",
+            "Set up CI checks",
             "Pull Request Readiness",
-            phase="Phase 2", priority="High",
-            owner="devops", effort_hours=6.0, due_date="2025-01-22",
+            phase="Phase 2",
+            priority="High",
+            owner="devops",
+            effort_hours=6.0,
+            due_date="2025-01-22",
         ),
         _make_task(
-            "DOC-001", "Write onboarding guide",
+            "DOC-001",
+            "Write onboarding guide",
             "Docs & Enablement",
-            owner="tech-writer", effort_hours=8.0, due_date="2025-01-25",
+            owner="tech-writer",
+            effort_hours=8.0,
+            due_date="2025-01-25",
         ),
     ]
 
@@ -100,19 +116,42 @@ def kickoff_tasks() -> list[Task]:
 def three_initiative_tasks() -> list[Task]:
     """Tasks for initiative-completion tracking (A, B, C)."""
     return [
-        _make_task("A-001", "Task A1", "Initiative Alpha",
-                    priority="High", effort_hours=5.0),
-        _make_task("A-002", "Task A2", "Initiative Alpha",
-                    effort_hours=3.0, due_date="2025-01-16"),
-        _make_task("B-001", "Task B1", "Initiative Beta",
-                    phase="Phase 2", priority="High", effort_hours=4.0,
-                    due_date="2025-01-18"),
-        _make_task("B-002", "Task B2", "Initiative Beta",
-                    phase="Phase 2", effort_hours=6.0,
-                    due_date="2025-01-20"),
-        _make_task("C-001", "Task C1", "Initiative Charlie",
-                    phase="Phase 3", priority="Low", effort_hours=8.0,
-                    due_date="2025-01-25"),
+        _make_task(
+            "A-001", "Task A1", "Initiative Alpha", priority="High", effort_hours=5.0
+        ),
+        _make_task(
+            "A-002",
+            "Task A2",
+            "Initiative Alpha",
+            effort_hours=3.0,
+            due_date="2025-01-16",
+        ),
+        _make_task(
+            "B-001",
+            "Task B1",
+            "Initiative Beta",
+            phase="Phase 2",
+            priority="High",
+            effort_hours=4.0,
+            due_date="2025-01-18",
+        ),
+        _make_task(
+            "B-002",
+            "Task B2",
+            "Initiative Beta",
+            phase="Phase 2",
+            effort_hours=6.0,
+            due_date="2025-01-20",
+        ),
+        _make_task(
+            "C-001",
+            "Task C1",
+            "Initiative Charlie",
+            phase="Phase 3",
+            priority="Low",
+            effort_hours=8.0,
+            due_date="2025-01-25",
+        ),
     ]
 
 
@@ -121,26 +160,37 @@ def github_linked_tasks() -> list[Task]:
     """Tasks with GitHub issue links for report-formatting scenarios."""
     return [
         _make_task(
-            "GHYG-001", "Configure project board",
+            "GHYG-001",
+            "Configure project board",
             "GitHub Projects Hygiene",
-            priority="High", status="Done", owner="admin",
-            effort_hours=3.0, completion_percent=100.0,
+            priority="High",
+            status="Done",
+            owner="admin",
+            effort_hours=3.0,
+            completion_percent=100.0,
             due_date="2025-01-10",
             github_issue="https://github.com/org/repo/issues/42",
         ),
         _make_task(
-            "GHYG-002", "Create labels",
+            "GHYG-002",
+            "Create labels",
             "GitHub Projects Hygiene",
-            status="In Progress", owner="admin",
-            effort_hours=2.0, completion_percent=50.0,
+            status="In Progress",
+            owner="admin",
+            effort_hours=2.0,
+            completion_percent=50.0,
             due_date="2025-01-12",
             github_issue="https://github.com/org/repo/issues/43",
         ),
         _make_task(
-            "PR-001", "PR template",
+            "PR-001",
+            "PR template",
             "Pull Request Readiness",
-            phase="Phase 2", priority="High", owner="tech-lead",
-            due_date="2025-01-15", github_issue="#44",
+            phase="Phase 2",
+            priority="High",
+            owner="tech-lead",
+            due_date="2025-01-15",
+            github_issue="#44",
         ),
     ]
 
@@ -206,27 +256,33 @@ class TestSprintProgressUpdate:
         WHEN team members update statuses through a sprint
         THEN metrics reflect accurate completion percentages.
         """
-        initial_completion = populated_tracker.get_status_report()[
-            "overall_metrics"
-        ]["overall_completion"]
+        initial_completion = populated_tracker.get_status_report()["overall_metrics"][
+            "overall_completion"
+        ]
 
         populated_tracker.update_task(
-            "GHYG-002", {"status": "In Progress", "completion_percent": 25.0},
+            "GHYG-002",
+            {"status": "In Progress", "completion_percent": 25.0},
         )
         populated_tracker.update_task(
-            "GHYG-002", {"completion_percent": 50.0},
+            "GHYG-002",
+            {"completion_percent": 50.0},
         )
         populated_tracker.update_task(
-            "PR-001", {"status": "In Progress", "completion_percent": 30.0},
+            "PR-001",
+            {"status": "In Progress", "completion_percent": 30.0},
         )
         populated_tracker.update_task(
-            "GHYG-002", {"status": "Review", "completion_percent": 90.0},
+            "GHYG-002",
+            {"status": "Review", "completion_percent": 90.0},
         )
         populated_tracker.update_task(
-            "GHYG-002", {"status": "Done", "completion_percent": 100.0},
+            "GHYG-002",
+            {"status": "Done", "completion_percent": 100.0},
         )
         populated_tracker.update_task(
-            "PR-001", {"completion_percent": 60.0},
+            "PR-001",
+            {"completion_percent": 60.0},
         )
 
         final = populated_tracker.get_status_report()
@@ -259,16 +315,20 @@ class TestInitiativeCompletionTracking:
         _add_tasks(empty_tracker, three_initiative_tasks)
 
         empty_tracker.update_task(
-            "A-001", {"status": "Done", "completion_percent": 100.0},
+            "A-001",
+            {"status": "Done", "completion_percent": 100.0},
         )
         empty_tracker.update_task(
-            "A-002", {"status": "Done", "completion_percent": 100.0},
+            "A-002",
+            {"status": "Done", "completion_percent": 100.0},
         )
         empty_tracker.update_task(
-            "B-001", {"status": "Done", "completion_percent": 100.0},
+            "B-001",
+            {"status": "Done", "completion_percent": 100.0},
         )
         empty_tracker.update_task(
-            "C-001", {"status": "In Progress", "completion_percent": 25.0},
+            "C-001",
+            {"status": "In Progress", "completion_percent": 25.0},
         )
 
         report = empty_tracker.get_status_report()
@@ -311,8 +371,7 @@ class TestGitHubIntegrationWorkflow:
         assert lines[0] == "### Initiative Pulse"
         assert "Last updated:" in lines[1]
         assert (
-            "| Initiative | Done | In Progress | Completion | Avg Task % |"
-            in comment
+            "| Initiative | Done | In Progress | Completion | Avg Task % |" in comment
         )
 
         ghyg_row = [l for l in lines if "GitHub Projects Hygiene" in l][0]
@@ -323,10 +382,9 @@ class TestGitHubIntegrationWorkflow:
         assert "- Total tasks: 3" in comment
 
         table_rows = [
-            l for l in lines
-            if l.startswith("|")
-            and "Initiative" not in l
-            and "---" not in l
+            l
+            for l in lines
+            if l.startswith("|") and "Initiative" not in l and "---" not in l
         ]
         for row in table_rows:
             assert row.count("|") == 6
@@ -351,12 +409,18 @@ class TestDataPersistenceAcrossSessions:
         session_1 = ProjectTracker(data_file=seeded_data_file)
         initial_count = len(session_1.data.tasks)
 
-        session_1.add_task(_make_task(
-            "PERSIST-001", "Persistence Test Task", "Testing",
-            priority="High", effort_hours=2.0,
-        ))
+        session_1.add_task(
+            _make_task(
+                "PERSIST-001",
+                "Persistence Test Task",
+                "Testing",
+                priority="High",
+                effort_hours=2.0,
+            )
+        )
         session_1.update_task(
-            "GHYG-001", {"status": "Review", "completion_percent": 95.0},
+            "GHYG-001",
+            {"status": "Review", "completion_percent": 95.0},
         )
         report_1 = session_1.get_status_report()
 
@@ -413,9 +477,17 @@ class TestCSVExportForStakeholders:
         assert len(rows) == expected_count
 
         expected_headers = [
-            "id", "title", "initiative", "phase", "priority",
-            "status", "owner", "effort_hours", "completion_percent",
-            "due_date", "github_issue",
+            "id",
+            "title",
+            "initiative",
+            "phase",
+            "priority",
+            "status",
+            "owner",
+            "effort_hours",
+            "completion_percent",
+            "due_date",
+            "github_issue",
         ]
         assert reader.fieldnames == expected_headers
 
@@ -460,9 +532,7 @@ class TestCrossScenarioWorkflow:
             for i in range(9)
         ]
         _add_tasks(empty_tracker, tasks)
-        assert empty_tracker.get_status_report()[
-            "overall_metrics"
-        ]["total_tasks"] == 9
+        assert empty_tracker.get_status_report()["overall_metrics"]["total_tasks"] == 9
 
         # Phase 2: sprint execution
         for i in range(3):
@@ -471,7 +541,8 @@ class TestCrossScenarioWorkflow:
                 {"status": "Done", "completion_percent": 100.0},
             )
         empty_tracker.update_task(
-            "INIT-003", {"status": "Done", "completion_percent": 100.0},
+            "INIT-003",
+            {"status": "Done", "completion_percent": 100.0},
         )
         empty_tracker.update_task(
             "INIT-004",

@@ -131,9 +131,7 @@ class TestExtractPatterns:
             },
         ]
         suggestions = extract_patterns(comments)
-        import_matches = [
-            s for s in suggestions if s.pattern_id == "import-discipline"
-        ]
+        import_matches = [s for s in suggestions if s.pattern_id == "import-discipline"]
         assert len(import_matches) == 1
         assert import_matches[0].occurrence_count == 2
 

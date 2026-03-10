@@ -76,9 +76,7 @@ class HttpClient:
 class MemoryManager:
     """Manage analysis strategies under memory pressure."""
 
-    def get_optimal_strategy(
-        self, file_count: int
-    ) -> dict[str, Any]:
+    def get_optimal_strategy(self, file_count: int) -> dict[str, Any]:
         """Return an analysis strategy based on memory.
 
         Args:
@@ -129,9 +127,7 @@ class ResourceMonitor:
         pressure = rss > threshold
         result: dict[str, Any] = {"memory_pressure": pressure}
         if pressure:
-            result["recommendations"] = [
-                "Reduce batch size or disable concurrency"
-            ]
+            result["recommendations"] = ["Reduce batch size or disable concurrency"]
         else:
             result["recommendations"] = []
         return result
@@ -154,16 +150,12 @@ class ResultStorage:
         """
         import sqlite3
 
-        db_path = self.connection_string.replace(
-            "sqlite:///", ""
-        )
+        db_path = self.connection_string.replace("sqlite:///", "")
         conn = sqlite3.connect(db_path)
         try:
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS results "
-                "(key TEXT, value TEXT)"
-            )
+            conn.execute("CREATE TABLE IF NOT EXISTS results (key TEXT, value TEXT)")
             import json
+
             for k, v in data.items():
                 conn.execute(
                     "INSERT INTO results VALUES (?, ?)",
@@ -177,9 +169,7 @@ class ResultStorage:
 class DependencyAnalyzer:
     """Analyze code dependencies including circular refs."""
 
-    def analyze_dependencies(
-        self, code: str
-    ) -> dict[str, Any]:
+    def analyze_dependencies(self, code: str) -> dict[str, Any]:
         """Analyze dependencies in code.
 
         Args:
@@ -196,17 +186,13 @@ class DependencyAnalyzer:
         for line in code.split("\n"):
             mod_match = re.match(r"#\s*(\w+\.py)", line)
             if mod_match:
-                current_module = mod_match.group(1).replace(
-                    ".py", ""
-                )
+                current_module = mod_match.group(1).replace(".py", "")
                 imports.setdefault(current_module, [])
                 continue
 
             imp_match = re.match(r"import\s+(\w+)", line)
             if imp_match and current_module:
-                imports[current_module].append(
-                    imp_match.group(1)
-                )
+                imports[current_module].append(imp_match.group(1))
 
         circular: list[tuple[str, str]] = []
         for mod, deps in imports.items():

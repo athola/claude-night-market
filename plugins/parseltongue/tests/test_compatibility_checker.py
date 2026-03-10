@@ -25,9 +25,7 @@ def func(x: int) -> str:
 """
 
         # When: Checking compatibility
-        result = compatibility_checker.check_compatibility(
-            code, ["3.8", "3.9", "3.10"]
-        )
+        result = compatibility_checker.check_compatibility(code, ["3.8", "3.9", "3.10"])
 
         # Then: Reports future annotations compatibility
         assert "compatible_versions" in result

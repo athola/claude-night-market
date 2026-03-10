@@ -127,9 +127,7 @@ class TestTopicDataclass:
 class TestLoadTopics:
     """Feature: load_topics reads from YAML file."""
 
-    def test_load_topics_missing_file_raises(
-        self, seed_module, tmp_path: Path
-    ) -> None:
+    def test_load_topics_missing_file_raises(self, seed_module, tmp_path: Path) -> None:
         """Given missing YAML file, load_topics raises FileNotFoundError."""
         with patch.object(
             seed_module,
@@ -140,9 +138,7 @@ class TestLoadTopics:
                 seed_module.load_topics()
             assert "Seed topics file not found" in str(exc_info.value)
 
-    def test_load_topics_from_yaml(
-        self, seed_module, tmp_path: Path
-    ) -> None:
+    def test_load_topics_from_yaml(self, seed_module, tmp_path: Path) -> None:
         """Given valid YAML, load_topics returns list of Topic objects."""
         yaml_content = """
 topics:
@@ -171,9 +167,7 @@ topics:
         assert topics[0].slug == "test-topic"
         assert len(topics[0].variations) == 1
 
-    def test_load_topics_empty_yaml(
-        self, seed_module, tmp_path: Path
-    ) -> None:
+    def test_load_topics_empty_yaml(self, seed_module, tmp_path: Path) -> None:
         """Given YAML with no topics, returns empty list."""
         yaml_file = tmp_path / "empty.yaml"
         yaml_file.write_text("topics: []\n", encoding="utf-8")
@@ -187,9 +181,7 @@ topics:
 class TestGenerateEntries:
     """Feature: generate_entries is a stub that returns empty list."""
 
-    def test_generate_entries_returns_list(
-        self, seed_module, tmp_path: Path
-    ) -> None:
+    def test_generate_entries_returns_list(self, seed_module, tmp_path: Path) -> None:
         """Given valid topics YAML, generate_entries returns a list.
 
         Note: generate_entries is a stub; it calls load_topics()
@@ -227,9 +219,7 @@ class TestStubFunctions:
             "update_query_templates",
         ],
     )
-    def test_stub_raises_not_implemented(
-        self, seed_module, func_name: str
-    ) -> None:
+    def test_stub_raises_not_implemented(self, seed_module, func_name: str) -> None:
         """Given a stub function, calling it raises NotImplementedError."""
         func = getattr(seed_module, func_name)
         with pytest.raises(NotImplementedError) as exc_info:

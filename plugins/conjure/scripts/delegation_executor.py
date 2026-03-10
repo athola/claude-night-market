@@ -474,7 +474,7 @@ def _print_usage_summary(delegator: Delegator) -> None:
     print(f"Total requests: {summary['total_requests']}")
     print(f"Success rate: {summary.get('success_rate', 0):.1f}%")
     for svc_name, stats in summary["services"].items():
-        rate = stats.get('success_rate', 0)
+        rate = stats.get("success_rate", 0)
         print(f"  {svc_name}: {stats['requests']} requests, {rate:.1f}% success")
 
 

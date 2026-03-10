@@ -59,3 +59,20 @@ Each skill includes a `SKILL.md` file with scenario modules and references to th
 ## Integration Patterns
 
 Integrate Minister by calling its skills from other plugins. Use the `ProjectTracker` class for automated data ingestion via cron jobs. Manage GitHub API interactions through Leyline to respect rate limits and quotas.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Initiative pulse markdown output is an opportunity to
+  add sample digests so users know what to expect before
+  running the command
+- Release health gate definitions could document which
+  checks are most valuable for different release cadences
+- The ProjectTracker class would benefit from inline
+  examples showing common data ingestion patterns
+- GitHub API error messages could include links to
+  relevant rate limit documentation
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

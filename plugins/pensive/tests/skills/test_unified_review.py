@@ -24,18 +24,12 @@ class TestUnifiedReviewSkill:
         """Set up test fixtures before each test."""
         self.skill = UnifiedReviewSkill()
         self.mock_context = Mock()
-        self.mock_context.repo_path = (
-            Path(tempfile.gettempdir()) / "test_repo"
-        )
-        self.mock_context.working_dir = (
-            Path(tempfile.gettempdir()) / "test_repo"
-        )
+        self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
+        self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_rust_project_by_cargo_toml(
-        self, mock_skill_context
-    ) -> None:
+    def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:
         """Given Cargo.toml, skill detects Rust with correct file count."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -55,9 +49,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_python_project_by_requirements(
-        self, mock_skill_context
-    ) -> None:
+    def test_detects_python_project_by_requirements(self, mock_skill_context) -> None:
         """Given requirements.txt, skill detects Python with test flag."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -99,9 +91,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_makefile_build_system(
-        self, mock_skill_context
-    ) -> None:
+    def test_detects_makefile_build_system(self, mock_skill_context) -> None:
         """Given Makefile, skill returns both 'make' and 'makefile'."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -111,9 +101,7 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        build_systems = self.skill.detect_build_systems(
-            mock_skill_context
-        )
+        build_systems = self.skill.detect_build_systems(mock_skill_context)
 
         # Assert
         assert isinstance(build_systems, list)
@@ -123,9 +111,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_selects_rust_review_for_rust_project(
-        self, mock_skill_context
-    ) -> None:
+    def test_selects_rust_review_for_rust_project(self, mock_skill_context) -> None:
         """Given Rust project, skill selects rust-review and base reviewer."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -134,9 +120,7 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        selected_skills = self.skill.select_review_skills(
-            mock_skill_context
-        )
+        selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert isinstance(selected_skills, list)
@@ -157,9 +141,7 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        selected_skills = self.skill.select_review_skills(
-            mock_skill_context
-        )
+        selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert "test-review" in selected_skills
@@ -177,9 +159,7 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        selected_skills = self.skill.select_review_skills(
-            mock_skill_context
-        )
+        selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert "makefile-review" in selected_skills
@@ -207,9 +187,7 @@ class TestUnifiedReviewSkill:
         """
 
         # Act
-        selected_skills = self.skill.select_review_skills(
-            mock_skill_context
-        )
+        selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert "math-review" in selected_skills
@@ -227,9 +205,7 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        selected_skills = self.skill.select_review_skills(
-            mock_skill_context
-        )
+        selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert "rust-review" not in selected_skills
@@ -239,9 +215,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_prioritizes_findings_by_severity(
-        self, sample_findings
-    ) -> None:
+    def test_prioritizes_findings_by_severity(self, sample_findings) -> None:
         """Given mixed-severity findings, sorts high before low."""
         # Arrange
         findings = sample_findings
@@ -260,9 +234,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_consolidates_duplicate_findings(
-        self, sample_findings
-    ) -> None:
+    def test_consolidates_duplicate_findings(self, sample_findings) -> None:
         """Given duplicate SEC001 entries, deduplicates to one."""
         # Arrange
         duplicate_findings = [
@@ -278,22 +250,16 @@ class TestUnifiedReviewSkill:
         ]
 
         # Act
-        consolidated = self.skill.consolidate_findings(
-            duplicate_findings
-        )
+        consolidated = self.skill.consolidate_findings(duplicate_findings)
 
         # Assert
         assert len(consolidated) == 3
-        sec_findings = [
-            f for f in consolidated if f["id"] == "SEC001"
-        ]
+        sec_findings = [f for f in consolidated if f["id"] == "SEC001"]
         assert len(sec_findings) == 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_generates_summary_with_all_sections(
-        self, sample_findings
-    ) -> None:
+    def test_generates_summary_with_all_sections(self, sample_findings) -> None:
         """Given findings, summary contains all required sections."""
         # Arrange / Act
         summary = self.skill.generate_summary(sample_findings)
@@ -346,15 +312,12 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert recommendation == (
-            "Block - Critical security/functionality issues "
-            "must be resolved"
+            "Block - Critical security/functionality issues must be resolved"
         )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_handles_empty_repository_gracefully(
-        self, mock_skill_context
-    ) -> None:
+    def test_handles_empty_repository_gracefully(self, mock_skill_context) -> None:
         """Given empty file list, returns AnalysisResult with warning."""
         # Arrange
         mock_skill_context.get_files.return_value = []
@@ -402,9 +365,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_executes_selected_skills_concurrently(
-        self, mock_skill_context
-    ) -> None:
+    def test_executes_selected_skills_concurrently(self, mock_skill_context) -> None:
         """Given skill list, dispatches each and returns all results."""
         # Arrange
         selected_skills = [
@@ -437,9 +398,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_formats_findings_consistently(
-        self, sample_findings
-    ) -> None:
+    def test_formats_findings_consistently(self, sample_findings) -> None:
         """Given raw findings, formatted output has all required keys
         with valid severity values.
         """
@@ -448,12 +407,14 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert len(formatted) == 3
-        required_keys = {"id", "title", "location", "severity",
-                         "issue", "fix"}
+        required_keys = {"id", "title", "location", "severity", "issue", "fix"}
         for finding in formatted:
             assert set(finding.keys()) == required_keys
             assert finding["severity"] in {
-                "critical", "high", "medium", "low",
+                "critical",
+                "high",
+                "medium",
+                "low",
             }
         assert formatted[0]["id"] == "SEC001"
         assert formatted[1]["id"] == "BUG001"

@@ -507,12 +507,9 @@ tags:
         assert performance_status["memory_monitoring"] == "active"
         # Verify the Bash mock was called exactly twice
         assert mock_claude_tools["Bash"].call_count == TWO
+        mock_claude_tools["Bash"].assert_any_call("nvidia-smi --list-gpus | wc -l")
         mock_claude_tools["Bash"].assert_any_call(
-            "nvidia-smi --list-gpus | wc -l"
-        )
-        mock_claude_tools["Bash"].assert_any_call(
-            "nvidia-smi --query-gpu=utilization.gpu "
-            "--format=csv,noheader,nounits"
+            "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits"
         )
 
     @pytest.mark.bdd

@@ -21,13 +21,12 @@ import pytest
 @pytest.fixture
 def tdd_gate_module():
     """Import the tdd_bdd_gate module via importlib."""
-    hooks_path = (
-        Path(__file__).resolve().parent.parent.parent.parent / "hooks"
-    )
+    hooks_path = Path(__file__).resolve().parent.parent.parent.parent / "hooks"
     module_path = hooks_path / "tdd_bdd_gate.py"
 
     spec = importlib.util.spec_from_file_location(
-        "tdd_bdd_gate", module_path,
+        "tdd_bdd_gate",
+        module_path,
     )
     tdd_gate = importlib.util.module_from_spec(spec)
     sys.modules["tdd_bdd_gate"] = tdd_gate
@@ -78,8 +77,11 @@ class TestIsImplementationFile:
         ],
     )
     def test_implementation_files_detected(
-        self, tdd_gate_module, file_path,
-        expected_impl, expected_type_attr,
+        self,
+        tdd_gate_module,
+        file_path,
+        expected_impl,
+        expected_type_attr,
     ) -> None:
         """Scenario: Implementation files are correctly identified.
 
@@ -120,7 +122,9 @@ class TestIsImplementationFile:
         ],
     )
     def test_non_implementation_files_excluded(
-        self, tdd_gate_module, file_path,
+        self,
+        tdd_gate_module,
+        file_path,
     ) -> None:
         """Scenario: Non-implementation files are excluded.
 
@@ -158,8 +162,12 @@ class TestFindTestFile:
         ],
     )
     def test_find_test_for_skill(
-        self, tdd_gate_module, tmp_path,
-        skill_name, impl_type_attr, expected_fragment,
+        self,
+        tdd_gate_module,
+        tmp_path,
+        skill_name,
+        impl_type_attr,
+        expected_fragment,
     ) -> None:
         """Scenario: Find test file for skill with name conversion.
 
@@ -172,14 +180,13 @@ class TestFindTestFile:
         plugin_root.mkdir(parents=True)
         (plugin_root / "pyproject.toml").touch()
         (plugin_root / "skills" / skill_name).mkdir(parents=True)
-        skill_path = (
-            plugin_root / "skills" / skill_name / "SKILL.md"
-        )
+        skill_path = plugin_root / "skills" / skill_name / "SKILL.md"
         skill_path.touch()
 
         impl_type = getattr(tdd_gate_module, impl_type_attr)
         test_path = tdd_gate_module.find_test_file(
-            str(skill_path), impl_type,
+            str(skill_path),
+            impl_type,
         )
 
         assert isinstance(test_path, (str, Path))
@@ -188,7 +195,9 @@ class TestFindTestFile:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_test_for_python_impl(
-        self, tdd_gate_module, tmp_path,
+        self,
+        tdd_gate_module,
+        tmp_path,
     ) -> None:
         """Scenario: Find test file for Python implementation.
 
@@ -204,7 +213,8 @@ class TestFindTestFile:
         impl_path.touch()
 
         test_path = tdd_gate_module.find_test_file(
-            str(impl_path), tdd_gate_module.PYTHON_FILE,
+            str(impl_path),
+            tdd_gate_module.PYTHON_FILE,
         )
 
         assert isinstance(test_path, (str, Path))
@@ -230,7 +240,10 @@ class TestFormatTddBddReminder:
         ids=["iron-law-label", "iron-law-statement"],
     )
     def test_reminder_content(
-        self, tdd_gate_module, tmp_path, assertion_target,
+        self,
+        tdd_gate_module,
+        tmp_path,
+        assertion_target,
     ) -> None:
         """Scenario: Reminder includes Iron Law content.
 
@@ -251,7 +264,9 @@ class TestFormatTddBddReminder:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_reminder_includes_expected_test_path(
-        self, tdd_gate_module, tmp_path,
+        self,
+        tdd_gate_module,
+        tmp_path,
     ) -> None:
         """Scenario: Reminder includes expected test file path.
 
@@ -273,7 +288,9 @@ class TestFormatTddBddReminder:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_reminder_bdd_template_when_test_missing(
-        self, tdd_gate_module, tmp_path,
+        self,
+        tdd_gate_module,
+        tmp_path,
     ) -> None:
         """Scenario: Reminder includes BDD template when test missing.
 
@@ -297,7 +314,9 @@ class TestFormatTddBddReminder:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_reminder_shows_test_exists_status(
-        self, tdd_gate_module, tmp_path,
+        self,
+        tdd_gate_module,
+        tmp_path,
     ) -> None:
         """Scenario: Reminder shows test file exists when present.
 
@@ -334,7 +353,11 @@ class TestIsNewFile:
         ids=["nonexistent-is-new", "existing-is-not-new"],
     )
     def test_new_file_detection(
-        self, tdd_gate_module, tmp_path, exists, expected,
+        self,
+        tdd_gate_module,
+        tmp_path,
+        exists,
+        expected,
     ) -> None:
         """Scenario: File existence determines new-file status.
 
@@ -365,7 +388,10 @@ class TestMainEntryPoint:
         ids=["read-tool-ignored", "bash-tool-ignored"],
     )
     def test_main_ignores_non_write_tools(
-        self, tdd_gate_module, monkeypatch, tool_name,
+        self,
+        tdd_gate_module,
+        monkeypatch,
+        tool_name,
     ) -> None:
         """Scenario: main() ignores non-write tool operations.
 
@@ -373,10 +399,12 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 without output.
         """
-        input_data = json.dumps({
-            "tool_name": tool_name,
-            "tool_input": {"file_path": "/some/file.py"},
-        })
+        input_data = json.dumps(
+            {
+                "tool_name": tool_name,
+                "tool_input": {"file_path": "/some/file.py"},
+            }
+        )
         monkeypatch.setattr("sys.stdin", StringIO(input_data))
 
         with pytest.raises(SystemExit) as exc_info:
@@ -392,7 +420,11 @@ class TestMainEntryPoint:
         ids=["write-tool", "edit-tool", "multiedit-tool"],
     )
     def test_main_processes_write_tools(
-        self, tdd_gate_module, monkeypatch, tmp_path, tool_name,
+        self,
+        tdd_gate_module,
+        monkeypatch,
+        tmp_path,
+        tool_name,
     ) -> None:
         """Scenario: main() processes Write/Edit/MultiEdit tools.
 
@@ -407,10 +439,12 @@ class TestMainEntryPoint:
         skill_dir.mkdir(parents=True)
         skill_path = skill_dir / "SKILL.md"
 
-        input_data = json.dumps({
-            "tool_name": tool_name,
-            "tool_input": {"file_path": str(skill_path)},
-        })
+        input_data = json.dumps(
+            {
+                "tool_name": tool_name,
+                "tool_input": {"file_path": str(skill_path)},
+            }
+        )
         monkeypatch.setattr("sys.stdin", StringIO(input_data))
 
         output_capture = StringIO()
@@ -426,7 +460,9 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_handles_invalid_json(
-        self, tdd_gate_module, monkeypatch,
+        self,
+        tdd_gate_module,
+        monkeypatch,
     ) -> None:
         """Scenario: main() handles invalid JSON gracefully.
 
@@ -444,7 +480,10 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_ignores_non_implementation_files(
-        self, tdd_gate_module, monkeypatch, tmp_path,
+        self,
+        tdd_gate_module,
+        monkeypatch,
+        tmp_path,
     ) -> None:
         """Scenario: main() ignores Write to non-implementation files.
 
@@ -453,10 +492,12 @@ class TestMainEntryPoint:
         Then it should exit 0 (allow without warning).
         """
         readme_path = tmp_path / "README.md"
-        input_data = json.dumps({
-            "tool_name": "Write",
-            "tool_input": {"file_path": str(readme_path)},
-        })
+        input_data = json.dumps(
+            {
+                "tool_name": "Write",
+                "tool_input": {"file_path": str(readme_path)},
+            }
+        )
         monkeypatch.setattr("sys.stdin", StringIO(input_data))
 
         with pytest.raises(SystemExit) as exc_info:
@@ -467,7 +508,10 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_existing_file_without_tests_gives_short_reminder(
-        self, tdd_gate_module, monkeypatch, tmp_path,
+        self,
+        tdd_gate_module,
+        monkeypatch,
+        tmp_path,
     ) -> None:
         """Scenario: Existing file without tests gets short reminder.
 
@@ -484,10 +528,12 @@ class TestMainEntryPoint:
         impl_path = scripts_dir / "validator.py"
         impl_path.write_text("# existing implementation\n")
 
-        input_data = json.dumps({
-            "tool_name": "Write",
-            "tool_input": {"file_path": str(impl_path)},
-        })
+        input_data = json.dumps(
+            {
+                "tool_name": "Write",
+                "tool_input": {"file_path": str(impl_path)},
+            }
+        )
         monkeypatch.setattr("sys.stdin", StringIO(input_data))
 
         output_capture = StringIO()
@@ -520,7 +566,10 @@ class TestFindPluginRoot:
         ids=["by-pyproject-toml", "by-claude-plugin-dir"],
     )
     def test_find_plugin_root_by_marker(
-        self, tdd_gate_module, tmp_path, marker,
+        self,
+        tdd_gate_module,
+        tmp_path,
+        marker,
     ) -> None:
         """Scenario: Find plugin root by filesystem marker.
 
@@ -545,7 +594,9 @@ class TestFindPluginRoot:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_plugin_root_returns_none_without_markers(
-        self, tdd_gate_module, tmp_path,
+        self,
+        tdd_gate_module,
+        tmp_path,
     ) -> None:
         """Scenario: No marker found returns None.
 

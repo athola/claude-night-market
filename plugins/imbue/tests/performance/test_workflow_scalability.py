@@ -12,7 +12,7 @@ import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import psutil
 import pytest
@@ -59,8 +59,7 @@ class TestWorkflowScalability:
         """Create a large change set for scalability testing."""
         return {
             "files_changed": [
-                f"src/module_{i // 100}/file_{i}.py"
-                for i in range(1000)
+                f"src/module_{i // 100}/file_{i}.py" for i in range(1000)
             ],
             "lines_added": sum(i % 100 + 1 for i in range(1000)),
             "lines_removed": sum(i % 50 for i in range(1000)),
@@ -85,9 +84,7 @@ class TestWorkflowScalability:
         """Assess risk level based on file and changes."""
         if "auth" in file_path or "security" in file_path:
             return (
-                "High"
-                if lines_changed > HIGH_RISK_LINE_CHANGE_THRESHOLD
-                else "Medium"
+                "High" if lines_changed > HIGH_RISK_LINE_CHANGE_THRESHOLD else "Medium"
             )
         if "test" in file_path:
             return "Low"
@@ -98,7 +95,8 @@ class TestWorkflowScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_large_diff_analysis_scalability(
-        self, large_change_set,
+        self,
+        large_change_set,
     ) -> None:
         """Scenario: Diff analysis scales with large change sets.
 
@@ -112,8 +110,10 @@ class TestWorkflowScalability:
         start_time = time.time()
 
         categorized_changes = {
-            "additions": [], "modifications": [],
-            "deletions": [], "renames": [],
+            "additions": [],
+            "modifications": [],
+            "deletions": [],
+            "renames": [],
         }
 
         for file_path in files_changed:
@@ -127,7 +127,8 @@ class TestWorkflowScalability:
                     file_path,
                 ),
                 "risk_level": self._assess_risk_level(
-                    file_path, lines_in_file,
+                    file_path,
+                    lines_in_file,
                 ),
             }
             categorized_changes["modifications"].append(change)
@@ -139,13 +140,9 @@ class TestWorkflowScalability:
         }
         for change in categorized_changes["modifications"]:
             cat = change["semantic_category"]
-            summary["categories"][cat] = (
-                summary["categories"].get(cat, 0) + 1
-            )
+            summary["categories"][cat] = summary["categories"].get(cat, 0) + 1
             risk = change["risk_level"]
-            summary["risk_levels"][risk] = (
-                summary["risk_levels"].get(risk, 0) + 1
-            )
+            summary["risk_levels"][risk] = summary["risk_levels"].get(risk, 0) + 1
 
         execution_time = time.time() - start_time
 
@@ -155,10 +152,7 @@ class TestWorkflowScalability:
         assert len(summary["categories"]) >= 1
         assert len(summary["risk_levels"]) >= 1
 
-        total_memory = (
-            sys.getsizeof(categorized_changes)
-            + sys.getsizeof(summary)
-        )
+        total_memory = sys.getsizeof(categorized_changes) + sys.getsizeof(summary)
         assert total_memory < MAX_MEMORY_FOR_1000_FILES
 
 
@@ -178,7 +172,7 @@ class TestEvidenceLoggingScalability:
                 "id": f"E{i:05d}",
                 "command": f"test_command_{i}",
                 "output": f"Output {i} with some content",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "working_directory": "/test/repo",
                 "file": f"src/file_{i % 100}.py",
                 "line": (i % 200) + 1,
@@ -193,7 +187,7 @@ class TestEvidenceLoggingScalability:
 
         evidence_log = {
             "session_id": "scalability-test",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "evidence": [],
             "citations": [],
             "evidence_index": {},
@@ -204,9 +198,7 @@ class TestEvidenceLoggingScalability:
             batch = large_evidence_set[i : i + batch_size]
             for evidence in batch:
                 evidence_log["evidence"].append(evidence)
-                evidence_log["evidence_index"][evidence["id"]] = (
-                    evidence
-                )
+                evidence_log["evidence_index"][evidence["id"]] = evidence
 
         summary = {
             "total_evidence": len(evidence_log["evidence"]),
@@ -215,9 +207,7 @@ class TestEvidenceLoggingScalability:
         }
         for evidence in evidence_log["evidence"]:
             fp = evidence["file"]
-            summary["evidence_by_file"][fp] = (
-                summary["evidence_by_file"].get(fp, 0) + 1
-            )
+            summary["evidence_by_file"][fp] = summary["evidence_by_file"].get(fp, 0) + 1
             summary["commands_used"].add(evidence["command"])
 
         total_time = time.time() - start_time
@@ -226,7 +216,8 @@ class TestEvidenceLoggingScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_evidence_processing_time(
-        self, evidence_log_result,
+        self,
+        evidence_log_result,
     ) -> None:
         """Scenario: Evidence processing completes in under 5 seconds.
 
@@ -240,7 +231,8 @@ class TestEvidenceLoggingScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_evidence_count_accuracy(
-        self, evidence_log_result,
+        self,
+        evidence_log_result,
     ) -> None:
         """Scenario: All evidence items are processed.
 
@@ -254,7 +246,8 @@ class TestEvidenceLoggingScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_evidence_lookup_performance(
-        self, evidence_log_result,
+        self,
+        evidence_log_result,
     ) -> None:
         """Scenario: Evidence lookup by ID is fast.
 
@@ -275,7 +268,8 @@ class TestEvidenceLoggingScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_evidence_file_distribution(
-        self, evidence_log_result,
+        self,
+        evidence_log_result,
     ) -> None:
         """Scenario: Evidence is distributed across files.
 
@@ -284,10 +278,7 @@ class TestEvidenceLoggingScalability:
         Then at most 100 unique files should appear.
         """
         _, summary, _ = evidence_log_result
-        assert (
-            len(summary["evidence_by_file"])
-            <= MAX_UNIQUE_FILES_IN_EVIDENCE
-        )
+        assert len(summary["evidence_by_file"]) <= MAX_UNIQUE_FILES_IN_EVIDENCE
         assert len(summary["commands_used"]) >= 1
 
 
@@ -311,7 +302,8 @@ class TestConcurrentWorkflowExecution:
 
     @pytest.fixture
     def concurrent_execution_results(
-        self, concurrent_workflow_scenario,
+        self,
+        concurrent_workflow_scenario,
     ):
         """Execute concurrent workflows and return results."""
         execution_results = []
@@ -323,27 +315,35 @@ class TestConcurrentWorkflowExecution:
             for _, duration in steps:
                 time.sleep(duration)
             with execution_lock:
-                execution_results.append({
-                    "workflow_id": wf_id,
-                    "workflow_type": wf_type,
-                    "execution_time": time.time() - start,
-                    "thread_id": tid,
-                    "steps_completed": len(steps),
-                })
+                execution_results.append(
+                    {
+                        "workflow_id": wf_id,
+                        "workflow_type": wf_type,
+                        "execution_time": time.time() - start,
+                        "thread_id": tid,
+                        "steps_completed": len(steps),
+                    }
+                )
             return f"{wf_type}-{wf_id}-completed"
 
         review_steps = [
-            ("context", 0.1), ("scope", 0.2),
-            ("evidence", 0.15), ("analysis", 0.3),
+            ("context", 0.1),
+            ("scope", 0.2),
+            ("evidence", 0.15),
+            ("analysis", 0.3),
             ("report", 0.1),
         ]
         catchup_steps = [
-            ("baseline", 0.05), ("changes", 0.1),
-            ("insights", 0.08), ("followups", 0.02),
+            ("baseline", 0.05),
+            ("changes", 0.1),
+            ("insights", 0.08),
+            ("followups", 0.02),
         ]
         agent_steps = [
-            ("discovery", 0.2), ("analysis", 0.4),
-            ("categorize", 0.15), ("recommend", 0.1),
+            ("discovery", 0.2),
+            ("analysis", 0.4),
+            ("categorize", 0.15),
+            ("recommend", 0.1),
             ("compile", 0.15),
         ]
 
@@ -353,20 +353,32 @@ class TestConcurrentWorkflowExecution:
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = []
             for i in range(scenario["concurrent_reviews"]):
-                futures.append(executor.submit(
-                    execute_workflow, f"review-{i}",
-                    "review", review_steps,
-                ))
+                futures.append(
+                    executor.submit(
+                        execute_workflow,
+                        f"review-{i}",
+                        "review",
+                        review_steps,
+                    )
+                )
             for i in range(scenario["concurrent_catchups"]):
-                futures.append(executor.submit(
-                    execute_workflow, f"catchup-{i}",
-                    "catchup", catchup_steps,
-                ))
+                futures.append(
+                    executor.submit(
+                        execute_workflow,
+                        f"catchup-{i}",
+                        "catchup",
+                        catchup_steps,
+                    )
+                )
             for i in range(scenario["concurrent_agents"]):
-                futures.append(executor.submit(
-                    execute_workflow, f"agent-{i}",
-                    "agent", agent_steps,
-                ))
+                futures.append(
+                    executor.submit(
+                        execute_workflow,
+                        f"agent-{i}",
+                        "agent",
+                        agent_steps,
+                    )
+                )
             results = [f.result() for f in futures]
 
         total_time = time.time() - start_time
@@ -375,7 +387,8 @@ class TestConcurrentWorkflowExecution:
     @pytest.mark.slow
     @pytest.mark.asyncio
     async def test_concurrent_all_workflows_complete(
-        self, concurrent_execution_results,
+        self,
+        concurrent_execution_results,
         concurrent_workflow_scenario,
     ) -> None:
         """Scenario: All concurrent workflows complete.
@@ -392,7 +405,8 @@ class TestConcurrentWorkflowExecution:
     @pytest.mark.slow
     @pytest.mark.asyncio
     async def test_concurrent_efficiency_ratio(
-        self, concurrent_execution_results,
+        self,
+        concurrent_execution_results,
     ) -> None:
         """Scenario: Parallel execution is faster than sequential.
 
@@ -401,9 +415,7 @@ class TestConcurrentWorkflowExecution:
         Then speedup should be at least 1.5x.
         """
         _, exec_results, total_time = concurrent_execution_results
-        sequential_estimate = sum(
-            r["execution_time"] for r in exec_results
-        )
+        sequential_estimate = sum(r["execution_time"] for r in exec_results)
         efficiency_ratio = sequential_estimate / total_time
         assert efficiency_ratio > 1.5, (
             f"Expected 1.5x speedup, got {efficiency_ratio:.2f}x"
@@ -412,7 +424,8 @@ class TestConcurrentWorkflowExecution:
     @pytest.mark.slow
     @pytest.mark.asyncio
     async def test_concurrent_thread_utilization(
-        self, concurrent_execution_results,
+        self,
+        concurrent_execution_results,
     ) -> None:
         """Scenario: Multiple threads are used.
 
@@ -427,7 +440,8 @@ class TestConcurrentWorkflowExecution:
     @pytest.mark.slow
     @pytest.mark.asyncio
     async def test_concurrent_all_steps_completed(
-        self, concurrent_execution_results,
+        self,
+        concurrent_execution_results,
     ) -> None:
         """Scenario: Each workflow completes all its steps.
 
@@ -462,13 +476,14 @@ class TestMemoryUsageScalability:
                     "title": f"Finding {i}",
                     "description": f"Description {i} " + "x" * 100,
                     "severity": [
-                        "Critical", "High", "Medium", "Low",
+                        "Critical",
+                        "High",
+                        "Medium",
+                        "Low",
                     ][i % 4],
                     "file": f"src/file_{i % 100}.py",
                     "line": (i % 500) + 1,
-                    "evidence_refs": [
-                        f"E{j}" for j in range(i % 10)
-                    ],
+                    "evidence_refs": [f"E{j}" for j in range(i % 10)],
                     "recommendation": f"Rec {i} " + "y" * 200,
                     "metadata": {"extra_data": "z" * 50},
                 }
@@ -514,7 +529,8 @@ class TestMemoryUsageScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_memory_processing_time(
-        self, memory_test_results,
+        self,
+        memory_test_results,
     ) -> None:
         """Scenario: Processing large datasets is fast.
 
@@ -528,7 +544,8 @@ class TestMemoryUsageScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_memory_data_counts(
-        self, memory_test_results,
+        self,
+        memory_test_results,
     ) -> None:
         """Scenario: All data items are counted.
 
@@ -544,7 +561,8 @@ class TestMemoryUsageScalability:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_memory_usage_controlled(
-        self, memory_test_results,
+        self,
+        memory_test_results,
     ) -> None:
         """Scenario: Memory usage stays within bounds.
 
@@ -569,14 +587,11 @@ class TestTokenConservationScalability:
         """Token-efficient categorization strategy."""
         categories = {}
         for item in items:
-            module = (
-                item["file"].split("/")[1]
-                if "/" in item["file"]
-                else "root"
-            )
+            module = item["file"].split("/")[1] if "/" in item["file"] else "root"
             if module not in categories:
                 categories[module] = {
-                    "count": 0, "total_size": 0,
+                    "count": 0,
+                    "total_size": 0,
                     "sample_files": [],
                 }
             categories[module]["count"] += 1
@@ -616,12 +631,10 @@ class TestTokenConservationScalability:
 
         strategies = {
             "full_content": lambda items: [
-                {"file": item["file"], "content": item["content"]}
-                for item in items
+                {"file": item["file"], "content": item["content"]} for item in items
             ],
             "summary_only": lambda items: [
-                {"file": item["file"], "size": len(item["content"])}
-                for item in items
+                {"file": item["file"], "size": len(item["content"])} for item in items
             ],
             "sample_first_10": lambda items: [
                 {"file": item["file"], "content": item["content"][:200]}
@@ -630,9 +643,7 @@ class TestTokenConservationScalability:
             "categorized_summary": self._categorized_summary_strategy,
         }
 
-        total_input_size = sum(
-            item["size_chars"] for item in large_content
-        )
+        total_input_size = sum(item["size_chars"] for item in large_content)
         results = {}
         for name, func in strategies.items():
             start = time.time()
@@ -647,18 +658,12 @@ class TestTokenConservationScalability:
 
         full_size = results["full_content"]["output_size_chars"]
 
-        assert results["summary_only"]["output_size_chars"] < (
-            full_size * 0.1
-        )
-        assert results["summary_only"]["compression_ratio"] < (
-            ZERO_POINT_ONE
-        )
+        assert results["summary_only"]["output_size_chars"] < (full_size * 0.1)
+        assert results["summary_only"]["compression_ratio"] < (ZERO_POINT_ONE)
         assert results["sample_first_10"]["output_size_chars"] < (
             full_size * COMPRESSION_RATIO_THRESHOLD
         )
-        assert results["categorized_summary"]["compression_ratio"] < (
-            ZERO_POINT_TWO
-        )
+        assert results["categorized_summary"]["compression_ratio"] < (ZERO_POINT_TWO)
 
         for result in results.values():
             assert result["processing_time"] < 1.0
@@ -682,7 +687,10 @@ class TestDatabaseScalabilitySimulation:
             {
                 "id": i,
                 "type": [
-                    "finding", "evidence", "action", "citation",
+                    "finding",
+                    "evidence",
+                    "action",
+                    "citation",
                 ][i % 4],
                 "data": f"Data {i} " + "x" * (i % 100 + 50),
                 "timestamp": f"2024-12-{(i % 30) + 1:02d}",
@@ -711,20 +719,18 @@ class TestDatabaseScalabilitySimulation:
         timings["group_by_date"] = time.time() - start
 
         start = time.time()
-        search_results = [
-            r for r in db_records if "Data 42" in r["data"]
-        ]
+        search_results = [r for r in db_records if "Data 42" in r["data"]]
         timings["search_content"] = time.time() - start
 
         start = time.time()
         stats = {
             "total_records": len(db_records),
             "records_by_type": dict.fromkeys(
-                ["finding", "evidence", "action", "citation"], 0,
+                ["finding", "evidence", "action", "citation"],
+                0,
             ),
             "avg_data_size": (
-                sum(len(r["data"]) for r in db_records)
-                / len(db_records)
+                sum(len(r["data"]) for r in db_records) / len(db_records)
             ),
             "unique_tags": set(),
         }
@@ -735,22 +741,17 @@ class TestDatabaseScalabilitySimulation:
         timings["aggregate_stats"] = time.time() - start
 
         start = time.time()
-        findings = [
-            r for r in db_records if r["type"] == "finding"
-        ]
-        evidence = [
-            r for r in db_records if r["type"] == "evidence"
-        ]
+        findings = [r for r in db_records if r["type"] == "finding"]
+        evidence = [r for r in db_records if r["type"] == "evidence"]
         join_results = []
         for finding in findings[:100]:
-            related = [
-                e for e in evidence[:100]
-                if finding["id"] % 10 == e["id"] % 10
-            ]
-            join_results.append({
-                "finding": finding,
-                "related_evidence": related,
-            })
+            related = [e for e in evidence[:100] if finding["id"] % 10 == e["id"] % 10]
+            join_results.append(
+                {
+                    "finding": finding,
+                    "related_evidence": related,
+                }
+            )
         timings["complex_join"] = time.time() - start
 
         return {
@@ -765,7 +766,8 @@ class TestDatabaseScalabilitySimulation:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_db_total_operation_time(
-        self, db_operation_results,
+        self,
+        db_operation_results,
     ) -> None:
         """Scenario: All DB operations complete in under 5 seconds.
 
@@ -779,7 +781,8 @@ class TestDatabaseScalabilitySimulation:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_db_operation_correctness(
-        self, db_operation_results,
+        self,
+        db_operation_results,
     ) -> None:
         """Scenario: DB operations produce correct results.
 
@@ -797,7 +800,9 @@ class TestDatabaseScalabilitySimulation:
     @pytest.mark.bdd
     @pytest.mark.slow
     def test_db_time_per_record(
-        self, db_operation_results, db_records,
+        self,
+        db_operation_results,
+        db_records,
     ) -> None:
         """Scenario: Per-record processing is under 1ms.
 

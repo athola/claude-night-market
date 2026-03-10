@@ -10,9 +10,7 @@ from typing import Any
 class TestingGuideSkill:
     """Analyze test quality and provide testing recommendations."""
 
-    async def analyze_testing(
-        self, code: str, test_code: str = ""
-    ) -> dict[str, Any]:
+    async def analyze_testing(self, code: str, test_code: str = "") -> dict[str, Any]:
         recommendations: list[dict[str, Any]] = []
         findings: dict[str, Any] = {
             "source_analysis": {},
@@ -112,17 +110,16 @@ class TestingGuideSkill:
                             "but tests don't use mocks.",
                         }
                     )
-        else:
-            if source_functions:
-                recommendations.append(
-                    {
-                        "type": "no_tests",
-                        "priority": "high",
-                        "message": f"No test code provided. "
-                        f"{len(source_functions)} public functions "
-                        f"need tests.",
-                    }
-                )
+        elif source_functions:
+            recommendations.append(
+                {
+                    "type": "no_tests",
+                    "priority": "high",
+                    "message": f"No test code provided. "
+                    f"{len(source_functions)} public functions "
+                    f"need tests.",
+                }
+            )
 
         return {"recommendations": recommendations, "findings": findings}
 
@@ -165,15 +162,11 @@ class TestingGuideSkill:
 
                 # Detect pytest fixtures
                 for dec in node.decorator_list:
-                    if isinstance(dec, ast.Attribute) and dec.attr == "fixture":
-                        structure["fixtures"].append(node.name)
-                    elif isinstance(dec, ast.Name) and dec.id == "fixture":
+                    if (isinstance(dec, ast.Attribute) and dec.attr == "fixture") or (isinstance(dec, ast.Name) and dec.id == "fixture"):
                         structure["fixtures"].append(node.name)
 
         # Also check for @pytest.fixture via string matching
-        for match in re.finditer(
-            r"@pytest\.fixture\s*\n\s*def\s+(\w+)", code
-        ):
+        for match in re.finditer(r"@pytest\.fixture\s*\n\s*def\s+(\w+)", code):
             name = match.group(1)
             if name not in structure["fixtures"]:
                 structure["fixtures"].append(name)
@@ -201,9 +194,7 @@ class TestingGuideSkill:
 
         # Check for direct instantiation without fixtures
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith(
-                "test_"
-            ):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                 for child in ast.walk(node):
                     if isinstance(child, ast.Call):
                         if isinstance(child.func, ast.Name):
@@ -225,9 +216,7 @@ class TestingGuideSkill:
 
         # Check for no assertions
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith(
-                "test_"
-            ):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                 has_assert = False
                 for child in ast.walk(node):
                     if isinstance(child, ast.Assert):
@@ -246,9 +235,7 @@ class TestingGuideSkill:
 
         return {"anti_patterns": anti_patterns}
 
-    def analyze_coverage_gaps(
-        self, source_code: str, test_code: str
-    ) -> dict[str, Any]:
+    def analyze_coverage_gaps(self, source_code: str, test_code: str) -> dict[str, Any]:
         """Analyze coverage gaps between source and test code.
 
         Args:
@@ -288,9 +275,9 @@ class TestingGuideSkill:
             try:
                 test_tree = ast.parse(test_code)
                 for node in ast.walk(test_tree):
-                    if isinstance(
-                        node, ast.FunctionDef
-                    ) and node.name.startswith("test_"):
+                    if isinstance(node, ast.FunctionDef) and node.name.startswith(
+                        "test_"
+                    ):
                         name = node.name.replace("test_", "", 1)
                         tested_methods.append(name)
             except SyntaxError:
@@ -309,12 +296,8 @@ class TestingGuideSkill:
         if branch_count > 0:
             # Check if error branches are tested
             if "raises" not in test_code and "Error" in source_code:
-                coverage["uncovered_branches"].append(
-                    "index_error_branch"
-                )
-            tested_branches = max(
-                0, branch_count - len(coverage["uncovered_branches"])
-            )
+                coverage["uncovered_branches"].append("index_error_branch")
+            tested_branches = max(0, branch_count - len(coverage["uncovered_branches"]))
 
         # Estimate coverage
         total_items = len(source_methods) + branch_count
@@ -412,9 +395,10 @@ class TestingGuideSkill:
 
         for i, line in enumerate(lines):
             requirement = line.lstrip("- ").strip()
-            test_name = "test_" + re.sub(
-                r"[^a-z0-9_]", "_", requirement.lower()
-            ).strip("_")[:50]
+            test_name = (
+                "test_"
+                + re.sub(r"[^a-z0-9_]", "_", requirement.lower()).strip("_")[:50]
+            )
 
             step: dict[str, Any] = {
                 "description": f"Implement: {requirement}",
@@ -521,40 +505,28 @@ class TestingGuideSkill:
                 # Find __init__ params
                 init_params: list[str] = []
                 for item in node.body:
-                    if (
-                        isinstance(item, ast.FunctionDef)
-                        and item.name == "__init__"
-                    ):
+                    if isinstance(item, ast.FunctionDef) and item.name == "__init__":
                         init_params = [
-                            arg.arg
-                            for arg in item.args.args
-                            if arg.arg != "self"
+                            arg.arg for arg in item.args.args if arg.arg != "self"
                         ]
 
                 fixtures[fixture_key] = {
                     "minimal_fixture": f"@pytest.fixture\n"
                     f"def {class_name.lower()}():\n"
                     f"    return {class_name}("
-                    + ", ".join(
-                        f'"{p}"' if p != "id" else "1"
-                        for p in init_params
-                    )
+                    + ", ".join(f'"{p}"' if p != "id" else "1" for p in init_params)
                     + ")",
                     "complete_fixture": f"@pytest.fixture\n"
                     f"def {class_name.lower()}_full():\n"
                     f"    return {class_name}("
                     + ", ".join(
-                        f'{p}="{p}_value"' if p != "id" else "id=1"
-                        for p in init_params
+                        f'{p}="{p}_value"' if p != "id" else "id=1" for p in init_params
                     )
                     + ")",
                     "edge_case_fixture": f"@pytest.fixture\n"
                     f"def {class_name.lower()}_edge():\n"
-                    f'    return {class_name}('
-                    + ", ".join(
-                        f'{p}=""' if p != "id" else "id=0"
-                        for p in init_params
-                    )
+                    f"    return {class_name}("
+                    + ", ".join(f'{p}=""' if p != "id" else "id=0" for p in init_params)
                     + ")",
                 }
 
@@ -615,50 +587,31 @@ class TestingGuideSkill:
         # Parse module structure from code/description
         # Support both "user/models.py # desc" and tree-formatted
         # "├── models.py  # desc" styles
-        modules = re.findall(
-            r"(\w+)/(\w+)\.py\s*#?\s*(.*)", code
-        )
+        modules = re.findall(r"(\w+)/(\w+)\.py\s*#?\s*(.*)", code)
 
         # Also parse tree-formatted directory listings
         current_dir = ""
         for line in code.split("\n"):
             # Detect directory lines like "├── user/" or "user/"
-            dir_match = re.search(
-                r"[├└│─\s]*(\w+)/\s*$", line
-            )
+            dir_match = re.search(r"[├└│─\s]*(\w+)/\s*$", line)
             if dir_match:
                 current_dir = dir_match.group(1)
                 continue
 
             # Detect file lines like "├── models.py  # description"
-            file_match = re.search(
-                r"[├└│─\s]*(\w+)\.py\s*#?\s*(.*)", line
-            )
+            file_match = re.search(r"[├└│─\s]*(\w+)\.py\s*#?\s*(.*)", line)
             if file_match and current_dir:
                 module_name = file_match.group(1)
                 description = file_match.group(2).strip()
                 if module_name == "__init__":
                     continue
-                modules.append(
-                    (current_dir, module_name, description)
-                )
+                modules.append((current_dir, module_name, description))
 
         for module_dir, module_name, description in modules:
             test_key = f"{module_dir}_{module_name}_test"
-            if "model" in module_name.lower():
+            if "model" in module_name.lower() or "service" in module_name.lower() or "middleware" in module_name.lower():
                 recommendations["unit_tests"][test_key] = {
-                    "description": description.strip()
-                    or f"Tests for {module_name}",
-                }
-            elif "service" in module_name.lower():
-                recommendations["unit_tests"][test_key] = {
-                    "description": description.strip()
-                    or f"Tests for {module_name}",
-                }
-            elif "middleware" in module_name.lower():
-                recommendations["unit_tests"][test_key] = {
-                    "description": description.strip()
-                    or f"Tests for {module_name}",
+                    "description": description.strip() or f"Tests for {module_name}",
                 }
 
         # Recommend integration tests for auth flows
@@ -687,9 +640,7 @@ class TestingGuideSkill:
         if not code:
             return {"async_validation": validation}
 
-        validation["uses_pytest_asyncio"] = (
-            "pytest.mark.asyncio" in code
-        )
+        validation["uses_pytest_asyncio"] = "pytest.mark.asyncio" in code
 
         # Count async test functions
         validation["async_test_count"] = len(
@@ -744,9 +695,7 @@ class TestingGuideSkill:
 
         return {"performance_analysis": performance}
 
-    def recommend_testing_tools(
-        self, code: Any
-    ) -> dict[str, Any]:
+    def recommend_testing_tools(self, code: Any) -> dict[str, Any]:
         """Recommend testing tools based on project context.
 
         Args:
@@ -765,13 +714,9 @@ class TestingGuideSkill:
         if isinstance(code, dict):
             context = code
             if context.get("async"):
-                recommendations["async_testing"]["tools"].append(
-                    "anyio"
-                )
+                recommendations["async_testing"]["tools"].append("anyio")
             if context.get("framework") == "fastapi":
-                recommendations["api_testing"]["tools"].append(
-                    "starlette.testclient"
-                )
+                recommendations["api_testing"]["tools"].append("starlette.testclient")
 
         return {"tool_recommendations": recommendations}
 
@@ -798,9 +743,7 @@ class TestingGuideSkill:
             return {"documentation": documentation}
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.ClassDef) and node.name.startswith(
-                "Test"
-            ):
+            if isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
                 docstring = ast.get_docstring(node) or ""
                 documentation["overview"] = {
                     "test_class": node.name,
@@ -813,19 +756,14 @@ class TestingGuideSkill:
                             test_doc = ast.get_docstring(item) or ""
                             has_fixture = len(item.args.args) > 1
                             has_assert = any(
-                                isinstance(c, ast.Assert)
-                                for c in ast.walk(item)
+                                isinstance(c, ast.Assert) for c in ast.walk(item)
                             )
 
                             documentation["test_cases"].append(
                                 {
                                     "name": item.name,
-                                    "description": test_doc.strip(
-                                        "."
-                                    ).strip(),
-                                    "setup": "fixture"
-                                    if has_fixture
-                                    else "inline",
+                                    "description": test_doc.strip(".").strip(),
+                                    "setup": "fixture" if has_fixture else "inline",
                                     "assertions": has_assert,
                                 }
                             )
@@ -884,9 +822,7 @@ class TestingGuideSkill:
                 "Add fixtures for reusable test setup"
             )
         if not maintainability["factors"]["readability"]:
-            maintainability["recommendations"].append(
-                "Add docstrings to test methods"
-            )
+            maintainability["recommendations"].append("Add docstrings to test methods")
 
         return {"maintainability_analysis": maintainability}
 
@@ -906,9 +842,7 @@ class TestingGuideSkill:
             return info
 
         for node in ast.walk(tree):
-            if isinstance(
-                node, ast.FunctionDef
-            ) and node.name.startswith("test_"):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                 info["test_count"] += 1
                 name = node.name.replace("test_", "", 1)
                 info["tested_functions"].append(name)
@@ -920,10 +854,7 @@ class TestingGuideSkill:
             # Check for decorators
             if isinstance(node, ast.FunctionDef):
                 for dec in node.decorator_list:
-                    if (
-                        isinstance(dec, ast.Attribute)
-                        and dec.attr == "parametrize"
-                    ):
+                    if isinstance(dec, ast.Attribute) and dec.attr == "parametrize":
                         info["uses_parametrize"] = True
                     if isinstance(dec, ast.Name) and dec.id == "fixture":
                         info["uses_fixtures"] = True
@@ -943,9 +874,7 @@ class TestingGuideSkill:
                 info["assertion_types"].add(name)
 
         # Check for mock usage
-        if re.search(
-            r"Mock\(|patch\(|MagicMock\(|AsyncMock\(", test_code
-        ):
+        if re.search(r"Mock\(|patch\(|MagicMock\(|AsyncMock\(", test_code):
             info["uses_mocks"] = True
 
         # Convert set to list for JSON serialization

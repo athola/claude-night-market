@@ -135,7 +135,9 @@ def _detect_terminal_context() -> dict[str, str | None]:
                 "tab_name": None,
             }
 
-    tty = os.environ.get("SSH_TTY", os.environ.get("TTY", os.environ.get("GPG_TTY", "")))
+    tty = os.environ.get(
+        "SSH_TTY", os.environ.get("TTY", os.environ.get("GPG_TTY", ""))
+    )
     if tty:
         return {
             "kind": "tty",

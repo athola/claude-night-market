@@ -65,9 +65,7 @@ class TestValidateHookAction:
             "valid-command-action",
         ],
     )
-    def test_action_validation(
-        self, action, expect_valid, error_fragment
-    ) -> None:
+    def test_action_validation(self, action, expect_valid, error_fragment) -> None:
         """Scenario: Hook action validation produces correct outcome.
         Given a hook action of varying validity
         When _validate_hook_action is called
@@ -197,9 +195,7 @@ class TestValidateHookEntry:
             "valid-without-matcher",
         ],
     )
-    def test_hook_entry_validation(
-        self, entry, expect_valid, error_fragment
-    ) -> None:
+    def test_hook_entry_validation(self, entry, expect_valid, error_fragment) -> None:
         """Scenario: Hook entry validation checks structure correctness."""
         result = _make_result()
         _validate_hook_entry("PreToolUse", 0, entry, result)
@@ -395,10 +391,7 @@ class TestValidatePythonHook:
         result = validate_python_hook(hook_file)
         assert result["valid"] is expect_valid
         if msg_fragment:
-            assert any(
-                msg_fragment.lower() in m.lower()
-                for m in result[msg_category]
-            )
+            assert any(msg_fragment.lower() in m.lower() for m in result[msg_category])
 
 
 # ---------------------------------------------------------------------------
@@ -544,18 +537,12 @@ class TestKnownEvents:
         """Scenario: Events that previously triggered warnings now pass."""
         hook_file = tmp_path / "hooks.json"
         data = {
-            "SessionStart": [
-                {"hooks": [{"type": "command", "command": "echo init"}]}
-            ],
+            "SessionStart": [{"hooks": [{"type": "command", "command": "echo init"}]}],
             "PermissionRequest": [
                 {"hooks": [{"type": "command", "command": "echo permit"}]}
             ],
-            "Setup": [
-                {"hooks": [{"type": "command", "command": "echo setup"}]}
-            ],
-            "ConfigChange": [
-                {"hooks": [{"type": "command", "command": "echo cfg"}]}
-            ],
+            "Setup": [{"hooks": [{"type": "command", "command": "echo setup"}]}],
+            "ConfigChange": [{"hooks": [{"type": "command", "command": "echo cfg"}]}],
         }
         hook_file.write_text(json.dumps(data))
         result = validate_json_hook(hook_file)

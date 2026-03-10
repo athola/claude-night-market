@@ -47,6 +47,7 @@ def session() -> WarRoomSession:
 # _invoke_expert
 # -------------------------------------------------------------------
 
+
 class TestInvokeExpert:
     """Test _invoke_expert with different expert types."""
 
@@ -58,7 +59,10 @@ class TestInvokeExpert:
     ) -> None:
         """Native experts return a placeholder response."""
         result = await orchestrator._invoke_expert(
-            "supreme_commander", "Test prompt", session, "synthesis",
+            "supreme_commander",
+            "Test prompt",
+            session,
+            "synthesis",
         )
 
         assert "[Native expert" in result
@@ -82,12 +86,16 @@ class TestInvokeExpert:
             return_value=True,
         ):
             with patch.object(
-                orchestrator, "_invoke_external",
+                orchestrator,
+                "_invoke_external",
                 new_callable=AsyncMock,
                 return_value="External response",
             ) as mock_external:
                 result = await orchestrator._invoke_expert(
-                    "intelligence_officer", "prompt", session, "intel",
+                    "intelligence_officer",
+                    "prompt",
+                    session,
+                    "intel",
                 )
 
         assert result == "External response"
@@ -108,12 +116,16 @@ class TestInvokeExpert:
             return_value=False,
         ):
             with patch.object(
-                orchestrator, "_invoke_haiku_fallback",
+                orchestrator,
+                "_invoke_haiku_fallback",
                 new_callable=AsyncMock,
                 return_value="Haiku fallback response",
             ) as mock_haiku:
                 result = await orchestrator._invoke_expert(
-                    "intelligence_officer", "prompt", session, "intel",
+                    "intelligence_officer",
+                    "prompt",
+                    session,
+                    "intel",
                 )
 
         assert result == "Haiku fallback response"
@@ -129,6 +141,7 @@ class TestInvokeExpert:
 # -------------------------------------------------------------------
 # _invoke_external
 # -------------------------------------------------------------------
+
 
 class TestInvokeExternal:
     """Test _invoke_external error paths."""
@@ -155,7 +168,8 @@ class TestInvokeExternal:
         mock_proc = AsyncMock()
         mock_proc.returncode = 0
         mock_proc.communicate.return_value = (
-            b"Expert analysis result", b"",
+            b"Expert analysis result",
+            b"",
         )
 
         with patch(
@@ -163,7 +177,8 @@ class TestInvokeExternal:
             return_value=mock_proc,
         ):
             result = await orchestrator._invoke_external(
-                gemini_expert, "Analyze this",
+                gemini_expert,
+                "Analyze this",
             )
 
         assert result == "Expert analysis result"
@@ -184,7 +199,8 @@ class TestInvokeExternal:
             return_value=mock_proc,
         ):
             result = await orchestrator._invoke_external(
-                gemini_expert, "Analyze",
+                gemini_expert,
+                "Analyze",
             )
 
         assert "failed" in result
@@ -205,7 +221,8 @@ class TestInvokeExternal:
             return_value=mock_proc,
         ):
             result = await orchestrator._invoke_external(
-                gemini_expert, "Analyze",
+                gemini_expert,
+                "Analyze",
             )
 
         assert "timed out" in result
@@ -222,7 +239,8 @@ class TestInvokeExternal:
             side_effect=FileNotFoundError("gemini not found"),
         ):
             result = await orchestrator._invoke_external(
-                gemini_expert, "Analyze",
+                gemini_expert,
+                "Analyze",
             )
 
         assert "command not found" in result
@@ -239,7 +257,8 @@ class TestInvokeExternal:
             side_effect=RuntimeError("Unexpected"),
         ):
             result = await orchestrator._invoke_external(
-                gemini_expert, "Analyze",
+                gemini_expert,
+                "Analyze",
             )
 
         assert "error" in result
@@ -249,6 +268,7 @@ class TestInvokeExternal:
 # -------------------------------------------------------------------
 # _invoke_haiku_fallback
 # -------------------------------------------------------------------
+
 
 class TestInvokeHaikuFallback:
     """Test _invoke_haiku_fallback error paths."""
@@ -281,7 +301,8 @@ class TestInvokeHaikuFallback:
                 return_value=mock_proc,
             ):
                 result = await orchestrator._invoke_haiku_fallback(
-                    mock_expert, "Test prompt",
+                    mock_expert,
+                    "Test prompt",
                 )
 
         assert result == "Haiku response"
@@ -306,7 +327,8 @@ class TestInvokeHaikuFallback:
                 return_value=mock_proc,
             ):
                 result = await orchestrator._invoke_haiku_fallback(
-                    mock_expert, "prompt",
+                    mock_expert,
+                    "prompt",
                 )
 
         assert "Haiku fallback" in result
@@ -331,7 +353,8 @@ class TestInvokeHaikuFallback:
                 return_value=mock_proc,
             ):
                 result = await orchestrator._invoke_haiku_fallback(
-                    mock_expert, "prompt",
+                    mock_expert,
+                    "prompt",
                 )
 
         assert "timed out" in result
@@ -353,7 +376,8 @@ class TestInvokeHaikuFallback:
                 side_effect=FileNotFoundError(),
             ):
                 result = await orchestrator._invoke_haiku_fallback(
-                    mock_expert, "prompt",
+                    mock_expert,
+                    "prompt",
                 )
 
         assert "CLI not found" in result
@@ -374,7 +398,8 @@ class TestInvokeHaikuFallback:
                 side_effect=RuntimeError("Unexpected"),
             ):
                 result = await orchestrator._invoke_haiku_fallback(
-                    mock_expert, "prompt",
+                    mock_expert,
+                    "prompt",
                 )
 
         assert "Haiku fallback" in result
@@ -384,6 +409,7 @@ class TestInvokeHaikuFallback:
 # -------------------------------------------------------------------
 # _invoke_parallel
 # -------------------------------------------------------------------
+
 
 class TestInvokeParallel:
     """Test _invoke_parallel with mixed results."""
@@ -396,7 +422,9 @@ class TestInvokeParallel:
     ) -> None:
         """All experts succeed and results are collected."""
         with patch.object(
-            orchestrator, "_invoke_expert", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_expert",
+            new_callable=AsyncMock,
         ) as mock_invoke:
             mock_invoke.side_effect = [
                 "Response from commander",
@@ -425,7 +453,9 @@ class TestInvokeParallel:
     ) -> None:
         """Exception from one expert is captured as error string."""
         with patch.object(
-            orchestrator, "_invoke_expert", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_expert",
+            new_callable=AsyncMock,
         ) as mock_invoke:
             mock_invoke.side_effect = [
                 "Good response",
@@ -453,7 +483,9 @@ class TestInvokeParallel:
     ) -> None:
         """Unknown expert keys are filtered out."""
         with patch.object(
-            orchestrator, "_invoke_expert", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_expert",
+            new_callable=AsyncMock,
         ) as mock_invoke:
             mock_invoke.return_value = "response"
 
@@ -477,7 +509,9 @@ class TestInvokeParallel:
     ) -> None:
         """Missing per-expert prompt falls back to 'default' key."""
         with patch.object(
-            orchestrator, "_invoke_expert", new_callable=AsyncMock,
+            orchestrator,
+            "_invoke_expert",
+            new_callable=AsyncMock,
         ) as mock_invoke:
             mock_invoke.return_value = "response"
 

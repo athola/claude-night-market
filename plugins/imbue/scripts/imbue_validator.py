@@ -221,9 +221,7 @@ class ImbueValidator:
     def generate_report(self) -> str:
         """Generate detailed validation report."""
         result, validation_issues = self.scan_and_validate()
-        issues = list(
-            dict.fromkeys(result["issues"] + validation_issues)
-        )
+        issues = list(dict.fromkeys(result["issues"] + validation_issues))
 
         report = ["Imbue Plugin Review Workflow Report", "=" * 50]
         report.append(f"\nPlugin Root: {self.plugin_root}")

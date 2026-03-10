@@ -56,8 +56,10 @@ class ContinualEvaluator:
                 # Merge into defaultdict to preserve default factory
                 for key, value in data.items():
                     self.skill_history[key] = value
-            except (OSError, json.JSONDecodeError):
-                pass  # Start fresh on error
+            except (OSError, json.JSONDecodeError) as e:
+                sys.stderr.write(
+                    f"skill_execution_logger: failed to load history: {e}\n"
+                )
 
     def _save_history(self) -> None:
         """Save historical execution data."""
@@ -355,8 +357,8 @@ def main() -> None:
                     pre_state = json.load(f)
                 try:
                     processing_file.unlink()
-                except OSError:
-                    pass
+                except OSError as e:
+                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
             except FileNotFoundError:
                 # Another hook already claimed this file
                 pass
@@ -364,8 +366,8 @@ def main() -> None:
                 # Clean up .processing file on parse errors
                 try:
                     processing_file.unlink()
-                except OSError:
-                    pass
+                except OSError as e:
+                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"

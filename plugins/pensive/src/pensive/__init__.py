@@ -1,6 +1,11 @@
 """Expose Pensive code review skills."""
 
-from pensive.exceptions import AnalysisError, ConfigurationError, PensiveError, PluginError
+from pensive.exceptions import (
+    AnalysisError,
+    ConfigurationError,
+    PensiveError,
+    PluginError,
+)
 from pensive.skills import (
     ApiReviewSkill,
     ArchitectureReviewSkill,

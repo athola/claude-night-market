@@ -83,9 +83,7 @@ def delphi_mocks(orchestrator: WarRoomOrchestrator):
         mocks: dict[str, AsyncMock] = {}
         for name in _DELPHI_PHASES:
             kw = {"new_callable": AsyncMock} if name != "_compute_convergence" else {}
-            mock = stack.enter_context(
-                patch.object(orchestrator, name, **kw)
-            )
+            mock = stack.enter_context(patch.object(orchestrator, name, **kw))
             mocks[name] = mock
         yield mocks
 
@@ -93,6 +91,7 @@ def delphi_mocks(orchestrator: WarRoomOrchestrator):
 # -------------------------------------------------------------------
 # Hook auto-trigger detection
 # -------------------------------------------------------------------
+
 
 class TestHookAutoTrigger:
     """Test Phase 4: Hook auto-trigger detection."""
@@ -184,6 +183,7 @@ class TestHookAutoTrigger:
 # Full convene() flow
 # -------------------------------------------------------------------
 
+
 class TestFullConveneFlow:
     """Test full convene() flow with all phases."""
 
@@ -265,6 +265,7 @@ class TestFullConveneFlow:
         convene_mocks: dict[str, AsyncMock],
     ) -> None:
         """convene() captures fallback notices in session artifacts."""
+
         async def mock_intel_with_fallback(*_a, **_k):
             _haiku_fallback_notices.append("Test fallback notice")
 
@@ -279,6 +280,7 @@ class TestFullConveneFlow:
 # -------------------------------------------------------------------
 # Delphi convene flow
 # -------------------------------------------------------------------
+
 
 class TestDelphiConvene:
     """Test Delphi convene flow."""

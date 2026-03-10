@@ -268,10 +268,14 @@ class MemoryPalaceCLI:
             elif output_format == "prometheus":
                 label_val = label or Path(target).stem
                 print(f'garden_plots{{garden="{label_val}"}} {metrics["plots"]}')
-                print(f'garden_link_density{{garden="{label_val}"}} {metrics["link_density"]}')
+                print(
+                    f'garden_link_density{{garden="{label_val}"}} {metrics["link_density"]}'
+                )
                 avg_days = metrics.get("avg_days_since_tend")
                 if avg_days is not None:
-                    print(f'garden_avg_days_since_tend{{garden="{label_val}"}} {avg_days}')
+                    print(
+                        f'garden_avg_days_since_tend{{garden="{label_val}"}} {avg_days}'
+                    )
             else:
                 print(json.dumps(metrics, indent=2, default=str))
         except Exception as e:
@@ -360,7 +364,9 @@ class MemoryPalaceCLI:
                 actions["prune"].append((name, "never tended"))
                 continue
 
-            days = (now_dt - datetime.fromisoformat(last)).total_seconds() / SECONDS_PER_DAY
+            days = (
+                now_dt - datetime.fromisoformat(last)
+            ).total_seconds() / SECONDS_PER_DAY
             if days >= archive_days:
                 actions["archive"].append((name, round(days, 2)))
             elif days >= stale_days:
@@ -638,7 +644,9 @@ class MemoryPalaceCLI:
                 for result in results:
                     print(f"\nPalace: {result['palace_name']} ({result['palace_id']})")
                     for match in result["matches"]:
-                        item_id = match.get("concept_id") or match.get("location_id", "unknown")
+                        item_id = match.get("concept_id") or match.get(
+                            "location_id", "unknown"
+                        )
                         print(f"  - [{match['type']}] {item_id}")
             else:
                 print(f"No matches found for query: {query}")

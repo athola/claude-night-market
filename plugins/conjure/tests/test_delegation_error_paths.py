@@ -22,6 +22,7 @@ from scripts.delegation_executor import Delegator, ExecutionResult
 # smart_delegate - no services
 # -------------------------------------------------------------------
 
+
 class TestSmartDelegateNoServices:
     """Test smart_delegate() when no services are available."""
 
@@ -34,11 +35,11 @@ class TestSmartDelegateNoServices:
         mock_verify.return_value = (False, ["Service not available"])
         delegator = Delegator()
 
-        with pytest.raises(
-            RuntimeError, match="No delegation services available"
-        ):
+        with pytest.raises(RuntimeError, match="No delegation services available"):
             delegator.smart_delegate(
-                "test prompt", files=None, requirements=None,
+                "test prompt",
+                files=None,
+                requirements=None,
             )
 
         # Verify every service was probed
@@ -87,6 +88,7 @@ class TestSmartDelegateNoServices:
         expected_service: str,
     ) -> None:
         """smart_delegate picks the first available service."""
+
         def selective_verify(name: str) -> tuple[bool, list[str]]:
             if name == unavailable_service:
                 return False, [f"{name} not available"]
@@ -94,8 +96,11 @@ class TestSmartDelegateNoServices:
 
         mock_verify.side_effect = selective_verify
         mock_execute.return_value = ExecutionResult(
-            success=True, stdout="result", stderr="",
-            exit_code=0, duration=1.0,
+            success=True,
+            stdout="result",
+            stderr="",
+            exit_code=0,
+            duration=1.0,
         )
 
         delegator = Delegator()
@@ -111,6 +116,7 @@ class TestSmartDelegateNoServices:
 # -------------------------------------------------------------------
 # Timeout handling
 # -------------------------------------------------------------------
+
 
 class TestTimeoutHandling:
     """Test timeout handling in delegation execution."""
@@ -131,7 +137,8 @@ class TestTimeoutHandling:
     ) -> None:
         """Delegation properly handles and reports timeout errors."""
         mock_run.side_effect = subprocess.TimeoutExpired(
-            cmd=service, timeout=timeout_val,
+            cmd=service,
+            timeout=timeout_val,
         )
 
         delegator = Delegator()
@@ -154,6 +161,7 @@ class TestTimeoutHandling:
         mock_run: MagicMock,
     ) -> None:
         """Timeout duration is measured even when command times out."""
+
         def simulate_timeout(*_a, **_k):
             time.sleep(0.1)
             raise subprocess.TimeoutExpired(cmd="gemini", timeout=1)
@@ -175,7 +183,8 @@ class TestTimeoutHandling:
     ) -> None:
         """Very short timeout is handled without crash."""
         mock_run.side_effect = subprocess.TimeoutExpired(
-            cmd="gemini", timeout=0.001,
+            cmd="gemini",
+            timeout=0.001,
         )
 
         delegator = Delegator()
@@ -188,6 +197,7 @@ class TestTimeoutHandling:
 # -------------------------------------------------------------------
 # Malformed config handling (parametrized)
 # -------------------------------------------------------------------
+
 
 class TestMalformedConfigHandling:
     """Test graceful handling of malformed configuration."""
@@ -234,6 +244,7 @@ class TestMalformedConfigHandling:
 # Config validation
 # -------------------------------------------------------------------
 
+
 class TestConfigValidation:
     """Test configuration validation and error reporting."""
 
@@ -246,13 +257,15 @@ class TestConfigValidation:
         recent_ts = datetime.now().isoformat()
         usage_log.write_text(
             "{invalid json}\n"
-            + json.dumps({
-                "timestamp": recent_ts,
-                "service": "gemini",
-                "success": True,
-                "duration": 1.0,
-                "tokens_used": 100,
-            })
+            + json.dumps(
+                {
+                    "timestamp": recent_ts,
+                    "service": "gemini",
+                    "success": True,
+                    "duration": 1.0,
+                    "tokens_used": 100,
+                }
+            )
             + "\n"
             + "{more invalid json}\n",
         )
@@ -264,7 +277,8 @@ class TestConfigValidation:
         assert "gemini" in summary["services"]
 
     def test_missing_config_directory_is_created(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Missing config directory is created automatically."""
         config_dir = tmp_path / "nonexistent" / "delegation"
@@ -279,6 +293,7 @@ class TestConfigValidation:
 # -------------------------------------------------------------------
 # General error handling
 # -------------------------------------------------------------------
+
 
 class TestGeneralErrorHandling:
     """Test general error handling in delegation."""
@@ -315,7 +330,8 @@ class TestGeneralErrorHandling:
         assert cmd[0] == "gemini"
 
     def test_usage_log_write_failure_is_handled(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Failure to write usage log doesn't crash execution."""
         config_dir = tmp_path / "delegation"
@@ -330,7 +346,9 @@ class TestGeneralErrorHandling:
             "scripts.delegation_executor.subprocess.run",
         ) as mock_run:
             mock_run.return_value = MagicMock(
-                returncode=0, stdout="result", stderr="",
+                returncode=0,
+                stdout="result",
+                stderr="",
             )
 
             result = delegator.execute("gemini", "test prompt")

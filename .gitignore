@@ -86,6 +86,9 @@ docs/archive/
 # Git worktrees
 .worktrees/
 
+# Attune calibration data
+.attune/
+
 # Intake queue for memory palace artifacts
 plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/

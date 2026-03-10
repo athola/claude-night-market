@@ -174,8 +174,7 @@ class GrowthAnalyzer:
         # Simple estimation for positive growth without acceleration
         if acceleration <= 0:
             return math.ceil(
-                math.log(MECW_USAGE_LIMIT / current_usage)
-                / math.log(1 + growth_rate)
+                math.log(MECW_USAGE_LIMIT / current_usage) / math.log(1 + growth_rate)
             )
 
         # For positive acceleration, use iterative approach with

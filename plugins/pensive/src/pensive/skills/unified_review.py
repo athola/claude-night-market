@@ -54,7 +54,9 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         # Build counts using RepositoryAnalyzer mappings
         for lang, extensions in RepositoryAnalyzer.LANGUAGE_EXTENSIONS.items():
-            file_count = sum(1 for f in files if any(f.endswith(ext) for ext in extensions))
+            file_count = sum(
+                1 for f in files if any(f.endswith(ext) for ext in extensions)
+            )
             lang_info: dict[str, Any] = {"files": 0}
 
             # Check config files
@@ -68,9 +70,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
             # Check for test patterns (Python)
             if lang == "python":
-                test_file_count = sum(
-                    1 for f in files if "test_" in f or "_test." in f
-                )
+                test_file_count = sum(1 for f in files if "test_" in f or "_test." in f)
                 if test_file_count > 0:
                     lang_info["test_files"] = True
 
@@ -209,7 +209,9 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         summary_parts.append(
             f"Found {len(findings)} total findings: "
-            + ", ".join(f"{count} {sev}" for sev, count in severity_counts.items() if count > 0)
+            + ", ".join(
+                f"{count} {sev}" for sev, count in severity_counts.items() if count > 0
+            )
         )
         summary_parts.append("\n")
 

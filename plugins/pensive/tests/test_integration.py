@@ -44,9 +44,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_end_to_end_code_review_workflow(
-        self, temp_repository
-    ) -> None:
+    def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
         """Given repo code, full review generates a report with
         expected metrics and finding structure.
         """
@@ -71,9 +69,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_skill_coordination_and_result_consolidation(
-        self, temp_repository
-    ) -> None:
+    def test_skill_coordination_and_result_consolidation(self, temp_repository) -> None:
         """Given two skills, parallel execution returns two results
         and dispatches exactly twice.
         """
@@ -106,9 +102,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_real_repository_analysis(
-        self, temp_repository
-    ) -> None:
+    def test_real_repository_analysis(self, temp_repository) -> None:
         """Given real Rust repo structure, analysis detects Rust,
         make, and cargo test framework.
         """
@@ -226,9 +220,7 @@ clean:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_todo_write_integration(
-        self, temp_repository
-    ) -> None:
+    def test_todo_write_integration(self, temp_repository) -> None:
         """Given review workflow, result contains list-typed findings
         and dict-typed metrics.
         """
@@ -244,9 +236,7 @@ clean:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_error_handling_and_recovery(
-        self, temp_repository
-    ) -> None:
+    def test_error_handling_and_recovery(self, temp_repository) -> None:
         """Given a failing Rust skill, workflow continues and
         reports errors or skipped skills.
         """
@@ -256,8 +246,8 @@ clean:
         with patch(
             "pensive.skills.rust_review.RustReviewSkill",
         ) as mock_rust_skill:
-            mock_rust_skill.return_value.analyze.side_effect = (
-                Exception("Rust toolchain not found")
+            mock_rust_skill.return_value.analyze.side_effect = Exception(
+                "Rust toolchain not found"
             )
 
             # Act
@@ -265,17 +255,13 @@ clean:
 
             # Assert
             assert isinstance(result, dict)
-            has_error_info = (
-                "errors" in result or "skipped_skills" in result
-            )
+            has_error_info = "errors" in result or "skipped_skills" in result
             assert has_error_info
             assert isinstance(result.get("findings", []), list)
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_performance_with_large_repository(
-        self, temp_repository
-    ) -> None:
+    def test_performance_with_large_repository(self, temp_repository) -> None:
         """Given 20+ module files, review completes under 30 seconds."""
         # Arrange
         for i in range(20):
@@ -326,9 +312,7 @@ mod tests {{
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_cross_language_repository_analysis(
-        self, temp_repository
-    ) -> None:
+    def test_cross_language_repository_analysis(self, temp_repository) -> None:
         """Given JS, Python, and Rust files, analysis detects all
         three languages.
         """
@@ -414,9 +398,7 @@ jobs:
 
         # Act
         config = integration.detect_configuration(temp_repository)
-        sarif_output = integration.generate_sarif_output(
-            temp_repository
-        )
+        sarif_output = integration.generate_sarif_output(temp_repository)
 
         # Assert
         assert config["type"] == "github_actions"
@@ -427,9 +409,7 @@ jobs:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_configuration_and_customization(
-        self, temp_repository
-    ) -> None:
+    def test_configuration_and_customization(self, temp_repository) -> None:
         """Given custom .pensive.yml config, workflow loads and
         applies the skill and exclusion settings.
         """
@@ -474,9 +454,7 @@ custom_rules:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_memory_usage_and_resource_management(
-        self, temp_repository
-    ) -> None:
+    def test_memory_usage_and_resource_management(self, temp_repository) -> None:
         """Given 100 large files, memory increase stays under 100 MB."""
         # Arrange
         for i in range(100):
@@ -503,9 +481,7 @@ custom_rules:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_concurrent_skill_execution(
-        self, temp_repository
-    ) -> None:
+    def test_concurrent_skill_execution(self, temp_repository) -> None:
         """Given three skills, coordinator dispatches all three
         and returns matching result count.
         """
@@ -523,9 +499,7 @@ custom_rules:
                 "Test review completed",
             ]
 
-            results = coordinator.execute_skills_concurrently(
-                skills, temp_repository
-            )
+            results = coordinator.execute_skills_concurrently(skills, temp_repository)
 
         # Assert
         assert len(results) == 3
@@ -536,9 +510,7 @@ custom_rules:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_output_formatting_and_reporting(
-        self, temp_repository
-    ) -> None:
+    def test_output_formatting_and_reporting(self, temp_repository) -> None:
         """Given findings, markdown and SARIF formatters produce
         valid output containing finding IDs and locations.
         """
@@ -563,12 +535,8 @@ custom_rules:
         ]
 
         # Act
-        markdown_report = MarkdownFormatter().format(
-            sample_findings, temp_repository
-        )
-        sarif_report = SarifFormatter().format(
-            sample_findings, temp_repository
-        )
+        markdown_report = MarkdownFormatter().format(sample_findings, temp_repository)
+        sarif_report = SarifFormatter().format(sample_findings, temp_repository)
 
         # Assert -- markdown
         assert "SEC001" in markdown_report
@@ -583,9 +551,7 @@ custom_rules:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_plugin_lifecycle_and_cleanup(
-        self, temp_repository
-    ) -> None:
+    def test_plugin_lifecycle_and_cleanup(self, temp_repository) -> None:
         """Given plugin lifecycle, init/execute/cleanup completes
         without raising exceptions.
         """

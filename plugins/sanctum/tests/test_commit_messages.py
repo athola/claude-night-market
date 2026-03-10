@@ -8,7 +8,7 @@ assert_called_once_with or call_args checks.
 
 from __future__ import annotations
 
-from unittest.mock import Mock, call
+from unittest.mock import Mock
 
 
 class TestCommitMessagesSkill:

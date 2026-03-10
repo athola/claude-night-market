@@ -16,7 +16,6 @@ from unittest.mock import patch
 
 import pytest
 
-from parseltongue.agents import AnalysisError
 from parseltongue.config import ConfigLoader
 from parseltongue.skills.async_analysis import AsyncAnalysisSkill
 from parseltongue.skills.compatibility_checker import CompatibilityChecker
@@ -191,20 +190,17 @@ async def slow_function():
     def test_network_timeout_simulation(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange
-        import parseltongue.utils as _utils_mod
         from unittest.mock import MagicMock
 
+        import parseltongue.utils as _utils_mod
+
         mock_requests = MagicMock()
-        mock_requests.get.side_effect = TimeoutError(
-            "Network timeout"
-        )
+        mock_requests.get.side_effect = TimeoutError("Network timeout")
 
         with patch.object(_utils_mod, "requests", mock_requests):
             # Act
             client = HttpClient()
-            result = client.fetch_remote_analysis(
-                "https://example.com/code.py"
-            )
+            result = client.fetch_remote_analysis("https://example.com/code.py")
 
             # Assert
             assert result is None or "timeout" in str(result).lower()
@@ -235,9 +231,7 @@ async def slow_function():
     def test_corrupted_file_handling(self) -> None:
         """Given corrupted files, when analyzing, then handles gracefully."""
         # Arrange
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".py", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write partial/incomplete Python code
             f.write(
                 "class IncompleteClass:\n"
@@ -280,9 +274,7 @@ class ClassB:
 
         # Act
         analyzer = DependencyAnalyzer()
-        analysis = analyzer.analyze_dependencies(
-            circular_dependency_code
-        )
+        analysis = analyzer.analyze_dependencies(circular_dependency_code)
 
         # Assert
         assert "circular_dependencies" in analysis
@@ -363,9 +355,7 @@ def deeply_nested_function():
         # Act - Run multiple threads
         threads = []
         for i in range(10):
-            thread = threading.Thread(
-                target=analyze_worker, args=(i,)
-            )
+            thread = threading.Thread(target=analyze_worker, args=(i,))
             threads.append(thread)
             thread.start()
 
@@ -376,9 +366,7 @@ def deeply_nested_function():
         # Assert
         assert len(errors) == 0, f"Errors occurred: {errors}"
         assert len(results) == 10
-        assert all(
-            result["language"] == "python" for result in results
-        )
+        assert all(result["language"] == "python" for result in results)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -391,8 +379,7 @@ def deeply_nested_function():
             # Invalid YAML (still invalid JSON)
             "skills:\n  - python\n  - javascript\ninvalid: [unclosed",
             # Invalid data types
-            '{"python_version": 3.11, "invalid": '
-            '["should", "be", "string"]}',
+            '{"python_version": 3.11, "invalid": ["should", "be", "string"]}',
         ]
 
         # Act & Assert
@@ -407,9 +394,7 @@ def deeply_nested_function():
 
             try:
                 loader = ConfigLoader()
-                with pytest.raises(
-                    (json.JSONDecodeError, ValueError)
-                ):
+                with pytest.raises((json.JSONDecodeError, ValueError)):
                     loader.load_config(Path(temp_file))
 
             finally:
@@ -491,17 +476,13 @@ def deeply_nested_function():
         """Given database connection issues, when analyzing, then handles gracefully."""
         # Arrange
         with patch("sqlite3.connect") as mock_connect:
-            mock_connect.side_effect = Exception(
-                "Database connection failed"
-            )
+            mock_connect.side_effect = Exception("Database connection failed")
 
             # Act
             storage = ResultStorage("sqlite:///test.db")
 
             # Assert
-            with pytest.raises(
-                Exception, match="Database connection failed"
-            ):
+            with pytest.raises(Exception, match="Database connection failed"):
                 storage.save_results({"test": "data"})
 
     @pytest.mark.bdd
@@ -585,9 +566,7 @@ async def test_function():
                 # This should handle the case where
                 # there's no running loop
                 with pytest.raises(RuntimeError):
-                    asyncio.run(
-                        skill.analyze_async_functions(async_code)
-                    )
+                    asyncio.run(skill.analyze_async_functions(async_code))
 
                 # Cleanup
                 new_loop.close()
@@ -627,9 +606,7 @@ def process_data(data: list[str]) -> None:
 
         # Act
         checker = CompatibilityChecker()
-        analysis = checker.check_compatibility(
-            version_specific_code
-        )
+        analysis = checker.check_compatibility(version_specific_code)
 
         # Assert
         assert "minimum_version" in analysis

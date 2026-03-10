@@ -43,9 +43,7 @@ class TestCLI:
     @pytest.mark.unit
     def test_main_analyze_async(self, capsys) -> None:
         """Given a valid file, analyze-async returns results."""
-        with tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
             f.write("async def hello(): await something()\n")
             f.flush()
             result = main(["analyze-async", f.name])
@@ -58,9 +56,7 @@ class TestCLI:
     @pytest.mark.unit
     def test_main_check_compat(self, capsys) -> None:
         """Given a valid file, check-compat returns results."""
-        with tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
             f.write("x: int = 5\n")
             f.flush()
             result = main(["check-compat", f.name])
@@ -73,9 +69,7 @@ class TestCLI:
     @pytest.mark.unit
     def test_main_detect_patterns(self, capsys) -> None:
         """Given a valid file, detect-patterns returns results."""
-        with tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
             f.write("class Foo:\n    pass\n")
             f.flush()
             result = main(["detect-patterns", f.name])
@@ -88,9 +82,7 @@ class TestCLI:
     @pytest.mark.unit
     def test_main_test_guide(self, capsys) -> None:
         """Given a valid file, test-guide returns results."""
-        with tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
             f.write("def hello(): pass\n")
             f.flush()
             result = main(["test-guide", f.name])
@@ -103,9 +95,7 @@ class TestCLI:
     @pytest.mark.unit
     def test_main_transform(self, capsys) -> None:
         """Given a valid file, transform returns results."""
-        with tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
             f.write("x = dict()\n")
             f.flush()
             result = main(["transform", f.name])

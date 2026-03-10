@@ -11,7 +11,6 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-import quota_tracker as _qt_module
 from quota_tracker import (
     DEFAULT_LIMITS,
     GeminiQuotaTracker,
@@ -57,9 +56,7 @@ class TestGeminiQuotaTracker:
         assert tracker.usage_file == expected
 
     @pytest.mark.bdd
-    def test_initialization_usage_file_can_be_overridden(
-        self, tmp_path: Path
-    ) -> None:
+    def test_initialization_usage_file_can_be_overridden(self, tmp_path: Path) -> None:
         """Given a tracker when overriding usage_file then the new value is used."""
         tracker = GeminiQuotaTracker()
         usage_file = tmp_path / "usage.json"
@@ -198,9 +195,7 @@ class TestGeminiQuotaTracker:
 
         GeminiQuotaTracker._get_encoder.cache_clear()
 
-    def test_estimate_task_tokens_heuristic_is_positive(
-        self, tmp_path: Path
-    ) -> None:
+    def test_estimate_task_tokens_heuristic_is_positive(self, tmp_path: Path) -> None:
         """Given heuristic path then result is a positive integer."""
         GeminiQuotaTracker._get_encoder.cache_clear()
 

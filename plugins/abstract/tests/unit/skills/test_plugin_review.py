@@ -206,15 +206,13 @@ class TestPluginReviewModules:
     @pytest.fixture
     def modules_dir(self) -> Path:
         """Path to the plugin-review modules directory."""
-        return (
-            Path(__file__).parents[3]
-            / "skills" / "plugin-review" / "modules"
-        )
+        return Path(__file__).parents[3] / "skills" / "plugin-review" / "modules"
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_branch_tier_module_exists(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Branch tier module exists.
 
@@ -227,7 +225,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_pr_tier_module_exists(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: PR tier module exists.
 
@@ -240,7 +239,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_release_tier_module_exists(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Release tier module exists.
 
@@ -253,7 +253,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_dependency_detection_module_exists(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Dependency detection module exists.
 
@@ -266,7 +267,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_branch_module_defines_checks(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Branch module defines required checks.
 
@@ -283,7 +285,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_pr_module_references_eval_skills(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: PR module invokes evaluation skills.
 
@@ -301,7 +304,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_release_module_requires_plan_mode(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Release module mentions plan mode.
 
@@ -315,7 +319,8 @@ class TestPluginReviewModules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_dependency_module_explains_detection(
-        self, modules_dir: Path,
+        self,
+        modules_dir: Path,
     ) -> None:
         """Scenario: Dependency module explains affected/related.
 
@@ -323,9 +328,7 @@ class TestPluginReviewModules:
         When reading its content
         Then it should explain affected and related concepts
         """
-        content = (
-            modules_dir / "dependency-detection.md"
-        ).read_text()
+        content = (modules_dir / "dependency-detection.md").read_text()
         assert "Affected" in content
         assert "Related" in content
         assert "plugin-dependencies.json" in content

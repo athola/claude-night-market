@@ -32,11 +32,14 @@ def validate_skill(skill_path: Path) -> bool:
             )
 
             if result.stderr:
-                pass
+                sys.stderr.write(
+                    f"automation_validate: stderr: {result.stderr[:200]}\n"
+                )
 
             return result.returncode == 0
 
-        except Exception:
+        except (subprocess.TimeoutExpired, OSError) as e:
+            sys.stderr.write(f"automation_validate: command failed: {e}\n")
             return False
     else:
         return False

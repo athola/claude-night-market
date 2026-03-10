@@ -171,39 +171,38 @@ class TestSecurityPatterns:
         """innerHTML pattern detects direct innerHTML assignment."""
         pattern = PatternMatcher.get_pattern("innerHTML")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, 'el.innerHTML = "<b>hi</b>"'
-        ) is True
+        assert (
+            PatternMatcher.test_pattern(pattern, 'el.innerHTML = "<b>hi</b>"') is True
+        )
 
     def test_innerHTML_rejects(self) -> None:
         """innerHTML pattern ignores textContent assignment."""
         pattern = PatternMatcher.get_pattern("innerHTML")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, 'el.textContent = "safe"'
-        ) is False
+        assert PatternMatcher.test_pattern(pattern, 'el.textContent = "safe"') is False
 
     def test_setInnerHTML_matches(self) -> None:
         """setInnerHTML pattern detects dangerouslySetInnerHTML."""
         pattern = PatternMatcher.get_pattern("setInnerHTML")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "dangerouslySetInnerHTML={{__html: data}}"
-        ) is True
+        assert (
+            PatternMatcher.test_pattern(
+                pattern, "dangerouslySetInnerHTML={{__html: data}}"
+            )
+            is True
+        )
 
     def test_setInnerHTML_rejects(self) -> None:
         """setInnerHTML pattern ignores normal JSX."""
         pattern = PatternMatcher.get_pattern("setInnerHTML")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, '<div className="safe">'
-        ) is False
+        assert PatternMatcher.test_pattern(pattern, '<div className="safe">') is False
 
     def test_sql_injection_matches(self) -> None:
         """sql_injection pattern detects string concatenation in queries."""
         pattern = PatternMatcher.get_pattern("sql_injection")
         assert pattern is not None
-        text = "cursor.execute(\"SELECT * FROM users WHERE id=\" + user_id)"
+        text = 'cursor.execute("SELECT * FROM users WHERE id=" + user_id)'
         assert PatternMatcher.test_pattern(pattern, text) is True
 
     def test_sql_injection_rejects(self) -> None:
@@ -217,17 +216,16 @@ class TestSecurityPatterns:
         """hardcoded_secret pattern detects inline credentials."""
         pattern = PatternMatcher.get_pattern("hardcoded_secret")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "password = 'hunter2'"
-        ) is True
+        assert PatternMatcher.test_pattern(pattern, "password = 'hunter2'") is True
 
     def test_hardcoded_secret_rejects(self) -> None:
         """hardcoded_secret pattern ignores env-var lookups."""
         pattern = PatternMatcher.get_pattern("hardcoded_secret")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "password = os.environ['DB_PASS']"
-        ) is False
+        assert (
+            PatternMatcher.test_pattern(pattern, "password = os.environ['DB_PASS']")
+            is False
+        )
 
 
 class TestDebugPatterns:
@@ -250,9 +248,9 @@ class TestDebugPatterns:
         """console_log pattern ignores console.error."""
         pattern = PatternMatcher.get_pattern("console_log")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "console.error('real error')"
-        ) is False
+        assert (
+            PatternMatcher.test_pattern(pattern, "console.error('real error')") is False
+        )
 
     @pytest.mark.parametrize(
         "text",
@@ -279,25 +277,19 @@ class TestDebugPatterns:
         pattern = PatternMatcher.get_pattern("debugger")
         assert pattern is not None
         # "debugger_mode = true" does not have "debugger ;" or "debugger;"
-        assert PatternMatcher.test_pattern(
-            pattern, "debugger_mode = true"
-        ) is False
+        assert PatternMatcher.test_pattern(pattern, "debugger_mode = true") is False
 
     def test_var_dump_matches(self) -> None:
         """var_dump pattern detects PHP var_dump calls."""
         pattern = PatternMatcher.get_pattern("var_dump")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "var_dump($variable)"
-        ) is True
+        assert PatternMatcher.test_pattern(pattern, "var_dump($variable)") is True
 
     def test_var_dump_rejects(self) -> None:
         """var_dump pattern ignores unrelated code."""
         pattern = PatternMatcher.get_pattern("var_dump")
         assert pattern is not None
-        assert PatternMatcher.test_pattern(
-            pattern, "var dumped = true"
-        ) is False
+        assert PatternMatcher.test_pattern(pattern, "var dumped = true") is False
 
     def test_dd_laravel_matches(self) -> None:
         """dd_laravel pattern detects Laravel dd() calls."""
@@ -389,9 +381,7 @@ class TestExtractMatches:
 
     def test_extracts_all_occurrences(self) -> None:
         """All matches are returned as a list."""
-        result = PatternMatcher.extract_matches(
-            r"\d+", "abc 123 def 456 ghi 789"
-        )
+        result = PatternMatcher.extract_matches(r"\d+", "abc 123 def 456 ghi 789")
         assert result == ["123", "456", "789"]
 
     def test_no_matches_returns_empty_list(self) -> None:
@@ -406,9 +396,7 @@ class TestExtractMatches:
 
     def test_groups_returned_as_tuples(self) -> None:
         """Patterns with capture groups return group contents."""
-        result = PatternMatcher.extract_matches(
-            r"(\w+)=(\w+)", "a=1 b=2"
-        )
+        result = PatternMatcher.extract_matches(r"(\w+)=(\w+)", "a=1 b=2")
         assert result == [("a", "1"), ("b", "2")]
 
 

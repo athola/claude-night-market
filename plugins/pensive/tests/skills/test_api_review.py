@@ -19,7 +19,6 @@ sys.path.insert(0, str(Path(__file__).parents[2] / "src"))
 # Import the skill we're testing
 from pensive.skills.api_review import ApiReviewSkill
 
-
 # ── Parametrized language API detection ─────────────────────
 
 TYPESCRIPT_CODE = """
@@ -206,12 +205,8 @@ class TestApiReviewSkill:
         """Set up test fixtures before each test."""
         self.skill = ApiReviewSkill()
         self.mock_context = Mock()
-        self.mock_context.repo_path = (
-            Path(tempfile.gettempdir()) / "test_repo"
-        )
-        self.mock_context.working_dir = (
-            Path(tempfile.gettempdir()) / "test_repo"
-        )
+        self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
+        self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -242,8 +237,7 @@ class TestApiReviewSkill:
         # Assert -- exact equality on every key
         for key, expected_value in expected.items():
             assert api_surface[key] == expected_value, (
-                f"{lang} {key}: got {api_surface[key]}, "
-                f"expected {expected_value}"
+                f"{lang} {key}: got {api_surface[key]}, expected {expected_value}"
             )
         # Verify mock was called
         mock_skill_context.get_file_content.assert_called_once_with(
@@ -252,9 +246,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_identifies_missing_documentation(
-        self, mock_skill_context
-    ) -> None:
+    def test_identifies_missing_documentation(self, mock_skill_context) -> None:
         """Given undocumented API exports, when skill analyzes,
         then flags missing docs with correct issue structure.
         """
@@ -276,9 +268,7 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.check_documentation(
-            mock_skill_context, "service.ts"
-        )
+        issues = self.skill.check_documentation(mock_skill_context, "service.ts")
 
         # Assert
         assert len(issues) == 2
@@ -293,9 +283,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_identifies_inconsistent_naming(
-        self, mock_skill_context
-    ) -> None:
+    def test_identifies_inconsistent_naming(self, mock_skill_context) -> None:
         """Given inconsistent API naming, skill flags naming issues
         with correct severity and type.
         """
@@ -333,9 +321,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_identifies_missing_error_handling(
-        self, mock_skill_context
-    ) -> None:
+    def test_identifies_missing_error_handling(self, mock_skill_context) -> None:
         """Given API lacks error handling, skill flags each method
         missing try-catch around fetch calls.
         """
@@ -362,9 +348,7 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.check_error_handling(
-            mock_skill_context, "api_client.ts"
-        )
+        issues = self.skill.check_error_handling(mock_skill_context, "api_client.ts")
 
         # Assert
         assert len(issues) == 2
@@ -381,9 +365,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_identifies_breaking_changes(
-        self, mock_skill_context
-    ) -> None:
+    def test_identifies_breaking_changes(self, mock_skill_context) -> None:
         """Given potential breaking changes, skill flags them with
         correct severity levels.
         """
@@ -417,9 +399,7 @@ class TestApiReviewSkill:
 
         # Assert
         assert len(issues) >= 1
-        breaking_issues = [
-            i for i in issues if i["type"] == "breaking_change"
-        ]
+        breaking_issues = [i for i in issues if i["type"] == "breaking_change"]
         assert len(breaking_issues) >= 1
         severities = {i["severity"] for i in breaking_issues}
         assert severities <= {"critical", "high"}
@@ -429,9 +409,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validates_rest_api_patterns(
-        self, mock_skill_context
-    ) -> None:
+    def test_validates_rest_api_patterns(self, mock_skill_context) -> None:
         """Given REST API with improper HTTP method usage, skill
         detects delete-via-GET violations.
         """
@@ -467,14 +445,10 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.validate_rest_patterns(
-            mock_skill_context, "user_api.ts"
-        )
+        issues = self.skill.validate_rest_patterns(mock_skill_context, "user_api.ts")
 
         # Assert
-        rest_issues = [
-            i for i in issues if i["type"] == "rest_violation"
-        ]
+        rest_issues = [i for i in issues if i["type"] == "rest_violation"]
         assert len(rest_issues) >= 1
         assert rest_issues[0]["severity"] == "medium"
         mock_skill_context.get_file_content.assert_called_once_with(
@@ -483,9 +457,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_checks_input_validation(
-        self, mock_skill_context
-    ) -> None:
+    def test_checks_input_validation(self, mock_skill_context) -> None:
         """Given API methods without input validation, skill flags
         each unvalidated parameter handler.
         """
@@ -532,9 +504,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_analyzes_api_versioning(
-        self, mock_skill_context
-    ) -> None:
+    def test_analyzes_api_versioning(self, mock_skill_context) -> None:
         """Given mixed versioned and unversioned endpoints, skill
         detects the inconsistency.
         """
@@ -580,9 +550,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_checks_api_security_practices(
-        self, mock_skill_context
-    ) -> None:
+    def test_checks_api_security_practices(self, mock_skill_context) -> None:
         """Given client code with security anti-patterns, skill
         detects API key exposure as critical.
         """
@@ -621,9 +589,7 @@ class TestApiReviewSkill:
 
         # Assert
         assert len(security_issues) >= 1
-        critical_issues = [
-            i for i in security_issues if i["severity"] == "critical"
-        ]
+        critical_issues = [i for i in security_issues if i["severity"] == "critical"]
         assert len(critical_issues) >= 1
         assert critical_issues[0]["type"] == "security_issue"
         assert "api key" in critical_issues[0]["issue"].lower()
@@ -633,9 +599,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_analyzes_api_performance_implications(
-        self, mock_skill_context
-    ) -> None:
+    def test_analyzes_api_performance_implications(self, mock_skill_context) -> None:
         """Given code with N+1 queries and missing pagination, skill
         detects performance issues.
         """
@@ -689,9 +653,7 @@ class TestApiReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_handles_empty_api_surface(
-        self, mock_skill_context
-    ) -> None:
+    def test_handles_empty_api_surface(self, mock_skill_context) -> None:
         """Given file with no exports, when skill analyzes, then
         returns zero counts for every metric.
         """

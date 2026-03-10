@@ -1,6 +1,7 @@
 """Tests for the ProjectPalaceManager and PR Review Room functionality."""
 
 import json
+from unittest.mock import patch
 
 import pytest
 
@@ -566,6 +567,149 @@ class TestSearchSortByImportance:
         # Should work without sort_by parameter
         results = manager.search_review_chamber(palace["id"], "")
         assert len(results) == 1
+
+
+class TestSemanticSearchSortByImportance:
+    """Test that semantic search respects sort_by='importance'."""
+
+    def test_semantic_sort_by_importance(self, manager):
+        """Semantic results re-sorted by importance_score descending."""
+        palace = manager.create_project_palace("owner/semantic-repo")
+
+        low = ReviewEntry(
+            source_pr="#10",
+            title="Low priority finding",
+            room_type="patterns",
+            content={"decision": "minor tweak"},
+            importance_score=15,
+        )
+        mid = ReviewEntry(
+            source_pr="#11",
+            title="Mid priority finding",
+            room_type="patterns",
+            content={"decision": "moderate change"},
+            importance_score=55,
+        )
+        high = ReviewEntry(
+            source_pr="#12",
+            title="High priority finding",
+            room_type="patterns",
+            content={"decision": "critical fix"},
+            importance_score=90,
+        )
+
+        manager.add_review_entry(palace["id"], low)
+        manager.add_review_entry(palace["id"], mid)
+        manager.add_review_entry(palace["id"], high)
+
+        # Mock _search_review_chamber_semantic to return results
+        # in similarity order (low, high, mid) -- NOT importance order
+        def fake_semantic(
+            self_inner, palace_arg, chamber, query, room_type, tags, sort_by
+        ):
+            # Return in similarity order (NOT importance order).
+            # The production search_review_chamber must apply the sort.
+            return [
+                {
+                    "room": "review-chamber/patterns",
+                    "entry": low.to_dict(),
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": 0.99,
+                },
+                {
+                    "room": "review-chamber/patterns",
+                    "entry": high.to_dict(),
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": 0.85,
+                },
+                {
+                    "room": "review-chamber/patterns",
+                    "entry": mid.to_dict(),
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": 0.70,
+                },
+            ]
+
+        with patch.object(
+            ProjectPalaceManager,
+            "_search_review_chamber_semantic",
+            fake_semantic,
+        ):
+            results = manager.search_review_chamber(
+                palace["id"],
+                "finding",
+                semantic=True,
+                sort_by="importance",
+            )
+
+        assert len(results) == 3
+        scores = [r["entry"]["importance_score"] for r in results]
+        assert scores == [90, 55, 15]
+
+    def test_semantic_default_sort_preserves_similarity_order(self, manager):
+        """Without sort_by=importance, semantic results keep similarity order."""
+        palace = manager.create_project_palace("owner/semantic-default")
+
+        low = ReviewEntry(
+            source_pr="#20",
+            title="Low importance but high similarity",
+            room_type="patterns",
+            content={"decision": "test"},
+            importance_score=10,
+        )
+        high = ReviewEntry(
+            source_pr="#21",
+            title="High importance but low similarity",
+            room_type="patterns",
+            content={"decision": "test"},
+            importance_score=99,
+        )
+
+        manager.add_review_entry(palace["id"], low)
+        manager.add_review_entry(palace["id"], high)
+
+        # Return low-importance first (higher similarity score)
+        def fake_semantic(
+            self_inner, palace_arg, chamber, query, room_type, tags, sort_by
+        ):
+            # Return in similarity order (low-importance first).
+            # The production search_review_chamber must NOT re-sort
+            # when sort_by is not IMPORTANCE.
+            return [
+                {
+                    "room": "review-chamber/patterns",
+                    "entry": low.to_dict(),
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": 0.99,
+                },
+                {
+                    "room": "review-chamber/patterns",
+                    "entry": high.to_dict(),
+                    "palace_id": palace["id"],
+                    "palace_name": palace["name"],
+                    "score": 0.50,
+                },
+            ]
+
+        with patch.object(
+            ProjectPalaceManager,
+            "_search_review_chamber_semantic",
+            fake_semantic,
+        ):
+            results = manager.search_review_chamber(
+                palace["id"],
+                "test",
+                semantic=True,
+            )
+
+        assert len(results) == 2
+        # Similarity order preserved: low-importance first
+        scores = [r["entry"]["importance_score"] for r in results]
+        assert scores == [10, 99]
 
 
 class TestGetReviewChamberStatsTopEntries:

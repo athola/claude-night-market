@@ -9,10 +9,19 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+_SAFE_SESSION_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+
+
+def _validate_session_id(session_id: str) -> bool:
+    """Check session_id is safe for use in file paths."""
+    return bool(_SAFE_SESSION_ID.match(session_id)) and ".." not in session_id
+
 
 # Storage location within the plugin data directory
 SESSIONS_DIR = "sessions"
@@ -130,7 +139,12 @@ class SessionHistoryManager:
         Returns:
             The path to the written session file.
 
+        Raises:
+            ValueError: If the session_id contains unsafe characters.
+
         """
+        if not _validate_session_id(record.session_id):
+            raise ValueError(f"Invalid session_id: {record.session_id!r}")
         session_file = self.sessions_dir / f"{record.session_id}.json"
         session_file.write_text(
             json.dumps(record.to_dict(), indent=2), encoding="utf-8"
@@ -163,9 +177,12 @@ class SessionHistoryManager:
             session_id: The identifier of the session to retrieve.
 
         Returns:
-            The ``SessionRecord``, or ``None`` if not found.
+            The ``SessionRecord``, or ``None`` if not found /
+            if the ID is invalid.
 
         """
+        if not _validate_session_id(session_id):
+            return None
         session_file = self.sessions_dir / f"{session_id}.json"
         if not session_file.exists():
             return None
@@ -335,9 +352,12 @@ class SessionHistoryManager:
             session_id: The identifier of the session to delete.
 
         Returns:
-            ``True`` if the session was deleted, ``False`` if it was not found.
+            ``True`` if the session was deleted, ``False`` if it was
+            not found or if the ID is invalid.
 
         """
+        if not _validate_session_id(session_id):
+            return False
         session_file = self.sessions_dir / f"{session_id}.json"
         if not session_file.exists():
             return False
@@ -374,6 +394,8 @@ class SessionHistoryManager:
         ]
 
         for sid in to_remove:
+            if not _validate_session_id(sid):
+                continue
             session_file = self.sessions_dir / f"{sid}.json"
             if session_file.exists():
                 session_file.unlink()

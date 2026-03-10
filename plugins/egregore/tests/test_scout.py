@@ -7,7 +7,6 @@ import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from scout import (
     ExemplarProject,
     ReviewTechnique,
@@ -111,26 +110,20 @@ class TestExtractTechniques:
             "review": ["All tests must pass before merge"],
             "style": ["Use black for formatting"],
         }
-        techniques = extract_techniques_from_guidelines(
-            sections, source="test/repo"
-        )
+        techniques = extract_techniques_from_guidelines(sections, source="test/repo")
         categories = {t.category for t in techniques}
         assert len(categories) >= 1
 
     def test_review_section_gets_higher_confidence(self) -> None:
         """Given a review section item, when extracted, then confidence is 0.7."""
         sections = {"review": ["Run all unit tests before merge"]}
-        techniques = extract_techniques_from_guidelines(
-            sections, source="org/repo"
-        )
+        techniques = extract_techniques_from_guidelines(sections, source="org/repo")
         assert techniques[0].confidence == 0.7
 
     def test_non_review_section_gets_lower_confidence(self) -> None:
         """Given a style section item, when extracted, then confidence is 0.5."""
         sections = {"style": ["Use black for formatting"]}
-        techniques = extract_techniques_from_guidelines(
-            sections, source="org/repo"
-        )
+        techniques = extract_techniques_from_guidelines(sections, source="org/repo")
         assert techniques[0].confidence == 0.5
 
 
@@ -235,17 +228,13 @@ class TestFetchContributingGuide:
     """Test fetching CONTRIBUTING.md from GitHub via gh api."""
 
     @patch("subprocess.run")
-    def test_returns_decoded_content_on_success(
-        self, mock_run: MagicMock
-    ) -> None:
+    def test_returns_decoded_content_on_success(self, mock_run: MagicMock) -> None:
         """Given gh api returns base64 content, when fetching, then decodes it."""
         import base64
 
         raw_content = "# Contributing\n\nPlease read this guide.\n"
         encoded = base64.b64encode(raw_content.encode()).decode()
-        mock_run.return_value = MagicMock(
-            returncode=0, stdout=encoded + "\n"
-        )
+        mock_run.return_value = MagicMock(returncode=0, stdout=encoded + "\n")
 
         result = fetch_contributing_guide("org", "repo")
 
@@ -256,9 +245,7 @@ class TestFetchContributingGuide:
         assert "repos/org/repo/contents/CONTRIBUTING.md" in " ".join(cmd)
 
     @patch("subprocess.run")
-    def test_returns_none_on_nonzero_exit(
-        self, mock_run: MagicMock
-    ) -> None:
+    def test_returns_none_on_nonzero_exit(self, mock_run: MagicMock) -> None:
         """Given gh api returns error, when fetching, then returns None."""
         mock_run.return_value = MagicMock(returncode=1)
         result = fetch_contributing_guide("org", "repo")
@@ -286,9 +273,7 @@ class TestPostDiscussion:
     @patch("subprocess.run")
     def test_returns_url_on_success(self, mock_run: MagicMock) -> None:
         """Given successful GraphQL calls, when posting, then returns discussion URL."""
-        repo_response = json.dumps(
-            {"data": {"repository": {"id": "R_abc123"}}}
-        )
+        repo_response = json.dumps({"data": {"repository": {"id": "R_abc123"}}})
         discussion_response = json.dumps(
             {
                 "data": {
@@ -317,9 +302,7 @@ class TestPostDiscussion:
         assert mock_run.call_count == 2
 
     @patch("subprocess.run")
-    def test_returns_none_when_repo_query_fails(
-        self, mock_run: MagicMock
-    ) -> None:
+    def test_returns_none_when_repo_query_fails(self, mock_run: MagicMock) -> None:
         """Given repo query fails, when posting, then returns None."""
         mock_run.return_value = MagicMock(returncode=1)
         url = post_discussion(
@@ -332,13 +315,9 @@ class TestPostDiscussion:
         assert url is None
 
     @patch("subprocess.run")
-    def test_returns_none_when_mutation_fails(
-        self, mock_run: MagicMock
-    ) -> None:
+    def test_returns_none_when_mutation_fails(self, mock_run: MagicMock) -> None:
         """Given mutation fails, when posting, then returns None."""
-        repo_response = json.dumps(
-            {"data": {"repository": {"id": "R_abc123"}}}
-        )
+        repo_response = json.dumps({"data": {"repository": {"id": "R_abc123"}}})
         mock_run.side_effect = [
             MagicMock(returncode=0, stdout=repo_response),
             MagicMock(returncode=1),
@@ -385,9 +364,7 @@ class TestRunScout:
             "- [ ] Update changelog for user-facing changes\n"
         )
         exemplars = [
-            ExemplarProject(
-                owner="org", repo="lib", language="python"
-            ),
+            ExemplarProject(owner="org", repo="lib", language="python"),
         ]
 
         techniques = run_scout(
@@ -409,9 +386,7 @@ class TestRunScout:
     ) -> None:
         """Given exemplar without CONTRIBUTING.md, when scouting, then skips it."""
         exemplars = [
-            ExemplarProject(
-                owner="org", repo="no-contrib", language="python"
-            ),
+            ExemplarProject(owner="org", repo="no-contrib", language="python"),
         ]
 
         techniques = run_scout(
@@ -427,13 +402,9 @@ class TestRunScout:
         self, mock_fetch: MagicMock
     ) -> None:
         """Given post_to_discussions=False, when scouting, then skips posting."""
-        mock_fetch.return_value = (
-            "## Testing\n\n- Run pytest before each commit\n"
-        )
+        mock_fetch.return_value = "## Testing\n\n- Run pytest before each commit\n"
         exemplars = [
-            ExemplarProject(
-                owner="org", repo="lib", language="python"
-            ),
+            ExemplarProject(owner="org", repo="lib", language="python"),
         ]
 
         with patch("scout.post_discussion") as mock_post:

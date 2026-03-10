@@ -86,9 +86,7 @@ class TestModularTokensCLI:
         Then exit code is 0
         """
         custom = tmp_path / "custom-skill.md"
-        custom.write_text(
-            "---\nname: custom\ndescription: Custom\n---\n\n# Custom\n"
-        )
+        custom.write_text("---\nname: custom\ndescription: Custom\n---\n\n# Custom\n")
         result = _run("--file", str(custom), cwd=str(tmp_path))
         assert result.returncode == 0
 

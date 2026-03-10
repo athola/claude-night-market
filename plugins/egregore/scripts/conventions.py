@@ -104,15 +104,11 @@ def load_codex(path: Path) -> list[Convention]:
         )
 
     if not isinstance(data, dict) or "conventions" not in data:
-        raise ValueError(
-            f"Codex {path} must have a top-level 'conventions' key"
-        )
+        raise ValueError(f"Codex {path} must have a top-level 'conventions' key")
 
     raw_conventions = data["conventions"]
     if not isinstance(raw_conventions, list):
-        raise ValueError(
-            f"Codex {path}: 'conventions' must be a list"
-        )
+        raise ValueError(f"Codex {path}: 'conventions' must be a list")
 
     conventions = []
     for entry in raw_conventions:

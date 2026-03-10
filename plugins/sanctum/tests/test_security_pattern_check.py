@@ -42,9 +42,7 @@ PATTERNS = {
 }
 
 
-def run_hook_in_process(
-    tool_name: str, tool_input: dict
-) -> tuple:
+def run_hook_in_process(tool_name: str, tool_input: dict) -> tuple:
     """Run main() in-process and return (exit_code, stdout, stderr)."""
     input_data = json.dumps({"tool_name": tool_name, "tool_input": tool_input})
     captured_stdout = StringIO()
@@ -202,10 +200,31 @@ class TestHasNegativeContext:
     @pytest.mark.unit
     @pytest.mark.parametrize(
         "word",
-        ["bad", "avoid", "don't", "do not", "unsafe", "vulnerable", "never",
-         "warning", "danger", "risk", "insecure", "# bad", "# wrong",
-         "anti-pattern", "antipattern", "instead of", "example of unsafe",
-         "[high]", "[med]", "[low]", "security issue", "flags", "detects"],
+        [
+            "bad",
+            "avoid",
+            "don't",
+            "do not",
+            "unsafe",
+            "vulnerable",
+            "never",
+            "warning",
+            "danger",
+            "risk",
+            "insecure",
+            "# bad",
+            "# wrong",
+            "anti-pattern",
+            "antipattern",
+            "instead of",
+            "example of unsafe",
+            "[high]",
+            "[med]",
+            "[low]",
+            "security issue",
+            "flags",
+            "detects",
+        ],
     )
     def test_each_negative_context_word(self, word: str) -> None:
         """Given each NEGATIVE_CONTEXT_WORDS entry, detection succeeds."""
@@ -339,10 +358,7 @@ class TestCheckContent:
     def test_doc_code_block_with_negative_context_skips(self) -> None:
         """Given docs code block with 'bad' context, skips the match."""
         pattern = PATTERNS["os_system"]()
-        content = (
-            "## Bad Practice\nAvoid this:\n"
-            f"```python\n{pattern}\n```"
-        )
+        content = f"## Bad Practice\nAvoid this:\n```python\n{pattern}\n```"
         rule, reminder = check_content("guide.md", content)
         assert rule is None
         assert reminder is None

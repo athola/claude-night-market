@@ -29,7 +29,6 @@ from post_implementation_policy import (
     main,
 )
 
-
 # ============================================================================
 # Constants / Module-Level Validation
 # ============================================================================
@@ -257,8 +256,9 @@ class TestErrorHandling:
         with patch("sys.stdin", StringIO("not valid json")):
             captured_stdout = StringIO()
             captured_stderr = StringIO()
-            with patch("sys.stdout", captured_stdout), patch(
-                "sys.stderr", captured_stderr
+            with (
+                patch("sys.stdout", captured_stdout),
+                patch("sys.stderr", captured_stderr),
             ):
                 with pytest.raises(SystemExit) as exc_info:
                     main()
@@ -278,8 +278,9 @@ class TestErrorHandling:
         with patch("sys.stdin", mock_stdin):
             captured_stdout = StringIO()
             captured_stderr = StringIO()
-            with patch("sys.stdout", captured_stdout), patch(
-                "sys.stderr", captured_stderr
+            with (
+                patch("sys.stdout", captured_stdout),
+                patch("sys.stderr", captured_stderr),
             ):
                 with pytest.raises(SystemExit) as exc_info:
                     main()

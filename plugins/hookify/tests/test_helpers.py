@@ -36,9 +36,7 @@ class TestFormatRuleName:
             ("has   multiple   spaces", "has-multiple-spaces"),
         ],
     )
-    def test_converts_to_kebab_case(
-        self, input_name: str, expected: str
-    ) -> None:
+    def test_converts_to_kebab_case(self, input_name: str, expected: str) -> None:
         """Various name formats are normalized to kebab-case."""
         assert format_rule_name(input_name) == expected
 
@@ -168,9 +166,7 @@ class TestGetFieldForEvent:
             ),
         ],
     )
-    def test_known_events(
-        self, event: str, expected: list[str]
-    ) -> None:
+    def test_known_events(self, event: str, expected: list[str]) -> None:
         """Each event type returns its specific field list."""
         assert get_field_for_event(event) == expected
 

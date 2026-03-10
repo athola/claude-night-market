@@ -76,7 +76,7 @@ class MakefileTargetGenerator:
             Makefile target definition as string
 
         """
-        target_name = f"demo-{command_name.replace('/', '').lstrip('/')}"
+        target_name = f"demo-{command_name.replace('/', '')}"
         target_desc = description or f"Demo {command_name} command (LIVE)"
 
         # Check if we have a live command for this
@@ -241,8 +241,7 @@ def generate_makefile(
     elif language == "typescript":
         makefile_content = _generate_typescript_makefile(plugin_name)
     else:
-        print(f"  Unsupported language: {language}")
-        return False
+        makefile_content = _generate_python_makefile(plugin_name)
 
     # Write Makefile
     makefile_path = plugin_dir / "Makefile"

@@ -39,6 +39,7 @@ CACHE_EXCLUDES: frozenset[str] = frozenset(
         ".hg",
         ".svn",
         ".worktrees",
+        "worktrees",
         # IDEs and editors
         ".vscode",
         ".idea",

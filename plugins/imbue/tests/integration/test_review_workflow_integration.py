@@ -7,7 +7,7 @@ and commands working together, following TDD/BDD principles.
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock
 
 import pytest
@@ -45,8 +45,8 @@ class TestReviewWorkflowIntegration:
 
         (repo_path / "src" / "auth.py").write_text(
             "def authenticate_user(username, password):\n"
-            "    query = \"SELECT * FROM users WHERE username = '\""
-            " + username + \"'\"\n"
+            '    query = "SELECT * FROM users WHERE username = \'"'
+            ' + username + "\'"\n'
             "    return execute_query(query)\n"
         )
         (repo_path / "src" / "payment.py").write_text(
@@ -79,6 +79,7 @@ class TestReviewWorkflowIntegration:
     @pytest.fixture
     def mock_skill_call(self, skill_execution_log, shared_context):
         """Create a mock skill call function for workflow testing."""
+
         def _mock_skill_call(skill_name, context) -> str:
             skill_execution_log.append((skill_name, context.copy()))
 
@@ -91,7 +92,8 @@ class TestReviewWorkflowIntegration:
                 ]
                 context["scope"] = {
                     "source_files": [
-                        "src/auth.py", "src/payment.py",
+                        "src/auth.py",
+                        "src/payment.py",
                     ],
                     "test_files": ["tests/test_auth.py"],
                     "config_files": ["config/app.json"],
@@ -99,7 +101,8 @@ class TestReviewWorkflowIntegration:
                 }
             elif skill_name == "evidence-logging":
                 context["evidence_session"] = context.get(
-                    "session_id", "default-session",
+                    "session_id",
+                    "default-session",
                 )
                 context["evidence_log"] = {
                     "session_id": context["evidence_session"],
@@ -119,15 +122,14 @@ class TestReviewWorkflowIntegration:
                 context["deliverable"] = {
                     "template": "security_review_report",
                     "sections": [
-                        "Executive Summary", "Findings",
-                        "Actions", "Evidence",
+                        "Executive Summary",
+                        "Findings",
+                        "Actions",
+                        "Evidence",
                     ],
                     "findings": context.get("findings", []),
                     "evidence_refs": [
-                        f"E{i + 1}"
-                        for i in range(
-                            len(context.get("evidence", []))
-                        )
+                        f"E{i + 1}" for i in range(len(context.get("evidence", [])))
                     ],
                 }
 
@@ -138,8 +140,11 @@ class TestReviewWorkflowIntegration:
 
     @pytest.fixture
     def executed_workflow(
-        self, mock_claude_tools, mock_skill_call,
-        shared_context, skill_execution_log,
+        self,
+        mock_claude_tools,
+        mock_skill_call,
+        shared_context,
+        skill_execution_log,
     ):
         """Execute the full review workflow and return results."""
         mock_claude_tools["Skill"] = Mock(side_effect=mock_skill_call)
@@ -158,16 +163,18 @@ class TestReviewWorkflowIntegration:
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
                 "output": (  # noqa: S608
-                    "src/auth.py:3: query = \"SELECT * FROM users"
+                    'src/auth.py:3: query = "SELECT * FROM users'
                     " WHERE username = 'test_user'"
                 ),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         ]
 
         skills_to_execute = [
-            "review-core", "evidence-logging",
-            "diff-analysis", "structured-output",
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
         ]
         current_context = {
             "command": "/review",
@@ -199,7 +206,8 @@ class TestReviewWorkflowIntegration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_end_to_end_skills_all_executed(
-        self, executed_workflow,
+        self,
+        executed_workflow,
     ) -> None:
         """Scenario: Full review workflow executes all four skills.
 
@@ -209,14 +217,18 @@ class TestReviewWorkflowIntegration:
         """
         assert executed_workflow["command_executed"] == "/review"
         assert executed_workflow["skills_executed"] == [
-            "review-core", "evidence-logging",
-            "diff-analysis", "structured-output",
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
         ]
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_end_to_end_execution_order(
-        self, executed_workflow, skill_execution_log,
+        self,
+        executed_workflow,
+        skill_execution_log,
     ) -> None:
         """Scenario: Skills execute in correct sequence.
 
@@ -226,14 +238,18 @@ class TestReviewWorkflowIntegration:
         """
         execution_order = [call[0] for call in skill_execution_log]
         assert execution_order == [
-            "review-core", "evidence-logging",
-            "diff-analysis", "structured-output",
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
         ]
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_end_to_end_context_propagation(
-        self, executed_workflow, shared_context,
+        self,
+        executed_workflow,
+        shared_context,
     ) -> None:
         """Scenario: Context propagates across skills.
 
@@ -250,7 +266,8 @@ class TestReviewWorkflowIntegration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_end_to_end_deliverable_quality(
-        self, executed_workflow,
+        self,
+        executed_workflow,
     ) -> None:
         """Scenario: Final deliverable is properly structured.
 
@@ -280,6 +297,7 @@ class TestCatchupWorkflowIntegration:
     @pytest.fixture
     def mock_catchup_skill(self, workflow_state):
         """Mock catchup skill with multiple phases."""
+
         def _skill(context):
             phase = context.get("phase", "context")
             if phase == "context":
@@ -353,8 +371,10 @@ class TestCatchupWorkflowIntegration:
         assert len(results) == FOUR
         statuses = [r["status"] for r in results]
         assert statuses == [
-            "context_confirmed", "delta_captured",
-            "insights_extracted", "followups_recorded",
+            "context_confirmed",
+            "delta_captured",
+            "insights_extracted",
+            "followups_recorded",
         ]
 
     @pytest.mark.integration
@@ -400,14 +420,12 @@ class TestAgentIntegration:
         shared_evidence = []
 
         def mock_agent_skill(skill_name, context) -> None:
-            if (
-                skill_name == "review-core"
-                and context.get("agent") == "review-analyst"
-            ):
+            if skill_name == "review-core" and context.get("agent") == "review-analyst":
                 context["agent_workflow"] = {
                     "context_established": True,
                     "scope_discovered": [
-                        "src/auth.py", "src/payment.py",
+                        "src/auth.py",
+                        "src/payment.py",
                     ],
                     "autonomous_mode": True,
                 }
@@ -415,12 +433,11 @@ class TestAgentIntegration:
                 evidence_item = {
                     "id": f"E{len(shared_evidence) + 1}",
                     "command": (
-                        f"agent analysis of "
-                        f"{context.get('target', 'unknown')}"
+                        f"agent analysis of {context.get('target', 'unknown')}"
                     ),
                     "output": "Security vulnerability detected",
                     "timestamp": datetime.now(
-                        timezone.utc,
+                        UTC,
                     ).isoformat(),
                     "agent": "review-analyst",
                 }
@@ -430,9 +447,7 @@ class TestAgentIntegration:
                 context["agent_report"] = {
                     "template": "security_audit_report",
                     "agent_generated": True,
-                    "evidence_refs": [
-                        e["id"] for e in shared_evidence
-                    ],
+                    "evidence_refs": [e["id"] for e in shared_evidence],
                     "compliance_standards": ["OWASP", "NIST"],
                 }
 
@@ -441,18 +456,27 @@ class TestAgentIntegration:
         )
 
         skills_sequence = [
-            ("review-core", {
-                "agent": "review-analyst",
-                "focus": "security_audit",
-            }),
-            ("evidence-logging", {
-                "agent": "review-analyst",
-                "target": "src/auth.py",
-            }),
-            ("structured-output", {
-                "agent": "review-analyst",
-                "findings_count": 2,
-            }),
+            (
+                "review-core",
+                {
+                    "agent": "review-analyst",
+                    "focus": "security_audit",
+                },
+            ),
+            (
+                "evidence-logging",
+                {
+                    "agent": "review-analyst",
+                    "target": "src/auth.py",
+                },
+            ),
+            (
+                "structured-output",
+                {
+                    "agent": "review-analyst",
+                    "findings_count": 2,
+                },
+            ),
         ]
 
         current_context = {}
@@ -481,7 +505,8 @@ class TestAgentIntegration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_agent_uses_all_skills(
-        self, agent_workflow_result,
+        self,
+        agent_workflow_result,
     ) -> None:
         """Scenario: Agent uses all three review skills.
 
@@ -491,13 +516,16 @@ class TestAgentIntegration:
         and structured-output.
         """
         assert agent_workflow_result["skills_used"] == [
-            "review-core", "evidence-logging", "structured-output",
+            "review-core",
+            "evidence-logging",
+            "structured-output",
         ]
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_agent_report_is_agent_generated(
-        self, agent_workflow_result,
+        self,
+        agent_workflow_result,
     ) -> None:
         """Scenario: Agent report is flagged as agent-generated.
 
@@ -513,7 +541,8 @@ class TestAgentIntegration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_agent_evidence_attribution(
-        self, agent_workflow_result,
+        self,
+        agent_workflow_result,
     ) -> None:
         """Scenario: Agent evidence is attributed correctly.
 
@@ -522,15 +551,13 @@ class TestAgentIntegration:
         Then evidence should be attributed to review-analyst.
         """
         assert len(agent_workflow_result["evidence_log"]) == 1
-        assert (
-            agent_workflow_result["evidence_log"][0]["agent"]
-            == "review-analyst"
-        )
+        assert agent_workflow_result["evidence_log"][0]["agent"] == "review-analyst"
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_agent_finding_quality(
-        self, agent_workflow_result,
+        self,
+        agent_workflow_result,
     ) -> None:
         """Scenario: Agent findings have high confidence.
 
@@ -562,12 +589,11 @@ class TestEvidenceChainContinuity:
 
         def mock_skill(skill_name, context) -> None:
             if skill_name == "evidence-logging":
-                evidence_chain["skill_contributions"][
-                    "evidence-logging"
-                ] = 0
+                evidence_chain["skill_contributions"]["evidence-logging"] = 0
                 context["evidence_log"] = {
                     "session_id": context.get(
-                        "session_id", "default",
+                        "session_id",
+                        "default",
                     ),
                     "evidence": [],
                     "next_evidence_id": 1,
@@ -579,53 +605,45 @@ class TestEvidenceChainContinuity:
                     diff_evidence = {
                         "id": f"E{eid}",
                         "command": "git diff HEAD~1..HEAD",
-                        "output": (
-                            "2 files changed, "
-                            "15 insertions(+), 5 deletions(-)"
-                        ),
+                        "output": ("2 files changed, 15 insertions(+), 5 deletions(-)"),
                         "skill": "diff-analysis",
                         "timestamp": datetime.now(
-                            timezone.utc,
+                            UTC,
                         ).isoformat(),
                     }
                     evidence_log["evidence"].append(diff_evidence)
                     evidence_log["next_evidence_id"] += 1
-                    evidence_chain["evidence_registry"][
-                        diff_evidence["id"]
-                    ] = diff_evidence
-                    evidence_chain["skill_contributions"][
-                        "diff-analysis"
-                    ] = 1
+                    evidence_chain["evidence_registry"][diff_evidence["id"]] = (
+                        diff_evidence
+                    )
+                    evidence_chain["skill_contributions"]["diff-analysis"] = 1
             elif skill_name == "structured-output":
                 evidence_log = context.get("evidence_log", {})
-                available = [
-                    e["id"]
-                    for e in evidence_log.get("evidence", [])
-                ]
+                available = [e["id"] for e in evidence_log.get("evidence", [])]
                 findings = [
                     {
                         "id": "F1",
                         "title": "Code change detected",
-                        "evidence_refs": available[:1]
-                        if available
-                        else [],
+                        "evidence_refs": available[:1] if available else [],
                     },
                 ]
                 for finding in findings:
-                    evidence_chain["reference_tracker"][
-                        finding["id"]
-                    ] = finding["evidence_refs"]
+                    evidence_chain["reference_tracker"][finding["id"]] = finding[
+                        "evidence_refs"
+                    ]
                 context["findings"] = findings
 
         mock_claude_tools["Skill"] = Mock(side_effect=mock_skill)
 
         current_context = {"session_id": "evidence-chain-test"}
         for skill_name in [
-            "evidence-logging", "diff-analysis",
+            "evidence-logging",
+            "diff-analysis",
             "structured-output",
         ]:
             mock_claude_tools["Skill"](
-                skill_name, current_context,
+                skill_name,
+                current_context,
             )
 
         return evidence_chain
@@ -633,7 +651,8 @@ class TestEvidenceChainContinuity:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_evidence_ids_are_unique(
-        self, evidence_chain_result,
+        self,
+        evidence_chain_result,
     ) -> None:
         """Scenario: Evidence IDs are unique.
 
@@ -650,7 +669,8 @@ class TestEvidenceChainContinuity:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_evidence_references_resolve(
-        self, evidence_chain_result,
+        self,
+        evidence_chain_result,
     ) -> None:
         """Scenario: All evidence references resolve to existing evidence.
 
@@ -658,18 +678,17 @@ class TestEvidenceChainContinuity:
         When checking reference resolution
         Then every reference should exist in the registry.
         """
-        for refs in evidence_chain_result[
-            "reference_tracker"
-        ].values():
+        for refs in evidence_chain_result["reference_tracker"].values():
             for ref in refs:
-                assert ref in evidence_chain_result[
-                    "evidence_registry"
-                ], f"Evidence reference {ref} not found"
+                assert ref in evidence_chain_result["evidence_registry"], (
+                    f"Evidence reference {ref} not found"
+                )
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_skill_contributions_tracked(
-        self, evidence_chain_result,
+        self,
+        evidence_chain_result,
     ) -> None:
         """Scenario: Skill contributions are tracked.
 
@@ -724,7 +743,8 @@ class TestCommandSkillOrchestration:
 
         context = {"target": "src/", "focus": "security"}
         for skill in [
-            "review-core", "evidence-logging",
+            "review-core",
+            "evidence-logging",
             "structured-output",
         ]:
             skill_context = context.copy()
@@ -734,7 +754,8 @@ class TestCommandSkillOrchestration:
                 "orchestrated": True,
             }
             result = mock_claude_tools["Skill"](
-                skill, skill_context,
+                skill,
+                skill_context,
             )
             orchestration_log["results_chain"].append(
                 {
@@ -755,7 +776,8 @@ class TestCommandSkillOrchestration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_orchestration_invokes_command(
-        self, orchestration_result,
+        self,
+        orchestration_result,
     ) -> None:
         """Scenario: Command is properly invoked.
 
@@ -769,7 +791,8 @@ class TestCommandSkillOrchestration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_orchestration_calls_all_skills(
-        self, orchestration_result,
+        self,
+        orchestration_result,
     ) -> None:
         """Scenario: All three skills are called in order.
 
@@ -780,14 +803,16 @@ class TestCommandSkillOrchestration:
         """
         log, _ = orchestration_result
         assert log["skill_calls"] == [
-            "review-core", "evidence-logging",
+            "review-core",
+            "evidence-logging",
             "structured-output",
         ]
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_orchestration_context_propagation(
-        self, orchestration_result,
+        self,
+        orchestration_result,
     ) -> None:
         """Scenario: Context flows correctly to each skill.
 
@@ -804,7 +829,8 @@ class TestCommandSkillOrchestration:
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_orchestration_final_context(
-        self, orchestration_result,
+        self,
+        orchestration_result,
     ) -> None:
         """Scenario: Final context contains all skill contributions.
 
@@ -814,15 +840,13 @@ class TestCommandSkillOrchestration:
         """
         _, final_context = orchestration_result
         assert final_context["workflow_scaffold"]["items_created"] == FIVE
-        assert (
-            final_context["evidence_infrastructure"]["tracking_enabled"]
-            is True
-        )
+        assert final_context["evidence_infrastructure"]["tracking_enabled"] is True
 
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_orchestration_results_chain(
-        self, orchestration_result,
+        self,
+        orchestration_result,
     ) -> None:
         """Scenario: Results chain captures all stages.
 
@@ -851,16 +875,15 @@ class TestErrorPropagation:
         error_log = []
 
         def mock_skill(skill_name, context):
-            if (
-                skill_name == "diff-analysis"
-                and context.get("simulate_error")
-            ):
-                error_log.append({
-                    "skill": skill_name,
-                    "error_type": "GitCommandError",
-                    "message": "Git command failed: invalid reference",
-                    "context": context.copy(),
-                })
+            if skill_name == "diff-analysis" and context.get("simulate_error"):
+                error_log.append(
+                    {
+                        "skill": skill_name,
+                        "error_type": "GitCommandError",
+                        "message": "Git command failed: invalid reference",
+                        "context": context.copy(),
+                    }
+                )
                 msg = "Git command failed"
                 raise Exception(msg)  # noqa: TRY002
             return {"skill": skill_name, "status": "success"}
@@ -877,12 +900,15 @@ class TestErrorPropagation:
 
         current_context = {"simulate_error": True}
         for skill in [
-            "review-core", "diff-analysis", "structured-output",
+            "review-core",
+            "diff-analysis",
+            "structured-output",
         ]:
             workflow_result["skills_attempted"].append(skill)
             try:
                 result = mock_claude_tools["Skill"](
-                    skill, current_context,
+                    skill,
+                    current_context,
                 )
                 workflow_result["skills_completed"].append(skill)
                 current_context.update(result)
@@ -898,9 +924,7 @@ class TestErrorPropagation:
 
         if workflow_result["errors_encountered"]:
             if workflow_result["fallback_actions"]:
-                workflow_result["final_status"] = (
-                    "completed_with_fallbacks"
-                )
+                workflow_result["final_status"] = "completed_with_fallbacks"
             else:
                 workflow_result["final_status"] = "failed"
         else:
@@ -911,7 +935,8 @@ class TestErrorPropagation:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_workflow_attempts_all_skills(
-        self, error_workflow_result,
+        self,
+        error_workflow_result,
     ) -> None:
         """Scenario: All skills are attempted despite errors.
 
@@ -925,7 +950,8 @@ class TestErrorPropagation:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_workflow_captures_failure(
-        self, error_workflow_result,
+        self,
+        error_workflow_result,
     ) -> None:
         """Scenario: Failed skill is captured in errors.
 
@@ -941,7 +967,8 @@ class TestErrorPropagation:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_workflow_applies_fallback(
-        self, error_workflow_result,
+        self,
+        error_workflow_result,
     ) -> None:
         """Scenario: Fallback is applied for failed skill.
 
@@ -958,7 +985,8 @@ class TestErrorPropagation:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_workflow_logs_error_details(
-        self, error_workflow_result,
+        self,
+        error_workflow_result,
     ) -> None:
         """Scenario: Error details are logged.
 
@@ -999,8 +1027,10 @@ class TestWorkflowPerformance:
         ]
 
         skills = [
-            "review-core", "evidence-logging",
-            "diff-analysis", "structured-output",
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
         ]
 
         start_time = time.time()
@@ -1020,7 +1050,8 @@ class TestWorkflowPerformance:
     @pytest.mark.performance
     @pytest.mark.integration
     def test_individual_workflow_timing(
-        self, mock_claude_tools,
+        self,
+        mock_claude_tools,
     ) -> None:
         """Scenario: Each individual workflow completes under 100ms.
 

@@ -460,7 +460,10 @@ class TestClassificationSystem:
         ],
     )
     def test_2x2_matrix_classification(
-        self, feature_examples, feature_key, expected_archetype,
+        self,
+        feature_examples,
+        feature_key,
+        expected_archetype,
     ) -> None:
         """Scenario: Features map to one of four archetypes.
 
@@ -472,9 +475,7 @@ class TestClassificationSystem:
         feature = feature_examples[feature_key]
 
         # Act
-        is_proactive = (
-            feature["anticipates_need"] and not feature["triggered_by_user"]
-        )
+        is_proactive = feature["anticipates_need"] and not feature["triggered_by_user"]
         is_dynamic = feature["data_changes_realtime"]
 
         if is_proactive and not is_dynamic:
@@ -488,6 +489,7 @@ class TestClassificationSystem:
 
         # Assert
         assert archetype == expected_archetype
+
 
 class TestKanoClassification:
     """Feature: Features are classified using Kano model.
@@ -524,6 +526,7 @@ class TestKanoClassification:
         assert satisfaction(1) == 1
         assert satisfaction(5) == 5
         assert satisfaction(10) == 10
+
 
 class TestTradeoffDimensions:
     """Feature: Features are evaluated across quality dimensions.
@@ -656,7 +659,11 @@ class TestIntegration:
             (2.0, "priority:medium"),
             (1.0, "priority:low"),
         ],
-        ids=["high-score-gets-high-label", "medium-score-gets-medium-label", "low-score-gets-low-label"],
+        ids=[
+            "high-score-gets-high-label",
+            "medium-score-gets-medium-label",
+            "low-score-gets-low-label",
+        ],
     )
     def test_suggestion_labels(self, score, expected_label) -> None:
         """Scenario: Suggestions get appropriate labels based on priority.

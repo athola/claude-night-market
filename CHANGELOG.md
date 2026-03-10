@@ -139,6 +139,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and behavioral documentation (command-only, stdout path
   output, no matchers, no blocking for Remove)
 
+## [1.5.7] - 2026-03-06
+
+### Added
+
+- `STEWARDSHIP.md` manifesto with five principles drawn from
+  biblical stewardship, Boy Scout Rule, Peter Block, Kaizen,
+  and Seventh Generation thinking
+- Per-plugin stewardship sections in all 16 plugin READMEs
+  with plugin-specific improvement opportunities
+- `leyline:stewardship` cross-cutting skill with principles,
+  layer-specific guidance, and decision heuristics
+- Stewardship action tracker
+  (`plugins/leyline/scripts/stewardship_tracker.py`) with
+  JSONL append-only logging
+- Plugin health dimensions script
+  (`plugins/leyline/scripts/plugin_health.py`) measuring
+  documentation freshness, test coverage, code quality,
+  contributor friendliness, and improvement velocity
+- `/stewardship-health` command (imbue) for per-plugin and
+  ecosystem-wide health display
+- Campsite check hookify rule
+  (`plugins/hookify/skills/rule-catalog/rules/stewardship/`)
+  surfacing 1-2 improvement suggestions on session completion
+- Stewardship context in sanctum `verify_workflow_complete`
+  hook and abstract `homeostatic_monitor`
+- Tests for stewardship tracker and plugin health scripts
+
+### Changed
+
+- Updated imbue and leyline `plugin.json` with stewardship
+  skill and command registrations
+- Python 3.9 compatibility fixes in abstract hooks, scripts,
+  and memory-palace source modules
+
 ## [1.5.6] - 2026-03-05
 
 ### Added

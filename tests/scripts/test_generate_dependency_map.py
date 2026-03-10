@@ -27,7 +27,6 @@ from generate_dependency_map import (  # noqa: E402
     scan_python_imports,
 )
 
-
 # ── Fixtures ────────────────────────────────────────────
 
 
@@ -72,8 +71,7 @@ def plugin_tree(tmp_path: Path) -> Path:
     (alpha / ".claude-plugin").mkdir()
     (alpha / ".claude-plugin" / "plugin.json").write_text("{}")
     (alpha / "Makefile").write_text(
-        "BETA_DIR := ../beta\n"
-        "-include $(BETA_DIR)/config/shared.mk\n"
+        "BETA_DIR := ../beta\n-include $(BETA_DIR)/config/shared.mk\n"
     )
 
     # beta: pyproject.toml depending on alpha
@@ -83,8 +81,7 @@ def plugin_tree(tmp_path: Path) -> Path:
     (beta / ".claude-plugin" / "plugin.json").write_text("{}")
     (beta / "Makefile").write_text(".PHONY: test\ntest:\n\techo ok\n")
     (beta / "pyproject.toml").write_text(
-        '[project]\nname = "beta"\n'
-        'dependencies = [\n  "alpha>=1.0",\n]\n'
+        '[project]\nname = "beta"\ndependencies = [\n  "alpha>=1.0",\n]\n'
     )
 
     # gamma: Python import of beta
@@ -111,7 +108,8 @@ class TestFindPlugins:
     """Unit tests for plugin directory discovery."""
 
     def test_finds_dirs_with_plugin_json(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given dirs with plugin.json, when finding plugins,
         then return their names sorted."""
@@ -119,7 +117,8 @@ class TestFindPlugins:
         assert result == ["alpha", "beta", "gamma"]
 
     def test_ignores_dirs_without_plugin_json(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a dir without plugin.json, when finding plugins,
         then skip it."""
@@ -141,12 +140,14 @@ class TestScanMakefileDeps:
     """Unit tests for Makefile dependency scanning."""
 
     def test_detects_variable_assignment(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given Makefile with BETA_DIR := ../beta,
         when scanned, then detect beta as build dep."""
         deps = scan_makefile_deps(
-            plugin_tree / "alpha", ["alpha", "beta", "gamma"],
+            plugin_tree / "alpha",
+            ["alpha", "beta", "gamma"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "beta" in plugin_names
@@ -155,22 +156,26 @@ class TestScanMakefileDeps:
         """Given a Makefile dep, when scanned,
         then type should be 'build'."""
         deps = scan_makefile_deps(
-            plugin_tree / "alpha", ["alpha", "beta", "gamma"],
+            plugin_tree / "alpha",
+            ["alpha", "beta", "gamma"],
         )
         assert all(d["type"] == "build" for d in deps)
 
     def test_no_makefile_returns_empty(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a plugin with no Makefile,
         when scanned, then return empty."""
         deps = scan_makefile_deps(
-            plugin_tree / "gamma", ["alpha", "beta", "gamma"],
+            plugin_tree / "gamma",
+            ["alpha", "beta", "gamma"],
         )
         assert deps == []
 
     def test_ignores_non_plugin_references(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Given Makefile referencing unknown dir,
         when scanned, then ignore it."""
@@ -181,15 +186,15 @@ class TestScanMakefileDeps:
         assert deps == []
 
     def test_deduplicates_same_plugin(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Given Makefile with multiple refs to same plugin,
         when scanned, then deduplicate."""
         p = tmp_path / "test-plugin"
         p.mkdir()
         (p / "Makefile").write_text(
-            "BETA_DIR := ../beta\n"
-            "-include ../beta/config/other.mk\n"
+            "BETA_DIR := ../beta\n-include ../beta/config/other.mk\n"
         )
         deps = scan_makefile_deps(p, ["beta"])
         assert len(deps) == 1
@@ -205,39 +210,46 @@ class TestScanPyprojectDeps:
         """Given pyproject.toml with alpha dep,
         when scanned, then detect alpha as runtime dep."""
         deps = scan_pyproject_deps(
-            plugin_tree / "beta", ["alpha", "beta", "gamma"],
+            plugin_tree / "beta",
+            ["alpha", "beta", "gamma"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "alpha" in plugin_names
 
     def test_dep_type_is_runtime(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a pyproject dep, when scanned,
         then type should be 'runtime'."""
         deps = scan_pyproject_deps(
-            plugin_tree / "beta", ["alpha", "beta", "gamma"],
+            plugin_tree / "beta",
+            ["alpha", "beta", "gamma"],
         )
         assert all(d["type"] == "runtime" for d in deps)
 
     def test_skips_self_references(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given pyproject that mentions own name,
         when scanned, then skip self."""
         deps = scan_pyproject_deps(
-            plugin_tree / "beta", ["alpha", "beta", "gamma"],
+            plugin_tree / "beta",
+            ["alpha", "beta", "gamma"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "beta" not in plugin_names
 
     def test_no_pyproject_returns_empty(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a plugin with no pyproject.toml,
         when scanned, then return empty."""
         deps = scan_pyproject_deps(
-            plugin_tree / "alpha", ["alpha", "beta", "gamma"],
+            plugin_tree / "alpha",
+            ["alpha", "beta", "gamma"],
         )
         assert deps == []
 
@@ -249,53 +261,60 @@ class TestScanPythonImports:
     """Unit tests for Python import scanning."""
 
     def test_detects_from_import(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given Python file with 'from beta import ...',
         when scanned, then detect beta as runtime dep."""
         deps = scan_python_imports(
-            plugin_tree / "gamma", "gamma",
+            plugin_tree / "gamma",
+            "gamma",
             ["alpha", "beta", "gamma"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "beta" in plugin_names
 
     def test_skips_self_imports(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given Python file in gamma,
         when scanned, then skip gamma imports."""
         deps = scan_python_imports(
-            plugin_tree / "gamma", "gamma",
+            plugin_tree / "gamma",
+            "gamma",
             ["alpha", "beta", "gamma"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "gamma" not in plugin_names
 
     def test_no_src_returns_empty(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a plugin with no src/ or scripts/,
         when scanned, then return empty."""
         deps = scan_python_imports(
-            plugin_tree / "alpha", "alpha",
+            plugin_tree / "alpha",
+            "alpha",
             ["alpha", "beta", "gamma"],
         )
         assert deps == []
 
     def test_handles_hyphenated_names(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Given a plugin named my-plugin,
         when Python imports my_plugin, then detect it."""
         plugins = tmp_path / "plugins"
         p = plugins / "consumer"
         (p / "src" / "consumer").mkdir(parents=True)
-        (p / "src" / "consumer" / "app.py").write_text(
-            "from my_plugin import util\n"
-        )
+        (p / "src" / "consumer" / "app.py").write_text("from my_plugin import util\n")
         deps = scan_python_imports(
-            p, "consumer", ["consumer", "my-plugin"],
+            p,
+            "consumer",
+            ["consumer", "my-plugin"],
         )
         plugin_names = [d["plugin"] for d in deps]
         assert "my-plugin" in plugin_names
@@ -308,7 +327,8 @@ class TestGenerateMap:
     """Unit tests for full map generation with synthetic data."""
 
     def test_map_has_required_keys(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given a plugin tree, when generating map,
         then output has version, generated, dependencies,
@@ -320,7 +340,8 @@ class TestGenerateMap:
         assert "reverse_index" in result
 
     def test_forward_deps_track_dependents(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given beta is depended on by gamma (Python import),
         when generating map, then beta appears in dependencies
@@ -331,7 +352,8 @@ class TestGenerateMap:
             assert "gamma" in dependents or dependents == ["*"]
 
     def test_wildcard_when_all_depend(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given alpha is depended on by beta (pyproject)
         and beta is depended on by alpha (Makefile) and gamma,
@@ -343,18 +365,15 @@ class TestGenerateMap:
         for plugin, info in result["dependencies"].items():
             if info["dependents"] == ["*"]:
                 # Verify it truly is depended on by all others
-                all_others = [
-                    p for p in find_plugins(plugin_tree)
-                    if p != plugin
-                ]
+                all_others = [p for p in find_plugins(plugin_tree) if p != plugin]
                 reverse_deps = [
-                    p for p, deps in result["reverse_index"].items()
-                    if plugin in deps
+                    p for p, deps in result["reverse_index"].items() if plugin in deps
                 ]
                 assert set(reverse_deps) == set(all_others)
 
     def test_reverse_index_excludes_empty(
-        self, plugin_tree: Path,
+        self,
+        plugin_tree: Path,
     ) -> None:
         """Given some plugins with no deps,
         when generating map, then exclude them from
@@ -371,14 +390,16 @@ class TestDependencyMapIntegration:
     """Integration tests running the full script against the repo."""
 
     def test_script_runs_successfully(
-        self, full_map_output: dict,
+        self,
+        full_map_output: dict,
     ) -> None:
         """Given the script exists, when run, then exit 0
         and produce valid output."""
         assert "version" in full_map_output
 
     def test_output_is_valid_json(
-        self, full_map_output: dict,
+        self,
+        full_map_output: dict,
     ) -> None:
         """Given the script runs, when output captured,
         then it is valid JSON with required keys."""
@@ -387,27 +408,28 @@ class TestDependencyMapIntegration:
         assert "reverse_index" in full_map_output
 
     def test_abstract_is_universal_dependency(
-        self, full_map_output: dict,
+        self,
+        full_map_output: dict,
     ) -> None:
         """Given abstract provides Make includes to all,
         when map generated, then abstract has wildcard."""
         assert "abstract" in full_map_output["dependencies"]
-        assert (
-            full_map_output["dependencies"]["abstract"]["dependents"]
-            == ["*"]
-        )
+        assert full_map_output["dependencies"]["abstract"]["dependents"] == ["*"]
 
     def test_conjure_depends_on_leyline(
-        self, full_map_output: dict,
+        self,
+        full_map_output: dict,
     ) -> None:
         """Given conjure optionally imports leyline,
         when map generated, then reverse_index shows it."""
         assert "leyline" in full_map_output["reverse_index"].get(
-            "conjure", [],
+            "conjure",
+            [],
         )
 
     def test_all_plugins_in_reverse_index(
-        self, full_map_output: dict,
+        self,
+        full_map_output: dict,
     ) -> None:
         """Given 17 plugins exist, when map generated,
         then all non-abstract plugins appear in reverse_index."""
@@ -419,8 +441,10 @@ class TestDependencyMapIntegration:
         out_file = tmp_path / "deps.json"
         result = subprocess.run(
             [
-                sys.executable, str(SCRIPT),
-                "--output", str(out_file),
+                sys.executable,
+                str(SCRIPT),
+                "--output",
+                str(out_file),
             ],
             capture_output=True,
             text=True,

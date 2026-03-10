@@ -293,9 +293,7 @@ class TestCheckMissingRecommended:
         kwargs = {}
         if custom_fields is not None:
             kwargs["recommended_fields"] = custom_fields
-        missing = FrontmatterProcessor.check_missing_recommended(
-            frontmatter, **kwargs
-        )
+        missing = FrontmatterProcessor.check_missing_recommended(frontmatter, **kwargs)
         assert sorted(missing) == sorted(expected_missing)
 
 
@@ -471,9 +469,7 @@ class TestHas210Features:
             "empty-frontmatter",
         ],
     )
-    def test_210_feature_detection(
-        self, frontmatter: dict, expected: bool
-    ) -> None:
+    def test_210_feature_detection(self, frontmatter: dict, expected: bool) -> None:
         """Given frontmatter, has_210_features returns correct boolean."""
         assert FrontmatterProcessor.has_210_features(frontmatter) is expected
 

@@ -41,9 +41,7 @@ class PatternMatchingSkill:
             methods = {
                 item.name
                 for item in node.body
-                if isinstance(
-                    item, (ast.FunctionDef, ast.AsyncFunctionDef)
-                )
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
             }
             attrs: set[str] = set()
             for item in node.body:
@@ -63,8 +61,7 @@ class PatternMatchingSkill:
                         "pattern": "singleton",
                         "class": node.name,
                         "line": node.lineno,
-                        "evidence": "_instance attribute with "
-                        "__new__/get_instance",
+                        "evidence": "_instance attribute with __new__/get_instance",
                     }
                 )
 
@@ -84,22 +81,16 @@ class PatternMatchingSkill:
                         "pattern": "observer",
                         "class": node.name,
                         "line": node.lineno,
-                        "evidence": f"Methods: "
-                        f"{', '.join(sorted(observer_methods))}",
+                        "evidence": f"Methods: {', '.join(sorted(observer_methods))}",
                     }
                 )
 
             # Strategy
             if "__init__" in methods:
                 for item in node.body:
-                    if (
-                        isinstance(item, ast.FunctionDef)
-                        and item.name == "__init__"
-                    ):
+                    if isinstance(item, ast.FunctionDef) and item.name == "__init__":
                         for arg in item.args.args:
-                            if arg.annotation and isinstance(
-                                arg.annotation, ast.Name
-                            ):
+                            if arg.annotation and isinstance(arg.annotation, ast.Name):
                                 if arg.annotation.id in (
                                     "Callable",
                                     "Protocol",
@@ -164,9 +155,7 @@ class PatternMatchingSkill:
 
         return {"patterns": patterns, "optimization_suggestions": []}
 
-    def match_patterns(
-        self, code: str, language: str = "python"
-    ) -> dict[str, Any]:
+    def match_patterns(self, code: str, language: str = "python") -> dict[str, Any]:
         """Match patterns in code with confidence scoring.
 
         Args:
@@ -300,29 +289,21 @@ class PatternMatchingSkill:
                 continue
 
             methods = {
-                item.name
-                for item in node.body
-                if isinstance(item, ast.FunctionDef)
+                item.name for item in node.body if isinstance(item, ast.FunctionDef)
             }
-            bases = [
-                b.id if isinstance(b, ast.Name) else ""
-                for b in node.bases
-            ]
+            bases = [b.id if isinstance(b, ast.Name) else "" for b in node.bases]
             decorators = []
             for dec in node.decorator_list:
                 if isinstance(dec, ast.Name):
                     decorators.append(dec.id)
-                elif isinstance(dec, ast.Call) and isinstance(
-                    dec.func, ast.Name
-                ):
+                elif isinstance(dec, ast.Call) and isinstance(dec.func, ast.Name):
                     decorators.append(dec.func.id)
 
             # Entity: has id and mutable methods
             if any(
                 arg.arg == "id"
                 for item in node.body
-                if isinstance(item, ast.FunctionDef)
-                and item.name == "__init__"
+                if isinstance(item, ast.FunctionDef) and item.name == "__init__"
                 for arg in item.args.args
             ) or (
                 "dataclass" in decorators
@@ -335,8 +316,7 @@ class PatternMatchingSkill:
             ):
                 # Not frozen = entity
                 is_frozen = any(
-                    "frozen" in str(ast.dump(dec))
-                    and "True" in str(ast.dump(dec))
+                    "frozen" in str(ast.dump(dec)) and "True" in str(ast.dump(dec))
                     for dec in node.decorator_list
                     if isinstance(dec, ast.Call)
                 )
@@ -368,12 +348,10 @@ class PatternMatchingSkill:
             if (
                 len(repo_methods) >= 2
                 or "Repository" in node.name
-                or "ABC" in bases
-                and repo_methods
+                or ("ABC" in bases
+                and repo_methods)
             ):
-                if "Repository" in node.name or (
-                    "ABC" in bases and repo_methods
-                ):
+                if "Repository" in node.name or ("ABC" in bases and repo_methods):
                     repositories.append(node.name)
 
             # Domain Service: has repository dependency
@@ -426,9 +404,7 @@ class PatternMatchingSkill:
                 continue
 
             methods = {
-                item.name
-                for item in node.body
-                if isinstance(item, ast.FunctionDef)
+                item.name for item in node.body if isinstance(item, ast.FunctionDef)
             }
             bases = []
             for b in node.bases:
@@ -457,22 +433,16 @@ class PatternMatchingSkill:
                 "add_observer",
                 "remove_observer",
             }
-            if len(observer_methods) >= 2:
-                observers.append(node.name)
-            elif "Observer" in node.name and "ABC" in bases:
+            if len(observer_methods) >= 2 or ("Observer" in node.name and "ABC" in bases):
                 observers.append(node.name)
 
             # Strategy: abstract class with single method
             if (
-                "ABC" in bases
-                and "Strategy" in node.name
-                or "Payment" in node.name
-                and "ABC" in bases
-            ):
-                strategies.append(node.name)
-            elif any(
-                b in strategies or "Strategy" in b for b in bases
-            ):
+                ("ABC" in bases
+                and "Strategy" in node.name)
+                or ("Payment" in node.name
+                and "ABC" in bases)
+            ) or any(b in strategies or "Strategy" in b for b in bases):
                 strategies.append(node.name)
 
         if factories:
@@ -510,9 +480,7 @@ class PatternMatchingSkill:
             async_patterns["async_context_manager"] = True
 
         # Retry pattern
-        if "retry" in code.lower() or (
-            "for attempt" in code and "await" in code
-        ):
+        if "retry" in code.lower() or ("for attempt" in code and "await" in code):
             async_patterns["retry_pattern"] = True
             # Find function names with retry
             for match in re.finditer(
@@ -520,9 +488,7 @@ class PatternMatchingSkill:
             ):
                 pattern_instances.append(match.group(1))
             # Also check for fetch_with_retry style names
-            for match in re.finditer(
-                r"async\s+def\s+(fetch_with_\w+)", code
-            ):
+            for match in re.finditer(r"async\s+def\s+(fetch_with_\w+)", code):
                 if match.group(1) not in pattern_instances:
                     pattern_instances.append(match.group(1))
 
@@ -582,9 +548,7 @@ class PatternMatchingSkill:
                                 and grandchild is not child
                             ):
                                 anti_patterns.append(node.name)
-                                performance_patterns[
-                                    "optimization_opportunity"
-                                ] = True
+                                performance_patterns["optimization_opportunity"] = True
                                 break
 
                 # Detect set usage (O(1) lookups)
@@ -626,15 +590,9 @@ class PatternMatchingSkill:
             }
 
         # MVC pattern
-        has_model = bool(
-            re.search(r"class\s+\w*Model\b", code)
-        )
-        has_view = bool(
-            re.search(r"class\s+\w*View\b", code)
-        )
-        has_controller = bool(
-            re.search(r"class\s+\w*Controller\b", code)
-        )
+        has_model = bool(re.search(r"class\s+\w*Model\b", code))
+        has_view = bool(re.search(r"class\s+\w*View\b", code))
+        has_controller = bool(re.search(r"class\s+\w*Controller\b", code))
         if has_controller and (has_model or has_view):
             architectural_patterns["mvc"] = True
             for match in re.finditer(r"class\s+(\w*Controller)\b", code):
@@ -679,9 +637,7 @@ class PatternMatchingSkill:
             }
 
         # Nested loops
-        if re.search(
-            r"for\s+\w+.*:\s*\n\s+for\s+\w+", code, re.MULTILINE
-        ):
+        if re.search(r"for\s+\w+.*:\s*\n\s+for\s+\w+", code, re.MULTILINE):
             anti_patterns.append("nested_loops")
             severity = "performance_issue"
             description = "O(n\u00b2) nested loop detected"
@@ -730,9 +686,7 @@ class PatternMatchingSkill:
         # Configuration DSL
         if re.search(r"\w+\s*\{[^}]*\w+\s*:", code, re.DOTALL):
             dsl_patterns["configuration_dsl"] = True
-            structures["nested_blocks"] = len(
-                re.findall(r"\w+\s*\{", code)
-            )
+            structures["nested_blocks"] = len(re.findall(r"\w+\s*\{", code))
 
         # Routing DSL
         route_matches = re.findall(r'"/[^"]*"\s*->', code)
@@ -741,9 +695,7 @@ class PatternMatchingSkill:
             structures["route_definitions"] = len(route_matches)
 
         # Validation DSL
-        validation_matches = re.findall(
-            r"\w+:\s*(required|optional)", code
-        )
+        validation_matches = re.findall(r"\w+:\s*(required|optional)", code)
         if validation_matches:
             dsl_patterns["validation_dsl"] = True
             structures["validation_rules"] = len(validation_matches)
@@ -768,9 +720,7 @@ class PatternMatchingSkill:
             return {"suggestions": suggestions}
 
         # Nested loop optimization
-        if re.search(
-            r"for\s+\w+.*:\s*\n\s+for\s+\w+", code, re.MULTILINE
-        ):
+        if re.search(r"for\s+\w+.*:\s*\n\s+for\s+\w+", code, re.MULTILINE):
             suggestions.append(
                 {
                     "issue": "Nested loops detected (O(n\u00b2))",
@@ -787,8 +737,7 @@ class PatternMatchingSkill:
             suggestions.append(
                 {
                     "issue": "Unbounded list growth",
-                    "improvement": "Consider using a bounded "
-                    "collection or generator",
+                    "improvement": "Consider using a bounded collection or generator",
                     "before": "results = []\nfor item in items:\n"
                     "    results.append(process(item))",
                     "after": "results = [process(item) for item in items]",
@@ -823,15 +772,11 @@ class PatternMatchingSkill:
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 methods = {
-                    item.name
-                    for item in node.body
-                    if isinstance(item, ast.FunctionDef)
+                    item.name for item in node.body if isinstance(item, ast.FunctionDef)
                 }
 
                 # Check for mixed responsibilities
-                has_data = bool(
-                    methods & {"add_item", "find_item", "get", "set"}
-                )
+                has_data = bool(methods & {"add_item", "find_item", "get", "set"})
                 has_persistence = bool(
                     methods
                     & {
@@ -843,9 +788,7 @@ class PatternMatchingSkill:
 
                 if has_data and has_persistence:
                     consistency["mixed_patterns"] = True
-                    consistency["issues"].append(
-                        "single_responsibility_violation"
-                    )
+                    consistency["issues"].append("single_responsibility_violation")
                     consistency["recommendations"].append(
                         "Separate data management from persistence"
                     )
@@ -887,9 +830,7 @@ class PatternMatchingSkill:
                     continue
 
                 methods = {
-                    item.name
-                    for item in node.body
-                    if isinstance(item, ast.FunctionDef)
+                    item.name for item in node.body if isinstance(item, ast.FunctionDef)
                 }
                 attrs: set[str] = set()
                 for item in node.body:
@@ -937,8 +878,7 @@ class PatternMatchingSkill:
                     }
 
             trade_offs = {
-                "simple_vs_threadsafe": "Classic is simpler "
-                "but not thread-safe",
+                "simple_vs_threadsafe": "Classic is simpler but not thread-safe",
             }
 
         return {
@@ -1014,9 +954,7 @@ class PatternMatchingSkill:
                 continue
 
             methods = {
-                item.name
-                for item in node.body
-                if isinstance(item, ast.FunctionDef)
+                item.name for item in node.body if isinstance(item, ast.FunctionDef)
             }
 
             # Repository pattern
@@ -1027,10 +965,7 @@ class PatternMatchingSkill:
                 "delete",
                 "add",
             }
-            if (
-                "Repository" in node.name
-                or len(repo_methods) >= 2
-            ):
+            if "Repository" in node.name or len(repo_methods) >= 2:
                 docs["repository_pattern"] = {
                     "description": "Repository pattern for data access",
                     "usage": f"Use {node.name} to abstract data persistence",
@@ -1126,10 +1061,8 @@ class PatternMatchingSkill:
 
             recommendations = {
                 "when_to_use": {
-                    "simple_factory": "When you have a small, "
-                    "fixed set of types",
-                    "abstract_factory": "When you need families "
-                    "of related objects",
+                    "simple_factory": "When you have a small, fixed set of types",
+                    "abstract_factory": "When you need families of related objects",
                 },
             }
 

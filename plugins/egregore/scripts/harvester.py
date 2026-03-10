@@ -144,9 +144,7 @@ def extract_patterns(
     Deduplicates by pattern_id, merging occurrence counts.
     """
     # Filter out agent responses
-    human_comments = [
-        c for c in comments if not _is_agent_response(c.get("body", ""))
-    ]
+    human_comments = [c for c in comments if not _is_agent_response(c.get("body", ""))]
 
     # Match against patterns
     found: dict[str, ConventionSuggestion] = {}

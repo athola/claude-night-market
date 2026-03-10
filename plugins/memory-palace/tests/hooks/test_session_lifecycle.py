@@ -9,6 +9,7 @@ So that history is captured without any manual action.
 
 from __future__ import annotations
 
+import io
 import json
 import re
 import sys
@@ -61,8 +62,7 @@ def _minimal_payload(**overrides: object) -> dict:
 
 
 class TestDeriveSessionId:
-    """
-    Feature: Stable session ID derivation
+    """Feature: Stable session ID derivation
 
     As the session lifecycle hook
     I want a filesystem-safe session ID derived from available env/payload data
@@ -71,8 +71,7 @@ class TestDeriveSessionId:
 
     @pytest.mark.unit
     def test_returns_string(self) -> None:
-        """
-        Scenario: Session ID is always a non-empty string
+        """Scenario: Session ID is always a non-empty string
         Given any payload
         When _derive_session_id() is called
         Then a non-empty string is returned.
@@ -83,8 +82,7 @@ class TestDeriveSessionId:
 
     @pytest.mark.unit
     def test_contains_date_prefix(self) -> None:
-        """
-        Scenario: Session ID starts with a YYYYMMDD prefix
+        """Scenario: Session ID starts with a YYYYMMDD prefix
         Given a payload
         When _derive_session_id() is called
         Then the first 8 characters are a valid date string.
@@ -96,8 +94,7 @@ class TestDeriveSessionId:
 
     @pytest.mark.unit
     def test_uses_payload_session_id_when_present(self) -> None:
-        """
-        Scenario: Payload provides an explicit session_id
+        """Scenario: Payload provides an explicit session_id
         Given a payload with session_id='abc123'
         When _derive_session_id() is called
         Then the same call with the same env produces the same result.
@@ -110,8 +107,7 @@ class TestDeriveSessionId:
 
     @pytest.mark.unit
     def test_different_payloads_produce_different_ids(self) -> None:
-        """
-        Scenario: Different payloads yield different IDs
+        """Scenario: Different payloads yield different IDs
         Given two payloads with different session_id values
         When _derive_session_id() is called on each
         Then the two results differ.
@@ -122,8 +118,7 @@ class TestDeriveSessionId:
 
     @pytest.mark.unit
     def test_id_is_filesystem_safe(self) -> None:
-        """
-        Scenario: Session ID is safe for use as a filename
+        """Scenario: Session ID is safe for use as a filename
         Given any payload
         When _derive_session_id() is called
         Then the result contains only alphanumeric characters and hyphens.
@@ -140,8 +135,7 @@ class TestDeriveSessionId:
 
 
 class TestSafeFloat:
-    """
-    Feature: Safe numeric conversion
+    """Feature: Safe numeric conversion
 
     As the hook builder
     I want payload numeric fields converted to float without crashing
@@ -175,8 +169,7 @@ class TestSafeFloat:
 
 
 class TestBuildRecord:
-    """
-    Feature: SessionRecord construction from Stop payload
+    """Feature: SessionRecord construction from Stop payload
 
     As the session lifecycle hook
     I want to convert a raw Stop hook payload into a typed SessionRecord
@@ -185,8 +178,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_basic_fields_populated(self) -> None:
-        """
-        Scenario: All standard payload fields are mapped correctly
+        """Scenario: All standard payload fields are mapped correctly
         Given a complete Stop payload
         When _build_record() is called
         Then the record carries matching field values.
@@ -201,8 +193,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_outcome_completed_for_end_turn(self) -> None:
-        """
-        Scenario: stop_reason 'end_turn' maps to outcome 'completed'
+        """Scenario: stop_reason 'end_turn' maps to outcome 'completed'
         Given stop_reason='end_turn'
         When _build_record() is called
         Then outcome is 'completed'.
@@ -212,8 +203,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_outcome_interrupted_for_max_tokens(self) -> None:
-        """
-        Scenario: stop_reason 'max_tokens' maps to outcome 'interrupted'
+        """Scenario: stop_reason 'max_tokens' maps to outcome 'interrupted'
         Given stop_reason='max_tokens'
         When _build_record() is called
         Then outcome is 'interrupted'.
@@ -223,8 +213,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_outcome_completed_for_stop_sequence(self) -> None:
-        """
-        Scenario: stop_reason 'stop_sequence' maps to outcome 'completed'
+        """Scenario: stop_reason 'stop_sequence' maps to outcome 'completed'
         Given stop_reason='stop_sequence'
         When _build_record() is called
         Then outcome is 'completed'.
@@ -234,8 +223,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_duration_converted_from_ms(self) -> None:
-        """
-        Scenario: Duration in milliseconds is converted to seconds
+        """Scenario: Duration in milliseconds is converted to seconds
         Given stats.duration_ms=120000
         When _build_record() is called
         Then duration_seconds is 120.0.
@@ -246,8 +234,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_context_usage_calculated(self) -> None:
-        """
-        Scenario: Context peak is computed as tokens_used / window_size
+        """Scenario: Context peak is computed as tokens_used / window_size
         Given context_tokens_used=8000, context_window_size=20000
         When _build_record() is called
         Then context_usage_peak is 0.4.
@@ -258,8 +245,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_context_usage_capped_at_one(self) -> None:
-        """
-        Scenario: Context usage never exceeds 1.0
+        """Scenario: Context usage never exceeds 1.0
         Given tokens_used > window_size (overflow scenario)
         When _build_record() is called
         Then context_usage_peak is capped at 1.0.
@@ -270,8 +256,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_context_usage_zero_when_no_window_size(self) -> None:
-        """
-        Scenario: No window size available, avoid division by zero
+        """Scenario: No window size available, avoid division by zero
         Given context_window_size=0
         When _build_record() is called
         Then context_usage_peak is 0.0.
@@ -282,8 +267,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_missing_stats_key_uses_defaults(self) -> None:
-        """
-        Scenario: Payload has no 'stats' key
+        """Scenario: Payload has no 'stats' key
         Given a payload with stats=None
         When _build_record() is called
         Then duration_seconds and context_usage_peak default to 0.0.
@@ -296,8 +280,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_tools_used_empty_when_absent(self) -> None:
-        """
-        Scenario: Payload has no tools_used field
+        """Scenario: Payload has no tools_used field
         Given tools_used is absent
         When _build_record() is called
         Then record.tools_used is an empty list.
@@ -309,8 +292,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_files_modified_empty_when_absent(self) -> None:
-        """
-        Scenario: Payload has no files_modified field
+        """Scenario: Payload has no files_modified field
         Given files_modified is absent
         When _build_record() is called
         Then record.files_modified is an empty list.
@@ -322,8 +304,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_session_id_from_payload(self) -> None:
-        """
-        Scenario: Payload provides an explicit session_id
+        """Scenario: Payload provides an explicit session_id
         Given session_id='explicit-id-001' in payload
         When _build_record() is called
         Then record.session_id is 'explicit-id-001'.
@@ -334,8 +315,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_ended_at_is_iso_string(self) -> None:
-        """
-        Scenario: ended_at is always set to current time
+        """Scenario: ended_at is always set to current time
         Given any payload
         When _build_record() is called
         Then record.ended_at is a non-empty ISO date string.
@@ -346,8 +326,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_metadata_includes_stop_reason(self) -> None:
-        """
-        Scenario: stop_reason is preserved in metadata
+        """Scenario: stop_reason is preserved in metadata
         Given stop_reason='end_turn'
         When _build_record() is called
         Then record.metadata['stop_reason'] is 'end_turn'.
@@ -357,8 +336,7 @@ class TestBuildRecord:
 
     @pytest.mark.unit
     def test_metadata_includes_tool_use_count(self) -> None:
-        """
-        Scenario: tool_uses stat is preserved in metadata
+        """Scenario: tool_uses stat is preserved in metadata
         Given stats.tool_uses=7
         When _build_record() is called
         Then record.metadata['tool_use_count'] is 7.
@@ -374,8 +352,7 @@ class TestBuildRecord:
 
 
 class TestMainIntegration:
-    """
-    Feature: End-to-end hook execution via main()
+    """Feature: End-to-end hook execution via main()
 
     As the Claude Code hook runner
     I want session_lifecycle.main() to process Stop payloads cleanly
@@ -386,14 +363,11 @@ class TestMainIntegration:
     def test_main_records_session(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: Valid Stop payload causes a session file to be written
+        """Scenario: Valid Stop payload causes a session file to be written
         Given a valid Stop payload on stdin
         When main() runs
         Then a session JSON file exists in data/sessions/.
         """
-        import io
-
         payload = _minimal_payload(session_id="test-main-001")
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
 
@@ -415,14 +389,11 @@ class TestMainIntegration:
     def test_main_exits_zero_on_invalid_json(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: Malformed JSON payload does not crash the hook
+        """Scenario: Malformed JSON payload does not crash the hook
         Given invalid JSON on stdin
         When main() runs
         Then it exits with code 0 (never blocks the session).
         """
-        import io
-
         monkeypatch.setattr("sys.stdin", io.StringIO("{ not valid json }"))
 
         with pytest.raises(SystemExit) as exc_info:
@@ -433,14 +404,11 @@ class TestMainIntegration:
     def test_main_exits_zero_when_module_unavailable(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: session_history module is not importable
+        """Scenario: session_history module is not importable
         Given _HAS_SESSION_HISTORY is False (package unavailable)
         When main() runs
         Then it exits with code 0 silently.
         """
-        import io
-
         monkeypatch.setattr(lc, "_HAS_SESSION_HISTORY", False)
         monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_minimal_payload())))
 
@@ -452,13 +420,11 @@ class TestMainIntegration:
     def test_main_exits_zero_when_record_raises(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: Unexpected error during record_session does not crash the hook
+        """Scenario: Unexpected error during record_session does not crash the hook
         Given record_session() raises an exception
         When main() runs
         Then it exits with code 0 (session end must not be blocked).
         """
-        import io
 
         class _BrokenManager(SessionHistoryManager):
             def record_session(self, record: object) -> object:  # type: ignore[override]
@@ -478,14 +444,11 @@ class TestMainIntegration:
     def test_main_skips_non_stop_events(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: Non-Stop hook event is ignored
+        """Scenario: Non-Stop hook event is ignored
         Given a payload with hook_event_name='PreToolUse'
         When main() runs
         Then no session file is written.
         """
-        import io
-
         mgr = SessionHistoryManager(data_dir=tmp_path)
         monkeypatch.setattr(lc, "SessionHistoryManager", lambda *a, **kw: mgr)
 

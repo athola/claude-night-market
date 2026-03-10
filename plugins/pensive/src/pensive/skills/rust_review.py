@@ -29,12 +29,14 @@ class RustReviewSkill(BaseReviewSkill):
     supported_languages: ClassVar[list[str]] = ["rust"]
 
     def _get_lines(self, content: str) -> list[str]:
-        if not hasattr(self, '_cached_content') or self._cached_content is not content:
+        if not hasattr(self, "_cached_content") or self._cached_content is not content:
             self._cached_content = content
             self._cached_lines = content.splitlines()
         return self._cached_lines
 
-    def _has_safety_doc(self, lines: list[str], line_idx: int, lookback: int = 5) -> bool:
+    def _has_safety_doc(
+        self, lines: list[str], line_idx: int, lookback: int = 5
+    ) -> bool:
         pattern = r"(?i)safety|# SAFETY|/// # Safety"
         for j in range(max(0, line_idx - lookback), line_idx):
             if re.search(pattern, lines[j]):
@@ -878,7 +880,9 @@ class RustReviewSkill(BaseReviewSkill):
             info["ownership"] = self.analyze_ownership(context, file_path)
             info["data_races"] = self.analyze_data_races(context, file_path)
             info["memory_safety"] = self.analyze_memory_safety(context, file_path)
-            info["panic_propagation"] = self.analyze_panic_propagation(context, file_path)
+            info["panic_propagation"] = self.analyze_panic_propagation(
+                context, file_path
+            )
             info["async_patterns"] = self.analyze_async_patterns(context, file_path)
             info["macros"] = self.analyze_macros(context, file_path)
             info["traits"] = self.analyze_traits(context, file_path)

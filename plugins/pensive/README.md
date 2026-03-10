@@ -99,3 +99,20 @@ Fork sessions for parallel specialized reviews. For example, use `claude --fork-
 ## Skill Performance Monitoring
 
 Pensive tracks skill execution to identify brittle tools by calculating the stability gap (the difference between average and worst-case accuracy). A gap below 0.2 indicates stable performance, while a gap above 0.3 requires investigation. Data is stored in `~/.claude/skills/logs/` in JSONL format, with history aggregated in `.history.json`.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- Domain-specific review skills are an opportunity to
+  add example findings so users know what good output
+  looks like before running their first review
+- The unified review selection logic could document its
+  file-pattern matching rules in a reference table
+- Output standards (severity levels, remediation steps)
+  would benefit from a sample report for each domain
+- Stability gap thresholds (0.2 stable, 0.3 investigate)
+  could include guidance on how to recalibrate them
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

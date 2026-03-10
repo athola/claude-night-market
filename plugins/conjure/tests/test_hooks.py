@@ -96,7 +96,9 @@ class TestBridgeAfterToolUse:
         """Small results don't trigger Gemini recommendation."""
         should_recommend, benefit_type = (
             bridge_after.analyze_execution_for_gemini_benefit(
-                tool_name, tool_args, tool_result,
+                tool_name,
+                tool_args,
+                tool_result,
             )
         )
 
@@ -162,14 +164,18 @@ class TestBridgeAfterToolUse:
             )
         )
         recs = bridge_after.generate_contextual_recommendation(
-            benefit_type, "Read", {"file_path": "large_file.py"},
+            benefit_type,
+            "Read",
+            {"file_path": "large_file.py"},
         )
 
         assert should_recommend is True
         assert len(recs) > 0
         # Verify analyze was called with correct args
         mock_analyze.assert_called_once_with(
-            "Read", {"file_path": "large_file.py"}, "x" * 60000,
+            "Read",
+            {"file_path": "large_file.py"},
+            "x" * 60000,
         )
         # Verify generate was called with the benefit type
         mock_generate.assert_called_once_with(
@@ -182,7 +188,9 @@ class TestBridgeAfterToolUse:
         """Minimal input doesn't trigger recommendation."""
         should_recommend, benefit_type = (
             bridge_after.analyze_execution_for_gemini_benefit(
-                "Read", {"file_path": "small.py"}, "x" * 100,
+                "Read",
+                {"file_path": "small.py"},
+                "x" * 100,
             )
         )
         assert should_recommend is False
@@ -204,18 +212,22 @@ class TestBridgeOnToolStart:
         ids=["architecture-review", "simple-listing"],
     )
     def test_is_intelligence_requiring_task(
-        self, description: str, expected: bool,
+        self,
+        description: str,
+        expected: bool,
     ) -> None:
         """Intelligence-requiring tasks are correctly identified."""
         result = bridge_start.is_intelligence_requiring_task(
-            "Task", {"description": description},
+            "Task",
+            {"description": description},
         )
         assert result is expected
 
     def test_is_data_processing_task(self) -> None:
         """Data processing tasks are correctly identified."""
         result = bridge_start.is_data_processing_task(
-            "Task", {"description": "List all TODO comments in the codebase"},
+            "Task",
+            {"description": "List all TODO comments in the codebase"},
         )
         assert result is True
 
@@ -225,21 +237,24 @@ class TestBridgeOnToolStart:
         test_file.write_text("x" * 1000)
 
         result = bridge_start.should_suggest_gemini(
-            "Read", {"file_path": str(test_file)},
+            "Read",
+            {"file_path": str(test_file)},
         )
         assert result is False
 
     def test_glob_triggers_suggestion(self) -> None:
         """Glob with broad pattern triggers suggestion."""
         result = bridge_start.should_suggest_gemini(
-            "Glob", {"pattern": "**/*.py"},
+            "Glob",
+            {"pattern": "**/*.py"},
         )
         assert result is True
 
     def test_format_suggestion_read(self) -> None:
         """Read tool generates file-specific suggestions."""
         suggestions = bridge_start.format_gemini_suggestion(
-            "Read", {"file_path": "src/main.py"},
+            "Read",
+            {"file_path": "src/main.py"},
         )
 
         assert len(suggestions) > 0
@@ -249,7 +264,8 @@ class TestBridgeOnToolStart:
     def test_format_suggestion_task(self) -> None:
         """Task tool generates delegation-specific suggestions."""
         suggestions = bridge_start.format_gemini_suggestion(
-            "Task", {"subagent_type": "Explore"},
+            "Task",
+            {"subagent_type": "Explore"},
         )
 
         assert len(suggestions) > 0
@@ -264,17 +280,20 @@ class TestBridgeOnToolStart:
         }
 
         should_suggest = bridge_start.should_suggest_gemini(
-            tool_name, tool_args,
+            tool_name,
+            tool_args,
         )
         assert should_suggest is False
 
         is_intelligence = bridge_start.is_intelligence_requiring_task(
-            tool_name, tool_args,
+            tool_name,
+            tool_args,
         )
         assert is_intelligence is True
 
         collaborative = bridge_start.format_collaborative_suggestion(
-            tool_name, tool_args,
+            tool_name,
+            tool_args,
         )
         assert len(collaborative) > 0
         assert any("Claude should lead" in s for s in collaborative)
@@ -287,19 +306,17 @@ class TestBridgeOnToolStart:
         }
 
         is_intelligence = bridge_start.is_intelligence_requiring_task(
-            tool_name, tool_args,
+            tool_name,
+            tool_args,
         )
-        collaborative_suggestions = (
-            bridge_start.format_collaborative_suggestion(
-                tool_name, tool_args,
-            )
+        collaborative_suggestions = bridge_start.format_collaborative_suggestion(
+            tool_name,
+            tool_args,
         )
 
         assert is_intelligence is True
         assert len(collaborative_suggestions) > 0
-        assert any(
-            "Claude should lead" in s for s in collaborative_suggestions
-        )
+        assert any("Claude should lead" in s for s in collaborative_suggestions)
 
     class TestHookIntegration:
         """Test integration between hooks and quota tracking."""
@@ -312,8 +329,10 @@ class TestBridgeOnToolStart:
             assert hasattr(bridge_start, "format_collaborative_suggestion")
 
             assert hasattr(
-                bridge_after, "analyze_execution_for_gemini_benefit",
+                bridge_after,
+                "analyze_execution_for_gemini_benefit",
             )
             assert hasattr(
-                bridge_after, "generate_contextual_recommendation",
+                bridge_after,
+                "generate_contextual_recommendation",
             )

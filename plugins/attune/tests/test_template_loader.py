@@ -467,9 +467,7 @@ class TestShowTemplateSources:
         assert str(path_a) in captured
         assert "1 templates" in captured
 
-    def test_show_template_sources_labels_custom_and_default(
-        self, tmp_path, capsys
-    ):
+    def test_show_template_sources_labels_custom_and_default(self, tmp_path, capsys):
         """Given custom and default paths, when showing sources, then labels them."""
         # Given
         custom_path = tmp_path / ".claude" / "attune" / "templates"

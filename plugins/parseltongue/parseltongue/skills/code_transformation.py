@@ -28,9 +28,7 @@ class CodeTransformationSkill:
             }
 
         if target_pattern == "optimize_performance":
-            transformed, new_transforms = self._optimize_performance(
-                transformed, tree
-            )
+            transformed, new_transforms = self._optimize_performance(transformed, tree)
             transformations.extend(new_transforms)
             for t in new_transforms:
                 improvements.append(
@@ -88,9 +86,7 @@ class CodeTransformationSkill:
 
         return result, transforms
 
-    def _convert_dict_calls(
-        self, code: str
-    ) -> tuple[str, list[dict[str, Any]]]:
+    def _convert_dict_calls(self, code: str) -> tuple[str, list[dict[str, Any]]]:
         transforms: list[dict[str, Any]] = []
         pattern = r"\bdict\(\)"
         if re.search(pattern, code):
@@ -103,9 +99,7 @@ class CodeTransformationSkill:
             )
         return code, transforms
 
-    def _convert_format_to_fstring(
-        self, code: str
-    ) -> tuple[str, list[dict[str, Any]]]:
+    def _convert_format_to_fstring(self, code: str) -> tuple[str, list[dict[str, Any]]]:
         transforms: list[dict[str, Any]] = []
 
         # Convert simple "{}".format(x) patterns
@@ -114,8 +108,7 @@ class CodeTransformationSkill:
         if match:
             code = re.sub(
                 pattern,
-                lambda m: f'f"{m.group(1)}{{{m.group(3)}}}'
-                f'{m.group(2)[1:]}"',
+                lambda m: f'f"{m.group(1)}{{{m.group(3)}}}{m.group(2)[1:]}"',
                 code,
             )
             transforms.append(
@@ -129,9 +122,7 @@ class CodeTransformationSkill:
         pct_pattern = r"'%s'\s*%\s*(\w+)"
         match = re.search(pct_pattern, code)
         if match:
-            code = re.sub(
-                pct_pattern, lambda m: f"f'{{{m.group(1)}}}'", code
-            )
+            code = re.sub(pct_pattern, lambda m: f"f'{{{m.group(1)}}}'", code)
             transforms.append(
                 {
                     "type": "fstring",
@@ -154,8 +145,7 @@ class CodeTransformationSkill:
             transforms.append(
                 {
                     "type": "list_comprehension",
-                    "description": "Converted list() generator "
-                    "to comprehension",
+                    "description": "Converted list() generator to comprehension",
                 }
             )
 

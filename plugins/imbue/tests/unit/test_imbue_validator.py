@@ -16,8 +16,9 @@ from unittest.mock import patch
 import pytest
 
 from scripts.imbue_validator import (
-    ImbueValidationResult,
     ImbueValidator,
+)
+from scripts.imbue_validator import (
     main as imbue_main,
 )
 
@@ -133,7 +134,6 @@ This skill doesn't do reviews.
         When initializing ImbueValidator
         Then it should initialize with empty skill list.
         """
-
         # Arrange & Act
         validator = ImbueValidator(Path("/nonexistent/directory"))
 
@@ -152,7 +152,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-
         # Arrange & Act
         with caplog.at_level(logging.WARNING):
             validator = ImbueValidator(Path("/nonexistent/plugin/directory"))
@@ -178,7 +177,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-
         # Arrange - create empty directory
         empty_dir = tmp_path / "empty-plugin"
         empty_dir.mkdir()
@@ -206,7 +204,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-
         # Arrange - create directory with some files but no plugin structure
         malformed_dir = tmp_path / "malformed-plugin"
         malformed_dir.mkdir()
@@ -238,7 +235,6 @@ This skill doesn't do reviews.
 
         Addresses issue #34.
         """
-
         # Arrange & Act
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -259,7 +255,6 @@ This skill doesn't do reviews.
         Then it should identify review-pattern skills
         And ignore non-review skills.
         """
-
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -288,7 +283,6 @@ This skill doesn't do reviews.
         Then it should match multiple patterns
         And categorize appropriately.
         """
-
         # Arrange - add a skill with workflow keyword
         workflow_dir = mock_plugin_structure / "skills" / "workflow-skill"
         workflow_dir.mkdir()
@@ -324,7 +318,6 @@ This provides workflow orchestration.
         Then it should add evidence logging patterns
         And parse JSON without errors.
         """
-
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -350,7 +343,6 @@ This provides workflow orchestration.
         Then it should record error in issues
         And continue processing skills.
         """
-
         # Arrange - write invalid JSON
         (mock_plugin_structure / "plugin.json").write_text("invalid json content")
         validator = ImbueValidator(mock_plugin_structure)
@@ -374,7 +366,6 @@ This provides workflow orchestration.
         Then it should record an issue instead of crashing
         And continue processing skills.
         """
-
         # Arrange - write bytes that are invalid UTF-8
         (mock_plugin_structure / "plugin.json").write_bytes(b"\xff")
         validator = ImbueValidator(mock_plugin_structure)
@@ -402,7 +393,6 @@ This provides workflow orchestration.
         Then it should record an issue instead of crashing
         And continue processing other skills.
         """
-
         # Arrange - make one skill file invalid UTF-8
         (mock_plugin_structure / "skills" / "other-skill" / "SKILL.md").write_bytes(
             b"\xff"
@@ -430,7 +420,6 @@ This provides workflow orchestration.
         Then it should identify missing components
         And report specific issues.
         """
-
         # Arrange - create review-core skill missing deliverable component
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
         (review_core_dir / "SKILL.md").write_text("""---
@@ -475,7 +464,6 @@ This skill has checklist but no deliverable section.
         Then it should flag missing evidence patterns
         Except for review-core skill.
         """
-
         # Arrange - create skill without evidence patterns
         no_evidence_dir = mock_plugin_structure / "skills" / "no-audit"
         no_evidence_dir.mkdir()
@@ -513,7 +501,6 @@ This skill has checklist but no deliverable section.
         When validating review workflows
         Then it should not flag review-core for missing evidence patterns.
         """
-
         # Arrange - review-core skill without explicit evidence keywords
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
         (review_core_dir / "SKILL.md").write_text("""---
@@ -550,7 +537,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should include all sections with appropriate content.
         """
-
         # Arrange
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -575,7 +561,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should list all issues with numbering.
         """
-
         # Arrange - create issues
         (mock_plugin_structure / "plugin.json").write_text("invalid json")
 
@@ -602,7 +587,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When generating a report
         Then it should display success message.
         """
-
         # Arrange - validate all skills have proper patterns
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
             content = skill_file.read_text()
@@ -628,7 +612,6 @@ This skill provides review scaffolding with checklist and deliverables.
         When scanning for review workflows
         Then it should match patterns regardless of case.
         """
-
         # Arrange - create skill with uppercase patterns
         mixed_case_dir = mock_plugin_structure / "skills" / "mixed-case"
         mixed_case_dir.mkdir()
@@ -661,7 +644,6 @@ Also includes EVIDENCE logging.
         When scanning for review workflows
         Then it should return empty results.
         """
-
         # Arrange
         empty_dir = tmp_path / "empty-plugin"
         empty_dir.mkdir()
@@ -684,7 +666,6 @@ Also includes EVIDENCE logging.
         When scanning for review workflows
         Then it should continue processing skills.
         """
-
         # Arrange - remove plugin.json
         (mock_plugin_structure / "plugin.json").unlink()
         validator = ImbueValidator(mock_plugin_structure)
@@ -704,7 +685,6 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan exits non-zero when issues exist."""
-
         with patch.object(
             sys,
             "argv",
@@ -724,7 +704,6 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan prints results and exits cleanly when no issues."""
-
         # validate all skills mention evidence so validation passes.
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
             content = skill_file.read_text(errors="ignore")
@@ -748,7 +727,6 @@ Also includes EVIDENCE logging.
     @pytest.mark.unit
     def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
         """Scenario: CLI report prints a full report."""
-
         with patch.object(
             sys,
             "argv",
@@ -777,7 +755,6 @@ class TestImbueValidatorIntegration:
         When running validation
         Then it should process actual skills and configuration.
         """
-
         # Arrange & Act
         validator = ImbueValidator(imbue_plugin_root)
         result = validator.scan_review_workflows()
@@ -803,7 +780,6 @@ class TestImbueValidatorIntegration:
         When running validation
         Then it should handle permissions gracefully.
         """
-
         plugin_root = tmp_path / "permission-test"
         plugin_root.mkdir()
 
@@ -921,7 +897,6 @@ class TestImbueValidatorEdgeCases:
         When running main()
         Then it should print help information.
         """
-
         with patch.object(sys, "argv", ["prog"]):
             imbue_main()
 
@@ -937,7 +912,6 @@ class TestImbueValidatorEdgeCases:
         When initializing ImbueValidator
         Then it should handle the error gracefully and log a warning.
         """
-
         # Create a directory
         test_dir = tmp_path / "test-plugin"
         test_dir.mkdir()
@@ -962,7 +936,6 @@ class TestImbueValidatorEdgeCases:
         When scanning for review workflows
         Then it should not be classified as a review workflow skill.
         """
-
         # Create plugin structure
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "non-review"
@@ -1003,7 +976,6 @@ Just plain utility operations.
         When scanning for review workflows
         Then it should be classified as a review workflow skill via frontmatter.
         """
-
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "categorized-review"
         skills_dir.mkdir(parents=True)
@@ -1035,7 +1007,6 @@ No keywords needed in the body.
         When scanning for review workflows
         Then it should be classified as a review workflow skill.
         """
-
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "usage-review"
         skills_dir.mkdir(parents=True)
@@ -1072,7 +1043,6 @@ No keywords needed in the body.
 
         This covers branch 133->136 where frontmatter remains None.
         """
-
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "incomplete-fm"
         skills_dir.mkdir(parents=True)
@@ -1104,7 +1074,6 @@ It contains workflow patterns in the content.
 
         This also covers branch 133->136.
         """
-
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "broken-fm"
         skills_dir.mkdir(parents=True)

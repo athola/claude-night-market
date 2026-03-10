@@ -120,9 +120,7 @@ class TestWarRoomDiscussionPublishingSection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_discussion_publishing_allows_opt_out(
-        self, skill_content: str
-    ) -> None:
+    def test_discussion_publishing_allows_opt_out(self, skill_content: str) -> None:
         """Scenario: Publishing allows user opt-out.
 
         Given the Discussion Publishing section

@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -18,11 +17,9 @@ import pytest
 from speckit.caching import (
     CacheManager,
     SpecKitCache,
-    _cache_instance,
     cached,
     get_cache,
 )
-
 
 # ============================================================================
 # SpecKitCache.__init__
@@ -182,6 +179,7 @@ class TestIsExpired:
         cache_path.write_text("{}")
         # Force old mtime
         import os
+
         old_time = time.time() - 7200
         os.utime(cache_path, (old_time, old_time))
         assert cache.is_expired("k") is True
@@ -561,7 +559,11 @@ class TestCachedDecorator:
 
             func()
             # Value should be cached with default TTL (3600s)
-            cache_key = f"{func.__module__}.{func.__wrapped__.__name__}" if hasattr(func, "__wrapped__") else None
+            cache_key = (
+                f"{func.__module__}.{func.__wrapped__.__name__}"
+                if hasattr(func, "__wrapped__")
+                else None
+            )
             # Just verify it returns cached value
             assert func() == "value"
         finally:
@@ -658,9 +660,7 @@ class TestCacheManager:
         finally:
             mod._cache_instance = original
 
-    def test_cache_result_unknown_category_uses_default(
-        self, tmp_path: Path
-    ) -> None:
+    def test_cache_result_unknown_category_uses_default(self, tmp_path: Path) -> None:
         """Should fall back to spec_parsing TTL for unknown categories."""
         import speckit.caching as mod
 

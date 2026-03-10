@@ -306,65 +306,49 @@ class TestGetDefaultField:
     def test_new_text_field_used_for_file_events(self) -> None:
         """new_text is the default field for file events."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "file", {"new_text": "some content"}
-        )
+        results = engine.evaluate_event("file", {"new_text": "some content"})
         assert len(results) == 1
 
     def test_content_field_used_when_no_new_text(self) -> None:
         """content is used as fallback for file events."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "file", {"content": "body text"}
-        )
+        results = engine.evaluate_event("file", {"content": "body text"})
         assert len(results) == 1
 
     def test_user_prompt_field(self) -> None:
         """user_prompt is the default field for prompt events."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "prompt", {"user_prompt": "hello"}
-        )
+        results = engine.evaluate_event("prompt", {"user_prompt": "hello"})
         assert len(results) == 1
 
     def test_transcript_field(self) -> None:
         """transcript is the default field for stop events."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "stop", {"transcript": "session log"}
-        )
+        results = engine.evaluate_event("stop", {"transcript": "session log"})
         assert len(results) == 1
 
     def test_none_new_text_returns_no_match(self) -> None:
         """None new_text value produces no match."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "file", {"new_text": None}
-        )
+        results = engine.evaluate_event("file", {"new_text": None})
         assert len(results) == 0
 
     def test_none_user_prompt_returns_no_match(self) -> None:
         """None user_prompt value produces no match."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "prompt", {"user_prompt": None}
-        )
+        results = engine.evaluate_event("prompt", {"user_prompt": None})
         assert len(results) == 0
 
     def test_none_transcript_returns_no_match(self) -> None:
         """None transcript value produces no match."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "stop", {"transcript": None}
-        )
+        results = engine.evaluate_event("stop", {"transcript": None})
         assert len(results) == 0
 
     def test_none_content_returns_no_match(self) -> None:
         """None content value produces no match."""
         engine = self._make_engine_with_pattern()
-        results = engine.evaluate_event(
-            "file", {"content": None}
-        )
+        results = engine.evaluate_event("file", {"content": None})
         assert len(results) == 0
 
 
@@ -395,42 +379,26 @@ class TestEvaluateConditionOperators:
 
     def test_equals_match(self) -> None:
         """equals operator matches identical strings."""
-        engine = self._make_engine_with_condition(
-            "command", "equals", "git status"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "git status"}
-        )
+        engine = self._make_engine_with_condition("command", "equals", "git status")
+        results = engine.evaluate_event("bash", {"command": "git status"})
         assert len(results) == 1
 
     def test_equals_no_match(self) -> None:
         """equals operator rejects different strings."""
-        engine = self._make_engine_with_condition(
-            "command", "equals", "git status"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "git diff"}
-        )
+        engine = self._make_engine_with_condition("command", "equals", "git status")
+        results = engine.evaluate_event("bash", {"command": "git diff"})
         assert len(results) == 0
 
     def test_contains_match(self) -> None:
         """contains operator finds substring."""
-        engine = self._make_engine_with_condition(
-            "command", "contains", "rm"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "rm -rf /tmp"}
-        )
+        engine = self._make_engine_with_condition("command", "contains", "rm")
+        results = engine.evaluate_event("bash", {"command": "rm -rf /tmp"})
         assert len(results) == 1
 
     def test_contains_no_match(self) -> None:
         """contains operator rejects absent substring."""
-        engine = self._make_engine_with_condition(
-            "command", "contains", "rm"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "ls -la"}
-        )
+        engine = self._make_engine_with_condition("command", "contains", "rm")
+        results = engine.evaluate_event("bash", {"command": "ls -la"})
         assert len(results) == 0
 
     def test_not_contains_match(self) -> None:
@@ -438,109 +406,67 @@ class TestEvaluateConditionOperators:
         engine = self._make_engine_with_condition(
             "command", "not_contains", "dangerous"
         )
-        results = engine.evaluate_event(
-            "bash", {"command": "ls -la"}
-        )
+        results = engine.evaluate_event("bash", {"command": "ls -la"})
         assert len(results) == 1
 
     def test_not_contains_no_match(self) -> None:
         """not_contains operator rejects when substring is present."""
-        engine = self._make_engine_with_condition(
-            "command", "not_contains", "ls"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "ls -la"}
-        )
+        engine = self._make_engine_with_condition("command", "not_contains", "ls")
+        results = engine.evaluate_event("bash", {"command": "ls -la"})
         assert len(results) == 0
 
     def test_starts_with_match(self) -> None:
         """starts_with operator matches prefix."""
-        engine = self._make_engine_with_condition(
-            "command", "starts_with", "git"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "git push origin"}
-        )
+        engine = self._make_engine_with_condition("command", "starts_with", "git")
+        results = engine.evaluate_event("bash", {"command": "git push origin"})
         assert len(results) == 1
 
     def test_starts_with_no_match(self) -> None:
         """starts_with operator rejects non-prefix."""
-        engine = self._make_engine_with_condition(
-            "command", "starts_with", "git"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "npm run git"}
-        )
+        engine = self._make_engine_with_condition("command", "starts_with", "git")
+        results = engine.evaluate_event("bash", {"command": "npm run git"})
         assert len(results) == 0
 
     def test_ends_with_match(self) -> None:
         """ends_with operator matches suffix."""
-        engine = self._make_engine_with_condition(
-            "command", "ends_with", ".py"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "python test.py"}
-        )
+        engine = self._make_engine_with_condition("command", "ends_with", ".py")
+        results = engine.evaluate_event("bash", {"command": "python test.py"})
         assert len(results) == 1
 
     def test_ends_with_no_match(self) -> None:
         """ends_with operator rejects non-suffix."""
-        engine = self._make_engine_with_condition(
-            "command", "ends_with", ".py"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "python test.js"}
-        )
+        engine = self._make_engine_with_condition("command", "ends_with", ".py")
+        results = engine.evaluate_event("bash", {"command": "python test.js"})
         assert len(results) == 0
 
     def test_regex_match_match(self) -> None:
         """regex_match operator matches regex."""
-        engine = self._make_engine_with_condition(
-            "command", "regex_match", r"\d{3,}"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "echo 12345"}
-        )
+        engine = self._make_engine_with_condition("command", "regex_match", r"\d{3,}")
+        results = engine.evaluate_event("bash", {"command": "echo 12345"})
         assert len(results) == 1
 
     def test_regex_match_no_match(self) -> None:
         """regex_match operator rejects non-matching text."""
-        engine = self._make_engine_with_condition(
-            "command", "regex_match", r"\d{3,}"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "echo ab"}
-        )
+        engine = self._make_engine_with_condition("command", "regex_match", r"\d{3,}")
+        results = engine.evaluate_event("bash", {"command": "echo ab"})
         assert len(results) == 0
 
     def test_regex_match_invalid_regex(self) -> None:
         """regex_match with invalid regex returns no match."""
-        engine = self._make_engine_with_condition(
-            "command", "regex_match", r"[bad"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "anything"}
-        )
+        engine = self._make_engine_with_condition("command", "regex_match", r"[bad")
+        results = engine.evaluate_event("bash", {"command": "anything"})
         assert len(results) == 0
 
     def test_non_string_field_value_converted(self) -> None:
         """Non-string context values are coerced to strings."""
-        engine = self._make_engine_with_condition(
-            "command", "contains", "42"
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": 42}
-        )
+        engine = self._make_engine_with_condition("command", "contains", "42")
+        results = engine.evaluate_event("bash", {"command": 42})
         assert len(results) == 1
 
     def test_missing_field_uses_empty_string(self) -> None:
         """Missing field defaults to empty string."""
-        engine = self._make_engine_with_condition(
-            "nonexistent", "equals", ""
-        )
-        results = engine.evaluate_event(
-            "bash", {"command": "test"}
-        )
+        engine = self._make_engine_with_condition("nonexistent", "equals", "")
+        results = engine.evaluate_event("bash", {"command": "test"})
         assert len(results) == 1
 
 
@@ -594,16 +520,8 @@ class TestEvaluateConditionsEdgeCases:
         ]
         engine = RuleEngine(rules)
 
-        assert len(
-            engine.evaluate_event(
-                "bash", {"command": "git push --force"}
-            )
-        ) == 1
-        assert len(
-            engine.evaluate_event(
-                "bash", {"command": "git push --soft"}
-            )
-        ) == 0
+        assert len(engine.evaluate_event("bash", {"command": "git push --force"})) == 1
+        assert len(engine.evaluate_event("bash", {"command": "git push --soft"})) == 0
 
 
 class TestHasBlockingResultsEdge:
@@ -623,11 +541,7 @@ class TestHasBlockingResultsEdge:
             pattern="t",
             action="warn",
         )
-        results = [
-            RuleResult(
-                matched=True, rule=rule, action="warn", message="w"
-            )
-        ]
+        results = [RuleResult(matched=True, rule=rule, action="warn", message="w")]
         engine = RuleEngine([])
         assert engine.has_blocking_results(results) is False
 
@@ -648,9 +562,7 @@ class TestHasBlockingResultsEdge:
             action="block",
         )
         results = [
-            RuleResult(
-                matched=True, rule=warn_rule, action="warn", message="w"
-            ),
+            RuleResult(matched=True, rule=warn_rule, action="warn", message="w"),
             RuleResult(
                 matched=True,
                 rule=block_rule,
@@ -722,12 +634,8 @@ class TestFormatMessagesEdge:
             action="warn",
         )
         results = [
-            RuleResult(
-                matched=True, rule=rule, action="warn", message="A"
-            ),
-            RuleResult(
-                matched=True, rule=rule, action="warn", message="B"
-            ),
+            RuleResult(matched=True, rule=rule, action="warn", message="A"),
+            RuleResult(matched=True, rule=rule, action="warn", message="B"),
         ]
         engine = RuleEngine([])
         formatted = engine.format_messages(results)

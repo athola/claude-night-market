@@ -26,9 +26,7 @@ class TestValidationResultCreation:
         ],
         ids=["passed", "failed", "git-pass", "build-fail"],
     )
-    def test_create_result_stores_all_attributes(
-        self, name, passed, message, category
-    ):
+    def test_create_result_stores_all_attributes(self, name, passed, message, category):
         """Given valid parameters, when creating result, then stores all attributes."""
         # When
         result = ValidationResult(name, passed, message, category)
@@ -191,9 +189,7 @@ class TestBuildConfigValidation:
         ],
         ids=["rust-missing", "ts-missing"],
     )
-    def test_validate_build_config_missing(
-        self, tmp_path, language, result_name
-    ):
+    def test_validate_build_config_missing(self, tmp_path, language, result_name):
         """Given a project without its config file, when validating build, then fails."""
         # Given
         project_dir = tmp_path / f"{language}-no-config"
@@ -686,9 +682,7 @@ python_version = "3.10"
 class TestPrintReport:
     """Test print_report output covers all categories and score."""
 
-    def test_print_report_shows_score_and_categories(
-        self, python_project, capsys
-    ):
+    def test_print_report_shows_score_and_categories(self, python_project, capsys):
         """Given results, when printing report, then includes score and category headers."""
         # Given
         (python_project / ".git").mkdir()
@@ -747,9 +741,7 @@ class TestPrintReport:
 class TestMainCLI:
     """Test the validate_project main() entry point."""
 
-    def test_main_with_strict_flag_exits_on_failure(
-        self, python_project
-    ):
+    def test_main_with_strict_flag_exits_on_failure(self, python_project):
         """Given --strict and failing checks, when running main, then exits with 1."""
         with patch(
             "sys.argv",
@@ -798,9 +790,7 @@ class TestMainCLI:
                 main()
             assert exc_info.value.code == 0
 
-    def test_main_exits_with_normal_exit_code(
-        self, mock_project_path
-    ):
+    def test_main_exits_with_normal_exit_code(self, mock_project_path):
         """Given a project, when running main without --strict, then exits with validator code."""
         with patch(
             "sys.argv",
@@ -822,9 +812,7 @@ class TestMainCLI:
 class TestCICDUnknownLanguage:
     """Test CI/CD validation with unknown language."""
 
-    def test_validate_ci_cd_unknown_language_no_workflows(
-        self, tmp_path
-    ):
+    def test_validate_ci_cd_unknown_language_no_workflows(self, tmp_path):
         """Given an unknown language, when validating CI/CD, then no workflow checks added."""
         # Given
         project_dir = tmp_path / "project"
@@ -838,7 +826,5 @@ class TestCICDUnknownLanguage:
         validator.validate_ci_cd("go")
 
         # Then
-        workflow_results = [
-            r for r in validator.results if "workflow-" in r.name
-        ]
+        workflow_results = [r for r in validator.results if "workflow-" in r.name]
         assert len(workflow_results) == 0

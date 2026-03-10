@@ -48,3 +48,19 @@ pip install tiktoken
 ## Plugin Metadata Standards (Claude Code 2.0.73+)
 
 Claude Code 2.0.73+ supports search filtering in the plugin discovery screen. Descriptions should start with a direct statement of functionality, such as "Infrastructure and pipeline building blocks for shared utilities." Include searchable keywords like "quota management" or "error handling" and mention specific capabilities like "circuit breakers" or "auth flows." Descriptions should remain between 50 and 150 characters to ensure clarity in search results.
+
+## Stewardship
+
+Ways to leave this plugin better than you found it:
+
+- An opportunity to document the quota tracker API so
+  downstream plugins can integrate without reading source
+- Error pattern examples could cover more recovery
+  scenarios that other plugins encounter in practice
+- The tiktoken fallback heuristic deserves a brief note
+  explaining when it diverges from actual token counts
+- Cross-plugin integration tests would help catch
+  breakage early when Leyline interfaces change
+
+See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
+stewardship principles guiding this project.

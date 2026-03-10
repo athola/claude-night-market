@@ -332,10 +332,9 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.get_config",
                 return_value=_default_config(),
-            ),
+            ),pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
@@ -363,10 +362,9 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
-            ) as mock_is_safe,
+            ) as mock_is_safe,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -407,10 +405,11 @@ class TestMainWebFetchHandling:
                 return_value=safety_result,
             ) as mock_is_safe,
             patch("web_research_handler.is_known", return_value=True) as mock_known,
-            patch("web_research_handler.needs_update", return_value=False) as mock_update,
+            patch(
+                "web_research_handler.needs_update", return_value=False
+            ) as mock_update,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         # Fallback reminder emitted when no specific context was generated
@@ -447,10 +446,11 @@ class TestMainWebFetchHandling:
                 return_value=safety_result,
             ),
             patch("web_research_handler.is_known", return_value=True) as mock_known,
-            patch("web_research_handler.needs_update", return_value=True) as mock_update,
+            patch(
+                "web_research_handler.needs_update", return_value=True
+            ) as mock_update,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -485,14 +485,15 @@ class TestMainWebFetchHandling:
                 return_value=safety_result,
             ),
             patch("web_research_handler.is_known", return_value=False) as mock_known,
-            patch("web_research_handler.get_content_hash", return_value="abc123") as mock_hash,
+            patch(
+                "web_research_handler.get_content_hash", return_value="abc123"
+            ) as mock_hash,
             patch(
                 "web_research_handler.store_webfetch_content",
                 return_value="/tmp/stored.md",
-            ) as mock_store,
+            ) as mock_store,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -531,10 +532,11 @@ class TestMainWebFetchHandling:
                 return_value=safety_result,
             ),
             patch("web_research_handler.is_known", return_value=False) as mock_known,
-            patch("web_research_handler.get_content_hash", return_value="abc123") as mock_hash,
+            patch(
+                "web_research_handler.get_content_hash", return_value="abc123"
+            ) as mock_hash,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -572,14 +574,15 @@ class TestMainWebSearchHandling:
                 return_value=_default_config(auto_capture=True),
             ),
             patch("web_research_handler.is_known", return_value=False) as mock_known,
-            patch("web_research_handler._recent_intake_pending", return_value=False) as mock_pending,
+            patch(
+                "web_research_handler._recent_intake_pending", return_value=False
+            ) as mock_pending,
             patch(
                 "web_research_handler.store_websearch_results",
                 return_value="/tmp/search.md",
-            ) as mock_store,
+            ) as mock_store,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -615,10 +618,11 @@ class TestMainWebSearchHandling:
                 return_value=_default_config(),
             ),
             patch("web_research_handler.is_known", return_value=True) as mock_known,
-            patch("web_research_handler._recent_intake_pending", return_value=False) as mock_pending,
+            patch(
+                "web_research_handler._recent_intake_pending", return_value=False
+            ) as mock_pending,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         output = capsys.readouterr().out.strip()
@@ -645,10 +649,11 @@ class TestMainWebSearchHandling:
                 "web_research_handler.get_config",
                 return_value=_default_config(),
             ),
-            patch("web_research_handler._recent_intake_pending", return_value=True) as mock_pending,
+            patch(
+                "web_research_handler._recent_intake_pending", return_value=True
+            ) as mock_pending,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         # Should be silent when intake is already pending
@@ -673,10 +678,9 @@ class TestMainDisabledConfig:
             patch(
                 "web_research_handler.get_config",
                 return_value={"enabled": False},
-            ) as mock_get_config,
+            ) as mock_get_config,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
@@ -699,10 +703,9 @@ class TestMainDisabledConfig:
                     "enabled": True,
                     "feature_flags": {"lifecycle": False},
                 },
-            ) as mock_get_config,
+            ) as mock_get_config,pytest.raises(SystemExit) as exc_info
         ):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
