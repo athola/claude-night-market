@@ -289,12 +289,18 @@ Combining risks merge conflicts and unclear rollback.
 
 ### 4.1 Create Feature Branch
 
+**All issues share ONE branch. Never create per-issue branches.**
+
 ```bash
-# Create branch for the issue
-git checkout -b fix/issue-ISSUE_NUMBER
-# Or for multiple issues:
+# Single issue:
+git checkout -b fix/issue-42
+
+# Multiple issues (ALWAYS use consolidated branch):
 git checkout -b fix/issues-42-43-44
 ```
+
+When dispatching subagents, pass the branch name explicitly
+so all work lands on the same branch.
 
 ### 4.2 Test-Driven Development
 
@@ -388,24 +394,33 @@ For project structure verification:
 
 ### 6.1 Push Changes
 
+Push the shared branch (one push for all issues):
+
 ```bash
-git push -u origin fix/issue-ISSUE_NUMBER
+git push -u origin fix/issues-42-43-44
 ```
 
-### 6.2 Create Pull/Merge Request
+### 6.2 Create ONE Pull/Merge Request
+
+**Create exactly one PR that references ALL issues.**
+Never create separate PRs per issue.
 
 ```bash
-# GitHub
-gh pr create --title "fix(scope): description" --body "$(cat <<'EOF'
+# GitHub - single PR closing all issues
+gh pr create --title "fix(scope): description (#42, #43, #44)" --body "$(cat <<'EOF'
 ## Summary
 
-Fixes #ISSUE_NUMBER
+Fixes #42
+Fixes #43
+Fixes #44
 
-[Brief description of what was fixed]
+[Brief description of what was fixed across all issues]
 
 ## Changes
 
-- [List of changes made]
+- [List of changes for issue #42]
+- [List of changes for issue #43]
+- [List of changes for issue #44]
 
 ## Test Plan
 
@@ -415,47 +430,35 @@ Fixes #ISSUE_NUMBER
 
 ## Acceptance Criteria
 
-- [x] [Criterion 1 from issue]
-- [x] [Criterion 2 from issue]
+- [x] [Criteria from #42]
+- [x] [Criteria from #43]
+- [x] [Criteria from #44]
 EOF
 )"
 
-# GitLab
-glab mr create --title "fix(scope): description" --description "$(cat <<'EOF'
-## Summary
-
-Closes #ISSUE_NUMBER
-
-[Brief description of what was fixed]
-EOF
-)"
+# GitLab - single MR closing all issues
+glab mr create --title "fix(scope): description (#42, #43, #44)" \
+  --description "Closes #42, Closes #43, Closes #44"
 ```
 
-### 6.3 Update Issue
+For a single issue, the same pattern applies (just one
+`Fixes #N` line).
 
-Comment on the issue with fix details:
-```bash
-# GitHub
-gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-## Fix Implemented
+### 6.3 Update Issues
 
-This issue has been addressed in PR #PR_NUMBER.
-
-**Changes Made:**
-- [Summary of changes]
-
-**Testing:**
-- All tests pass
-- Quality gates green
-
-Will close automatically when PR merges.
-EOF
-)"
-```
+Comment on each issue referencing the shared PR:
 
 ```bash
+# GitHub - comment on each issue with the SAME PR number
+for ISSUE in 42 43 44; do
+  gh issue comment "$ISSUE" --body "Fix implemented in PR #PR_NUMBER.
+Will close automatically when PR merges."
+done
+
 # GitLab
-glab issue note ISSUE_NUMBER --message "Fix implemented in MR !MR_NUMBER"
+for ISSUE in 42 43 44; do
+  glab issue note "$ISSUE" --message "Fix implemented in MR !MR_NUMBER"
+done
 ```
 
 ### 6.4 Link PR/MR to Issue (Auto-Close)

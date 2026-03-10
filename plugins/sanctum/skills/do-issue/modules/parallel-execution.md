@@ -134,6 +134,11 @@ Tasks without `[R:TIER]` markers are treated as GREEN (backward compatible).
 
 ## Dispatch Parallel Subagents
 
+**All subagents commit to the SAME branch.** The parent
+creates one shared branch before dispatch (Step 4.1) and
+all work lands there. Never create per-issue branches.
+This produces one PR at completion.
+
 **CORRECT PATTERN** - Multiple Task tool invocations in ONE response:
 
 ```text
@@ -144,10 +149,11 @@ Task(description: "Issue #43 - Fix validation bug")
 Task(description: "Issue #44 - Add logging feature")
 
 Each task will:
-1. Implement in its designated file (no conflicts)
-2. Follow TDD - write failing test first
-3. Verify no regressions
-4. Commit with conventional format
+1. Work on the current branch (fix/issues-42-43-44)
+2. Implement in its designated file (no conflicts)
+3. Follow TDD - write failing test first
+4. Verify no regressions
+5. Commit with conventional format
 ```
 
 **WRONG PATTERN** - Sequential invocations:
@@ -180,6 +186,7 @@ All tasks completed without conflicts.
 
 | Principle | Description |
 |-----------|-------------|
+| **One Branch** | All subagents commit to the shared branch (one PR at the end) |
 | **Fresh Context** | Each subagent starts clean, avoiding context pollution |
 | **TDD by Default** | Subagents write failing tests first |
 | **Conventional Commits** | Each task commits with proper format |

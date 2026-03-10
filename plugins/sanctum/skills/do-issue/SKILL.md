@@ -59,6 +59,7 @@ Retrieves issue content from the detected git platform (GitHub, GitLab, or Bitbu
 - **Cross-Platform**: Automatically detects GitHub/GitLab/Bitbucket and uses appropriate CLI
 - **Flexible Input**: Single issue number, platform URL, or space-delimited list
 - **Parallel Execution**: Independent tasks run concurrently via subagents
+- **One PR**: All issues produce one consolidated PR (never per-issue PRs)
 - **Quality Gates**: Code review between task groups
 - **Fresh Context**: Each subagent starts with clean context for focused work
 
