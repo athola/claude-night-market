@@ -21,8 +21,7 @@ class TestRecordAction:
 
     @pytest.mark.unit
     def test_records_valid_jsonl_entry(self, tmp_path: Path) -> None:
-        """
-        Scenario: Recording a stewardship action
+        """Scenario: Recording a stewardship action
         Given a stewardship tracker with a writable directory
         When a stewardship action is recorded
         Then a valid JSON line is appended to the actions file
@@ -50,8 +49,7 @@ class TestRecordAction:
 
     @pytest.mark.unit
     def test_creates_directory_if_missing(self, tmp_path: Path) -> None:
-        """
-        Scenario: Directory does not exist
+        """Scenario: Directory does not exist
         Given the stewardship directory does not exist
         When an action is recorded
         Then the directory is created automatically
@@ -70,8 +68,7 @@ class TestRecordAction:
 
     @pytest.mark.unit
     def test_appends_without_overwriting(self, tmp_path: Path) -> None:
-        """
-        Scenario: Multiple actions recorded
+        """Scenario: Multiple actions recorded
         Given an existing actions file with one entry
         When a second action is recorded
         Then both entries exist in the file
@@ -106,8 +103,7 @@ class TestReadActions:
 
     @pytest.mark.unit
     def test_reads_actions_for_plugin(self, tmp_path: Path) -> None:
-        """
-        Scenario: Querying actions by plugin
+        """Scenario: Querying actions by plugin
         Given actions recorded for multiple plugins
         When querying actions for a specific plugin
         Then only that plugin's actions are returned
@@ -134,8 +130,7 @@ class TestReadActions:
 
     @pytest.mark.unit
     def test_reads_all_actions_when_no_filter(self, tmp_path: Path) -> None:
-        """
-        Scenario: Querying all actions
+        """Scenario: Querying all actions
         Given actions recorded for multiple plugins
         When querying without a filter
         Then all actions are returned
@@ -161,8 +156,7 @@ class TestReadActions:
 
     @pytest.mark.unit
     def test_handles_missing_file_gracefully(self, tmp_path: Path) -> None:
-        """
-        Scenario: No actions file exists
+        """Scenario: No actions file exists
         Given the stewardship directory is empty
         When querying actions
         Then an empty list is returned
@@ -173,8 +167,7 @@ class TestReadActions:
 
     @pytest.mark.unit
     def test_handles_corrupt_line_gracefully(self, tmp_path: Path) -> None:
-        """
-        Scenario: Corrupt line in actions file
+        """Scenario: Corrupt line in actions file
         Given an actions file with one valid and one corrupt line
         When reading actions
         Then only the valid entry is returned

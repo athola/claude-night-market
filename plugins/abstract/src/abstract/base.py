@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 # =============================================================================
 
 
-def setup_imports() -> None:
+def setup_imports() -> None:  # Deprecated: no-op, remove in next major version.
     """Set up import paths for scripts run from any location.
 
     This is a no-op kept for backwards compatibility.
@@ -108,7 +108,9 @@ class AbstractScript:
         self._config: AbstractConfig | None = None
         self._error_handler: ErrorHandler | None = None
 
-    def _setup_imports(self) -> None:
+    def _setup_imports(
+        self,
+    ) -> None:  # Deprecated: no-op, remove in next major version.
         """Set up import paths for running from any location.
 
         This is a no-op kept for backwards compatibility.

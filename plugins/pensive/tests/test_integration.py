@@ -28,7 +28,10 @@ from pensive.analysis.repository_analyzer import RepositoryAnalyzer
 from pensive.config.configuration import Configuration
 from pensive.integrations.cicd import GitHubActionsIntegration
 from pensive.plugin import PensivePlugin
-from pensive.reporting.formatters import MarkdownFormatter, SarifFormatter
+from pensive.reporting.formatters import (
+    MarkdownFormatter,
+    SarifFormatter,
+)
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
 from pensive.workflows.skill_coordinator import SkillCoordinator
@@ -42,7 +45,9 @@ class TestPensiveIntegration:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
-        """Given repo code, full review generates detailed report."""
+        """Given repo code, full review generates a report with
+        expected metrics and finding structure.
+        """
         # Arrange
         workflow = CodeReviewWorkflow()
         repo_path = temp_repository
@@ -51,21 +56,23 @@ class TestPensiveIntegration:
         review_result = workflow.execute_full_review(repo_path)
 
         # Assert
-        assert review_result is not None
-        assert "summary" in review_result
-        assert "findings" in review_result
-        assert "recommendations" in review_result
-        assert "metrics" in review_result
+        assert isinstance(review_result, dict)
+        assert isinstance(review_result["summary"], str)
+        assert isinstance(review_result["findings"], list)
+        assert isinstance(review_result["recommendations"], list)
+        assert isinstance(review_result["metrics"], dict)
 
-        # Check that multiple skills were executed
-        assert review_result["metrics"]["skills_executed"] >= 2
-        assert review_result["metrics"]["files_analyzed"] > 0
-        assert review_result["metrics"]["total_findings"] >= 0
+        metrics = review_result["metrics"]
+        assert metrics["skills_executed"] >= 2
+        assert metrics["files_analyzed"] > 0
+        assert isinstance(metrics["total_findings"], int)
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_skill_coordination_and_result_consolidation(self, temp_repository) -> None:
-        """Given multiple skills, parallel execution consolidates results."""
+        """Given two skills, parallel execution returns two results
+        and dispatches exactly twice.
+        """
         # Arrange
         unified_skill = UnifiedReviewSkill()
         context = Mock()
@@ -75,9 +82,8 @@ class TestPensiveIntegration:
         # Act
         skills_to_execute = ["code-reviewer", "api-review"]
         with patch(
-            "pensive.skills.unified_review.coordinator_dispatch",
+            "pensive.skills.unified_review.dispatch_agent",
         ) as mock_dispatch:
-            # Mock different skill responses
             mock_dispatch.side_effect = [
                 "Code review findings: 3 issues found",
                 "API review findings: 2 issues found",
@@ -90,13 +96,16 @@ class TestPensiveIntegration:
 
         # Assert
         assert len(results) == 2
-        assert all(result is not None for result in results)
+        assert results[0] == "Code review findings: 3 issues found"
+        assert results[1] == "API review findings: 2 issues found"
         assert mock_dispatch.call_count == 2
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_real_repository_analysis(self, temp_repository) -> None:
-        """Given real repository structure, analysis detects patterns."""
+        """Given real Rust repo structure, analysis detects Rust,
+        make, and cargo test framework.
+        """
         # Arrange
         files = {
             "src/main.rs": """
@@ -169,23 +178,21 @@ tokio = { version = "1.0", features = ["full"] }
 all: build test
 
 build:
-	cargo build --release
+\tcargo build --release
 
 test:
-	cargo test
+\tcargo test
 
 clean:
-	cargo clean
+\tcargo clean
             """,
         }
 
-        # Create the repository structure
         for file_path, content in files.items():
             full_path = temp_repository / file_path
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(content)
 
-        # Initialize git
         subprocess.run(
             ["git", "add", "."],
             check=False,
@@ -204,60 +211,59 @@ clean:
         analysis = analyzer.analyze_repository(temp_repository)
 
         # Assert
-        assert "languages" in analysis
+        assert isinstance(analysis["languages"], dict)
         assert "rust" in analysis["languages"]
-        assert "build_systems" in analysis
+        assert isinstance(analysis["build_systems"], list)
         assert "make" in analysis["build_systems"]
-        assert "test_frameworks" in analysis
+        assert isinstance(analysis["test_frameworks"], list)
         assert "cargo" in analysis["test_frameworks"]
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_todo_write_integration(self, temp_repository) -> None:
-        """Given review workflow, issues integrate with task tracking."""
+        """Given review workflow, result contains list-typed findings
+        and dict-typed metrics.
+        """
         # Arrange
         workflow = CodeReviewWorkflow()
 
         # Act
         result = workflow.execute_full_review(temp_repository)
 
-        # Assert - workflow should return trackable findings
-        assert result is not None
-        assert "findings" in result
-        assert "metrics" in result
-        # Findings should be structured for task tracking
+        # Assert
         assert isinstance(result["findings"], list)
+        assert isinstance(result["metrics"], dict)
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_handling_and_recovery(self, temp_repository) -> None:
-        """Given errors during review, workflow handles gracefully and continues."""
+        """Given a failing Rust skill, workflow continues and
+        reports errors or skipped skills.
+        """
         # Arrange
         workflow = CodeReviewWorkflow()
 
-        with patch("pensive.skills.rust_review.RustReviewSkill") as mock_rust_skill:
-            # Make rust skill fail
+        with patch(
+            "pensive.skills.rust_review.RustReviewSkill",
+        ) as mock_rust_skill:
             mock_rust_skill.return_value.analyze.side_effect = Exception(
-                "Rust toolchain not found",
+                "Rust toolchain not found"
             )
 
             # Act
             result = workflow.execute_full_review(temp_repository)
 
             # Assert
-            # Workflow should continue despite rust skill failure
-            assert result is not None
-            assert "errors" in result or "skipped_skills" in result
-            assert (
-                len(result.get("findings", [])) >= 0
-            )  # Other skills should still work
+            assert isinstance(result, dict)
+            has_error_info = "errors" in result or "skipped_skills" in result
+            assert has_error_info
+            assert isinstance(result.get("findings", []), list)
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_performance_with_large_repository(self, temp_repository) -> None:
-        """Given large repo, review completes within reasonable time."""
+        """Given 20+ module files, review completes under 30 seconds."""
         # Arrange
-        # Create a larger repository with many files
         for i in range(20):
             file_path = temp_repository / f"src/module_{i}.rs"
             file_path.write_text(f"""
@@ -277,7 +283,6 @@ impl Module{i} {{
 }}
             """)
 
-        # Add some test files
         for i in range(5):
             test_path = temp_repository / f"tests/test_module_{i}.rs"
             test_path.write_text(f"""
@@ -298,20 +303,20 @@ mod tests {{
         # Act
         start_time = time.time()
         result = workflow.execute_full_review(temp_repository)
-        end_time = time.time()
+        execution_time = time.time() - start_time
 
         # Assert
-        execution_time = end_time - start_time
-        assert execution_time < 30  # Should complete within 30 seconds
-        assert result is not None
+        assert execution_time < 30
+        assert isinstance(result, dict)
         assert result["metrics"]["files_analyzed"] >= 20
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_cross_language_repository_analysis(self, temp_repository) -> None:
-        """Given multi-language repo, analysis handles all languages."""
+        """Given JS, Python, and Rust files, analysis detects all
+        three languages.
+        """
         # Arrange
-        # Create JavaScript files
         (temp_repository / "src" / "api.js").write_text("""
 export class ApiService {
     constructor(baseUrl) {
@@ -325,7 +330,6 @@ export class ApiService {
 }
         """)
 
-        # Create Python files
         (temp_repository / "src" / "utils.py").write_text("""
 import json
 from typing import List, Dict
@@ -340,8 +344,6 @@ def export_to_json(data: List[Dict], filename: str) -> None:
         json.dump(data, f, indent=2)
         """)
 
-        # Create Rust files (already exists from temp_repository fixture)
-        # Create package.json for JavaScript
         (temp_repository / "package.json").write_text("""
 {
     "name": "multi-lang-project",
@@ -359,7 +361,7 @@ def export_to_json(data: List[Dict], filename: str) -> None:
         analysis = analyzer.analyze_repository(temp_repository)
 
         # Assert
-        assert "languages" in analysis
+        assert isinstance(analysis["languages"], dict)
         assert len(analysis["languages"]) >= 2
         assert "javascript" in analysis["languages"]
         assert "python" in analysis["languages"]
@@ -368,9 +370,10 @@ def export_to_json(data: List[Dict], filename: str) -> None:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_ci_cd_integration(self, temp_repository) -> None:
-        """Given CI/CD config, workflow works with build systems."""
+        """Given GitHub Actions workflow YAML, CI/CD integration
+        detects config and generates valid SARIF output.
+        """
         # Arrange
-        # Create GitHub Actions workflow
         workflows_dir = temp_repository / ".github" / "workflows"
         workflows_dir.mkdir(parents=True)
 
@@ -398,17 +401,18 @@ jobs:
         sarif_output = integration.generate_sarif_output(temp_repository)
 
         # Assert
-        assert config is not None
         assert config["type"] == "github_actions"
-        assert sarif_output is not None
-        assert "runs" in sarif_output
-        # Tool info is inside runs[0], per SARIF spec
+        assert isinstance(sarif_output, dict)
+        assert isinstance(sarif_output["runs"], list)
+        assert len(sarif_output["runs"]) > 0
         assert "tool" in sarif_output["runs"][0]
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_configuration_and_customization(self, temp_repository) -> None:
-        """Given custom configuration, when executing review, then respects settings."""
+        """Given custom .pensive.yml config, workflow loads and
+        applies the skill and exclusion settings.
+        """
         # Arrange
         config_file = temp_repository / ".pensive.yml"
         config_file.write_text("""
@@ -428,16 +432,13 @@ pensive:
     include_suggestions: true
 custom_rules:
   - id: no-hardcoded-secrets
-    pattern: 'password.*=.*'
+    pattern: 'password.*='
     severity: critical
   - id: require-docs
     pattern: 'pub fn'
     severity: medium
         """)
 
-        workflow = CodeReviewWorkflow()
-
-        # Load configuration
         config = Configuration.load_from_file(config_file)
         workflow = CodeReviewWorkflow(config=config)
 
@@ -445,26 +446,23 @@ custom_rules:
         result = workflow.execute_full_review(temp_repository)
 
         # Assert
-        assert result is not None
-        # Verify configuration was applied
+        assert isinstance(result, dict)
         assert "unified-review" in config.enabled_skills
         assert "rust-review" in config.enabled_skills
+        assert "api-review" in config.enabled_skills
         assert len(config.exclude_patterns) > 0
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_memory_usage_and_resource_management(self, temp_repository) -> None:
-        """Given large analysis, when executing, then manages memory efficiently."""
+        """Given 100 large files, memory increase stays under 100 MB."""
         # Arrange
-
-        # Create many files to test memory usage
         for i in range(100):
             file_path = temp_repository / f"src/large_file_{i}.rs"
-            file_path.write_text("x" * 10000)  # 10KB per file
+            file_path.write_text("x" * 10000)
 
         workflow = CodeReviewWorkflow()
 
-        # Only check memory if psutil is available
         if psutil is not None:
             process = psutil.Process(os.getpid())
             initial_memory = process.memory_info().rss
@@ -478,16 +476,16 @@ custom_rules:
         # Assert
         if psutil is not None:
             memory_increase = final_memory - initial_memory
-            # Memory increase should be reasonable (less than 100MB for this test)
             assert memory_increase < 100 * 1024 * 1024
-        assert result is not None
+        assert isinstance(result, dict)
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_concurrent_skill_execution(self, temp_repository) -> None:
-        """Given multiple skills, executor runs concurrently when possible."""
+        """Given three skills, coordinator dispatches all three
+        and returns matching result count.
+        """
         # Arrange
-
         coordinator = SkillCoordinator()
         skills = ["code-reviewer", "api-review", "test-review"]
 
@@ -495,7 +493,6 @@ custom_rules:
         with patch(
             "pensive.workflows.skill_coordinator.dispatch_agent",
         ) as mock_dispatch:
-            # Configure mock to return different responses
             mock_dispatch.side_effect = [
                 "Code review completed",
                 "API review completed",
@@ -506,14 +503,17 @@ custom_rules:
 
         # Assert
         assert len(results) == 3
-        assert all(result is not None for result in results)
-        # Verify all skills were dispatched
+        assert results[0] == "Code review completed"
+        assert results[1] == "API review completed"
+        assert results[2] == "Test review completed"
         assert mock_dispatch.call_count == 3
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_output_formatting_and_reporting(self, temp_repository) -> None:
-        """Given review results, when generating reports, then formats correctly."""
+        """Given findings, markdown and SARIF formatters produce
+        valid output containing finding IDs and locations.
+        """
         # Arrange
         sample_findings = [
             {
@@ -529,7 +529,7 @@ custom_rules:
                 "title": "Inefficient Loop",
                 "severity": "medium",
                 "location": "src/processor.rs:42",
-                "issue": "Nested loop with O(n²) complexity",
+                "issue": "Nested loop with O(n^2) complexity",
                 "fix": "Consider using HashMap for O(1) lookup",
             },
         ]
@@ -538,25 +538,24 @@ custom_rules:
         markdown_report = MarkdownFormatter().format(sample_findings, temp_repository)
         sarif_report = SarifFormatter().format(sample_findings, temp_repository)
 
-        # Assert
+        # Assert -- markdown
         assert "SEC001" in markdown_report
         assert "critical" in markdown_report
         assert "src/config.rs:15" in markdown_report
 
-        # SARIF validation
-        assert sarif_report is not None
-        assert json.loads(sarif_report)  # Should be valid JSON
+        # Assert -- SARIF is valid JSON with expected structure
         sarif_data = json.loads(sarif_report)
-        assert "runs" in sarif_data
+        assert isinstance(sarif_data["runs"], list)
         assert len(sarif_data["runs"]) > 0
         assert "results" in sarif_data["runs"][0]
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_plugin_lifecycle_and_cleanup(self, temp_repository) -> None:
-        """Given plugin execution, system cleans up resources properly."""
+        """Given plugin lifecycle, init/execute/cleanup completes
+        without raising exceptions.
+        """
         # Arrange
-
         plugin = PensivePlugin()
         plugin.initialize()
 
@@ -564,9 +563,7 @@ custom_rules:
         try:
             plugin.execute_review(temp_repository)
         finally:
-            # Simulate cleanup
             plugin.cleanup()
 
-        # Assert - verify plugin completed lifecycle without exceptions
-        # The test validates graceful initialization, execution, and cleanup
-        assert plugin is not None, "Plugin instance should exist after lifecycle"
+        # Assert
+        assert isinstance(plugin, PensivePlugin)

@@ -4,7 +4,8 @@
 # Uses shared Make includes from abstract plugin
 
 .PHONY: help dev-setup clean status debug-variables \
-        demo-matchers demo-rules plugin-check test
+        demo-matchers demo-rules plugin-check test \
+        lint format type-check typecheck security test-unit test-coverage test-quick
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := core matchers utils scripts hooks tests
@@ -81,3 +82,9 @@ test: test-unit ## Run all tests
 # Include local overrides if they exist
 Makefile.local:;
 -include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

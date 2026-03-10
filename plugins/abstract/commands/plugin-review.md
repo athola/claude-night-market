@@ -1,12 +1,20 @@
 ---
 name: plugin-review
-description: Rigorous review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
-usage: /plugin-review [plugin-path] [--focus skills|hooks|bloat|tokens|all] [--format summary|detailed|json]
+description: "Tiered plugin quality review: branch (quick gates),
+  pr (quality scoring), release (full ecosystem audit).
+  Detects affected plugins from git diff and reviews
+  related plugins for side effects."
+usage: "/plugin-review [plugin-name...] [--tier branch|pr|release]
+  [--focus skills|hooks|bloat|tokens|all]
+  [--format summary|detailed|json] [--plan]"
 ---
 
 # Plugin Review
 
-Comprehensive review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
+Tiered plugin quality review: branch (quick gates),
+pr (quality scoring), release (full ecosystem audit).
+Detects affected plugins from git diff and reviews
+related plugins for side effects.
 
 ## When To Use
 
@@ -49,6 +57,38 @@ Avoid this command if:
 # CI/CD quality gate mode
 /plugin-review --quality-gate --fail-on warning
 ```
+
+## Tiers
+
+| Tier | Default | Scope | Duration |
+|------|---------|-------|----------|
+| branch | Yes | Affected + related plugins | ~2 min |
+| pr | No | Affected + related, deeper | ~5 min |
+| release | No | All 17 plugins | ~15 min |
+
+```bash
+# Default: branch tier on changed plugins
+/plugin-review
+
+# Explicit tier selection
+/plugin-review --tier branch
+/plugin-review --tier pr
+/plugin-review --tier release
+
+# Specific plugins with tier
+/plugin-review sanctum memory-palace --tier pr
+
+# Dry-run: show what would be reviewed
+/plugin-review --plan
+```
+
+Branch tier runs quick gates (test, lint, typecheck,
+registration). PR tier adds quality scoring (skills-eval,
+hooks-eval, test-review, bloat-scan). Release tier runs
+full ecosystem audit across all plugins.
+
+See `skills/plugin-review/SKILL.md` for orchestration
+details and module loading.
 
 ## What It Reviews
 
@@ -215,7 +255,7 @@ This command orchestrates multiple evaluation tools:
 1. **Plugin structure validation**: `validate_plugin.py`
 2. **Skills evaluation**: `skill_analyzer.py --scan-all`
 3. **Token analysis**: `context_optimizer.py report`
-4. **Hooks evaluation**: `hooks_auditor.py` (if hooks exist)
+4. **Hooks evaluation**: `Skill(abstract:hooks-eval)` (if hooks exist)
 5. **Bloat detection**: Uses conserve:bloat-detector patterns
 6. **Aggregate results**: Combine scores and generate report
 

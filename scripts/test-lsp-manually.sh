@@ -30,7 +30,7 @@ test_language_server() {
     echo "─────────────────────────────────────────"
 
     # Check if binary exists
-    if ! command -v "$(echo $server_command | awk '{print $1}')" > /dev/null 2>&1; then
+    if ! command -v "$(echo "$server_command" | awk '{print $1}')" > /dev/null 2>&1; then
         echo "❌ $server_name binary not found"
         return 1
     fi

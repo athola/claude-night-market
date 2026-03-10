@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 # Import the skills we're testing
-from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
+from parseltongue.skills.async_analysis import AsyncAnalysisSkill
 
 
 class TestAsyncAnalysisSkill:

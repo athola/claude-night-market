@@ -110,12 +110,45 @@ All markdown files must pass scribe validation. This includes a slop scan to ens
 ## Integration and Best Practices
 
 Individual skills are created using `skill-authoring`, while `modular-skills` handles the architecture of larger structures. `skills-eval` provides ongoing quality assessment. Avoid the common pitfall of writing skills based on theoretical behavior; always use documented failures to guide development. Use progressive disclosure to prevent monolithic files and ensure that each intervention remains focused and token-efficient.
+## Skill Directory Variable (2.1.69+)
+
+Skills can reference their own directory using
+`${CLAUDE_SKILL_DIR}` in SKILL.md content. This
+variable resolves to the absolute path of the
+directory containing the SKILL.md file. Use it for
+referencing sibling files, data assets, or module
+paths without hardcoding absolute paths:
+
+```markdown
+See `${CLAUDE_SKILL_DIR}/modules/advanced.md`
+for detailed patterns.
+
+Run: `python3 ${CLAUDE_SKILL_DIR}/scripts/check.py`
+```
+
+This is especially useful for skills that ship
+alongside scripts or data files and need portable
+path references that work regardless of where the
+plugin is installed.
+
+### Description Colon Fix (2.1.69+)
+
+Skill descriptions containing colons (e.g.,
+`description: "Triggers include: X, Y, Z"`) previously
+failed to load from SKILL.md frontmatter. This is
+fixed in 2.1.69. Skills without a `description:` field
+also now appear in the available skills list (previously
+they were silently excluded).
+
 ## Troubleshooting
 
 ### Common Issues
 
 **Skill not loading**
-Check YAML frontmatter syntax and required fields
+Check YAML frontmatter syntax and required fields.
+As of 2.1.69, skills without a `description:` field
+still appear in the skills list, but descriptions
+with colons must be quoted in YAML frontmatter.
 
 **Token limits exceeded**
 Use progressive disclosure - move details to modules

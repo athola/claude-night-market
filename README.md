@@ -1,15 +1,15 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.5.7-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-16-orange)]()
+[![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 
 **Claude Code plugins for software engineering workflows.**
 
-16 plugins providing 125 skills, 98 commands, and 41 agents for git
-operations, code review, spec-driven development, and issue management.
-Each plugin installs independently.
+17 plugins providing 130 skills, 102 commands, and 43 agents
+for git operations, code review, spec-driven development,
+and issue management. Each plugin installs independently.
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
@@ -55,8 +55,10 @@ for detailed setup options.
 
 ## Architecture
 
-16 plugins organized in four layers. Domain specialists depend on utility
-plugins, which depend on foundation plugins, which depend on the meta layer.
+17 plugins organized in four layers.
+Domain specialists depend on utility plugins,
+which depend on foundation plugins,
+which depend on the meta layer.
 
 ```mermaid
 flowchart TB
@@ -83,6 +85,7 @@ flowchart TB
         U1[conserve]:::utilityClass
         U2[conjure]:::utilityClass
         U3[hookify]:::utilityClass
+        U4[egregore]:::utilityClass
     end
 
     subgraph Foundation["Foundation Layer"]
@@ -104,13 +107,14 @@ flowchart TB
 
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
-| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, stability monitoring | 10 | 18 |
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, stability monitoring | 11 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship | 16 | 2 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions | 14 | 18 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 9 | 3 |
 | **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 10 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
+| **egregore** | Utility | Autonomous agent orchestrator with session budgets, crash recovery, and quality gates | 4 | 5 |
 | **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, NASA Power of 10 | 11 | 12 |
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room | 12 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 9 |

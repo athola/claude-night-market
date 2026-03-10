@@ -11,19 +11,71 @@ User Input → UserPromptSubmit → Agent Processing → PreToolUse → Tool Exe
 
 Context compaction can occur at any time: `PreCompact`
 
-## Quick Reference
+## Quick Reference (Claude Code 2.1.50)
 
-| Hook Event | Timing | Purpose |
-|------------|--------|---------|
-| **PreToolUse** | Before tool execution | Validate/transform inputs |
-| **PostToolUse** | After tool execution | Log/modify outputs |
-| **PermissionRequest** | Permission dialog | Auto-approve/deny/modify |
-| **UserPromptSubmit** | User message submitted | Inject context/filter |
-| **Stop** | Agent completes | Cleanup/summarize |
-| **SubagentStop** | Subagent completes | Aggregate results |
-| **PreCompact** | Before context compaction | Preserve state |
+| Hook Event | Timing | Version | Purpose |
+|------------|--------|---------|---------|
+| **Setup** | Plugin install/enable | 2.1.0+ | One-time initialization |
+| **SessionStart** | Session begins | 2.1.0+ | Initialize state, config |
+| **SessionEnd** | Session ends normally | 2.1.0+ | Cleanup, persist state |
+| **UserPromptSubmit** | User message submitted | 2.1.0+ | Inject context/filter |
+| **PreToolUse** | Before tool execution | 2.1.0+ | Validate/transform inputs |
+| **PostToolUse** | After tool execution | 2.1.0+ | Log/modify outputs |
+| **PostToolUseFailure** | Tool fails | 2.1.20+ | Error handling/fallback |
+| **PermissionRequest** | Permission dialog | 2.1.0+ | Auto-approve/deny/modify |
+| **Notification** | System notification | 2.1.20+ | Forward alerts, log |
+| **SubagentStart** | Subagent spawns | 2.1.20+ | Track agent lifecycle |
+| **SubagentStop** | Subagent completes | 2.1.20+ | Aggregate results |
+| **Stop** | Agent completes | 2.1.0+ | Cleanup/summarize |
+| **TeammateIdle** | Teammate idle | 2.1.33+ | Work assignment |
+| **TaskCompleted** | Task finishes | 2.1.33+ | Coordination/chaining |
+| **ConfigChange** | Config modified | 2.1.49+ | React to settings |
+| **InstructionsLoaded** | Instructions loaded | 2.1.33+ | Augment instructions |
+| **PreCompact** | Before compaction | 2.1.20+ | Preserve state |
+| **WorktreeCreate** | Worktree created | 2.1.50+ | Initialize worktree |
+| **WorktreeRemove** | Worktree removed | 2.1.50+ | Cleanup worktree |
 
 See sections below for detailed specifications of each hook type.
+
+### Hook Event Field Enrichment (2.1.69+)
+
+All hook events now include `agent_id` (subagent
+sessions) and `agent_type` (subagent and `--agent`
+sessions) in the input JSON. These fields enable
+agent-specific hook logic. Status line hooks also
+gain a `worktree` field in worktree sessions.
+
+`TeammateIdle` and `TaskCompleted` hooks support
+`{"continue": false, "stopReason": "..."}` to stop
+a teammate, matching `Stop` hook behavior.
+
+Plugin-registered `WorktreeCreate`/`WorktreeRemove`
+hooks were silently ignored before 2.1.69 and now
+fire correctly.
+
+### Cron Scheduling Tools (2.1.71+)
+
+New built-in tools `CronCreate`, `CronList`,
+`CronDelete` for session-scoped scheduled tasks. These
+appear as tool names in `PreToolUse`/`PostToolUse`
+events. Sessions support up to 50 scheduled tasks with
+3-day auto-expiry. Disable with
+`CLAUDE_CODE_DISABLE_CRON=1`.
+
+### Bash Allowlist and Heredoc Fixes (2.1.71+)
+
+Added `fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`,
+`printf`, `getconf`, `seq`, `tsort`, `pr` to the bash
+auto-approval allowlist. Heredoc commit messages in
+compound commands no longer trigger false-positive
+permission prompts.
+
+### Security: Workspace Trust (2.1.51+)
+
+Hook commands that emit `statusLine` or `fileSuggestion`
+require workspace trust acceptance in interactive mode.
+Untrusted hooks cannot execute these commands. Test hooks
+in both trusted and untrusted workspace contexts.
 
 ## Hook Execution Order
 
@@ -73,6 +125,18 @@ All matching hooks execute **in parallel** unless dependencies exist.
 5. **Graceful Degradation**: Handle missing data gracefully
 
 ## Performance Considerations
+
+### BashTool Login Shell (2.1.51+)
+
+BashTool now skips the login shell (`-l` flag) by
+default when a shell snapshot is available. This
+improves command execution performance. Previously
+this behavior required setting
+`CLAUDE_BASH_NO_LOGIN=true`. Hook developers using
+Bash commands should not rely on login shell profile
+sourcing (`.bash_profile`, `.zprofile`). Use explicit
+`source` commands if your hook needs specific shell
+environment setup.
 
 ### Hook Timing Budgets
 

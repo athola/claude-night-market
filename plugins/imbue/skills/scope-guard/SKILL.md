@@ -155,12 +155,12 @@ Record outcome:
      [github-integration.md](modules/github-integration.md)
      Steps 1-3
   2. Mark `scope-guard:github-issue-created` complete
-  3. **Offer Discussion creation** - See
+  3. **Create Discussion** - See
      [github-integration.md](modules/github-integration.md)
      Step 4.
-     Prompt: "Also create a Discussion with full reasoning context? [Y/n]"
-     If confirmed, create a Discussion in the "Deliberations" category
-     and link it from the issue. If declined or failed, continue.
+     Prompt: "Creating a Discussion with full reasoning context. [Y/n]"
+     Publishing is the default. If the user explicitly declines,
+     skip Discussion creation. If publishing fails, continue.
   4. Optionally add to `docs/backlog/queue.md` with issue link
 - **Rejecting:** Document why (low value, out of scope)
 

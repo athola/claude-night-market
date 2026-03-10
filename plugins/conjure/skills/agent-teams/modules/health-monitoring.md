@@ -157,6 +157,60 @@ Heartbeats are sent:
 - After each task status change
 - In response to `health_check` messages from the lead
 
+## Teammate Memory Management (2.1.63+)
+
+Long-running teammates previously retained all messages
+in AppState even after conversation compaction. This
+caused unbounded memory growth in sustained team
+sessions. Fixed in 2.1.63: teammate message state is
+now properly compacted. Heavy progress message payloads
+are stripped during compaction, further reducing memory
+pressure in teams with frequent status updates.
+
+## TeammateIdle / TaskCompleted Shutdown (2.1.69+)
+
+`TeammateIdle` and `TaskCompleted` hooks now support
+returning `{"continue": false, "stopReason": "..."}` to
+stop the teammate, matching `Stop` hook behavior. This
+enables graceful teammate shutdown from hook logic
+without requiring the lead to send explicit kill
+signals.
+
+Use cases for team health:
+
+- Stop a teammate that has been idle too long
+  (via `TeammateIdle` hook)
+- Stop a teammate after completing its final task
+  (via `TaskCompleted` hook)
+- Implement budget-based shutdown (stop after N tasks
+  or N tokens consumed)
+
+```json
+{
+  "continue": false,
+  "stopReason": "Budget exhausted after 5 tasks"
+}
+```
+
+## Background Agent Notification Fix (2.1.71+)
+
+Background agent completion notifications previously
+omitted the output file path. This made it difficult
+for parent agents (including team leads) to recover
+agent results after context compaction. Fixed in 2.1.71:
+completion notifications now include the output file
+path, enabling reliable result retrieval even after
+the parent's context has been compacted.
+
+## `--print` Team Agent Fix (2.1.71+)
+
+`--print` mode previously hung indefinitely when team
+agents were configured, because the exit loop waited
+on long-lived `in_process_teammate` tasks that never
+complete. Fixed in 2.1.71: the exit loop no longer
+blocks on teammate tasks. This unblocks CI/automation
+workflows that use `--print` with team configurations.
+
 ## Integration with Damage Control
 
 When recovery actions fail, escalate through `leyline:damage-control`:

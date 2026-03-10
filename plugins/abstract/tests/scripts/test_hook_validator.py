@@ -17,6 +17,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from hook_validator import (  # noqa: E402
+    KNOWN_EVENTS,
     ValidationResult,
     _validate_event_hooks,
     _validate_hook_action,
@@ -39,7 +40,7 @@ def _make_result() -> ValidationResult:
 
 
 # ---------------------------------------------------------------------------
-# Tests: _validate_hook_action
+# Tests: _validate_hook_action (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -47,16 +48,34 @@ class TestValidateHookAction:
     """Feature: _validate_hook_action validates a single hook action dict."""
 
     @pytest.mark.unit
-    def test_non_dict_appends_error(self) -> None:
-        """Scenario: Non-dict hook action adds error.
-        Given a non-dict hook action
+    @pytest.mark.parametrize(
+        ("action", "expect_valid", "error_fragment"),
+        [
+            ("not-a-dict", False, "must be an object"),
+            ({"type": "command"}, False, "missing 'command' field"),
+            (
+                {"type": "command", "command": "echo hi"},
+                True,
+                "",
+            ),
+        ],
+        ids=[
+            "non-dict-errors",
+            "command-type-missing-command",
+            "valid-command-action",
+        ],
+    )
+    def test_action_validation(self, action, expect_valid, error_fragment) -> None:
+        """Scenario: Hook action validation produces correct outcome.
+        Given a hook action of varying validity
         When _validate_hook_action is called
-        Then an error is appended and valid is False
+        Then valid and errors reflect the input correctness
         """
         result = _make_result()
-        _validate_hook_action("PreToolUse", 0, 0, "not-a-dict", result)
-        assert result["valid"] is False
-        assert any("must be an object" in e for e in result["errors"])
+        _validate_hook_action("PreToolUse", 0, 0, action, result)
+        assert result["valid"] is expect_valid
+        if error_fragment:
+            assert any(error_fragment in e for e in result["errors"])
 
     @pytest.mark.unit
     def test_missing_type_warns(self) -> None:
@@ -65,24 +84,6 @@ class TestValidateHookAction:
         _validate_hook_action("PreToolUse", 0, 0, {"command": "echo hi"}, result)
         assert any("missing 'type' field" in w for w in result["warnings"])
         assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_command_type_missing_command_errors(self) -> None:
-        """Scenario: type=command without 'command' field adds error."""
-        result = _make_result()
-        _validate_hook_action("PreToolUse", 0, 0, {"type": "command"}, result)
-        assert result["valid"] is False
-        assert any("missing 'command' field" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_valid_command_action(self) -> None:
-        """Scenario: Valid command action with type and command passes."""
-        result = _make_result()
-        _validate_hook_action(
-            "PreToolUse", 0, 0, {"type": "command", "command": "echo hi"}, result
-        )
-        assert result["valid"] is True
-        assert result["errors"] == []
 
 
 # ---------------------------------------------------------------------------
@@ -94,31 +95,24 @@ class TestValidateHooksArray:
     """Feature: _validate_hooks_array validates the hooks list."""
 
     @pytest.mark.unit
-    def test_non_list_errors(self) -> None:
-        """Scenario: Non-list hooks adds error."""
+    @pytest.mark.parametrize(
+        ("hooks_value", "expect_valid"),
+        [
+            ("not-a-list", False),
+            ([], True),
+            ([{"type": "command", "command": "echo hi"}, "bad"], False),
+        ],
+        ids=["non-list-errors", "empty-list-valid", "mixed-items"],
+    )
+    def test_hooks_array_validation(self, hooks_value, expect_valid) -> None:
+        """Scenario: Hooks array validation produces correct outcome."""
         result = _make_result()
-        _validate_hooks_array("PreToolUse", 0, "not-a-list", result)
-        assert result["valid"] is False
-        assert any("must be a list" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_empty_list_is_valid(self) -> None:
-        """Scenario: Empty hooks list passes validation."""
-        result = _make_result()
-        _validate_hooks_array("PreToolUse", 0, [], result)
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_validates_each_action(self) -> None:
-        """Scenario: Each item in hooks list is validated."""
-        result = _make_result()
-        hooks = [{"type": "command", "command": "echo hi"}, "bad"]
-        _validate_hooks_array("PreToolUse", 0, hooks, result)
-        assert result["valid"] is False
+        _validate_hooks_array("PreToolUse", 0, hooks_value, result)
+        assert result["valid"] is expect_valid
 
 
 # ---------------------------------------------------------------------------
-# Tests: _validate_matcher
+# Tests: _validate_matcher (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -126,20 +120,27 @@ class TestValidateMatcher:
     """Feature: _validate_matcher validates hook matcher."""
 
     @pytest.mark.unit
-    def test_valid_string_matcher_adds_info(self) -> None:
-        """Scenario: Valid regex string matcher adds info message."""
+    @pytest.mark.parametrize(
+        ("matcher", "expect_valid", "msg_category", "msg_fragment"),
+        [
+            (".*", True, "info", "valid"),
+            ("[invalid", False, "errors", "invalid matcher regex"),
+            (42, False, "errors", "must be a string"),
+        ],
+        ids=[
+            "valid-regex",
+            "invalid-regex",
+            "invalid-type",
+        ],
+    )
+    def test_matcher_validation(
+        self, matcher, expect_valid, msg_category, msg_fragment
+    ) -> None:
+        """Scenario: Matcher validation checks type and regex validity."""
         result = _make_result()
-        _validate_matcher("PreToolUse", 0, ".*", result)
-        assert result["valid"] is True
-        assert any("valid" in msg for msg in result["info"])
-
-    @pytest.mark.unit
-    def test_invalid_regex_errors(self) -> None:
-        """Scenario: Invalid regex pattern adds error."""
-        result = _make_result()
-        _validate_matcher("PreToolUse", 0, "[invalid", result)
-        assert result["valid"] is False
-        assert any("invalid matcher regex" in e for e in result["errors"])
+        _validate_matcher("PreToolUse", 0, matcher, result)
+        assert result["valid"] is expect_valid
+        assert any(msg_fragment in m for m in result[msg_category])
 
     @pytest.mark.unit
     def test_dict_matcher_warns_deprecated(self) -> None:
@@ -158,17 +159,9 @@ class TestValidateMatcher:
         )
         assert any("unknown matcher field" in w for w in result["warnings"])
 
-    @pytest.mark.unit
-    def test_invalid_type_errors(self) -> None:
-        """Scenario: Non-string, non-dict matcher type errors."""
-        result = _make_result()
-        _validate_matcher("PreToolUse", 0, 42, result)
-        assert result["valid"] is False
-        assert any("must be a string" in e for e in result["errors"])
-
 
 # ---------------------------------------------------------------------------
-# Tests: _validate_hook_entry
+# Tests: _validate_hook_entry (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -176,38 +169,39 @@ class TestValidateHookEntry:
     """Feature: _validate_hook_entry validates a full hook entry."""
 
     @pytest.mark.unit
-    def test_non_dict_entry_errors(self) -> None:
-        """Scenario: Non-dict hook entry adds error."""
+    @pytest.mark.parametrize(
+        ("entry", "expect_valid", "error_fragment"),
+        [
+            ("not-dict", False, ""),
+            ({"matcher": ".*"}, False, "missing required 'hooks' field"),
+            (
+                {
+                    "matcher": ".*",
+                    "hooks": [{"type": "command", "command": "echo hi"}],
+                },
+                True,
+                "",
+            ),
+            (
+                {"hooks": [{"type": "command", "command": "echo hi"}]},
+                True,
+                "",
+            ),
+        ],
+        ids=[
+            "non-dict-errors",
+            "missing-hooks-key",
+            "valid-with-matcher",
+            "valid-without-matcher",
+        ],
+    )
+    def test_hook_entry_validation(self, entry, expect_valid, error_fragment) -> None:
+        """Scenario: Hook entry validation checks structure correctness."""
         result = _make_result()
-        _validate_hook_entry("PreToolUse", 0, "not-dict", result)
-        assert result["valid"] is False
-
-    @pytest.mark.unit
-    def test_missing_hooks_key_errors(self) -> None:
-        """Scenario: Entry without 'hooks' key adds error."""
-        result = _make_result()
-        _validate_hook_entry("PreToolUse", 0, {"matcher": ".*"}, result)
-        assert result["valid"] is False
-        assert any("missing required 'hooks' field" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_valid_entry_with_matcher(self) -> None:
-        """Scenario: Valid entry with hooks and matcher passes."""
-        result = _make_result()
-        entry = {
-            "matcher": ".*",
-            "hooks": [{"type": "command", "command": "echo hi"}],
-        }
         _validate_hook_entry("PreToolUse", 0, entry, result)
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_entry_without_matcher_is_valid(self) -> None:
-        """Scenario: Entry without matcher but with hooks passes."""
-        result = _make_result()
-        entry = {"hooks": [{"type": "command", "command": "echo hi"}]}
-        _validate_hook_entry("PreToolUse", 0, entry, result)
-        assert result["valid"] is True
+        assert result["valid"] is expect_valid
+        if error_fragment:
+            assert any(error_fragment in e for e in result["errors"])
 
 
 # ---------------------------------------------------------------------------
@@ -219,33 +213,30 @@ class TestValidateEventHooks:
     """Feature: _validate_event_hooks validates a list of hook entries."""
 
     @pytest.mark.unit
-    def test_non_list_errors(self) -> None:
-        """Scenario: Non-list event hooks adds error."""
+    @pytest.mark.parametrize(
+        ("entries", "expect_valid"),
+        [
+            ("not-list", False),
+            ([], True),
+            (
+                [
+                    {"hooks": [{"type": "command", "command": "echo"}]},
+                    "bad-entry",
+                ],
+                False,
+            ),
+        ],
+        ids=["non-list", "empty-list", "mixed-entries"],
+    )
+    def test_event_hooks_validation(self, entries, expect_valid) -> None:
+        """Scenario: Event hooks list validation produces correct outcome."""
         result = _make_result()
-        _validate_event_hooks("PreToolUse", "not-list", result)
-        assert result["valid"] is False
-
-    @pytest.mark.unit
-    def test_empty_list_passes(self) -> None:
-        """Scenario: Empty list of event hooks is valid."""
-        result = _make_result()
-        _validate_event_hooks("PreToolUse", [], result)
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_validates_each_entry(self) -> None:
-        """Scenario: Each entry in the list is validated."""
-        result = _make_result()
-        entries = [
-            {"hooks": [{"type": "command", "command": "echo"}]},
-            "bad-entry",
-        ]
         _validate_event_hooks("PreToolUse", entries, result)
-        assert result["valid"] is False
+        assert result["valid"] is expect_valid
 
 
 # ---------------------------------------------------------------------------
-# Tests: validate_json_hook
+# Tests: validate_json_hook (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -254,33 +245,36 @@ class TestValidateJsonHook:
 
     @pytest.mark.unit
     def test_missing_file_errors(self, tmp_path: Path) -> None:
-        """Scenario: Non-existent file returns error.
-        Given a path that does not exist
-        When validate_json_hook is called
-        Then valid is False and error mentions file not found
-        """
+        """Scenario: Non-existent file returns error."""
         missing = tmp_path / "hooks.json"
         result = validate_json_hook(missing)
         assert result["valid"] is False
         assert any("not found" in e for e in result["errors"])
 
     @pytest.mark.unit
-    def test_invalid_json_errors(self, tmp_path: Path) -> None:
-        """Scenario: File with invalid JSON returns error."""
+    @pytest.mark.parametrize(
+        ("content", "expect_valid", "error_fragment"),
+        [
+            ("{bad json", False, "Invalid JSON"),
+            ("[1, 2, 3]", False, "must be a JSON object"),
+            ("{}", True, ""),
+        ],
+        ids=[
+            "invalid-json",
+            "non-dict-root",
+            "empty-dict-valid",
+        ],
+    )
+    def test_json_content_validation(
+        self, tmp_path: Path, content, expect_valid, error_fragment
+    ) -> None:
+        """Scenario: JSON content is validated for structure."""
         hook_file = tmp_path / "hooks.json"
-        hook_file.write_text("{bad json")
+        hook_file.write_text(content)
         result = validate_json_hook(hook_file)
-        assert result["valid"] is False
-        assert any("Invalid JSON" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_non_dict_root_errors(self, tmp_path: Path) -> None:
-        """Scenario: Root element is not a dict returns error."""
-        hook_file = tmp_path / "hooks.json"
-        hook_file.write_text("[1, 2, 3]")
-        result = validate_json_hook(hook_file)
-        assert result["valid"] is False
-        assert any("must be a JSON object" in e for e in result["errors"])
+        assert result["valid"] is expect_valid
+        if error_fragment:
+            assert any(error_fragment in e for e in result["errors"])
 
     @pytest.mark.unit
     def test_unknown_event_type_warns(self, tmp_path: Path) -> None:
@@ -293,11 +287,7 @@ class TestValidateJsonHook:
 
     @pytest.mark.unit
     def test_valid_hooks_json(self, tmp_path: Path) -> None:
-        """Scenario: Valid hooks.json with known events passes.
-        Given a valid hooks.json with PreToolUse entries
-        When validate_json_hook is called
-        Then valid is True
-        """
+        """Scenario: Valid hooks.json with known events passes."""
         hook_file = tmp_path / "hooks.json"
         data = {
             "PreToolUse": [
@@ -312,17 +302,9 @@ class TestValidateJsonHook:
         assert result["valid"] is True
         assert result["errors"] == []
 
-    @pytest.mark.unit
-    def test_empty_dict_is_valid(self, tmp_path: Path) -> None:
-        """Scenario: Empty hooks dict returns valid."""
-        hook_file = tmp_path / "hooks.json"
-        hook_file.write_text("{}")
-        result = validate_json_hook(hook_file)
-        assert result["valid"] is True
-
 
 # ---------------------------------------------------------------------------
-# Tests: validate_python_hook
+# Tests: validate_python_hook (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -338,76 +320,82 @@ class TestValidatePythonHook:
         assert any("not found" in e for e in result["errors"])
 
     @pytest.mark.unit
-    def test_syntax_error_in_python_file(self, tmp_path: Path) -> None:
-        """Scenario: Python file with syntax error returns error."""
+    @pytest.mark.parametrize(
+        ("code", "expect_valid", "msg_category", "msg_fragment"),
+        [
+            (
+                "def bad syntax(:\n    pass",
+                False,
+                "errors",
+                "syntax error",
+            ),
+            (
+                "# Just a comment\ndef foo():\n    pass\n",
+                True,
+                "warnings",
+                "No classes",
+            ),
+            (
+                "class MyHook(object):\n    pass\n",
+                True,
+                "warnings",
+                "AgentHooks",
+            ),
+            (
+                (
+                    "from sdk import AgentHooks\n\n"
+                    "class MyHooks(AgentHooks):\n"
+                    "    async def on_pre_tool_use(self, tool_name, tool_input):\n"
+                    "        pass\n"
+                ),
+                True,
+                "info",
+                "",
+            ),
+            (
+                (
+                    "class MyHooks(AgentHooks):\n"
+                    "    def on_pre_tool_use(self, tool_name, tool_input):\n"
+                    "        pass\n"
+                ),
+                False,
+                "errors",
+                "async",
+            ),
+            (
+                (
+                    "class MyHooks(AgentHooks):\n"
+                    "    async def on_pre_tool_use(self, wrong_arg):\n"
+                    "        pass\n"
+                ),
+                False,
+                "errors",
+                "incorrect arguments",
+            ),
+        ],
+        ids=[
+            "syntax-error",
+            "no-classes",
+            "class-not-agent-hooks",
+            "valid-agent-hooks",
+            "non-async-callback",
+            "wrong-arguments",
+        ],
+    )
+    def test_python_hook_validation(
+        self, tmp_path: Path, code, expect_valid, msg_category, msg_fragment
+    ) -> None:
+        """Scenario: Python hook files are validated for correctness."""
         hook_file = tmp_path / "hook.py"
-        hook_file.write_text("def bad syntax(:\n    pass")
+        hook_file.write_text(code)
         result = validate_python_hook(hook_file)
-        assert result["valid"] is False
-        assert any("syntax error" in e.lower() for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_no_classes_warns(self, tmp_path: Path) -> None:
-        """Scenario: Python file with no classes adds warning."""
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text("# Just a comment\ndef foo():\n    pass\n")
-        result = validate_python_hook(hook_file)
-        assert any("No classes" in w for w in result["warnings"])
-
-    @pytest.mark.unit
-    def test_class_without_agent_hooks_warns(self, tmp_path: Path) -> None:
-        """Scenario: Python file with class not inheriting AgentHooks warns."""
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text("class MyHook(object):\n    pass\n")
-        result = validate_python_hook(hook_file)
-        assert any("AgentHooks" in w for w in result["warnings"])
-
-    @pytest.mark.unit
-    def test_valid_agent_hooks_subclass(self, tmp_path: Path) -> None:
-        """Scenario: Python file with valid AgentHooks subclass passes.
-        Given a Python file with valid AgentHooks subclass
-        When validate_python_hook is called
-        Then valid is True
-        """
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text(
-            "from sdk import AgentHooks\n\n"
-            "class MyHooks(AgentHooks):\n"
-            "    async def on_pre_tool_use(self, tool_name, tool_input):\n"
-            "        pass\n"
-        )
-        result = validate_python_hook(hook_file)
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_non_async_callback_errors(self, tmp_path: Path) -> None:
-        """Scenario: Synchronous callback method adds error."""
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text(
-            "class MyHooks(AgentHooks):\n"
-            "    def on_pre_tool_use(self, tool_name, tool_input):\n"
-            "        pass\n"
-        )
-        result = validate_python_hook(hook_file)
-        assert result["valid"] is False
-        assert any("async" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_wrong_arguments_errors(self, tmp_path: Path) -> None:
-        """Scenario: Callback with wrong argument list adds error."""
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text(
-            "class MyHooks(AgentHooks):\n"
-            "    async def on_pre_tool_use(self, wrong_arg):\n"
-            "        pass\n"
-        )
-        result = validate_python_hook(hook_file)
-        assert result["valid"] is False
-        assert any("incorrect arguments" in e for e in result["errors"])
+        assert result["valid"] is expect_valid
+        if msg_fragment:
+            assert any(msg_fragment.lower() in m.lower() for m in result[msg_category])
 
 
 # ---------------------------------------------------------------------------
-# Tests: validate_hook_file (auto-detect type)
+# Tests: validate_hook_file (parametrized)
 # ---------------------------------------------------------------------------
 
 
@@ -415,45 +403,36 @@ class TestValidateHookFile:
     """Feature: validate_hook_file auto-detects type."""
 
     @pytest.mark.unit
-    def test_json_extension_routes_to_json_validator(self, tmp_path: Path) -> None:
-        """Scenario: .json extension triggers JSON validation."""
-        hook_file = tmp_path / "hooks.json"
-        hook_file.write_text("{}")
-        result = validate_hook_file(hook_file)
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_py_extension_routes_to_python_validator(self, tmp_path: Path) -> None:
-        """Scenario: .py extension triggers Python validation."""
-        hook_file = tmp_path / "hook.py"
-        hook_file.write_text("# empty\n")
-        result = validate_hook_file(hook_file)
-        # Valid is True/False but no crash; warnings about no classes
-        assert isinstance(result["valid"], bool)
-
-    @pytest.mark.unit
-    def test_unknown_extension_errors(self, tmp_path: Path) -> None:
-        """Scenario: Unknown extension returns error."""
-        hook_file = tmp_path / "hook.txt"
-        result = validate_hook_file(hook_file)
-        assert result["valid"] is False
-        assert any("Cannot determine file type" in e for e in result["errors"])
-
-    @pytest.mark.unit
-    def test_explicit_type_json_overrides_extension(self, tmp_path: Path) -> None:
-        """Scenario: Explicit file_type='json' overrides extension."""
-        hook_file = tmp_path / "hooks.txt"
-        hook_file.write_text("{}")
-        result = validate_hook_file(hook_file, file_type="json")
-        assert result["valid"] is True
-
-    @pytest.mark.unit
-    def test_explicit_type_python_overrides_extension(self, tmp_path: Path) -> None:
-        """Scenario: Explicit file_type='python' overrides extension."""
-        hook_file = tmp_path / "hooks.txt"
-        hook_file.write_text("x = 1\n")
-        result = validate_hook_file(hook_file, file_type="python")
-        assert isinstance(result["valid"], bool)
+    @pytest.mark.parametrize(
+        ("filename", "content", "file_type", "expect_valid_type"),
+        [
+            ("hooks.json", "{}", None, True),
+            ("hook.py", "# empty\n", None, None),
+            ("hook.txt", "", None, False),
+            ("hooks.txt", "{}", "json", True),
+            ("hooks.txt", "x = 1\n", "python", None),
+        ],
+        ids=[
+            "json-extension",
+            "py-extension",
+            "unknown-extension",
+            "explicit-json-type",
+            "explicit-python-type",
+        ],
+    )
+    def test_file_type_routing(
+        self, tmp_path: Path, filename, content, file_type, expect_valid_type
+    ) -> None:
+        """Scenario: File type routing works by extension and explicit type."""
+        hook_file = tmp_path / filename
+        if content or filename != "hook.txt":
+            hook_file.write_text(content)
+        kwargs = {"file_type": file_type} if file_type else {}
+        result = validate_hook_file(hook_file, **kwargs)
+        if expect_valid_type is not None:
+            assert result["valid"] is expect_valid_type
+        else:
+            assert isinstance(result["valid"], bool)
 
     @pytest.mark.unit
     def test_unknown_file_type_errors(self, tmp_path: Path) -> None:
@@ -462,6 +441,14 @@ class TestValidateHookFile:
         result = validate_hook_file(hook_file, file_type="yaml")
         assert result["valid"] is False
         assert any("Unknown file type" in e for e in result["errors"])
+
+    @pytest.mark.unit
+    def test_unknown_extension_errors(self, tmp_path: Path) -> None:
+        """Scenario: Unknown extension returns error with message."""
+        hook_file = tmp_path / "hook.txt"
+        result = validate_hook_file(hook_file)
+        assert result["valid"] is False
+        assert any("Cannot determine file type" in e for e in result["errors"])
 
 
 # ---------------------------------------------------------------------------
@@ -473,34 +460,91 @@ class TestPrintResult:
     """Feature: print_result does not crash."""
 
     @pytest.mark.unit
-    def test_print_valid_result_no_crash(self) -> None:
-        """Scenario: print_result with valid result does not crash."""
-        result: ValidationResult = {
-            "valid": True,
-            "errors": [],
-            "warnings": [],
-            "info": ["some info"],
-        }
-        print_result(result)  # Should not raise
+    @pytest.mark.parametrize(
+        ("result_data", "verbose"),
+        [
+            (
+                {"valid": True, "errors": [], "warnings": [], "info": ["some info"]},
+                False,
+            ),
+            (
+                {"valid": True, "errors": [], "warnings": ["a warning"], "info": []},
+                True,
+            ),
+            (
+                {"valid": False, "errors": ["an error"], "warnings": [], "info": []},
+                False,
+            ),
+        ],
+        ids=["valid-with-info", "valid-with-warnings", "invalid-with-errors"],
+    )
+    def test_print_result_no_crash(self, result_data, verbose) -> None:
+        """Scenario: print_result handles various result shapes."""
+        result: ValidationResult = result_data
+        print_result(result, verbose=verbose)  # Should not raise
+
+
+# ---------------------------------------------------------------------------
+# Tests: KNOWN_EVENTS completeness (Claude Code 2.1.50)
+# ---------------------------------------------------------------------------
+
+
+class TestKnownEvents:
+    """Feature: KNOWN_EVENTS contains all valid Claude Code hook events."""
 
     @pytest.mark.unit
-    def test_print_valid_with_warnings(self) -> None:
-        """Scenario: print_result with warnings does not crash."""
-        result: ValidationResult = {
-            "valid": True,
-            "errors": [],
-            "warnings": ["a warning"],
-            "info": [],
-        }
-        print_result(result, verbose=True)  # Should not raise
+    @pytest.mark.parametrize(
+        "event",
+        [
+            "SessionStart",
+            "ConfigChange",
+            "Setup",
+            "PermissionRequest",
+        ],
+    )
+    def test_individual_known_events(self, event: str) -> None:
+        """Scenario: Previously rejected events are now accepted."""
+        assert event in KNOWN_EVENTS
 
     @pytest.mark.unit
-    def test_print_invalid_result_no_crash(self) -> None:
-        """Scenario: print_result with errors does not crash."""
-        result: ValidationResult = {
-            "valid": False,
-            "errors": ["an error"],
-            "warnings": [],
-            "info": [],
+    def test_all_known_events_accepted(self) -> None:
+        """Scenario: All 19 official events are present in KNOWN_EVENTS."""
+        expected = {
+            "Setup",
+            "SessionStart",
+            "SessionEnd",
+            "UserPromptSubmit",
+            "PreToolUse",
+            "PostToolUse",
+            "PostToolUseFailure",
+            "PermissionRequest",
+            "Notification",
+            "SubagentStart",
+            "SubagentStop",
+            "Stop",
+            "TeammateIdle",
+            "TaskCompleted",
+            "ConfigChange",
+            "InstructionsLoaded",
+            "PreCompact",
+            "WorktreeCreate",
+            "WorktreeRemove",
         }
-        print_result(result)  # Should not raise
+        assert KNOWN_EVENTS == expected
+
+    @pytest.mark.unit
+    def test_previously_rejected_events_no_warning(self, tmp_path: Path) -> None:
+        """Scenario: Events that previously triggered warnings now pass."""
+        hook_file = tmp_path / "hooks.json"
+        data = {
+            "SessionStart": [{"hooks": [{"type": "command", "command": "echo init"}]}],
+            "PermissionRequest": [
+                {"hooks": [{"type": "command", "command": "echo permit"}]}
+            ],
+            "Setup": [{"hooks": [{"type": "command", "command": "echo setup"}]}],
+            "ConfigChange": [{"hooks": [{"type": "command", "command": "echo cfg"}]}],
+        }
+        hook_file.write_text(json.dumps(data))
+        result = validate_json_hook(hook_file)
+        assert result["valid"] is True
+        assert not any("Unknown event type" in w for w in result["warnings"])

@@ -624,11 +624,11 @@ def main() -> None:
     if args.verbose:
         if result["missing_features"]:
             for _feature in result["missing_features"]:
-                pass
+                print(f"  [{_feature['severity']}] {_feature['description']}")
     elif not result["validation_passed"]:
         sys.exit(1)
     else:
-        pass
+        print("Validation passed.")
 
 
 if __name__ == "__main__":

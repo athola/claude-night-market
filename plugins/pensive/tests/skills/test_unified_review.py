@@ -30,7 +30,7 @@ class TestUnifiedReviewSkill:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:
-        """Given Cargo.toml, skill detects Rust."""
+        """Given Cargo.toml, skill detects Rust with correct file count."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "Cargo.toml",
@@ -43,14 +43,14 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "rust" in languages
-        # Counts: main.rs, lib.rs, Cargo.toml
         assert languages["rust"]["files"] == 3
-        assert "cargo_toml" in languages["rust"]
+        assert languages["rust"]["cargo_toml"] is True
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_python_project_by_requirements(self, mock_skill_context) -> None:
-        """Given requirements.txt, skill detects Python."""
+        """Given requirements.txt, skill detects Python with test flag."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "requirements.txt",
@@ -64,9 +64,9 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "python" in languages
-        # Counts: setup.py, app.py, test_app.py = 3 .py files, plus requirements.txt = 4
         assert languages["python"]["files"] == 4
-        assert "test_files" in languages["python"]
+        assert languages["python"]["test_files"] is True
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.unit
     def test_detects_javascript_project_by_package_json(
@@ -86,13 +86,13 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "javascript" in languages
-        # Note: TypeScript only detected if .ts files or tsconfig.json present
         assert languages["javascript"]["files"] >= 2
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_makefile_build_system(self, mock_skill_context) -> None:
-        """Given Makefile, skill detects make build system."""
+        """Given Makefile, skill returns both 'make' and 'makefile'."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "Makefile",
@@ -104,22 +104,29 @@ class TestUnifiedReviewSkill:
         build_systems = self.skill.detect_build_systems(mock_skill_context)
 
         # Assert
+        assert isinstance(build_systems, list)
         assert "make" in build_systems
         assert "makefile" in build_systems
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_selects_rust_review_for_rust_project(self, mock_skill_context) -> None:
-        """Given a Rust project, skill selects rust-review."""
+        """Given Rust project, skill selects rust-review and base reviewer."""
         # Arrange
-        mock_skill_context.get_files.return_value = ["Cargo.toml", "src/main.rs"]
+        mock_skill_context.get_files.return_value = [
+            "Cargo.toml",
+            "src/main.rs",
+        ]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
+        assert isinstance(selected_skills, list)
         assert "rust-review" in selected_skills
-        assert "code-reviewer" in selected_skills  # General review always included
+        assert "code-reviewer" in selected_skills
+        mock_skill_context.get_files.assert_called()
 
     @pytest.mark.unit
     def test_selects_test_review_for_projects_with_tests(
@@ -138,6 +145,7 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "test-review" in selected_skills
+        mock_skill_context.get_files.assert_called()
 
     @pytest.mark.unit
     def test_selects_makefile_review_for_make_projects(
@@ -145,19 +153,23 @@ class TestUnifiedReviewSkill:
     ) -> None:
         """Given Makefile, skill selects makefile-review."""
         # Arrange
-        mock_skill_context.get_files.return_value = ["Makefile", "src/main.c"]
+        mock_skill_context.get_files.return_value = [
+            "Makefile",
+            "src/main.c",
+        ]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
 
         # Assert
         assert "makefile-review" in selected_skills
+        mock_skill_context.get_files.assert_called()
 
     @pytest.mark.unit
     def test_selects_math_review_for_mathematical_code(
         self, mock_skill_context
     ) -> None:
-        """Given math patterns, skill selects math-review."""
+        """Given math library imports, skill selects math-review."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/algorithms.py",
@@ -179,14 +191,18 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "math-review" in selected_skills
+        mock_skill_context.get_file_content.assert_called()
 
     @pytest.mark.unit
     def test_excludes_irrelevant_skills_for_simple_project(
         self, mock_skill_context
     ) -> None:
-        """Given simple project, skill excludes specialized skills."""
+        """Given simple JS project, skill excludes specialized skills."""
         # Arrange
-        mock_skill_context.get_files.return_value = ["src/utils.js", "README.md"]
+        mock_skill_context.get_files.return_value = [
+            "src/utils.js",
+            "README.md",
+        ]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
@@ -195,14 +211,14 @@ class TestUnifiedReviewSkill:
         assert "rust-review" not in selected_skills
         assert "math-review" not in selected_skills
         assert "makefile-review" not in selected_skills
-        assert "code-reviewer" in selected_skills  # Always included
+        assert "code-reviewer" in selected_skills
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_prioritizes_findings_by_severity(self, sample_findings) -> None:
-        """Given multiple findings, when skill prioritizes, then orders by severity."""
+        """Given mixed-severity findings, sorts high before low."""
         # Arrange
-        findings = sample_findings  # Contains high, medium, low severity findings
+        findings = sample_findings
 
         # Act
         prioritized = self.skill.prioritize_findings(findings)
@@ -210,13 +226,16 @@ class TestUnifiedReviewSkill:
         # Assert
         assert len(prioritized) == 3
         assert prioritized[0]["severity"] == "high"
+        assert prioritized[0]["id"] == "SEC001"
         assert prioritized[1]["severity"] == "medium"
+        assert prioritized[1]["id"] == "BUG001"
         assert prioritized[2]["severity"] == "low"
+        assert prioritized[2]["id"] == "PERF001"
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_consolidates_duplicate_findings(self, sample_findings) -> None:
-        """Given duplicate findings, skill removes duplicates."""
+        """Given duplicate SEC001 entries, deduplicates to one."""
         # Arrange
         duplicate_findings = [
             *sample_findings,
@@ -234,36 +253,39 @@ class TestUnifiedReviewSkill:
         consolidated = self.skill.consolidate_findings(duplicate_findings)
 
         # Assert
-        # Should have one less finding due to consolidation
-        assert len(consolidated) == len(duplicate_findings) - 1
-        # Check that SEC001 appears only once
+        assert len(consolidated) == 3
         sec_findings = [f for f in consolidated if f["id"] == "SEC001"]
         assert len(sec_findings) == 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_generates_comprehensive_summary(self, sample_findings) -> None:
-        """Given findings, skill generates summary with key sections."""
-        # Arrange
-        findings = sample_findings
-
-        # Act
-        summary = self.skill.generate_summary(findings)
+    def test_generates_summary_with_all_sections(self, sample_findings) -> None:
+        """Given findings, summary contains all required sections."""
+        # Arrange / Act
+        summary = self.skill.generate_summary(sample_findings)
 
         # Assert
         assert "## Summary" in summary
         assert "## Findings" in summary
         assert "## Action Items" in summary
         assert "## Recommendation" in summary
-        assert "SEC001" in summary  # Finding IDs should be present
-        assert "high" in summary.lower()  # Severity levels should be present
+        assert "SEC001" in summary
+        assert "BUG001" in summary
+        assert "PERF001" in summary
+        assert "high" in summary.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_approval_for_no_critical_issues(self) -> None:
-        """Given no critical findings, when skill recommends, then suggests approval."""
+        """Given only low-severity findings, recommends Approve."""
         # Arrange
-        findings = [{"id": "STYLE001", "severity": "low", "issue": "Minor style issue"}]
+        findings = [
+            {
+                "id": "STYLE001",
+                "severity": "low",
+                "issue": "Minor style issue",
+            },
+        ]
 
         # Act
         recommendation = self.skill.generate_recommendation(findings)
@@ -275,7 +297,7 @@ class TestUnifiedReviewSkill:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_block_for_critical_security_issues(self) -> None:
-        """Given critical security issues, skill recommends block."""
+        """Given critical severity, recommends Block."""
         # Arrange
         findings = [
             {
@@ -289,36 +311,14 @@ class TestUnifiedReviewSkill:
         recommendation = self.skill.generate_recommendation(findings)
 
         # Assert
-        assert "Block" in recommendation
-        assert "critical" in recommendation.lower()
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_creates_actionable_items(self, sample_findings) -> None:
-        """Given findings, skill creates action items with owners and deadlines."""
-        # Arrange
-        findings = sample_findings
-
-        # Act
-        action_items = self.skill.create_action_items(findings)
-
-        # Assert
-        assert len(action_items) == len(findings)
-        for item in action_items:
-            assert "action" in item
-            assert "owner" in item
-            assert "deadline" in item
-            # High severity items should have sooner deadlines
-            if item["severity"] == "high":
-                assert (
-                    "today" in item["deadline"].lower()
-                    or "asap" in item["deadline"].lower()
-                )
+        assert recommendation == (
+            "Block - Critical security/functionality issues must be resolved"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_empty_repository_gracefully(self, mock_skill_context) -> None:
-        """Given empty repository, skill returns appropriate response."""
+        """Given empty file list, returns AnalysisResult with warning."""
         # Arrange
         mock_skill_context.get_files.return_value = []
 
@@ -327,13 +327,14 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert isinstance(result, AnalysisResult)
-        warnings_text = " ".join(result.warnings).lower()
-        assert "no code files found" in warnings_text or "empty" in warnings_text
+        assert len(result.warnings) == 1
+        assert "No code files found" in result.warnings[0]
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_api_exports(self, mock_skill_context) -> None:
-        """Given code with exports, when skill analyzes, then identifies API surface."""
+        """Given TypeScript exports, detect_api_surface counts them."""
         # Arrange
         mock_skill_context.get_files.return_value = ["src/api.ts"]
         mock_skill_context.get_file_content.return_value = """
@@ -356,22 +357,26 @@ class TestUnifiedReviewSkill:
         api_surface = self.skill.detect_api_surface(mock_skill_context)
 
         # Assert
-        assert "exports" in api_surface
-        assert (
-            api_surface["exports"] >= 3
-        )  # User interface, AuthService class, calculateTotal function
-        assert "classes" in api_surface
-        assert api_surface["classes"] >= 1  # AuthService
+        assert api_surface["exports"] == 3
+        assert api_surface["classes"] == 1
+        assert api_surface["functions"] == 1
+        assert api_surface["interfaces"] == 1
+        mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_executes_selected_skills_concurrently(self, mock_skill_context) -> None:
-        """Given multiple skills, when skill executes, then runs them concurrently."""
+        """Given skill list, dispatches each and returns all results."""
         # Arrange
-        selected_skills = ["code-reviewer", "rust-review", "test-review"]
+        selected_skills = [
+            "code-reviewer",
+            "rust-review",
+            "test-review",
+        ]
 
-        with patch("pensive.skills.unified_review.dispatch_agent") as mock_dispatch:
-            # Configure mock dispatch to return different results for each skill
+        with patch(
+            "pensive.skills.unified_review.dispatch_agent",
+        ) as mock_dispatch:
             mock_dispatch.side_effect = [
                 "Code review findings...",
                 "Rust review findings...",
@@ -385,49 +390,32 @@ class TestUnifiedReviewSkill:
             )
 
             # Assert
-            assert len(results) == len(selected_skills)
-            # Verify all skills were dispatched
-            assert mock_dispatch.call_count == len(selected_skills)
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_calculate_review_confidence_score(self, sample_findings) -> None:
-        """Given findings, skill calculates confidence score."""
-        # Arrange
-        analysis_data = {
-            "languages_detected": ["rust", "javascript"],
-            "files_analyzed": 10,
-            "skills_executed": 3,
-        }
-
-        # Act
-        confidence = self.skill.calculate_confidence_score(
-            sample_findings,
-            analysis_data,
-        )
-
-        # Assert
-        assert 0 <= confidence <= 100  # Score should be between 0 and 100
-        # More findings and detailed analysis should increase confidence
-        assert confidence > 50  # Should have reasonable confidence with sample data
+            assert len(results) == 3
+            assert results[0] == "Code review findings..."
+            assert results[1] == "Rust review findings..."
+            assert results[2] == "Test review findings..."
+            assert mock_dispatch.call_count == 3
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_formats_findings_consistently(self, sample_findings) -> None:
-        """Given findings, when skill formats, then maintains consistent structure."""
-        # Arrange
-        findings = sample_findings
-
+        """Given raw findings, formatted output has all required keys
+        with valid severity values.
+        """
         # Act
-        formatted = self.skill.format_findings(findings)
+        formatted = self.skill.format_findings(sample_findings)
 
         # Assert
+        assert len(formatted) == 3
+        required_keys = {"id", "title", "location", "severity", "issue", "fix"}
         for finding in formatted:
-            assert "id" in finding
-            assert "title" in finding
-            assert "location" in finding
-            assert "severity" in finding
-            assert "issue" in finding
-            assert "fix" in finding
-            # Check that severity is one of allowed values
-            assert finding["severity"] in ["critical", "high", "medium", "low"]
+            assert set(finding.keys()) == required_keys
+            assert finding["severity"] in {
+                "critical",
+                "high",
+                "medium",
+                "low",
+            }
+        assert formatted[0]["id"] == "SEC001"
+        assert formatted[1]["id"] == "BUG001"
+        assert formatted[2]["id"] == "PERF001"

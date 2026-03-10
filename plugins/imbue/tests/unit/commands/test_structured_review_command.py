@@ -4,6 +4,8 @@ This module tests the structured review command orchestration and workflow integ
 following TDD/BDD principles and testing all command scenarios.
 """
 
+from __future__ import annotations
+
 import time
 from pathlib import Path
 from unittest.mock import Mock
@@ -183,7 +185,7 @@ class TestStructuredReviewCommand:
         assert scoped_review["scope_type"] == "directory"
         assert len(scoped_review["scoped_files"]) >= 1
         assert all(f.startswith("src/auth/") for f in scoped_review["scoped_files"])
-        assert len(scoped_review["workflow_adjustments"]) > 0
+        assert len(scoped_review["workflow_adjustments"]) >= 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -438,7 +440,8 @@ class TestStructuredReviewCommand:
                 }
 
                 assert skill in recovery_actions
-                assert len(recovery_actions[skill]) > 0
+                assert isinstance(recovery_actions[skill], str)
+                assert len(recovery_actions[skill]) >= 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -520,7 +523,7 @@ class TestStructuredReviewCommand:
                     f"Valid case failed: {test_case['description']}"
                 )
             else:
-                assert len(parsed_params["errors"]) > 0, (
+                assert len(parsed_params["errors"]) >= 1, (
                     f"Invalid case should have errors: {test_case['description']}"
                 )
                 if "error" in test_case:

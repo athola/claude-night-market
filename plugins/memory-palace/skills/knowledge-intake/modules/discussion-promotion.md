@@ -26,13 +26,14 @@ maturity: evergreen  # Required for promotion
 
 If maturity is not `evergreen`, do not present the promotion option.
 
-### Step 2: Prompt for User Approval
+### Step 2: Confirm Promotion (Default: Publish)
 
 ```
-This entry has reached evergreen maturity. Promote to GitHub Discussions? [Y/n]
+This entry has reached evergreen maturity. Publishing to GitHub Discussions. [Y/n]
 ```
 
-If the user declines, skip all subsequent steps.
+Publishing is the default action. If the user explicitly
+declines ("n"), skip all subsequent steps.
 
 ### Step 3: Resolve Repository and Category IDs
 
@@ -121,7 +122,7 @@ promoted_at: YYYY-MM-DDTHH:MM:SSZ
 When a corpus entry already has a `discussion_url` field (previously promoted), offer "Update Discussion" instead of "Promote":
 
 ```
-This entry was previously promoted to Discussion #42. Update it? [Y/n]
+This entry was previously promoted to Discussion #42. Updating it. [Y/n]
 ```
 
 ### Update Flow

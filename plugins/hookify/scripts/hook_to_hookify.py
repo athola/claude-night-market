@@ -224,6 +224,11 @@ def analyze_hook(
     # Detect hook type from filename or content
     analysis.hook_type = _detect_hook_type(file_path, content)
 
+    if not analysis.hook_type:
+        analysis.convertible = False
+        analysis.reason = "Could not detect hook type"
+        return analysis
+
     # Run AST analysis
     analyzer = HookAnalyzer()
     analyzer.visit(tree)
@@ -268,7 +273,7 @@ def _detect_hook_type(file_path: Path, content: str) -> str:
     if "PostToolUse" in content:
         return "PostToolUse"
 
-    return "PreToolUse"  # Default
+    return ""
 
 
 def _detect_tool_event(analysis: HookAnalysis) -> str:

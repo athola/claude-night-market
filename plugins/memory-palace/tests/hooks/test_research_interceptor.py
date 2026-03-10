@@ -225,9 +225,9 @@ class TestMakeDecision:
             "cache_first",
             config=config,
         )
-        assert decision.intake_payload is not None
+        assert decision.intake_payload is not None  # guard for attribute access
         assert decision.aligned_domains == ["python async"]
-        assert decision.intake_payload.domain_alignment.is_aligned
+        assert decision.intake_payload.domain_alignment.is_aligned is True
         assert decision.novelty_score == pytest.approx(1.0)
 
     def test_duplicate_detection_toggles_intake(self) -> None:
@@ -246,7 +246,7 @@ class TestMakeDecision:
             "python async patterns", results, "cache_first", config=config
         )
         assert decision.should_flag_for_intake is False
-        assert decision.intake_payload is not None
+        assert decision.intake_payload is not None  # guard for attribute access
         assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
         assert decision.novelty_score == pytest.approx(0.05)
 
@@ -652,7 +652,7 @@ class TestEndToEnd:
         assert telemetry_event.decision == "augment"
         assert telemetry_event.cache_hits == 1
         assert telemetry_event.returned_entries == 1
-        assert telemetry_event.novelty_score is not None
+        assert isinstance(telemetry_event.novelty_score, float)
         assert telemetry_event.intake_delta_reasoning
         assert telemetry_event.duplicate_entry_ids == "async-patterns"
 

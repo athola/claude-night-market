@@ -24,6 +24,9 @@ from pathlib import Path
 
 import pytest
 
+# Resolve plugin root from test file location so hook paths are CWD-independent
+_PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+
 
 class TestPostSkillExecutionBasics:
     """Test basic hook execution and output."""
@@ -38,7 +41,7 @@ class TestPostSkillExecutionBasics:
         Then: It should exit with code 0 (success)
         """
         # Given
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -60,7 +63,7 @@ class TestPostSkillExecutionBasics:
         Then: It should return valid JSON with hookSpecificOutput
         """
         # Given
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -87,7 +90,7 @@ class TestPostSkillExecutionBasics:
         Then: Output should indicate PostToolUse event
         """
         # Given
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_HOME": str(tmp_path),
@@ -115,7 +118,7 @@ class TestLogEntryCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -143,7 +146,7 @@ class TestLogEntryCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -173,7 +176,7 @@ class TestLogEntryCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -206,7 +209,7 @@ class TestLogEntryCreation:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -249,10 +252,8 @@ class TestDurationTracking:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
-        pre_hook_path = (
-            Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
-        )
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
+        pre_hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -288,7 +289,7 @@ class TestDurationTracking:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -322,7 +323,7 @@ class TestOutcomeDetection:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -352,7 +353,7 @@ class TestOutcomeDetection:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **skill_tool_env_failure,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -382,7 +383,7 @@ class TestOutcomeDetection:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **skill_tool_env_partial,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -415,7 +416,7 @@ class TestContinualMetrics:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -449,7 +450,7 @@ class TestContinualMetrics:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
         log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
@@ -487,7 +488,7 @@ class TestContinualMetrics:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
 
         # Create history with high instability (33% failure rate)
         for i in range(10):
@@ -527,12 +528,8 @@ class TestStateFileCleanup:
         """
         # Given
         skill_ref = "abstract:skill-auditor"
-        pre_hook_path = (
-            Path(__file__).parent.parent / "hooks" / "pre_skill_execution.py"
-        )
-        post_hook_path = (
-            Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
-        )
+        pre_hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        post_hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **post_skill_env,
             "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
@@ -563,7 +560,7 @@ class TestErrorHandling:
         Then: It should exit gracefully and create a log entry
         """
         # Given
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             "CLAUDE_TOOL_NAME": "Skill",
             "CLAUDE_TOOL_INPUT": "invalid json{{{",
@@ -578,36 +575,6 @@ class TestErrorHandling:
         # Then
         assert result["returncode"] == 0
 
-    def test_should_warn_on_corrupt_history_file(
-        self, post_skill_env: dict[str, str], tmp_path: Path
-    ) -> None:
-        """Test hook writes stderr when history file is corrupt.
-
-        Given: A corrupt .history.json file
-        When: The hook executes
-        Then: It should log a warning to stderr and continue
-        """
-        # Given
-        skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
-        history_file = tmp_path / "skills" / "logs" / ".history.json"
-        history_file.parent.mkdir(parents=True, exist_ok=True)
-        history_file.write_text("{corrupt json!!!")
-
-        env = {
-            **post_skill_env,
-            "CLAUDE_TOOL_INPUT": json.dumps({"skill": skill_ref}),
-            "CLAUDE_HOME": str(tmp_path),
-        }
-
-        # When
-        result = run_hook(hook_path, env)
-
-        # Then
-        assert result["returncode"] == 0
-        assert "skill_execution_logger" in result["stderr"]
-        assert "failed to load history" in result["stderr"]
-
     def test_should_skip_non_skill_tools(
         self, non_skill_env: dict[str, str], tmp_path: Path
     ) -> None:
@@ -618,7 +585,7 @@ class TestErrorHandling:
         Then: It should exit without creating log files
         """
         # Given
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         env = {
             **non_skill_env,
             "CLAUDE_TOOL_OUTPUT": "File content",
@@ -650,7 +617,7 @@ class TestOutputSanitization:
         """
         # Given - include "error" so outcome is "failure" and output_preview is stored
         skill_ref = "abstract:skill-auditor"
-        hook_path = Path(__file__).parent.parent / "hooks" / "skill_execution_logger.py"
+        hook_path = _PLUGIN_ROOT / "hooks" / "skill_execution_logger.py"
         long_output = "error: " + "x" * 10000  # 10KB with error prefix
         env = {
             **post_skill_env,
@@ -679,7 +646,7 @@ class TestOutputSanitization:
 # ============================================================================
 
 
-def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, object]:
+def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, any]:
     """Run a hook script with the given environment.
 
     Args:

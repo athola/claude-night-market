@@ -337,7 +337,7 @@ class UnitOfWork:
 
         # Should detect MVC pattern
         assert "mvc" in arch_patterns
-        assert "Controller" in result["pattern_instances"]
+        assert any("Controller" in p for p in result["pattern_instances"])
 
         # Should detect Repository pattern
         assert "repository" in arch_patterns

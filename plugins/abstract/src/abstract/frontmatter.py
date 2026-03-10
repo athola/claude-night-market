@@ -70,20 +70,31 @@ class FrontmatterProcessor:
         "skills",  # Skills to auto-load (NOT inherited from parent)
         "escalation",  # Model escalation configuration
         "permissionMode",  # Permission handling mode
+        "background",  # Run in background (2.1.20+)
+        "isolation",  # Git worktree isolation (2.1.33+)
     )
 
-    # Valid hook event types (tuple for immutability)
+    # Valid hook event types (tuple for immutability, Claude Code 2.1.50)
     VALID_HOOK_EVENTS = (
-        "PreToolUse",
-        "PostToolUse",
-        "UserPromptSubmit",
-        "PermissionRequest",
-        "Notification",
-        "Stop",
-        "SubagentStop",
-        "PreCompact",
+        "Setup",
         "SessionStart",
         "SessionEnd",
+        "UserPromptSubmit",
+        "PreToolUse",
+        "PostToolUse",
+        "PostToolUseFailure",
+        "PermissionRequest",
+        "Notification",
+        "SubagentStart",
+        "SubagentStop",
+        "Stop",
+        "TeammateIdle",
+        "TaskCompleted",
+        "ConfigChange",
+        "InstructionsLoaded",
+        "PreCompact",
+        "WorktreeCreate",
+        "WorktreeRemove",
     )
 
     # Valid permission modes (tuple for immutability)

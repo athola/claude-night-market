@@ -8,23 +8,103 @@ Hooks let you run scripts at specific lifecycle events (session start, before/af
 
 ## Hook Event Types
 
-| Event | Trigger | Use Cases |
-|-------|---------|-----------|
-| `SessionStart` | Session begins | Initialize state, load config |
-| `UserPromptSubmit` | User sends message | Validate input, add context |
-| `PreToolUse` | Before tool executes | Intercept, validate, inject context (2.1.9+) |
-| `PostToolUse` | After tool completes | Process results, cache |
-| `Stop` | Session ends | Cleanup, summarize, notify |
+| Event | Trigger | Version | Use Cases |
+|-------|---------|---------|-----------|
+| `Setup` | Plugin installed/enabled | 2.1.0+ | One-time initialization |
+| `SessionStart` | Session begins | 2.1.0+ | Initialize state, load config |
+| `SessionEnd` | Session ends normally | 2.1.0+ | Cleanup, persist state |
+| `UserPromptSubmit` | User sends message | 2.1.0+ | Validate input, add context |
+| `PreToolUse` | Before tool executes | 2.1.0+ | Intercept, validate, inject context (2.1.9+) |
+| `PostToolUse` | After tool completes | 2.1.0+ | Process results, cache |
+| `PostToolUseFailure` | Tool execution fails | 2.1.20+ | Error handling, fallback logic |
+| `PermissionRequest` | Permission prompt shown | 2.1.0+ | Auto-approve/deny patterns |
+| `Notification` | System notification | 2.1.20+ | Forward alerts, log events |
+| `SubagentStart` | Subagent spawned | 2.1.20+ | Track agent lifecycle |
+| `SubagentStop` | Subagent finishes | 2.1.20+ | Collect results, cleanup |
+| `Stop` | Session ends | 2.1.0+ | Cleanup, summarize, notify |
+| `TeammateIdle` | Teammate agent idle | 2.1.33+ | Multi-agent coordination |
+| `TaskCompleted` | Task finishes | 2.1.33+ | Multi-agent coordination |
+| `ConfigChange` | Config modified | 2.1.49+ | React to settings changes |
+| `InstructionsLoaded` | Instructions loaded | 2.1.33+ | Augment instructions |
+| `PreCompact` | Before context compact | 2.1.20+ | Preserve critical context |
+| `WorktreeCreate` | Git worktree created | 2.1.50+ | Initialize worktree state |
+| `WorktreeRemove` | Git worktree removed | 2.1.50+ | Cleanup worktree state |
 
 ### Hook Output Capabilities
 
-| Hook Type | additionalContext | Permission Control | Input Modification |
-|-----------|-------------------|-------------------|-------------------|
-| SessionStart | Yes | No | No |
-| UserPromptSubmit | Yes | No | No |
-| PreToolUse | Yes (2.1.9+) | Yes (allow/deny/ask) | Yes (updatedInput) |
-| PostToolUse | Yes | No | No |
-| Stop | Yes | No | No |
+| Hook Type | additionalContext | Permission Control | Input Modification | Notes |
+|-----------|-------------------|-------------------|-------------------|-------|
+| Setup | Yes | No | No | |
+| SessionStart | Yes | No | No | |
+| SessionEnd | Yes | No | No | |
+| UserPromptSubmit | Yes | No | No | |
+| PreToolUse | Yes (2.1.9+) | Yes (allow/deny/ask) | Yes (updatedInput) | |
+| PostToolUse | Yes | No | No | |
+| PostToolUseFailure | Yes | No | No | |
+| PermissionRequest | Yes | Yes (allow/deny) | No | |
+| Notification | No | No | No | |
+| SubagentStart | Yes | No | No | |
+| SubagentStop | Yes | No | No | |
+| Stop | Yes | No | No | |
+| TeammateIdle | Yes | No | No | |
+| TaskCompleted | Yes | No | No | |
+| ConfigChange | Yes | No | No | |
+| InstructionsLoaded | Yes | No | No | |
+| PreCompact | Yes | No | Yes (summary) | |
+| WorktreeCreate | Yes | No | No | command-only, stdout = worktree path |
+| WorktreeRemove | Yes | No | No | command-only, cannot block removal |
+
+### Hook Event Field Enrichment (2.1.69+)
+
+All hook events now include `agent_id` (for subagent
+sessions) and `agent_type` (for subagent and `--agent`
+sessions) in the input JSON. Status line hook commands
+gain a `worktree` field with `name`, `path`, `branch`,
+and `originalRepoDir` in worktree sessions.
+
+`TeammateIdle` and `TaskCompleted` hooks now support
+returning `{"continue": false, "stopReason": "..."}` to
+stop a teammate, matching `Stop` hook behavior.
+
+Plugin-registered `WorktreeCreate` and `WorktreeRemove`
+hooks were silently ignored before 2.1.69 and now fire
+correctly.
+
+### Cron Scheduling Tools (2.1.71+)
+
+Three new built-in tools for session-scoped scheduled
+tasks: `CronCreate`, `CronList`, `CronDelete`. These
+appear as tool names in `PreToolUse`/`PostToolUse`
+events. The `/loop` command uses `CronCreate`
+internally. Sessions can hold up to 50 scheduled tasks.
+Disable with `CLAUDE_CODE_DISABLE_CRON=1`.
+
+### Bash Allowlist and Heredoc Fixes (2.1.71+)
+
+Added `fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`,
+`printf`, `getconf`, `seq`, `tsort`, `pr` to the bash
+auto-approval allowlist. These no longer trigger
+`PermissionRequest` events.
+
+Compound bash commands containing heredoc commit
+messages no longer trigger false-positive permission
+prompts.
+
+### HTTP Hooks (2.1.63+)
+
+Hooks can POST JSON to a URL instead of running shell
+commands. Use `"type": "http"` with a `"url"` field in
+the hook configuration. The standard hook input is sent
+as the POST body and the response must be standard hook
+JSON. This enables hook integrations in environments
+where shell execution is restricted.
+
+### Security: Workspace Trust (2.1.51+)
+
+Hook commands that emit `statusLine` or `fileSuggestion`
+now require workspace trust acceptance in interactive
+mode. Untrusted hooks cannot execute these output types
+until the user accepts workspace trust for the project.
 
 ---
 
@@ -156,6 +236,43 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+---
+
+## Worktree Hooks (2.1.50+)
+
+WorktreeCreate and WorktreeRemove are command-only hooks.
+They have no Python SDK callback support and do not
+support matchers.
+
+**WorktreeCreate** must print the absolute path to the
+created worktree directory on stdout. If the hook fails
+or produces no output, worktree creation fails.
+
+```bash
+#!/bin/bash
+# hooks/worktree-create.sh
+# WorktreeCreate hook - receives JSON on stdin
+INPUT=$(cat)
+NAME=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['name'])")
+WORKTREE_DIR="/tmp/worktrees/$NAME"
+mkdir -p "$WORKTREE_DIR"
+echo "$WORKTREE_DIR"
+```
+
+**WorktreeRemove** receives `worktree_path` in its input
+and fires for cleanup purposes (removing VCS state,
+archiving changes). It cannot block the removal.
+
+```bash
+#!/bin/bash
+# hooks/worktree-remove.sh
+# WorktreeRemove hook - cleanup after worktree removal
+INPUT=$(cat)
+WORKTREE_PATH=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['worktree_path'])")
+# Archive any uncommitted changes, remove temp state, etc.
+rm -rf "$WORKTREE_PATH/.session-state" 2>/dev/null
 ```
 
 ---

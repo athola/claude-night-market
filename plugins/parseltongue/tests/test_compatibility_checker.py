@@ -12,8 +12,7 @@ class TestCompatibilityChecker:
     """Tests for CompatibilityChecker."""
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_check_compatibility_with_future_annotations(
+    def test_check_compatibility_with_future_annotations(
         self, compatibility_checker
     ) -> None:
         """Given code with future annotations, detect compatibility."""
@@ -26,9 +25,7 @@ def func(x: int) -> str:
 """
 
         # When: Checking compatibility
-        result = await compatibility_checker.check_compatibility(
-            code, ["3.8", "3.9", "3.10"]
-        )
+        result = compatibility_checker.check_compatibility(code, ["3.8", "3.9", "3.10"])
 
         # Then: Reports future annotations compatibility
         assert "compatible_versions" in result
@@ -38,8 +35,7 @@ def func(x: int) -> str:
         assert result["issues"][0]["status"] == "compatible"
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_check_compatibility_with_empty_versions(
+    def test_check_compatibility_with_empty_versions(
         self, compatibility_checker
     ) -> None:
         """Given empty target versions, use defaults."""
@@ -47,7 +43,7 @@ def func(x: int) -> str:
         code = "x = 1"
 
         # When: Checking compatibility with empty list
-        result = await compatibility_checker.check_compatibility(code, [])
+        result = compatibility_checker.check_compatibility(code, [])
 
         # Then: Uses default versions
         assert len(result["compatible_versions"]) >= 5
@@ -55,14 +51,13 @@ def func(x: int) -> str:
         assert "3.12" in result["compatible_versions"]
 
     @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_check_compatibility_simple_code(self, compatibility_checker) -> None:
+    def test_check_compatibility_simple_code(self, compatibility_checker) -> None:
         """Given simple code, return compatibility report."""
         # Given: Simple code without special features
         code = "print('hello')"
 
         # When: Checking compatibility
-        result = await compatibility_checker.check_compatibility(code, ["3.10"])
+        result = compatibility_checker.check_compatibility(code, ["3.10"])
 
         # Then: Returns report structure
         assert result["compatible_versions"] == ["3.10"]

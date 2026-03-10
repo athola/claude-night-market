@@ -1,22 +1,26 @@
 # Scribe Plugin Makefile
+# Documentation quality tools: slop detection, style learning, doc generation
 
-.PHONY:
-.PHONY: clean demo demo-doc-generate demo-doc-polish demo-doc-verify demo-pr demo-pr-review \
-	demo-prepare-pr demo-slop-scan demo-style-learn demo-update-docs demo-update-readme format help \
-	lint test test-doc-generate test-doc-polish test-doc-verify test-pr test-pr-review test-prepare-pr \
-	test-slop-scan test-style-learn test-update-docs test-update-readme validate
-help:
-	@echo "Scribe Plugin Commands"
-	@echo ""
-	@echo "  validate    - Validate plugin structure"
-	@echo "  test        - Run tests"
-	@echo "  lint        - Check for issues"
-	@echo "  format      - Format files"
-	@echo "  clean       - Remove generated files"
-	@echo "  demo        - Run demonstration"
+.PHONY: help validate test test-coverage lint format clean demo count-slop status \
+	demo-slop-scan demo-style-learn demo-doc-polish demo-doc-generate \
+	demo-doc-verify demo-pr-review demo-update-docs demo-update-readme \
+	demo-prepare-pr demo-pr demo-cli-plugins demo-scribe-commands \
+	test-slop-scan test-style-learn test-doc-polish test-doc-generate \
+	test-doc-verify test-pr-review test-update-docs test-update-readme \
+	test-prepare-pr test-pr plugin-check debug-variables typecheck type-check
 
-# Validation
-validate:
+# Include shared configuration for markdown-only plugins
+ABSTRACT_DIR := ../abstract
+-include $(ABSTRACT_DIR)/config/make/markdown-only.mk
+
+# ---------- Help ----------
+help: ## Show this help message
+	@echo "Scribe Plugin - Make Targets"
+	@echo "============================="
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+# ---------- Validation ----------
+validate: ## Validate plugin structure
 	@echo "Validating plugin structure..."
 	@test -f .claude-plugin/plugin.json && echo "  plugin.json exists" || echo "  MISSING: plugin.json"
 	@test -d skills && echo "  skills/ exists" || echo "  MISSING: skills/"
@@ -25,29 +29,56 @@ validate:
 	@test -f README.md && echo "  README.md exists" || echo "  MISSING: README.md"
 	@echo "Validation complete."
 
-# Testing
-test:
+# ---------- Testing ----------
+test: ## Run scribe tests
 	@echo "Running scribe tests..."
 	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short 2>/dev/null || echo "No tests found or test runner not available"
 
-# Linting
-lint:
-	@echo "Checking for slop in plugin documentation..."
-	@grep -rn "delve\|embark\|tapestry\|comprehensive\|leverage" skills/ commands/ README.md 2>/dev/null && echo "WARNING: Slop words found in plugin docs" || echo "No tier-1 slop words found"
+test-coverage: ## Run tests with coverage measurement
+	@echo "Running scribe tests with coverage..."
+	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short \
+		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch \
+		2>/dev/null || echo "Coverage measurement not available (install pytest-cov)"
 
-# Formatting
-format:
+# ---------- Linting ----------
+lint: ## Check for slop in plugin documentation
+	@echo "Checking for slop in plugin documentation..."
+	@grep -rn -E "delve|embark|tapestry|comprehensive|leverage" skills/ commands/ README.md 2>/dev/null && echo "WARNING: Slop words found in plugin docs" || echo "No tier-1 slop words found"
+
+# ---------- Quality (no-ops for markdown-only) ----------
+typecheck type-check: ## No-op: no Python code to check
+	@echo "No type checking needed (markdown-only plugin)"
+
+format: ## No formatting required for markdown files
 	@echo "No formatting required for markdown files"
 
-# Cleanup
-clean:
+# ---------- Cleanup ----------
+clean: ## Clean generated files
 	@echo "Cleaning generated files..."
 	@rm -rf __pycache__ .pytest_cache .mypy_cache
 	@find . -name "*.pyc" -delete
 	@echo "Clean complete."
 
-# Demonstration
-demo:
+# ---------- Status ----------
+status: ## Show project overview
+	@echo "Scribe Plugin Status:"
+	@echo "Skills:   $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
+	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
+	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "SKILLS_DIR: $(SKILLS_DIR)"
+	@echo "COMMANDS_DIR: $(COMMANDS_DIR)"
+	@echo "AGENTS_DIR: $(AGENTS_DIR)"
+	@echo "DOCS_DIR: $(DOCS_DIR)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
+
+# ---------- Demo ----------
+demo: ## Run demonstration
 	@echo "Scribe Plugin Demo"
 	@echo ""
 	@echo "1. Scan for AI slop:"
@@ -63,9 +94,13 @@ demo:
 	@echo "   /doc-generate readme --style house-style"
 
 # Count slop words in a file (usage: make count-slop FILE=path/to/file.md)
-count-slop:
+count-slop: ## Count slop words in FILE
 	@echo "Counting slop words in $(FILE)..."
 	@grep -oE '\b(delve|embark|tapestry|realm|beacon|multifaceted|nuanced|pivotal|meticulous|intricate|showcasing|leveraging|streamline|comprehensive|robust)\b' $(FILE) 2>/dev/null | sort | uniq -c | sort -rn || echo "No tier-1 slop words found"
+
+# ---------- Demo/Dogfood Targets ----------
+# Parameterized: each demo-* target shows usage for one command
+SCRIBE_COMMANDS := slop-scan style-learn doc-polish doc-generate doc-verify pr-review update-docs update-readme prepare-pr pr
 
 demo-slop-scan: ## Demo slop-scan command (LIVE)
 	@echo "=== slop-scan Demo (LIVE) ==="
@@ -75,9 +110,6 @@ demo-slop-scan: ## Demo slop-scan command (LIVE)
 	@echo ""
 	@echo "This demonstrates slop-scan usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /slop-scan for full workflow."
-
 
 demo-style-learn: ## Demo style-learn command (LIVE)
 	@echo "=== style-learn Demo (LIVE) ==="
@@ -87,9 +119,6 @@ demo-style-learn: ## Demo style-learn command (LIVE)
 	@echo ""
 	@echo "This demonstrates style-learn usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /style-learn for full workflow."
-
 
 demo-doc-polish: ## Demo doc-polish command (LIVE)
 	@echo "=== doc-polish Demo (LIVE) ==="
@@ -99,9 +128,6 @@ demo-doc-polish: ## Demo doc-polish command (LIVE)
 	@echo ""
 	@echo "This demonstrates doc-polish usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /doc-polish for full workflow."
-
 
 demo-doc-generate: ## Demo doc-generate command (LIVE)
 	@echo "=== doc-generate Demo (LIVE) ==="
@@ -111,9 +137,6 @@ demo-doc-generate: ## Demo doc-generate command (LIVE)
 	@echo ""
 	@echo "This demonstrates doc-generate usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /doc-generate for full workflow."
-
 
 demo-doc-verify: ## Demo doc-verify command (LIVE)
 	@echo "=== doc-verify Demo (LIVE) ==="
@@ -123,9 +146,6 @@ demo-doc-verify: ## Demo doc-verify command (LIVE)
 	@echo ""
 	@echo "This demonstrates doc-verify usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /doc-verify for full workflow."
-
 
 demo-pr-review: ## Demo pr-review command (LIVE)
 	@echo "=== pr-review Demo (LIVE) ==="
@@ -135,9 +155,6 @@ demo-pr-review: ## Demo pr-review command (LIVE)
 	@echo ""
 	@echo "This demonstrates pr-review usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /pr-review for full workflow."
-
 
 demo-update-docs: ## Demo update-docs command (LIVE)
 	@echo "=== update-docs Demo (LIVE) ==="
@@ -147,9 +164,6 @@ demo-update-docs: ## Demo update-docs command (LIVE)
 	@echo ""
 	@echo "This demonstrates update-docs usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /update-docs for full workflow."
-
 
 demo-update-readme: ## Demo update-readme command (LIVE)
 	@echo "=== update-readme Demo (LIVE) ==="
@@ -159,9 +173,6 @@ demo-update-readme: ## Demo update-readme command (LIVE)
 	@echo ""
 	@echo "This demonstrates update-readme usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /update-readme for full workflow."
-
 
 demo-prepare-pr: ## Demo prepare-pr command (LIVE)
 	@echo "=== prepare-pr Demo (LIVE) ==="
@@ -171,9 +182,6 @@ demo-prepare-pr: ## Demo prepare-pr command (LIVE)
 	@echo ""
 	@echo "This demonstrates prepare-pr usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /prepare-pr for full workflow."
-
 
 demo-pr: ## Demo pr command (LIVE)
 	@echo "=== pr Demo (LIVE) ==="
@@ -183,9 +191,6 @@ demo-pr: ## Demo pr command (LIVE)
 	@echo ""
 	@echo "This demonstrates pr usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /pr for full workflow."
-
 
 demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
 	@echo "=== cli-plugins Demo (LIVE) ==="
@@ -195,17 +200,13 @@ demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
 	@echo ""
 	@echo "This demonstrates cli-plugins usage."
 	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use plugins install scribe for full workflow."
-
 
 demo-scribe-commands: demo-slop-scan demo-style-learn demo-doc-polish demo-doc-generate demo-doc-verify demo-pr-review demo-update-docs demo-update-readme demo-prepare-pr demo-pr ## Run all scribe documented command demos
 	@echo ""
 	@echo "=== Scribe All Commands Demo Complete ==="
-	@echo "Ran 10 documented commands"
-	@echo ""
 
-
+# ---------- Test Targets ----------
+# Each test-* target runs the subset of tests matching the command name
 test-slop-scan: ## Test slop-scan command (runs slop detection tests)
 	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "slop" --tb=short 2>/dev/null || \
 		echo "Not applicable: slop-scan is skill-based; run 'make lint' to check for slop"
@@ -245,3 +246,17 @@ test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
 test-pr: ## Test pr command (runs general PR tests)
 	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "pr" --tb=short 2>/dev/null || \
 		echo "Not applicable: pr is a skill-only command with no unit tests"
+
+plugin-check: validate demo status ## Run all checks
+	@echo ""
+	@echo "=== Scribe Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

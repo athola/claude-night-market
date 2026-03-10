@@ -69,8 +69,7 @@ def _make_record(
 
 
 class TestSessionRecord:
-    """
-    Feature: SessionRecord data class
+    """Feature: SessionRecord data class
 
     As a developer
     I want a typed, serialisable session record
@@ -79,8 +78,7 @@ class TestSessionRecord:
 
     @pytest.mark.unit
     def test_to_dict_returns_all_fields(self) -> None:
-        """
-        Scenario: Serialise a record to a plain dict
+        """Scenario: Serialise a record to a plain dict
         Given a fully-populated SessionRecord
         When to_dict() is called
         Then every declared field appears in the result.
@@ -96,8 +94,7 @@ class TestSessionRecord:
 
     @pytest.mark.unit
     def test_from_dict_roundtrip(self) -> None:
-        """
-        Scenario: Deserialise from dict and round-trip back
+        """Scenario: Deserialise from dict and round-trip back
         Given a serialised dict
         When from_dict() constructs a record and to_dict() is called again
         Then the two dicts are equal.
@@ -108,8 +105,7 @@ class TestSessionRecord:
 
     @pytest.mark.unit
     def test_from_dict_ignores_unknown_keys(self) -> None:
-        """
-        Scenario: Forward-compatibility with extra fields
+        """Scenario: Forward-compatibility with extra fields
         Given a dict that contains an unrecognised key
         When from_dict() is called
         Then no exception is raised and the known fields are populated.
@@ -121,8 +117,7 @@ class TestSessionRecord:
 
     @pytest.mark.unit
     def test_defaults_are_sensible(self) -> None:
-        """
-        Scenario: Minimal construction with only required fields
+        """Scenario: Minimal construction with only required fields
         Given only session_id and started_at are provided
         When a SessionRecord is created
         Then all optional fields have empty / zero defaults.
@@ -148,8 +143,7 @@ class TestSessionRecord:
 
     @pytest.mark.unit
     def test_mutable_defaults_are_independent(self) -> None:
-        """
-        Scenario: Dataclass mutable default isolation
+        """Scenario: Dataclass mutable default isolation
         Given two separately constructed records
         When a list on one record is modified
         Then the other record's list is unaffected.
@@ -166,8 +160,7 @@ class TestSessionRecord:
 
 
 class TestSessionHistoryManager:
-    """
-    Feature: SessionHistoryManager persistence
+    """Feature: SessionHistoryManager persistence
 
     As a Claude Code plugin
     I want session records written to disk and retrievable later
@@ -180,8 +173,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_record_session_creates_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: Store a session record
+        """Scenario: Store a session record
         Given a fresh SessionHistoryManager
         When record_session() is called with a valid record
         Then a JSON file named <session_id>.json exists in the sessions dir.
@@ -195,8 +187,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_session_returns_record(self, tmp_path: Path) -> None:
-        """
-        Scenario: Retrieve a stored session
+        """Scenario: Retrieve a stored session
         Given a session that has been recorded
         When get_session() is called with its ID
         Then the returned record matches the original.
@@ -206,14 +197,13 @@ class TestSessionHistoryManager:
         mgr.record_session(original)
 
         retrieved = mgr.get_session("sess-001")
-        assert retrieved is not None
+        assert isinstance(retrieved, SessionRecord)
         assert retrieved.session_id == "sess-001"
         assert retrieved.summary == "Fixed bug in parser"
 
     @pytest.mark.unit
     def test_record_session_updates_index(self, tmp_path: Path) -> None:
-        """
-        Scenario: Index is updated after recording
+        """Scenario: Index is updated after recording
         Given a fresh SessionHistoryManager
         When two sessions are recorded
         Then the index file exists and contains both session IDs.
@@ -230,8 +220,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_record_session_overwrites_existing(self, tmp_path: Path) -> None:
-        """
-        Scenario: Re-recording an existing session ID updates the entry
+        """Scenario: Re-recording an existing session ID updates the entry
         Given a session already recorded
         When record_session() is called again with the same ID but different data
         Then the index contains only one entry for that ID with the updated data.
@@ -245,13 +234,12 @@ class TestSessionHistoryManager:
         assert len(entries) == 1
 
         retrieved = mgr.get_session("sess-dup")
-        assert retrieved is not None
+        assert isinstance(retrieved, SessionRecord)
         assert retrieved.summary == "updated"
 
     @pytest.mark.unit
     def test_get_session_missing_returns_none(self, tmp_path: Path) -> None:
-        """
-        Scenario: Requesting a non-existent session
+        """Scenario: Requesting a non-existent session
         Given an empty SessionHistoryManager
         When get_session() is called with an unknown ID
         Then None is returned.
@@ -265,8 +253,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_topic(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by topic keyword
+        """Scenario: Filter sessions by topic keyword
         Given two sessions with different topics
         When querying with topic='refactor'
         Then only the session that includes 'refactor' is returned.
@@ -281,8 +268,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_topic_is_case_insensitive(self, tmp_path: Path) -> None:
-        """
-        Scenario: Topic filter ignores case
+        """Scenario: Topic filter ignores case
         Given a session with topic 'Python'
         When querying with topic='python'
         Then the session is included in results.
@@ -295,8 +281,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_skill(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by skill used
+        """Scenario: Filter sessions by skill used
         Given two sessions with different skills
         When querying with skill='scribe'
         Then only sessions using 'scribe' are returned.
@@ -311,8 +296,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_tag(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by tag
+        """Scenario: Filter sessions by tag
         Given sessions with different tags
         When querying with tag='release'
         Then only sessions tagged 'release' are returned.
@@ -327,8 +311,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_date_since(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by start date lower bound
+        """Scenario: Filter sessions by start date lower bound
         Given sessions started on different dates
         When querying with since='2026-02-01T00:00:00+00:00'
         Then only sessions on or after that date are returned.
@@ -344,8 +327,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_date_until(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by start date upper bound
+        """Scenario: Filter sessions by start date upper bound
         Given sessions started on different dates
         When querying with until='2026-01-31T23:59:59+00:00'
         Then only sessions on or before that date are returned.
@@ -361,8 +343,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_date_range(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by both since and until
+        """Scenario: Filter sessions by both since and until
         Given three sessions at different times
         When querying with a date window that includes only the middle one
         Then exactly that session is returned.
@@ -385,8 +366,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_file_pattern(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter sessions by modified file pattern
+        """Scenario: Filter sessions by modified file pattern
         Given two sessions that modified different files
         When querying with file_pattern='*.py'
         Then only sessions that modified a .py file are returned.
@@ -403,8 +383,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_by_file_pattern_nested_glob(self, tmp_path: Path) -> None:
-        """
-        Scenario: File pattern matching with fnmatch semantics
+        """Scenario: File pattern matching with fnmatch semantics
         Given a session that modified 'plugins/foo/bar.py'
         When querying with file_pattern='plugins/*.py'
         Then the session IS returned (fnmatch's * matches any chars including /).
@@ -427,8 +406,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_pagination_limit(self, tmp_path: Path) -> None:
-        """
-        Scenario: Limit the number of returned results
+        """Scenario: Limit the number of returned results
         Given five stored sessions
         When querying with limit=3
         Then exactly 3 records are returned.
@@ -442,8 +420,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_query_pagination_offset(self, tmp_path: Path) -> None:
-        """
-        Scenario: Skip the first N results
+        """Scenario: Skip the first N results
         Given five stored sessions recorded in chronological order
         When querying with offset=3, limit=10
         Then 2 records are returned (the oldest two).
@@ -458,8 +435,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_results_are_most_recent_first(self, tmp_path: Path) -> None:
-        """
-        Scenario: Default ordering is most recent first
+        """Scenario: Default ordering is most recent first
         Given sessions recorded with ascending timestamps
         When get_recent_sessions() is called
         Then the first result has the latest started_at.
@@ -483,8 +459,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_recent_sessions_count(self, tmp_path: Path) -> None:
-        """
-        Scenario: Retrieve the N most recent sessions
+        """Scenario: Retrieve the N most recent sessions
         Given 7 stored sessions
         When get_recent_sessions(count=4) is called
         Then exactly 4 records are returned.
@@ -498,8 +473,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_recent_sessions_empty_store(self, tmp_path: Path) -> None:
-        """
-        Scenario: No sessions stored
+        """Scenario: No sessions stored
         Given an empty SessionHistoryManager
         When get_recent_sessions() is called
         Then an empty list is returned.
@@ -513,8 +487,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_session_chain_single(self, tmp_path: Path) -> None:
-        """
-        Scenario: Chain of one session with no parent or child
+        """Scenario: Chain of one session with no parent or child
         Given a standalone session
         When get_session_chain() is called
         Then a list containing only that session is returned.
@@ -528,8 +501,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_session_chain_continuation(self, tmp_path: Path) -> None:
-        """
-        Scenario: A two-session continuation chain
+        """Scenario: A two-session continuation chain
         Given root -> child (parent_session_id=root)
         When get_session_chain() is called with the child's ID
         Then [root, child] is returned in order.
@@ -543,8 +515,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_session_chain_three_levels(self, tmp_path: Path) -> None:
-        """
-        Scenario: Three-level chain accessed from the middle
+        """Scenario: Three-level chain accessed from the middle
         Given root -> mid -> leaf
         When get_session_chain() is called with mid's ID
         Then [root, mid, leaf] is returned.
@@ -559,8 +530,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_session_chain_missing_id(self, tmp_path: Path) -> None:
-        """
-        Scenario: Non-existent session ID
+        """Scenario: Non-existent session ID
         Given an empty SessionHistoryManager
         When get_session_chain() is called with an unknown ID
         Then an empty list is returned.
@@ -574,8 +544,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_stats_empty(self, tmp_path: Path) -> None:
-        """
-        Scenario: Statistics on an empty store
+        """Scenario: Statistics on an empty store
         Given no sessions recorded
         When get_stats() is called
         Then total is 0 and aggregates are empty.
@@ -590,8 +559,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_stats_counts_topics(self, tmp_path: Path) -> None:
-        """
-        Scenario: Topic frequency aggregation
+        """Scenario: Topic frequency aggregation
         Given sessions with overlapping topics
         When get_stats() is called
         Then each topic's count reflects how many sessions included it.
@@ -608,8 +576,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_stats_counts_outcomes(self, tmp_path: Path) -> None:
-        """
-        Scenario: Outcome frequency aggregation
+        """Scenario: Outcome frequency aggregation
         Given sessions with different outcomes
         When get_stats() is called
         Then outcomes dict maps outcome -> count.
@@ -625,8 +592,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_get_stats_first_and_last(self, tmp_path: Path) -> None:
-        """
-        Scenario: First and last session timestamps
+        """Scenario: First and last session timestamps
         Given sessions recorded with different start times
         When get_stats() is called
         Then first_session and last_session match the earliest and latest started_at.
@@ -645,8 +611,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_delete_session_removes_file_and_index(self, tmp_path: Path) -> None:
-        """
-        Scenario: Delete a recorded session
+        """Scenario: Delete a recorded session
         Given a session that exists
         When delete_session() is called
         Then the file is gone and the index no longer references the session.
@@ -664,8 +629,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_delete_session_returns_false_when_missing(self, tmp_path: Path) -> None:
-        """
-        Scenario: Deleting a session that does not exist
+        """Scenario: Deleting a session that does not exist
         Given an empty store
         When delete_session() is called
         Then False is returned and no exception is raised.
@@ -675,8 +639,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_delete_session_leaves_others_intact(self, tmp_path: Path) -> None:
-        """
-        Scenario: Deleting one session does not affect others
+        """Scenario: Deleting one session does not affect others
         Given two sessions recorded
         When only one is deleted
         Then the other is still retrievable.
@@ -687,7 +650,7 @@ class TestSessionHistoryManager:
 
         mgr.delete_session("remove")
 
-        assert mgr.get_session("keep") is not None
+        assert isinstance(mgr.get_session("keep"), SessionRecord)
         assert mgr.get_session("remove") is None
 
     # ------------------------------------------------------------------
@@ -696,8 +659,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_prune_removes_old_sessions(self, tmp_path: Path) -> None:
-        """
-        Scenario: Age-based pruning removes stale sessions
+        """Scenario: Age-based pruning removes stale sessions
         Given a session started 100 days ago and one started today
         When prune_old_sessions(max_age_days=90) is called
         Then the old session is removed and the recent one is kept.
@@ -713,12 +675,11 @@ class TestSessionHistoryManager:
 
         assert pruned == 1
         assert mgr.get_session("old-sess") is None
-        assert mgr.get_session("new-sess") is not None
+        assert isinstance(mgr.get_session("new-sess"), SessionRecord)
 
     @pytest.mark.unit
     def test_prune_returns_count_of_removed(self, tmp_path: Path) -> None:
-        """
-        Scenario: Prune return value
+        """Scenario: Prune return value
         Given three sessions all older than the threshold
         When prune_old_sessions() is called
         Then the return value equals 3.
@@ -733,8 +694,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_prune_empty_store_returns_zero(self, tmp_path: Path) -> None:
-        """
-        Scenario: Pruning an empty store
+        """Scenario: Pruning an empty store
         Given no sessions recorded
         When prune_old_sessions() is called
         Then 0 is returned and no exception is raised.
@@ -744,8 +704,7 @@ class TestSessionHistoryManager:
 
     @pytest.mark.unit
     def test_prune_updates_index_total(self, tmp_path: Path) -> None:
-        """
-        Scenario: Index total is updated after pruning
+        """Scenario: Index total is updated after pruning
         Given two old sessions and one new session
         When prune_old_sessions() is called
         Then the index total reflects only the surviving sessions.
@@ -769,8 +728,7 @@ class TestSessionHistoryManager:
 
 
 class TestSessionIdSanitization:
-    """
-    Feature: Session ID path-traversal prevention
+    """Feature: Session ID path-traversal prevention
 
     As a security-conscious system
     I want session IDs validated before use in file paths
@@ -779,8 +737,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_normal_session_id_accepted(self, tmp_path: Path) -> None:
-        """
-        Scenario: A well-formed session ID works normally
+        """Scenario: A well-formed session ID works normally
         Given a session ID with alphanumerics, hyphens, and dots
         When record_session and get_session are called
         Then the record is stored and retrieved successfully.
@@ -796,8 +753,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_path_traversal_rejected(self, tmp_path: Path) -> None:
-        """
-        Scenario: Classic path-traversal attack is blocked
+        """Scenario: Classic path-traversal attack is blocked
         Given a session ID of '../../../etc/passwd'
         When record_session is called
         Then a ValueError is raised
@@ -814,8 +770,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_encoded_traversal_rejected(self, tmp_path: Path) -> None:
-        """
-        Scenario: URL-encoded path-traversal variant is blocked
+        """Scenario: URL-encoded path-traversal variant is blocked
         Given a session ID of '..%2F..%2Fetc'
         When record_session is called
         Then a ValueError is raised.
@@ -829,8 +784,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_empty_session_id_rejected(self, tmp_path: Path) -> None:
-        """
-        Scenario: Empty string session ID is blocked
+        """Scenario: Empty string session ID is blocked
         Given an empty session ID
         When record_session is called
         Then a ValueError is raised
@@ -845,8 +799,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_session_id_with_path_separators_rejected(self, tmp_path: Path) -> None:
-        """
-        Scenario: Session IDs containing slashes are blocked
+        """Scenario: Session IDs containing slashes are blocked
         Given session IDs with forward or backward slashes
         When record_session is called
         Then a ValueError is raised for each.
@@ -864,8 +817,7 @@ class TestSessionIdSanitization:
 
     @pytest.mark.unit
     def test_validate_session_id_helper(self) -> None:
-        """
-        Scenario: The _validate_session_id helper covers edge cases
+        """Scenario: The _validate_session_id helper covers edge cases
         Given various valid and invalid IDs
         Then the helper returns the correct boolean.
         """

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.5.7"
+version = "1.6.0"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -38,21 +38,19 @@ dependencies = [
     "jsonschema>=4.19.0,<5.0.0",        # For schema validation
     "gitpython>=3.1.40,<4.0.0",         # For git operations
     "pathlib2>=2.3.7,<3.0.0; python_version<'3.4'",  # Backport for older Python
-
     # Testing dependencies
     "pytest>=7.4.0,<8.0.0",
     "pytest-cov>=4.1.0,<5.0.0",
     "pytest-mock>=3.12.0,<4.0.0",
     "pytest-asyncio>=0.21.0,<1.0.0",
-
     # Performance and monitoring
     "psutil>=5.9.0,<6.0.0",             # For system monitoring
     "memory-profiler>=0.61.0,<1.0.0",   # For memory profiling
-
     # Documentation
     "mkdocs>=1.5.0,<2.0.0",
     "mkdocs-material>=9.4.0,<10.0.0",
     "mkdocstrings[python]>=0.23.0,<1.0.0",
+    "cachetools>=5.5.2",
 ]
 
 [project.optional-dependencies]

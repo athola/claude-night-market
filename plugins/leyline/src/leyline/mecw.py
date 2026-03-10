@@ -24,7 +24,7 @@ MECW_THRESHOLDS = {
     "LOW": 0.30,  # < 30%: Optimal performance, high accuracy
     "MODERATE": 0.50,  # 30-50%: Good performance, within MECW limits
     "HIGH": 0.70,  # 50-70%: Degraded performance, risk zone
-    "CRITICAL": 0.95,  # > 70%: Severe degradation, high hallucination risk
+    "CRITICAL": 0.95,  # > 95%: Severe degradation, high hallucination risk
 }
 
 

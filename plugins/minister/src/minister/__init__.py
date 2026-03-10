@@ -1,7 +1,6 @@
 """Minister Python package."""
 
 from .project_tracker import (
-    InitiativeTracker,
     ProjectTracker,
     Task,
     build_cli_parser,
@@ -9,11 +8,10 @@ from .project_tracker import (
 )
 
 __all__ = [
-    "InitiativeTracker",
     "ProjectTracker",
     "Task",
     "build_cli_parser",
     "run_cli",
 ]
 
-__version__ = "1.5.7"
+__version__ = "1.6.0"

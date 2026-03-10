@@ -30,19 +30,18 @@ class TestEnvironmentEnum:
     """Feature: Environment enumeration values."""
 
     @pytest.mark.unit
-    def test_development_value(self) -> None:
-        """Scenario: Development enum has correct string value."""
-        assert Environment.DEVELOPMENT.value == "development"
-
-    @pytest.mark.unit
-    def test_production_value(self) -> None:
-        """Scenario: Production enum has correct string value."""
-        assert Environment.PRODUCTION.value == "production"
-
-    @pytest.mark.unit
-    def test_testing_value(self) -> None:
-        """Scenario: Testing enum has correct string value."""
-        assert Environment.TESTING.value == "testing"
+    @pytest.mark.parametrize(
+        ("member", "expected_value"),
+        [
+            (Environment.DEVELOPMENT, "development"),
+            (Environment.PRODUCTION, "production"),
+            (Environment.TESTING, "testing"),
+        ],
+        ids=["development", "production", "testing"],
+    )
+    def test_enum_values(self, member, expected_value) -> None:
+        """Scenario: Each Environment enum has its correct string value."""
+        assert member.value == expected_value
 
 
 class TestSkillValidationConfig:

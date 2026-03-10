@@ -6,16 +6,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
-# Import shared utilities
-try:
-    from ..utils.content_parser import ContentParser
-    from ..utils.report_generator import MarkdownReportGenerator
-    from ..utils.severity_mapper import SeverityMapper
-except ImportError:
-    # Use default values if utils not available
-    ContentParser = None  # type: ignore
-    MarkdownReportGenerator = None  # type: ignore
-    SeverityMapper = None  # type: ignore
+from ..utils.content_parser import ContentParser
+from ..utils.report_generator import MarkdownReportGenerator
+from ..utils.severity_mapper import SeverityMapper
 
 
 @dataclass
@@ -60,11 +53,9 @@ class BaseReviewSkill:
     def __init__(self) -> None:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
-        self._parser = ContentParser() if ContentParser is not None else None
-        self._report_gen = (
-            MarkdownReportGenerator() if MarkdownReportGenerator is not None else None
-        )
-        self._severity = SeverityMapper() if SeverityMapper is not None else None
+        self._parser = ContentParser()
+        self._report_gen = MarkdownReportGenerator()
+        self._severity = SeverityMapper()
 
     def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
         """Analyze a file and return findings.
@@ -102,15 +93,7 @@ class BaseReviewSkill:
         Returns:
             File content as string
         """
-        if self._parser:
-            return self._parser.get_file_content(context, filename)
-        if hasattr(context, "get_file_content"):
-            if filename:
-                content = context.get_file_content(filename)
-            else:
-                content = context.get_file_content()
-            return content if isinstance(content, str) else ""
-        return ""
+        return self._parser.get_file_content(context, filename)
 
     # Alias for backwards compat
     _get_content = _get_code_content
@@ -125,9 +108,7 @@ class BaseReviewSkill:
         Returns:
             Line number (1-indexed)
         """
-        if self._parser:
-            return self._parser.find_line_number(content, position)
-        return content[:position].count("\n") + 1
+        return self._parser.find_line_number(content, position)
 
     _find_line = _find_line_number
 
@@ -142,12 +123,7 @@ class BaseReviewSkill:
         Returns:
             Code snippet
         """
-        if self._parser:
-            return self._parser.extract_code_snippet(content, line, context)
-        lines = content.split("\n")
-        if 0 < line <= len(lines):
-            return lines[line - 1].strip()
-        return ""
+        return self._parser.extract_code_snippet(content, line, context)
 
     _extract_snippet = _extract_code_snippet
 
@@ -165,10 +141,7 @@ class BaseReviewSkill:
         Returns:
             Categorized issues
         """
-        if self._severity:
-            return self._severity.categorize(issues, custom_map)
-        # Default behavior: return as-is
-        return issues
+        return self._severity.categorize(issues, custom_map)
 
     def _create_markdown_report(
         self,
@@ -184,12 +157,4 @@ class BaseReviewSkill:
         Returns:
             Markdown formatted report
         """
-        if self._report_gen:
-            return self._report_gen.create_report(title, sections)
-        # Default behavior: simple text
-        lines = [f"# {title}\n"]
-        for section in sections:
-            lines.append(f"## {section.get('title', 'Section')}\n")
-            lines.append(str(section.get("content", "")))
-            lines.append("")
-        return "\n".join(lines)
+        return self._report_gen.create_report(title, sections)

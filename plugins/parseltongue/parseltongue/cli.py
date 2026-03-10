@@ -2,26 +2,102 @@
 
 from __future__ import annotations
 
+import argparse
+import asyncio
+import json
 import sys
+from pathlib import Path
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run the main CLI entry point.
-
-    Args:
-        argv: Command line arguments (optional)
-
-    Returns:
-        Exit code
-    """
     if argv is None:
         argv = sys.argv[1:]
 
-    print("Parseltongue - Python Development Suite")
-    print("This is a placeholder CLI implementation.")
-    if argv:
-        print(f"Args received: {argv}")
+    if not argv:
+        print("Parseltongue - Python Analysis Tools")
+        print("Usage: parseltongue <command> <path>")
+        print(
+            "Commands: analyze-async, check-compat, detect-patterns, test-guide, transform"
+        )
+        return 0
+
+    parser = argparse.ArgumentParser(
+        prog="parseltongue",
+        description="Parseltongue Python analysis tools",
+    )
+    parser.add_argument(
+        "command",
+        choices=[
+            "analyze-async",
+            "check-compat",
+            "detect-patterns",
+            "test-guide",
+            "transform",
+        ],
+    )
+    parser.add_argument("path", type=Path, help="File or directory to analyze")
+    parser.add_argument(
+        "--target-version",
+        default="3.9",
+        help="Target Python version (for compat check)",
+    )
+
+    args = parser.parse_args(argv)
+
+    path: Path = args.path
+    if not path.exists():
+        print(f"Error: {path} does not exist", file=sys.stderr)
+        return 1
+
+    code = path.read_text() if path.is_file() else ""
+    if not code and path.is_dir():
+        # Concatenate all .py files in the directory
+        parts = []
+        for py_file in sorted(path.rglob("*.py")):
+            parts.append(py_file.read_text())
+        code = "\n".join(parts)
+
+    if not code:
+        print("No Python code found.", file=sys.stderr)
+        return 1
+
+    result = _run_command(args.command, code, args.target_version)
+    print(json.dumps(result, indent=2, default=str))
     return 0
+
+
+def _run_command(command: str, code: str, target_version: str) -> dict:
+    if command == "analyze-async":
+        from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+
+        skill = AsyncAnalysisSkill()
+        return asyncio.run(skill.analyze_async_functions(code))
+
+    elif command == "check-compat":
+        from parseltongue.skills.compatibility_checker import CompatibilityChecker
+
+        skill = CompatibilityChecker()
+        return skill.check_compatibility(code, [target_version])
+
+    elif command == "detect-patterns":
+        from parseltongue.skills.pattern_matching import PatternMatchingSkill
+
+        skill = PatternMatchingSkill()
+        return asyncio.run(skill.find_patterns(code))
+
+    elif command == "test-guide":
+        from parseltongue.skills.testing_guide import TestingGuideSkill
+
+        skill = TestingGuideSkill()
+        return asyncio.run(skill.analyze_testing(code))
+
+    elif command == "transform":
+        from parseltongue.skills.code_transformation import CodeTransformationSkill
+
+        skill = CodeTransformationSkill()
+        return asyncio.run(skill.transform_code(code))
+
+    return {"error": f"Unknown command: {command}"}
 
 
 if __name__ == "__main__":

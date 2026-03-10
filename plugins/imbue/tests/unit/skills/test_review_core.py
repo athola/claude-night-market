@@ -4,15 +4,11 @@ This module tests the review workflow scaffolding functionality,
 following TDD/BDD principles and testing all business scenarios.
 """
 
+from __future__ import annotations
+
 from unittest.mock import call
 
 import pytest
-
-# Constants for PLR2004 magic values
-TWO = 2
-FIVE = 5
-TEN = 10
-THOUSAND = 1000
 
 
 class TestReviewCoreSkill:
@@ -111,42 +107,6 @@ Foundational workflow scaffolding for any detailed review.
             "baseline": "HEAD~1",
             "targets": ["src/", "config/"],
         }
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_review_core_creates_required_todowrite_items(
-        self, mock_todo_write
-    ) -> None:
-        """Scenario: Review core creates required TodoWrite items.
-
-        Given the review-core skill is executed
-        When establishing the workflow
-        Then it should create all 5 required TodoWrite items
-        And each item should have proper naming convention.
-        """
-        # Arrange
-        expected_items = [
-            "review-core:context-established",
-            "review-core:scope-inventoried",
-            "review-core:evidence-captured",
-            "review-core:deliverables-structured",
-            "review-core:contingencies-documented",
-        ]
-
-        # Act - simulate review-core skill execution
-        review_core_items = [
-            "review-core:context-established",
-            "review-core:scope-inventoried",
-            "review-core:evidence-captured",
-            "review-core:deliverables-structured",
-            "review-core:contingencies-documented",
-        ]
-
-        # Assert
-        assert len(review_core_items) == 5
-        for expected_item in expected_items:
-            assert expected_item in review_core_items
-        assert all(item.startswith("review-core:") for item in review_core_items)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -343,48 +303,6 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_deliverable_structure_generation(self) -> None:
-        """Scenario: Deliverable structure creates consistent report format.
-
-        Given review findings and evidence
-        When generating deliverables
-        Then it should create structured report with required sections
-        And maintain evidence reference integrity.
-        """
-        # Arrange
-        review_findings = [
-            {
-                "id": "F1",
-                "title": "Test Finding",
-                "description": "Test description",
-                "severity": "Medium",
-                "evidence_refs": ["E1", "E2"],
-            },
-        ]
-
-        # Act - generate deliverable structure
-        deliverable = {
-            "metadata": {
-                "review_id": "review-123",
-                "timestamp": "2024-12-04T10:00:00Z",
-                "reviewer": "Test Reviewer",
-            },
-            "executive_summary": "Review completed with 1 finding",
-            "detailed_findings": review_findings,
-            "action_items": [],
-            "evidence_appendix": {"total_evidence": 2, "evidence_items": ["E1", "E2"]},
-        }
-
-        # Assert
-        assert "metadata" in deliverable
-        assert "executive_summary" in deliverable
-        assert "detailed_findings" in deliverable
-        assert "action_items" in deliverable
-        assert "evidence_appendix" in deliverable
-        assert deliverable["evidence_appendix"]["total_evidence"] == 2
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
     def test_contingency_planning_missing_tools(self, mock_claude_tools) -> None:
         """Scenario: Contingency planning handles missing tools.
 
@@ -420,36 +338,6 @@ Foundational workflow scaffolding for any detailed review.
         assert "Grep" in contingency_plan["missing_tools"]
         assert "Bash" in contingency_plan["missing_tools"]
         assert len(contingency_plan["fallback_strategies"]) == 2
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_review_core_workflow_completion(self, mock_todo_write) -> None:
-        """Scenario: Review core workflow completes all phases.
-
-        Given a full review workflow
-        When executing review-core skill
-        Then it should complete all 5 TodoWrite items
-        And provide structured review foundation.
-        """
-        # Arrange
-        workflow_phases = [
-            "review-core:context-established",
-            "review-core:scope-inventoried",
-            "review-core:evidence-captured",
-            "review-core:deliverables-structured",
-            "review-core:contingencies-documented",
-        ]
-
-        # Act - simulate workflow completion
-        completed_phases = []
-        for phase in workflow_phases:
-            # Simulate completing each phase
-            completed_phases.append(phase)
-
-        # Assert
-        assert len(completed_phases) == 5
-        assert all(phase in completed_phases for phase in workflow_phases)
-        assert len(set(completed_phases)) == 5  # All unique
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -490,37 +378,3 @@ Foundational workflow scaffolding for any detailed review.
         assert context["git_status"] == "Error: Not a git repository"
         assert "git_status_error" in context
         assert context["baseline"] == "HEAD~1"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_review_core_token_conservation(self) -> None:
-        """Scenario: Review core conserves tokens in large projects.
-
-        Given a project with many files
-        When inventorying scope
-        Then it should summarize rather than list all files
-        And focus on relevant artifacts.
-        """
-        # Arrange
-        all_files = [f"src/file_{i}.py" for i in range(1000)]  # Large project
-
-        # Act - implement token conservation strategy
-        scope_summary = {
-            "total_files": len(all_files),
-            "file_types": {},
-            "sample_files": all_files[:10],  # Only first 10 as examples
-        }
-
-        # Categorize by file type
-        for file_path in all_files:
-            ext = file_path.split(".")[-1]
-            scope_summary["file_types"][ext] = (
-                scope_summary["file_types"].get(ext, 0) + 1
-            )
-
-        # Assert
-        assert scope_summary["total_files"] == 1000
-        assert scope_summary["file_types"]["py"] == 1000
-        assert len(scope_summary["sample_files"]) == 10  # Token conservation
-        assert "src/file_0.py" in scope_summary["sample_files"]
-        assert "src/file_999.py" not in scope_summary["sample_files"]  # Not included

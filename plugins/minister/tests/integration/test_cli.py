@@ -1100,3 +1100,158 @@ def test_cli_export_overwrites_existing_csv_file(
     assert "id" in headers
     assert "title" in headers
     assert "old" not in headers
+
+
+# =============================================================================
+# Error Output Tests: Cover _output_error and exception handling paths
+# =============================================================================
+
+
+def test_cli_error_path_outputs_json_when_flag_set(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GIVEN --output-json and a command that triggers an exception.
+
+    WHEN run_cli executes
+    THEN the error is output as JSON with success=false.
+    """
+
+    # Patch ProjectTracker.__init__ to raise an exception
+    def broken_init(self, data_file=None, initiatives=None):
+        msg = "disk full"
+        raise OSError(msg)
+
+    monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
+
+    result = run_cli(
+        [
+            "--output-json",
+            "status",
+        ]
+    )
+
+    assert result == 1
+    captured = capsys.readouterr()
+    parsed = json.loads(captured.out)
+    assert parsed["success"] is False
+    assert "disk full" in parsed["error"]
+
+
+def test_cli_error_path_outputs_stderr_when_no_json_flag(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GIVEN no --output-json and a command that triggers an exception.
+
+    WHEN run_cli executes
+    THEN the error goes to stderr as plain text.
+    """
+
+    def broken_init(self, data_file=None, initiatives=None):
+        msg = "permission denied"
+        raise PermissionError(msg)
+
+    monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
+
+    result = run_cli(["status"])
+
+    assert result == 1
+    captured = capsys.readouterr()
+    assert "permission denied" in captured.err
+
+
+def test_cli_add_error_outputs_json(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GIVEN --output-json and a broken tracker.
+
+    WHEN running add command
+    THEN JSON error output is produced.
+    """
+
+    def broken_init(self, data_file=None, initiatives=None):
+        msg = "corrupt data"
+        raise ValueError(msg)
+
+    monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
+
+    result = run_cli(
+        [
+            "--output-json",
+            "add",
+            "--id",
+            "X-001",
+            "--title",
+            "Fail",
+            "--initiative",
+            "Test",
+            "--phase",
+            "Phase 1",
+            "--priority",
+            "High",
+            "--owner",
+            "dev",
+            "--effort",
+            "1",
+            "--due",
+            "2025-01-01",
+        ]
+    )
+
+    assert result == 1
+    parsed = json.loads(capsys.readouterr().out)
+    assert parsed["success"] is False
+    assert "corrupt data" in parsed["error"]
+
+
+def test_cli_export_error_outputs_json(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GIVEN --output-json and a broken tracker.
+
+    WHEN running export command
+    THEN JSON error output is produced.
+    """
+
+    def broken_init(self, data_file=None, initiatives=None):
+        msg = "file locked"
+        raise OSError(msg)
+
+    monkeypatch.setattr(ProjectTracker, "__init__", broken_init)
+
+    result = run_cli(
+        [
+            "--output-json",
+            "export",
+            "--output",
+            "/tmp/never.csv",
+        ]
+    )
+
+    assert result == 1
+    parsed = json.loads(capsys.readouterr().out)
+    assert parsed["success"] is False
+    assert "file locked" in parsed["error"]
+
+
+def test_cli_status_with_output_json_flag(
+    cli_with_seeded_data: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GIVEN --output-json and a seeded tracker.
+
+    WHEN running status command
+    THEN JSON output has success=true and report data.
+    """
+    result = run_cli(["--output-json", "status"])
+    assert result == 0
+
+    captured = capsys.readouterr()
+    parsed = json.loads(captured.out)
+    assert parsed["success"] is True
+    assert "command" in parsed["data"]
+    assert parsed["data"]["command"] == "status"
+    assert "report" in parsed["data"]

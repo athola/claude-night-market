@@ -1,6 +1,6 @@
 {
   "name": "hookify",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "description": "Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern matching",
   "commands": [
     "./commands/configure.md",
@@ -25,8 +25,8 @@
     "governance"
   ],
   "author": {
-    "name": "athola",
-    "email": "athola@users.noreply.github.com"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

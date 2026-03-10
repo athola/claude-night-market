@@ -4,6 +4,8 @@ Validates that the war-room SKILL.md documents all 8 phases including
 Phase 8 (Discussion Publishing) added in the discussions-fix branch.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
@@ -40,14 +42,9 @@ class TestWarRoomPhaseDocumentation:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skill_documents_all_eight_phases(self, skill_content: str) -> None:
-        """Scenario: Skill documents all 8 phases of deliberation.
-
-        Given the war-room skill
-        When reviewing the phase listing
-        Then phases 1 through 8 should be present
-        """
-        expected_phases = [
+    @pytest.mark.parametrize(
+        "phase",
+        [
             "Phase 1",
             "Phase 2",
             "Phase 3",
@@ -56,9 +53,17 @@ class TestWarRoomPhaseDocumentation:
             "Phase 6",
             "Phase 7",
             "Phase 8",
-        ]
-        for phase in expected_phases:
-            assert phase in skill_content, f"Missing {phase} in war-room SKILL.md"
+        ],
+        ids=[f"phase-{i}" for i in range(1, 9)],
+    )
+    def test_skill_documents_phase(self, skill_content: str, phase: str) -> None:
+        """Scenario: Skill documents each phase of deliberation.
+
+        Given the war-room skill
+        When reviewing the phase listing
+        Then the specified phase should be present
+        """
+        assert phase in skill_content, f"Missing {phase} in war-room SKILL.md"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -74,18 +79,18 @@ class TestWarRoomPhaseDocumentation:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_phase_8_is_optional(self, skill_content: str) -> None:
-        """Scenario: Phase 8 is marked optional.
+    def test_phase_8_defaults_to_publish(self, skill_content: str) -> None:
+        """Scenario: Phase 8 defaults to publishing.
 
         Given the war-room skill
-        When reviewing Phase 8 description
-        Then it should indicate the step is optional
+        When reviewing Phase 8 references
+        Then it should indicate publishing is the default
         """
-        # Find Phase 8 context and verify optionality
-        idx = skill_content.find("Phase 8")
-        assert idx != -1
-        surrounding = skill_content[idx : idx + 300]
-        assert "optional" in surrounding.lower(), "Phase 8 should be marked as optional"
+        # "default" appears in the Discussion Publishing section
+        # which documents Phase 8 behavior
+        assert "publishing is the default" in skill_content.lower(), (
+            "Phase 8 should default to publishing"
+        )
 
 
 class TestWarRoomDiscussionPublishingSection:
@@ -115,19 +120,17 @@ class TestWarRoomDiscussionPublishingSection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_discussion_publishing_requires_confirmation(
-        self, skill_content: str
-    ) -> None:
-        """Scenario: Publishing requires user confirmation.
+    def test_discussion_publishing_allows_opt_out(self, skill_content: str) -> None:
+        """Scenario: Publishing allows user opt-out.
 
         Given the Discussion Publishing section
         When reviewing the workflow
-        Then user confirmation should be required before publishing
+        Then the user should be able to opt out
         """
         section_start = skill_content.find("### Discussion Publishing")
-        section = skill_content[section_start : section_start + 500]
-        assert "confirmation" in section.lower(), (
-            "Should require user confirmation before publishing"
+        section = skill_content[section_start : section_start + 600]
+        assert "opt out" in section.lower() or "decline" in section.lower(), (
+            "Should allow user to opt out of publishing"
         )
 
     @pytest.mark.bdd
@@ -153,7 +156,7 @@ class TestWarRoomDiscussionPublishingSection:
         Then failures should never block the workflow
         """
         section_start = skill_content.find("### Discussion Publishing")
-        section = skill_content[section_start : section_start + 500]
+        section = skill_content[section_start : section_start + 700]
         assert "never block" in section.lower() or "skip" in section.lower(), (
             "Publishing failures should never block war room workflow"
         )

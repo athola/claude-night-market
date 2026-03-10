@@ -529,7 +529,7 @@ class TestFixIssueCommandValidation:
         THEN description is present and meaningful
         """
         result = CommandValidator.parse_frontmatter(do_issue_command_content)
-        assert result.description is not None
+        assert isinstance(result.description, str), "description should be a string"
         assert len(result.description) > 20
 
     def test_command_file_validates(self, temp_do_issue_command: Path) -> None:

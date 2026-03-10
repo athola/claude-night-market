@@ -126,7 +126,7 @@ Round 2: Pressure Testing
   - Phase 5: Voting + Narrowing (top 2-3)
   - Phase 6: Premortem Analysis (selected COA)
   - Phase 7: Supreme Commander Synthesis
-  - Phase 8: Discussion Publishing (optional)
+  - Phase 8: Discussion Publishing
 ```
 
 ### Delphi Extension (High-Stakes)
@@ -411,10 +411,11 @@ Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonn
 7. **Phase 7 (Synthesis)**: Lead collects all artifacts, produces decision
 8. **Phase 8 (Discussion Publishing)**: After the
    Supreme Commander Decision document is finalized,
-   follow `modules/discussion-publishing.md` to offer
-   publishing the decision to GitHub Discussions. This
-   step is optional. If the user declines or publishing
-   fails, the local strategeion record is unaffected.
+   follow `modules/discussion-publishing.md` to publish
+   the decision to GitHub Discussions. The user can
+   decline, but publishing is the default. If the user
+   declines or publishing fails, the local strategeion
+   record is unaffected.
 
 ### Falling Back to Conjure Delegation
 
@@ -428,9 +429,10 @@ Agent teams is significantly more token-intensive than conjure delegation (each 
 
 After Phase 7 synthesis completes (in any execution
 mode), invoke the `modules/discussion-publishing.md`
-workflow. This module:
+workflow. Publishing is the default action. This module:
 
-1. Prompts the user for confirmation before publishing
+1. Notifies the user that the decision will be published
+   (they can opt out with "n")
 2. Creates a Discussion in the "Decisions" category
 3. Posts deliberation phases as threaded comments
 4. Updates the local strategeion with the Discussion URL

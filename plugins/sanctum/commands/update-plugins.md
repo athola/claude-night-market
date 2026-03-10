@@ -21,10 +21,18 @@ Audit plugin.json files against actual disk contents and fix registration gaps.
 3. Reports discrepancies: missing registrations, stale entries
 4. Optionally fixes by updating plugin.json files with proper sorting
 
-### Phase 2-4 (On-Demand Modules)
-- See `modules/phase2-performance.md` for performance and improvement analysis
-- See `modules/phase3-meta-eval.md` for recursive quality validation
-- See `modules/phase4-queue.md` for knowledge queue promotion checks
+### Phase 2: Plugin Quality Review
+
+Triggers `/plugin-review --tier branch` on affected plugins.
+Runs quick quality gates (test, lint, typecheck, registration)
+on changed plugins and side-effect checks on related plugins.
+
+### Phase 3-4 (On-Demand Modules)
+
+- See `modules/phase3-meta-eval.md` for recursive quality
+  validation
+- See `modules/phase4-queue.md` for knowledge queue promotion
+  checks
 
 ## Workflow
 
@@ -90,10 +98,11 @@ Phases 1-4 create a continuous feedback loop: registration audit surfaces gaps, 
 ## Integration
 
 This command complements:
+- `/plugin-review` - Tiered quality review (invoked as Phase 2)
 - `/update-docs` - Updates documentation after plugin changes
 - `/update-version` - Bumps versions after significant changes
 - `/validate-plugin` - Validates overall plugin structure
-- `pensive:skill-review` - Analyzes skill performance metrics (Phase 2)
+- `pensive:skill-review` - Analyzes skill performance metrics
 - `memory-palace:knowledge-intake` - Evaluates queue items (Phase 4)
 
 ## See Also

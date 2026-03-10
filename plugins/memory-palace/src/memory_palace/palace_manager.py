@@ -8,13 +8,12 @@ management, and data export/import.
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import os
 import sys
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -115,7 +114,7 @@ class MemoryPalaceManager:
 
         """
         palace_id = hashlib.sha256(
-            f"{name}{domain}{datetime.now()}".encode()
+            f"{name}{domain}{datetime.now(timezone.utc)}".encode()
         ).hexdigest()[:8]
 
         palace = {
@@ -123,8 +122,8 @@ class MemoryPalaceManager:
             "name": name,
             "domain": domain,
             "metaphor": metaphor,
-            "created": datetime.now().isoformat(),
-            "last_modified": datetime.now().isoformat(),
+            "created": datetime.now(timezone.utc).isoformat(),
+            "last_modified": datetime.now(timezone.utc).isoformat(),
             "layout": {
                 "districts": [],
                 "buildings": [],
@@ -180,7 +179,7 @@ class MemoryPalaceManager:
             palace: The palace to save.
 
         """
-        palace["last_modified"] = datetime.now().isoformat()
+        palace["last_modified"] = datetime.now(timezone.utc).isoformat()
         palace_file = os.path.join(self.palaces_dir, f"{palace['id']}.json")
 
         # Create backup before saving
@@ -191,17 +190,21 @@ class MemoryPalaceManager:
 
         self.update_master_index()
 
-    def create_backup(self, palace_id: str) -> None:
+    def create_backup(self, palace_id: str, target_dir: str | None = None) -> None:
         """Create a backup of a palace file.
 
         Args:
             palace_id: The ID of the palace to back up.
+            target_dir: Directory containing the palace file. Defaults to
+                ``self.palaces_dir``.
 
         """
-        palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
+        base_dir = target_dir or self.palaces_dir
+        palace_file = os.path.join(base_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):
-            backup_dir = os.path.join(self.palaces_dir, "backups")
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = os.path.join(base_dir, "backups")
+            os.makedirs(backup_dir, exist_ok=True)
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_file = os.path.join(backup_dir, f"{palace_id}_{timestamp}.json")
 
             with open(palace_file) as src, open(backup_file, "w") as dst:
@@ -222,7 +225,7 @@ class MemoryPalaceManager:
             "domains": domains,
         }
         index: dict[str, Any] = {
-            "last_updated": datetime.now().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
             "palaces": [],
             "global_stats": global_stats,
         }
@@ -349,7 +352,7 @@ class MemoryPalaceManager:
         """
         palaces: list[dict[str, Any]] = []
         bundle: dict[str, Any] = {
-            "exported_at": datetime.now().isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
             "palaces": palaces,
         }
         for file_path in Path(self.palaces_dir).glob("*.json"):
@@ -413,7 +416,7 @@ class MemoryPalaceManager:
 
         """
         if search_type == "semantic":
-            # Simple text matching - in a real implementation, use embeddings
+            # Text containment search (semantic search not yet implemented)
             text_content = json.dumps(data).lower()
             return query in text_content
         if search_type == "exact":
@@ -586,7 +589,7 @@ class MemoryPalaceManager:
             "id": entry_id,
             "query": entry.get("query", ""),
             "source": "intake_queue",
-            "timestamp": entry.get("timestamp", datetime.now().isoformat()),
+            "timestamp": entry.get("timestamp", datetime.now(timezone.utc).isoformat()),
             "novelty_score": entry.get("intake_payload", {}).get("novelty_score", 0),
         }
 
@@ -620,7 +623,7 @@ class MemoryPalaceManager:
 
         # Track queries across palaces for duplicate detection
         query_locations: dict[str, list[tuple[str, str]]] = defaultdict(list)
-        cutoff = datetime.now() - timedelta(days=stale_days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=stale_days)
 
         for palace_summary in self.list_palaces():
             palace = self.load_palace(palace_summary["id"])
@@ -649,13 +652,15 @@ class MemoryPalaceManager:
                     entry_time = datetime.fromisoformat(
                         timestamp_str.replace("Z", "+00:00")
                     )
-                    if entry_time < cutoff:
+                    # Normalize both to naive UTC for comparison
+                    cutoff_cmp = cutoff.replace(tzinfo=None)
+                    entry_cmp = entry_time.replace(tzinfo=None)
+                    if entry_cmp < cutoff_cmp:
                         palace_recs["stale"].append(entry_id)
                         results["total_stale"] += 1
                 except (ValueError, AttributeError) as e:
                     sys.stderr.write(
-                        f"palace_manager: failed to parse timestamp for entry "
-                        f"{entry_id}: {e}\n"
+                        f"palace_manager: failed to parse timestamp for entry {entry_id}: {e}\n"
                     )
 
                 # Check quality
@@ -738,116 +743,3 @@ class MemoryPalaceManager:
             self.update_master_index()
             return True
         return False
-
-
-def main() -> None:  # noqa: PLR0912,PLR0915
-    """Parse command-line arguments and run the corresponding command."""
-    parser = argparse.ArgumentParser(description="Memory Palace Manager")
-    parser.add_argument("--config", help="Path to config file")
-    parser.add_argument("--palaces-dir", help="Override palaces directory")
-
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Create palace
-    create_parser = subparsers.add_parser("create", help="Create a new palace")
-    create_parser.add_argument("name", help="Palace name")
-    create_parser.add_argument("domain", help="Palace domain")
-    create_parser.add_argument(
-        "--metaphor", default="building", help="Architectural metaphor"
-    )
-
-    # List palaces
-    subparsers.add_parser("list", help="List all palaces")
-
-    # Search
-    search_parser = subparsers.add_parser("search", help="Search palaces")
-    search_parser.add_argument("query", help="Search query")
-    search_parser.add_argument(
-        "--type", default="semantic", choices=["semantic", "exact", "fuzzy"]
-    )
-
-    # Delete palace
-    delete_parser = subparsers.add_parser("delete", help="Delete a palace")
-    delete_parser.add_argument("palace_id", help="Palace ID to delete")
-
-    # Status
-    subparsers.add_parser("status", help="Show system status")
-
-    # Export/Import
-    export_parser = subparsers.add_parser(
-        "export", help="Export all palaces to a bundle"
-    )
-    export_parser.add_argument(
-        "--destination", required=True, help="Destination JSON path"
-    )
-
-    import_parser = subparsers.add_parser("import", help="Import palaces from a bundle")
-    import_parser.add_argument("--source", required=True, help="Source bundle JSON")
-    import_parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Overwrite existing palaces with same IDs",
-    )
-
-    args = parser.parse_args()
-
-    if not args.command:
-        parser.print_help()
-        return
-
-    manager = MemoryPalaceManager(args.config, args.palaces_dir)
-
-    if args.command == "create":
-        manager.create_palace(args.name, args.domain, args.metaphor)
-
-    elif args.command == "list":
-        palaces = manager.list_palaces()
-        if palaces:
-            for palace in palaces:
-                domain = palace.get("domain", "N/A")
-                metaphor = palace.get("metaphor", "N/A")
-                print(f"  - {palace['id']}: {domain} ({metaphor})")
-        else:
-            print("No palaces found. Create one with 'create' command.")
-
-    elif args.command == "search":
-        results = manager.search_palaces(args.query, args.type)
-        if results:
-            for result in results:
-                palace_id = result.get("palace_id", "unknown")
-                print(f"\nPalace: {palace_id}")
-                for match in result["matches"]:
-                    # Try concept_id first, fallback to location_id
-                    item_id = match.get("concept_id") or match.get(
-                        "location_id", "unknown"
-                    )
-                    print(f"  - Found: {item_id}")
-        else:
-            print(f"No matches found for query: {args.query}")
-
-    elif args.command == "delete":
-        if manager.delete_palace(args.palace_id):
-            print(f"Successfully deleted palace: {args.palace_id}")
-        else:
-            print(f"Failed to delete palace: {args.palace_id} (may not exist)")
-
-    elif args.command == "status":
-        index = manager.get_master_index()
-        stats = index["global_stats"]
-        print("\nMemory Palace Status:")
-        print(f"  Total palaces: {stats['total_palaces']}")
-        print(f"  Total concepts: {stats['total_concepts']}")
-        print(f"  Total locations: {stats['total_locations']}")
-        print("\n  Domains:")
-        for domain, count in stats["domains"].items():
-            print(f"    - {domain}: {count} items")
-
-    elif args.command == "export":
-        manager.export_state(args.destination)
-
-    elif args.command == "import":
-        stats = manager.import_state(args.source, keep_existing=not args.overwrite)
-
-
-if __name__ == "__main__":
-    main()

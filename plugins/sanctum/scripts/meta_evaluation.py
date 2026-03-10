@@ -25,6 +25,11 @@ try:
 except ImportError:
     yaml = None  # type: ignore[assignment]
 
+try:
+    from sanctum.validators import parse_frontmatter as _parse_frontmatter_canonical
+except ImportError:
+    _parse_frontmatter_canonical = None  # type: ignore[assignment]
+
 # Evaluation thresholds (configurable)
 MIN_CODE_BLOCK_LINES = 3  # Skip language annotation check for blocks shorter than this
 MODULE_REFERENCE_WEIGHT = 2  # Points deducted for missing module references
@@ -310,11 +315,14 @@ class MetaEvaluator:
 
     def _parse_frontmatter(self, content: str) -> dict[str, Any]:
         """Parse YAML frontmatter from skill content."""
+        if _parse_frontmatter_canonical is not None:
+            result = _parse_frontmatter_canonical(content)
+            return result if result is not None else {}
+
         fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if not fm_match:
             return {}
         if yaml is None:
-            # Fallback: parse modules list manually if pyyaml not available
             raw = fm_match.group(1)
             modules: list[str] = []
             in_modules = False

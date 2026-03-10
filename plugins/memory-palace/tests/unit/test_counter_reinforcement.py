@@ -192,7 +192,7 @@ class TestCounterReinforcementTracker:
         tracker.reinforce("entry-1", FeedbackType.HELPFUL)
         counter = tracker.get_counter("entry-1")
 
-        assert counter is not None
+        assert isinstance(counter, ReinforcementCounter)
         assert counter.last_accessed >= before
 
     @pytest.mark.unit
@@ -342,11 +342,11 @@ class TestCounterReinforcementTracker:
 
         # Verify
         counter1 = new_tracker.get_counter("entry-1")
-        assert counter1 is not None
+        assert isinstance(counter1, ReinforcementCounter)
         assert counter1.helpful == 5
 
         counter2 = new_tracker.get_counter("entry-2")
-        assert counter2 is not None
+        assert isinstance(counter2, ReinforcementCounter)
         assert counter2.harmful == 3
 
     @pytest.mark.unit
@@ -407,7 +407,7 @@ class TestCounterReinforcementTracker:
 
         counter = tracker.get_counter("entry-1")
 
-        assert counter is not None
+        assert isinstance(counter, ReinforcementCounter)
         assert counter.metadata == {"source": "test", "version": 2, "extra": "data"}
 
     @pytest.mark.unit
@@ -425,4 +425,4 @@ class TestCounterReinforcementTracker:
 
         # Should have imported only the valid entry
         assert len(tracker.get_all_counters()) == 1
-        assert tracker.get_counter("valid-entry") is not None
+        assert isinstance(tracker.get_counter("valid-entry"), ReinforcementCounter)

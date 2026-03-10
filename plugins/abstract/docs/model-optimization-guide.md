@@ -22,15 +22,34 @@ Opus 4.6 introduces features that affect model selection strategy:
 
 ### Effort Controls as an Alternative to Model Escalation
 
-Instead of always escalating haiku→sonnet→opus, consider effort controls on Opus 4.6:
+Opus 4.6 defaults to **medium effort** (2.1.68+) for
+Max and Team subscribers. Medium effort is the sweet
+spot between speed and thoroughness for most tasks.
 
 | Approach | When to Use | Trade-off |
 |----------|-------------|-----------|
 | **Haiku→Sonnet→Opus** | Cost-sensitive workflows, high-volume automation | Cheapest per-token, but model switching adds complexity |
-| **Opus@low→@high→@max** | Quality-sensitive workflows, complex orchestration | Higher per-token cost, but simpler single-model pipeline |
+| **Opus@low→@medium→@high** | Quality-sensitive workflows, complex orchestration | Higher per-token cost, but simpler single-model pipeline |
 | **Hybrid** | Mixed workloads | Haiku for deterministic tasks, Opus with effort controls for reasoning tasks |
 
-The hybrid approach is recommended: use Haiku for Tier 1 deterministic tasks, and Opus 4.6 with adaptive effort for Tier 2/3 tasks that previously required sonnet-to-opus escalation.
+Change effort via `/model` or type **"ultrathink"** in
+your prompt to enable high effort for the next turn.
+
+**Opus 4/4.1 removed (2.1.68+)**: No longer available
+on the first-party API. Users with these models pinned
+are automatically migrated to Opus 4.6.
+
+**Sonnet 4.5 → 4.6 migration (2.1.69+)**: Sonnet 4.5
+users on Pro/Max/Team Premium are automatically migrated
+to Sonnet 4.6. Agent `model` frontmatter referencing
+Sonnet resolves transparently. The `--model` flags for
+`claude-opus-4-0` and `claude-opus-4-1` now correctly
+resolve to Opus 4.6 instead of deprecated versions.
+
+The hybrid approach is recommended: use Haiku for Tier 1
+deterministic tasks, and Opus 4.6 with adaptive effort
+for Tier 2/3 tasks that previously required
+sonnet-to-opus escalation.
 
 ## Decision Flowchart
 

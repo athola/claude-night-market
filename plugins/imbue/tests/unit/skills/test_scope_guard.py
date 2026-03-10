@@ -4,6 +4,8 @@ Validates that the scope-guard SKILL.md documents the deferral workflow
 including Step 4 (Discussion creation) added in the discussions-fix branch.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
@@ -102,32 +104,29 @@ class TestScopeGuardDeferralWorkflow:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_deferral_step_3_offers_discussion_creation(
+    def test_deferral_step_3_creates_discussion_by_default(
         self, skill_content: str
     ) -> None:
-        """Scenario: Deferral Step 3 offers Discussion creation.
+        """Scenario: Deferral Step 3 creates Discussion by default.
 
         Given the scope-guard deferral workflow
         When reviewing the discussion integration
-        Then Step 3 should offer to create a Discussion
+        Then Step 3 should create a Discussion by default
         """
-        assert "Offer Discussion creation" in skill_content
-        assert "Deliberations" in skill_content
+        assert "Create Discussion" in skill_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_deferral_discussion_is_optional(self, skill_content: str) -> None:
-        """Scenario: Discussion creation is optional.
+    def test_deferral_discussion_defaults_to_publish(self, skill_content: str) -> None:
+        """Scenario: Discussion creation defaults to publishing.
 
         Given the scope-guard deferral workflow
         When reviewing Step 3
-        Then it should prompt with Y/n (default yes)
+        Then publishing should be the default
         And declining should continue the workflow
         """
         assert "Y/n" in skill_content
-        assert (
-            "declined" in skill_content.lower() or "continue" in skill_content.lower()
-        )
+        assert "default" in skill_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from memory_palace.garden_metrics import compute_garden_metrics
+from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
 
 
@@ -221,8 +221,8 @@ class MemoryPalaceCLI:
                 index = self._manager().get_master_index()
                 stats = index.get("global_stats", {})
                 domains = stats.get("domains", {})
-                for _domain, _count in domains.items():
-                    pass
+                for domain, count in domains.items():
+                    self.print_status(f"  {domain}: {count} palaces")
             except Exception as e:
                 self.print_warning(f"Could not get palace statistics: {e}")
 
@@ -253,20 +253,31 @@ class MemoryPalaceCLI:
 
         self.print_status(f"Computing garden metrics for {target}")
         try:
-            compute_garden_metrics(
+            metrics = compute_garden_metrics(
                 Path(target),
                 datetime.fromisoformat(now) if now else None,
             )
             if output_format == "brief":
-                pass
+                avg_days = metrics.get("avg_days_since_tend")
+                avg_str = f"{avg_days:.1f}" if avg_days is not None else "n/a"
+                print(
+                    f"plots={metrics['plots']} "
+                    f"link_density={metrics['link_density']:.2f} "
+                    f"avg_days_since_tend={avg_str}"
+                )
             elif output_format == "prometheus":
                 label_val = label or Path(target).stem
-
-                def line(metric: str, value: Any) -> str:
-                    return f'{metric}{{garden="{label_val}"}} {value}'
-
+                print(f'garden_plots{{garden="{label_val}"}} {metrics["plots"]}')
+                print(
+                    f'garden_link_density{{garden="{label_val}"}} {metrics["link_density"]}'
+                )
+                avg_days = metrics.get("avg_days_since_tend")
+                if avg_days is not None:
+                    print(
+                        f'garden_avg_days_since_tend{{garden="{label_val}"}} {avg_days}'
+                    )
             else:
-                pass
+                print(json.dumps(metrics, indent=2, default=str))
         except Exception as e:
             self.print_error(f"Metrics failed: {e}")
 
@@ -299,9 +310,6 @@ class MemoryPalaceCLI:
         if not plots:
             self.print_warning("No plots found in garden.")
             return
-
-        def days_since(ts: str) -> float:
-            return (now_dt - datetime.fromisoformat(ts)).total_seconds() / 86400
 
         actions = self._compute_tending_actions(
             plots,
@@ -356,7 +364,9 @@ class MemoryPalaceCLI:
                 actions["prune"].append((name, "never tended"))
                 continue
 
-            days = (now_dt - datetime.fromisoformat(last)).total_seconds() / 86400
+            days = (
+                now_dt - datetime.fromisoformat(last)
+            ).total_seconds() / SECONDS_PER_DAY
             if days >= archive_days:
                 actions["archive"].append((name, round(days, 2)))
             elif days >= stale_days:
@@ -384,14 +394,14 @@ class MemoryPalaceCLI:
             return
 
         if ctx.actions["prune"]:
-            for _name, _age in ctx.actions["prune"]:
-                pass
+            for name, age in ctx.actions["prune"]:
+                print(f"  PRUNE: {name} ({age} days)")
         if ctx.actions["stale"]:
-            for _name, _age in ctx.actions["stale"]:
-                pass
+            for name, age in ctx.actions["stale"]:
+                print(f"  STALE: {name} ({age} days)")
         if ctx.actions["archive"]:
-            for _name, _age in ctx.actions["archive"]:
-                pass
+            for name, reason in ctx.actions["archive"]:
+                print(f"  ARCHIVE: {name} ({reason})")
         if not any(ctx.actions.values()):
             self.print_success("All plots are fresh within cadence.")
 
@@ -632,10 +642,14 @@ class MemoryPalaceCLI:
             results = self._manager().search_palaces(query, search_type)
             if results:
                 for result in results:
-                    for _match in result["matches"]:
-                        pass
+                    print(f"\nPalace: {result['palace_name']} ({result['palace_id']})")
+                    for match in result["matches"]:
+                        item_id = match.get("concept_id") or match.get(
+                            "location_id", "unknown"
+                        )
+                        print(f"  - [{match['type']}] {item_id}")
             else:
-                pass
+                print(f"No matches found for query: {query}")
             return True
         except Exception as e:
             self.print_error(f"Search failed: {e}")
@@ -693,8 +707,10 @@ class MemoryPalaceCLI:
         if command == "status":
             index = manager.get_master_index()
             stats = index.get("global_stats", {})
-            for _domain, _count in stats.get("domains", {}).items():
-                pass
+            print(f"Total palaces: {stats.get('total_palaces', 0)}")
+            print(f"Total concepts: {stats.get('total_concepts', 0)}")
+            for domain, count in stats.get("domains", {}).items():
+                print(f"  {domain}: {count} palaces")
             return True
 
         self.print_warning(f"Manager command not supported: {' '.join(args)}")

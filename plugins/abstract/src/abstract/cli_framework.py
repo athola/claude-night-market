@@ -72,11 +72,7 @@ class OutputFormatter:
             Summary string.
 
         """
-        if summary_func:
-            return summary_func(data)
-        if is_dataclass(data) and not isinstance(data, type):
-            return str(data)
-        return str(data)
+        return summary_func(data) if summary_func else str(data)
 
     @staticmethod
     def format_table(

@@ -10,11 +10,17 @@ Memory Palace organizes information using spatial memory techniques for easier r
 
 | Layer | Scope | Control |
 |-------|-------|---------|
-| **Native Memory** (2.1.32+) | Session continuity | Implicit, automatic |
+| **Auto-Memory** (2.1.59+) | Conversation context | Implicit, managed via `/memory` |
 | **Agent `memory` Frontmatter** (2.1.33+) | Agent-scoped recall | Opt-in per agent |
 | **Memory Palace** | Domain knowledge with spatial hierarchies | Explicit, user-designed |
 
-Native memory handles session continuity. Agent memory frontmatter gives agents persistent recall. Memory Palace provides structured, navigable knowledge architectures that persist as a permanent corpus.
+Auto-memory (2.1.59+) saves useful conversation context
+to `~/.claude/projects/*/memory/MEMORY.md` and is
+managed via the `/memory` command. Agent memory
+frontmatter gives agents persistent recall. Memory
+Palace provides structured, navigable knowledge
+architectures that persist as a permanent corpus.
+These systems are complementary, not conflicting.
 
 ## Installation
 

@@ -7,6 +7,138 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-03-08
+
+### Added
+
+- Tiered plugin review workflow in abstract plugin:
+  `/plugin-review --tier branch|pr|release` with
+  dependency-aware scoping via
+  `docs/plugin-dependencies.json`. Branch tier runs
+  quick quality gates; PR tier adds skills-eval,
+  hooks-eval, test-review, bloat-scan scoring; release
+  tier audits all 17 plugins with plan mode dispatch.
+  `/update-plugins` triggers it as Phase 2.
+- Plugin dependency map generator script
+  (`scripts/generate_dependency_map.py`) scanning
+  Makefile includes, pyproject.toml deps, and Python
+  imports to produce `docs/plugin-dependencies.json`
+- Egregore plugin: autonomous agent orchestrator for
+  full development lifecycles with session budget
+  management, crash recovery, and watchdog monitoring
+- `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` documentation in
+  leyline reinstall/update plugin commands for
+  troubleshooting slow git operations (2.1.51)
+- npm registry plugin installation notes in leyline
+  reinstall command (2.1.51)
+- Workspace trust security note for `statusLine` and
+  `fileSuggestion` hook commands across 4 hook reference
+  files (hook-types skill, sdk-hook-types skill,
+  capabilities-hooks reference,
+  hook-types-comprehensive example) (2.1.51)
+- Tool result disk persistence threshold (50K chars)
+  documentation in conserve context-optimization
+  mecw-principles module (2.1.51)
+- Managed settings documentation (macOS plist, Windows
+  Registry) with full precedence hierarchy and
+  managed-only settings reference (2.1.51)
+- Account environment variables documentation
+  (`CLAUDE_CODE_ACCOUNT_UUID`, `CLAUDE_CODE_USER_EMAIL`,
+  `CLAUDE_CODE_ORGANIZATION_UUID`) for SDK callers in
+  conjure delegation docs (2.1.51)
+- Bulk agent kill (ctrl+f) aggregate notification note
+  in conjure agent-teams spawning-patterns module
+  (2.1.53)
+- Subagent task state release note in conserve
+  subagent-coordination module (2.1.59)
+- Auto-memory layer comparison update in memory-palace
+  README (2.1.59, replaces "Native Memory 2.1.32+"
+  with "Auto-Memory 2.1.59+")
+- HTTP hooks reference in hook-types skill,
+  sdk-hook-types skill, and capabilities-hooks book
+  reference (2.1.63)
+- Memory leak fixes (12+ sites) note in conserve
+  subagent-coordination module (2.1.63)
+- `ENABLE_CLAUDEAI_MCP_SERVERS=false` opt-out in
+  conserve mcp-subagents module (2.1.63)
+- Teammate memory management note in conjure
+  agent-teams health-monitoring module (2.1.63)
+- Opus 4.6 medium effort default, "ultrathink" keyword,
+  and Opus 4/4.1 removal in escalation-governance skill
+  and model-optimization-guide (2.1.68)
+- `${CLAUDE_SKILL_DIR}` variable and description colon
+  fix documentation in skill-authoring SKILL.md (2.1.69)
+- Hook event field enrichment (`agent_id`, `agent_type`,
+  `worktree`) across 4 hook reference files:
+  hook-types skill, sdk-hook-types skill,
+  capabilities-hooks reference,
+  hook-types-comprehensive example (2.1.69)
+- TeammateIdle/TaskCompleted `continue: false` teammate
+  shutdown in conjure health-monitoring module and all
+  4 hook reference files (2.1.69)
+- WorktreeCreate/WorktreeRemove plugin hook fix note
+  across 4 hook reference files (2.1.69)
+- `/reload-plugins` command reference in leyline
+  update-all-plugins command (2.1.69)
+- Sonnet 4.5 → 4.6 migration note in
+  escalation-governance skill and
+  model-optimization-guide (2.1.69)
+- Explicit `model:` field added to 10 agent definitions
+  across 6 plugins (pensive, spec-kit, imbue,
+  memory-palace, egregore, conserve) to prevent
+  silent model inheritance from parent session
+- Fixed non-standard `model_preference: default` field
+  in egregore sentinel and conserve continuation-agent
+  to use proper `model: haiku` / `model: inherit`
+- Cron scheduling tools (`CronCreate`, `CronList`,
+  `CronDelete`) and bash auto-approval expansion
+  (`fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`,
+  `printf`, `getconf`, `seq`, `tsort`, `pr`) across 4
+  hook reference files: hook-types skill, sdk-hook-types
+  skill, capabilities-hooks reference,
+  hook-types-comprehensive example (2.1.71)
+- Heredoc permission fix note across 4 hook reference
+  files (2.1.71)
+- Background agent notification fix and `--print` team
+  agent hang fix in conjure health-monitoring
+  module (2.1.71)
+- Read tool image overflow fix in conserve
+  context-optimization mecw-principles module (2.1.71)
+- `/plugin uninstall` team safety note in leyline
+  update-all-plugins command (2.1.71)
+- Egregore `/loop` integration: in-session rate limit
+  recovery via CronCreate (replaces exit-and-watchdog
+  pattern), progress pulse via `/loop 5m /egregore:status`,
+  CronCreate/CronList/CronDelete added to orchestrator
+  tools (2.1.71)
+- Moved `/loop`, voice:pushToTalk, stdin freeze, plugin
+  installation fix, MCP server dedup, and startup
+  performance fixes from 2.1.69 to 2.1.71 in
+  compatibility tracker (version correction)
+- Compaction image preservation and resume token savings
+  (~600 tokens) in conserve context-optimization
+  mecw-principles module (2.1.70)
+- Effort parameter Bedrock fix note in
+  escalation-governance skill (2.1.70)
+- Plugin installation status accuracy note in leyline
+  update-all-plugins command (2.1.70)
+
+### Changed
+
+- Updated escalation-governance effort control table
+  to reflect medium as default effort (2.1.68)
+- Updated model-optimization-guide effort controls
+  section with medium default and ultrathink (2.1.68)
+- Updated hook event version annotations for
+  WorktreeCreate/WorktreeRemove (2.1.49+ to 2.1.50+)
+  across 7 files (hook validator, frontmatter parser,
+  hook-types skill, sdk-hook-types skill,
+  capabilities-hooks reference,
+  hook-types-comprehensive example, test suite)
+- Added WorktreeCreate/WorktreeRemove input data schemas
+  and behavioral documentation (command-only, stdout path
+  output, no matchers, no blocking for Remove)
+
 ## [1.5.7] - 2026-03-06
 
 ### Added

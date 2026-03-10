@@ -59,6 +59,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
+| `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
@@ -71,6 +72,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
+| `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
@@ -87,6 +89,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `python-performance` | [parseltongue](../plugins/parseltongue.md) | Profiling and optimization |
 | `python-testing` | [parseltongue](../plugins/parseltongue.md) | Pytest/TDD workflows |
 | `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
+| `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
@@ -115,6 +118,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
+| `summon` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
@@ -123,6 +127,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
+| `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
@@ -166,6 +171,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/create-hook` | abstract | Scaffold new hook |
 | `/create-issue` | minister | Create GitHub issue with labels and references |
 | `/create-skill` | abstract | Scaffold new skill |
+| `/dismiss` | egregore | Terminate autonomous agent session |
 | `/doc-generate` | scribe | Generate new documentation |
 | `/doc-polish` | scribe | Clean up AI-generated content |
 | `/evaluate-skill` | abstract | Evaluate skill execution quality |
@@ -182,6 +188,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/hookify:list` | hookify | List all hookify rules with status |
 | `/hooks-eval` | abstract | Hook evaluation |
 | `/improve-skills` | abstract | Auto-improve skills from observability data |
+| `/install-watchdog` | egregore | Install crash-recovery watchdog |
 | `/make-dogfood` | abstract | Makefile enhancement |
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |
@@ -189,7 +196,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
 | `/palace` | memory-palace | Manage palaces |
-| `/plugin-review` | abstract | Comprehensive plugin architecture review |
+| `/plugin-review` | abstract | Tiered plugin quality review (branch/pr/release) |
 | `/pr` | sanctum | Prepare pull request |
 | `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
 | `/promote-discussions` | abstract | Promote highly-voted community learnings from Discussions to Issues |
@@ -215,12 +222,15 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/speckit-specify` | spec-kit | Create specification |
 | `/speckit-startup` | spec-kit | Bootstrap workflow |
 | `/speckit-tasks` | spec-kit | Generate tasks |
+| `/status` | egregore | Check autonomous session status |
 | `/stewardship-health` | imbue | Display stewardship health dimensions for plugins |
 | `/structured-review` | imbue | Structured review workflow |
 | `/style-learn` | scribe | Create style profile from examples |
+| `/summon` | egregore | Spawn autonomous agent session with budget |
 | `/test-review` | pensive | Test quality review |
 | `/test-skill` | abstract | Skill testing workflow |
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
+| `/uninstall-watchdog` | egregore | Remove crash-recovery watchdog |
 | `/update-all-plugins` | leyline | Update all plugins |
 | `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
@@ -253,6 +263,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `knowledge-navigator` | memory-palace | Palace search |
 | `media-recorder` | scry | Autonomous media generation for demos and GIFs |
 | `meta-architect` | abstract | Plugin ecosystem design |
+| `orchestrator` | egregore | Autonomous development lifecycle agent |
 | `palace-architect` | memory-palace | Palace design |
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
@@ -264,6 +275,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `python-tester` | parseltongue | Testing expertise |
 | `review-analyst` | imbue | Structured reviews |
 | `rust-auditor` | pensive | Rust security audit |
+| `sentinel` | egregore | Watchdog agent for crash recovery |
 | `skill-auditor` | abstract | Skill quality audit |
 | `skill-evaluator` | abstract | Skill execution evaluator |
 | `skill-improver` | abstract | Implements skill improvements from observability |

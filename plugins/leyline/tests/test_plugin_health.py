@@ -29,8 +29,7 @@ class TestDocFreshness:
 
     @pytest.mark.unit
     def test_reports_freshness_for_plugin_with_docs(self, tmp_path: Path) -> None:
-        """
-        Scenario: Plugin has markdown documentation
+        """Scenario: Plugin has markdown documentation
         Given a plugin directory with .md files
         When measuring documentation freshness
         Then it reports the age of the most recent .md file
@@ -45,8 +44,7 @@ class TestDocFreshness:
 
     @pytest.mark.unit
     def test_reports_not_measured_when_no_docs(self, tmp_path: Path) -> None:
-        """
-        Scenario: Plugin has no documentation
+        """Scenario: Plugin has no documentation
         Given an empty plugin directory
         When measuring documentation freshness
         Then it reports "not measured"
@@ -63,8 +61,7 @@ class TestImprovementVelocity:
 
     @pytest.mark.unit
     def test_reports_action_count(self, tmp_path: Path) -> None:
-        """
-        Scenario: Plugin has stewardship actions
+        """Scenario: Plugin has stewardship actions
         Given a stewardship tracker with actions for a plugin
         When measuring improvement velocity
         Then it reports the count of recent actions
@@ -83,8 +80,7 @@ class TestImprovementVelocity:
 
     @pytest.mark.unit
     def test_reports_not_measured_when_no_tracker(self, tmp_path: Path) -> None:
-        """
-        Scenario: No stewardship tracker exists
+        """Scenario: No stewardship tracker exists
         Given an empty directory with no actions file
         When measuring improvement velocity
         Then it reports "not measured"
@@ -99,8 +95,7 @@ class TestGetPluginHealth:
 
     @pytest.mark.unit
     def test_returns_all_five_dimensions(self, tmp_path: Path) -> None:
-        """
-        Scenario: Full health report
+        """Scenario: Full health report
         Given a plugin directory exists
         When getting the full health report
         Then it contains all 5 dimension keys
@@ -125,8 +120,7 @@ class TestGetPluginHealth:
 
     @pytest.mark.unit
     def test_handles_missing_plugin_gracefully(self, tmp_path: Path) -> None:
-        """
-        Scenario: Plugin directory does not exist
+        """Scenario: Plugin directory does not exist
         Given a non-existent plugin path
         When getting the health report
         Then all dimensions report "not measured"

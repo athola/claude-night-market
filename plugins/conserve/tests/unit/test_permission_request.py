@@ -6,6 +6,8 @@ safe operations and auto-denies dangerous patterns.
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from io import StringIO
@@ -565,7 +567,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output allow decision.
         """
-
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "ls -la"}}
         )
@@ -575,6 +576,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert data["hookSpecificOutput"]["decision"]["behavior"] == "allow"
@@ -588,7 +590,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output deny decision.
         """
-
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "sudo rm -rf /"}}
         )
@@ -598,6 +599,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert data["hookSpecificOutput"]["decision"]["behavior"] == "deny"
@@ -611,7 +613,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output without decision key.
         """
-
         hook_input = json.dumps(
             {"tool_name": "Bash", "tool_input": {"command": "my-custom-command arg"}}
         )
@@ -621,6 +622,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "decision" not in data["hookSpecificOutput"]
@@ -634,13 +636,12 @@ class TestMainEntryPoint:
         When running main
         Then it should not crash and return 0.
         """
-
         with patch("sys.stdin", StringIO("not valid json {")):
             with patch("builtins.print") as mock_print:
                 result = main()
 
                 assert result == 0
-                # Should output valid JSON
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "hookSpecificOutput" in data
@@ -654,7 +655,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output without decision.
         """
-
         hook_input = json.dumps(
             {"tool_name": "Read", "tool_input": {"file_path": "/etc/passwd"}}
         )
@@ -664,6 +664,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "decision" not in data["hookSpecificOutput"]
@@ -677,7 +678,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully.
         """
-
         hook_input = json.dumps({"tool_input": {"command": "ls"}})
 
         with patch("sys.stdin", StringIO(hook_input)):
@@ -685,6 +685,7 @@ class TestMainEntryPoint:
                 result = main()
 
                 assert result == 0
+                mock_print.assert_called_once()
                 output = mock_print.call_args[0][0]
                 data = json.loads(output)
                 assert "hookSpecificOutput" in data

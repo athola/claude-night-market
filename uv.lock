@@ -17,7 +17,7 @@ members = [
 
 [[package]]
 name = "abstract"
-version = "1.5.7"
+version = "1.6.0"
 source = { editable = "plugins/abstract" }
 dependencies = [
     { name = "pre-commit" },
@@ -328,23 +328,20 @@ wheels = [
 
 [[package]]
 name = "claude-night-market"
-version = "1.5.7"
+version = "1.6.0"
 source = { editable = "." }
 dependencies = [
-    { name = "click" },
     { name = "coverage" },
     { name = "jsonschema" },
     { name = "psutil" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
-    { name = "pytest-bdd" },
     { name = "pytest-cov" },
     { name = "pytest-json-report" },
     { name = "pytest-mock" },
     { name = "pytest-xdist" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "toml" },
 ]
 
 [package.optional-dependencies]
@@ -360,7 +357,6 @@ dev = [
 requires-dist = [
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.7.9" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=24.10.0" },
-    { name = "click", specifier = ">=8.1.7" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.6.0" },
     { name = "jsonschema", specifier = ">=4.22.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
@@ -368,7 +364,6 @@ requires-dist = [
     { name = "psutil", specifier = ">=5.9.8" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", specifier = ">=0.23.0" },
-    { name = "pytest-bdd", specifier = ">=7.2.0" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
     { name = "pytest-json-report", specifier = ">=1.5.0" },
     { name = "pytest-mock", specifier = ">=3.14.0" },
@@ -376,7 +371,6 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "rich", specifier = ">=13.9.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13" },
-    { name = "toml", specifier = ">=0.10.2" },
 ]
 provides-extras = ["dev"]
 
@@ -403,7 +397,7 @@ wheels = [
 
 [[package]]
 name = "conserve-dev"
-version = "1.5.7"
+version = "1.6.0"
 source = { editable = "plugins/conserve" }
 dependencies = [
     { name = "pre-commit" },
@@ -814,7 +808,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.5.7"
+version = "1.6.0"
 source = { editable = "plugins/leyline" }
 
 [package.optional-dependencies]

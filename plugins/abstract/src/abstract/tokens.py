@@ -44,6 +44,10 @@ def estimate_tokens(text: str) -> int:
     return TokenAnalyzer.analyze_content(text)["total_tokens"]
 
 
+# Unambiguous alias to distinguish from leyline.estimate_tokens(files, prompt)
+estimate_text_tokens = estimate_tokens
+
+
 def extract_code_blocks(content: str) -> list[str]:
     r"""Extract code blocks from markdown content.
 
@@ -188,32 +192,35 @@ class TokenAnalyzer:
             ...     print(efficiency['message'])
 
         """
+        # Guard against degenerate thresholds
+        range_size = max_acceptable - optimal
+        if range_size <= 0:
+            range_size = 1  # Prevent division by zero
+
         if token_count <= optimal:
             status = "OPTIMAL"
             rating = 1.0
             is_efficient = True
             message = f"Token count ({token_count}) is within optimal range"
-        elif token_count <= optimal + (max_acceptable - optimal) * 0.5:
+        elif token_count <= optimal + range_size * 0.5:
             status = "GOOD"
             # Rating scales from 0.9 to 0.7 in this range
-            progress = (token_count - optimal) / ((max_acceptable - optimal) * 0.5)
+            progress = (token_count - optimal) / (range_size * 0.5)
             rating = 0.9 - (progress * 0.2)
             is_efficient = True
             message = f"Token count ({token_count}) is over optimal but acceptable"
         elif token_count <= max_acceptable:
             status = "WARNING"
             # Rating scales from 0.7 to 0.5 in this range
-            progress = (token_count - optimal - (max_acceptable - optimal) * 0.5) / (
-                (max_acceptable - optimal) * 0.5
-            )
+            progress = (token_count - optimal - range_size * 0.5) / (range_size * 0.5)
             rating = 0.7 - (progress * 0.2)
             is_efficient = True
             message = f"Token count ({token_count}) approaching max ({max_acceptable})"
         else:
             status = "EXCESSIVE"
-            # Rating decreases below 0.5 for excessive tokens
-            overage_ratio = token_count / max_acceptable
-            rating = max(0.0, 0.5 / overage_ratio)
+            # Monotonic linear decay below 0.5
+            overage_ratio = token_count / max(max_acceptable, 1)
+            rating = max(0.0, 0.5 - (overage_ratio - 1.0) * 0.25)
             is_efficient = False
             message = f"Token count ({token_count}) exceeds max ({max_acceptable})"
 

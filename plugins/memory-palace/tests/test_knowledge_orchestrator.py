@@ -13,7 +13,12 @@ from memory_palace.corpus.knowledge_orchestrator import (
     QualityAssessment,
 )
 from memory_palace.corpus.marginal_value import IntegrationDecision
-from memory_palace.corpus.source_lineage import SourceReference, SourceType
+from memory_palace.corpus.source_lineage import (
+    FullLineage,
+    SimpleLineage,
+    SourceReference,
+    SourceType,
+)
 from memory_palace.corpus.usage_tracker import UsageSignal
 
 
@@ -245,7 +250,7 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        assert entry_id is not None
+        assert isinstance(entry_id, str)
         assert decision in [
             IntegrationDecision.STANDALONE,
             IntegrationDecision.MERGE,
@@ -270,7 +275,7 @@ class TestKnowledgeOrchestrator:
 
         if decision != IntegrationDecision.SKIP:
             lineage = orchestrator.get_source_lineage(entry_id)
-            assert lineage is not None
+            assert isinstance(lineage, (FullLineage, SimpleLineage))
 
     def test_validate_entry(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should record validation and reset decay."""

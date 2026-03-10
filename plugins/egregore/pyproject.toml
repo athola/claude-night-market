@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "egregore-dev"
+version = "1.6.0"
+description = "Autonomous agent orchestrator plugin for Claude Code"
+authors = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.14.13,<1.0",
+    "mypy>=1.11.0,<2.0",
+    "types-PyYAML>=6.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts", "hooks"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"conventions/codex.yml" = "conventions/codex.yml"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
+extend-ignore = ["S101", "E203", "D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415", "PLC0415"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["scripts"]

@@ -3,6 +3,8 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+from __future__ import annotations
+
 from unittest.mock import patch
 
 import pytest
@@ -77,6 +79,7 @@ class TestSearchPathGeneration:
 
             # Then
             assert any("custom" in str(path) for path in loader.search_paths)
+            assert loader.language == "python"
 
     def test_search_paths_excludes_nonexistent_paths(self, tmp_path, monkeypatch):
         """Given non-existent template directories, when getting search paths, then excludes them."""
@@ -88,9 +91,12 @@ class TestSearchPathGeneration:
         # When
         loader = TemplateLoader("python")
 
-        # Then
-        # Should still have some paths (default plugin path)
-        assert len(loader.search_paths) >= 0
+        # Then - non-existent user template path must not appear
+        user_path = home_dir / ".claude" / "attune" / "templates" / "python"
+        assert user_path not in loader.search_paths
+        # All included paths must actually exist
+        for p in loader.search_paths:
+            assert p.exists(), f"Non-existent path included: {p}"
 
 
 @pytest.mark.unit
@@ -114,6 +120,7 @@ class TestFindTemplate:
         # Then
         assert result is not None
         assert result == makefile
+        assert result.read_text() == "# Makefile\n"
 
     def test_find_template_returns_none_when_missing(self, tmp_path):
         """Given a non-existent template, when finding template, then returns None."""
@@ -435,3 +442,89 @@ class TestTemplateLoaderBehavior:
         assert template_contents["common.template"] == "high priority common"
         assert "unique_high.template" in template_contents
         assert "unique_low.template" in template_contents
+
+
+@pytest.mark.unit
+class TestShowTemplateSources:
+    """Test show_template_sources prints search paths and resolution."""
+
+    def test_show_template_sources_prints_paths(self, tmp_path, capsys):
+        """Given search paths, when showing sources, then prints each path."""
+        # Given
+        path_a = tmp_path / "path_a"
+        path_a.mkdir()
+        (path_a / "file.template").write_text("content")
+
+        loader = TemplateLoader("python")
+        loader.search_paths = [path_a]
+
+        # When
+        loader.show_template_sources()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "Template Search Paths:" in captured
+        assert str(path_a) in captured
+        assert "1 templates" in captured
+
+    def test_show_template_sources_labels_custom_and_default(self, tmp_path, capsys):
+        """Given custom and default paths, when showing sources, then labels them."""
+        # Given
+        custom_path = tmp_path / ".claude" / "attune" / "templates"
+        custom_path.mkdir(parents=True)
+        (custom_path / "a.template").write_text("custom")
+
+        default_path = tmp_path / "defaults"
+        default_path.mkdir()
+        (default_path / "b.template").write_text("default")
+
+        loader = TemplateLoader("python")
+        loader.search_paths = [custom_path, default_path]
+
+        # When
+        loader.show_template_sources()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "Template Resolution:" in captured
+        assert "custom" in captured
+        assert "default" in captured
+
+    def test_show_template_sources_empty_paths(self, tmp_path, capsys):
+        """Given no search paths, when showing sources, then prints header only."""
+        # Given
+        loader = TemplateLoader("python")
+        loader.search_paths = []
+
+        # When
+        loader.show_template_sources()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "Template Search Paths:" in captured
+        assert "Template Resolution:" in captured
+
+
+@pytest.mark.unit
+class TestCreateCustomTemplateDirLanguages:
+    """Parametrized tests for create_custom_template_dir across languages."""
+
+    @pytest.mark.parametrize(
+        "language",
+        ["python", "rust", "typescript"],
+        ids=["python", "rust", "typescript"],
+    )
+    def test_create_custom_template_dir_creates_for_language(
+        self, tmp_path, monkeypatch, language
+    ):
+        """Given a language, when creating custom dir, then directory name matches."""
+        # Given
+        monkeypatch.chdir(tmp_path)
+
+        # When
+        result_path = create_custom_template_dir(language, "project")
+
+        # Then
+        assert language in str(result_path)
+        assert result_path.exists()
+        assert (result_path / "workflows").exists()

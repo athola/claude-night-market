@@ -44,7 +44,7 @@ def sample_usage_log(temp_config_dir: Path) -> Path:
     usage_log = temp_config_dir / "usage.jsonl"
     sample_entries = [
         {
-            "timestamp": "2025-01-01T10:00:00",
+            "timestamp": "2026-03-01T10:00:00",
             "service": "gemini",
             "command": "gemini -p test prompt",
             "success": True,
@@ -54,7 +54,7 @@ def sample_usage_log(temp_config_dir: Path) -> Path:
             "error": None,
         },
         {
-            "timestamp": "2025-01-01T10:05:00",
+            "timestamp": "2026-03-01T10:05:00",
             "service": "qwen",
             "command": "qwen -p another test",
             "success": False,

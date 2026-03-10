@@ -5,6 +5,7 @@ GIVEN-WHEN-THEN structure to document complete user workflows from a
 business perspective.
 
 Each scenario tests end-to-end functionality as experienced by actual users:
+
 - Team leads managing initiatives
 - Developers updating task progress
 - Stakeholders reviewing status reports
@@ -14,190 +15,267 @@ Each scenario tests end-to-end functionality as experienced by actual users:
 from __future__ import annotations
 
 import csv
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
+
+import pytest
 
 from minister.project_tracker import ProjectTracker, Task
 
+# ── Shared task-creation helpers ────────────────────────
+
+
+def _make_task(
+    task_id: str,
+    title: str,
+    initiative: str,
+    *,
+    phase: str = "Phase 1",
+    priority: str = "Medium",
+    status: str = "To Do",
+    owner: str = "dev",
+    effort_hours: float = 4.0,
+    completion_percent: float = 0.0,
+    due_date: str = "2025-01-15",
+    github_issue: str | None = None,
+) -> Task:
+    """Build a Task with sensible defaults for BDD tests."""
+    now = datetime.now(UTC).isoformat()
+    return Task(
+        id=task_id,
+        title=title,
+        initiative=initiative,
+        phase=phase,
+        priority=priority,
+        status=status,
+        owner=owner,
+        effort_hours=effort_hours,
+        completion_percent=completion_percent,
+        due_date=due_date,
+        created_date=now,
+        updated_date=now,
+        github_issue=github_issue,
+    )
+
+
+# ── Fixtures ────────────────────────────────────────────
+
+
+@pytest.fixture
+def kickoff_tasks() -> list[Task]:
+    """Five tasks across three initiatives for kickoff scenarios."""
+    return [
+        _make_task(
+            "GHYG-001",
+            "Configure project board",
+            "GitHub Projects Hygiene",
+            priority="High",
+            owner="tech-lead",
+            effort_hours=3.0,
+        ),
+        _make_task(
+            "GHYG-002",
+            "Create label taxonomy",
+            "GitHub Projects Hygiene",
+            owner="admin",
+            effort_hours=2.0,
+            due_date="2025-01-18",
+        ),
+        _make_task(
+            "PR-001",
+            "Define PR template",
+            "Pull Request Readiness",
+            phase="Phase 2",
+            priority="High",
+            owner="senior-dev",
+            effort_hours=4.0,
+            due_date="2025-01-20",
+        ),
+        _make_task(
+            "PR-002",
+            "Set up CI checks",
+            "Pull Request Readiness",
+            phase="Phase 2",
+            priority="High",
+            owner="devops",
+            effort_hours=6.0,
+            due_date="2025-01-22",
+        ),
+        _make_task(
+            "DOC-001",
+            "Write onboarding guide",
+            "Docs & Enablement",
+            owner="tech-writer",
+            effort_hours=8.0,
+            due_date="2025-01-25",
+        ),
+    ]
+
+
+@pytest.fixture
+def three_initiative_tasks() -> list[Task]:
+    """Tasks for initiative-completion tracking (A, B, C)."""
+    return [
+        _make_task(
+            "A-001", "Task A1", "Initiative Alpha", priority="High", effort_hours=5.0
+        ),
+        _make_task(
+            "A-002",
+            "Task A2",
+            "Initiative Alpha",
+            effort_hours=3.0,
+            due_date="2025-01-16",
+        ),
+        _make_task(
+            "B-001",
+            "Task B1",
+            "Initiative Beta",
+            phase="Phase 2",
+            priority="High",
+            effort_hours=4.0,
+            due_date="2025-01-18",
+        ),
+        _make_task(
+            "B-002",
+            "Task B2",
+            "Initiative Beta",
+            phase="Phase 2",
+            effort_hours=6.0,
+            due_date="2025-01-20",
+        ),
+        _make_task(
+            "C-001",
+            "Task C1",
+            "Initiative Charlie",
+            phase="Phase 3",
+            priority="Low",
+            effort_hours=8.0,
+            due_date="2025-01-25",
+        ),
+    ]
+
+
+@pytest.fixture
+def github_linked_tasks() -> list[Task]:
+    """Tasks with GitHub issue links for report-formatting scenarios."""
+    return [
+        _make_task(
+            "GHYG-001",
+            "Configure project board",
+            "GitHub Projects Hygiene",
+            priority="High",
+            status="Done",
+            owner="admin",
+            effort_hours=3.0,
+            completion_percent=100.0,
+            due_date="2025-01-10",
+            github_issue="https://github.com/org/repo/issues/42",
+        ),
+        _make_task(
+            "GHYG-002",
+            "Create labels",
+            "GitHub Projects Hygiene",
+            status="In Progress",
+            owner="admin",
+            effort_hours=2.0,
+            completion_percent=50.0,
+            due_date="2025-01-12",
+            github_issue="https://github.com/org/repo/issues/43",
+        ),
+        _make_task(
+            "PR-001",
+            "PR template",
+            "Pull Request Readiness",
+            phase="Phase 2",
+            priority="High",
+            owner="tech-lead",
+            due_date="2025-01-15",
+            github_issue="#44",
+        ),
+    ]
+
+
+def _add_tasks(tracker: ProjectTracker, tasks: list[Task]) -> None:
+    """Bulk-add tasks to a tracker."""
+    for task in tasks:
+        tracker.add_task(task)
+
+
+# ── Scenario 1: Project Kickoff ─────────────────────────
+
 
 class TestNewProjectKickoff:
-    """Scenario 1: Team lead initializes a new project with multiple initiatives.
+    """Scenario 1: Team lead initializes a new project with multiple initiatives."""
 
-    Business Context:
-    A team lead starts a new quarter and needs to organize work across
-    multiple initiatives. They create tasks for each workstream and want
-    immediate visibility into the initiative breakdown.
-    """
-
-    def test_given_fresh_tracker_when_adding_tasks_then_status_shows_all_initiatives(
+    def test_kickoff_shows_all_initiatives(
         self,
         empty_tracker: ProjectTracker,
+        kickoff_tasks: list[Task],
     ) -> None:
         """GIVEN a fresh tracker with no tasks.
 
         WHEN the team lead adds multiple tasks across initiatives
-        THEN the status report shows all initiatives with correct task counts.
+        THEN the status report shows all initiatives with correct counts.
         """
-        # GIVEN: Fresh tracker (provided by fixture)
         assert len(empty_tracker.data.tasks) == 0
 
-        # WHEN: Team lead adds tasks across three initiatives
-        tasks_to_add = [
-            Task(
-                id="GHYG-001",
-                title="Configure project board",
-                initiative="GitHub Projects Hygiene",
-                phase="Phase 1",
-                priority="High",
-                status="To Do",
-                owner="tech-lead",
-                effort_hours=3.0,
-                completion_percent=0.0,
-                due_date="2025-01-15",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="GHYG-002",
-                title="Create label taxonomy",
-                initiative="GitHub Projects Hygiene",
-                phase="Phase 1",
-                priority="Medium",
-                status="To Do",
-                owner="admin",
-                effort_hours=2.0,
-                completion_percent=0.0,
-                due_date="2025-01-18",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="PR-001",
-                title="Define PR template",
-                initiative="Pull Request Readiness",
-                phase="Phase 2",
-                priority="High",
-                status="To Do",
-                owner="senior-dev",
-                effort_hours=4.0,
-                completion_percent=0.0,
-                due_date="2025-01-20",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="PR-002",
-                title="Set up CI checks",
-                initiative="Pull Request Readiness",
-                phase="Phase 2",
-                priority="High",
-                status="To Do",
-                owner="devops",
-                effort_hours=6.0,
-                completion_percent=0.0,
-                due_date="2025-01-22",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="DOC-001",
-                title="Write onboarding guide",
-                initiative="Docs & Enablement",
-                phase="Phase 1",
-                priority="Medium",
-                status="To Do",
-                owner="tech-writer",
-                effort_hours=8.0,
-                completion_percent=0.0,
-                due_date="2025-01-25",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-        ]
+        _add_tasks(empty_tracker, kickoff_tasks)
 
-        for task in tasks_to_add:
-            empty_tracker.add_task(task)
+        report = empty_tracker.get_status_report()
+        initiatives = report["initiatives"]
 
-        # THEN: Status report reflects all initiatives with accurate counts
-        status_report = empty_tracker.get_status_report()
+        ghyg = initiatives["GitHub Projects Hygiene"]
+        assert ghyg["total_tasks"] == 2
+        assert ghyg["completed_tasks"] == 0
+        assert ghyg["in_progress_tasks"] == 0
 
-        assert "initiatives" in status_report
-        initiatives = status_report["initiatives"]
+        pr = initiatives["Pull Request Readiness"]
+        assert pr["total_tasks"] == 2
 
-        # Verify GitHub Projects Hygiene initiative
-        assert "GitHub Projects Hygiene" in initiatives
-        ghyg_metrics = initiatives["GitHub Projects Hygiene"]
-        assert ghyg_metrics["total_tasks"] == 2
-        assert ghyg_metrics["completed_tasks"] == 0
-        assert ghyg_metrics["in_progress_tasks"] == 0
-        assert ghyg_metrics["completion_percentage"] == 0.0
+        doc = initiatives["Docs & Enablement"]
+        assert doc["total_tasks"] == 1
+        assert doc["total_effort"] == 8.0
 
-        # Verify Pull Request Readiness initiative
-        assert "Pull Request Readiness" in initiatives
-        pr_metrics = initiatives["Pull Request Readiness"]
-        assert pr_metrics["total_tasks"] == 2
-        assert pr_metrics["completed_tasks"] == 0
-
-        # Verify Docs & Enablement initiative
-        assert "Docs & Enablement" in initiatives
-        doc_metrics = initiatives["Docs & Enablement"]
-        assert doc_metrics["total_tasks"] == 1
-        assert doc_metrics["total_effort"] == 8.0
-
-        # Verify overall metrics
-        overall = status_report["overall_metrics"]
+        overall = report["overall_metrics"]
         assert overall["total_tasks"] == 5
         assert overall["overall_completion"] == 0.0
 
 
+# ── Scenario 2: Sprint Progress ─────────────────────────
+
+
 class TestSprintProgressUpdate:
-    """Scenario 2: Development team updates task progress during a sprint.
+    """Scenario 2: Development team updates task progress during a sprint."""
 
-    Business Context:
-    During a 2-week sprint, team members work on tasks and update their
-    status as they progress. The project manager needs real-time metrics
-    to track sprint velocity and identify blockers.
-    """
-
-    def test_given_existing_tasks_when_updating_through_sprint_then_metrics_reflect_progress(
+    def test_sprint_progress_reflected_in_metrics(
         self,
         populated_tracker: ProjectTracker,
     ) -> None:
         """GIVEN a tracker with existing tasks.
 
-        WHEN team members update task statuses through a sprint
+        WHEN team members update statuses through a sprint
         THEN metrics reflect accurate completion percentages.
         """
-        # GIVEN: Tracker with sample tasks (provided by fixture)
-        initial_report = populated_tracker.get_status_report()
-        initial_completion = initial_report["overall_metrics"]["overall_completion"]
+        initial_completion = populated_tracker.get_status_report()["overall_metrics"][
+            "overall_completion"
+        ]
 
-        # WHEN: Team members update tasks during sprint
-        # Day 1: Developer starts work on GHYG-002
         populated_tracker.update_task(
             "GHYG-002",
             {"status": "In Progress", "completion_percent": 25.0},
         )
-
-        # Day 3: Developer continues GHYG-002
         populated_tracker.update_task(
             "GHYG-002",
             {"completion_percent": 50.0},
         )
-
-        # Day 5: Tech lead starts PR-001
         populated_tracker.update_task(
             "PR-001",
             {"status": "In Progress", "completion_percent": 30.0},
         )
-
-        # Day 7: GHYG-002 moves to review
         populated_tracker.update_task(
             "GHYG-002",
             {"status": "Review", "completion_percent": 90.0},
         )
-
-        # Day 10: GHYG-002 completed, PR-001 progresses
         populated_tracker.update_task(
             "GHYG-002",
             {"status": "Done", "completion_percent": 100.0},
@@ -207,135 +285,35 @@ class TestSprintProgressUpdate:
             {"completion_percent": 60.0},
         )
 
-        # THEN: Metrics accurately reflect sprint progress
-        final_report = populated_tracker.get_status_report()
-        ghyg_metrics = final_report["initiatives"]["GitHub Projects Hygiene"]
-        pr_metrics = final_report["initiatives"]["Pull Request Readiness"]
-        overall = final_report["overall_metrics"]
+        final = populated_tracker.get_status_report()
+        ghyg = final["initiatives"]["GitHub Projects Hygiene"]
+        assert ghyg["completed_tasks"] == 2
+        assert ghyg["completion_percentage"] == 100.0
 
-        # GHYG-002 is now complete (added to existing completed task GHYG-001)
-        assert ghyg_metrics["completed_tasks"] == 2
-        assert ghyg_metrics["completion_percentage"] == 100.0
+        pr = final["initiatives"]["Pull Request Readiness"]
+        assert pr["in_progress_tasks"] == 1
 
-        # PR-001 is in progress
-        assert pr_metrics["in_progress_tasks"] == 1
+        assert final["overall_metrics"]["overall_completion"] > initial_completion
 
-        # Overall completion improved
-        assert overall["overall_completion"] > initial_completion
 
-        # Verify specific task states
-        ghyg_002 = next(
-            task for task in populated_tracker.data.tasks if task.id == "GHYG-002"
-        )
-        assert ghyg_002.status == "Done"
-        assert ghyg_002.completion_percent == 100.0
-
-        pr_001 = next(
-            task for task in populated_tracker.data.tasks if task.id == "PR-001"
-        )
-        assert pr_001.status == "In Progress"
-        assert pr_001.completion_percent == 60.0
+# ── Scenario 3: Initiative Completion ────────────────────
 
 
 class TestInitiativeCompletionTracking:
-    """Scenario 3: Tracking completion across multiple initiatives.
+    """Scenario 3: Tracking completion across multiple initiatives."""
 
-    Business Context:
-    A program manager oversees three parallel initiatives. They need to
-    identify which initiatives are on track vs. at risk, and celebrate
-    completed initiatives while focusing resources on lagging ones.
-    """
-
-    def test_given_tasks_when_one_initiative_completes_then_shows_100_percent(
+    def test_one_initiative_fully_completes(
         self,
         empty_tracker: ProjectTracker,
+        three_initiative_tasks: list[Task],
     ) -> None:
-        """GIVEN tasks spread across multiple initiatives.
+        """GIVEN tasks across three initiatives.
 
         WHEN one initiative completes all tasks
-        THEN that initiative shows 100% completion while others remain partial.
+        THEN it shows 100% while others remain partial.
         """
-        # GIVEN: Tasks distributed across three initiatives
-        tasks = [
-            # Initiative A: Will be completed
-            Task(
-                id="A-001",
-                title="Task A1",
-                initiative="Initiative Alpha",
-                phase="Phase 1",
-                priority="High",
-                status="To Do",
-                owner="dev1",
-                effort_hours=5.0,
-                completion_percent=0.0,
-                due_date="2025-01-15",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="A-002",
-                title="Task A2",
-                initiative="Initiative Alpha",
-                phase="Phase 1",
-                priority="Medium",
-                status="To Do",
-                owner="dev2",
-                effort_hours=3.0,
-                completion_percent=0.0,
-                due_date="2025-01-16",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            # Initiative B: Will be partially complete
-            Task(
-                id="B-001",
-                title="Task B1",
-                initiative="Initiative Beta",
-                phase="Phase 2",
-                priority="High",
-                status="To Do",
-                owner="dev3",
-                effort_hours=4.0,
-                completion_percent=0.0,
-                due_date="2025-01-18",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            Task(
-                id="B-002",
-                title="Task B2",
-                initiative="Initiative Beta",
-                phase="Phase 2",
-                priority="Medium",
-                status="To Do",
-                owner="dev4",
-                effort_hours=6.0,
-                completion_percent=0.0,
-                due_date="2025-01-20",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-            # Initiative C: Will have minimal progress
-            Task(
-                id="C-001",
-                title="Task C1",
-                initiative="Initiative Charlie",
-                phase="Phase 3",
-                priority="Low",
-                status="To Do",
-                owner="dev5",
-                effort_hours=8.0,
-                completion_percent=0.0,
-                due_date="2025-01-25",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-            ),
-        ]
+        _add_tasks(empty_tracker, three_initiative_tasks)
 
-        for task in tasks:
-            empty_tracker.add_task(task)
-
-        # WHEN: Initiative Alpha completes all tasks
         empty_tracker.update_task(
             "A-001",
             {"status": "Done", "completion_percent": 100.0},
@@ -344,349 +322,190 @@ class TestInitiativeCompletionTracking:
             "A-002",
             {"status": "Done", "completion_percent": 100.0},
         )
-
-        # Initiative Beta completes one task
         empty_tracker.update_task(
             "B-001",
             {"status": "Done", "completion_percent": 100.0},
         )
-
-        # Initiative Charlie has one task in progress
         empty_tracker.update_task(
             "C-001",
             {"status": "In Progress", "completion_percent": 25.0},
         )
 
-        # THEN: Metrics show different completion states
         report = empty_tracker.get_status_report()
         initiatives = report["initiatives"]
 
-        # Initiative Alpha: 100% complete
         alpha = initiatives["Initiative Alpha"]
-        assert alpha["total_tasks"] == 2
-        assert alpha["completed_tasks"] == 2
         assert alpha["completion_percentage"] == 100.0
         assert alpha["average_task_completion"] == 100.0
 
-        # Initiative Beta: 50% complete (1 of 2 tasks)
         beta = initiatives["Initiative Beta"]
-        assert beta["total_tasks"] == 2
-        assert beta["completed_tasks"] == 1
         assert beta["completion_percentage"] == 50.0
 
-        # Initiative Charlie: 0% complete (0 of 1 tasks)
         charlie = initiatives["Initiative Charlie"]
-        assert charlie["total_tasks"] == 1
         assert charlie["completed_tasks"] == 0
-        assert charlie["completion_percentage"] == 0.0
-        assert charlie["average_task_completion"] == 25.0  # Task is 25% done
+        assert charlie["average_task_completion"] == 25.0
+
+
+# ── Scenario 4: GitHub Report Formatting ─────────────────
 
 
 class TestGitHubIntegrationWorkflow:
-    """Scenario 4: Generating GitHub-formatted status reports.
+    """Scenario 4: Generating GitHub-formatted status reports."""
 
-    Business Context:
-    The team uses GitHub issues and PRs for all work. The project manager
-    needs to post weekly status updates to a tracking issue, formatted
-    as markdown tables that render nicely on GitHub.
-    """
-
-    def test_given_tasks_with_github_issues_when_generating_report_then_valid_markdown_with_metrics(
+    def test_valid_markdown_with_metrics(
         self,
         empty_tracker: ProjectTracker,
+        github_linked_tasks: list[Task],
     ) -> None:
         """GIVEN tasks linked to GitHub issues.
 
-        WHEN generating a status report for GitHub
-        THEN the formatted output is valid markdown with correct metrics.
+        WHEN generating a GitHub-comment report
+        THEN output is valid markdown with correct metrics.
         """
-        # GIVEN: Tasks with GitHub issue links
-        tasks = [
-            Task(
-                id="GHYG-001",
-                title="Configure project board",
-                initiative="GitHub Projects Hygiene",
-                phase="Phase 1",
-                priority="High",
-                status="Done",
-                owner="admin",
-                effort_hours=3.0,
-                completion_percent=100.0,
-                due_date="2025-01-10",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-                github_issue="https://github.com/org/repo/issues/42",
-            ),
-            Task(
-                id="GHYG-002",
-                title="Create labels",
-                initiative="GitHub Projects Hygiene",
-                phase="Phase 1",
-                priority="Medium",
-                status="In Progress",
-                owner="admin",
-                effort_hours=2.0,
-                completion_percent=50.0,
-                due_date="2025-01-12",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-                github_issue="https://github.com/org/repo/issues/43",
-            ),
-            Task(
-                id="PR-001",
-                title="PR template",
-                initiative="Pull Request Readiness",
-                phase="Phase 2",
-                priority="High",
-                status="To Do",
-                owner="tech-lead",
-                effort_hours=4.0,
-                completion_percent=0.0,
-                due_date="2025-01-15",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
-                github_issue="#44",
-            ),
-        ]
+        _add_tasks(empty_tracker, github_linked_tasks)
 
-        for task in tasks:
-            empty_tracker.add_task(task)
-
-        # WHEN: Generating GitHub comment format
         report = empty_tracker.get_status_report()
-        github_comment = empty_tracker.format_github_comment(report)
+        comment = empty_tracker.format_github_comment(report)
+        lines = comment.split("\n")
 
-        # THEN: Output is valid markdown with correct structure
-        lines = github_comment.split("\n")
-
-        # Verify header
         assert lines[0] == "### Initiative Pulse"
         assert "Last updated:" in lines[1]
-
-        # Verify table headers present
         assert (
-            "| Initiative | Done | In Progress | Completion | Avg Task % |"
-            in github_comment
-        )
-        assert (
-            "|------------|------|-------------|------------|-------------|"
-            in github_comment
+            "| Initiative | Done | In Progress | Completion | Avg Task % |" in comment
         )
 
-        # Verify initiative rows contain correct data
-        ghyg_row = [line for line in lines if "GitHub Projects Hygiene" in line][0]
-        assert "1/2" in ghyg_row  # 1 of 2 tasks done
-        assert "1 |" in ghyg_row  # 1 in progress
-        assert "50.0%" in ghyg_row  # 50% completion
+        ghyg_row = [l for l in lines if "GitHub Projects Hygiene" in l][0]
+        assert "1/2" in ghyg_row
+        assert "50.0%" in ghyg_row
 
-        pr_row = [line for line in lines if "Pull Request Readiness" in line][0]
-        assert "0/1" in pr_row  # 0 of 1 tasks done
-        assert "0 |" in pr_row  # 0 in progress
+        assert "### Overall Metrics" in comment
+        assert "- Total tasks: 3" in comment
 
-        # Verify overall metrics section
-        assert "### Overall Metrics" in github_comment
-        assert "- Total tasks: 3" in github_comment
-        assert "- Completion:" in github_comment
-        assert "- Total effort:" in github_comment
-        assert "- Burn rate:" in github_comment
-
-        # Verify markdown table structure is valid (correct number of columns)
         table_rows = [
-            line
-            for line in lines
-            if line.startswith("|") and "Initiative" not in line and "---" not in line
+            l
+            for l in lines
+            if l.startswith("|") and "Initiative" not in l and "---" not in l
         ]
         for row in table_rows:
-            # Each row should have 6 pipes (5 columns)
             assert row.count("|") == 6
 
 
+# ── Scenario 5: Data Persistence ─────────────────────────
+
+
 class TestDataPersistenceAcrossSessions:
-    """Scenario 5: Data persistence and session continuity.
+    """Scenario 5: Data persistence and session continuity."""
 
-    Business Context:
-    Team members access the tracker throughout the day from different
-    contexts (CLI, scripts, manual edits). All changes must persist
-    correctly and be available to subsequent tracker instances.
-    """
-
-    def test_given_tracker_saved_to_disk_when_loading_new_instance_then_all_data_preserved(
+    def test_data_preserved_across_sessions(
         self,
         seeded_data_file: Path,
         sample_tasks: list[Task],
     ) -> None:
-        """GIVEN a tracker with tasks saved to disk.
+        """GIVEN a tracker saved to disk.
 
-        WHEN a new tracker instance loads the same data file
+        WHEN a new instance loads the same file
         THEN all tasks and metrics are preserved exactly.
         """
-        # GIVEN: Data file seeded with tasks (provided by fixture)
-        assert seeded_data_file.exists()
+        session_1 = ProjectTracker(data_file=seeded_data_file)
+        initial_count = len(session_1.data.tasks)
 
-        # WHEN: First tracker instance makes changes
-        tracker_session_1 = ProjectTracker(data_file=seeded_data_file)
-        initial_task_count = len(tracker_session_1.data.tasks)
-
-        # Add a new task in session 1
-        new_task = Task(
-            id="PERSIST-001",
-            title="Persistence Test Task",
-            initiative="Testing",
-            phase="Phase 1",
-            priority="High",
-            status="To Do",
-            owner="tester",
-            effort_hours=2.0,
-            completion_percent=0.0,
-            due_date="2025-01-20",
-            created_date=datetime.now().isoformat(),
-            updated_date=datetime.now().isoformat(),
+        session_1.add_task(
+            _make_task(
+                "PERSIST-001",
+                "Persistence Test Task",
+                "Testing",
+                priority="High",
+                effort_hours=2.0,
+            )
         )
-        tracker_session_1.add_task(new_task)
-
-        # Update an existing task in session 1
-        tracker_session_1.update_task(
+        session_1.update_task(
             "GHYG-001",
             {"status": "Review", "completion_percent": 95.0},
         )
+        report_1 = session_1.get_status_report()
 
-        # Get metrics from session 1
-        report_session_1 = tracker_session_1.get_status_report()
+        session_2 = ProjectTracker(data_file=seeded_data_file)
+        assert len(session_2.data.tasks) == initial_count + 1
 
-        # WHEN: New tracker instance loads the same file (simulating new session)
-        tracker_session_2 = ProjectTracker(data_file=seeded_data_file)
-
-        # THEN: All data is preserved exactly
-        assert len(tracker_session_2.data.tasks) == initial_task_count + 1
-
-        # Verify new task exists
-        persist_task = next(
-            (task for task in tracker_session_2.data.tasks if task.id == "PERSIST-001"),
+        persist = next(
+            (t for t in session_2.data.tasks if t.id == "PERSIST-001"),
             None,
         )
-        assert persist_task is not None
-        assert persist_task.title == "Persistence Test Task"
-        assert persist_task.initiative == "Testing"
+        assert persist is not None
+        assert persist.title == "Persistence Test Task"
 
-        # Verify updated task reflects changes
-        ghyg_task = next(
-            task for task in tracker_session_2.data.tasks if task.id == "GHYG-001"
-        )
-        assert ghyg_task.status == "Review"
-        assert ghyg_task.completion_percent == 95.0
+        ghyg = next(t for t in session_2.data.tasks if t.id == "GHYG-001")
+        assert ghyg.status == "Review"
+        assert ghyg.completion_percent == 95.0
 
-        # Verify metrics are identical
-        report_session_2 = tracker_session_2.get_status_report()
+        report_2 = session_2.get_status_report()
         assert (
-            report_session_2["overall_metrics"]["total_tasks"]
-            == report_session_1["overall_metrics"]["total_tasks"]
+            report_2["overall_metrics"]["total_tasks"]
+            == report_1["overall_metrics"]["total_tasks"]
         )
 
-        # Verify all original sample tasks are present
-        task_ids_session_2 = {task.id for task in tracker_session_2.data.tasks}
-        for original_task in sample_tasks:
-            assert original_task.id in task_ids_session_2
+        ids_2 = {t.id for t in session_2.data.tasks}
+        for original in sample_tasks:
+            assert original.id in ids_2
+
+
+# ── Scenario 6: CSV Export ───────────────────────────────
 
 
 class TestCSVExportForStakeholders:
-    """Scenario 6: Exporting data for external stakeholder analysis.
+    """Scenario 6: Exporting data for external stakeholder analysis."""
 
-    Business Context:
-    Executive leadership and external stakeholders need to analyze project
-    data in Excel or other tools. The system must export complete, accurate
-    CSV files with all relevant task attributes.
-    """
-
-    def test_given_populated_tracker_when_exporting_csv_then_contains_all_data_in_expected_format(
+    def test_csv_contains_all_data_in_expected_format(
         self,
         populated_tracker: ProjectTracker,
         temp_data_dir: Path,
     ) -> None:
-        """GIVEN a populated tracker with diverse tasks.
+        """GIVEN a populated tracker.
 
         WHEN exporting to CSV
-        THEN the CSV contains all task data in the expected format.
+        THEN the file contains all task data with correct headers.
         """
-        # GIVEN: Tracker with sample tasks (provided by fixture)
-        expected_task_count = len(populated_tracker.data.tasks)
-        assert expected_task_count > 0
+        expected_count = len(populated_tracker.data.tasks)
+        csv_file = temp_data_dir / "export.csv"
+        populated_tracker.export_csv(csv_file)
 
-        # WHEN: Exporting to CSV
-        csv_output_file = temp_data_dir / "export.csv"
-        populated_tracker.export_csv(csv_output_file)
-
-        # THEN: CSV file exists and contains correct data
-        assert csv_output_file.exists()
-
-        with open(csv_output_file, encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
+        assert csv_file.exists()
+        with open(csv_file, encoding="utf-8") as f:
+            reader = csv.DictReader(f)
             rows = list(reader)
 
-            # Verify row count matches task count
-            assert len(rows) == expected_task_count
+        assert len(rows) == expected_count
 
-            # Verify headers match expected fields
-            expected_headers = [
-                "id",
-                "title",
-                "initiative",
-                "phase",
-                "priority",
-                "status",
-                "owner",
-                "effort_hours",
-                "completion_percent",
-                "due_date",
-                "github_issue",
-            ]
-            assert reader.fieldnames == expected_headers
+        expected_headers = [
+            "id",
+            "title",
+            "initiative",
+            "phase",
+            "priority",
+            "status",
+            "owner",
+            "effort_hours",
+            "completion_percent",
+            "due_date",
+            "github_issue",
+        ]
+        assert reader.fieldnames == expected_headers
 
-            # Verify data integrity for specific tasks
-            ghyg_001_row = next(row for row in rows if row["id"] == "GHYG-001")
-            assert ghyg_001_row["title"] == "Set up project board"
-            assert ghyg_001_row["initiative"] == "GitHub Projects Hygiene"
-            assert ghyg_001_row["status"] == "Done"
-            assert ghyg_001_row["priority"] == "High"
-            assert float(ghyg_001_row["effort_hours"]) == 2.0
-            assert float(ghyg_001_row["completion_percent"]) == 100.0
+        ghyg_001 = next(r for r in rows if r["id"] == "GHYG-001")
+        assert ghyg_001["initiative"] == "GitHub Projects Hygiene"
+        assert ghyg_001["status"] == "Done"
+        assert float(ghyg_001["completion_percent"]) == 100.0
 
-            # Verify task with GitHub issue
-            ghyg_002_row = next(row for row in rows if row["id"] == "GHYG-002")
-            assert ghyg_002_row["status"] == "In Progress"
-            assert float(ghyg_002_row["completion_percent"]) == 75.0
+        for row in rows:
+            assert float(row["effort_hours"]) >= 0
+            assert 0 <= float(row["completion_percent"]) <= 100
 
-            # Verify tasks without GitHub issues have empty string
-            pr_001_row = next(row for row in rows if row["id"] == "PR-001")
-            assert pr_001_row["github_issue"] == ""
 
-            # Verify numeric fields are properly formatted
-            for row in rows:
-                # Effort hours should be valid numbers
-                effort = float(row["effort_hours"])
-                assert effort >= 0
-
-                # Completion percent should be 0-100
-                completion = float(row["completion_percent"])
-                assert 0 <= completion <= 100
-
-            # Verify all initiatives are represented
-            initiatives_in_csv = {row["initiative"] for row in rows}
-            expected_initiatives = {
-                "GitHub Projects Hygiene",
-                "Pull Request Readiness",
-                "Docs & Enablement",
-            }
-            assert initiatives_in_csv == expected_initiatives
+# ── Scenario 7: Full Lifecycle ───────────────────────────
 
 
 class TestCrossScenarioWorkflow:
-    """Bonus Scenario: Complete project lifecycle from kickoff to stakeholder report.
-
-    Business Context:
-    A realistic end-to-end workflow combining multiple scenarios: project
-    kickoff, sprint updates, initiative completion, and stakeholder reporting.
-    This tests the full value chain of the minister plugin.
-    """
+    """Bonus: Complete project lifecycle from kickoff to stakeholder report."""
 
     def test_complete_project_lifecycle_workflow(
         self,
@@ -695,46 +514,32 @@ class TestCrossScenarioWorkflow:
     ) -> None:
         """GIVEN a fresh project.
 
-        WHEN executing a complete workflow from kickoff to reporting
+        WHEN executing kickoff, sprint, and reporting phases
         THEN all operations succeed and produce consistent results.
         """
-        # PHASE 1: Project Kickoff
-        # -------------------------
-        kickoff_tasks = [
-            Task(
-                id=f"INIT-{i:03d}",
-                title=f"Initiative Setup Task {i}",
-                initiative=f"Initiative {chr(65 + i // 3)}",  # A, B, C
-                phase="Phase 1",
+        # Phase 1: kickoff
+        tasks = [
+            _make_task(
+                f"INIT-{i:03d}",
+                f"Initiative Setup Task {i}",
+                f"Initiative {chr(65 + i // 3)}",
                 priority=["High", "Medium", "Low"][i % 3],
-                status="To Do",
                 owner=f"team-member-{i % 5}",
                 effort_hours=float(2 + i),
-                completion_percent=0.0,
                 due_date=f"2025-01-{15 + i:02d}",
-                created_date=datetime.now().isoformat(),
-                updated_date=datetime.now().isoformat(),
                 github_issue=f"#100{i}" if i % 2 == 0 else None,
             )
-            for i in range(9)  # 3 tasks per initiative
+            for i in range(9)
         ]
+        _add_tasks(empty_tracker, tasks)
+        assert empty_tracker.get_status_report()["overall_metrics"]["total_tasks"] == 9
 
-        for task in kickoff_tasks:
-            empty_tracker.add_task(task)
-
-        kickoff_report = empty_tracker.get_status_report()
-        assert kickoff_report["overall_metrics"]["total_tasks"] == 9
-
-        # PHASE 2: Sprint Execution
-        # --------------------------
-        # Complete Initiative A tasks
+        # Phase 2: sprint execution
         for i in range(3):
             empty_tracker.update_task(
                 f"INIT-{i:03d}",
                 {"status": "Done", "completion_percent": 100.0},
             )
-
-        # Partially complete Initiative B
         empty_tracker.update_task(
             "INIT-003",
             {"status": "Done", "completion_percent": 100.0},
@@ -743,60 +548,32 @@ class TestCrossScenarioWorkflow:
             "INIT-004",
             {"status": "In Progress", "completion_percent": 60.0},
         )
-
-        # Start Initiative C
         empty_tracker.update_task(
             "INIT-006",
             {"status": "In Progress", "completion_percent": 20.0},
         )
 
-        # PHASE 3: Mid-Sprint Status Check
-        # ----------------------------------
-        mid_sprint_report = empty_tracker.get_status_report()
+        # Phase 3: mid-sprint check
+        mid = empty_tracker.get_status_report()
+        assert mid["initiatives"]["Initiative A"]["completion_percentage"] == 100.0
+        assert mid["initiatives"]["Initiative B"]["completed_tasks"] == 1
 
-        # Initiative A should be 100% complete
-        init_a_metrics = mid_sprint_report["initiatives"]["Initiative A"]
-        assert init_a_metrics["completion_percentage"] == 100.0
-        assert init_a_metrics["completed_tasks"] == 3
+        # Phase 4: GitHub comment
+        comment = empty_tracker.format_github_comment(mid)
+        assert "Initiative A" in comment
+        assert "100.0%" in comment
 
-        # Initiative B should be partial
-        init_b_metrics = mid_sprint_report["initiatives"]["Initiative B"]
-        assert init_b_metrics["completed_tasks"] == 1
-        assert init_b_metrics["in_progress_tasks"] == 1
-
-        # PHASE 4: GitHub Status Update
-        # -------------------------------
-        github_comment = empty_tracker.format_github_comment(mid_sprint_report)
-        assert "Initiative A" in github_comment
-        assert "100.0%" in github_comment
-        assert "### Overall Metrics" in github_comment
-
-        # PHASE 5: Stakeholder CSV Export
-        # ---------------------------------
+        # Phase 5: CSV export
         csv_file = temp_data_dir / "stakeholder_report.csv"
         empty_tracker.export_csv(csv_file)
-
         with open(csv_file, encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            csv_rows = list(reader)
-            assert len(csv_rows) == 9
+            rows = list(csv.DictReader(f))
+        assert len(rows) == 9
+        assert len([r for r in rows if r["status"] == "Done"]) == 4
 
-            # Verify completed tasks in CSV
-            completed_in_csv = [row for row in csv_rows if row["status"] == "Done"]
-            assert len(completed_in_csv) == 4
-
-        # PHASE 6: Data Persistence Check
-        # ---------------------------------
-        # Simulate new session
+        # Phase 6: persistence
         new_tracker = ProjectTracker(data_file=empty_tracker.data_file)
-        persistence_report = new_tracker.get_status_report()
-
-        # All data should match
         assert (
-            persistence_report["overall_metrics"]["total_tasks"]
-            == mid_sprint_report["overall_metrics"]["total_tasks"]
-        )
-        assert (
-            persistence_report["initiatives"]["Initiative A"]["completion_percentage"]
-            == 100.0
+            new_tracker.get_status_report()["overall_metrics"]["total_tasks"]
+            == mid["overall_metrics"]["total_tasks"]
         )

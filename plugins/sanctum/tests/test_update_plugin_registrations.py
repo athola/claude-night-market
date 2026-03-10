@@ -325,7 +325,7 @@ class TestHooksJsonResolution:
         auditor = PluginAuditor(tmp_path, dry_run=True)
         result = auditor.resolve_hooks_json(plugin_dir, "./hooks/hooks.json")
 
-        assert result is not None
+        assert isinstance(result, list), "resolve_hooks_json should return a list"
         assert len(result) == 3
         assert "./hooks/init.sh" in result
         assert "./hooks/prompt_hook.py" in result
@@ -648,7 +648,7 @@ class TestReadPluginJson:
         auditor = PluginAuditor(tmp_path.parent, dry_run=True)
         result = auditor.read_plugin_json(tmp_path)
 
-        assert result is not None
+        assert isinstance(result, dict), "read_plugin_json should return a dict"
         assert result["name"] == "test"
         assert result["commands"] == []
 

@@ -49,9 +49,23 @@ dependencies:
 - **See**: `Skill(leyline:quota-management)` for tracking patterns
 
 **Problem: Authentication failures**
-- **Check**: API keys, environment variables, service status
+- **Check**: API keys, environment variables, service
+  status
 - **Verify**: Token expiration, permission scopes
-- **See**: `Skill(leyline:authentication-patterns)` for setup
+- **See**: `Skill(leyline:authentication-patterns)` for
+  setup
+
+**Problem: SDK caller account metadata missing**
+- **Context**: Early telemetry events may lack account
+  info due to async initialization
+- **Solution (2.1.51+)**: Set these env vars before
+  launching Claude Code to provide account info
+  synchronously:
+  - `CLAUDE_CODE_ACCOUNT_UUID` - account identifier
+  - `CLAUDE_CODE_USER_EMAIL` - user email address
+  - `CLAUDE_CODE_ORGANIZATION_UUID` - organization ID
+- **Benefit**: Eliminates race condition where early
+  events lack metadata
 
 **Problem: Rate limiting**
 - **Solution**: Implement exponential backoff

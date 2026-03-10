@@ -149,16 +149,17 @@ Run `Skill(scribe:doc-verify)` to validate:
 ### Step 7: Discussion Promotion (Score 80+ Only)
 
 When the evaluation score is 80-100 (evergreen), follow
-`modules/discussion-promotion.md` to offer promoting the
-entry to the "Knowledge" Discussion category.
+`modules/discussion-promotion.md` to publish the entry
+to the "Knowledge" Discussion category.
 
-- If the entry already has a `discussion_url` field, offer
-  "Update Discussion" instead
-- If the user declines or promotion fails, continue to
-  Step 8 (APPLY)
+- If the entry already has a `discussion_url` field,
+  update the existing Discussion instead
+- If the user explicitly declines or promotion fails,
+  continue to Step 8 (APPLY)
 - If the score is below 80, skip this step entirely
 
-This step is optional. It never blocks the intake workflow.
+Publishing is the default for qualifying entries. It
+never blocks the intake workflow.
 
 ## Evaluation Framework
 
@@ -583,7 +584,8 @@ processed → [Archive] → queue/archive/
 - **KonMari Tidying Philosophy**: See `modules/konmari-tidying.md`
 - **Tidying Workflows**: See `modules/pruning-workflows.md`
 - **Discussion Promotion**: Invoked in Step 7 (PROMOTE)
-  for evergreen entries (score 80+).
+  for evergreen entries (score 80+). Publishing is the
+  default action.
   See `modules/discussion-promotion.md` for full workflow.
 
 ## Hook Integration

@@ -8,6 +8,8 @@ The Core Principle: If you don't understand the code, don't ship it.
 IRON LAW COMPLIANCE: These tests were written BEFORE verifying the module exists.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest

@@ -260,29 +260,16 @@ class AbstractConfig:
                 msg,
             )
 
-        # Convert nested dicts to configuration objects
-        if "skill_validation" in config_data:
-            config_data["skill_validation"] = SkillValidationConfig(
-                **config_data["skill_validation"],
-            )
-
-        if "skill_analyzer" in config_data:
-            config_data["skill_analyzer"] = SkillAnalyzerConfig(
-                **config_data["skill_analyzer"],
-            )
-
-        if "skills_eval" in config_data:
-            config_data["skills_eval"] = SkillsEvalConfig(**config_data["skills_eval"])
-
-        if "context_optimizer" in config_data:
-            config_data["context_optimizer"] = ContextOptimizerConfig(
-                **config_data["context_optimizer"],
-            )
-
-        if "error_handling" in config_data:
-            config_data["error_handling"] = ErrorHandlingConfig(
-                **config_data["error_handling"],
-            )
+        _SUB_CONFIGS = {
+            "skill_validation": SkillValidationConfig,
+            "skill_analyzer": SkillAnalyzerConfig,
+            "skills_eval": SkillsEvalConfig,
+            "context_optimizer": ContextOptimizerConfig,
+            "error_handling": ErrorHandlingConfig,
+        }
+        for key, sub_cls in _SUB_CONFIGS.items():
+            if key in config_data:
+                config_data[key] = sub_cls(**config_data[key])
 
         return cls(**config_data)
 
@@ -396,19 +383,11 @@ class AbstractConfig:
 
     def get_summary(self) -> str:
         """Get configuration summary."""
-        # validate sub-configs are initialized (they should be after __post_init__)
-        if self.skill_validation is None:
-            msg = "skill_validation not initialized"
-            raise ValueError(msg)
-        if self.skill_analyzer is None:
-            msg = "skill_analyzer not initialized"
-            raise ValueError(msg)
-        if self.skills_eval is None:
-            msg = "skills_eval not initialized"
-            raise ValueError(msg)
-        if self.context_optimizer is None:
-            msg = "context_optimizer not initialized"
-            raise ValueError(msg)
+        # __post_init__ guarantees these are never None; assert for mypy
+        assert self.skill_validation is not None  # noqa: S101
+        assert self.skill_analyzer is not None  # noqa: S101
+        assert self.skills_eval is not None  # noqa: S101
+        assert self.context_optimizer is not None  # noqa: S101
 
         # Get exception count safely
         exception_count = (

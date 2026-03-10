@@ -53,8 +53,25 @@ claude \
 | `--parent-session-id` | string | Links to lead agent's session |
 | `--agent-type` | string | Role type (e.g., `general-purpose`) |
 | `--agent-role` | string | Crew role: `implementer`, `researcher`, `tester`, `reviewer`, `architect` (default: `implementer`) |
-| `--model` | string | Model selection: `sonnet`, `opus`, `haiku` (2.1.39+ correctly qualifies for Bedrock/Vertex/Foundry) |
+| `--model` | string | Model selection: `sonnet`, `opus`, `haiku` (2.1.39+ correctly qualifies for Bedrock/Vertex/Foundry). **Always pass an explicit model name, never `inherit`** (see warning below) |
 | `--plan-mode-required` | flag | Optional: enforce planning mode |
+
+### Team Agent Model Bug (2.1.69+)
+
+When spawning team agents via the `Agent` tool (not
+tmux CLI), `inherit` is written as a literal string
+into the team config instead of being resolved to the
+lead's model. The spawned agent then fails with:
+
+> There's an issue with the selected model (inherit).
+
+**Workaround**: Always pass an explicit model name
+(`sonnet`, `opus`, `haiku`) via `--model` when spawning
+team agents. Never use `inherit` or omit the flag in
+team contexts. This does not affect subagents (non-team
+Agent tool calls), which resolve `inherit` correctly.
+
+Tracked upstream: anthropics/claude-code#31069
 
 ## Agent ID Format
 
@@ -114,7 +131,19 @@ Agent Teams also supports iTerm2 with the `it2` CLI as an alternative to tmux. T
 
 ## Graceful Shutdown Protocol
 
-1. Lead sends `shutdown_request` message with unique request ID
+1. Lead sends `shutdown_request` message with unique
+   request ID
 2. Teammate receives request, finishes current work
-3. Teammate sends `shutdown_response` approving the shutdown
-4. Lead calls `process_shutdown_approved` to clean up pane and config
+3. Teammate sends `shutdown_response` approving the
+   shutdown
+4. Lead calls `process_shutdown_approved` to clean up
+   pane and config
+
+### Bulk Agent Kill (2.1.53+)
+
+Pressing `ctrl+f` kills all background agents with a
+single aggregate notification instead of one per agent.
+The command queue is properly cleared on bulk kill.
+This prevents notification storms when terminating N
+agents simultaneously and ensures no orphaned commands
+remain in the queue after termination.

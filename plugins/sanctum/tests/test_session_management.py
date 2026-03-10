@@ -96,7 +96,7 @@ class TestSessionManagementSkillStructure:
         Then name and description should be present.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None, "Invalid frontmatter"
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert "name" in frontmatter, "Missing name field"
         assert "description" in frontmatter, "Missing description field"
 
@@ -110,7 +110,7 @@ class TestSessionManagementSkillStructure:
         Then it should be 'session-management'.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert frontmatter["name"] == "session-management"
 
     @pytest.mark.bdd
@@ -123,7 +123,7 @@ class TestSessionManagementSkillStructure:
         Then it should have a category defined.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert "category" in frontmatter
 
     @pytest.mark.bdd
@@ -136,7 +136,7 @@ class TestSessionManagementSkillStructure:
         Then it should have tags defined.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert "tags" in frontmatter
         assert isinstance(frontmatter["tags"], list)
 
@@ -150,7 +150,7 @@ class TestSessionManagementSkillStructure:
         Then it should have tools defined.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert "tools" in frontmatter
         assert isinstance(frontmatter["tools"], list)
 
@@ -164,7 +164,7 @@ class TestSessionManagementSkillStructure:
         Then it should have complexity defined.
         """
         frontmatter = self.extract_frontmatter(skill_content)
-        assert frontmatter is not None
+        assert isinstance(frontmatter, dict), "Frontmatter should parse to a dict"
         assert "complexity" in frontmatter
         assert frontmatter["complexity"] in ["low", "medium", "high"]
 
@@ -394,7 +394,8 @@ class TestNamingConventions:
         """
         # Check for hyphenated example names
         hyphenated_pattern = r"debugging-\w+"
-        assert re.search(hyphenated_pattern, skill_content) is not None
+        match = re.search(hyphenated_pattern, skill_content)
+        assert match, f"Expected hyphenated name matching {hyphenated_pattern!r}"
 
     @pytest.mark.bdd
     @pytest.mark.unit

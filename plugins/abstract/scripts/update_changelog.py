@@ -262,9 +262,9 @@ def main() -> None:
     # Get commits
     last_tag = args.since_tag or get_last_tag()
     if last_tag:
-        pass
+        print(f"Generating changelog since tag: {last_tag}")
     else:
-        pass
+        print("No previous tag found, generating from all commits.")
 
     commits = get_commits_since_tag(last_tag)
 
@@ -280,10 +280,10 @@ def main() -> None:
     # Show summary
     for items in entries.values():
         if items:
-            for _item in items[:MAX_DISPLAY_ITEMS]:  # Show first few
-                pass
+            for _item in items[:MAX_DISPLAY_ITEMS]:
+                print(f"  {_item}")
             if len(items) > MAX_DISPLAY_ITEMS:
-                pass
+                print(f"  ... and {len(items) - MAX_DISPLAY_ITEMS} more")
 
     # Update changelog
     update_changelog(entries, args.version)

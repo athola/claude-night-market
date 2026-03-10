@@ -6,7 +6,7 @@
 #   ./scripts/run-plugin-lint.sh --all
 #   ./scripts/run-plugin-lint.sh --changed (runs linting for plugins with changes)
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -37,8 +37,12 @@ run_plugin_lint() {
     # Check if plugin has Makefile with lint target
     if [ -f "$plugin_dir/Makefile" ]; then
         if grep -q "^lint:" "$plugin_dir/Makefile" 2>/dev/null; then
-            # Run using Makefile
-            if (cd "$plugin_dir" && make lint 2>&1 | grep -v "^make\["); then
+            # Run using Makefile - capture exit code separately to avoid pipeline masking
+            local lint_output lint_exit=0
+            lint_output=$(cd "$plugin_dir" && make lint 2>&1) || lint_exit=$?
+            # Filter make noise when displaying
+            echo "$lint_output" | grep -v "^make\[" || true
+            if [ "$lint_exit" -eq 0 ]; then
                 echo -e "  ${GREEN}✓ Linting passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 return 0
@@ -116,12 +120,12 @@ elif [ "$1" == "--changed" ]; then
     fi
 
     # Run linting for each changed plugin
-    for plugin_dir in $CHANGED_PLUGINS; do
+    while IFS= read -r plugin_dir; do
         if [ -d "$plugin_dir" ]; then
             run_plugin_lint "$plugin_dir" || true
             echo
         fi
-    done
+    done <<< "$CHANGED_PLUGINS"
 
 else
     # Run linting for specified plugins

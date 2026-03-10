@@ -25,7 +25,7 @@ import hashlib
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -138,7 +138,7 @@ class ReviewEntry:
 
         """
         self.id = hashlib.sha256(
-            f"{source_pr}{title}{datetime.now()}".encode()
+            f"{source_pr}{title}{datetime.now(timezone.utc)}".encode()
         ).hexdigest()[:12]
         self.source_pr = source_pr
         self.title = title
@@ -147,8 +147,8 @@ class ReviewEntry:
         self.participants = participants or []
         self.related_rooms = related_rooms or []
         self.tags = tags or []
-        self.created = datetime.now().isoformat()
-        self.last_accessed = datetime.now().isoformat()
+        self.created = datetime.now(timezone.utc).isoformat()
+        self.last_accessed = datetime.now(timezone.utc).isoformat()
         self.access_count = 0
 
         if importance_score is not None:
@@ -277,9 +277,9 @@ class ProjectPalaceManager(MemoryPalaceManager):
             Dictionary representing the new project palace
 
         """
-        palace_id = hashlib.sha256(f"{repo_name}{datetime.now()}".encode()).hexdigest()[
-            :8
-        ]
+        palace_id = hashlib.sha256(
+            f"{repo_name}{datetime.now(timezone.utc)}".encode()
+        ).hexdigest()[:8]
 
         # Create room structure
         rooms = {}
@@ -288,7 +288,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
                 "description": room_config["description"],
                 "icon": room_config["icon"],
                 "entries": [],
-                "created": datetime.now().isoformat(),
+                "created": datetime.now(timezone.utc).isoformat(),
             }
 
             # Add subrooms for review-chamber
@@ -310,8 +310,8 @@ class ProjectPalaceManager(MemoryPalaceManager):
             "name": repo_name,
             "repo_url": repo_url,
             "description": description,
-            "created": datetime.now().isoformat(),
-            "last_modified": datetime.now().isoformat(),
+            "created": datetime.now(timezone.utc).isoformat(),
+            "last_modified": datetime.now(timezone.utc).isoformat(),
             "rooms": rooms,
             "metadata": {
                 "total_entries": 0,
@@ -392,11 +392,11 @@ class ProjectPalaceManager(MemoryPalaceManager):
             palace: Project palace dictionary to save
 
         """
-        palace["last_modified"] = datetime.now().isoformat()
+        palace["last_modified"] = datetime.now(timezone.utc).isoformat()
         palace_file = os.path.join(self.project_palaces_dir, f"{palace['id']}.json")
 
         # Create backup
-        self._create_project_backup(palace["id"])
+        self.create_backup(palace["id"], self.project_palaces_dir)
 
         with open(palace_file, "w") as f:
             json.dump(palace, f, indent=2)
@@ -671,21 +671,10 @@ class ProjectPalaceManager(MemoryPalaceManager):
                 )
         return palaces
 
-    def _create_project_backup(self, palace_id: str) -> None:
-        """Create backup of a project palace."""
-        palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
-        if os.path.exists(palace_file):
-            backup_dir = os.path.join(self.project_palaces_dir, "backups")
-            os.makedirs(backup_dir, exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_file = os.path.join(backup_dir, f"{palace_id}_{timestamp}.json")
-            with open(palace_file) as src, open(backup_file, "w") as dst:
-                dst.write(src.read())
-
     def _update_project_index(self) -> None:
         """Update the project palaces index."""
         index: dict[str, Any] = {
-            "last_updated": datetime.now().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
             "projects": [],
             "stats": {
                 "total_projects": 0,

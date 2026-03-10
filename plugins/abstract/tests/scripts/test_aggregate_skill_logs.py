@@ -13,6 +13,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -21,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from aggregate_skill_logs import (  # noqa: E402
     AggregationResult,
-    SkillMetrics,
+    SkillLogSummary,
     aggregate_logs,
     calculate_skill_metrics,
     detect_high_impact_issues,
@@ -84,9 +85,9 @@ def _make_metrics(  # noqa: PLR0913
     common_friction: list[str] | None = None,
     improvement_suggestions: list[str] | None = None,
     recent_errors: list[str] | None = None,
-) -> SkillMetrics:
+) -> SkillLogSummary:
     plugin, skill_name = skill.split(":", 1)
-    return SkillMetrics(
+    return SkillLogSummary(
         skill=skill,
         plugin=plugin,
         skill_name=skill_name,
@@ -163,7 +164,7 @@ class TestGetLogDirectory:
 # ---------------------------------------------------------------------------
 
 
-class TestCalculateSkillMetrics:
+class TestCalculateSkillLogSummary:
     """Feature: Per-skill metric calculation
 
     As a developer
@@ -301,40 +302,52 @@ class TestDetectHighImpactIssues:
     """
 
     @pytest.mark.unit
-    def test_high_failure_rate_detected(self) -> None:
-        """Scenario: Skill with high failure rate is flagged
-        Given a skill with 5+ executions and <70% success rate
+    @pytest.mark.parametrize(
+        ("metrics_kwargs", "expected_type", "should_contain"),
+        [
+            (
+                {"total": 10, "success": 2, "failure": 8, "success_rate": 20.0},
+                "high_failure_rate",
+                True,
+            ),
+            (
+                {"avg_rating": 2.0},
+                "low_rating",
+                True,
+            ),
+            (
+                {"total": 3, "success": 0, "failure": 3, "success_rate": 0.0},
+                "high_failure_rate",
+                False,
+            ),
+            (
+                {"total": 20, "success": 9, "failure": 11, "success_rate": 45.0},
+                "excessive_failures",
+                True,
+            ),
+        ],
+        ids=[
+            "high-failure-rate-flagged",
+            "low-rating-flagged",
+            "few-executions-not-flagged",
+            "excessive-failures-flagged",
+        ],
+    )
+    def test_issue_detection_by_metrics(
+        self, metrics_kwargs, expected_type, should_contain
+    ) -> None:
+        """Scenario: Issue detection responds correctly to metric thresholds.
+        Given skill metrics with specific characteristics
         When detect_high_impact_issues is called
-        Then a high_failure_rate issue is returned
+        Then the expected issue type is or is not present
         """
-        metrics = _make_metrics(total=10, success=2, failure=8, success_rate=20.0)
+        metrics = _make_metrics(**metrics_kwargs)
         issues = detect_high_impact_issues({"p:s": metrics})
         types = [i["type"] for i in issues]
-        assert "high_failure_rate" in types
-
-    @pytest.mark.unit
-    def test_low_rating_detected(self) -> None:
-        """Scenario: Skill with avg_rating < 3.0 is flagged
-        Given a skill with avg_rating of 2.0
-        When detect_high_impact_issues is called
-        Then a low_rating issue is returned
-        """
-        metrics = _make_metrics(avg_rating=2.0)
-        issues = detect_high_impact_issues({"p:s": metrics})
-        types = [i["type"] for i in issues]
-        assert "low_rating" in types
-
-    @pytest.mark.unit
-    def test_few_executions_not_flagged_for_failure(self) -> None:
-        """Scenario: Skills with fewer than 5 executions are not flagged for failure
-        Given a skill with only 3 executions and 0% success rate
-        When detect_high_impact_issues is called
-        Then no high_failure_rate issue is returned
-        """
-        metrics = _make_metrics(total=3, success=0, failure=3, success_rate=0.0)
-        issues = detect_high_impact_issues({"p:s": metrics})
-        types = [i["type"] for i in issues]
-        assert "high_failure_rate" not in types
+        if should_contain:
+            assert expected_type in types
+        else:
+            assert expected_type not in types
 
     @pytest.mark.unit
     def test_no_issues_for_healthy_skill(self) -> None:
@@ -346,18 +359,6 @@ class TestDetectHighImpactIssues:
         metrics = _make_metrics(total=20, success=19, failure=1, success_rate=95.0)
         issues = detect_high_impact_issues({"p:s": metrics})
         assert issues == []
-
-    @pytest.mark.unit
-    def test_excessive_failures_detected(self) -> None:
-        """Scenario: Skill with > 10 failures triggers excessive_failures issue
-        Given a skill with 11 failures
-        When detect_high_impact_issues is called
-        Then an excessive_failures issue is returned
-        """
-        metrics = _make_metrics(total=20, success=9, failure=11, success_rate=45.0)
-        issues = detect_high_impact_issues({"p:s": metrics})
-        types = [i["type"] for i in issues]
-        assert "excessive_failures" in types
 
 
 # ---------------------------------------------------------------------------
@@ -944,12 +945,18 @@ class TestAggregateLogs:
     def test_aggregate_logs_empty_dir(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """aggregate_logs with empty log dir returns empty result."""
+        """Scenario: aggregate_logs with empty log dir returns empty result.
+        Given an empty log directory
+        When aggregate_logs is called
+        Then skills_analyzed and total_executions are 0
+        """
+        mock_get_log_dir = Mock(return_value=tmp_path)
         monkeypatch.setattr(
             "aggregate_skill_logs.get_log_directory",
-            lambda: tmp_path,
+            mock_get_log_dir,
         )
         result = aggregate_logs(days_back=30)
+        mock_get_log_dir.assert_called_once()
         assert result.skills_analyzed == 0
         assert result.total_executions == 0
         assert result.high_impact_issues == []
@@ -958,7 +965,11 @@ class TestAggregateLogs:
     def test_aggregate_logs_with_entries(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """aggregate_logs with entries returns skill metrics."""
+        """Scenario: aggregate_logs with entries returns skill metrics.
+        Given a log directory with 10 entries (8 success, 2 failure)
+        When aggregate_logs is called
+        Then skills_analyzed is 1 and total_executions is 10
+        """
         plugin_dir = tmp_path / "my-plugin"
         skill_dir = plugin_dir / "my-skill"
         skill_dir.mkdir(parents=True)
@@ -969,11 +980,13 @@ class TestAggregateLogs:
         log_file = skill_dir / "log.jsonl"
         log_file.write_text("\n".join(json.dumps(e) for e in entries))
 
+        mock_get_log_dir = Mock(return_value=tmp_path)
         monkeypatch.setattr(
             "aggregate_skill_logs.get_log_directory",
-            lambda: tmp_path,
+            mock_get_log_dir,
         )
         result = aggregate_logs(days_back=30)
+        mock_get_log_dir.assert_called_once()
         assert result.skills_analyzed == 1
         assert result.total_executions == 10
 
@@ -990,15 +1003,21 @@ class TestAggregateSkillLogsMain:
     def test_main_with_empty_log_dir(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main() with empty log dir writes LEARNINGS.md."""
+        """Scenario: main() with empty log dir writes LEARNINGS.md.
+        Given an empty log directory
+        When main is called
+        Then LEARNINGS.md is created
+        """
         learnings_path = tmp_path / "LEARNINGS.md"
+        mock_log_dir = Mock(return_value=tmp_path)
+        mock_learnings = Mock(return_value=learnings_path)
         monkeypatch.setattr(
             "aggregate_skill_logs.get_log_directory",
-            lambda: tmp_path,
+            mock_log_dir,
         )
         monkeypatch.setattr(
             "aggregate_skill_logs.get_learnings_path",
-            lambda: learnings_path,
+            mock_learnings,
         )
         monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py"])
 
@@ -1007,24 +1026,32 @@ class TestAggregateSkillLogsMain:
         except SystemExit as e:
             assert e.code in (0, 1)
 
+        mock_log_dir.assert_called()
+        mock_learnings.assert_called()
         assert learnings_path.exists()
 
     @pytest.mark.unit
     def test_main_with_existing_pinned_learnings(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main() preserves existing pinned learnings."""
+        """Scenario: main() preserves existing pinned learnings.
+        Given a LEARNINGS.md with pinned content
+        When main is called
+        Then the pinned section is preserved
+        """
         learnings_path = tmp_path / "LEARNINGS.md"
         learnings_path.write_text(
             "# Learnings\n\n## Pinned Learnings\n\nImportant note.\n\n## Other\n\nContent.\n"
         )
+        mock_log_dir = Mock(return_value=tmp_path)
+        mock_learnings = Mock(return_value=learnings_path)
         monkeypatch.setattr(
             "aggregate_skill_logs.get_log_directory",
-            lambda: tmp_path,
+            mock_log_dir,
         )
         monkeypatch.setattr(
             "aggregate_skill_logs.get_learnings_path",
-            lambda: learnings_path,
+            mock_learnings,
         )
         monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py"])
 
@@ -1033,6 +1060,8 @@ class TestAggregateSkillLogsMain:
         except SystemExit as e:
             assert e.code in (0, 1)
 
+        mock_log_dir.assert_called()
+        mock_learnings.assert_called()
         new_content = learnings_path.read_text()
         assert "Pinned Learnings" in new_content
 
@@ -1040,15 +1069,21 @@ class TestAggregateSkillLogsMain:
     def test_main_with_days_back_argument(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main() with days_back argument uses specified period."""
+        """Scenario: main() with days_back argument uses specified period.
+        Given a days_back CLI argument of 7
+        When main is called
+        Then it completes without error
+        """
         learnings_path = tmp_path / "LEARNINGS.md"
+        mock_log_dir = Mock(return_value=tmp_path)
+        mock_learnings = Mock(return_value=learnings_path)
         monkeypatch.setattr(
             "aggregate_skill_logs.get_log_directory",
-            lambda: tmp_path,
+            mock_log_dir,
         )
         monkeypatch.setattr(
             "aggregate_skill_logs.get_learnings_path",
-            lambda: learnings_path,
+            mock_learnings,
         )
         monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py", "7"])
 
@@ -1057,11 +1092,17 @@ class TestAggregateSkillLogsMain:
         except SystemExit as e:
             assert e.code in (0, 1)
 
+        mock_log_dir.assert_called()
+
     @pytest.mark.unit
     def test_main_invalid_days_back_exits_1(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main() with invalid days_back exits 1."""
+        """Scenario: main() with invalid days_back exits 1.
+        Given an invalid days_back argument 'abc'
+        When main is called
+        Then SystemExit with code 1 is raised
+        """
         monkeypatch.setattr(sys, "argv", ["aggregate_skill_logs.py", "abc"])
 
         with pytest.raises(SystemExit) as exc_info:

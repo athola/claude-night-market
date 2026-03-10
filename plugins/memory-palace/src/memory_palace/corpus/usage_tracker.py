@@ -191,8 +191,9 @@ class UsageTracker:
             Normalized score between 0.0 and 1.0
 
         """
-        # Sigmoid normalization
-        normalized = 1.0 / (1.0 + math.exp(-raw_score / SCORE_SCALE_FACTOR))
+        # Sigmoid normalization (clamp exponent to prevent overflow)
+        exponent = max(-500.0, min(500.0, -raw_score / SCORE_SCALE_FACTOR))
+        normalized = 1.0 / (1.0 + math.exp(exponent))
 
         # Clamp to range
         return max(SCORE_MIN, min(SCORE_MAX, normalized))

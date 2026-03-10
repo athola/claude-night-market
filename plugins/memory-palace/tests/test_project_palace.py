@@ -128,7 +128,7 @@ class TestProjectPalaceManager:
         created = manager.create_project_palace("owner/repo")
         loaded = manager.load_project_palace(created["id"])
 
-        assert loaded is not None
+        assert isinstance(loaded, dict)
         assert loaded["id"] == created["id"]
         assert loaded["name"] == "owner/repo"
 
@@ -139,7 +139,7 @@ class TestProjectPalaceManager:
 
         found = manager.find_project_palace("owner/repo2")
 
-        assert found is not None
+        assert isinstance(found, dict)
         assert found["name"] == "owner/repo2"
 
     def test_get_or_create_project_palace(self, manager):

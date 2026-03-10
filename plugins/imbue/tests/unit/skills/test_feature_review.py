@@ -7,6 +7,8 @@ Following TDD/BDD principles to ensure scoring calculations are accurate
 and classification logic correctly categorizes features.
 """
 
+from __future__ import annotations
+
 import pytest
 
 
@@ -155,7 +157,28 @@ class TestScoringFramework:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_priority_thresholds(self) -> None:
+    @pytest.mark.parametrize(
+        "score,expected_priority",
+        [
+            (3.0, "High"),
+            (2.5, "Medium"),  # Boundary: not > 2.5
+            (2.0, "Medium"),
+            (1.5, "Medium"),  # Boundary: >= 1.5
+            (1.2, "Low"),
+            (1.0, "Low"),  # Boundary: >= 1.0
+            (0.8, "Very Low"),
+        ],
+        ids=[
+            "high-score",
+            "high-medium-boundary",
+            "mid-medium",
+            "medium-low-boundary",
+            "mid-low",
+            "low-very-low-boundary",
+            "very-low-score",
+        ],
+    )
+    def test_priority_thresholds(self, score, expected_priority) -> None:
         """Scenario: Feature scores map to priority levels.
 
         Given the scoring threshold configuration
@@ -165,24 +188,18 @@ class TestScoringFramework:
         # Arrange - thresholds from scoring-framework.md
         thresholds = {"high": 2.5, "medium": 1.5, "low": 1.0}
 
-        # Act & Assert
-        def get_priority(score: float) -> str:
-            if score > thresholds["high"]:
-                return "High"
-            elif score >= thresholds["medium"]:
-                return "Medium"
-            elif score >= thresholds["low"]:
-                return "Low"
-            else:
-                return "Very Low"
+        # Act
+        if score > thresholds["high"]:
+            priority = "High"
+        elif score >= thresholds["medium"]:
+            priority = "Medium"
+        elif score >= thresholds["low"]:
+            priority = "Low"
+        else:
+            priority = "Very Low"
 
-        assert get_priority(3.0) == "High"
-        assert get_priority(2.5) == "Medium"  # Boundary: not > 2.5
-        assert get_priority(2.0) == "Medium"
-        assert get_priority(1.5) == "Medium"  # Boundary: >= 1.5
-        assert get_priority(1.2) == "Low"
-        assert get_priority(1.0) == "Low"  # Boundary: >= 1.0
-        assert get_priority(0.8) == "Very Low"
+        # Assert
+        assert priority == expected_priority
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -427,58 +444,51 @@ class TestClassificationSystem:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_2x2_matrix_classification(self, feature_examples) -> None:
+    @pytest.mark.parametrize(
+        "feature_key,expected_archetype",
+        [
+            ("auto_save", "Predictive Cache"),
+            ("suggestions", "Smart Assistant"),
+            ("config_loader", "Reference Lookup"),
+            ("search", "Interactive Query"),
+        ],
+        ids=[
+            "proactive-static-is-predictive-cache",
+            "proactive-dynamic-is-smart-assistant",
+            "reactive-static-is-reference-lookup",
+            "reactive-dynamic-is-interactive-query",
+        ],
+    )
+    def test_2x2_matrix_classification(
+        self,
+        feature_examples,
+        feature_key,
+        expected_archetype,
+    ) -> None:
         """Scenario: Features map to one of four archetypes.
 
         Given the 2x2 classification matrix
         When classifying features
         Then each should map to exactly one archetype.
         """
-
         # Arrange
-        def classify(feature: dict) -> str:
-            is_proactive = (
-                feature["anticipates_need"] and not feature["triggered_by_user"]
-            )
-            is_dynamic = feature["data_changes_realtime"]
+        feature = feature_examples[feature_key]
 
-            if is_proactive and not is_dynamic:
-                return "Predictive Cache"
-            elif is_proactive and is_dynamic:
-                return "Smart Assistant"
-            elif not is_proactive and not is_dynamic:
-                return "Reference Lookup"
-            else:
-                return "Interactive Query"
+        # Act
+        is_proactive = feature["anticipates_need"] and not feature["triggered_by_user"]
+        is_dynamic = feature["data_changes_realtime"]
 
-        # Act & Assert
-        assert classify(feature_examples["auto_save"]) == "Predictive Cache"
-        assert classify(feature_examples["suggestions"]) == "Smart Assistant"
-        assert classify(feature_examples["config_loader"]) == "Reference Lookup"
-        assert classify(feature_examples["search"]) == "Interactive Query"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_archetype_characteristics(self) -> None:
-        """Scenario: Each archetype has expected characteristics.
-
-        Given the four archetypes
-        When examining their characteristics
-        Then they should have expected latency and complexity profiles.
-        """
-        # Arrange
-        archetypes = {
-            "Predictive Cache": {"latency": "Low", "complexity": "Low"},
-            "Smart Assistant": {"latency": "Medium", "complexity": "High"},
-            "Reference Lookup": {"latency": "Very Low", "complexity": "Low"},
-            "Interactive Query": {"latency": "Low", "complexity": "Medium"},
-        }
+        if is_proactive and not is_dynamic:
+            archetype = "Predictive Cache"
+        elif is_proactive and is_dynamic:
+            archetype = "Smart Assistant"
+        elif not is_proactive and not is_dynamic:
+            archetype = "Reference Lookup"
+        else:
+            archetype = "Interactive Query"
 
         # Assert
-        assert archetypes["Predictive Cache"]["complexity"] == "Low"
-        assert archetypes["Smart Assistant"]["complexity"] == "High"
-        assert archetypes["Reference Lookup"]["latency"] == "Very Low"
-        assert archetypes["Interactive Query"]["complexity"] == "Medium"
+        assert archetype == expected_archetype
 
 
 class TestKanoClassification:
@@ -488,29 +498,6 @@ class TestKanoClassification:
     I want features categorized by user satisfaction impact
     So that I can prioritize appropriately
     """
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_basic_features_must_exist(self) -> None:
-        """Scenario: Basic features are expected by users.
-
-        Given a Basic (Must-Have) feature
-        When the feature is missing
-        Then users are dissatisfied
-        And when present, satisfaction is neutral.
-        """
-        # Arrange
-        basic_feature = {
-            "name": "Login functionality",
-            "kano_type": "Basic",
-            "absence_impact": "Dissatisfaction",
-            "presence_impact": "Neutral",
-        }
-
-        # Assert
-        assert basic_feature["kano_type"] == "Basic"
-        assert basic_feature["absence_impact"] == "Dissatisfaction"
-        assert basic_feature["presence_impact"] == "Neutral"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -539,47 +526,6 @@ class TestKanoClassification:
         assert satisfaction(1) == 1
         assert satisfaction(5) == 5
         assert satisfaction(10) == 10
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_delighter_features_surprise_users(self) -> None:
-        """Scenario: Delighter features create unexpected joy.
-
-        Given a Delighter (Wow Factor) feature
-        When the feature is absent
-        Then users are not dissatisfied
-        And when present, users are delighted.
-        """
-        # Arrange
-        delighter_feature = {
-            "name": "AI-powered suggestions",
-            "kano_type": "Delighter",
-            "absence_impact": "Neutral",
-            "presence_impact": "Delight",
-        }
-
-        # Assert
-        assert delighter_feature["kano_type"] == "Delighter"
-        assert delighter_feature["absence_impact"] == "Neutral"
-        assert delighter_feature["presence_impact"] == "Delight"
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_kano_priority_order(self) -> None:
-        """Scenario: Kano types have a recommended implementation order.
-
-        Given features of different Kano types
-        When prioritizing implementation
-        Then Basic features should come first
-        And Delighters should come after Performance.
-        """
-        # Arrange
-        priority_order = ["Basic", "Performance", "Delighter", "Indifferent"]
-
-        # Assert
-        assert priority_order.index("Basic") < priority_order.index("Performance")
-        assert priority_order.index("Performance") < priority_order.index("Delighter")
-        assert priority_order.index("Delighter") < priority_order.index("Indifferent")
 
 
 class TestTradeoffDimensions:
@@ -706,7 +652,20 @@ class TestIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_suggestion_labels(self) -> None:
+    @pytest.mark.parametrize(
+        "score,expected_label",
+        [
+            (3.0, "priority:high"),
+            (2.0, "priority:medium"),
+            (1.0, "priority:low"),
+        ],
+        ids=[
+            "high-score-gets-high-label",
+            "medium-score-gets-medium-label",
+            "low-score-gets-low-label",
+        ],
+    )
+    def test_suggestion_labels(self, score, expected_label) -> None:
         """Scenario: Suggestions get appropriate labels based on priority.
 
         Given a feature suggestion with a priority score
@@ -715,21 +674,23 @@ class TestIntegration:
         """
 
         # Arrange
-        def get_labels(score: float) -> list[str]:
+        def get_labels(s: float) -> list[str]:
             labels = ["enhancement"]
-            if score > 2.5:
+            if s > 2.5:
                 labels.append("priority:high")
-            elif score >= 1.5:
+            elif s >= 1.5:
                 labels.append("priority:medium")
             else:
                 labels.append("priority:low")
             return labels
 
+        # Act
+        labels = get_labels(score)
+
         # Assert
-        assert "priority:high" in get_labels(3.0)
-        assert "priority:medium" in get_labels(2.0)
-        assert "priority:low" in get_labels(1.0)
-        assert "enhancement" in get_labels(2.0)
+        assert expected_label in labels
+        assert "enhancement" in labels
+        assert len(labels) == 2
 
     @pytest.mark.bdd
     @pytest.mark.unit

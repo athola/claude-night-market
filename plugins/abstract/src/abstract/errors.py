@@ -196,13 +196,13 @@ class ErrorHandler:
 
         # Log based on severity
         if error.severity == ErrorSeverity.CRITICAL:
-            self.logger.critical(f"[{error.error_code}] {error.message}")
+            self.logger.critical("[%s] %s", error.error_code, error.message)
         elif error.severity == ErrorSeverity.HIGH:
-            self.logger.error(f"[{error.error_code}] {error.message}")
+            self.logger.error("[%s] %s", error.error_code, error.message)
         elif error.severity == ErrorSeverity.MEDIUM:
-            self.logger.warning(f"[{error.error_code}] {error.message}")
+            self.logger.warning("[%s] %s", error.error_code, error.message)
         else:
-            self.logger.info(f"[{error.error_code}] {error.message}")
+            self.logger.info("[%s] %s", error.error_code, error.message)
 
     def print_error(self, error: ToolError) -> None:
         """Print user-friendly error message."""

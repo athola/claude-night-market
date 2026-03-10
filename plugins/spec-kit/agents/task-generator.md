@@ -5,6 +5,7 @@ description: Generate dependency-ordered implementation tasks from specification
   implementation work, creating ordered task lists, starting implementation phase.
   Do not use when analyzing specifications - use spec-analyzer agent. executing tasks
   - use implementation-executor agent. Trigger proactively during /speckit-tasks commands.
+model: opus
 tools:
 - Read
 - Write

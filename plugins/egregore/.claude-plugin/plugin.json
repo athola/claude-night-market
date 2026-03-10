@@ -1,0 +1,39 @@
+{
+  "name": "egregore",
+  "version": "1.6.0",
+  "description": "Autonomous agent orchestrator for full development lifecycles with zero human input, session budget management, and crash recovery",
+  "skills": [
+    "./skills/summon",
+    "./skills/install-watchdog",
+    "./skills/uninstall-watchdog",
+    "./skills/quality-gate"
+  ],
+  "commands": [
+    "./commands/summon.md",
+    "./commands/dismiss.md",
+    "./commands/status.md",
+    "./commands/install-watchdog.md",
+    "./commands/uninstall-watchdog.md"
+  ],
+  "agents": [
+    "./agents/orchestrator.md",
+    "./agents/sentinel.md"
+  ],
+  "keywords": [
+    "egregore",
+    "autonomous",
+    "orchestrator",
+    "pipeline",
+    "mission",
+    "watchdog",
+    "session-management",
+    "crash-recovery",
+    "notifications",
+    "ralph-wiggum"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}

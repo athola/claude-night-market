@@ -6,6 +6,8 @@ red-flag self-monitoring, and priority signal overrides, following TDD/BDD princ
 The Core Principle: Agreement requires validity, accuracy, or truth. Not politeness.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest

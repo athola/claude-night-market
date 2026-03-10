@@ -130,16 +130,16 @@ class TestKnowledgeIntakeDiscussionPromotion:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_promotion_is_optional(self, skill_content: str) -> None:
-        """Scenario: Promotion step is optional.
+    def test_promotion_defaults_to_publish(self, skill_content: str) -> None:
+        """Scenario: Promotion step defaults to publishing.
 
         Given the Discussion Promotion section
         When reviewing the step behavior
-        Then it should be optional and never block intake
+        Then publishing should be the default and never block intake
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
         section = skill_content[section_start : section_start + 600]
-        assert "optional" in section.lower()
+        assert "default" in section.lower()
         assert "never block" in section.lower()
 
     @pytest.mark.bdd
@@ -149,12 +149,12 @@ class TestKnowledgeIntakeDiscussionPromotion:
 
         Given an entry with an existing discussion_url
         When the promotion step runs
-        Then it should offer 'Update Discussion' instead
+        Then it should update the existing Discussion instead
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
         section = skill_content[section_start : section_start + 600]
         assert "discussion_url" in section
-        assert "Update Discussion" in section
+        assert "update" in section.lower() and "discussion" in section
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -5,6 +5,7 @@ description: Analyze specification artifacts for consistency, coverage, and qual
   missing requirements, detecting ambiguity or underspecification. Do not use when
   writing specifications - use spec-writing skill. generating tasks - use task-generator
   agent. Trigger proactively during /speckit-analyze commands.
+model: opus
 tools:
 - Read
 - Grep

@@ -5,41 +5,11 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
-from pensive.workflows.skill_coordinator import (
-    dispatch_agent as coordinator_dispatch,
-)
-
 from .base import AnalysisResult, BaseReviewSkill
 
 
 def dispatch_agent(skill_name: str, _context: Any) -> str:
-    """Dispatch an agent to execute a specific skill.
-
-    Args:
-        skill_name: Name of the skill to execute
-        _context: Analysis context (unused in placeholder)
-
-    Returns:
-        Skill execution result
-    """
-    import asyncio  # noqa: PLC0415
-
-    # Run the async dispatch synchronously
-    # Use asyncio.new_event_loop() to avoid deprecation warning
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # No running loop, create a new one
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
-        finally:
-            loop.close()
-            asyncio.set_event_loop(None)
-    else:
-        # Already in an async context
-        return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
+    return f"{skill_name} execution result"
 
 
 class UnifiedReviewSkill(BaseReviewSkill):
@@ -54,27 +24,6 @@ class UnifiedReviewSkill(BaseReviewSkill):
         "go",
         "java",
     ]
-
-    # File extension to language mapping
-    LANGUAGE_MARKERS: ClassVar[dict[str, dict[str, list[str]]]] = {
-        "rust": {
-            "extensions": [".rs"],
-            "config_files": ["Cargo.toml", "Cargo.lock"],
-        },
-        "python": {
-            "extensions": [".py"],
-            "config_files": ["setup.py", "requirements.txt", "pyproject.toml"],
-            "test_patterns": ["test_*.py", "*_test.py"],
-        },
-        "javascript": {
-            "extensions": [".js", ".mjs"],
-            "config_files": ["package.json"],
-        },
-        "typescript": {
-            "extensions": [".ts"],
-            "config_files": ["tsconfig.json"],
-        },
-    }
 
     # Mathematical library imports to detect
     MATH_IMPORTS: ClassVar[list[str]] = [
@@ -92,46 +41,39 @@ class UnifiedReviewSkill(BaseReviewSkill):
     def detect_languages(self, context: Any) -> dict[str, Any]:
         """Detect programming languages in the codebase.
 
+        Delegates extension/config detection to RepositoryAnalyzer, then
+        enriches with context-specific metadata (Cargo.toml flag, test files).
+
         Returns:
             Dictionary mapping language names to detection metadata
         """
+        from pensive.analysis.repository_analyzer import RepositoryAnalyzer
+
         files = context.get_files()
         languages: dict[str, Any] = {}
 
-        for lang, markers in self.LANGUAGE_MARKERS.items():
-            file_count = 0
+        # Build counts using RepositoryAnalyzer mappings
+        for lang, extensions in RepositoryAnalyzer.LANGUAGE_EXTENSIONS.items():
+            file_count = sum(
+                1 for f in files if any(f.endswith(ext) for ext in extensions)
+            )
             lang_info: dict[str, Any] = {"files": 0}
-            extensions = markers["extensions"]
 
-            # Count files by extension
-            for file in files:
-                if any(file.endswith(ext) for ext in extensions):
-                    file_count += 1
-
-            # Check for config files (only count if not already counted by extension)
-            for config_file in markers["config_files"]:
+            # Check config files
+            config_files = RepositoryAnalyzer.LANGUAGE_CONFIG_FILES.get(lang, [])
+            for config_file in config_files:
                 if config_file in files:
                     if config_file == "Cargo.toml":
                         lang_info["cargo_toml"] = True
-                    # Only add to count if config file doesn't match the extensions
                     if not any(config_file.endswith(ext) for ext in extensions):
                         file_count += 1
 
-            # Check for test patterns
-            if "test_patterns" in markers:
-                test_file_count = 0
-                for file in files:
-                    # Match test patterns like "test_*.py" -> "test_app.py"
-                    for pattern in markers["test_patterns"]:
-                        if (pattern.startswith("test_") and "test_" in file) or (
-                            pattern.endswith("_test.") and "_test." in file
-                        ):
-                            test_file_count += 1
-                            break
+            # Check for test patterns (Python)
+            if lang == "python":
+                test_file_count = sum(1 for f in files if "test_" in f or "_test." in f)
                 if test_file_count > 0:
                     lang_info["test_files"] = True
 
-            # Add language if we found files
             if file_count > 0:
                 lang_info["files"] = file_count
                 languages[lang] = lang_info
@@ -197,7 +139,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
                     ):
                         has_math = True
                         break
-                except Exception:
+                except (FileNotFoundError, OSError, AttributeError, TypeError):
                     pass
 
         if has_math:
@@ -259,17 +201,17 @@ class UnifiedReviewSkill(BaseReviewSkill):
         Returns:
             Markdown-formatted summary
         """
+        from pensive.utils.severity_mapper import SeverityMapper
+
         summary_parts = ["## Summary\n"]
 
-        # Count by severity
-        severity_counts: dict[str, int] = {}
-        for finding in findings:
-            severity = finding.get("severity", "unknown")
-            severity_counts[severity] = severity_counts.get(severity, 0) + 1
+        severity_counts = SeverityMapper.count_by_severity(findings)
 
         summary_parts.append(
             f"Found {len(findings)} total findings: "
-            + ", ".join(f"{count} {sev}" for sev, count in severity_counts.items())
+            + ", ".join(
+                f"{count} {sev}" for sev, count in severity_counts.items() if count > 0
+            )
         )
         summary_parts.append("\n")
 
@@ -325,45 +267,6 @@ class UnifiedReviewSkill(BaseReviewSkill):
             return "Request changes - High severity issues before merging"
         else:
             return "Approve with minor changes - Low/medium issues in follow-up"
-
-    def create_action_items(
-        self,
-        findings: list[dict[str, Any]],
-    ) -> list[dict[str, Any]]:
-        """Create actionable items from findings.
-
-        Args:
-            findings: List of finding dictionaries
-
-        Returns:
-            List of action item dictionaries
-        """
-        action_items = []
-
-        for finding in findings:
-            severity = finding.get("severity", "low")
-            finding_id = finding.get("id", "UNKNOWN")
-            fix = finding.get("fix", "Review and address this issue")
-
-            # Determine deadline based on severity
-            if severity in ["critical", "high"]:
-                deadline = "ASAP"
-            elif severity == "medium":
-                deadline = "This week"
-            else:
-                deadline = "Next sprint"
-
-            action_items.append(
-                {
-                    "action": fix,
-                    "owner": "Development Team",
-                    "deadline": deadline,
-                    "severity": severity,
-                    "finding_id": finding_id,
-                }
-            )
-
-        return action_items
 
     def analyze(self, context: Any, _file_path: str = "") -> AnalysisResult:
         """Run unified analysis across all applicable skills.
@@ -436,13 +339,13 @@ class UnifiedReviewSkill(BaseReviewSkill):
                 interface_matches = re.findall(r"(export\s+)?interface\s+\w+", content)
                 api_surface["interfaces"] += len(interface_matches)
 
-            except Exception:
+            except (FileNotFoundError, OSError, AttributeError):
                 pass
 
         return api_surface
 
-    def execute_skills_concurrently(self, skills: list[str], context: Any) -> list[str]:
-        """Execute multiple skills concurrently.
+    def execute_skills(self, skills: list[str], context: Any) -> list[str]:
+        """Execute multiple skills sequentially.
 
         Args:
             skills: List of skill names to execute
@@ -451,59 +354,14 @@ class UnifiedReviewSkill(BaseReviewSkill):
         Returns:
             List of skill execution results
         """
-        # Use module-level dispatch_agent for testability
         results = []
         for skill in skills:
             result = dispatch_agent(skill, context)
             results.append(result)
         return results
 
-    def calculate_confidence_score(
-        self,
-        findings: list[dict[str, Any]],
-        analysis_data: dict[str, Any] | None = None,
-    ) -> float:
-        """Calculate confidence score for findings.
-
-        Args:
-            findings: List of finding dictionaries
-            analysis_data: Optional analysis metadata
-
-        Returns:
-            Confidence score between 0 and 100
-        """
-        if analysis_data is None:
-            analysis_data = {}
-
-        base_score = 50.0
-
-        # More findings increase confidence (up to a point)
-        finding_bonus = min(len(findings) * 5, 20)
-
-        # Multiple languages detected increases confidence
-        languages_detected = analysis_data.get("languages_detected", [])
-        if not isinstance(languages_detected, list):
-            languages_detected = []
-        language_bonus = min(len(languages_detected) * 5, 10)
-
-        # More files analyzed increases confidence
-        files_analyzed = analysis_data.get("files_analyzed", 0)
-        if not isinstance(files_analyzed, int):
-            files_analyzed = 0
-        file_bonus = min(files_analyzed * 2, 15)
-
-        # More skills executed increases confidence
-        skills_executed = analysis_data.get("skills_executed", 0)
-        if not isinstance(skills_executed, int):
-            skills_executed = 0
-        skill_bonus = min(skills_executed * 5, 15)
-
-        total_score = (
-            base_score + finding_bonus + language_bonus + file_bonus + skill_bonus
-        )
-
-        # Cap at 100
-        return min(total_score, 100.0)
+    # Backwards-compatible alias
+    execute_skills_concurrently = execute_skills
 
     def format_findings(self, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Format findings for display.

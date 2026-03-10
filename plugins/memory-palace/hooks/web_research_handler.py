@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -31,6 +30,7 @@ from shared.deduplication import (
     update_index,
 )
 from shared.safety_checks import is_safe_content
+from shared.text_utils import slugify
 
 if TYPE_CHECKING:
     from typing import Any
@@ -40,18 +40,6 @@ logger = logging.getLogger(__name__)
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
 QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
-
-
-def slugify(text: str, max_length: int = 50) -> str:
-    """Convert text to URL-safe slug."""
-    # Lowercase and replace non-alphanumeric with hyphens
-    slug = re.sub(r"[^a-z0-9]+", "-", text.lower())
-    # Remove leading/trailing hyphens
-    slug = slug.strip("-")
-    # Truncate
-    if len(slug) > max_length:
-        slug = slug[:max_length].rsplit("-", 1)[0]
-    return slug or "untitled"
 
 
 def extract_title_from_content(content: str, url: str) -> str:
@@ -127,6 +115,50 @@ def extract_results_from_websearch(
     return results
 
 
+def _store_to_queue(
+    filename: str,
+    content: str,
+    content_hash: str,
+    source_ref: str,
+    title: str,
+) -> str | None:
+    """Write a queue entry file and update the dedup index.
+
+    Returns the stored path on success, or None on failure.
+    """
+    try:
+        QUEUE_DIR.mkdir(parents=True, exist_ok=True)
+        queue_path = QUEUE_DIR / filename
+        queue_path.write_text(content, encoding="utf-8")
+
+        try:
+            update_index(
+                content_hash=content_hash,
+                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
+                importance_score=50,
+                url=source_ref,
+                title=title,
+                maturity="seedling",
+                routing_type="pending",
+            )
+        except Exception as idx_err:
+            logger.error(
+                "web_research_handler: Index update failed, removing orphan: %s",
+                idx_err,
+            )
+            queue_path.unlink(missing_ok=True)
+            return None
+
+        return str(queue_path)
+
+    except (PermissionError, OSError) as e:
+        logger.error("web_research_handler: Failed to store content (I/O): %s", e)
+        return None
+    except Exception as e:
+        logger.error("web_research_handler: Failed to store content: %s", e)
+        return None
+
+
 def store_webfetch_content(
     content: str,
     url: str,
@@ -136,19 +168,16 @@ def store_webfetch_content(
 
     Returns the path where content was stored, or None if storage failed.
     """
-    try:
-        # Generate entry metadata
-        now = datetime.now(timezone.utc)
-        entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
-        title = extract_title_from_content(content, url)
-        slug = slugify(title)
-        filename = f"webfetch-{slug}-{entry_id[:19]}.md"
+    now = datetime.now(timezone.utc)
+    entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
+    title = extract_title_from_content(content, url)
+    slug = slugify(title)
+    filename = f"webfetch-{slug}-{entry_id[:19]}.md"
 
-        # Create queue entry content
-        content_hash = get_content_hash(content)
-        content_preview = content[:500] + "..." if len(content) > 500 else content
+    content_hash = get_content_hash(content)
+    content_preview = content[:500] + "..." if len(content) > 500 else content
 
-        queue_entry = f"""---
+    queue_entry = f"""---
 queue_entry_id: {entry_id}
 created_at: {now.isoformat()}
 session_type: auto_capture
@@ -208,40 +237,7 @@ auto_generated: true
 - [ ] Archive or delete if not valuable
 """
 
-        # Ensure queue directory exists
-        QUEUE_DIR.mkdir(parents=True, exist_ok=True)
-
-        # Write queue entry
-        queue_path = QUEUE_DIR / filename
-        queue_path.write_text(queue_entry, encoding="utf-8")
-
-        # Update index separately -- if this fails, clean up the orphaned file
-        try:
-            update_index(
-                content_hash=content_hash,
-                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
-                importance_score=50,  # Default pending evaluation
-                url=url,
-                title=title,
-                maturity="seedling",
-                routing_type="pending",
-            )
-        except Exception as idx_err:
-            logger.error(
-                "web_research_handler: Index update failed, removing orphan: %s",
-                idx_err,
-            )
-            queue_path.unlink(missing_ok=True)
-            return None
-
-        return str(queue_path)
-
-    except (PermissionError, OSError) as e:
-        logger.error("web_research_handler: Failed to store content (I/O): %s", e)
-        return None
-    except Exception as e:
-        logger.error("web_research_handler: Failed to store content: %s", e)
-        return None
+    return _store_to_queue(filename, queue_entry, content_hash, url, title)
 
 
 def store_websearch_results(
@@ -252,29 +248,27 @@ def store_websearch_results(
     if not results:
         return None
 
-    try:
-        now = datetime.now(timezone.utc)
-        entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
-        slug = slugify(query)
-        filename = f"websearch-{slug}-{entry_id[:19]}.md"
+    now = datetime.now(timezone.utc)
+    entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
+    slug = slugify(query)
+    filename = f"websearch-{slug}-{entry_id[:19]}.md"
 
-        # Format results
-        results_md = []
-        for i, r in enumerate(results[:10], 1):
-            title = r.get("title", "Untitled")
-            url = r.get("url", "")
-            snippet = r.get("snippet", "")
-            results_md.append(f"""### {i}. {title}
+    results_md = []
+    for i, r in enumerate(results[:10], 1):
+        title = r.get("title", "Untitled")
+        url = r.get("url", "")
+        snippet = r.get("snippet", "")
+        results_md.append(f"""### {i}. {title}
 
 - **URL**: {url}
 - **Snippet**: {snippet}
 """)
 
-        results_content = "\n".join(results_md)
-        content_for_hash = f"{query}|{results_content}"
-        content_hash = get_content_hash(content_for_hash)
+    results_content = "\n".join(results_md)
+    content_for_hash = f"{query}|{results_content}"
+    content_hash = get_content_hash(content_for_hash)
 
-        queue_entry = f"""---
+    queue_entry = f"""---
 queue_entry_id: {entry_id}
 created_at: {now.isoformat()}
 session_type: auto_capture
@@ -319,39 +313,9 @@ auto_generated: true
 - [ ] Archive or delete if not useful
 """
 
-        QUEUE_DIR.mkdir(parents=True, exist_ok=True)
-        queue_path = QUEUE_DIR / filename
-        queue_path.write_text(queue_entry, encoding="utf-8")
-
-        # Update dedup index (mirrors store_webfetch_content behavior)
-        try:
-            update_index(
-                content_hash=content_hash,
-                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
-                importance_score=50,
-                url=query,
-                title=f"WebSearch: {query}",
-                maturity="seedling",
-                routing_type="pending",
-            )
-        except Exception as idx_err:
-            logger.error(
-                "web_research_handler: Index update failed for websearch, removing orphan: %s",
-                idx_err,
-            )
-            queue_path.unlink(missing_ok=True)
-            return None
-
-        return str(queue_path)
-
-    except (PermissionError, OSError) as e:
-        logger.error(
-            "web_research_handler: Failed to store search results (I/O): %s", e
-        )
-        return None
-    except Exception as e:
-        logger.error("web_research_handler: Failed to store search results: %s", e)
-        return None
+    return _store_to_queue(
+        filename, queue_entry, content_hash, query, f"WebSearch: {query}"
+    )
 
 
 def _recent_intake_pending(query: str) -> bool:

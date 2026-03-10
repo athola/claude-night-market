@@ -33,6 +33,8 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
+SECONDS_PER_DAY = 86400
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -102,7 +104,7 @@ def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
         last_tended = plot.get("last_tended")
         if last_tended:
             dt = iso_to_datetime(last_tended)
-            days = (now - dt).total_seconds() / 86400
+            days = (now - dt).total_seconds() / SECONDS_PER_DAY
             days_since_tend.append(days)
 
     avg_links = mean(link_counts) if link_counts else 0.0
@@ -161,17 +163,24 @@ def main() -> int:
     args = parse_args()
     now = datetime.fromisoformat(args.now) if args.now else datetime.now(timezone.utc)
 
-    compute_garden_metrics(args.path, now, args.tending_queue)
+    metrics = compute_garden_metrics(args.path, now, args.tending_queue)
     if args.format == "brief":
-        pass
+        avg_days = metrics.get("avg_days_since_tend")
+        avg_str = f"{avg_days:.1f}" if avg_days is not None else "n/a"
+        print(
+            f"plots={metrics['plots']} "
+            f"link_density={metrics['link_density']:.2f} "
+            f"avg_days_since_tend={avg_str}"
+        )
     elif args.format == "prometheus":
         label = args.label or args.path.stem
-
-        def line(metric: str, value: Any) -> str:
-            return f'{metric}{{garden="{label}"}} {value}'
-
+        print(f'garden_plots{{garden="{label}"}} {metrics["plots"]}')
+        print(f'garden_link_density{{garden="{label}"}} {metrics["link_density"]}')
+        avg_days = metrics.get("avg_days_since_tend")
+        if avg_days is not None:
+            print(f'garden_avg_days_since_tend{{garden="{label}"}} {avg_days}')
     else:
-        pass
+        print(json.dumps(metrics, indent=2, default=str))
     return 0
 
 

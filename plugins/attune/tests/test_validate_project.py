@@ -3,36 +3,39 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
-from validate_project import ProjectValidator, ValidationResult
+from validate_project import ProjectValidator, ValidationResult, main
 
 
 @pytest.mark.unit
 class TestValidationResultCreation:
     """Test ValidationResult creation behavior."""
 
-    def test_create_passed_result(self):
-        """Given valid parameters, when creating passed result, then stores all attributes."""
+    @pytest.mark.parametrize(
+        ("name", "passed", "message", "category"),
+        [
+            ("test-check", True, "Test passed", "test"),
+            ("test-check", False, "Test failed", "test"),
+            ("git-init", True, "Git ready", "git"),
+            ("pyproject", False, "Missing pyproject.toml", "build"),
+        ],
+        ids=["passed", "failed", "git-pass", "build-fail"],
+    )
+    def test_create_result_stores_all_attributes(self, name, passed, message, category):
+        """Given valid parameters, when creating result, then stores all attributes."""
         # When
-        result = ValidationResult("test-check", True, "Test passed", "test")
+        result = ValidationResult(name, passed, message, category)
 
         # Then
-        assert result.name == "test-check"
-        assert result.passed is True
-        assert result.message == "Test passed"
-        assert result.category == "test"
-
-    def test_create_failed_result(self):
-        """Given valid parameters, when creating failed result, then stores all attributes."""
-        # When
-        result = ValidationResult("test-check", False, "Test failed", "test")
-
-        # Then
-        assert result.name == "test-check"
-        assert result.passed is False
-        assert result.message == "Test failed"
+        assert result.name == name
+        assert result.passed is passed
+        assert result.message == message
+        assert result.category == category
 
 
 @pytest.mark.unit
@@ -153,60 +156,54 @@ class TestBuildConfigValidation:
         assert len(pyproject_results) == 1
         assert pyproject_results[0].passed is False
 
-    def test_validate_rust_cargo_toml_exists(self, rust_project):
-        """Given a Rust project with Cargo.toml, when validating build, then passes."""
+    @pytest.mark.parametrize(
+        ("fixture_name", "language", "result_name"),
+        [
+            ("rust_project", "rust", "cargo-toml"),
+            ("typescript_project", "typescript", "package-json"),
+            ("typescript_project", "typescript", "tsconfig"),
+        ],
+        ids=["rust-cargo", "ts-package-json", "ts-tsconfig"],
+    )
+    def test_validate_build_config_present(
+        self, fixture_name, language, result_name, request
+    ):
+        """Given a project with its config file, when validating build, then passes."""
         # Given
-        validator = ProjectValidator(rust_project)
+        project = request.getfixturevalue(fixture_name)
+        validator = ProjectValidator(project)
 
         # When
-        validator.validate_build_config("rust")
+        validator.validate_build_config(language)
 
         # Then
-        cargo_results = [r for r in validator.results if r.name == "cargo-toml"]
-        assert len(cargo_results) == 1
-        assert cargo_results[0].passed is True
+        matches = [r for r in validator.results if r.name == result_name]
+        assert len(matches) == 1
+        assert matches[0].passed is True
 
-    def test_validate_rust_cargo_toml_missing(self, tmp_path):
-        """Given a Rust project without Cargo.toml, when validating build, then fails."""
+    @pytest.mark.parametrize(
+        ("language", "result_name"),
+        [
+            ("rust", "cargo-toml"),
+            ("typescript", "package-json"),
+        ],
+        ids=["rust-missing", "ts-missing"],
+    )
+    def test_validate_build_config_missing(self, tmp_path, language, result_name):
+        """Given a project without its config file, when validating build, then fails."""
         # Given
-        project_dir = tmp_path / "rust-no-config"
+        project_dir = tmp_path / f"{language}-no-config"
         project_dir.mkdir()
 
         validator = ProjectValidator(project_dir)
 
         # When
-        validator.validate_build_config("rust")
+        validator.validate_build_config(language)
 
         # Then
-        cargo_results = [r for r in validator.results if r.name == "cargo-toml"]
-        assert len(cargo_results) == 1
-        assert cargo_results[0].passed is False
-
-    def test_validate_typescript_package_json_exists(self, typescript_project):
-        """Given a TypeScript project with package.json, when validating build, then passes."""
-        # Given
-        validator = ProjectValidator(typescript_project)
-
-        # When
-        validator.validate_build_config("typescript")
-
-        # Then
-        package_results = [r for r in validator.results if r.name == "package-json"]
-        assert len(package_results) == 1
-        assert package_results[0].passed is True
-
-    def test_validate_typescript_tsconfig_exists(self, typescript_project):
-        """Given a TypeScript project with tsconfig.json, when validating build, then passes."""
-        # Given
-        validator = ProjectValidator(typescript_project)
-
-        # When
-        validator.validate_build_config("typescript")
-
-        # Then
-        tsconfig_results = [r for r in validator.results if r.name == "tsconfig"]
-        assert len(tsconfig_results) == 1
-        assert tsconfig_results[0].passed is True
+        matches = [r for r in validator.results if r.name == result_name]
+        assert len(matches) == 1
+        assert matches[0].passed is False
 
     def test_validate_makefile_exists(self, tmp_path):
         """Given a project with Makefile, when validating build, then passes and counts targets."""
@@ -391,44 +388,41 @@ class TestCICDValidation:
             for r in [test_result, lint_result, typecheck_result]
         )
 
-    def test_validate_rust_workflows_present(self, tmp_path):
-        """Given a Rust project with ci.yml, when validating CI/CD, then passes."""
+    @pytest.mark.parametrize(
+        ("language", "workflow_files", "expected_pass_names"),
+        [
+            ("rust", ["ci.yml"], ["workflow-ci.yml"]),
+            (
+                "typescript",
+                ["test.yml", "lint.yml", "build.yml"],
+                ["workflow-test.yml", "workflow-lint.yml", "workflow-build.yml"],
+            ),
+        ],
+        ids=["rust-ci", "typescript-workflows"],
+    )
+    def test_validate_workflows_present_parametrized(
+        self, tmp_path, language, workflow_files, expected_pass_names
+    ):
+        """Given a project with required workflows, when validating CI/CD, then passes."""
         # Given
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         workflows_dir = project_dir / ".github" / "workflows"
         workflows_dir.mkdir(parents=True)
-        (workflows_dir / "ci.yml").write_text("name: CI\n")
+
+        for wf in workflow_files:
+            (workflows_dir / wf).write_text(f"name: {wf}\n")
 
         validator = ProjectValidator(project_dir)
 
         # When
-        validator.validate_ci_cd("rust")
+        validator.validate_ci_cd(language)
 
         # Then
-        ci_result = [r for r in validator.results if r.name == "workflow-ci.yml"]
-        assert len(ci_result) == 1
-        assert ci_result[0].passed is True
-
-    def test_validate_typescript_workflows_present(self, tmp_path):
-        """Given a TypeScript project with workflows, when validating CI/CD, then passes."""
-        # Given
-        project_dir = tmp_path / "project"
-        project_dir.mkdir()
-        workflows_dir = project_dir / ".github" / "workflows"
-        workflows_dir.mkdir(parents=True)
-
-        for workflow in ["test.yml", "lint.yml", "build.yml"]:
-            (workflows_dir / workflow).write_text(f"name: {workflow}\n")
-
-        validator = ProjectValidator(project_dir)
-
-        # When
-        validator.validate_ci_cd("typescript")
-
-        # Then
-        workflow_results = [r for r in validator.results if "workflow-" in r.name]
-        assert all(r.passed for r in workflow_results)
+        for name in expected_pass_names:
+            matches = [r for r in validator.results if r.name == name]
+            assert len(matches) == 1, f"Expected result for {name}"
+            assert matches[0].passed is True
 
 
 @pytest.mark.unit
@@ -682,3 +676,155 @@ python_version = "3.10"
         assert len(failed) > 0
         assert any("git" in r.message.lower() for r in failed)
         assert any("makefile" in r.message.lower() for r in failed)
+
+
+@pytest.mark.unit
+class TestPrintReport:
+    """Test print_report output covers all categories and score."""
+
+    def test_print_report_shows_score_and_categories(self, python_project, capsys):
+        """Given results, when printing report, then includes score and category headers."""
+        # Given
+        (python_project / ".git").mkdir()
+        (python_project / ".gitignore").write_text("*.pyc\n")
+        (python_project / "Makefile").write_text("help:\n\t@echo help\n")
+        validator = ProjectValidator(python_project)
+        validator.run_validation("python")
+
+        # When
+        validator.print_report()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "Project Validation Report" in captured
+        assert "Score:" in captured
+        assert "Git Configuration" in captured
+        assert "Build Configuration" in captured
+
+    def test_print_report_shows_recommendations_on_failures(
+        self, mock_project_path, capsys
+    ):
+        """Given failed checks, when printing report, then shows recommendations."""
+        # Given
+        validator = ProjectValidator(mock_project_path)
+        validator.results = [
+            ValidationResult("git-init", False, "Git not initialized", "git"),
+        ]
+
+        # When
+        validator.print_report()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "Recommendations:" in captured
+        assert "Git not initialized" in captured
+
+    def test_print_report_shows_all_passed_when_no_failures(
+        self, mock_project_path, capsys
+    ):
+        """Given all passed checks, when printing report, then shows all-passed message."""
+        # Given
+        validator = ProjectValidator(mock_project_path)
+        validator.results = [
+            ValidationResult("readme", True, "README.md present", "structure"),
+        ]
+
+        # When
+        validator.print_report()
+
+        # Then
+        captured = capsys.readouterr().out
+        assert "All checks passed" in captured
+
+
+@pytest.mark.unit
+class TestMainCLI:
+    """Test the validate_project main() entry point."""
+
+    def test_main_with_strict_flag_exits_on_failure(self, python_project):
+        """Given --strict and failing checks, when running main, then exits with 1."""
+        with patch(
+            "sys.argv",
+            [
+                "validate_project.py",
+                "--path",
+                str(python_project),
+                "--lang",
+                "python",
+                "--strict",
+            ],
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code in (1, 2)
+
+    def test_main_with_verbose_flag(self, python_project):
+        """Given --verbose, when running main, then exits without error."""
+        (python_project / ".git").mkdir()
+        (python_project / ".gitignore").write_text("*.pyc\n")
+        (python_project / "Makefile").write_text("help:\n\t@echo help\n")
+        (python_project / ".pre-commit-config.yaml").write_text("repos: []\n")
+        (python_project / "tests").mkdir()
+        (python_project / "README.md").write_text("# Test\n")
+        pyproject = python_project / "pyproject.toml"
+        pyproject.write_text(
+            "[project]\nname = 'test'\n\n[tool.mypy]\npython_version = '3.10'\n"
+        )
+        workflows = python_project / ".github" / "workflows"
+        workflows.mkdir(parents=True)
+        for wf in ["test.yml", "lint.yml", "typecheck.yml"]:
+            (workflows / wf).write_text(f"name: {wf}\n")
+
+        with patch(
+            "sys.argv",
+            [
+                "validate_project.py",
+                "--path",
+                str(python_project),
+                "--lang",
+                "python",
+                "-v",
+            ],
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+
+    def test_main_exits_with_normal_exit_code(self, mock_project_path):
+        """Given a project, when running main without --strict, then exits with validator code."""
+        with patch(
+            "sys.argv",
+            [
+                "validate_project.py",
+                "--path",
+                str(mock_project_path),
+                "--lang",
+                "python",
+            ],
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            # Should exit with 2 (critical: missing pyproject)
+            assert exc_info.value.code == 2
+
+
+@pytest.mark.unit
+class TestCICDUnknownLanguage:
+    """Test CI/CD validation with unknown language."""
+
+    def test_validate_ci_cd_unknown_language_no_workflows(self, tmp_path):
+        """Given an unknown language, when validating CI/CD, then no workflow checks added."""
+        # Given
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+        workflows_dir = project_dir / ".github" / "workflows"
+        workflows_dir.mkdir(parents=True)
+
+        validator = ProjectValidator(project_dir)
+
+        # When
+        validator.validate_ci_cd("go")
+
+        # Then
+        workflow_results = [r for r in validator.results if "workflow-" in r.name]
+        assert len(workflow_results) == 0

@@ -1825,9 +1825,10 @@ wheels = [
 
 [[package]]
 name = "spec-kit"
-version = "1.5.7"
+version = "1.6.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cachetools" },
     { name = "click" },
     { name = "gitpython" },
     { name = "jinja2" },
@@ -1882,6 +1883,7 @@ dev = [
 requires-dist = [
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.7.5,<2.0.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=26.1.0" },
+    { name = "cachetools", specifier = ">=5.5.2" },
     { name = "cachetools", marker = "extra == 'performance'", specifier = ">=5.3.0,<6.0.0" },
     { name = "click", specifier = ">=8.1.0,<9.0.0" },
     { name = "factory-boy", marker = "extra == 'dev'", specifier = ">=3.3.0,<4.0.0" },

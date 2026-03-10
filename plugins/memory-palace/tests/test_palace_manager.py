@@ -190,7 +190,7 @@ class TestPalaceLoading:
 
         loaded = manager.load_palace(sample_palace_data["id"])
 
-        assert loaded is not None
+        assert isinstance(loaded, dict)
         assert loaded["name"] == sample_palace_data["name"]
         assert loaded["domain"] == sample_palace_data["domain"]
 
@@ -771,6 +771,44 @@ class TestBackupCreation:
 STALE_DAYS = 90
 LOW_NOVELTY = 0.1
 
+_EMPTY_LAYOUT = {
+    "districts": [],
+    "buildings": [],
+    "rooms": [],
+    "connections": [],
+}
+
+
+def _make_palace(
+    palace_id: str,
+    name: str,
+    associations: dict,
+    *,
+    metaphor: str = "building",
+    created: str | None = None,
+) -> dict:
+    """Build a minimal palace dict for prune-check testing."""
+    ts = created or datetime.now().isoformat()
+    return {
+        "id": palace_id,
+        "name": name,
+        "domain": "testing",
+        "metaphor": metaphor,
+        "created": ts,
+        "last_modified": datetime.now().isoformat(),
+        "layout": _EMPTY_LAYOUT,
+        "associations": associations,
+        "sensory_encoding": {},
+        "metadata": {"concept_count": len(associations)},
+    }
+
+
+def _write_palace(palaces_dir: Path, palace: dict) -> None:
+    """Write a palace JSON file to the palaces directory."""
+    (palaces_dir / f"{palace['id']}.json").write_text(
+        json.dumps(palace, indent=2),
+    )
+
 
 class TestPruneCheck:
     """Feature: Prune check identifies entries needing cleanup.
@@ -790,10 +828,6 @@ class TestPruneCheck:
             palaces_dir_override=str(temp_palaces_dir),
         )
 
-    def _write_palace(self, palaces_dir: Path, palace: dict) -> None:
-        """Write a palace JSON file to the palaces directory."""
-        (palaces_dir / f"{palace['id']}.json").write_text(json.dumps(palace, indent=2))
-
     @pytest.fixture
     def _fresh_palace(
         self,
@@ -802,32 +836,21 @@ class TestPruneCheck:
     ) -> None:
         """Create a palace with recent, high-quality entries."""
         now = datetime.now().isoformat()
-        self._write_palace(
+        _write_palace(
             temp_palaces_dir,
-            {
-                "id": "fresh-palace",
-                "name": "Fresh Palace",
-                "domain": "testing",
-                "metaphor": "garden",
-                "created": now,
-                "last_modified": now,
-                "layout": {
-                    "districts": [],
-                    "buildings": [],
-                    "rooms": [],
-                    "connections": [],
-                },
-                "associations": {
+            _make_palace(
+                "fresh-palace",
+                "Fresh Palace",
+                {
                     "entry1": {
                         "label": "Recent Entry",
                         "query": "recent topic",
                         "timestamp": now,
                         "novelty_score": 0.9,
-                    },
+                    }
                 },
-                "sensory_encoding": {},
-                "metadata": {"concept_count": 1},
-            },
+                metaphor="garden",
+            ),
         )
         manager.update_master_index()
 
@@ -840,22 +863,12 @@ class TestPruneCheck:
         """Create a palace with entries older than the stale cutoff."""
         old_time = (datetime.now() - timedelta(days=STALE_DAYS + 30)).isoformat()
         now = datetime.now().isoformat()
-        self._write_palace(
+        _write_palace(
             temp_palaces_dir,
-            {
-                "id": "stale-palace",
-                "name": "Stale Palace",
-                "domain": "testing",
-                "metaphor": "ruin",
-                "created": old_time,
-                "last_modified": now,
-                "layout": {
-                    "districts": [],
-                    "buildings": [],
-                    "rooms": [],
-                    "connections": [],
-                },
-                "associations": {
+            _make_palace(
+                "stale-palace",
+                "Stale Palace",
+                {
                     "old-entry": {
                         "label": "Old Entry",
                         "query": "old topic",
@@ -869,9 +882,9 @@ class TestPruneCheck:
                         "novelty_score": 0.9,
                     },
                 },
-                "sensory_encoding": {},
-                "metadata": {"concept_count": 2},
-            },
+                metaphor="ruin",
+                created=old_time,
+            ),
         )
         manager.update_master_index()
 
@@ -883,22 +896,12 @@ class TestPruneCheck:
     ) -> None:
         """Create a palace with low novelty_score entries."""
         now = datetime.now().isoformat()
-        self._write_palace(
+        _write_palace(
             temp_palaces_dir,
-            {
-                "id": "lowq-palace",
-                "name": "Low Quality Palace",
-                "domain": "testing",
-                "metaphor": "shed",
-                "created": now,
-                "last_modified": now,
-                "layout": {
-                    "districts": [],
-                    "buildings": [],
-                    "rooms": [],
-                    "connections": [],
-                },
-                "associations": {
+            _make_palace(
+                "lowq-palace",
+                "Low Quality Palace",
+                {
                     "weak-entry": {
                         "label": "Weak Entry",
                         "query": "weak topic",
@@ -912,9 +915,8 @@ class TestPruneCheck:
                         "novelty_score": 0.8,
                     },
                 },
-                "sensory_encoding": {},
-                "metadata": {"concept_count": 2},
-            },
+                metaphor="shed",
+            ),
         )
         manager.update_master_index()
 
@@ -927,32 +929,21 @@ class TestPruneCheck:
         """Create two palaces with the same query string."""
         now = datetime.now().isoformat()
         for idx, pid in enumerate(["dup-palace-a", "dup-palace-b"]):
-            self._write_palace(
+            _write_palace(
                 temp_palaces_dir,
-                {
-                    "id": pid,
-                    "name": f"Dup Palace {idx}",
-                    "domain": "testing",
-                    "metaphor": "tower",
-                    "created": now,
-                    "last_modified": now,
-                    "layout": {
-                        "districts": [],
-                        "buildings": [],
-                        "rooms": [],
-                        "connections": [],
-                    },
-                    "associations": {
+                _make_palace(
+                    pid,
+                    f"Dup Palace {idx}",
+                    {
                         f"entry-{idx}": {
                             "label": "Shared Query Entry",
                             "query": "shared topic",
                             "timestamp": now,
                             "novelty_score": 0.7,
-                        },
+                        }
                     },
-                    "sensory_encoding": {},
-                    "metadata": {"concept_count": 1},
-                },
+                    metaphor="tower",
+                ),
             )
         manager.update_master_index()
 

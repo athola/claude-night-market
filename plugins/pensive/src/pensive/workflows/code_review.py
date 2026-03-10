@@ -138,10 +138,13 @@ class CodeReviewWorkflow:
         if not findings:
             return "No issues found during code review."
 
-        critical = sum(1 for f in findings if f.get("severity") == "critical")
-        high = sum(1 for f in findings if f.get("severity") == "high")
-        medium = sum(1 for f in findings if f.get("severity") == "medium")
-        low = sum(1 for f in findings if f.get("severity") == "low")
+        from pensive.utils.severity_mapper import SeverityMapper
+
+        counts = SeverityMapper.count_by_severity(findings)
+        critical = counts["critical"]
+        high = counts["high"]
+        medium = counts["medium"]
+        low = counts["low"]
 
         return (
             f"Found {len(findings)} issues: "

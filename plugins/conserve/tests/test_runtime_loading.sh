@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runtime module loading verification for bloat-detector
 
-set -e
+set -euo pipefail
 
 SKILL_DIR="skills/bloat-detector"
 MODULES_DIR="$SKILL_DIR/modules"

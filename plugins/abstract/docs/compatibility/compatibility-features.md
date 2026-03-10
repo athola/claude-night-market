@@ -6,6 +6,263 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### Claude Code 2.1.69 (March 2026)
+
+**New Features**:
+- ✅ **`${CLAUDE_SKILL_DIR}` Variable**: Skills can reference their own directory using `${CLAUDE_SKILL_DIR}` in SKILL.md content, resolving to the absolute path of the containing directory
+  - **Impact**: Enables portable path references for skills that ship alongside scripts, data files, or modules. No more hardcoded absolute paths.
+  - **Affected**: abstract:skill-authoring (updated with CLAUDE_SKILL_DIR section and usage examples)
+  - **Action Required**: Done - skill-authoring SKILL.md updated
+
+- ✅ **Skill Description Colon Fix**: Skill descriptions containing colons (e.g., `"Triggers include: X, Y, Z"`) no longer fail to load. Skills without a `description:` field now appear in the available skills list.
+  - **Impact**: Removes a frontmatter parsing limitation. Skills with complex descriptions using colons work correctly.
+  - **Affected**: abstract:skill-authoring (updated troubleshooting section)
+  - **Action Required**: Done - skill-authoring SKILL.md updated
+
+- ✅ **Hook Event Fields: agent_id and agent_type**: All hook events now include `agent_id` (for subagent sessions) and `agent_type` (for both subagent and `--agent` sessions)
+  - **Impact**: Hooks can now distinguish which agent triggered them and implement agent-specific logic. Previously only SessionStart had `agent_type`.
+  - **Affected**: abstract:hook-authoring hook-types module (updated), abstract:hooks-eval sdk-hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 hook reference files updated
+
+- ✅ **Status Line worktree Field**: Status line hook commands gain a `worktree` field with `name`, `path`, `branch`, and `originalRepoDir` in worktree sessions
+  - **Impact**: Status line hooks can now display worktree-aware context
+  - **Affected**: abstract:hook-authoring hook-types module (updated in agent_id/agent_type section)
+  - **Action Required**: Done - included in hook-types module update
+
+- ✅ **TeammateIdle/TaskCompleted: continue: false**: These hooks now support returning `{"continue": false, "stopReason": "..."}` to stop a teammate, matching Stop hook behavior
+  - **Impact**: Enables graceful teammate shutdown from hook logic (budget-based, idle timeout, post-task shutdown)
+  - **Affected**: conjure:agent-teams health-monitoring module (updated), abstract:hooks-eval sdk-hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated), abstract:hook-authoring hook-types module (updated)
+  - **Action Required**: Done - all 5 files updated
+
+- ✅ **WorktreeCreate/WorktreeRemove Plugin Hook Fix**: Plugin-registered WorktreeCreate and WorktreeRemove hooks were silently ignored before 2.1.69; they now fire correctly
+  - **Impact**: Plugins can now reliably use worktree lifecycle hooks. Previously only user/project-level hooks worked.
+  - **Affected**: abstract:hook-authoring hook-types module (updated), abstract:hooks-eval sdk-hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 files updated with plugin fix note
+
+- ✅ **`/reload-plugins` Command**: Activates pending plugin changes without restarting Claude Code
+  - **Impact**: Eliminates restart requirement for plugin development and updates
+  - **Affected**: leyline:update-all-plugins command (updated Notes section)
+  - **Action Required**: Done - update-all-plugins.md updated
+
+- ✅ **`includeGitInstructions` Setting**: New setting and `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` env var to remove built-in commit and PR workflow instructions
+  - **Impact**: Organizations using custom commit/PR workflows (like our sanctum skills) can disable the built-in git instructions to reduce context and avoid conflicts
+  - **Affected**: None - sanctum commit/PR skills already provide their own instructions
+  - **Action Required**: None
+
+- ✅ **Sonnet 4.5 → 4.6 Migration**: Pro/Max/Team Premium users automatically migrated from Sonnet 4.5 to Sonnet 4.6
+  - **Impact**: Model upgrade is transparent. Agent `model` frontmatter referencing Sonnet resolves correctly. `--model claude-opus-4-0` and `--model claude-opus-4-1` now resolve to Opus 4.6 instead of deprecated versions.
+  - **Affected**: abstract model-optimization-guide (updated), abstract:escalation-governance (updated)
+  - **Action Required**: Done - both files updated with Sonnet 4.6 migration note
+
+- ✅ **Plugin Source Type `git-subdir`**: Plugins can now point to subdirectories within git repos
+  - **Impact**: Enables monorepo-style plugin hosting
+  - **Affected**: None - informational for plugin developers
+  - **Action Required**: None
+
+- ✅ **`pluginTrustMessage` Managed Setting**: Organizations can append custom context to plugin trust warnings
+  - **Impact**: Enterprise governance improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Effort Level Display**: Active effort level shown in logo and spinner (e.g., "with low effort")
+  - **Impact**: UX visibility improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+**Bug Fixes**:
+- ✅ **Nested Skill Discovery Security Fix**: Fixed nested skill discovery loading from gitignored directories like `node_modules`
+  - **Impact**: Security fix preventing unintended skill loading from dependency directories
+  - **Affected**: None - our skills are not in gitignored directories
+  - **Action Required**: None
+
+- ✅ **Deprecated Model Resolution Fix**: `--model claude-opus-4-0` and `--model claude-opus-4-1` now resolve to current Opus 4.6 instead of deprecated versions
+  - **Impact**: Users with legacy model pins no longer get API errors
+  - **Affected**: abstract model-optimization-guide (noted in Sonnet migration section)
+  - **Action Required**: Done - included in model migration note
+
+### Claude Code 2.1.71 (March 2026)
+
+**New Features**:
+- ✅ **`/loop` Command and Cron Scheduling**: `/loop` runs prompts or slash commands on recurring intervals (e.g., `/loop 5m check the deploy`). Three new built-in tools: `CronCreate`, `CronList`, `CronDelete` for session-scoped scheduled tasks. Sessions hold up to 50 tasks with 3-day auto-expiry. Disable with `CLAUDE_CODE_DISABLE_CRON=1`.
+  - **Impact**: New scheduling capability. Hooks matching on tool names in PreToolUse/PostToolUse see these new tool names. The `/loop` command has no naming conflict with existing skills.
+  - **Affected**: abstract:hook-authoring hook-types module (updated), abstract:hooks-eval sdk-hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 hook reference files updated with cron tools section
+
+- ✅ **Bash Auto-Approval Expansion**: Added `fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`, `printf`, `getconf`, `seq`, `tsort`, `pr` to the default bash auto-approval allowlist
+  - **Impact**: These POSIX utilities no longer trigger permission prompts or PermissionRequest hook events
+  - **Affected**: abstract:hook-authoring hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 3 hook reference files updated
+
+- ✅ **Voice Push-to-Talk Keybinding**: `voice:pushToTalk` keybinding rebindable in `keybindings.json` (default: space); modifier+letter combos like `meta+k` have zero typing interference. Voice STT expanded to 20 languages.
+  - **Impact**: UX improvement for voice users
+  - **Affected**: None
+  - **Action Required**: None
+
+**Bug Fixes**:
+- ✅ **Stdin Freeze Fix**: Fixed stdin freeze in long-running sessions where keystrokes stop being processed but the process stays alive
+  - **Impact**: Critical reliability fix for long sessions
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **CoreAudio Startup Freeze**: Fixed 5-8 second startup freeze for users with voice mode enabled, caused by CoreAudio initialization blocking the main thread after system wake
+  - **Impact**: Startup performance fix for macOS voice users
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **OAuth Startup UI Freeze**: Fixed startup UI freeze when many claude.ai proxy connectors refresh an expired OAuth token simultaneously
+  - **Impact**: Startup reliability for enterprise users with multiple connectors
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Fork Plan File Isolation**: Fixed `/fork` sharing the same plan file, which caused plan edits in one fork to overwrite the other
+  - **Impact**: Forked conversations now have independent plan state
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Read Tool Image Overflow Fix**: Fixed the Read tool putting oversized images into context when image processing failed, breaking subsequent turns in long image-heavy sessions
+  - **Impact**: Context protection for image-heavy workflows. Prevents MECW violations from failed image processing.
+  - **Affected**: conserve:context-optimization mecw-principles module (updated)
+  - **Action Required**: Done - mecw-principles module updated with Read Tool Image Safety section
+
+- ✅ **Heredoc Permission Fix**: Fixed false-positive permission prompts for compound bash commands containing heredoc commit messages
+  - **Impact**: The `git commit -m "$(cat <<'EOF' ... EOF)"` pattern used by sanctum commit workflows no longer triggers unexpected permission prompts
+  - **Affected**: abstract:hook-authoring hook-types module (updated), abstract:hooks-eval sdk-hook-types module (updated), capabilities-hooks reference (updated), hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 hook reference files updated
+
+- ✅ **Plugin Installation Persistence Fix**: Fixed plugin installations being lost when running multiple Claude Code instances
+  - **Impact**: Multi-instance reliability fix
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **claude.ai Connector Reconnection**: Fixed connectors failing to reconnect after OAuth token refresh
+  - **Impact**: Session stability for claude.ai connector users
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **MCP Connector Notification Spam**: Fixed startup notifications appearing for every org-configured connector instead of only previously connected ones
+  - **Impact**: Reduced startup noise for enterprise users
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Background Agent Notification Fix**: Fixed completion notifications missing the output file path, making it difficult for parent agents to recover agent results after context compaction
+  - **Impact**: Critical fix for agent team workflows. Parent agents can now reliably retrieve background agent output after compaction.
+  - **Affected**: conjure:agent-teams health-monitoring module (updated)
+  - **Action Required**: Done - health-monitoring module updated
+
+- ✅ **Duplicate Bash Error Output**: Fixed duplicate output in Bash tool error messages when commands exit with non-zero status
+  - **Impact**: Cleaner error output, less context waste on error messages
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Chrome Extension Detection**: Fixed auto-detection getting permanently stuck on "not installed" after running on a machine without local Chrome
+  - **Impact**: UX fix for VS Code users
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Plugin Marketplace Update Fix**: Fixed `/plugin marketplace update` failing with merge conflicts when the marketplace is pinned to a branch/tag ref
+  - **Impact**: Plugin update reliability improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Plugin Marketplace Add @ref Parsing**: Fixed `/plugin marketplace add owner/repo@ref` incorrectly parsing `@`; previously only `#` worked as a ref separator
+  - **Impact**: Users can now use the standard `@ref` syntax
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Permissions Duplicate Entries**: Fixed duplicate entries in `/permissions` Workspace tab when the same directory is added with and without a trailing slash
+  - **Impact**: UX cleanup
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **`--print` Team Agent Hang**: Fixed `--print` hanging forever when team agents are configured; the exit loop no longer waits on long-lived `in_process_teammate` tasks
+  - **Impact**: Critical fix for CI/automation workflows using `--print` with team configurations
+  - **Affected**: conjure:agent-teams health-monitoring module (updated)
+  - **Action Required**: Done - health-monitoring module updated
+
+- ✅ **ToolSearch Display Fix**: Fixed "❯ Tool loaded." appearing in the REPL after every ToolSearch call
+  - **Impact**: Cosmetic fix reducing REPL noise
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Windows Path Prompting**: Fixed prompting for `cd <cwd> && git ...` on Windows when the model uses a mingw-style path
+  - **Impact**: Windows UX fix
+  - **Affected**: None
+  - **Action Required**: None
+
+**Improvements**:
+- ✅ **Startup Image Processor Deferral**: Deferred native image processor loading to first use
+  - **Impact**: Faster startup for sessions that don't use images
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Bridge Reconnection Speed**: Bridge session reconnection completes within seconds after laptop wake from sleep, instead of waiting up to 10 minutes
+  - **Impact**: Major usability improvement for laptop users
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **`/plugin uninstall` Team Safety**: Now disables project-scoped plugins in `.claude/settings.local.json` instead of modifying `.claude/settings.json`, so changes don't affect teammates via version control
+  - **Impact**: Team-safe plugin management
+  - **Affected**: leyline:update-all-plugins command (updated Notes section)
+  - **Action Required**: Done - update-all-plugins.md updated
+
+- ✅ **Plugin MCP Server Deduplication**: Plugin-provided MCP servers duplicating manually-configured servers (same command/URL) are now skipped, preventing duplicate connections and tool sets. Suppressions shown in `/plugin` menu.
+  - **Impact**: Prevents duplicate MCP connections
+  - **Affected**: None
+  - **Action Required**: None
+
+**Changes**:
+- ✅ **`/debug` Toggle**: Updated to toggle debug logging on mid-session, since debug logs are no longer written by default
+  - **Impact**: Debugging workflow change
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Removed Connector Notification Noise**: Removed startup notification noise for unauthenticated org-registered claude.ai connectors
+  - **Impact**: Cleaner startup for enterprise users
+  - **Affected**: None
+  - **Action Required**: None
+
+### Claude Code 2.1.70 (March 2026)
+
+**New Features**:
+- ✅ **Compaction Image Preservation**: Compaction now preserves images in the summarizer request, allowing prompt cache reuse across compaction boundaries
+  - **Impact**: Compaction is faster and cheaper for image-heavy sessions (screenshots, diagrams). Previously images were dropped during compaction, busting the prompt cache.
+  - **Affected**: conserve:context-optimization mecw-principles module (updated)
+  - **Action Required**: Done - mecw-principles module updated
+
+- ✅ **Resume Token Savings**: Skill listings are no longer re-injected on every `--resume` invocation, saving ~600 tokens per resume
+  - **Impact**: Improved context efficiency for workflows that frequently resume sessions
+  - **Affected**: conserve:context-optimization mecw-principles module (updated)
+  - **Action Required**: Done - mecw-principles module updated
+
+**Bug Fixes**:
+- ✅ **Effort Parameter Fix**: Fixed API 400 error `This model does not support the effort parameter` when using custom Bedrock inference profiles or non-standard Claude model identifiers
+  - **Impact**: Effort controls now work reliably across all deployment configurations
+  - **Affected**: abstract:escalation-governance (updated with fix note)
+  - **Action Required**: Done - escalation-governance SKILL.md updated
+
+- ✅ **Plugin Installation Status Accuracy**: Plugin installation status is now accurate in `/plugin` menu. Previous versions could show plugins as inaccurately installed or report "not found in marketplace" on fresh startup.
+  - **Impact**: Reliable plugin status reporting in the CLI
+  - **Affected**: leyline:update-all-plugins command (updated Notes section)
+  - **Action Required**: Done - update-all-plugins.md updated
+
+### Claude Code 2.1.68 (March 2026)
+
+**Changes**:
+- ✅ **Opus 4.6 Default Medium Effort**: Opus 4.6 now defaults to medium effort for Max and Team subscribers. Medium effort is the sweet spot between speed and thoroughness.
+  - **Impact**: Changes the default reasoning depth for Opus 4.6. Agents and skills using Opus 4.6 will produce faster but potentially less thorough responses by default. Use `/model` to adjust or "ultrathink" keyword for high effort on the next turn.
+  - **Affected**: abstract:escalation-governance (updated effort control table and default), abstract model-optimization-guide (updated effort documentation)
+  - **Action Required**: Done - escalation-governance and model-optimization-guide updated with medium default and ultrathink keyword
+
+- ✅ **"ultrathink" Keyword Re-introduced**: Typing "ultrathink" in a prompt enables high effort for the next turn
+  - **Impact**: Quick way to request deeper reasoning without navigating `/model` menu
+  - **Affected**: abstract:escalation-governance (updated with ultrathink reference)
+  - **Action Required**: Done - escalation-governance updated
+
+- ✅ **Opus 4 and 4.1 Removed**: Removed from Claude Code on the first-party API. Users with these models pinned are automatically moved to Opus 4.6.
+  - **Impact**: No more Opus 4/4.1 model selection. Automatic migration to Opus 4.6 is transparent. Agent `model` frontmatter referencing Opus 4/4.1 will resolve to Opus 4.6.
+  - **Affected**: abstract:escalation-governance (updated with removal note), abstract model-optimization-guide (updated)
+  - **Action Required**: Done - both files updated with deprecation notes
+
 ### Claude Code 2.1.63 (March 2026)
 
 **New Features**:
@@ -26,8 +283,8 @@ Feature timeline and version-specific capabilities.
 
 - ✅ **`ENABLE_CLAUDEAI_MCP_SERVERS=false` Env Var**: Opt out of claude.ai MCP servers being available in Claude Code
   - **Impact**: Opt-out for the claude.ai MCP connector feature introduced in 2.1.46
-  - **Affected**: conserve:mcp-code-execution (document as tuning option)
-  - **Action Required**: None - opt-in flag
+  - **Affected**: conserve:mcp-code-execution mcp-subagents module (updated)
+  - **Action Required**: Done - mcp-subagents module updated with opt-out documentation
 
 - ✅ **`/copy` "Always Copy Full Response" Option**: Skips code block picker for future `/copy` invocations
   - **Impact**: UX convenience improvement
@@ -47,13 +304,13 @@ Feature timeline and version-specific capabilities.
 
 - ✅ **Memory Leak Fixes (12+ sites)**: Fixed leaks in bridge polling, MCP OAuth cleanup, hooks config menu, permission handler auto-approvals, bash prefix cache, MCP tool/resource cache on reconnect, IDE host IP cache, WebSocket transport reconnect, git root detection cache, JSON parsing cache, long-running teammate messages in AppState, and MCP server fetch caches on disconnect
   - **Impact**: Massive quality pass on memory leaks. Long-running sessions and heavy agent workflows are significantly more stable.
-  - **Affected**: conserve:context-optimization (memory management guidance), conjure:agent-teams (teammate memory fix)
-  - **Action Required**: None - passive improvements across the board
+  - **Affected**: conserve:context-optimization subagent-coordination (updated), conjure:agent-teams health-monitoring (updated)
+  - **Action Required**: Done - subagent-coordination and health-monitoring modules updated with memory fix notes
 
 - ✅ **Subagent Context Compaction**: Heavy progress message payloads stripped during compaction in subagent sessions
   - **Impact**: Subagent compaction is leaner; less noise retained after compaction
-  - **Affected**: conserve:context-optimization (subagent-coordination)
-  - **Action Required**: None - passive improvement
+  - **Affected**: conserve:context-optimization subagent-coordination (updated in memory leak fixes entry above)
+  - **Action Required**: Done - included in 2.1.63 memory leak fixes section
 
 - ✅ **Local Slash Command Output Fix**: `/cost` and similar local commands now appear as system messages instead of user-sent messages
   - **Impact**: UI correctness for built-in commands
@@ -101,8 +358,8 @@ Feature timeline and version-specific capabilities.
 **New Features**:
 - ✅ **Auto-Memory with /memory Command**: Claude automatically saves useful context to persistent auto-memory. Managed via `/memory` command.
   - **Impact**: Built-in memory persistence for conversation context. This is the system backing `~/.claude/projects/*/memory/MEMORY.md`
-  - **Affected**: memory-palace plugin (complementary, not conflicting - memory-palace handles structured knowledge intake; auto-memory handles conversation context)
-  - **Action Required**: None - these are separate systems serving different purposes
+  - **Affected**: memory-palace README (updated layer comparison table from "Native Memory 2.1.32+" to "Auto-Memory 2.1.59+")
+  - **Action Required**: Done - memory-palace README updated to reference auto-memory and `/memory` command
 
 - ✅ **/copy Command**: Interactive code block picker for copying individual blocks or full responses
   - **Impact**: New built-in slash command
@@ -117,8 +374,8 @@ Feature timeline and version-specific capabilities.
 **Bug Fixes**:
 - ✅ **Multi-Agent Memory Release**: Releasing completed subagent task state improves memory in multi-agent sessions
   - **Impact**: Continuation of 2.1.50 memory leak fixes; further reduces RSS growth in Task-heavy workflows
-  - **Affected**: conserve:context-optimization (subagent-coordination module)
-  - **Action Required**: None - passive improvement
+  - **Affected**: conserve:context-optimization subagent-coordination module (updated)
+  - **Action Required**: Done - subagent-coordination module updated with 2.1.59 task state release note
 
 - ✅ **MCP OAuth Token Refresh Race**: Fixed race condition when running multiple Claude Code instances simultaneously
   - **Impact**: Multi-instance MCP reliability
@@ -169,8 +426,8 @@ Feature timeline and version-specific capabilities.
 
 - ✅ **Bulk Agent Kill (ctrl+f) Aggregate Notification**: ctrl+f now sends a single aggregate notification instead of one per agent, and properly clears the command queue
   - **Impact**: Cleaner shutdown of parallel agent sessions; no more notification storms when killing N background agents
-  - **Affected**: conjure:agent-teams (cleaner bulk termination), superpowers:dispatching-parallel-agents (ctrl+f more reliable)
-  - **Action Required**: None - passive reliability improvement
+  - **Affected**: conjure:agent-teams spawning-patterns (updated with bulk kill section)
+  - **Action Required**: Done - spawning-patterns module updated with ctrl+f bulk kill behavior
 
 - ✅ **Remote Control Stale Sessions on Shutdown**: Parallelized teardown network calls to prevent graceful shutdown from leaving stale sessions
   - **Impact**: `claude remote-control` sessions now clean up reliably on shutdown
@@ -205,27 +462,31 @@ Feature timeline and version-specific capabilities.
 
 - ✅ **Plugin Marketplace Git Timeout Increase**: Default git timeout increased from 30s to 120s; configurable via `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS`
   - **Impact**: Plugin installations from slow networks or large repos are less likely to time out
-  - **Affected**: leyline:reinstall-all-plugins (benefits from higher timeout), sanctum:update-plugins
-  - **Action Required**: None - default behavior improved. Set `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` if custom timeout needed
+  - **Affected**: leyline:reinstall-all-plugins, leyline:update-all-plugins (both updated with troubleshooting notes)
+  - **Action Required**: Done - leyline commands updated with `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` documentation
 
 - ✅ **Custom npm Registries and Version Pinning**: Plugins installed from npm sources now support custom registries and specific version pins
   - **Impact**: Enterprise environments with private npm registries can now host and install plugins
-  - **Affected**: None - all night-market plugins use marketplace installation
-  - **Action Required**: None - additive capability
+  - **Affected**: leyline:reinstall-all-plugins (updated with npm registry notes)
+  - **Action Required**: Done - reinstall command updated with npm registry section
 
 - ✅ **BashTool Skips Login Shell by Default**: BashTool no longer uses `-l` flag when a shell snapshot is available, improving command execution performance
   - **Impact**: Faster command execution; previously required setting `CLAUDE_BASH_NO_LOGIN=true`
-  - **Affected**: All agents using Bash tool - no agents rely on login shell behavior (verified)
-  - **Action Required**: None - performance improvement with no behavioral change for this codebase
+  - **Affected**: All agents using Bash tool, hook-types-comprehensive (updated with login shell guidance for hook developers)
+  - **Action Required**: Done - hook development docs updated with login shell behavior note
 
 - ✅ **Managed Settings via macOS plist / Windows Registry**: Settings can now be configured through OS-native management tools
-  - **Impact**: Enterprise IT can deploy Claude Code settings via MDM (macOS) or Group Policy (Windows)
-  - **Affected**: None - informational for cross-platform deployment scenarios
-  - **Action Required**: None - additive capability
+  - **Impact**: Enterprise IT can deploy Claude Code settings via MDM (macOS) or Group Policy (Windows). Precedence: server-managed > MDM/plist/HKLM > managed-settings.json file > CLI args > project > user settings. Only one managed source is used (no merging across managed tiers). Array settings (permissions, sandbox paths) merge across non-managed scopes.
+  - **Managed-Only Settings**: `allowManagedPermissionRulesOnly`, `allowManagedHooksOnly`, `allowManagedMcpServersOnly`, `strictKnownMarketplaces`, `blockedMarketplaces`, `disableBypassPermissionsMode`, `allowedHttpHookUrls`, `httpHookAllowedEnvVars`, `pluginTrustMessage`
+  - **macOS**: `com.anthropic.claudecode` plist domain via MDM (Jamf, Kandji)
+  - **Windows**: `HKLM\SOFTWARE\Policies\ClaudeCode` (admin) or `HKCU\SOFTWARE\Policies\ClaudeCode` (user, lowest policy priority)
+  - **File paths**: macOS `/Library/Application Support/ClaudeCode/`, Linux `/etc/claude-code/`, Windows `C:\Program Files\ClaudeCode\`
+  - **Affected**: docs/api-overview.md (updated with managed settings section)
+  - **Action Required**: Done - API overview updated with enterprise configuration reference
 
 - ✅ **New Account Environment Variables**: `CLAUDE_CODE_ACCOUNT_UUID`, `CLAUDE_CODE_USER_EMAIL`, and `CLAUDE_CODE_ORGANIZATION_UUID` for SDK callers
   - **Impact**: Eliminates race condition where early telemetry events lacked account metadata
-  - **Affected**: None - no SDK callers in this codebase
+  - **Affected**: conjure delegation-core troubleshooting (updated with SDK env var guidance)
   - **Action Required**: None - relevant for external SDK integrations only
 
 - ✅ **Human-Readable `/model` Picker Labels**: Shows "Sonnet 4.5" instead of raw model IDs, with upgrade hints for newer versions
@@ -236,13 +497,13 @@ Feature timeline and version-specific capabilities.
 **Bug Fixes**:
 - ✅ **statusLine/fileSuggestion Security Fix**: Hook commands now require workspace trust acceptance in interactive mode
   - **Impact**: Prevents untrusted hooks from executing status line or file suggestion commands
-  - **Affected**: None - no hooks in this codebase use statusLine or fileSuggestion
-  - **Action Required**: None
+  - **Affected**: hook-authoring hook-types, sdk-hook-types, capabilities-hooks reference, hook-types-comprehensive (all updated with workspace trust security notes)
+  - **Action Required**: Done - four hook reference files updated with workspace trust security section
 
 - ✅ **Tool Result Persistence Threshold Lowered**: Results larger than 50K chars now persisted to disk (previously 100K)
   - **Impact**: Reduces context window usage; improves conversation longevity for subagent-heavy workflows
-  - **Affected**: conjure bridge hook (already uses 50K threshold - aligned), conserve:context-optimization (lower inline threshold)
-  - **Action Required**: Done - updated conjure book documentation from 100K to 50K to match
+  - **Affected**: conjure bridge hook (already uses 50K threshold - aligned), conserve:context-optimization (mecw-principles and subagent-coordination updated)
+  - **Action Required**: Done - conserve MECW principles and subagent coordination modules updated with 50K threshold documentation
 
 - ✅ **Duplicate `control_response` Fix**: WebSocket reconnects no longer cause API 400 errors from duplicate assistant messages
   - **Impact**: Improved reliability for long-running sessions with network interruptions

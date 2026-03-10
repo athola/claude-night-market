@@ -203,7 +203,7 @@ class GeminiQuotaTracker(QuotaTracker):  # type: ignore[misc]
         tokens = int(prompt_length / 4.0)  # Default ratio
 
         for path in self._iter_source_paths(file_paths):
-            tokens += self.estimate_file_tokens(Path(path))
+            tokens += self.estimate_file_tokens(Path(path)) + FILE_OVERHEAD_TOKENS
 
         return int(tokens)
 
@@ -304,22 +304,23 @@ def main() -> None:
 
     if args.status:
         status, warnings = tracker.get_quota_status()
-        for _warning in warnings:
-            pass
+        print(status)
+        for warning in warnings:
+            print(f"  WARNING: {warning}")
 
     elif args.estimate:
-        tracker.estimate_task_tokens(args.estimate)
+        tokens = tracker.estimate_task_tokens(args.estimate)
+        print(f"Estimated tokens: {tokens}")
 
     elif args.validate_config:
-        # Basic validation of configuration
-        for _key, _value in tracker.limits.items():
-            pass
+        for key, value in tracker.limits.items():
+            print(f"  {key}: {value}")
 
     else:
-        # Default: show status
-        _status, warnings = tracker.get_quota_status()
-        for _warning in warnings:
-            pass
+        status, warnings = tracker.get_quota_status()
+        print(status)
+        for warning in warnings:
+            print(f"  WARNING: {warning}")
 
 
 if __name__ == "__main__":

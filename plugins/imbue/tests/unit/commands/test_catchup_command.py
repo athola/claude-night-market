@@ -4,6 +4,8 @@ This module tests the catchup command workflow and change analysis integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
+from __future__ import annotations
+
 import time
 from unittest.mock import Mock
 
@@ -210,7 +212,8 @@ def5678 2024-12-04 test: Add payment flow tests
 
             # Assert
             assert baseline == test_case["expected_baseline"]
-            assert validation_result is not None
+            assert isinstance(validation_result, str)
+            assert len(validation_result) >= 1
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -584,14 +587,15 @@ def5678 2024-12-04 test: Add payment flow tests
             "suggestion": "Use valid git references like HEAD~1, branch names, or commit hashes",
         }
 
-        # Assert error handling structure
-        assert error_result is not None or "fatal:" in result
+        # Assert: mock doesn't raise, so error_result stays None and
+        # result contains the fatal message string from the mock.
+        assert "fatal:" in result
         assert expected_error["type"] == "not_git_repo"
-        assert "suggestion" in expected_error
+        assert isinstance(expected_error["suggestion"], str)
 
-        assert baseline_error is not None or "fatal:" in result
+        assert "fatal:" in result
         assert expected_baseline_error["type"] == "invalid_baseline"
-        assert "suggestion" in expected_baseline_error
+        assert isinstance(expected_baseline_error["suggestion"], str)
 
     @pytest.mark.bdd
     @pytest.mark.unit

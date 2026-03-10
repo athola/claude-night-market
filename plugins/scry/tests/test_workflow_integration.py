@@ -12,7 +12,6 @@ Following TDD/BDD principles with Given/When/Then docstrings.
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -399,33 +398,6 @@ class TestGifDemoScript:
     I want the gif_demo.sh script to work
     So that I can easily create demo GIFs
     """
-
-    @pytest.mark.bdd
-    @pytest.mark.integration
-    def test_gif_demo_script_exists(self, scripts_dir: Path) -> None:
-        """Scenario: gif_demo.sh script exists.
-
-        Given the scripts directory
-        When checking for gif_demo.sh
-        Then it should exist.
-        """
-        gif_demo = scripts_dir / "gif_demo.sh"
-        assert gif_demo.exists(), "gif_demo.sh not found"
-
-    @pytest.mark.bdd
-    @pytest.mark.integration
-    def test_gif_demo_script_is_executable(self, scripts_dir: Path) -> None:
-        """Scenario: gif_demo.sh is executable.
-
-        Given gif_demo.sh exists
-        When checking permissions
-        Then it should be executable.
-        """
-        gif_demo = scripts_dir / "gif_demo.sh"
-        if not gif_demo.exists():
-            pytest.skip("gif_demo.sh not found")
-
-        assert os.access(gif_demo, os.X_OK), "gif_demo.sh is not executable"
 
     @pytest.mark.bdd
     @pytest.mark.integration

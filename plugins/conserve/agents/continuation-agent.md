@@ -9,7 +9,7 @@ description: |
   2. Re-establishes necessary context
   3. Continues the task without interruption
   4. Can spawn another continuation agent if needed
-model_preference: default
+model: opus
 tools:
   - Read
   - Write

@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from sanctum.validators import parse_frontmatter as _parse_frontmatter_canonical
+except ImportError:
+    _parse_frontmatter_canonical = None  # type: ignore[assignment]
+
 # Import Phase 2-4 modules
 sys.path.insert(0, str(Path(__file__).parent))
 from update_plugins_modules import (
@@ -273,11 +278,10 @@ class PluginAuditor:
                 if self._should_exclude(hook_file):
                     continue
                 if hook_file.is_file() and hook_file.suffix in [".sh", ".py"]:
-                    # Skip test files and __init__.py
-                    if (
-                        not hook_file.name.startswith("test_")
-                        and hook_file.name != "__init__.py"
-                    ):
+                    # Skip test files, __init__.py, and _private helpers
+                    if not hook_file.name.startswith(
+                        "test_"
+                    ) and not hook_file.name.startswith("_"):
                         rel_path = f"./hooks/{hook_file.name}"
                         results["hooks"].append(rel_path)
 

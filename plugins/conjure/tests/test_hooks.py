@@ -1,11 +1,17 @@
-"""Tests for Gemini bridge hooks following TDD/BDD principles."""
+"""Tests for Gemini bridge hooks following TDD/BDD principles.
+
+Adds mock verification (assert_called_with / call_args checks)
+and parametrize for repeated patterns.
+"""
+
+from __future__ import annotations
 
 import json
-
-# Import hook modules with proper error handling
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 # Hook files don't have .py extension, so we need to load them manually
 HOOKS_DIR = Path(__file__).parent.parent / "hooks" / "gemini"
@@ -15,13 +21,11 @@ def load_hook_module(name: str, file_path: Path):
     """Load a Python module from a file without .py extension."""
     import importlib.machinery  # noqa: PLC0415
 
-    # Use SourceFileLoader for files without .py extension
     loader = importlib.machinery.SourceFileLoader(name, str(file_path))
     spec = importlib.util.spec_from_loader(name, loader, origin=str(file_path))
     if spec is None or spec.loader is None:
         return None
     module = importlib.util.module_from_spec(spec)
-    # Set __file__ so the module can find its location
     module.__file__ = str(file_path.absolute())
     sys.modules[name] = module
     spec.loader.exec_module(module)
@@ -29,6 +33,7 @@ def load_hook_module(name: str, file_path: Path):
 
 
 # Mock quota_tracker before loading hooks (it's imported by the hooks)
+_real_quota_tracker = sys.modules.get("quota_tracker")
 sys.modules["quota_tracker"] = MagicMock()
 
 # Create a fake 'bridge' package so @patch decorators work
@@ -45,69 +50,84 @@ try:
     )
     if bridge_start is None or bridge_after is None:
         raise ImportError("Failed to load hook modules")
-    # Also register with the package for attribute access
     bridge_package.on_tool_start = bridge_start
     bridge_package.after_tool_use = bridge_after
-except (ImportError, FileNotFoundError, OSError) as e:
-    # Create mock modules if actual ones can't be imported
+except (ImportError, FileNotFoundError, OSError):
     bridge_start = MagicMock()
     bridge_after = MagicMock()
     bridge_package.on_tool_start = bridge_start
     bridge_package.after_tool_use = bridge_after
 
+# Restore the real quota_tracker module
+if _real_quota_tracker is not None:
+    sys.modules["quota_tracker"] = _real_quota_tracker
+else:
+    del sys.modules["quota_tracker"]
+
 
 class TestBridgeAfterToolUse:
     """Test bridge.after_tool_use hook functionality."""
 
-    def test_analyze_execution_for_gemini_benefit_large_file(self) -> None:
-        tool_result = [f"file{i}.py" for i in range(10)]  # 10 files
-
-        should_recommend, benefit_type = (
-            bridge_after.analyze_execution_for_gemini_benefit(
+    @pytest.mark.parametrize(
+        ("tool_name", "tool_args", "tool_result", "expected_recommend"),
+        [
+            (
                 "Glob",
                 {"pattern": "*.py"},
-                tool_result,
-            )
-        )
-
-        assert should_recommend is False
-        assert benefit_type is None
-
-    def test_analyze_execution_for_gemini_benefit_extensive_search(self) -> None:
-        tool_result = "Error: File not found"
-
-        should_recommend, benefit_type = (
-            bridge_after.analyze_execution_for_gemini_benefit(
+                [f"file{i}.py" for i in range(10)],
+                False,
+            ),
+            (
                 "Read",
                 {"file_path": "missing.py"},
+                "Error: File not found",
+                False,
+            ),
+        ],
+        ids=["glob-10-files", "read-missing-file"],
+    )
+    def test_analyze_execution_no_recommendation(
+        self,
+        tool_name: str,
+        tool_args: dict,
+        tool_result: object,
+        expected_recommend: bool,
+    ) -> None:
+        """Small results don't trigger Gemini recommendation."""
+        should_recommend, benefit_type = (
+            bridge_after.analyze_execution_for_gemini_benefit(
+                tool_name,
+                tool_args,
                 tool_result,
             )
         )
 
-        assert should_recommend is False
+        assert should_recommend is expected_recommend
         assert benefit_type is None
 
-    def test_generate_contextual_recommendation_large_file(self) -> None:
-        recommendations = bridge_after.generate_contextual_recommendation(
+    def test_generate_recommendation_many_files(self) -> None:
+        """many_files_analysis generates pattern-aware recommendations."""
+        recs = bridge_after.generate_contextual_recommendation(
             "many_files_analysis",
             "Glob",
             {"pattern": "**/*.py"},
         )
 
-        assert len(recommendations) > 0
-        assert any("**/*.py" in rec for rec in recommendations)
-        assert any("analyze patterns" in rec for rec in recommendations)
+        assert len(recs) > 0
+        assert any("**/*.py" in rec for rec in recs)
+        assert any("analyze patterns" in rec for rec in recs)
 
-    def test_generate_contextual_recommendation_extensive_search(self) -> None:
-        recommendations = bridge_after.generate_contextual_recommendation(
+    def test_generate_recommendation_exploration(self) -> None:
+        """exploration_results generates synthesis recommendations."""
+        recs = bridge_after.generate_contextual_recommendation(
             "exploration_results",
             "Task",
             {"description": "Explore codebase patterns"},
         )
 
-        assert len(recommendations) > 0
-        assert any("synthesis" in rec for rec in recommendations)
-        assert any("context window" in rec for rec in recommendations)
+        assert len(recs) > 0
+        assert any("synthesis" in rec for rec in recs)
+        assert any("context window" in rec for rec in recs)
 
     @patch("sys.stdin", new_callable=mock_open)
     @patch("sys.stderr", new_callable=mock_open)
@@ -115,28 +135,27 @@ class TestBridgeAfterToolUse:
     @patch("bridge.after_tool_use.generate_contextual_recommendation")
     def test_hook_main_flow_with_recommendation(
         self,
-        mock_generate,
-        mock_analyze,
-        mock_stderr,
-        mock_stdin,
-        tmp_path,
+        mock_generate: MagicMock,
+        mock_analyze: MagicMock,
+        mock_stderr: MagicMock,
+        mock_stdin: MagicMock,
     ) -> None:
-        """Test test hook main flow with recommendation."""
-        # Setup input payload
+        """Hook functions return recommendation for large results."""
         payload = {
-            "tool_use": {"name": "Read", "input": {"file_path": "large_file.py"}},
+            "tool_use": {
+                "name": "Read",
+                "input": {"file_path": "large_file.py"},
+            },
             "tool_result": "x" * 60000,
         }
         mock_stdin.return_value.read.return_value = json.dumps(payload)
 
-        # Setup mocks
         mock_analyze.return_value = (True, "large_file_analysis")
         mock_generate.return_value = [
             "Use Gemini for large file analysis",
             "Run: gemini -p '@large_file.py analyze this file'",
         ]
 
-        # Test the key functions directly (main logic now only runs as script)
         should_recommend, benefit_type = (
             bridge_after.analyze_execution_for_gemini_benefit(
                 "Read",
@@ -144,136 +163,147 @@ class TestBridgeAfterToolUse:
                 "x" * 60000,
             )
         )
-        recommendations = bridge_after.generate_contextual_recommendation(
+        recs = bridge_after.generate_contextual_recommendation(
             benefit_type,
             "Read",
             {"file_path": "large_file.py"},
         )
 
         assert should_recommend is True
-        assert len(recommendations) > 0
+        assert len(recs) > 0
+        # Verify analyze was called with correct args
+        mock_analyze.assert_called_once_with(
+            "Read",
+            {"file_path": "large_file.py"},
+            "x" * 60000,
+        )
+        # Verify generate was called with the benefit type
+        mock_generate.assert_called_once_with(
+            "large_file_analysis",
+            "Read",
+            {"file_path": "large_file.py"},
+        )
 
     def test_hook_main_flow_no_recommendation(self) -> None:
-        """Validate hook functions return no recommendation for minimal input."""
-        # Test with empty/minimal tool args - should not recommend
+        """Minimal input doesn't trigger recommendation."""
         should_recommend, benefit_type = (
             bridge_after.analyze_execution_for_gemini_benefit(
                 "Read",
                 {"file_path": "small.py"},
-                "x" * 100,  # Small result
+                "x" * 100,
             )
         )
         assert should_recommend is False
         assert benefit_type is None
 
-    def test_calculate_context_size_single_file(self, tmp_path) -> None:
-        args = {
-            "description": "Review the system architecture and recommend improvements",
+
+class TestBridgeOnToolStart:
+    """Test bridge.on_tool_start hook functionality."""
+
+    @pytest.mark.parametrize(
+        ("description", "expected"),
+        [
+            (
+                "Review the system architecture and recommend improvements",
+                True,
+            ),
+            ("List all Python files in the project", False),
+        ],
+        ids=["architecture-review", "simple-listing"],
+    )
+    def test_is_intelligence_requiring_task(
+        self,
+        description: str,
+        expected: bool,
+    ) -> None:
+        """Intelligence-requiring tasks are correctly identified."""
+        result = bridge_start.is_intelligence_requiring_task(
+            "Task",
+            {"description": description},
+        )
+        assert result is expected
+
+    def test_is_data_processing_task(self) -> None:
+        """Data processing tasks are correctly identified."""
+        result = bridge_start.is_data_processing_task(
+            "Task",
+            {"description": "List all TODO comments in the codebase"},
+        )
+        assert result is True
+
+    def test_small_file_no_suggestion(self, tmp_path: Path) -> None:
+        """Small files don't trigger Gemini suggestion."""
+        test_file = tmp_path / "small.py"
+        test_file.write_text("x" * 1000)
+
+        result = bridge_start.should_suggest_gemini(
+            "Read",
+            {"file_path": str(test_file)},
+        )
+        assert result is False
+
+    def test_glob_triggers_suggestion(self) -> None:
+        """Glob with broad pattern triggers suggestion."""
+        result = bridge_start.should_suggest_gemini(
+            "Glob",
+            {"pattern": "**/*.py"},
+        )
+        assert result is True
+
+    def test_format_suggestion_read(self) -> None:
+        """Read tool generates file-specific suggestions."""
+        suggestions = bridge_start.format_gemini_suggestion(
+            "Read",
+            {"file_path": "src/main.py"},
+        )
+
+        assert len(suggestions) > 0
+        assert any("src/main.py" in s for s in suggestions)
+        assert any("Extract and summarize" in s for s in suggestions)
+
+    def test_format_suggestion_task(self) -> None:
+        """Task tool generates delegation-specific suggestions."""
+        suggestions = bridge_start.format_gemini_suggestion(
+            "Task",
+            {"subagent_type": "Explore"},
+        )
+
+        assert len(suggestions) > 0
+        assert any("Explore" in s for s in suggestions)
+        assert any("gemini-delegation" in s for s in suggestions)
+
+    def test_collaborative_suggestion_for_architecture(self) -> None:
+        """Architecture tasks get collaborative (Claude-led) suggestions."""
+        tool_name = "Task"
+        tool_args = {
+            "description": "Design a scalable microservices architecture",
         }
 
-        result = bridge_start.is_intelligence_requiring_task("Task", args)
-
-        assert result is True
-
-    def test_is_intelligence_requiring_task_design(self) -> None:
-        args = {"description": "List all Python files in the project"}
-
-        result = bridge_start.is_intelligence_requiring_task("Task", args)
-
-        assert result is False
-
-    def test_is_data_processing_task_summarize(self) -> None:
-        args = {"description": "List all TODO comments in the codebase"}
-
-        result = bridge_start.is_data_processing_task("Task", args)
-
-        assert result is True
-
-    def test_is_data_processing_task_complex(self, tmp_path) -> None:
-        """Large file should not trigger suggestion automatically."""
-        test_file = tmp_path / "small.py"
-        test_file.write_text("x" * 1000)  # 1KB file
-
-        args = {"file_path": str(test_file)}
-
-        result = bridge_start.should_suggest_gemini("Read", args)
-
-        assert result is False
-
-    def test_should_suggest_gemini_intelligence_task(self) -> None:
-        args = {"pattern": "**/*.py"}
-
-        result = bridge_start.should_suggest_gemini("Glob", args)
-
-        assert result is True
-
-    def test_should_suggest_gemini_data_processing_task(self) -> None:
-        args = {"file_path": "src/main.py"}
-
-        suggestions = bridge_start.format_gemini_suggestion("Read", args)
-
-        assert len(suggestions) > 0
-        assert any("src/main.py" in suggestion for suggestion in suggestions)
-        assert any("Extract and summarize" in suggestion for suggestion in suggestions)
-
-    def test_format_gemini_suggestion_glob(self) -> None:
-        args = {"subagent_type": "Explore"}
-
-        suggestions = bridge_start.format_gemini_suggestion("Task", args)
-
-        assert len(suggestions) > 0
-        assert any("Explore" in suggestion for suggestion in suggestions)
-        assert any("gemini-delegation" in suggestion for suggestion in suggestions)
-
-    def test_format_collaborative_suggestion(self, tmp_path) -> None:
-        """Test collaborative suggestions for intelligence-requiring tasks."""
-        # Test that collaborative suggestions are generated for architecture tasks
-        tool_name = "Task"
-        tool_args = {"description": "Design a scalable microservices architecture"}
-
-        # Intelligence tasks should NOT suggest Gemini (Claude handles these)
-        should_suggest = bridge_start.should_suggest_gemini(tool_name, tool_args)
+        should_suggest = bridge_start.should_suggest_gemini(
+            tool_name,
+            tool_args,
+        )
         assert should_suggest is False
 
-        # But they should generate collaborative suggestions
         is_intelligence = bridge_start.is_intelligence_requiring_task(
-            tool_name, tool_args
+            tool_name,
+            tool_args,
         )
         assert is_intelligence is True
 
         collaborative = bridge_start.format_collaborative_suggestion(
-            tool_name, tool_args
+            tool_name,
+            tool_args,
         )
         assert len(collaborative) > 0
         assert any("Claude should lead" in s for s in collaborative)
 
-    @patch("bridge.on_tool_start.GeminiQuotaTracker")
-    @patch("sys.stdin", new_callable=mock_open)
-    def test_hook_main_flow_intelligence_task(
-        self,
-        mock_stdin,
-        mock_tracker_class,
-        tmp_path,
-    ) -> None:
-        """Test test hook main flow intelligence task."""
-        # Setup input payload
-        payload = {
-            "tool_use": {
-                "name": "Task",
-                "input": {"description": "Design a scalable system architecture"},
-            },
+    def test_hook_main_flow_intelligence_task(self) -> None:
+        """Intelligence tasks produce collaborative suggestions."""
+        tool_name = "Task"
+        tool_args = {
+            "description": "Design a scalable system architecture",
         }
-        mock_stdin.return_value.read.return_value = json.dumps(payload)
-
-        # Setup quota tracker mock
-        mock_tracker = MagicMock()
-        mock_tracker.get_quota_status.return_value = ("[OK] Healthy", [])
-        mock_tracker_class.return_value = mock_tracker
-
-        # Test the core logic directly
-        tool_use = payload["tool_use"]
-        tool_name = tool_use["name"]
-        tool_args = tool_use["input"]
 
         is_intelligence = bridge_start.is_intelligence_requiring_task(
             tool_name,
@@ -286,25 +316,23 @@ class TestBridgeAfterToolUse:
 
         assert is_intelligence is True
         assert len(collaborative_suggestions) > 0
-        assert any(
-            "Claude should lead" in suggestion
-            for suggestion in collaborative_suggestions
-        )
+        assert any("Claude should lead" in s for s in collaborative_suggestions)
 
     class TestHookIntegration:
         """Test integration between hooks and quota tracking."""
 
         def test_quota_integration_available(self) -> None:
-            """Verify hook modules have the expected quota-related functions."""
-            # Verify bridge_start has the expected functions for quota integration
+            """Hook modules have the expected quota-related functions."""
             assert hasattr(bridge_start, "should_suggest_gemini")
             assert hasattr(bridge_start, "format_gemini_suggestion")
             assert hasattr(bridge_start, "is_intelligence_requiring_task")
             assert hasattr(bridge_start, "format_collaborative_suggestion")
 
-            # Verify bridge_after has the expected functions
-            assert hasattr(bridge_after, "analyze_execution_for_gemini_benefit")
-            assert hasattr(bridge_after, "generate_contextual_recommendation")
-
-
-# ruff: noqa: D101,D102,D103,PLR2004,E501
+            assert hasattr(
+                bridge_after,
+                "analyze_execution_for_gemini_benefit",
+            )
+            assert hasattr(
+                bridge_after,
+                "generate_contextual_recommendation",
+            )

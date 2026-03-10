@@ -1,5 +1,7 @@
 """Tests for the consolidated frontmatter processing module."""
 
+from __future__ import annotations
+
 import pytest
 
 from abstract.frontmatter import FrontmatterProcessor, FrontmatterResult
@@ -9,7 +11,7 @@ class TestFrontmatterResult:
     """Tests for FrontmatterResult dataclass."""
 
     def test_valid_result(self) -> None:
-        """Test creation of valid FrontmatterResult."""
+        """Given valid metadata, FrontmatterResult marks is_valid True."""
         result = FrontmatterResult(
             raw="---\nname: test\n---",
             parsed={"name": "test"},
@@ -22,7 +24,7 @@ class TestFrontmatterResult:
         assert result.parse_error is None
 
     def test_invalid_result_with_missing_fields(self) -> None:
-        """Test FrontmatterResult with missing required fields."""
+        """Given missing required fields, FrontmatterResult marks is_valid False."""
         result = FrontmatterResult(
             raw="---\nname: test\n---",
             parsed={"name": "test"},
@@ -37,35 +39,33 @@ class TestFrontmatterResult:
 class TestHasFrontmatter:
     """Tests for FrontmatterProcessor.has_frontmatter()."""
 
-    def test_valid_frontmatter(self) -> None:
-        """Test detection of valid frontmatter."""
-        content = "---\nname: test\n---\nBody content"
-        assert FrontmatterProcessor.has_frontmatter(content)
-
-    def test_missing_opening_delimiter(self) -> None:
-        """Test detection of missing opening delimiter."""
-        content = "name: test\n---\nBody content"
-        assert not FrontmatterProcessor.has_frontmatter(content)
-
-    def test_missing_closing_delimiter(self) -> None:
-        """Test detection of missing closing delimiter."""
-        content = "---\nname: test\nBody content"
-        assert not FrontmatterProcessor.has_frontmatter(content)
-
-    def test_empty_content(self) -> None:
-        """Test empty content."""
-        assert not FrontmatterProcessor.has_frontmatter("")
-
-    def test_only_dashes(self) -> None:
-        """Test content with only opening dashes."""
-        assert not FrontmatterProcessor.has_frontmatter("---\n")
+    @pytest.mark.parametrize(
+        ("content", "expected"),
+        [
+            ("---\nname: test\n---\nBody content", True),
+            ("name: test\n---\nBody content", False),
+            ("---\nname: test\nBody content", False),
+            ("", False),
+            ("---\n", False),
+        ],
+        ids=[
+            "valid-frontmatter",
+            "missing-opening",
+            "missing-closing",
+            "empty-content",
+            "only-dashes",
+        ],
+    )
+    def test_frontmatter_detection(self, content: str, expected: bool) -> None:
+        """Given content, has_frontmatter returns correct boolean."""
+        assert FrontmatterProcessor.has_frontmatter(content) is expected
 
 
 class TestParse:
     """Tests for FrontmatterProcessor.parse()."""
 
     def test_valid_frontmatter_parsing(self) -> None:
-        """Test parsing valid frontmatter."""
+        """Given valid frontmatter, parse returns correct fields and body."""
         content = (
             "---\nname: test-skill\ndescription: A test skill\n---\n\nBody content"
         )
@@ -78,27 +78,29 @@ class TestParse:
         assert result.missing_fields == []
         assert result.parse_error is None
 
-    def test_missing_frontmatter(self) -> None:
-        """Test parsing content without frontmatter."""
-        content = "Just some body content"
+    @pytest.mark.parametrize(
+        ("content", "error_fragment"),
+        [
+            ("Just some body content", "Missing frontmatter"),
+            ("---\nname: test\nBody content without closing", "Incomplete frontmatter"),
+            ("---\nname: test\ninvalid: [unclosed\n---\nBody", "YAML parsing error"),
+        ],
+        ids=[
+            "missing-frontmatter",
+            "incomplete-frontmatter",
+            "yaml-parsing-error",
+        ],
+    )
+    def test_invalid_content_sets_parse_error(
+        self, content: str, error_fragment: str
+    ) -> None:
+        """Given invalid content, parse sets appropriate parse_error."""
         result = FrontmatterProcessor.parse(content)
-
         assert not result.is_valid
-        assert result.raw == ""
-        assert result.parsed == {}
-        assert result.body == content
-        assert "Missing frontmatter" in result.parse_error
-
-    def test_incomplete_frontmatter(self) -> None:
-        """Test parsing incomplete frontmatter."""
-        content = "---\nname: test\nBody content without closing"
-        result = FrontmatterProcessor.parse(content)
-
-        assert not result.is_valid
-        assert "Incomplete frontmatter" in result.parse_error
+        assert error_fragment in result.parse_error
 
     def test_custom_required_fields(self) -> None:
-        """Test parsing with custom required fields."""
+        """Given custom required fields, missing ones are reported."""
         content = "---\nname: test\n---\nBody"
         required = ["name", "category"]
         result = FrontmatterProcessor.parse(content, required_fields=required)
@@ -108,23 +110,15 @@ class TestParse:
         assert "name" not in result.missing_fields
 
     def test_empty_required_fields(self) -> None:
-        """Test parsing with no required fields."""
+        """Given no required fields, any frontmatter is valid."""
         content = "---\nname: test\n---\nBody"
         result = FrontmatterProcessor.parse(content, required_fields=[])
 
         assert result.is_valid
         assert result.missing_fields == []
 
-    def test_yaml_parsing_error(self) -> None:
-        """Test handling of YAML parsing errors."""
-        content = "---\nname: test\ninvalid: [unclosed\n---\nBody"
-        result = FrontmatterProcessor.parse(content)
-
-        assert not result.is_valid
-        assert "YAML parsing error" in result.parse_error
-
     def test_empty_frontmatter_value(self) -> None:
-        """Test that empty values are treated as missing."""
+        """Given empty values, they are treated as missing."""
         content = "---\nname: test\ndescription:\n---\nBody"
         required = ["name", "description"]
         result = FrontmatterProcessor.parse(content, required_fields=required)
@@ -136,39 +130,53 @@ class TestParse:
 class TestValidate:
     """Tests for FrontmatterProcessor.validate()."""
 
-    def test_all_fields_present(self) -> None:
-        """Test validation with all required fields present."""
-        frontmatter = {"name": "test", "description": "A test"}
-        missing = FrontmatterProcessor.validate(frontmatter, ["name", "description"])
-        assert missing == []
-
-    def test_missing_fields(self) -> None:
-        """Test validation with missing fields."""
-        frontmatter = {"name": "test"}
-        required = ["name", "description", "category"]
+    @pytest.mark.parametrize(
+        ("frontmatter", "required", "expected_missing"),
+        [
+            (
+                {"name": "test", "description": "A test"},
+                ["name", "description"],
+                [],
+            ),
+            (
+                {"name": "test"},
+                ["name", "description", "category"],
+                ["description", "category"],
+            ),
+            (
+                {"name": "test", "description": ""},
+                ["name", "description"],
+                ["description"],
+            ),
+            (
+                {"name": "test", "description": None},
+                ["name", "description"],
+                ["description"],
+            ),
+        ],
+        ids=[
+            "all-present",
+            "multiple-missing",
+            "empty-value-treated-missing",
+            "none-value-treated-missing",
+        ],
+    )
+    def test_validate_missing_fields(
+        self,
+        frontmatter: dict,
+        required: list,
+        expected_missing: list,
+    ) -> None:
+        """Given frontmatter and required fields, correct missing list returned."""
         missing = FrontmatterProcessor.validate(frontmatter, required)
-        assert "description" in missing
-        assert "category" in missing
-        assert "name" not in missing
-
-    def test_empty_field_value(self) -> None:
-        """Test that empty field values are treated as missing."""
-        frontmatter = {"name": "test", "description": ""}
-        missing = FrontmatterProcessor.validate(frontmatter, ["name", "description"])
-        assert "description" in missing
-
-    def test_none_field_value(self) -> None:
-        """Test that None field values are treated as missing."""
-        frontmatter = {"name": "test", "description": None}
-        missing = FrontmatterProcessor.validate(frontmatter, ["name", "description"])
-        assert "description" in missing
+        assert sorted(missing) == sorted(expected_missing)
 
 
 class TestExtractRaw:
     """Tests for FrontmatterProcessor.extract_raw()."""
 
     def test_extract_with_frontmatter(self) -> None:
-        """Test extraction with valid frontmatter."""
+        """Given content with frontmatter, raw and body are split correctly."""
         content = "---\nname: test\n---\n\nBody content"
         raw, body = FrontmatterProcessor.extract_raw(content)
 
@@ -176,7 +184,7 @@ class TestExtractRaw:
         assert body == "Body content"
 
     def test_extract_without_frontmatter(self) -> None:
-        """Test extraction without frontmatter."""
+        """Given content without frontmatter, raw is empty and body is full content."""
         content = "Just body content"
         raw, body = FrontmatterProcessor.extract_raw(content)
 
@@ -184,7 +192,7 @@ class TestExtractRaw:
         assert body == content
 
     def test_extract_preserves_body_formatting(self) -> None:
-        """Test that body formatting is preserved."""
+        """Given content with headings, body formatting is preserved."""
         content = "---\nname: test\n---\n\n## Heading\n\nParagraph"
         _raw, body = FrontmatterProcessor.extract_raw(content)
 
@@ -195,34 +203,47 @@ class TestExtractRaw:
 class TestGetField:
     """Tests for FrontmatterProcessor.get_field()."""
 
-    def test_get_existing_field(self) -> None:
-        """Test getting an existing field."""
-        content = "---\nname: test-skill\ndescription: A test\n---\nBody"
-        value = FrontmatterProcessor.get_field(content, "name")
-        assert value == "test-skill"
-
-    def test_get_missing_field_with_default(self) -> None:
-        """Test getting a missing field with default value."""
-        content = "---\nname: test\n---\nBody"
-        value = FrontmatterProcessor.get_field(
-            content,
-            "category",
-            default="uncategorized",
-        )
-        assert value == "uncategorized"
-
-    def test_get_missing_field_no_default(self) -> None:
-        """Test getting a missing field without default."""
-        content = "---\nname: test\n---\nBody"
-        value = FrontmatterProcessor.get_field(content, "category")
-        assert value is None
+    @pytest.mark.parametrize(
+        ("content", "field", "default", "expected"),
+        [
+            (
+                "---\nname: test-skill\ndescription: A test\n---\nBody",
+                "name",
+                None,
+                "test-skill",
+            ),
+            (
+                "---\nname: test\n---\nBody",
+                "category",
+                "uncategorized",
+                "uncategorized",
+            ),
+            (
+                "---\nname: test\n---\nBody",
+                "category",
+                None,
+                None,
+            ),
+        ],
+        ids=[
+            "existing-field",
+            "missing-with-default",
+            "missing-no-default",
+        ],
+    )
+    def test_get_field_values(
+        self, content: str, field: str, default, expected
+    ) -> None:
+        """Given content and field name, correct value is returned."""
+        value = FrontmatterProcessor.get_field(content, field, default=default)
+        assert value == expected
 
 
 class TestParseFile:
     """Tests for FrontmatterProcessor.parse_file()."""
 
     def test_parse_existing_file(self, temp_skill_file) -> None:
-        """Test parsing an existing file."""
+        """Given an existing skill file, parsing succeeds."""
         result = FrontmatterProcessor.parse_file(
             temp_skill_file,
             required_fields=["name"],
@@ -232,7 +253,7 @@ class TestParseFile:
         assert result.parsed["name"] == "test-skill"
 
     def test_parse_nonexistent_file(self, tmp_path) -> None:
-        """Test parsing a file that doesn't exist."""
+        """Given a nonexistent path, FileNotFoundError is raised."""
         with pytest.raises(FileNotFoundError):
             FrontmatterProcessor.parse_file(tmp_path / "nonexistent.md")
 
@@ -240,68 +261,93 @@ class TestParseFile:
 class TestCheckMissingRecommended:
     """Tests for FrontmatterProcessor.check_missing_recommended()."""
 
-    def test_all_recommended_present(self) -> None:
-        """Test when all recommended fields are present."""
-        frontmatter = {
-            "category": "test",
-            "tags": ["a", "b"],
-            "dependencies": [],
-            "tools": [],
-        }
-        missing = FrontmatterProcessor.check_missing_recommended(frontmatter)
-        assert missing == []
-
-    def test_some_recommended_missing(self) -> None:
-        """Test when some recommended fields are missing."""
-        frontmatter = {"category": "test"}
-        missing = FrontmatterProcessor.check_missing_recommended(frontmatter)
-        assert "tags" in missing
-        assert "dependencies" in missing
-        assert "tools" in missing
-        assert "category" not in missing
-
-    def test_custom_recommended_fields(self) -> None:
-        """Test with custom recommended fields."""
-        frontmatter = {"name": "test"}
-        missing = FrontmatterProcessor.check_missing_recommended(
-            frontmatter,
-            recommended_fields=["author", "version"],
-        )
-        assert "author" in missing
-        assert "version" in missing
+    @pytest.mark.parametrize(
+        ("frontmatter", "custom_fields", "expected_missing"),
+        [
+            (
+                {"category": "test", "tags": ["a"], "dependencies": [], "tools": []},
+                None,
+                [],
+            ),
+            (
+                {"category": "test"},
+                None,
+                ["tags", "dependencies", "tools"],
+            ),
+            (
+                {"name": "test"},
+                ["author", "version"],
+                ["author", "version"],
+            ),
+        ],
+        ids=[
+            "all-present",
+            "some-missing",
+            "custom-recommended-fields",
+        ],
+    )
+    def test_check_missing_recommended(
+        self, frontmatter, custom_fields, expected_missing
+    ) -> None:
+        """Given frontmatter, missing recommended fields are reported."""
+        kwargs = {}
+        if custom_fields is not None:
+            kwargs["recommended_fields"] = custom_fields
+        missing = FrontmatterProcessor.check_missing_recommended(frontmatter, **kwargs)
+        assert sorted(missing) == sorted(expected_missing)
 
 
 class TestValidate210Fields:
     """Tests for Claude Code 2.1.0+ field validation."""
 
-    def test_valid_context_fork(self) -> None:
-        """Test valid context: fork field."""
-        frontmatter = {"context": "fork"}
+    @pytest.mark.parametrize(
+        ("frontmatter", "expected_error_count", "error_fragment"),
+        [
+            ({"context": "fork"}, 0, ""),
+            ({"context": "invalid"}, 1, "Invalid 'context' value"),
+            ({"user-invocable": False}, 0, ""),
+            ({"user-invocable": "false"}, 1, "'user-invocable' must be boolean"),
+            ({"permissionMode": "default"}, 0, ""),
+            ({"permissionMode": "acceptEdits"}, 0, ""),
+            ({"permissionMode": "dontAsk"}, 0, ""),
+            ({"permissionMode": "bypassPermissions"}, 0, ""),
+            ({"permissionMode": "plan"}, 0, ""),
+            ({"permissionMode": "ignore"}, 0, ""),
+            ({"permissionMode": "invalid"}, 1, "Invalid 'permissionMode'"),
+            ({"allowed-tools": ["Read", "Grep"]}, 0, ""),
+            ({"allowed-tools": "Read, Grep"}, 0, ""),
+            ({"allowed-tools": 123}, 1, "'allowed-tools' must be a list or string"),
+            ({"name": "test", "description": "A test skill"}, 0, ""),
+        ],
+        ids=[
+            "valid-context-fork",
+            "invalid-context",
+            "valid-user-invocable",
+            "invalid-user-invocable-string",
+            "permission-default",
+            "permission-acceptEdits",
+            "permission-dontAsk",
+            "permission-bypassPermissions",
+            "permission-plan",
+            "permission-ignore",
+            "invalid-permission-mode",
+            "valid-allowed-tools-list",
+            "valid-allowed-tools-string",
+            "invalid-allowed-tools-type",
+            "no-210-fields",
+        ],
+    )
+    def test_field_validation(
+        self, frontmatter, expected_error_count, error_fragment
+    ) -> None:
+        """Given frontmatter with 2.1.0 fields, correct errors are reported."""
         errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert errors == []
-
-    def test_invalid_context_value(self) -> None:
-        """Test invalid context value."""
-        frontmatter = {"context": "invalid"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "Invalid 'context' value" in errors[0]
-
-    def test_valid_user_invocable_boolean(self) -> None:
-        """Test valid user-invocable boolean field."""
-        frontmatter = {"user-invocable": False}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert errors == []
-
-    def test_invalid_user_invocable_string(self) -> None:
-        """Test invalid user-invocable non-boolean."""
-        frontmatter = {"user-invocable": "false"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "'user-invocable' must be boolean" in errors[0]
+        assert len(errors) == expected_error_count
+        if error_fragment:
+            assert any(error_fragment in e for e in errors)
 
     def test_valid_hooks_structure(self) -> None:
-        """Test valid hooks structure."""
+        """Given valid hooks dict with entries, no errors are returned."""
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
@@ -315,8 +361,44 @@ class TestValidate210Fields:
         errors = FrontmatterProcessor.validate_210_fields(frontmatter)
         assert errors == []
 
+    @pytest.mark.parametrize(
+        ("hooks_value", "error_fragment"),
+        [
+            ("invalid", "'hooks' must be a dictionary"),
+            (
+                {"PreToolUse": {"command": "echo test"}},
+                "must be a list",
+            ),
+            (
+                {"PreToolUse": ["echo test"]},
+                "must be a dict",
+            ),
+            (
+                {"PreToolUse": [{"matcher": "Bash"}]},
+                "missing 'command'",
+            ),
+            (
+                {"InvalidEvent": [{"command": "echo test"}]},
+                "Invalid hook event type: InvalidEvent",
+            ),
+        ],
+        ids=[
+            "hooks-not-dict",
+            "entries-not-list",
+            "entry-not-dict",
+            "missing-command",
+            "invalid-event-type",
+        ],
+    )
+    def test_invalid_hooks_structures(self, hooks_value, error_fragment) -> None:
+        """Given invalid hooks structure, correct error is returned."""
+        frontmatter = {"hooks": hooks_value}
+        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
+        assert len(errors) == 1
+        assert error_fragment in errors[0]
+
     def test_hooks_with_once_true(self) -> None:
-        """Test hooks with once: true option."""
+        """Given hooks with once: true, no errors are returned."""
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
@@ -328,7 +410,7 @@ class TestValidate210Fields:
         assert errors == []
 
     def test_hooks_with_once_invalid_type(self) -> None:
-        """Test hooks with invalid once value type."""
+        """Given hooks with once as a string, an error is returned."""
         frontmatter = {
             "hooks": {
                 "PreToolUse": [
@@ -340,108 +422,8 @@ class TestValidate210Fields:
         assert len(errors) == 1
         assert "'once' must be boolean" in errors[0]
 
-    def test_invalid_hook_event_type(self) -> None:
-        """Test invalid hook event type."""
-        frontmatter = {
-            "hooks": {
-                "InvalidEvent": [
-                    {"command": "echo test"},
-                ],
-            }
-        }
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "Invalid hook event type: InvalidEvent" in errors[0]
-
-    def test_hooks_missing_command(self) -> None:
-        """Test hook entry missing command."""
-        frontmatter = {
-            "hooks": {
-                "PreToolUse": [
-                    {"matcher": "Bash"},  # Missing 'command'
-                ],
-            }
-        }
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "missing 'command'" in errors[0]
-
-    def test_hooks_not_a_dict(self) -> None:
-        """Test hooks that isn't a dictionary."""
-        frontmatter = {"hooks": "invalid"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "'hooks' must be a dictionary" in errors[0]
-
-    def test_hook_entries_not_a_list(self) -> None:
-        """Test hook entries that aren't a list."""
-        frontmatter = {
-            "hooks": {
-                "PreToolUse": {"command": "echo test"},  # Should be a list
-            }
-        }
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "must be a list" in errors[0]
-
-    def test_hook_entry_not_a_dict(self) -> None:
-        """Test hook entry that isn't a dictionary."""
-        frontmatter = {
-            "hooks": {
-                "PreToolUse": [
-                    "echo test",  # Should be a dict with 'command' key
-                ],
-            }
-        }
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "must be a dict" in errors[0]
-
-    def test_valid_permission_mode(self) -> None:
-        """Test valid permissionMode values."""
-        valid_modes = [
-            "default",
-            "acceptEdits",
-            "dontAsk",
-            "bypassPermissions",
-            "plan",
-            "ignore",
-        ]
-        for mode in valid_modes:
-            frontmatter = {"permissionMode": mode}
-            errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-            assert errors == [], f"Mode {mode} should be valid"
-
-    def test_invalid_permission_mode(self) -> None:
-        """Test invalid permissionMode value."""
-        frontmatter = {"permissionMode": "invalid"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "Invalid 'permissionMode'" in errors[0]
-
-    def test_valid_allowed_tools_list(self) -> None:
-        """Test valid allowed-tools as YAML list."""
-        frontmatter = {
-            "allowed-tools": ["Read", "Grep", "Bash(npm *)"],
-        }
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert errors == []
-
-    def test_valid_allowed_tools_string(self) -> None:
-        """Test valid allowed-tools as comma-separated string."""
-        frontmatter = {"allowed-tools": "Read, Grep, Bash(npm:*)"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert errors == []
-
-    def test_invalid_allowed_tools_type(self) -> None:
-        """Test invalid allowed-tools type."""
-        frontmatter = {"allowed-tools": 123}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert len(errors) == 1
-        assert "'allowed-tools' must be a list or string" in errors[0]
-
     def test_multiple_validation_errors(self) -> None:
-        """Test frontmatter with multiple errors."""
+        """Given frontmatter with multiple errors, all are reported."""
         frontmatter = {
             "context": "invalid",
             "user-invocable": "yes",
@@ -450,102 +432,116 @@ class TestValidate210Fields:
         errors = FrontmatterProcessor.validate_210_fields(frontmatter)
         assert len(errors) == 3
 
-    def test_no_210_fields(self) -> None:
-        """Test frontmatter without any 2.1.0 fields."""
-        frontmatter = {"name": "test", "description": "A test skill"}
-        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-        assert errors == []
-
 
 class TestHas210Features:
     """Tests for detecting Claude Code 2.1.0+ features."""
 
-    def test_has_context_fork(self) -> None:
-        """Test detection of context: fork."""
-        frontmatter = {"name": "test", "context": "fork"}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_user_invocable(self) -> None:
-        """Test detection of user-invocable field."""
-        frontmatter = {"name": "test", "user-invocable": False}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_hooks(self) -> None:
-        """Test detection of hooks field."""
-        frontmatter = {"name": "test", "hooks": {"Stop": []}}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_agent_field(self) -> None:
-        """Test detection of agent field."""
-        frontmatter = {"name": "test", "agent": "python-tester"}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_skills_field(self) -> None:
-        """Test detection of skills field (agent feature)."""
-        frontmatter = {"name": "test", "skills": ["skill1", "skill2"]}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_escalation_field(self) -> None:
-        """Test detection of escalation field."""
-        frontmatter = {"name": "test", "escalation": {"to": "opus"}}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_has_permission_mode(self) -> None:
-        """Test detection of permissionMode field."""
-        frontmatter = {"name": "test", "permissionMode": "acceptEdits"}
-        assert FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_no_210_features(self) -> None:
-        """Test frontmatter without 2.1.0 features."""
-        frontmatter = {
-            "name": "test",
-            "description": "A test",
-            "category": "test",
-            "tags": ["test"],
-        }
-        assert not FrontmatterProcessor.has_210_features(frontmatter)
-
-    def test_empty_frontmatter(self) -> None:
-        """Test empty frontmatter."""
-        assert not FrontmatterProcessor.has_210_features({})
+    @pytest.mark.parametrize(
+        ("frontmatter", "expected"),
+        [
+            ({"name": "test", "context": "fork"}, True),
+            ({"name": "test", "user-invocable": False}, True),
+            ({"name": "test", "hooks": {"Stop": []}}, True),
+            ({"name": "test", "agent": "python-tester"}, True),
+            ({"name": "test", "skills": ["skill1", "skill2"]}, True),
+            ({"name": "test", "escalation": {"to": "opus"}}, True),
+            ({"name": "test", "permissionMode": "acceptEdits"}, True),
+            (
+                {
+                    "name": "test",
+                    "description": "A test",
+                    "category": "test",
+                    "tags": ["test"],
+                },
+                False,
+            ),
+            ({}, False),
+        ],
+        ids=[
+            "context-fork",
+            "user-invocable",
+            "hooks",
+            "agent",
+            "skills",
+            "escalation",
+            "permission-mode",
+            "no-210-features",
+            "empty-frontmatter",
+        ],
+    )
+    def test_210_feature_detection(self, frontmatter: dict, expected: bool) -> None:
+        """Given frontmatter, has_210_features returns correct boolean."""
+        assert FrontmatterProcessor.has_210_features(frontmatter) is expected
 
 
 class TestAllHookEventTypes:
     """Tests to verify all hook event types are recognized."""
 
     def test_all_valid_hook_events(self) -> None:
-        """Test all documented hook event types are valid."""
+        """Given the expected event list, VALID_HOOK_EVENTS matches."""
         expected_events = (
-            "PreToolUse",
-            "PostToolUse",
-            "UserPromptSubmit",
-            "PermissionRequest",
-            "Notification",
-            "Stop",
-            "SubagentStop",
-            "PreCompact",
+            "Setup",
             "SessionStart",
             "SessionEnd",
+            "UserPromptSubmit",
+            "PreToolUse",
+            "PostToolUse",
+            "PostToolUseFailure",
+            "PermissionRequest",
+            "Notification",
+            "SubagentStart",
+            "SubagentStop",
+            "Stop",
+            "TeammateIdle",
+            "TaskCompleted",
+            "ConfigChange",
+            "InstructionsLoaded",
+            "PreCompact",
+            "WorktreeCreate",
+            "WorktreeRemove",
         )
         assert FrontmatterProcessor.VALID_HOOK_EVENTS == expected_events
 
-    def test_each_hook_event_type_validates(self) -> None:
-        """Test each hook event type validates correctly."""
-        for event_type in FrontmatterProcessor.VALID_HOOK_EVENTS:
-            frontmatter = {
-                "hooks": {
-                    event_type: [{"command": "echo test"}],
-                }
+    @pytest.mark.parametrize(
+        "event_type",
+        [
+            "Setup",
+            "SessionStart",
+            "SessionEnd",
+            "UserPromptSubmit",
+            "PreToolUse",
+            "PostToolUse",
+            "PostToolUseFailure",
+            "PermissionRequest",
+            "Notification",
+            "SubagentStart",
+            "SubagentStop",
+            "Stop",
+            "TeammateIdle",
+            "TaskCompleted",
+            "ConfigChange",
+            "InstructionsLoaded",
+            "PreCompact",
+            "WorktreeCreate",
+            "WorktreeRemove",
+        ],
+    )
+    def test_each_hook_event_type_validates(self, event_type: str) -> None:
+        """Given a valid event type, no validation errors are returned."""
+        frontmatter = {
+            "hooks": {
+                event_type: [{"command": "echo test"}],
             }
-            errors = FrontmatterProcessor.validate_210_fields(frontmatter)
-            assert errors == [], f"Event type {event_type} should be valid"
+        }
+        errors = FrontmatterProcessor.validate_210_fields(frontmatter)
+        assert errors == [], f"Event type {event_type} should be valid"
 
 
 class TestConstantDefinitions:
     """Tests to verify constant definitions are correct."""
 
     def test_skill_fields_defined(self) -> None:
-        """Test 2.1.0 skill fields are defined."""
+        """Given 2.1.0 skill fields constant, expected values are present."""
         expected_fields = (
             "context",
             "agent",
@@ -557,17 +553,19 @@ class TestConstantDefinitions:
         assert FrontmatterProcessor.CLAUDE_CODE_210_SKILL_FIELDS == expected_fields
 
     def test_agent_fields_defined(self) -> None:
-        """Test 2.1.0 agent fields are defined."""
+        """Given 2.1.0+ agent fields constant, expected values are present."""
         expected_fields = (
             "hooks",
             "skills",
             "escalation",
             "permissionMode",
+            "background",
+            "isolation",
         )
         assert FrontmatterProcessor.CLAUDE_CODE_210_AGENT_FIELDS == expected_fields
 
     def test_permission_modes_defined(self) -> None:
-        """Test valid permission modes are defined."""
+        """Given valid permission modes constant, expected values are present."""
         expected_modes = (
             "default",
             "acceptEdits",

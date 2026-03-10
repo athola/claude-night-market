@@ -4,9 +4,11 @@ Maps "questions this knowledge answers" to corpus entries for semantic query mat
 Uses simple keyword-based similarity scoring without requiring external dependencies.
 """
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -247,7 +249,7 @@ class QueryTemplateManager:
             "metadata": {
                 "total_entries": len(entries),
                 "total_queries": total_queries,
-                "last_updated": datetime.now().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             },
         }
 

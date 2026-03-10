@@ -8,7 +8,7 @@ import pytest
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from abstract.wrapper_base import SuperpowerWrapper, detect_breaking_changes
+from abstract.wrapper_base import SuperpowerWrapper, _detect_breaking_changes
 
 
 def _make_wrapper() -> SuperpowerWrapper:
@@ -234,24 +234,17 @@ class TestValidateTranslation:
 
 
 class TestDetectBreakingChanges:
-    """Test detect_breaking_changes() with edge cases - addressing issue #33."""
+    """Test _detect_breaking_changes() with edge cases - addressing issue #33."""
 
     def test_detect_breaking_changes_empty_file_list(self) -> None:
-        """detect_breaking_changes handles empty file list gracefully."""
-        result = detect_breaking_changes([])
-
-        # Should return empty result (no changes detected)
-        assert result == [], "Empty file list should return empty result"
+        """_detect_breaking_changes returns empty list for empty input."""
+        result = _detect_breaking_changes([])
+        assert result == []
 
     def test_detect_breaking_changes_returns_appropriate_structure(self) -> None:
-        """detect_breaking_changes returns proper structure for empty input."""
-        result = detect_breaking_changes([])
-
-        # Result should be a list (empty for no files)
-        assert isinstance(
-            result,
-            list,
-        ), "Result should be a list"
+        """_detect_breaking_changes returns a list (possibly empty)."""
+        result = _detect_breaking_changes([])
+        assert isinstance(result, list)
 
 
 if __name__ == "__main__":

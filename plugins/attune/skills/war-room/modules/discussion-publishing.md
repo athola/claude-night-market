@@ -15,15 +15,18 @@ This module activates **after Phase 7 (Supreme Commander Synthesis)** completes.
 
 ## Publishing Flow
 
-### Step 1: Prompt for User Approval (MANDATORY)
+### Step 1: Confirm Publication (Default: Publish)
 
-After the Supreme Commander Decision document is finalized, ask:
+After the Supreme Commander Decision document is finalized,
+announce the publication and give the user a chance to opt out:
 
 ```
-Publish this decision to GitHub Discussions? [Y/n]
+Publishing this decision to GitHub Discussions. [Y/n]
 ```
 
-If the user declines ("n"), skip all subsequent steps. The local strategeion workflow continues unchanged.
+Publishing is the default action. If the user explicitly
+declines ("n"), skip all subsequent steps. The local
+strategeion workflow continues unchanged.
 
 ### Step 2: Resolve Repository and Category IDs
 

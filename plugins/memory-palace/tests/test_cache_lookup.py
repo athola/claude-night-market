@@ -97,8 +97,11 @@ class TestCacheLookup:
 
         assert lookup.corpus_dir == Path(temp_corpus_dir)
         assert lookup.index_dir == Path(temp_index_dir)
-        assert lookup.keyword_indexer is not None
-        assert lookup.query_manager is not None
+        from memory_palace.corpus.keyword_index import KeywordIndexer
+        from memory_palace.corpus.query_templates import QueryTemplateManager
+
+        assert isinstance(lookup.keyword_indexer, KeywordIndexer)
+        assert isinstance(lookup.query_manager, QueryTemplateManager)
 
     def test_build_indexes(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test building both indexes."""
@@ -186,7 +189,7 @@ class TestCacheLookup:
         entry_id = results[0]["entry_id"]
         content = cache_lookup.get_entry_content(entry_id)
 
-        assert content is not None
+        assert isinstance(content, str)
         assert "Franklin Protocol" in content
         assert "gradient descent" in content.lower()
 
@@ -200,7 +203,7 @@ class TestCacheLookup:
         entry_id = results[0]["entry_id"]
         metadata = cache_lookup.get_entry_metadata(entry_id)
 
-        assert metadata is not None
+        assert isinstance(metadata, dict)
         assert "title" in metadata
         assert "tags" in metadata
         assert "maturity" in metadata
@@ -281,7 +284,9 @@ class TestCacheLookup:
         )
         lookup.build_indexes()
 
-        assert lookup.embedding_index is not None
+        from memory_palace.corpus.embedding_index import EmbeddingIndex
+
+        assert isinstance(lookup.embedding_index, EmbeddingIndex)
         assert lookup.embedding_index.provider == "hash"
 
         lookup.embedding_index.entries = {"franklin-protocol": [0.1] * 16}

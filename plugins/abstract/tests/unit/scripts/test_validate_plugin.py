@@ -438,49 +438,37 @@ class TestValidatePluginName:
     """Plugin name must follow kebab-case convention."""
 
     @pytest.mark.unit
-    def test_valid_kebab_case_name(self, tmp_path: Path) -> None:
-        """kebab-case name produces no critical issues."""
-        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+    @pytest.mark.parametrize(
+        ("config", "error_fragment", "should_have_error"),
+        [
+            ({"name": "my-plugin"}, "Invalid plugin name", False),
+            ({"version": "1.0.0"}, "Missing required field: name", True),
+            ({"name": 123}, "must be a string", True),
+            ({"name": "MyPlugin"}, "Invalid plugin name", True),
+            ({"name": "my_plugin"}, "Invalid plugin name", True),
+        ],
+        ids=[
+            "valid-kebab-case",
+            "missing-name",
+            "non-string-name",
+            "camel-case-invalid",
+            "underscores-invalid",
+        ],
+    )
+    def test_plugin_name_validation(
+        self, tmp_path: Path, config, error_fragment, should_have_error
+    ) -> None:
+        """Scenario: Plugin name validation catches format issues.
+        Given plugin.json with a specific name value
+        When _validate_plugin_name runs
+        Then critical issues are reported or absent as expected
+        """
+        pd = _make_plugin(tmp_path, config)
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
         v._validate_plugin_name()
-        assert not any("Invalid plugin name" in i for i in v.issues["critical"])
-
-    @pytest.mark.unit
-    def test_missing_name_adds_critical(self, tmp_path: Path) -> None:
-        """Missing name field adds a critical issue."""
-        pd = _make_plugin(tmp_path, {"version": "1.0.0"})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_plugin_name()
-        assert any("Missing required field: name" in i for i in v.issues["critical"])
-
-    @pytest.mark.unit
-    def test_non_string_name_adds_critical(self, tmp_path: Path) -> None:
-        """Non-string name adds a critical issue."""
-        pd = _make_plugin(tmp_path, {"name": 123})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_plugin_name()
-        assert any("must be a string" in i for i in v.issues["critical"])
-
-    @pytest.mark.unit
-    def test_invalid_name_format_adds_critical(self, tmp_path: Path) -> None:
-        """CamelCase name adds a critical issue."""
-        pd = _make_plugin(tmp_path, {"name": "MyPlugin"})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_plugin_name()
-        assert any("Invalid plugin name" in i for i in v.issues["critical"])
-
-    @pytest.mark.unit
-    def test_name_with_underscores_fails(self, tmp_path: Path) -> None:
-        """Name with underscores fails kebab-case check."""
-        pd = _make_plugin(tmp_path, {"name": "my_plugin"})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_plugin_name()
-        assert any("Invalid plugin name" in i for i in v.issues["critical"])
+        has_error = any(error_fragment in i for i in v.issues["critical"])
+        assert has_error is should_have_error
 
 
 class TestValidateRecommendedFields:
@@ -527,55 +515,42 @@ class TestValidateDependencies:
     """Dependencies format validation."""
 
     @pytest.mark.unit
-    def test_no_dependencies_no_issues(self, tmp_path: Path) -> None:
-        """Missing dependencies field is allowed."""
-        pd = _make_plugin(tmp_path, {"name": "my-plugin"})
+    @pytest.mark.parametrize(
+        ("deps", "issue_category", "issue_fragment", "should_have"),
+        [
+            (None, "warnings", "", False),
+            (["abstract"], "recommendations", "object", True),
+            ({"abstract": ">=2.0.0"}, "warnings", "", False),
+            ({"abstract": 2}, "warnings", "should be a string", True),
+            ({"abstract": "latest"}, "warnings", "semantic versioning", True),
+        ],
+        ids=[
+            "no-deps-no-issues",
+            "list-deps-recommendation",
+            "valid-semver-no-warning",
+            "non-string-version-warns",
+            "invalid-format-warns",
+        ],
+    )
+    def test_dependency_validation(
+        self, tmp_path: Path, deps, issue_category, issue_fragment, should_have
+    ) -> None:
+        """Scenario: Dependency format validation catches issues.
+        Given plugin.json with a specific dependencies value
+        When _validate_dependencies runs
+        Then appropriate issues are reported
+        """
+        config = {"name": "my-plugin"}
+        if deps is not None:
+            config["dependencies"] = deps
+        pd = _make_plugin(tmp_path, config)
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
         v._validate_dependencies()
-        assert not v.issues["warnings"]
-
-    @pytest.mark.unit
-    def test_list_dependencies_adds_recommendation(self, tmp_path: Path) -> None:
-        """Array-style dependencies add a recommendation."""
-        pd = _make_plugin(tmp_path, {"name": "my-plugin", "dependencies": ["abstract"]})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_dependencies()
-        assert any("object" in i for i in v.issues["recommendations"])
-
-    @pytest.mark.unit
-    def test_dict_dependencies_valid_semver(self, tmp_path: Path) -> None:
-        """Object dependencies with valid semver produce no warnings."""
-        pd = _make_plugin(
-            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": ">=2.0.0"}}
-        )
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_dependencies()
-        assert not v.issues["warnings"]
-
-    @pytest.mark.unit
-    def test_dict_dependencies_non_string_version(self, tmp_path: Path) -> None:
-        """Non-string version in dependencies adds a warning."""
-        pd = _make_plugin(
-            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": 2}}
-        )
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_dependencies()
-        assert any("should be a string" in i for i in v.issues["warnings"])
-
-    @pytest.mark.unit
-    def test_dict_dependencies_invalid_version_format(self, tmp_path: Path) -> None:
-        """Invalid semver format in dependencies adds a warning."""
-        pd = _make_plugin(
-            tmp_path, {"name": "my-plugin", "dependencies": {"abstract": "latest"}}
-        )
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_dependencies()
-        assert any("semantic versioning" in i for i in v.issues["warnings"])
+        if should_have:
+            assert any(issue_fragment in i for i in v.issues[issue_category])
+        else:
+            assert not v.issues.get(issue_category, [])
 
 
 class TestValidateDirectoryStructureExtended:

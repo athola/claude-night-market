@@ -52,7 +52,10 @@ class ContinualEvaluator:
         if self.history_file.exists():
             try:
                 with open(self.history_file) as f:
-                    self.skill_history = json.load(f)
+                    data = json.load(f)
+                # Merge into defaultdict to preserve default factory
+                for key, value in data.items():
+                    self.skill_history[key] = value
             except (OSError, json.JSONDecodeError) as e:
                 sys.stderr.write(
                     f"skill_execution_logger: failed to load history: {e}\n"

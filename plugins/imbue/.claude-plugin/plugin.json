@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/catchup",
@@ -15,8 +15,7 @@
   ],
   "commands": [
     "./commands/catchup.md",
-    "./commands/structured-review.md",
-    "./commands/stewardship-health.md"
+    "./commands/structured-review.md"
   ],
   "agents": [
     "./agents/review-analyst.md"

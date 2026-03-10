@@ -112,17 +112,19 @@ Use consistent labels for filtering:
 | `refactor` | Code improvements |
 | `architecture` | Structural changes |
 
-### Step 4: Create Linked Discussion (OPTIONAL)
+### Step 4: Create Linked Discussion (Default: Publish)
 
-After the GitHub issue is created (Step 1), offer to create a companion Discussion with full reasoning context:
+After the GitHub issue is created (Step 1), publish a
+companion Discussion with full reasoning context:
 
 ```
-Also create a Discussion with full reasoning context? [Y/n]
+Creating a Discussion with full reasoning context. [Y/n]
 ```
 
-If the user declines ("n"), skip to Step 5 (Validation). The issue-only workflow is preserved.
+Publishing is the default action. If the user explicitly
+declines ("n"), skip to Step 5 (Validation).
 
-If the user approves ("Y"):
+Proceed with Discussion creation:
 
 **4a. Resolve category ID:**
 ```bash

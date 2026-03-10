@@ -124,6 +124,9 @@ class Delegator:
         self.usage_log = self.config_dir / "usage.jsonl"
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
+        # Per-instance copy to avoid mutating class-level default
+        self.services = dict(self.SERVICES)
+
         # Load custom configurations
         self.load_configurations()
 
@@ -134,14 +137,14 @@ class Delegator:
                 with open(self.config_file) as f:
                     custom_config = json.load(f)
                     # Merge custom configurations
-                    for service_name, service_config in custom_config.get(
-                        "services",
-                        {},
-                    ).items():
-                        if service_name in self.SERVICES:
+                    services_raw = custom_config.get("services", {})
+                    if not isinstance(services_raw, dict):
+                        return
+                    for service_name, service_config in services_raw.items():
+                        if service_name in self.services:
                             # Update existing service config
-                            current = self.SERVICES[service_name]
-                            self.SERVICES[service_name] = ServiceConfig(
+                            current = self.services[service_name]
+                            self.services[service_name] = ServiceConfig(
                                 name=current.name,
                                 command=service_config.get("command", current.command),
                                 auth_method=service_config.get(
@@ -159,20 +162,18 @@ class Delegator:
                             )
                         else:
                             # Add new service config
-                            self.SERVICES[service_name] = ServiceConfig(
+                            self.services[service_name] = ServiceConfig(
                                 **service_config,
                             )
             except Exception as e:
-                logger.debug(
-                    "Failed to load service config for %s: %s", service_name, e
-                )
+                logger.debug("Failed to load service configurations: %s", e)
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
         """Verify a service is available and authenticated."""
-        if service_name not in self.SERVICES:
+        if service_name not in self.services:
             return False, [f"Unknown service: {service_name}"]
 
-        service = self.SERVICES[service_name]
+        service = self.services[service_name]
         issues = []
 
         # Check command availability
@@ -220,7 +221,7 @@ class Delegator:
         options: dict[str, Any] | None = None,
     ) -> list[str]:
         """Build command for delegation."""
-        service = self.SERVICES[service_name]
+        service = self.services[service_name]
         command = [service.command]
 
         # Add options
@@ -463,33 +464,37 @@ class Delegator:
 
 def _print_services(delegator: Delegator) -> None:
     """Print available services."""
-    for _name, _config in delegator.SERVICES.items():
-        pass
+    for name, config in delegator.services.items():
+        print(f"  {name}: {config.command} (auth: {config.auth_method})")
 
 
 def _print_usage_summary(delegator: Delegator) -> None:
     """Print usage summary report."""
     summary = delegator.get_usage_summary()
-    for _stats in summary["services"].values():
-        pass
+    print(f"Total requests: {summary['total_requests']}")
+    print(f"Success rate: {summary.get('success_rate', 0):.1f}%")
+    for svc_name, stats in summary["services"].items():
+        rate = stats.get("success_rate", 0)
+        print(f"  {svc_name}: {stats['requests']} requests, {rate:.1f}% success")
 
 
 def _verify_service(delegator: Delegator, service_name: str) -> None:
     """Verify a service and print results."""
     is_available, issues = delegator.verify_service(service_name)
     if is_available:
-        pass
+        print(f"{service_name}: OK")
     else:
-        for _issue in issues:
-            pass
+        print(f"{service_name}: FAILED")
+        for issue in issues:
+            print(f"  - {issue}")
 
 
 def _print_result(result: ExecutionResult) -> None:
     """Print execution result."""
     if result.success:
-        pass
+        print(f"Success: {result.stdout[:200] if result.stdout else 'No output'}")
     else:
-        pass
+        print(f"Failed: {result.stderr}")
 
 
 def _create_parser() -> argparse.ArgumentParser:

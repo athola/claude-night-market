@@ -247,8 +247,9 @@ check_auth_status() {
     return 1
   fi
 
-  # Run check command
-  eval "$check_cmd" &>/dev/null
+  # Run check command using word splitting (safe: commands are from internal array)
+  # shellcheck disable=SC2086
+  $check_cmd &>/dev/null
   return $?
 }
 
@@ -328,7 +329,9 @@ Running: $login_cmd
 
 EOF
 
-  if eval "$login_cmd"; then
+  # Run login command using word splitting (safe: commands are from internal array)
+  # shellcheck disable=SC2086
+  if $login_cmd; then
     echo "✓ $service authentication successful"
     return 0
   else

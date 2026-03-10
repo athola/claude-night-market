@@ -178,7 +178,7 @@ class TestUsageTracker:
         """Should track last access time."""
         tracker.record_event("entry-1", UsageSignal.ACCESS)
         score = tracker.get_score("entry-1")
-        assert score.last_accessed is not None
+        assert isinstance(score.last_accessed, datetime)
 
     def test_get_all_scores(self, tracker: UsageTracker) -> None:
         """Should return scores for all tracked entries."""

@@ -6,7 +6,7 @@
 #   If PR_NUMBER provided, checks only files changed in that PR
 #   Otherwise, validates entire repository
 
-set -e
+set -euo pipefail
 
 PR_NUMBER="${1:-}"
 FAILED=0
