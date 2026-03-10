@@ -162,7 +162,9 @@ class TestingGuideSkill:
 
                 # Detect pytest fixtures
                 for dec in node.decorator_list:
-                    if (isinstance(dec, ast.Attribute) and dec.attr == "fixture") or (isinstance(dec, ast.Name) and dec.id == "fixture"):
+                    if (isinstance(dec, ast.Attribute) and dec.attr == "fixture") or (
+                        isinstance(dec, ast.Name) and dec.id == "fixture"
+                    ):
                         structure["fixtures"].append(node.name)
 
         # Also check for @pytest.fixture via string matching
@@ -225,8 +227,9 @@ class TestingGuideSkill:
                         if isinstance(child.func, ast.Attribute):
                             if child.func.attr.startswith("assert"):
                                 has_assert = True
-                if not has_assert and "assert" not in ast.get_source_segment(
-                    code, node
+                source_segment = ast.get_source_segment(code, node)
+                if not has_assert and (
+                    source_segment is None or "assert" not in source_segment
                 ):
                     anti_patterns["no_assertions"] = True
                     anti_patterns["recommendations"].append(
@@ -393,7 +396,7 @@ class TestingGuideSkill:
             if line.strip() and line.strip().startswith("-")
         ]
 
-        for i, line in enumerate(lines):
+        for _i, line in enumerate(lines):
             requirement = line.lstrip("- ").strip()
             test_name = (
                 "test_"
@@ -609,7 +612,11 @@ class TestingGuideSkill:
 
         for module_dir, module_name, description in modules:
             test_key = f"{module_dir}_{module_name}_test"
-            if "model" in module_name.lower() or "service" in module_name.lower() or "middleware" in module_name.lower():
+            if (
+                "model" in module_name.lower()
+                or "service" in module_name.lower()
+                or "middleware" in module_name.lower()
+            ):
                 recommendations["unit_tests"][test_key] = {
                     "description": description.strip() or f"Tests for {module_name}",
                 }

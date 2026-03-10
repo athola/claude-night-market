@@ -695,9 +695,11 @@ class PluginAuditor:
         discrepancies are reported but require manual fixes to hooks.json.
         We do NOT add "hooks" key to plugin.json as that causes duplicates.
         """
+        if plugin_name not in self.discrepancies:
+            return True  # Nothing to fix
         discovered = self._discover_plugin(plugin_name)
         if discovered is None:
-            return True  # Nothing to fix
+            return False  # I/O error reading plugin.json
 
         plugin_path, plugin_json_path, plugin_data = discovered
 

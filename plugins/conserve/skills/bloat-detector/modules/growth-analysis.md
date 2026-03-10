@@ -2,7 +2,7 @@
 module: growth-analysis
 category: tier-1
 dependencies: [Bash, Grep, Glob]
-estimated_tokens: 300
+estimated_tokens: 1500
 ---
 
 # Growth Analysis Module

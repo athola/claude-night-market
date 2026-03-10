@@ -9,7 +9,7 @@ from pathlib import Path, PurePath
 from typing import Any
 
 try:
-    import yaml
+    import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
 

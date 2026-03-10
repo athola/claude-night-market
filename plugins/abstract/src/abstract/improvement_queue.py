@@ -161,6 +161,9 @@ class ImprovementQueue:
         """
         entry = self.skills.get(skill_ref)
         if not entry:
+            sys.stderr.write(
+                f"improvement_queue: evaluate called for unknown skill {skill_ref!r}\n"
+            )
             return "unknown"
 
         baseline = entry.get("baseline_gap", 0)

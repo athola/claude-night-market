@@ -28,10 +28,10 @@ try:
     if _spec is not None and _spec.loader is not None:
         _module = importlib.util.module_from_spec(_spec)
         _spec.loader.exec_module(_module)
-        ConservationValidator = _module.ConservationValidator
+        ConservationValidator = getattr(_module, "ConservationValidator", None)
     else:
         ConservationValidator = None
-except (ImportError, FileNotFoundError, AttributeError):
+except (ImportError, FileNotFoundError):
     ConservationValidator = None
 
 # Constants for PLR2004 magic values

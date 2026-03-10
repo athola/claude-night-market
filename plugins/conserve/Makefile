@@ -150,7 +150,7 @@ benchmark: ## Run performance benchmarks (bloat detection speed)
 	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
 
 memory-profile: ## Profile memory usage
-	@if command -v python3 -c "import memory_profiler" 2>/dev/null; then \
+	@if python3 -c "import memory_profiler" 2>/dev/null; then \
 		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
 	else \
 		echo "Install memory_profiler: pip install memory_profiler"; \

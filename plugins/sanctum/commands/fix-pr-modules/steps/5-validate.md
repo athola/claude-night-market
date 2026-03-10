@@ -158,7 +158,120 @@ For each issue in the test plan, run the verification steps:
     - [x] Parameterized queries verified [DONE]
     ```
 
-## 5.4 Run Quality Gates
+## 5.4 Agent-Verify Manual Test Plan
+
+After automated verification steps, scan PR comments for a
+**reviewer-written manual test plan** and attempt to verify
+each item programmatically. Human QA still owns final sign-off,
+but agent pre-verification catches issues early and provides
+evidence for the reviewer.
+
+### 5.4.1 Discover Manual Test Plan Items
+
+Search PR comments for checkbox-style test plans written by
+reviewers (distinct from the `/pr-review`-generated test plan
+in 5.2):
+
+```bash
+# Fetch comments containing checkbox items
+gh api repos/OWNER/REPO/issues/PR_NUMBER/comments \
+  --jq '.[] | select(.body | test("- \\[[ x]\\]")) | .body'
+```
+
+**Identification heuristics:**
+- Comments titled "Test Plan" or containing checkbox lists
+- Authored by reviewers (not the PR author or bots)
+- Items phrased as verification actions ("Verify...",
+  "Run...", "Check...", "Ensure...")
+
+Extract each `- [ ]` item into a work list. If no manual
+test plan exists, skip to 5.5.
+
+### 5.4.2 Classify Each Item and Choose Strategy
+
+For each manual test item, determine the best verification
+approach. Be creative -- most "manual" checks can be at least
+partially automated:
+
+| Pattern in test item | Strategy | Example command |
+|----------------------|----------|----------------|
+| "Run X tests" | Execute the test command directly | `cd plugins/foo && uv run pytest tests/ -v` |
+| "Verify X works/fails when Y" | Simulate condition Y, run X, check output | Remove import, run target, check error msg |
+| "Check X is valid Y" | Run a validator or parser | `python3 -c "import yaml; yaml.safe_load(open('f.yml'))"` |
+| "Spot-check that all X references updated" | Grep for stale pattern | `grep -r 'old-pattern' --include='*.md'` |
+| "Verify X was updated to Y" | Read file and assert content | Read file, check the specific line |
+| "Ensure X discovers both A and B" | Run discovery, check output contains both | Execute script, grep output for A and B |
+| "Update X" (imperative fix item) | Verify the fix was applied | `git diff origin/BASE -- path/to/file` |
+| Subjective/UX judgment | Acknowledge limitation, do best-effort check | Note as LOW confidence |
+
+**Creative verification techniques:**
+- **Environment manipulation**: To test "works without X
+  installed", run the command in a subshell where X is
+  unavailable (e.g., use a venv without the package, or
+  temporarily rename the binary)
+- **Negative testing**: To verify error messages appear,
+  intentionally trigger the error path and capture stderr
+- **Cross-referencing**: To verify "all references updated",
+  grep for both the old AND new pattern and confirm counts
+- **Dry-run execution**: For Makefile targets, use
+  `make -n target` to see what WOULD execute without
+  side effects, then run the actual target
+- **Diff inspection**: For "verify X changed", use
+  `git diff origin/BASE -- file` to show the exact change
+
+### 5.4.3 Execute and Capture Evidence
+
+For each item, execute the strategy and record evidence:
+
+1. Run the verification command
+2. Capture stdout/stderr as evidence
+3. Assess result: PASS, FAIL, or INCONCLUSIVE
+4. Assign confidence level
+
+**Confidence levels:**
+
+| Level | Meaning | When to assign |
+|-------|---------|----------------|
+| HIGH | Fully verified programmatically | Ran the exact check, output confirms |
+| MEDIUM | Partially verified | Checked related behavior but not exact scenario |
+| LOW | Superficial or best-effort check | Could only verify syntax/existence, not behavior |
+| SKIP | Cannot verify programmatically | Requires UI interaction, visual inspection, etc. |
+
+### 5.4.4 Document Manual Test Results
+
+```markdown
+### Manual Test Plan Verification (Agent)
+
+> Agent pre-verification of reviewer test plan.
+> Human QA should independently confirm each item.
+
+| # | Test Item | Strategy | Result | Confidence |
+|---|-----------|----------|--------|------------|
+| 1 | Update conserve Makefile:153 | git diff shows fix applied | PASS | HIGH |
+| 2 | Verify memory-profile without lib | Ran target after uninstall check | PASS | HIGH |
+| 3 | Run abstract plugin tests | `uv run pytest tests/ -v` | PASS | HIGH |
+| 4 | Verify YAML valid | `python3 -c "yaml.safe_load(...)"` | PASS | HIGH |
+| 5 | Spot-check doc-verify refs | `grep -r` found 0 stale refs | PASS | HIGH |
+| 6 | Verify mutation testing discovers dirs | Inspected workflow YAML | PASS | MEDIUM |
+
+**Evidence:**
+- [E1]: `git diff origin/master -- plugins/conserve/Makefile` shows
+  `command -v` removed
+- [E2]: `python3 -c "import memory_profiler"` returns exit code 1;
+  `make memory-profile` prints "Install memory_profiler: ..."
+- [E3]: `uv run pytest tests/ -v --tb=short` -> 21 passed
+```
+
+**Rules:**
+- Attempt EVERY item, even if verification is only partial
+- Never fake evidence -- if you cannot verify, mark SKIP
+  with an honest explanation
+- Items marked MEDIUM, LOW, or SKIP deserve extra attention
+  from human QA
+- A FAIL in this section does NOT block proceeding (unlike
+  automated tests), but MUST be reported prominently
+
+## 5.5 Run Quality Gates
 
 ```bash
 # Execute the quality gate commands from the test plan
@@ -169,7 +282,7 @@ uv run pytest tests/ -v
 uv run ruff check .
 ```
 
-## 5.5 Document Test Results
+## 5.6 Document Test Results
 
 Record test execution results for the summary:
 
@@ -191,18 +304,22 @@ Record test execution results for the summary:
 **Test Plan Execution Rules:**
 - Execute ALL verification steps for blocking issues
 - Execute ALL verification steps for in-scope issues
+- Execute manual test plan items with creative strategies (5.4)
 - Run quality gate commands AFTER individual issue verification
 - Document any failures and fix before proceeding
-- All tests must pass before moving to Phase 4
+- All automated tests must pass before moving to Step 6
+- Manual test item FAILs must be reported but do not block
 
 **If Test Plan Not Found:**
-If no test plan exists from `/pr-review`, generate verification steps on-the-fly:
+If no test plan exists from `/pr-review`, generate verification
+steps on-the-fly:
 1. For each fix applied, identify relevant test file
 2. Run targeted tests for the modified code
 3. Run overall quality gates
 4. Document results
 
-**Step 5 Output**: All tests passing, quality gates green
+**Step 5 Output**: All tests passing, quality gates green,
+manual test plan agent-verified with evidence
 
 ---
 

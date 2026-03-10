@@ -28,8 +28,11 @@ class RustReviewSkill(BaseReviewSkill):
     skill_name: ClassVar[str] = "rust_review"
     supported_languages: ClassVar[list[str]] = ["rust"]
 
+    _cached_content: str = ""
+    _cached_lines: list[str] = []
+
     def _get_lines(self, content: str) -> list[str]:
-        if not hasattr(self, "_cached_content") or self._cached_content is not content:
+        if self._cached_content is not content:
             self._cached_content = content
             self._cached_lines = content.splitlines()
         return self._cached_lines

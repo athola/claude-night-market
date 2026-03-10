@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
+import sqlite3
 from pathlib import Path
 from typing import Any
 
 try:
     import psutil
 except ImportError:  # pragma: no cover
-    psutil = None  # type: ignore[assignment]
+    psutil = None
 
 try:
-    import requests
+    import requests  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover
-    requests = None  # type: ignore[assignment]
+    requests = None
 
 
 class FileReader:
@@ -148,14 +151,10 @@ class ResultStorage:
         Raises:
             Exception: If the database connection fails
         """
-        import sqlite3
-
         db_path = self.connection_string.replace("sqlite:///", "")
         conn = sqlite3.connect(db_path)
         try:
             conn.execute("CREATE TABLE IF NOT EXISTS results (key TEXT, value TEXT)")
-            import json
-
             for k, v in data.items():
                 conn.execute(
                     "INSERT INTO results VALUES (?, ?)",
@@ -178,8 +177,6 @@ class DependencyAnalyzer:
         Returns:
             Dictionary with dependency analysis
         """
-        import re
-
         imports: dict[str, list[str]] = {}
         current_module = None
 
@@ -198,7 +195,8 @@ class DependencyAnalyzer:
         for mod, deps in imports.items():
             for dep in deps:
                 if dep in imports and mod in imports.get(dep, []):
-                    pair = tuple(sorted([mod, dep]))
+                    sorted_pair = sorted([mod, dep])
+                    pair = (sorted_pair[0], sorted_pair[1])
                     if pair not in circular:
                         circular.append(pair)
 

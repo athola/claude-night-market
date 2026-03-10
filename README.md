@@ -7,7 +7,7 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-17 plugins providing 130 skills, 102 commands, and 43 agents
+17 plugins providing 130 skills, 103 commands, and 43 agents
 for git operations, code review, spec-driven development,
 and issue management. Each plugin installs independently.
 
@@ -143,6 +143,10 @@ auto-approves safe commands while blocking destructive operations.
 `sanctum` isolates named sessions. Agents can run in worktree isolation
 to prevent filesystem conflicts during parallel execution.
 
+**Orchestration.**
+`egregore` manages autonomous agent lifecycles with session budgets,
+crash recovery, and watchdog monitoring for long-running tasks.
+
 **Maintenance.**
 `/update-ci` reconciles pre-commit hooks and GitHub Actions with code
 changes. `abstract`'s homeostatic monitor tracks skill stability and
@@ -232,6 +236,8 @@ and naming conventions. For LSP integration, see the
   full skill, command, and agent inventory
 - [Tutorials](book/src/tutorials/README.md) -
   PR workflows, debugging, feature lifecycles
+- [Architecture Decision Records](docs/adr/) -
+  design rationale and trade-off documentation
 
 Per-plugin documentation lives in `book/src/plugins/`
 (one page per plugin).

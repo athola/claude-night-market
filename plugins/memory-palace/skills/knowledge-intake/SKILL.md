@@ -22,7 +22,6 @@ dependencies:
 - leyline:evaluation-framework
 - leyline:storage-templates
 - scribe:slop-detector
-- scribe:doc-generator
 scripts: []
 usage_patterns:
 - resource-intake

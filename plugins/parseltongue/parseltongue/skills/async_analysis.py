@@ -566,7 +566,6 @@ class AsyncAnalysisSkill:
 
                 # Check for __aexit__ method (context manager cleanup)
                 has_aexit = False
-                has_aenter = False
                 for item in node.body:
                     if isinstance(item, ast.AsyncFunctionDef):
                         if item.name == "__aexit__":
@@ -581,7 +580,6 @@ class AsyncAnalysisSkill:
                                 ):
                                     cleanup_in_finally = True
                         elif item.name == "__aenter__":
-                            has_aenter = True
                             uses_context_manager = True
 
                 # Check for session creation/cleanup in methods
@@ -949,7 +947,10 @@ class AsyncAnalysisSkill:
         # Check for resource cleanup
         resource_result = await self.analyze_resource_management(code)
         services = resource_result["resource_management"].get("services", {})
-        if any(s.get("closes_session", False) for s in services.values()) or "__aexit__" in code:
+        if (
+            any(s.get("closes_session", False) for s in services.values())
+            or "__aexit__" in code
+        ):
             good_practices["resource_cleanup"] = True
             score += 1
         else:

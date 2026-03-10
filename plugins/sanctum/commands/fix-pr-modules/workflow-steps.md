@@ -100,11 +100,13 @@ Ensure all fixes are correct and quality gates pass.
 
 **Validation Steps:**
 - Version validation (if applicable)
-- Execute test plan
+- Execute automated test plan
+- Agent-verify manual test plan (creative verification)
 - Run quality gates
 - Document results
 
-**Output:** All tests passing, quality gates green
+**Output:** All tests passing, quality gates green,
+manual test plan agent-verified with evidence
 
 ---
 
@@ -194,5 +196,3 @@ fix-pr-modules/
         ├── summary.md        # 6.5: Post summary comment
         └── verification.md   # 6.6: Final gate + verification
 ```
-
-**Usage:** Load only the step modules needed for your current phase.

@@ -100,10 +100,10 @@ class LanguageDetectionSkill:
             TypeError: If code is not a string
         """
         if code is None:
-            msg = "code must be a string, not None"
+            msg = "code must be a string, not None"  # type: ignore[unreachable]
             raise TypeError(msg)
         if not isinstance(code, str):
-            msg = f"code must be a string, got {type(code).__name__}"
+            msg = f"code must be a string, got {type(code).__name__}"  # type: ignore[unreachable]
             raise TypeError(msg)
 
         # Try filename first

@@ -12,10 +12,12 @@ import signal
 import tempfile
 import threading
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+import parseltongue.utils as _utils_mod
+from parseltongue.agents import AnalysisError
 from parseltongue.config import ConfigLoader
 from parseltongue.skills.async_analysis import AsyncAnalysisSkill
 from parseltongue.skills.compatibility_checker import CompatibilityChecker
@@ -190,10 +192,6 @@ async def slow_function():
     def test_network_timeout_simulation(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange
-        from unittest.mock import MagicMock
-
-        import parseltongue.utils as _utils_mod
-
         mock_requests = MagicMock()
         mock_requests.get.side_effect = TimeoutError("Network timeout")
 
@@ -636,3 +634,9 @@ def process_data(data: list[str]) -> None:
                 "success": True,
             },
         )
+
+    @pytest.mark.unit
+    def test_analysis_error_exception(self) -> None:
+        """Given AnalysisError, when raised, then behaves as standard exception."""
+        with pytest.raises(AnalysisError, match="test failure"):
+            raise AnalysisError("test failure")
