@@ -12,6 +12,10 @@ conditions:
     pattern: ^\s*print\(
 ---
 
+Print statements bypass the logging that future
+debuggers will depend on to diagnose problems.
+(Diligence)
+
 **Print statement detected in Python!**
 
 You're adding `print()` calls to Python code.

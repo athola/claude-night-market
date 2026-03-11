@@ -12,6 +12,11 @@ conditions:
     pattern: (password|token|secret|key|hash|encrypt|decrypt|auth|session)
 ---
 
+Security-sensitive code protects the people who trust
+this system with their data. Changes here deserve
+careful review.
+(Care, Diligence)
+
 **BLOCKED: Security-sensitive code requires pensive review!**
 
 You're modifying authentication/security code.

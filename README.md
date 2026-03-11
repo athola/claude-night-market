@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.2-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
@@ -16,6 +16,9 @@ and issue management. Each plugin installs independently.
 </p>
 
 ## Quick Start
+
+Requires **Claude Code 2.1.16+** and **Python 3.9+** for hooks.
+See [Requirements](#requirements) for details.
 
 ```bash
 # Add the marketplace
@@ -130,42 +133,31 @@ Full inventory:
 
 ### How the Layers Work
 
-**Governance and quality.**
-`imbue` enforces TDD via a PreToolUse hook that verifies test files before
-allowing implementation writes. Quality gates in `/create-skill` and
-`/create-command` halt execution when tests fail.
-`imbue:rigorous-reasoning` requires step-by-step logic checks before
-tool execution.
+**Governance.** `imbue` enforces TDD via a PreToolUse hook that
+verifies test files before allowing implementation writes.
+Quality gates halt execution when tests fail.
 
-**Security and sessions.**
-`leyline` manages OAuth flows with local token caching. `conserve`
-auto-approves safe commands while blocking destructive operations.
-`sanctum` isolates named sessions. Agents can run in worktree isolation
-to prevent filesystem conflicts during parallel execution.
+**Security.** `leyline` manages OAuth flows with local token
+caching. `conserve` auto-approves safe commands while blocking
+destructive operations. `sanctum` isolates named sessions, and
+agents can run in worktree isolation for parallel execution.
 
-**Orchestration.**
-`egregore` manages autonomous agent lifecycles with session budgets,
-crash recovery, and watchdog monitoring for long-running tasks.
+**Orchestration.** `egregore` manages autonomous agent lifecycles
+with session budgets, crash recovery, and watchdog monitoring.
 
-**Maintenance.**
-`/update-ci` reconciles pre-commit hooks and GitHub Actions with code
-changes. `abstract`'s homeostatic monitor tracks skill stability and
-auto-triggers improvement agents when degradation is detected. It creates
-GitHub issues for human review. `/fix-workflow` repairs failed runs by
-analyzing previous errors.
+**Maintenance.** `/update-ci` reconciles pre-commit hooks and
+GitHub Actions with code changes. `abstract` tracks skill
+stability and auto-triggers improvement agents when degradation
+is detected.
 
-**Cross-session state.**
-`attune`, `spec-kit`, and `sanctum` persist state across sessions via
-`CLAUDE_CODE_TASK_LIST_ID`. GitHub Discussions serve as a second
-persistence layer: `leyline` retrieves Decisions at session start,
-`attune` publishes war-room deliberations, `memory-palace` promotes
-evergreen knowledge, and `imbue` links scope-guard deferrals to
-companion discussions.
+**Cross-session state.** `attune`, `spec-kit`, and `sanctum`
+persist state across sessions via `CLAUDE_CODE_TASK_LIST_ID`.
+GitHub Discussions serve as a second persistence layer for
+decisions, war-room deliberations, and evergreen knowledge.
 
-**Risk classification.**
-`leyline:risk-classification` provides 4-tier task gating. GREEN and
-YELLOW tasks use heuristic matching. RED and CRITICAL tasks escalate to
-`war-room-checkpoint` for expert deliberation.
+**Risk classification.** `leyline:risk-classification` provides
+4-tier task gating (GREEN/YELLOW/RED/CRITICAL). RED and CRITICAL
+tasks escalate to `war-room-checkpoint` for expert deliberation.
 
 ## Common Workflows
 

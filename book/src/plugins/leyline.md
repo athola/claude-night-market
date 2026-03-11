@@ -29,6 +29,7 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `risk-classification` | Inline 4-tier risk classification for agent tasks | Risk-based task routing with war-room escalation |
 | `pytest-config` | Pytest configuration | Standardized test configuration |
 | `storage-templates` | Storage abstraction | File and database patterns |
+| `stewardship` | Cross-cutting stewardship principles with five virtues (Care, Curiosity, Humility, Diligence, Foresight) | Working with project health, codebase improvement, or virtue-aligned development |
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 

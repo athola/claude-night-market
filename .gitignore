@@ -78,6 +78,10 @@ debt_scan_results.json
 docs/plans/
 docs/backlog/
 docs/archive/
+docs/marketing/
+docs/implementation-plan.md
+docs/project-brief.md
+docs/specification.md
 **/*/docs/plans/
 
 # Attune ephemeral state

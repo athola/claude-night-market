@@ -9,6 +9,10 @@ conditions:
     pattern: (audit|analyze|research|review|comprehensive|deep.?dive|full.?scan|evaluate).*(codebase|plugin|skill|architecture|system|repo)
 ---
 
+Planning before dispatching agents respects the context
+window and the work that depends on coherent results.
+(Foresight)
+
 **Plan mode required for large agent dispatch!**
 
 Tasks involving comprehensive analysis, audits, or research across the codebase typically require 4+ parallel agents. Before dispatching:

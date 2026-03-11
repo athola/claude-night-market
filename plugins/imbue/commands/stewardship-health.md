@@ -22,13 +22,15 @@ scores or letter grades.
 
 ## What It Does
 
-1. Measures five health dimensions per plugin:
+1. Measures six health dimensions per plugin:
    - **Documentation freshness**: when docs were last updated
    - **Test coverage**: whether coverage data is available
    - **Code quality**: presence of quality tooling
    - **Contributor friendliness**: README, stewardship section,
      examples
    - **Improvement velocity**: stewardship actions recorded
+   - **Virtue practice**: count of virtue-tagged stewardship
+     actions (displays "not practiced" when none exist)
 
 2. Displays results as descriptive labels, not scores
 
@@ -52,11 +54,11 @@ in a detailed list for single-plugin view.
 ## Example Output
 
 ```
-Plugin          | Docs          | Tests        | Quality              | Friendly                | Velocity
-----------------|---------------|--------------|----------------------|-------------------------|------------------
-sanctum         | updated today | not measured | pyproject, tests     | README, stewardship     | 3 actions
-leyline         | 2 days ago    | not measured | pyproject, tests     | README, stewardship     | 1 action
-abstract        | 5 days ago    | not measured | pyproject, tests     | README, stewardship     | no actions
+Plugin   | Docs          | Tests        | Quality          | Friendly            | Velocity   | Virtues
+---------|---------------|--------------|------------------|---------------------|------------|---------------
+sanctum  | updated today | not measured | pyproject, tests | README, stewardship | 3 actions  | 2 (care, diligence)
+leyline  | 2 days ago    | not measured | pyproject, tests | README, stewardship | 1 action   | 1 (humility)
+abstract | 5 days ago    | not measured | pyproject, tests | README, stewardship | no actions | not practiced
 ```
 
 ## Related

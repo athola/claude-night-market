@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Plugin health dimensions measurement.
 
-Measures five health dimensions per plugin:
+Measures six health dimensions per plugin:
 1. Documentation freshness
 2. Test coverage
 3. Code quality
 4. Contributor friendliness
 5. Improvement velocity
+6. Virtue practice
 
 All dimensions return descriptive strings, not numeric scores.
 
@@ -144,12 +145,41 @@ def measure_improvement_velocity(
         return f"{count} stewardship actions recorded"
 
 
+def measure_virtue_practice(
+    actions_dir: Path,
+    plugin_name: str,
+) -> str:
+    """Count virtue-tagged stewardship actions for a plugin.
+
+    Returns a descriptive string listing the count and which
+    virtues are practiced, or "not practiced" when none exist.
+    """
+    actions = read_actions(actions_dir, plugin=plugin_name)
+    if not actions and not (actions_dir / "actions.jsonl").exists():
+        return NOT_MEASURED
+
+    virtues_seen: dict[str, int] = {}
+    for entry in actions:
+        virtue = entry.get("virtue")
+        if virtue:
+            virtues_seen[virtue] = virtues_seen.get(virtue, 0) + 1
+
+    total = sum(virtues_seen.values())
+    if total == 0:
+        return "not practiced"
+
+    names = ", ".join(sorted(virtues_seen))
+    if total == 1:
+        return f"1 ({names})"
+    return f"{total} ({names})"
+
+
 def get_plugin_health(
     plugin_dir: Path,
     actions_dir: Path,
     plugin_name: str,
 ) -> dict[str, str]:
-    """Get all five health dimensions for a plugin.
+    """Get all six health dimensions for a plugin.
 
     Returns a dict with descriptive strings for each dimension.
     """
@@ -159,4 +189,5 @@ def get_plugin_health(
         "code_quality": measure_code_quality(plugin_dir),
         "contributor_friendliness": measure_contributor_friendliness(plugin_dir),
         "improvement_velocity": measure_improvement_velocity(actions_dir, plugin_name),
+        "virtue_practice": measure_virtue_practice(actions_dir, plugin_name),
     }

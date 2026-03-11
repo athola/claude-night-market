@@ -28,6 +28,12 @@ modules:
 - modules/branch-management.md
 - modules/baseline-scenarios.md
 ---
+
+> Building more than what is needed takes choices away
+> from those who work here next. Scope-guard is humility
+> and foresight: preserving freedom by building only
+> what is earned.
+
 ## Table of Contents
 
 - [Philosophy](#philosophy)

@@ -21,6 +21,7 @@ from plugin_health import (
     measure_doc_freshness,
     measure_improvement_velocity,
     measure_test_coverage,
+    measure_virtue_practice,
 )
 
 
@@ -94,11 +95,11 @@ class TestGetPluginHealth:
     """Test the full health report for a plugin."""
 
     @pytest.mark.unit
-    def test_returns_all_five_dimensions(self, tmp_path: Path) -> None:
+    def test_returns_all_six_dimensions(self, tmp_path: Path) -> None:
         """Scenario: Full health report
         Given a plugin directory exists
         When getting the full health report
-        Then it contains all 5 dimension keys
+        Then it contains all 6 dimension keys
         """
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
@@ -117,6 +118,7 @@ class TestGetPluginHealth:
         assert "code_quality" in health
         assert "contributor_friendliness" in health
         assert "improvement_velocity" in health
+        assert "virtue_practice" in health
 
     @pytest.mark.unit
     def test_handles_missing_plugin_gracefully(self, tmp_path: Path) -> None:
@@ -133,6 +135,57 @@ class TestGetPluginHealth:
 
         for key, value in health.items():
             assert value == "not measured"
+
+
+class TestVirtuePractice:
+    """Test virtue practice health dimension."""
+
+    @pytest.mark.unit
+    def test_reports_not_measured_when_no_tracker(self, tmp_path: Path) -> None:
+        """Given no actions file, reports not measured."""
+        actions_dir = tmp_path / "empty"
+        result = measure_virtue_practice(actions_dir, "sanctum")
+        assert result == "not measured"
+
+    @pytest.mark.unit
+    def test_reports_not_practiced_when_no_virtues(self, tmp_path: Path) -> None:
+        """Given actions without virtue tags, reports not practiced."""
+        actions_dir = tmp_path / "stewardship"
+        actions_dir.mkdir(parents=True)
+        (actions_dir / "actions.jsonl").write_text(
+            '{"plugin":"sanctum","action_type":"fix","file":"x",'
+            '"description":"d","timestamp":"2026-03-01T00:00:00Z"}\n'
+        )
+        result = measure_virtue_practice(actions_dir, "sanctum")
+        assert result == "not practiced"
+
+    @pytest.mark.unit
+    def test_reports_virtue_count_and_names(self, tmp_path: Path) -> None:
+        """Given actions with virtue tags, reports count and names."""
+        actions_dir = tmp_path / "stewardship"
+        actions_dir.mkdir(parents=True)
+        (actions_dir / "actions.jsonl").write_text(
+            '{"plugin":"sanctum","action_type":"fix","file":"x",'
+            '"description":"d","timestamp":"t","virtue":"care"}\n'
+            '{"plugin":"sanctum","action_type":"doc","file":"y",'
+            '"description":"d","timestamp":"t","virtue":"diligence"}\n'
+            '{"plugin":"sanctum","action_type":"doc","file":"z",'
+            '"description":"d","timestamp":"t","virtue":"care"}\n'
+        )
+        result = measure_virtue_practice(actions_dir, "sanctum")
+        assert result == "3 (care, diligence)"
+
+    @pytest.mark.unit
+    def test_reports_singular_virtue(self, tmp_path: Path) -> None:
+        """Given one virtue-tagged action, reports singular form."""
+        actions_dir = tmp_path / "stewardship"
+        actions_dir.mkdir(parents=True)
+        (actions_dir / "actions.jsonl").write_text(
+            '{"plugin":"sanctum","action_type":"fix","file":"x",'
+            '"description":"d","timestamp":"t","virtue":"humility"}\n'
+        )
+        result = measure_virtue_practice(actions_dir, "sanctum")
+        assert result == "1 (humility)"
 
 
 class TestIndividualDimensions:
