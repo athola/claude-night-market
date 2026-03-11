@@ -180,17 +180,14 @@ select = [
     "PL",  # pylint
     "RUF", # Ruff-specific rules
 ]
+# POLICY: Fix lint issues in code, do NOT add bulk ignores here.
+# Only add an ignore rule after exhausting refactoring options and
+# getting explicit reviewer approval. Never ignore C901, PLR0912,
+# PLR0915, or SIM102 -- refactor the code instead.
 ignore = [
-    "E501",    # line too long, handled by black
-    "B008",    # do not perform function calls in argument defaults
-    "PLC0415", # lazy imports used intentionally for deferred loading
-    "C901",    # too complex
+    "E501",   # line too long, handled by black
+    "B008",   # do not perform function calls in argument defaults
     "PLW0603", # using the global statement
-    "PLR2004", # magic values in comparisons (thresholds are self-documenting)
-    "RUF012",  # mutable ClassVar annotation (private attrs with _ prefix)
-    "TC003",   # stdlib imports in TYPE_CHECKING block (not worth churn)
-    "SIM102",  # nested if statements (often clearer for AST traversal)
-    "ARG002",  # unused method args (public API stability, future use)
 ]
 unfixable = [
     "B006",   # Do not use mutable data structures for argument defaults
@@ -210,27 +207,17 @@ unfixable = [
 ]
 # Skill modules are single-class files with many analysis methods.
 # Split into packages if any file exceeds 1500 LOC.
-# Skill modules are AST-heavy analysis code with inherently complex methods
 "parseltongue/skills/async_analysis.py" = [
     "PLR0904", # Too many public methods - single analysis class
-    "PLR0912", # Too many branches - inherent in AST analysis code
-    "PLR0915", # Too many statements - inherent in AST analysis code
 ]
 "parseltongue/skills/pattern_matching.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class
-    "PLR0912", # Too many branches - inherent in AST pattern matching
 ]
 "parseltongue/skills/testing_guide.py" = [
     "PLR0904", # Too many public methods - single guide class
-    "PLR0912", # Too many branches - inherent in AST analysis code
 ]
 "parseltongue/skills/language_detection.py" = [
     "PLR0904", # Too many public methods - single detection class
-    "PLR0912", # Too many branches - inherent in multi-language detection
-    "PLR0915", # Too many statements - inherent in multi-language detection
-]
-"parseltongue/skills/compatibility_checker.py" = [
-    "PLR0912", # Too many branches - inherent in version compatibility checks
 ]
 
 [tool.ruff.lint.pylint]

@@ -6,8 +6,10 @@ import json
 import logging
 import re
 import sqlite3
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 try:
     import psutil
@@ -79,6 +81,10 @@ class HttpClient:
 class MemoryManager:
     """Manage analysis strategies under memory pressure."""
 
+    MIN_MEMORY_MB = 500
+    MAX_SEQUENTIAL_FILES = 500
+    DEFAULT_BATCH_SIZE = 50
+
     def get_optimal_strategy(self, file_count: int) -> dict[str, Any]:
         """Return an analysis strategy based on memory.
 
@@ -90,17 +96,17 @@ class MemoryManager:
         """
         try:
             if psutil is None:
-                available_mb = 500.0
+                available_mb = float(self.MIN_MEMORY_MB)
             else:
                 mem = psutil.virtual_memory()
                 available_mb = mem.available / (1024 * 1024)
         except Exception:
-            available_mb = 500.0
+            available_mb = float(self.MIN_MEMORY_MB)
 
-        if available_mb < 500 or file_count > 500:
+        if available_mb < self.MIN_MEMORY_MB or file_count > self.MAX_SEQUENTIAL_FILES:
             return {
                 "concurrent": False,
-                "batch_size": min(file_count, 50),
+                "batch_size": min(file_count, self.DEFAULT_BATCH_SIZE),
             }
         return {
             "concurrent": True,

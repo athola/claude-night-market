@@ -6,13 +6,191 @@ import ast
 import re
 from typing import Any
 
+# Constants for pattern detection thresholds
+MIN_OBSERVER_METHODS = 2
+MIN_FACTORY_RETURN_CLASSES = 2
+MIN_REPO_METHODS = 2
+
 
 class PatternMatchingSkill:
     """Detect design patterns in Python code using AST analysis."""
 
+    def _detect_class_patterns(
+        self,
+        tree: ast.Module,
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Detect class-level design patterns."""
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+
+            methods = {
+                item.name
+                for item in node.body
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            }
+            attrs: set[str] = set()
+            for item in node.body:
+                if isinstance(item, ast.Assign):
+                    for target in item.targets:
+                        if isinstance(target, ast.Name):
+                            attrs.add(target.id)
+                        elif isinstance(target, ast.Attribute):
+                            attrs.add(target.attr)
+
+            self._check_singleton_pattern(node, methods, attrs, patterns)
+            self._check_observer_pattern(node, methods, patterns)
+            self._check_strategy_pattern(node, methods, patterns)
+
+    def _check_singleton_pattern(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        attrs: set[str],
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Check for singleton pattern in class."""
+        if "_instance" in attrs and ("__new__" in methods or "get_instance" in methods):
+            patterns.append(
+                {
+                    "pattern": "singleton",
+                    "class": node.name,
+                    "line": node.lineno,
+                    "evidence": "_instance attribute with __new__/get_instance",
+                }
+            )
+
+    def _check_observer_pattern(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Check for observer pattern in class."""
+        observer_methods = methods & {
+            "subscribe",
+            "notify",
+            "attach",
+            "detach",
+            "add_observer",
+            "remove_observer",
+            "notify_observers",
+        }
+        if len(observer_methods) >= MIN_OBSERVER_METHODS:
+            patterns.append(
+                {
+                    "pattern": "observer",
+                    "class": node.name,
+                    "line": node.lineno,
+                    "evidence": f"Methods: {', '.join(sorted(observer_methods))}",
+                }
+            )
+
+    def _check_strategy_pattern(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Check for strategy pattern in class."""
+        if "__init__" not in methods:
+            return
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef) and item.name == "__init__":
+                for arg in item.args.args:
+                    if (
+                        arg.annotation
+                        and isinstance(arg.annotation, ast.Name)
+                        and arg.annotation.id
+                        in (
+                            "Callable",
+                            "Protocol",
+                            "Strategy",
+                        )
+                    ):
+                        patterns.append(
+                            {
+                                "pattern": "strategy",
+                                "class": node.name,
+                                "line": node.lineno,
+                                "evidence": f"Parameter "
+                                f"'{arg.arg}' typed as "
+                                f"{arg.annotation.id}",
+                            }
+                        )
+
+    def _detect_factory_patterns(
+        self,
+        tree: ast.Module,
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Detect factory pattern in functions."""
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            return_classes: set[str] = set()
+            has_conditional = False
+            for child in ast.walk(node):
+                if isinstance(child, (ast.If, ast.IfExp)):
+                    has_conditional = True
+                if (
+                    isinstance(child, ast.Return)
+                    and child.value
+                    and isinstance(child.value, ast.Call)
+                    and isinstance(child.value.func, ast.Name)
+                ):
+                    name = child.value.func.id
+                    if name[0].isupper():
+                        return_classes.add(name)
+            if has_conditional and len(return_classes) >= MIN_FACTORY_RETURN_CLASSES:
+                patterns.append(
+                    {
+                        "pattern": "factory",
+                        "function": node.name,
+                        "line": node.lineno,
+                        "evidence": "Returns different classes: "
+                        + ", ".join(sorted(return_classes)),
+                    }
+                )
+
+    def _detect_decorator_patterns(
+        self,
+        tree: ast.Module,
+        patterns: list[dict[str, Any]],
+    ) -> None:
+        """Detect decorator pattern in functions."""
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            uses_wraps = False
+            for child in ast.walk(node):
+                if isinstance(child, ast.Attribute) and child.attr == "wraps":
+                    uses_wraps = True
+                if isinstance(child, ast.Name) and child.id == "wraps":
+                    uses_wraps = True
+            if uses_wraps:
+                patterns.append(
+                    {
+                        "pattern": "decorator",
+                        "function": node.name,
+                        "line": node.lineno,
+                        "evidence": "Uses @wraps, function decorator pattern",
+                    }
+                )
+
     async def find_patterns(
         self, code: str, language: str = "python"
     ) -> dict[str, Any]:
+        """Find design patterns in code.
+
+        Args:
+            code: Code to analyze
+            language: Programming language
+
+        Returns:
+            Dictionary with patterns found
+        """
         if language != "python":
             return {
                 "patterns": [],
@@ -34,133 +212,18 @@ class PatternMatchingSkill:
 
         patterns: list[dict[str, Any]] = []
 
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.ClassDef):
-                continue
-
-            methods = {
-                item.name
-                for item in node.body
-                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
-            }
-            attrs: set[str] = set()
-            for item in node.body:
-                if isinstance(item, ast.Assign):
-                    for target in item.targets:
-                        if isinstance(target, ast.Name):
-                            attrs.add(target.id)
-                        elif isinstance(target, ast.Attribute):
-                            attrs.add(target.attr)
-
-            # Singleton
-            if "_instance" in attrs and (
-                "__new__" in methods or "get_instance" in methods
-            ):
-                patterns.append(
-                    {
-                        "pattern": "singleton",
-                        "class": node.name,
-                        "line": node.lineno,
-                        "evidence": "_instance attribute with __new__/get_instance",
-                    }
-                )
-
-            # Observer
-            observer_methods = methods & {
-                "subscribe",
-                "notify",
-                "attach",
-                "detach",
-                "add_observer",
-                "remove_observer",
-                "notify_observers",
-            }
-            if len(observer_methods) >= 2:
-                patterns.append(
-                    {
-                        "pattern": "observer",
-                        "class": node.name,
-                        "line": node.lineno,
-                        "evidence": f"Methods: {', '.join(sorted(observer_methods))}",
-                    }
-                )
-
-            # Strategy
-            if "__init__" in methods:
-                for item in node.body:
-                    if isinstance(item, ast.FunctionDef) and item.name == "__init__":
-                        for arg in item.args.args:
-                            if arg.annotation and isinstance(arg.annotation, ast.Name):
-                                if arg.annotation.id in (
-                                    "Callable",
-                                    "Protocol",
-                                    "Strategy",
-                                ):
-                                    patterns.append(
-                                        {
-                                            "pattern": "strategy",
-                                            "class": node.name,
-                                            "line": node.lineno,
-                                            "evidence": f"Parameter "
-                                            f"'{arg.arg}' typed as "
-                                            f"{arg.annotation.id}",
-                                        }
-                                    )
-
-        # Factory
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef):
-                continue
-            return_classes: set[str] = set()
-            has_conditional = False
-            for child in ast.walk(node):
-                if isinstance(child, (ast.If, ast.IfExp)):
-                    has_conditional = True
-                if isinstance(child, ast.Return) and child.value:
-                    if isinstance(child.value, ast.Call):
-                        if isinstance(child.value.func, ast.Name):
-                            name = child.value.func.id
-                            if name[0].isupper():
-                                return_classes.add(name)
-            if has_conditional and len(return_classes) >= 2:
-                patterns.append(
-                    {
-                        "pattern": "factory",
-                        "function": node.name,
-                        "line": node.lineno,
-                        "evidence": "Returns different classes: "
-                        + ", ".join(sorted(return_classes)),
-                    }
-                )
-
-        # Decorator
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef):
-                continue
-            uses_wraps = False
-            for child in ast.walk(node):
-                if isinstance(child, ast.Attribute) and child.attr == "wraps":
-                    uses_wraps = True
-                if isinstance(child, ast.Name) and child.id == "wraps":
-                    uses_wraps = True
-            if uses_wraps:
-                patterns.append(
-                    {
-                        "pattern": "decorator",
-                        "function": node.name,
-                        "line": node.lineno,
-                        "evidence": "Uses @wraps, function decorator pattern",
-                    }
-                )
+        self._detect_class_patterns(tree, patterns)
+        self._detect_factory_patterns(tree, patterns)
+        self._detect_decorator_patterns(tree, patterns)
 
         return {"patterns": patterns, "optimization_suggestions": []}
 
-    def match_patterns(self, code: str, language: str = "python") -> dict[str, Any]:
+    def match_patterns(self, code: str, _language: str = "python") -> dict[str, Any]:
         """Match patterns in code with confidence scoring.
 
         Args:
             code: Code to analyze
-            language: Programming language
+            _language: Programming language (reserved for future use)
 
         Returns:
             Dictionary with patterns and confidence
@@ -236,16 +299,15 @@ class PatternMatchingSkill:
 
                 # Check for lifecycle methods
                 for item in node.body:
-                    if isinstance(item, ast.FunctionDef):
-                        if item.name in (
-                            "setup_method",
-                            "teardown_method",
-                            "setup_class",
-                            "teardown_class",
-                            "setUp",
-                            "tearDown",
-                        ):
-                            lifecycle_methods.append(item.name)
+                    if isinstance(item, ast.FunctionDef) and item.name in (
+                        "setup_method",
+                        "teardown_method",
+                        "setup_class",
+                        "teardown_class",
+                        "setUp",
+                        "tearDown",
+                    ):
+                        lifecycle_methods.append(item.name)
 
         # Detect test functions
         if re.search(r"def test_\w+", code):
@@ -261,107 +323,110 @@ class PatternMatchingSkill:
             "lifecycle_methods": lifecycle_methods,
         }
 
-    def recognize_ddd_patterns(self, code: str) -> dict[str, Any]:
-        """Recognize Domain-Driven Design patterns.
-
-        Args:
-            code: Code to analyze
-
-        Returns:
-            Dictionary with DDD pattern analysis
-        """
-        ddd_patterns: dict[str, Any] = {}
-        entities: list[str] = []
-        value_objects: list[str] = []
-        repositories: list[str] = []
-        domain_services: list[str] = []
-
-        if not code:
-            return {"ddd_patterns": ddd_patterns}
-
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"ddd_patterns": ddd_patterns}
-
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.ClassDef):
-                continue
-
-            methods = {
-                item.name for item in node.body if isinstance(item, ast.FunctionDef)
-            }
-            bases = [b.id if isinstance(b, ast.Name) else "" for b in node.bases]
-            decorators = []
-            for dec in node.decorator_list:
-                if isinstance(dec, ast.Name):
-                    decorators.append(dec.id)
-                elif isinstance(dec, ast.Call) and isinstance(dec.func, ast.Name):
-                    decorators.append(dec.func.id)
-
-            # Entity: has id and mutable methods
-            if any(
-                arg.arg == "id"
+    def _check_entity(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        decorators: list[str],
+    ) -> bool:
+        """Check if a class is a DDD Entity."""
+        has_id = any(
+            arg.arg == "id"
+            for item in node.body
+            if isinstance(item, ast.FunctionDef) and item.name == "__init__"
+            for arg in item.args.args
+        ) or (
+            "dataclass" in decorators
+            and any(
+                isinstance(item, ast.AnnAssign)
+                and isinstance(item.target, ast.Name)
+                and item.target.id == "id"
                 for item in node.body
-                if isinstance(item, ast.FunctionDef) and item.name == "__init__"
-                for arg in item.args.args
-            ) or (
-                "dataclass" in decorators
-                and any(
-                    isinstance(item, ast.AnnAssign)
-                    and isinstance(item.target, ast.Name)
-                    and item.target.id == "id"
-                    for item in node.body
-                )
-            ):
-                # Not frozen = entity
-                is_frozen = any(
-                    "frozen" in str(ast.dump(dec)) and "True" in str(ast.dump(dec))
-                    for dec in node.decorator_list
-                    if isinstance(dec, ast.Call)
-                )
-                if not is_frozen and methods - {"__init__", "__post_init__"}:
-                    entities.append(node.name)
+            )
+        )
+        if not has_id:
+            return False
+        is_frozen = any(
+            "frozen" in str(ast.dump(dec)) and "True" in str(ast.dump(dec))
+            for dec in node.decorator_list
+            if isinstance(dec, ast.Call)
+        )
+        return not is_frozen and bool(methods - {"__init__", "__post_init__"})
 
-            # Value Object: frozen dataclass or immutable
-            if "dataclass" in decorators:
-                for dec in node.decorator_list:
-                    if isinstance(dec, ast.Call):
-                        for kw in dec.keywords:
-                            if (
-                                kw.arg == "frozen"
-                                and isinstance(kw.value, ast.Constant)
-                                and kw.value.value is True
-                            ):
-                                value_objects.append(node.name)
+    def _check_value_object(
+        self,
+        node: ast.ClassDef,
+        decorators: list[str],
+    ) -> bool:
+        """Check if a class is a DDD Value Object."""
+        if "dataclass" not in decorators:
+            return False
+        for dec in node.decorator_list:
+            if isinstance(dec, ast.Call):
+                for kw in dec.keywords:
+                    if (
+                        kw.arg == "frozen"
+                        and isinstance(kw.value, ast.Constant)
+                        and kw.value.value is True
+                    ):
+                        return True
+        return False
 
-            # Repository: has save/find/delete methods
-            repo_methods = methods & {
-                "save",
-                "find_by_id",
-                "find",
-                "delete",
-                "add",
-                "get",
-                "remove",
-            }
-            if (
-                len(repo_methods) >= 2
-                or "Repository" in node.name
-                or ("ABC" in bases
-                and repo_methods)
-            ):
-                if "Repository" in node.name or ("ABC" in bases and repo_methods):
-                    repositories.append(node.name)
+    def _check_repository(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        bases: list[str],
+    ) -> bool:
+        """Check if a class is a DDD Repository."""
+        repo_methods = methods & {
+            "save",
+            "find_by_id",
+            "find",
+            "delete",
+            "add",
+            "get",
+            "remove",
+        }
+        return bool(
+            (len(repo_methods) >= MIN_REPO_METHODS or "Repository" in node.name)
+            and ("Repository" in node.name or ("ABC" in bases and repo_methods))
+        )
 
-            # Domain Service: has repository dependency
-            if "Service" in node.name and "__init__" in methods:
-                for item in node.body:
-                    if isinstance(item, ast.FunctionDef) and item.name == "__init__":
-                        for arg in item.args.args:
-                            if arg.arg == "repository":
-                                domain_services.append(node.name)
+    def _check_domain_service(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+    ) -> bool:
+        """Check if a class is a DDD Domain Service."""
+        if "Service" not in node.name or "__init__" not in methods:
+            return False
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef) and item.name == "__init__":
+                for arg in item.args.args:
+                    if arg.arg == "repository":
+                        return True
+        return False
 
+    def _extract_decorators(self, node: ast.ClassDef) -> list[str]:
+        """Extract decorator names from a class."""
+        decorators = []
+        for dec in node.decorator_list:
+            if isinstance(dec, ast.Name):
+                decorators.append(dec.id)
+            elif isinstance(dec, ast.Call) and isinstance(dec.func, ast.Name):
+                decorators.append(dec.func.id)
+        return decorators
+
+    def _build_ddd_patterns_result(
+        self,
+        entities: list[str],
+        value_objects: list[str],
+        repositories: list[str],
+        domain_services: list[str],
+    ) -> dict[str, Any]:
+        """Build the final DDD patterns result dictionary."""
+        ddd_patterns: dict[str, Any] = {}
         if entities:
             ddd_patterns["entity"] = True
             ddd_patterns["entities"] = entities
@@ -374,7 +439,55 @@ class PatternMatchingSkill:
         if domain_services:
             ddd_patterns["domain_service"] = True
             ddd_patterns["domain_services"] = domain_services
+        return ddd_patterns
 
+    def recognize_ddd_patterns(self, code: str) -> dict[str, Any]:
+        """Recognize Domain-Driven Design patterns.
+
+        Args:
+            code: Code to analyze
+
+        Returns:
+            Dictionary with DDD pattern analysis
+        """
+        if not code:
+            return {"ddd_patterns": {}}
+
+        try:
+            tree = ast.parse(code)
+        except SyntaxError:
+            return {"ddd_patterns": {}}
+
+        entities: list[str] = []
+        value_objects: list[str] = []
+        repositories: list[str] = []
+        domain_services: list[str] = []
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+
+            methods = {
+                item.name for item in node.body if isinstance(item, ast.FunctionDef)
+            }
+            bases = [b.id if isinstance(b, ast.Name) else "" for b in node.bases]
+            decorators = self._extract_decorators(node)
+
+            if self._check_entity(node, methods, decorators):
+                entities.append(node.name)
+
+            if self._check_value_object(node, decorators):
+                value_objects.append(node.name)
+
+            if self._check_repository(node, methods, bases):
+                repositories.append(node.name)
+
+            if self._check_domain_service(node, methods):
+                domain_services.append(node.name)
+
+        ddd_patterns = self._build_ddd_patterns_result(
+            entities, value_objects, repositories, domain_services
+        )
         return {"ddd_patterns": ddd_patterns}
 
     def recognize_gof_patterns(self, code: str) -> dict[str, Any]:
@@ -433,15 +546,15 @@ class PatternMatchingSkill:
                 "add_observer",
                 "remove_observer",
             }
-            if len(observer_methods) >= 2 or ("Observer" in node.name and "ABC" in bases):
+            if len(observer_methods) >= MIN_OBSERVER_METHODS or (
+                "Observer" in node.name and "ABC" in bases
+            ):
                 observers.append(node.name)
 
             # Strategy: abstract class with single method
             if (
-                ("ABC" in bases
-                and "Strategy" in node.name)
-                or ("Payment" in node.name
-                and "ABC" in bases)
+                ("ABC" in bases and "Strategy" in node.name)
+                or ("Payment" in node.name and "ABC" in bases)
             ) or any(b in strategies or "Strategy" in b for b in bases):
                 strategies.append(node.name)
 
@@ -505,6 +618,47 @@ class PatternMatchingSkill:
             "pattern_instances": pattern_instances,
         }
 
+    def _detect_nested_loops(
+        self,
+        node: ast.FunctionDef,
+        anti_patterns: list[str],
+        performance_patterns: dict[str, Any],
+    ) -> None:
+        """Detect nested loops (O(n^2)) in a function."""
+        for child in ast.walk(node):
+            if isinstance(child, ast.For):
+                for grandchild in ast.walk(child):
+                    if isinstance(grandchild, ast.For) and grandchild is not child:
+                        anti_patterns.append(node.name)
+                        performance_patterns["optimization_opportunity"] = True
+                        break
+
+    def _detect_set_usage(
+        self,
+        node: ast.FunctionDef,
+        good_patterns: list[str],
+    ) -> None:
+        """Detect set usage (O(1) lookups) in a function."""
+        for child in ast.walk(node):
+            if (
+                isinstance(child, ast.Call)
+                and isinstance(child.func, ast.Name)
+                and child.func.id == "set"
+            ):
+                good_patterns.append(node.name)
+
+    def _detect_generators(
+        self,
+        node: ast.FunctionDef,
+        pattern_instances: list[str],
+        performance_patterns: dict[str, Any],
+    ) -> None:
+        """Detect generators in a function."""
+        for child in ast.walk(node):
+            if isinstance(child, ast.Yield):
+                pattern_instances.append(node.name)
+                performance_patterns["memory_efficient"] = True
+
     def recognize_performance_patterns(self, code: str) -> dict[str, Any]:
         """Recognize performance patterns and anti-patterns.
 
@@ -539,30 +693,9 @@ class PatternMatchingSkill:
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
-                # Detect nested loops (O(n^2))
-                for child in ast.walk(node):
-                    if isinstance(child, ast.For):
-                        for grandchild in ast.walk(child):
-                            if (
-                                isinstance(grandchild, ast.For)
-                                and grandchild is not child
-                            ):
-                                anti_patterns.append(node.name)
-                                performance_patterns["optimization_opportunity"] = True
-                                break
-
-                # Detect set usage (O(1) lookups)
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Call):
-                        if isinstance(child.func, ast.Name):
-                            if child.func.id == "set":
-                                good_patterns.append(node.name)
-
-                # Detect generators
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Yield):
-                        pattern_instances.append(node.name)
-                        performance_patterns["memory_efficient"] = True
+                self._detect_nested_loops(node, anti_patterns, performance_patterns)
+                self._detect_set_usage(node, good_patterns)
+                self._detect_generators(node, pattern_instances, performance_patterns)
 
         return {
             "performance_patterns": performance_patterns,
@@ -643,12 +776,13 @@ class PatternMatchingSkill:
             description = "O(n\u00b2) nested loop detected"
 
         # Memory leak (growing collection without cleanup)
-        if re.search(r"\.append\(", code) and not re.search(
-            r"\.(clear|pop|remove)\(", code
+        if (
+            re.search(r"\.append\(", code)
+            and not re.search(r"\.(clear|pop|remove)\(", code)
+            and ("cache" in code.lower() or "global" in code.lower())
         ):
-            if "cache" in code.lower() or "global" in code.lower():
-                anti_patterns.append("memory_leak")
-                description = "growing_collection without cleanup"
+            anti_patterns.append("memory_leak")
+            description = "growing_collection without cleanup"
 
         # Blocking in async
         if "time.sleep" in code and "async" in code:
@@ -795,6 +929,87 @@ class PatternMatchingSkill:
 
         return {"consistency_analysis": consistency}
 
+    def _detect_singleton_variations(
+        self,
+        code: str,
+        variations: dict[str, Any],
+    ) -> None:
+        """Detect singleton pattern variations."""
+        try:
+            tree = ast.parse(code)
+        except SyntaxError:
+            return
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+
+            methods = {
+                item.name for item in node.body if isinstance(item, ast.FunctionDef)
+            }
+            attrs: set[str] = set()
+            for item in node.body:
+                if isinstance(item, ast.Assign):
+                    for target in item.targets:
+                        if isinstance(target, ast.Name):
+                            attrs.add(target.id)
+
+            self._check_classic_singleton(node, methods, attrs, variations)
+            self._check_metaclass_singleton(node, methods, attrs, variations)
+
+    def _check_classic_singleton(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        attrs: set[str],
+        variations: dict[str, Any],
+    ) -> None:
+        """Check for classic singleton pattern variants."""
+        if "_instance" not in attrs or "__new__" not in methods:
+            return
+        if "_lock" in attrs:
+            variations["thread_safe_singleton"] = {
+                "class": node.name,
+                "advantages": [
+                    "Thread-safe",
+                    "Double-checked locking",
+                ],
+                "disadvantages": [
+                    "More complex",
+                    "Slight overhead",
+                ],
+            }
+        else:
+            variations["classic_singleton"] = {
+                "class": node.name,
+                "advantages": [
+                    "Simple implementation",
+                ],
+                "disadvantages": [
+                    "Not thread-safe",
+                ],
+            }
+
+    def _check_metaclass_singleton(
+        self,
+        node: ast.ClassDef,
+        methods: set[str],
+        attrs: set[str],
+        variations: dict[str, Any],
+    ) -> None:
+        """Check for metaclass singleton pattern."""
+        if "__call__" in methods and "_instances" in attrs:
+            variations["metaclass_singleton"] = {
+                "class": node.name,
+                "advantages": [
+                    "Reusable across classes",
+                    "Clean syntax",
+                ],
+                "disadvantages": [
+                    "Complex metaclass usage",
+                ],
+            }
+
     def detect_pattern_variations(
         self, code: str, pattern_name: str = ""
     ) -> dict[str, Any]:
@@ -817,66 +1032,7 @@ class PatternMatchingSkill:
             }
 
         if pattern_name == "singleton":
-            try:
-                tree = ast.parse(code)
-            except SyntaxError:
-                return {
-                    "pattern_variations": {},
-                    "trade_offs": {},
-                }
-
-            for node in ast.walk(tree):
-                if not isinstance(node, ast.ClassDef):
-                    continue
-
-                methods = {
-                    item.name for item in node.body if isinstance(item, ast.FunctionDef)
-                }
-                attrs: set[str] = set()
-                for item in node.body:
-                    if isinstance(item, ast.Assign):
-                        for target in item.targets:
-                            if isinstance(target, ast.Name):
-                                attrs.add(target.id)
-
-                # Classic singleton
-                if "_instance" in attrs and "__new__" in methods:
-                    if "_lock" in attrs:
-                        variations["thread_safe_singleton"] = {
-                            "class": node.name,
-                            "advantages": [
-                                "Thread-safe",
-                                "Double-checked locking",
-                            ],
-                            "disadvantages": [
-                                "More complex",
-                                "Slight overhead",
-                            ],
-                        }
-                    else:
-                        variations["classic_singleton"] = {
-                            "class": node.name,
-                            "advantages": [
-                                "Simple implementation",
-                            ],
-                            "disadvantages": [
-                                "Not thread-safe",
-                            ],
-                        }
-
-                # Metaclass singleton
-                if "__call__" in methods and "_instances" in attrs:
-                    variations["metaclass_singleton"] = {
-                        "class": node.name,
-                        "advantages": [
-                            "Reusable across classes",
-                            "Clean syntax",
-                        ],
-                        "disadvantages": [
-                            "Complex metaclass usage",
-                        ],
-                    }
-
+            self._detect_singleton_variations(code, variations)
             trade_offs = {
                 "simple_vs_threadsafe": "Classic is simpler but not thread-safe",
             }
@@ -965,7 +1121,7 @@ class PatternMatchingSkill:
                 "delete",
                 "add",
             }
-            if "Repository" in node.name or len(repo_methods) >= 2:
+            if "Repository" in node.name or len(repo_methods) >= MIN_REPO_METHODS:
                 docs["repository_pattern"] = {
                     "description": "Repository pattern for data access",
                     "usage": f"Use {node.name} to abstract data persistence",
@@ -1027,37 +1183,37 @@ class PatternMatchingSkill:
         if pattern_type == "factory":
             # Find factory functions and classes
             for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    if "create" in node.name or "factory" in node.name.lower():
-                        alternatives.append(
-                            {
-                                "name": node.name,
-                                "type": "simple_factory",
-                            }
-                        )
-                        comparison_matrix.append(
-                            {
-                                "name": node.name,
-                                "flexibility": "low",
-                                "complexity": "low",
-                            }
-                        )
+                if isinstance(node, ast.FunctionDef) and (
+                    "create" in node.name or "factory" in node.name.lower()
+                ):
+                    alternatives.append(
+                        {
+                            "name": node.name,
+                            "type": "simple_factory",
+                        }
+                    )
+                    comparison_matrix.append(
+                        {
+                            "name": node.name,
+                            "flexibility": "low",
+                            "complexity": "low",
+                        }
+                    )
 
-                if isinstance(node, ast.ClassDef):
-                    if "Factory" in node.name:
-                        alternatives.append(
-                            {
-                                "name": node.name,
-                                "type": "abstract_factory",
-                            }
-                        )
-                        comparison_matrix.append(
-                            {
-                                "name": node.name,
-                                "flexibility": "high",
-                                "complexity": "medium",
-                            }
-                        )
+                if isinstance(node, ast.ClassDef) and "Factory" in node.name:
+                    alternatives.append(
+                        {
+                            "name": node.name,
+                            "type": "abstract_factory",
+                        }
+                    )
+                    comparison_matrix.append(
+                        {
+                            "name": node.name,
+                            "flexibility": "high",
+                            "complexity": "medium",
+                        }
+                    )
 
             recommendations = {
                 "when_to_use": {
