@@ -9,6 +9,10 @@ conditions:
     pattern: (add|create|implement|build).*(feature|component|module|system)
 ---
 
+Building only what is needed today preserves tomorrow's
+freedom to choose differently.
+(Humility, Foresight)
+
 **Scope-guard check required!**
 
 Imbue's scope-guard prevents over-engineering. Before proceeding:

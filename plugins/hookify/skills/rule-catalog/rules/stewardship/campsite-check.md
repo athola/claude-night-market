@@ -11,16 +11,18 @@ conditions:
 
 **Stewardship: Leave the campsite better than you found it.**
 
-Before wrapping up, consider one small improvement to the plugin
-you've been working in:
+Before wrapping up, a brief reflection on the work just done:
 
-- Is the README current? Stale docs mislead future contributors.
-- Did you notice a confusing variable name or missing type hint?
-- Could a brief comment explain a non-obvious decision?
-- Is there a TODO you could resolve in under 2 minutes?
+- **Care**: What did you leave better for the next person?
+- **Curiosity**: What did you learn about this code?
+- **Humility**: Where were you uncertain? Did you handle
+  it honestly?
+- **Diligence**: Did you follow through on the small things?
+- **Foresight**: Will your choices be easy to change tomorrow?
 
-These small acts compound. Each one serves the contributor who
-arrives after you.
+If any prompt surfaces an improvement you can make in under
+a minute, consider making it now. Small acts compound.
 
-See `STEWARDSHIP.md` for the five stewardship principles, or
-invoke `Skill(leyline:stewardship)` for layer-specific guidance.
+For deeper reflection, see `modules/reflection.md` in
+`Skill(leyline:stewardship)`. Record voluntary improvements
+with the stewardship tracker.

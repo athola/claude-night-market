@@ -183,3 +183,183 @@ class TestReadActions:
         result = read_actions(actions_dir)
         assert len(result) == 1
         assert result[0]["plugin"] == "sanctum"
+
+
+class TestRecordActionVirtue:
+    """Test the optional virtue parameter for record_action."""
+
+    @pytest.mark.unit
+    def test_record_action_without_virtue_unchanged(self, tmp_path: Path) -> None:
+        """Verify existing behavior is preserved when virtue is omitted.
+
+        Given a stewardship tracker
+        When record_action is called without virtue
+        Then the JSONL entry contains no virtue field
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="sanctum",
+            action_type="doc-update",
+            file_path="README.md",
+            description="No virtue here",
+        )
+
+        line = (actions_dir / "actions.jsonl").read_text().strip()
+        entry = json.loads(line)
+
+        assert "virtue" not in entry
+        assert entry["plugin"] == "sanctum"
+
+    @pytest.mark.unit
+    def test_record_action_with_virtue_included_in_jsonl(self, tmp_path: Path) -> None:
+        """Verify virtue field appears in JSONL when virtue is provided.
+
+        Given a stewardship tracker
+        When record_action is called with virtue="clarity"
+        Then the virtue field appears in the JSONL entry
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="leyline",
+            action_type="test-addition",
+            file_path="tests/test_foo.py",
+            description="Added missing tests",
+            virtue="clarity",
+        )
+
+        line = (actions_dir / "actions.jsonl").read_text().strip()
+        entry = json.loads(line)
+
+        assert entry["virtue"] == "clarity"
+
+    @pytest.mark.unit
+    def test_record_action_virtue_none_omits_field(self, tmp_path: Path) -> None:
+        """Verify virtue field is absent when virtue=None is passed explicitly.
+
+        Given a stewardship tracker
+        When record_action is called with virtue=None
+        Then the JSONL entry does not contain a virtue field
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="imbue",
+            action_type="typo-fix",
+            file_path="SKILL.md",
+            description="Fixed typo",
+            virtue=None,
+        )
+
+        line = (actions_dir / "actions.jsonl").read_text().strip()
+        entry = json.loads(line)
+
+        assert "virtue" not in entry
+
+
+class TestReadActionsVirtueFilter:
+    """Test virtue-based filtering in read_actions."""
+
+    @pytest.mark.unit
+    def test_read_actions_filter_by_virtue(self, tmp_path: Path) -> None:
+        """Verify only matching virtue entries are returned when filtering.
+
+        Given actions recorded with different virtues
+        When read_actions is called with virtue="clarity"
+        Then only entries with virtue=="clarity" are returned
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="sanctum",
+            action_type="doc-update",
+            file_path="README.md",
+            description="With clarity virtue",
+            virtue="clarity",
+        )
+        record_action(
+            base_dir=actions_dir,
+            plugin="imbue",
+            action_type="typo-fix",
+            file_path="SKILL.md",
+            description="With courage virtue",
+            virtue="courage",
+        )
+
+        result = read_actions(actions_dir, virtue="clarity")
+
+        assert len(result) == 1
+        assert result[0]["virtue"] == "clarity"
+        assert result[0]["plugin"] == "sanctum"
+
+    @pytest.mark.unit
+    def test_read_actions_no_virtue_filter_returns_all(self, tmp_path: Path) -> None:
+        """Verify default behavior returns all entries when no virtue is given.
+
+        Given actions recorded with and without virtues
+        When read_actions is called without a virtue argument
+        Then all entries are returned
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="sanctum",
+            action_type="doc-update",
+            file_path="README.md",
+            description="With virtue",
+            virtue="clarity",
+        )
+        record_action(
+            base_dir=actions_dir,
+            plugin="imbue",
+            action_type="typo-fix",
+            file_path="SKILL.md",
+            description="Without virtue",
+        )
+
+        result = read_actions(actions_dir)
+
+        expected_count = 2
+        assert len(result) == expected_count
+
+    @pytest.mark.unit
+    def test_read_actions_virtue_filter_with_mixed_entries(
+        self, tmp_path: Path
+    ) -> None:
+        """Verify entries without a virtue field are excluded when filtering.
+
+        Given entries where some lack a virtue field and some have a virtue
+        When read_actions is called with a virtue filter
+        Then entries lacking the virtue field are excluded
+        """
+        actions_dir = tmp_path / "stewardship"
+        record_action(
+            base_dir=actions_dir,
+            plugin="sanctum",
+            action_type="doc-update",
+            file_path="README.md",
+            description="Has virtue",
+            virtue="clarity",
+        )
+        record_action(
+            base_dir=actions_dir,
+            plugin="leyline",
+            action_type="test-addition",
+            file_path="tests/test_x.py",
+            description="No virtue field",
+        )
+        record_action(
+            base_dir=actions_dir,
+            plugin="imbue",
+            action_type="typo-fix",
+            file_path="SKILL.md",
+            description="Different virtue",
+            virtue="courage",
+        )
+
+        result = read_actions(actions_dir, virtue="clarity")
+
+        assert len(result) == 1
+        assert result[0]["plugin"] == "sanctum"
+        assert result[0]["virtue"] == "clarity"

@@ -30,6 +30,11 @@ modules:
 - modules/evidence-logging.md
 - modules/todowrite-patterns.md
 ---
+
+> Claims without evidence fail the people who depend on
+> your work. Proof-of-work is humility in practice:
+> "it looks correct" is not "I verified it works."
+
 # Proof of Work
 
 ## Table of Contents

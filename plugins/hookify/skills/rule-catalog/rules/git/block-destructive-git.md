@@ -9,6 +9,10 @@ conditions:
     pattern: git\s+(reset\s+--hard|checkout\s+--\s+\.|checkout\s+HEAD\s+--|checkout\s+\S+\s+--\s|restore\s+--source|clean\s+-[fd]+|stash\s+drop|branch\s+-D|reflog\s+expire|gc\s+--prune)
 ---
 
+Uncommitted work represents someone's thinking.
+Destroying it erases context that cannot be rebuilt.
+(Care)
+
 🛑 **Destructive Git Operation Blocked!**
 
 This command can cause **irreversible data loss** - uncommitted changes, local branches, or reflog history may be permanently deleted.

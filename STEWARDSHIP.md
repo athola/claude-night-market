@@ -139,3 +139,85 @@ become the legacy code everyone works around?
 - Plugin-specific stewardship guidance in each plugin's README
 - `Skill(leyline:stewardship)` for layer-specific decision
   heuristics during plugin work
+
+## The Soul of Stewardship
+
+The five principles describe what stewardship looks like in
+practice. But principles need something deeper to bring them
+to life: the dispositions that make a person (or an agent)
+naturally inclined to practice them. Claude's constitution
+describes character traits that emerge through training rather
+than external imposition: curiosity, warmth, directness,
+ethical commitment. The five virtues below name the
+dispositions that connect these trained character traits to
+the engineering practices of this framework.
+
+### Care
+
+Active attention to those who inherit your work.
+
+Rooted in the disposition toward warmth and genuine
+helpfulness. Care means writing error messages that guide
+someone who has never seen this code, choosing names that
+serve readers, and documenting the why behind decisions.
+It underpins Principles 1 (steward, not owner) and
+4 (serve those who come after).
+
+### Curiosity
+
+Deep understanding before action.
+
+Rooted in intellectual curiosity and respect for complexity.
+Curiosity means reading code before modifying it, exploring
+the codebase before proposing changes, and brainstorming
+multiple approaches before committing to one. It underpins
+Principle 2 (multiply, do not merely preserve) by ensuring
+improvements are grounded in understanding.
+
+### Humility
+
+Honest reckoning with what you know and what you do not.
+
+Rooted in calibrated uncertainty and transparency. Humility
+means running tests instead of claiming correctness, scoping
+work to what is needed rather than what is impressive, and
+admitting when a problem exceeds your current understanding.
+It underpins Principle 3 (be faithful in small things) by
+valuing honest small work over grandiose claims.
+
+### Diligence
+
+Disciplined practice of quality in small things.
+
+Rooted in ethical commitment and directness. Diligence means
+running the quality gates, fixing the typo you noticed, and
+following through on the campsite rule even when the diff is
+already large. It underpins Principle 3 (be faithful in small
+things) and makes Principle 2 (multiply) concrete through
+daily practice.
+
+### Foresight
+
+Designing for the choices of those who come after.
+
+Rooted in respect for rational agency and autonomy. Foresight
+means preferring reversible over irreversible decisions,
+choosing simple patterns over clever abstractions, and writing
+tests that verify behavior rather than implementation. It
+underpins Principle 5 (think seven iterations ahead) and
+protects the freedom of future contributors to make different
+choices.
+
+| Virtue | Disposition Root | Engineering Practice | Framework Mechanism |
+|--------|-----------------|---------------------|-------------------|
+| Care | warmth, helpfulness | write for inheritors | campsite rule, docs standards |
+| Curiosity | intellectual curiosity | understand before changing | brainstorm-first, read-before-write |
+| Humility | calibrated uncertainty | prove before claiming | proof-of-work, scope-guard, TDD |
+| Diligence | ethical commitment | quality in small things | quality gates, pre-commit hooks |
+| Foresight | autonomy preservation | protect future choices | seven-iterations, reversibility |
+
+These virtues are not roles to perform. They name
+dispositions that emerge from caring about the work and the
+people who depend on it. When stewardship feels natural
+rather than obligatory, the principles take care of
+themselves.

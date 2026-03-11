@@ -12,6 +12,11 @@ conditions:
     pattern: (main|master)
 ---
 
+Shared history belongs to every contributor who builds
+on it. Force-pushing rewrites commits others depend on,
+breaking their work and erasing their context.
+(Care, Foresight)
+
 **Force push to main/master detected!**
 
 Force pushing to the main branch can:
