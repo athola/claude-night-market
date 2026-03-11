@@ -16,12 +16,22 @@ from unittest.mock import Mock
 
 import pytest
 
-# Add the scripts directory to Python path for importing conservation scripts
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
-
+# Dynamic import: conservation_validator lives in the scripts directory
+# (not a standard Python package). Use importlib for consistency with
+# _load_context_warning_module() below.
 try:
-    from scripts.conservation_validator import ConservationValidator
-except ImportError:
+    _scripts_path = Path(__file__).resolve().parent.parent / "scripts"
+    _validator_path = _scripts_path / "conservation_validator.py"
+    _spec = importlib.util.spec_from_file_location(
+        "conservation_validator", _validator_path
+    )
+    if _spec is not None and _spec.loader is not None:
+        _module = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_module)
+        ConservationValidator = getattr(_module, "ConservationValidator", None)
+    else:
+        ConservationValidator = None
+except (ImportError, FileNotFoundError):
     ConservationValidator = None
 
 # Constants for PLR2004 magic values

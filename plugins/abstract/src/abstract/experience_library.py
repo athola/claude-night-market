@@ -1,8 +1,8 @@
 """Experience library for storing successful skill execution trajectories.
 
 Stores task descriptions, approaches, and outcomes from successful
-skill executions. Retrieved via keyword similarity matching and
-injected into future skill context as exemplars.
+skill executions. Retrieved via keyword similarity matching.
+Context injection is planned but not yet implemented (see #296).
 
 Part of the self-adapting system. See:
 docs/adr/0006-self-adapting-skill-health.md

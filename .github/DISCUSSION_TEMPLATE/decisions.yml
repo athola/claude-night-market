@@ -49,12 +49,17 @@ body:
         Neutral: ...
     validations:
       required: true
-  - type: input
+  - type: dropdown
     id: reversibility-score
     attributes:
       label: Reversibility Score
-      description: "War room RS score (0.00 - 1.00). Higher = less reversible."
-      placeholder: "0.65"
+      description: "War room RS score. Higher = less reversible."
+      options:
+        - "0.00 - 0.20 (trivially reversible)"
+        - "0.21 - 0.40 (easily reversible)"
+        - "0.41 - 0.60 (moderate effort to reverse)"
+        - "0.61 - 0.80 (difficult to reverse)"
+        - "0.81 - 1.00 (practically irreversible)"
   - type: input
     id: related
     attributes:

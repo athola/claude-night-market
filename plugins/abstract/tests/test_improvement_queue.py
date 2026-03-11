@@ -199,3 +199,67 @@ class TestEvalDecision:
             )
         decision = flagged_queue.evaluate("abstract:test-skill")
         assert decision == "pending_rollback_review"
+
+
+class TestReturnValues:
+    """Test that bool return values are asserted and stderr warnings emitted."""
+
+    def test_start_evaluation_returns_true_on_success(
+        self, flagged_queue: ImprovementQueue
+    ) -> None:
+        """Given a known skill, when start_evaluation called, then returns True."""
+        result = flagged_queue.start_evaluation(
+            "abstract:test-skill", baseline_gap=0.15
+        )
+        assert result is True
+
+    def test_start_evaluation_returns_false_for_unknown_skill(
+        self, fresh_queue: ImprovementQueue, capsys
+    ) -> None:
+        """Given an unknown skill, when start_evaluation called, then returns False."""
+        result = fresh_queue.start_evaluation("nonexistent:skill", baseline_gap=0.15)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "unknown skill" in captured.err
+        assert "nonexistent:skill" in captured.err
+
+    def test_record_eval_execution_returns_true_on_success(
+        self, flagged_queue: ImprovementQueue
+    ) -> None:
+        """Given an evaluating skill, when execution recorded, then returns True."""
+        flagged_queue.start_evaluation("abstract:test-skill", baseline_gap=0.15)
+        result = flagged_queue.record_eval_execution(
+            "abstract:test-skill", stability_gap=0.10
+        )
+        assert result is True
+
+    def test_record_eval_execution_returns_false_for_unknown_skill(
+        self, fresh_queue: ImprovementQueue, capsys
+    ) -> None:
+        """Given an unknown skill, when execution recorded, then returns False."""
+        result = fresh_queue.record_eval_execution(
+            "nonexistent:skill", stability_gap=0.1
+        )
+        assert result is False
+        captured = capsys.readouterr()
+        assert "unknown skill" in captured.err
+
+    def test_record_eval_execution_returns_false_for_wrong_status(
+        self, flagged_queue: ImprovementQueue, capsys
+    ) -> None:
+        """Given a non-evaluating skill, when execution recorded, then returns False."""
+        result = flagged_queue.record_eval_execution(
+            "abstract:test-skill", stability_gap=0.10
+        )
+        assert result is False
+        captured = capsys.readouterr()
+        assert "expected 'evaluating'" in captured.err
+
+    def test_evaluate_returns_unknown_for_missing_skill(
+        self, fresh_queue: ImprovementQueue, capsys
+    ) -> None:
+        """Given an unknown skill, when evaluate called, then returns 'unknown'."""
+        result = fresh_queue.evaluate("nonexistent:skill")
+        assert result == "unknown"
+        captured = capsys.readouterr()
+        assert "unknown skill" in captured.err

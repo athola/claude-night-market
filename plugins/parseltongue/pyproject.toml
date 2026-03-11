@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.6.0"
+version = "1.6.1"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -180,10 +180,13 @@ select = [
     "PL",  # pylint
     "RUF", # Ruff-specific rules
 ]
+# POLICY: Fix lint issues in code, do NOT add bulk ignores here.
+# Only add an ignore rule after exhausting refactoring options and
+# getting explicit reviewer approval. Never ignore C901, PLR0912,
+# PLR0915, or SIM102 -- refactor the code instead.
 ignore = [
     "E501",   # line too long, handled by black
     "B008",   # do not perform function calls in argument defaults
-    "C901",   # too complex
     "PLW0603", # using the global statement
 ]
 unfixable = [
@@ -206,7 +209,6 @@ unfixable = [
 # Split into packages if any file exceeds 1500 LOC.
 "parseltongue/skills/async_analysis.py" = [
     "PLR0904", # Too many public methods - single analysis class
-    "PLR0912", # Too many branches - inherent in AST analysis code
 ]
 "parseltongue/skills/pattern_matching.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class

@@ -90,11 +90,21 @@ class ImprovementQueue:
         """Return skill refs that are ready for improvement."""
         return [ref for ref in self.skills if self.needs_improvement(ref)]
 
-    def start_evaluation(self, skill_ref: str, baseline_gap: float) -> None:
-        """Mark a skill as under evaluation after improvement."""
+    def start_evaluation(self, skill_ref: str, baseline_gap: float) -> bool:
+        """Mark a skill as under evaluation after improvement.
+
+        Returns:
+            True if the skill was found and marked as evaluating,
+            False if the skill_ref is unknown.
+
+        """
         entry = self.skills.get(skill_ref)
         if not entry:
-            return
+            sys.stderr.write(
+                f"improvement_queue: start_evaluation called for"
+                f" unknown skill {skill_ref!r}\n"
+            )
+            return False
         entry["status"] = "evaluating"
         entry["evaluating"] = True
         entry["eval_start"] = datetime.now(timezone.utc).isoformat()
@@ -104,17 +114,36 @@ class ImprovementQueue:
         entry["flagged_count"] = 0
         entry["execution_ids"] = []
         self._save()
+        return True
 
-    def record_eval_execution(self, skill_ref: str, stability_gap: float) -> None:
-        """Record one execution during evaluation window."""
+    def record_eval_execution(self, skill_ref: str, stability_gap: float) -> bool:
+        """Record one execution during evaluation window.
+
+        Returns:
+            True if the execution was recorded, False if the skill
+            is unknown or not currently in evaluating status.
+
+        """
         entry = self.skills.get(skill_ref)
-        if not entry or entry.get("status") != "evaluating":
-            return
+        if not entry:
+            sys.stderr.write(
+                f"improvement_queue: record_eval_execution called for"
+                f" unknown skill {skill_ref!r}\n"
+            )
+            return False
+        if entry.get("status") != "evaluating":
+            sys.stderr.write(
+                f"improvement_queue: record_eval_execution called for"
+                f" skill {skill_ref!r} with status"
+                f" {entry.get('status')!r}, expected 'evaluating'\n"
+            )
+            return False
         entry["eval_executions"] = entry.get("eval_executions", 0) + 1
         entry["stability_gap"] = stability_gap
         eval_gaps: list[float] = entry.setdefault("eval_gaps", [])
         eval_gaps.append(stability_gap)
         self._save()
+        return True
 
     def is_eval_complete(self, skill_ref: str) -> bool:
         """Check if evaluation window is complete."""
@@ -132,6 +161,9 @@ class ImprovementQueue:
         """
         entry = self.skills.get(skill_ref)
         if not entry:
+            sys.stderr.write(
+                f"improvement_queue: evaluate called for unknown skill {skill_ref!r}\n"
+            )
             return "unknown"
 
         baseline = entry.get("baseline_gap", 0)

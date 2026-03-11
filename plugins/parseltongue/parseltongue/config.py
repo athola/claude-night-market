@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ConfigLoader:
@@ -30,12 +32,11 @@ class ConfigLoader:
             raise ValueError(msg)
 
         # Validate known field types
-        if "python_version" in data:
-            if not isinstance(data["python_version"], str):
-                msg = (
-                    "python_version must be a string, "
-                    f"got {type(data['python_version']).__name__}"
-                )
-                raise ValueError(msg)
+        if "python_version" in data and not isinstance(data["python_version"], str):
+            msg = (
+                "python_version must be a string, "
+                f"got {type(data['python_version']).__name__}"
+            )
+            raise ValueError(msg)
 
         return data

@@ -2,19 +2,24 @@
 
 from __future__ import annotations
 
+import json
 import logging
-from pathlib import Path
-from typing import Any
+import re
+import sqlite3
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 try:
     import psutil
 except ImportError:  # pragma: no cover
-    psutil = None  # type: ignore[assignment]
+    psutil = None
 
 try:
-    import requests
+    import requests  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover
-    requests = None  # type: ignore[assignment]
+    requests = None
 
 
 class FileReader:
@@ -76,6 +81,10 @@ class HttpClient:
 class MemoryManager:
     """Manage analysis strategies under memory pressure."""
 
+    MIN_MEMORY_MB = 500
+    MAX_SEQUENTIAL_FILES = 500
+    DEFAULT_BATCH_SIZE = 50
+
     def get_optimal_strategy(self, file_count: int) -> dict[str, Any]:
         """Return an analysis strategy based on memory.
 
@@ -87,17 +96,17 @@ class MemoryManager:
         """
         try:
             if psutil is None:
-                available_mb = 500.0
+                available_mb = float(self.MIN_MEMORY_MB)
             else:
                 mem = psutil.virtual_memory()
                 available_mb = mem.available / (1024 * 1024)
         except Exception:
-            available_mb = 500.0
+            available_mb = float(self.MIN_MEMORY_MB)
 
-        if available_mb < 500 or file_count > 500:
+        if available_mb < self.MIN_MEMORY_MB or file_count > self.MAX_SEQUENTIAL_FILES:
             return {
                 "concurrent": False,
-                "batch_size": min(file_count, 50),
+                "batch_size": min(file_count, self.DEFAULT_BATCH_SIZE),
             }
         return {
             "concurrent": True,
@@ -148,14 +157,10 @@ class ResultStorage:
         Raises:
             Exception: If the database connection fails
         """
-        import sqlite3
-
         db_path = self.connection_string.replace("sqlite:///", "")
         conn = sqlite3.connect(db_path)
         try:
             conn.execute("CREATE TABLE IF NOT EXISTS results (key TEXT, value TEXT)")
-            import json
-
             for k, v in data.items():
                 conn.execute(
                     "INSERT INTO results VALUES (?, ?)",
@@ -178,8 +183,6 @@ class DependencyAnalyzer:
         Returns:
             Dictionary with dependency analysis
         """
-        import re
-
         imports: dict[str, list[str]] = {}
         current_module = None
 
@@ -198,7 +201,8 @@ class DependencyAnalyzer:
         for mod, deps in imports.items():
             for dep in deps:
                 if dep in imports and mod in imports.get(dep, []):
-                    pair = tuple(sorted([mod, dep]))
+                    sorted_pair = sorted([mod, dep])
+                    pair = (sorted_pair[0], sorted_pair[1])
                     if pair not in circular:
                         circular.append(pair)
 

@@ -24,6 +24,7 @@ Or reference from the marketplace:
 | **slop-detector** | Detect AI-generated content markers |
 | **style-learner** | Extract writing style from exemplar text |
 | **doc-generator** | Generate/remediate documentation |
+| **tech-tutorial** | Plan, draft, and refine technical tutorials |
 
 ### Commands
 
@@ -33,7 +34,7 @@ Or reference from the marketplace:
 | `/style-learn` | Create style profile from examples |
 | `/doc-polish` | Clean up AI-generated content |
 | `/doc-generate` | Generate new documentation |
-| `/doc-verify` | Validate documentation claims with proof-of-work |
+| `Agent(scribe:doc-verifier)` | Validate documentation claims with proof-of-work (agent-only) |
 
 ### Agents
 
@@ -77,12 +78,12 @@ Or reference from the marketplace:
 
 ### Verify Documentation
 
+Documentation verification is now agent-only via `Agent(scribe:doc-verifier)`:
+
 ```bash
 # Verify README claims and commands
-/doc-verify README.md
-
-# Verify with strict mode
-/doc-verify docs/ --strict --report qa-report.md
+# Use the doc-verifier agent directly:
+Agent(scribe:doc-verifier) "Verify README.md claims and commands"
 ```
 
 ## AI Slop Detection
@@ -170,15 +171,16 @@ scribe/
 │   ├── slop-scan.md
 │   ├── style-learn.md
 │   ├── doc-polish.md
-│   ├── doc-generate.md
-│   └── doc-verify.md
+│   └── doc-generate.md
 ├── skills/
 │   ├── shared/
 │   ├── slop-detector/
 │   │   └── modules/
 │   ├── style-learner/
 │   │   └── modules/
-│   └── doc-generator/
+│   ├── doc-generator/
+│   │   └── modules/
+│   └── tech-tutorial/
 │       └── modules/
 └── README.md
 ```

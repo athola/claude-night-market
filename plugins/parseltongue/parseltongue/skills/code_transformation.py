@@ -70,7 +70,7 @@ class CodeTransformationSkill:
         return code, transforms
 
     def _apply_all(
-        self, code: str, tree: ast.Module
+        self, code: str, _tree: ast.Module
     ) -> tuple[str, list[dict[str, Any]]]:
         transforms: list[dict[str, Any]] = []
         result = code

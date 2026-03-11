@@ -8,6 +8,12 @@ import json
 import sys
 from pathlib import Path
 
+from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+from parseltongue.skills.code_transformation import CodeTransformationSkill
+from parseltongue.skills.compatibility_checker import CompatibilityChecker
+from parseltongue.skills.pattern_matching import PatternMatchingSkill
+from parseltongue.skills.testing_guide import TestingGuideSkill
+
 
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
@@ -68,34 +74,19 @@ def main(argv: list[str] | None = None) -> int:
 
 def _run_command(command: str, code: str, target_version: str) -> dict:
     if command == "analyze-async":
-        from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+        return asyncio.run(AsyncAnalysisSkill().analyze_async_functions(code))
 
-        skill = AsyncAnalysisSkill()
-        return asyncio.run(skill.analyze_async_functions(code))
+    if command == "check-compat":
+        return CompatibilityChecker().check_compatibility(code, [target_version])
 
-    elif command == "check-compat":
-        from parseltongue.skills.compatibility_checker import CompatibilityChecker
+    if command == "detect-patterns":
+        return asyncio.run(PatternMatchingSkill().find_patterns(code))
 
-        skill = CompatibilityChecker()
-        return skill.check_compatibility(code, [target_version])
+    if command == "test-guide":
+        return asyncio.run(TestingGuideSkill().analyze_testing(code))
 
-    elif command == "detect-patterns":
-        from parseltongue.skills.pattern_matching import PatternMatchingSkill
-
-        skill = PatternMatchingSkill()
-        return asyncio.run(skill.find_patterns(code))
-
-    elif command == "test-guide":
-        from parseltongue.skills.testing_guide import TestingGuideSkill
-
-        skill = TestingGuideSkill()
-        return asyncio.run(skill.analyze_testing(code))
-
-    elif command == "transform":
-        from parseltongue.skills.code_transformation import CodeTransformationSkill
-
-        skill = CodeTransformationSkill()
-        return asyncio.run(skill.transform_code(code))
+    if command == "transform":
+        return asyncio.run(CodeTransformationSkill().transform_code(code))
 
     return {"error": f"Unknown command: {command}"}
 

@@ -50,10 +50,21 @@ jobs:
           PLUGIN_NAME: ${{ matrix.plugin }}
         run: |
           cd "plugins/$PLUGIN_NAME"
-          if [ -d "scripts" ]; then
+          # Build comma-separated list of directories to mutate
+          mutate_paths=""
+          for dir in scripts src; do
+            if [ -d "$dir" ]; then
+              if [ -n "$mutate_paths" ]; then
+                mutate_paths="$mutate_paths,$dir/"
+              else
+                mutate_paths="$dir/"
+              fi
+            fi
+          done
+          if [ -n "$mutate_paths" ]; then
             # Exit codes: 0=no survivors, 2=survivors found, other=crash
             set +e
-            uv run mutmut run --paths-to-mutate=scripts/ --tests-dir=tests/ --no-progress
+            uv run mutmut run --paths-to-mutate="$mutate_paths" --tests-dir=tests/ --no-progress
             exit_code=$?
             set -e
             if [ $exit_code -ne 0 ] && [ $exit_code -ne 2 ]; then

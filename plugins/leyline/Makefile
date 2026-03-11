@@ -85,8 +85,11 @@ benchmark: ## Run performance benchmarks (token estimation)
 	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
 
 memory-profile: ## Profile memory usage
-	@echo "Memory profiling not yet configured for leyline"
-	@echo "Install memory_profiler: pip install memory_profiler"
+	@if python3 -c "import memory_profiler" 2>/dev/null; then \
+		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
+	else \
+		echo "Install memory_profiler: pip install memory_profiler"; \
+	fi
 
 # ---------- Demo/Dogfood Targets ----------
 demo-tokens: ## Demo token estimation on leyline source

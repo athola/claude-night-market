@@ -26,6 +26,15 @@ progressive_loading: true
 
 Tiered quality review of plugins with dependency-aware scoping.
 
+## Table of Contents
+
+- [Tiers](#tiers)
+- [Orchestration](#orchestration)
+- [Scope Detection](#scope-detection)
+- [Module Loading](#module-loading)
+- [Verdict](#verdict)
+- [Output Format](#output-format)
+
 ## Tiers
 
 | Tier | Trigger | Scope | Depth | Duration |

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 import pytest
-from update_plugin_registrations import PluginAuditor
+from update_plugin_registrations import PluginAuditor  # type: ignore[import-not-found]
 
 
 class TestErrorHandling:
@@ -87,7 +87,12 @@ class TestErrorHandling:
         assert result["name"] == "test-plugin"
 
     def test_fix_plugin_handles_missing_plugin_json(self, tmp_path: Path) -> None:
-        """Verify fix_plugin raises when plugin.json doesn't exist."""
+        """Verify fix_plugin returns False when plugin.json doesn't exist.
+
+        When plugin.json is missing, _discover_plugin catches the OSError
+        and returns None. fix_plugin treats this as an I/O error (distinct
+        from "nothing to fix") and returns False.
+        """
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
         config_dir = plugin_dir / ".claude-plugin"
@@ -100,9 +105,9 @@ class TestErrorHandling:
             "stale": {},
         }
 
-        # fix_plugin tries to open plugin.json directly - should raise FileNotFoundError
-        with pytest.raises(FileNotFoundError):
-            auditor.fix_plugin("test-plugin")
+        # fix_plugin detects _discover_plugin failure as I/O error
+        result = auditor.fix_plugin("test-plugin")
+        assert result is False
 
     def test_scan_disk_files_empty_plugin(self, tmp_path: Path) -> None:
         """Verify scanning a completely empty plugin directory."""

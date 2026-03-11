@@ -58,6 +58,18 @@ Ready for review."
 gh issue close 42 --comment "Completed via automated fix workflow"
 ```
 
+## Pre-PR Consolidation Check
+
+Before creating the PR, verify all work is on ONE branch:
+
+```bash
+# Confirm current branch contains all issue commits
+git log --oneline --grep="Fixes #42" --grep="Fixes #43" \
+  --all-match HEAD
+# If commits are on separate branches, cherry-pick or
+# rebase them onto the shared branch first.
+```
+
 ## Finish Development
 
 Use `superpowers:finishing-a-development-branch` to:
@@ -65,6 +77,11 @@ Use `superpowers:finishing-a-development-branch` to:
 - Verify all tests pass
 - Present merge options
 - Execute chosen completion path
+
+**One PR rule**: Always create exactly ONE pull request
+that references all issues via `Fixes #N` lines in
+the body. See Step 6.2 in the do-issue command for
+the template. Never create separate PRs per issue.
 
 ## Example Final Output
 
@@ -76,6 +93,7 @@ Issues Summary:
   #43: 2 tasks completed, all tests passing
   #44: 1 task completed, all tests passing
 
-Issues #42, #43, #44 marked as fixed
-Ready for PR creation
+PR: fix(auth): add middleware and login endpoint (#42, #43, #44)
+  - Fixes #42, Fixes #43, Fixes #44
+  - All issues consolidated in single PR
 ```

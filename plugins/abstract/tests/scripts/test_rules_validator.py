@@ -624,3 +624,50 @@ class TestEvaluateRulesDirectory:
         result = evaluate_rules_directory(tmp_path / "nonexistent")
         assert result["total_score"] == 0
         assert len(result["errors"]) > 0
+
+    @pytest.mark.unit
+    def test_unreadable_file_in_evaluation(self, tmp_path: Path) -> None:
+        """Scenario: Rule file exists but cannot be read during evaluation
+        Given a rules directory with a file that raises OSError on read
+        When I run a full evaluation
+        Then it should report a read error and continue
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+        unreadable = rules_dir / "unreadable.md"
+        unreadable.write_text("---\ndescription: test\n---\nContent.\n")
+        unreadable.chmod(0o000)
+
+        result = evaluate_rules_directory(rules_dir)
+        assert any("Cannot read" in e for e in result["errors"])
+
+        # Restore permissions for cleanup
+        unreadable.chmod(0o644)
+
+
+class TestValidateFrontmatterUnreadable:
+    """Feature: Frontmatter validation error handling
+
+    As a rules author
+    I want graceful errors when files cannot be read
+    So that validation doesn't crash on permission issues
+    """
+
+    @pytest.mark.unit
+    def test_unreadable_file_returns_error(self, tmp_path: Path) -> None:
+        """Scenario: Rule file exists but cannot be read
+        Given a rule file with no read permissions
+        When I validate the frontmatter
+        Then it should return an error about reading the file
+        """
+        rule_file = tmp_path / "no-perms.md"
+        rule_file.write_text("---\ndescription: test\n---\nContent.\n")
+        rule_file.chmod(0o000)
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is False
+        assert any("Cannot read" in e for e in result["errors"])
+        assert result["score"] == 0
+
+        # Restore permissions for cleanup
+        rule_file.chmod(0o644)
