@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-03-11
+
+### Added
+
+- Five stewardship virtues (Care, Curiosity, Humility,
+  Diligence, Foresight) connecting Claude's trained
+  character dispositions to engineering practices in
+  leyline stewardship skill with one module per virtue
+  plus reflection template
+- Virtue-grounded rule messages in hookify: reason-first
+  openings that explain WHY before WHAT, each tagged
+  with the virtue it expresses
+- Disposition preambles in imbue proof-of-work and
+  scope-guard skills linking enforcement to underlying
+  virtues
+- Virtue practice as sixth health dimension in
+  `/stewardship-health` command
+- Stewardship tracker `virtue` parameter for
+  virtue-aligned action recording
+
 ## [1.6.1] - 2026-03-10
 
 ### Changed
