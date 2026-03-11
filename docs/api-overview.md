@@ -12,7 +12,7 @@ review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 102 CLI commands, 130 modular
+The ecosystem includes 103 CLI commands, 130 modular
 skills, 43 specialized agents, and 7 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
@@ -24,7 +24,7 @@ with public APIs. We also maintain 25 execution hooks.
 | conjure | 1.6.2 | 0 | 4 | 0 | No | - |
 | conserve | 1.6.2 | 4 | 10 | 5 | No | - |
 | hookify | 1.6.2 | 6 | 2 | 0 | No | - |
-| imbue | 1.6.2 | 2 | 9 | 1 | No | - |
+| imbue | 1.6.2 | 3 | 9 | 1 | No | - |
 | leyline | 1.6.2 | 2 | 16 | 0 | Yes | - |
 | memory-palace | 1.6.2 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.2 | 3 | 2 | 0 | Yes | - |

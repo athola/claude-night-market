@@ -39,7 +39,11 @@ def record_action(
         virtue: Optional virtue associated with this action.
             Omitted from the entry when None.
     """
-    base_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        base_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        sys.stderr.write(f"stewardship_tracker: failed to create {base_dir}: {e}\n")
+        return
 
     entry: dict[str, Any] = {
         "timestamp": datetime.now(UTC).isoformat(),
@@ -52,8 +56,13 @@ def record_action(
         entry["virtue"] = virtue
 
     actions_file = base_dir / "actions.jsonl"
-    with open(actions_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        with open(actions_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError as e:
+        sys.stderr.write(
+            f"stewardship_tracker: failed to write to {actions_file}: {e}\n"
+        )
 
 
 def read_actions(
@@ -80,7 +89,7 @@ def read_actions(
     actions: list[dict[str, Any]] = []
     try:
         with open(actions_file, encoding="utf-8") as f:
-            for raw_line in f:
+            for line_num, raw_line in enumerate(f, start=1):
                 line = raw_line.strip()
                 if not line:
                     continue
@@ -91,9 +100,15 @@ def read_actions(
                     if virtue is not None and entry.get("virtue") != virtue:
                         continue
                     actions.append(entry)
-                except json.JSONDecodeError:
-                    sys.stderr.write("stewardship_tracker: skipping corrupt line\n")
-    except OSError as e:
+                except json.JSONDecodeError as exc:
+                    max_preview = 80
+                    truncated = len(line) > max_preview
+                    preview = line[:max_preview] + "..." if truncated else line
+                    sys.stderr.write(
+                        f"stewardship_tracker: skipping corrupt line {line_num} "
+                        f"in {actions_file}: {exc.msg} ({preview!r})\n"
+                    )
+    except (OSError, UnicodeDecodeError) as e:
         sys.stderr.write(f"stewardship_tracker: failed to read {actions_file}: {e}\n")
 
     return actions

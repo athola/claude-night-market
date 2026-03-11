@@ -226,7 +226,7 @@ class TestRecordActionVirtue:
         """Verify virtue field appears in JSONL when virtue is provided.
 
         Given a stewardship tracker
-        When record_action is called with virtue="clarity"
+        When record_action is called with virtue="care"
         Then the virtue field appears in the JSONL entry
         """
         actions_dir = tmp_path / "stewardship"
@@ -236,13 +236,13 @@ class TestRecordActionVirtue:
             action_type="test-addition",
             file_path="tests/test_foo.py",
             description="Added missing tests",
-            virtue="clarity",
+            virtue="care",
         )
 
         line = (actions_dir / "actions.jsonl").read_text().strip()
         entry = json.loads(line)
 
-        assert entry["virtue"] == "clarity"
+        assert entry["virtue"] == "care"
 
     @pytest.mark.unit
     def test_record_action_virtue_none_omits_field(self, tmp_path: Path) -> None:
@@ -276,8 +276,8 @@ class TestReadActionsVirtueFilter:
         """Verify only matching virtue entries are returned when filtering.
 
         Given actions recorded with different virtues
-        When read_actions is called with virtue="clarity"
-        Then only entries with virtue=="clarity" are returned
+        When read_actions is called with virtue="care"
+        Then only entries with virtue=="care" are returned
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
@@ -285,22 +285,22 @@ class TestReadActionsVirtueFilter:
             plugin="sanctum",
             action_type="doc-update",
             file_path="README.md",
-            description="With clarity virtue",
-            virtue="clarity",
+            description="With care virtue",
+            virtue="care",
         )
         record_action(
             base_dir=actions_dir,
             plugin="imbue",
             action_type="typo-fix",
             file_path="SKILL.md",
-            description="With courage virtue",
-            virtue="courage",
+            description="With curiosity virtue",
+            virtue="curiosity",
         )
 
-        result = read_actions(actions_dir, virtue="clarity")
+        result = read_actions(actions_dir, virtue="care")
 
         assert len(result) == 1
-        assert result[0]["virtue"] == "clarity"
+        assert result[0]["virtue"] == "care"
         assert result[0]["plugin"] == "sanctum"
 
     @pytest.mark.unit
@@ -318,7 +318,7 @@ class TestReadActionsVirtueFilter:
             action_type="doc-update",
             file_path="README.md",
             description="With virtue",
-            virtue="clarity",
+            virtue="care",
         )
         record_action(
             base_dir=actions_dir,
@@ -350,7 +350,7 @@ class TestReadActionsVirtueFilter:
             action_type="doc-update",
             file_path="README.md",
             description="Has virtue",
-            virtue="clarity",
+            virtue="care",
         )
         record_action(
             base_dir=actions_dir,
@@ -365,14 +365,14 @@ class TestReadActionsVirtueFilter:
             action_type="typo-fix",
             file_path="SKILL.md",
             description="Different virtue",
-            virtue="courage",
+            virtue="curiosity",
         )
 
-        result = read_actions(actions_dir, virtue="clarity")
+        result = read_actions(actions_dir, virtue="care")
 
         assert len(result) == 1
         assert result[0]["plugin"] == "sanctum"
-        assert result[0]["virtue"] == "clarity"
+        assert result[0]["virtue"] == "care"
 
 
 class TestCombinedFilters:
@@ -396,7 +396,7 @@ class TestCombinedFilters:
             action_type="doc-update",
             file_path="README.md",
             description="Target entry",
-            virtue="clarity",
+            virtue="care",
         )
         # Matches plugin only
         record_action(
@@ -405,7 +405,7 @@ class TestCombinedFilters:
             action_type="test-addition",
             file_path="test.py",
             description="Wrong virtue",
-            virtue="courage",
+            virtue="curiosity",
         )
         # Matches virtue only
         record_action(
@@ -414,7 +414,7 @@ class TestCombinedFilters:
             action_type="typo-fix",
             file_path="SKILL.md",
             description="Wrong plugin",
-            virtue="clarity",
+            virtue="care",
         )
         # Matches neither
         record_action(
@@ -426,11 +426,11 @@ class TestCombinedFilters:
             virtue="foresight",
         )
 
-        result = read_actions(actions_dir, plugin="sanctum", virtue="clarity")
+        result = read_actions(actions_dir, plugin="sanctum", virtue="care")
 
         assert len(result) == 1
         assert result[0]["plugin"] == "sanctum"
-        assert result[0]["virtue"] == "clarity"
+        assert result[0]["virtue"] == "care"
         assert result[0]["description"] == "Target entry"
 
 
