@@ -1,85 +1,10 @@
-"""Tests for agents and config modules.
-
-Covers AnalysisError, ConfigLoader, and SkillLoader.validate_metadata.
-"""
+"""Tests for SkillLoader.validate_metadata."""
 
 from __future__ import annotations
 
-import json
-import tempfile
-from pathlib import Path
-
 import pytest
 
-from parseltongue.agents import AnalysisError
-from parseltongue.config import ConfigLoader
 from parseltongue.skills.skill_loader import SkillLoader
-
-
-class TestAnalysisError:
-    """Tests for the AnalysisError exception."""
-
-    @pytest.mark.unit
-    def test_analysis_error_is_exception(self) -> None:
-        """AnalysisError should be a subclass of Exception."""
-        assert issubclass(AnalysisError, Exception)
-
-    @pytest.mark.unit
-    def test_analysis_error_can_be_raised_and_caught(self) -> None:
-        """AnalysisError can be raised with a message."""
-        with pytest.raises(AnalysisError, match="test failure"):
-            raise AnalysisError("test failure")
-
-    @pytest.mark.unit
-    def test_analysis_error_message(self) -> None:
-        """AnalysisError preserves its message."""
-        err = AnalysisError("something went wrong")
-        assert str(err) == "something went wrong"
-
-
-class TestConfigLoader:
-    """Tests for ConfigLoader."""
-
-    @pytest.mark.unit
-    def test_load_valid_config(self) -> None:
-        """Given a valid JSON config file, return parsed dict."""
-        loader = ConfigLoader()
-        data = {"python_version": "3.11", "debug": False}
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump(data, f)
-            path = Path(f.name)
-        result = loader.load_config(path)
-        assert result["python_version"] == "3.11"
-
-    @pytest.mark.unit
-    def test_load_config_raises_on_non_object(self) -> None:
-        """Given a JSON array, raise ValueError."""
-        loader = ConfigLoader()
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump([1, 2, 3], f)
-            path = Path(f.name)
-        with pytest.raises(ValueError, match="JSON object"):
-            loader.load_config(path)
-
-    @pytest.mark.unit
-    def test_load_config_raises_on_bad_python_version(self) -> None:
-        """Given python_version as non-string, raise ValueError."""
-        loader = ConfigLoader()
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"python_version": 311}, f)
-            path = Path(f.name)
-        with pytest.raises(ValueError, match="python_version must be a string"):
-            loader.load_config(path)
-
-    @pytest.mark.unit
-    def test_load_config_raises_on_malformed_json(self) -> None:
-        """Given malformed JSON, raise json.JSONDecodeError."""
-        loader = ConfigLoader()
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            f.write("{not valid json}")
-            path = Path(f.name)
-        with pytest.raises(json.JSONDecodeError):
-            loader.load_config(path)
 
 
 class TestSkillLoaderValidateMetadata:

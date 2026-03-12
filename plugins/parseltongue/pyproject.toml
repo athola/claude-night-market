@@ -17,8 +17,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -26,21 +24,8 @@ classifiers = [
 dependencies = [
     "click>=8.0.0",
     "pyyaml>=6.0",
-    "jsonschema>=4.0.0",
     "psutil>=5.8.0",
-    "gitpython>=3.1.0",
-    "tree-sitter>=0.20.0",
-    "tree-sitter-python>=0.20.0",
-    "tree-sitter-javascript>=0.20.0",
-    "tree-sitter-typescript>=0.20.0",
-    "tree-sitter-rust>=0.20.0",
     "requests>=2.28.0",
-    "toml>=0.10.2",
-    "aiohttp>=3.8.0",
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "py-spy>=0.3.0",
-    "memory-profiler>=0.61.0",
 ]
 
 [project.optional-dependencies]
@@ -138,28 +123,8 @@ precision = 2
 [tool.coverage.html]
 directory = "htmlcov"
 
-[tool.black]
-line-length = 88
-target-version = ["py38", "py39", "py310", "py311", "py312"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 88
 
 [tool.ruff.lint]
@@ -196,11 +161,16 @@ unfixable = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = [
-    "ARG001", # Unused function args in tests
-    "ARG002", # Unused method args in tests
+    "ARG001",  # Unused function args in tests
+    "ARG002",  # Unused method args in tests
     "PLR2004", # Magic value used in comparison
-    "S101",   # Use of assert detected
-    "ERA001", # BDD-style comments (Given/When/Then) misdetected as commented code
+    "S101",    # Use of assert detected
+    "D102",    # Missing method docstrings in test classes
+    "D103",    # Missing function docstrings in tests
+    "S108",    # Allow hardcoded temp paths in tests
+    "PLC0415", # Allow conditional imports
+    "D205",    # Multiline docstring summary (Given/When/Then patterns)
+    "ERA001",  # BDD-style comments (Given/When/Then) misdetected as commented code
 ]
 "__init__.py" = [
     "F401",   # Unused import
@@ -246,10 +216,7 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tree_sitter.*",
-    "git.*",
     "psutil.*",
-    "aiohttp.*",
     "pytest.*",
 ]
 ignore_missing_imports = true

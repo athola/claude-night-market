@@ -7,7 +7,6 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pre-commit>=4.0.0",
     "pyyaml>=6.0",
 ]
 
@@ -24,6 +23,7 @@ dev = [
     "sphinx-autodoc-typehints>=1.24.0",
     "myst-parser>=2.0.0",
     "build>=1.3.0",
+    "pre-commit>=4.0.0",
 ]
 
 [project.scripts]
@@ -57,7 +57,12 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D103", "D205"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "PLC0415", "D205", "PLR0913", "S103"]
+"hooks/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
+"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
+"scripts/makefile_dogfooder.py" = ["F401"]
+"src/abstract/config.py" = ["S101"]
+"src/abstract/tasks_manager_base.py" = ["S607"]
 
 [tool.ruff.format]
 quote-style = "double"
