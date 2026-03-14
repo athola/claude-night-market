@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
 from ..utils.content_parser import ContentParser
-from ..utils.report_generator import MarkdownReportGenerator
 from ..utils.severity_mapper import SeverityMapper
 
 
@@ -54,7 +53,6 @@ class BaseReviewSkill:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
         self._parser = ContentParser()
-        self._report_gen = MarkdownReportGenerator()
         self._severity = SeverityMapper()
 
     def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
@@ -95,9 +93,6 @@ class BaseReviewSkill:
         """
         return self._parser.get_file_content(context, filename)
 
-    # Alias for backwards compat
-    _get_content = _get_code_content
-
     def _find_line_number(self, content: str, position: int) -> int:
         """Find line number for a character position.
 
@@ -109,8 +104,6 @@ class BaseReviewSkill:
             Line number (1-indexed)
         """
         return self._parser.find_line_number(content, position)
-
-    _find_line = _find_line_number
 
     def _extract_code_snippet(self, content: str, line: int, context: int = 0) -> str:
         """Extract code snippet around a line.
@@ -124,8 +117,6 @@ class BaseReviewSkill:
             Code snippet
         """
         return self._parser.extract_code_snippet(content, line, context)
-
-    _extract_snippet = _extract_code_snippet
 
     def _categorize_severity(
         self,
@@ -142,19 +133,3 @@ class BaseReviewSkill:
             Categorized issues
         """
         return self._severity.categorize(issues, custom_map)
-
-    def _create_markdown_report(
-        self,
-        title: str,
-        sections: list[dict[str, Any]],
-    ) -> str:
-        """Create a markdown report.
-
-        Args:
-            title: Report title
-            sections: List of section dicts
-
-        Returns:
-            Markdown formatted report
-        """
-        return self._report_gen.create_report(title, sections)

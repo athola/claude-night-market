@@ -253,7 +253,7 @@ class TestBaseReviewSkill:
         mock_context = Mock()
         mock_context.get_file_content.return_value = "file content"
 
-        content = skill._get_content(mock_context)
+        content = skill._get_code_content(mock_context)
 
         assert content == "file content"
 
@@ -265,7 +265,7 @@ class TestBaseReviewSkill:
         mock_context = Mock()
         mock_context.get_file_content.return_value = "specific content"
 
-        content = skill._get_content(mock_context, "specific.py")
+        content = skill._get_code_content(mock_context, "specific.py")
 
         assert content == "specific content"
         mock_context.get_file_content.assert_called_once_with("specific.py")
@@ -277,7 +277,7 @@ class TestBaseReviewSkill:
         skill = BaseReviewSkill()
         mock_context = Mock(spec=[])  # No methods
 
-        content = skill._get_content(mock_context)
+        content = skill._get_code_content(mock_context)
 
         assert content == ""
 
@@ -289,7 +289,7 @@ class TestBaseReviewSkill:
         mock_context = Mock()
         mock_context.get_file_content.return_value = None
 
-        content = skill._get_content(mock_context)
+        content = skill._get_code_content(mock_context)
 
         assert content == ""
 
@@ -300,10 +300,10 @@ class TestBaseReviewSkill:
         skill = BaseReviewSkill()
         content = "line1\nline2\nline3"
 
-        line = skill._find_line(content, 0)  # Start of line 1
+        line = skill._find_line_number(content, 0)  # Start of line 1
         assert line == 1
 
-        line = skill._find_line(content, 6)  # Start of line 2
+        line = skill._find_line_number(content, 6)  # Start of line 2
         assert line == 2
 
     @pytest.mark.bdd
@@ -313,7 +313,7 @@ class TestBaseReviewSkill:
         skill = BaseReviewSkill()
         content = "def foo():\n    return True\n"
 
-        snippet = skill._extract_snippet(content, 1)
+        snippet = skill._extract_code_snippet(content, 1)
 
         assert "def foo():" in snippet
 
@@ -324,10 +324,10 @@ class TestBaseReviewSkill:
         skill = BaseReviewSkill()
         content = "line1\nline2"
 
-        snippet = skill._extract_snippet(content, 0)
+        snippet = skill._extract_code_snippet(content, 0)
         assert snippet == ""
 
-        snippet = skill._extract_snippet(content, 100)
+        snippet = skill._extract_code_snippet(content, 100)
         assert snippet == ""
 
     @pytest.mark.bdd
@@ -344,23 +344,6 @@ class TestBaseReviewSkill:
         categorized = skill._categorize_severity(issues)
 
         assert len(categorized) == 2
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_create_markdown_report_basic(self) -> None:
-        """Given title and sections, creates markdown report."""
-        skill = BaseReviewSkill()
-        sections = [
-            {"title": "Summary", "content": "Overview text"},
-            {"title": "Details", "content": "More information"},
-        ]
-
-        report = skill._create_markdown_report("Test Report", sections)
-
-        assert "# Test Report" in report
-        assert "## Summary" in report
-        assert "Overview text" in report
-        assert "## Details" in report
 
 
 class TestBaseReviewSkillSubclassing:

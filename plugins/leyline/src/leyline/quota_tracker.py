@@ -13,7 +13,6 @@ Usage:
 
 from __future__ import annotations
 
-import argparse
 import json
 import time
 from dataclasses import dataclass, field
@@ -131,9 +130,7 @@ class QuotaTracker:
             self.usage.tokens_this_minute = 0
 
         # Reset daily counters if new day
-        last_date = datetime.fromtimestamp(
-            self.usage.last_request_time, tz=UTC
-        ).date()
+        last_date = datetime.fromtimestamp(self.usage.last_request_time, tz=UTC).date()
         current_date = datetime.now(UTC).date()
         if current_date > last_date:
             self.usage.requests_today = 0
@@ -281,6 +278,8 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
+    import argparse  # noqa: PLC0415
+
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")
@@ -291,18 +290,19 @@ def main() -> None:
     tracker = QuotaTracker(service=args.service)
 
     if args.check:
-        _level, warnings = tracker.get_quota_status()
-        if warnings:
-            for _w in warnings:
-                pass
+        level, warnings = tracker.get_quota_status()
+        print(f"Status: {level}")
+        for w in warnings:
+            print(f"  Warning: {w}")
     elif args.estimate:
         total = tracker.estimate_task_tokens(args.estimate)
         can_proceed, issues = tracker.can_handle_task(total)
+        print(f"Estimated tokens: {total}")
         if can_proceed:
-            pass
+            print("OK: quota available")
         else:
-            for _issue in issues:
-                pass
+            for issue in issues:
+                print(f"  Issue: {issue}")
 
 
 if __name__ == "__main__":

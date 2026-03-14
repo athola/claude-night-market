@@ -16,21 +16,12 @@ license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/conjure"
 requires-python = ">=3.12,<3.14"
-dependencies = [
-    "pre-commit>=3.0.0",
-]
+dependencies = []
 
 [project.optional-dependencies]
 full = [
     "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
     "leyline>=1.0.0",   # Quota tracking (fallback: stub tracker)
-]
-dev = [
-    "ruff>=0.14.13,<1.0",
-    "mypy>=1.11.0,<2.0",
-    "ty>=0.0.1a23",
-    "pytype>=2024.10.11 ; python_version >= '3.10'",
-    "typos>=1.0.0",
 ]
 
 [project.scripts]

@@ -6,20 +6,7 @@ from abstract.base import (
     AbstractScript,
     find_markdown_files,
     has_frontmatter_file,
-    setup_imports,
 )
-
-
-class TestSetupImports:
-    """Tests for setup_imports function."""
-
-    def test_setup_imports_completes_without_error(self) -> None:
-        """Test that setup_imports runs without raising exceptions."""
-        # Given: A fresh import state
-        # When: Calling setup_imports
-        # Then: It completes without error (backwards compatibility function)
-        setup_imports()
-        # No assertion needed - function is a no-op for compatibility
 
 
 class TestHasFrontmatterFile:

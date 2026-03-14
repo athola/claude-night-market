@@ -17,9 +17,8 @@ This module offers two usage patterns:
 
 2. Function-based (for simple scripts):
    ```python
-   from abstract.base import setup_imports, has_frontmatter_file, find_markdown_files
+   from abstract.base import has_frontmatter_file, find_markdown_files
 
-   setup_imports()  # Call once at module load
    files = find_markdown_files(Path("skills"))
    ```
 """
@@ -40,14 +39,6 @@ if TYPE_CHECKING:
 # =============================================================================
 # Module-level helper functions (for simple scripts)
 # =============================================================================
-
-
-def setup_imports() -> None:  # Deprecated: no-op, remove in next major version.
-    """Set up import paths for scripts run from any location.
-
-    This is a no-op kept for backwards compatibility.
-    All imports are now handled at the module level.
-    """
 
 
 def has_frontmatter_file(file_path: Path) -> bool:
@@ -102,20 +93,10 @@ class AbstractScript:
 
         """
         self.script_name = script_name
-        self._setup_imports()
 
         # Lazy-loaded attributes
         self._config: AbstractConfig | None = None
         self._error_handler: ErrorHandler | None = None
-
-    def _setup_imports(
-        self,
-    ) -> None:  # Deprecated: no-op, remove in next major version.
-        """Set up import paths for running from any location.
-
-        This is a no-op kept for backwards compatibility.
-        All imports are now handled at the module level.
-        """
 
     def find_markdown_files(self, directory: Path) -> list[Path]:
         """Find all markdown files in a directory recursively.

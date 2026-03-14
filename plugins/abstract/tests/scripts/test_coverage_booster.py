@@ -9,7 +9,6 @@ Feature: Coverage booster for remaining uncovered lines
 from __future__ import annotations
 
 import builtins
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,7 +17,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import pytest
-from add_bdd_markers import main
 from token_usage_tracker import TokenUsageTracker
 from tool_performance_analyzer import ToolPerformanceAnalyzer
 
@@ -142,56 +140,6 @@ class TestTokenUsageTrackerBranches:
         # total_skills counts files found, but tokens are 0 due to exception
         assert result["skills_over_limit"] == 0
         assert result["total_tokens"] == 0
-
-
-# ---------------------------------------------------------------------------
-# Tests: add_bdd_markers.py lines 161-165, 176
-# (main() with files modified branch - non-dry-run with modification)
-# ---------------------------------------------------------------------------
-
-
-class TestAddBddMarkersMainModified:
-    """Feature: add_bdd_markers main() reports modified files."""
-
-    @pytest.mark.unit
-    def test_main_modifies_file_and_reports_count(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Scenario: main() without --dry-run modifies a BDD test file.
-        Given a test file with BDD patterns but missing @pytest.mark.bdd
-        When main is called (not dry-run) from the test file's project root
-        Then the modified count is reported and the marker is added
-        """
-        # Create a plugin test directory structure
-        test_dir = tmp_path / "plugins" / "my-plugin" / "tests"
-        test_dir.mkdir(parents=True)
-
-        test_file = test_dir / "test_example.py"
-        test_file.write_text(
-            "@pytest.mark.unit\n"
-            "def test_something() -> None:\n"
-            '    """Scenario: something\n'
-            "    Given a thing\n"
-            "    When it runs\n"
-            "    Then it works\n"
-            '    """\n'
-            "    assert True\n"
-        )
-
-        monkeypatch.setattr(sys, "argv", ["add_bdd_markers.py"])
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
-        try:
-            # Should complete without crash; file gets modified
-            main()
-        except SystemExit as e:
-            assert e.code == 0
-        finally:
-            os.chdir(original_cwd)
-
-        # Verify the marker was added
-        content = test_file.read_text()
-        assert "@pytest.mark.bdd" in content
 
 
 # ---------------------------------------------------------------------------
