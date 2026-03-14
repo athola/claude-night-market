@@ -622,6 +622,8 @@ class TestTerminalInfoDetection:
         """tmux set but _get_tmux_session() returns None falls through
         to TERM_PROGRAM."""
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
+        monkeypatch.delenv("SSH_TTY", raising=False)
+        monkeypatch.delenv("SSH_CONNECTION", raising=False)
         monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")
         monkeypatch.setenv("TERM_PROGRAM", "Alacritty")
 
@@ -647,6 +649,8 @@ class TestTerminalInfoDetection:
         """TERM_PROGRAM shows the terminal application name."""
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
         monkeypatch.delenv("TMUX", raising=False)
+        monkeypatch.delenv("SSH_TTY", raising=False)
+        monkeypatch.delenv("SSH_CONNECTION", raising=False)
         monkeypatch.setenv("TERM_PROGRAM", "WezTerm")
 
         with patch(

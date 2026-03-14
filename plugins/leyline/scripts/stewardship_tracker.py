@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -46,7 +46,7 @@ def record_action(
         return
 
     entry: dict[str, Any] = {
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "plugin": plugin,
         "action_type": action_type,
         "file": file_path,
