@@ -5,6 +5,9 @@ from pathlib import Path
 import pytest
 
 from memory_palace.corpus.cache_lookup import CacheLookup
+from memory_palace.corpus.embedding_index import EmbeddingIndex
+from memory_palace.corpus.keyword_index import KeywordIndexer
+from memory_palace.corpus.query_templates import QueryTemplateManager
 
 # Constants for match score thresholds
 STRONG_MATCH_THRESHOLD = 0.6
@@ -97,9 +100,6 @@ class TestCacheLookup:
 
         assert lookup.corpus_dir == Path(temp_corpus_dir)
         assert lookup.index_dir == Path(temp_index_dir)
-        from memory_palace.corpus.keyword_index import KeywordIndexer
-        from memory_palace.corpus.query_templates import QueryTemplateManager
-
         assert isinstance(lookup.keyword_indexer, KeywordIndexer)
         assert isinstance(lookup.query_manager, QueryTemplateManager)
 
@@ -283,8 +283,6 @@ class TestCacheLookup:
             embedding_provider="env",
         )
         lookup.build_indexes()
-
-        from memory_palace.corpus.embedding_index import EmbeddingIndex
 
         assert isinstance(lookup.embedding_index, EmbeddingIndex)
         assert lookup.embedding_index.provider == "hash"

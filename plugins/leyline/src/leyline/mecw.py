@@ -42,13 +42,13 @@ def calculate_context_pressure(current_tokens: int, max_tokens: int) -> str:
         Pressure level: "LOW", "MODERATE", "HIGH", or "CRITICAL"
 
     Examples:
-        >>> calculate_context_pressure(30000, 200000)
+        >>> calculate_context_pressure(200000, 1000000)
         'LOW'
-        >>> calculate_context_pressure(100000, 200000)
+        >>> calculate_context_pressure(400000, 1000000)
         'MODERATE'
-        >>> calculate_context_pressure(150000, 200000)
+        >>> calculate_context_pressure(600000, 1000000)
         'HIGH'
-        >>> calculate_context_pressure(180000, 200000)
+        >>> calculate_context_pressure(800000, 1000000)
         'CRITICAL'
 
     """
@@ -68,7 +68,7 @@ def calculate_context_pressure(current_tokens: int, max_tokens: int) -> str:
 
 def check_mecw_compliance(
     current_tokens: int,
-    max_tokens: int = 200000,
+    max_tokens: int = 1000000,
 ) -> dict[str, Any]:
     """Check if current token usage complies with MECW principles.
 
@@ -77,7 +77,7 @@ def check_mecw_compliance(
 
     Args:
         current_tokens: Current token count in context
-        max_tokens: Maximum available tokens (default: 200000 for Sonnet)
+        max_tokens: Maximum available tokens (default: 1000000 for Opus 1M)
 
     Returns:
         Dictionary containing:
@@ -90,13 +90,13 @@ def check_mecw_compliance(
             - headroom: int - Tokens remaining before MECW threshold
 
     Examples:
-        >>> result = check_mecw_compliance(80000, 200000)
+        >>> result = check_mecw_compliance(400000, 1000000)
         >>> result['compliant']
         True
         >>> result['pressure_level']
         'MODERATE'
 
-        >>> result = check_mecw_compliance(120000, 200000)
+        >>> result = check_mecw_compliance(600000, 1000000)
         >>> result['compliant']
         False
         >>> result['action']
@@ -150,11 +150,11 @@ class MECWStatus:
 class MECWMonitor:
     """Monitor context window usage according to MECW principles."""
 
-    def __init__(self, max_context: int = 200000) -> None:
+    def __init__(self, max_context: int = 1000000) -> None:
         """Initialize MECW monitor.
 
         Args:
-            max_context: Maximum context window size (default: 200000)
+            max_context: Maximum context window size (default: 1000000)
 
         """
         self.max_context = max_context

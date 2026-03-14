@@ -1072,7 +1072,7 @@ class TestMalformedQueueEntries:
         valid_entry = json.dumps({"query": "test topic", "content": "data"})
         queue_path.write_text(f"NOT VALID JSON\n{valid_entry}\n{{bad json}}\n")
 
-        result = manager.sync_from_queue(str(queue_path))
+        manager.sync_from_queue(str(queue_path))
 
         # The malformed lines should NOT be in the file afterward
         remaining = queue_path.read_text()

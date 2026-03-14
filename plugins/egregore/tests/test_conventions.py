@@ -6,10 +6,10 @@ import textwrap
 from pathlib import Path
 
 import pytest
-
 from conventions import (
     Convention,
     check_conventions,
+    check_doc_consolidation,
     load_codex,
 )
 
@@ -332,8 +332,6 @@ class TestCheckDocConsolidation:
 
     def test_detects_new_standalone_markdown(self, tmp_path: Path) -> None:
         """C5: new markdown files outside skills/modules flagged."""
-        from conventions import check_doc_consolidation
-
         new_md = tmp_path / "GUIDE.md"
         new_md.write_text("# Guide\nSome content\n")
         findings = check_doc_consolidation([new_md], base_dir=tmp_path)
@@ -342,8 +340,6 @@ class TestCheckDocConsolidation:
 
     def test_allows_skill_markdown(self, tmp_path: Path) -> None:
         """C5: markdown inside skills/ is allowed."""
-        from conventions import check_doc_consolidation
-
         skills_dir = tmp_path / "skills" / "my-skill"
         skills_dir.mkdir(parents=True)
         skill_md = skills_dir / "SKILL.md"
@@ -353,8 +349,6 @@ class TestCheckDocConsolidation:
 
     def test_allows_modules_markdown(self, tmp_path: Path) -> None:
         """C5: markdown inside modules/ is allowed."""
-        from conventions import check_doc_consolidation
-
         modules_dir = tmp_path / "modules"
         modules_dir.mkdir()
         mod_md = modules_dir / "feature.md"
@@ -364,8 +358,6 @@ class TestCheckDocConsolidation:
 
     def test_allows_readme(self, tmp_path: Path) -> None:
         """C5: README.md is always allowed."""
-        from conventions import check_doc_consolidation
-
         readme = tmp_path / "README.md"
         readme.write_text("# Readme\n")
         findings = check_doc_consolidation([readme], base_dir=tmp_path)

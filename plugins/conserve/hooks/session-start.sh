@@ -207,6 +207,28 @@ During **long-running or multi-step tasks** (brainstorms, execute-plan, large re
 **Why self-monitor?** The `CLAUDE_CONTEXT_USAGE` env var may not be set.
 Proactive checking prevents auto-compact penalties.
 
+### 1M Context Strategy
+
+The 1M window (GA for Opus/Sonnet 4.6) does not replace
+conservation -- it changes what conservation means.
+A 1M window full of stale tool outputs performs worse
+than 200K of structured, relevant state.
+
+**Plan-Clear-Implement pattern** (recommended workflow):
+1. Build the full plan (spec-kit, built-in planning, etc.)
+2. `/clear` or `/compact` to start clean
+3. Implement without compaction -- maintain full context
+4. Iterate while still on topic with the same context
+5. Repeat for the next plan
+
+**Quota awareness**: Larger context = more input tokens
+per turn = faster quota burn. Surgical reads protect
+your budget even when the window allows more.
+
+**Agentic isolation**: Parallel agents compound bloat.
+Use git worktrees (`isolation: "worktree"`) to keep each
+agent context lean and prevent cross-contamination.
+
 ### Conservation Tactics
 
 1. **Prefer targeted over broad**: `rg`/`sed -n` slices vs whole files

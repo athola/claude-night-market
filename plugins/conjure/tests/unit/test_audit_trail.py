@@ -135,8 +135,7 @@ def _make_session_data_with_merkle(session_id: str = "sess-merkle") -> dict:
 
 
 class TestCheckpointEntry:
-    """
-    Feature: CheckpointEntry data model
+    """Feature: CheckpointEntry data model.
 
     As a checkpoint logger
     I want to serialise and deserialise checkpoint events
@@ -145,11 +144,10 @@ class TestCheckpointEntry:
 
     @pytest.mark.unit
     def test_to_dict_contains_all_fields(self) -> None:
-        """
-        Scenario: Serialise a checkpoint entry
+        """Scenario: Serialise a checkpoint entry
         Given a fully-populated CheckpointEntry
         When to_dict() is called
-        Then every field is present in the returned dict
+        Then every field is present in the returned dict.
         """
         entry = _make_checkpoint()
         result = entry.to_dict()
@@ -166,11 +164,10 @@ class TestCheckpointEntry:
 
     @pytest.mark.unit
     def test_from_dict_roundtrip(self) -> None:
-        """
-        Scenario: Deserialise a checkpoint entry
+        """Scenario: Deserialise a checkpoint entry
         Given a dict produced by to_dict()
         When from_dict() is called
-        Then the resulting entry is equal to the original
+        Then the resulting entry is equal to the original.
         """
         original = _make_checkpoint()
         reconstructed = CheckpointEntry.from_dict(original.to_dict())
@@ -185,11 +182,10 @@ class TestCheckpointEntry:
 
     @pytest.mark.unit
     def test_from_dict_ignores_unknown_keys(self) -> None:
-        """
-        Scenario: Deserialise with extra keys
+        """Scenario: Deserialise with extra keys
         Given a dict that contains keys not in the dataclass
         When from_dict() is called
-        Then unknown keys are silently ignored
+        Then unknown keys are silently ignored.
         """
         data = _make_checkpoint().to_dict()
         data["future_field"] = "ignored"
@@ -198,11 +194,10 @@ class TestCheckpointEntry:
 
     @pytest.mark.unit
     def test_default_fields_are_populated(self) -> None:
-        """
-        Scenario: Minimal CheckpointEntry construction
+        """Scenario: Minimal CheckpointEntry construction
         Given only required fields are provided
         When the entry is created
-        Then mutable default fields are empty containers, not shared references
+        Then mutable default fields are empty containers, not shared references.
         """
         e1 = CheckpointEntry(
             checkpoint_id="a",
@@ -230,8 +225,7 @@ class TestCheckpointEntry:
 
 
 class TestAuditReport:
-    """
-    Feature: AuditReport data model
+    """Feature: AuditReport data model.
 
     As a compliance officer
     I want a structured audit report
@@ -240,11 +234,10 @@ class TestAuditReport:
 
     @pytest.mark.unit
     def test_creation_with_defaults(self) -> None:
-        """
-        Scenario: Create a minimal AuditReport
+        """Scenario: Create a minimal AuditReport
         Given required scalar fields
         When AuditReport is constructed
-        Then list and dict fields default to empty containers
+        Then list and dict fields default to empty containers.
         """
         report = AuditReport(
             session_id="s",
@@ -261,11 +254,10 @@ class TestAuditReport:
 
     @pytest.mark.unit
     def test_to_dict_is_json_serialisable(self) -> None:
-        """
-        Scenario: Serialise an AuditReport to JSON
+        """Scenario: Serialise an AuditReport to JSON
         Given a populated AuditReport
         When to_dict() result is passed to json.dumps()
-        Then no exception is raised and the output is valid JSON
+        Then no exception is raised and the output is valid JSON.
         """
         report = AuditReport(
             session_id="s",
@@ -289,8 +281,7 @@ class TestAuditReport:
 
 
 class TestAuditTrailManager:
-    """
-    Feature: AuditTrailManager persistence and reporting
+    """Feature: AuditTrailManager persistence and reporting.
 
     As a War Room operator
     I want to log checkpoints and generate audit reports
@@ -303,11 +294,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_log_checkpoint_creates_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: Log a checkpoint
+        """Scenario: Log a checkpoint
         Given an AuditTrailManager pointed at a temp directory
         When log_checkpoint() is called
-        Then a JSON file is created in checkpoints/{date}/{id}.json
+        Then a JSON file is created in checkpoints/{date}/{id}.json.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         entry = _make_checkpoint(checkpoint_id="cp-log-01")
@@ -322,11 +312,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_log_checkpoint_content_is_valid_json(self, tmp_path: Path) -> None:
-        """
-        Scenario: Checkpoint file contains correct JSON
+        """Scenario: Checkpoint file contains correct JSON
         Given a logged checkpoint
         When the file is read back
-        Then it deserialises to the original entry's fields
+        Then it deserialises to the original entry's fields.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         entry = _make_checkpoint(checkpoint_id="cp-json-01", session_id="sess-json")
@@ -340,11 +329,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_get_checkpoints_by_session_id(self, tmp_path: Path) -> None:
-        """
-        Scenario: Filter checkpoints by session
+        """Scenario: Filter checkpoints by session
         Given checkpoints for two different sessions
         When get_checkpoints() is called with one session id
-        Then only that session's checkpoints are returned
+        Then only that session's checkpoints are returned.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         manager.log_checkpoint(
@@ -366,11 +354,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_get_checkpoints_empty_when_dir_missing(self, tmp_path: Path) -> None:
-        """
-        Scenario: No checkpoints directory exists
+        """Scenario: No checkpoints directory exists
         Given a fresh strategeion directory with no checkpoints folder
         When get_checkpoints() is called
-        Then an empty list is returned without raising
+        Then an empty list is returned without raising.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         # Do NOT create checkpoints_dir
@@ -381,11 +368,10 @@ class TestAuditTrailManager:
     def test_get_checkpoints_returns_empty_for_unknown_session(
         self, tmp_path: Path
     ) -> None:
-        """
-        Scenario: Query checkpoints for a session with no entries
+        """Scenario: Query checkpoints for a session with no entries
         Given checkpoints exist for sess-X only
         When get_checkpoints("sess-Y") is called
-        Then an empty list is returned
+        Then an empty list is returned.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         manager.log_checkpoint(
@@ -401,11 +387,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_empty_nodes(self, tmp_path: Path) -> None:
-        """
-        Scenario: Verify a session with no Merkle-DAG nodes
+        """Scenario: Verify a session with no Merkle-DAG nodes
         Given session data with an empty nodes dict
         When verify_merkle_dag() is called
-        Then verified=True and node_count=0
+        Then verified=True and node_count=0.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()  # merkle_dag.nodes == {}
@@ -417,11 +402,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_valid_node(self, tmp_path: Path) -> None:
-        """
-        Scenario: Verify an untampered session
+        """Scenario: Verify an untampered session
         Given a session whose node hashes were computed by MerkleDAG.add_contribution()
         When verify_merkle_dag() is called
-        Then verified=True and all node results report valid=True
+        Then verified=True and all node results report valid=True.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, node_id, _, _ = _make_session_data_with_merkle()
@@ -437,11 +421,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_tampered_content(self, tmp_path: Path) -> None:
-        """
-        Scenario: Detect tampered node content
+        """Scenario: Detect tampered node content
         Given a session where a node's content has been modified after hashing
         When verify_merkle_dag() is called
-        Then verified=False and the tampered node reports content_hash_valid=False
+        Then verified=False and the tampered node reports content_hash_valid=False.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, node_id, _, _ = _make_session_data_with_merkle()
@@ -457,11 +440,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_tampered_root_hash(self, tmp_path: Path) -> None:
-        """
-        Scenario: Detect a falsified root hash
+        """Scenario: Detect a falsified root hash
         Given a session where the root_hash has been replaced with a fake value
         When verify_merkle_dag() is called
-        Then verified=False and root_hash_valid=False
+        Then verified=False and root_hash_valid=False.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, _, _, _ = _make_session_data_with_merkle()
@@ -476,11 +458,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_no_root_hash(self, tmp_path: Path) -> None:
-        """
-        Scenario: Session has nodes but no root hash stored
+        """Scenario: Session has nodes but no root hash stored
         Given nodes are present but root_hash is None or absent
         When verify_merkle_dag() is called
-        Then nodes are still verified and root_hash_valid=True (nothing to check)
+        Then nodes are still verified and root_hash_valid=True (nothing to check).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, _, _, _ = _make_session_data_with_merkle()
@@ -494,11 +475,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_verify_merkle_dag_sealed_nodes_skip_metadata(self, tmp_path: Path) -> None:
-        """
-        Scenario: Verify sealed session where expert identity is masked
+        """Scenario: Verify sealed session where expert identity is masked
         Given a session node where expert_role and expert_model are '[SEALED]'
         When verify_merkle_dag() is called
-        Then the node is reported as sealed and not failed on metadata
+        Then the node is reported as sealed and not failed on metadata.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, node_id, _, _ = _make_session_data_with_merkle()
@@ -523,11 +503,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_basic_fields(self, tmp_path: Path) -> None:
-        """
-        Scenario: Generate an audit report from session data
+        """Scenario: Generate an audit report from session data
         Given a completed session with standard artifacts
         When generate_audit_report() is called
-        Then the report captures session metadata correctly
+        Then the report captures session metadata correctly.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -548,11 +527,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_duration_calculation(self, tmp_path: Path) -> None:
-        """
-        Scenario: Duration is calculated from metrics start/end times
+        """Scenario: Duration is calculated from metrics start/end times
         Given a session with start_time and end_time 5 minutes apart
         When generate_audit_report() is called
-        Then duration_seconds equals 300.0
+        Then duration_seconds equals 300.0.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -563,11 +541,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_expert_panel(self, tmp_path: Path) -> None:
-        """
-        Scenario: Expert panel is extracted from COA artifacts
+        """Scenario: Expert panel is extracted from COA artifacts
         Given a session with two experts in raw_coas
         When generate_audit_report() is called
-        Then expert_panel contains those expert keys
+        Then expert_panel contains those expert keys.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -578,11 +555,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_voting_summary(self, tmp_path: Path) -> None:
-        """
-        Scenario: Voting summary is extracted from voting artifact
+        """Scenario: Voting summary is extracted from voting artifact
         Given a session with borda_scores and finalists
         When generate_audit_report() is called
-        Then voting_summary contains borda_scores, finalists, and unanimity
+        Then voting_summary contains borda_scores, finalists, and unanimity.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -598,11 +574,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_with_escalation(self, tmp_path: Path) -> None:
-        """
-        Scenario: Escalation history captured when session was escalated
+        """Scenario: Escalation history captured when session was escalated
         Given a session where escalated=True with a reason
         When generate_audit_report() is called
-        Then escalation_history contains one entry with the reason
+        Then escalation_history contains one entry with the reason.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -617,11 +592,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_no_escalation(self, tmp_path: Path) -> None:
-        """
-        Scenario: No escalation history when session was not escalated
+        """Scenario: No escalation history when session was not escalated
         Given a session where escalated=False
         When generate_audit_report() is called
-        Then escalation_history is empty
+        Then escalation_history is empty.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -633,11 +607,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_final_decision(self, tmp_path: Path) -> None:
-        """
-        Scenario: Final decision is extracted from synthesis artifact
+        """Scenario: Final decision is extracted from synthesis artifact
         Given a session with a synthesis.decision value
         When generate_audit_report() is called
-        Then final_decision matches the stored synthesis decision
+        Then final_decision matches the stored synthesis decision.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -651,11 +624,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_generate_audit_report_includes_checkpoints(self, tmp_path: Path) -> None:
-        """
-        Scenario: Logged checkpoints appear in the audit report
+        """Scenario: Logged checkpoints appear in the audit report
         Given two checkpoints logged for a session
         When generate_audit_report() is called for that session
-        Then the report's checkpoints list contains both entries
+        Then the report's checkpoints list contains both entries.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data(session_id="sess-cp")
@@ -677,11 +649,10 @@ class TestAuditTrailManager:
     def test_generate_audit_report_merkle_verification_present(
         self, tmp_path: Path
     ) -> None:
-        """
-        Scenario: Merkle verification is embedded in the report
+        """Scenario: Merkle verification is embedded in the report
         Given a valid session with merkle_dag data
         When generate_audit_report() is called
-        Then merkle_verification contains a 'verified' key
+        Then merkle_verification contains a 'verified' key.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data, _, _, _ = _make_session_data_with_merkle()
@@ -695,11 +666,10 @@ class TestAuditTrailManager:
     def test_generate_audit_report_bad_timestamps_yield_zero_duration(
         self, tmp_path: Path
     ) -> None:
-        """
-        Scenario: Graceful handling of missing or malformed timestamps
+        """Scenario: Graceful handling of missing or malformed timestamps
         Given a session with missing start_time and end_time in metrics
         When generate_audit_report() is called
-        Then duration_seconds is 0.0 without raising
+        Then duration_seconds is 0.0 without raising.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -715,11 +685,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_save_audit_report_creates_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: Save an audit report to disk
+        """Scenario: Save an audit report to disk
         Given a generated AuditReport
         When save_audit_report() is called
-        Then audit-report.json appears in the session directory
+        Then audit-report.json appears in the session directory.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -735,11 +704,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_save_audit_report_is_valid_json(self, tmp_path: Path) -> None:
-        """
-        Scenario: Saved audit report can be parsed as JSON
+        """Scenario: Saved audit report can be parsed as JSON
         Given a saved audit report file
         When the file is read and parsed
-        Then it contains the expected session_id
+        Then it contains the expected session_id.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -752,11 +720,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_list_audited_sessions_empty(self, tmp_path: Path) -> None:
-        """
-        Scenario: No audit reports exist
+        """Scenario: No audit reports exist
         Given an empty strategeion directory
         When list_audited_sessions() is called
-        Then an empty list is returned
+        Then an empty list is returned.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         result = manager.list_audited_sessions()
@@ -764,11 +731,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_list_audited_sessions_discovery(self, tmp_path: Path) -> None:
-        """
-        Scenario: Discover multiple saved audit reports
+        """Scenario: Discover multiple saved audit reports
         Given two sessions each with a saved audit report
         When list_audited_sessions() is called
-        Then both sessions are returned with summary metadata
+        Then both sessions are returned with summary metadata.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
 
@@ -785,12 +751,11 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_list_audited_sessions_summary_fields(self, tmp_path: Path) -> None:
-        """
-        Scenario: Listed sessions carry required summary fields
+        """Scenario: Listed sessions carry required summary fields
         Given a saved audit report
         When list_audited_sessions() is called
         Then each entry has session_id, generated_at, problem_statement,
-             status, and merkle_verified
+             status, and merkle_verified.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         session_data = _make_session_data()
@@ -812,11 +777,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_clear_winner(self, tmp_path: Path) -> None:
-        """
-        Scenario: Clear winner in voting
+        """Scenario: Clear winner in voting
         Given borda_scores {"A": 10, "B": 2}
         When _calculate_unanimity() is called
-        Then the score reflects the wide gap
+        Then the score reflects the wide gap.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {"A": 10, "B": 2}})
@@ -826,11 +790,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_equal_scores(self, tmp_path: Path) -> None:
-        """
-        Scenario: Tied vote
+        """Scenario: Tied vote
         Given borda_scores {"A": 5, "B": 5}
         When _calculate_unanimity() is called
-        Then score is 0.0 (no gap)
+        Then score is 0.0 (no gap).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {"A": 5, "B": 5}})
@@ -838,11 +801,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_single_option(self, tmp_path: Path) -> None:
-        """
-        Scenario: Only one COA option
+        """Scenario: Only one COA option
         Given borda_scores {"A": 7}
         When _calculate_unanimity() is called
-        Then score is 1.0 (trivially unanimous)
+        Then score is 1.0 (trivially unanimous).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {"A": 7}})
@@ -850,11 +812,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_empty_scores(self, tmp_path: Path) -> None:
-        """
-        Scenario: No voting data
+        """Scenario: No voting data
         Given an empty borda_scores dict
         When _calculate_unanimity() is called
-        Then score is 1.0 (vacuously unanimous)
+        Then score is 1.0 (vacuously unanimous).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {}})
@@ -862,11 +823,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_all_zero_scores(self, tmp_path: Path) -> None:
-        """
-        Scenario: All scores are zero (no votes cast)
+        """Scenario: All scores are zero (no votes cast)
         Given borda_scores {"A": 0, "B": 0}
         When _calculate_unanimity() is called
-        Then score is 1.0 (no meaningful distinction)
+        Then score is 1.0 (no meaningful distinction).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {"A": 0, "B": 0}})
@@ -874,11 +834,10 @@ class TestAuditTrailManager:
 
     @pytest.mark.unit
     def test_calculate_unanimity_capped_at_one(self, tmp_path: Path) -> None:
-        """
-        Scenario: Unanimity score never exceeds 1.0
+        """Scenario: Unanimity score never exceeds 1.0
         Given any borda_scores combination
         When _calculate_unanimity() is called
-        Then the returned value is always in [0.0, 1.0]
+        Then the returned value is always in [0.0, 1.0].
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         for scores in [

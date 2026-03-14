@@ -34,6 +34,23 @@ FILE_TOKEN_RATIOS = {
     "default": 4.0,
 }
 
+# Extension-level token ratios (granular form of FILE_TOKEN_RATIOS)
+EXTENSION_TOKEN_RATIOS = {
+    ".py": FILE_TOKEN_RATIOS["code"],
+    ".js": FILE_TOKEN_RATIOS["code"],
+    ".ts": FILE_TOKEN_RATIOS["code"],
+    ".go": FILE_TOKEN_RATIOS["code"],
+    ".rs": FILE_TOKEN_RATIOS["code"],
+    ".json": FILE_TOKEN_RATIOS["json"],
+    ".yaml": FILE_TOKEN_RATIOS["json"],
+    ".yml": FILE_TOKEN_RATIOS["json"],
+    ".toml": FILE_TOKEN_RATIOS["json"],
+    ".md": FILE_TOKEN_RATIOS["text"],
+    ".txt": FILE_TOKEN_RATIOS["text"],
+    ".rst": FILE_TOKEN_RATIOS["text"],
+}
+DEFAULT_EXTENSION_TOKEN_RATIO = FILE_TOKEN_RATIOS["default"]
+
 # Overhead tokens per file (for file path and metadata)
 FILE_OVERHEAD_TOKENS = 6
 

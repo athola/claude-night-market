@@ -448,7 +448,7 @@ class TestAbstractValidatorMain:
     def test_main_with_scan_flag(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main --scan runs without crashing."""
+        """Main --scan runs without crashing."""
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--scan"]
         )
@@ -461,7 +461,7 @@ class TestAbstractValidatorMain:
     def test_main_with_report_flag(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main --report runs without crash."""
+        """Main --report runs without crash."""
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path), "--report"]
         )
@@ -474,7 +474,7 @@ class TestAbstractValidatorMain:
     def test_main_with_fix_flag_dry_run(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main --fix --dry-run runs without crash."""
+        """Main --fix --dry-run runs without crash."""
         skill_dir = tmp_path / "test-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text("# No frontmatter\n\nContent.\n")
@@ -493,7 +493,7 @@ class TestAbstractValidatorMain:
     def test_main_no_flags(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main with no flags runs without crash."""
+        """Main with no flags runs without crash."""
         monkeypatch.setattr(
             sys, "argv", ["abstract_validator.py", "--root", str(tmp_path)]
         )

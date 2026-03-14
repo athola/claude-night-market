@@ -88,7 +88,12 @@ class ImprovementQueue:
 
     def get_improvable_skills(self) -> list[str]:
         """Return skill refs that are ready for improvement."""
-        return [ref for ref in self.skills if self.needs_improvement(ref)]
+        return [
+            ref
+            for ref, entry in self.skills.items()
+            if entry.get("status") not in ("evaluating", "pending_rollback_review")
+            and entry.get("flagged_count", 0) >= self.TRIGGER_THRESHOLD
+        ]
 
     def start_evaluation(self, skill_ref: str, baseline_gap: float) -> bool:
         """Mark a skill as under evaluation after improvement.

@@ -365,7 +365,6 @@ class TestValidateChangelog:
         When validated
         Then the result is False
         """
-
         original = os.getcwd()
         os.chdir(tmp_path)
         try:

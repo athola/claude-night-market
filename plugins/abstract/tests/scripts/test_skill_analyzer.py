@@ -233,7 +233,7 @@ class TestSkillAnalyzerExecute:
 
     @pytest.mark.unit
     def test_execute_with_file(self, tmp_path: Path) -> None:
-        """execute with a single file returns CLIResult."""
+        """Execute with a single file returns CLIResult."""
         skill_file = tmp_path / "SKILL.md"
         skill_file.write_text(
             "---\nname: test\ndescription: Test\n---\n\n# Test\n\nContent.\n"
@@ -254,7 +254,7 @@ class TestSkillAnalyzerExecute:
 
     @pytest.mark.unit
     def test_execute_with_nonexistent_path_fails(self, tmp_path: Path) -> None:
-        """execute with nonexistent path returns failure."""
+        """Execute with nonexistent path returns failure."""
         cli = SkillAnalyzerCLI()
         args = argparse.Namespace(
             file=None,
@@ -270,7 +270,7 @@ class TestSkillAnalyzerExecute:
 
     @pytest.mark.unit
     def test_execute_with_directory(self, tmp_path: Path) -> None:
-        """execute with directory returns CLIResult."""
+        """Execute with directory returns CLIResult."""
         skill_dir = tmp_path / "my-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(

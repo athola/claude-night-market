@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import importlib
 from pathlib import Path
 from typing import Any
+
+from pensive.utils.severity_mapper import SeverityMapper
 
 
 class CodeReviewWorkflow:
@@ -138,8 +141,6 @@ class CodeReviewWorkflow:
         if not findings:
             return "No issues found during code review."
 
-        from pensive.utils.severity_mapper import SeverityMapper
-
         counts = SeverityMapper.count_by_severity(findings)
         critical = counts["critical"]
         high = counts["high"]
@@ -194,8 +195,6 @@ class CodeReviewWorkflow:
         if skill_name in skill_map:
             module_path, class_name = skill_map[skill_name].rsplit(".", 1)
             try:
-                import importlib  # noqa: PLC0415
-
                 module = importlib.import_module(module_path)
                 skill_class = getattr(module, class_name)
                 return skill_class()

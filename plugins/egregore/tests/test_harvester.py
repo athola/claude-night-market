@@ -8,6 +8,7 @@ from harvester import (
     ConventionSuggestion,
     extract_patterns,
     load_suggestions,
+    map_to_codex_id,
     merge_suggestion,
     save_suggestions,
 )
@@ -221,8 +222,6 @@ class TestMapToCodex:
 
     def test_suggestion_maps_to_existing_convention(self) -> None:
         """Known patterns map to existing codex IDs."""
-        from harvester import map_to_codex_id
-
         assert map_to_codex_id("import-discipline") == "C1"
         assert map_to_codex_id("no-artifacts") == "C2"
         assert map_to_codex_id("destructive-git") == "C3"
@@ -231,6 +230,4 @@ class TestMapToCodex:
 
     def test_unknown_pattern_returns_none(self) -> None:
         """Unknown patterns return None (potential new convention)."""
-        from harvester import map_to_codex_id
-
         assert map_to_codex_id("unknown-pattern") is None

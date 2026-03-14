@@ -11,8 +11,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-import yaml
-
+from memory_palace.corpus._frontmatter import parse_entry_frontmatter
 from memory_palace.corpus.embedding_index import EmbeddingIndex
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
@@ -20,7 +19,6 @@ from memory_palace.corpus.query_templates import QueryTemplateManager
 MATCH_LEN_MIN = 3
 MATCH_STRONG = 0.8
 MATCH_PARTIAL = 0.4
-FRONTMATTER_PARTS = 3
 
 
 class CacheLookup:
@@ -305,15 +303,7 @@ class CacheLookup:
 
         """
         content = self.get_entry_content(entry_id)
-        if content and content.startswith("---"):
-            parts = content.split("---", 2)
-            if len(parts) >= FRONTMATTER_PARTS:
-                try:
-                    payload = yaml.safe_load(parts[1])
-                    if isinstance(payload, dict):
-                        return payload
-                except yaml.YAMLError:
-                    # YAML parsing errors are expected and can be safely ignored
-                    pass
+        if content:
+            return parse_entry_frontmatter(content)
 
         return None

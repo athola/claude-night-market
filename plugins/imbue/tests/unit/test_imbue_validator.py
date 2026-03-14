@@ -14,7 +14,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
 from scripts.imbue_validator import (
     ImbueValidator,
 )

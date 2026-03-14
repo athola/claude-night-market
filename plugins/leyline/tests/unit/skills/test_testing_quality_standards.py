@@ -421,7 +421,8 @@ class TestContentAssertionLevelsModuleContent:
     @pytest.mark.unit
     def test_module_exists_with_substance(self, module_path: Path) -> None:
         """Given the content assertion levels module
-        Then it must exist with substantial content."""
+        Then it must exist with substantial content.
+        """
         assert module_path.exists()
         content = module_path.read_text()
         assert len(content.splitlines()) >= 50, "Module should be substantial"
@@ -440,7 +441,8 @@ class TestContentAssertionLevelsModuleContent:
         self, module_content: str, required_section: str
     ) -> None:
         """Given the content assertion levels module
-        Then it must define all three assertion levels."""
+        Then it must define all three assertion levels.
+        """
         assert required_section in module_content, (
             f"Missing '{required_section}' definition"
         )
@@ -449,7 +451,8 @@ class TestContentAssertionLevelsModuleContent:
     @pytest.mark.unit
     def test_module_defines_when_to_apply(self, module_content: str) -> None:
         """Given the module guides test authors
-        Then it must explain when to apply each level."""
+        Then it must explain when to apply each level.
+        """
         assert "when to apply" in module_content.lower() or (
             "content type" in module_content.lower()
             and "minimum level" in module_content.lower()
@@ -459,7 +462,8 @@ class TestContentAssertionLevelsModuleContent:
     @pytest.mark.unit
     def test_module_references_exemplar_tests(self, module_content: str) -> None:
         """Given the module provides guidance
-        Then it must reference real test exemplars."""
+        Then it must reference real test exemplars.
+        """
         assert (
             "test_" in module_content.lower() or "exemplar" in module_content.lower()
         ), "Must reference exemplar test classes"
@@ -473,7 +477,8 @@ class TestContentAssertionLevelsModuleContent:
     ) -> None:
         """Given Python code blocks in the module
         When Claude copies them as test scaffolding
-        Then every block must be valid Python syntax."""
+        Then every block must be valid Python syntax.
+        """
         # Anchor closing fence to line start to avoid matching
         # triple backticks inside code block string literals
         python_blocks = re.findall(
@@ -492,7 +497,8 @@ class TestContentAssertionLevelsModuleContent:
     @pytest.mark.unit
     def test_skill_md_references_this_module(self) -> None:
         """Given the SKILL.md provides the entry point
-        Then it must reference the content-assertion-levels module."""
+        Then it must reference the content-assertion-levels module.
+        """
         skill_path = (
             Path(__file__).parents[3]
             / "skills"

@@ -1,4 +1,3 @@
-# ruff: noqa: D101,D102,D103,PLR2004,E501
 """Tests for base review skill classes.
 
 Tests the BaseReviewSkill class and associated dataclasses.
@@ -6,6 +5,7 @@ Tests the BaseReviewSkill class and associated dataclasses.
 
 from __future__ import annotations
 
+from typing import ClassVar
 from unittest.mock import Mock
 
 import pytest
@@ -16,6 +16,8 @@ from pensive.skills.base import (
     BaseReviewSkill,
     ReviewFinding,
 )
+from pensive.utils import content_parser
+from pensive.utils.severity_mapper import SeverityMapper
 
 
 class TestReviewFinding:
@@ -249,11 +251,10 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_get_content_with_context_method(self) -> None:
         """Given context with method, extracts content."""
-        skill = BaseReviewSkill()
         mock_context = Mock()
         mock_context.get_file_content.return_value = "file content"
 
-        content = skill._get_code_content(mock_context)
+        content = content_parser.get_file_content(mock_context)
 
         assert content == "file content"
 
@@ -261,11 +262,10 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_get_content_with_filename(self) -> None:
         """Given filename, calls context with filename."""
-        skill = BaseReviewSkill()
         mock_context = Mock()
         mock_context.get_file_content.return_value = "specific content"
 
-        content = skill._get_code_content(mock_context, "specific.py")
+        content = content_parser.get_file_content(mock_context, "specific.py")
 
         assert content == "specific content"
         mock_context.get_file_content.assert_called_once_with("specific.py")
@@ -274,10 +274,9 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_get_content_without_method(self) -> None:
         """Given context without method, returns empty string."""
-        skill = BaseReviewSkill()
         mock_context = Mock(spec=[])  # No methods
 
-        content = skill._get_code_content(mock_context)
+        content = content_parser.get_file_content(mock_context)
 
         assert content == ""
 
@@ -285,11 +284,10 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_get_content_non_string_return(self) -> None:
         """Given context returning non-string, returns empty string."""
-        skill = BaseReviewSkill()
         mock_context = Mock()
         mock_context.get_file_content.return_value = None
 
-        content = skill._get_code_content(mock_context)
+        content = content_parser.get_file_content(mock_context)
 
         assert content == ""
 
@@ -297,23 +295,21 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_find_line_basic(self) -> None:
         """Given position, finds correct line number."""
-        skill = BaseReviewSkill()
         content = "line1\nline2\nline3"
 
-        line = skill._find_line_number(content, 0)  # Start of line 1
+        line = content_parser.find_line_number(content, 0)  # Start of line 1
         assert line == 1
 
-        line = skill._find_line_number(content, 6)  # Start of line 2
+        line = content_parser.find_line_number(content, 6)  # Start of line 2
         assert line == 2
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_basic(self) -> None:
         """Given line number, extracts snippet."""
-        skill = BaseReviewSkill()
         content = "def foo():\n    return True\n"
 
-        snippet = skill._extract_code_snippet(content, 1)
+        snippet = content_parser.extract_code_snippet(content, 1)
 
         assert "def foo():" in snippet
 
@@ -321,27 +317,24 @@ class TestBaseReviewSkill:
     @pytest.mark.unit
     def test_extract_snippet_invalid_line(self) -> None:
         """Given invalid line number, returns empty string."""
-        skill = BaseReviewSkill()
         content = "line1\nline2"
 
-        snippet = skill._extract_code_snippet(content, 0)
+        snippet = content_parser.extract_code_snippet(content, 0)
         assert snippet == ""
 
-        snippet = skill._extract_code_snippet(content, 100)
+        snippet = content_parser.extract_code_snippet(content, 100)
         assert snippet == ""
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_severity_basic(self) -> None:
         """Given issues, categorizes by severity."""
-        skill = BaseReviewSkill()
         issues = [
             {"type": "security", "issue": "Security issue"},
             {"type": "performance", "issue": "Performance issue"},
         ]
 
-        # Base implementation returns as-is when severity mapper unavailable
-        categorized = skill._categorize_severity(issues)
+        categorized = SeverityMapper.categorize(issues)
 
         assert len(categorized) == 2
 
@@ -366,7 +359,7 @@ class TestBaseReviewSkillSubclassing:
         """Given subclass, can override supported_languages."""
 
         class PythonSkill(BaseReviewSkill):
-            supported_languages = ["python", "cython"]
+            supported_languages: ClassVar[list[str]] = ["python", "cython"]
 
         skill = PythonSkill()
         assert skill.supported_languages == ["python", "cython"]

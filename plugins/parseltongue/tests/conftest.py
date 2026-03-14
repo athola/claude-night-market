@@ -15,6 +15,14 @@ from unittest.mock import Mock
 
 import pytest
 
+from parseltongue.skills.async_analysis import AsyncAnalysisSkill
+from parseltongue.skills.code_transformation import CodeTransformationSkill
+from parseltongue.skills.compatibility_checker import CompatibilityChecker
+from parseltongue.skills.language_detection import LanguageDetectionSkill
+from parseltongue.skills.pattern_matching import PatternMatchingSkill
+from parseltongue.skills.skill_loader import SkillLoader
+from parseltongue.skills.testing_guide import TestingGuideSkill
+
 # Test data constants
 PYTHON_SAMPLE_CODE = '''
 from typing import List, Optional
@@ -686,54 +694,40 @@ def pytest_configure(config) -> None:
 @pytest.fixture
 def async_analysis_skill():
     """Create an AsyncAnalysisSkill instance for testing."""
-    from parseltongue.skills.async_analysis import AsyncAnalysisSkill
-
     return AsyncAnalysisSkill()
 
 
 @pytest.fixture
 def code_transformation_skill():
     """Create a CodeTransformationSkill instance for testing."""
-    from parseltongue.skills.code_transformation import CodeTransformationSkill
-
     return CodeTransformationSkill()
 
 
 @pytest.fixture
 def compatibility_checker():
     """Create a CompatibilityChecker instance for testing."""
-    from parseltongue.skills.compatibility_checker import CompatibilityChecker
-
     return CompatibilityChecker()
 
 
 @pytest.fixture
 def pattern_matching_skill():
     """Create a PatternMatchingSkill instance for testing."""
-    from parseltongue.skills.pattern_matching import PatternMatchingSkill
-
     return PatternMatchingSkill()
 
 
 @pytest.fixture
 def testing_guide_skill():
     """Create a TestingGuideSkill instance for testing."""
-    from parseltongue.skills.testing_guide import TestingGuideSkill
-
     return TestingGuideSkill()
 
 
 @pytest.fixture
 def skill_loader():
     """Create a SkillLoader instance for testing."""
-    from parseltongue.skills.skill_loader import SkillLoader
-
     return SkillLoader()
 
 
 @pytest.fixture
 def language_detection_skill():
     """Create a LanguageDetectionSkill instance for testing."""
-    from parseltongue.skills.language_detection import LanguageDetectionSkill
-
     return LanguageDetectionSkill()

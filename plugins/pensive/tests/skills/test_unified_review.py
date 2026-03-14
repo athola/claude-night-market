@@ -384,7 +384,7 @@ class TestUnifiedReviewSkill:
             ]
 
             # Act
-            results = self.skill.execute_skills_concurrently(
+            results = self.skill.execute_skills(
                 selected_skills,
                 mock_skill_context,
             )

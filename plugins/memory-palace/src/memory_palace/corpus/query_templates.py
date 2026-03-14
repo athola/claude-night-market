@@ -14,8 +14,9 @@ from typing import Any
 
 import yaml
 
+from memory_palace.corpus._frontmatter import parse_entry_frontmatter
+
 MIN_WORD_LEN = 3
-FRONTMATTER_PARTS = 3
 
 
 class QueryTemplateManager:
@@ -54,26 +55,14 @@ class QueryTemplateManager:
         try:
             content = entry_path.read_text()
 
-            # Split frontmatter and content
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= FRONTMATTER_PARTS:
-                    frontmatter = parts[1]
-
-                    # Parse YAML frontmatter
-                    try:
-                        metadata = yaml.safe_load(frontmatter)
-                        if (
-                            metadata
-                            and "queries" in metadata
-                            and isinstance(metadata["queries"], list)
-                        ):
-                            queries = metadata["queries"]
-
-                    except yaml.YAMLError:
-                        # Skip if YAML parsing fails
-                        # YAML parsing errors are expected and can be safely ignored
-                        pass
+            # Parse frontmatter for query templates
+            metadata = parse_entry_frontmatter(content)
+            if (
+                metadata
+                and "queries" in metadata
+                and isinstance(metadata["queries"], list)
+            ):
+                queries = metadata["queries"]
 
         except Exception:
             # Treat unreadable files as no queries.
@@ -219,15 +208,9 @@ class QueryTemplateManager:
             content = md_file.read_text()
             title = entry_id
 
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= FRONTMATTER_PARTS:
-                    try:
-                        metadata = yaml.safe_load(parts[1])
-                        if metadata:
-                            title = metadata.get("title", title)
-                    except yaml.YAMLError:
-                        pass
+            metadata = parse_entry_frontmatter(content)
+            if metadata:
+                title = metadata.get("title", title)
 
             # Store entry data
             entries[entry_id] = {

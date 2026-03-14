@@ -112,15 +112,6 @@ class Configuration:
             msg = f"YAML syntax error in configuration: {e}"
             raise ConfigurationError(msg) from e
 
-    @classmethod
-    def load_from_file(cls, path: str | Path) -> Configuration:
-        """Load configuration from file (alias for from_file)."""
-        return cls.from_file(path)
-
-    def validate(self) -> bool:
-        """Validate configuration."""
-        return True
-
     def merge(self, other: Configuration) -> Configuration:
         """Merge another configuration into this one.
 

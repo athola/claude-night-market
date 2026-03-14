@@ -559,11 +559,10 @@ def5678 2024-12-04 test: Add payment flow tests
         # Test case 1: Not a git repository
         mock_claude_tools["Bash"].return_value = "fatal: not a git repository"
 
-        error_result = None
         try:
             result = mock_claude_tools["Bash"]("git status")
         except Exception as e:
-            error_result = str(e)
+            str(e)
 
         # In real implementation, this would return structured error
         expected_error = {
@@ -575,11 +574,10 @@ def5678 2024-12-04 test: Add payment flow tests
         # Test case 2: Invalid baseline reference
         mock_claude_tools["Bash"].return_value = "fatal: invalid reference: INVALID_REF"
 
-        baseline_error = None
         try:
             result = mock_claude_tools["Bash"]("git rev-parse INVALID_REF")
         except Exception as e:
-            baseline_error = str(e)
+            str(e)
 
         expected_baseline_error = {
             "type": "invalid_baseline",

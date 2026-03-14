@@ -251,11 +251,7 @@ tags:
             all_alerts.extend(alerts)
 
         # Prioritize alerts
-        critical_alerts = [
-            alert
-            for alert in all_alerts
-            if "critical" in alert.lower() or "95%" in alert
-        ]
+        [alert for alert in all_alerts if "critical" in alert.lower() or "95%" in alert]
         [alert for alert in all_alerts if "warning" in alert.lower() or "80%" in alert]
 
         # Assert -- first scenario produces 2 alerts (CPU+token),

@@ -616,7 +616,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output minimal valid JSON.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -641,7 +640,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output WARNING alert with additionalContext.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -665,7 +663,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output JSON without additionalContext.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -690,7 +687,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return 0.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("not valid json {"))
 
@@ -716,7 +712,6 @@ class TestMainEntryPoint:
         When running main with no env var and estimation disabled
         Then it should use the hook input value.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
         hook_input = json.dumps({"context_usage": 0.55})
@@ -743,7 +738,6 @@ class TestMainEntryPoint:
         When running main
         Then env var should be used (OK, not CRITICAL).
         """
-
         hook_input = json.dumps({"context_usage": 0.55})  # Would be CRITICAL
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")  # OK
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
@@ -770,7 +764,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output CRITICAL alert.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.60")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -796,7 +789,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return minimal output.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         hook_input = json.dumps({"context_usage": -0.5})
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
@@ -822,7 +814,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output EMERGENCY alert with skill invocation guidance.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -850,7 +841,6 @@ class TestMainEntryPoint:
         When running main
         Then additionalContext should include bold headers and numbered steps.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.90")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -1545,18 +1535,18 @@ class TestEstimateFromRecentTurns:
         When estimating from recent turns
         Then only the tail portion is counted, not the full file.
         """
-        # Build a file that exceeds _TAIL_BYTES (800KB).
-        # Use very large old entries so that the tail window (800KB)
-        # captures only a few of them, producing a LOW estimate.
+        # Build a file that exceeds _TAIL_BYTES (4MB).
+        # Use very large old entries so that the tail window (4MB)
+        # captures only a few of them, producing a lower estimate.
         # Then verify the estimate is lower than a full-file read.
-        old_text = "x" * 100_000  # 100KB per entry
+        old_text = "x" * 500_000  # 500KB per entry
         old_entry = {
             "role": "assistant",
             "content": [{"type": "text", "text": old_text}],
         }
         old_line = json.dumps(old_entry)
-        # Each old_line is ~100KB; 12 lines ≈ 1.2MB >> 800KB threshold
-        old_count = 12
+        # Each old_line is ~500KB; 10 lines ≈ 5MB >> 4MB threshold
+        old_count = 10
         old_lines = [old_line] * old_count
 
         # Recent turns: only 4 small messages at the tail
@@ -1577,10 +1567,10 @@ class TestEstimateFromRecentTurns:
         result = context_warning_full_module._estimate_from_recent_turns(session_file)
 
         assert result is not None
-        # The tail window (800KB) can fit ~7-8 of the 100KB entries,
+        # The tail window (4MB) can fit ~7-8 of the 500KB entries,
         # so the tail estimate should be noticeably lower than the
-        # full-file maximum of 0.95.  With ~700K text chars in the
-        # tail, that's ~175K tokens / 200K ≈ 0.875.
+        # full-file maximum of 0.95.  With ~3.5M text chars in the
+        # tail, that's ~875K tokens / 1M ≈ 0.875.
         # Use a generous bound: tail estimate < full-file cap.
         assert result < 0.95, (
             f"Tail reading should produce lower estimate than full file, got {result}"
@@ -1612,8 +1602,8 @@ class TestEstimateFromRecentTurns:
         # 2 turns (user+assistant) * 600 = 1200 tokens
         # Content chars: "system prompt text" + "tool output text" + "hello" + "hi"
         # = 18 + 15 + 5 + 2 = 40 chars → 10 tokens
-        # max(1200, 10) = 1200 tokens → 1200/200000 = 0.006
-        expected_approx = 1200 / 200_000
+        # max(1200, 10) = 1200 tokens → 1200/1000000 = 0.0012
+        expected_approx = 1200 / 1_000_000
         assert result == pytest.approx(expected_approx, abs=0.005)
 
     @pytest.mark.unit

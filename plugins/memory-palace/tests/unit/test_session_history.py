@@ -69,7 +69,7 @@ def _make_record(
 
 
 class TestSessionRecord:
-    """Feature: SessionRecord data class
+    """Feature: SessionRecord data class.
 
     As a developer
     I want a typed, serialisable session record
@@ -160,7 +160,7 @@ class TestSessionRecord:
 
 
 class TestSessionHistoryManager:
-    """Feature: SessionHistoryManager persistence
+    """Feature: SessionHistoryManager persistence.
 
     As a Claude Code plugin
     I want session records written to disk and retrievable later
@@ -728,7 +728,7 @@ class TestSessionHistoryManager:
 
 
 class TestSessionIdSanitization:
-    """Feature: Session ID path-traversal prevention
+    """Feature: Session ID path-traversal prevention.
 
     As a security-conscious system
     I want session IDs validated before use in file paths

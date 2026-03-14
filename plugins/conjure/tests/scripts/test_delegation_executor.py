@@ -112,8 +112,6 @@ class TestDelegator:
 
         then should merge with defaults.
         """
-        import json
-
         config_file = temp_config_dir / "config.json"
         custom_config = {
             "services": {

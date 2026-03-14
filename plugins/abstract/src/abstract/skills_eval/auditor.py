@@ -124,7 +124,7 @@ class SkillsAuditor:
         try:
             with open(skill_file, encoding="utf-8") as f:
                 content = f.read()
-        except Exception as e:
+        except (OSError, UnicodeDecodeError) as e:
             return SkillMetrics(
                 name=skill_file.parent.name,
                 path=str(skill_file),
@@ -425,15 +425,19 @@ class SkillsAuditor:
         # Calculate summary
         if skills:
             skill_count = len(skills)
-            avg_completeness = (
-                sum(s["completeness_score"] for s in skills) / skill_count
-            )
-            avg_structure = sum(s["structure_score"] for s in skills) / skill_count
-            avg_overall = sum(s["overall_score"] for s in skills) / skill_count
-            needs_improvement = len(
-                [s for s in skills if s["overall_score"] < SCORE_ACCEPTABLE],
-            )
-            high_priority = len([s for s in skills if s["issues"]])
+            completeness_sum = structure_sum = overall_sum = 0.0
+            needs_improvement = high_priority = 0
+            for s in skills:
+                completeness_sum += s["completeness_score"]
+                structure_sum += s["structure_score"]
+                overall_sum += s["overall_score"]
+                if s["overall_score"] < SCORE_ACCEPTABLE:
+                    needs_improvement += 1
+                if s["issues"]:
+                    high_priority += 1
+            avg_completeness = completeness_sum / skill_count
+            avg_structure = structure_sum / skill_count
+            avg_overall = overall_sum / skill_count
         else:
             avg_completeness = avg_structure = avg_overall = 0.0
             needs_improvement = high_priority = 0

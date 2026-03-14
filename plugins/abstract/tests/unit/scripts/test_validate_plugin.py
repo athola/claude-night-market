@@ -558,7 +558,7 @@ class TestValidateDirectoryStructureExtended:
 
     @pytest.mark.unit
     def test_missing_skills_dir_adds_warning(self, tmp_path: Path) -> None:
-        """skills referenced but directory missing adds warning."""
+        """Skills referenced but directory missing adds warning."""
         pd = _make_plugin(
             tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
         )
@@ -569,7 +569,7 @@ class TestValidateDirectoryStructureExtended:
 
     @pytest.mark.unit
     def test_wrong_location_adds_critical(self, tmp_path: Path) -> None:
-        """skills dir inside .claude-plugin adds critical issue."""
+        """Skills dir inside .claude-plugin adds critical issue."""
         pd = _make_plugin(tmp_path, {"name": "my-plugin"})
         wrong = pd / ".claude-plugin" / "skills"
         wrong.mkdir()
@@ -646,7 +646,7 @@ class TestValidateSkills:
 
     @pytest.mark.unit
     def test_skills_not_a_list_no_crash(self, tmp_path: Path) -> None:
-        """skills field that is not a list is handled gracefully."""
+        """Skills field that is not a list is handled gracefully."""
         pd = _make_plugin(tmp_path, {"name": "my-plugin", "skills": "not-a-list"})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
@@ -667,7 +667,7 @@ class TestValidateClaudeConfig:
 
     @pytest.mark.unit
     def test_non_dict_claude_adds_warning(self, tmp_path: Path) -> None:
-        """claude config that is not a dict adds a warning."""
+        """Claude config that is not a dict adds a warning."""
         pd = _make_plugin(tmp_path, {"name": "my-plugin", "claude": "string"})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
@@ -732,7 +732,7 @@ class TestValidateHooksPathExtended:
 
     @pytest.mark.unit
     def test_non_string_hooks_value_skipped(self, tmp_path: Path) -> None:
-        """hooks value that is not a string is skipped gracefully."""
+        """Hooks value that is not a string is skipped gracefully."""
         pd = _make_plugin(tmp_path, {"name": "my-plugin", "hooks": {"key": "val"}})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()

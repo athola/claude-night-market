@@ -10,6 +10,7 @@ Supports:
 - Tolerant anchor checking for complex headings
 """
 
+import fnmatch
 import re
 import sys
 from pathlib import Path
@@ -103,8 +104,6 @@ def should_ignore_file(file_path: Path, root_dir: Path) -> bool:
                 return True
         elif "*" in pattern:
             # Simple glob-like matching
-            import fnmatch
-
             if fnmatch.fnmatch(rel_path, pattern):
                 return True
 

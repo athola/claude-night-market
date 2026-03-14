@@ -5,8 +5,6 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-from manifest import Manifest
-
 from conventions import (
     calculate_verdict,
     check_conventions,
@@ -14,6 +12,7 @@ from conventions import (
     filter_steps,
     load_codex,
 )
+from manifest import Manifest
 
 
 class TestFullQualityFlow:

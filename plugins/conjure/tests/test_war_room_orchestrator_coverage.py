@@ -10,7 +10,6 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from scripts.war_room.experts import (
     ExpertConfig,
     _haiku_fallback_notices,

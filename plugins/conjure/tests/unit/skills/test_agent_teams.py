@@ -56,8 +56,7 @@ def _parse_frontmatter(content: str) -> dict:
 
 
 class TestAgentTeamsSkillStructure:
-    """
-    Feature: Skill file structure
+    """Feature: Skill file structure.
 
     As a plugin validator
     I want the agent-teams skill to follow ecosystem conventions
@@ -69,7 +68,7 @@ class TestAgentTeamsSkillStructure:
         """Scenario: Skill file present
         Given the conjure plugin
         When checking for agent-teams skill
-        Then SKILL.md should exist
+        Then SKILL.md should exist.
         """
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
 
@@ -78,7 +77,7 @@ class TestAgentTeamsSkillStructure:
         """Scenario: Valid frontmatter
         Given the agent-teams SKILL.md
         When parsing frontmatter
-        Then all required fields should be present
+        Then all required fields should be present.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -97,7 +96,7 @@ class TestAgentTeamsSkillStructure:
         """Scenario: Module declarations
         Given the agent-teams SKILL.md frontmatter
         When checking module list
-        Then all four protocol modules should be declared
+        Then all four protocol modules should be declared.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -113,7 +112,7 @@ class TestAgentTeamsSkillStructure:
         """Scenario: Required documentation sections
         Given the agent-teams SKILL.md
         When checking content sections
-        Then overview, prerequisites, workflow, and exit criteria should exist
+        Then overview, prerequisites, workflow, and exit criteria should exist.
         """
         content = SKILL_FILE.read_text()
 
@@ -129,8 +128,7 @@ class TestAgentTeamsSkillStructure:
 
 
 class TestAgentTeamsModules:
-    """
-    Feature: Protocol module files
+    """Feature: Protocol module files.
 
     As a skill consumer
     I want detailed protocol documentation in modules
@@ -142,7 +140,7 @@ class TestAgentTeamsModules:
         """Scenario: Module files present
         Given the agent-teams skill directory
         When checking for module files
-        Then all declared modules should exist on disk
+        Then all declared modules should exist on disk.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -155,7 +153,7 @@ class TestAgentTeamsModules:
         """Scenario: Module frontmatter
         Given each module file
         When parsing content
-        Then each should have valid YAML frontmatter with name and parent_skill
+        Then each should have valid YAML frontmatter with name and parent_skill.
         """
         for module_name in EXPECTED_MODULES:
             content = (MODULES_DIR / module_name).read_text()
@@ -167,8 +165,7 @@ class TestAgentTeamsModules:
 
 
 class TestTeamManagementModule:
-    """
-    Feature: Team management protocol
+    """Feature: Team management protocol.
 
     As an agent coordinator
     I want team lifecycle documentation
@@ -180,7 +177,7 @@ class TestTeamManagementModule:
         """Scenario: Config format documented
         Given team-management module
         When reading content
-        Then it should document the config.json structure
+        Then it should document the config.json structure.
         """
         content = (MODULES_DIR / "team-management.md").read_text()
         assert "config.json" in content
@@ -192,7 +189,7 @@ class TestTeamManagementModule:
         """Scenario: Name validation rules
         Given team-management module
         When reading content
-        Then it should specify the allowed name pattern
+        Then it should specify the allowed name pattern.
         """
         content = (MODULES_DIR / "team-management.md").read_text()
         # Should mention the alphanumeric + hyphen/underscore constraint
@@ -203,15 +200,14 @@ class TestTeamManagementModule:
         """Scenario: Atomic write pattern
         Given team-management module
         When reading content
-        Then it should describe the atomic write mechanism
+        Then it should describe the atomic write mechanism.
         """
         content = (MODULES_DIR / "team-management.md").read_text()
         assert "atomic" in content.lower()
 
 
 class TestMessagingProtocolModule:
-    """
-    Feature: Messaging protocol
+    """Feature: Messaging protocol.
 
     As an agent participant
     I want messaging documentation
@@ -223,7 +219,7 @@ class TestMessagingProtocolModule:
         """Scenario: Message JSON format
         Given messaging-protocol module
         When reading content
-        Then it should document the InboxMessage fields
+        Then it should document the InboxMessage fields.
         """
         content = (MODULES_DIR / "messaging-protocol.md").read_text()
         required_fields = ["from", "text", "timestamp", "read"]
@@ -235,7 +231,7 @@ class TestMessagingProtocolModule:
         """Scenario: Message type catalog
         Given messaging-protocol module
         When reading content
-        Then it should document all message types
+        Then it should document all message types.
         """
         content = (MODULES_DIR / "messaging-protocol.md").read_text()
         for msg_type in ["direct", "broadcast", "shutdown"]:
@@ -248,7 +244,7 @@ class TestMessagingProtocolModule:
         """Scenario: Concurrency safety
         Given messaging-protocol module
         When reading content
-        Then it should explain fcntl-based file locking
+        Then it should explain fcntl-based file locking.
         """
         content = (MODULES_DIR / "messaging-protocol.md").read_text()
         assert "fcntl" in content
@@ -256,8 +252,7 @@ class TestMessagingProtocolModule:
 
 
 class TestTaskCoordinationModule:
-    """
-    Feature: Task coordination protocol
+    """Feature: Task coordination protocol.
 
     As a task manager
     I want task lifecycle documentation
@@ -269,7 +264,7 @@ class TestTaskCoordinationModule:
         """Scenario: Task state machine
         Given task-coordination module
         When reading content
-        Then all valid task statuses should be documented
+        Then all valid task statuses should be documented.
         """
         content = (MODULES_DIR / "task-coordination.md").read_text()
         for status in ["pending", "in_progress", "completed", "deleted"]:
@@ -280,7 +275,7 @@ class TestTaskCoordinationModule:
         """Scenario: No backward state transitions
         Given task-coordination module
         When reading content
-        Then it should state that backward transitions are prohibited
+        Then it should state that backward transitions are prohibited.
         """
         content = (MODULES_DIR / "task-coordination.md").read_text()
         assert "backward" in content.lower() or "forward-only" in content.lower()
@@ -290,7 +285,7 @@ class TestTaskCoordinationModule:
         """Scenario: Dependency tracking
         Given task-coordination module
         When reading content
-        Then blocks and blocked_by fields should be documented
+        Then blocks and blocked_by fields should be documented.
         """
         content = (MODULES_DIR / "task-coordination.md").read_text()
         assert "blocks" in content
@@ -301,7 +296,7 @@ class TestTaskCoordinationModule:
         """Scenario: Circular dependency prevention
         Given task-coordination module
         When reading content
-        Then it should describe cycle detection via BFS
+        Then it should describe cycle detection via BFS.
         """
         content = (MODULES_DIR / "task-coordination.md").read_text()
         assert "cycle" in content.lower()
@@ -309,8 +304,7 @@ class TestTaskCoordinationModule:
 
 
 class TestSpawningPatternsModule:
-    """
-    Feature: Agent spawning patterns
+    """Feature: Agent spawning patterns.
 
     As a team lead agent
     I want spawning documentation
@@ -322,7 +316,7 @@ class TestSpawningPatternsModule:
         """Scenario: Required CLI flags
         Given spawning-patterns module
         When reading content
-        Then all undocumented Claude CLI flags should be listed
+        Then all undocumented Claude CLI flags should be listed.
         """
         content = (MODULES_DIR / "spawning-patterns.md").read_text()
         for flag in REQUIRED_CLI_FLAGS:
@@ -333,7 +327,7 @@ class TestSpawningPatternsModule:
         """Scenario: tmux pane management
         Given spawning-patterns module
         When reading content
-        Then tmux split-window pattern should be documented
+        Then tmux split-window pattern should be documented.
         """
         content = (MODULES_DIR / "spawning-patterns.md").read_text()
         assert "tmux" in content.lower()
@@ -344,7 +338,7 @@ class TestSpawningPatternsModule:
         """Scenario: Required environment
         Given spawning-patterns module
         When reading content
-        Then required env vars should be documented
+        Then required env vars should be documented.
         """
         content = (MODULES_DIR / "spawning-patterns.md").read_text()
         assert (
@@ -356,7 +350,7 @@ class TestSpawningPatternsModule:
         """Scenario: Agent identity format
         Given spawning-patterns module
         When reading content
-        Then the name@team format should be documented
+        Then the name@team format should be documented.
         """
         content = (MODULES_DIR / "spawning-patterns.md").read_text()
         # Should mention the name@team format
@@ -365,8 +359,7 @@ class TestSpawningPatternsModule:
 
 
 class TestPluginJsonRegistration:
-    """
-    Feature: Plugin registry integration
+    """Feature: Plugin registry integration.
 
     As a plugin system
     I want agent-teams registered in plugin.json
@@ -378,7 +371,7 @@ class TestPluginJsonRegistration:
         """Scenario: Plugin.json includes agent-teams
         Given the conjure plugin.json
         When checking skills array
-        Then agent-teams should be registered
+        Then agent-teams should be registered.
         """
         plugin_json = (
             Path(__file__).resolve().parent.parent.parent.parent

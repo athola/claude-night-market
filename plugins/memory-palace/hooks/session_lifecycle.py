@@ -111,10 +111,9 @@ def _build_record(payload: dict) -> SessionRecord:
     # Context usage as a fraction 0.0–1.0
     context_tokens = _safe_float(stats.get("context_tokens_used", 0))
     context_limit = _safe_float(stats.get("context_window_size", 0))
-    if context_limit > 0:
-        context_peak = min(context_tokens / context_limit, 1.0)
-    else:
-        context_peak = 0.0
+    context_peak = (
+        min(context_tokens / context_limit, 1.0) if context_limit > 0 else 0.0
+    )
 
     tools_used: list[str] = list(payload.get("tools_used") or [])
     files_modified: list[str] = list(payload.get("files_modified") or [])

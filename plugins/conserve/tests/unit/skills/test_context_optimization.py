@@ -27,6 +27,10 @@ EIGHTY_FIVE_THOUSAND = 85000
 NINETY_POINT_ZERO = 90.0
 HUNDRED_EIGHT_THOUSAND = 108000
 HUNDRED_THOUSAND = 100000
+FOUR_HUNDRED_TWENTY_FIVE_THOUSAND = 425000
+FIVE_HUNDRED_THOUSAND = 500000
+FIVE_HUNDRED_FORTY_THOUSAND = 540000
+ONE_MILLION = 1000000
 
 
 class TestContextOptimizationSkill:
@@ -141,12 +145,12 @@ tags:
         Then it should classify context status correctly
         And provide appropriate recommendations.
         """
-        # Arrange - values aligned with mock thresholds (30%, 50%, 70%)
+        # Arrange - values aligned with mock thresholds (30%, 50%, 70%) of 1M window
         test_scenarios = [
-            {"context_tokens": 2000, "expected_status": "LOW"},  # 1% < 30%
-            {"context_tokens": 80000, "expected_status": "OPTIMAL"},  # 40% (30-50%)
-            {"context_tokens": 120000, "expected_status": "HIGH"},  # 60% (50-70%)
-            {"context_tokens": 160000, "expected_status": "CRITICAL"},  # 80% >= 70%
+            {"context_tokens": 10000, "expected_status": "LOW"},  # 1% < 30%
+            {"context_tokens": 400000, "expected_status": "OPTIMAL"},  # 40% (30-50%)
+            {"context_tokens": 600000, "expected_status": "HIGH"},  # 60% (50-70%)
+            {"context_tokens": 800000, "expected_status": "CRITICAL"},  # 80% >= 70%
         ]
 
         # Act & Assert
@@ -157,12 +161,14 @@ tags:
 
             assert (
                 analysis["utilization_percentage"]
-                == (scenario["context_tokens"] / 200000) * 100
+                == (scenario["context_tokens"] / ONE_MILLION) * 100
             )
             assert analysis["status"] == scenario["expected_status"]
 
             # Check MECW compliance (50% rule)
-            is_compliant = scenario["context_tokens"] <= HUNDRED_THOUSAND  # 50% of 200k
+            is_compliant = (
+                scenario["context_tokens"] <= FIVE_HUNDRED_THOUSAND
+            )  # 50% of 1M
             assert analysis["mecw_compliant"] == is_compliant
 
             # Verify recommendations exist
@@ -182,8 +188,8 @@ tags:
         """
         # Arrange
         mock_claude_tools["Bash"].side_effect = [
-            str(EIGHTY_FIVE_THOUSAND),  # Current context tokens
-            "200000",  # Total window size
+            str(FOUR_HUNDRED_TWENTY_FIVE_THOUSAND),  # Current context tokens
+            "1000000",  # Total window size
         ]
 
         # Act - simulate context classification
@@ -206,7 +212,7 @@ tags:
             priority = "P1"
 
         # Assert
-        assert current_context == EIGHTY_FIVE_THOUSAND
+        assert current_context == FOUR_HUNDRED_TWENTY_FIVE_THOUSAND
         assert utilization_percentage == FORTY_TWO_POINT_FIVE
         assert status == "OPTIMAL"
         assert priority == "P3"
@@ -344,11 +350,11 @@ tags:
         """
         # Arrange
         before_optimization = mock_mecw_analyzer.analyze_context_usage(
-            120000,
-        )  # 60% utilization
+            600000,
+        )  # 60% utilization of 1M window
         after_optimization = mock_mecw_analyzer.analyze_context_usage(
-            80000,
-        )  # 40% utilization
+            400000,
+        )  # 40% utilization of 1M window
 
         # Act - calculate improvements
         improvement_percentage = (
@@ -381,12 +387,12 @@ tags:
         And provide effective compression strategies.
         """
         # Arrange
-        large_context_size = 180000  # 90% of 200k window
+        large_context_size = 900000  # 90% of 1M window
         mock_claude_tools["Bash"].return_value = str(large_context_size)
 
         # Act - simulate large context optimization
         current_context = int(mock_claude_tools["Bash"]("echo $CURRENT_CONTEXT_TOKENS"))
-        window_size = 200000
+        window_size = ONE_MILLION
         utilization = (current_context / window_size) * 100
 
         # Determine optimization strategy
@@ -407,7 +413,7 @@ tags:
         assert current_context == large_context_size
         assert utilization == NINETY_POINT_ZERO
         assert strategy == "aggressive_compression"
-        assert target_tokens == HUNDRED_EIGHT_THOUSAND  # 60% of window size
+        assert target_tokens == FIVE_HUNDRED_FORTY_THOUSAND  # 60% of 900K input
         # Verify mock was called once with the expected command
         mock_claude_tools["Bash"].assert_called_once_with(
             "echo $CURRENT_CONTEXT_TOKENS"

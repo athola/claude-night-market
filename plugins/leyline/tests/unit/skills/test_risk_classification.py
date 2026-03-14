@@ -41,8 +41,7 @@ def _parse_frontmatter(content: str) -> dict:
 
 
 class TestRiskClassificationSkillFile:
-    """
-    Feature: Skill file existence and readability
+    """Feature: Skill file existence and readability.
 
     As a plugin validator
     I want the risk-classification SKILL.md to exist and be readable
@@ -54,7 +53,7 @@ class TestRiskClassificationSkillFile:
         """Scenario: Skill file present
         Given the leyline plugin
         When checking for risk-classification skill
-        Then SKILL.md should exist on disk
+        Then SKILL.md should exist on disk.
         """
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
 
@@ -63,7 +62,7 @@ class TestRiskClassificationSkillFile:
         """Scenario: Skill file readable
         Given the risk-classification SKILL.md exists
         When reading the file
-        Then it should return non-empty content
+        Then it should return non-empty content.
         """
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
         content = SKILL_FILE.read_text()
@@ -71,8 +70,7 @@ class TestRiskClassificationSkillFile:
 
 
 class TestRiskClassificationFrontmatter:
-    """
-    Feature: YAML frontmatter validity
+    """Feature: YAML frontmatter validity.
 
     As a plugin validator
     I want the risk-classification frontmatter to contain required fields
@@ -84,7 +82,7 @@ class TestRiskClassificationFrontmatter:
         """Scenario: Name field present
         Given the risk-classification SKILL.md
         When parsing frontmatter
-        Then the name field should equal 'risk-classification'
+        Then the name field should equal 'risk-classification'.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -97,7 +95,7 @@ class TestRiskClassificationFrontmatter:
         """Scenario: Description field present and non-trivial
         Given the risk-classification SKILL.md
         When parsing frontmatter
-        Then the description field should be present with meaningful content
+        Then the description field should be present with meaningful content.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -110,7 +108,7 @@ class TestRiskClassificationFrontmatter:
         Given the risk-classification SKILL.md
         When parsing frontmatter
         Then either 'version' or 'complexity' should be present
-        to establish the skill maturity level
+        to establish the skill maturity level.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -125,7 +123,7 @@ class TestRiskClassificationFrontmatter:
         """Scenario: Module declarations match expected modules
         Given the risk-classification SKILL.md frontmatter
         When checking the modules list
-        Then all three classifier modules should be declared
+        Then all three classifier modules should be declared.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -141,7 +139,7 @@ class TestRiskClassificationFrontmatter:
         """Scenario: Category reflects infrastructure/safety purpose
         Given the risk-classification SKILL.md
         When parsing the category field
-        Then it should indicate an infrastructure or safety category
+        Then it should indicate an infrastructure or safety category.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -154,8 +152,7 @@ class TestRiskClassificationFrontmatter:
 
 
 class TestRiskClassificationSections:
-    """
-    Feature: Required documentation sections
+    """Feature: Required documentation sections.
 
     As a skill consumer
     I want the risk-classification to contain standard required sections
@@ -167,7 +164,7 @@ class TestRiskClassificationSections:
         """Scenario: Overview section present
         Given the risk-classification SKILL.md
         When scanning for section headings
-        Then an Overview section should exist
+        Then an Overview section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## Overview" in content, "Missing required '## Overview' section"
@@ -177,7 +174,7 @@ class TestRiskClassificationSections:
         """Scenario: When To Use section present
         Given the risk-classification SKILL.md
         When scanning for section headings
-        Then a 'When To Use' section should exist
+        Then a 'When To Use' section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## When To Use" in content, "Missing required '## When To Use' section"
@@ -187,7 +184,7 @@ class TestRiskClassificationSections:
         """Scenario: Exit Criteria section present
         Given the risk-classification SKILL.md
         When scanning for section headings
-        Then an Exit Criteria section should exist
+        Then an Exit Criteria section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## Exit Criteria" in content, (
@@ -199,7 +196,7 @@ class TestRiskClassificationSections:
         """Scenario: All risk tiers documented in SKILL.md
         Given the risk-classification SKILL.md
         When scanning for tier names
-        Then GREEN, YELLOW, RED, and CRITICAL should all appear
+        Then GREEN, YELLOW, RED, and CRITICAL should all appear.
         """
         content = SKILL_FILE.read_text()
         for tier in RISK_TIERS:
@@ -207,8 +204,7 @@ class TestRiskClassificationSections:
 
 
 class TestRiskClassificationModules:
-    """
-    Feature: Module files exist on disk
+    """Feature: Module files exist on disk.
 
     As a skill consumer
     I want all modules declared in the skill to exist on disk
@@ -220,7 +216,7 @@ class TestRiskClassificationModules:
         """Scenario: Modules directory present
         Given the risk-classification skill
         When checking for the modules subdirectory
-        Then the directory should exist
+        Then the directory should exist.
         """
         assert MODULES_DIR.exists(), f"modules/ directory not found at {MODULES_DIR}"
 
@@ -229,7 +225,7 @@ class TestRiskClassificationModules:
         """Scenario: All declared modules are present on disk
         Given the risk-classification skill directory
         When checking each declared module file
-        Then every module should exist on disk
+        Then every module should exist on disk.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -242,7 +238,7 @@ class TestRiskClassificationModules:
         """Scenario: tier-definitions module covers all risk tiers
         Given the tier-definitions.md module
         When reading content
-        Then GREEN, YELLOW, RED, and CRITICAL should all be defined
+        Then GREEN, YELLOW, RED, and CRITICAL should all be defined.
         """
         module_path = MODULES_DIR / "tier-definitions.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -257,7 +253,7 @@ class TestRiskClassificationModules:
         """Scenario: heuristic-classifier documents pattern-matching approach
         Given the heuristic-classifier.md module
         When reading content
-        Then it should reference file patterns or pattern matching
+        Then it should reference file patterns or pattern matching.
         """
         module_path = MODULES_DIR / "heuristic-classifier.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -271,7 +267,7 @@ class TestRiskClassificationModules:
         """Scenario: verification-gates module references risk tiers
         Given the verification-gates.md module
         When reading content
-        Then at least two risk tier names should appear
+        Then at least two risk tier names should appear.
         """
         module_path = MODULES_DIR / "verification-gates.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -283,8 +279,7 @@ class TestRiskClassificationModules:
 
 
 class TestRiskClassificationPluginRegistration:
-    """
-    Feature: Plugin registry integration
+    """Feature: Plugin registry integration.
 
     As the plugin system
     I want risk-classification registered in plugin.json
@@ -296,7 +291,7 @@ class TestRiskClassificationPluginRegistration:
         """Scenario: plugin.json includes risk-classification
         Given the leyline plugin.json
         When checking the skills array
-        Then risk-classification should be registered
+        Then risk-classification should be registered.
         """
         plugin_json = (
             Path(__file__).resolve().parent.parent.parent.parent

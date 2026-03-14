@@ -64,8 +64,8 @@ Skill description character budgets now **scale with context window** at 2% of a
 
 | Context Window | Description Budget |
 |---------------|-------------------|
-| 200K (standard) | ~4,000 characters |
-| 1M (Opus 4.6 beta) | ~20,000 characters |
+| 200K (Sonnet/Haiku) | ~4,000 characters |
+| 1M (Opus 4.6 GA) | ~20,000 characters |
 
 Previously constrained skills can use more descriptive text on larger windows. However, keep descriptions concise regardless — longer is not better. The scaling primarily prevents truncation for skills with legitimately complex trigger conditions, not as an invitation to add verbose content.
 

@@ -658,7 +658,7 @@ class TestSkillValidatorMain:
     def test_main_strict_with_warnings_exits_nonzero(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """main --strict with warnings-only skill exits 1 or 2."""
+        """Main --strict with warnings-only skill exits 1 or 2."""
         skill_file = tmp_path / "SKILL.md"
         long_desc = "Guides and teaches developers through testing workflows. " * 4
         skill_file.write_text(

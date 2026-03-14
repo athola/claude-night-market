@@ -41,9 +41,9 @@ EMERGENCY_THRESHOLD = float(os.environ.get("CONSERVE_EMERGENCY_THRESHOLD", "0.80
 STALE_SESSION_SECONDS = 60
 
 # Maximum bytes to read from the tail of a JSONL session file.
-# 800KB ≈ one full 200K-token context window at ~4 chars/token.
+# 4MB ≈ one full 1M-token context window at ~4 chars/token.
 # Reading beyond this risks counting auto-compressed history.
-_TAIL_BYTES = 800_000
+_TAIL_BYTES = 4_000_000
 
 
 class ContextSeverity(Enum):
@@ -262,7 +262,7 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
         Estimated context usage as float 0-1, or None on read failure.
 
     """
-    context_window_tokens = 200_000
+    context_window_tokens = 1_000_000
     tokens_per_turn = 600
     tokens_per_tool_result = 150
 
@@ -270,7 +270,7 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
         file_size = session_file.stat().st_size
 
         # Read only the tail of the file — recent conversation is at the end.
-        # 800KB ≈ 200K tokens at ~4 chars/token, which is one full context
+        # 4MB ≈ 1M tokens at ~4 chars/token, which is one full context
         # window.  Reading more than this means we're counting compressed
         # history that is no longer in the context.
         tail_bytes = _TAIL_BYTES

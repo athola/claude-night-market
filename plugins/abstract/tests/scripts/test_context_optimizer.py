@@ -411,7 +411,7 @@ class TestContextOptimizerCLIExecute:
 
     @pytest.mark.unit
     def test_execute_analyze_command(self, tmp_path: Path, skill_file: Path) -> None:
-        """execute with analyze command returns size info."""
+        """Execute with analyze command returns size info."""
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="analyze",
@@ -445,7 +445,7 @@ class TestContextOptimizerCLIExecute:
 
     @pytest.mark.unit
     def test_execute_report_command(self, tmp_path: Path, skill_file: Path) -> None:
-        """execute with report command returns directory analysis."""
+        """Execute with report command returns directory analysis."""
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="report",
@@ -478,7 +478,7 @@ class TestContextOptimizerCLIExecute:
 
     @pytest.mark.unit
     def test_execute_stats_command(self, tmp_path: Path) -> None:
-        """execute with stats command returns directory analysis."""
+        """Execute with stats command returns directory analysis."""
         cli = ContextOptimizerCLI()
         args = argparse.Namespace(
             command="stats",
@@ -511,7 +511,7 @@ class TestContextOptimizerCLIExecute:
 
     @pytest.mark.unit
     def test_execute_analyze_nonexistent_file(self, tmp_path: Path) -> None:
-        """execute with analyze on nonexistent file returns failure."""
+        """Execute with analyze on nonexistent file returns failure."""
         cli = ContextOptimizerCLI()
         nonexistent = tmp_path / "nonexistent.md"
         args = argparse.Namespace(
@@ -546,7 +546,7 @@ class TestContextOptimizerCLIExecute:
     def test_execute_analyze_exception_returns_failure(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """execute when analyze_skill_size raises returns failure."""
+        """Execute when analyze_skill_size raises returns failure."""
         cli = ContextOptimizerCLI()
         sf = tmp_path / "SKILL.md"
         sf.write_text("---\nname: x\n---\n\n# Skill\n")

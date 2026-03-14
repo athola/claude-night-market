@@ -1,5 +1,4 @@
-"""
-Tests for leyline:git-platform - Git platform detection hook and skill.
+"""Tests for leyline:git-platform - Git platform detection hook and skill.
 
 Feature: Git Platform Detection
   As a plugin ecosystem user
@@ -20,28 +19,24 @@ SKILL_FILE = Path(__file__).parents[3] / "skills" / "git-platform" / "SKILL.md"
 
 
 class TestPlatformDetectionHook:
-    """
-    Feature: SessionStart hook detects git platform from project signals.
-    """
+    """Feature: SessionStart hook detects git platform from project signals."""
 
     @pytest.mark.unit
     def test_hook_script_exists_and_is_executable(self):
-        """
-        Scenario: Hook script is properly installed
+        """Scenario: Hook script is properly installed
         Given the leyline plugin is installed
         When checking the hook script
-        Then it exists and is executable
+        Then it exists and is executable.
         """
         assert HOOK_SCRIPT.exists(), f"Hook script not found at {HOOK_SCRIPT}"
         assert os.access(HOOK_SCRIPT, os.X_OK), "Hook script is not executable"
 
     @pytest.mark.unit
     def test_hook_outputs_valid_json(self, tmp_path):
-        """
-        Scenario: Hook always outputs valid JSON
+        """Scenario: Hook always outputs valid JSON
         Given any directory (even non-git)
         When the hook runs
-        Then it outputs valid JSON with hookSpecificOutput
+        Then it outputs valid JSON with hookSpecificOutput.
         """
         result = subprocess.run(
             ["bash", str(HOOK_SCRIPT)],
@@ -58,11 +53,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_non_git_directory_returns_empty_context(self, tmp_path):
-        """
-        Scenario: Non-git directory produces no platform context
+        """Scenario: Non-git directory produces no platform context
         Given a directory that is not a git repository
         When the hook runs
-        Then additionalContext is empty
+        Then additionalContext is empty.
         """
         result = subprocess.run(
             ["bash", str(HOOK_SCRIPT)],
@@ -76,11 +70,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_github_detected_from_remote_url(self, tmp_path):
-        """
-        Scenario: GitHub detected from git remote URL
+        """Scenario: GitHub detected from git remote URL
         Given a git repo with origin pointing to github.com
         When the hook runs
-        Then platform is detected as github
+        Then platform is detected as github.
         """
         # Set up a git repo with a github remote
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
@@ -104,11 +97,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_gitlab_detected_from_remote_url(self, tmp_path):
-        """
-        Scenario: GitLab detected from git remote URL
+        """Scenario: GitLab detected from git remote URL
         Given a git repo with origin pointing to gitlab.com
         When the hook runs
-        Then platform is detected as gitlab with correct MR terminology
+        Then platform is detected as gitlab with correct MR terminology.
         """
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
         subprocess.run(
@@ -132,11 +124,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_bitbucket_detected_from_remote_url(self, tmp_path):
-        """
-        Scenario: Bitbucket detected from git remote URL
+        """Scenario: Bitbucket detected from git remote URL
         Given a git repo with origin pointing to bitbucket.org
         When the hook runs
-        Then platform is detected as bitbucket
+        Then platform is detected as bitbucket.
         """
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
         subprocess.run(
@@ -158,11 +149,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_github_detected_from_directory_marker(self, tmp_path):
-        """
-        Scenario: GitHub detected from .github/ directory when no remote
+        """Scenario: GitHub detected from .github/ directory when no remote
         Given a git repo with .github/ directory but no remote
         When the hook runs
-        Then platform is detected as github
+        Then platform is detected as github.
         """
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
         (tmp_path / ".github").mkdir()
@@ -180,11 +170,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_gitlab_detected_from_ci_file(self, tmp_path):
-        """
-        Scenario: GitLab detected from .gitlab-ci.yml when no remote
+        """Scenario: GitLab detected from .gitlab-ci.yml when no remote
         Given a git repo with .gitlab-ci.yml but no remote
         When the hook runs
-        Then platform is detected as gitlab
+        Then platform is detected as gitlab.
         """
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
         (tmp_path / ".gitlab-ci.yml").touch()
@@ -203,11 +192,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_hook_completes_under_timeout(self, tmp_path):
-        """
-        Scenario: Hook performance meets <200ms requirement
+        """Scenario: Hook performance meets <200ms requirement
         Given any environment
         When the hook runs
-        Then it completes within 1 second (generous CI margin)
+        Then it completes within 1 second (generous CI margin).
         """
         result = subprocess.run(
             ["bash", str(HOOK_SCRIPT)],
@@ -220,11 +208,10 @@ class TestPlatformDetectionHook:
 
     @pytest.mark.unit
     def test_ci_system_detected_for_github_actions(self, tmp_path):
-        """
-        Scenario: GitHub Actions CI detected from workflows directory
+        """Scenario: GitHub Actions CI detected from workflows directory
         Given a git repo with .github/workflows/
         When the hook runs
-        Then ci system is reported as github-actions
+        Then ci system is reported as github-actions.
         """
         subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
         subprocess.run(
@@ -247,17 +234,14 @@ class TestPlatformDetectionHook:
 
 
 class TestGitPlatformSkill:
-    """
-    Feature: git-platform skill provides correct cross-platform command mapping.
-    """
+    """Feature: git-platform skill provides correct cross-platform command mapping."""
 
     @pytest.mark.unit
     def test_skill_file_exists(self):
-        """
-        Scenario: Skill file is properly structured
+        """Scenario: Skill file is properly structured
         Given the leyline plugin
         When checking the git-platform skill
-        Then SKILL.md exists with required frontmatter
+        Then SKILL.md exists with required frontmatter.
         """
         assert SKILL_FILE.exists()
         content = SKILL_FILE.read_text()
@@ -266,22 +250,20 @@ class TestGitPlatformSkill:
 
     @pytest.mark.unit
     def test_skill_has_command_mapping_module(self):
-        """
-        Scenario: Command mapping module exists
+        """Scenario: Command mapping module exists
         Given the git-platform skill
         When checking modules
-        Then command-mapping.md exists
+        Then command-mapping.md exists.
         """
         module = SKILL_FILE.parent / "modules" / "command-mapping.md"
         assert module.exists()
 
     @pytest.mark.unit
     def test_skill_covers_all_platforms(self):
-        """
-        Scenario: Skill documents all supported platforms
+        """Scenario: Skill documents all supported platforms
         Given the git-platform skill
         When reading the content
-        Then it covers GitHub, GitLab, and Bitbucket
+        Then it covers GitHub, GitLab, and Bitbucket.
         """
         content = SKILL_FILE.read_text()
         assert "GitHub" in content
@@ -290,11 +272,10 @@ class TestGitPlatformSkill:
 
     @pytest.mark.unit
     def test_skill_maps_gh_and_glab_commands(self):
-        """
-        Scenario: Skill provides command equivalents
+        """Scenario: Skill provides command equivalents
         Given the git-platform skill
         When reading the command reference
-        Then both gh and glab equivalents are documented
+        Then both gh and glab equivalents are documented.
         """
         content = SKILL_FILE.read_text()
         assert "`gh issue view" in content
@@ -304,22 +285,20 @@ class TestGitPlatformSkill:
 
     @pytest.mark.unit
     def test_skill_declares_authentication_dependency(self):
-        """
-        Scenario: Skill depends on authentication-patterns
+        """Scenario: Skill depends on authentication-patterns
         Given the git-platform skill
         When checking dependencies
-        Then authentication-patterns is listed
+        Then authentication-patterns is listed.
         """
         content = SKILL_FILE.read_text()
         assert "authentication-patterns" in content
 
     @pytest.mark.unit
     def test_command_mapping_module_has_graphql_examples(self):
-        """
-        Scenario: Command mapping covers GraphQL for both platforms
+        """Scenario: Command mapping covers GraphQL for both platforms
         Given the command-mapping module
         When reading advanced operations
-        Then GraphQL examples exist for both GitHub and GitLab
+        Then GraphQL examples exist for both GitHub and GitLab.
         """
         module = SKILL_FILE.parent / "modules" / "command-mapping.md"
         content = module.read_text()
@@ -328,8 +307,7 @@ class TestGitPlatformSkill:
 
     @pytest.mark.unit
     def test_command_mapping_has_discussion_operations(self):
-        """
-        Scenario: Command mapping documents GitHub Discussion CRUD operations
+        """Scenario: Command mapping documents GitHub Discussion CRUD operations
         Given the command-mapping module
         When reading the Discussion Operations section
         Then it covers create, comment, search, mark-as-answer, and get operations
@@ -346,8 +324,7 @@ class TestGitPlatformSkill:
 
     @pytest.mark.unit
     def test_command_mapping_has_category_resolution(self):
-        """
-        Scenario: Command mapping documents category resolution for Discussions
+        """Scenario: Command mapping documents category resolution for Discussions
         Given the command-mapping module
         When reading the Discussion prerequisites
         Then it shows how to resolve category nodeIds from slugs.

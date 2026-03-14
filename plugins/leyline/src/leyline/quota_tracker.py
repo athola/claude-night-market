@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
+from leyline.tokens import DEFAULT_EXTENSION_TOKEN_RATIO, EXTENSION_TOKEN_RATIOS
+
 # Quota threshold constants
 CRITICAL_THRESHOLD = 95
 WARNING_THRESHOLD = 80
@@ -53,24 +55,6 @@ class QuotaStatus:
     level: str  # "healthy", "warning", "critical"
     warnings: list[str] = field(default_factory=list)
     usage_percent: dict[str, float] = field(default_factory=dict)
-
-
-# Token estimation ratios by file type
-TOKEN_RATIOS = {
-    ".py": 3.2,
-    ".js": 3.2,
-    ".ts": 3.2,
-    ".go": 3.2,
-    ".rs": 3.2,
-    ".json": 3.6,
-    ".yaml": 3.6,
-    ".yml": 3.6,
-    ".toml": 3.6,
-    ".md": 4.2,
-    ".txt": 4.2,
-    ".rst": 4.2,
-}
-DEFAULT_TOKEN_RATIO = 4.0
 
 
 class QuotaTracker:
@@ -258,7 +242,9 @@ class QuotaTracker:
             return 0
 
         size = path.stat().st_size
-        ratio = TOKEN_RATIOS.get(path.suffix.lower(), DEFAULT_TOKEN_RATIO)
+        ratio = EXTENSION_TOKEN_RATIOS.get(
+            path.suffix.lower(), DEFAULT_EXTENSION_TOKEN_RATIO
+        )
         return int(size / ratio)
 
     def estimate_task_tokens(

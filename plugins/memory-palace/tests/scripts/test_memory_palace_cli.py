@@ -23,14 +23,12 @@ Tests cover:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
-
-from memory_palace.palace_manager import MemoryPalaceManager
 
 # Import the CLI module under test
 from scripts.memory_palace_cli import (
@@ -40,6 +38,8 @@ from scripts.memory_palace_cli import (
     build_parser,
     main,
 )
+
+from memory_palace.palace_manager import MemoryPalaceManager
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -71,8 +71,6 @@ def _garden_data_with_plots(
     fresh: int = 1,
 ) -> dict[str, Any]:
     """Build garden JSON data with configurable plot ages."""
-    from datetime import timedelta
-
     plots: list[dict[str, Any]] = []
     for i in range(fresh):
         plots.append(
@@ -636,7 +634,7 @@ class TestGardenTend:
         assert backup.exists()
 
         updated = json.loads(gfile.read_text())
-        plots = updated["garden"]["plots"]
+        updated["garden"]["plots"]
         compost = updated["garden"].get("compost", [])
         # Archived plot moved to compost
         assert len(compost) >= 1
@@ -1574,8 +1572,6 @@ class TestComputeTendingActions:
         self, age_days: int, expected_bucket: str
     ) -> None:
         """Given a plot of certain age, it falls into the right bucket."""
-        from datetime import timedelta
-
         cli = MemoryPalaceCLI()
         now = datetime(2025, 12, 1, 0, 0, 0, tzinfo=timezone.utc)
         tended_at = now - timedelta(days=age_days)

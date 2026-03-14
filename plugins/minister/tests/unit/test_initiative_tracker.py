@@ -9,7 +9,7 @@ Tests cover:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from minister.project_tracker import InitiativeTracker, Task
 
@@ -26,7 +26,7 @@ def test_create_initiative_tracker_with_empty_tasks_list() -> None:
     - Empty list is properly stored
     - Timestamp is set correctly
     """
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     tracker = InitiativeTracker(tasks=[], last_updated=timestamp)
 
     assert tracker.tasks == []
@@ -124,7 +124,7 @@ def test_last_updated_can_be_current_time() -> None:
     - Current timestamp can be used
     - Timestamp is set correctly at creation time
     """
-    before = datetime.now(timezone.utc).isoformat()
+    before = datetime.now(UTC).isoformat()
     tracker = InitiativeTracker(tasks=[], last_updated=before)
 
     assert tracker.last_updated == before

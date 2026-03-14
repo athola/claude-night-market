@@ -232,7 +232,7 @@ This is an unattended batch operation. Continue without user prompts.
 ```
 
 **Task Tool Details:**
-- Spawns subagent with fresh 200k context window
+- Spawns subagent with fresh 1M context window
 - Up to 10 parallel agents supported
 - ~20k token overhead per subagent
 
