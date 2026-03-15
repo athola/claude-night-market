@@ -23,14 +23,12 @@ from pathlib import Path
 from typing import Any
 
 from post_learnings_to_discussions import (  # type: ignore[import-not-found]
-    LEARNINGS_CATEGORY_ID,
     PostedRecord,
     create_discussion,
+    detect_target_repo,
     get_repo_node_id,
+    resolve_category_id,
 )
-
-# Hardcoded target repository
-TARGET_REPO = "athola/claude-night-market"
 
 # Thresholds for severity tiers
 HIGH_PRIORITY_THRESHOLD = 5.0
@@ -294,13 +292,17 @@ def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0
 # ---------------------------------------------------------------------------
 
 
-def has_existing_issue(item: dict[str, Any]) -> bool:
+def has_existing_issue(
+    item: dict[str, Any],
+    target_repo: str,
+) -> bool:
     """Check if a similar issue or discussion already exists.
 
     Searches open issues for matching skill name to prevent duplicates.
 
     Args:
         item: The improvement item to check.
+        target_repo: Repository in "owner/name" format.
 
     Returns:
         True if a duplicate exists.
@@ -314,7 +316,7 @@ def has_existing_issue(item: dict[str, Any]) -> bool:
         "issue",
         "list",
         "--repo",
-        TARGET_REPO,
+        target_repo,
         "--search",
         search_query,
         "--json",
@@ -338,11 +340,15 @@ def has_existing_issue(item: dict[str, Any]) -> bool:
     return False
 
 
-def promote_to_issue(item: dict[str, Any]) -> str | None:
+def promote_to_issue(
+    item: dict[str, Any],
+    target_repo: str,
+) -> str | None:
     """Create a GitHub Issue for a high-priority item.
 
     Args:
         item: The improvement item to promote.
+        target_repo: Repository in "owner/name" format.
 
     Returns:
         Issue URL if created, None on failure.
@@ -380,7 +386,7 @@ def promote_to_issue(item: dict[str, Any]) -> str | None:
             "issue",
             "create",
             "--repo",
-            TARGET_REPO,
+            target_repo,
             "--title",
             title,
             "--body",
@@ -415,19 +421,33 @@ def promote_to_issue(item: dict[str, Any]) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def _post_single_discussion(item: dict[str, Any]) -> str | None:
+def _post_single_discussion(
+    item: dict[str, Any],
+    owner: str,
+    name: str,
+) -> str | None:
     """Post a single item to Discussions for deliberation.
 
     Args:
         item: The improvement item to post.
+        owner: Repository owner.
+        name: Repository name.
 
     Returns:
         Discussion URL if posted, None on failure.
 
     """
     try:
+        category_id = resolve_category_id(owner, name, "learnings")
+        if category_id is None:
+            print(
+                f'No "learnings" category on {owner}/{name}. Skipping.',
+                file=sys.stderr,
+            )
+            return None
+
         record = PostedRecord.load()
-        repo_id = get_repo_node_id(record)
+        repo_id = get_repo_node_id(record, owner, name)
 
         title = f"[Improvement] {item['skill']}: {item.get('type', 'review')}"
         body = (
@@ -440,24 +460,29 @@ def _post_single_discussion(item: dict[str, Any]) -> str | None:
             f"*Auto-posted for deliberation (priority 2.0-5.0)*"
         )
 
-        url: str | None = create_discussion(repo_id, LEARNINGS_CATEGORY_ID, title, body)
-        return url
+        return create_discussion(repo_id, category_id, title, body)
     except Exception as e:
         print(f"Warning: Discussion posting failed: {e}", file=sys.stderr)
         return None
 
 
-def post_to_discussion(item: dict[str, Any]) -> str | None:
+def post_to_discussion(
+    item: dict[str, Any],
+    owner: str,
+    name: str,
+) -> str | None:
     """Post a medium-severity item to Discussions.
 
     Args:
         item: The improvement item.
+        owner: Repository owner.
+        name: Repository name.
 
     Returns:
         Discussion URL if posted, None on failure.
 
     """
-    return _post_single_discussion(item)
+    return _post_single_discussion(item, owner, name)
 
 
 # ---------------------------------------------------------------------------
@@ -481,6 +506,17 @@ def run_auto_promote() -> list[str]:
     if not items:
         return []
 
+    # Detect target repo for issue/discussion creation
+    repo = detect_target_repo()
+    if repo is None:
+        print(
+            "Could not detect target repository. Skipping promotion.",
+            file=sys.stderr,
+        )
+        return []
+    owner, name = repo
+    target_repo = f"{owner}/{name}"
+
     record = PromotedIssueRecord.load()
     created_urls: list[str] = []
 
@@ -493,16 +529,16 @@ def run_auto_promote() -> list[str]:
         score = calculate_priority(item)
 
         # Check for duplicates before promoting
-        if has_existing_issue(item):
+        if has_existing_issue(item, target_repo):
             record.add(key, "duplicate-skipped")
             record.save()
             continue
 
         url: str | None = None
         if score >= HIGH_PRIORITY_THRESHOLD:
-            url = promote_to_issue(item)
+            url = promote_to_issue(item, target_repo)
         elif score >= MEDIUM_PRIORITY_THRESHOLD:
-            url = post_to_discussion(item)
+            url = post_to_discussion(item, owner, name)
 
         if url:
             record.add(key, url)

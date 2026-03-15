@@ -281,7 +281,7 @@ class TestDiscussionConfig:
         config = DiscussionConfig()
 
         assert config.auto_post_learnings is True
-        assert config.target_repo == "athola/claude-night-market"
+        assert config.target_repo == ""  # empty = auto-detect
         assert config.promotion_threshold == 3
 
     @pytest.mark.unit
@@ -397,7 +397,7 @@ class TestRunGhGraphql:
         Then the cache is used without calling gh
         """
         record = PostedRecord(repo_node_id="R_cached123")
-        result = get_repo_node_id(record)
+        result = get_repo_node_id(record, "athola", "claude-night-market")
         assert result == "R_cached123"
 
     @pytest.mark.unit
@@ -412,7 +412,7 @@ class TestRunGhGraphql:
         record = PostedRecord()
         record.save = MagicMock()  # Don't write to disk
 
-        result = get_repo_node_id(record)
+        result = get_repo_node_id(record, "athola", "claude-night-market")
 
         assert result == "R_new456"
         assert record.repo_node_id == "R_new456"
@@ -438,7 +438,11 @@ class TestRunGhGraphql:
                 }
             }
         }
-        url = check_existing_discussion("[Learning] 2026-02-21")
+        url = check_existing_discussion(
+            "[Learning] 2026-02-21",
+            "athola",
+            "claude-night-market",
+        )
         assert url == "https://github.com/athola/claude-night-market/discussions/42"
 
     @pytest.mark.unit
@@ -450,7 +454,11 @@ class TestRunGhGraphql:
         Then None is returned
         """
         mock_graphql.return_value = {"data": {"search": {"nodes": []}}}
-        url = check_existing_discussion("[Learning] 2026-02-21")
+        url = check_existing_discussion(
+            "[Learning] 2026-02-21",
+            "athola",
+            "claude-night-market",
+        )
         assert url is None
 
     @pytest.mark.unit
@@ -497,7 +505,17 @@ class TestPostLearnings:
         assert result is None
 
     @pytest.mark.unit
-    def test_skips_when_no_learnings_file(self, tmp_path: Path) -> None:
+    @patch(
+        "post_learnings_to_discussions.detect_target_repo",
+        return_value=("athola", "cnm"),
+    )
+    @patch("post_learnings_to_discussions.resolve_category_id", return_value="DIC_test")
+    def test_skips_when_no_learnings_file(
+        self,
+        _mock_cat: MagicMock,
+        _mock_repo: MagicMock,
+        tmp_path: Path,
+    ) -> None:
         """Scenario: No LEARNINGS.md file
         Given LEARNINGS.md does not exist
         When I run post_learnings
@@ -507,7 +525,17 @@ class TestPostLearnings:
         assert result is None
 
     @pytest.mark.unit
-    def test_skips_when_empty_learnings(self, tmp_path: Path) -> None:
+    @patch(
+        "post_learnings_to_discussions.detect_target_repo",
+        return_value=("athola", "cnm"),
+    )
+    @patch("post_learnings_to_discussions.resolve_category_id", return_value="DIC_test")
+    def test_skips_when_empty_learnings(
+        self,
+        _mock_cat: MagicMock,
+        _mock_repo: MagicMock,
+        tmp_path: Path,
+    ) -> None:
         """Scenario: Empty LEARNINGS.md
         Given LEARNINGS.md exists but is empty
         When I run post_learnings
@@ -519,7 +547,51 @@ class TestPostLearnings:
         assert result is None
 
     @pytest.mark.unit
-    def test_skips_when_already_posted_today(self, tmp_path: Path) -> None:
+    def test_skips_when_repo_not_detected(self, tmp_path: Path) -> None:
+        """Scenario: No target repo detected
+        Given gh repo view fails and no config
+        When I run post_learnings
+        Then None is returned
+        """
+        with patch(
+            "post_learnings_to_discussions.detect_target_repo",
+            return_value=None,
+        ):
+            result = post_learnings(learnings_path=tmp_path / "LEARNINGS.md")
+        assert result is None
+
+    @pytest.mark.unit
+    def test_skips_when_no_learnings_category(self, tmp_path: Path) -> None:
+        """Scenario: No learnings category on repo
+        Given repo has no "learnings" discussion category
+        When I run post_learnings
+        Then None is returned
+        """
+        with (
+            patch(
+                "post_learnings_to_discussions.detect_target_repo",
+                return_value=("user", "repo"),
+            ),
+            patch(
+                "post_learnings_to_discussions.resolve_category_id",
+                return_value=None,
+            ),
+        ):
+            result = post_learnings(learnings_path=tmp_path / "LEARNINGS.md")
+        assert result is None
+
+    @pytest.mark.unit
+    @patch(
+        "post_learnings_to_discussions.detect_target_repo",
+        return_value=("athola", "cnm"),
+    )
+    @patch("post_learnings_to_discussions.resolve_category_id", return_value="DIC_test")
+    def test_skips_when_already_posted_today(
+        self,
+        _mock_cat: MagicMock,
+        _mock_repo: MagicMock,
+        tmp_path: Path,
+    ) -> None:
         """Scenario: Already posted today
         Given today's learning was already posted
         When I run post_learnings
@@ -549,8 +621,15 @@ class TestPostLearnings:
     @patch("post_learnings_to_discussions.create_discussion")
     @patch("post_learnings_to_discussions.check_existing_discussion")
     @patch("post_learnings_to_discussions.get_repo_node_id")
+    @patch("post_learnings_to_discussions.resolve_category_id", return_value="DIC_test")
+    @patch(
+        "post_learnings_to_discussions.detect_target_repo",
+        return_value=("athola", "cnm"),
+    )
     def test_posts_new_discussion(
         self,
+        _mock_detect: MagicMock,
+        _mock_resolve: MagicMock,
         mock_repo_id: MagicMock,
         mock_check: MagicMock,
         mock_create: MagicMock,
