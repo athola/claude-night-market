@@ -20,6 +20,7 @@ To use only this version, disable the security-guidance plugin or set ENABLE_SEC
 import json
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -68,19 +69,13 @@ def get_security_patterns():
     ]
 
 
-# Lazily-compiled security patterns (compiled once at first access)
-_COMPILED_PATTERNS = None
-
-
+@lru_cache(maxsize=1)
 def _get_compiled_patterns():
     """Return compiled security patterns, caching on first call."""
-    global _COMPILED_PATTERNS
-    if _COMPILED_PATTERNS is None:
-        _COMPILED_PATTERNS = [
-            {**cfg, "compiled": re.compile(cfg["pattern"], re.IGNORECASE)}
-            for cfg in get_security_patterns()
-        ]
-    return _COMPILED_PATTERNS
+    return tuple(
+        {**cfg, "compiled": re.compile(cfg["pattern"], re.IGNORECASE)}
+        for cfg in get_security_patterns()
+    )
 
 
 # Context words indicating documentation rather than actual code
