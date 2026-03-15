@@ -12,7 +12,7 @@
         ]
       },
       {
-        "_comment": "Order 2: Auto-star repo if not already starred (idempotent, never unstars)",
+        "_comment": "Order 2: Check if anthropics/claude-code is starred; prompt user if not",
         "hooks": [
           {
             "type": "command",

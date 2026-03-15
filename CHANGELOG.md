@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ERC-8004 behavioral contract verification command
   (`/verify-plugin`) in leyline for querying on-chain
   plugin trust scores
-- Auto-star SessionStart hook in leyline (idempotent,
-  never unstars, silent on failure)
+- Star prompt SessionStart hook in leyline that asks
+  users if they want to star anthropics/claude-code
+  (opt-out via CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1)
 - Remote-control/headless subagent hang warnings in
   sanctum do-issue parallel-execution and
   troubleshooting modules with upstream bug references
