@@ -166,6 +166,51 @@ def _resolve_project_dir(cwd: Path, claude_projects: Path) -> Path | None:
     return None
 
 
+def _find_current_session(jsonl_files: list[Path]) -> Path | None:
+    """Find the active session file from a list of JSONL candidates.
+
+    Returns:
+        The session file Path, or None if no active session found.
+
+    """
+    session_id = os.environ.get("CLAUDE_SESSION_ID", "")
+    if session_id:
+        for f in jsonl_files:
+            if f.stem == session_id:
+                return f
+
+    # Fallback: most recently modified file, but only if modified
+    # in the last 60 seconds (likely the active session).
+    candidates = sorted(jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True)
+    newest = candidates[0]
+    age_seconds = time.time() - newest.stat().st_mtime
+    if age_seconds > STALE_SESSION_SECONDS:
+        return None
+    return newest
+
+
+def _resolve_session_file() -> Path | None:
+    """Find the active JSONL session file for the current working directory.
+
+    Returns:
+        Path to the session file, or None if not found.
+
+    """
+    claude_projects = Path.home() / ".claude" / "projects"
+    if not claude_projects.exists():
+        return None
+
+    project_dir = _resolve_project_dir(Path.cwd(), claude_projects)
+    if project_dir is None:
+        return None
+
+    jsonl_files = list(project_dir.glob("*.jsonl"))
+    if not jsonl_files:
+        return None
+
+    return _find_current_session(jsonl_files)
+
+
 def estimate_context_from_session() -> float | None:
     """Estimate context usage from current session's JSONL conversation data.
 
@@ -184,56 +229,15 @@ def estimate_context_from_session() -> float | None:
         Estimated context usage as float 0-1, or None if cannot estimate.
 
     """
-    # Check if estimation is disabled
     if os.environ.get("CONSERVE_CONTEXT_ESTIMATION", "1") == "0":
         return None
 
     try:
-        # Find Claude's project directory for current working directory
-        cwd = Path.cwd()
-        home = Path.home()
-        claude_projects = home / ".claude" / "projects"
-
-        if not claude_projects.exists():
-            return None
-
-        project_dir = _resolve_project_dir(cwd, claude_projects)
-        if project_dir is None:
-            return None
-
-        jsonl_files = list(project_dir.glob("*.jsonl"))
-        if not jsonl_files:
-            return None
-
-        # Use CLAUDE_SESSION_ID to find the correct session file if available
-        session_id = os.environ.get("CLAUDE_SESSION_ID", "")
-        current_session = None
-        if session_id:
-            # Match session ID to filename (files are named {uuid}.jsonl)
-            for f in jsonl_files:
-                if f.stem == session_id:
-                    current_session = f
-                    break
-
+        current_session = _resolve_session_file()
         if current_session is None:
-            # Fallback: use most recently modified file, but only if it was
-            # modified in the last 60 seconds (likely the active session).
-            # Without this guard, old multi-MB session files trigger false
-            # EMERGENCY alerts on every tool call.
-            candidates = sorted(
-                jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True
-            )
-            newest = candidates[0]
-            age_seconds = time.time() - newest.stat().st_mtime
-            if age_seconds > STALE_SESSION_SECONDS:
-                return None
-            current_session = newest
+            return None
 
-        # Estimate from recent conversation turns only.
-        # JSONL files contain the FULL history (including compressed
-        # messages), so raw file size vastly over-reports actual context.
         usage = _estimate_from_recent_turns(current_session)
-
         logger.debug(
             "Estimated context from %s: %.1f%%",
             current_session.name,
@@ -244,6 +248,30 @@ def estimate_context_from_session() -> float | None:
     except (OSError, PermissionError) as e:
         logger.debug("Could not estimate context from session files: %s", e)
         return None
+
+
+def _count_content(message_content: object) -> tuple[int, int]:
+    """Count chars and tool results from a message content field.
+
+    Returns:
+        (content_chars, tool_result_count)
+
+    """
+    chars = 0
+    tool_results = 0
+    if isinstance(message_content, list):
+        for block in message_content:
+            if isinstance(block, dict):
+                if block.get("type") == "tool_result":
+                    tool_results += 1
+                text = block.get("text", "")
+                if text:
+                    chars += len(text)
+            elif isinstance(block, str):
+                chars += len(block)
+    elif isinstance(message_content, str):
+        chars += len(message_content)
+    return chars, tool_results
 
 
 def _estimate_from_recent_turns(session_file: Path) -> float | None:
@@ -301,19 +329,9 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
             turn_count += 1
 
         message_content = entry.get("content", [])
-        if isinstance(message_content, list):
-            for block in message_content:
-                if isinstance(block, dict):
-                    if block.get("type") == "tool_result":
-                        tool_result_count += 1
-                    # Count actual text content, not JSON overhead
-                    text = block.get("text", "")
-                    if text:
-                        content_chars += len(text)
-                elif isinstance(block, str):
-                    content_chars += len(block)
-        elif isinstance(message_content, str):
-            content_chars += len(message_content)
+        chars, tool_results = _count_content(message_content)
+        content_chars += chars
+        tool_result_count += tool_results
 
     # Estimate tokens from turn structure
     turn_tokens = (

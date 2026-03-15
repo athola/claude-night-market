@@ -1,12 +1,11 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-night-market",
+  "version": "1.6.3",
+  "description": "17 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, and multi-LLM delegation",
   "owner": {
     "name": "athola",
     "email": "athola@users.noreply.github.com"
-  },
-  "metadata": {
-    "description": "Personal Claude Code plugin collection: architecture patterns, intelligent delegation, resource optimization, code review, and spatial memory systems",
-    "version": "1.6.3"
   },
   "plugins": [
     {

@@ -1,13 +1,14 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.2-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.3-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
+[![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 
 **Claude Code plugins for software engineering workflows.**
 
-17 plugins providing 130 skills, 103 commands, and 43 agents
+17 plugins providing 130 skills, 104 commands, and 43 agents
 for git operations, code review, spec-driven development,
 and issue management. Each plugin installs independently.
 
@@ -120,7 +121,7 @@ flowchart TB
 | **egregore** | Utility | Autonomous agent orchestrator with session budgets, crash recovery, and quality gates | 4 | 5 |
 | **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, NASA Power of 10 | 11 | 12 |
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room | 12 | 10 |
-| **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 9 |
+| **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
 | **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, PR review capture | 6 | 5 |
@@ -252,6 +253,20 @@ See [STEWARDSHIP.md](STEWARDSHIP.md) for the full manifesto.
 Each plugin maintains its own tests and documentation. Run `make test`
 at the repo root to execute all plugin test suites. See the
 [Plugin Development Guide][dev-guide] for contribution guidelines.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=athola/claude-night-market&type=Date)](https://star-history.com/#athola/claude-night-market&Date)
+
+## Powered by Night Market
+
+Using night-market plugins in your project? Add the badge:
+
+```markdown
+[![Powered by Night Market](https://img.shields.io/badge/powered_by-Night_Market-blueviolet)](https://github.com/athola/claude-night-market)
+```
+
+[![Powered by Night Market](https://img.shields.io/badge/powered_by-Night_Market-blueviolet)](https://github.com/athola/claude-night-market)
 
 ## License
 

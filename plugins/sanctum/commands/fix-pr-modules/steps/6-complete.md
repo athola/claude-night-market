@@ -29,6 +29,58 @@ Step 6 is organized into sub-modules. Execute them in order:
 | **6.4** | [Issue Linkage](6-complete/issue-linkage.md) | Link/close related issues |
 | **6.5** | [Summary](6-complete/summary.md) | Post summary comment to PR |
 | **6.6** | [Verification](6-complete/verification.md) | Final verification and workflow gate |
+| **6.7** | Tooling Reflection | Post night-market tooling observations to Discussions |
+
+---
+
+## Sub-Step 6.7: Tooling Reflection (Night-Market Feedback Loop)
+
+After completing the workflow, reflect on the *tooling itself*
+(skills, agents, commands, hooks) rather than the repo code.
+
+**Ask yourself:**
+
+- Did any skill behave unexpectedly or have unclear guidance?
+- Was an agent slow, redundant, or missing context?
+- Did a command skip steps it shouldn't have, or require
+  unnecessary manual intervention?
+- Did a hook fire incorrectly or miss a case?
+
+**If yes**, post to the **night-market** GitHub Discussions
+(Learnings category). Always target https://github.com/athola/claude-night-market/discussions,
+not the current repo:
+
+```bash
+# Always target the night-market repo for tooling feedback
+NM_OWNER="athola"
+NM_REPO="claude-night-market"
+
+NM_REPO_ID=$(gh api graphql \
+  -f query="query { repository(owner: \"$NM_OWNER\", name: \"$NM_REPO\") { id } }" \
+  --jq '.data.repository.id')
+
+NM_CAT_ID=$(gh api graphql \
+  -f query="query { repository(owner: \"$NM_OWNER\", name: \"$NM_REPO\") { discussionCategories(first: 20) { nodes { id slug } } } }" \
+  --jq '.data.repository.discussionCategories.nodes[] | select(.slug == "learnings") | .id')
+
+gh api graphql -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+  createDiscussion(input: { repositoryId: $repoId, categoryId: $categoryId, title: $title, body: $body }) {
+    discussion { url }
+  }
+}' \
+  -f repoId="$NM_REPO_ID" \
+  -f categoryId="$NM_CAT_ID" \
+  -f title="[Workflow] <observation title>" \
+  -f body="<observation body>"
+```
+
+**If no observations**, skip this step silently.
+
+> **Key distinction**: Repo-specific learnings (code, bugs,
+> architecture) stay in the current repo as issues or docs.
+> Tooling learnings (skill/agent/command/hook behavior) always
+> go to https://github.com/athola/claude-night-market/discussions
+> so the night-market framework can improve.
 
 ---
 

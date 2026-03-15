@@ -222,16 +222,36 @@ Evidence: stability_gap reduced from 0.35 to 0.12
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 
-### 7.2: Capture Lesson in Memory Palace (Optional)
+### 7.2: Post Tooling Learnings to Discussions (Preferred)
 
-If the improvement addresses a high-value pattern:
+Observations about night-market tooling (skill behavior, agent
+coordination, hook timing, command UX) belong in
+https://github.com/athola/claude-night-market/discussions,
+not local memory. Always target the night-market repo
+regardless of which repo you are currently working in.
+
+```bash
+# Post to night-market Learnings category
+# See fix-pr Step 6.7 for the full GraphQL pattern
+# targeting athola/claude-night-market explicitly
+```
+
+> Repo-specific learnings stay in the current repo. Tooling
+> learnings always go to
+> https://github.com/athola/claude-night-market/discussions
+> so the framework can improve.
+
+### 7.3: Capture Lesson in Memory Palace (Optional, Local Only)
+
+If the improvement addresses a repo-specific pattern (not
+tooling), store it locally:
 
 ```bash
 # Store in review-chamber lessons
 /review-room capture --room lessons --title "Workflow: <pattern name>"
 ```
 
-### 7.3: Update Improvement Metrics
+### 7.4: Update Improvement Metrics
 
 Track the improvement's impact:
 

@@ -13,8 +13,9 @@ Improvements:
 - Code blocks in docs showing anti-patterns are allowed.
 - Actual code files still get strict checking.
 
-Using both this hook and `claude-code-plugins/security-guidance` may produce duplicate warnings.
-To use only this version, disable the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
+Using both this hook and `claude-code-plugins/security-guidance`
+may produce duplicate warnings. To use only this version, disable
+the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
 """
 
 import json
