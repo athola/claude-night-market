@@ -77,13 +77,20 @@ class TrustAssessment:
 
 
 def _compute_level_scores(
-    records: list[dict[str, Any]],
+    records: list[Any],
 ) -> dict[str, LevelScore]:
-    """Compute pass rates per assertion level from raw records.
+    """Compute pass rates per assertion level from assertion records.
+
+    Accepts either AssertionRecord objects (from the on-chain SDK)
+    or plain dicts with ``level`` and ``passed`` keys (for offline
+    evaluation).
+
+    When given AssertionRecord objects, iterates the nested
+    ``assertions`` list and checks each AssertionResult's
+    ``.status`` field for ``"pass"``.
 
     Args:
-        records: List of assertion record dicts, each containing
-            at least ``level`` (str) and ``passed`` (bool) keys.
+        records: List of AssertionRecord objects or plain dicts.
 
     Returns:
         Mapping of level name to LevelScore.
@@ -92,10 +99,19 @@ def _compute_level_scores(
     passes: dict[str, int] = {}
 
     for rec in records:
-        lvl = rec.get("level", "L1").upper()
-        totals[lvl] = totals.get(lvl, 0) + 1
-        if rec.get("passed", False):
-            passes[lvl] = passes.get(lvl, 0) + 1
+        if isinstance(rec, dict):
+            # Offline path: flat dicts with level/passed keys
+            lvl = rec.get("level", "L1").upper()
+            totals[lvl] = totals.get(lvl, 0) + 1
+            if rec.get("passed", False):
+                passes[lvl] = passes.get(lvl, 0) + 1
+        else:
+            # On-chain path: AssertionRecord with nested assertions
+            for assertion in rec.assertions:
+                lvl = assertion.level.upper()
+                totals[lvl] = totals.get(lvl, 0) + 1
+                if assertion.status == "pass":
+                    passes[lvl] = passes.get(lvl, 0) + 1
 
     scores: dict[str, LevelScore] = {}
     for lvl in VALID_LEVELS:
@@ -177,7 +193,21 @@ def verify_plugin(
     try:
         config = erc8004.ERC8004Config.from_env()
         client = erc8004.ERC8004Client(config)
-        records = client.reputation.get_assertion_history(plugin_name)
+
+        # Resolve plugin name to on-chain token ID
+        identity = client.identity.get_plugin_identity(plugin_name)
+        if identity is None:
+            return asdict(
+                TrustAssessment(
+                    plugin_name=plugin_name,
+                    meets_threshold=False,
+                    recommendation="unknown",
+                    error=(f"No on-chain identity found for '{plugin_name}'."),
+                )
+            )
+
+        token_id = identity["token_id"]
+        records = client.reputation.get_assertion_history(token_id)
     except Exception as exc:
         return asdict(
             TrustAssessment(
@@ -209,7 +239,10 @@ def verify_plugin(
             meets_threshold=meets,
             recommendation=recommendation,
             level_scores=[level_scores[lv] for lv in VALID_LEVELS],
-            assertion_history=records[-20:],  # last 20 records
+            assertion_history=[
+                asdict(r) if hasattr(r, "__dataclass_fields__") else r
+                for r in records[-20:]
+            ],
         )
     )
 

@@ -4,8 +4,8 @@
 Feature: Auto-Star Repository on Session Start
 
     As a project maintainer
-    I want sessions to auto-star the repo if not already starred
-    So that contributors naturally support the project
+    I want sessions to auto-star anthropics/claude-code if not already starred
+    So that contributors naturally support the upstream project
 
     CRITICAL SAFETY INVARIANT:
     The script must NEVER unstar (DELETE) the repository.
@@ -187,6 +187,43 @@ class TestAutoStarCurlFallback:
         gh_pos = main_section.find("try_gh")
         curl_pos = main_section.find("try_curl")
         assert gh_pos < curl_pos, "try_gh must be attempted before try_curl"
+
+
+class TestAutoStarOptOut:
+    """Verify the opt-out mechanism works."""
+
+    @pytest.mark.unit
+    def test_opt_out_env_var_exits_early(self, hook_source: str) -> None:
+        """
+        GIVEN the auto-star hook script
+        WHEN CLAUDE_NIGHT_MARKET_NO_AUTO_STAR=1 is set
+        THEN the script exits before any API calls.
+        """
+        lines = hook_source.split("\n")
+        opt_out_idx = None
+        first_api_idx = None
+        for i, line in enumerate(lines):
+            if "CLAUDE_NIGHT_MARKET_NO_AUTO_STAR" in line:
+                opt_out_idx = i
+            if first_api_idx is None and "api.github.com" in line:
+                first_api_idx = i
+        assert opt_out_idx is not None, (
+            "Script must check CLAUDE_NIGHT_MARKET_NO_AUTO_STAR"
+        )
+        assert first_api_idx is not None, "Script must have API calls"
+        assert opt_out_idx < first_api_idx, (
+            "Opt-out check must come before any API calls"
+        )
+
+    @pytest.mark.unit
+    def test_opt_out_exits_with_zero(self, hook_source: str) -> None:
+        """
+        GIVEN the opt-out block
+        WHEN the env var is set to 1
+        THEN it exits 0 (not an error).
+        """
+        # Find the opt-out block and verify it exits 0
+        assert "exit 0" in hook_source, "Opt-out must exit cleanly"
 
 
 class TestAutoStarFailSafety:

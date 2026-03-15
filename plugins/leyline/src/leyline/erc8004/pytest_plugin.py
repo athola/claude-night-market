@@ -24,6 +24,7 @@ import logging
 import os
 import subprocess
 import time
+from dataclasses import dataclass
 from typing import Any
 
 from leyline.erc8004.reputation import AssertionResult
@@ -33,18 +34,36 @@ logger = logging.getLogger(__name__)
 # Module-level storage for captured assertions
 _captured_assertions: list[AssertionResult] = []
 
+# Module-level storage for item metadata, keyed by nodeid.
+# Populated during pytest_runtest_call so that pytest_runtest_logreport
+# (which receives a TestReport, not an Item) can look up markers/class.
+_item_metadata: dict[str, _ItemMeta] = {}
+
 # Level marker names
 LEVEL_MARKERS = {"l1": "L1", "l2": "L2", "l3": "L3"}
 
 
-def _detect_level(item: Any) -> str | None:
-    """Detect assertion level from test markers or class name.
+@dataclass(frozen=True)
+class _ItemMeta:
+    """Snapshot of pytest Item metadata needed for level detection."""
+
+    marker_names: frozenset[str]
+    class_name: str | None
+
+
+def _detect_level(
+    marker_names: frozenset[str],
+    class_name: str | None,
+) -> str | None:
+    """Detect assertion level from marker names or class name.
 
     Checks for explicit l1/l2/l3 markers first, then falls back
     to inferring from the test class name.
 
     Args:
-        item: The pytest test item.
+        marker_names: Set of marker names present on the test item.
+        class_name: Name of the test class, or None if the test is
+            not inside a class.
 
     Returns:
         Level string ("L1", "L2", "L3") or None if not a
@@ -53,14 +72,12 @@ def _detect_level(item: Any) -> str | None:
     """
     # Check explicit markers first
     for marker_name, level in LEVEL_MARKERS.items():
-        if item.get_closest_marker(marker_name):
+        if marker_name in marker_names:
             return level
 
     # Fall back to class name convention: classes ending with "Content"
-    if hasattr(item, "cls") and item.cls is not None:
-        cls_name = item.cls.__name__
-        if cls_name.endswith("Content"):
-            return "L1"
+    if class_name is not None and class_name.endswith("Content"):
+        return "L1"
 
     return None
 
@@ -94,6 +111,22 @@ def pytest_configure(config: Any) -> None:
     config.addinivalue_line("markers", "l3: L3 behavioral assertion")
 
 
+def pytest_runtest_call(item: Any) -> None:
+    """Store item metadata so pytest_runtest_logreport can access it.
+
+    TestReport objects lack ``get_closest_marker`` and ``cls``, so we
+    snapshot the relevant metadata here while we still have the Item.
+    """
+    marker_names = frozenset(m.name for m in item.iter_markers())
+    class_name: str | None = None
+    if hasattr(item, "cls") and item.cls is not None:
+        class_name = item.cls.__name__
+    _item_metadata[item.nodeid] = _ItemMeta(
+        marker_names=marker_names,
+        class_name=class_name,
+    )
+
+
 def pytest_runtest_logreport(report: Any) -> None:
     """Capture test results for content assertion classes.
 
@@ -104,7 +137,11 @@ def pytest_runtest_logreport(report: Any) -> None:
     if report.when != "call":
         return
 
-    level = _detect_level(report)
+    meta = _item_metadata.get(report.nodeid)
+    if meta is None:
+        return
+
+    level = _detect_level(meta.marker_names, meta.class_name)
     if level is None:
         return
 
@@ -165,3 +202,4 @@ def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
         logger.exception("Failed to publish assertions on-chain")
     finally:
         _captured_assertions.clear()
+        _item_metadata.clear()

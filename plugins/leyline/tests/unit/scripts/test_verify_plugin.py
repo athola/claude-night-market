@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -32,6 +33,31 @@ from verify_plugin import (  # noqa: I001
 
 
 # ---------------------------------------------------------------------------
+# Stub dataclasses matching erc8004 types (avoids importing web3)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _StubAssertionResult:
+    """Mirrors leyline.erc8004.reputation.AssertionResult."""
+
+    test_name: str
+    level: str
+    status: str
+    timestamp: int = 0
+
+
+@dataclass
+class _StubAssertionRecord:
+    """Mirrors leyline.erc8004.reputation.AssertionRecord."""
+
+    commit_hash: str = "abc123"
+    assertions: list[_StubAssertionResult] = field(default_factory=list)
+    published_at: int = 0
+    tx_hash: str = ""
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -44,7 +70,7 @@ def _make_records(
     l3_pass: int = 0,
     l3_fail: int = 0,
 ) -> list[dict[str, object]]:
-    """Build a list of assertion records with given pass/fail counts."""
+    """Build flat dicts for offline verification tests."""
     records: list[dict[str, object]] = []
     for _ in range(l1_pass):
         records.append({"level": "L1", "passed": True})
@@ -59,6 +85,43 @@ def _make_records(
     for _ in range(l3_fail):
         records.append({"level": "L3", "passed": False})
     return records
+
+
+def _make_assertion_records(
+    l1_pass: int = 0,
+    l1_fail: int = 0,
+    l2_pass: int = 0,
+    l2_fail: int = 0,
+    l3_pass: int = 0,
+    l3_fail: int = 0,
+) -> list[_StubAssertionRecord]:
+    """Build AssertionRecord objects for online verification tests."""
+    assertions: list[_StubAssertionResult] = []
+    for i in range(l1_pass):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l1_{i}", level="L1", status="pass")
+        )
+    for i in range(l1_fail):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l1_f{i}", level="L1", status="fail")
+        )
+    for i in range(l2_pass):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l2_{i}", level="L2", status="pass")
+        )
+    for i in range(l2_fail):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l2_f{i}", level="L2", status="fail")
+        )
+    for i in range(l3_pass):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l3_{i}", level="L3", status="pass")
+        )
+    for i in range(l3_fail):
+        assertions.append(
+            _StubAssertionResult(test_name=f"test_l3_f{i}", level="L3", status="fail")
+        )
+    return [_StubAssertionRecord(commit_hash="abc123", assertions=assertions)]
 
 
 # ---------------------------------------------------------------------------
@@ -374,8 +437,14 @@ class TestVerifyPluginOnline:
         mock_erc8004 = MagicMock(name="erc8004_module")
         mock_client = MagicMock(name="ERC8004Client")
         mock_erc8004.ERC8004Client.return_value = mock_client
-        mock_client.reputation.get_assertion_history.return_value = _make_records(
-            l1_pass=10
+        mock_client.identity.get_plugin_identity.return_value = {
+            "token_id": "42",
+            "name": "good-plugin",
+            "metadata_uri": "ipfs://test",
+            "owner": "0xabc",
+        }
+        mock_client.reputation.get_assertion_history.return_value = (
+            _make_assertion_records(l1_pass=10)
         )
 
         with patch(
@@ -386,6 +455,8 @@ class TestVerifyPluginOnline:
 
         assert result["recommendation"] == "trusted"
         assert result["meets_threshold"] is True
+        mock_client.identity.get_plugin_identity.assert_called_once_with("good-plugin")
+        mock_client.reputation.get_assertion_history.assert_called_once_with("42")
 
     @pytest.mark.unit
     def test_registry_query_exception(self) -> None:
@@ -409,15 +480,21 @@ class TestVerifyPluginOnline:
 
     @pytest.mark.unit
     def test_empty_registry_returns_untrusted(self) -> None:
-        """Scenario: Plugin has no on-chain history.
+        """Scenario: Plugin has on-chain identity but no history.
 
-        Given a mock client returning empty records
+        Given a mock client returning empty assertion records
         When calling verify_plugin
         Then result is untrusted with no-history error.
         """
         mock_erc8004 = MagicMock(name="erc8004_module")
         mock_client = MagicMock(name="ERC8004Client")
         mock_erc8004.ERC8004Client.return_value = mock_client
+        mock_client.identity.get_plugin_identity.return_value = {
+            "token_id": "99",
+            "name": "new-plugin",
+            "metadata_uri": "ipfs://new",
+            "owner": "0xdef",
+        }
         mock_client.reputation.get_assertion_history.return_value = []
 
         with patch(
@@ -428,6 +505,28 @@ class TestVerifyPluginOnline:
 
         assert result["recommendation"] == "untrusted"
         assert "No assertion history" in result["error"]
+
+    @pytest.mark.unit
+    def test_no_onchain_identity_returns_unknown(self) -> None:
+        """Scenario: Plugin has no on-chain identity.
+
+        Given identity registry returns None for the plugin name
+        When calling verify_plugin
+        Then result has recommendation "unknown" with identity error.
+        """
+        mock_erc8004 = MagicMock(name="erc8004_module")
+        mock_client = MagicMock(name="ERC8004Client")
+        mock_erc8004.ERC8004Client.return_value = mock_client
+        mock_client.identity.get_plugin_identity.return_value = None
+
+        with patch(
+            "verify_plugin._try_import_erc8004",
+            return_value=mock_erc8004,
+        ):
+            result = verify_plugin("unregistered-plugin")
+
+        assert result["recommendation"] == "unknown"
+        assert "No on-chain identity" in result["error"]
 
     @pytest.mark.unit
     def test_invalid_level_rejected(self) -> None:

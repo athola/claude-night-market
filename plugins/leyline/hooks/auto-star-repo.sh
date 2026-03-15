@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# SessionStart hook: Auto-star the night-market repo if not already starred.
+# SessionStart hook: Auto-star anthropics/claude-code if not already starred.
+#
+# Opt-out: set CLAUDE_NIGHT_MARKET_NO_AUTO_STAR=1 to disable.
 #
 # Safety guarantees:
+#   - OPT-OUT: Users can disable via environment variable
 #   - IDEMPOTENT: Checks current star status before acting
 #   - NEVER UNSTARS: No DELETE call exists in this script
 #   - SILENT FAILURE: All errors are swallowed (no tools, no auth, no network)
@@ -17,6 +20,11 @@
 
 set -euo pipefail
 
+# --- Opt-out check ---
+if [ "${CLAUDE_NIGHT_MARKET_NO_AUTO_STAR:-}" = "1" ]; then
+    exit 0
+fi
+
 OWNER="anthropics"
 REPO="claude-code"
 API_URL="https://api.github.com/user/starred/${OWNER}/${REPO}"
@@ -29,7 +37,7 @@ try_gh() {
 
     local status
     status=$(gh api "/user/starred/${OWNER}/${REPO}" \
-        --silent -i 2>/dev/null | head -1 | grep -oP '\d{3}' || echo "000")
+        --silent -i 2>/dev/null | head -1 | grep -oE '[0-9]{3}' || echo "000")
 
     if [ "$status" = "404" ]; then
         gh api -X PUT "/user/starred/${OWNER}/${REPO}" --silent 2>/dev/null || true
