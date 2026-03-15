@@ -178,8 +178,8 @@ def assess_test_quality(test_path):
         })
 
     # Test-to-code ratio
-    test_lines = bash("find . -name 'test_*.py' | xargs wc -l | tail -1")
-    code_lines = bash("find . -name '*.py' ! -name 'test_*' | xargs wc -l | tail -1")
+    test_lines = bash("find . -name 'test_*.py' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1")
+    code_lines = bash("find . -name '*.py' ! -name 'test_*' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1")
     ratio = int(test_lines) / max(int(code_lines), 1)
     if ratio < 0.3:  # Less than 30% test coverage by lines
         findings.append({

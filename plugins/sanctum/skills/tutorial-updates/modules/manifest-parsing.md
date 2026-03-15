@@ -198,7 +198,10 @@ done
 
 ```bash
 # Find manifest files in common locations
-find . -name "*.manifest.yaml" -type f 2>/dev/null
+find . -name "*.manifest.yaml" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null
 find assets -name "*.manifest.yaml" -type f 2>/dev/null
 find tutorials -name "*.manifest.yaml" -type f 2>/dev/null
 ```
@@ -209,10 +212,16 @@ Tape files without manifests (single-component tutorials):
 
 ```bash
 # Find tape files
-find . -name "*.tape" -type f 2>/dev/null
+find . -name "*.tape" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null
 
 # Filter out those with manifests
-for tape in $(find . -name "*.tape" -type f 2>/dev/null); do
+for tape in $(find . -name "*.tape" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null); do
   manifest="${tape%.tape}.manifest.yaml"
   if [[ ! -f "$manifest" ]]; then
     echo "Standalone: $tape"
@@ -228,7 +237,10 @@ echo "Tutorials:"
 echo "=========="
 
 # From manifests
-for manifest in $(find . -name "*.manifest.yaml" -type f 2>/dev/null); do
+for manifest in $(find . -name "*.manifest.yaml" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null); do
   name=$(yq eval '.name' "$manifest")
   title=$(yq eval '.title // .name' "$manifest")
   components=$(yq eval '.components | length' "$manifest")
@@ -236,7 +248,10 @@ for manifest in $(find . -name "*.manifest.yaml" -type f 2>/dev/null); do
 done
 
 # Standalone tapes
-for tape in $(find . -name "*.tape" -type f 2>/dev/null); do
+for tape in $(find . -name "*.tape" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null); do
   manifest="${tape%.tape}.manifest.yaml"
   if [[ ! -f "$manifest" ]]; then
     name=$(basename "$tape" .tape)

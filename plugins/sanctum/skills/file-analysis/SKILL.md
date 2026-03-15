@@ -55,10 +55,10 @@ Mark each item as complete as you finish the corresponding step.
 - Note any non-standard organization patterns that may affect downstream analysis.
 
 ## Step 3: Detect Patterns (`file-analysis:patterns-detected`)
-- Use `find . -name "*.ext" | wc -l` to count files by extension.
+- Use `find . -name "*.ext" -not -path "*/.venv/*" -not -path "*/__pycache__/*" -not -path "*/node_modules/*" -not -path "*/.git/*" | wc -l` to count files by extension.
 - Identify dominant languages and their file distributions.
 - Note configuration files, generated files, and vendored dependencies.
-- Run `wc -l $(find . -name "*.py" -o -name "*.rs" | head -20)` to sample file sizes.
+- Run `wc -l $(find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" -not -path "*/node_modules/*" -not -path "*/.git/*" -name "*.py" -o -name "*.rs" | head -20)` to sample file sizes.
 
 ## Step 4: Note Hotspots (`file-analysis:hotspots-noted`)
 - Identify large files (potential "god objects"): `find . -type f -exec wc -l {} + | sort -rn | head -10`.

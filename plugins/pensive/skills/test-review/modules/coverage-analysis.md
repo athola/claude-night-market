@@ -77,7 +77,10 @@ git diff --name-only main...HEAD | rg 'tests|spec|feature'
 
 # Find related tests
 git diff --name-only main...HEAD | while read file; do
-  basename "$file" .py | xargs -I {} find . -name "*test*{}*"
+  basename "$file" .py | xargs -I {} find . \
+    -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+    -not -path "*/node_modules/*" -not -path "*/.git/*" \
+    -name "*test*{}*"
 done
 ```
 

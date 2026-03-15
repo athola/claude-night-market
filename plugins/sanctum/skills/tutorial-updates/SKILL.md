@@ -147,13 +147,22 @@ Find tape files and manifests in the project:
 
 ```bash
 # Find manifest files
-find . -name "*.manifest.yaml" -type f 2>/dev/null | head -20
+find . -name "*.manifest.yaml" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null | head -20
 
 # Find tape files
-find . -name "*.tape" -type f 2>/dev/null | head -20
+find . -name "*.tape" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null | head -20
 
 # Find browser specs
-find . -name "*.spec.ts" -path "*/browser/*" -type f 2>/dev/null | head -20
+find . -name "*.spec.ts" -path "*/browser/*" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  2>/dev/null | head -20
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

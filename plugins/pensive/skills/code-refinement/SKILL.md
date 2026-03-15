@@ -114,13 +114,19 @@ Load all for comprehensive refinement. For focused work, load only relevant modu
 Detect project characteristics:
 ```bash
 # Language detection
-find . -name "*.py" -o -name "*.ts" -o -name "*.rs" -o -name "*.go" | head -20
+find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  \( -name "*.py" -o -name "*.ts" -o -name "*.rs" -o -name "*.go" \) \
+  | head -20
 
 # Framework detection
 ls package.json pyproject.toml Cargo.toml go.mod 2>/dev/null
 
 # Size assessment
-find . -name "*.py" -o -name "*.ts" -o -name "*.rs" | xargs wc -l 2>/dev/null | tail -1
+find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  \( -name "*.py" -o -name "*.ts" -o -name "*.rs" \) \
+  | xargs wc -l 2>/dev/null | tail -1
 ```
 
 ### Step 2: Dimensional Scan (`refine:scan-complete`)

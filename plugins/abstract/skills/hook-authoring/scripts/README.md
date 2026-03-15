@@ -145,13 +145,17 @@ jobs:
 
       - name: Validate JSON hooks
         run: |
-          find . -name "hooks.json" -not -path "*/node_modules/*" | while read hook; do
+          find . -name "hooks.json" \
+            -not -path "*/node_modules/*" -not -path "*/.venv/*" \
+            -not -path "*/__pycache__/*" -not -path "*/.git/*" | while read hook; do
             python scripts/hook_validator.py "$hook" --verbose
           done
 
       - name: Validate Python hooks
         run: |
-          find . -name "*_hooks.py" -not -path "*/tests/*" | while read hook; do
+          find . -name "*_hooks.py" -not -path "*/tests/*" \
+            -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+            -not -path "*/node_modules/*" -not -path "*/.git/*" | while read hook; do
             python scripts/hook_validator.py "$hook" --verbose
           done
 ```

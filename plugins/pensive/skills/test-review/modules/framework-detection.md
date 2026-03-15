@@ -56,7 +56,10 @@ find . -type d -name "tests" -o -name "__tests__" -o -name "test"
 
 3. **Identify test files**:
 ```bash
-find . -name "*test*" -o -name "*spec*" | grep -E '\.(rs|py|js|ts|go)$'
+find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  \( -name "*test*" -o -name "*spec*" \) \
+  | grep -E '\.(rs|py|js|ts|go)$'
 ```
 
 4. **Version constraints**:
