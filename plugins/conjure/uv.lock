@@ -502,8 +502,9 @@ requires-dist = [
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.15.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13" },
     { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.5.0" },
+    { name = "web3", marker = "extra == 'erc8004'", specifier = ">=7.0.0" },
 ]
-provides-extras = ["tokens", "dev"]
+provides-extras = ["tokens", "erc8004", "dev"]
 
 [[package]]
 name = "markdown-it-py"

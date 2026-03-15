@@ -89,6 +89,10 @@ ignore_missing_imports = true
 module = ["migration_analyzer"]
 disable_error_code = ["import-not-found"]
 
+[[tool.mypy.overrides]]
+module = ["verify_plugin"]
+ignore_missing_imports = true
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]
