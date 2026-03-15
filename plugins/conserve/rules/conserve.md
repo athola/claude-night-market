@@ -24,7 +24,7 @@ Keep context pressure under 50% for quality responses.
 | `git log` | `git log --oneline -10` |
 | `git diff` | `git diff --stat` |
 | `ls -la` | `ls -1 \| head -20` |
-| `find .` | `find . -name "*.py" \| head -10` |
+| `find .` | `find . -name "*.py" -not -path "*/.venv/*" -not -path "*/__pycache__/*" -not -path "*/node_modules/*" -not -path "*/.git/*" \| head -10` |
 | `pytest` | `pytest --quiet` |
 
 ## Discovery Strategy

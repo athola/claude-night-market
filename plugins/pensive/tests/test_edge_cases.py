@@ -18,7 +18,7 @@ import pytest
 
 from pensive.config.configuration import Configuration
 from pensive.exceptions import ConfigurationError
-from pensive.plugin.loader import PluginLoader
+from pensive.plugin import PluginLoader
 
 # Import pensive components for testing
 from pensive.skills.architecture_review import ArchitectureReviewSkill
@@ -27,7 +27,7 @@ from pensive.skills.bug_review import BugReviewSkill
 from pensive.skills.rust_review import RustReviewSkill
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
-from pensive.workflows.memory_manager import MemoryManager
+from pensive.workflows.memory_manager import get_optimal_strategy
 
 
 class TestEdgeCasesAndErrorScenarios:
@@ -251,15 +251,12 @@ class TestEdgeCasesAndErrorScenarios:
     @pytest.mark.unit
     def test_memory_pressure_scenarios(self) -> None:
         """Given low memory, analyzer uses fallback strategies."""
-        # Arrange
-        memory_manager = MemoryManager()
-
         with patch("psutil.virtual_memory") as mock_memory:
             # Simulate low memory
             mock_memory.return_value.available = 100 * 1024 * 1024  # 100MB only
 
             # Act
-            strategy = memory_manager.get_optimal_strategy(1000)  # Many files
+            strategy = get_optimal_strategy(1000)  # Many files
 
             # Assert
             assert not strategy["concurrent"]  # Should disable concurrent processing
@@ -287,7 +284,7 @@ pensive:
         try:
             # Act & Assert
             with pytest.raises(ConfigurationError) as exc_info:
-                Configuration.load_from_file(config_path)
+                Configuration.from_file(config_path)
 
             assert (
                 "yaml" in str(exc_info.value).lower()

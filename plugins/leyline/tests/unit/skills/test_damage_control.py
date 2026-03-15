@@ -45,8 +45,7 @@ def _parse_frontmatter(content: str) -> dict:
 
 
 class TestDamageControlSkillFile:
-    """
-    Feature: Skill file existence and readability
+    """Feature: Skill file existence and readability.
 
     As a plugin validator
     I want the damage-control SKILL.md to exist and be readable
@@ -58,7 +57,7 @@ class TestDamageControlSkillFile:
         """Scenario: Skill file present
         Given the leyline plugin
         When checking for damage-control skill
-        Then SKILL.md should exist on disk
+        Then SKILL.md should exist on disk.
         """
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
 
@@ -67,7 +66,7 @@ class TestDamageControlSkillFile:
         """Scenario: Skill file readable
         Given the damage-control SKILL.md exists
         When reading the file
-        Then it should return non-empty content
+        Then it should return non-empty content.
         """
         assert SKILL_FILE.exists(), f"SKILL.md not found at {SKILL_FILE}"
         content = SKILL_FILE.read_text()
@@ -75,8 +74,7 @@ class TestDamageControlSkillFile:
 
 
 class TestDamageControlFrontmatter:
-    """
-    Feature: YAML frontmatter validity
+    """Feature: YAML frontmatter validity.
 
     As a plugin validator
     I want the damage-control frontmatter to contain required fields
@@ -88,7 +86,7 @@ class TestDamageControlFrontmatter:
         """Scenario: Name field present
         Given the damage-control SKILL.md
         When parsing frontmatter
-        Then the name field should equal 'damage-control'
+        Then the name field should equal 'damage-control'.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -101,7 +99,7 @@ class TestDamageControlFrontmatter:
         """Scenario: Description field present and non-trivial
         Given the damage-control SKILL.md
         When parsing frontmatter
-        Then the description field should be present with meaningful content
+        Then the description field should be present with meaningful content.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -114,7 +112,7 @@ class TestDamageControlFrontmatter:
         Given the damage-control SKILL.md
         When parsing frontmatter
         Then either 'version' or 'complexity' should be present
-        to establish the skill maturity level
+        to establish the skill maturity level.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -129,7 +127,7 @@ class TestDamageControlFrontmatter:
         """Scenario: Module declarations match expected modules
         Given the damage-control SKILL.md frontmatter
         When checking the modules list
-        Then all four recovery modules should be declared
+        Then all four recovery modules should be declared.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -145,7 +143,7 @@ class TestDamageControlFrontmatter:
         """Scenario: Category reflects infrastructure purpose
         Given the damage-control SKILL.md
         When parsing the category field
-        Then it should indicate an infrastructure or resilience category
+        Then it should indicate an infrastructure or resilience category.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -161,7 +159,7 @@ class TestDamageControlFrontmatter:
         """Scenario: Tags field is present and non-empty
         Given the damage-control SKILL.md
         When parsing frontmatter
-        Then tags should be a non-empty list
+        Then tags should be a non-empty list.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
@@ -171,8 +169,7 @@ class TestDamageControlFrontmatter:
 
 
 class TestDamageControlSections:
-    """
-    Feature: Required documentation sections
+    """Feature: Required documentation sections.
 
     As a skill consumer
     I want damage-control to contain standard required sections
@@ -184,7 +181,7 @@ class TestDamageControlSections:
         """Scenario: Overview section present
         Given the damage-control SKILL.md
         When scanning for section headings
-        Then an Overview section should exist
+        Then an Overview section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## Overview" in content, "Missing required '## Overview' section"
@@ -194,7 +191,7 @@ class TestDamageControlSections:
         """Scenario: When to Use section present
         Given the damage-control SKILL.md
         When scanning for section headings
-        Then a 'When to Use' section should exist
+        Then a 'When to Use' section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## When to Use" in content, "Missing required '## When to Use' section"
@@ -204,7 +201,7 @@ class TestDamageControlSections:
         """Scenario: Exit Criteria section present
         Given the damage-control SKILL.md
         When scanning for section headings
-        Then an Exit Criteria section should exist
+        Then an Exit Criteria section should exist.
         """
         content = SKILL_FILE.read_text()
         assert "## Exit Criteria" in content, (
@@ -216,7 +213,7 @@ class TestDamageControlSections:
         """Scenario: Triage or decision mechanism documented
         Given the damage-control SKILL.md
         When scanning for triage or routing content
-        Then the skill should describe how to pick the right module
+        Then the skill should describe how to pick the right module.
         """
         content = SKILL_FILE.read_text()
         content_lower = content.lower()
@@ -229,7 +226,7 @@ class TestDamageControlSections:
         """Scenario: All failure classes are referenced
         Given the damage-control SKILL.md
         When scanning for failure class keywords
-        Then crash, context, conflict, and state recovery must appear
+        Then crash, context, conflict, and state recovery must appear.
         """
         content = SKILL_FILE.read_text().lower()
         for keyword in FAILURE_CLASSES:
@@ -239,8 +236,7 @@ class TestDamageControlSections:
 
 
 class TestDamageControlModules:
-    """
-    Feature: Module files exist on disk
+    """Feature: Module files exist on disk.
 
     As a skill consumer
     I want all modules declared in the skill to exist on disk
@@ -252,7 +248,7 @@ class TestDamageControlModules:
         """Scenario: Modules directory present
         Given the damage-control skill
         When checking for the modules subdirectory
-        Then the directory should exist
+        Then the directory should exist.
         """
         assert MODULES_DIR.exists(), f"modules/ directory not found at {MODULES_DIR}"
 
@@ -261,7 +257,7 @@ class TestDamageControlModules:
         """Scenario: All declared modules are present on disk
         Given the damage-control skill directory
         When checking each declared module file
-        Then every module should exist on disk
+        Then every module should exist on disk.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -274,7 +270,7 @@ class TestDamageControlModules:
         """Scenario: All modules define exit criteria
         Given each damage-control module
         When reading its content
-        Then it should contain an Exit Criteria section
+        Then it should contain an Exit Criteria section.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -291,7 +287,7 @@ class TestDamageControlModules:
         """Scenario: All modules have YAML frontmatter
         Given each damage-control module
         When reading the file header
-        Then it should begin with valid YAML frontmatter
+        Then it should begin with valid YAML frontmatter.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -308,7 +304,7 @@ class TestDamageControlModules:
         """Scenario: All modules reference their parent skill
         Given each damage-control module
         When parsing frontmatter
-        Then parent_skill should be 'leyline:damage-control'
+        Then parent_skill should be 'leyline:damage-control'.
         """
         for module_name in EXPECTED_MODULES:
             module_path = MODULES_DIR / module_name
@@ -327,7 +323,7 @@ class TestDamageControlModules:
         """Scenario: crash-recovery module has meaningful content
         Given the crash-recovery.md module
         When reading content
-        Then it should describe crash recovery steps
+        Then it should describe crash recovery steps.
         """
         module_path = MODULES_DIR / "crash-recovery.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -342,7 +338,7 @@ class TestDamageControlModules:
         """Scenario: context-overflow module addresses context loss
         Given the context-overflow.md module
         When reading content
-        Then it should describe how to handle context window exhaustion
+        Then it should describe how to handle context window exhaustion.
         """
         module_path = MODULES_DIR / "context-overflow.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -357,7 +353,7 @@ class TestDamageControlModules:
         """Scenario: merge-conflict-resolution module references git
         Given the merge-conflict-resolution.md module
         When reading content
-        Then it should mention git conflict resolution
+        Then it should mention git conflict resolution.
         """
         module_path = MODULES_DIR / "merge-conflict-resolution.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -372,7 +368,7 @@ class TestDamageControlModules:
         """Scenario: state-reconciliation module addresses state divergence
         Given the state-reconciliation.md module
         When reading content
-        Then it should describe how to reconcile divergent state
+        Then it should describe how to reconcile divergent state.
         """
         module_path = MODULES_DIR / "state-reconciliation.md"
         assert module_path.exists(), f"Module not found at {module_path}"
@@ -384,8 +380,7 @@ class TestDamageControlModules:
 
 
 class TestDamageControlPluginRegistration:
-    """
-    Feature: Plugin registry integration
+    """Feature: Plugin registry integration.
 
     As the plugin system
     I want damage-control registered in plugin.json
@@ -397,7 +392,7 @@ class TestDamageControlPluginRegistration:
         """Scenario: plugin.json includes damage-control
         Given the leyline plugin.json
         When checking the skills array
-        Then damage-control should be registered
+        Then damage-control should be registered.
         """
         plugin_json = (
             Path(__file__).resolve().parent.parent.parent.parent

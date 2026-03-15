@@ -45,10 +45,10 @@ class TestContextOptimizerAgent:
             {
                 "tokens": 80000,
                 "expected_action": "continue_monitoring",
-            },  # 40% = compliant
-            {"tokens": 110000, "expected_action": "moderate_optimization"},  # 55% > 50%
+            },  # 8% = compliant
+            {"tokens": 550000, "expected_action": "moderate_optimization"},  # 55% > 50%
             {
-                "tokens": 150000,
+                "tokens": 750000,
                 "expected_action": "aggressive_optimization",
             },  # 75% > 70%
         ]

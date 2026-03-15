@@ -68,7 +68,7 @@ wheels = [
 
 [[package]]
 name = "scribe"
-version = "1.5.6"
+version = "1.6.2"
 source = { virtual = "." }
 dependencies = [
     { name = "pyyaml" },

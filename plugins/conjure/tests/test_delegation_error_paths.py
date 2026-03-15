@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from scripts.delegation_executor import Delegator, ExecutionResult
 
 # -------------------------------------------------------------------

@@ -10,6 +10,7 @@ All discovery info must be in the `description` field - custom fields like
 
 from __future__ import annotations
 
+import argparse
 import re
 from pathlib import Path
 
@@ -130,8 +131,6 @@ def process_skill_file(filepath: Path, dry_run: bool = True) -> dict | None:
 
 
 def main():
-    import argparse
-
     parser = argparse.ArgumentParser(description="Consolidate skill descriptions")
     parser.add_argument("--dry-run", action="store_true", default=True)
     parser.add_argument("--apply", action="store_true")

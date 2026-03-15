@@ -23,6 +23,7 @@ from pathlib import Path
 from stewardship_tracker import read_actions
 
 NOT_MEASURED = "not measured"
+_SECONDS_PER_DAY = 86_400
 
 
 def measure_doc_freshness(plugin_dir: Path) -> str:
@@ -39,7 +40,7 @@ def measure_doc_freshness(plugin_dir: Path) -> str:
         return NOT_MEASURED
 
     most_recent = max(f.stat().st_mtime for f in md_files)
-    age_days = int((time.time() - most_recent) / 86400)
+    age_days = int((time.time() - most_recent) / _SECONDS_PER_DAY)
 
     if age_days == 0:
         return "docs updated today"
@@ -122,7 +123,7 @@ def measure_improvement_velocity(
     if not actions and not (actions_dir / "actions.jsonl").exists():
         return NOT_MEASURED
 
-    cutoff = time.time() - (30 * 86400)
+    cutoff = time.time() - (30 * _SECONDS_PER_DAY)
     count = 0
     for entry in actions:
         timestamp_str = entry.get("timestamp", "")

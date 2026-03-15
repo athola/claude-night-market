@@ -18,6 +18,7 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
+from ..utils import content_parser
 from .base import AnalysisResult, BaseReviewSkill
 
 
@@ -44,7 +45,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential null pointer dereference bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         # Pattern: accessing property without null check after potential null return
@@ -68,13 +69,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "null_pointer",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Null/undefined dereference: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -86,7 +87,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential race condition bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -114,13 +115,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE | re.DOTALL):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "race_condition",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Race condition or thread safety issue: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -132,7 +133,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential memory leak bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -159,13 +160,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "memory_leak",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Memory leak or event listener issue: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -177,7 +178,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential SQL injection vulnerabilities."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -197,13 +198,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.IGNORECASE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "sql_injection",
                         "location": f"{filename}:{line_num}",
                         "issue": f"SQL injection vulnerability: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -215,7 +216,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential off-by-one errors."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -238,13 +239,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "off_by_one",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Off-by-one error: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -256,7 +257,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential integer overflow bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -277,13 +278,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.IGNORECASE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "integer_overflow",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Overflow risk: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
                 break  # Limit to avoid too many matches
@@ -296,7 +297,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential resource leak bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -326,13 +327,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "resource_leak",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Resource leak: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -344,7 +345,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential logical errors."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -377,13 +378,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.MULTILINE | re.DOTALL):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "logical_error",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Logic error: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -395,7 +396,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential type confusion bugs."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -418,13 +419,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "type_confusion",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Type mismatch: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -436,7 +437,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential timing attack vulnerabilities."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         bugs: list[dict[str, str]] = []
 
         patterns = [
@@ -469,13 +470,13 @@ class BugReviewSkill(BaseReviewSkill):
 
         for pattern, issue_desc in patterns:
             for match in re.finditer(pattern, code, re.IGNORECASE | re.MULTILINE):
-                line_num = self._find_line_number(code, match.start())
+                line_num = content_parser.find_line_number(code, match.start())
                 bugs.append(
                     {
                         "type": "timing_attack",
                         "location": f"{filename}:{line_num}",
                         "issue": f"Timing attack vulnerability: {issue_desc}",
-                        "code": self._extract_code_snippet(code, line_num),
+                        "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
 
@@ -640,7 +641,7 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential false positives in bug detection."""
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         false_positives: list[dict[str, str]] = []
 
         # Patterns that look like bugs but aren't

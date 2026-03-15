@@ -91,7 +91,7 @@ class HookAnalyzer(ast.NodeVisitor):
 
     def visit_Compare(self, node: ast.Compare) -> Any:
         """Visit comparisons to detect string containment checks."""
-        for op, comparator in zip(node.ops, node.comparators):
+        for op, comparator in zip(node.ops, node.comparators, strict=False):
             if isinstance(op, ast.In):
                 self._extract_contains_pattern(node, comparator)
             elif isinstance(op, (ast.Eq, ast.NotEq)):

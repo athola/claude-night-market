@@ -195,7 +195,9 @@ rg -n "#\[cfg\(|#\[cfg_attr\(" src
 ### Verify API Testing
 ```bash
 # Test files covering public API
-find tests -name "test_*.py" -o -name "*_test.go" -o -name "*.test.ts"
+find tests -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  \( -name "test_*.py" -o -name "*_test.go" -o -name "*.test.ts" \)
 
 # Integration tests
 rg -n "integration|e2e|contract" tests

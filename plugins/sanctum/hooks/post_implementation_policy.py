@@ -40,8 +40,10 @@ Before reporting completion of ANY of the following:
 You MUST execute these commands IN ORDER:
 
 1. **PROOF-OF-WORK + IRON LAW** (MANDATORY FIRST) - Invoke `Skill(imbue:proof-of-work)`:
-   - Create TodoWrite items: `proof:problem-reproduced`, `proof:solution-tested`, `proof:evidence-captured`
-   - For code changes, add: `proof:iron-law-red`, `proof:iron-law-green`, `proof:iron-law-refactor`
+   - Create TodoWrite items: `proof:problem-reproduced`,
+     `proof:solution-tested`, `proof:evidence-captured`
+   - For code changes, add: `proof:iron-law-red`,
+     `proof:iron-law-green`, `proof:iron-law-refactor`
    - Run actual validation commands (not just syntax checks)
    - Capture evidence with `[E1]`, `[E2]` references
    - Report status: PASS / FAIL / BLOCKED
@@ -112,7 +114,11 @@ def main() -> None:
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "SessionStart",
-                "additionalContext": f"[sanctum] Agent '{agent_type}' - governance policy deferred (review/optimization agent).",
+                "additionalContext": (
+                    f"[sanctum] Agent '{agent_type}'"
+                    " - governance policy deferred"
+                    " (review/optimization agent)."
+                ),
             }
         }
         print(json.dumps(output))

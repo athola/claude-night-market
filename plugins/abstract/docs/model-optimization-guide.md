@@ -8,7 +8,7 @@ Recommendations for which Claude models to use for different plugin tasks.
 |-------|---------|---------|------|---------|
 | **Haiku** | Validation, formatting, lookup, counting | Fast | Low | 200K |
 | **Sonnet** | Moderate analysis, code generation, summaries | Medium | Medium | 200K |
-| **Opus 4.6** | Deep reasoning, architecture, creative tasks | Slow | High | 200K (1M beta) |
+| **Opus 4.6** | Deep reasoning, architecture, creative tasks | Slow | High | 1M |
 
 ### Opus 4.6 Capabilities (Claude Code 2.1.32+)
 
@@ -326,7 +326,7 @@ Opus 4.6 introduces **server-side context compaction** — the API automatically
 
 ### Auto-Compaction (Claude Code 2.1.1+)
 
-Subagent conversations automatically compact when context reaches ~160k tokens (on standard 200K windows). This is a system-level feature requiring no configuration. With the 1M context beta, thresholds scale proportionally.
+Subagent conversations automatically compact when context approaches the window limit. This is a system-level feature requiring no configuration. With 1M context (Opus GA), compaction triggers at ~800k tokens.
 
 **Log signature**:
 ```json

@@ -1,5 +1,4 @@
-"""
-Tests for leyline SessionStart hook: fetch-recent-discussions.sh
+"""Tests for leyline SessionStart hook: fetch-recent-discussions.sh.
 
 Feature: Fetch Recent Discussions Hook
   As a Claude Code user on a GitHub repository
@@ -24,15 +23,13 @@ HOOK_SCRIPT = Path(__file__).parents[3] / "hooks" / "fetch-recent-discussions.sh
 
 
 class TestFetchRecentDiscussionsGuards:
-    """
-    Feature: Guard conditions prevent the hook from running in unsupported environments.
+    """Feature: Guard conditions prevent the hook from running in unsupported environments.
     Each guard should output valid empty-context JSON and exit 0.
     """
 
     @pytest.mark.unit
     def test_hook_script_exists_and_is_executable(self) -> None:
-        """
-        Scenario: Hook script is properly installed
+        """Scenario: Hook script is properly installed
         Given the leyline plugin is installed
         When checking the hook script
         Then it exists and is executable with a shebang.
@@ -44,8 +41,7 @@ class TestFetchRecentDiscussionsGuards:
 
     @pytest.mark.unit
     def test_non_git_directory_returns_empty_context(self, tmp_path: Path) -> None:
-        """
-        Scenario: Non-git directory produces empty context
+        """Scenario: Non-git directory produces empty context
         Given a directory that is not a git repository
         When the hook runs
         Then it outputs valid JSON with empty additionalContext.
@@ -64,8 +60,7 @@ class TestFetchRecentDiscussionsGuards:
 
     @pytest.mark.unit
     def test_non_github_remote_returns_empty_context(self, tmp_path: Path) -> None:
-        """
-        Scenario: GitLab remote is silently skipped
+        """Scenario: GitLab remote is silently skipped
         Given a git repo with a GitLab origin
         When the hook runs
         Then it outputs empty context (Discussions are GitHub-only).
@@ -90,8 +85,7 @@ class TestFetchRecentDiscussionsGuards:
 
     @pytest.mark.unit
     def test_bitbucket_remote_returns_empty_context(self, tmp_path: Path) -> None:
-        """
-        Scenario: Bitbucket remote is silently skipped
+        """Scenario: Bitbucket remote is silently skipped
         Given a git repo with a Bitbucket origin
         When the hook runs
         Then it outputs empty context (Discussions are GitHub-only).
@@ -120,8 +114,7 @@ class TestFetchRecentDiscussionsGuards:
     )
     @pytest.mark.unit
     def test_missing_gh_cli_returns_empty_context(self, tmp_path: Path) -> None:
-        """
-        Scenario: Missing gh CLI produces empty context
+        """Scenario: Missing gh CLI produces empty context
         Given gh is not on PATH
         When the hook runs
         Then it outputs empty context without error.
@@ -145,8 +138,7 @@ class TestFetchRecentDiscussionsGuards:
 
     @pytest.mark.unit
     def test_no_remote_returns_empty_context(self, tmp_path: Path) -> None:
-        """
-        Scenario: Git repo with no remote produces empty context
+        """Scenario: Git repo with no remote produces empty context
         Given a git repo with no origin remote
         When the hook runs
         Then it outputs empty context.
@@ -166,14 +158,11 @@ class TestFetchRecentDiscussionsGuards:
 
 
 class TestFetchRecentDiscussionsOutput:
-    """
-    Feature: Hook output format is always valid JSON matching SessionStart schema.
-    """
+    """Feature: Hook output format is always valid JSON matching SessionStart schema."""
 
     @pytest.mark.unit
     def test_output_matches_session_start_schema(self, tmp_path: Path) -> None:
-        """
-        Scenario: Output is valid SessionStart hook JSON
+        """Scenario: Output is valid SessionStart hook JSON
         Given any environment
         When the hook runs
         Then stdout is valid JSON with hookSpecificOutput.hookEventName = "SessionStart".
@@ -194,8 +183,7 @@ class TestFetchRecentDiscussionsOutput:
 
     @pytest.mark.unit
     def test_ssh_github_remote_is_recognized(self, tmp_path: Path) -> None:
-        """
-        Scenario: SSH-style GitHub remote is recognized
+        """Scenario: SSH-style GitHub remote is recognized
         Given a git repo with SSH origin (git@github.com:owner/repo.git)
         When the hook runs
         Then it does NOT return empty context due to remote parsing failure.

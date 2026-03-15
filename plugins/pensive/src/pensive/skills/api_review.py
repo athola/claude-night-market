@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
+from ..utils import content_parser
 from .base import BaseReviewSkill
 
 
@@ -34,7 +35,7 @@ class ApiReviewSkill(BaseReviewSkill):
             Dictionary with API surface analysis containing counts of exports,
             classes, interfaces, functions, etc.
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
 
         # Count export statements (allow leading whitespace)
         exports = len(re.findall(r"^\s*export\s+", code, re.MULTILINE))
@@ -78,7 +79,7 @@ class ApiReviewSkill(BaseReviewSkill):
             Dictionary with API surface analysis containing counts of exports,
             classes, functions, etc.
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
 
         # Count export statements (allow leading whitespace)
         exports = len(re.findall(r"^\s*export\s+", code, re.MULTILINE))
@@ -118,7 +119,7 @@ class ApiReviewSkill(BaseReviewSkill):
             Dictionary with API surface analysis containing counts of exports,
             classes, functions, etc.
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
 
         # Count __all__ exports
         all_match = re.search(r"__all__\s*=\s*\[(.*?)\]", code, re.DOTALL)
@@ -154,7 +155,7 @@ class ApiReviewSkill(BaseReviewSkill):
             Dictionary with API surface analysis containing counts of structs,
             functions, public methods, etc.
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
 
         # Count public structs
         structs = len(re.findall(r"pub\s+struct\s+\w+", code))
@@ -203,7 +204,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of documentation issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Check for exported classes without doc comments
@@ -255,7 +256,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of naming consistency issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Find all method/function names in classes
@@ -333,7 +334,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of error handling issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Find methods that use fetch or async operations without try-catch
@@ -378,7 +379,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of potential breaking changes found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Check for comments indicating breaking changes
@@ -428,7 +429,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of REST pattern violations found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Check for GET requests with mutation-like endpoints
@@ -483,7 +484,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of input validation issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Find methods that accept parameters but have no validation
@@ -536,7 +537,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             Dictionary with versioning analysis results
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         inconsistencies: list[str] = []
 
         # Check for version patterns in code
@@ -581,7 +582,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of security issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Check for API keys stored in client code (even if passed as parameter)
@@ -667,7 +668,7 @@ class ApiReviewSkill(BaseReviewSkill):
         Returns:
             List of performance issues found
         """
-        code = self._get_code_content(context, filename)
+        code = content_parser.get_file_content(context, filename)
         issues: list[dict[str, Any]] = []
 
         # Check for methods that return all records without pagination

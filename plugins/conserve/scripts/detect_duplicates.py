@@ -103,16 +103,23 @@ def hash_block(lines: list[str], lang: str) -> str:
 
 
 def extract_blocks(
-    filepath: Path, min_lines: int = 5
+    filepath: Path, min_lines: int = 5, content: str | None = None
 ) -> list[tuple[str, int, int, str]]:
     """Extract overlapping blocks from a file.
 
+    Args:
+        filepath: Path to the source file.
+        min_lines: Minimum block size to consider.
+        content: Pre-read file content. If None, reads from filepath.
+
     Returns: list of (hash, start_line, end_line, content)
+
     """
-    try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore")
-    except (OSError, UnicodeDecodeError):
-        return []
+    if content is None:
+        try:
+            content = filepath.read_text(encoding="utf-8", errors="ignore")
+        except (OSError, UnicodeDecodeError):
+            return []
 
     lines = content.splitlines()
     if len(lines) < min_lines:
@@ -199,19 +206,19 @@ def find_duplicates(
 
     for filepath in files:
         try:
-            content = filepath.read_text(encoding="utf-8", errors="ignore")
-            line_count = len(content.splitlines())
+            file_content = filepath.read_text(encoding="utf-8", errors="ignore")
+            line_count = len(file_content.splitlines())
             total_lines += line_count
         except (OSError, UnicodeDecodeError):
             continue
 
-        blocks = extract_blocks(filepath, min_lines)
+        blocks = extract_blocks(filepath, min_lines, content=file_content)
         for block_hash, start, end, content in blocks:
             hash_to_locations[block_hash].append((filepath, start, end, content))
 
     # Find duplicates (blocks appearing in multiple locations)
     duplicates: list[DuplicateBlock] = []
-    seen_ranges: set[tuple[str, int, int]] = set()  # Avoid overlapping reports
+    seen_by_file: dict[str, list[tuple[int, int]]] = defaultdict(list)
 
     for block_hash, locations in hash_to_locations.items():
         if len(locations) < 2:
@@ -221,17 +228,13 @@ def find_duplicates(
         unique_locations: list[tuple[Path, int, int, str]] = []
         for filepath, start, end, content in locations:
             # Skip if overlaps with already-reported range in same file
-            range_key = (str(filepath), start, end)
-            overlaps = False
-            for seen_file, seen_start, seen_end in seen_ranges:
-                if seen_file == str(filepath):
-                    # Check for overlap
-                    if not (end < seen_start or start > seen_end):
-                        overlaps = True
-                        break
+            file_key = str(filepath)
+            overlaps = any(
+                not (end < s or start > e) for s, e in seen_by_file[file_key]
+            )
             if not overlaps:
                 unique_locations.append((filepath, start, end, content))
-                seen_ranges.add(range_key)
+                seen_by_file[file_key].append((start, end))
 
         if len(unique_locations) >= 2:
             dup = DuplicateBlock(

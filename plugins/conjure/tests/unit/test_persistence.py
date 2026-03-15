@@ -56,8 +56,7 @@ def _minimal_session(session_id: str = "audit-persist-test") -> WarRoomSession:
 
 
 class TestPersistSessionAuditIntegration:
-    """
-    Feature: persist_session() generates an audit report as a side-effect
+    """Feature: persist_session() generates an audit report as a side-effect.
 
     As a War Room operator
     I want the audit report written automatically on every persist_session() call
@@ -66,11 +65,10 @@ class TestPersistSessionAuditIntegration:
 
     @pytest.mark.unit
     def test_persist_session_creates_audit_report_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: Audit report file created alongside session.json
+        """Scenario: Audit report file created alongside session.json
         Given a WarRoomSession and a temp strategeion directory
         When persist_session() is called
-        Then audit-report.json appears in the session directory
+        Then audit-report.json appears in the session directory.
         """
         session = _minimal_session()
 
@@ -83,11 +81,10 @@ class TestPersistSessionAuditIntegration:
 
     @pytest.mark.unit
     def test_persist_session_audit_report_is_valid_json(self, tmp_path: Path) -> None:
-        """
-        Scenario: Audit report file contains parseable JSON
+        """Scenario: Audit report file contains parseable JSON
         Given a persisted session
         When the audit-report.json file is read
-        Then it parses without error and contains the correct session_id
+        Then it parses without error and contains the correct session_id.
         """
         session = _minimal_session(session_id="audit-json-test")
 
@@ -102,12 +99,11 @@ class TestPersistSessionAuditIntegration:
     def test_persist_session_audit_report_merkle_verification_present(
         self, tmp_path: Path
     ) -> None:
-        """
-        Scenario: Audit report includes Merkle-DAG verification block
+        """Scenario: Audit report includes Merkle-DAG verification block
         Given a session with Merkle-DAG contributions
         When persist_session() is called
         Then the audit report contains a 'merkle_verification' key with a
-             'verified' field
+             'verified' field.
         """
         session = _minimal_session(session_id="audit-merkle-test")
         session.merkle_dag.add_contribution(
@@ -128,11 +124,10 @@ class TestPersistSessionAuditIntegration:
     def test_persist_session_audit_report_does_not_break_session_json(
         self, tmp_path: Path
     ) -> None:
-        """
-        Scenario: Existing session.json is unaffected by audit report generation
+        """Scenario: Existing session.json is unaffected by audit report generation
         Given persist_session() now also writes an audit report
         When the session directory is inspected
-        Then session.json still exists with correct content
+        Then session.json still exists with correct content.
         """
         session = _minimal_session(session_id="audit-coexist-test")
 

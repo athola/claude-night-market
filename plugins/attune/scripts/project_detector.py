@@ -52,20 +52,19 @@ class ProjectDetector:
                 return "typescript"
             # Could add more JS vs TS detection logic here
 
-        # Check for source files
+        # Check for source files with a single directory walk
         src_path = self.project_path / "src"
         if src_path.exists():
-            py_source_files = list(src_path.rglob("*.py"))
-            rs_source_files = list(src_path.rglob("*.rs"))
-            ts_source_files = list(src_path.rglob("*.ts")) + list(
-                src_path.rglob("*.tsx")
-            )
+            suffixes: set = set()
+            for f in src_path.rglob("*"):
+                if f.is_file():
+                    suffixes.add(f.suffix)
 
-            if py_source_files:
+            if ".py" in suffixes:
                 return "python"
-            if rs_source_files:
+            if ".rs" in suffixes:
                 return "rust"
-            if ts_source_files:
+            if ".ts" in suffixes or ".tsx" in suffixes:
                 return "typescript"
 
         return None

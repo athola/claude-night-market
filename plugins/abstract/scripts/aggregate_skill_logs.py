@@ -16,7 +16,7 @@ import json
 import os
 import statistics
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -140,9 +140,10 @@ def calculate_skill_metrics(
     plugin, skill_name = skill.split(":", 1)
 
     # Count outcomes
-    success_count = sum(1 for e in entries if e["outcome"] == "success")
-    failure_count = sum(1 for e in entries if e["outcome"] == "failure")
-    partial_count = sum(1 for e in entries if e["outcome"] == "partial")
+    outcome_counts = Counter(e["outcome"] for e in entries)
+    success_count = outcome_counts["success"]
+    failure_count = outcome_counts["failure"]
+    partial_count = outcome_counts["partial"]
 
     # Duration stats
     durations = [e["duration_ms"] for e in entries if "duration_ms" in e]

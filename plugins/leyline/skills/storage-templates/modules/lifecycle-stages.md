@@ -246,7 +246,9 @@ superseded_by: [replacement path]
 
 ```bash
 # Find seedlings due for review
-find . -name "*.md" -type f | while read file; do
+find . -name "*.md" -type f \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" | while read file; do
   if grep -q "maturity: seedling" "$file"; then
     review_date=$(grep "review_after:" "$file" | cut -d: -f2)
     if [[ $(date +%s) -gt $(date -d "$review_date" +%s) ]]; then

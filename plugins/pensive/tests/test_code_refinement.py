@@ -167,14 +167,14 @@ class TestCleanupCommand:
 
     @pytest.mark.unit
     def test_command_documents_graceful_degradation(self):
-        """Given unbloat.md cleanup section, it must document behavior when plugins missing."""
+        """Given unbloat.md, document behavior when plugins missing."""
         text = (self.CONSERVE_ROOT / "commands" / "unbloat.md").read_text()
         assert "pensive" in text.lower()
         assert "Optional" in text or "optional" in text or "fallback" in text.lower()
 
     @pytest.mark.unit
     def test_command_references_sub_commands(self):
-        """Given unbloat.md cleanup section, it must reference bloat-scan and refine-code."""
+        """Given unbloat.md, it must reference bloat-scan and refine-code."""
         text = (self.CONSERVE_ROOT / "commands" / "unbloat.md").read_text()
         assert "/bloat-scan" in text
         assert "/refine-code" in text
@@ -203,7 +203,7 @@ class TestCrossPluginFallbacks:
 
     @pytest.mark.unit
     def test_architectural_fit_has_two_modes(self):
-        """Given architectural-fit module, it must support paradigm-aware and principle-based modes."""
+        """Given architectural-fit module, support paradigm and principle modes."""
         text = (MODULES_DIR / "architectural-fit.md").read_text()
         assert "Mode 1" in text or "Paradigm-Aware" in text
         assert "Mode 2" in text or "Principle-Based" in text

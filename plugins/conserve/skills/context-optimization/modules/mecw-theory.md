@@ -24,7 +24,7 @@ from leyline import calculate_context_pressure
 
 pressure = calculate_context_pressure(
     current_tokens=80000,
-    max_tokens=200000
+    max_tokens=1000000
 )
 print(pressure)  # "MODERATE"
 ```
@@ -36,7 +36,7 @@ from leyline import check_mecw_compliance
 
 result = check_mecw_compliance(
     current_tokens=120000,
-    max_tokens=200000
+    max_tokens=1000000
 )
 
 if not result['compliant']:
@@ -49,7 +49,7 @@ if not result['compliant']:
 ```python
 from leyline import MECWMonitor
 
-monitor = MECWMonitor(max_context=200000)
+monitor = MECWMonitor(max_context=1000000)
 monitor.track_usage(80000)
 status = monitor.get_status()
 

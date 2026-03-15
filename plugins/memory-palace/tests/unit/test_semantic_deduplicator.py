@@ -52,31 +52,28 @@ class TestJaccardSimilarity:
 
     @pytest.mark.unit
     def test_identical_strings_score_one(self) -> None:
-        """
-        Scenario: Identical content
+        """Scenario: Identical content
         Given two identical strings
         When Jaccard similarity is computed
-        Then the score is 1.0
+        Then the score is 1.0.
         """
         assert _jaccard_similarity("hello world", "hello world") == 1.0
 
     @pytest.mark.unit
     def test_disjoint_strings_score_zero(self) -> None:
-        """
-        Scenario: Completely different content
+        """Scenario: Completely different content
         Given two strings with no common words
         When Jaccard similarity is computed
-        Then the score is 0.0
+        Then the score is 0.0.
         """
         assert _jaccard_similarity("apple banana", "cat dog") == 0.0
 
     @pytest.mark.unit
     def test_partial_overlap(self) -> None:
-        """
-        Scenario: Partial word overlap
+        """Scenario: Partial word overlap
         Given two strings sharing half their words
         When Jaccard similarity is computed
-        Then the score reflects the overlap ratio
+        Then the score reflects the overlap ratio.
         """
         # {"a", "b"} ∩ {"b", "c"} = {"b"} → 1/3
         score = _jaccard_similarity("a b", "b c")
@@ -84,21 +81,19 @@ class TestJaccardSimilarity:
 
     @pytest.mark.unit
     def test_empty_strings(self) -> None:
-        """
-        Scenario: Both strings empty
+        """Scenario: Both strings empty
         Given two empty strings
         When Jaccard similarity is computed
-        Then the score is 1.0 (vacuously equal)
+        Then the score is 1.0 (vacuously equal).
         """
         assert _jaccard_similarity("", "") == 1.0
 
     @pytest.mark.unit
     def test_one_empty_string(self) -> None:
-        """
-        Scenario: One empty string
+        """Scenario: One empty string
         Given one empty and one non-empty string
         When Jaccard similarity is computed
-        Then the score is 0.0
+        Then the score is 0.0.
         """
         assert _jaccard_similarity("", "something") == 0.0
 
@@ -109,8 +104,7 @@ class TestJaccardSimilarity:
 
 
 class TestSemanticDeduplicatorFaiss:
-    """
-    Feature: FAISS-backed semantic deduplication
+    """Feature: FAISS-backed semantic deduplication.
 
     As a memory palace plugin
     I want to use FAISS cosine similarity for duplicate detection
@@ -126,11 +120,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_uses_faiss_when_available(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: FAISS is installed
+        """Scenario: FAISS is installed
         Given FAISS and numpy are importable
         When a SemanticDeduplicator is constructed
-        Then it reports uses_faiss=True
+        Then it reports uses_faiss=True.
         """
         assert deduplicator.uses_faiss is True
 
@@ -138,11 +131,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_empty_index_always_stores(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: First entry in empty index
+        """Scenario: First entry in empty index
         Given the FAISS index is empty
         When should_store is called
-        Then it returns True (nothing to compare against)
+        Then it returns True (nothing to compare against).
         """
         assert deduplicator.should_store("any content") is True
 
@@ -150,11 +142,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_distinct_embeddings_stored(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Sufficiently different content
+        """Scenario: Sufficiently different content
         Given an existing vector in the index
         When new content with low similarity is checked
-        Then should_store returns True
+        Then should_store returns True.
         """
         vecs = _unit_vectors(2, dim=4)
         deduplicator.add_vector("entry-a", vecs[0])
@@ -177,11 +168,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_near_duplicate_suppressed(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Near-duplicate content
+        """Scenario: Near-duplicate content
         Given an existing embedding at similarity >= threshold
         When should_store is called with nearly identical content
-        Then it returns False
+        Then it returns False.
         """
         vec = [1.0, 0.0, 0.0, 0.0]
         existing: dict[str, list[float]] = {"entry-a": vec}
@@ -199,11 +189,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_counter_increments_on_near_duplicate(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Near-duplicate counter tracks suppressed entries
+        """Scenario: Near-duplicate counter tracks suppressed entries
         Given an existing embedding
         When the same near-duplicate content is submitted twice
-        Then the counter for the matched entry increments each time
+        Then the counter for the matched entry increments each time.
         """
         vec = [1.0, 0.0, 0.0, 0.0]
         existing: dict[str, list[float]] = {"entry-a": vec}
@@ -222,11 +211,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_threshold_boundary_at_exactly_threshold(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Similarity exactly at threshold
+        """Scenario: Similarity exactly at threshold
         Given existing content and new content with similarity == threshold
         When should_store is called
-        Then it returns False (threshold is inclusive)
+        Then it returns False (threshold is inclusive).
         """
         vec = [1.0, 0.0, 0.0, 0.0]
         existing: dict[str, list[float]] = {"entry-a": vec}
@@ -242,11 +230,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_below_threshold_allows_storage(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Similarity below threshold
+        """Scenario: Similarity below threshold
         Given existing content with similarity < threshold
         When should_store is called
-        Then it returns True
+        Then it returns True.
         """
         vec_a = [1.0, 0.0, 0.0, 0.0]
         # low similarity vector: mostly orthogonal
@@ -268,11 +255,10 @@ class TestSemanticDeduplicatorFaiss:
     def test_add_vector_increases_index_size(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: add_vector populates the index
+        """Scenario: add_vector populates the index
         Given a fresh deduplicator
         When add_vector is called
-        Then index_size increases
+        Then index_size increases.
         """
         assert deduplicator.index_size == 0
         deduplicator.add_vector("e1", [1.0, 0.0, 0.0, 0.0])
@@ -280,11 +266,10 @@ class TestSemanticDeduplicatorFaiss:
 
     @pytest.mark.unit
     def test_custom_threshold_respected(self) -> None:
-        """
-        Scenario: Custom threshold
+        """Scenario: Custom threshold
         Given a deduplicator with threshold=0.5
         When content with similarity 0.6 is submitted
-        Then it is suppressed (>= 0.5)
+        Then it is suppressed (>= 0.5).
         """
         dedup = SemanticDeduplicator(threshold=0.5, vector_dim=4)
         vec = [1.0, 0.0, 0.0, 0.0]
@@ -318,9 +303,7 @@ class TestSemanticDeduplicatorFaiss:
 
 
 class TestSemanticDeduplicatorFaissMandatory:
-    """
-    Feature: FAISS is always available (mandatory dependency since 1.5.2)
-    """
+    """Feature: FAISS is always available (mandatory dependency since 1.5.2)."""
 
     @pytest.mark.unit
     def test_always_uses_faiss(self) -> None:
@@ -342,8 +325,7 @@ class TestSemanticDeduplicatorFaissMandatory:
 
 
 class TestSemanticDeduplicatorInternalIndex:
-    """
-    Feature: FAISS internal index queries
+    """Feature: FAISS internal index queries.
 
     As a memory palace plugin
     I want should_store to query the internal FAISS index directly
@@ -358,11 +340,10 @@ class TestSemanticDeduplicatorInternalIndex:
     def test_index_query_detects_same_content(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Identical content queried via internal index
+        """Scenario: Identical content queried via internal index
         Given a vector derived from "hello world" is in the index
         When should_store is called with "hello world" (no embeddings dict)
-        Then it returns False because the hash-derived vectors match exactly
+        Then it returns False because the hash-derived vectors match exactly.
         """
         content = "hello world"
         vec = _hash_to_vector(content, 128)
@@ -375,11 +356,10 @@ class TestSemanticDeduplicatorInternalIndex:
     def test_index_query_allows_distinct_content(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Different content queried via internal index
+        """Scenario: Different content queried via internal index
         Given a vector for "topic A" is in the index
         When should_store is called with "completely unrelated topic B"
-        Then it returns True because the hash-derived vectors differ enough
+        Then it returns True because the hash-derived vectors differ enough.
         """
         deduplicator.add_vector("e1", _hash_to_vector("topic A", 128))
 
@@ -392,11 +372,10 @@ class TestSemanticDeduplicatorInternalIndex:
     def test_index_query_counter_incremented(
         self, deduplicator: SemanticDeduplicator
     ) -> None:
-        """
-        Scenario: Counter incremented via internal index match
+        """Scenario: Counter incremented via internal index match
         Given a vector in the index that matches new content
         When should_store returns False
-        Then the near-duplicate counter for that entry is incremented
+        Then the near-duplicate counter for that entry is incremented.
         """
         content = "the quick brown fox"
         vec = _hash_to_vector(content, 128)
@@ -412,8 +391,7 @@ class TestSemanticDeduplicatorInternalIndex:
 
 
 class TestModuleLevelHelpers:
-    """
-    Feature: Module-level utility functions
+    """Feature: Module-level utility functions.
 
     As a developer
     I want _hash_to_vector and _cosine_similarity_numpy to behave correctly
@@ -422,22 +400,20 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_hash_to_vector_returns_correct_dimension(self) -> None:
-        """
-        Scenario: Vector dimension matches request
+        """Scenario: Vector dimension matches request
         Given a text and dimension=64
         When _hash_to_vector is called
-        Then the result has exactly 64 elements
+        Then the result has exactly 64 elements.
         """
         vec = _hash_to_vector("test input", 64)
         assert len(vec) == 64
 
     @pytest.mark.unit
     def test_hash_to_vector_is_unit_length(self) -> None:
-        """
-        Scenario: Output vector is L2-normalized
+        """Scenario: Output vector is L2-normalized
         Given any text
         When _hash_to_vector is called
-        Then the result has L2 norm approximately 1.0
+        Then the result has L2 norm approximately 1.0.
         """
         import math  # noqa: PLC0415
 
@@ -447,11 +423,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_hash_to_vector_is_deterministic(self) -> None:
-        """
-        Scenario: Same text produces same vector
+        """Scenario: Same text produces same vector
         Given a fixed text
         When _hash_to_vector is called twice
-        Then both results are identical
+        Then both results are identical.
         """
         v1 = _hash_to_vector("determinism check", 32)
         v2 = _hash_to_vector("determinism check", 32)
@@ -459,11 +434,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_hash_to_vector_case_insensitive(self) -> None:
-        """
-        Scenario: Case normalization
+        """Scenario: Case normalization
         Given "Hello" and "hello"
         When _hash_to_vector is called on each
-        Then both produce the same vector
+        Then both produce the same vector.
         """
         v1 = _hash_to_vector("Hello World", 32)
         v2 = _hash_to_vector("hello world", 32)
@@ -471,11 +445,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_cosine_similarity_identical_vectors(self) -> None:
-        """
-        Scenario: Identical vectors
+        """Scenario: Identical vectors
         Given two identical numpy vectors
         When _cosine_similarity_numpy is called
-        Then the score is 1.0
+        Then the score is 1.0.
         """
         import numpy as np  # noqa: PLC0415
 
@@ -484,11 +457,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_cosine_similarity_orthogonal_vectors(self) -> None:
-        """
-        Scenario: Orthogonal vectors
+        """Scenario: Orthogonal vectors
         Given two perpendicular numpy vectors
         When _cosine_similarity_numpy is called
-        Then the score is 0.0
+        Then the score is 0.0.
         """
         import numpy as np  # noqa: PLC0415
 
@@ -498,11 +470,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_cosine_similarity_zero_vector_returns_zero(self) -> None:
-        """
-        Scenario: Zero vector edge case
+        """Scenario: Zero vector edge case
         Given one zero vector and one non-zero vector
         When _cosine_similarity_numpy is called
-        Then the score is 0.0 (not NaN or error)
+        Then the score is 0.0 (not NaN or error).
         """
         import numpy as np  # noqa: PLC0415
 
@@ -513,11 +484,10 @@ class TestModuleLevelHelpers:
 
     @pytest.mark.unit
     def test_content_id_custom_length(self) -> None:
-        """
-        Scenario: Custom ID length
+        """Scenario: Custom ID length
         Given a length of 6
         When _content_id is called
-        Then the result is exactly 6 characters
+        Then the result is exactly 6 characters.
         """
         result = _content_id("some content", length=6)
         assert len(result) == 6

@@ -616,7 +616,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output minimal valid JSON.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -641,7 +640,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output WARNING alert with additionalContext.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -665,7 +663,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output JSON without additionalContext.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -690,7 +687,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return 0.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setattr("sys.stdin", StringIO("not valid json {"))
 
@@ -716,7 +712,6 @@ class TestMainEntryPoint:
         When running main with no env var and estimation disabled
         Then it should use the hook input value.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
         hook_input = json.dumps({"context_usage": 0.55})
@@ -743,7 +738,6 @@ class TestMainEntryPoint:
         When running main
         Then env var should be used (OK, not CRITICAL).
         """
-
         hook_input = json.dumps({"context_usage": 0.55})  # Would be CRITICAL
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")  # OK
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
@@ -770,7 +764,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output CRITICAL alert.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.60")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -796,7 +789,6 @@ class TestMainEntryPoint:
         When running main
         Then it should handle gracefully and return minimal output.
         """
-
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         hook_input = json.dumps({"context_usage": -0.5})
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
@@ -822,7 +814,6 @@ class TestMainEntryPoint:
         When running main
         Then it should output EMERGENCY alert with skill invocation guidance.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -850,7 +841,6 @@ class TestMainEntryPoint:
         When running main
         Then additionalContext should include bold headers and numbered steps.
         """
-
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.90")
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
@@ -1545,18 +1535,18 @@ class TestEstimateFromRecentTurns:
         When estimating from recent turns
         Then only the tail portion is counted, not the full file.
         """
-        # Build a file that exceeds _TAIL_BYTES (800KB).
-        # Use very large old entries so that the tail window (800KB)
-        # captures only a few of them, producing a LOW estimate.
+        # Build a file that exceeds _TAIL_BYTES (4MB).
+        # Use very large old entries so that the tail window (4MB)
+        # captures only a few of them, producing a lower estimate.
         # Then verify the estimate is lower than a full-file read.
-        old_text = "x" * 100_000  # 100KB per entry
+        old_text = "x" * 500_000  # 500KB per entry
         old_entry = {
             "role": "assistant",
             "content": [{"type": "text", "text": old_text}],
         }
         old_line = json.dumps(old_entry)
-        # Each old_line is ~100KB; 12 lines ≈ 1.2MB >> 800KB threshold
-        old_count = 12
+        # Each old_line is ~500KB; 10 lines ≈ 5MB >> 4MB threshold
+        old_count = 10
         old_lines = [old_line] * old_count
 
         # Recent turns: only 4 small messages at the tail
@@ -1577,10 +1567,10 @@ class TestEstimateFromRecentTurns:
         result = context_warning_full_module._estimate_from_recent_turns(session_file)
 
         assert result is not None
-        # The tail window (800KB) can fit ~7-8 of the 100KB entries,
+        # The tail window (4MB) can fit ~7-8 of the 500KB entries,
         # so the tail estimate should be noticeably lower than the
-        # full-file maximum of 0.95.  With ~700K text chars in the
-        # tail, that's ~175K tokens / 200K ≈ 0.875.
+        # full-file maximum of 0.95.  With ~3.5M text chars in the
+        # tail, that's ~875K tokens / 1M ≈ 0.875.
         # Use a generous bound: tail estimate < full-file cap.
         assert result < 0.95, (
             f"Tail reading should produce lower estimate than full file, got {result}"
@@ -1612,8 +1602,8 @@ class TestEstimateFromRecentTurns:
         # 2 turns (user+assistant) * 600 = 1200 tokens
         # Content chars: "system prompt text" + "tool output text" + "hello" + "hi"
         # = 18 + 15 + 5 + 2 = 40 chars → 10 tokens
-        # max(1200, 10) = 1200 tokens → 1200/200000 = 0.006
-        expected_approx = 1200 / 200_000
+        # max(1200, 10) = 1200 tokens → 1200/1000000 = 0.0012
+        expected_approx = 1200 / 1_000_000
         assert result == pytest.approx(expected_approx, abs=0.005)
 
     @pytest.mark.unit
@@ -1702,6 +1692,347 @@ class TestEstimateFromRecentTurns:
         assert result is not None
         # 3 turns counted (user+assistant roles), plus "real content" chars
         assert result > ZERO
+
+
+class TestFindCurrentSession:
+    """Feature: Active session file discovery from JSONL candidates.
+
+    As a context estimator
+    I want to find the correct session file from a list of candidates
+    So that I can estimate context usage for the active session.
+
+    Uses shared fixture: context_warning_full_module from conftest.py
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_matches_by_session_id_env(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: Session ID env var matches a JSONL file by stem.
+
+        Given CLAUDE_SESSION_ID is set to "abc-123"
+        And a file named abc-123.jsonl exists in the candidate list
+        When finding the current session
+        Then it returns that file.
+        """
+        monkeypatch.setenv("CLAUDE_SESSION_ID", "abc-123")
+        target = tmp_path / "abc-123.jsonl"
+        target.write_text("{}\n")
+        other = tmp_path / "other.jsonl"
+        other.write_text("{}\n")
+
+        result = context_warning_full_module._find_current_session([other, target])
+
+        assert result == target
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_session_id_no_match_falls_back_to_newest(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: Session ID set but no file matches, falls back to newest.
+
+        Given CLAUDE_SESSION_ID is set but no file stem matches
+        And a fresh file exists (modified within 60 seconds)
+        When finding the current session
+        Then it returns the most recently modified file.
+        """
+        monkeypatch.setenv("CLAUDE_SESSION_ID", "nonexistent-id")
+        old = tmp_path / "old.jsonl"
+        old.write_text("{}\n")
+        new = tmp_path / "new.jsonl"
+        new.write_text("{}\n")
+        # Ensure 'new' is newest by touching it
+        os.utime(old, (time.time() - HUNDRED, time.time() - HUNDRED))
+
+        result = context_warning_full_module._find_current_session([old, new])
+
+        assert result == new
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_no_session_id_uses_newest_fresh_file(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: No session ID, picks the most recently modified file.
+
+        Given CLAUDE_SESSION_ID is not set
+        And the newest file was modified recently
+        When finding the current session
+        Then it returns the newest file.
+        """
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+        f1 = tmp_path / "a.jsonl"
+        f1.write_text("{}\n")
+        f2 = tmp_path / "b.jsonl"
+        f2.write_text("{}\n")
+        os.utime(f1, (time.time() - HUNDRED, time.time() - HUNDRED))
+
+        result = context_warning_full_module._find_current_session([f1, f2])
+
+        assert result == f2
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_stale_files_return_none(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: All files are stale, returns None.
+
+        Given CLAUDE_SESSION_ID is not set
+        And all files were modified more than 60 seconds ago
+        When finding the current session
+        Then it returns None.
+        """
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+        stale = tmp_path / "stale.jsonl"
+        stale.write_text("{}\n")
+        stale_time = time.time() - 120
+        os.utime(stale, (stale_time, stale_time))
+
+        result = context_warning_full_module._find_current_session([stale])
+
+        assert result is None
+
+
+class TestCountContent:
+    """Feature: Message content character and tool result counting.
+
+    As a context estimator
+    I want to count characters and tool results in message content
+    So that I can estimate token usage from conversation data.
+
+    Uses shared fixture: context_warning_full_module from conftest.py
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_list_with_dict_blocks(self, context_warning_full_module) -> None:
+        """Scenario: Content is a list of dict blocks with text.
+
+        Given message content is a list with dict blocks
+        When counting content
+        Then chars are summed from text fields
+        And tool_result types are counted.
+        """
+        content = [
+            {"type": "text", "text": "hello"},
+            {"type": "tool_result", "text": "result data"},
+        ]
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars == len("hello") + len("result data")
+        assert tool_results == 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_list_with_string_blocks(self, context_warning_full_module) -> None:
+        """Scenario: Content is a list of plain strings.
+
+        Given message content is a list of strings
+        When counting content
+        Then chars are the sum of string lengths
+        And tool_result count is zero.
+        """
+        content = ["hello", "world"]
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars == len("hello") + len("world")
+        assert tool_results == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_plain_string_content(self, context_warning_full_module) -> None:
+        """Scenario: Content is a plain string (not a list).
+
+        Given message content is a bare string
+        When counting content
+        Then chars equal the string length
+        And tool_result count is zero.
+        """
+        content = "a simple message"
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars == len("a simple message")
+        assert tool_results == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_list_returns_zeros(self, context_warning_full_module) -> None:
+        """Scenario: Content is an empty list.
+
+        Given message content is an empty list
+        When counting content
+        Then both chars and tool_results are zero.
+        """
+        chars, tool_results = context_warning_full_module._count_content([])
+
+        assert chars == 0
+        assert tool_results == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_dict_without_text_key(self, context_warning_full_module) -> None:
+        """Scenario: Dict block has no text key.
+
+        Given a dict block without a "text" field
+        When counting content
+        Then no chars are added for that block.
+        """
+        content = [{"type": "image", "source": "data:..."}]
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars == 0
+        assert tool_results == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_mixed_dict_and_string_blocks(self, context_warning_full_module) -> None:
+        """Scenario: Content mixes dict and string blocks.
+
+        Given message content has both dict and string elements
+        When counting content
+        Then all chars are summed correctly.
+        """
+        content = [
+            {"type": "text", "text": "abc"},
+            "def",
+            {"type": "tool_result", "text": "ghi"},
+        ]
+
+        chars, tool_results = context_warning_full_module._count_content(content)
+
+        assert chars == 9
+        assert tool_results == 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_non_list_non_string_returns_zeros(
+        self, context_warning_full_module
+    ) -> None:
+        """Scenario: Content is neither list nor string (e.g. None or int).
+
+        Given message content is an unexpected type
+        When counting content
+        Then both chars and tool_results are zero.
+        """
+        chars, tool_results = context_warning_full_module._count_content(None)
+
+        assert chars == 0
+        assert tool_results == 0
+
+
+class TestResolveSessionFile:
+    """Feature: Session file resolution orchestration.
+
+    As a context estimator
+    I want to resolve the active JSONL session file
+    So that I can read it for context estimation.
+
+    Uses shared fixture: context_warning_full_module from conftest.py
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_none_when_projects_dir_missing(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: ~/.claude/projects does not exist.
+
+        Given the Claude projects directory does not exist
+        When resolving the session file
+        Then it returns None.
+        """
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+
+        result = context_warning_full_module._resolve_session_file()
+
+        assert result is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_none_when_no_project_match(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: Projects dir exists but no matching project dir.
+
+        Given the Claude projects directory exists
+        But no directory matches the current working directory
+        When resolving the session file
+        Then it returns None.
+        """
+        projects = tmp_path / ".claude" / "projects"
+        projects.mkdir(parents=True)
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+
+        result = context_warning_full_module._resolve_session_file()
+
+        assert result is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_none_when_no_jsonl_files(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: Project dir exists but contains no JSONL files.
+
+        Given the matching project directory exists
+        But it contains no .jsonl files
+        When resolving the session file
+        Then it returns None.
+        """
+        cwd = Path.cwd()
+        projects = tmp_path / ".claude" / "projects"
+        dir_name = str(cwd).replace(os.sep, "-")
+        if not dir_name.startswith("-"):
+            dir_name = "-" + dir_name
+        project_dir = projects / dir_name
+        project_dir.mkdir(parents=True)
+
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+
+        result = context_warning_full_module._resolve_session_file()
+
+        assert result is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_session_file_on_happy_path(
+        self, context_warning_full_module, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: Full directory structure exists with a fresh JSONL file.
+
+        Given the Claude projects directory exists
+        And a project directory matching cwd exists
+        And a fresh JSONL session file is present
+        When resolving the session file
+        Then it returns that file.
+        """
+        cwd = Path.cwd()
+        projects = tmp_path / ".claude" / "projects"
+        dir_name = str(cwd).replace(os.sep, "-")
+        if not dir_name.startswith("-"):
+            dir_name = "-" + dir_name
+        project_dir = projects / dir_name
+        project_dir.mkdir(parents=True)
+
+        session_file = project_dir / "active-session.jsonl"
+        session_file.write_text('{"role": "user", "content": "hello"}\n')
+
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.setenv("CLAUDE_SESSION_ID", "active-session")
+
+        result = context_warning_full_module._resolve_session_file()
+
+        assert result == session_file
 
 
 class TestResolveProjectDir:

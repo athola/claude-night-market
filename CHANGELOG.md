@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-03-15
+
+### Added
+
+- Tooling reflection step (Step 6.7) in sanctum fix-pr
+  completion workflow for posting night-market
+  observations to GitHub Discussions
+- Tooling reflection section in sanctum do-issue
+  completion module with Discussions routing
+- Star History chart and "Powered by Night Market"
+  badge in README
+- BDD tests for conserve context_warning session
+  discovery and content counting helpers
+
+### Changed
+
+- Update context window defaults from 200K to 1M
+  for Opus 4.6 GA across conserve plugin
+- Marketplace schema: promote version and description
+  to top-level fields with `$schema` URL
+- Workflow-improvement skill: route tooling learnings
+  to GitHub Discussions instead of local memory palace
+- Refactor conserve context_warning: extract
+  `_find_current_session`, `_resolve_session_file`,
+  and `_count_content` helpers from monolithic
+  estimator function
+- Replace `@lru_cache` global with instance-scoped
+  caching in sanctum security pattern check hook
+- Line-wrap fixes in sanctum post-implementation
+  policy and security pattern check hooks
+
+### Fixed
+
+- Use `datetime.timezone.utc` instead of
+  `datetime.UTC` for Python 3.9 compatibility
+- Dynamic repo detection for Discussions posting
+  in abstract plugin (no longer hardcoded)
+- Add cache directory exclusions to 26 `find`
+  commands across 6 plugins to prevent scanning
+  `.venv`, `__pycache__`, `node_modules`, `.git`
+
+### Removed
+
+- Dead code cleanup across 6 plugins: 6K+ lines
+  removed in three refactoring waves, including
+  unused dependencies and stale test files
+
 ## [1.6.2] - 2026-03-11
 
 ### Added

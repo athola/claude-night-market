@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
 from scripts.war_room_orchestrator import (
     WarRoomOrchestrator,
     _expert_availability,

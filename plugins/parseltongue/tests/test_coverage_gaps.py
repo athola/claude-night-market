@@ -103,54 +103,24 @@ for i in items:
 
     @pytest.mark.unit
     @pytest.mark.asyncio
-    async def test_detect_pytest_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty pytest patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_ddd_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty DDD patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_gof_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty GoF patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_async_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty async patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_performance_patterns_empty(
-        self, pattern_matching_skill
+    @pytest.mark.parametrize(
+        "label,args,expected_key",
+        [
+            ("pytest patterns", ("",), "patterns"),
+            ("ddd patterns", ("",), "patterns"),
+            ("gof patterns", ("",), "patterns"),
+            ("async patterns", ("",), "patterns"),
+            ("performance patterns", ("",), "patterns"),
+            ("anti patterns", ("",), "patterns"),
+            ("dsl patterns", ("", "sql"), "patterns"),
+        ],
+    )
+    async def test_find_patterns_empty_returns_patterns_key(
+        self, pattern_matching_skill, label, args, expected_key
     ) -> None:
-        """Given empty code, return empty performance patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_detect_anti_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty anti-patterns."""
-        result = await pattern_matching_skill.find_patterns("")
-        assert "patterns" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_match_dsl_patterns_empty(self, pattern_matching_skill) -> None:
-        """Given empty code, return empty DSL patterns."""
-        result = await pattern_matching_skill.find_patterns("", "sql")
-        assert "patterns" in result
+        """Given empty code, find_patterns returns a dict with patterns key."""
+        result = await pattern_matching_skill.find_patterns(*args)
+        assert expected_key in result
 
     @pytest.mark.unit
     @pytest.mark.asyncio
@@ -165,30 +135,42 @@ class TestTestingGuideCoverageGaps:
 
     @pytest.mark.unit
     @pytest.mark.asyncio
-    async def test_analyze_test_structure_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return empty structure."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert "recommendations" in result
+    @pytest.mark.parametrize(
+        "label,args,expected_key",
+        [
+            ("analyze test structure", ("",), "recommendations"),
+            ("identify anti patterns", ("",), "recommendations"),
+            ("suggest improvements", ("",), "recommendations"),
+        ],
+    )
+    async def test_analyze_testing_empty_returns_recommendations(
+        self, testing_guide_skill, label, args, expected_key
+    ) -> None:
+        """Given empty code, analyze_testing returns dict with recommendations."""
+        result = await testing_guide_skill.analyze_testing(*args)
+        assert expected_key in result
 
     @pytest.mark.unit
     @pytest.mark.asyncio
-    async def test_identify_anti_patterns_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return no anti-patterns."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert "recommendations" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_recommend_tdd_workflow_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return TDD workflow recommendation."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_evaluate_test_quality_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return quality evaluation."""
-        result = await testing_guide_skill.analyze_testing("")
+    @pytest.mark.parametrize(
+        "label,args",
+        [
+            ("recommend tdd workflow", ("",)),
+            ("evaluate test quality", ("",)),
+            ("generate test fixtures", ("",)),
+            ("analyze mock usage", ("",)),
+            ("recommend test types", ("",)),
+            ("validate async testing", ("",)),
+            ("analyze test performance", ("",)),
+            ("recommend testing tools", ("",)),
+            ("evaluate maintainability", ("",)),
+        ],
+    )
+    async def test_analyze_testing_empty_returns_dict(
+        self, testing_guide_skill, label, args
+    ) -> None:
+        """Given empty code, analyze_testing returns a dict."""
+        result = await testing_guide_skill.analyze_testing(*args)
         assert isinstance(result, dict)
 
     @pytest.mark.unit
@@ -196,60 +178,4 @@ class TestTestingGuideCoverageGaps:
     async def test_analyze_coverage_gaps_empty(self, testing_guide_skill) -> None:
         """Given empty code, return coverage gaps analysis."""
         result = await testing_guide_skill.analyze_testing("", "")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_suggest_improvements_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return empty suggestions."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert "recommendations" in result
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_generate_test_fixtures_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return minimal fixture."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_analyze_mock_usage_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return empty mock analysis."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_recommend_test_types_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return test type recommendations."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_validate_async_testing_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return async test validation."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_analyze_test_performance_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return empty performance analysis."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_recommend_testing_tools_empty(self, testing_guide_skill) -> None:
-        """Given empty project context, return tool recommendations."""
-        result = await testing_guide_skill.analyze_testing("")
-        assert isinstance(result, dict)
-
-    @pytest.mark.unit
-    @pytest.mark.asyncio
-    async def test_evaluate_maintainability_empty(self, testing_guide_skill) -> None:
-        """Given empty code, return maintainability evaluation."""
-        result = await testing_guide_skill.analyze_testing("")
         assert isinstance(result, dict)

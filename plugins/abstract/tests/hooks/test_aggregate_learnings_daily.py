@@ -296,6 +296,7 @@ class TestAutoPromoteChaining:
         )
         mock_promote = MagicMock()
         monkeypatch.setattr(hook_module, "run_auto_promote", mock_promote)
+        monkeypatch.setattr(hook_module, "run_post_learnings", MagicMock())
         monkeypatch.setattr(
             hook_module, "should_aggregate", MagicMock(return_value=True)
         )
@@ -305,6 +306,29 @@ class TestAutoPromoteChaining:
 
         hook_module.run_daily_pipeline()
         mock_promote.assert_called_once()
+
+    def test_chains_to_post_learnings_after_successful_aggregation(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given: Aggregation completed successfully
+        When: run_daily_pipeline() is called
+        Then: post_learnings is also triggered
+        """
+        monkeypatch.setattr(
+            hook_module, "run_aggregation", MagicMock(return_value=True)
+        )
+        monkeypatch.setattr(hook_module, "run_auto_promote", MagicMock())
+        mock_post = MagicMock()
+        monkeypatch.setattr(hook_module, "run_post_learnings", mock_post)
+        monkeypatch.setattr(
+            hook_module, "should_aggregate", MagicMock(return_value=True)
+        )
+        monkeypatch.setattr(
+            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
+        )
+
+        hook_module.run_daily_pipeline()
+        mock_post.assert_called_once()
 
     def test_skips_auto_promote_when_aggregation_fails(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
@@ -386,6 +410,7 @@ class TestAutoPromoteChaining:
             hook_module, "run_aggregation", MagicMock(return_value=True)
         )
         monkeypatch.setattr(hook_module, "run_auto_promote", MagicMock())
+        monkeypatch.setattr(hook_module, "run_post_learnings", MagicMock())
 
         hook_module.run_daily_pipeline()
         assert timestamp_path.exists()
@@ -437,6 +462,23 @@ class TestAutoPromoteErrorIsolation:
 
         # Should not raise
         hook_module.run_auto_promote()
+
+    def test_post_learnings_exception_is_swallowed(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given: _post_learnings raises an exception
+        When: run_post_learnings() is called
+        Then: Exception is silently caught (hook must not crash)
+        """
+        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
+
+        def boom():
+            raise RuntimeError("post boom")
+
+        monkeypatch.setattr(hook_module, "_post_learnings", boom)
+
+        # Should not raise
+        hook_module.run_post_learnings()
 
 
 # ---------------------------------------------------------------------------

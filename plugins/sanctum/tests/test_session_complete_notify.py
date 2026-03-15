@@ -130,6 +130,8 @@ class TestTerminalInfoDetection:
         """Given TERM_PROGRAM, includes terminal name."""
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
         monkeypatch.delenv("TMUX", raising=False)
+        monkeypatch.delenv("SSH_TTY", raising=False)
+        monkeypatch.delenv("SSH_CONNECTION", raising=False)
         monkeypatch.setenv("TERM_PROGRAM", "iTerm.app")
 
         with patch(

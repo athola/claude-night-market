@@ -13,12 +13,13 @@ Usage:
 
 from __future__ import annotations
 
-import argparse
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
+
+from leyline.tokens import DEFAULT_EXTENSION_TOKEN_RATIO, EXTENSION_TOKEN_RATIOS
 
 # Quota threshold constants
 CRITICAL_THRESHOLD = 95
@@ -54,24 +55,6 @@ class QuotaStatus:
     level: str  # "healthy", "warning", "critical"
     warnings: list[str] = field(default_factory=list)
     usage_percent: dict[str, float] = field(default_factory=dict)
-
-
-# Token estimation ratios by file type
-TOKEN_RATIOS = {
-    ".py": 3.2,
-    ".js": 3.2,
-    ".ts": 3.2,
-    ".go": 3.2,
-    ".rs": 3.2,
-    ".json": 3.6,
-    ".yaml": 3.6,
-    ".yml": 3.6,
-    ".toml": 3.6,
-    ".md": 4.2,
-    ".txt": 4.2,
-    ".rst": 4.2,
-}
-DEFAULT_TOKEN_RATIO = 4.0
 
 
 class QuotaTracker:
@@ -132,9 +115,9 @@ class QuotaTracker:
 
         # Reset daily counters if new day
         last_date = datetime.fromtimestamp(
-            self.usage.last_request_time, tz=UTC
+            self.usage.last_request_time, tz=timezone.utc
         ).date()
-        current_date = datetime.now(UTC).date()
+        current_date = datetime.now(timezone.utc).date()
         if current_date > last_date:
             self.usage.requests_today = 0
             self.usage.tokens_today = 0
@@ -261,7 +244,9 @@ class QuotaTracker:
             return 0
 
         size = path.stat().st_size
-        ratio = TOKEN_RATIOS.get(path.suffix.lower(), DEFAULT_TOKEN_RATIO)
+        ratio = EXTENSION_TOKEN_RATIOS.get(
+            path.suffix.lower(), DEFAULT_EXTENSION_TOKEN_RATIO
+        )
         return int(size / ratio)
 
     def estimate_task_tokens(
@@ -281,6 +266,8 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
+    import argparse  # noqa: PLC0415
+
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")
@@ -291,18 +278,19 @@ def main() -> None:
     tracker = QuotaTracker(service=args.service)
 
     if args.check:
-        _level, warnings = tracker.get_quota_status()
-        if warnings:
-            for _w in warnings:
-                pass
+        level, warnings = tracker.get_quota_status()
+        print(f"Status: {level}")
+        for w in warnings:
+            print(f"  Warning: {w}")
     elif args.estimate:
         total = tracker.estimate_task_tokens(args.estimate)
         can_proceed, issues = tracker.can_handle_task(total)
+        print(f"Estimated tokens: {total}")
         if can_proceed:
-            pass
+            print("OK: quota available")
         else:
-            for _issue in issues:
-                pass
+            for issue in issues:
+                print(f"  Issue: {issue}")
 
 
 if __name__ == "__main__":

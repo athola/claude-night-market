@@ -7,7 +7,7 @@ and commands working together, following TDD/BDD principles.
 from __future__ import annotations
 
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock
 
 import pytest
@@ -166,7 +166,7 @@ class TestReviewWorkflowIntegration:
                     'src/auth.py:3: query = "SELECT * FROM users'
                     " WHERE username = 'test_user'"
                 ),
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         ]
 
@@ -437,7 +437,7 @@ class TestAgentIntegration:
                     ),
                     "output": "Security vulnerability detected",
                     "timestamp": datetime.now(
-                        UTC,
+                        timezone.utc,
                     ).isoformat(),
                     "agent": "review-analyst",
                 }
@@ -608,7 +608,7 @@ class TestEvidenceChainContinuity:
                         "output": ("2 files changed, 15 insertions(+), 5 deletions(-)"),
                         "skill": "diff-analysis",
                         "timestamp": datetime.now(
-                            UTC,
+                            timezone.utc,
                         ).isoformat(),
                     }
                     evidence_log["evidence"].append(diff_evidence)

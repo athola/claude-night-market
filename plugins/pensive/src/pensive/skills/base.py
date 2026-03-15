@@ -6,10 +6,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
-from ..utils.content_parser import ContentParser
-from ..utils.report_generator import MarkdownReportGenerator
-from ..utils.severity_mapper import SeverityMapper
-
 
 @dataclass
 class ReviewFinding:
@@ -53,9 +49,6 @@ class BaseReviewSkill:
     def __init__(self) -> None:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
-        self._parser = ContentParser()
-        self._report_gen = MarkdownReportGenerator()
-        self._severity = SeverityMapper()
 
     def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
         """Analyze a file and return findings.
@@ -78,83 +71,3 @@ class BaseReviewSkill:
             lines.append("")
 
         return "\n".join(lines)
-
-    # ========================================================================
-    # Shared utility methods
-    # ========================================================================
-
-    def _get_code_content(self, context: Any, filename: str = "") -> str:
-        """Get file content from context.
-
-        Args:
-            context: Skill context with file access
-            filename: Optional filename
-
-        Returns:
-            File content as string
-        """
-        return self._parser.get_file_content(context, filename)
-
-    # Alias for backwards compat
-    _get_content = _get_code_content
-
-    def _find_line_number(self, content: str, position: int) -> int:
-        """Find line number for a character position.
-
-        Args:
-            content: Full content
-            position: Character position
-
-        Returns:
-            Line number (1-indexed)
-        """
-        return self._parser.find_line_number(content, position)
-
-    _find_line = _find_line_number
-
-    def _extract_code_snippet(self, content: str, line: int, context: int = 0) -> str:
-        """Extract code snippet around a line.
-
-        Args:
-            content: Full content
-            line: Line number
-            context: Context lines before/after
-
-        Returns:
-            Code snippet
-        """
-        return self._parser.extract_code_snippet(content, line, context)
-
-    _extract_snippet = _extract_code_snippet
-
-    def _categorize_severity(
-        self,
-        issues: list[dict[str, Any]],
-        custom_map: dict[str, str] | None = None,
-    ) -> list[dict[str, Any]]:
-        """Categorize issues by severity.
-
-        Args:
-            issues: List of issue dicts
-            custom_map: Optional custom severity mapping
-
-        Returns:
-            Categorized issues
-        """
-        return self._severity.categorize(issues, custom_map)
-
-    def _create_markdown_report(
-        self,
-        title: str,
-        sections: list[dict[str, Any]],
-    ) -> str:
-        """Create a markdown report.
-
-        Args:
-            title: Report title
-            sections: List of section dicts
-
-        Returns:
-            Markdown formatted report
-        """
-        return self._report_gen.create_report(title, sections)

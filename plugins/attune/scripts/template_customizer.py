@@ -85,16 +85,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# REFACTORING SUMMARY:
-# ===================
-# Before: 792 lines (embedded STRUCTURE_TEMPLATES with ~480 lines of data)
-# After: ~130 lines (data loaded from architecture_templates.yaml)
-# Savings: ~662 lines (~2,648 tokens @ 4 tokens/line)
-#
-# Pattern Applied:
-# 1. Extracted STRUCTURE_TEMPLATES dictionary to architecture_templates.yaml
-# 2. Added load_templates() function for YAML deserialization
-# 3. Updated __init__() to load templates from file
-# 4. Preserved all functionality with cleaner, more maintainable code

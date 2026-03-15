@@ -1136,7 +1136,7 @@ Feature timeline and version-specific capabilities.
 ### Claude Code 2.1.32 (February 2026)
 
 **New Model**:
-- ✅ **Claude Opus 4.6**: New flagship model with 200K context (1M beta), 128K max output, adaptive thinking with effort controls
+- ✅ **Claude Opus 4.6**: New flagship model with 1M context (GA), 128K max output, adaptive thinking with effort controls
   - **Effort Controls**: 4 levels (low/medium/high/max) trade reasoning depth against speed/cost
   - **Adaptive Thinking**: `thinking: {type: "adaptive"}` — Claude decides when and how deeply to think
   - **Server-Side Compaction**: Automatic API-level context summarization for infinite conversations

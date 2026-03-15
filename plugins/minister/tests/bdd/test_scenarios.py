@@ -15,7 +15,7 @@ Each scenario tests end-to-end functionality as experienced by actual users:
 from __future__ import annotations
 
 import csv
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -40,7 +40,7 @@ def _make_task(
     github_issue: str | None = None,
 ) -> Task:
     """Build a Task with sensible defaults for BDD tests."""
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     return Task(
         id=task_id,
         title=title,
@@ -374,7 +374,7 @@ class TestGitHubIntegrationWorkflow:
             "| Initiative | Done | In Progress | Completion | Avg Task % |" in comment
         )
 
-        ghyg_row = [l for l in lines if "GitHub Projects Hygiene" in l][0]
+        ghyg_row = [line for line in lines if "GitHub Projects Hygiene" in line][0]
         assert "1/2" in ghyg_row
         assert "50.0%" in ghyg_row
 
@@ -382,9 +382,9 @@ class TestGitHubIntegrationWorkflow:
         assert "- Total tasks: 3" in comment
 
         table_rows = [
-            l
-            for l in lines
-            if l.startswith("|") and "Initiative" not in l and "---" not in l
+            line
+            for line in lines
+            if line.startswith("|") and "Initiative" not in line and "---" not in line
         ]
         for row in table_rows:
             assert row.count("|") == 6

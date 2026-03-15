@@ -8,12 +8,14 @@ edge cases, and error paths.
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
+import speckit
+import speckit.caching
 from speckit.caching import (
     CacheManager,
     SpecKitCache,
@@ -178,8 +180,6 @@ class TestIsExpired:
         cache_path = cache._get_cache_path("k")
         cache_path.write_text("{}")
         # Force old mtime
-        import os
-
         old_time = time.time() - 7200
         os.utime(cache_path, (old_time, old_time))
         assert cache.is_expired("k") is True
@@ -288,7 +288,7 @@ class TestSetAndGet:
         """Should still store in memory/LRU even if disk write fails."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         # A set with a custom object that json.dump cannot serialize
-        unserializable = object()
+        object()
         # This should not raise -- the OSError/TypeError in file write is caught
         # Actually, json.dump raises TypeError not OSError for unserializable
         # But the broad except in the code only catches OSError
@@ -400,30 +400,26 @@ class TestGetCache:
 
     def test_returns_speckit_cache_instance(self, tmp_path: Path) -> None:
         """Should return a SpecKitCache instance."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
-            mod._cache_instance = None
+            speckit.caching._cache_instance = None
             with patch.object(Path, "home", return_value=tmp_path):
                 result = get_cache()
             assert isinstance(result, SpecKitCache)
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_returns_same_instance_on_repeated_calls(self, tmp_path: Path) -> None:
         """Should return the same object on subsequent calls (singleton)."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
-            mod._cache_instance = None
+            speckit.caching._cache_instance = None
             with patch.object(Path, "home", return_value=tmp_path):
                 first = get_cache()
                 second = get_cache()
             assert first is second
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
 
 # ============================================================================
@@ -436,11 +432,9 @@ class TestCachedDecorator:
 
     def test_caches_function_result(self, tmp_path: Path) -> None:
         """Should return cached result on second call."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
-            mod._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
             call_count = 0
 
             @cached(ttl=300)
@@ -456,16 +450,14 @@ class TestCachedDecorator:
             # Function called only once; second call served from cache
             assert call_count == 1
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_custom_key(self, tmp_path: Path) -> None:
         """Should use provided key instead of auto-generated one."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
 
             @cached(key="my.custom.key")
             def func() -> str:
@@ -474,16 +466,14 @@ class TestCachedDecorator:
             func()
             assert cache.get("my.custom.key") == "result"
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_data_arg_from_kwargs(self, tmp_path: Path) -> None:
         """Should include kwarg value in cache key when data_arg is set."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
             call_count = 0
 
             @cached(data_arg="name")
@@ -501,16 +491,14 @@ class TestCachedDecorator:
             # Alice called once (second call cached), Bob once
             assert call_count == 2
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_data_arg_from_positional(self, tmp_path: Path) -> None:
         """Should extract data_arg from positional args when not in kwargs."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
             call_count = 0
 
             @cached(data_arg="name")
@@ -525,15 +513,13 @@ class TestCachedDecorator:
             assert r2 == "Hi Charlie"
             assert call_count == 1
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_preserves_function_metadata(self, tmp_path: Path) -> None:
         """Should preserve the wrapped function name and docstring."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
-            mod._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
 
             @cached()
             def my_documented_func() -> None:
@@ -542,16 +528,14 @@ class TestCachedDecorator:
             assert my_documented_func.__name__ == "my_documented_func"
             assert my_documented_func.__doc__ == "My docstring."
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_no_ttl_uses_default(self, tmp_path: Path) -> None:
         """Should use default TTL when none is specified."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
 
             @cached()
             def func() -> str:
@@ -559,7 +543,7 @@ class TestCachedDecorator:
 
             func()
             # Value should be cached with default TTL (3600s)
-            cache_key = (
+            (
                 f"{func.__module__}.{func.__wrapped__.__name__}"
                 if hasattr(func, "__wrapped__")
                 else None
@@ -567,16 +551,14 @@ class TestCachedDecorator:
             # Just verify it returns cached value
             assert func() == "value"
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_data_arg_not_found_in_args(self, tmp_path: Path) -> None:
         """Should work without error when data_arg is not in args or kwargs."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
 
             @cached(data_arg="nonexistent_param")
             def func(x: int) -> int:
@@ -586,7 +568,7 @@ class TestCachedDecorator:
             # Should still work, just without data-specific keying
             assert func(10) == 11
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
 
 # ============================================================================
@@ -626,24 +608,20 @@ class TestCacheManager:
 
     def test_cache_result_returns_decorator(self, tmp_path: Path) -> None:
         """Should return a callable decorator."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
-            mod._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = SpecKitCache(cache_dir=tmp_path / "cache")
             decorator = CacheManager.cache_result("spec_parsing")
             assert callable(decorator)
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_cache_result_uses_category_ttl(self, tmp_path: Path) -> None:
         """Should apply the category-specific TTL to the decorator."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
             call_count = 0
 
             @CacheManager.cache_result("artifact_validation")
@@ -658,16 +636,14 @@ class TestCacheManager:
             assert r2 == "valid"
             assert call_count == 1
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_cache_result_unknown_category_uses_default(self, tmp_path: Path) -> None:
         """Should fall back to spec_parsing TTL for unknown categories."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
 
             @CacheManager.cache_result("unknown_category")
             def process() -> str:
@@ -675,16 +651,14 @@ class TestCacheManager:
 
             assert process() == "done"
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_cache_result_with_custom_key(self, tmp_path: Path) -> None:
         """Should pass custom key through to the decorator."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
 
             @CacheManager.cache_result("plan_generation", key="my.plan")
             def plan() -> str:
@@ -693,22 +667,20 @@ class TestCacheManager:
             plan()
             assert cache.get("my.plan") == "planned"
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
     def test_invalidate_category_clears_cache(self, tmp_path: Path) -> None:
         """Should clear all caches when invalidating a category."""
-        import speckit.caching as mod
-
-        original = mod._cache_instance
+        original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
-            mod._cache_instance = cache
+            speckit.caching._cache_instance = cache
             cache.set("some_key", "some_value")
             CacheManager.invalidate_category("spec_parsing")
             # invalidate_category calls cache.invalidate() which clears everything
             assert cache.get("some_key") is None
         finally:
-            mod._cache_instance = original
+            speckit.caching._cache_instance = original
 
 
 # ============================================================================
@@ -721,15 +693,11 @@ class TestPackageExports:
 
     def test_version_defined(self) -> None:
         """Should export a version string."""
-        import speckit
-
         assert isinstance(speckit.__version__, str)
         assert len(speckit.__version__.split(".")) == 3
 
     def test_all_exports(self) -> None:
         """Should export exactly the expected symbols."""
-        import speckit
-
         assert set(speckit.__all__) == {
             "CacheManager",
             "SpecKitCache",
@@ -739,8 +707,6 @@ class TestPackageExports:
 
     def test_reexports_are_correct_types(self) -> None:
         """Should re-export the actual classes and functions."""
-        import speckit
-
         assert speckit.SpecKitCache is SpecKitCache
         assert speckit.CacheManager is CacheManager
         assert speckit.cached is cached

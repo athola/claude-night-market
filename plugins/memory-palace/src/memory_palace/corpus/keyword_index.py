@@ -14,8 +14,9 @@ from typing import Any
 
 import yaml
 
+from memory_palace.corpus._frontmatter import parse_entry_frontmatter, split_entry
+
 MIN_WORD_LEN = 3
-FRONTMATTER_PARTS = 3
 
 
 class KeywordIndexer:
@@ -62,79 +63,60 @@ class KeywordIndexer:
             content = entry_path.read_text()
 
             # Split frontmatter and content
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= FRONTMATTER_PARTS:
-                    frontmatter = parts[1]
-                    body = parts[2]
+            metadata, body = split_entry(content)
 
-                    # Parse YAML frontmatter
-                    try:
-                        metadata = yaml.safe_load(frontmatter)
-                        if metadata:
-                            # Extract from tags
-                            if "tags" in metadata and isinstance(
-                                metadata["tags"], list
-                            ):
-                                keywords.update(tag.lower() for tag in metadata["tags"])
+            if metadata:
+                # Extract from tags
+                if "tags" in metadata and isinstance(metadata["tags"], list):
+                    keywords.update(tag.lower() for tag in metadata["tags"])
 
-                            # Extract from title
-                            if "title" in metadata:
-                                title = metadata["title"].lower()
-                                title_words = re.findall(
-                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b", title
-                                )
-                                keywords.update(title_words)
+                # Extract from title
+                if "title" in metadata:
+                    title = metadata["title"].lower()
+                    title_words = re.findall(rf"\b[a-z]{{{MIN_WORD_LEN},}}\b", title)
+                    keywords.update(title_words)
 
-                            # Extract from palace/district
-                            if "palace" in metadata:
-                                palace_words = re.findall(
-                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
-                                    metadata["palace"].lower(),
-                                )
-                                keywords.update(palace_words)
-
-                            if "district" in metadata:
-                                district_words = re.findall(
-                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
-                                    metadata["district"].lower(),
-                                )
-                                keywords.update(district_words)
-
-                    except yaml.YAMLError:
-                        # Skip if YAML parsing fails
-                        # YAML parsing errors are expected and can be safely ignored
-                        pass
-
-                    # Extract from content
-                    # Get headings (## Something)
-                    headings = re.findall(r"^#{1,3}\s+(.+)$", body, re.MULTILINE)
-                    for heading in headings:
-                        heading_words = re.findall(r"\b[a-z]{3,}\b", heading.lower())
-                        keywords.update(heading_words)
-
-                    # Get emphasized terms (**term** or *term*)
-                    emphasized = re.findall(r"\*\*([^*]+)\*\*|\*([^*]+)\*", body)
-                    for match in emphasized:
-                        term = match[0] or match[1]
-                        term_words = re.findall(r"\b[a-z]{3,}\b", term.lower())
-                        keywords.update(term_words)
-
-                    # Extract key technical terms (hyphenated, camelCase)
-                    technical_terms = re.findall(
-                        r"\b[a-z]+(?:-[a-z]+)+\b", body.lower()
+                # Extract from palace/district
+                if "palace" in metadata:
+                    palace_words = re.findall(
+                        rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
+                        metadata["palace"].lower(),
                     )
-                    keywords.update(technical_terms)
+                    keywords.update(palace_words)
 
-                    # Extract significant noun phrases (consecutive capitalized words)
-                    # Helps catch phrases like "Gradient Descent" or "Machine Learning"
-                    noun_phrases = re.findall(
-                        r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body
+                if "district" in metadata:
+                    district_words = re.findall(
+                        rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
+                        metadata["district"].lower(),
                     )
-                    for phrase in noun_phrases:
-                        # Add both the phrase and individual words
-                        phrase_words = re.findall(r"\b[a-z]{3,}\b", phrase.lower())
-                        keywords.update(phrase_words)
+                    keywords.update(district_words)
+
+            if body != content:
+                # Extract from content (only if frontmatter was found)
+                # Get headings (## Something)
+                headings = re.findall(r"^#{1,3}\s+(.+)$", body, re.MULTILINE)
+                for heading in headings:
+                    heading_words = re.findall(r"\b[a-z]{3,}\b", heading.lower())
+                    keywords.update(heading_words)
+
+                # Get emphasized terms (**term** or *term*)
+                emphasized = re.findall(r"\*\*([^*]+)\*\*|\*([^*]+)\*", body)
+                for match in emphasized:
+                    term = match[0] or match[1]
+                    term_words = re.findall(r"\b[a-z]{3,}\b", term.lower())
+                    keywords.update(term_words)
+
+                # Extract key technical terms (hyphenated, camelCase)
+                technical_terms = re.findall(r"\b[a-z]+(?:-[a-z]+)+\b", body.lower())
+                keywords.update(technical_terms)
+
+                # Extract significant noun phrases (consecutive capitalized words)
+                # Helps catch phrases like "Gradient Descent" or "Machine Learning"
+                noun_phrases = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body)
+                for phrase in noun_phrases:
+                    # Add both the phrase and individual words
+                    phrase_words = re.findall(r"\b[a-z]{3,}\b", phrase.lower())
+                    keywords.update(phrase_words)
 
         except Exception:
             # File read errors are expected in some tests; treat as no keywords.
@@ -213,16 +195,10 @@ class KeywordIndexer:
             title = entry_id
             tags = []
 
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= FRONTMATTER_PARTS:
-                    try:
-                        metadata = yaml.safe_load(parts[1])
-                        if metadata:
-                            title = metadata.get("title", title)
-                            tags = metadata.get("tags", [])
-                    except yaml.YAMLError:
-                        pass
+            metadata = parse_entry_frontmatter(content)
+            if metadata:
+                title = metadata.get("title", title)
+                tags = metadata.get("tags", [])
 
             # Store entry data
             entries[entry_id] = {

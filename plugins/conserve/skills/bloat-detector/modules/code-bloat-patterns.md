@@ -18,7 +18,10 @@ Detect anti-patterns using pattern recognition and heuristics. Works without ext
 
 ```bash
 # Quick detection
-find . -name "*.py" -exec sh -c 'lines=$(wc -l < "$1"); [ $lines -gt 500 ] && echo "GOD_CLASS: $1 - $lines lines"' _ {} \;
+find . -name "*.py" \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  -exec sh -c 'lines=$(wc -l < "$1"); [ $lines -gt 500 ] && echo "GOD_CLASS: $1 - $lines lines"' _ {} \;
 ```
 **Confidence:** HIGH (85%) | **Action:** REFACTOR into focused modules
 
@@ -96,7 +99,7 @@ grep -rn "^def " --include="*.py" . | awk -F'def ' '{print $2}' | \
 
 ```bash
 # Find Python files that only re-export from other internal modules
-for f in $(find . -name "*.py" -not -path "*/test*" -not -path "*/__pycache__/*"); do
+for f in $(find . -name "*.py" -not -path "*/test*" -not -path "*/__pycache__/*" -not -path "*/.venv/*" -not -path "*/node_modules/*" -not -path "*/.git/*"); do
   # Check if file mostly imports and re-calls another module's functions
   imports=$(grep -c "^from \.\." "$f" 2>/dev/null || echo 0)
   total=$(wc -l < "$f" 2>/dev/null || echo 0)

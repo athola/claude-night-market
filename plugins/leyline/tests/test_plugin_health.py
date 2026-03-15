@@ -33,7 +33,7 @@ class TestDocFreshness:
         """Scenario: Plugin has markdown documentation
         Given a plugin directory with .md files
         When measuring documentation freshness
-        Then it reports the age of the most recent .md file
+        Then it reports the age of the most recent .md file.
         """
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
@@ -48,7 +48,7 @@ class TestDocFreshness:
         """Scenario: Plugin has no documentation
         Given an empty plugin directory
         When measuring documentation freshness
-        Then it reports "not measured"
+        Then it reports "not measured".
         """
         plugin_dir = tmp_path / "plugins" / "empty-plugin"
         plugin_dir.mkdir(parents=True)
@@ -65,7 +65,7 @@ class TestImprovementVelocity:
         """Scenario: Plugin has stewardship actions
         Given a stewardship tracker with actions for a plugin
         When measuring improvement velocity
-        Then it reports the count of recent actions
+        Then it reports the count of recent actions.
         """
         actions_dir = tmp_path / "stewardship"
         actions_dir.mkdir(parents=True)
@@ -84,7 +84,7 @@ class TestImprovementVelocity:
         """Scenario: No stewardship tracker exists
         Given an empty directory with no actions file
         When measuring improvement velocity
-        Then it reports "not measured"
+        Then it reports "not measured".
         """
         actions_dir = tmp_path / "empty"
         result = measure_improvement_velocity(actions_dir, "sanctum")
@@ -99,7 +99,7 @@ class TestGetPluginHealth:
         """Scenario: Full health report
         Given a plugin directory exists
         When getting the full health report
-        Then it contains all 6 dimension keys
+        Then it contains all 6 dimension keys.
         """
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
@@ -125,7 +125,7 @@ class TestGetPluginHealth:
         """Scenario: Plugin directory does not exist
         Given a non-existent plugin path
         When getting the health report
-        Then all dimensions report "not measured"
+        Then all dimensions report "not measured".
         """
         health = get_plugin_health(
             plugin_dir=tmp_path / "nonexistent",
@@ -133,7 +133,7 @@ class TestGetPluginHealth:
             plugin_name="ghost",
         )
 
-        for key, value in health.items():
+        for _key, value in health.items():
             assert value == "not measured"
 
 

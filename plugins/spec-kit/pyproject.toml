@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.6.2"
+version = "1.6.3"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -18,8 +18,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -29,27 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    # Core dependencies with version pinning
-    "pydantic>=2.5.0,<3.0.0",          # For data validation and settings
-    "click>=8.1.0,<9.0.0",              # For CLI interface
-    "rich>=13.6.0,<14.0.0",             # For rich text output
-    "jinja2>=3.1.0,<4.0.0",             # For template rendering
-    "pyyaml>=6.0.0,<7.0.0",             # For YAML configuration
-    "jsonschema>=4.19.0,<5.0.0",        # For schema validation
-    "gitpython>=3.1.40,<4.0.0",         # For git operations
-    "pathlib2>=2.3.7,<3.0.0; python_version<'3.4'",  # Backport for older Python
-    # Testing dependencies
-    "pytest>=7.4.0,<8.0.0",
-    "pytest-cov>=4.1.0,<5.0.0",
-    "pytest-mock>=3.12.0,<4.0.0",
-    "pytest-asyncio>=0.21.0,<1.0.0",
-    # Performance and monitoring
-    "psutil>=5.9.0,<6.0.0",             # For system monitoring
-    "memory-profiler>=0.61.0,<1.0.0",   # For memory profiling
-    # Documentation
-    "mkdocs>=1.5.0,<2.0.0",
-    "mkdocs-material>=9.4.0,<10.0.0",
-    "mkdocstrings[python]>=0.23.0,<1.0.0",
+    "pyyaml>=6.0.0,<7.0.0",
     "cachetools>=5.5.2",
 ]
 
@@ -62,6 +40,12 @@ dev = [
     "pre-commit>=3.5.0,<4.0.0",         # Git hooks
     "types-cachetools>=5.3.0.0",
 
+    # Testing
+    "pytest>=7.4.0,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "pytest-mock>=3.12.0,<4.0.0",
+    "pytest-asyncio>=0.21.0,<1.0.0",
+
     # Advanced testing
     "pytest-xdist>=3.3.0,<4.0.0",       # Parallel testing
     "pytest-benchmark>=4.0.0,<5.0.0",   # Performance testing
@@ -72,33 +56,12 @@ dev = [
     "safety>=2.3.0,<3.0.0",             # Dependency vulnerability checker
 ]
 
-performance = [
-    # Performance optimization dependencies
-    "orjson>=3.9.0,<4.0.0",             # Fast JSON parsing
-    "ujson>=5.8.0,<6.0.0",              # Ultra fast JSON
-    "cachetools>=5.3.0,<6.0.0",         # Caching utilities
-    "redis>=5.0.0,<6.0.0",              # For distributed caching (optional)
-]
-
-monitoring = [
-    # Monitoring and observability
-    "prometheus-client>=0.18.0,<1.0.0",  # Prometheus metrics
-    "structlog>=23.2.0,<24.0.0",         # Structured logging
-    "opentelemetry-api>=1.20.0,<2.0.0", # OpenTelemetry support
-]
-
 [project.urls]
-Homepage = "https://github.com/superpowers-marketplace/spec-kit"
+Homepage = "https://github.com/github/spec-kit"
 Documentation = "https://spec-kit.readthedocs.io"
-Repository = "https://github.com/superpowers-marketplace/spec-kit"
-"Bug Tracker" = "https://github.com/superpowers-marketplace/spec-kit/issues"
-Changelog = "https://github.com/superpowers-marketplace/spec-kit/blob/main/CHANGELOG.md"
-
-# [project.scripts]
-# speckit = "speckit.cli:main"  # CLI not yet implemented
-
-# [tool.hatch.version]
-# path = "src/speckit/__init__.py"
+Repository = "https://github.com/github/spec-kit"
+"Bug Tracker" = "https://github.com/github/spec-kit/issues"
+Changelog = "https://github.com/github/spec-kit/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -115,28 +78,9 @@ include = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/speckit"]
 
-# Black configuration
-[tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
-
 # Ruff configuration
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 88
 
 [tool.ruff.lint]
@@ -158,7 +102,9 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/*" = ["B011"]
+"tests/*" = ["B011", "S101", "PLR2004", "D102", "D103", "S108", "PLC0415", "D205"]
+"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
+"src/speckit/caching.py" = ["E402"]
 
 # MyPy configuration
 [tool.mypy]
@@ -178,10 +124,7 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
-    "git.*",
-    "rich.*",
-    "psutil.*",
-    "memory_profiler.*",
+    "cachetools.*",
 ]
 ignore_missing_imports = true
 
@@ -243,4 +186,8 @@ dev = [
     "black",
     "mypy",
     "ruff",
+    "pytest>=7.4.0,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "pytest-mock>=3.12.0,<4.0.0",
+    "pytest-asyncio>=0.21.0,<1.0.0",
 ]

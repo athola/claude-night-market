@@ -29,7 +29,7 @@ class RustReviewSkill(BaseReviewSkill):
     supported_languages: ClassVar[list[str]] = ["rust"]
 
     _cached_content: str = ""
-    _cached_lines: list[str] = []
+    _cached_lines: list[str] = []  # noqa: RUF012
 
     def _get_lines(self, content: str) -> list[str]:
         if self._cached_content is not content:

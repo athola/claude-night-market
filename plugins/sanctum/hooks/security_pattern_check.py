@@ -13,13 +13,15 @@ Improvements:
 - Code blocks in docs showing anti-patterns are allowed.
 - Actual code files still get strict checking.
 
-Using both this hook and `claude-code-plugins/security-guidance` may produce duplicate warnings.
-To use only this version, disable the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
+Using both this hook and `claude-code-plugins/security-guidance`
+may produce duplicate warnings. To use only this version, disable
+the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
 """
 
 import json
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -66,6 +68,15 @@ def get_security_patterns():
             "Consider using JSON or other safe formats.",
         },
     ]
+
+
+@lru_cache(maxsize=1)
+def _get_compiled_patterns():
+    """Return compiled security patterns, caching on first call."""
+    return tuple(
+        {**cfg, "compiled": re.compile(cfg["pattern"], re.IGNORECASE)}
+        for cfg in get_security_patterns()
+    )
 
 
 # Context words indicating documentation rather than actual code
@@ -136,7 +147,7 @@ def check_content(file_path: str, content: str) -> tuple:
     """Scan content for security patterns."""
     path = Path(file_path)
     is_docs = is_documentation_file(file_path)
-    patterns = get_security_patterns()
+    patterns = _get_compiled_patterns()
 
     for pattern_config in patterns:
         # Skip if pattern doesn't apply to this file type
@@ -145,9 +156,7 @@ def check_content(file_path: str, content: str) -> tuple:
             if file_types and path.suffix.lower() not in file_types:
                 continue
 
-        regex = re.compile(pattern_config["pattern"], re.IGNORECASE)
-
-        for match in regex.finditer(content):
+        for match in pattern_config["compiled"].finditer(content):
             match_pos = match.start()
 
             # For documentation, require positive evidence of actual code

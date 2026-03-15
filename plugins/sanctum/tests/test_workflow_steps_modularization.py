@@ -209,7 +209,7 @@ class TestCrossReferences:
                 next_step = i + 1
                 if next_step <= 6:
                     # Flexible check - either links to next step or mentions it
-                    has_next_ref = (
+                    (
                         f"Step {next_step}" in content
                         or f"{next_step}-" in content
                         or f"step-{next_step}" in content.lower()

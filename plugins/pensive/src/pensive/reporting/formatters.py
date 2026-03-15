@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+from pensive.utils.severity_mapper import SeverityMapper
 
 
 class MarkdownFormatter:
@@ -31,8 +34,6 @@ class MarkdownFormatter:
         lines = ["# Code Review Results", ""]
 
         # Summary
-        from pensive.utils.severity_mapper import SeverityMapper
-
         counts = SeverityMapper.count_by_severity(findings)
         critical = counts["critical"]
         high = counts["high"]
@@ -99,8 +100,6 @@ class SarifFormatter:
         Returns:
             SARIF JSON string
         """
-        import json  # noqa: PLC0415
-
         sarif = {
             "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
             "version": "2.1.0",
@@ -189,6 +188,4 @@ class SarifFormatter:
 
     def to_json(self, results: dict[str, Any]) -> str:
         """Format results as SARIF JSON string (legacy method)."""
-        import json  # noqa: PLC0415
-
         return json.dumps(results)

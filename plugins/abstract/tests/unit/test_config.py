@@ -594,7 +594,6 @@ class TestConfigFactory:
         When get_config is called
         Then debug is True
         """
-
         ConfigFactory.reset_config("test_env_fallback")
         monkeypatch.setenv("ABSTRACT_DEBUG", "yes")
         original = os.getcwd()

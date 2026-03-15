@@ -92,7 +92,7 @@ class TestPhase2SkillPerformanceAnalysis:
 
         # 2 successes, 8 failures = 20% success rate
         lines = []
-        for i in range(2):
+        for _i in range(2):
             lines.append(
                 json.dumps(
                     {
@@ -102,7 +102,7 @@ class TestPhase2SkillPerformanceAnalysis:
                     }
                 )
             )
-        for i in range(8):
+        for _i in range(8):
             lines.append(
                 json.dumps(
                     {

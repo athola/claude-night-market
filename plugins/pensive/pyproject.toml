@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.6.2"
+version = "1.6.3"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -20,19 +20,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "click>=8.0.0",
     "pyyaml>=6.0",
-    "jsonschema>=4.0.0",
     "psutil>=5.8.0",
-    "gitpython>=3.1.0",
-    "tree-sitter>=0.20.0",
-    "tree-sitter-python>=0.20.0",
-    "tree-sitter-javascript>=0.20.0",
-    "tree-sitter-rust>=0.20.0",
-    "tree-sitter-typescript>=0.20.0",
-    "tree-sitter-make>=0.20.0",
-    "requests>=2.28.0",
-    "toml>=0.10.2",
 ]
 
 [project.optional-dependencies]
@@ -60,9 +49,6 @@ Homepage = "https://github.com/anthropics/pensive"
 Documentation = "https://pensive.readthedocs.io/"
 Repository = "https://github.com/anthropics/pensive.git"
 "Bug Tracker" = "https://github.com/anthropics/pensive/issues"
-
-[project.scripts]
-pensive = "pensive.cli:main"
 
 [dependency-groups]
 dev = [
@@ -140,26 +126,6 @@ precision = 2
 [tool.coverage.html]
 directory = "htmlcov"
 
-[tool.black]
-line-length = 88
-target-version = ["py310", "py311", "py312"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
 [tool.ruff]
 target-version = "py310"
 line-length = 88
@@ -192,10 +158,16 @@ unfixable = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = [
-    "ARG001", # Unused function args in tests
-    "ARG002", # Unused method args in tests
+    "ARG001",  # Unused function args in tests
+    "ARG002",  # Unused method args in tests
     "PLR2004", # Magic value used in comparison
-    "S101",   # Use of assert detected
+    "S101",    # Use of assert detected
+    "D102",    # Missing method docstrings in test classes
+    "D103",    # Missing function docstrings in tests
+    "S108",    # Allow hardcoded temp paths in tests
+    "PLC0415", # Allow conditional imports
+    "D205",    # Multiline docstring summary (Given/When/Then patterns)
+    "PLR0913", # Too many arguments in test helpers
 ]
 "__init__.py" = [
     "F401",   # Unused import
@@ -263,8 +235,6 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tree_sitter.*",
-    "git.*",
     "psutil.*",
 ]
 ignore_missing_imports = true

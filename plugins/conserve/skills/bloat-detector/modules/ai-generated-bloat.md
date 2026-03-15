@@ -86,11 +86,16 @@ done
 
 ```bash
 # Files without test coverage
-find . -name "*.py" ! -path "*/test*" -exec sh -c '
+find . -name "*.py" ! -path "*/test*" \
+  -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  -exec sh -c '
   lines=$(wc -l < "$1")
   if [ $lines -gt 200 ]; then
     base=$(basename "$1" .py)
-    test_exists=$(find . -name "test_${base}.py" -o -name "${base}_test.py" | head -1)
+    test_exists=$(find . -name "test_${base}.py" -o -name "${base}_test.py" \
+      -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+      -not -path "*/node_modules/*" -not -path "*/.git/*" | head -1)
     [ -z "$test_exists" ] && echo "UNTESTED ($lines lines): $1"
   fi
 ' _ {} \;
@@ -129,13 +134,15 @@ done
 # Docker complexity for simple apps
 if [ -f docker-compose.yml ]; then
   services=$(grep -c "^  [a-z].*:$" docker-compose.yml)
-  code_lines=$(find . -name "*.py" -o -name "*.js" | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+  code_lines=$(find . \( -name "*.py" -o -name "*.js" \) \
+    -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
+    -not -path "*/node_modules/*" -not -path "*/.git/*" | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
   ratio=$((code_lines / services))
   [ $ratio -lt 500 ] && echo "ENTERPRISE_COSPLAY: $services services for $code_lines lines"
 fi
 
 # Kubernetes for CRUD
-[ -d k8s ] && [ $(find . -name "*.py" | xargs wc -l | tail -1 | awk '{print $1}') -lt 5000 ] && \
+[ -d k8s ] && [ $(find . -name "*.py" -not -path "*/.venv/*" -not -path "*/__pycache__/*" -not -path "*/node_modules/*" -not -path "*/.git/*" | xargs wc -l | tail -1 | awk '{print $1}') -lt 5000 ] && \
   echo "ENTERPRISE_COSPLAY: Kubernetes for <5000 lines"
 ```
 
@@ -150,7 +157,7 @@ fi
 ```bash
 # Hedge word density (AI slop indicators)
 hedge_words="worth noting|arguably|to some extent|it's important|consider that|generally speaking"
-for f in $(find . -name "*.md"); do
+for f in $(find . -name "*.md" -not -path "*/.venv/*" -not -path "*/node_modules/*" -not -path "*/.git/*"); do
   total=$(wc -w < "$f")
   hedges=$(grep -oiE "$hedge_words" "$f" | wc -l)
   if [ $total -gt 100 ]; then

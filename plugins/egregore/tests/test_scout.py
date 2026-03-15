@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import subprocess
 from unittest.mock import MagicMock, patch
@@ -230,8 +231,6 @@ class TestFetchContributingGuide:
     @patch("subprocess.run")
     def test_returns_decoded_content_on_success(self, mock_run: MagicMock) -> None:
         """Given gh api returns base64 content, when fetching, then decodes it."""
-        import base64
-
         raw_content = "# Contributing\n\nPlease read this guide.\n"
         encoded = base64.b64encode(raw_content.encode()).decode()
         mock_run.return_value = MagicMock(returncode=0, stdout=encoded + "\n")

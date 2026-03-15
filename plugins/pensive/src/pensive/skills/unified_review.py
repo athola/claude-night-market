@@ -5,6 +5,9 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
+from pensive.analysis.repository_analyzer import RepositoryAnalyzer
+from pensive.utils.severity_mapper import SeverityMapper
+
 from .base import AnalysisResult, BaseReviewSkill
 
 
@@ -47,8 +50,6 @@ class UnifiedReviewSkill(BaseReviewSkill):
         Returns:
             Dictionary mapping language names to detection metadata
         """
-        from pensive.analysis.repository_analyzer import RepositoryAnalyzer
-
         files = context.get_files()
         languages: dict[str, Any] = {}
 
@@ -201,8 +202,6 @@ class UnifiedReviewSkill(BaseReviewSkill):
         Returns:
             Markdown-formatted summary
         """
-        from pensive.utils.severity_mapper import SeverityMapper
-
         summary_parts = ["## Summary\n"]
 
         severity_counts = SeverityMapper.count_by_severity(findings)
@@ -359,9 +358,6 @@ class UnifiedReviewSkill(BaseReviewSkill):
             result = dispatch_agent(skill, context)
             results.append(result)
         return results
-
-    # Backwards-compatible alias
-    execute_skills_concurrently = execute_skills
 
     def format_findings(self, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Format findings for display.

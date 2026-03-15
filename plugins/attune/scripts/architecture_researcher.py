@@ -203,17 +203,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# REFACTORING SUMMARY:
-# ===================
-# Before: 641 lines (embedded PARADIGM_MATRIX with complex nested structure)
-# After: ~180 lines (data loaded from paradigm_decision_matrix.yaml)
-# Savings: ~461 lines (~1,844 tokens @ 4 tokens/line)
-#
-# Pattern Applied:
-# 1. Extracted PARADIGM_MATRIX to paradigm_decision_matrix.yaml
-# 2. Extracted project type, scalability, and security modifiers to YAML
-# 3. Added load_decision_matrix() function for YAML deserialization
-# 4. Updated __init__() to load matrix from file
-# 5. Preserved all decision logic with cleaner architecture

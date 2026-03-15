@@ -28,7 +28,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then total_tools is 1 and the tool is in results
         """
-
         # Create a simple executable Python script
         tool_file = tmp_path / "my-tool.py"
         tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")
@@ -46,7 +45,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then the test file is not counted as a tool
         """
-
         test_tool = tmp_path / "test_helper.py"
         test_tool.write_text("#!/usr/bin/env python3\npass\n")
         test_tool.chmod(0o755)
@@ -58,7 +56,6 @@ class TestToolPerformanceAnalyzerExtended:
     @pytest.mark.unit
     def test_analyze_tools_excludes_hidden_files(self, tmp_path: Path) -> None:
         """Scenario: Hidden files (starting with '.') are excluded."""
-
         hidden_tool = tmp_path / ".hidden-tool"
         hidden_tool.write_text("#!/usr/bin/env python3\npass\n")
         hidden_tool.chmod(0o755)
@@ -74,7 +71,6 @@ class TestToolPerformanceAnalyzerExtended:
         When get_performance_report is called
         Then the report includes 'Detailed Results' section
         """
-
         tool_file = tmp_path / "my-tool.py"
         tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")
         tool_file.chmod(0o755)
@@ -91,7 +87,6 @@ class TestToolPerformanceAnalyzerExtended:
         When analyze_tools is called
         Then the tool result dict has execution_time, exit_code, success
         """
-
         tool_file = tmp_path / "my-tool.py"
         tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")
         tool_file.chmod(0o755)

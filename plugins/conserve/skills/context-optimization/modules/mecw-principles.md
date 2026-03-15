@@ -79,14 +79,59 @@ This complements our MECW thresholds:
 - **Status line** shows accurate current usage %
 - **/context command** shows detailed breakdown by plugin (2.0.74+)
 
-### Variable Context Windows (Opus 4.6 / Claude Code 2.1.32+)
+### 1M Context Window (GA, March 2025)
 
-With Opus 4.6, context windows vary: 200K standard, 1M beta. MECW thresholds scale proportionally:
+1M tokens is now generally available for Opus 4.6 and
+Sonnet 4.6 at standard pricing (no long-context premium).
+MECW thresholds scale proportionally:
 
 | Context Window | 30% (Optimal) | 50% (MECW Limit) | 80% (Emergency) |
 |---------------|---------------|-------------------|------------------|
 | **200K** | 60K tokens | 100K tokens | 160K tokens |
-| **1M (beta)** | 300K tokens | 500K tokens | 800K tokens |
+| **1M** | 300K tokens | 500K tokens | 800K tokens |
+
+> **Note**: The statusline reads `context_window_size`
+> dynamically from the Claude Code JSON input, so it
+> adapts automatically to whatever window the model
+> reports (200K for Sonnet/Haiku, 1M for Opus).
+
+#### Why Conservation Still Matters at 1M
+
+A 1M window full of repeated tool outputs and stale file
+reads performs worse than 200K of relevant, structured
+state. The performance dropoff at 800-900K tokens still
+exists even if less dramatic. Additionally:
+
+- **Quota burn**: Larger context = more input tokens per
+  turn = faster quota consumption. Surgical reads and
+  selective loading protect your budget.
+- **Attention dilution**: Model attention spreads across
+  more tokens. Earlier context gets progressively less
+  weight. Conservation keeps signal-to-noise high.
+- **Agentic compounding**: Parallel agents each accumulate
+  tool outputs independently. 5 agents at 200K each can
+  collectively burn 1M in tokens while the parent context
+  stays lean. Use git worktrees to isolate agent state.
+
+#### The Plan-Clear-Implement Pattern
+
+The 1M window's greatest benefit is enabling large
+implementation plans without compaction interruptions:
+
+1. **Plan**: Construct the full implementation plan
+   (built-in planning, spec-kit, or similar)
+2. **Clear**: `/compact` or `/clear` to start with a
+   clean context (built-in planning does this
+   automatically before implementation)
+3. **Implement**: Execute the plan without compaction,
+   maintaining full context of what was done and why
+4. **Iterate**: Make follow-up changes while still on
+   the same topic with the same context
+5. **Repeat**: New plan, new clear, new implementation
+
+This pattern avoids the old cycle of compact, lose
+context, re-explore code, repeat instructions. With
+discipline, automatic compaction becomes rare.
 
 Server-side compaction (Opus 4.6) provides an additional
 safety net: the API automatically summarizes earlier
@@ -151,7 +196,8 @@ frequently resume sessions.
 
 ```python
 class MECWMonitor:
-    def __init__(self, max_context=200000):
+    """max_context defaults to 1M (Opus 4.6 GA default)."""
+    def __init__(self, max_context=1_000_000):
         self.max_context = max_context
         self.mecw_threshold = max_context * 0.5
 

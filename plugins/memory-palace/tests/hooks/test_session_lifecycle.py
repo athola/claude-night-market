@@ -62,7 +62,7 @@ def _minimal_payload(**overrides: object) -> dict:
 
 
 class TestDeriveSessionId:
-    """Feature: Stable session ID derivation
+    """Feature: Stable session ID derivation.
 
     As the session lifecycle hook
     I want a filesystem-safe session ID derived from available env/payload data
@@ -135,7 +135,7 @@ class TestDeriveSessionId:
 
 
 class TestSafeFloat:
-    """Feature: Safe numeric conversion
+    """Feature: Safe numeric conversion.
 
     As the hook builder
     I want payload numeric fields converted to float without crashing
@@ -169,7 +169,7 @@ class TestSafeFloat:
 
 
 class TestBuildRecord:
-    """Feature: SessionRecord construction from Stop payload
+    """Feature: SessionRecord construction from Stop payload.
 
     As the session lifecycle hook
     I want to convert a raw Stop hook payload into a typed SessionRecord
@@ -352,7 +352,7 @@ class TestBuildRecord:
 
 
 class TestMainIntegration:
-    """Feature: End-to-end hook execution via main()
+    """Feature: End-to-end hook execution via main().
 
     As the Claude Code hook runner
     I want session_lifecycle.main() to process Stop payloads cleanly

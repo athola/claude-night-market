@@ -132,7 +132,6 @@ class TestSafetyCriticalRules:
         When the return is used
         Then it should be checked for errors/None
         """
-        unchecked_return = "parse_config(path)  # Ignored return"
         checked_return = """
         result = parse_config(path)
         if result is None:
@@ -176,7 +175,6 @@ class TestRigorMatching:
         When selecting rule strictness
         Then key rules should apply (assertions, bounds checking)
         """
-        context = "business_logic"
         applicable_rules = ["assertions", "bounds_checking", "input_validation"]
         skipped_rules = ["no_recursion", "no_dynamic_memory"]
 
@@ -191,7 +189,6 @@ class TestRigorMatching:
         When selecting rule strictness
         Then only basic clarity rules should apply
         """
-        context = "utility_script"
         rigor_level = "light"
 
         assert rigor_level == "light"

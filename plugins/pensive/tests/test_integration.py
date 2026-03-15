@@ -34,7 +34,6 @@ from pensive.reporting.formatters import (
 )
 from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.workflows.code_review import CodeReviewWorkflow
-from pensive.workflows.skill_coordinator import SkillCoordinator
 
 # Integration tests - now enabled with full implementations
 
@@ -89,7 +88,7 @@ class TestPensiveIntegration:
                 "API review findings: 2 issues found",
             ]
 
-            results = unified_skill.execute_skills_concurrently(
+            results = unified_skill.execute_skills(
                 skills_to_execute,
                 context,
             )
@@ -439,7 +438,7 @@ custom_rules:
     severity: medium
         """)
 
-        config = Configuration.load_from_file(config_file)
+        config = Configuration.from_file(config_file)
         workflow = CodeReviewWorkflow(config=config)
 
         # Act
@@ -482,16 +481,16 @@ custom_rules:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_concurrent_skill_execution(self, temp_repository) -> None:
-        """Given three skills, coordinator dispatches all three
+        """Given three skills, unified review dispatches all three
         and returns matching result count.
         """
         # Arrange
-        coordinator = SkillCoordinator()
+        unified_skill = UnifiedReviewSkill()
         skills = ["code-reviewer", "api-review", "test-review"]
 
         # Act
         with patch(
-            "pensive.workflows.skill_coordinator.dispatch_agent",
+            "pensive.skills.unified_review.dispatch_agent",
         ) as mock_dispatch:
             mock_dispatch.side_effect = [
                 "Code review completed",
@@ -499,7 +498,7 @@ custom_rules:
                 "Test review completed",
             ]
 
-            results = coordinator.execute_skills_concurrently(skills, temp_repository)
+            results = unified_skill.execute_skills(skills, temp_repository)
 
         # Assert
         assert len(results) == 3

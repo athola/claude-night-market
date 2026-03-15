@@ -42,6 +42,9 @@ try:
         get_log_directory,
     )
     from auto_promote_learnings import run_auto_promote as _promote  # noqa: E402
+    from post_learnings_to_discussions import (  # noqa: E402
+        post_learnings as _post_learnings,
+    )
 
     _HAS_SCRIPTS = True
 except ImportError as _imp_err:
@@ -176,8 +179,22 @@ def run_auto_promote() -> None:
         )
 
 
+def run_post_learnings() -> None:
+    """Chain to learnings Discussion posting after aggregation."""
+    if not _HAS_SCRIPTS:
+        return
+    try:
+        _post_learnings()
+    except Exception:
+        # Posting is best-effort; log for diagnostics
+        print(
+            f"[aggregate_learnings_daily] post-learnings: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
+
+
 def run_daily_pipeline() -> None:
-    """Main pipeline: check cadence → aggregate → promote.
+    """Main pipeline: check cadence → aggregate → promote → post.
 
     Called on every UserPromptSubmit. Skips quickly if not due.
     """
@@ -191,6 +208,7 @@ def run_daily_pipeline() -> None:
     if success:
         update_timestamp()
         run_auto_promote()
+        run_post_learnings()
 
 
 def main() -> None:

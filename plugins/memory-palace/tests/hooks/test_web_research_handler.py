@@ -332,7 +332,8 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.get_config",
                 return_value=_default_config(),
-            ),pytest.raises(SystemExit) as exc_info
+            ),
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -362,7 +363,8 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.is_safe_content",
                 return_value=safety_result,
-            ) as mock_is_safe,pytest.raises(SystemExit) as exc_info
+            ) as mock_is_safe,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -407,7 +409,8 @@ class TestMainWebFetchHandling:
             patch("web_research_handler.is_known", return_value=True) as mock_known,
             patch(
                 "web_research_handler.needs_update", return_value=False
-            ) as mock_update,pytest.raises(SystemExit) as exc_info
+            ) as mock_update,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -448,7 +451,8 @@ class TestMainWebFetchHandling:
             patch("web_research_handler.is_known", return_value=True) as mock_known,
             patch(
                 "web_research_handler.needs_update", return_value=True
-            ) as mock_update,pytest.raises(SystemExit) as exc_info
+            ) as mock_update,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -491,7 +495,8 @@ class TestMainWebFetchHandling:
             patch(
                 "web_research_handler.store_webfetch_content",
                 return_value="/tmp/stored.md",
-            ) as mock_store,pytest.raises(SystemExit) as exc_info
+            ) as mock_store,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -534,7 +539,8 @@ class TestMainWebFetchHandling:
             patch("web_research_handler.is_known", return_value=False) as mock_known,
             patch(
                 "web_research_handler.get_content_hash", return_value="abc123"
-            ) as mock_hash,pytest.raises(SystemExit) as exc_info
+            ) as mock_hash,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -580,7 +586,8 @@ class TestMainWebSearchHandling:
             patch(
                 "web_research_handler.store_websearch_results",
                 return_value="/tmp/search.md",
-            ) as mock_store,pytest.raises(SystemExit) as exc_info
+            ) as mock_store,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -620,7 +627,8 @@ class TestMainWebSearchHandling:
             patch("web_research_handler.is_known", return_value=True) as mock_known,
             patch(
                 "web_research_handler._recent_intake_pending", return_value=False
-            ) as mock_pending,pytest.raises(SystemExit) as exc_info
+            ) as mock_pending,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -651,7 +659,8 @@ class TestMainWebSearchHandling:
             ),
             patch(
                 "web_research_handler._recent_intake_pending", return_value=True
-            ) as mock_pending,pytest.raises(SystemExit) as exc_info
+            ) as mock_pending,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -678,7 +687,8 @@ class TestMainDisabledConfig:
             patch(
                 "web_research_handler.get_config",
                 return_value={"enabled": False},
-            ) as mock_get_config,pytest.raises(SystemExit) as exc_info
+            ) as mock_get_config,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
@@ -703,7 +713,8 @@ class TestMainDisabledConfig:
                     "enabled": True,
                     "feature_flags": {"lifecycle": False},
                 },
-            ) as mock_get_config,pytest.raises(SystemExit) as exc_info
+            ) as mock_get_config,
+            pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 

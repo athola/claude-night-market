@@ -129,9 +129,11 @@ class TestAnalyzer:
                 test_functions.append(node.name[5:])  # Remove 'test_' prefix
 
         # Calculate coverage
+        lowered_tests = [f.lower() for f in test_functions]
         missing = []
         for item in functions + classes:
-            if not any(item.lower() in func.lower() for func in test_functions):
+            item_lower = item.lower()
+            if not any(item_lower in t for t in lowered_tests):
                 missing.append(item)
 
         total_items = len(functions) + len(classes)
@@ -176,11 +178,11 @@ class TestAnalyzer:
     def analyze_git_changes(self) -> dict[str, Any]:
         """Analyze git changes to identify files needing test updates."""
         try:
-            # Get changed files
+            # Get changed files with status in a single call
             git_executable = shutil.which("git") or "git"
             # git binary validated
             result = subprocess.run(  # noqa: S603 # nosec
-                [git_executable, "diff", "--name-only", "HEAD~1"],
+                [git_executable, "diff", "--name-status", "HEAD~1"],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -190,44 +192,36 @@ class TestAnalyzer:
             if result.returncode != 0:
                 return {"error": "Not a git repository or no history"}
 
-            changed_files = [
-                Path(f.strip())
-                for f in result.stdout.split("\n")
-                if f.strip() and f.strip().endswith(".py")
-            ]
-
-            # Categorize changes
+            # Categorize changes by parsing status and filename together
             categories: dict[str, list[Path]] = {
                 "modified": [],
                 "added": [],
                 "deleted": [],
                 "renamed": [],
             }
+            changed_files: list[Path] = []
 
-            for file_path in changed_files:
-                if file_path.exists():
-                    # Get diff type
-                    diff_result = subprocess.run(  # noqa: S603 # nosec
-                        [
-                            git_executable,
-                            "diff",
-                            "--name-status",
-                            "HEAD~1",
-                            "--",
-                            str(file_path),
-                        ],
-                        check=False,
-                        capture_output=True,
-                        text=True,
-                        cwd=self.codebase_path,
-                    )
+            for line in result.stdout.strip().split("\n"):
+                if not line.strip():
+                    continue
+                parts = line.split("\t", 1)
+                if len(parts) < 2:
+                    continue
+                status, file_name = parts[0].strip(), parts[1].strip()
+                if not file_name.endswith(".py"):
+                    continue
 
-                    if diff_result.returncode == 0:
-                        status = diff_result.stdout.split("\t")[0]
-                        if "M" in status:
-                            categories["modified"].append(file_path)
-                        elif "A" in status:
-                            categories["added"].append(file_path)
+                file_path = Path(file_name)
+                changed_files.append(file_path)
+
+                if status.startswith("M"):
+                    categories["modified"].append(file_path)
+                elif status.startswith("A"):
+                    categories["added"].append(file_path)
+                elif status.startswith("D"):
+                    categories["deleted"].append(file_path)
+                elif status.startswith("R"):
+                    categories["renamed"].append(file_path)
 
             return {
                 "changed_files": [str(f) for f in changed_files],

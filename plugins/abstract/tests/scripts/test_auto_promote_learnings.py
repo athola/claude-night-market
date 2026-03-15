@@ -317,7 +317,7 @@ class TestIssueCreation:
             "metric": "42.3% success rate",
             "detail": "11/26 failures",
         }
-        url = promote_module.promote_to_issue(item)
+        url = promote_module.promote_to_issue(item, "athola/claude-night-market")
         assert url is not None
         mock_run.assert_called_once()
 
@@ -348,7 +348,7 @@ class TestIssueCreation:
             "metric": "50% success rate",
             "detail": "details",
         }
-        promote_module.promote_to_issue(item)
+        promote_module.promote_to_issue(item, "test/repo")
 
         cmd = mock_run.call_args[0][0]
         cmd_str = " ".join(cmd)
@@ -379,7 +379,7 @@ class TestDiscussionPosting:
             "metric": "2.8/5.0 rating",
             "detail": "User evaluations indicate poor effectiveness",
         }
-        url = promote_module.post_to_discussion(item)
+        url = promote_module.post_to_discussion(item, "athola", "cnm")
         assert url is not None
         mock_post.assert_called_once()
 
@@ -420,7 +420,7 @@ class TestGracefulFailure:
             "metric": "test",
             "detail": "test",
         }
-        result = promote_module.promote_to_issue(item)
+        result = promote_module.promote_to_issue(item, "test/repo")
         assert result is None
 
     def test_handles_malformed_learnings(self, promote_module, tmp_path: Path) -> None:
@@ -454,7 +454,7 @@ class TestGracefulFailure:
             "metric": "test",
             "detail": "test",
         }
-        result = promote_module.promote_to_issue(item)
+        result = promote_module.promote_to_issue(item, "test/repo")
         assert result is None
 
     def test_handles_generic_exception_in_promote(
@@ -475,7 +475,7 @@ class TestGracefulFailure:
             "metric": "test",
             "detail": "test",
         }
-        result = promote_module.promote_to_issue(item)
+        result = promote_module.promote_to_issue(item, "test/repo")
         assert result is None
 
 
@@ -658,6 +658,16 @@ class TestRunAutoPromotePipeline:
         mock_discuss = MagicMock(return_value="https://github.com/test/discussions/1")
         monkeypatch.setattr(promote_module, "promote_to_issue", mock_issue)
         monkeypatch.setattr(promote_module, "post_to_discussion", mock_discuss)
+        monkeypatch.setattr(
+            promote_module,
+            "detect_target_repo",
+            MagicMock(return_value=("athola", "cnm")),
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "has_existing_issue",
+            MagicMock(return_value=False),
+        )
 
         urls = promote_module.run_auto_promote()
         assert len(urls) > 0

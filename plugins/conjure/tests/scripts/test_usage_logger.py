@@ -521,7 +521,7 @@ class TestUsageLoggerCli:
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch("builtins.print") as mock_print:
+        with patch("builtins.print"):
             # main imported at top level
 
             main()
@@ -546,7 +546,7 @@ class TestUsageLoggerCli:
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch("builtins.print") as mock_print:
+        with patch("builtins.print"):
             # main imported at top level
 
             main()

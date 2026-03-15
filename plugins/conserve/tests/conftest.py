@@ -206,7 +206,7 @@ def sample_context_analysis():
     """Sample context analysis results."""
     return {
         "total_context_tokens": 8500,
-        "context_window_size": 200000,
+        "context_window_size": 1000000,
         "utilization_percentage": 4.25,
         "status": "LOW",
         "mecw_compliance": True,
@@ -364,7 +364,7 @@ def mock_mecw_analyzer():
 
     class MockMECWAnalyzer:
         def __init__(self) -> None:
-            self.context_window = 200000
+            self.context_window = 1000000
             self.mecw_threshold = MECW_THRESHOLD  # 50% rule
 
         def analyze_context_usage(self, context_tokens):
@@ -525,7 +525,7 @@ def create_mock_performance_metric(
 
 def create_mock_context_analysis(
     context_tokens: int,
-    window_size: int = 200000,
+    window_size: int = 1000000,
 ) -> dict[str, Any]:
     """Create a mock context analysis result."""
     utilization = context_tokens / window_size

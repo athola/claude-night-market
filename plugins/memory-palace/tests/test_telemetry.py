@@ -155,7 +155,7 @@ class TestTelemetryLogger:
     def test_log_event_creates_parent_directories(self, tmp_path: Path) -> None:
         """Logger should create parent directories if they don't exist."""
         csv_path = tmp_path / "deep" / "nested" / "dir" / "telemetry.csv"
-        logger = TelemetryLogger(csv_path)
+        TelemetryLogger(csv_path)
         assert csv_path.parent.exists()
 
 

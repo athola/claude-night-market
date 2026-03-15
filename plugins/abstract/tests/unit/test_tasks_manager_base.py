@@ -600,7 +600,7 @@ class TestTasksManagerFileBasedExtended:
         import json  # noqa: PLC0415
 
         t1 = manager.ensure_task_exists("Task A")
-        t2 = manager.ensure_task_exists("Task B")
+        manager.ensure_task_exists("Task B")
         manager.update_task_status(str(t1), "complete")
         state_data = json.loads(manager.fallback_state_file.read_text())
         assert state_data["metrics"]["tasks_complete"] == 1

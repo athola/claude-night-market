@@ -22,6 +22,19 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "_comment": "Block inline lint suppression directives (noqa, type: ignore, eslint-disable, etc.)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/noqa_guard.py",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "WebFetch|WebSearch|Bash",

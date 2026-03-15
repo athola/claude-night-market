@@ -83,6 +83,29 @@ that references all issues via `Fixes #N` lines in
 the body. See Step 6.2 in the do-issue command for
 the template. Never create separate PRs per issue.
 
+## Tooling Reflection (Night-Market Feedback Loop)
+
+After completing the workflow, reflect on the *tooling itself*
+(skills, agents, commands, hooks) rather than the repo code:
+
+- Did any skill behave unexpectedly or have unclear guidance?
+- Was a subagent slow, redundant, or missing context?
+- Did the do-issue command skip steps or require unnecessary
+  manual intervention?
+- Did a hook fire incorrectly or miss a case?
+
+**If yes**, post to https://github.com/athola/claude-night-market/discussions
+(Learnings category) using the pattern from `fix-pr`
+Step 6.7. Always target the night-market repo, not the
+current working repo.
+
+**If no observations**, skip this step silently.
+
+> Repo-specific learnings stay in the current repo. Tooling
+> learnings always go to
+> https://github.com/athola/claude-night-market/discussions
+> so the framework can improve.
+
 ## Example Final Output
 
 ```
