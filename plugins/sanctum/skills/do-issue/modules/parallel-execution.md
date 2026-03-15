@@ -58,6 +58,27 @@ This rule applies to ALL multi-agent dispatches, including:
 - Comprehensive review tasks
 - Any task requiring continuation agents
 
+## WARNING: Remote Control / Headless Limitations
+
+**Do NOT run parallel subagent dispatches via
+`/remote-control` or headless SDK sessions.**
+
+The Task tool blocks the main thread while awaiting
+subagent completion. If any subagent hangs (a known
+upstream bug), the parent session becomes unrecoverable
+because remote-control has no programmatic equivalent
+of the `Esc` interrupt.
+
+**Safe alternatives for remote-control use:**
+- Use `run_in_background: true` on Agent calls
+- Run with `--scope minor` (inline execution, no
+  subagent dispatch)
+- Use a local terminal with remote-control as a
+  monitoring-only window
+
+See [troubleshooting.md](troubleshooting.md) for recovery
+steps if a subagent hangs.
+
 ## CRITICAL: Execute Nonconflicting Tasks in Parallel
 
 **When you have multiple NONCONFLICTING tasks, invoke ALL Task tools in a SINGLE response.**

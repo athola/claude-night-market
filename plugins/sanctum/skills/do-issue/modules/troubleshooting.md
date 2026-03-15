@@ -63,6 +63,40 @@ Problem: Code review subagent taking excessive time
 Solution: Split large batches into smaller groups
 ```
 
+## Subagent Hangs (Remote Control / Headless)
+
+When running do-issue through `/remote-control` or headless
+SDK sessions, subagents can hang indefinitely with no
+recovery path. This is a known upstream bug
+([#28482](https://github.com/anthropics/claude-code/issues/28482)).
+
+**Symptoms:**
+- Task status shows "In progress" forever
+- No output, no tool calls, no error from the subagent
+- Remote control web UI shows "philosophizing/tinkering"
+  indefinitely
+- New prompts are queued but never processed
+
+**Recovery:**
+1. If you have local terminal access, press `Esc` to
+   interrupt the hung subagent
+2. If headless: `kill -SIGINT <claude_pid>` to interrupt
+3. Start a fresh session rather than trying to resume
+
+**Prevention:**
+- Run subagent-heavy workflows **locally**, not via
+  remote-control (Esc is the only recovery mechanism)
+- Use `run_in_background: true` on Agent calls so the
+  parent can continue processing if a subagent stalls
+- Limit concurrent subagents to reduce hang probability
+- Monitor from a local terminal even when using remote
+  control
+
+**Related issues:**
+- [#28482](https://github.com/anthropics/claude-code/issues/28482) - Agent hang, no headless recovery
+- [#33232](https://github.com/anthropics/claude-code/issues/33232) - Remote-control WebSocket instability
+- [#13240](https://github.com/anthropics/claude-code/issues/13240) - Master freeze/hang bug
+
 ## Best Practices
 
 ### Before Running

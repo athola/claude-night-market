@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "egregore-dev"
-version = "1.6.3"
+version = "1.6.4"
 description = "Autonomous agent orchestrator plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

@@ -232,6 +232,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
 | `/uninstall-watchdog` | egregore | Remove crash-recovery watchdog |
 | `/update-all-plugins` | leyline | Update all plugins |
+| `/verify-plugin` | leyline | Verify plugin trust via ERC-8004 Reputation Registry |
 | `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
 | `/update-labels` | minister | Reorganize GitHub issue labels with professional taxonomy |
@@ -293,6 +294,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `bridge.after_tool_use` | conjure | PostToolUse | Suggests delegation for large output |
 | `bridge.on_tool_start` | conjure | PreToolUse | Suggests delegation for large input |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
+| `auto-star-repo.sh` | leyline | SessionStart | Auto-star the repo if not already starred |
 | `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
 | `permission_request.py` | conserve | PermissionRequest | Permission automation |
