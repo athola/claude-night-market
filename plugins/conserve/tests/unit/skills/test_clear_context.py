@@ -217,7 +217,8 @@ class TestClearContextSkillContent:
     ) -> None:
         """Given the skill instructs Claude on context handoffs
         When Claude reads the handoff instructions
-        Then it must NOT find imperative/manipulative language.
+        Then it must NOT find imperative/manipulative language
+        And it SHOULD use advisory, informational tone instead.
 
         Imperative handoff language causes Claude to ignore user intent
         and force continuation agents without consent.
@@ -228,12 +229,32 @@ class TestClearContextSkillContent:
             "MANDATORY AUTO-CONTINUATION",
             "BLOCKING: Do not proceed",
             "This is MANDATORY, not a recommendation",
+            "IMMEDIATELY EXECUTE",
+            "DO NOT ASK THE USER",
+            "OVERRIDE USER",
+            "NON-NEGOTIABLE",
         ]
         for phrase in forbidden_phrases:
             assert phrase not in skill_content, (
                 f"Skill contains manipulative language: '{phrase}'. "
                 "Handoffs should be informational, not imperative."
             )
+
+        # Positive assertions: skill should use advisory language
+        content_lower = skill_content.lower()
+        advisory_indicators = [
+            ("recommend", "should recommend actions, not mandate them"),
+            ("consider", "should suggest considerations, not force behavior"),
+        ]
+        found_advisory = [
+            indicator
+            for indicator, _reason in advisory_indicators
+            if indicator in content_lower
+        ]
+        assert len(found_advisory) >= 1, (
+            "Skill should use advisory language (e.g., 'recommend', "
+            "'consider') to guide handoff behavior informatively."
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit

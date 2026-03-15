@@ -207,10 +207,11 @@ def find_duplicates(
     for filepath in files:
         try:
             file_content = filepath.read_text(encoding="utf-8", errors="ignore")
-            line_count = len(file_content.splitlines())
-            total_lines += line_count
         except (OSError, UnicodeDecodeError):
             continue
+
+        lines = file_content.splitlines()
+        total_lines += len(lines)
 
         blocks = extract_blocks(filepath, min_lines, content=file_content)
         for block_hash, start, end, content in blocks:

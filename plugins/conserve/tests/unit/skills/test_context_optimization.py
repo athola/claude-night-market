@@ -100,6 +100,7 @@ tags:
     def test_context_optimization_creates_required_todowrite_items(
         self,
         mock_todo_write,
+        mock_context_optimization_skill_content,
     ) -> None:
         """Scenario: Context optimization creates required TodoWrite items.
 
@@ -108,32 +109,29 @@ tags:
         Then it should create all 5 required TodoWrite items
         And each item should have proper naming convention.
         """
-        # Arrange
-        expected_items = [
-            "context-optimization:mecw-assessment",
-            "context-optimization:context-classification",
-            "context-optimization:module-coordination",
-            "context-optimization:synthesis",
-            "context-optimization:validation",
-        ]
-
-        # Act - simulate context-optimization skill execution
-        context_optimization_items = [
-            "context-optimization:mecw-assessment",
-            "context-optimization:context-classification",
-            "context-optimization:module-coordination",
-            "context-optimization:synthesis",
-            "context-optimization:validation",
-        ]
-
-        # Assert
-        assert len(context_optimization_items) == FIVE
-        for expected_item in expected_items:
-            assert expected_item in context_optimization_items
-        assert all(
-            item.startswith("context-optimization:")
-            for item in context_optimization_items
+        # Arrange - parse TodoWrite items from skill content
+        parsed_items = re.findall(
+            r"`(context-optimization:[^`]+)`",
+            mock_context_optimization_skill_content,
         )
+
+        # Act - verify parsed items match the expected workflow stages
+        expected_stages = [
+            "mecw-assessment",
+            "context-classification",
+            "module-coordination",
+            "synthesis",
+            "validation",
+        ]
+
+        # Assert - items parsed from content match expected stages
+        assert len(parsed_items) == FIVE
+        for stage in expected_stages:
+            full_item = f"context-optimization:{stage}"
+            assert full_item in parsed_items, (
+                f"Expected '{full_item}' in skill content TodoWrite items"
+            )
+        assert all(item.startswith("context-optimization:") for item in parsed_items)
 
     @pytest.mark.bdd
     @pytest.mark.unit

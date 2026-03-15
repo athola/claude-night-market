@@ -21,21 +21,6 @@ class TestTestingQualityStandards:
     So that testing practices are consistent and effective
     """
 
-    @pytest.fixture
-    def quality_standards_path(self) -> Path:
-        """Path to the testing-quality-standards skill."""
-        return (
-            Path(__file__).parents[3]
-            / "skills"
-            / "testing-quality-standards"
-            / "SKILL.md"
-        )
-
-    @pytest.fixture
-    def quality_standards_content(self, quality_standards_path: Path) -> str:
-        """Load the testing-quality-standards skill content."""
-        return quality_standards_path.read_text()
-
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_quality_standards_defines_coverage_thresholds(
@@ -201,21 +186,6 @@ class TestCoverageThresholdsValidation:
     So that code quality is measurable
     """
 
-    @pytest.fixture
-    def quality_standards_path(self) -> Path:
-        """Path to the testing-quality-standards skill."""
-        return (
-            Path(__file__).parents[3]
-            / "skills"
-            / "testing-quality-standards"
-            / "SKILL.md"
-        )
-
-    @pytest.fixture
-    def quality_standards_content(self, quality_standards_path: Path) -> str:
-        """Load the testing-quality-standards skill content."""
-        return quality_standards_path.read_text()
-
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_coverage_thresholds_are_specific(
@@ -264,21 +234,6 @@ class TestAntiPatternsDocumentation:
     So that I can avoid common testing mistakes
     """
 
-    @pytest.fixture
-    def quality_standards_path(self) -> Path:
-        """Path to the testing-quality-standards skill."""
-        return (
-            Path(__file__).parents[3]
-            / "skills"
-            / "testing-quality-standards"
-            / "SKILL.md"
-        )
-
-    @pytest.fixture
-    def quality_standards_content(self, quality_standards_path: Path) -> str:
-        """Load the testing-quality-standards skill content."""
-        return quality_standards_path.read_text()
-
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_anti_patterns_module_exists(self, quality_standards_content: str) -> None:
@@ -317,24 +272,9 @@ class TestQualityMetricsCompleteness:
     """Feature: Quality metrics cover all aspects of test quality.
 
     As a testing framework designer
-    I want comprehensive quality metrics
+    I want complete quality metrics
     So that all aspects of test quality are measured
     """
-
-    @pytest.fixture
-    def quality_standards_path(self) -> Path:
-        """Path to the testing-quality-standards skill."""
-        return (
-            Path(__file__).parents[3]
-            / "skills"
-            / "testing-quality-standards"
-            / "SKILL.md"
-        )
-
-    @pytest.fixture
-    def quality_standards_content(self, quality_standards_path: Path) -> str:
-        """Load the testing-quality-standards skill content."""
-        return quality_standards_path.read_text()
 
     @pytest.mark.bdd
     @pytest.mark.unit
