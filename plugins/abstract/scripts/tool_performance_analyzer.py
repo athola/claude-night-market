@@ -6,14 +6,13 @@ Uses core functionality from src/abstract/skills_eval.
 
 import os
 import subprocess  # nosec: B404
-import sys
 import time
 from pathlib import Path
 from typing import Any
 
-# Add src to path to import core functionality
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path))
+from cli_scaffold import create_parser, setup_src_path, write_output
+
+setup_src_path()
 
 
 class ToolPerformanceAnalyzer:
@@ -113,24 +112,14 @@ class ToolPerformanceAnalyzer:
 
 # For direct execution
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Analyze performance of tools")
-
+    parser = create_parser("Analyze performance of tools")
     parser.add_argument(
         "skills_dir",
         type=Path,
         help="Directory containing skills/tools to analyze",
     )
-    parser.add_argument("--output", type=Path, help="Output file path")
 
     args = parser.parse_args()
 
     analyzer = ToolPerformanceAnalyzer(args.skills_dir)
-    output = analyzer.get_performance_report()
-
-    if args.output:
-        with open(args.output, "w") as f:
-            f.write(output)
-    else:
-        pass
+    write_output(analyzer.get_performance_report(), args.output)

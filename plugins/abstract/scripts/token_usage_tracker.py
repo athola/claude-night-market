@@ -4,15 +4,12 @@
 Uses core functionality from src/abstract/skills_eval.
 """
 
-import sys
+import logging
 from pathlib import Path
 
-# Add src to path to import core functionality
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path))
+from cli_scaffold import create_parser, setup_src_path, write_output
 
-
-import logging  # noqa: E402
+setup_src_path()
 
 logger = logging.getLogger(__name__)
 
@@ -97,10 +94,7 @@ class TokenUsageTracker:
 
 # For direct execution
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Track token usage for skills")
-
+    parser = create_parser("Track token usage for skills")
     parser.add_argument(
         "skills_dir",
         type=Path,
@@ -112,15 +106,8 @@ if __name__ == "__main__":
         default=2000,
         help="Optimal token limit per skill",
     )
-    parser.add_argument("--output", type=Path, help="Output file path")
 
     args = parser.parse_args()
 
     tracker = TokenUsageTracker(args.skills_dir, args.optimal_limit)
-    output = tracker.get_usage_report()
-
-    if args.output:
-        with open(args.output, "w") as f:
-            f.write(output)
-    else:
-        pass
+    write_output(tracker.get_usage_report(), args.output)
