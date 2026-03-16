@@ -5,6 +5,7 @@
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
+[![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
 
 **Claude Code plugins for software engineering workflows.**
 
