@@ -719,6 +719,118 @@ class TestTasksManagerTasksMode:
 
 
 # ---------------------------------------------------------------------------
+# Tests: TasksManager Tasks-mode extended
+# ---------------------------------------------------------------------------
+
+
+class TestTasksManagerTasksModeExtended:
+    """Feature: TasksManager Tasks-mode extended coverage."""
+
+    @pytest.mark.unit
+    def test_ensure_task_with_dependencies_tasks_mode(
+        self, tasks_manager: TasksManager
+    ) -> None:
+        """Scenario: Creating a task with dependency IDs works in Tasks mode."""
+        t1 = tasks_manager.ensure_task_exists("First task")
+        t2 = tasks_manager.ensure_task_exists("Second task", dependencies=[str(t1)])
+        assert t2 is not None
+        assert t2 != t1
+        # Verify the dependency was stored
+        state = tasks_manager.get_state()
+        assert state.total_count == 2
+
+    @pytest.mark.unit
+    def test_can_start_task_blocked_dependencies(
+        self, tasks_manager: TasksManager
+    ) -> None:
+        """Scenario: Task cannot start when its dependency is not completed."""
+        t1 = tasks_manager.ensure_task_exists("Dep task")
+        t2 = tasks_manager.ensure_task_exists("Blocked task", dependencies=[str(t1)])
+        # t1 is still pending — t2 should be blocked
+        assert tasks_manager.can_start_task(str(t2)) is False
+
+    @pytest.mark.unit
+    def test_can_start_task_completed_dependencies(
+        self, tasks_manager: TasksManager
+    ) -> None:
+        """Scenario: Task CAN start when all its dependencies are completed."""
+        t1 = tasks_manager.ensure_task_exists("Dep task")
+        t2 = tasks_manager.ensure_task_exists("Unblocked task", dependencies=[str(t1)])
+        tasks_manager.update_task_status(str(t1), "complete")
+        assert tasks_manager.can_start_task(str(t2)) is True
+
+    @pytest.mark.unit
+    def test_get_state_mixed_statuses(self, tasks_manager: TasksManager) -> None:
+        """Scenario: get_state reflects mixed pending/in_progress/complete/failed."""
+        ta = tasks_manager.ensure_task_exists("Task A")
+        tb = tasks_manager.ensure_task_exists("Task B")
+        tc = tasks_manager.ensure_task_exists("Task C")
+        td = tasks_manager.ensure_task_exists("Task D")
+
+        tasks_manager.update_task_status(str(ta), "complete")
+        tasks_manager.update_task_status(str(tb), "in_progress")
+        tasks_manager.update_task_status(str(tc), "failed")
+        # td stays pending
+
+        state = tasks_manager.get_state()
+        assert state.total_count == 4
+        assert str(ta) in state.completed_tasks
+        # in_progress, failed, pending all land in pending_tasks (not "complete")
+        assert str(tb) in state.pending_tasks
+        assert str(tc) in state.pending_tasks
+        assert str(td) in state.pending_tasks
+
+    @pytest.mark.unit
+    def test_update_task_status_nonexistent_task(
+        self, tasks_manager: TasksManager
+    ) -> None:
+        """Scenario: update_task_status on a nonexistent task returns False."""
+        # Ensure at least one real task exists so _task_update is exercised
+        tasks_manager.ensure_task_exists("Real task")
+        result = tasks_manager.update_task_status("NONEXISTENT-999", "complete")
+        assert result is False
+
+    @pytest.mark.unit
+    def test_task_create_failure_handled_gracefully(
+        self, tmp_path: Path, config: TasksManagerConfig
+    ) -> None:
+        """Scenario: _task_create raising an exception propagates cleanly."""
+        state_file = tmp_path / "state.json"
+        mgr = TasksManager(
+            project_path=tmp_path,
+            fallback_state_file=state_file,
+            config=config,
+            use_tasks=True,
+        )
+
+        def _failing_create(description: str, dependencies: list = None) -> dict:
+            raise RuntimeError("Tasks API unavailable")
+
+        def _empty_list() -> list:
+            return []
+
+        mgr._task_create = _failing_create
+        mgr._task_list = _empty_list
+
+        with pytest.raises(RuntimeError, match="Tasks API unavailable"):
+            mgr.ensure_task_exists("Any task")
+
+    @pytest.mark.unit
+    def test_empty_task_list_edge_case(self, tasks_manager: TasksManager) -> None:
+        """Scenario: _task_list returning empty results produces empty state."""
+        # Override _task_list to always return empty
+        tasks_manager._task_list = lambda: []
+
+        state = tasks_manager.get_state()
+        assert state.total_count == 0
+        assert state.completed_tasks == []
+        assert state.pending_tasks == []
+
+        resume = tasks_manager.detect_resume_state()
+        assert not resume.has_incomplete_tasks
+
+
+# ---------------------------------------------------------------------------
 # Tests: Default ask_user
 # ---------------------------------------------------------------------------
 
