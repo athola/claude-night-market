@@ -12,9 +12,6 @@ dependencies = []
 tokens = [
     "tiktoken>=0.5.0",  # Accurate token estimation (fallback: ~4 chars/token)
 ]
-erc8004 = [
-    "web3>=7.0.0",  # ERC-8004 on-chain identity and reputation registries
-]
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",
@@ -64,10 +61,6 @@ module = ["tiktoken"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["web3", "web3.*"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = ["pytest"]
 ignore_missing_imports = true
 
@@ -79,9 +72,6 @@ markers = [
     "unit: Unit tests for individual components",
     "integration: Integration tests for workflow orchestration",
     "bdd: Behavior-driven development style tests",
-    "l1: L1 structural content assertion",
-    "l2: L2 semantic content assertion",
-    "l3: L3 behavioral content assertion",
 ]
 
 [tool.coverage.run]

@@ -1,0 +1,49 @@
+name: Trust Attestation
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  attestations: write
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      - name: Run tests and capture results
+        run: |
+          make test 2>&1 | tee test-output.txt
+          COMMIT_SHA="$(git rev-parse HEAD)"
+          python3 -c "
+          import json, os, re, sys
+          text = open('test-output.txt').read()
+          passed = re.findall(r'Passed \((\d+)\):\s*(.+)', text)
+          failed = re.findall(r'Failed \((\d+)\):\s*(.+)', text)
+          skipped = re.findall(r'Skipped \((\d+)\):\s*(.+)', text)
+          report = {
+              'version': '1.0',
+              'passed': passed[0][1].split() if passed else [],
+              'failed': failed[0][1].split() if failed else [],
+              'skipped': skipped[0][1].split() if skipped else [],
+              'total_plugins': 17,
+              'commit': os.environ['COMMIT_SHA'],
+          }
+          json.dump(report, open('trust-report.json', 'w'), indent=2)
+          print(json.dumps(report, indent=2))
+          "
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+      - name: Generate SLSA attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: trust-report.json

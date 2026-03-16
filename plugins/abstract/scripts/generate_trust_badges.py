@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""Generate trust badge SVGs from ERC-8004 reputation data.
+"""Generate trust badge URLs from GitHub Actions workflow status.
 
 Produces shields.io-compatible badge URLs and optional markdown
 snippets for embedding in plugin README files.
 
 Usage:
     python generate_trust_badges.py <plugin-name>
-    python generate_trust_badges.py --all
+    python generate_trust_badges.py sanctum --repo athola/claude-night-market
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
+import subprocess  # noqa: S404  # nosec: B404
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +24,9 @@ from urllib.parse import quote
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
+
+DEFAULT_REPO = "athola/claude-night-market"
+DEFAULT_WORKFLOW = "trust-attestation.yml"
 
 
 @dataclass
@@ -126,8 +131,43 @@ def generate_badge_markdown(data: BadgeData) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Badge data from verification result
+# Badge data from GitHub Actions
 # ---------------------------------------------------------------------------
+
+
+def _query_latest_workflow_status(
+    repo: str,
+    workflow: str = DEFAULT_WORKFLOW,
+) -> str | None:
+    """Query the latest workflow run conclusion from GitHub.
+
+    Args:
+        repo: GitHub repository in "owner/repo" format.
+        workflow: Workflow filename.
+
+    Returns:
+        The conclusion string ("success", "failure", etc.)
+        or None if the query fails.
+
+    """
+    endpoint = (
+        f"repos/{repo}/actions/workflows/{workflow}/runs?status=completed&per_page=1"
+    )
+    result = subprocess.run(  # noqa: S603, S607  # nosec: B603, B607
+        ["gh", "api", endpoint],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+
+    data = json.loads(result.stdout)
+    runs = data.get("workflow_runs", [])
+    if not runs:
+        return None
+
+    return runs[0].get("conclusion")  # type: ignore[no-any-return]
 
 
 def generate_badges_for_plugin(
@@ -154,6 +194,26 @@ def generate_badges_for_plugin(
         l1_rate=rate_map.get("L1", 0.0),
         l2_rate=rate_map.get("L2", 0.0),
         l3_rate=rate_map.get("L3", 0.0),
+    )
+
+
+def generate_workflow_badge_url(
+    repo: str = DEFAULT_REPO,
+    workflow: str = DEFAULT_WORKFLOW,
+) -> str:
+    """Generate a GitHub Actions workflow status badge URL.
+
+    Args:
+        repo: GitHub repository in "owner/repo" format.
+        workflow: Workflow filename.
+
+    Returns:
+        A shields.io GitHub Actions workflow status URL.
+
+    """
+    return (
+        f"https://img.shields.io/github/actions/workflow/status/"
+        f"{repo}/{workflow}?label=trust"
     )
 
 
@@ -234,23 +294,16 @@ def update_plugin_readme(
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser."""
     parser = argparse.ArgumentParser(
-        description="Generate trust badges from ERC-8004 reputation data.",
+        description=("Generate trust badges from GitHub Actions workflow status."),
     )
     parser.add_argument(
         "plugin_name",
-        nargs="?",
         help="Plugin name to generate badge for.",
     )
     parser.add_argument(
-        "--all",
-        action="store_true",
-        dest="all_plugins",
-        help="Generate badges for all plugins.",
-    )
-    parser.add_argument(
-        "--update-readmes",
-        action="store_true",
-        help="Insert/update badges in plugin README files.",
+        "--repo",
+        default=DEFAULT_REPO,
+        help=f"GitHub repository (default: {DEFAULT_REPO}).",
     )
     return parser
 
@@ -268,48 +321,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if not args.plugin_name and not args.all_plugins:
-        parser.error("Provide a plugin name or use --all")
+    conclusion = _query_latest_workflow_status(args.repo)
 
-    # Lazy import: verify_plugin may not be on path in all environments
-    try:
-        sys.path.insert(
-            0,
-            str(Path(__file__).parent.parent.parent / "leyline" / "scripts"),
-        )
-        from verify_plugin import (  # noqa: PLC0415
-            verify_plugin,  # type: ignore[import-untyped,import-not-found]
-        )
-    except ImportError:
-        print(
-            "Error: verify_plugin not found. Ensure leyline plugin is available.",
-            file=sys.stderr,
-        )
-        return 1
+    if conclusion is None:
+        rate = 0.0
+    elif conclusion == "success":
+        rate = 1.0
+    else:
+        rate = 0.0
 
-    plugins = [args.plugin_name] if args.plugin_name else []
+    data = BadgeData(
+        plugin_name=args.plugin_name,
+        l1_rate=rate,
+    )
 
-    if args.all_plugins:
-        plugins_dir = Path(__file__).parent.parent.parent
-        plugins = [
-            d.name
-            for d in plugins_dir.iterdir()
-            if d.is_dir() and (d / "README.md").exists()
-        ]
+    md = generate_badge_markdown(data)
+    workflow_url = generate_workflow_badge_url(args.repo)
 
-    for name in plugins:
-        result = verify_plugin(name)
-        badge = generate_badges_for_plugin(result)
-        md = generate_badge_markdown(badge)
-        print(f"{name}: {md}")
-
-        if args.update_readmes:
-            plugins_dir = Path(__file__).parent.parent.parent
-            readme = plugins_dir / name / "README.md"
-            if update_plugin_readme(readme, md):
-                print(f"  Updated {readme}")
-            else:
-                print(f"  No changes to {readme}")
+    print(f"{args.plugin_name}: {md}")
+    print(f"Workflow badge: {workflow_url}")
 
     return 0
 

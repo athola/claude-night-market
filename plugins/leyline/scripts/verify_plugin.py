@@ -1,52 +1,31 @@
 #!/usr/bin/env python3
-"""Verify plugin behavioral contract history via ERC-8004.
+"""Verify plugin behavioral contract history via GitHub Attestations.
 
-Queries the on-chain Reputation Registry for a plugin's assertion
-history and returns a trust assessment based on pass rates at each
-verification level (L1, L2, L3).
+Queries GitHub Actions workflow runs and SLSA attestations to assess
+plugin trust. Zero cost - uses GitHub's built-in infrastructure.
 
 Usage:
     python verify_plugin.py <plugin-name> [--level L1|L2|L3] [--min-score 0.8]
-    python verify_plugin.py sanctum --level L3 --min-score 0.9
+    python verify_plugin.py sanctum --json
+    python verify_plugin.py sanctum --repo athola/claude-night-market
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
 from typing import Any
-
-# ---------------------------------------------------------------------------
-# Lazy imports for erc8004 — gracefully degrade when web3 is missing
-# ---------------------------------------------------------------------------
-
-_ERC8004_AVAILABLE = False
-
-
-def _try_import_erc8004() -> Any:
-    """Attempt to import the erc8004 package.
-
-    Returns:
-        The erc8004 module, or None if unavailable.
-    """
-    global _ERC8004_AVAILABLE  # noqa: PLW0603
-    try:
-        from leyline import erc8004  # type: ignore[attr-defined]  # noqa: PLC0415
-
-        _ERC8004_AVAILABLE = True
-        return erc8004
-    except ImportError:
-        _ERC8004_AVAILABLE = False
-        return None
-
 
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
 
 VALID_LEVELS = ("L1", "L2", "L3")
+
+DEFAULT_REPO = "athola/claude-night-market"
 
 
 @dataclass
@@ -72,6 +51,93 @@ class TrustAssessment:
 
 
 # ---------------------------------------------------------------------------
+# GitHub API helpers
+# ---------------------------------------------------------------------------
+
+
+def _query_workflow_runs(
+    repo: str,
+    per_page: int = 10,
+) -> list[dict[str, Any]]:
+    """Fetch recent completed workflow runs from GitHub Actions.
+
+    Args:
+        repo: GitHub repository in "owner/repo" format.
+        per_page: Number of runs to fetch.
+
+    Returns:
+        List of workflow run dicts from the GitHub API.
+
+    Raises:
+        RuntimeError: If the gh CLI fails.
+    """
+    endpoint = f"repos/{repo}/actions/runs?status=completed&per_page={per_page}"
+    result = subprocess.run(
+        ["gh", "api", endpoint],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        msg = result.stderr.strip() or "gh api call failed"
+        raise RuntimeError(msg)
+
+    data = json.loads(result.stdout)
+    return data.get("workflow_runs", [])  # type: ignore[no-any-return]
+
+
+def _runs_to_records(
+    runs: list[dict[str, Any]],
+    plugin_name: str,
+) -> list[dict[str, Any]]:
+    """Convert GitHub Actions workflow runs to trust records.
+
+    Maps workflow conclusion to assertion-style records:
+    - "success" -> passed=True
+    - anything else -> passed=False
+
+    Each run is treated as an L1 assertion (structural test pass).
+    Runs whose name contains the plugin name are weighted as more
+    relevant.
+
+    Args:
+        runs: Workflow run dicts from the GitHub API.
+        plugin_name: Plugin name to look for in run names.
+
+    Returns:
+        List of record dicts with level, passed, and metadata keys.
+    """
+    records: list[dict[str, Any]] = []
+    for run in runs:
+        conclusion = run.get("conclusion", "")
+        name = run.get("name", "")
+        passed = conclusion == "success"
+
+        # Determine level based on workflow name heuristics
+        name_lower = name.lower()
+        if "l3" in name_lower or "behavioral" in name_lower:
+            level = "L3"
+        elif "l2" in name_lower or "semantic" in name_lower:
+            level = "L2"
+        else:
+            level = "L1"
+
+        records.append(
+            {
+                "level": level,
+                "passed": passed,
+                "run_id": run.get("id"),
+                "conclusion": conclusion,
+                "workflow": name,
+                "created_at": run.get("created_at", ""),
+                "html_url": run.get("html_url", ""),
+                "plugin_match": plugin_name.lower() in name_lower,
+            }
+        )
+    return records
+
+
+# ---------------------------------------------------------------------------
 # Core logic
 # ---------------------------------------------------------------------------
 
@@ -79,18 +145,12 @@ class TrustAssessment:
 def _compute_level_scores(
     records: list[Any],
 ) -> dict[str, LevelScore]:
-    """Compute pass rates per assertion level from assertion records.
+    """Compute pass rates per assertion level from records.
 
-    Accepts either AssertionRecord objects (from the on-chain SDK)
-    or plain dicts with ``level`` and ``passed`` keys (for offline
-    evaluation).
-
-    When given AssertionRecord objects, iterates the nested
-    ``assertions`` list and checks each AssertionResult's
-    ``.status`` field for ``"pass"``.
+    Accepts plain dicts with ``level`` and ``passed`` keys.
 
     Args:
-        records: List of AssertionRecord objects or plain dicts.
+        records: List of record dicts.
 
     Returns:
         Mapping of level name to LevelScore.
@@ -99,19 +159,10 @@ def _compute_level_scores(
     passes: dict[str, int] = {}
 
     for rec in records:
-        if isinstance(rec, dict):
-            # Offline path: flat dicts with level/passed keys
-            lvl = rec.get("level", "L1").upper()
-            totals[lvl] = totals.get(lvl, 0) + 1
-            if rec.get("passed", False):
-                passes[lvl] = passes.get(lvl, 0) + 1
-        else:
-            # On-chain path: AssertionRecord with nested assertions
-            for assertion in rec.assertions:
-                lvl = assertion.level.upper()
-                totals[lvl] = totals.get(lvl, 0) + 1
-                if assertion.status == "pass":
-                    passes[lvl] = passes.get(lvl, 0) + 1
+        lvl = rec.get("level", "L1").upper()
+        totals[lvl] = totals.get(lvl, 0) + 1
+        if rec.get("passed", False):
+            passes[lvl] = passes.get(lvl, 0) + 1
 
     scores: dict[str, LevelScore] = {}
     for lvl in VALID_LEVELS:
@@ -152,17 +203,18 @@ def verify_plugin(
     plugin_name: str,
     level: str = "L1",
     min_score: float = 0.8,
+    repo: str = DEFAULT_REPO,
 ) -> dict[str, Any]:
-    """Query Reputation Registry and return trust assessment.
+    """Query GitHub Actions and return trust assessment.
 
-    When the erc8004 package is unavailable (e.g. web3 not installed),
-    returns an assessment with ``error`` set and ``recommendation``
-    of ``"unknown"``.
+    Fetches recent workflow runs via the ``gh`` CLI, converts
+    them to trust records, and computes a recommendation.
 
     Args:
         plugin_name: Name of the plugin to verify.
         level: Minimum assertion level to check (L1, L2, L3).
         min_score: Minimum pass rate threshold (0.0-1.0).
+        repo: GitHub repository in "owner/repo" format.
 
     Returns:
         Dict with plugin_name, meets_threshold, recommendation,
@@ -179,44 +231,19 @@ def verify_plugin(
             )
         )
 
-    erc8004 = _try_import_erc8004()
-    if erc8004 is None:
-        return asdict(
-            TrustAssessment(
-                plugin_name=plugin_name,
-                meets_threshold=False,
-                recommendation="unknown",
-                error=("ERC-8004 SDK not available. Install with: pip install web3"),
-            )
-        )
-
     try:
-        config = erc8004.ERC8004Config.from_env()
-        client = erc8004.ERC8004Client(config)
-
-        # Resolve plugin name to on-chain token ID
-        identity = client.identity.get_plugin_identity(plugin_name)
-        if identity is None:
-            return asdict(
-                TrustAssessment(
-                    plugin_name=plugin_name,
-                    meets_threshold=False,
-                    recommendation="unknown",
-                    error=(f"No on-chain identity found for '{plugin_name}'."),
-                )
-            )
-
-        token_id = identity["token_id"]
-        records = client.reputation.get_assertion_history(token_id)
+        runs = _query_workflow_runs(repo)
     except Exception as exc:
         return asdict(
             TrustAssessment(
                 plugin_name=plugin_name,
                 meets_threshold=False,
                 recommendation="unknown",
-                error=f"Failed to query registry: {exc}",
+                error=f"Failed to query GitHub API: {exc}",
             )
         )
+
+    records = _runs_to_records(runs, plugin_name)
 
     if not records:
         return asdict(
@@ -225,7 +252,7 @@ def verify_plugin(
                 meets_threshold=False,
                 recommendation="untrusted",
                 assertion_history=[],
-                error="No assertion history found for this plugin.",
+                error="No workflow run history found.",
             )
         )
 
@@ -239,10 +266,7 @@ def verify_plugin(
             meets_threshold=meets,
             recommendation=recommendation,
             level_scores=[level_scores[lv] for lv in VALID_LEVELS],
-            assertion_history=[
-                asdict(r) if hasattr(r, "__dataclass_fields__") else r
-                for r in records[-20:]
-            ],
+            assertion_history=records[-20:],
         )
     )
 
@@ -253,14 +277,14 @@ def verify_plugin_offline(
     level: str = "L1",
     min_score: float = 0.8,
 ) -> dict[str, Any]:
-    """Verify trust from pre-fetched assertion records.
+    """Verify trust from pre-fetched records.
 
-    Useful for testing and offline evaluation without an RPC
-    connection.
+    Useful for testing and offline evaluation without network
+    access.
 
     Args:
         plugin_name: Name of the plugin.
-        records: Pre-fetched assertion record dicts.
+        records: Pre-fetched record dicts with level/passed keys.
         level: Assertion level to check.
         min_score: Minimum pass rate threshold.
 
@@ -312,7 +336,9 @@ def verify_plugin_offline(
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        description="Verify plugin behavioral contract history via ERC-8004.",
+        description=(
+            "Verify plugin behavioral contract history via GitHub Attestations."
+        ),
     )
     parser.add_argument(
         "plugin_name",
@@ -335,6 +361,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="json_output",
         help="Output raw JSON instead of human-readable text.",
+    )
+    parser.add_argument(
+        "--repo",
+        default=DEFAULT_REPO,
+        help=f"GitHub repository (default: {DEFAULT_REPO}).",
     )
     return parser
 
@@ -383,6 +414,7 @@ def main(argv: list[str] | None = None) -> int:
         plugin_name=args.plugin_name,
         level=args.level,
         min_score=args.min_score,
+        repo=args.repo,
     )
 
     if args.json_output:

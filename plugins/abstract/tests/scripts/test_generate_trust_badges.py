@@ -1,6 +1,6 @@
 """Tests for the generate_trust_badges script.
 
-Feature: Trust Badge Generation from ERC-8004 Reputation Data
+Feature: Trust Badge Generation from GitHub Actions Status
 
     As a plugin maintainer
     I want trust badges in my README
@@ -9,8 +9,10 @@ Feature: Trust Badge Generation from ERC-8004 Reputation Data
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -20,9 +22,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 from generate_trust_badges import (  # noqa: E402, I001
     BadgeData,
     badge_color,
+    build_parser,
     generate_badge_markdown,
     generate_badge_url,
     generate_badges_for_plugin,
+    generate_workflow_badge_url,
+    main,
     update_plugin_readme,
 )
 
@@ -44,6 +49,18 @@ def _make_badge_data(
         l2_rate=l2_rate,
         l3_rate=l3_rate,
     )
+
+
+def _make_subprocess_result(
+    runs: list[dict[str, object]],
+    returncode: int = 0,
+) -> MagicMock:
+    """Build a mock subprocess.run result for gh api calls."""
+    mock = MagicMock()
+    mock.returncode = returncode
+    mock.stdout = json.dumps({"workflow_runs": runs})
+    mock.stderr = ""
+    return mock
 
 
 # ---------------------------------------------------------------------------
@@ -173,7 +190,7 @@ class TestGenerateBadgeUrl:
 
         Given L1 rate of 98%
         When generating badge URL
-        Then URL contains "98%25" (URL-encoded %).
+        Then URL contains "98" in the encoded message.
         """
         data = _make_badge_data(l1_rate=0.98)
         url = generate_badge_url(data)
@@ -216,6 +233,44 @@ class TestGenerateBadgeUrl:
         assert "L1" in url
         assert "L2" in url
         assert "L3" in url
+
+
+# ---------------------------------------------------------------------------
+# Workflow badge URL
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateWorkflowBadgeUrl:
+    """Feature: GitHub Actions workflow status badge URL.
+
+    As a plugin maintainer
+    I want a workflow status badge URL
+    So that my README shows live CI status.
+    """
+
+    @pytest.mark.unit
+    def test_default_repo_and_workflow(self) -> None:
+        """Scenario: Default repo produces correct URL.
+
+        Given no custom repo or workflow
+        When generating workflow badge URL
+        Then URL points to the default repo and workflow.
+        """
+        url = generate_workflow_badge_url()
+        assert "athola/claude-night-market" in url
+        assert "trust-attestation.yml" in url
+        assert "label=trust" in url
+
+    @pytest.mark.unit
+    def test_custom_repo(self) -> None:
+        """Scenario: Custom repo in URL.
+
+        Given repo "custom/repo"
+        When generating workflow badge URL
+        Then URL contains the custom repo path.
+        """
+        url = generate_workflow_badge_url(repo="custom/repo")
+        assert "custom/repo" in url
 
 
 # ---------------------------------------------------------------------------
@@ -275,10 +330,10 @@ class TestGenerateBadgeMarkdown:
 
 
 class TestGenerateBadgesForPlugin:
-    """Feature: End-to-end badge generation from a plugin name.
+    """Feature: Badge generation from verify_plugin result dicts.
 
     As the badge generation pipeline
-    I want to go from plugin name to badge data
+    I want to go from verification result to badge data
     So that the process is automated.
     """
 
@@ -461,3 +516,83 @@ class TestUpdatePluginReadme:
         assert modified is True
         content = readme.read_text()
         assert badge_md in content
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+class TestCLI:
+    """Feature: CLI for generating trust badges.
+
+    As a developer
+    I want a CLI to generate badges
+    So that I can automate badge updates.
+    """
+
+    @pytest.mark.unit
+    def test_parser_requires_plugin_name(self) -> None:
+        """Scenario: Plugin name is required.
+
+        Given no arguments
+        When parsing CLI args
+        Then argparse raises SystemExit.
+        """
+        parser = build_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args([])
+
+    @pytest.mark.unit
+    def test_parser_accepts_plugin_and_repo(self) -> None:
+        """Scenario: Plugin name and repo flag.
+
+        Given plugin name and --repo flag
+        When parsing CLI args
+        Then both values are captured.
+        """
+        parser = build_parser()
+        args = parser.parse_args(["sanctum", "--repo", "custom/repo"])
+
+        assert args.plugin_name == "sanctum"
+        assert args.repo == "custom/repo"
+
+    @pytest.mark.unit
+    def test_main_success_workflow(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """Scenario: Successful main() run with mocked API.
+
+        Given a mocked gh api returning a successful run
+        When running main()
+        Then output contains plugin name and badge URL.
+        """
+        runs = [{"conclusion": "success", "name": "CI"}]
+        mock_result = _make_subprocess_result(runs)
+        with patch(
+            "generate_trust_badges.subprocess.run",
+            return_value=mock_result,
+        ):
+            code = main(["sanctum"])
+
+        assert code == 0
+        captured = capsys.readouterr()
+        assert "sanctum" in captured.out
+        assert "shields.io" in captured.out
+
+    @pytest.mark.unit
+    def test_main_api_failure(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """Scenario: main() handles API failure gracefully.
+
+        Given a mocked gh api that fails
+        When running main()
+        Then exit code is 0 and badge shows 0% rate.
+        """
+        mock_result = _make_subprocess_result([], returncode=1)
+        with patch(
+            "generate_trust_badges.subprocess.run",
+            return_value=mock_result,
+        ):
+            code = main(["test-plugin"])
+
+        assert code == 0
+        captured = capsys.readouterr()
+        assert "test-plugin" in captured.out

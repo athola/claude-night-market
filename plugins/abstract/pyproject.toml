@@ -59,7 +59,7 @@ extend-ignore = [
 "**/__init__.py" = ["F401"]
 "tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "PLC0415", "D205", "PLR0913", "S103"]
 "hooks/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
-"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
+"scripts/**/*.py" = ["S603", "S607", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
 "scripts/makefile_dogfooder.py" = ["F401"]
 "src/abstract/config.py" = ["S101"]
 "src/abstract/tasks_manager_base.py" = ["S607"]
@@ -88,10 +88,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["migration_analyzer"]
 disable_error_code = ["import-not-found"]
-
-[[tool.mypy.overrides]]
-module = ["verify_plugin"]
-ignore_missing_imports = true
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

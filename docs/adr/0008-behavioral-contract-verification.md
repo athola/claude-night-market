@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted - 2026-03-15
+Superseded - 2026-03-15
+
+ERC-8004 (blockchain) replaced by GitHub Attestations (SLSA).
 
 ## Context
 
@@ -10,8 +12,7 @@ The night-market plugin marketplace needs verifiable trust
 signals. Currently, consumers install plugins on faith:
 there is no mechanism to prove that a plugin's behavioral
 contracts (content assertions, quality gates) passed at a
-given version. Three candidate frameworks exist for
-on-chain behavioral contract verification.
+given version.
 
 ### Requirements
 
@@ -20,64 +21,69 @@ on-chain behavioral contract verification.
 - Give each plugin a portable, queryable identity
 - Enable cross-repo consumers to verify plugin trust
   before installation
-- Minimize gas costs and operational complexity
+- Minimize cost and operational complexity
 
 ### Candidates Evaluated
 
 **ERC-8004 (Trustless Agents)**: Ethereum standard live
 on mainnet since January 2026. Three registries: Identity
 (ERC-721), Reputation (feedback signals), Validation
-(independent checks). Deployed on Ethereum, Base, Polygon,
-Monad, and BNB Chain. Active community on Ethereum
-Magicians forum. V2 spec in development with MCP support.
+(independent checks). Requires wallet configuration, RPC
+endpoints, and gas fees even on L2 chains.
+
+**GitHub Attestations (SLSA)**: Built into GitHub Actions.
+Generates cryptographically signed SLSA provenance
+attestations for build artifacts. Zero cost for public
+repos. No wallet, RPC, or chain configuration needed.
+Uses Sigstore for signing, with verification via
+`gh attestation verify`.
 
 **Fetch.ai uAgents**: Python-native agent framework with
-Almanac smart contract registration on the Fetch.ai
-blockchain. Auto-registration on startup. Python SDK is
-mature for agent-to-agent communication but the Almanac
-contract is designed for agent discovery, not assertion
-publishing. Gas model uses FET tokens on a separate chain.
+Almanac smart contract registration. Designed for agent
+discovery, not assertion publishing. Gas model uses FET
+tokens on a separate chain.
 
 **Runtime Verification K Framework**: Formal verification
 methodology using rewrite-based executable semantics.
-Proven in smart contract verification (KEVM, KAVM).
-Python interface (pyk) exists. Recent research (2026)
-introduces Agent Behavioral Contracts (ABC) with hard
-and soft constraint distinctions. However, this is a
-verification methodology, not a registry infrastructure.
+Verification tool, not a registry infrastructure.
 
-## Decision
+## Decision (Original - Superseded)
 
-Adopt **ERC-8004** as the behavioral contract verification
-framework. Defer formal verification (K Framework) as a
-future enhancement for L3 assertions. Do not use uAgents
-(wrong abstraction level).
+The original decision adopted ERC-8004 as the verification
+framework. This was superseded on 2026-03-15 due to
+operational costs and complexity.
+
+## Decision (Current)
+
+Adopt **GitHub Attestations (SLSA)** as the behavioral
+contract verification framework. Use GitHub Actions
+workflow runs as the trust signal source, with SLSA
+provenance attestations for cryptographic proof.
 
 ### Rationale
 
-| Criterion | ERC-8004 | uAgents | K Framework |
-|-----------|----------|---------|-------------|
-| Registry model | Three-registry (Identity, Reputation, Validation) | Single Almanac (discovery only) | No registry (verification tool) |
-| Assertion publishing | Native via Reputation Registry | Would need custom extension | N/A |
-| Python SDK | Community SDKs (web3.py) | Native Python SDK | pyk (limited) |
-| Chain options | Ethereum, Base, Polygon, Monad, BNB | Fetch.ai chain only | Chain-agnostic |
-| Gas costs | Low on L2s (Base, Polygon) | FET token model | N/A |
-| Community | Active, Ethereum Magicians | Moderate | Niche |
-| Maturity | Mainnet since Jan 2026 | Production | Research phase for ABC |
-| Fit with L1/L2/L3 | Direct mapping to reputation signals | Would need adapting | Direct for formal proofs |
+| Criterion | GitHub Attestations | ERC-8004 |
+|-----------|-------------------|----------|
+| Cost | Free (GitHub-hosted) | Gas fees on L2 |
+| Setup | Zero (built into Actions) | Wallet + RPC config |
+| Signing | Sigstore (automatic) | Ethereum keys |
+| Verification | `gh attestation verify` | Custom SDK + web3 |
+| Infrastructure | GitHub (already used) | Blockchain node/RPC |
+| Python deps | None (uses `gh` CLI) | web3.py |
+| Maturity | GA since 2024 | Mainnet since Jan 2026 |
 
 **Key factors:**
 
-1. ERC-8004's three-registry model maps directly to our
-   needs: Identity for plugins, Reputation for assertion
-   results, Validation for independent checks.
-2. L2 deployment (Base or Polygon) keeps gas costs under
-   $0.01 per assertion batch.
-3. The standard is live and actively maintained with
-   ecosystem support.
-4. uAgents solves agent discovery, not trust verification.
-5. K Framework is complementary (could verify L3 assertions
-   formally) but does not provide the registry layer.
+1. Zero marginal cost: GitHub Actions runs already happen
+   for CI. Attestations add no cost for public repos.
+2. No new infrastructure: no wallets, no RPC endpoints,
+   no chain selection, no gas management.
+3. SLSA provenance is cryptographically signed via
+   Sigstore, providing tamper-evident build records.
+4. The `gh` CLI is the only runtime dependency, already
+   available in all CI environments and most dev machines.
+5. Cross-repo verification works via `gh attestation
+   verify` without trusting the source CI configuration.
 
 ### Architecture
 
@@ -85,60 +91,68 @@ future enhancement for L3 assertions. Do not use uAgents
 pytest (content assertions)
     |
     v
-Post-test hook (captures L1/L2/L3 results)
+GitHub Actions workflow (captures test results)
     |
     v
-ERC-8004 SDK wrapper
+trust-report.json (test pass/fail summary)
     |
-    +---> Identity Registry (plugin identity, ERC-721)
-    +---> Reputation Registry (assertion results per commit)
-    +---> Validation Registry (independent validator hooks)
+    v
+actions/attest-build-provenance (SLSA attestation)
+    |
+    v
+gh api / gh attestation verify (consumer verification)
 ```
 
 ### Implementation Phases
 
-| Phase | Issue | Scope |
-|-------|-------|-------|
-| 1 | #238 | On-chain identity registry for plugins/skills |
-| 2 | #239 | Publish assertion results to Reputation Registry |
-| 3 | #240 | Cross-repo verification CLI |
-| 4 | #241 | Marketplace trust badges and dashboard |
-
-### Deployment Target
-
-Base L2 (Ethereum rollup) for low gas costs with
-Ethereum mainnet security guarantees. Testnet
-development on Base Sepolia.
+| Phase | Scope |
+|-------|-------|
+| 1 | Remove ERC-8004 SDK and blockchain dependencies |
+| 2 | Rewrite verify_plugin.py to use GitHub API |
+| 3 | Create trust-attestation.yml workflow |
+| 4 | Update trust badge generator for GitHub Actions |
 
 ## Consequences
 
 ### Positive
 
-- Verifiable trust signals for plugin consumers
-- Immutable assertion history per plugin version
-- Cross-repo verification without trusting source CI
-- Standard-based approach with ecosystem support
+- Zero cost verification for all plugins
+- No wallet or blockchain configuration needed
+- Cryptographically signed via Sigstore/SLSA
+- Uses infrastructure already in place (GitHub Actions)
+- Simpler dependency tree (no web3.py)
+- Cross-repo verification via `gh attestation verify`
 
 ### Negative
 
-- Requires wallet/RPC configuration for publishing
-- Gas costs (minimal on L2 but nonzero)
-- Additional CI complexity for assertion publishing
-- Dependency on ERC-8004 ecosystem stability
+- Tied to GitHub as the attestation provider
+- No immutable on-chain record (GitHub can delete runs)
+- Attestation history limited by GitHub retention policy
+- Less decentralized than blockchain approach
 
 ### Risks
 
-- ERC-8004 v2 may change APIs (mitigated by abstraction
-  layer in SDK wrapper)
-- L2 bridge delays for mainnet verification (mitigated
-  by using L2 natively)
-- Low adoption may reduce network effects (mitigated by
-  standalone utility for night-market)
+- GitHub Actions retention policy may limit historical
+  depth (mitigated by SLSA attestations which persist
+  independently)
+- GitHub API rate limits for heavy verification use
+  (mitigated by caching and offline mode)
+
+## Historical Context (ERC-8004 Research)
+
+The original evaluation of ERC-8004, Fetch.ai uAgents,
+and K Framework is preserved here for reference. The
+ERC-8004 approach was technically sound but introduced
+operational overhead (wallet management, gas costs, RPC
+configuration) that was disproportionate to the project's
+current scale. If the project grows to require
+cross-platform, decentralized verification beyond GitHub,
+ERC-8004 remains a viable future option.
 
 ## References
 
-- [ERC-8004 specification](https://eips.ethereum.org/EIPS/eip-8004)
-- [ERC-8004 community discussion](https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098)
-- [Fetch.ai uAgents framework](https://github.com/fetchai/uAgents)
-- [K Framework](https://kframework.org/)
-- [Agent Behavioral Contracts paper](https://arxiv.org/html/2602.22302)
+- [GitHub Attestations docs](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations)
+- [SLSA framework](https://slsa.dev/)
+- [Sigstore](https://www.sigstore.dev/)
+- [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance)
+- [ERC-8004 specification](https://eips.ethereum.org/EIPS/eip-8004) (historical)

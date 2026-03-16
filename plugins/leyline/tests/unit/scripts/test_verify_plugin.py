@@ -3,7 +3,7 @@
 Feature: Plugin Behavioral Contract Verification
 
     As a plugin consumer
-    I want to verify a plugin's trust history via ERC-8004
+    I want to verify a plugin's trust history via GitHub Attestations
     So that I can make informed installation decisions
 """
 
@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass, field
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -30,31 +29,6 @@ from verify_plugin import (  # noqa: I001
     verify_plugin,
     verify_plugin_offline,
 )
-
-
-# ---------------------------------------------------------------------------
-# Stub dataclasses matching erc8004 types (avoids importing web3)
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class _StubAssertionResult:
-    """Mirrors leyline.erc8004.reputation.AssertionResult."""
-
-    test_name: str
-    level: str
-    status: str
-    timestamp: int = 0
-
-
-@dataclass
-class _StubAssertionRecord:
-    """Mirrors leyline.erc8004.reputation.AssertionRecord."""
-
-    commit_hash: str = "abc123"
-    assertions: list[_StubAssertionResult] = field(default_factory=list)
-    published_at: int = 0
-    tx_hash: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -87,41 +61,32 @@ def _make_records(
     return records
 
 
-def _make_assertion_records(
-    l1_pass: int = 0,
-    l1_fail: int = 0,
-    l2_pass: int = 0,
-    l2_fail: int = 0,
-    l3_pass: int = 0,
-    l3_fail: int = 0,
-) -> list[_StubAssertionRecord]:
-    """Build AssertionRecord objects for online verification tests."""
-    assertions: list[_StubAssertionResult] = []
-    for i in range(l1_pass):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l1_{i}", level="L1", status="pass")
-        )
-    for i in range(l1_fail):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l1_f{i}", level="L1", status="fail")
-        )
-    for i in range(l2_pass):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l2_{i}", level="L2", status="pass")
-        )
-    for i in range(l2_fail):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l2_f{i}", level="L2", status="fail")
-        )
-    for i in range(l3_pass):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l3_{i}", level="L3", status="pass")
-        )
-    for i in range(l3_fail):
-        assertions.append(
-            _StubAssertionResult(test_name=f"test_l3_f{i}", level="L3", status="fail")
-        )
-    return [_StubAssertionRecord(commit_hash="abc123", assertions=assertions)]
+def _make_gh_run(
+    name: str = "CI",
+    conclusion: str = "success",
+    run_id: int = 1,
+) -> dict[str, object]:
+    """Build a mock GitHub Actions workflow run dict."""
+    return {
+        "id": run_id,
+        "name": name,
+        "conclusion": conclusion,
+        "created_at": "2026-03-15T00:00:00Z",
+        "html_url": f"https://github.com/test/repo/actions/runs/{run_id}",
+    }
+
+
+def _make_subprocess_result(
+    runs: list[dict[str, object]],
+    returncode: int = 0,
+    stderr: str = "",
+) -> MagicMock:
+    """Build a mock subprocess.run result for gh api calls."""
+    mock = MagicMock()
+    mock.returncode = returncode
+    mock.stdout = json.dumps({"workflow_runs": runs})
+    mock.stderr = stderr
+    return mock
 
 
 # ---------------------------------------------------------------------------
@@ -280,7 +245,7 @@ class TestChooseRecommendation:
 
 
 # ---------------------------------------------------------------------------
-# Offline verification (no RPC)
+# Offline verification (no network)
 # ---------------------------------------------------------------------------
 
 
@@ -288,7 +253,7 @@ class TestVerifyPluginOffline:
     """Feature: Offline trust verification from pre-fetched records.
 
     As a developer running tests
-    I want to verify trust without an RPC connection
+    I want to verify trust without network access
     So that verification logic is testable in isolation.
     """
 
@@ -352,7 +317,7 @@ class TestVerifyPluginOffline:
 
     @pytest.mark.unit
     def test_high_min_score_threshold(self) -> None:
-        """Scenario: Strict threshold makes good plugin untrusted.
+        """Scenario: Strict threshold makes good plugin cautionary.
 
         Given 85% L1 pass rate
         When verifying with min_score 0.95
@@ -400,146 +365,114 @@ class TestVerifyPluginOffline:
 
 
 # ---------------------------------------------------------------------------
-# Online verification (mocked RPC)
+# Online verification (mocked GitHub API)
 # ---------------------------------------------------------------------------
 
 
 class TestVerifyPluginOnline:
-    """Feature: Online trust verification via ERC-8004 registry.
+    """Feature: Online trust verification via GitHub Actions.
 
     As a plugin consumer
-    I want to query on-chain reputation data
-    So that I get real-time trust assessments.
+    I want to query GitHub workflow run data
+    So that I get trust assessments based on CI results.
     """
 
     @pytest.mark.unit
-    def test_erc8004_unavailable_returns_unknown(self) -> None:
-        """Scenario: web3 not installed.
+    def test_gh_api_failure_returns_unknown(self) -> None:
+        """Scenario: gh CLI is unavailable or API call fails.
 
-        Given the erc8004 package cannot be imported
+        Given subprocess.run returns a non-zero exit code
         When calling verify_plugin
-        Then result has recommendation "unknown" and helpful error.
+        Then result has recommendation "unknown" and error.
         """
-        with patch("verify_plugin._try_import_erc8004", return_value=None):
+        mock_result = _make_subprocess_result([], returncode=1, stderr="gh: not found")
+        with patch("verify_plugin.subprocess.run", return_value=mock_result):
             result = verify_plugin("some-plugin")
-
-        assert result["recommendation"] == "unknown"
-        assert "not available" in result["error"]
-
-    @pytest.mark.unit
-    def test_registry_query_succeeds(self) -> None:
-        """Scenario: Successful registry query.
-
-        Given a mock ERC-8004 client returning passing records
-        When calling verify_plugin
-        Then result reflects the on-chain data.
-        """
-        mock_erc8004 = MagicMock(name="erc8004_module")
-        mock_client = MagicMock(name="ERC8004Client")
-        mock_erc8004.ERC8004Client.return_value = mock_client
-        mock_client.identity.get_plugin_identity.return_value = {
-            "token_id": "42",
-            "name": "good-plugin",
-            "metadata_uri": "ipfs://test",
-            "owner": "0xabc",
-        }
-        mock_client.reputation.get_assertion_history.return_value = (
-            _make_assertion_records(l1_pass=10)
-        )
-
-        with patch(
-            "verify_plugin._try_import_erc8004",
-            return_value=mock_erc8004,
-        ):
-            result = verify_plugin("good-plugin", level="L1", min_score=0.8)
-
-        assert result["recommendation"] == "trusted"
-        assert result["meets_threshold"] is True
-        mock_client.identity.get_plugin_identity.assert_called_once_with("good-plugin")
-        mock_client.reputation.get_assertion_history.assert_called_once_with("42")
-
-    @pytest.mark.unit
-    def test_registry_query_exception(self) -> None:
-        """Scenario: Registry query raises an exception.
-
-        Given a mock client that raises ConnectionError
-        When calling verify_plugin
-        Then result has recommendation "unknown" with error detail.
-        """
-        mock_erc8004 = MagicMock(name="erc8004_module")
-        mock_erc8004.ERC8004Client.side_effect = ConnectionError("RPC down")
-
-        with patch(
-            "verify_plugin._try_import_erc8004",
-            return_value=mock_erc8004,
-        ):
-            result = verify_plugin("broken-plugin")
 
         assert result["recommendation"] == "unknown"
         assert "Failed to query" in result["error"]
 
     @pytest.mark.unit
-    def test_empty_registry_returns_untrusted(self) -> None:
-        """Scenario: Plugin has on-chain identity but no history.
+    def test_successful_runs_return_trusted(self) -> None:
+        """Scenario: All workflow runs succeeded.
 
-        Given a mock client returning empty assertion records
+        Given 10 successful workflow runs
+        When calling verify_plugin
+        Then result is trusted.
+        """
+        runs = [
+            _make_gh_run(name="CI", conclusion="success", run_id=i) for i in range(10)
+        ]
+        mock_result = _make_subprocess_result(runs)
+        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+            result = verify_plugin("good-plugin", level="L1", min_score=0.8)
+
+        assert result["recommendation"] == "trusted"
+        assert result["meets_threshold"] is True
+
+    @pytest.mark.unit
+    def test_mixed_runs_return_caution(self) -> None:
+        """Scenario: Some workflow runs failed.
+
+        Given 6 successful and 4 failed runs
+        When calling verify_plugin with min_score 0.8
+        Then recommendation is "caution" (0.6 >= 0.56).
+        """
+        runs = [_make_gh_run(conclusion="success", run_id=i) for i in range(6)] + [
+            _make_gh_run(conclusion="failure", run_id=i + 6) for i in range(4)
+        ]
+        mock_result = _make_subprocess_result(runs)
+        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+            result = verify_plugin("test-plugin", level="L1", min_score=0.8)
+
+        assert result["recommendation"] == "caution"
+        assert result["meets_threshold"] is False
+
+    @pytest.mark.unit
+    def test_no_runs_returns_untrusted(self) -> None:
+        """Scenario: No workflow runs found.
+
+        Given the API returns an empty runs list
         When calling verify_plugin
         Then result is untrusted with no-history error.
         """
-        mock_erc8004 = MagicMock(name="erc8004_module")
-        mock_client = MagicMock(name="ERC8004Client")
-        mock_erc8004.ERC8004Client.return_value = mock_client
-        mock_client.identity.get_plugin_identity.return_value = {
-            "token_id": "99",
-            "name": "new-plugin",
-            "metadata_uri": "ipfs://new",
-            "owner": "0xdef",
-        }
-        mock_client.reputation.get_assertion_history.return_value = []
-
-        with patch(
-            "verify_plugin._try_import_erc8004",
-            return_value=mock_erc8004,
-        ):
+        mock_result = _make_subprocess_result([])
+        with patch("verify_plugin.subprocess.run", return_value=mock_result):
             result = verify_plugin("new-plugin")
 
         assert result["recommendation"] == "untrusted"
-        assert "No assertion history" in result["error"]
-
-    @pytest.mark.unit
-    def test_no_onchain_identity_returns_unknown(self) -> None:
-        """Scenario: Plugin has no on-chain identity.
-
-        Given identity registry returns None for the plugin name
-        When calling verify_plugin
-        Then result has recommendation "unknown" with identity error.
-        """
-        mock_erc8004 = MagicMock(name="erc8004_module")
-        mock_client = MagicMock(name="ERC8004Client")
-        mock_erc8004.ERC8004Client.return_value = mock_client
-        mock_client.identity.get_plugin_identity.return_value = None
-
-        with patch(
-            "verify_plugin._try_import_erc8004",
-            return_value=mock_erc8004,
-        ):
-            result = verify_plugin("unregistered-plugin")
-
-        assert result["recommendation"] == "unknown"
-        assert "No on-chain identity" in result["error"]
+        assert "No workflow run history" in result["error"]
 
     @pytest.mark.unit
     def test_invalid_level_rejected(self) -> None:
-        """Scenario: Invalid level is rejected before any RPC call.
+        """Scenario: Invalid level is rejected before any API call.
 
         Given level "INVALID"
         When calling verify_plugin
-        Then result has error without touching the registry.
+        Then result has error without touching GitHub.
         """
         result = verify_plugin("any-plugin", level="INVALID")
 
         assert result["recommendation"] == "unknown"
         assert "Invalid level" in result["error"]
+
+    @pytest.mark.unit
+    def test_custom_repo_passed_to_api(self) -> None:
+        """Scenario: Custom repo flag is forwarded to API call.
+
+        Given --repo custom/repo
+        When calling verify_plugin
+        Then the gh api call uses that repo path.
+        """
+        runs = [_make_gh_run(conclusion="success")]
+        mock_result = _make_subprocess_result(runs)
+        with patch(
+            "verify_plugin.subprocess.run", return_value=mock_result
+        ) as mock_run:
+            verify_plugin("test", repo="custom/repo")
+
+        call_args = mock_run.call_args[0][0]
+        assert "repos/custom/repo/actions/runs" in call_args[2]
 
 
 # ---------------------------------------------------------------------------
@@ -575,19 +508,29 @@ class TestCLIParsing:
     def test_all_args(self) -> None:
         """Scenario: All arguments provided.
 
-        Given plugin name, level, min-score, and json flag
+        Given plugin name, level, min-score, repo, and json flag
         When parsing CLI args
         Then all values are captured correctly.
         """
         parser = build_parser()
         args = parser.parse_args(
-            ["sanctum", "--level", "L3", "--min-score", "0.9", "--json"]
+            [
+                "sanctum",
+                "--level",
+                "L3",
+                "--min-score",
+                "0.9",
+                "--json",
+                "--repo",
+                "custom/repo",
+            ]
         )
 
         assert args.plugin_name == "sanctum"
         assert args.level == "L3"
         assert args.min_score == 0.9  # noqa: PLR2004
         assert args.json_output is True
+        assert args.repo == "custom/repo"
 
     @pytest.mark.unit
     def test_invalid_level_rejected_by_parser(self) -> None:
@@ -672,7 +615,7 @@ class TestCLIMain:
                 "meets_threshold": False,
                 "level_scores": [],
                 "assertion_history": [],
-                "error": "SDK not available",
+                "error": "GitHub API unavailable",
             }
             code = main(["broken"])
 
@@ -774,8 +717,8 @@ class TestFormatHuman:
             "meets_threshold": False,
             "level_scores": [],
             "assertion_history": [],
-            "error": "SDK not available",
+            "error": "GitHub API unavailable",
         }
         output = _format_human(result)
         assert "Note:" in output
-        assert "SDK not available" in output
+        assert "GitHub API unavailable" in output
