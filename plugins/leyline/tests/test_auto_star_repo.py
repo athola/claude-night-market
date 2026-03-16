@@ -1,4 +1,3 @@
-# ruff: noqa: D101,D102,D103,D205,D212,D400,D415,E501,PLC0415
 """Tests for auto-star-repo.sh safety guarantees.
 
 Feature: Star Prompt on Session Start
@@ -16,7 +15,9 @@ Feature: Star Prompt on Session Start
 
 from __future__ import annotations
 
+import os
 import re
+import stat
 from pathlib import Path
 
 import pytest
@@ -302,9 +303,6 @@ class TestFailSafety:
 
     @pytest.mark.unit
     def test_script_is_executable(self) -> None:
-        import os
-        import stat
-
         mode = os.stat(HOOK_PATH).st_mode
         assert mode & stat.S_IXUSR
 

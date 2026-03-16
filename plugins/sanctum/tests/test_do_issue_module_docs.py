@@ -1,4 +1,3 @@
-# ruff: noqa: D101,D102,D103,D205,D212,D400,D415,E501
 """Tests for do-issue module documentation completeness.
 
 Feature: Do-Issue Safety Documentation

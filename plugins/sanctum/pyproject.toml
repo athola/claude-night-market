@@ -39,6 +39,7 @@ extend-ignore = ["E203", "D203", "D213"]
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
 "tests/**/*.py" = ["S101", "D"]
+"tests/test_do_issue_module_docs.py" = ["S101", "D", "E501"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -1,4 +1,3 @@
-# ruff: noqa: D101,D102,D103,D205,D212,D400,D415,E501
 """Tests for manifest consistency between plugin.json and openpackage.yml.
 
 Feature: Plugin Manifest Consistency
