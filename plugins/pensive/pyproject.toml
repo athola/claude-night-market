@@ -81,6 +81,7 @@ addopts = [
     "--tb=short",
 ]
 testpaths = ["tests"]
+pythonpath = [".", "src"]
 markers = [
     "unit: Unit tests for individual functions and methods",
     "integration: Integration tests for workflows and end-to-end scenarios",
