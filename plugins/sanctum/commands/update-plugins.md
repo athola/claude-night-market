@@ -29,12 +29,16 @@ on changed plugins and side-effect checks on related plugins.
 
 ### Phase 2-4 (On-Demand Modules)
 
-- See `modules/phase2-performance.md` for skill-review
-  and performance analysis
-- See `modules/phase3-meta-eval.md` for recursive quality
-  validation
-- See `modules/phase4-queue.md` for knowledge queue promotion
-  checks
+These modules contain full procedural details: format
+templates, commands, TodoWrite naming conventions, and
+auto-issue creation procedures.
+
+- See `update-plugins/modules/phase2-performance.md` for
+  skill-review and performance analysis
+- See `update-plugins/modules/phase3-meta-eval.md` for
+  recursive quality validation
+- See `update-plugins/modules/phase4-queue.md` for knowledge
+  queue promotion checks
 
 ## Workflow
 
@@ -66,7 +70,8 @@ python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 
 ## Script Features
 
-- Smart filtering: Excludes module directories, __pycache__, test files, __init__.py
+- Smart filtering: Excludes module directories,
+  __pycache__, test files, __init__.py
 - Nested path handling: Detects and reports stale nested registrations
 - Alphabetical sorting: Maintains consistent ordering in plugin.json
 - Safe by default: Dry-run mode unless --fix is specified
@@ -86,7 +91,10 @@ python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 - During version bumps to ensure completeness
 - As part of PR preparation (`/pr` workflow)
 - When capabilities-reference.md seems out of sync
-- Periodically (weekly/monthly) to catch performance degradation early
+- Periodically (weekly/monthly) to catch performance
+  degradation early
+- After major refactors to ensure no regressions in skill
+  stability
 
 ## When NOT To Use
 
@@ -95,19 +103,40 @@ python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 
 ## Improvement Integration Loop
 
-Phases 1-4 create a continuous feedback loop: registration audit surfaces gaps, performance analysis identifies degradation, meta-evaluation enforces quality, and queue checks prevent knowledge loss. See the phase modules for details.
+Phases 1-4 create a continuous feedback loop:
+registration audit surfaces gaps, performance analysis
+identifies degradation, meta-evaluation enforces quality,
+and queue checks prevent knowledge loss.
+See the phase modules for details.
 
 ## Integration
 
 This command complements:
-- `/plugin-review` - Tiered quality review (invoked as Phase 2)
-- `/update-docs` - Updates documentation after plugin changes
-- `/update-version` - Bumps versions after significant changes
+
+- `/plugin-review` - Tiered quality review (invoked as
+  Phase 2)
+- `/update-docs` - Updates documentation after plugin
+  changes
+- `/update-version` - Bumps versions after significant
+  changes
 - `/validate-plugin` - Validates overall plugin structure
-- `pensive:skill-review` - Analyzes skill performance metrics
-- `memory-palace:knowledge-intake` - Evaluates queue items (Phase 4)
+- `pensive:skill-review` - Analyzes skill performance
+  metrics (invoked in Phase 2 module)
+- `/skill-logs` - Surfaces recent failures (invoked in
+  Phase 2 module)
+- `/fix-workflow` - Implements improvements for identified
+  issues
+- `memory-palace:knowledge-intake` - Evaluates queue items
+  (Phase 4)
 
 ## See Also
 
-- `abstract:validate-plugin-structure` - Full plugin validation
+- `abstract:validate-plugin-structure` - Full plugin
+  validation
 - `capabilities-reference.md` - Central capability listing
+- `pensive:skill-review` - Performance analysis and
+  recommendations
+- `/skill-logs` - Execution history and failure patterns
+- `/fix-workflow` - Workflow improvement retrospectives
+- `memory-palace:knowledge-intake` - Queue evaluation
+  criteria

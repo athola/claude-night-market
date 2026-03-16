@@ -180,7 +180,7 @@ def _find_current_session(jsonl_files: list[Path]) -> Path | None:
                 return f
 
     # Fallback: most recently modified file, but only if modified
-    # in the last 60 seconds (likely the active session).
+    # within STALE_SESSION_SECONDS (likely the active session).
     candidates = sorted(jsonl_files, key=lambda f: f.stat().st_mtime, reverse=True)
     newest = candidates[0]
     age_seconds = time.time() - newest.stat().st_mtime

@@ -1,6 +1,6 @@
 [project]
 name = "sanctum"
-version = "1.6.3"
+version = "1.6.4"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
@@ -39,6 +39,7 @@ extend-ignore = ["E203", "D203", "D213"]
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
 "tests/**/*.py" = ["S101", "D"]
+"tests/test_do_issue_module_docs.py" = ["S101", "D", "E501"]
 
 [tool.ruff.format]
 quote-style = "double"

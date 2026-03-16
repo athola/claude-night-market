@@ -39,6 +39,7 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 |---------|-------------|
 | `/reinstall-all-plugins` | Uninstall and reinstall all plugins to refresh cache |
 | `/update-all-plugins` | Update all installed plugins from marketplaces |
+| `/verify-plugin` | Verify plugin trust via ERC-8004 Reputation Registry |
 
 ## Usage Examples
 
@@ -148,6 +149,8 @@ Supported operations: create, comment, threaded reply, mark-as-answer, search, g
 On non-GitHub platforms (GitLab, Bitbucket), all Discussion operations are skipped with a warning.
 
 A `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent "Decisions" discussions at session start and injects a summary (<600 tokens) so that new sessions can discover prior deliberations.
+
+An `auto-star-repo.sh` SessionStart hook stars the repository if not already starred. The hook is idempotent (checks status before acting), never unstars, and fails silently if no auth method is available.
 
 ## Integration
 

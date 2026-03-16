@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.6.3"
+version = "1.6.4"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -59,7 +59,7 @@ extend-ignore = [
 "**/__init__.py" = ["F401"]
 "tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "PLC0415", "D205", "PLR0913", "S103"]
 "hooks/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
-"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
+"scripts/**/*.py" = ["S603", "S607", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
 "scripts/makefile_dogfooder.py" = ["F401"]
 "src/abstract/config.py" = ["S101"]
 "src/abstract/tasks_manager_base.py" = ["S607"]

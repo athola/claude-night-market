@@ -499,7 +499,14 @@ class PluginAuditor:
                     print(f"    - {item}")
 
     def _read_module_description(self, module_path: Path) -> str:
-        """Extract a short description from a module file's content."""
+        """Return the first prose line from a module file.
+
+        Skips YAML frontmatter (``---`` delimited), blank lines, and
+        heading lines (starting with ``#``).  If the resulting line
+        exceeds 80 characters it is truncated to 77 chars with an
+        ellipsis appended.  Returns an empty string when the file is
+        missing, unreadable, or contains no prose.
+        """
         try:
             lines = module_path.read_text(encoding="utf-8").splitlines()
             in_frontmatter = False

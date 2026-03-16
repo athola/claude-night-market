@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-03-15
+
+### Added
+
+- ERC-8004 behavioral contract verification command
+  (`/verify-plugin`) in leyline for querying on-chain
+  plugin trust scores
+- Star prompt SessionStart hook in leyline that asks
+  users if they want to star anthropics/claude-code
+  (opt-out via CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1)
+- Remote-control/headless subagent hang warnings in
+  sanctum do-issue parallel-execution and
+  troubleshooting modules with upstream bug references
+
+### Changed
+
+- Alphabetize leyline skill listing in openpackage.yml
+  and register newly added skills (content-sanitization,
+  damage-control, markdown-formatting, stewardship)
+
 ## [1.6.3] - 2026-03-15
 
 ### Added

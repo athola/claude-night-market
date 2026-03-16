@@ -5,10 +5,11 @@
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
+[![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
 
 **Claude Code plugins for software engineering workflows.**
 
-17 plugins providing 130 skills, 104 commands, and 43 agents
+17 plugins providing 130 skills, 128 commands, and 43 agents
 for git operations, code review, spec-driven development,
 and issue management. Each plugin installs independently.
 
@@ -112,7 +113,7 @@ flowchart TB
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, stability monitoring | 11 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship | 16 | 2 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, ERC-8004 trust verification | 16 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions | 14 | 18 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 9 | 3 |
 | **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 10 | 4 |

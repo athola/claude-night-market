@@ -28,7 +28,25 @@ Leyline provides shared utilities and services to maintain consistent plugin fun
 | `service-registry` | Manage external service connections. | Coordinating multiple external services. |
 | `error-patterns` | Standardized error handling. | Implementing error recovery logic. |
 | `authentication-patterns` | Common auth flows. | Connecting to external APIs. |
+| `content-sanitization` | Sanitize external content. | Loading Issues, PRs, or WebFetch results. |
+| `damage-control` | Agent crash recovery. | Context overflow, merge conflicts, broken state. |
+| `evaluation-framework` | Decision thresholds and scoring. | Building evaluation criteria. |
+| `git-platform` | Cross-platform git forge commands. | Abstracting GitHub/GitLab/Bitbucket. |
 | `markdown-formatting` | Line wrapping and style conventions. | Generating or editing markdown prose. |
+| `progressive-loading` | Dynamic content loading. | Lazy loading strategies. |
+| `pytest-config` | Pytest configuration patterns. | Standardized test configuration. |
+| `risk-classification` | Inline 4-tier risk model. | Risk-based task routing. |
+| `stewardship` | Stewardship principles and virtues. | Codebase improvement and health. |
+| `storage-templates` | Storage abstraction. | File and database patterns. |
+| `testing-quality-standards` | Test quality guidelines. | Ensuring high-quality tests. |
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/reinstall-all-plugins` | Refresh all plugins (fixes cache issues). |
+| `/update-all-plugins` | Update all installed plugins. |
+| `/verify-plugin` | Query ERC-8004 Reputation Registry for trust scores. |
 
 ## Workflow and Integration
 

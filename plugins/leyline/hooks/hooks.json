@@ -12,7 +12,17 @@
         ]
       },
       {
-        "_comment": "Order 2: Fetch recent discussions (depends on git platform detection above)",
+        "_comment": "Order 2: Check if anthropics/claude-code is starred; prompt user if not",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/auto-star-repo.sh",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "_comment": "Order 3: Fetch recent discussions (depends on git platform detection above)",
         "hooks": [
           {
             "type": "command",
