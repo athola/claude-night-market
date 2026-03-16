@@ -538,6 +538,31 @@ class TestSessionHistoryManager:
         mgr = SessionHistoryManager(data_dir=tmp_path)
         assert mgr.get_session_chain("ghost") == []
 
+    @pytest.mark.unit
+    def test_get_session_chain_long_chain(self, tmp_path: Path) -> None:
+        """Scenario: Chain correctness at scale
+        Given a linear chain of 120 sessions
+        When get_session_chain() is called from the middle
+        Then the full chain is returned in order from root to leaf.
+        """
+        chain_length = 120
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+
+        prev_id: str | None = None
+        session_ids: list[str] = []
+        for i in range(chain_length):
+            sid = f"s{i:04d}"
+            session_ids.append(sid)
+            mgr.record_session(_make_record(sid, parent_session_id=prev_id))
+            prev_id = sid
+
+        # Query from the middle of the chain -- should still return the full chain
+        mid_id = session_ids[chain_length // 2]
+        chain = mgr.get_session_chain(mid_id)
+
+        assert len(chain) == chain_length
+        assert [r.session_id for r in chain] == session_ids
+
     # ------------------------------------------------------------------
     # get_stats
     # ------------------------------------------------------------------

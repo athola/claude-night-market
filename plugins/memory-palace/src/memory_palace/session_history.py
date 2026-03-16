@@ -164,6 +164,7 @@ class SessionHistoryManager:
                 "topics": record.topics,
                 "outcome": record.outcome,
                 "tags": record.tags,
+                "parent_session_id": record.parent_session_id,
             }
         )
         index["stats"]["total"] = len(index["sessions"])
@@ -285,26 +286,30 @@ class SessionHistoryManager:
             visited.add(parent.session_id)
             current = parent
 
-        # current is now the chain root; walk forward collecting children
-        chain: list[SessionRecord] = [current]
+        # current is now the chain root; walk forward collecting children.
+        # Build a single-pass parent->child index from the stored index so
+        # the forward walk is O(n) rather than O(n^2).
         index = self._load_index()
-        all_ids = {s["session_id"] for s in index["sessions"]}
+        parent_to_child: dict[str, str] = {}
+        for entry in index["sessions"]:
+            pid = entry.get("parent_session_id")
+            if pid:
+                parent_to_child[pid] = entry["session_id"]
 
+        chain: list[SessionRecord] = [current]
         current_id = current.session_id
         seen: set[str] = {current_id}
-        found_child = True
-        while found_child:
-            found_child = False
-            for sid in all_ids:
-                if sid in seen:
-                    continue
-                record = self.get_session(sid)
-                if record and record.parent_session_id == current_id:
-                    chain.append(record)
-                    seen.add(sid)
-                    current_id = record.session_id
-                    found_child = True
-                    break
+        while current_id in parent_to_child:
+            child_id = parent_to_child[current_id]
+            if child_id in seen:
+                # Guard against cycles in the index
+                break
+            child = self.get_session(child_id)
+            if child is None:
+                break
+            chain.append(child)
+            seen.add(child_id)
+            current_id = child_id
 
         return chain
 
