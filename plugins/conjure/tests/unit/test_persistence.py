@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 from scripts.war_room.audit_trail import AUDIT_REPORT_FILENAME
 from scripts.war_room.models import ExpertInfo, WarRoomSession
-from scripts.war_room.persistence import persist_session
+from scripts.war_room.persistence import list_sessions, load_session, persist_session
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -138,3 +138,67 @@ class TestPersistSessionAuditIntegration:
         data = json.loads(session_file.read_text())
         assert data["session_id"] == "audit-coexist-test"
         assert data["problem_statement"] == "Test problem for audit persistence"
+
+
+class TestCorruptJsonResilience:
+    """Tests for json.loads guards preventing crashes on corrupt state files."""
+
+    @pytest.mark.unit
+    def test_load_session_returns_none_on_corrupt_json(self, tmp_path: Path) -> None:
+        """Scenario: load_session() returns None for a corrupt session file.
+
+        Given a session directory containing an invalid JSON file
+        When load_session() is called for that session ID
+        Then it returns None without raising an exception.
+        """
+        session_dir = tmp_path / "war-table" / "sess-corrupt"
+        session_dir.mkdir(parents=True)
+        (session_dir / "session.json").write_text("{not valid json at all")
+        result = load_session(tmp_path, "sess-corrupt")
+        assert result is None
+
+    @pytest.mark.unit
+    def test_list_sessions_skips_corrupt_session_files(self, tmp_path: Path) -> None:
+        """Scenario: list_sessions() skips directories with corrupt JSON.
+
+        Given one valid session and one corrupt session file
+        When list_sessions() is called
+        Then only the valid session appears in results.
+        """
+        valid = _minimal_session(session_id="sess-valid")
+        persist_session(tmp_path, valid)
+        bad_dir = tmp_path / "war-table" / "sess-bad"
+        bad_dir.mkdir(parents=True)
+        (bad_dir / "session.json").write_text("{corrupt}")
+        results = list_sessions(tmp_path)
+        session_ids = [r["session_id"] for r in results]
+        assert "sess-valid" in session_ids
+        assert "sess-bad" not in session_ids
+
+    @pytest.mark.unit
+    def test_list_sessions_archived_skips_corrupt_files(self, tmp_path: Path) -> None:
+        """Scenario: list_sessions(include_archived=True) skips corrupt files.
+
+        Given one valid archived session and one corrupt archived session file
+        When list_sessions(include_archived=True) is called
+        Then only the valid session appears in results.
+        """
+        valid_dir = tmp_path / "campaign-archive" / "default" / "2026-01-01" / "sess-ok"
+        valid_dir.mkdir(parents=True)
+        (valid_dir / "session.json").write_text(
+            json.dumps(
+                {
+                    "session_id": "sess-arch-ok",
+                    "problem_statement": "test",
+                    "status": "completed",
+                    "mode": "lightweight",
+                }
+            )
+        )
+        bad_dir = tmp_path / "campaign-archive" / "default" / "2026-01-01" / "sess-bad"
+        bad_dir.mkdir(parents=True)
+        (bad_dir / "session.json").write_text("{bad json")
+        results = list_sessions(tmp_path, include_archived=True)
+        session_ids = [r["session_id"] for r in results]
+        assert "sess-arch-ok" in session_ids
+        assert "sess-bad" not in session_ids

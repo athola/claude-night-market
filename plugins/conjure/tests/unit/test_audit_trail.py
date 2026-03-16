@@ -847,3 +847,40 @@ class TestAuditTrailManager:
         ]:
             s = manager._calculate_unanimity({"borda_scores": scores})
             assert 0.0 <= s <= 1.0, f"score {s} out of range for {scores}"
+
+    @pytest.mark.unit
+    def test_get_checkpoints_skips_corrupt_files(self, tmp_path: Path) -> None:
+        """Scenario: Corrupt checkpoint files are silently skipped.
+
+        Given a valid checkpoint and a corrupt JSON file in the checkpoints dir
+        When get_checkpoints() is called
+        Then only the valid checkpoint is returned.
+        """
+        manager = AuditTrailManager(strategeion_dir=tmp_path)
+        manager.log_checkpoint(
+            _make_checkpoint(session_id="sess-ok", checkpoint_id="cp-ok")
+        )
+        date_dirs = list((tmp_path / "checkpoints").iterdir())
+        (date_dirs[0] / "cp-corrupt.json").write_text("{bad json")
+        results = manager.get_checkpoints("sess-ok")
+        assert len(results) == 1
+        assert results[0].checkpoint_id == "cp-ok"
+
+    @pytest.mark.unit
+    def test_list_audited_sessions_skips_corrupt_files(self, tmp_path: Path) -> None:
+        """Scenario: Corrupt audit report files are silently skipped.
+
+        Given a valid audit report and a corrupt JSON audit file
+        When list_audited_sessions() is called
+        Then only the valid session appears in results.
+        """
+        manager = AuditTrailManager(strategeion_dir=tmp_path)
+        session_data = _make_session_data(session_id="sess-good")
+        report = manager.generate_audit_report(session_data)
+        manager.save_audit_report(report)
+        bad_dir = tmp_path / "war-table" / "sess-bad"
+        bad_dir.mkdir(parents=True)
+        (bad_dir / "audit-report.json").write_text("{corrupt json")
+        results = manager.list_audited_sessions()
+        assert len(results) == 1
+        assert results[0]["session_id"] == "sess-good"

@@ -1926,6 +1926,23 @@ class TestCountContent:
         assert chars == 0
         assert tool_results == 0
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_tool_result_content_key_counted(self, context_warning_full_module) -> None:
+        """Scenario: tool_result block using 'content' key is counted.
+
+        Given a message with a tool_result block that stores text
+        under the 'content' key instead of 'text'
+        When _count_content is called
+        Then chars includes the length of the content string
+        And tool_results is incremented.
+        """
+        payload = "tool output data here"
+        content = [{"type": "tool_result", "content": payload}]
+        chars, tool_results = context_warning_full_module._count_content(content)
+        assert chars == len(payload)
+        assert tool_results == 1
+
 
 class TestResolveSessionFile:
     """Feature: Session file resolution orchestration.

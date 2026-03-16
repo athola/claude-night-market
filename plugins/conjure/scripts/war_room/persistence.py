@@ -108,8 +108,11 @@ def load_session(strategeion: Path, session_id: str) -> WarRoomSession | None:
     if not session_file.exists():
         return None
 
-    with open(session_file) as f:
-        data = json.load(f)
+    try:
+        with open(session_file) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
 
     # Reconstruct session
     session = WarRoomSession(
@@ -177,7 +180,7 @@ def archive_session(
     return None
 
 
-def list_sessions(
+def list_sessions(  # noqa: PLR0912
     strategeion: Path, include_archived: bool = False
 ) -> list[dict[str, Any]]:
     """List all War Room sessions."""
@@ -190,8 +193,11 @@ def list_sessions(
             if session_dir.is_dir():
                 session_file = session_dir / "session.json"
                 if session_file.exists():
-                    with open(session_file) as f:
-                        data = json.load(f)
+                    try:
+                        with open(session_file) as f:
+                            data = json.load(f)
+                    except (json.JSONDecodeError, OSError):
+                        continue
                     sessions.append(
                         {
                             "session_id": data["session_id"],
@@ -213,8 +219,11 @@ def list_sessions(
                             for session_dir in date_dir.iterdir():
                                 session_file = session_dir / "session.json"
                                 if session_file.exists():
-                                    with open(session_file) as f:
-                                        data = json.load(f)
+                                    try:
+                                        with open(session_file) as f:
+                                            data = json.load(f)
+                                    except (json.JSONDecodeError, OSError):
+                                        continue
                                     sessions.append(
                                         {
                                             "session_id": data["session_id"],
