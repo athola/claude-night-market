@@ -154,6 +154,12 @@ Specify depth when invoking:
 - Memory safety
 - Concurrency safety
 - Idiomatic usage
+- Silent return value checks
+- Collection type selection
+- SQL injection detection
+- `#[cfg(test)]` misuse patterns
+- Error message quality
+- Duplicate validator detection
 
 ## Dependencies
 

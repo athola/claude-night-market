@@ -65,7 +65,8 @@ class TestPersistSessionAuditIntegration:
 
     @pytest.mark.unit
     def test_persist_session_creates_audit_report_file(self, tmp_path: Path) -> None:
-        """Scenario: Audit report file created alongside session.json
+        """Scenario: Audit report file created alongside session.json.
+
         Given a WarRoomSession and a temp strategeion directory
         When persist_session() is called
         Then audit-report.json appears in the session directory.
@@ -81,7 +82,8 @@ class TestPersistSessionAuditIntegration:
 
     @pytest.mark.unit
     def test_persist_session_audit_report_is_valid_json(self, tmp_path: Path) -> None:
-        """Scenario: Audit report file contains parseable JSON
+        """Scenario: Audit report file contains parseable JSON.
+
         Given a persisted session
         When the audit-report.json file is read
         Then it parses without error and contains the correct session_id.
@@ -99,7 +101,8 @@ class TestPersistSessionAuditIntegration:
     def test_persist_session_audit_report_merkle_verification_present(
         self, tmp_path: Path
     ) -> None:
-        """Scenario: Audit report includes Merkle-DAG verification block
+        """Scenario: Audit report includes Merkle-DAG verification block.
+
         Given a session with Merkle-DAG contributions
         When persist_session() is called
         Then the audit report contains a 'merkle_verification' key with a
@@ -124,7 +127,8 @@ class TestPersistSessionAuditIntegration:
     def test_persist_session_audit_report_does_not_break_session_json(
         self, tmp_path: Path
     ) -> None:
-        """Scenario: Existing session.json is unaffected by audit report generation
+        """Scenario: Existing session.json is unaffected by audit report generation.
+
         Given persist_session() now also writes an audit report
         When the session directory is inspected
         Then session.json still exists with correct content.

@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.3-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.5-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
@@ -9,7 +9,7 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-17 plugins providing 130 skills, 128 commands, and 43 agents
+17 plugins providing 130 skills, 105 commands, and 43 agents
 for git operations, code review, spec-driven development,
 and issue management. Each plugin installs independently.
 
