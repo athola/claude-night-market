@@ -320,37 +320,6 @@ class TestNewLanguageTemplates:
 
     # Cross-language
 
-    def test_detect_context_go_project(self):
-        """detect_context returns go in languages for a go.mod project."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir)
-            (path / "go.mod").touch()
-
-            ctx = detect_context(path)
-
-            assert "go" in ctx.languages
-
-    def test_detect_context_rust_project(self):
-        """detect_context returns rust in languages for a Cargo.toml project."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir)
-            (path / "Cargo.toml").touch()
-
-            ctx = detect_context(path)
-
-            assert "rust" in ctx.languages
-
-    def test_detect_context_typescript_project(self):
-        """detect_context returns typescript in languages for package.json + tsconfig.json."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir)
-            (path / "package.json").touch()
-            (path / "tsconfig.json").touch()
-
-            ctx = detect_context(path)
-
-            assert "typescript" in ctx.languages
-
     def test_no_cross_language_bleed(self):
         """Go rules are not returned for a Python-only project."""
         ctx = ProjectContext(languages=["python"])

@@ -47,5 +47,7 @@ addopts = "-v --tb=short"
 
 [dependency-groups]
 dev = [
+    "mypy>=1.0",
     "pytest>=9.0.2",
+    "types-PyYAML>=6.0",
 ]

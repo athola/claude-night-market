@@ -146,7 +146,9 @@ dev = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "mypy" },
     { name = "pytest" },
+    { name = "types-pyyaml" },
 ]
 
 [package.metadata]
@@ -161,7 +163,11 @@ requires-dist = [
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0.2" }]
+dev = [
+    { name = "mypy", specifier = ">=1.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "types-pyyaml", specifier = ">=6.0" },
+]
 
 [[package]]
 name = "iniconfig"
