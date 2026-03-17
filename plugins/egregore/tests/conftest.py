@@ -36,7 +36,7 @@ def sample_manifest(egregore_dir):
                 "attempts": 0,
                 "max_attempts": 3,
                 "status": "active",
-                "failure_reason": "",
+                "failure_reason": None,
             }
         ],
     }

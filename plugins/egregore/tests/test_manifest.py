@@ -115,6 +115,17 @@ class TestManifest:
         assert item2.id == "wrk_002"
         assert item3.id == "wrk_003"
 
+    def test_next_id_avoids_collision_after_removal(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.add_work_item(source="prompt", source_ref="first")
+        m.add_work_item(source="prompt", source_ref="second")
+        m.add_work_item(source="prompt", source_ref="third")
+        # Simulate removal of the middle item
+        m.work_items = [m.work_items[0], m.work_items[2]]
+        # Next ID should be wrk_004 (max existing is wrk_003)
+        item4 = m.add_work_item(source="prompt", source_ref="fourth")
+        assert item4.id == "wrk_004"
+
     def test_advance_within_stage(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
         item = m.add_work_item(source="prompt", source_ref="task")
@@ -153,6 +164,16 @@ class TestManifest:
         # One final advance should mark it completed
         m.advance(item.id)
         assert item.status == "completed"
+
+    def test_advance_corrupt_step_marks_failed(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        item = m.add_work_item(source="prompt", source_ref="task")
+        # Corrupt the pipeline step to a value not in the stage
+        item.pipeline_step = "nonexistent-step"
+        m.advance(item.id)
+        assert item.status == "failed"
+        assert "Corrupt pipeline step" in item.failure_reason
+        assert "nonexistent-step" in item.failure_reason
 
     def test_advance_completed_item_is_noop(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
@@ -244,6 +265,39 @@ class TestManifest:
         m.record_decision(item.id, "parse", "A", "reason1")
         m.record_decision(item.id, "validate", "B", "reason2")
         assert len(item.decisions) == 2
+
+    def test_history_starts_empty(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        assert m.history == []
+
+    def test_record_history_appends_entry(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("advance", "moved wrk_001 to build/specify")
+        assert len(m.history) == 1
+        assert m.history[0]["event"] == "advance"
+        assert m.history[0]["detail"] == "moved wrk_001 to build/specify"
+        assert "timestamp" in m.history[0]
+
+    def test_record_history_multiple_entries(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("start", "session started")
+        m.record_history("advance", "moved forward")
+        assert len(m.history) == 2
+
+    def test_history_roundtrips_through_dict(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("test", "roundtrip check")
+        d = m.to_dict()
+        assert "history" in d
+        assert len(d["history"]) == 1
+        restored = Manifest.from_dict(d)
+        assert len(restored.history) == 1
+        assert restored.history[0]["event"] == "test"
+
+    def test_from_dict_without_history_defaults_empty(self) -> None:
+        data = {"project_dir": "/tmp/test", "work_items": []}
+        m = Manifest.from_dict(data)
+        assert m.history == []
 
     def test_manifest_to_dict_from_dict_roundtrip(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")

@@ -7,7 +7,7 @@ with JSON serialization and deserialization.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
 
@@ -72,6 +72,12 @@ def save_config(cfg: EgregoreConfig, path: Path) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def _filter_fields(cls: type, data: dict) -> dict:
+    """Return only the keys from *data* that match fields on *cls*."""
+    known = {f.name for f in fields(cls)}
+    return {k: v for k, v in data.items() if k in known}
+
+
 def load_config(path: Path) -> EgregoreConfig:
     """Load an EgregoreConfig from a JSON file.
 
@@ -89,8 +95,12 @@ def load_config(path: Path) -> EgregoreConfig:
 
     data = json.loads(path.read_text())
     return EgregoreConfig(
-        overseer=OverseerConfig(**data.get("overseer", {})),
-        alerts=AlertsConfig(**data.get("alerts", {})),
-        pipeline=PipelineConfig(**data.get("pipeline", {})),
-        budget=BudgetConfig(**data.get("budget", {})),
+        overseer=OverseerConfig(
+            **_filter_fields(OverseerConfig, data.get("overseer", {}))
+        ),
+        alerts=AlertsConfig(**_filter_fields(AlertsConfig, data.get("alerts", {}))),
+        pipeline=PipelineConfig(
+            **_filter_fields(PipelineConfig, data.get("pipeline", {}))
+        ),
+        budget=BudgetConfig(**_filter_fields(BudgetConfig, data.get("budget", {}))),
     )

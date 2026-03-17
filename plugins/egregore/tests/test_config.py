@@ -156,3 +156,35 @@ class TestSaveLoadConfig:
             cfg.pipeline.max_attempts_per_step == default.pipeline.max_attempts_per_step
         )
         assert cfg.budget.window_type == default.budget.window_type
+
+    def test_load_ignores_unknown_fields_in_nested_dataclasses(
+        self, tmp_path: Path
+    ) -> None:
+        """Future versions may add fields; loading should not crash."""
+        path = tmp_path / "config.json"
+        data = {
+            "overseer": {
+                "method": "email",
+                "email": "a@b.com",
+                "new_overseer_field": True,
+            },
+            "alerts": {
+                "on_crash": False,
+                "future_alert": "yes",
+            },
+            "pipeline": {
+                "max_attempts_per_step": 5,
+                "experimental_flag": 99,
+            },
+            "budget": {
+                "window_type": "24h",
+                "unknown_budget_key": [1, 2, 3],
+            },
+        }
+        path.write_text(json.dumps(data))
+        cfg = load_config(path)
+        assert cfg.overseer.method == "email"
+        assert cfg.overseer.email == "a@b.com"
+        assert cfg.alerts.on_crash is False
+        assert cfg.pipeline.max_attempts_per_step == 5
+        assert cfg.budget.window_type == "24h"
