@@ -172,19 +172,25 @@ For each active work item, execute this loop:
 
 5. **On success**: advance the pipeline. Update
    `pipeline_stage` and `pipeline_step` to the next step.
-   Save the manifest to disk.
+   Save the manifest to disk. Output ONE line:
+   `"Completed [ITEM-ID] step [step]. Starting next."`
+   Then IMMEDIATELY go to step 1. Do not pause. Do not
+   summarize. Do not reflect on what was accomplished.
 
 6. **On failure**: increment `attempts` on the work item.
    If `attempts < max_attempts`, retry the step.
    If `attempts >= max_attempts`, mark the item as `failed`
    and alert the overseer (pipeline_failure event).
-   Move to the next work item.
+   Move to the next work item. Go to step 1.
 
 7. **After each step**: save manifest.json to disk.
    Check context usage. At 80%, invoke
    `Skill(conserve:clear-context)`.
 
-8. **Repeat** until no active work items remain.
+8. **Go to step 1.** This loop does not end until every
+   work item is `completed` or `failed`. There is no
+   "summarize and return" step. Step 8 is always
+   "go to step 1."
 
 ## Context Overflow
 
@@ -269,6 +275,12 @@ When a pipeline step fails:
    may still succeed. Process them all.
 
 ## Completion
+
+**BEFORE reading this section**, verify that EVERY work
+item in the manifest has status `completed` or `failed`.
+If ANY item has status `active`, `in_progress`, or
+`pending`, you are NOT done. Go back to the orchestration
+loop step 1. Do not read further in this section.
 
 When all work items are either `completed` or `failed`:
 
