@@ -3,7 +3,9 @@
 Realistic command sequences you can copy directly.
 Adjust paths and arguments for your project.
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Commands][cap-cmd] | [Skills][cap-skills] |
+[Agents][cap-agents] | [Hooks][cap-hooks]
 
 ---
 
@@ -208,4 +210,12 @@ Skill(memory-palace:knowledge-intake)
 
 ---
 
-**See also**: [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md)
+**See also**: [Commands][cap-cmd] |
+[Skills][cap-skills] | [Agents][cap-agents] |
+[Hooks][cap-hooks]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
