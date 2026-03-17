@@ -1,6 +1,6 @@
 [project]
 name = "scribe"
-version = "1.6.5"
+version = "1.6.6"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
 requires-python = ">=3.10"
 dependencies = ["pyyaml"]
@@ -18,6 +18,10 @@ exclude = [
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]
 
 [tool.coverage.run]
 source = ["src/scribe"]

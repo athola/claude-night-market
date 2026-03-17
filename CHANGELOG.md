@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.6] - 2026-03-16
+
+### Added
+
+- Parallel work item execution via git worktrees in
+  egregore, with independence detection and
+  configurable concurrency (`max_concurrent_worktrees`)
+- Parallel pipeline stages in egregore quality gate:
+  dependency-graph scheduling splits steps into waves
+  that run concurrently
+- Agent specialization in egregore: reviewer,
+  documenter, and tester specialists accumulate context
+  across sessions
+- Cross-item learning in egregore: decision log
+  analysis extracts reusable patterns (tech stack,
+  failure modes, architecture) with success rate
+  tracking
+- Multi-repository support in egregore via
+  `RepoRegistry` for routing work items across repos
+- GitHub Discussions publishing in egregore for
+  discoveries, insights, and retrospectives with
+  rate limiting
+- Integration tests for egregore hook `main()` entry
+  points
+- Pytest markers (`unit`, `integration`) in egregore
+  and scribe `pyproject.toml`
+- Missing YAML dependency test in scribe
+  `test_pattern_loader.py`
+
+### Fixed
+
+- Webhook URL scheme validation in egregore to prevent
+  SSRF (only `https://` allowed)
+- YAML import guard and encoding parameter in hookify
+  `pattern_loader`
+- Merkle sealed-node verification strengthened in
+  conjure and sanctum
+- Manifest collision handling, forward-compatibility,
+  and history field fixes in egregore
+
+### Changed
+
+- Egregore README: replace roadmap with documentation
+  of implemented features (parallel execution, agent
+  specialization, cross-item learning, multi-repo,
+  Discussions publishing)
+- 80-char prose wrapping applied across book content,
+  plugin READMEs, and reference documentation
+
+### Removed
+
+- Duplicate tests in hookify `test_rule_suggester.py`
+
 ## [1.6.5] - 2026-03-16
 
 ### Added

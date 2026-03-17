@@ -336,7 +336,7 @@ wheels = [
 
 [[package]]
 name = "minister"
-version = "1.6.5"
+version = "1.6.6"
 source = { editable = "." }
 
 [package.optional-dependencies]

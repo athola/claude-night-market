@@ -169,7 +169,7 @@ scheduler. No background daemons, no compiled code.
 ```bash
 cd plugins/egregore
 make deps       # Install dependencies
-make test       # Run tests (75 tests)
+make test       # Run tests
 make lint       # Run linting
 make check      # Run all checks
 ```
@@ -217,12 +217,72 @@ pass, pass-with-warnings, or fix-required.
 **Modes**: self-review (pre-PR, runs all 5 quality steps)
 and PR-review (invoked by other agents for cross-review).
 
-## Roadmap
+## Parallel Execution
 
-Future evolution toward parallel agent swarm ("The Overmind"):
+Egregore processes independent work items concurrently
+using git worktrees. Each item gets its own worktree
+and branch, isolated from other in-flight work.
 
-1. Parallel work items via git worktrees
-2. Parallel pipeline stages (independent quality gates)
-3. Agent specialization (dedicated reviewer, documenter)
-4. Cross-item learning (decisions inform future strategy)
-5. Multi-repo support
+- `detect_independent_items()` groups items by
+  `source_ref`; different refs run in parallel,
+  shared refs run sequentially
+- `max_concurrent_worktrees` (default 3) caps
+  simultaneous worktrees
+- After completion, `merge_worktree_result()` merges
+  each feature branch with `--no-ff`
+
+Within the quality stage, independent steps also run
+in parallel waves. Wave 1 dispatches `code-review`,
+`unbloat`, and `update-docs` simultaneously; wave 2
+runs `code-refinement` and `update-tests` after
+`code-review` finishes.
+
+## Agent Specialization
+
+Specialist agents handle specific pipeline steps and
+accumulate expertise across sessions:
+
+| Role | Steps | Persisted State |
+|------|-------|-----------------|
+| reviewer | code-review, pr-review | Review context, metrics |
+| documenter | update-docs | Style patterns |
+| tester | update-tests | Coverage history |
+
+Specialists are selected via `select_specialist(step)`
+and their context files persist in `.egregore/specialists/`.
+
+## Cross-Item Learning
+
+The `learning` module analyzes decision logs from
+completed work items to extract reusable patterns:
+
+- **Categories**: tech_stack, failure_mode,
+  architecture, approach
+- **Success tracking**: each pattern records its
+  frequency and success rate across items
+- `generate_briefing()` produces a context briefing
+  from high-frequency patterns for new work items
+
+Patterns persist in `.egregore/learning/patterns.json`.
+
+## Multi-Repository Support
+
+Egregore can orchestrate work across multiple
+repositories via `RepoRegistry`:
+
+- Register repos with `register_repo(name, path)`
+- Route work items to repos with `route_item()`
+- Each repo tracks its own default branch and labels
+- Registry persists in `.egregore/repos.json`
+
+## GitHub Discussions Publishing
+
+Discoveries, insights, and retrospectives from
+autonomous sessions are published to GitHub Discussions:
+
+- **Content types**: discovery, insight, contention,
+  retrospective
+- **Rate limiting**: `max_per_work_item` (default 10)
+  prevents flooding
+- **Tracking**: published entries are logged to avoid
+  duplicate posts

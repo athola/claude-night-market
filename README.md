@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.5-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.6-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
@@ -119,7 +119,7 @@ flowchart TB
 | **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 10 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
-| **egregore** | Utility | Autonomous agent orchestrator with session budgets, crash recovery, and quality gates | 4 | 5 |
+| **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, NASA Power of 10 | 11 | 12 |
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room | 12 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
@@ -145,7 +145,8 @@ destructive operations. `sanctum` isolates named sessions, and
 agents can run in worktree isolation for parallel execution.
 
 **Orchestration.** `egregore` manages autonomous agent lifecycles
-with session budgets, crash recovery, and watchdog monitoring.
+with parallel worktree execution, agent specialization, cross-item
+learning, and crash recovery via watchdog monitoring.
 
 **Maintenance.** `/update-ci` reconciles pre-commit hooks and
 GitHub Actions with code changes. `abstract` tracks skill
