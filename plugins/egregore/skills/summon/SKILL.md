@@ -87,6 +87,30 @@ guards.
 - When human review is needed before every step (use manual
   skill invocations).
 
+## Launching the Orchestrator
+
+**You MUST launch the orchestrator agent in the FOREGROUND.**
+Do not use `run_in_background: true`. The main session
+becomes the egregore -- it blocks on the orchestrator agent
+until the egregore finishes or is dismissed.
+
+```
+Agent(
+  subagent_type: "egregore:orchestrator",
+  prompt: "<context about work items and current state>",
+  run_in_background: false   // THIS IS CRITICAL
+)
+```
+
+If you launch the orchestrator in the background, the main
+session will have nothing to do and will stop. This defeats
+the entire purpose of the egregore. The stop hook cannot
+prevent this because background agents are detached.
+
+After launching, do NOT produce any summary, status table,
+or "what's happening" output. The orchestrator IS the
+session now. Let it run.
+
 ## Orchestration Loop
 
 Follow these steps exactly.
