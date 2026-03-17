@@ -107,6 +107,22 @@ session will have nothing to do and will stop. This defeats
 the entire purpose of the egregore. The stop hook cannot
 prevent this because background agents are detached.
 
+## Manifest Mode
+
+Before launching the orchestrator, ensure the manifest has
+the correct run mode:
+
+- **Default (no `--bounded` flag)**: set `"indefinite": true`
+  in the manifest. The egregore will scan for new work after
+  completing all items and run until dismissed.
+- **With `--bounded` flag**: set `"mode": "bounded"` in the
+  manifest. The egregore stops after all items are completed
+  or failed.
+
+If the manifest already exists and has `"mode": "bounded"`
+but the user did NOT pass `--bounded`, update the manifest
+to `"indefinite": true` before launching.
+
 After launching, do NOT produce any summary, status table,
 or "what's happening" output. The orchestrator IS the
 session now. Let it run.

@@ -318,10 +318,23 @@ loop step 1. Do not read further in this section.
 
 When all work items are either `completed` or `failed`:
 
+### Determining the run mode
+
+Check the manifest for EITHER of these fields:
+
+- `"indefinite": true` means indefinite mode.
+- `"indefinite": false` OR `"mode": "bounded"` means
+  bounded mode.
+- If NEITHER field exists, or `"mode"` has any other
+  value, **default to indefinite mode**.
+
+The summon command only sets bounded mode when the user
+passes `--bounded`. In all other cases, use indefinite.
+
 ### Indefinite Mode (default)
 
-If the manifest's `indefinite` flag is `true` (the
-default), do NOT exit. Instead, scan for new work:
+If indefinite mode (see above), do NOT exit. Instead,
+scan for new work:
 
 1. **Alert the overseer** with a `cycle_complete` event.
    Include a summary: how many items completed, how many
@@ -351,7 +364,7 @@ default), do NOT exit. Instead, scan for new work:
 
 ### Bounded Mode (`--bounded`)
 
-If the manifest's `indefinite` flag is `false`:
+If bounded mode (see Determining the run mode above):
 
 1. **Alert the overseer** with a `completion` event.
    Include a summary: how many items completed, how many
