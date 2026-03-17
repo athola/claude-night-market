@@ -10,11 +10,131 @@ import pytest
 from notify import (
     AlertContext,
     AlertEvent,
+    WebhookURLError,
     alert,
     build_issue_body,
     create_github_alert,
     send_webhook,
+    validate_webhook_url,
 )
+
+
+class TestValidateWebhookUrl:
+    """Tests for validate_webhook_url."""
+
+    def test_accepts_valid_https_url(self) -> None:
+        """Given a valid https URL, when validating, then no error is raised."""
+        validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
+
+    def test_accepts_https_with_port(self) -> None:
+        """Given an https URL with a port, when validating, then no error is raised."""
+        validate_webhook_url("https://example.com:8443/webhook")
+
+    def test_rejects_http_scheme(self) -> None:
+        """Given an http:// URL, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="https://"):
+            validate_webhook_url("http://example.com/hook")
+
+    def test_rejects_file_scheme(self) -> None:
+        """Given a file:// URL, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="https://"):
+            validate_webhook_url("file:///etc/passwd")
+
+    def test_rejects_ftp_scheme(self) -> None:
+        """Given an ftp:// URL, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="https://"):
+            validate_webhook_url("ftp://evil.com/payload")
+
+    def test_rejects_empty_scheme(self) -> None:
+        """Given a URL with no scheme, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="https://"):
+            validate_webhook_url("example.com/hook")
+
+    def test_rejects_localhost(self) -> None:
+        """Given https://localhost, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="localhost"):
+            validate_webhook_url("https://localhost/admin")
+
+    def test_rejects_localhost_localdomain(self) -> None:
+        """Given localhost.localdomain, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="localhost"):
+            validate_webhook_url("https://localhost.localdomain/admin")
+
+    def test_rejects_127_0_0_1(self) -> None:
+        """Given 127.0.0.1, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url("https://127.0.0.1/admin")
+
+    def test_rejects_0_0_0_0(self) -> None:
+        """Given 0.0.0.0, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url("https://0.0.0.0/admin")
+
+    @pytest.mark.parametrize(
+        "ip",
+        [
+            "10.0.0.1",
+            "10.255.255.255",
+            "172.16.0.1",
+            "172.31.255.255",
+            "192.168.0.1",
+            "192.168.1.100",
+        ],
+        ids=[
+            "10.0.0.1",
+            "10.255.255.255",
+            "172.16.0.1",
+            "172.31.255.255",
+            "192.168.0.1",
+            "192.168.1.100",
+        ],
+    )
+    def test_rejects_private_ip_ranges(self, ip: str) -> None:
+        """Given a private IP address, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url(f"https://{ip}/hook")
+
+    def test_rejects_ipv6_loopback(self) -> None:
+        """Given IPv6 loopback ::1, when validating, then raises WebhookURLError."""
+        with pytest.raises(WebhookURLError, match="private/reserved"):
+            validate_webhook_url("https://[::1]/hook")
+
+    def test_rejects_empty_hostname(self) -> None:
+        """Given https URL with no hostname, then raises."""
+        with pytest.raises(WebhookURLError, match="no hostname"):
+            validate_webhook_url("https:///path")
+
+    def test_send_webhook_rejects_invalid_url(self) -> None:
+        """Given http URL, send_webhook returns False."""
+        result = send_webhook(
+            url="http://internal-service.local/api",
+            event=AlertEvent.CRASH,
+            detail="test",
+        )
+        assert result is False
+
+    @patch("subprocess.run")
+    def test_send_webhook_rejects_private_ip(self, mock_run: MagicMock) -> None:
+        """Given private IP URL, returns False and skips curl."""
+        result = send_webhook(
+            url="https://192.168.1.1/hook",
+            event=AlertEvent.CRASH,
+        )
+        assert result is False
+        mock_run.assert_not_called()
+
+    @patch("notify.send_webhook", return_value=False)
+    @patch("notify.create_github_alert", return_value=False)
+    def test_alert_with_invalid_webhook_returns_false(
+        self, mock_gh: MagicMock, mock_wh: MagicMock
+    ) -> None:
+        """Given an invalid webhook URL in alert(), then overall returns False."""
+        result = alert(
+            event=AlertEvent.CRASH,
+            webhook_url="http://localhost/admin",
+            overseer_method="none",
+        )
+        assert result is False
 
 
 class TestBuildIssueBody:
