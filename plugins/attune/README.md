@@ -1,6 +1,8 @@
 # Attune
 
-Project development plugin for Claude Code. Support ideation, specification, architectural planning, project initialization, and implementation.
+Project development plugin for Claude Code.
+Support ideation, specification, architectural planning,
+project initialization, and implementation.
 
 ## Overview
 
@@ -30,7 +32,9 @@ Standardize project development:
 
 ## Discoverability (v1.4.0)
 
-All attune skills, commands, and agents now feature **enhanced automatic discovery** through optimized descriptions following a proven pattern:
+All attune skills, commands,
+and agents now feature **enhanced automatic discovery** through optimized
+descriptions following a proven pattern:
 
 ```
 [WHAT it does]. Use when: [triggers]. Do not use when: [boundaries].
@@ -38,11 +42,14 @@ All attune skills, commands, and agents now feature **enhanced automatic discove
 
 ### How It Works
 
-Claude automatically matches your natural language requests to the appropriate attune component based on the description. Enhanced descriptions include:
+Claude automatically matches your natural language requests to the appropriate
+attune component based on the description. Enhanced descriptions include:
 
 1. **WHAT**: Clear action or capability statement
-2. **WHEN**: Trigger keywords and scenarios (e.g., "starting projects", "comparing approaches")
-3. **WHEN NOT**: Explicit boundaries preventing false positives (e.g., "requirements already exist")
+2. **WHEN**: Trigger keywords and scenarios (e.g., "starting projects",
+   "comparing approaches")
+3. **WHEN NOT**: Explicit boundaries preventing false positives (e.g.,
+   "requirements already exist")
 
 ### Discovery Examples
 
@@ -58,13 +65,16 @@ Claude automatically matches your natural language requests to the appropriate a
 Every skill and command includes:
 
 - **When To Use**: 5-7 specific scenarios triggering this component
-- **When NOT To Use**: Clear boundaries with alternatives (e.g., "use `/attune:blueprint` instead")
+- **When NOT To Use**: Clear boundaries with alternatives (e.g.,
+  "use `/attune:blueprint` instead")
 
-This prevents misuse and guides you to the right tool for your current workflow stage.
+This prevents misuse and guides you to the right tool for your current workflow
+stage.
 
 ### For Contributors
 
-When adding new skills or commands, follow the templates in `plugins/attune/templates/`:
+When adding new skills or commands,
+follow the templates in `plugins/attune/templates/`:
 - `skill-discoverability-template.md` - For skills
 - `command-discoverability-template.md` - For commands
 - `agent-discoverability-template.md` - For agents
@@ -113,13 +123,17 @@ When adding new skills or commands, follow the templates in `plugins/attune/temp
 | `/attune:project-init` | Initialize or update project structure with tooling | 6. Initialization |
 | `/attune:execute` | Execute implementation tasks systematically | 7. Implementation |
 
-**War Room Integration**: The war-room is a **mandatory phase** after brainstorming. It automatically routes to the appropriate deliberation intensity based on Reversibility Score (RS):
+**War Room Integration**:
+The war-room is a **mandatory phase** after brainstorming.
+It automatically routes to the appropriate deliberation intensity based on
+Reversibility Score (RS):
 - **Express** (RS ≤ 0.40): Quick decision by Chief Strategist (<2 min)
 - **Lightweight** (RS 0.41-0.60): 3-expert panel (5-10 min)
 - **Full Council** (RS 0.61-0.80): 7-expert deliberation (15-30 min)
 - **Delphi** (RS > 0.80): Iterative consensus for critical decisions (30-60 min)
 
-The `war-room-checkpoint` skill can also trigger additional deliberation during planning or execution when high-stakes decisions arise.
+The `war-room-checkpoint` skill can also trigger additional deliberation during
+planning or execution when high-stakes decisions arise.
 
 ### Project Management
 
@@ -245,7 +259,9 @@ With spec-kit, Attune aligns with specification patterns:
 
 ## Philosophy
 
-Attune enforces structured workflows from ideation to implementation, integrating with plugins and requiring confirmation for file operations. Templates follow industry practices and support full customization.
+Attune enforces structured workflows from ideation to implementation,
+integrating with plugins and requiring confirmation for file operations.
+Templates follow industry practices and support full customization.
 
 ## License
 

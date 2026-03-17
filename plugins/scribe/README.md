@@ -92,23 +92,33 @@ Scribe detects patterns that reveal AI-generated content.
 
 ### Tier 1 Words (Highest Confidence)
 
-Words that appear dramatically more often in AI text: delve, tapestry, realm, embark, beacon, multifaceted, nuanced, pivotal, meticulous, showcasing, leveraging, streamline, comprehensive.
+Words that appear dramatically more often in AI text: delve, tapestry, realm,
+embark, beacon, multifaceted, nuanced, pivotal, meticulous, showcasing,
+leveraging, streamline, comprehensive.
 
 ### Phrase Patterns
 
-Formulaic constructions like "In today's fast-paced world," "cannot be overstated," "navigate the complexities," and "treasure trove of."
+Formulaic constructions like "In today's fast-paced world," "cannot be
+overstated," "navigate the complexities," and "treasure trove of."
 
 ### Structural Markers
 
-Overuse of em dashes, excessive bullet points, uniform sentence length, perfect grammar without contractions.
+Overuse of em dashes, excessive bullet points, uniform sentence length,
+perfect grammar without contractions.
 
 ### Fiction-Specific Tells
 
-Physical cliches ("breath he didn't know he was holding"), emotion washing ("relief washed over"), vague depth markers ("something in his eyes").
+Physical cliches ("breath he didn't know he was holding"),
+emotion washing ("relief washed over"),
+vague depth markers ("something in his eyes").
 
 ## Writing Principles
 
-Scribe enforces a grounded writing style by requiring specific claims over adjectives and removing formulaic openers or closers. It emphasizes authorial perspective by including reasoning and trade-offs, varies sentence structure to avoid monotony, and prioritizes active voice for direct, clear communication.
+Scribe enforces a grounded writing style by requiring specific claims over
+adjectives and removing formulaic openers or closers.
+It emphasizes authorial perspective by including reasoning and trade-offs,
+varies sentence structure to avoid monotony,
+and prioritizes active voice for direct, clear communication.
 
 ## Vocabulary Substitutions
 
@@ -125,7 +135,8 @@ Scribe enforces a grounded writing style by requiring specific claims over adjec
 
 ## Examples
 
-These examples show slop remediation in practice. Each pair includes a score reduction from the detector.
+These examples show slop remediation in practice.
+Each pair includes a score reduction from the detector.
 
 ### Example 1: Vocabulary Slop
 
@@ -155,7 +166,8 @@ Four em dashes collapsed into a single flowing sentence.
 **After** (score: 1/10):
 > "This tool improves documentation quality by detecting and flagging AI-generated patterns."
 
-Removed: "In today's fast-paced world," opener, "it's worth noting that," and "cannot be overstated."
+Removed: "In today's fast-paced world," opener,
+"it's worth noting that," and "cannot be overstated."
 
 ## Plugin Structure
 
@@ -200,7 +212,8 @@ Scribe integrates with other claude-night-market plugins:
 
 ### Other Integrations
 
-- **imbue:proof-of-work**: Evidence-based verification methodology (used by `doc-verifier`)
+- **imbue:proof-of-work**:
+  Evidence-based verification methodology (used by `doc-verifier`)
 - **conserve:bloat-detector**: Token and content optimization
 - **pensive:review skills**: Code review integration
 

@@ -1,6 +1,7 @@
 # Architecture Paradigms Collection
 
-Software architecture decision-making and implementation guidance across 14 architectural paradigms.
+Software architecture decision-making
+and implementation guidance across 14 architectural paradigms.
 
 - **Orchestrator**: Use `Skill(architecture-paradigms)` to select a paradigm.
 - **Comparison**: See [Quick Reference Matrix](#quick-reference-matrix).
@@ -11,7 +12,8 @@ Software architecture decision-making and implementation guidance across 14 arch
 ### Core Architectural Patterns
 - **Layered Architecture**: Traditional N-tier separation of concerns.
 - **Hexagonal (Ports & Adapters)**: Infrastructure independence and flexibility.
-- **Functional Core, Imperative Shell**: Business logic isolation for testability.
+- **Functional Core, Imperative Shell**:
+  Business logic isolation for testability.
 
 ### Distributed Systems
 - **Microservices**: Independent business capability services.
@@ -35,7 +37,8 @@ Software architecture decision-making and implementation guidance across 14 arch
 
 1. **Start**: `architecture-paradigms` (overview and selection).
 2. **Core**: Study `architecture-paradigm-layered` (fundamental pattern).
-3. **Progress**: Learn `architecture-paradigm-functional-core` (testability principles).
+3. **Progress**: Learn `architecture-paradigm-functional-core` (testability
+   principles).
 4. **Practice**: Apply layered architecture to a simple project.
 
 **Skills Covered**: Layered, Functional Core, basic architecture principles.
@@ -45,8 +48,10 @@ Software architecture decision-making and implementation guidance across 14 arch
 **Goal**: Learn contemporary architectural approaches.
 
 1. **Foundation**: Complete Architecture Fundamentals path.
-2. **Flexibility**: Study `architecture-paradigm-hexagonal` (infrastructure independence).
-3. **Evolution**: Learn `architecture-paradigm-modular-monolith` (strong boundaries).
+2. **Flexibility**: Study `architecture-paradigm-hexagonal` (infrastructure
+   independence).
+3. **Evolution**: Learn `architecture-paradigm-modular-monolith` (strong
+   boundaries).
 4. **Integration**: Practice combining paradigms in a single system.
 
 **Skills Covered**: Hexagonal, Modular Monolith, paradigm combination.
@@ -56,10 +61,14 @@ Software architecture decision-making and implementation guidance across 14 arch
 **Goal**: Design and implement distributed architectures.
 
 1. **Prerequisites**: Complete Modern Architecture Patterns path.
-2. **Distributed Basics**: Study `architecture-paradigm-microservices` (independent services).
-3. **Communication**: Learn `architecture-paradigm-event-driven` (asynchronous systems).
-4. **Advanced**: Learn `architecture-paradigm-cqrs-es` (complex collaboration domains).
-5. **Specialization**: Choose serverless, space-based, or service-based patterns.
+2. **Distributed Basics**:
+   Study `architecture-paradigm-microservices` (independent services).
+3. **Communication**: Learn `architecture-paradigm-event-driven` (asynchronous
+   systems).
+4. **Advanced**: Learn `architecture-paradigm-cqrs-es` (complex collaboration
+   domains).
+5. **Specialization**: Choose serverless, space-based,
+   or service-based patterns.
 
 **Skills Covered**: Microservices, Event-Driven, CQRS/ES, specialized patterns.
 
@@ -111,10 +120,22 @@ Software architecture decision-making and implementation guidance across 14 arch
 ## Paradigm Evolution Path
 
 ### Typical Architecture Evolution Journey
-Startups often begin with a Layered Architecture. As the team grows to 10-50 engineers, a Modular Monolith helps manage complexity. Scaling to 50-200 engineers typically necessitates a move to Microservices or a Service-Based architecture. At maturity (200+ engineers), systems often evolve into Event-Driven architectures combined with specialized patterns.
+Startups often begin with a Layered Architecture.
+As the team grows to 10-50 engineers,
+a Modular Monolith helps manage complexity.
+Scaling to 50-200 engineers typically necessitates a move to Microservices
+or a Service-Based architecture.
+At maturity (200+ engineers),
+systems often evolve into Event-Driven architectures combined with specialized
+patterns.
 
 ### Common Migration Paths
-Migration from a monolith to a distributed system generally moves from Layered to Modular Monolith, then to Microservices, and finally to Event-Driven. Increasing complexity drives evolution from Layered to Hexagonal, then Functional Core, and potentially CQRS/ES. Cloud-native transitions typically progress from Layered to Modular Monolith, then to Serverless or Event-Driven architectures.
+Migration from a monolith to a distributed system generally moves from Layered
+to Modular Monolith, then to Microservices, and finally to Event-Driven.
+Increasing complexity drives evolution from Layered to Hexagonal,
+then Functional Core, and potentially CQRS/ES.
+Cloud-native transitions typically progress from Layered to Modular Monolith,
+then to Serverless or Event-Driven architectures.
 
 ### Architecture Decision Triggers
 

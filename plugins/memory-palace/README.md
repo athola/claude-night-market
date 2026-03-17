@@ -4,7 +4,10 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-Memory Palace organizes information using spatial memory techniques for easier retrieval. It builds "palaces" (structured knowledge repositories with spatial metaphors), "gardens" (organic knowledge bases with bidirectional links), and a "review chamber" for capturing PR review knowledge.
+Memory Palace organizes information using spatial memory techniques for easier
+retrieval. It builds "palaces" (structured knowledge repositories with spatial
+metaphors), "gardens" (organic knowledge bases with bidirectional links),
+and a "review chamber" for capturing PR review knowledge.
 
 ### How This Differs from Native Claude Memory
 
@@ -46,14 +49,21 @@ Skill(memory-palace:knowledge-intake)
 
 ## Features
 
-- **Palace Architect**: Design spatial knowledge structures using mnemonic techniques
-- **Knowledge Locator**: Multi-modal search (keyword, semantic, spatial) across palaces
+- **Palace Architect**: Design spatial knowledge structures using mnemonic
+  techniques
+- **Knowledge Locator**: Multi-modal search (keyword, semantic,
+  spatial) across palaces
 - **Session Palaces**: Temporary structures for extended conversations
 - **Digital Gardens**: Evolving knowledge bases with bidirectional linking
-- **PR Review Chamber**: Capture architectural decisions, patterns, and lessons from PR reviews
-- **Skill Execution Memory**: Automatic logging of skill invocations for continual learning
-- **Semantic Deduplication**: FAISS cosine similarity (with Jaccard fallback) prevents near-duplicate storage
-- **Research Interceptor**: Checks local knowledge cache before making web requests
+- **PR Review Chamber**: Capture architectural decisions, patterns,
+  and lessons from PR reviews
+- **Skill Execution Memory**:
+  Automatic logging of skill invocations for continual learning
+- **Semantic Deduplication**:
+  FAISS cosine similarity (with Jaccard fallback) prevents near-duplicate
+  storage
+- **Research Interceptor**:
+  Checks local knowledge cache before making web requests
 
 ## Skills
 
@@ -96,7 +106,9 @@ Skill(memory-palace:knowledge-intake)
 | `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
 | `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
 
-Setup hook (`claude --init`, `claude --maintenance`) handles one-time initialization and periodic garden maintenance. See `hooks/hooks.json` for configuration.
+Setup hook (`claude --init`,
+`claude --maintenance`) handles one-time initialization
+and periodic garden maintenance. See `hooks/hooks.json` for configuration.
 
 ## Optional Dependencies
 
@@ -134,9 +146,12 @@ memory-palace/
 
 ## Documentation
 
-- [Book: Memory Palace Plugin](../../book/src/plugins/memory-palace.md) for detailed usage, cache modes, palace architecture, and curation workflows
-- [PR Review Chamber](skills/review-chamber/SKILL.md) for review knowledge capture
-- [Skill Execution Memory](commands/skill-logs.md) for execution history and metrics
+- [Book: Memory Palace Plugin](../../book/src/plugins/memory-palace.md) for
+  detailed usage, cache modes, palace architecture, and curation workflows
+- [PR Review Chamber](skills/review-chamber/SKILL.md) for review knowledge
+  capture
+- [Skill Execution Memory](commands/skill-logs.md) for execution history
+  and metrics
 
 ## Stewardship
 

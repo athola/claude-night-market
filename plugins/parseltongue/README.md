@@ -1,10 +1,16 @@
 # Parseltongue
 
-Python development skills for Claude Code, focusing on testing, performance profiling, async patterns, and packaging.
+Python development skills for Claude Code, focusing on testing,
+performance profiling, async patterns, and packaging.
 
 ## Overview
 
-Parseltongue implements specialized patterns for Python development. It includes structured guides for `pytest` and TDD workflows, profiling methods for identifying CPU and memory hotspots, and `asyncio` patterns for concurrent I/O. The plugin also provides templates for `pyproject.toml` configuration and `uv` dependency management.
+Parseltongue implements specialized patterns for Python development.
+It includes structured guides for `pytest` and TDD workflows,
+profiling methods for identifying CPU and memory hotspots,
+and `asyncio` patterns for concurrent I/O.
+The plugin also provides templates for `pyproject.toml` configuration
+and `uv` dependency management.
 
 ## Features
 
@@ -29,10 +35,15 @@ Parseltongue implements specialized patterns for Python development. It includes
 
 Parseltongue works with standard Python tools:
 - **Package Managers**: Native support for `uv`, `pip`, and `poetry`.
-- **Quality Tools**: Integration with `ruff` for linting and `mypy` for type checking.
+- **Quality Tools**: Integration with `ruff` for linting
+  and `mypy` for type checking.
 - **Frameworks**: Patterns for FastAPI, Django, and SQLAlchemy applications.
 
-Testing follows a Red-Green-Refactor cycle using `pytest` fixtures. Performance optimization focuses on identifying bottlenecks via line-profiling before applying caches or algorithmic improvements. Async patterns prioritize non-blocking I/O to manage high-concurrency workloads without thread overhead.
+Testing follows a Red-Green-Refactor cycle using `pytest` fixtures.
+Performance optimization focuses on identifying bottlenecks via line-profiling
+before applying caches or algorithmic improvements.
+Async patterns prioritize non-blocking I/O to manage high-concurrency workloads
+without thread overhead.
 
 ## Structure
 

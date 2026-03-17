@@ -4,11 +4,14 @@ Specification-driven development toolkit for Claude Code.
 
 ## Overview
 
-Spec-kit provides a specification-driven workflow: writing a specification, generating an implementation plan, breaking it into tasks, and executing them with tracking.
+Spec-kit provides a specification-driven workflow: writing a specification,
+generating an implementation plan, breaking it into tasks,
+and executing them with tracking.
 
 ## Installation
 
-This plugin is part of the [claude-night-market](https://github.com/athola/claude-night-market) collection.
+This plugin is part of the
+[claude-night-market](https://github.com/athola/claude-night-market) collection.
 
 ```bash
 # Add to your Claude Code plugins
@@ -37,15 +40,18 @@ claude plugins add spec-kit
 
 ### speckit-orchestrator
 
-Workflow coordinator that validates skill loading and maintains consistency throughout the command lifecycle.
+Workflow coordinator that validates skill loading
+and maintains consistency throughout the command lifecycle.
 
 ### spec-writing
 
-Guides the creation of testable specifications from natural language descriptions.
+Guides the creation of testable specifications from natural language
+descriptions.
 
 ### task-planning
 
-Transforms specifications and implementation plans into dependency-ordered tasks.
+Transforms specifications
+and implementation plans into dependency-ordered tasks.
 
 ## Agents
 
