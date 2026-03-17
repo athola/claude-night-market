@@ -1,6 +1,8 @@
 # Error Handling Documentation Template
 
-This template provides a cognitive structure for adding error handling documentation to skills. It covers common failure scenarios, recovery strategies, troubleshooting guides, and best practices.
+This template provides a cognitive structure for adding error handling
+documentation to skills. It covers common failure scenarios,
+recovery strategies, troubleshooting guides, and best practices.
 
 ## Template Structure
 
@@ -279,4 +281,7 @@ def test_graceful_degradation():
 
 ---
 
-Remember to customize this template to your skill's specific requirements, common failure modes, and user needs. The key is to anticipate problems and provide clear, actionable guidance for resolution.
+Remember to customize this template to your skill's specific requirements,
+common failure modes, and user needs.
+The key is to anticipate problems and provide clear,
+actionable guidance for resolution.

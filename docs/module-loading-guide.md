@@ -1,14 +1,17 @@
 # Module Loading Guide
 
-This guide covers how we handle dependencies, progressive loading, and shared utilities across the ecosystem.
+This guide covers how we handle dependencies, progressive loading,
+and shared utilities across the ecosystem.
 
 ## Overview
 
-Our architecture allows skills to depend on other skills, load modules progressively to save tokens, and share common utilities.
+Our architecture allows skills to depend on other skills,
+load modules progressively to save tokens, and share common utilities.
 
 ## Module Frontmatter Format
 
-Every module file (`modules/*.md`) requires specific frontmatter for the system to index it correctly.
+Every module file (`modules/*.md`) requires specific frontmatter for the system
+to index it correctly.
 
 ```yaml
 ---
@@ -80,7 +83,8 @@ plugins/pensive/skills/shared/
     └── quality-checklist-patterns.md
 ```
 
-Used by all pensive review skills, including `api-review`, `bug-review`, and `rust-review`.
+Used by all pensive review skills, including `api-review`, `bug-review`,
+and `rust-review`.
 
 ### imbue:shared
 
@@ -95,7 +99,8 @@ plugins/imbue/skills/shared/
     └── analysis-workflows.md    # Common analysis patterns
 ```
 
-Used by `pensive` skills, `sanctum` skills, and anywhere we need a reproducible paper trail.
+Used by `pensive` skills, `sanctum` skills,
+and anywhere we need a reproducible paper trail.
 
 ## Loading Patterns
 
@@ -122,13 +127,18 @@ modules:
 ## Best Practices
 
 **Module Design**
-Design each module to do one thing well. This makes them reusable and easier to document. Always include examples and tests.
+Design each module to do one thing well.
+This makes them reusable and easier to document.
+Always include examples and tests.
 
 **Dependencies**
-Be explicit. Use the full `plugin:skill` format. Avoid circular dependencies—they break the loader. Document *why* a dependency exists.
+Be explicit. Use the full `plugin:skill` format.
+Avoid circular dependencies—they break the loader.
+Document *why* a dependency exists.
 
 **Loading Strategy**
-Load modules only when the user's task requires them. Use priorities to keep the initial context window small.
+Load modules only when the user's task requires them.
+Use priorities to keep the initial context window small.
 
 ## Common Patterns
 
@@ -185,4 +195,7 @@ python -m pytest tests/integration/test_module_dependencies.py -v
 
 ## Migration Guide
 
-To add dependencies to an existing module, update its frontmatter with `parent_skill`, `dependencies`, `load_priority`, and `estimated_tokens`. Then, update the parent skill to use `@include` or `Load:` statements. This integrates the module into the shared ecosystem.
+To add dependencies to an existing module,
+update its frontmatter with `parent_skill`, `dependencies`, `load_priority`,
+and `estimated_tokens`. Then, update the parent skill to use `@include`
+or `Load:` statements. This integrates the module into the shared ecosystem.

@@ -1,10 +1,14 @@
 # Command Reference — Extended Plugins
 
-Flag and option documentation for extended plugin commands (memory-palace, parseltongue, pensive, spec-kit, scribe, scry, hookify, leyline).
+Flag and option documentation for extended plugin commands (memory-palace,
+parseltongue, pensive, spec-kit, scribe, scry, hookify, leyline).
 
-**Core plugins**: [Abstract, Attune, Conserve, Imbue, Sanctum](capabilities-commands.md)
+**Core plugins**: [Abstract, Attune, Conserve, Imbue,
+Sanctum](capabilities-commands.md)
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Skills][cap-skills] | [Agents][cap-agents] |
+[Hooks][cap-hooks] | [Workflows][cap-wf]
 
 ---
 
@@ -270,7 +274,8 @@ Shell script safety and portability review.
 Analyze skill runtime metrics and stability. This is the canonical command for
 skill performance analysis (execution counts, success rates, stability gaps).
 
-For static quality analysis (frontmatter, structure), use `abstract:skill-auditor`.
+For static quality analysis (frontmatter, structure),
+use `abstract:skill-auditor`.
 
 ```bash
 # Usage
@@ -442,7 +447,9 @@ Check artifact consistency.
 
 ### `/slop-scan`
 
-**Consolidated:** This command wrapper has been removed. `slop-scan` is now agent-only via the `slop-hunter` agent. Invoke directly with `Agent(scribe:slop-hunter)`.
+**Consolidated:** This command wrapper has been removed.
+`slop-scan` is now agent-only via the `slop-hunter` agent.
+Invoke directly with `Agent(scribe:slop-hunter)`.
 
 ~~Scan files for AI-generated content markers.~~
 
@@ -509,7 +516,9 @@ TYPE          Document type: readme|api|changelog|usage
 
 ### `/doc-verify`
 
-**Consolidated:** This command wrapper has been removed. `doc-verify` is now agent-only via the `doc-verifier` agent. Invoke directly with `Agent(scribe:doc-verifier)`.
+**Consolidated:** This command wrapper has been removed.
+`doc-verify` is now agent-only via the `doc-verifier` agent.
+Invoke directly with `Agent(scribe:doc-verifier)`.
 
 ~~Validate documentation claims with proof-of-work.~~
 
@@ -664,6 +673,17 @@ Update all plugins.
 
 ---
 
-**Core plugins**: [Abstract, Attune, Conserve, Imbue, Sanctum](capabilities-commands.md)
+**Core plugins**: [Abstract, Attune, Conserve, Imbue,
+Sanctum](capabilities-commands.md)
 
-**See also**: [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Skills][cap-skills] |
+[Agents][cap-agents] | [Hooks][cap-hooks] |
+[Workflows][cap-wf]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-cmd-ext]: capabilities-commands-extended.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
+[cap-wf]: capabilities-workflows.md

@@ -8,11 +8,18 @@
 
 ## Purpose
 
-Historical record of architecture analyses for major and minor version milestones. Patch versions (x.x.PATCH) are excluded unless they introduce significant architectural changes.
+Historical record of architecture analyses for major
+and minor version milestones.
+Patch versions (x.x.PATCH) are excluded unless they introduce significant
+architectural changes.
 
 ### Entry Criteria
 
-Add a new analysis section when a major version (X.0.0) introduces breaking changes or new architectural patterns. Minor versions (x.Y.0) involving new features or significant refactoring also warrant an entry. Document significant restructuring in patch versions here.
+Add a new analysis section when a major version (X.0.0) introduces breaking
+changes or new architectural patterns.
+Minor versions (x.Y.0) involving new features
+or significant refactoring also warrant an entry.
+Document significant restructuring in patch versions here.
 
 ### Document Structure
 
@@ -48,7 +55,9 @@ timeline
 
 ## Executive Summary
 
-Version 1.1.0 adds the **Scry plugin** for terminal and browser recording. It focuses on media capture while maintaining the established plugin isolation pattern.
+Version 1.1.0 adds the **Scry plugin** for terminal and browser recording.
+It focuses on media capture while maintaining the established plugin isolation
+pattern.
 
 ## Plugin Inventory (13 plugins)
 
@@ -164,7 +173,9 @@ flowchart LR
 
 ## Executive Summary
 
-Version 1.0.5 added five plugins and introduced the **Leyline patterns library** and **Minister governance plugin**.
+Version 1.0.5 added five plugins
+and introduced the **Leyline patterns library**
+and **Minister governance plugin**.
 
 ## Plugin Inventory (13 plugins)
 
@@ -211,7 +222,8 @@ flowchart TB
     style Leyline fill:#e7f3ff,stroke:#0066cc
 ```
 
-**Purpose**: Reduce duplication by providing reusable patterns that plugins can reference.
+**Purpose**: Reduce duplication by providing reusable patterns that plugins can
+reference.
 
 ### New: Plugin Isolation Pattern (ADR-0001)
 
@@ -272,7 +284,8 @@ flowchart LR
 
 ## Executive Summary
 
-Initial release of the Claude Night Market plugin ecosystem with eight plugins. This analysis establishes the baseline for architectural evolution.
+Initial release of the Claude Night Market plugin ecosystem with eight plugins.
+This analysis establishes the baseline for architectural evolution.
 
 ## Plugin Inventory (8 plugins)
 
@@ -395,7 +408,8 @@ Use this template for future version analyses:
 
 ## Related Documents
 
-- [ADR-0001: Plugin Dependency Isolation](adr/0001-plugin-dependency-isolation.md)
+- [ADR-0001: Plugin Dependency
+  Isolation](adr/0001-plugin-dependency-isolation.md)
 - [API Overview](api-overview.md)
 - [Plugin Dependency Pattern Guide](guides/plugin-dependency-pattern.md)
 

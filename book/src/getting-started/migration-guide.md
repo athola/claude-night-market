@@ -4,7 +4,8 @@
 
 ## Overview
 
-Use this guide to migrate plugin code to shared constants and follow function extraction guidelines.
+Use this guide to migrate plugin code to shared constants
+and follow function extraction guidelines.
 
 ## Quick Start
 
@@ -443,7 +444,8 @@ If you encounter problems:
 ## Getting Help
 
 ### Resources
-- [Function Extraction Guidelines](../reference/function-extraction-guidelines.md)
+- [Function Extraction
+  Guidelines](../reference/function-extraction-guidelines.md)
 - [Capabilities Reference](../reference/capabilities-reference.md)
 
 ### Support
@@ -498,7 +500,9 @@ If you encounter problems:
 
 ## Conclusion
 
-Migrating to shared constants and following function extraction guidelines improves code quality and maintainability.
+Migrating to shared constants
+and following function extraction guidelines improves code quality
+and maintainability.
 
 **Key Steps:**
 -   **Migrate incrementally**: Don't try to do everything at once.

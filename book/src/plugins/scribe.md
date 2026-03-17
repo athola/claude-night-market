@@ -4,7 +4,10 @@ Documentation review, cleanup, and generation with AI slop detection.
 
 ## Overview
 
-Scribe helps maintain high-quality documentation by detecting AI-generated content patterns ("slop"), learning writing styles from exemplars, and generating or remediating documentation. It integrates with sanctum's documentation workflows.
+Scribe helps maintain high-quality documentation by detecting AI-generated
+content patterns ("slop"), learning writing styles from exemplars,
+and generating or remediating documentation.
+It integrates with sanctum's documentation workflows.
 
 ## Installation
 
@@ -85,15 +88,19 @@ Scribe detects patterns that reveal AI-generated content:
 
 ### Tier 1 Words (Highest Confidence)
 
-Words that appear dramatically more often in AI text: delve, tapestry, realm, embark, beacon, multifaceted, nuanced, pivotal, meticulous, showcasing, leveraging, streamline, comprehensive.
+Words that appear dramatically more often in AI text: delve, tapestry, realm,
+embark, beacon, multifaceted, nuanced, pivotal, meticulous, showcasing,
+leveraging, streamline, comprehensive.
 
 ### Phrase Patterns
 
-Formulaic constructions like "In today's fast-paced world," "cannot be overstated," "navigate the complexities," and "treasure trove of."
+Formulaic constructions like "In today's fast-paced world," "cannot be
+overstated," "navigate the complexities," and "treasure trove of."
 
 ### Structural Markers
 
-Overuse of em dashes, excessive bullet points, uniform sentence length, perfect grammar without contractions.
+Overuse of em dashes, excessive bullet points, uniform sentence length,
+perfect grammar without contractions.
 
 ## Writing Principles
 
@@ -120,7 +127,8 @@ Scribe enforces these principles:
 
 ## Examples
 
-These examples show slop remediation in practice. Each pair includes a score reduction from the detector.
+These examples show slop remediation in practice.
+Each pair includes a score reduction from the detector.
 
 ### Example 1: Vocabulary Slop
 
@@ -150,7 +158,8 @@ Four em dashes collapsed into a single flowing sentence.
 **After** (score: 1/10):
 > "This tool improves documentation quality by detecting and flagging AI-generated patterns."
 
-Removed: "In today's fast-paced world," opener, "it's worth noting that," and "cannot be overstated."
+Removed: "In today's fast-paced world," opener,
+"it's worth noting that," and "cannot be overstated."
 
 ## Integration
 

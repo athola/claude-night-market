@@ -1,6 +1,7 @@
 # Getting Started
 
-This section will guide you through setting up Claude Night Market and using your first plugins.
+This section will guide you through setting up Claude Night Market
+and using your first plugins.
 
 ## Overview
 

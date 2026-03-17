@@ -1,6 +1,7 @@
 # Common Workflows Guide
 
-When and how to use commands, skills, and subagents for typical development tasks.
+When and how to use commands, skills,
+and subagents for typical development tasks.
 
 ## Quick Reference
 
@@ -24,18 +25,24 @@ When and how to use commands, skills, and subagents for typical development task
 
 ### Step 1: Architecture-Aware Initialization
 
-Start with an architecture-aware initialization to select the right project structure based on team size and domain complexity. This process guides you through project type selection, online research into best practices, and template customization.
+Start with an architecture-aware initialization to select the right project
+structure based on team size and domain complexity.
+This process guides you through project type selection,
+online research into best practices, and template customization.
 
 ```bash
 # Interactive architecture selection with research
 /attune:arch-init --name my-project
 ```
 
-**Output**: Complete project structure with ARCHITECTURE.md, ADR, and paradigm-specific directories.
+**Output**: Complete project structure with ARCHITECTURE.md, ADR,
+and paradigm-specific directories.
 
 ### Step 2: Standard Initialization
 
-If the architecture is decided, use standard initialization to generate language-specific boilerplate including Makefiles, CI/CD pipelines, and pre-commit hooks.
+If the architecture is decided,
+use standard initialization to generate language-specific boilerplate including
+Makefiles, CI/CD pipelines, and pre-commit hooks.
 
 ```bash
 # Quick initialization when you know the architecture
@@ -44,7 +51,10 @@ If the architecture is decided, use standard initialization to generate language
 
 ### Step 3: Establish Persistent State
 
-Establish a persistent state to manage artifacts and constraints across sessions. This maintains non-negotiable principles and supports consistent progress tracking.
+Establish a persistent state to manage artifacts
+and constraints across sessions.
+This maintains non-negotiable principles
+and supports consistent progress tracking.
 
 ```bash
 # (Once) Define non-negotiable principles for the project
@@ -55,7 +65,8 @@ Establish a persistent state to manage artifacts and constraints across sessions
 ```
 
 Optional enhancements:
-- Install spec-kit for spec-driven artifacts: `/plugin install spec-kit@claude-night-market`
+- Install spec-kit for spec-driven artifacts:
+  `/plugin install spec-kit@claude-night-market`
 - Install superpowers for rigorous methodology loops:
 
 ```bash
@@ -65,7 +76,10 @@ Optional enhancements:
 
 ### Alternative: Brainstorming Workflow
 
-For complex projects requiring exploration, begin by brainstorming the problem space and creating a detailed specification before planning the architecture and tasks.
+For complex projects requiring exploration,
+begin by brainstorming the problem space
+and creating a detailed specification before planning the architecture
+and tasks.
 
 ```bash
 # 1. Brainstorm the problem space
@@ -311,14 +325,25 @@ claude --continue
 
 ### Persistent Presence Loop (World Model + Agent Model)
 
-Treat SDD artifacts as a self-modeling architecture where the repo state serves as the world model and the loaded skills as the agent model. Experiments are run with small diffs and verified through rigorous loops (tests, linters, repro scripts), while model updates refine both the code artifacts and the orchestration methodology to optimize future loops.
+Treat SDD artifacts as a self-modeling architecture where the repo state serves
+as the world model and the loaded skills as the agent model.
+Experiments are run with small diffs
+and verified through rigorous loops (tests, linters, repro scripts),
+while model updates refine both the code artifacts
+and the orchestration methodology to optimize future loops.
 
-Curriculum generation via `/speckit-tasks` keeps actions grounded and dependency-ordered, while the skill library and iterative refinement ensure the plan adapts to reality. The cycle moves from planning to action to reflection via `/speckit-plan`, `/speckit-implement`, and `/speckit-analyze`.
+Curriculum generation via `/speckit-tasks` keeps actions grounded
+and dependency-ordered, while the skill library
+and iterative refinement ensure the plan adapts to reality.
+The cycle moves from planning to action to reflection via `/speckit-plan`,
+`/speckit-implement`, and `/speckit-analyze`.
 
 Background reading:
 - MineDojo: https://minedojo.org/ (internet-scale knowledge + benchmarks)
-- Voyager: https://voyager.minedojo.org/ (arXiv: https://arxiv.org/abs/2305.16291) (automatic curriculum + skill library)
-- GTNH_Agent: https://github.com/sefiratech/GTNH_Agent (persistent, modular Minecraft automation)
+- Voyager: https://voyager.minedojo.org/ (arXiv:
+  https://arxiv.org/abs/2305.16291) (automatic curriculum + skill library)
+- GTNH_Agent: https://github.com/sefiratech/GTNH_Agent (persistent,
+  modular Minecraft automation)
 
 ### Clarification and Analysis
 
@@ -344,11 +369,18 @@ Skill(spec-kit:task-planning)
 
 ## Meta-Development
 
-**When**: Improving claude-night-market itself (skills, commands, templates, orchestration).
+**When**: Improving claude-night-market itself (skills, commands, templates,
+orchestration).
 
-When improving the system itself, treat the repo as the world model and available tools as the agent model. Run experiments with minimal diffs behind verification, evaluate them with evidence-first methods like `/speckit-analyze` and `Skill(superpowers:verification-before-completion)`, and update both the artifacts and the methodology so the next loop is cheaper.
+When improving the system itself,
+treat the repo as the world model and available tools as the agent model.
+Run experiments with minimal diffs behind verification,
+evaluate them with evidence-first methods like `/speckit-analyze`
+and `Skill(superpowers:verification-before-completion)`,
+and update both the artifacts and the methodology so the next loop is cheaper.
 
-Optional pattern: split roles (planner/critic/executor) for long-horizon work, similar to multi-role agent stacks used in open-ended Minecraft agents.
+Optional pattern: split roles (planner/critic/executor) for long-horizon work,
+similar to multi-role agent stacks used in open-ended Minecraft agents.
 
 Useful tools:
 
@@ -618,7 +650,8 @@ Agent(pensive:code-reviewer) Review authentication module
 
 ### Skill Invocation: Secondary Strategy
 
-The `Skill` tool is a Claude Code feature that may not be available in all environments. When the `Skill` tool is unavailable:
+The `Skill` tool is a Claude Code feature that may not be available in all
+environments. When the `Skill` tool is unavailable:
 
 **Secondary Pattern:**
 ```bash
@@ -742,7 +775,10 @@ claude --disallowedTools "Task(expensive-agent)"
 
 ### Subagent Resilience
 
-Subagents are designed to continue operations after a permission denial by attempting alternative approaches instead of failing immediately. this behavior results in more reliable agent workflows when interacting with restrictive environments.
+Subagents are designed to continue operations after a permission denial by
+attempting alternative approaches instead of failing immediately.
+this behavior results in more reliable agent workflows when interacting with
+restrictive environments.
 
 ### Agent-Aware Hooks (2.1.2+)
 
@@ -768,5 +804,6 @@ This reduces context overhead by 200-800 tokens for lightweight agents.
 ## See Also
 
 - [Quick Start Guide](./quick-start.md) - Condensed recipes
-- [Capabilities Reference](../reference/capabilities-reference.md) - All commands and skills
+- [Capabilities Reference](../reference/capabilities-reference.md) - All
+  commands and skills
 - [Plugin Catalog](../plugins/README.md) - Detailed plugin documentation

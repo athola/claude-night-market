@@ -4,7 +4,9 @@ Git and workspace operations for active development workflows.
 
 ## Overview
 
-Sanctum handles the practical side of development: commits, PRs, documentation updates, and version management. It's the plugin you'll use most during active coding.
+Sanctum handles the practical side of development: commits, PRs,
+documentation updates, and version management.
+It's the plugin you'll use most during active coding.
 
 ## Installation
 

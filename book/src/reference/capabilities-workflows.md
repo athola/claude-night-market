@@ -1,6 +1,7 @@
 # Workflow Examples
 
-Realistic command sequences you can copy directly. Adjust paths and arguments for your project.
+Realistic command sequences you can copy directly.
+Adjust paths and arguments for your project.
 
 **See also**: [Capabilities Reference](capabilities-reference.md) | [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md)
 

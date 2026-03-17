@@ -2,7 +2,10 @@
 
 ## Overview
 
-All Claude Code hooks have been profiled and optimized for minimal performance impact. This document provides performance benchmarks, timeout configurations, and best practices for maintaining fast hook execution.
+All Claude Code hooks have been profiled
+and optimized for minimal performance impact.
+This document provides performance benchmarks, timeout configurations,
+and best practices for maintaining fast hook execution.
 
 ## Performance Benchmark Results
 
@@ -29,13 +32,18 @@ The Stop hooks were optimized using background execution to prevent blocking:
 | Blocking notification (5000ms) | Background notification (39ms) | 128x faster |
 | Sequential execution | Parallel hooks | Non-blocking |
 
-The notification hook now spawns itself in a background process and returns immediately, while the workflow verification hook runs inline.
+The notification hook now spawns itself in a background process
+and returns immediately, while the workflow verification hook runs inline.
 
 ## Timeout Configuration Philosophy
 
-Hook timeouts follow the formula: **`timeout = max(actual_time * 20, performance_target)`**
+Hook timeouts follow the formula: **`timeout = max(actual_time * 20,
+performance_target)`**
 
-This configuration methodology provides a 20x safety margin for system load variations while ensuring alignment with the performance guidelines from `abstract/skills/hook-authoring/modules/performance-guidelines.md`. It also enables fast failure detection when hooks hang or encounter errors.
+This configuration methodology provides a 20x safety margin for system load
+variations while ensuring alignment with the performance guidelines from
+`abstract/skills/hook-authoring/modules/performance-guidelines.md`.
+It also enables fast failure detection when hooks hang or encounter errors.
 
 ### Before Optimization
 
@@ -389,9 +397,12 @@ print(json.dumps(output))
 
 ## Related Documentation
 
-- **Performance Guidelines**: `plugins/abstract/skills/hook-authoring/modules/performance-guidelines.md`
-- **Hook Types Reference**: `plugins/abstract/skills/hook-authoring/modules/hook-types.md`
-- **SDK Callbacks**: `plugins/abstract/skills/hook-authoring/modules/sdk-callbacks.md`
+- **Performance Guidelines**:
+  `plugins/abstract/skills/hook-authoring/modules/performance-guidelines.md`
+- **Hook Types Reference**:
+  `plugins/abstract/skills/hook-authoring/modules/hook-types.md`
+- **SDK Callbacks**:
+  `plugins/abstract/skills/hook-authoring/modules/sdk-callbacks.md`
 - **Sanctum Performance**: `plugins/sanctum/hooks/PERFORMANCE.md`
 
 ## Performance Improvement Summary
@@ -403,4 +414,5 @@ print(json.dumps(output))
 | **Average Hook Time** | ~700ms | ~45ms | 15.5x faster |
 | **Hooks Passing Targets** | 6/7 | 7/7 | 100% pass rate |
 
-**Impact:** Claude Code feels significantly more responsive, especially at session start and stop events.
+**Impact:** Claude Code feels significantly more responsive,
+especially at session start and stop events.

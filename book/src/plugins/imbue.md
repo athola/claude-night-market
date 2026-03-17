@@ -4,9 +4,12 @@ Workflow methodologies for analysis, evidence gathering, and structured output.
 
 ## Overview
 
-Imbue provides reusable patterns for approaching analysis tasks. It's a methodology plugin - the patterns apply to various inputs (git diffs, specs, logs) and chain together for complex workflows.
+Imbue provides reusable patterns for approaching analysis tasks.
+It's a methodology plugin - the patterns apply to various inputs (git diffs,
+specs, logs) and chain together for complex workflows.
 
-**Core Philosophy**: "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" - The Iron Law enforced through proof-of-work validation.
+**Core Philosophy**: "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" - The
+Iron Law enforced through proof-of-work validation.
 
 ## Installation
 
@@ -132,7 +135,8 @@ The proof-of-work skill enforces the **Iron Law**:
 NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 ```
 
-This prevents "Cargo Cult TDD" where tests validate pre-conceived implementations.
+This prevents "Cargo Cult TDD" where tests validate pre-conceived
+implementations.
 
 ### Self-Check Protocol
 
@@ -155,7 +159,8 @@ See `iron-law-enforcement.md` module for full enforcement patterns.
 
 ## Rigorous Reasoning
 
-The rigorous-reasoning skill prevents sycophantic patterns through structured analysis:
+The rigorous-reasoning skill prevents sycophantic patterns through structured
+analysis:
 
 | Component | Purpose |
 |-----------|---------|

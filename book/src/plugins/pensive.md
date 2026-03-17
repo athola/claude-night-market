@@ -4,7 +4,10 @@ Code review and analysis toolkit with specialized review skills.
 
 ## Overview
 
-Pensive provides deep code review capabilities across multiple dimensions: architecture, APIs, bugs, tests, and more. It orchestrates reviews intelligently, selecting the right skills for each codebase.
+Pensive provides deep code review capabilities across multiple dimensions:
+architecture, APIs, bugs, tests, and more.
+It orchestrates reviews intelligently,
+selecting the right skills for each codebase.
 
 ## Installation
 

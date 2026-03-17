@@ -1,8 +1,14 @@
 # Skill Reference
 
-Skills are methodology guides loaded via `Skill(plugin:skill-name)`. They inject structured workflows, checklists, and decision frameworks into the conversation. Unlike commands, skills don't run a process; they teach Claude Code *how* to approach a problem.
+Skills are methodology guides loaded via `Skill(plugin:skill-name)`.
+They inject structured workflows, checklists,
+and decision frameworks into the conversation.
+Unlike commands, skills don't run a process;
+they teach Claude Code *how* to approach a problem.
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Commands](capabilities-commands.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Commands][cap-cmd] | [Agents][cap-agents] |
+[Hooks][cap-hooks] | [Workflows][cap-wf]
 
 ---
 
@@ -22,9 +28,21 @@ Skill(superpowers:brainstorming)
 Skill(imbue:scope-guard) # Evaluate brainstorm results
 ```
 
-**Skill Components**: Every skill starts with YAML frontmatter (name, description, tags, dependencies, token estimate). Larger skills split content into a `modules/` directory. Many skills define TodoWrite items as checkpoints and exit criteria that mark the skill complete. As of Claude Code 2.1.20+, completed tasks can be deleted via TaskUpdate to reduce clutter — though proof-of-work and audit items should be preserved.
+**Skill Components**: Every skill starts with YAML frontmatter (name,
+description, tags, dependencies, token estimate).
+Larger skills split content into a `modules/` directory.
+Many skills define TodoWrite items as checkpoints
+and exit criteria that mark the skill complete.
+As of Claude Code 2.1.20+,
+completed tasks can be deleted via TaskUpdate to reduce clutter — though
+proof-of-work and audit items should be preserved.
 
-**Skill Description Budget (2.1.32+)**: Skill character budgets now scale at 2% of context window instead of a fixed limit. On 200K context this yields ~4K chars; on 1M context ~20K chars. Skills from `--add-dir` directories are also auto-discovered (2.1.32+). Skills without additional permissions or hooks are auto-approved without user confirmation (2.1.19+).
+**Skill Description Budget (2.1.32+)**:
+Skill character budgets now scale at 2% of context window instead of a fixed
+limit. On 200K context this yields ~4K chars; on 1M context ~20K chars.
+Skills from `--add-dir` directories are also auto-discovered (2.1.32+).
+Skills without additional permissions
+or hooks are auto-approved without user confirmation (2.1.19+).
 
 ---
 
@@ -56,14 +74,18 @@ Security-first hook development patterns.
 
 **Invocation**: `Skill(abstract:hook-authoring)`
 
-The skill emphasizes input validation before any logic, failing closed (deny by default), logging all actions for auditability, and setting timeouts to prevent runaway hooks.
+The skill emphasizes input validation before any logic,
+failing closed (deny by default), logging all actions for auditability,
+and setting timeouts to prevent runaway hooks.
 
 ### `abstract:modular-skills`
 Patterns for breaking large skills into modules.
 
 **Invocation**: `Skill(abstract:modular-skills)`
 
-Use this when a skill exceeds ~3000 tokens, covers multiple distinct concerns, or has subcomponents that could be reused elsewhere. The skill guides extracting pieces into a `modules/` directory.
+Use this when a skill exceeds ~3000 tokens, covers multiple distinct concerns,
+or has subcomponents that could be reused elsewhere.
+The skill guides extracting pieces into a `modules/` directory.
 
 ### `abstract:escalation-governance`
 Model escalation decision framework.
@@ -82,7 +104,11 @@ Progressive module loading with performance budgets.
 
 **Invocation**: `Skill(leyline:progressive-loading)`
 
-Covers agent performance optimization including tool restrictions, model selection, parallelization patterns, and timeout configuration. The `performance-budgeting` module (consolidated from `abstract:performance-optimization` in v1.5.0) provides subagent workflow optimization patterns.
+Covers agent performance optimization including tool restrictions,
+model selection, parallelization patterns, and timeout configuration.
+The `performance-budgeting` module (consolidated from
+`abstract:performance-optimization` in v1.5.0) provides subagent workflow
+optimization patterns.
 
 ---
 
@@ -152,14 +178,18 @@ Context recovery after session restart.
 
 **Invocation**: `Skill(imbue:catchup)`
 
-The skill walks through checking git status, reviewing open issues/PRs, reading any session artifacts, and identifying work that was interrupted. Useful after `/clear` or starting a new session on an in-progress branch.
+The skill walks through checking git status, reviewing open issues/PRs,
+reading any session artifacts, and identifying work that was interrupted.
+Useful after `/clear` or starting a new session on an in-progress branch.
 
 ### `imbue:review-core`
 Scaffolding for detailed structured reviews.
 
 **Invocation**: `Skill(imbue:review-core)`
 
-Provides a framework: gather evidence-based findings, classify by severity, and produce actionable recommendations. Other review skills (pensive, sanctum) build on this foundation.
+Provides a framework: gather evidence-based findings, classify by severity,
+and produce actionable recommendations.
+Other review skills (pensive, sanctum) build on this foundation.
 
 ---
 
@@ -180,35 +210,47 @@ Detection algorithms for dead code and duplication.
 
 **Invocation**: `Skill(conserve:bloat-detector)`
 
-Detects dead code (0 references), stale files (6+ months unchanged), God classes (500+ lines), and documentation duplication (85%+ similar content). The `/bloat-scan` command uses this skill under the hood.
+Detects dead code (0 references), stale files (6+ months unchanged),
+God classes (500+ lines), and documentation duplication (85%+ similar content).
+The `/bloat-scan` command uses this skill under the hood.
 
 ### `abstract:modular-skills` (includes optimization techniques)
 Modular skill architecture patterns.
 
 **Invocation**: `Skill(abstract:modular-skills)`
 
-Covers four strategies: extracting content to modules, removing redundancy, using progressive loading to defer rarely-needed sections, and moving verbose documentation to separate files loaded on demand. The `optimization-techniques` module (consolidated from `conserve:optimizing-large-skills` in v1.5.0) provides skill size reduction patterns.
+Covers four strategies: extracting content to modules, removing redundancy,
+using progressive loading to defer rarely-needed sections,
+and moving verbose documentation to separate files loaded on demand.
+The `optimization-techniques` module (consolidated from
+`conserve:optimizing-large-skills` in v1.5.0) provides skill size reduction
+patterns.
 
 ### `conserve:code-quality-principles`
 Core principles for AI-assisted code quality.
 
 **Invocation**: `Skill(conserve:code-quality-principles)`
 
-Establishes foundational principles for maintaining code quality when working with AI assistance, including verification patterns and anti-regression strategies.
+Establishes foundational principles for maintaining code quality when working
+with AI assistance, including verification patterns
+and anti-regression strategies.
 
 ### `conserve:decisive-action`
 Decisive action patterns for efficient workflows.
 
 **Invocation**: `Skill(conserve:decisive-action)`
 
-Guides when to act decisively vs. when to pause for confirmation, reducing unnecessary back-and-forth while maintaining safety.
+Guides when to act decisively vs.
+when to pause for confirmation,
+reducing unnecessary back-and-forth while maintaining safety.
 
 ### `conserve:response-compression`
 Response compression patterns.
 
 **Invocation**: `Skill(conserve:response-compression)`
 
-Techniques for reducing response verbosity without losing essential information, optimizing token usage in conversations.
+Techniques for reducing response verbosity without losing essential
+information, optimizing token usage in conversations.
 
 ---
 
@@ -219,7 +261,8 @@ Repository state analysis.
 
 **Invocation**: `Skill(sanctum:git-workspace-review)`
 
-Examines staged changes, unstaged modifications, untracked files, and branch status relative to remote.
+Examines staged changes, unstaged modifications, untracked files,
+and branch status relative to remote.
 
 ### `sanctum:pr-prep`
 PR preparation guidelines.
@@ -253,7 +296,8 @@ GitHub issue resolution workflow.
 
 **Invocation**: `Skill(sanctum:do-issue)`
 
-Steps: fetch issue details, create branch, implement fix, create PR linking issue.
+Steps: fetch issue details, create branch, implement fix,
+create PR linking issue.
 
 ---
 
@@ -269,7 +313,8 @@ Systematic bug hunting.
 
 **Invocation**: `Skill(pensive:bug-review)`
 
-Targets logic errors, null/undefined handling, resource leaks, and race conditions.
+Targets logic errors, null/undefined handling, resource leaks,
+and race conditions.
 
 ### `pensive:api-review`
 API surface evaluation.
@@ -283,14 +328,16 @@ Test quality assessment.
 
 **Invocation**: `Skill(pensive:test-review)`
 
-Evaluates coverage, AAA pattern compliance, flaky test detection, and edge case coverage.
+Evaluates coverage, AAA pattern compliance, flaky test detection,
+and edge case coverage.
 
 ### `pensive:architecture-review`
 Architecture assessment.
 
 **Invocation**: `Skill(pensive:architecture-review)`
 
-Analyzes coupling/cohesion, dependency direction, layer violations, and scalability concerns.
+Analyzes coupling/cohesion, dependency direction, layer violations,
+and scalability concerns.
 
 ### `pensive:rust-review`
 Rust-specific patterns.
@@ -310,7 +357,8 @@ Shell script safety.
 
 **Invocation**: `Skill(pensive:shell-review)`
 
-Checks quoting issues, injection vulnerabilities, POSIX portability, and error handling.
+Checks quoting issues, injection vulnerabilities, POSIX portability,
+and error handling.
 
 ---
 
@@ -351,14 +399,16 @@ Async/await patterns.
 
 **Invocation**: `Skill(parseltongue:python-async)`
 
-Covers event loop management, concurrent execution, timeout handling, and error propagation.
+Covers event loop management, concurrent execution, timeout handling,
+and error propagation.
 
 ### `parseltongue:python-packaging`
 Packaging with uv.
 
 **Invocation**: `Skill(parseltongue:python-packaging)`
 
-Topics: pyproject.toml configuration, dependency management, build configuration, and publishing.
+Topics: pyproject.toml configuration, dependency management,
+build configuration, and publishing.
 
 ### `parseltongue:python-performance`
 Profiling and optimization.
@@ -378,8 +428,10 @@ Detect AI-generated content markers.
 
 **Detection Tiers**:
 - Tier 1 (Highest Confidence): Words like "delve", "tapestry", "realm", "embark"
-- Tier 2: Phrase patterns ("In today's fast-paced world", "cannot be overstated")
-- Tier 3: Structural markers (em dash density, bullet ratio, sentence uniformity)
+- Tier 2: Phrase patterns ("In today's fast-paced world",
+  "cannot be overstated")
+- Tier 3: Structural markers (em dash density, bullet ratio,
+  sentence uniformity)
 
 ### `scribe:style-learner`
 Extract writing style from exemplar text.
@@ -413,7 +465,8 @@ Guide for authoring behavioral rules.
 
 **Invocation**: `Skill(hookify:writing-rules)`
 
-Covers rule structure, pattern matching syntax, action types (block/warn/log), and best practices for creating effective behavioral constraints.
+Covers rule structure, pattern matching syntax, action types (block/warn/log),
+and best practices for creating effective behavioral constraints.
 
 ### `hookify:rule-catalog`
 Pre-built behavioral rule templates.
@@ -449,4 +502,14 @@ Defines task attributes: ID, description, dependencies, and parallel marker [P].
 
 ---
 
-**See also**: [Commands](capabilities-commands.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Commands][cap-cmd] |
+[Agents][cap-agents] | [Hooks][cap-hooks] |
+[Workflows][cap-wf]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-cmd-ext]: capabilities-commands-extended.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
+[cap-wf]: capabilities-workflows.md

@@ -1,6 +1,7 @@
 # Meta Layer
 
-The meta layer provides infrastructure for building, evaluating, and maintaining plugins themselves.
+The meta layer provides infrastructure for building, evaluating,
+and maintaining plugins themselves.
 
 ## Purpose
 
@@ -60,4 +61,5 @@ Utility Layer (conservation, conjure)
 Domain Specialists
 ```
 
-The meta layer sits above all others, providing tools to build and maintain the entire ecosystem.
+The meta layer sits above all others,
+providing tools to build and maintain the entire ecosystem.

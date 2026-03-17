@@ -1,12 +1,15 @@
 # Code Review and PR Workflow
 
-The most common daily workflow: review your changes, commit them cleanly, create a PR, and address reviewer feedback.
+The most common daily workflow: review your changes, commit them cleanly,
+create a PR, and address reviewer feedback.
 
 ---
 
 ## Scenario
 
-You've finished working on a feature branch. You have uncommitted changes and need to get them reviewed, committed, and merged.
+You've finished working on a feature branch.
+You have uncommitted changes and need to get them reviewed, committed,
+and merged.
 
 ## Step 1: Understand What Changed
 
@@ -16,7 +19,9 @@ Start by catching up on your own work:
 /catchup
 ```
 
-This summarizes recent changes: which files were modified, what the commit history looks like, and what's currently unstaged. Useful even for your own branch, especially after stepping away.
+This summarizes recent changes: which files were modified,
+what the commit history looks like, and what's currently unstaged.
+Useful even for your own branch, especially after stepping away.
 
 ## Step 2: Self-Review Before Committing
 
@@ -83,7 +88,8 @@ This runs a multi-step workflow:
 1. **Workspace analysis** - reviews all commits on the branch
 2. **Quality gates** - runs tests and lint checks
 3. **Scope check** - flags if the branch has drifted beyond its original intent
-4. **PR description** - generates a description with summary, test plan, and checklist
+4. **PR description** - generates a description with summary, test plan,
+   and checklist
 
 The PR is created with a description that reviewers can actually use.
 

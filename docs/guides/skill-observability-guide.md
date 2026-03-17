@@ -1,12 +1,19 @@
 # Skill Continual Learning - Minimal Dependency Implementation
 
-This zero-dependency continual learning system uses PreToolUse and PostToolUse hooks to track skill performance. It uses standard Python modules for logging and metric calculation to avoid external installation requirements and minimize maintenance.
+This zero-dependency continual learning system uses PreToolUse
+and PostToolUse hooks to track skill performance.
+It uses standard Python modules for logging
+and metric calculation to avoid external installation requirements
+and minimize maintenance.
 
 ## Performance Metrics
 
-The system calculates a "stability gap" to detect inconsistent skill behavior. This metric identifies tools that succeed in common cases but fail predictably on edge cases.
+The system calculates a "stability gap" to detect inconsistent skill behavior.
+This metric identifies tools that succeed in common cases
+but fail predictably on edge cases.
 
-- **Stability Gap**: The difference between average accuracy and worst-case accuracy. A gap above 0.3 triggers a stability warning.
+- **Stability Gap**: The difference between average accuracy
+  and worst-case accuracy. A gap above 0.3 triggers a stability warning.
 - **Worst-case accuracy**: The minimum recorded success score for a skill.
 - **Average accuracy**: The mean success score across all tracked invocations.
 - **Average duration**: Mean execution time in milliseconds.
@@ -14,11 +21,18 @@ The system calculates a "stability gap" to detect inconsistent skill behavior. T
 
 ## Architecture
 
-Skill invocation triggers the `pre_skill_execution.py` hook, which records the start time and generates a unique invocation ID. Upon skill completion, `skill_execution_logger.py` calculates the execution duration and evaluates the outcome. The logger updates aggregate metrics in a history file, saves the individual result to a daily JSONL file, and reports any stability warnings.
+Skill invocation triggers the `pre_skill_execution.py` hook,
+which records the start time and generates a unique invocation ID.
+Upon skill completion, `skill_execution_logger.py` calculates the execution
+duration and evaluates the outcome.
+The logger updates aggregate metrics in a history file,
+saves the individual result to a daily JSONL file,
+and reports any stability warnings.
 
 ### Configuration
 
-Register the hooks in `hooks.json` to ensure state is captured both before and after tool usage:
+Register the hooks in `hooks.json` to ensure state is captured both before
+and after tool usage:
 
 ```json
 {
@@ -33,30 +47,53 @@ Register the hooks in `hooks.json` to ensure state is captured both before and a
 
 ### JSONL Storage
 
-Logs use the JSONL format for efficient append operations and stream processing. This allows for reading specific entries without loading the entire log file into memory.
+Logs use the JSONL format for efficient append operations
+and stream processing. This allows for reading specific entries without loading
+the entire log file into memory.
 
 ### Directory Structure
 
-Logs are stored in `~/.claude/skills/logs/` to persist across project sessions. The directory contains an aggregated `.history.json` file and plugin-specific subdirectories for daily `.jsonl` files.
+Logs are stored in `~/.claude/skills/logs/` to persist across project sessions.
+The directory contains an aggregated `.history.json` file
+and plugin-specific subdirectories for daily `.jsonl` files.
 
 ## Performance Analysis
 
 ### Log Inspection
 
-Use standard CLI tools like `cat` and `jq` to inspect logs or count outcomes. For example, piping a daily log through `jq` can quickly summarize success rates across all skills in a session.
+Use standard CLI tools like `cat` and `jq` to inspect logs or count outcomes.
+For example, piping a daily log through `jq` can quickly summarize success
+rates across all skills in a session.
 
 ### Stability Monitoring
 
-The stability gap for the top 10 most brittle skills can be calculated by processing `.history.json`. This analysis identifies candidates for refactoring by ranking them by their accuracy variance.
+The stability gap for the top 10 most brittle skills can be calculated by
+processing `.history.json`.
+This analysis identifies candidates for refactoring by ranking them by their
+accuracy variance.
 
 ## Technical Constraints
 
-The system adds approximately 2-5ms of overhead for state writing in the PreToolUse hook and 10-20ms for metric calculation in the PostToolUse hook. Total latency remains under 25ms per tool use. Logs grow linearly, so implement a retention policy if a single skill exceeds 10,000 daily executions to prevent performance degradation during log scanning.
+The system adds approximately 2-5ms of overhead for state writing in the
+PreToolUse hook and 10-20ms for metric calculation in the PostToolUse hook.
+Total latency remains under 25ms per tool use.
+Logs grow linearly, so implement a retention policy if a single skill exceeds
+10,000 daily executions to prevent performance degradation during log scanning.
 
 ## Verification
 
-Test the hook loop by running `python3 plugins/abstract/hooks/test_skill_observability_proof.py --test-full-loop`. A successful test creates a new log entry in the `~/.claude/skills/logs/` directory.
+Test the hook loop by running `python3
+plugins/abstract/hooks/test_skill_observability_proof.py --test-full-loop`.
+A successful test creates a new log entry in the `~/.claude/skills/logs/`
+directory.
 
 ## Troubleshooting
 
-If logs do not appear, verify hook registration in `plugins/abstract/hooks/hooks.json` and ensure the Python scripts are executable. If metrics are missing from the history file, check that the PostToolUse hook has access to the state files generated by the PreToolUse hook. State files that fail to be cleaned up after a session can be removed from `~/.claude/skills/observability` using `find` with the `-mtime` flag.
+If logs do not appear, verify hook registration in
+`plugins/abstract/hooks/hooks.json`
+and ensure the Python scripts are executable.
+If metrics are missing from the history file,
+check that the PostToolUse hook has access to the state files generated by the
+PreToolUse hook. State files that fail to be cleaned up after a session can be
+removed from `~/.claude/skills/observability` using `find` with the `-mtime`
+flag.

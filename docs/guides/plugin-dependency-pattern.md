@@ -1,21 +1,32 @@
 # Plugin Dependency Pattern
 
-This guide defines the standard pattern for managing dependencies between Claude Code plugins without using shared code modules.
+This guide defines the standard pattern for managing dependencies between
+Claude Code plugins without using shared code modules.
 
 ## Philosophy
 
-Plugins must remain self-contained and independent. Instead of sharing code through common modules, plugins implement their own logic for detecting and interacting with other plugins. This approach prevents version coupling and ensures that a single plugin's failure does not disable the entire ecosystem.
+Plugins must remain self-contained and independent.
+Instead of sharing code through common modules,
+plugins implement their own logic for detecting
+and interacting with other plugins.
+This approach prevents version coupling
+and ensures that a single plugin's failure does not disable the entire
+ecosystem.
 
 1.  **Detection**: Verify the existence of other plugins at runtime.
-2.  **Capability Check**: Query plugin manifests for specific supported features.
-3.  **Graceful Degradation**: Implement default behaviors when dependencies are missing.
-4.  **Documentation**: Explicitly state optional relationships in READMEs and manifests.
+2.  **Capability Check**: Query plugin manifests for specific supported
+    features.
+3.  **Graceful Degradation**:
+    Implement default behaviors when dependencies are missing.
+4.  **Documentation**: Explicitly state optional relationships in READMEs
+    and manifests.
 
 ## Core Pattern: Plugin Detection
 
 ### Step 1: Check for Plugin Installation
 
-Plugins check the user's local configuration directory to determine if a dependency is present.
+Plugins check the user's local configuration directory to determine if a
+dependency is present.
 
 ```python
 def is_plugin_available(plugin_name: str) -> bool:
@@ -34,7 +45,8 @@ def is_plugin_available(plugin_name: str) -> bool:
 
 ### Step 2: Check for Specific Functionality
 
-Functional checks prevent errors when a plugin exists but is an incompatible version.
+Functional checks prevent errors when a plugin exists
+but is an incompatible version.
 
 ```python
 def has_plugin_capability(plugin_name: str, capability: str) -> bool:
@@ -57,7 +69,10 @@ def has_plugin_capability(plugin_name: str, capability: str) -> bool:
 
 ### Pattern 1: Optional Feature Enhancement
 
-This pattern adds non-critical data or analysis when a secondary plugin is present. If `sanctum` is missing, the function returns the original data without git-specific enrichment.
+This pattern adds non-critical data
+or analysis when a secondary plugin is present.
+If `sanctum` is missing,
+the function returns the original data without git-specific enrichment.
 
 ```python
 def enhance_with_sanctum_feature(data: dict) -> dict:
@@ -82,7 +97,9 @@ def enhance_with_sanctum_feature(data: dict) -> dict:
 
 ### Pattern 2: Bidirectional Plugin Integration
 
-When two plugins can benefit from each other's data, use a merging strategy. Each plugin remains responsible for its own primary analysis while optionally accepting data from the other.
+When two plugins can benefit from each other's data, use a merging strategy.
+Each plugin remains responsible for its own primary analysis while optionally
+accepting data from the other.
 
 ```python
 def analyze_with_abstract_and_sanctum(content: str) -> dict:
@@ -112,7 +129,9 @@ def analyze_with_abstract_and_sanctum(content: str) -> dict:
 
 ### Pattern 3: Service Provider Pattern
 
-This pattern allows a central class to delegate tasks to specialized plugins. It defines a default built-in strategy that takes over if no preferred plugin is available.
+This pattern allows a central class to delegate tasks to specialized plugins.
+It defines a default built-in strategy that takes over if no preferred plugin
+is available.
 
 ```python
 class ContextOptimizer:
@@ -189,14 +208,24 @@ In your `plugin.json`, use the `optional` array to declare integration points.
 
 ## Best Practices
 
-1.  **Always Provide Default Behaviors**: Never assume a plugin is installed. Every integration point must have a non-plugin default logic path.
-2.  **Graceful Degradation**: Catch `ImportError` or `FileNotFoundError` when attempting to access other plugins. Return partial results with a clear status message instead of raising an unhandled exception.
-3.  **Clear Communication**: Use return dictionaries or logs to indicate whether a result is "basic" or "enhanced." This helps developers debug why a specific feature might be missing.
-4.  **Version Compatibility**: Use semantic version parsing if your plugin requires a specific feature set from a dependency.
+1.  **Always Provide Default Behaviors**: Never assume a plugin is installed.
+    Every integration point must have a non-plugin default logic path.
+2.  **Graceful Degradation**: Catch `ImportError`
+    or `FileNotFoundError` when attempting to access other plugins.
+    Return partial results with a clear status message instead of raising an
+    unhandled exception.
+3.  **Clear Communication**: Use return dictionaries
+    or logs to indicate whether a result is "basic"
+    or "enhanced." This helps developers debug why a specific feature might be
+    missing.
+4.  **Version Compatibility**:
+    Use semantic version parsing if your plugin requires a specific feature set
+    from a dependency.
 
 ## Testing Plugin Dependencies
 
-Verify your integration logic by mocking the presence and absence of secondary plugins.
+Verify your integration logic by mocking the presence
+and absence of secondary plugins.
 
 ```python
 def test_plugin_integrations():

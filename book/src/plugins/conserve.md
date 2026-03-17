@@ -4,7 +4,9 @@ Resource optimization and performance monitoring for context window management.
 
 ## Overview
 
-Conserve helps you work efficiently within Claude's context limits. It automatically loads optimization guidance at session start and provides tools for monitoring and reducing context usage.
+Conserve helps you work efficiently within Claude's context limits.
+It automatically loads optimization guidance at session start
+and provides tools for monitoring and reducing context usage.
 
 ## Installation
 

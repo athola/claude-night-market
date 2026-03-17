@@ -1,10 +1,12 @@
 # abstract
 
-Meta-skills infrastructure for the plugin ecosystem - skill authoring, hook development, and quality evaluation.
+Meta-skills infrastructure for the plugin ecosystem - skill authoring,
+hook development, and quality evaluation.
 
 ## Overview
 
-The abstract plugin provides tools for building, evaluating, and maintaining Claude Code plugins. It's the toolkit for plugin developers.
+The abstract plugin provides tools for building, evaluating,
+and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 
 ## Installation
 
@@ -75,7 +77,8 @@ A closed-loop system that monitors skill health and auto-triggers improvements:
 5. `rollback_reviewer.py` creates GitHub issues if regressions are detected
 6. `experience_library.py` stores successful trajectories for future context
 
-Cross-plugin dependency: reads stability metrics from memory-palace's `.history.json`.
+Cross-plugin dependency:
+reads stability metrics from memory-palace's `.history.json`.
 
 ## Usage Examples
 
@@ -130,7 +133,8 @@ Skill(abstract:skills-eval)
 2. **Fail Safe**: Default to allowing operations
 3. **Minimal Scope**: Request only needed permissions
 4. **Audit Trail**: Log decisions for review
-5. **Agent-Aware (2.1.2+)**: SessionStart hooks receive `agent_type` to customize context
+5. **Agent-Aware (2.1.2+)**:
+   SessionStart hooks receive `agent_type` to customize context
 
 ## Superpowers Integration
 

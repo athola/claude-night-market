@@ -1,12 +1,14 @@
 # Performance Documentation
 
-Performance optimization guides and benchmarks for the claude-night-market project.
+Performance optimization guides
+and benchmarks for the claude-night-market project.
 
 ## Documentation Index
 
 ### Hook Performance
 
-**[Hook Performance Guide](hooks.md)** - Detailed guide to hook optimization across all plugins
+**[Hook Performance Guide](hooks.md)** - Detailed guide to hook optimization
+across all plugins
 
 - Performance benchmarks (7/7 hooks passing)
 - Timeout configuration philosophy
@@ -15,12 +17,15 @@ Performance optimization guides and benchmarks for the claude-night-market proje
 - Benchmarking scripts
 
 **Plugin-Specific Guides:**
-- **[Sanctum Hook Performance](../../plugins/sanctum/hooks/PERFORMANCE.md)** - Stop hook optimizations (notification background execution)
-- **[Imbue Hook Performance](../../plugins/imbue/hooks/PERFORMANCE.md)** - Scope-guard caching and git optimizations
+- **[Sanctum Hook Performance](../../plugins/sanctum/hooks/PERFORMANCE.md)** -
+  Stop hook optimizations (notification background execution)
+- **[Imbue Hook Performance](../../plugins/imbue/hooks/PERFORMANCE.md)** -
+  Scope-guard caching and git optimizations
 
 ### Performance Targets
 
-Based on `plugins/abstract/skills/hook-authoring/modules/performance-guidelines.md`:
+Based on
+`plugins/abstract/skills/hook-authoring/modules/performance-guidelines.md`:
 
 | Hook Event | Target Time | Maximum Time |
 |------------|-------------|--------------|
@@ -32,7 +37,11 @@ Based on `plugins/abstract/skills/hook-authoring/modules/performance-guidelines.
 
 ### Key Optimizations
 
-Performance improvements across the ecosystem include implementing background execution for notifications in the sanctum plugin and using 60-second git metrics caching in the imbue plugin. We have also achieved a 5.2x reduction in the total timeout budget and introduced environment variables to skip non-critical hooks when necessary.
+Performance improvements across the ecosystem include implementing background
+execution for notifications in the sanctum plugin
+and using 60-second git metrics caching in the imbue plugin.
+We have also achieved a 5.2x reduction in the total timeout budget
+and introduced environment variables to skip non-critical hooks when necessary.
 
 ### Environment Variables
 
@@ -56,13 +65,20 @@ export SCOPE_GUARD_CACHE_TTL=120
 | Average hook time | ~700ms | ~45ms | 15.5x faster |
 | Hooks passing targets | 6/7 (86%) | 7/7 (100%) | 100% pass rate |
 
-**Result:** Claude Code feels significantly more responsive, especially at session start/stop.
+**Result:** Claude Code feels significantly more responsive,
+especially at session start/stop.
 
 ## Related Documentation
 
-- **[Hook Authoring Performance Guidelines](../../plugins/abstract/skills/hook-authoring/modules/performance-guidelines.md)** - Official performance standards
-- **[Hook Types](../../plugins/abstract/skills/hook-authoring/modules/hook-types.md)** - Event signatures and timing budgets
-- **[SDK Callbacks](../../plugins/abstract/skills/hook-authoring/modules/sdk-callbacks.md)** - Implementation patterns
+- **[Hook Authoring Performance
+  Guidelines](../../plugins/abstract/skills/hook-authoring/modules/performance-g
+  uidelines.md)** - Official performance standards
+- **[Hook
+  Types](../../plugins/abstract/skills/hook-authoring/modules/hook-types.md)**
+  - Event signatures and timing budgets
+- **[SDK
+  Callbacks](../../plugins/abstract/skills/hook-authoring/modules/sdk-callbacks.
+  md)** - Implementation patterns
 
 ## Benchmarking
 

@@ -1,6 +1,7 @@
 # Testing Guide
 
-This guide covers testing in the Claude Night Market ecosystem, including pre-commit testing, test development, and troubleshooting.
+This guide covers testing in the Claude Night Market ecosystem,
+including pre-commit testing, test development, and troubleshooting.
 
 ## Table of Contents
 
@@ -23,19 +24,29 @@ We test at three levels:
 
 ## Pre-Commit Testing
 
-Pre-commit hooks automatically run all tests for changed plugins before allowing commits. This prevents broken code from entering the repository and provides fast feedback by limiting the scope to changes.
+Pre-commit hooks automatically run all tests for changed plugins before
+allowing commits. This prevents broken code from entering the repository
+and provides fast feedback by limiting the scope to changes.
 
 ### Workflow
 
-When you commit changes, pre-commit runs automatically. If tests pass, the commit succeeds. If they fail, the commit is blocked, and you'll see a summary of the failures.
+When you commit changes, pre-commit runs automatically.
+If tests pass, the commit succeeds.
+If they fail, the commit is blocked, and you'll see a summary of the failures.
 
 ### Trigger Rules
 
-The system runs tests based on modified files. Modifying a plugin's Python files triggers that plugin's tests. Modifying multiple plugins triggers tests for all of them. Changes to command markdown files also trigger relevant tests. You can manually run all tests with `make test`.
+The system runs tests based on modified files.
+Modifying a plugin's Python files triggers that plugin's tests.
+Modifying multiple plugins triggers tests for all of them.
+Changes to command markdown files also trigger relevant tests.
+You can manually run all tests with `make test`.
 
 ### Configuration
 
-The hook is defined in `.pre-commit-config.yaml`. It triggers on `.py` and `.md` file changes in plugins, runs automatically before every commit, and blocks commits if any tests fail.
+The hook is defined in `.pre-commit-config.yaml`.
+It triggers on `.py` and `.md` file changes in plugins,
+runs automatically before every commit, and blocks commits if any tests fail.
 
 ## Test Coverage
 
@@ -67,7 +78,10 @@ We maintain automated tests for the following plugins:
 
 ### Test Discovery
 
-For each modified plugin, the hook first looks for a `Makefile` with a `test:` target. If not found, it defaults to running `pytest` directly via `pyproject.toml`. If neither is configured, it skips the plugin.
+For each modified plugin,
+the hook first looks for a `Makefile` with a `test:` target.
+If not found, it defaults to running `pytest` directly via `pyproject.toml`.
+If neither is configured, it skips the plugin.
 
 ## Writing Tests
 
@@ -89,23 +103,30 @@ plugins/<plugin>/
 ### Test Patterns
 
 **Unit Tests**
-Isolate logic to test specific functions or classes. For example, `test_create_initiative` should verify that a `ProjectTracker` correctly instantiates an initiative.
+Isolate logic to test specific functions or classes.
+For example, `test_create_initiative` should verify that a `ProjectTracker`
+correctly instantiates an initiative.
 
 **Integration Tests**
-Test the plugin end-to-end. `test_cli_status_command` might invoke the CLI runner to check the status command's output and exit code.
+Test the plugin end-to-end.
+`test_cli_status_command` might invoke the CLI runner to check the status
+command's output and exit code.
 
 **BDD Tests**
-Describe scenarios in a Given-When-Then format. These help verify user-facing behavior.
+Describe scenarios in a Given-When-Then format.
+These help verify user-facing behavior.
 
 ### Test Configuration
 
-Configure `pytest` in `pyproject.toml` to set test paths, verbosity, and coverage options. Use `conftest.py` for shared fixtures.
+Configure `pytest` in `pyproject.toml` to set test paths, verbosity,
+and coverage options. Use `conftest.py` for shared fixtures.
 
 ## Running Tests
 
 ### Pre-Commit (Automatic)
 
-Tests run automatically when you commit. Just `git add` and `git commit` as usual.
+Tests run automatically when you commit.
+Just `git add` and `git commit` as usual.
 
 ### Manual Execution
 
@@ -136,16 +157,22 @@ make test
 
 ### Performance
 
-Test execution time depends on the scope. Testing a single plugin like `minister` takes 5-10 seconds. Full suite runs take two to three minutes. The hooks optimize for speed by testing only changed plugins, running in parallel, and using quiet mode.
+Test execution time depends on the scope.
+Testing a single plugin like `minister` takes 5-10 seconds.
+Full suite runs take two to three minutes.
+The hooks optimize for speed by testing only changed plugins,
+running in parallel, and using quiet mode.
 
 ### Output Verbosity
 
-The test runner uses **conditional verbosity** to balance clean output with debugging needs:
+The test runner uses **conditional verbosity** to balance clean output with
+debugging needs:
 
 - **On success**: Shows brief `✓ Tests passed` message with quiet output
 - **On failure**: Automatically re-runs with full verbose output for debugging
 
-This means you get error details immediately without manually re-running failed tests:
+This means you get error details immediately without manually re-running failed
+tests:
 
 ```bash
 $ ./scripts/run-plugin-tests.sh broken-plugin
@@ -157,13 +184,16 @@ Re-running with verbose output:
 
 ## Advanced Testing
 
-Beyond standard unit/integration tests, several plugins support advanced testing methodologies.
+Beyond standard unit/integration tests,
+several plugins support advanced testing methodologies.
 
 ### Mutation Testing
 
-**Purpose**: Verify test quality by mutating code and checking if tests catch changes.
+**Purpose**: Verify test quality by mutating code
+and checking if tests catch changes.
 
-**Available in**: abstract, conserve, imbue, leyline, memory-palace, minister, conjure
+**Available in**: abstract, conserve, imbue, leyline, memory-palace, minister,
+conjure
 
 **Usage**:
 ```bash
@@ -171,15 +201,19 @@ cd plugins/abstract
 make mutation-test
 ```
 
-**Requirements**: Install `mutmut` via `pip install mutmut`. Gracefully skips if not installed.
+**Requirements**: Install `mutmut` via `pip install mutmut`.
+Gracefully skips if not installed.
 
-**How it works**: Mutmut modifies your source code (e.g., changes `>` to `<`, flips boolean values) and re-runs tests. If tests still pass with mutated code, your tests may not be thorough enough.
+**How it works**: Mutmut modifies your source code (e.g., changes `>` to `<`,
+flips boolean values) and re-runs tests.
+If tests still pass with mutated code, your tests may not be thorough enough.
 
 ### Performance Benchmarking
 
 **Purpose**: Track performance regression for critical operations.
 
-**Available in**: conjure (API latency), memory-palace (memory operations), leyline (token estimation), conserve (bloat detection)
+**Available in**: conjure (API latency), memory-palace (memory operations),
+leyline (token estimation), conserve (bloat detection)
 
 **Usage**:
 ```bash
@@ -187,7 +221,8 @@ cd plugins/conjure
 make benchmark
 ```
 
-**Requirements**: Install `pytest-benchmark` via `pip install pytest-benchmark`. Gracefully skips if not installed.
+**Requirements**: Install `pytest-benchmark` via `pip install
+pytest-benchmark`. Gracefully skips if not installed.
 
 **Output**: Shows execution time statistics sorted by mean duration.
 
@@ -205,7 +240,8 @@ make memory-profile
 
 **Requirements**: Install `memory_profiler` via `pip install memory_profiler`.
 
-**Note**: Currently shows placeholder message. Configure by creating profiling scripts in `tests/performance/`.
+**Note**: Currently shows placeholder message.
+Configure by creating profiling scripts in `tests/performance/`.
 
 ### Integration Testing
 
@@ -219,48 +255,70 @@ cd plugins/scry
 pytest tests/test_workflow_integration.py -v
 ```
 
-**Markers**: Tests use `@pytest.mark.requires_vhs` and `@pytest.mark.requires_ffmpeg` to skip gracefully when dependencies unavailable.
+**Markers**: Tests use `@pytest.mark.requires_vhs`
+and `@pytest.mark.requires_ffmpeg` to skip gracefully when dependencies
+unavailable.
 
 ## Troubleshooting
 
 ### Common Test Failures
 
-If tests fail, review the output provided by the pre-commit hook. Fix the code or the test, then re-run manually to verify before attempting to commit again.
+If tests fail, review the output provided by the pre-commit hook.
+Fix the code or the test, then re-run manually to verify before attempting to
+commit again.
 
 ### Iron Law TDD Enforcement
 
 We follow a strict rule: **No implementation without a failing test first.**
 
-This prevents writing code based on assumptions. Before implementing a feature, write a test that fails to prove the need for the code and guide its design.
+This prevents writing code based on assumptions.
+Before implementing a feature,
+write a test that fails to prove the need for the code and guide its design.
 
 **Self-Check Protocol**
-If you catch yourself planning implementation before writing a test, stop. Write the failing test first. If you think you know what tests you need, document the failure before designing the solution.
+If you catch yourself planning implementation before writing a test, stop.
+Write the failing test first. If you think you know what tests you need,
+document the failure before designing the solution.
 
 **Enforcement Mechanisms**
-We use SessionStart hooks to remind developers of this rule. The `proof-of-work` skill and `iron-law-enforcement.md` module provide further details and verification.
+We use SessionStart hooks to remind developers of this rule.
+The `proof-of-work` skill
+and `iron-law-enforcement.md` module provide further details and verification.
 
 ## Best Practices
 
 **For Test Development**
-Follow TDD: Write a test, watch it fail, write code to pass, then refactor. Use descriptive test names like `test_create_initiative_with_valid_data_succeeds`. Test one thing per test and use fixtures for setup. Keep tests fast by mocking external dependencies.
+Follow TDD: Write a test, watch it fail, write code to pass, then refactor.
+Use descriptive test names like
+`test_create_initiative_with_valid_data_succeeds`.
+Test one thing per test and use fixtures for setup.
+Keep tests fast by mocking external dependencies.
 
 **For Plugin Maintainers**
-Aim for 85% coverage. Keep tests isolated—avoid shared state. Document requirements and review failures promptly. Ensure all scripts in `scripts/` have corresponding tests.
+Aim for 85% coverage. Keep tests isolated—avoid shared state.
+Document requirements and review failures promptly.
+Ensure all scripts in `scripts/` have corresponding tests.
 
 **For Daily Development**
-Run tests before committing. Fix tests incrementally. Never skip tests with `--no-verify` unless it is a dire emergency.
+Run tests before committing. Fix tests incrementally.
+Never skip tests with `--no-verify` unless it is a dire emergency.
 
 ## CI/CD Integration
 
-Testing integrates with our continuous integration pipelines. See [Quality Gates - CI/CD Integration](./quality-gates.md#cicd-integration) for details.
+Testing integrates with our continuous integration pipelines.
+See [Quality Gates - CI/CD Integration](./quality-gates.md#cicd-integration)
+for details.
 
 ## Skipping Tests (Emergency Only)
 
-In rare emergencies, you can skip tests. Use `SKIP=run-plugin-tests git commit -m "WIP: tests in progress"` or `git commit --no-verify`. Use this sparingly.
+In rare emergencies, you can skip tests.
+Use `SKIP=run-plugin-tests git commit -m "WIP:
+tests in progress"` or `git commit --no-verify`. Use this sparingly.
 
 ## See Also
 
 - [Quality Gates](./quality-gates.md) - Complete quality system documentation
-- [Plugin Development Guide](./plugin-development-guide.md) - Plugin development standards
+- [Plugin Development Guide](./plugin-development-guide.md) - Plugin
+  development standards
 - [Pre-commit configuration](../.pre-commit-config.yaml) - Hook definitions
 - [Test Runner Script](../scripts/run-plugin-tests.sh) - Test execution script

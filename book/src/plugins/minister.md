@@ -4,7 +4,9 @@ GitHub initiative tracking and release management.
 
 ## Overview
 
-Minister helps you track project initiatives, monitor release readiness, and generate stakeholder reports. It bridges the gap between development work and project management.
+Minister helps you track project initiatives, monitor release readiness,
+and generate stakeholder reports.
+It bridges the gap between development work and project management.
 
 ## Installation
 
@@ -240,7 +242,10 @@ Minister includes operational playbooks in `docs/playbooks/`:
 | `github-program-rituals.md` | Weekly cadences: Risk Radar, Velocity Digest, Executive Packet |
 | `release-train-health.md` | Release gate checklists for CI, docs, and support signals |
 
-These playbooks use GitHub Discussions via GraphQL mutations (not the non-existent `gh discussion` CLI subcommand). Discussion creation and commenting follow the templates in `leyline:git-platform`'s `command-mapping` module.
+These playbooks use GitHub Discussions via GraphQL mutations (not the
+non-existent `gh discussion` CLI subcommand).
+Discussion creation and commenting follow the templates in
+`leyline:git-platform`'s `command-mapping` module.
 
 ## Related Plugins
 

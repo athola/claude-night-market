@@ -1,6 +1,7 @@
 # Your First Plugin: sanctum
 
-This hands-on tutorial walks you through using the **sanctum** plugin for git and workspace operations.
+This hands-on tutorial walks you through using the **sanctum** plugin for git
+and workspace operations.
 
 ## What You'll Build
 
@@ -85,7 +86,8 @@ feat(auth): add login form with validation
 Closes #42
 ```
 
-The commit follows [Conventional Commits](https://www.conventionalcommits.org/) format:
+The commit follows [Conventional Commits](https://www.conventionalcommits.org/)
+format:
 - **Type**: feat, fix, docs, style, refactor, test, chore
 - **Scope**: Optional context (auth, api, ui)
 - **Description**: Imperative mood, present tense
@@ -202,7 +204,8 @@ gh pr create --title "<title>" --body "<generated body>"
 
 - Read the [Quick Start Guide](quick-start.md) for more workflow patterns
 - Explore other plugins in the [Plugin Overview](../plugins/README.md)
-- Check the [Capabilities Reference](../reference/capabilities-reference.md) for all available skills
+- Check the [Capabilities Reference](../reference/capabilities-reference.md)
+  for all available skills
 
 ## Achievements Earned
 

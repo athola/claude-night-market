@@ -1,6 +1,7 @@
 # Security Patterns for Hook Development
 
-Comprehensive security guidance for writing safe, secure hooks that protect agents and systems from vulnerabilities.
+Comprehensive security guidance for writing safe,
+secure hooks that protect agents and systems from vulnerabilities.
 
 ## Security Principles
 
@@ -296,16 +297,19 @@ class LogSanitizationHooks(AgentHooks):
 
 ### Permission System Improvements
 
-Claude Code 2.0.71 fixed permission rules to correctly handle valid bash glob patterns (`*.txt`, `*.png`, etc.).
+Claude Code 2.0.71 fixed permission rules to correctly handle valid bash glob
+patterns (`*.txt`, `*.png`, etc.).
 
 **What Changed**:
 - Shell glob patterns like `ls *.txt` now work without permission prompts
-- Permission system distinguishes between safe glob patterns and dangerous wildcards
+- Permission system distinguishes between safe glob patterns
+  and dangerous wildcards
 - Standard file operations with pattern matching no longer require workarounds
 
 ### Glob Pattern Security
 
-Even with native glob support, hooks should validate glob usage for dangerous patterns:
+Even with native glob support,
+hooks should validate glob usage for dangerous patterns:
 
 ```python
 from claude_agent_sdk import AgentHooks
@@ -465,16 +469,19 @@ if __name__ == "__main__":
 
 ### PermissionRequest Security Principles
 
-1. **Denylist Before Allowlist**: Always check dangerous patterns before safe patterns
+1. **Denylist Before Allowlist**:
+   Always check dangerous patterns before safe patterns
 2. **Default to Dialog**: If uncertain, let the permission dialog appear
 3. **No Regex Bypass**: Use anchored patterns (`^`) to prevent command injection
 4. **Audit Auto-Approvals**: Log all automatic approvals for security review
 5. **Minimize Scope**: Only auto-approve truly safe, read-only operations
-6. **Never Auto-Approve**: Commands with pipes to shells, privilege escalation, system modifications, unconstrained wildcards
+6. **Never Auto-Approve**: Commands with pipes to shells, privilege escalation,
+   system modifications, unconstrained wildcards
 
 ## Shell Environment Troubleshooting
 
-Use `CLAUDE_CODE_SHELL` environment variable if hooks fail due to shell detection (added in 2.0.65):
+Use `CLAUDE_CODE_SHELL` environment variable if hooks fail due to shell
+detection (added in 2.0.65):
 
 ```bash
 export CLAUDE_CODE_SHELL=/bin/bash  # or /bin/zsh
@@ -486,11 +493,14 @@ export CLAUDE_CODE_SHELL=/bin/bash  # or /bin/zsh
 | Hooks fail on Windows/WSL | Use Unix-style paths |
 | Shebang not found | Explicitly set shell path |
 
-For cross-platform compatibility: use `#!/usr/bin/env bash`, stick to POSIX syntax, handle missing commands gracefully.
+For cross-platform compatibility: use `#!/usr/bin/env bash`,
+stick to POSIX syntax, handle missing commands gracefully.
 
 ## Security Checklist
 
-Before deploying: validate inputs, protect secrets, restrict paths, enforce rate limits/timeouts, fail safe on errors, sanitize outputs, respect sandbox, use least privilege, log security events.
+Before deploying: validate inputs, protect secrets, restrict paths,
+enforce rate limits/timeouts, fail safe on errors, sanitize outputs,
+respect sandbox, use least privilege, log security events.
 
 ## Related Modules
 

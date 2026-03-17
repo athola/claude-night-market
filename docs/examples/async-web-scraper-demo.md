@@ -1,6 +1,9 @@
 # Async Web Scraper Demo
 
-A complete, working example demonstrating async/await patterns in Python for concurrent web scraping. This reference showcases the practical application of python-async skills with real-world functionality.
+A complete, working example demonstrating async/await patterns in Python for
+concurrent web scraping.
+This reference showcases the practical application of python-async skills with
+real-world functionality.
 
 ## Overview
 

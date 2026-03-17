@@ -217,4 +217,5 @@ If superpowers is installed, commands gain enhanced capabilities:
 ## Next Steps
 
 - Explore individual plugins in the Plugins section
-- Reference all capabilities in [Capabilities Reference](../reference/capabilities-reference.md)
+- Reference all capabilities in [Capabilities
+  Reference](../reference/capabilities-reference.md)

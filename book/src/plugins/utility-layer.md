@@ -1,6 +1,7 @@
 # Utility Layer
 
-The utility layer provides resource optimization and external integration capabilities.
+The utility layer provides resource optimization
+and external integration capabilities.
 
 ## Purpose
 
@@ -47,13 +48,15 @@ Use when you need to:
 ```bash
 /optimize-context
 ```
-Analyzes current context usage and suggests MECW (Minimum Effective Context Window) strategies.
+Analyzes current context usage
+and suggests MECW (Minimum Effective Context Window) strategies.
 
 ### Growth Analysis
 ```bash
 /bloat-scan
 ```
-Predicts context budget impact of skill growth patterns. (Growth analysis has been consolidated into `/bloat-scan`.)
+Predicts context budget impact of skill growth patterns.
+(Growth analysis has been consolidated into `/bloat-scan`.)
 
 ### External Delegation
 ```bash
@@ -107,4 +110,5 @@ Domain Specialists
  Foundation Layer
 ```
 
-For example, conjure can delegate large file processing before sanctum analyzes the results.
+For example, conjure can delegate large file processing before sanctum analyzes
+the results.

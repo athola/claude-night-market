@@ -4,7 +4,10 @@ Create custom behavioral rules through markdown configuration files.
 
 ## Overview
 
-Hookify provides a framework for defining behavioral rules that prevent unwanted actions through pattern matching. Rules are defined in markdown files and can be enabled, disabled, or customized per project.
+Hookify provides a framework for defining behavioral rules that prevent
+unwanted actions through pattern matching.
+Rules are defined in markdown files and can be enabled, disabled,
+or customized per project.
 
 ## Installation
 

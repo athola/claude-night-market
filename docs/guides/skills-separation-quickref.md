@@ -1,6 +1,7 @@
 # Skills Separation Quick Reference
 
-**Problem**: Building AI agents with Claude Code? Don't let development skills collide with runtime skills!
+**Problem**: Building AI agents with Claude Code?
+Don't let development skills collide with runtime skills!
 
 ---
 
@@ -144,6 +145,8 @@ flowchart TD
 
 ## Full Guide
 
-See: [`development-vs-runtime-skills-separation.md`](development-vs-runtime-skills-separation.md)
+See:
+[`development-vs-runtime-skills-separation.md`](development-vs-runtime-skills-se
+paration.md)
 
 **Last Updated**: 2026-01-10

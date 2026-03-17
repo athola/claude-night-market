@@ -1,10 +1,13 @@
 # Superpowers Integration
 
-How Claude Night Market plugins integrate with the [superpowers](https://github.com/obra/superpowers) skills.
+How Claude Night Market plugins integrate with the
+[superpowers](https://github.com/obra/superpowers) skills.
 
 ## Overview
 
-Many Night Market capabilities achieve their full potential when used alongside superpowers. While all plugins work standalone, superpowers provides foundational methodology skills that enhance workflows.
+Many Night Market capabilities achieve their full potential when used alongside
+superpowers. While all plugins work standalone,
+superpowers provides foundational methodology skills that enhance workflows.
 
 ## Installation
 

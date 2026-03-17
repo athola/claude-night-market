@@ -1,8 +1,10 @@
 # Capabilities Reference
 
-Quick lookup table of all skills, commands, agents, and hooks in the Claude Night Market.
+Quick lookup table of all skills, commands, agents,
+and hooks in the Claude Night Market.
 
-**For full flag documentation and workflow examples**: See [Capabilities Reference Details](capabilities-reference-details.md).
+**For full flag documentation and workflow examples**:
+See [Capabilities Reference Details](capabilities-reference-details.md).
 
 ## Quick Reference Index
 

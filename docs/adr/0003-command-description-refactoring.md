@@ -6,9 +6,11 @@
 
 ## Problem
 
-Long frontmatter descriptions (600+ chars) created poor UX when typing `/` in Claude Code. The description field served two conflicting purposes:
+Long frontmatter descriptions (600+ chars) created poor UX when typing `/` in
+Claude Code. The description field served two conflicting purposes:
 1. **Display** - What users see in the `/` menu (should be short)
-2. **Identification** - What Claude uses to match skills (needs triggers/use-when logic)
+2. **Identification** - What Claude uses to match skills (needs
+   triggers/use-when logic)
 
 ### Audit Results
 
@@ -81,8 +83,10 @@ do_not_use_when:
 ### Refactoring Rules
 
 1. **Description limit**: Max 80 characters, single line
-2. **Format**: Active voice, starts with verb (Harden, Analyze, Create, Generate)
-3. **Identification section**: Use `<identification>` tags in body (first section after h1)
+2. **Format**: Active voice, starts with verb (Harden, Analyze, Create,
+   Generate)
+3. **Identification section**:
+   Use `<identification>` tags in body (first section after h1)
 4. **Preserve all content**: Move triggers, use_when, do_not_use_when to body
 5. **Test after refactor**: Ensure skill matching still works
 
@@ -111,7 +115,12 @@ do_not_use_when:
 
 ## Consequences
 
-All command descriptions are now under 100 characters, improving `/` menu scannability. Separating display text from matching logic maintains identification accuracy while establishing a consistent format. Moving identification logic to the body keeps the UI clean without impacting LLM performance.
+All command descriptions are now under 100 characters,
+improving `/` menu scannability.
+Separating display text from matching logic maintains identification accuracy
+while establishing a consistent format.
+Moving identification logic to the body keeps the UI clean without impacting
+LLM performance.
 
 ## Validation
 
@@ -122,9 +131,13 @@ After each batch:
 
 ## Success Metrics
 
-Command descriptions are under 100 characters with no loss in identification accuracy. The `/` menu UX is improved, and the two-part structure is now the standard pattern across the ecosystem.
+Command descriptions are under 100 characters with no loss in identification
+accuracy. The `/` menu UX is improved,
+and the two-part structure is now the standard pattern across the ecosystem.
 
 ## Related
 
 - See ADR-0004 for skill description budget optimization
-- See [Capabilities Reference](../../book/src/reference/capabilities-commands.md) for command documentation
+- See [Capabilities
+  Reference](../../book/src/reference/capabilities-commands.md) for command
+  documentation

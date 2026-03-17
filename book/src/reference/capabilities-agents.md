@@ -1,8 +1,15 @@
 # Agent Reference
 
-Agents are specialized subagents that Claude Code can dispatch for focused work. Each agent has a fixed toolset, runs on a specific model tier (haiku/sonnet/opus), and knows when to escalate to a more capable model. The parent session decides whether the task justifies the overhead of spinning up an agent; simple tasks should be handled directly.
+Agents are specialized subagents that Claude Code can dispatch for focused
+work. Each agent has a fixed toolset,
+runs on a specific model tier (haiku/sonnet/opus),
+and knows when to escalate to a more capable model.
+The parent session decides whether the task justifies the overhead of spinning
+up an agent; simple tasks should be handled directly.
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Commands][cap-cmd] | [Skills][cap-skills] |
+[Hooks][cap-hooks] | [Workflows][cap-wf]
 
 ---
 
@@ -50,20 +57,33 @@ with the parent session or other agents.
 | `acceptEdits` | Auto-accept file edits |
 | `plan` | Planning only, no execution |
 
-**Background Agent Permissions (2.1.20+)**: Background agents now prompt for tool permissions *before* launching into the background. This prevents agents from stalling mid-execution waiting for approval. Multi-agent dispatches may show sequential permission prompts before work begins.
+**Background Agent Permissions (2.1.20+)**:
+Background agents now prompt for tool permissions *before* launching into the
+background. This prevents agents from stalling mid-execution waiting for
+approval. Multi-agent dispatches may show sequential permission prompts before
+work begins.
 
-**Task Deletion (2.1.20+)**: Agents with `TodoWrite` in their tools list can now delete completed tasks via `TaskUpdate`. Use deletion to clean up transient tracking items after workflow completion.
+**Task Deletion (2.1.20+)**:
+Agents with `TodoWrite` in their tools list can now delete completed tasks via
+`TaskUpdate`. Use deletion to clean up transient tracking items after workflow
+completion.
 
-**Agent Memory (2.1.33+)**: Agents can declare persistent memory scope via `memory` frontmatter:
+**Agent Memory (2.1.33+)**:
+Agents can declare persistent memory scope via `memory` frontmatter:
 | Scope | Persistence |
 |-------|-------------|
 | `user` | Across all projects for the user |
 | `project` | Within a specific project |
 | `local` | Current session only |
 
-**Sub-Agent Restrictions (2.1.33+)**: Use `Task(agent-name)` in the `tools` list to restrict which sub-agents an agent can spawn. For example, `tools: [Read, Task(code-reviewer)]` only allows dispatching `code-reviewer`. Omitting Task restrictions allows spawning any agent.
+**Sub-Agent Restrictions (2.1.33+)**:
+Use `Task(agent-name)` in the `tools` list to restrict which sub-agents an
+agent can spawn. For example, `tools: [Read,
+Task(code-reviewer)]` only allows dispatching `code-reviewer`.
+Omitting Task restrictions allows spawning any agent.
 
-**Agent Team Hooks (2.1.33+)**: Two new hook events for multi-agent coordination:
+**Agent Team Hooks (2.1.33+)**:
+Two new hook events for multi-agent coordination:
 - `TeammateIdle` — triggered when a teammate agent becomes idle
 - `TaskCompleted` — triggered when a task finishes execution
 
@@ -141,7 +161,8 @@ escalation:
 ```
 
 ### `conserve:continuation-agent`
-Continue work from session state checkpoint. Spawned when parent agent exceeds context thresholds.
+Continue work from session state checkpoint.
+Spawned when parent agent exceeds context thresholds.
 
 ```yaml
 tools: [Read, Write, Edit, Bash, Glob, Grep, Task, TodoRead, TodoWrite]
@@ -181,7 +202,9 @@ escalation:
   hints: [security_audit, complex_architecture]
 ```
 
-Set `ENABLE_LSP_TOOL=1` for LSP-enhanced review (semantic analysis, reference finding). The agent handles multi-file analysis and produces evidence-based findings with file:line references.
+Set `ENABLE_LSP_TOOL=1` for LSP-enhanced review (semantic analysis,
+reference finding). The agent handles multi-file analysis
+and produces evidence-based findings with file:line references.
 
 **Dispatch**:
 ```
@@ -224,7 +247,10 @@ escalation:
   hints: [ambiguous_input, high_stakes]
 ```
 
-**Complexity Check**: The parent should commit directly if it's a single file under 20 lines or an obvious type (typo fix, version bump). Only dispatch this agent for multi-file changes or when the commit type classification is genuinely ambiguous.
+**Complexity Check**: The parent should commit directly if it's a single file
+under 20 lines or an obvious type (typo fix, version bump).
+Only dispatch this agent for multi-file changes
+or when the commit type classification is genuinely ambiguous.
 
 ### `sanctum:pr-agent`
 PR preparation.
@@ -411,7 +437,8 @@ model: sonnet
 skills: scribe:slop-detector, scribe:doc-generator
 ```
 
-**Use When**: Cleaning up AI-generated content, polishing documentation, applying learned styles.
+**Use When**: Cleaning up AI-generated content, polishing documentation,
+applying learned styles.
 
 ### `scribe:doc-verifier`
 QA validation using proof-of-work methodology.
@@ -422,7 +449,8 @@ model: sonnet
 skills: imbue:proof-of-work, scribe:slop-detector
 ```
 
-**Use When**: Validating documentation claims, verifying command examples work, checking version accuracy.
+**Use When**: Validating documentation claims, verifying command examples work,
+checking version accuracy.
 
 ### `scribe:slop-hunter`
 Full-coverage AI slop detection.
@@ -449,4 +477,14 @@ model: haiku
 
 ---
 
-**See also**: [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Commands][cap-cmd] |
+[Skills][cap-skills] | [Hooks][cap-hooks] |
+[Workflows][cap-wf]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-cmd-ext]: capabilities-commands-extended.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
+[cap-wf]: capabilities-workflows.md

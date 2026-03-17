@@ -1,6 +1,9 @@
 # Plugin Rules Templates Guide
 
-Claude Code supports a `.claude/rules/` directory for modular, path-scoped instructions. This guide shows how plugins can provide rule templates that users symlink into their projects.
+Claude Code supports a `.claude/rules/` directory for modular,
+path-scoped instructions.
+This guide shows how plugins can provide rule templates that users symlink into
+their projects.
 
 ## Background
 

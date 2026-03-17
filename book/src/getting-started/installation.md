@@ -1,11 +1,15 @@
 # Installation
 
-This guide walks you through adding the Claude Night Market to your Claude Code setup.
+This guide walks you through adding the Claude Night Market to your Claude Code
+setup.
 
 ## Prerequisites
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams features)
-- **Python 3.9+** — required for hook execution. macOS ships Python 3.9.6 as the system interpreter; hooks run under this rather than virtual environments. Plugin packages may target higher versions (3.10+, 3.12+) via `uv`.
+- **Python 3.9+** — required for hook execution.
+  macOS ships Python 3.9.6 as the system interpreter;
+  hooks run under this rather than virtual environments.
+  Plugin packages may target higher versions (3.10+, 3.12+) via `uv`.
 
 ## Step 1: Add the Marketplace
 
@@ -78,7 +82,8 @@ For enhanced methodology integration:
 /plugin install superpowers@superpowers-marketplace
 ```
 
-Superpowers provides TDD, debugging, and review patterns that enhance Night Market plugins.
+Superpowers provides TDD, debugging,
+and review patterns that enhance Night Market plugins.
 
 ## Alternative: opkg (OpenPackage)
 
@@ -89,7 +94,9 @@ opkg i gh@athola/claude-night-market --plugins sanctum
 opkg i gh@athola/claude-night-market --plugins pensive,spec-kit
 ```
 
-Plugins that depend on shared runtime skills (attune, conjure, imbue, memory-palace, parseltongue, sanctum) automatically pull `packages/core` as a dependency.
+Plugins that depend on shared runtime skills (attune, conjure, imbue,
+memory-palace, parseltongue,
+sanctum) automatically pull `packages/core` as a dependency.
 
 ## Recommended Plugin Sets
 
@@ -121,7 +128,9 @@ For detailed workflow coverage:
 
 ## Post-Installation Setup
 
-Several plugins register Setup hooks that run one-time initialization (directory creation, index building, configuration). Trigger them after installing:
+Several plugins register Setup hooks that run one-time initialization
+(directory creation, index building, configuration).
+Trigger them after installing:
 
 ```bash
 # One-time initialization
@@ -131,7 +140,11 @@ claude --init
 claude --maintenance
 ```
 
-`--init` runs setup tasks like creating knowledge garden directories (memory-palace) and initializing caches (conserve). `--maintenance` handles heavier operations like rebuilding indexes, cleaning stale captures, and rotating logs. Neither runs automatically on every session.
+`--init` runs setup tasks like creating knowledge garden directories
+(memory-palace) and initializing caches (conserve).
+`--maintenance` handles heavier operations like rebuilding indexes,
+cleaning stale captures, and rotating logs.
+Neither runs automatically on every session.
 
 ## Troubleshooting
 
@@ -145,7 +158,8 @@ claude --maintenance
 
 Plugins are composable. If you experience issues:
 1. Check the plugin's README for dependency requirements
-2. Validate foundation plugins (imbue, leyline) are installed if using domain plugins
+2. Validate foundation plugins (imbue,
+   leyline) are installed if using domain plugins
 
 ## Next Steps
 

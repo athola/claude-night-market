@@ -1,6 +1,7 @@
 # Skills Separation Visual Guide
 
-Visual diagrams showing the separation between development skills and runtime skills.
+Visual diagrams showing the separation between development skills
+and runtime skills.
 
 ---
 
@@ -383,8 +384,11 @@ flowchart TB
 
 ## References
 
-- **Full Guide**: [development-vs-runtime-skills-separation.md](development-vs-runtime-skills-separation.md)
-- **Quick Reference**: [skills-separation-quickref.md](skills-separation-quickref.md)
+- **Full Guide**:
+  [development-vs-runtime-skills-separation.md](development-vs-runtime-skills-se
+  paration.md)
+- **Quick Reference**:
+  [skills-separation-quickref.md](skills-separation-quickref.md)
 - **Guides Index**: [README.md](README.md)
 
 ---

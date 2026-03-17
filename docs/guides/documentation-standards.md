@@ -215,7 +215,8 @@ Check for:
 
 ### Example Migration
 
-**File**: `docs/examples/skill-development/authoring-best-practices.md` (652 lines)
+**File**: `docs/examples/skill-development/authoring-best-practices.md` (652
+lines)
 
 **Step 1 - Assess**:
 - Core principles (100 lines)
@@ -249,7 +250,12 @@ Applied these standards to 8 oversized files:
 
 ## Benefits
 
-This documentation strategy reduces token usage, saving approximately 3,200 tokens from Phase 5 alone. The quick-reference pattern improves navigation speed for developers, while progressive disclosure maintains technical details without bloating the primary files. By separating quick-reference content from deep-dive tutorials, we organize the corpus more effectively.
+This documentation strategy reduces token usage,
+saving approximately 3,200 tokens from Phase 5 alone.
+The quick-reference pattern improves navigation speed for developers,
+while progressive disclosure maintains technical details without bloating the
+primary files. By separating quick-reference content from deep-dive tutorials,
+we organize the corpus more effectively.
 
 ## Related Patterns
 

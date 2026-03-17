@@ -4,7 +4,9 @@ Architecture paradigm selection and implementation planning.
 
 ## Overview
 
-Archetypes helps you choose the right architecture for your system. It provides an interactive paradigm selector and detailed implementation guides for 13 architectural patterns.
+Archetypes helps you choose the right architecture for your system.
+It provides an interactive paradigm selector
+and detailed implementation guides for 13 architectural patterns.
 
 ## Installation
 
