@@ -60,6 +60,55 @@ Prepare, review, and merge the pull request.
 | fix-pr | Apply fixes from the PR review |
 | merge | Merge the PR (requires `auto_merge: true` in config) |
 
+## Parallel Execution (Quality Stage)
+
+Within the quality stage, some steps are independent and can
+run concurrently. The `stage_parallel` module groups steps
+into waves based on a dependency graph.
+
+### Dependency Graph
+
+```
+code-review  ──┐
+               ├──>  code-refinement
+               └──>  update-tests
+unbloat       (independent)
+update-docs   (independent)
+```
+
+### Wave Execution
+
+`plan_stage_execution("quality", steps)` produces waves:
+
+- **Wave 1** (parallel): `code-review`, `unbloat`,
+  `update-docs` -- no interdependencies.
+- **Wave 2** (parallel): `code-refinement`, `update-tests`
+  -- both depend on `code-review` completing first.
+
+All steps in a wave can be dispatched simultaneously via
+`build_parallel_dispatch(wave, item_id)`. The orchestrator
+waits for every step in wave N to finish before starting
+wave N+1.
+
+### Failure Handling
+
+`WaveResult` tracks per-step pass/fail outcomes within a
+wave. If any step in a wave fails, the orchestrator can
+inspect `wave_result.failed_steps` and decide whether to
+retry individual steps or fail the entire stage.
+
+### Extending the Graph
+
+To add a new quality step:
+
+1. Add the step name to `PIPELINE["quality"]` in
+   `manifest.py`.
+2. Add an entry in `STEP_DEPENDENCIES` in
+   `stage_parallel.py` with its dependency list (empty
+   list if independent).
+3. The planner will automatically place it in the correct
+   wave.
+
 ## Transition Rules
 
 A work item advances through the pipeline via
