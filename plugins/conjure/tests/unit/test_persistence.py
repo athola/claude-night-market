@@ -144,6 +144,86 @@ class TestPersistSessionAuditIntegration:
         assert data["problem_statement"] == "Test problem for audit persistence"
 
 
+class TestPersistenceEdgeCases:
+    """Tests for persistence edge cases: idempotency, partial data, and robustness."""
+
+    @pytest.mark.unit
+    def test_persist_session_idempotent(self, tmp_path: Path) -> None:
+        """Scenario: Calling persist_session twice produces the same result.
+
+        Given a WarRoomSession
+        When persist_session() is called twice
+        Then the session.json content is identical both times.
+        """
+        session = _minimal_session(session_id="idempotent-test")
+
+        persist_session(tmp_path, session)
+        session_file = tmp_path / "war-table" / session.session_id / "session.json"
+        first_data = json.loads(session_file.read_text())
+
+        persist_session(tmp_path, session)
+        second_data = json.loads(session_file.read_text())
+
+        assert first_data == second_data
+
+    @pytest.mark.unit
+    def test_persist_partial_session(self, tmp_path: Path) -> None:
+        """Scenario: Session with empty phases and artifacts persists without error.
+
+        Given a WarRoomSession with no phases_completed and empty artifacts
+        When persist_session() is called
+        Then it writes a valid session.json without crashing.
+        """
+        session = WarRoomSession(
+            session_id="partial-test",
+            problem_statement="Minimal problem",
+            mode="lightweight",
+            status="initialized",
+        )
+        session.phases_completed = []
+        session.artifacts = {}
+        session.metrics = {}
+
+        persist_session(tmp_path, session)
+
+        session_file = tmp_path / "war-table" / "partial-test" / "session.json"
+        assert session_file.exists()
+        data = json.loads(session_file.read_text())
+        assert data["session_id"] == "partial-test"
+        assert data["phases_completed"] == []
+        assert data["artifacts"] == {}
+
+    @pytest.mark.unit
+    def test_persist_large_artifacts(self, tmp_path: Path) -> None:
+        """Scenario: Session with very large artifacts persists without crashing.
+
+        Given a WarRoomSession containing a large artifact string
+        When persist_session() is called
+        Then it completes without error and the data is recoverable.
+        """
+        session = _minimal_session(session_id="large-artifact-test")
+        large_content = "x" * 500_000  # 500KB of content
+        session.artifacts["intel"] = {"scout_report": large_content}
+
+        persist_session(tmp_path, session)
+
+        session_file = tmp_path / "war-table" / "large-artifact-test" / "session.json"
+        assert session_file.exists()
+        data = json.loads(session_file.read_text())
+        assert len(data["artifacts"]["intel"]["scout_report"]) == 500_000
+
+    @pytest.mark.unit
+    def test_load_nonexistent_session_returns_none(self, tmp_path: Path) -> None:
+        """Scenario: Loading a session that does not exist returns None.
+
+        Given an empty strategeion directory
+        When load_session() is called with a non-existent session ID
+        Then it returns None without raising an exception.
+        """
+        result = load_session(tmp_path, "does-not-exist")
+        assert result is None
+
+
 class TestCorruptJsonResilience:
     """Tests for json.loads guards preventing crashes on corrupt state files."""
 

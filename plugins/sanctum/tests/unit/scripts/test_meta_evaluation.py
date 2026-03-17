@@ -476,76 +476,64 @@ class TestRecursiveValidation:
     So that "evaluation evaluates evaluation" principle holds
     """
 
+    @pytest.fixture
+    def evaluator(self, tmp_path: Path) -> MetaEvaluator:
+        return MetaEvaluator(tmp_path, verbose=False)
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skills_eval_is_evaluated(self) -> None:
+    def test_skills_eval_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: skills-eval skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then skills-eval should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the abstract plugin's skills list
+        Then skills-eval should be present
         """
-        # This validates the recursive principle
-        # Read the script directly to check inventory
-        # From plugins/sanctum/tests/unit/scripts/ go up 3 to sanctum, then to scripts
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - skills-eval is in inventory
-        assert "skills-eval" in script_content
-        assert "abstract" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "abstract" in skills
+        assert "skills-eval" in skills["abstract"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_is_evaluated(self) -> None:
+    def test_hooks_eval_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: hooks-eval skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then hooks-eval should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the abstract plugin's skills list
+        Then hooks-eval should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - hooks-eval is in inventory
-        assert "hooks-eval" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "hooks-eval" in skills.get("abstract", [])
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evaluation_framework_is_evaluated(self) -> None:
+    def test_evaluation_framework_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: evaluation-framework skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then evaluation-framework should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the leyline plugin's skills list
+        Then evaluation-framework should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - evaluation-framework is in inventory
-        assert "evaluation-framework" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "evaluation-framework" in skills.get("leyline", [])
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_testing_quality_standards_is_evaluated(self) -> None:
+    def test_testing_quality_standards_is_evaluated(
+        self, evaluator: MetaEvaluator
+    ) -> None:
         """
         Scenario: testing-quality-standards skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then testing-quality-standards should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the leyline plugin's skills list
+        Then testing-quality-standards should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - testing-quality-standards is in inventory
-        assert "testing-quality-standards" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "testing-quality-standards" in skills.get("leyline", [])
 
 
 # ---------------------------------------------------------------------------
