@@ -297,7 +297,13 @@ Rust-specific patterns.
 
 **Invocation**: `Skill(pensive:rust-review)`
 
-Focuses on unsafe code, lifetime management, memory safety, and idiomatic patterns.
+Focuses on unsafe code, lifetime management, memory safety,
+and idiomatic patterns.
+Includes 11 check modules: ownership-analysis,
+error-handling, concurrency-patterns, unsafe-audit,
+cargo-dependencies, silent-returns, collection-types,
+sql-injection, cfg-test-misuse, error-messages,
+and duplicate-validators.
 
 ### `pensive:shell-review`
 Shell script safety.

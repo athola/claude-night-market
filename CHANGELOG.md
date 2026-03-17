@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.5] - 2026-03-16
+
+### Added
+
+- Six Rust review checks in pensive rust-review skill:
+  silent-returns, collection-types, sql-injection,
+  cfg-test-misuse, error-messages, duplicate-validators
+- Shared CLI scaffolding module (`cli_scaffold.py`) in
+  abstract, extracted from five wrapper scripts
+- Tasks API mode test coverage in abstract
+
+### Changed
+
+- O(n) session chain traversal in memory-palace
+  session history (was O(n^2) linked-list walk)
+
+### Fixed
+
+- PYTHONPATH in pensive pytest config so tests
+  resolve plugin imports correctly
+- `tool_result` content counting in conserve context
+  warning hook and `json.loads` guards in conjure
+  war room persistence
+
 ## [1.6.4] - 2026-03-15
 
 ### Added

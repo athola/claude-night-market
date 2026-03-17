@@ -109,7 +109,10 @@ class AuditTrailManager:
             if not date_dir.is_dir():
                 continue
             for checkpoint_file in sorted(date_dir.glob("*.json")):
-                data = json.loads(checkpoint_file.read_text())
+                try:
+                    data = json.loads(checkpoint_file.read_text())
+                except (json.JSONDecodeError, OSError):
+                    continue
                 if data.get("session_id") == session_id:
                     results.append(CheckpointEntry.from_dict(data))
 
@@ -354,7 +357,10 @@ class AuditTrailManager:
             audit_file = session_dir / AUDIT_REPORT_FILENAME
             if not audit_file.exists():
                 continue
-            data = json.loads(audit_file.read_text())
+            try:
+                data = json.loads(audit_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                continue
             results.append(
                 {
                     "session_id": data.get("session_id"),

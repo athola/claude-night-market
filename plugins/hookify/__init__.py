@@ -1,3 +1,3 @@
 """Hookify plugin - create custom behavioral rules through markdown configuration."""
 
-__version__ = "1.6.4"
+__version__ = "1.6.5"

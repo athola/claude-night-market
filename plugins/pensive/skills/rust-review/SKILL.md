@@ -33,6 +33,12 @@ modules:
 - concurrency-patterns.md
 - unsafe-audit.md
 - cargo-dependencies.md
+- silent-returns.md
+- collection-types.md
+- sql-injection.md
+- cfg-test-misuse.md
+- error-messages.md
+- duplicate-validators.md
 ---
 ## Table of Contents
 

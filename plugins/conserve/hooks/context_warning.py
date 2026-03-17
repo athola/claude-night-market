@@ -264,7 +264,7 @@ def _count_content(message_content: object) -> tuple[int, int]:
             if isinstance(block, dict):
                 if block.get("type") == "tool_result":
                     tool_results += 1
-                text = block.get("text", "")
+                text = block.get("text", "") or block.get("content", "")
                 if text:
                     chars += len(text)
             elif isinstance(block, str):
