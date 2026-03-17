@@ -87,6 +87,40 @@ something is infeasible, mark the item failed with a
 reason and move to the next item. Do not present
 feasibility analyses and wait for a human to decide.
 
+**Never relabel manifest items.**
+If the manifest has an item with status `pending`,
+`active`, or `in_progress`, that item is REQUIRED work.
+You may not relabel it as "optional", "remaining",
+"nice to have", or "if time permits". The manifest is
+the source of truth. Process every item or mark it
+`failed` with a reason. There is no middle ground.
+
+## Mandatory Output Gate
+
+**Before producing ANY text longer than one line, you
+MUST execute this check:**
+
+```
+1. Read .egregore/manifest.json
+2. Count items where status is NOT "completed"
+   and NOT "failed"
+3. If count > 0: STOP WRITING. Go to orchestration
+   loop step 1. Pick the next item. Execute it.
+4. If count == 0: you may proceed to the Completion
+   section.
+```
+
+This gate applies to ALL output: summaries, status
+tables, insights, recommendations, reflections, and
+any other prose. The only exempt output is the
+single-line status: "Completed [ID]. Starting [next]."
+
+If you find yourself typing more than one line between
+work items, you are failing this gate. Stop typing.
+Read the manifest. Do the next item.
+
+## Run Mode
+
 **You control when you are done, but "done" depends on
 the run mode.** In bounded mode (`--bounded`), finish when
 every work item is either `completed` or `failed`.
