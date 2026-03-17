@@ -85,18 +85,18 @@ def test_has_active_work_mixed_statuses(tmp_path):
 
 
 def test_main_no_manifest(tmp_path, monkeypatch, capsys):
-    """main() prints allow decision when manifest does not exist."""
+    """main() prints approve decision when manifest does not exist."""
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("sys.stdin", StringIO("{}"))
     with pytest.raises(SystemExit) as exc_info:
         main()
     assert exc_info.value.code == 0
     output = json.loads(capsys.readouterr().out)
-    assert output["decision"] == "allow"
+    assert output["decision"] == "approve"
 
 
 def test_main_no_active_items(tmp_path, monkeypatch, capsys):
-    """main() prints allow decision when no active work items."""
+    """main() prints approve decision when no active work items."""
     manifest = {"work_items": [{"id": "wrk_001", "status": "completed"}]}
     egregore_dir = tmp_path / ".egregore"
     egregore_dir.mkdir()
@@ -107,7 +107,7 @@ def test_main_no_active_items(tmp_path, monkeypatch, capsys):
         main()
     assert exc_info.value.code == 0
     output = json.loads(capsys.readouterr().out)
-    assert output["decision"] == "allow"
+    assert output["decision"] == "approve"
 
 
 def test_main_with_active_items(tmp_path, monkeypatch, capsys):
