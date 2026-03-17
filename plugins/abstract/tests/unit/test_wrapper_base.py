@@ -131,7 +131,7 @@ class TestSuperpowerWrapperInit:
         """Given invalid YAML config, ValueError is raised."""
         config_file = tmp_path / "bad.yaml"
         config_file.write_text("parameter_mapping: [not: a: dict]\n")
-        with pytest.raises((ValueError, Exception)):
+        with pytest.raises(ValueError, match="Invalid YAML config"):
             SuperpowerWrapper("p", "c", "s", config_path=config_file)
 
 
@@ -258,5 +258,5 @@ class TestSuperpowerWrapperTranslateEdgeCases:
         """Given YAML config that is not a dict, ValueError is raised."""
         config_file = tmp_path / "scalar.yaml"
         config_file.write_text("just a string\n")
-        with pytest.raises((ValueError, Exception)):
+        with pytest.raises(ValueError, match="Config file must contain a dictionary"):
             SuperpowerWrapper("p", "c", "s", config_path=config_file)
