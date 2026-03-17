@@ -10,6 +10,8 @@ import json
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
+from discussions import DiscussionsConfig
+
 
 @dataclass
 class OverseerConfig:
@@ -57,6 +59,7 @@ class EgregoreConfig:
     alerts: AlertsConfig = field(default_factory=AlertsConfig)
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
     budget: BudgetConfig = field(default_factory=BudgetConfig)
+    discussions: DiscussionsConfig = field(default_factory=DiscussionsConfig)
 
 
 def save_config(cfg: EgregoreConfig, path: Path) -> None:
@@ -103,4 +106,5 @@ def load_config(path: Path) -> EgregoreConfig:
             **_filter_fields(PipelineConfig, data.get("pipeline", {}))
         ),
         budget=BudgetConfig(**_filter_fields(BudgetConfig, data.get("budget", {}))),
+        discussions=DiscussionsConfig.from_dict(data.get("discussions", {})),
     )
