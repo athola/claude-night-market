@@ -118,7 +118,12 @@ class Manifest:
         """Generate the next sequential work item ID."""
         if not self.work_items:
             return "wrk_001"
-        max_num = max(int(item.id.split("_")[1]) for item in self.work_items)
+        nums = []
+        for item in self.work_items:
+            parts = item.id.split("_")
+            if len(parts) == 2 and parts[1].isdigit():  # noqa: PLR2004
+                nums.append(int(parts[1]))
+        max_num = max(nums) if nums else 0
         return f"wrk_{max_num + 1:03d}"
 
     def _find_item(self, item_id: str) -> WorkItem:

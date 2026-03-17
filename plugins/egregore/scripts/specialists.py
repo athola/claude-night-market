@@ -175,4 +175,11 @@ def load_specialists(path: Path) -> list[SpecialistProfile]:
         data = json.loads(path.read_text())
         return [SpecialistProfile.from_dict(d) for d in data]
     except (json.JSONDecodeError, OSError):
-        return list(DEFAULT_SPECIALISTS)
+        return [
+            SpecialistProfile(
+                role=s.role,
+                description=s.description,
+                pipeline_steps=list(s.pipeline_steps),
+            )
+            for s in DEFAULT_SPECIALISTS
+        ]

@@ -12,6 +12,7 @@ import enum
 import ipaddress
 import json
 import logging
+import socket
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -62,7 +63,20 @@ def validate_webhook_url(url: str) -> None:
     try:
         addr = ipaddress.ip_address(hostname)
     except ValueError:
-        # Not an IP literal -- that's fine, it's a DNS name.
+        # DNS name -- resolve and validate all addresses
+        try:
+            results = socket.getaddrinfo(hostname, None)
+        except socket.gaierror:
+            # Cannot resolve -- allow through; the actual HTTP
+            # request will fail with a clear network error.
+            return
+        for _family, _type, _proto, _canon, sockaddr in results:
+            resolved = ipaddress.ip_address(sockaddr[0])
+            if resolved.is_private or resolved.is_reserved or resolved.is_loopback:
+                raise WebhookURLError(
+                    f"Webhook URL hostname {hostname!r} resolves to "
+                    f"private/reserved IP ({sockaddr[0]})"
+                ) from None
         return
 
     if addr.is_private or addr.is_reserved or addr.is_loopback:
