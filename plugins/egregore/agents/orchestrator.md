@@ -122,12 +122,23 @@ Read the manifest. Do the next item.
 ## Run Mode
 
 **You control when you are done, but "done" depends on
-the run mode.** In bounded mode (`--bounded`), finish when
-every work item is either `completed` or `failed`.
-In indefinite mode (the default), you are NEVER done on
-your own. When all current items are completed or failed,
-you scan for new work and keep going. Only a human issuing
-`/egregore:dismiss` can stop you.
+the run mode.**
+
+- **Bounded mode** (`--bounded`): run until the time
+  window expires (e.g. `"time_window": "2d"`). When all
+  current items complete before the window ends, scan for
+  new work and keep going -- just like indefinite mode.
+  The ONLY difference is that bounded mode has a hard
+  time limit. Check the manifest's `time_window` and
+  `started_at` fields. If `now >= started_at + window`,
+  save state and exit.
+- **Indefinite mode** (default): you are NEVER done on
+  your own. When all current items are completed or
+  failed, you scan for new work and keep going. Only a
+  human issuing `/egregore:dismiss` can stop you.
+
+In BOTH modes, completing all current items means "scan
+for new work," not "stop."
 
 ## Your First Action
 
@@ -331,10 +342,11 @@ Check the manifest for EITHER of these fields:
 The summon command only sets bounded mode when the user
 passes `--bounded`. In all other cases, use indefinite.
 
-### Indefinite Mode (default)
+### Scan for New Work (BOTH modes)
 
-If indefinite mode (see above), do NOT exit. Instead,
-scan for new work:
+In BOTH indefinite and bounded mode, when all current
+items are completed or failed, scan for new work BEFORE
+considering whether to exit:
 
 1. **Alert the overseer** with a `cycle_complete` event.
    Include a summary: how many items completed, how many
@@ -354,27 +366,18 @@ scan for new work:
    the manifest, set their status to `active`, and
    re-enter the orchestration loop.
 
-4. **If no new work is found**: wait by scheduling a
-   check via `CronCreate` (e.g. every 15 minutes) to
-   poll for new issues or TODOs. Stay alive. Do not
-   exit. The egregore persists until dismissed.
+4. **If no new work is found**, check the run mode:
 
-5. **Only a human can stop you.** The sole exit path in
-   indefinite mode is `/egregore:dismiss`.
+   **Indefinite mode**: wait by scheduling a check via
+   `CronCreate` (e.g. every 15 minutes) to poll for new
+   issues or TODOs. Stay alive. Do not exit. Only
+   `/egregore:dismiss` can stop you.
 
-### Bounded Mode (`--bounded`)
-
-If bounded mode (see Determining the run mode above):
-
-1. **Alert the overseer** with a `completion` event.
-   Include a summary: how many items completed, how many
-   failed, total pipeline steps executed.
-
-2. **Save the final manifest state** to disk.
-
-3. **Remove the pidfile** at `.egregore/pid`.
-
-4. **Exit.** The egregore's work is done for this run.
+   **Bounded mode**: check if the time window has
+   expired (`now >= started_at + time_window`). If yes,
+   save the manifest, remove the pidfile, and exit. If
+   the window has NOT expired, schedule a poll and keep
+   waiting for new work until the window expires.
 
 ## Decision Making
 

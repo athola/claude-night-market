@@ -56,10 +56,10 @@ From GitHub issues by label:
 /egregore:summon --issues-label "egregore"
 ```
 
-Bounded mode (stops after processing all items):
+Bounded mode (stops when time window expires):
 
 ```
-/egregore:summon --bounded --issues 42,43,44
+/egregore:summon --bounded --window 2d --issues 42,43,44
 ```
 
 ## Options
@@ -68,13 +68,15 @@ Bounded mode (stops after processing all items):
 |------------------|---------|------------------------------|
 | `<prompt>`       | none    | Free-text work description   |
 | `--window`       | `5h`    | Time window (e.g. 5h, 7d)   |
-| `--bounded`      | false   | Stop after all items finish  |
+| `--bounded`      | false   | Stop when time window expires|
 | `--issues`       | none    | Comma-separated issue numbers|
 | `--issues-label` | none    | GitHub label to pull issues  |
 
 The egregore runs indefinitely by default. Pass
-`--bounded` to get the old finite behavior where it
-exits after all work items are completed or failed.
+`--bounded` to set a hard time limit. In both modes,
+the egregore scans for new work after completing all
+current items. The only difference is that bounded mode
+exits when the time window expires.
 
 ## What Happens
 
@@ -95,8 +97,9 @@ exits after all work items are completed or failed.
 7. This loop continues indefinitely until you run
    `/egregore:dismiss` to stop it.
 
-In `--bounded` mode, step 5-7 are skipped. The egregore
-posts a completion summary and exits after step 4.
+In `--bounded` mode, steps 5-7 still happen but the
+egregore exits when the time window expires. It does NOT
+stop just because the initial items are done.
 
 ## Stopping the Egregore
 
