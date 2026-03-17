@@ -13,7 +13,8 @@ from pathlib import Path
 import pytest
 
 # ---------------------------------------------------------------------------
-# Import the MetaEvaluator class directly for unit-level tests.
+# Import the MetaEvaluator class directly for unit-level tests
+# (TestCheckModuleReferences, TestCheckCodeExamples, TestCheckCrossReferences).
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 from meta_evaluation import MetaEvaluator  # noqa: E402
@@ -34,7 +35,7 @@ class TestMetaEvaluationScript:
         return Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_exists(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script exists
@@ -47,7 +48,7 @@ class TestMetaEvaluationScript:
         assert meta_eval_script.exists(), f"Script not found at {meta_eval_script}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_is_executable(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script is executable
@@ -60,7 +61,7 @@ class TestMetaEvaluationScript:
         assert meta_eval_script.stat().st_mode & 0o111, "Script should be executable"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_runs_without_errors(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script executes successfully
@@ -103,7 +104,7 @@ class TestMetaEvaluationFunctionality:
         return Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_abstract_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -137,7 +138,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_leyline_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -171,7 +172,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_imbue_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -205,7 +206,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_tocs(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -236,7 +237,7 @@ class TestMetaEvaluationFunctionality:
         assert "evaluation" in output.lower()
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_verification(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -266,7 +267,7 @@ class TestMetaEvaluationFunctionality:
         # The actual verification detection is tested in unit tests for the script itself
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_tests(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -294,7 +295,7 @@ class TestMetaEvaluationFunctionality:
         # The actual test detection is validated in unit tests for the script itself
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_provides_summary_statistics(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
