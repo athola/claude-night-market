@@ -73,6 +73,34 @@ class TestWorkItem:
         assert restored.max_attempts == 5
         assert restored.decisions == [{"step": "parse", "chose": "A", "why": "better"}]
 
+    def test_worktree_path_default_empty(self) -> None:
+        """WorkItem.worktree_path defaults to empty string."""
+        item = WorkItem(id="wrk_004", source="prompt", source_ref="task")
+        assert item.worktree_path == ""
+
+    def test_worktree_path_roundtrip(self) -> None:
+        """WorkItem.worktree_path survives to_dict/from_dict."""
+        item = WorkItem(
+            id="wrk_004",
+            source="prompt",
+            source_ref="task",
+            worktree_path="/worktrees/wt-004",
+        )
+        d = item.to_dict()
+        assert d["worktree_path"] == "/worktrees/wt-004"
+        restored = WorkItem.from_dict(d)
+        assert restored.worktree_path == "/worktrees/wt-004"
+
+    def test_worktree_path_missing_in_dict_defaults(self) -> None:
+        """from_dict handles missing worktree_path gracefully."""
+        d = {
+            "id": "wrk_005",
+            "source": "prompt",
+            "source_ref": "task",
+        }
+        item = WorkItem.from_dict(d)
+        assert item.worktree_path == ""
+
 
 class TestManifest:
     """Tests for Manifest dataclass."""
@@ -316,6 +344,26 @@ class TestManifest:
         assert restored.work_items[0].id == "wrk_001"
         assert restored.work_items[0].pipeline_step == "validate"
         assert len(restored.work_items[0].decisions) == 1
+
+    def test_max_concurrent_worktrees_default(self) -> None:
+        """Manifest.max_concurrent_worktrees defaults to 3."""
+        m = Manifest(project_dir="/tmp/test-project")
+        assert m.max_concurrent_worktrees == 3
+
+    def test_max_concurrent_worktrees_roundtrip(self) -> None:
+        """max_concurrent_worktrees survives to_dict/from_dict."""
+        m = Manifest(project_dir="/tmp/test-project")
+        m.max_concurrent_worktrees = 5
+        d = m.to_dict()
+        assert d["max_concurrent_worktrees"] == 5
+        restored = Manifest.from_dict(d)
+        assert restored.max_concurrent_worktrees == 5
+
+    def test_max_concurrent_worktrees_missing_in_dict(self) -> None:
+        """from_dict handles missing max_concurrent_worktrees."""
+        d = {"project_dir": "/tmp/test-project"}
+        m = Manifest.from_dict(d)
+        assert m.max_concurrent_worktrees == 3
 
 
 class TestSaveLoad:

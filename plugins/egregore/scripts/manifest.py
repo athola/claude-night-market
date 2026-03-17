@@ -60,6 +60,7 @@ class WorkItem:
     status: str = "active"
     failure_reason: str | None = None
     quality_config: dict[str, Any] = field(default_factory=dict)
+    worktree_path: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
@@ -77,6 +78,7 @@ class WorkItem:
             "status": self.status,
             "failure_reason": self.failure_reason,
             "quality_config": dict(self.quality_config),
+            "worktree_path": self.worktree_path,
         }
 
     @classmethod
@@ -96,6 +98,7 @@ class WorkItem:
             status=data.get("status", "active"),
             failure_reason=data.get("failure_reason"),
             quality_config=data.get("quality_config", {}),
+            worktree_path=data.get("worktree_path", ""),
         )
 
 
@@ -109,6 +112,7 @@ class Manifest:
     created_at: str = field(default_factory=_now_iso)
     session_count: int = 0
     continuation_count: int = 0
+    max_concurrent_worktrees: int = 3
 
     def _next_id(self) -> str:
         """Generate the next sequential work item ID."""
@@ -252,6 +256,7 @@ class Manifest:
             "created_at": self.created_at,
             "session_count": self.session_count,
             "continuation_count": self.continuation_count,
+            "max_concurrent_worktrees": self.max_concurrent_worktrees,
         }
 
     @classmethod
@@ -262,6 +267,7 @@ class Manifest:
             created_at=data.get("created_at", _now_iso()),
             session_count=data.get("session_count", 0),
             continuation_count=data.get("continuation_count", 0),
+            max_concurrent_worktrees=data.get("max_concurrent_worktrees", 3),
         )
         m.work_items = [WorkItem.from_dict(wi) for wi in data.get("work_items", [])]
         m.history = list(data.get("history", []))

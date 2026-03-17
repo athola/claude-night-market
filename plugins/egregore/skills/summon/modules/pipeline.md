@@ -166,3 +166,43 @@ The pipeline enforces idempotency through these mechanisms:
    existing open PR on the work item branch before creating
    a new one. If a PR exists, it updates the existing PR
    instead.
+
+## Parallel Execution
+
+When multiple active work items are independent (no shared
+files or dependencies), the orchestrator can process them
+concurrently using git worktrees.
+The `parallel` module (`scripts/parallel.py`) provides the
+detection, dispatch, and merge primitives.
+
+### Independence Detection
+
+`detect_independent_items()` groups active work items by
+their `source_ref` values.
+Items with different source refs are assumed independent
+and placed in the same parallel group.
+Items sharing a source ref are kept in separate groups so
+they execute sequentially.
+
+### Worktree Lifecycle
+
+Each parallel work item gets its own git worktree via
+`WorktreeAssignment`.
+The assignment tracks the item ID, worktree filesystem
+path, branch name, and a status that progresses through:
+`pending`, `active`, `completed`, `failed`, `merged`.
+
+The manifest's `max_concurrent_worktrees` field (default 3)
+controls how many worktrees run at once.
+`build_agent_dispatch()` splits item IDs into batches that
+respect this limit.
+
+### Merge Strategy
+
+After a worktree completes its pipeline,
+`merge_worktree_result()` generates the git commands to
+merge the feature branch back into the target branch using
+`--no-ff` for a clear merge commit.
+If the merge encounters conflicts, the conflict strategy
+marks the work item as failed so the orchestrator can
+handle it.
