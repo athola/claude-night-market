@@ -222,23 +222,30 @@ To avoid losing state when the window fills:
 This protocol ensures zero lost progress across context
 boundaries.
 
-## Progress Monitoring (2.1.71+)
+## Progress Monitoring & Self-Healing (2.1.71+)
 
-After loading state (step 1), schedule a recurring progress
-pulse using `/loop`:
+After loading state (step 1), schedule a recurring heartbeat
+that both reports status and recovers stalled pipelines:
 
 ```
 CronCreate(
   cron_expression: "*/5 * * * *",
-  prompt: "/egregore:status",
+  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon). Otherwise, report status via /egregore:status.",
   recurring: true
 )
 ```
 
-This emits a status summary every 5 minutes between turns,
-giving visibility into autonomous runs without interrupting
-the pipeline. The cron task is session-scoped and auto-expires
-after 3 days. Use `CronDelete` to cancel early if needed.
+This serves two purposes:
+
+1. **Visibility**: emits a status summary every 5 minutes
+   so autonomous runs are observable.
+2. **Self-healing**: if a user prompt, context compaction,
+   or unexpected error breaks the orchestration loop, the
+   next heartbeat detects stalled items and re-enters the
+   pipeline automatically.
+
+The cron task is session-scoped and auto-expires after 3
+days. Use `CronDelete` to cancel early if needed.
 
 ## Token Budget Protocol
 

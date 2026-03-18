@@ -39,6 +39,7 @@ modules:
 - cfg-test-misuse.md
 - error-messages.md
 - duplicate-validators.md
+- builtin-preference.md
 ---
 ## Table of Contents
 
@@ -114,6 +115,9 @@ Load modules as needed based on review scope:
 **Dependency Review**:
 - See `modules/cargo-dependencies.md` for vulnerability scanning
 
+**Idiomatic Patterns**:
+- See `modules/builtin-preference.md` for conversion traits and builtin preference
+
 ## Core Workflow
 
 1. **Ownership Analysis**: Check borrowing, lifetimes, clone patterns
@@ -142,6 +146,7 @@ Load modules as needed based on review scope:
 
 ### Idioms
 - [ ] Standard traits implemented
+- [ ] Conversion traits preferred over helper functions
 - [ ] Error types well-designed
 - [ ] Documentation complete
 

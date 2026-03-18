@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Output contracts for agent dispatch: bloat-auditor
+  and code-reviewer agents now declare required output
+  sections, minimum evidence counts, and strictness
+  levels validated by proof-of-work
+- Tiered audit skill in pensive: three-tier escalation
+  model (git history, targeted, full codebase) that
+  defaults to Tier 1 and requires approval for Tier 3
+- UserPromptSubmit hook in egregore: lets users
+  interact with running orchestrator sessions without
+  breaking the pipeline loop
+- Self-healing heartbeat cron in egregore: detects
+  stalled pipelines every 5 minutes and re-enters the
+  orchestration loop automatically
+- Output contract requirement in plan-before-large-dispatch
+  rule with YAML schema and validation references
+- New modules in conserve context-optimization:
+  findings-format, memory-tiers, session-routing
+- New modules in imbue proof-of-work: output-contracts,
+  retry-protocol
+
+### Changed
+
+- Egregore manifest utilities: extract `get_items()`
+  helper and `ACTIVE_STATUSES` constant to support both
+  `work_items` and `items` keys
+- Egregore orchestrator checks pending items (not just
+  active) before allowing exit
+- Plan-before-large-dispatch rule reformatted with
+  80-char wrapping and tiered audit preference
+
 ## [1.6.5] - 2026-03-16
 
 ### Added

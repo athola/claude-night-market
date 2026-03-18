@@ -20,7 +20,7 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `file-analysis` | Codebase structure mapping | Understanding project layout |
 | `commit-messages` | Conventional commit generation | After staging changes |
 | `pr-prep` | PR preparation with quality gates | Before creating PRs |
-| `pr-review` | PR analysis and feedback | Reviewing others' PRs |
+| `pr-review` | PR analysis and feedback, supports `--local` for file output | Reviewing others' PRs |
 | `doc-consolidation` | Merge ephemeral docs | Consolidating LLM-generated docs |
 | `doc-updates` | Documentation maintenance | Syncing docs with code |
 | `test-updates` | Test generation and enhancement | Maintaining test suites |

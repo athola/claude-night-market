@@ -42,7 +42,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
 | `scope-guard` | Anti-overengineering with RICE+WSJF scoring | Evaluating features, sprint planning, roadmap reviews |
-| `proof-of-work` | Evidence-based validation | Enforcing Iron Law TDD discipline |
+| `proof-of-work` | Evidence-based validation with output-contracts and retry-protocol modules | Enforcing Iron Law TDD discipline |
 | `rigorous-reasoning` | Anti-sycophancy guardrails | Analyzing conflicts, evaluating contested claims |
 
 ### Workflow Automation

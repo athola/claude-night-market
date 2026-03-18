@@ -13,7 +13,13 @@ from __future__ import annotations
 import json
 import sys
 
-from _manifest_utils import consume_stdin, find_manifest, load_manifest_data
+from _manifest_utils import (
+    ACTIVE_STATUSES,
+    consume_stdin,
+    find_manifest,
+    get_items,
+    load_manifest_data,
+)
 
 
 def main() -> None:
@@ -28,8 +34,8 @@ def main() -> None:
     if data is None:
         sys.exit(0)
 
-    items = data.get("work_items", [])
-    active = [i for i in items if i.get("status") in ("active", "paused")]
+    items = get_items(data)
+    active = [i for i in items if i.get("status") in ACTIVE_STATUSES]
 
     if not active:
         sys.exit(0)

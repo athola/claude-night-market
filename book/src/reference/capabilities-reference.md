@@ -50,6 +50,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
+| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
@@ -122,6 +123,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
+| `tiered-audit` | [pensive](../plugins/pensive.md) | Three-tier escalation audit (git history, targeted, full) |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
@@ -129,6 +131,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
 | `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
+| `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
@@ -307,10 +310,13 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |
 | `session_complete_notify.py` | sanctum | Stop | Cross-platform toast notifications |
+| `session_start_hook.py` | egregore | SessionStart | Inject manifest context into new sessions |
 | `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
+| `stop_hook.py` | egregore | Stop | Prevent early exit while work items remain |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |

@@ -177,6 +177,29 @@ claude "/pensive:code-review src/"
 
 **Recommendation**: Enable `ENABLE_LSP_TOOL=1` by default for all code reviews.
 
+## Output Contract
+
+When dispatched, this agent's output is validated against:
+
+```yaml
+output_contract:
+  required_sections:
+    - summary
+    - critical_issues
+    - warnings
+    - evidence
+  min_evidence_count: 5
+  expected_artifacts: []
+  retry_budget: 2
+  strictness: normal
+```
+
+Every finding must include `[EN]` evidence tags with
+actual command outputs or file references.
+Zero-evidence output is unconditionally rejected.
+See `imbue:proof-of-work/modules/output-contracts` for
+the full contract schema.
+
 ## Output
 
 Returns:

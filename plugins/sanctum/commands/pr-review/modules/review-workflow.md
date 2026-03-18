@@ -481,9 +481,74 @@ Before proceeding to Phase 3, verify ALL items are complete:
 
    **To skip**: Use `--no-auto-issues` flag
 
-### Phase 4: GitHub Review Submission (MANDATORY)
+### Phase 4: Review Output (MANDATORY)
 
-After generating findings, you MUST post them to GitHub as PR review comments.
+After generating findings, output the review. By default this posts
+to the PR via GitHub/GitLab API. With `--local`, write the full
+report (review summary, test plan, and backlog items) to a local
+`.md` file instead.
+
+#### Local Output Mode (`--local`)
+
+When `--local` is passed, skip all API calls and write the report:
+
+```bash
+# Default path: .pr-review/pr-<number>-review.md
+# Custom path:  whatever the user supplied after --local
+LOCAL_PATH="${LOCAL_ARG:-.pr-review/pr-${PR_NUMBER}-review.md}"
+mkdir -p "$(dirname "$LOCAL_PATH")"
+```
+
+Write the file with all review sections concatenated:
+
+```markdown
+# PR Review: #<number> - <title>
+
+Generated: YYYY-MM-DD
+Mode: local (not posted to PR)
+
+---
+
+## Scope Compliance
+...
+
+## Blocking Issues (N)
+...
+
+## In-Scope Issues (N)
+...
+
+## Suggestions (N)
+...
+
+## Backlog Items (N)
+...
+
+---
+
+## Test Plan
+...
+
+---
+
+## Recommendation
+...
+```
+
+After writing, confirm the path to the user:
+```
+Review written to: <LOCAL_PATH>
+```
+
+**Important:** `--local` skips PR description updates, inline
+comments, issue creation, and test plan posting. The report
+contains everything that would have been posted. Knowledge
+capture (Phase 7) still runs.
+
+When `--local` is NOT set, proceed with the default posting
+workflow below.
+
+#### Default: Post to PR
 
 8. **Determine PR Number and Check Authorship**
    ```bash
@@ -1267,7 +1332,11 @@ echo "✅ All mandatory outputs verified for PR #$PR_NUMBER"
   - `flexible`: MVP implementation acceptable
 - `--auto-approve-safe-prs`: Auto-approve PRs with no issues
 - `--no-auto-issues`: **Skip automatic issue creation** for out-of-scope items (issues are created by default)
-- `--dry-run`: Generate report locally without posting to GitHub
+- `--dry-run`: Generate report in conversation without posting to GitHub
+- `--local [path]`: Write full report to a local `.md` file instead
+  of posting to the PR. Default path: `.pr-review/pr-<number>-review.md`.
+  Skips API calls, issue creation, and PR description updates.
+  Unlike `--dry-run`, produces a permanent file.
 - `--no-line-comments`: Skip individual line comments, only submit summary review
 - `--skip-version-check`: **BYPASS version validation** (maintainer override)
   - Use when: intentional version skew, non-release PR touching version files
