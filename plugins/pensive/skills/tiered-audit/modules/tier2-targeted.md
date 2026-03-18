@@ -15,8 +15,8 @@ Each area is audited sequentially, never in parallel.
 
 For each flagged area in the escalation list:
 
-1. Load the area-agent config if one exists
-   (`.claude/area-agents/{area-name}.md`)
+1. Load the area context from plugin CLAUDE.md and
+   skill descriptions
 2. Read source files in the area
 3. Analyze for:
    - Code quality patterns and anti-patterns
