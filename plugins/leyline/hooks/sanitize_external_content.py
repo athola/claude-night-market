@@ -43,6 +43,28 @@ _HIGH_SEVERITY = [
     ]
 ]
 
+# --- Invisible text injection patterns (high severity) ---
+
+_INVISIBLE_TEXT = [
+    re.compile(p)
+    for p in [
+        r"display:\s*none",
+        r"visibility:\s*hidden",
+        r"color:\s*(?:white|#fff(?:fff)?)\b",
+        r"color:\s*rgb\(\s*255",
+        r"font-size:\s*0\b",
+        r"opacity:\s*0\b",
+        r"height:\s*0[^0-9].*overflow:\s*hidden",
+    ]
+]
+
+_INSTRUCTION_COMMENT = re.compile(
+    r"<!--[^>]*(?:ignore|override|forget|you are)[^>]*-->",
+    re.IGNORECASE,
+)
+
+_ZERO_WIDTH_CHARS = re.compile("[\u200b\u200c\u200d\ufeff]")
+
 _MEDIUM_SEVERITY = [
     re.compile(p)
     for p in [
@@ -111,6 +133,10 @@ def sanitize_output(content: str | None) -> str:
             "new instructions",
             "eval(",
             "exec(",
+            "display:none",
+            "visibility:hidden",
+            "opacity:0",
+            "font-size:0",
         ]
         for check in fast_checks:
             if check in content[:_MAX_SCAN_SIZE]:
@@ -121,6 +147,18 @@ def sanitize_output(content: str | None) -> str:
     for pattern in _HIGH_SEVERITY:
         if pattern.search(modified):
             modified = pattern.sub("[BLOCKED]", modified)
+
+    # Invisible text patterns: strip (fail-closed)
+    for pattern in _INVISIBLE_TEXT:
+        if pattern.search(modified):
+            modified = pattern.sub("[BLOCKED]", modified)
+
+    # Instruction-bearing HTML comments: strip entirely
+    if _INSTRUCTION_COMMENT.search(modified):
+        modified = _INSTRUCTION_COMMENT.sub("[BLOCKED]", modified)
+
+    # Zero-width characters: strip silently
+    modified = _ZERO_WIDTH_CHARS.sub("", modified)
 
     # Medium severity: escape with backticks (all occurrences)
     for pattern in _MEDIUM_SEVERITY:
