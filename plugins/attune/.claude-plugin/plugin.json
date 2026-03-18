@@ -16,6 +16,7 @@
   ],
   "skills": [
     "./skills/architecture-aware-init",
+    "./skills/dorodango",
     "./skills/makefile-generation",
     "./skills/precommit-setup",
     "./skills/project-brainstorming",

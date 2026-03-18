@@ -6,6 +6,7 @@
     "./skills/catchup",
     "./skills/diff-analysis",
     "./skills/feature-review",
+    "./skills/latent-space-engineering",
     "./skills/proof-of-work",
     "./skills/review-core",
     "./skills/rigorous-reasoning",
