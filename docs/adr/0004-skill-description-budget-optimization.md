@@ -7,11 +7,14 @@
 
 ## Problem
 
-Claude Code enforces a character budget for skill descriptions loaded into context. Exceeding this limit causes skills to become invisible to Claude, breaking discoverability.
+Claude Code enforces a character budget for skill descriptions loaded into
+context. Exceeding this limit causes skills to become invisible to Claude,
+breaking discoverability.
 
 **Initial State (2025-12)**: 15,202 characters (101.3% of 15k budget)
 
-This required users to manually configure their environment, creating a poor out-of-the-box experience.
+This required users to manually configure their environment,
+creating a poor out-of-the-box experience.
 
 ## Budget Limit Update (2026-02)
 
@@ -19,10 +22,13 @@ As of Claude Code v2.1.32 (Feb 6, 2026), the skill description budget changed:
 
 - **Dynamic scaling**: Budget is now **2% of the context window** size
 - **Fallback**: 16,000 characters (up from the previous 15,000 hardcoded value)
-- **Override**: `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable for custom limits
-- **Ecosystem validator**: Set to 17,000 to provide growth headroom for future plugins
+- **Override**: `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable for
+  custom limits
+- **Ecosystem validator**:
+  Set to 17,000 to provide growth headroom for future plugins
 
-For standard 200k-token context windows, 2% yields ~16,000 characters. Users with larger context windows get proportionally more budget automatically.
+For standard 200k-token context windows, 2% yields ~16,000 characters.
+Users with larger context windows get proportionally more budget automatically.
 
 ### Sources
 
@@ -31,15 +37,19 @@ For standard 200k-token context windows, 2% yields ~16,000 characters. Users wit
 
 ## Decision
 
-Optimize skill and command descriptions through systematic reduction while preserving discoverability.
+Optimize skill and command descriptions through systematic reduction while
+preserving discoverability.
 
 ### Optimization Principles
 
 Optimization focuses on:
-- **Concise Descriptions**: Removing implementation details from the primary text.
+- **Concise Descriptions**:
+  Removing implementation details from the primary text.
 - **Trigger Condensation**: Reducing trigger lists to essential keywords.
-- **Redundancy Elimination**: Ensuring descriptions don't repeat tag or category information.
-- **Discoverability**: Preserving critical keywords while moving verbosity to documentation.
+- **Redundancy Elimination**: Ensuring descriptions don't repeat tag
+  or category information.
+- **Discoverability**: Preserving critical keywords while moving verbosity to
+  documentation.
 
 ## Implementation
 
@@ -60,7 +70,8 @@ Optimization focuses on:
 
 **Round 2 Savings**: 176 chars
 
-**Note**: Some multiline descriptions had extra whitespace that was trimmed, accounting for variance between estimated and actual savings.
+**Note**: Some multiline descriptions had extra whitespace that was trimmed,
+accounting for variance between estimated and actual savings.
 
 ## Results
 
@@ -93,13 +104,16 @@ Optimization focuses on:
 
 ### Round 1-2 (2025-12)
 
-Optimization reduced the ecosystem from 15,202 to 14,798 characters (98.7% of the original 15k limit).
+Optimization reduced the ecosystem from 15,202 to 14,798 characters (98.7% of
+the original 15k limit).
 
 ### Round 3 (2026-02)
 
-After ecosystem growth pushed total to 16,711 chars, a two-pronged approach was applied:
+After ecosystem growth pushed total to 16,711 chars,
+a two-pronged approach was applied:
 1. **Validator limit raised** to 17,000 (above the new CC 16k fallback)
-2. **9 attune skill descriptions condensed** using "Use for/Skip if" pattern (-745 chars)
+2. **9 attune skill descriptions condensed** using "Use for/Skip if" pattern
+   (-745 chars)
 
 | Metric | Round 1-2 | Round 3 | Current |
 |--------|-----------|---------|---------|
@@ -111,7 +125,8 @@ After ecosystem growth pushed total to 16,711 chars, a two-pronged approach was 
 
 1. **Archetypes consolidation** (potential savings: ~1,500 chars)
    - Merge 13 architecture-paradigm-* skills into 1 interactive selector
-2. **`SLASH_COMMAND_TOOL_CHAR_BUDGET` env var** - document for power users with many plugins
+2. **`SLASH_COMMAND_TOOL_CHAR_BUDGET` env var** - document for power users with
+   many plugins
 
 ## Monitoring
 
@@ -122,11 +137,15 @@ After ecosystem growth pushed total to 16,711 chars, a two-pronged approach was 
 
 ## Summary
 
-The ecosystem works with default CC settings (16k fallback). The validator uses a 17k limit to provide growth headroom. Description condensation preserved all functional keywords while standardizing on a shorter "Use for/Skip if" pattern.
+The ecosystem works with default CC settings (16k fallback).
+The validator uses a 17k limit to provide growth headroom.
+Description condensation preserved all functional keywords while standardizing
+on a shorter "Use for/Skip if" pattern.
 
 ## Related
 
 - See ADR-0003 for command description refactoring pattern
-- See [Skills Reference](../../book/src/reference/capabilities-skills.md) for skill documentation
+- See [Skills Reference](../../book/src/reference/capabilities-skills.md) for
+  skill documentation
 - [Claude Code Skills Docs](https://code.claude.com/docs/en/skills) - authoritative budget documentation
 - [CC v2.1.32 Release Notes](https://releasebot.io/updates/anthropic/claude-code) - dynamic scaling announcement

@@ -1,15 +1,18 @@
 # Skill Authoring Best Practices
 
-Official guidance for writing effective Skills that Claude can discover and use successfully.
+Official guidance for writing effective Skills that Claude can discover
+and use successfully.
 Based on Claude Developer Platform documentation.
 
 ## Core Principles
 
 ### Conciseness is Key
 
-Context window is shared with system prompt, conversation history, and other Skills. Only metadata loads at startup; SKILL.md loads when triggered.
+Context window is shared with system prompt, conversation history,
+and other Skills. Only metadata loads at startup; SKILL.md loads when triggered.
 
-**Default assumption: Claude is already smart.** Only add context Claude doesn't have.
+**Default assumption: Claude is already smart.** Only add context Claude
+doesn't have.
 
 **Good (≈50 tokens):**
 ```python
@@ -39,7 +42,9 @@ Skills effectiveness depends on underlying model:
 - **Sonnet**: Is the Skill clear and efficient?
 - **Opus**: Does the Skill avoid over-explaining?
 
-What works for Opus might need more detail for Haiku. If using across multiple models, aim for instructions that work well with all of them.
+What works for Opus might need more detail for Haiku.
+If using across multiple models,
+aim for instructions that work well with all of them.
 
 ## Skill Structure Requirements
 
@@ -58,7 +63,8 @@ What works for Opus might need more detail for Haiku. If using across multiple m
 
 ### Naming Conventions
 
-Use gerund form (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
+Use gerund form (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`,
+`testing-code`
 
 Avoid generic names: `helper`, `utils`, `tools`, `documents`
 
@@ -69,7 +75,8 @@ Avoid generic names: `helper`, `utils`, `tools`, `documents`
 - FAIL "I can help you process Excel files"
 - FAIL "You can use this to process Excel files"
 
-**Be specific with key terms** - Claude uses description to select from 100+ Skills:
+**Be specific with key terms** - Claude uses description to select from 100+
+Skills:
 
 ```yaml
 # Good - specific triggers
@@ -83,9 +90,11 @@ description: Helps with documents
 
 ## Progressive Disclosure Patterns
 
-SKILL.md serves as overview pointing to detailed materials (like table of contents).
+SKILL.md serves as overview pointing to detailed materials (like table of
+contents).
 
-**Keep SKILL.md body under 500 lines** for optimal performance. Split content into separate files when approaching this limit.
+**Keep SKILL.md body under 500 lines** for optimal performance.
+Split content into separate files when approaching this limit.
 
 ### Pattern 1: High-Level Guide with References
 
@@ -105,7 +114,8 @@ Claude loads FORMS.md only when needed.
 
 ### Avoid Deeply Nested References
 
-Claude may only preview nested files (using `head -100`), resulting in incomplete information.
+Claude may only preview nested files (using `head -100`),
+resulting in incomplete information.
 
 **Bad - too deep:**
 ```
@@ -141,7 +151,8 @@ For files >100 lines, include table of contents at top:
 
 ### Use Workflows for Complex Tasks
 
-Break complex operations into clear, sequential steps. Provide checklists Claude can track:
+Break complex operations into clear, sequential steps.
+Provide checklists Claude can track:
 
 **Example 1: Research synthesis (without code):**
 ```markdown
@@ -221,7 +232,8 @@ Consistency helps Claude understand and follow instructions.
 
 ### Template Pattern
 
-Provide exact templates for strict requirements. For flexible cases, offer "sensible defaults (adapt as needed)".
+Provide exact templates for strict requirements.
+For flexible cases, offer "sensible defaults (adapt as needed)".
 
 ### Examples Pattern
 
@@ -229,19 +241,25 @@ Use input/output pairs to show desired style and detail.
 
 ### Conditional Workflow Pattern
 
-Break workflows into conditional paths based on context. Use separate files for large workflows.
+Break workflows into conditional paths based on context.
+Use separate files for large workflows.
 
 ## Evaluation and Iteration
 
 ### Build Evaluations First
 
-Create evaluations BEFORE extensive documentation to validate real problem-solving.
+Create evaluations BEFORE extensive documentation to validate real
+problem-solving.
 
-**Evaluation-driven approach**: Identify gaps → Create eval scenarios → Establish baseline → Write minimal instructions → Iterate.
+**Evaluation-driven approach**:
+Identify gaps → Create eval scenarios → Establish baseline → Write minimal
+instructions → Iterate.
 
 ### Develop Skills Iteratively with Claude
 
-Work with one Claude instance ("Claude A") to create a Skill for other instances ("Claude B"). Claude A helps design and refine instructions; Claude B tests them in real tasks.
+Work with one Claude instance ("Claude A") to create a Skill for other
+instances ("Claude B"). Claude A helps design and refine instructions;
+Claude B tests them in real tasks.
 
 **Creating a new Skill:**
 
@@ -297,7 +315,8 @@ import pdfplumber
 For scanned PDFs requiring OCR, use pdf2image with pytesseract.
 ```
 
-Don't present multiple approaches unless necessary. Provide a default with escape hatch.
+Don't present multiple approaches unless necessary.
+Provide a default with escape hatch.
 
 ## Advanced: Skills with Executable Code
 
@@ -337,9 +356,13 @@ Benefits:
 - Reversible planning
 - Clear debugging
 
-When to use: Batch operations, destructive changes, complex validation rules, high-stakes operations.
+When to use: Batch operations, destructive changes, complex validation rules,
+high-stakes operations.
 
-**Implementation tip**: Make validation scripts verbose with specific error messages like "Field 'signature_date' not found. Available fields: customer_name, order_total, signature_date_signed" to help Claude fix issues.
+**Implementation tip**: Make validation scripts verbose with specific error
+messages like "Field 'signature_date' not found.
+Available fields: customer_name, order_total,
+signature_date_signed" to help Claude fix issues.
 
 ### Use Visual Analysis
 
@@ -410,7 +433,8 @@ reader = PdfReader("file.pdf")
 
 ## For Claude 4.x Models
 
-Claude Opus 4.5 is more responsive to system prompts. If prompts were designed to reduce undertriggering, they may now overtrigger.
+Claude Opus 4.5 is more responsive to system prompts.
+If prompts were designed to reduce undertriggering, they may now overtrigger.
 
 **Fix**: Dial back aggressive language
 - Old: "CRITICAL: You MUST use this tool when..."
@@ -420,8 +444,11 @@ Claude Opus 4.5 is more responsive to system prompts. If prompts were designed t
 
 ### Token Budgets
 
-Keep SKILL.md body under 500 lines for optimal performance. If content exceeds this, split into separate files using progressive disclosure patterns.
+Keep SKILL.md body under 500 lines for optimal performance.
+If content exceeds this,
+split into separate files using progressive disclosure patterns.
 
 ### Checklist Reference
 
-See `authoring-checklist.md` for quick-reference validation checklist before sharing Skills.
+See `authoring-checklist.md` for quick-reference validation checklist before
+sharing Skills.

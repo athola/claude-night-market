@@ -1,6 +1,7 @@
 # Optimization Patterns: Context Reduction Methodology
 
-**Purpose**: Systematic approaches for reducing token consumption in Claude Code projects
+**Purpose**: Systematic approaches for reducing token consumption in Claude
+Code projects
 
 **Achievement**: 28-33% context reduction through 9 optimization phases
 
@@ -8,9 +9,14 @@
 
 ## Overview
 
-This document records the patterns we used to reduce bloat in the claude-night-market project, saving approximately 70,772 tokens.
+This document records the patterns we used to reduce bloat in the
+claude-night-market project, saving approximately 70,772 tokens.
 
-We optimize by adhering to basic engineering principles: separating concerns, not repeating ourselves (DRY), and revealing complexity only when necessary (progressive disclosure). We also prioritize backward compatibility so improvements don't break existing workflows.
+We optimize by adhering to basic engineering principles: separating concerns,
+not repeating ourselves (DRY),
+and revealing complexity only when necessary (progressive disclosure).
+We also prioritize backward compatibility so improvements don't break existing
+workflows.
 
 ---
 
@@ -51,7 +57,8 @@ We optimize by adhering to basic engineering principles: separating concerns, no
 
 ## Pattern 2: Documentation Refactoring (Hub-and-Spoke)
 
-**When to Use**: Monolithic docs exceed recommended limits (500 lines for reference, 1000 for tutorials)
+**When to Use**: Monolithic docs exceed recommended limits (500 lines for
+reference, 1000 for tutorials)
 
 **Savings Potential**: Medium-High (10,500 tokens)
 
@@ -104,7 +111,8 @@ README.md (150 lines)          ← Hub
 
 **Savings Potential**: Very High (10,192 tokens from 4 scripts)
 
-See [Data Extraction Pattern Guide](./guides/data-extraction-pattern.md) for details.
+See [Data Extraction Pattern Guide](./guides/data-extraction-pattern.md) for
+details.
 
 ### Quick Summary
 
@@ -395,7 +403,9 @@ Complex: 1 line = 5 tokens
 ```
 
 ### Success Criteria
-Optimization succeeds when we reduce size while passing all tests. We must update related documentation and keep the git history clean. The goal is measurable token savings without breaking the system.
+Optimization succeeds when we reduce size while passing all tests.
+We must update related documentation and keep the git history clean.
+The goal is measurable token savings without breaking the system.
 
 ### Tracking Template
 

@@ -1,13 +1,16 @@
 # Example Implementations
 
-This directory contains reference implementations and demo projects that showcase practical applications of Night Market plugin patterns.
+This directory contains reference implementations
+and demo projects that showcase practical applications of Night Market plugin
+patterns.
 
 ## Available Examples
 
 ### Context Optimization Demo
 [context-optimization-demo.md](./context-optimization-demo.md)
 
-A full demonstration of MECW principles and context optimization techniques including:
+A full demonstration of MECW principles
+and context optimization techniques including:
 - Progressive loading techniques
 - Subagent delegation patterns
 - Context pressure monitoring
@@ -37,6 +40,9 @@ These examples serve as:
 
 ## See Also
 
-- [Feature Development Lifecycle](../../book/src/tutorials/feature-lifecycle.md) - Plugin workflow patterns
-- [Skill Integration Guide](../skill-integration-guide.md) - Skill combination patterns
+- [Feature Development
+  Lifecycle](../../book/src/tutorials/feature-lifecycle.md) - Plugin workflow
+  patterns
+- [Skill Integration Guide](../skill-integration-guide.md) - Skill combination
+  patterns
 - [Plugin Development Guide](../plugin-development-guide.md) - Creating plugins

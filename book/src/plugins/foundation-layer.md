@@ -1,6 +1,7 @@
 # Foundation Layer
 
-The foundation layer provides core workflow methodologies that other plugins build upon.
+The foundation layer provides core workflow methodologies that other plugins
+build upon.
 
 ## Purpose
 

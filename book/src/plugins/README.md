@@ -1,6 +1,7 @@
 # Plugin Overview
 
-The Claude Night Market organizes plugins into four layers, each building on the foundations below.
+The Claude Night Market organizes plugins into four layers,
+each building on the foundations below.
 
 ## Architecture
 
@@ -59,8 +60,10 @@ graph TB
 ## Dependency Rules
 
 1. **Downward Only**: Plugins depend on lower layers, never upward
-2. **Foundation First**: Most domain plugins work better with foundation plugins installed
-3. **Graceful Degradation**: Plugins function standalone but gain capabilities with dependencies
+2. **Foundation First**: Most domain plugins work better with foundation
+   plugins installed
+3. **Graceful Degradation**: Plugins function standalone
+   but gain capabilities with dependencies
 
 ## Quick Installation
 

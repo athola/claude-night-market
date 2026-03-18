@@ -155,3 +155,22 @@ class TestSaveLoadBudget:
         assert loaded.window_type == "5h"
         assert loaded.session_count == 0
         assert loaded.cooldown_until is None
+
+    def test_load_ignores_unknown_fields(self, tmp_path: Path) -> None:
+        """Future versions may add fields; loading should not crash."""
+        path = tmp_path / "budget.json"
+        data = {
+            "window_type": "5h",
+            "window_started_at": None,
+            "estimated_tokens_used": 100,
+            "session_count": 2,
+            "last_rate_limit_at": None,
+            "cooldown_until": None,
+            "future_field": "unknown_value",
+            "another_new_thing": 42,
+        }
+        path.write_text(json.dumps(data))
+        loaded = load_budget(path)
+        assert loaded.window_type == "5h"
+        assert loaded.session_count == 2
+        assert loaded.estimated_tokens_used == 100

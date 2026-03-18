@@ -69,6 +69,26 @@ merging.
 /uninstall-watchdog
 ```
 
+## Hooks
+
+| Hook | Event | Description |
+|------|-------|-------------|
+| `session_start_hook.py` | SessionStart | Injects manifest context into new sessions |
+| `user_prompt_hook.py` | UserPromptSubmit | Reminds orchestrator to resume after user interrupts |
+| `stop_hook.py` | Stop | Prevents early exit while work items remain |
+
+The `UserPromptSubmit` hook lets users interact with a
+running egregore session without breaking the orchestration
+loop. After handling the user's request, the orchestrator
+re-reads the manifest and resumes where it left off.
+
+## Self-Healing Heartbeat
+
+A recurring cron (`*/5 * * * *`) detects stalled pipelines
+and re-enters the orchestration loop automatically.
+This catches edge cases where context compaction or
+unexpected errors break the loop despite the hooks.
+
 ## Architecture
 
 Egregore uses a convention-based approach where
@@ -76,6 +96,40 @@ autonomous sessions follow project conventions stored
 in `conventions/`. The orchestrator agent manages the
 session lifecycle, while the sentinel agent monitors
 for crashes and restarts sessions as needed.
+
+## Parallel Execution
+
+Independent work items run concurrently via git
+worktrees (up to 3 by default). Within the quality
+stage, independent steps execute in parallel waves
+using dependency-graph scheduling from
+`stage_parallel.py`.
+
+## Agent Specialization
+
+Specialist agents (reviewer, documenter, tester)
+handle specific pipeline steps and accumulate context
+across sessions. Profiles persist in
+`.egregore/specialists/`.
+
+## Cross-Item Learning
+
+The `learning` module extracts patterns from decision
+logs (tech stack choices, failure modes, architecture
+decisions) and generates briefings for new work items
+based on historical success rates.
+
+## Multi-Repository Support
+
+`RepoRegistry` manages work across multiple
+repositories, routing items by labels and tracking
+per-repo configuration in `.egregore/repos.json`.
+
+## GitHub Discussions Publishing
+
+Discoveries, insights, and retrospectives from
+autonomous sessions are published to GitHub
+Discussions with rate limiting and deduplication.
 
 ## Related Plugins
 

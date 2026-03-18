@@ -4,7 +4,9 @@ Delegation to external LLM services for long-context or bulk tasks.
 
 ## Overview
 
-Conjure provides a framework for delegating tasks to external LLM services (Gemini, Qwen) when Claude's context window is insufficient or when specialized models are better suited.
+Conjure provides a framework for delegating tasks to external LLM services
+(Gemini, Qwen) when Claude's context window is insufficient
+or when specialized models are better suited.
 
 ## Installation
 

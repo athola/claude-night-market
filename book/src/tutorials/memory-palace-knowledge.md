@@ -1,22 +1,29 @@
 # Memory Palace: Knowledge Management
 
-Build a persistent knowledge base that grows with your work. This tutorial covers the core Memory Palace workflows: capturing knowledge, organizing it in palaces, maintaining it over time, and finding what you need.
+Build a persistent knowledge base that grows with your work.
+This tutorial covers the core Memory Palace workflows: capturing knowledge,
+organizing it in palaces, maintaining it over time, and finding what you need.
 
 ---
 
 ## Scenario
 
-You're working on a project with technologies you'll reference repeatedly: API patterns, architecture decisions, library quirks. Instead of re-researching every session, you want a knowledge base that remembers what you've learned.
+You're working on a project with technologies you'll reference repeatedly:
+API patterns, architecture decisions, library quirks.
+Instead of re-researching every session,
+you want a knowledge base that remembers what you've learned.
 
 ## Step 1: Create a Palace
 
-A palace is a themed container for knowledge. Create one for your project's domain:
+A palace is a themed container for knowledge.
+Create one for your project's domain:
 
 ```
 /palace create "API Patterns" "rest-api" --metaphor library
 ```
 
-This creates a palace named "API Patterns" in the `rest-api` domain using the `library` metaphor. Metaphors determine how knowledge is organized:
+This creates a palace named "API Patterns" in the `rest-api` domain using the
+`library` metaphor. Metaphors determine how knowledge is organized:
 
 | Metaphor | Best for |
 |----------|----------|
@@ -40,7 +47,10 @@ Knowledge enters the palace through two paths.
 
 ### Automatic Capture
 
-When you research topics during a Claude Code session (web searches, reading docs, analyzing code), the Memory Palace hooks queue findings for later processing. This happens in the background. You don't need to do anything special.
+When you research topics during a Claude Code session (web searches,
+reading docs, analyzing code),
+the Memory Palace hooks queue findings for later processing.
+This happens in the background. You don't need to do anything special.
 
 Check the queue:
 
@@ -48,7 +58,8 @@ Check the queue:
 /palace status
 ```
 
-This shows total palaces, entry counts, and the intake queue size (how many items are waiting to be processed).
+This shows total palaces, entry counts,
+and the intake queue size (how many items are waiting to be processed).
 
 ### Manual Intake
 
@@ -58,7 +69,8 @@ To explicitly capture something you've learned:
 /garden seed ~/my-garden.json "OAuth2 PKCE Flow" --section auth --links "Authentication,Security"
 ```
 
-This adds a new entry with links to related concepts, which helps with navigation later.
+This adds a new entry with links to related concepts,
+which helps with navigation later.
 
 ## Step 3: Process the Queue
 
@@ -68,7 +80,8 @@ Queued research needs to be synced into palaces. Preview first:
 /palace sync --dry-run
 ```
 
-This shows what would be processed: which items match existing palaces, which would create new entries, and which have no matching palace.
+This shows what would be processed: which items match existing palaces,
+which would create new entries, and which have no matching palace.
 
 When it looks right:
 
@@ -76,7 +89,8 @@ When it looks right:
 /palace sync
 ```
 
-Items are matched to palaces by domain and tags, then organized into districts within each palace.
+Items are matched to palaces by domain and tags,
+then organized into districts within each palace.
 
 ## Step 4: Find What You Know
 
@@ -104,7 +118,8 @@ To explore connections between concepts:
 /navigate path "OAuth" "JWT"
 ```
 
-This shows the navigation path between two concepts, revealing how your knowledge connects.
+This shows the navigation path between two concepts,
+revealing how your knowledge connects.
 
 ## Step 5: Maintain the Garden
 
@@ -114,7 +129,8 @@ Knowledge goes stale. Regularly check palace health:
 /garden health ~/my-garden.json
 ```
 
-This reports metrics like link density (are entries well-connected?) and freshness (when were entries last updated?).
+This reports metrics like link density (are entries well-connected?)
+and freshness (when were entries last updated?).
 
 Prune stale entries:
 
@@ -122,7 +138,9 @@ Prune stale entries:
 /palace prune --stale-days 90
 ```
 
-This identifies entries older than 90 days, low-quality entries, and duplicates. It shows recommendations and **asks for your approval** before making any changes.
+This identifies entries older than 90 days, low-quality entries,
+and duplicates. It shows recommendations
+and **asks for your approval** before making any changes.
 
 After reviewing:
 
@@ -150,7 +168,8 @@ The Memory Palace integrates with PR reviews through the review chamber:
 /review-room
 ```
 
-This captures review patterns and decisions, building a knowledge base of your team's code review preferences over time.
+This captures review patterns and decisions,
+building a knowledge base of your team's code review preferences over time.
 
 ## What You've Learned
 
@@ -178,5 +197,6 @@ This captures review patterns and decisions, building a knowledge base of your t
 ---
 
 **Difficulty:** Intermediate
-**Prerequisites:** [Your First Session](skills-showcase.md), Memory Palace plugin installed
+**Prerequisites:** [Your First Session](skills-showcase.md),
+Memory Palace plugin installed
 **Duration:** 15 minutes

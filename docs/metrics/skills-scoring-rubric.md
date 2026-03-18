@@ -70,4 +70,5 @@ Score = (Structure x 0.25) + (Content x 0.35) + (Tokens x 0.20) + (Activation x 
 
 ## Usage
 
-Run skill evaluations using the `abstract:skills-eval` skill or manually assess against this rubric during code review.
+Run skill evaluations using the `abstract:skills-eval` skill
+or manually assess against this rubric during code review.

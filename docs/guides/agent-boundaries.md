@@ -1,25 +1,35 @@
 # Agent Boundaries & Entry Points
 
-This reference details agent selection, relationships, and the boundaries between different specialized sub-agents in the ecosystem.
+This reference details agent selection, relationships,
+and the boundaries between different specialized sub-agents in the ecosystem.
 
 ## Entry Point Agents
 
 Primary entry points for common workflows:
 
-1. **`abstract:plugin-validator`**: Use this to validate plugin structure before making changes.
-2. **`pensive:code-reviewer`**: Use this for reviewing code changes and analyzing logic.
-3. **`sanctum:pr-agent`**: Use this to prepare pull requests and manage git operations.
+1. **`abstract:plugin-validator`**:
+   Use this to validate plugin structure before making changes.
+2. **`pensive:code-reviewer`**: Use this for reviewing code changes
+   and analyzing logic.
+3. **`sanctum:pr-agent`**: Use this to prepare pull requests
+   and manage git operations.
 
 Specialized agents build on these foundations for advanced workflows.
 
 ## Agent Layers
 
-The ecosystem organizes agents into four layers. Higher-layer agents delegate to lower-layer agents, while lower layers operate independently of higher-level context.
+The ecosystem organizes agents into four layers.
+Higher-layer agents delegate to lower-layer agents,
+while lower layers operate independently of higher-level context.
 
-- **Domain Layer**: Specialized tasks for specific languages or paradigms (e.g., `pensive`, `parseltongue`).
-- **Utility Layer**: Cross-cutting infrastructure like performance optimization and boilerplate generation (e.g., `conserve`, `conjure`).
-- **Foundation Layer**: Core workflows including version control and validation gates (e.g., `imbue`, `sanctum`).
-- **Meta Layer**: Tools for developing and validating the plugin ecosystem itself (e.g., `abstract`).
+- **Domain Layer**: Specialized tasks for specific languages
+  or paradigms (e.g., `pensive`, `parseltongue`).
+- **Utility Layer**: Cross-cutting infrastructure like performance optimization
+  and boilerplate generation (e.g., `conserve`, `conjure`).
+- **Foundation Layer**: Core workflows including version control
+  and validation gates (e.g., `imbue`, `sanctum`).
+- **Meta Layer**: Tools for developing
+  and validating the plugin ecosystem itself (e.g., `abstract`).
 
 ## Agent Responsibilities
 
@@ -64,25 +74,42 @@ The ecosystem organizes agents into four layers. Higher-layer agents delegate to
 
 ### Code Review Workflow
 
-A request to review a PR starts with `pensive:code-reviewer`. It delegates specialized tasks to `pensive:api-reviewer`, `pensive:security-reviewer`, and `pensive:performance-reviewer`. It uses `sanctum:pr-agent` for git integration and `abstract:plugin-validator` if the changes involve plugin infrastructure.
+A request to review a PR starts with `pensive:code-reviewer`.
+It delegates specialized tasks to `pensive:api-reviewer`,
+`pensive:security-reviewer`, and `pensive:performance-reviewer`.
+It uses `sanctum:pr-agent` for git integration
+and `abstract:plugin-validator` if the changes involve plugin infrastructure.
 
 ### Plugin Development Workflow
 
-Creating a new skill uses `abstract:skill-generator`. It validates the draft with `abstract:skill-auditor`, checks token efficiency with `conserve:context-optimizer`, and stages the commit via `sanctum:pr-agent`.
+Creating a new skill uses `abstract:skill-generator`.
+It validates the draft with `abstract:skill-auditor`,
+checks token efficiency with `conserve:context-optimizer`,
+and stages the commit via `sanctum:pr-agent`.
 
 ### Bloat Remediation Workflow
 
-Cleaning the codebase begins with a scan from `conserve:bloat-auditor`. After user approval, `conserve:unbloat-remediator` executes the deletions and uses `sanctum:pr-agent` to commit the changes.
+Cleaning the codebase begins with a scan from `conserve:bloat-auditor`.
+After user approval, `conserve:unbloat-remediator` executes the deletions
+and uses `sanctum:pr-agent` to commit the changes.
 
 ## Boundary Enforcement
 
-Agents redirect requests that fall outside their scope to ensure predictable behavior and minimize token waste.
+Agents redirect requests that fall outside their scope to ensure predictable
+behavior and minimize token waste.
 
-- **Logic vs. Structure**: `abstract:plugin-validator` redirects logic fix requests to `pensive:code-reviewer`.
-- **Git vs. Review**: `pensive:code-reviewer` redirects commit requests to `sanctum:pr-agent`.
-- **Remediation vs. Detection**: `conserve:bloat-auditor` redirects deletion requests to `conserve:unbloat-remediator`.
+- **Logic vs. Structure**:
+  `abstract:plugin-validator` redirects logic fix requests to
+  `pensive:code-reviewer`.
+- **Git vs. Review**: `pensive:code-reviewer` redirects commit requests to
+  `sanctum:pr-agent`.
+- **Remediation vs. Detection**:
+  `conserve:bloat-auditor` redirects deletion requests to
+  `conserve:unbloat-remediator`.
 
-This separation allows each agent to operate with a smaller, more relevant context, reducing the risk of conflicting instructions and lowering the token cost per operation.
+This separation allows each agent to operate with a smaller,
+more relevant context, reducing the risk of conflicting instructions
+and lowering the token cost per operation.
 
 ## Agent Selection
 
@@ -93,19 +120,29 @@ This separation allows each agent to operate with a smaller, more relevant conte
 - **Code generation**: Use `conjure:*` (Utility).
 - **Python-specific tasks**: Use `parseltongue:*` (Domain).
 - **Rust-specific tasks**: Use `pensive:rust-auditor` (Domain).
-- **Architecture or design review**: Use `pensive:architecture-reviewer` or `spec-kit:*` (Domain).
-- **Documentation or knowledge management**: Use `memory-palace:*` or `sanctum:update-docs`.
+- **Architecture or design review**:
+  Use `pensive:architecture-reviewer` or `spec-kit:*` (Domain).
+- **Documentation or knowledge management**:
+  Use `memory-palace:*` or `sanctum:update-docs`.
 
 ## FAQ
 
 **Why are agents specialized?**
-Specialized agents use smaller context windows, which reduces token consumption and improves reliability. A single agent handling all domains would require a larger, more expensive system prompt and would be more prone to inconsistent behavior when faced with competing goals.
+Specialized agents use smaller context windows,
+which reduces token consumption and improves reliability.
+A single agent handling all domains would require a larger,
+more expensive system prompt
+and would be more prone to inconsistent behavior when faced with competing
+goals.
 
 **How is delegation handled?**
-Higher-layer agents call lower-layer agents to perform sub-tasks. This hierarchical structure prevents circular dependencies and maintains clear separation of concerns.
+Higher-layer agents call lower-layer agents to perform sub-tasks.
+This hierarchical structure prevents circular dependencies
+and maintains clear separation of concerns.
 
 **What happens if I select the wrong agent?**
-The agent will identify that the request is out of scope and recommend the appropriate agent for the task.
+The agent will identify that the request is out of scope
+and recommend the appropriate agent for the task.
 
 ## Related Documentation
 

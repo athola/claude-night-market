@@ -4,7 +4,9 @@ Resource optimization and performance monitoring for context window management.
 
 ## Overview
 
-Conserve helps you work efficiently within Claude's context limits. It automatically loads optimization guidance at session start and provides tools for monitoring and reducing context usage.
+Conserve helps you work efficiently within Claude's context limits.
+It automatically loads optimization guidance at session start
+and provides tools for monitoring and reducing context usage.
 
 ## Installation
 
@@ -16,7 +18,7 @@ Conserve helps you work efficiently within Claude's context limits. It automatic
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
-| `context-optimization` | MECW principles and 50% context rule | When context usage > 30% |
+| `context-optimization` | MECW principles, 50% context rule, findings-format, memory-tiers, session-routing modules | When context usage > 30% |
 | `token-conservation` | Token usage strategies and quota tracking | Session start, before heavy loads |
 | `cpu-gpu-performance` | Resource monitoring and selective testing | Before builds, tests, or training |
 | `mcp-code-execution` | MCP patterns for data pipelines | Processing data outside context |

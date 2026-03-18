@@ -13,7 +13,8 @@ from pathlib import Path
 import pytest
 
 # ---------------------------------------------------------------------------
-# Import the MetaEvaluator class directly for unit-level tests.
+# Import the MetaEvaluator class directly for unit-level tests
+# (TestCheckModuleReferences, TestCheckCodeExamples, TestCheckCrossReferences).
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 from meta_evaluation import MetaEvaluator  # noqa: E402
@@ -34,7 +35,7 @@ class TestMetaEvaluationScript:
         return Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_exists(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script exists
@@ -47,7 +48,7 @@ class TestMetaEvaluationScript:
         assert meta_eval_script.exists(), f"Script not found at {meta_eval_script}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_is_executable(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script is executable
@@ -60,7 +61,7 @@ class TestMetaEvaluationScript:
         assert meta_eval_script.stat().st_mode & 0o111, "Script should be executable"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_script_runs_without_errors(self, meta_eval_script: Path) -> None:
         """
         Scenario: Meta-evaluation script executes successfully
@@ -103,7 +104,7 @@ class TestMetaEvaluationFunctionality:
         return Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_abstract_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -137,7 +138,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_leyline_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -171,7 +172,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_checks_imbue_plugin(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -205,7 +206,7 @@ class TestMetaEvaluationFunctionality:
         assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_tocs(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -236,7 +237,7 @@ class TestMetaEvaluationFunctionality:
         assert "evaluation" in output.lower()
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_verification(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -266,7 +267,7 @@ class TestMetaEvaluationFunctionality:
         # The actual verification detection is tested in unit tests for the script itself
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_reports_missing_tests(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -294,7 +295,7 @@ class TestMetaEvaluationFunctionality:
         # The actual test detection is validated in unit tests for the script itself
 
     @pytest.mark.bdd
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_provides_summary_statistics(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
@@ -475,76 +476,64 @@ class TestRecursiveValidation:
     So that "evaluation evaluates evaluation" principle holds
     """
 
+    @pytest.fixture
+    def evaluator(self, tmp_path: Path) -> MetaEvaluator:
+        return MetaEvaluator(tmp_path, verbose=False)
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skills_eval_is_evaluated(self) -> None:
+    def test_skills_eval_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: skills-eval skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then skills-eval should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the abstract plugin's skills list
+        Then skills-eval should be present
         """
-        # This validates the recursive principle
-        # Read the script directly to check inventory
-        # From plugins/sanctum/tests/unit/scripts/ go up 3 to sanctum, then to scripts
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - skills-eval is in inventory
-        assert "skills-eval" in script_content
-        assert "abstract" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "abstract" in skills
+        assert "skills-eval" in skills["abstract"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_is_evaluated(self) -> None:
+    def test_hooks_eval_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: hooks-eval skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then hooks-eval should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the abstract plugin's skills list
+        Then hooks-eval should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - hooks-eval is in inventory
-        assert "hooks-eval" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "hooks-eval" in skills.get("abstract", [])
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evaluation_framework_is_evaluated(self) -> None:
+    def test_evaluation_framework_is_evaluated(self, evaluator: MetaEvaluator) -> None:
         """
         Scenario: evaluation-framework skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then evaluation-framework should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the leyline plugin's skills list
+        Then evaluation-framework should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - evaluation-framework is in inventory
-        assert "evaluation-framework" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "evaluation-framework" in skills.get("leyline", [])
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_testing_quality_standards_is_evaluated(self) -> None:
+    def test_testing_quality_standards_is_evaluated(
+        self, evaluator: MetaEvaluator
+    ) -> None:
         """
         Scenario: testing-quality-standards skill is included in evaluation
 
-        Given the meta-evaluation inventory
-        When checking which skills are evaluated
-        Then testing-quality-standards should be in the list
+        Given the MetaEvaluator.EVALUATION_SKILLS inventory
+        When checking the leyline plugin's skills list
+        Then testing-quality-standards should be present
         """
-        # This validates the recursive principle
-        script_path = Path(__file__).parents[3] / "scripts" / "meta_evaluation.py"
-        script_content = script_path.read_text()
-
-        # Assert - testing-quality-standards is in inventory
-        assert "testing-quality-standards" in script_content
+        skills = evaluator.EVALUATION_SKILLS
+        assert "testing-quality-standards" in skills.get("leyline", [])
 
 
 # ---------------------------------------------------------------------------

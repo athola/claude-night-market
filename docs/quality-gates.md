@@ -1,6 +1,7 @@
 # Quality Gates and Code Quality System
 
-We use a three-layer system to maintain code standards within the Claude Night Market ecosystem.
+We use a three-layer system to maintain code standards within the Claude Night
+Market ecosystem.
 
 ## Table of Contents
 
@@ -15,24 +16,35 @@ We use a three-layer system to maintain code standards within the Claude Night M
 
 ## Overview
 
-Our quality system relies on three layers: **Pre-Commit Hooks** (Layer 1) for automatic enforcement, **Manual/CI Scripts** (Layer 2) for full checks, and **Documentation & Tracking** (Layer 3) for auditing.
+Our quality system relies on three layers:
+**Pre-Commit Hooks** (Layer 1) for automatic enforcement,
+**Manual/CI Scripts** (Layer 2) for full checks,
+and **Documentation & Tracking** (Layer 3) for auditing.
 
 **Status**
-- **New Code**: Every commit undergoes linting, type checks, tests, and security scans.
+- **New Code**: Every commit undergoes linting, type checks, tests,
+  and security scans.
 - **Existing Code**: We track legacy issues through baseline audits.
 
 ## The Three Layers
 
-We organize quality checks into three distinct layers to balance speed and thoroughness.
+We organize quality checks into three distinct layers to balance speed
+and thoroughness.
 
 **Layer 1: Fast Global Checks**
-Ruff handles linting and formatting, while Mypy verifies type annotations across all Python files. These run quickly to catch common errors immediately.
+Ruff handles linting and formatting,
+while Mypy verifies type annotations across all Python files.
+These run quickly to catch common errors immediately.
 
 **Layer 2: Plugin-Specific Checks**
-These run only on changed plugins to execute targets like `run-plugin-lint.sh` and `run-plugin-tests.sh`. This keeps feedback loops tight during focused development.
+These run only on changed plugins to execute targets like `run-plugin-lint.sh`
+and `run-plugin-tests.sh`.
+This keeps feedback loops tight during focused development.
 
 **Layer 3: Validation Hooks**
-We verify plugin structure, skill frontmatter, context optimization, and security using tools like Bandit. This ensures structural integrity and security compliance.
+We verify plugin structure, skill frontmatter, context optimization,
+and security using tools like Bandit.
+This ensures structural integrity and security compliance.
 
 ## Pre-Commit Hooks
 
@@ -50,11 +62,16 @@ All checks must pass for the commit to succeed.
 
 ### Plugin Validation Hooks
 
-The `plugins/abstract/scripts/` directory contains our validators: `abstract_validator.py` for skills, `validate_plugin.py` for structure, and `context_optimizer.py`.
+The `plugins/abstract/scripts/` directory contains our validators:
+`abstract_validator.py` for skills, `validate_plugin.py` for structure,
+and `context_optimizer.py`.
 
 ### Standard Quality Checks
 
-We use standard hooks for formatting (`trailing-whitespace`, `end-of-file-fixer`), configuration validation (`check-yaml`, `check-toml`, `check-json`), security (`bandit`), linting (`ruff`), and type checking (`mypy`).
+We use standard hooks for formatting (`trailing-whitespace`,
+`end-of-file-fixer`), configuration validation (`check-yaml`, `check-toml`,
+`check-json`), security (`bandit`), linting (`ruff`),
+and type checking (`mypy`).
 
 ## Manual Quality Scripts
 
@@ -82,7 +99,10 @@ You can run full checks on-demand.
 
 ### Use Cases
 
-For daily development, rely on the automatic pre-commit hooks (10-30s). Before submitting a PR, run `./scripts/check-all-quality.sh` (2-5min) to ensure everything is clean. We run full reports monthly using the `--report` flag. CI/CD pipelines execute `make lint && make typecheck && make test`.
+For daily development, rely on the automatic pre-commit hooks (10-30s).
+Before submitting a PR, run `./scripts/check-all-quality.sh` (2-5min) to ensure
+everything is clean. We run full reports monthly using the `--report` flag.
+CI/CD pipelines execute `make lint && make typecheck && make test`.
 
 ## Configuration Files
 
@@ -90,18 +110,24 @@ For daily development, rely on the automatic pre-commit hooks (10-30s). Before s
 
 This file defines thresholds across four dimensions:
 
-- **Performance**: Files must be under 20KB and 5000 tokens, with a complexity score below 12.
+- **Performance**: Files must be under 20KB and 5000 tokens,
+  with a complexity score below 12.
 - **Security**: We block hardcoded secrets and insecure functions.
-- **Maintainability**: Technical debt ratio must be below 0.3, with nesting depth no more than 5.
-- **Compliance**: Plugins must follow the required structure and include proper metadata.
+- **Maintainability**: Technical debt ratio must be below 0.3,
+  with nesting depth no more than 5.
+- **Compliance**: Plugins must follow the required structure
+  and include proper metadata.
 
 ### Context Governance (`.claude/context_governance.json`)
 
-Enforces context optimization patterns, requiring progressive disclosure (overview, basic, advanced, reference) and modular structure.
+Enforces context optimization patterns,
+requiring progressive disclosure (overview, basic, advanced,
+reference) and modular structure.
 
 ### Pre-Commit Configuration
 
-The `.pre-commit-config.yaml` file defines our hooks, categorized into code quality, global quality, validation, and standard hooks.
+The `.pre-commit-config.yaml` file defines our hooks,
+categorized into code quality, global quality, validation, and standard hooks.
 
 ## Usage Guide
 
@@ -146,11 +172,15 @@ To see what will run in pre-commit without committing:
 
 For test failures, see the [Testing Guide](./testing-guide.md).
 
-**Linting Errors:** Ruff often auto-fixes issues. Run `uv run ruff check --fix` in the plugin directory.
+**Linting Errors:** Ruff often auto-fixes issues.
+Run `uv run ruff check --fix` in the plugin directory.
 
-**Type Errors:** If an attribute is missing (e.g., `"ProjectTracker" has no attribute "initiative_tracker"`), add the attribute, remove the reference, or update the type stubs.
+**Type Errors:** If an attribute is missing (e.g.,
+`"ProjectTracker" has no attribute "initiative_tracker"`), add the attribute,
+remove the reference, or update the type stubs.
 
-**"Hook script not found":** Reinstall hooks with `pre-commit install --install-hooks`.
+**"Hook script not found":** Reinstall hooks with `pre-commit install
+--install-hooks`.
 
 ### Skipping Hooks (Emergency)
 
@@ -166,9 +196,11 @@ SKIP=run-plugin-tests git commit -m "WIP: tests in progress"
 
 ## Best Practices
 
-**For Developers:** Run checks before committing, fix issues incrementally, write type hints for new functions, and keep tests green.
+**For Developers:** Run checks before committing, fix issues incrementally,
+write type hints for new functions, and keep tests green.
 
-**For Plugin Maintainers:** Configure strict type checking, add Makefile targets for quality checks, and document requirements.
+**For Plugin Maintainers:** Configure strict type checking,
+add Makefile targets for quality checks, and document requirements.
 
 ## Running Validation
 
@@ -191,5 +223,6 @@ pre-commit run run-plugin-tests
 ## See Also
 
 - [Testing Guide](./testing-guide.md) - Testing documentation
-- [Plugin Development Guide](./plugin-development-guide.md) - Plugin development standards
+- [Plugin Development Guide](./plugin-development-guide.md) - Plugin
+  development standards
 - [Pre-commit configuration](../.pre-commit-config.yaml) - Hook definitions

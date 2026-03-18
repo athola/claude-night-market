@@ -98,6 +98,7 @@ Please create manually from backlog section
 gh pr view --json number -q '.number'
 # Returns empty - skip GitHub submission
 Warning: No PR found for current branch. Review saved locally only.
+# Tip: Use --local to intentionally write to a file
 ```
 
 **Cannot Approve Own PR:**

@@ -2,7 +2,8 @@
 
 Last updated: 2025-01-23
 
-This document tracks external dependencies across plugins, their fallback strategies, and documentation status.
+This document tracks external dependencies across plugins,
+their fallback strategies, and documentation status.
 
 ## Dependency Categories
 
@@ -141,13 +142,15 @@ Each plugin (attune, sanctum, spec-kit) has its own copy with:
 
 1. **Ask**: Is this dependency truly required, or can we use a fallback?
 2. **If required**: Add to `dependencies` in pyproject.toml
-3. **If optional**: Add to `[project.optional-dependencies]` and implement fallback
+3. **If optional**: Add to `[project.optional-dependencies]`
+   and implement fallback
 
 ### When Referencing Other Plugins
 
 1. **Skill references**: Document in frontmatter `dependencies:` field
 2. **Python imports**: Implement stub fallback classes
-3. **CLI tools**: Check availability with `shutil.which()` and provide error messages
+3. **CLI tools**: Check availability with `shutil.which()`
+   and provide error messages
 
 ### Fallback Priority
 

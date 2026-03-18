@@ -17,7 +17,7 @@ members = [
 
 [[package]]
 name = "abstract"
-version = "1.6.5"
+version = "1.6.6"
 source = { editable = "plugins/abstract" }
 dependencies = [
     { name = "pyyaml" },
@@ -326,7 +326,7 @@ wheels = [
 
 [[package]]
 name = "claude-night-market"
-version = "1.6.5"
+version = "1.6.6"
 source = { editable = "." }
 dependencies = [
     { name = "coverage" },
@@ -395,7 +395,7 @@ wheels = [
 
 [[package]]
 name = "conserve-dev"
-version = "1.6.5"
+version = "1.6.6"
 source = { editable = "plugins/conserve" }
 dependencies = [
     { name = "pre-commit" },
@@ -806,7 +806,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.6.5"
+version = "1.6.6"
 source = { editable = "plugins/leyline" }
 
 [package.optional-dependencies]

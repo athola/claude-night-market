@@ -6,29 +6,38 @@ Accepted - 2026-02-05
 
 ## Context
 
-Skills, commands, and agents in the attune plugin were not consistently discovered by Claude when users made relevant prompts or requests. Research of the obra/superpowers plugin revealed proven discoverability patterns that significantly improve automatic component matching.
+Skills, commands, and agents in the attune plugin were not consistently
+discovered by Claude when users made relevant prompts or requests.
+Research of the obra/superpowers plugin revealed proven discoverability
+patterns that significantly improve automatic component matching.
 
 ### Research Findings
 
 Official Claude Code specification analysis revealed:
 - **Only the `description` field** is used for skill/command/agent matching
-- All other frontmatter fields (`category`, `tags`, `complexity`, etc.) are custom metadata for our ecosystem only
-- Token budget: 15,000 chars total for all skill descriptions combined across the entire plugin ecosystem
-- Attune target: < 3,000 chars (20% of ecosystem budget) for proportional allocation
+- All other frontmatter fields (`category`, `tags`, `complexity`,
+  etc.) are custom metadata for our ecosystem only
+- Token budget: 15,000 chars total for all skill descriptions combined across
+  the entire plugin ecosystem
+- Attune target: < 3,000 chars (20% of ecosystem budget) for proportional
+  allocation
 
 ### Problem Statement
 
 Users would:
 - Type "I want to start a new project" but attune:brainstorm wouldn't trigger
-- Ask "how do I compare approaches?" without project-brainstorming being suggested
-- Request "design the architecture" without project-architect agent being invoked
+- Ask "how do I compare approaches?" without project-brainstorming being
+  suggested
+- Request "design the architecture" without project-architect agent being
+  invoked
 - Experience workflow confusion due to unclear skill boundaries
 
 ## Decision
 
 Implement a **hybrid approach** combining:
 
-1. **Template Development**: Create reusable templates for skills, commands, and agents
+1. **Template Development**: Create reusable templates for skills, commands,
+   and agents
 2. **Incremental Rollout**: Pilot → High-Priority → Remaining (4 phases)
 3. **Description Formula**: WHAT + WHEN + WHEN NOT pattern
 4. **Token Management**: Target 100-200 chars per description with monitoring
@@ -87,7 +96,8 @@ Every enhanced component includes:
 
 ### Critical Discovery: YAML Quoting
 
-Descriptions containing colons (e.g., "Use when: starting projects") **must be quoted** to prevent YAML parse errors:
+Descriptions containing colons (e.g., "Use when:
+starting projects") **must be quoted** to prevent YAML parse errors:
 
 ```yaml
 # ✗ WRONG - breaks YAML
@@ -101,24 +111,33 @@ description: "Use when: starting projects"
 
 ### Positive
 
-- ✅ **Improved Auto-Discovery**: Users' natural language requests now trigger appropriate attune components
-- ✅ **Reduced False Positives**: "When NOT To Use" boundaries prevent skill misuse
-- ✅ **Consistent Patterns**: All components follow same discoverability structure
+- ✅ **Improved Auto-Discovery**:
+  Users' natural language requests now trigger appropriate attune components
+- ✅ **Reduced False Positives**:
+  "When NOT To Use" boundaries prevent skill misuse
+- ✅ **Consistent Patterns**:
+  All components follow same discoverability structure
 - ✅ **Reusable Templates**: Future additions can use validated templates
-- ✅ **Clear Workflow**: Explicit cross-references guide users through brainstorm → specify → plan → execute
+- ✅ **Clear Workflow**: Explicit cross-references guide users through
+  brainstorm → specify → plan → execute
 - ✅ **Documentation**: Contributor templates in `plugins/attune/templates/`
 
 ### Negative
 
 - ⚠️ **Time Investment**: 26 hours total implementation time
-- ⚠️ **Budget Variance**: 3,920 chars (130.7% of 3,000 target) due to 43% more components than planned
-  - *Mitigated*: When adjusted for actual component count, usage is 91.4% of proportional budget
-- ⚠️ **Maintenance**: Ongoing need to maintain pattern consistency for new components
+- ⚠️ **Budget Variance**:
+  3,920 chars (130.7% of 3,000 target) due to 43% more components than planned
+  - *Mitigated*: When adjusted for actual component count,
+    usage is 91.4% of proportional budget
+- ⚠️ **Maintenance**: Ongoing need to maintain pattern consistency for new
+  components
 
 ### Neutral
 
-- ℹ️ **Custom Metadata**: Fields like `category`, `tags`, `complexity` documented as non-functional for matching
-- ℹ️ **Token Budgets**: Require monitoring with conserve tools (`/conserve:context-report`)
+- ℹ️ **Custom Metadata**: Fields like `category`, `tags`,
+  `complexity` documented as non-functional for matching
+- ℹ️ **Token Budgets**: Require monitoring with conserve tools
+  (`/conserve:context-report`)
 - ℹ️ **Template Evolution**: Phase 1 pilot refined templates based on learnings
 
 ## Validation
@@ -138,7 +157,8 @@ description: "Use when: starting projects"
 
 - ✅ 100% YAML frontmatter valid (all descriptions quoted)
 - ✅ All components have "When To Use" sections
-- ✅ All components have "When NOT To Use" sections (except agents which use "When To Invoke")
+- ✅ All components have "When NOT To Use" sections (except agents which use
+  "When To Invoke")
 - ✅ Token budget: 3,920 chars across 20 components (avg 196 chars/component)
 - ✅ No breaking changes to existing references
 
@@ -181,25 +201,36 @@ tags: [brainstorming, ideation, planning]
 - Brainstorm session: `.claude/brainstorm-attune-discoverability.md`
 - Pattern catalog: `.claude/discoverability-patterns-summary.md`
 - Official spec findings: `.claude/frontmatter-spec-findings.md`
-- Implementation plan: `docs/implementation-plan-attune-discoverability-v1.4.0.md`
+- Implementation plan:
+  `docs/implementation-plan-attune-discoverability-v1.4.0.md`
 - Templates: `plugins/attune/templates/`
-- Superpowers plugin: `~/.claude-code/plugins/superpowers/` (reference implementation)
+- Superpowers plugin: `~/.claude-code/plugins/superpowers/` (reference
+  implementation)
 
 ## Lessons Learned
 
-1. **YAML Syntax Critical**: Colons in descriptions require quoting - caught in Phase 1 pilot
-2. **Budget Flexibility**: Initial 3,000 char target was for ~14 components; actual 20 components required proportional adjustment
-3. **Pattern Success**: WHAT/WHEN/WHEN NOT formula effective across all component types (skills, commands, agents)
-4. **Template Value**: Pilot phase template refinement prevented issues in later phases
-5. **Cross-References**: "When NOT To Use" sections valuable for workflow guidance (e.g., "use `/attune:blueprint` instead")
+1. **YAML Syntax Critical**:
+   Colons in descriptions require quoting - caught in Phase 1 pilot
+2. **Budget Flexibility**: Initial 3,000 char target was for ~14 components;
+   actual 20 components required proportional adjustment
+3. **Pattern Success**: WHAT/WHEN/WHEN NOT formula effective across all
+   component types (skills, commands, agents)
+4. **Template Value**: Pilot phase template refinement prevented issues in
+   later phases
+5. **Cross-References**: "When NOT To Use" sections valuable for workflow
+   guidance (e.g., "use `/attune:blueprint` instead")
 
 ## Future Work
 
 1. **Extend to Other Plugins**: Apply pattern to sanctum, conserve, imbue, etc.
-2. **Automated Validation**: Create pre-commit hook validating new skills against template
-3. **Discovery Metrics**: Track which prompts trigger which components to refine keywords
-4. **Pattern Evolution**: Monitor effectiveness and evolve formula based on usage data
-5. **Token Budget Monitoring**: Periodic review with `/conserve:context-report` as ecosystem grows
+2. **Automated Validation**:
+   Create pre-commit hook validating new skills against template
+3. **Discovery Metrics**: Track which prompts trigger which components to
+   refine keywords
+4. **Pattern Evolution**: Monitor effectiveness
+   and evolve formula based on usage data
+5. **Token Budget Monitoring**:
+   Periodic review with `/conserve:context-report` as ecosystem grows
 
 ---
 

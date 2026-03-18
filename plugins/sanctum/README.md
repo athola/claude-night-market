@@ -1,10 +1,17 @@
 # Sanctum
 
-Git and workspace management for commits, pull requests, documentation, and versioning.
+Git and workspace management for commits, pull requests, documentation,
+and versioning.
 
 ## Overview
 
-Sanctum manages repository state and development workflows. It provides preflight checks for staged changes, drafts conventional commit messages, and prepares pull requests with quality gate verification. It automates version management and merges ephemeral documentation into permanent files to maintain project history and guides.
+Sanctum manages repository state and development workflows.
+It provides preflight checks for staged changes,
+drafts conventional commit messages,
+and prepares pull requests with quality gate verification.
+It automates version management
+and merges ephemeral documentation into permanent files to maintain project
+history and guides.
 
 ## Features
 
@@ -75,9 +82,16 @@ Sanctum manages repository state and development workflows. It provides prefligh
 
 #### Stop Hooks
 
-**verify_workflow_complete.py** displays a checklist when a session ends. It reminds the developer to complete proof-of-work verification, lists documentation update commands, and displays a quality gate checklist.
+**verify_workflow_complete.py** displays a checklist when a session ends.
+It reminds the developer to complete proof-of-work verification,
+lists documentation update commands, and displays a quality gate checklist.
 
-**session_complete_notify.py** provides a desktop toast notification when commands complete. It supports Linux (notify-send), macOS (osascript), Windows (PowerShell), and WSL. It displays terminal info such as Zellij session, tmux window, and project name. Execution takes approximately 95ms. Notifications can be disabled by setting `CLAUDE_NO_NOTIFICATIONS=1` or muted with `CLAUDE_NOTIFICATION_SOUND=0`.
+**session_complete_notify.py** provides a desktop toast notification when
+commands complete. It supports Linux (notify-send), macOS (osascript),
+Windows (PowerShell), and WSL. It displays terminal info such as Zellij
+session, tmux window, and project name. Execution takes approximately 95ms.
+Notifications can be disabled by setting `CLAUDE_NO_NOTIFICATIONS=1`
+or muted with `CLAUDE_NOTIFICATION_SOUND=0`.
 
 ## Quick Start
 
@@ -113,13 +127,20 @@ Skill(sanctum:git-workspace-review)
 
 ## Skill Dependencies
 
-Most sanctum skills require `git-workspace-review` as a foundation. Skills like `commit-messages`, `pr-prep`, `doc-updates`, `update-readme`, and `version-updates` depend on its output. `file-analysis` operates independently.
+Most sanctum skills require `git-workspace-review` as a foundation.
+Skills like `commit-messages`, `pr-prep`, `doc-updates`, `update-readme`,
+and `version-updates` depend on its output.
+`file-analysis` operates independently.
 
 ## Workflow Patterns
 
-**Pre-Commit**: Stage changes using `git add -p`, execute `git-workspace-review` for a preflight check, and run `commit-messages` to generate the message.
+**Pre-Commit**: Stage changes using `git add -p`,
+execute `git-workspace-review` for a preflight check,
+and run `commit-messages` to generate the message.
 
-**Pre-PR**: Execute a preflight check, run quality gates such as `make fmt && make lint && make test`, and use `pr-prep` to generate the description.
+**Pre-PR**: Execute a preflight check,
+run quality gates such as `make fmt && make lint && make test`,
+and use `pr-prep` to generate the description.
 
 **Post-Review**: Use `/fix-pr` to triage comments,
 implement fixes, and resolve threads.
@@ -127,19 +148,33 @@ Both `/fix-pr` and `/pr-review` inject a test plan
 into PR descriptions when one is missing, using the
 shared `test-plan-injection` module.
 
-**Release**: Run a preflight check, bump the version with `version-updates`, update documentation with `doc-updates`, then commit and tag the release.
+**Release**: Run a preflight check, bump the version with `version-updates`,
+update documentation with `doc-updates`, then commit and tag the release.
 
 ## Session Forking (Claude Code 2.0.73+)
 
-Session forking allows for exploring alternative implementations or commit strategies without affecting the main session history.
+Session forking allows for exploring alternative implementations
+or commit strategies without affecting the main session history.
 
 ### Use Cases
 
-For **Alternative Implementations**, fork a session to try different approaches, such as comparing an OAuth 2.0 implementation with a JWT-based one. For **Commit Strategies**, use forks to test atomic commits per file versus grouping by feature area. **PR Descriptions** can be forked to generate technical-focused versions and business-value versions, which can then be combined for the final draft. **Refactoring Explorations** allow for trying functional, OOP, or composition-based styles in parallel to evaluate trade-offs before implementation.
+For **Alternative Implementations**,
+fork a session to try different approaches,
+such as comparing an OAuth 2.0 implementation with a JWT-based one.
+For **Commit Strategies**,
+use forks to test atomic commits per file versus grouping by feature area.
+**PR Descriptions** can be forked to generate technical-focused versions
+and business-value versions, which can then be combined for the final draft.
+**Refactoring Explorations** allow for trying functional, OOP,
+or composition-based styles in parallel to evaluate trade-offs before
+implementation.
 
 ### Standards
 
-Use descriptive session IDs like `pr-123-security-focused` instead of generic names. Keep each fork focused on a single approach. Extract insights to files before closing and document the reasoning for the final choice.
+Use descriptive session IDs like `pr-123-security-focused` instead of generic
+names. Keep each fork focused on a single approach.
+Extract insights to files before closing
+and document the reasoning for the final choice.
 
 ## Stewardship
 

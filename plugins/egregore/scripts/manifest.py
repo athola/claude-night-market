@@ -60,6 +60,7 @@ class WorkItem:
     status: str = "active"
     failure_reason: str | None = None
     quality_config: dict[str, Any] = field(default_factory=dict)
+    worktree_path: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
@@ -77,6 +78,7 @@ class WorkItem:
             "status": self.status,
             "failure_reason": self.failure_reason,
             "quality_config": dict(self.quality_config),
+            "worktree_path": self.worktree_path,
         }
 
     @classmethod
@@ -96,6 +98,7 @@ class WorkItem:
             status=data.get("status", "active"),
             failure_reason=data.get("failure_reason"),
             quality_config=data.get("quality_config", {}),
+            worktree_path=data.get("worktree_path", ""),
         )
 
 
@@ -105,14 +108,23 @@ class Manifest:
 
     project_dir: str
     work_items: list[WorkItem] = field(default_factory=list)
+    history: list[dict[str, Any]] = field(default_factory=list)
     created_at: str = field(default_factory=_now_iso)
     session_count: int = 0
     continuation_count: int = 0
+    max_concurrent_worktrees: int = 3
 
     def _next_id(self) -> str:
         """Generate the next sequential work item ID."""
-        num = len(self.work_items) + 1
-        return f"wrk_{num:03d}"
+        if not self.work_items:
+            return "wrk_001"
+        nums = []
+        for item in self.work_items:
+            parts = item.id.split("_")
+            if len(parts) == 2 and parts[1].isdigit():  # noqa: PLR2004
+                nums.append(int(parts[1]))
+        max_num = max(nums) if nums else 0
+        return f"wrk_{max_num + 1:03d}"
 
     def _find_item(self, item_id: str) -> WorkItem:
         """Look up a work item by ID."""
@@ -165,7 +177,12 @@ class Manifest:
         stage = item.pipeline_stage
         step = item.pipeline_step
         steps = PIPELINE[stage]
-        step_idx = steps.index(step)
+        try:
+            step_idx = steps.index(step)
+        except ValueError:
+            item.status = "failed"
+            item.failure_reason = f"Corrupt pipeline step: {step!r} not in {stage}"
+            return
 
         if step_idx + 1 < len(steps):
             # More steps in this stage
@@ -219,14 +236,32 @@ class Manifest:
             }
         )
 
+    def record_history(self, event: str, detail: str) -> None:
+        """Append an entry to the manifest's history log.
+
+        Args:
+            event: Short label for the event (e.g. "advance", "fail").
+            detail: Human-readable description of what happened.
+
+        """
+        self.history.append(
+            {
+                "timestamp": _now_iso(),
+                "event": event,
+                "detail": detail,
+            }
+        )
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize the entire manifest to a plain dictionary."""
         return {
             "project_dir": self.project_dir,
             "work_items": [wi.to_dict() for wi in self.work_items],
+            "history": list(self.history),
             "created_at": self.created_at,
             "session_count": self.session_count,
             "continuation_count": self.continuation_count,
+            "max_concurrent_worktrees": self.max_concurrent_worktrees,
         }
 
     @classmethod
@@ -237,8 +272,10 @@ class Manifest:
             created_at=data.get("created_at", _now_iso()),
             session_count=data.get("session_count", 0),
             continuation_count=data.get("continuation_count", 0),
+            max_concurrent_worktrees=data.get("max_concurrent_worktrees", 3),
         )
         m.work_items = [WorkItem.from_dict(wi) for wi in data.get("work_items", [])]
+        m.history = list(data.get("history", []))
         return m
 
 

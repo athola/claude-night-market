@@ -1,12 +1,16 @@
 # Feature Development Lifecycle
 
-Walk through building a feature from specification to merged PR. This tutorial covers the full development cycle using real commands across multiple plugins.
+Walk through building a feature from specification to merged PR.
+This tutorial covers the full development cycle using real commands across
+multiple plugins.
 
 ---
 
 ## Scenario
 
-You've been asked to add a new capability to your project. You need to specify what you're building, plan the implementation, write the code, and get it reviewed and merged.
+You've been asked to add a new capability to your project.
+You need to specify what you're building, plan the implementation,
+write the code, and get it reviewed and merged.
 
 ## Step 1: Start with a Specification
 
@@ -32,7 +36,9 @@ If the spec needs clarification:
 /speckit-clarify
 ```
 
-This asks targeted questions to resolve ambiguities. "Should rate limits be per-user or per-IP?" "What HTTP status code for rate-limited requests?"
+This asks targeted questions to resolve ambiguities.
+"Should rate limits be per-user
+or per-IP?" "What HTTP status code for rate-limited requests?"
 
 ## Step 2: Plan the Implementation
 
@@ -57,7 +63,8 @@ Break the plan into ordered tasks:
 /speckit-tasks
 ```
 
-This creates a `tasks.md` with dependency-ordered implementation steps. Each task is specific enough to implement independently.
+This creates a `tasks.md` with dependency-ordered implementation steps.
+Each task is specific enough to implement independently.
 
 ## Step 3: Implement
 
@@ -88,7 +95,8 @@ After implementing, verify the spec, plan, and code are aligned:
 /speckit-analyze
 ```
 
-This cross-checks all artifacts: spec requirements against tests, plan phases against implementation, task completion against acceptance criteria.
+This cross-checks all artifacts: spec requirements against tests,
+plan phases against implementation, task completion against acceptance criteria.
 
 ## Step 4: Review Your Work
 
@@ -98,13 +106,16 @@ Before committing, review what you've built:
 /code-review
 ```
 
-This runs pensive's review system against your changes. For a feature like this, you might also run:
+This runs pensive's review system against your changes.
+For a feature like this, you might also run:
 
 ```
 /architecture-review
 ```
 
-This checks whether your implementation fits the existing architecture. Are you adding rate limiting in the right layer? Does it follow existing patterns?
+This checks whether your implementation fits the existing architecture.
+Are you adding rate limiting in the right layer?
+Does it follow existing patterns?
 
 ## Step 5: Commit and Create a PR
 
@@ -114,7 +125,8 @@ Stage your changes and generate a commit message:
 /commit-msg
 ```
 
-This analyzes staged changes and drafts a conventional commit message. It classifies the change type (feat, fix, refactor) and summarizes the intent.
+This analyzes staged changes and drafts a conventional commit message.
+It classifies the change type (feat, fix, refactor) and summarizes the intent.
 
 Then prepare the pull request:
 
@@ -122,7 +134,8 @@ Then prepare the pull request:
 /prepare-pr
 ```
 
-This runs quality gates (tests, lint, scope check) and generates a PR description with:
+This runs quality gates (tests, lint,
+scope check) and generates a PR description with:
 
 - Summary of changes
 - Test plan
@@ -130,7 +143,8 @@ This runs quality gates (tests, lint, scope check) and generates a PR descriptio
 
 ## What You've Learned
 
-- **spec-kit** handles the specification → plan → tasks → implementation pipeline
+- **spec-kit** handles the specification → plan → tasks → implementation
+  pipeline
 - **pensive** provides code review before you commit
 - **sanctum** handles git operations: commits, PRs, quality gates
 - Plugins collaborate through the workflow. You don't orchestrate them manually.

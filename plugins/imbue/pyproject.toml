@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.6.5"
+version = "1.6.6"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -81,7 +81,9 @@ extend-ignore = [
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**" = [
-    "D103",  # Missing docstrings in tests
+    "D102",  # Missing method docstrings in tests
+    "D103",  # Missing function docstrings in tests
+    "D401",  # Imperative mood in test docstrings
     "E501",  # Long test lines are acceptable
     "PLR2004",  # Magic values in tests
     "PLR0915",  # Complex test flows

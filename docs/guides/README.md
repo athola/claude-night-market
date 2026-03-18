@@ -8,7 +8,8 @@ Guides for advanced topics in the plugin ecosystem.
 
 ### [Skills Separation: Development vs Runtime](development-vs-runtime-skills-separation.md)
 
-**Problem**: Avoid namespace collision between development skills (Claude Code assisting you) and runtime skills (your agent's capabilities).
+**Problem**: Avoid namespace collision between development skills (Claude Code
+assisting you) and runtime skills (your agent's capabilities).
 
 **You'll Learn**:
 - 4 separation patterns (directory, namespace, forking, scoped loading)
@@ -17,17 +18,25 @@ Guides for advanced topics in the plugin ecosystem.
 - Troubleshooting common issues
 
 **Resources**:
-- **Full Guide**: [development-vs-runtime-skills-separation.md](development-vs-runtime-skills-separation.md)
-- **Quick Reference**: [skills-separation-quickref.md](skills-separation-quickref.md)
-- **Visual Diagrams**: [skills-separation-diagram.md](skills-separation-diagram.md)
+- **Full Guide**:
+  [development-vs-runtime-skills-separation.md](development-vs-runtime-skills-se
+  paration.md)
+- **Quick Reference**:
+  [skills-separation-quickref.md](skills-separation-quickref.md)
+- **Visual Diagrams**:
+  [skills-separation-diagram.md](skills-separation-diagram.md)
 
 ---
 
 ### [Skill Observability Guide](skill-observability-guide.md)
 
-Minimal-dependency continual learning system using PreToolUse and PostToolUse hooks.
+Minimal-dependency continual learning system using PreToolUse
+and PostToolUse hooks.
 
-This system provides per-iteration skill execution logging and stability gap detection. JSONL storage enables easy querying and real-time performance monitoring. This helps build production plugins that require reliable performance metrics.
+This system provides per-iteration skill execution logging
+and stability gap detection. JSONL storage enables easy querying
+and real-time performance monitoring.
+This helps build production plugins that require reliable performance metrics.
 
 ---
 
@@ -73,7 +82,9 @@ Defining clean boundaries between agents and sub-agents in multi-agent systems.
 
 ### [Plugin Dependency Patterns](plugin-dependency-pattern.md)
 
-Manage dependencies between plugins without tight coupling by detecting optional dependencies, using capability detection, implementing secondary strategies, and ensuring version compatibility.
+Manage dependencies between plugins without tight coupling by detecting
+optional dependencies, using capability detection,
+implementing secondary strategies, and ensuring version compatibility.
 
 ---
 
@@ -81,7 +92,10 @@ Manage dependencies between plugins without tight coupling by detecting optional
 
 ### [Superpowers Integration](../../book/src/reference/superpowers-integration.md)
 
-Integrating with the [obra/superpowers](https://github.com/obra/superpowers) marketplace. See the [book reference](../../book/src/reference/superpowers-integration.md) for full details.
+Integrating with the [obra/superpowers](https://github.com/obra/superpowers)
+marketplace. See the [book
+reference](../../book/src/reference/superpowers-integration.md) for full
+details.
 
 ---
 
@@ -103,9 +117,11 @@ Writing high-quality documentation for plugins, skills, and commands.
 
 ### [Data Extraction Pattern](data-extraction-pattern.md)
 
-Systematic approach for separating embedded data from code into YAML configuration files.
+Systematic approach for separating embedded data from code into YAML
+configuration files.
 
-**Use when scripts contain over 100 lines of embedded data (catalogs, templates, lookup tables).**
+**Use when scripts contain over 100 lines of embedded data (catalogs,
+templates, lookup tables).**
 
 **Benefits**:
 - 75% average code reduction
@@ -120,7 +136,8 @@ Systematic approach for separating embedded data from code into YAML configurati
 4. Update script to load data
 5. Validate functionality preserved
 
-**Real Examples**: 4 production refactorings achieving 3,343 → ~795 lines (10,192 tokens saved)
+**Real Examples**: 4 production refactorings achieving 3,343 → ~795 lines
+(10,192 tokens saved)
 
 ---
 
@@ -128,7 +145,8 @@ Systematic approach for separating embedded data from code into YAML configurati
 
 Systematic methodology for context reduction in Claude Code projects.
 
-**Result**: 28-33% context reduction through nine optimization phases (~70,772 tokens saved)
+**Result**: 28-33% context reduction through nine optimization phases (~70,772
+tokens saved)
 
 **8 Patterns**:
 - Archive cleanup (high impact)
@@ -142,7 +160,8 @@ Systematic methodology for context reduction in Claude Code projects.
 
 **Workflow**: Discovery → Analysis → Planning → Execution → Validation
 
-**Use When**: Project approaching context limits, quarterly maintenance, onboarding friction
+**Use When**: Project approaching context limits, quarterly maintenance,
+onboarding friction
 
 ---
 
@@ -160,7 +179,8 @@ Systematic methodology for context reduction in Claude Code projects.
 
 ## Contributing
 
-Have a guide topic suggestion? Open an issue on the repository with the `documentation` label.
+Have a guide topic suggestion?
+Open an issue on the repository with the `documentation` label.
 
 **Criteria for New Guides**:
 - Solves a common, non-obvious problem

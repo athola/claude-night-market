@@ -1,6 +1,10 @@
 # Graphviz Examples for Skill Diagrams
 
-Comprehensive examples for creating process diagrams in skills. For conventions and quick reference, see the [graphviz-conventions module](../../../plugins/abstract/skills/skill-authoring/modules/graphviz-conventions.md).
+Thorough examples for creating process diagrams in skills.
+For conventions and quick reference, see the
+[graphviz-conventions module][gv].
+
+[gv]: ../../../plugins/abstract/skills/skill-authoring/modules/graphviz-conventions.md
 
 ## Complete Example: TDD Workflow
 

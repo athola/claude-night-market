@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -82,6 +83,13 @@ class TestPatternLoading:
         """Unsupported language code raises ValueError."""
         with pytest.raises(ValueError, match="Unsupported language"):
             load_language_patterns("xx")
+
+    @pytest.mark.unit
+    def test_missing_yaml_raises_import_error(self) -> None:
+        """Loading patterns without pyyaml raises ImportError."""
+        with patch("scribe.pattern_loader.yaml", None):
+            with pytest.raises(ImportError, match="pyyaml is required"):
+                load_language_patterns("en")
 
 
 class TestWordExtraction:

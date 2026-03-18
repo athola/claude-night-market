@@ -4,7 +4,8 @@ Full-cycle project development from ideation to implementation.
 
 ## Overview
 
-Attune integrates the brainstorm-plan-execute workflow from superpowers with spec-driven development from spec-kit to provide a complete project lifecycle.
+Attune integrates the brainstorm-plan-execute workflow from superpowers with
+spec-driven development from spec-kit to provide a complete project lifecycle.
 
 ## Workflow
 
@@ -119,7 +120,9 @@ Attune combines capabilities from:
 
 ## War Room Integration
 
-The war room is a mandatory phase after brainstorming. It automatically routes to the appropriate deliberation intensity based on Reversibility Score (RS):
+The war room is a mandatory phase after brainstorming.
+It automatically routes to the appropriate deliberation intensity based on
+Reversibility Score (RS):
 
 | Mode | RS Range | Duration | Description |
 |------|----------|----------|-------------|
@@ -128,11 +131,19 @@ The war room is a mandatory phase after brainstorming. It automatically routes t
 | Full Council | 0.61-0.80 | 15-30 min | 7-expert deliberation |
 | Delphi | > 0.80 | 30-60 min | Iterative consensus for critical decisions |
 
-The `war-room-checkpoint` skill can also trigger additional deliberation during planning or execution when high-stakes decisions arise.
+The `war-room-checkpoint` skill can also trigger additional deliberation during
+planning or execution when high-stakes decisions arise.
 
 ### Discussion Publishing
 
-After the Supreme Commander synthesis (Phase 7), the war room offers to publish the decision to a GitHub Discussion in the "Decisions" category. This requires user approval and checks for prior decisions on the same topic to avoid duplicates. The published Discussion includes the full decision record with alternatives considered, scoring breakdown, and implementation guidance. Local strategeion files remain the primary record; the Discussion is an additional cross-session discovery channel.
+After the Supreme Commander synthesis (Phase 7),
+the war room offers to publish the decision to a GitHub Discussion in the
+"Decisions" category. This requires user approval
+and checks for prior decisions on the same topic to avoid duplicates.
+The published Discussion includes the full decision record with alternatives
+considered, scoring breakdown, and implementation guidance.
+Local strategeion files remain the primary record;
+the Discussion is an additional cross-session discovery channel.
 
 ## Examples
 

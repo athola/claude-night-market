@@ -1134,3 +1134,292 @@ impl Service {
         prefixes = {c["prefix"] for c in result["consolidation_candidates"]}
         assert "check_" in prefixes
         assert "verify_" in prefixes
+
+    # ── prefer-builtins: conversion helpers ────────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_parse_helper_as_fromstr(self, mock_skill_context) -> None:
+        """Given fn parse_foo(s: &str), skill flags as FromStr candidate."""
+        code = """
+        struct Config { name: String }
+
+        fn parse_config(s: &str) -> Config {
+            Config { name: s.to_string() }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "config.rs")
+        assert "builtin_preference_issues" in result
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("FromStr" in i["trait"] for i in issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_from_helper_as_from_trait(self, mock_skill_context) -> None:
+        """Given fn foo_from_bar(), skill flags as From trait candidate."""
+        code = """
+        struct Foo { val: i32 }
+        struct Bar { val: i32 }
+
+        fn foo_from_bar(b: Bar) -> Foo {
+            Foo { val: b.val }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "types.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("From" in i["trait"] for i in issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_to_method_as_into(self, mock_skill_context) -> None:
+        """Given fn to_bar(&self), skill flags as Into/From candidate."""
+        code = """
+        struct Foo { val: i32 }
+
+        impl Foo {
+            fn to_bar(&self) -> Bar {
+                Bar { val: self.val }
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "types.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("Into" in i["trait"] for i in issues)
+
+    # ── prefer-builtins: standard traits ───────────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_default_helper(self, mock_skill_context) -> None:
+        """Given fn default_config() -> Config, skill flags as Default."""
+        code = """
+        struct Config { timeout: u64 }
+
+        fn default_config() -> Config {
+            Config { timeout: 30 }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "config.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("Default" in i["trait"] for i in issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_display_helper(self, mock_skill_context) -> None:
+        """Given fn format_error(&e), skill flags as Display candidate."""
+        code = """
+        struct MyError { msg: String }
+
+        fn format_error(e: &MyError) -> String {
+            format!("Error: {}", e.msg)
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "errors.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("Display" in i["trait"] for i in issues)
+
+    # ── prefer-builtins: error conversions ─────────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_error_conversion_helper(self, mock_skill_context) -> None:
+        """Given fn io_to_my_error(e), skill flags as From<Error>."""
+        code = """
+        struct MyError { inner: String }
+
+        fn io_to_my_error(e: std::io::Error) -> MyError {
+            MyError { inner: e.to_string() }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "errors.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("From<Error>" in i["trait"] for i in issues)
+
+    # ── prefer-builtins: manual combinators ────────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_manual_map_pattern(self, mock_skill_context) -> None:
+        """Given match Some(x) => Some(f(x)), None => None, skill flags."""
+        code = """
+        fn transform(opt: Option<i32>) -> Option<String> {
+            match opt {
+                Some(x) => Some(x.to_string()),
+                None => None,
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "lib.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any(i.get("clippy_lint") == "clippy::manual_map" for i in issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_manual_unwrap_or(self, mock_skill_context) -> None:
+        """Given match Some(x) => x, None => default, skill flags."""
+        code = """
+        fn get_or_default(opt: Option<i32>) -> i32 {
+            match opt {
+                Some(x) => x,
+                None => 0,
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "lib.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+        assert any("unwrap_or" in i.get("replacement", "") for i in issues)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_is_some_unwrap(self, mock_skill_context) -> None:
+        """Given if x.is_some() { x.unwrap() }, skill flags."""
+        code = """
+        fn process(opt: Option<i32>) {
+            if opt.is_some() {
+                let val = opt.unwrap();
+                println!("{}", val);
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "lib.rs")
+        issues = result["builtin_preference_issues"]
+        assert len(issues) >= 1
+
+    # ── prefer-builtins: clippy lint references ────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_clippy_lint_reference_included(self, mock_skill_context) -> None:
+        """Given a manual_map finding, output includes clippy lint name."""
+        code = """
+        fn transform(opt: Option<i32>) -> Option<String> {
+            match opt {
+                Some(x) => Some(x.to_string()),
+                None => None,
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "lib.rs")
+        issues = result["builtin_preference_issues"]
+        lint_issues = [i for i in issues if i.get("clippy_lint")]
+        assert len(lint_issues) >= 1
+        assert "clippy::" in lint_issues[0]["clippy_lint"]
+
+    # ── prefer-builtins: false positive suppression ────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_builder_method_not_flagged(self, mock_skill_context) -> None:
+        """Given fn with_timeout(self, t), skill produces no finding."""
+        code = """
+        struct Config { timeout: u64 }
+
+        impl Config {
+            fn with_timeout(self, t: u64) -> Self {
+                Config { timeout: t }
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "config.rs")
+        assert result["builtin_preference_issues"] == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_lossy_conversion_not_flagged(self, mock_skill_context) -> None:
+        """Given fn to_lossy_ascii(), skill produces no finding."""
+        code = """
+        struct Text { data: Vec<u8> }
+
+        impl Text {
+            fn to_lossy_ascii(&self) -> String {
+                String::from_utf8_lossy(&self.data).to_string()
+            }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "text.rs")
+        assert result["builtin_preference_issues"] == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_multi_param_conversion_not_flagged(self, mock_skill_context) -> None:
+        """Given fn parse_with_options(s, opts), skill produces no finding."""
+        code = """
+        struct Config { name: String }
+        struct ParseOptions { strict: bool }
+
+        fn parse_config(s: &str, opts: &ParseOptions) -> Config {
+            Config { name: s.to_string() }
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_builtin_preference(mock_skill_context, "config.rs")
+        assert result["builtin_preference_issues"] == []
+
+    # ── boundary and gap tests ─────────────────────────────────
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_vec_position_as_set(self, mock_skill_context) -> None:
+        """Given Vec.iter().position(), skill flags as set/map candidate."""
+        code = """
+        fn find_index(items: &Vec<String>, target: &str) -> Option<usize> {
+            items.iter().position(|s| s == target)
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_collection_types(mock_skill_context, "lookup.rs")
+        issues = result["collection_type_suggestions"]
+        assert len(issues) >= 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_error_message_boundary_20_chars_not_flagged(
+        self, mock_skill_context
+    ) -> None:
+        """Given a 20-char error string, skill does not flag it."""
+        code = """
+        fn fail() -> Result<(), String> {
+            Err("exactly twenty chars")
+        }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_error_messages(mock_skill_context, "err.rs")
+        assert result["poor_error_messages"] == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_duplicate_validators_boundary_exactly_three(
+        self, mock_skill_context
+    ) -> None:
+        """Given exactly 3 check_* fns, skill produces a consolidation candidate."""
+        code = """
+        fn check_alpha(v: &str) -> bool { !v.is_empty() }
+        fn check_beta(v: &str) -> bool { v.len() > 3 }
+        fn check_gamma(v: &str) -> bool { v.starts_with('x') }
+        """
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze_duplicate_validators(
+            mock_skill_context, "validators.rs"
+        )
+        assert len(result["consolidation_candidates"]) == 1
+        assert result["consolidation_candidates"][0]["prefix"] == "check_"

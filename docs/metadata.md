@@ -2,14 +2,17 @@
 
 ## Overview
 
-This marketplace uses a dual-manifest system. We support the official Claude Code schema while tracking extended metadata needed for our specific tooling.
+This marketplace uses a dual-manifest system.
+We support the official Claude Code schema while tracking extended metadata
+needed for our specific tooling.
 
 ## File Structure
 
 Each plugin maintains two manifest files in its `.claude-plugin/` directory.
 
 ### plugin.json (Official Schema)
-This file strictly follows the Claude Code plugin schema. It contains only officially supported fields to ensuring validation passes.
+This file strictly follows the Claude Code plugin schema.
+It contains only officially supported fields to ensuring validation passes.
 
 ```json
 {
@@ -41,7 +44,8 @@ This file strictly follows the Claude Code plugin schema. It contains only offic
 - `license`
 
 ### metadata.json (Extended Marketplace Schema)
-This file captures metadata that the marketplace needs but the official schema rejects.
+This file captures metadata that the marketplace needs
+but the official schema rejects.
 
 ```json
 {
@@ -88,8 +92,17 @@ This file captures metadata that the marketplace needs but the official schema r
 
 ## Why Two Files?
 
-We split metadata because the official `plugin.json` validator is strict. Including extra fields causes installation to fail. By keeping `plugin.json` clean and moving rich metadata like dependencies and capabilities to `metadata.json`, we get the best of both worlds: full compatibility with Claude Code and the enhanced features required by our marketplace.
+We split metadata because the official `plugin.json` validator is strict.
+Including extra fields causes installation to fail.
+By keeping `plugin.json` clean and moving rich metadata like dependencies
+and capabilities to `metadata.json`, we get the best of both worlds:
+full compatibility with Claude Code
+and the enhanced features required by our marketplace.
 
 ## Migration Notes
 
-Keep `plugin.json` minimal. Move any field not in the official schema to `metadata.json`. Always run `claude plugin validate` to verify compliance. Ensure version numbers match in both files so tooling allows correct dependency resolution.
+Keep `plugin.json` minimal.
+Move any field not in the official schema to `metadata.json`.
+Always run `claude plugin validate` to verify compliance.
+Ensure version numbers match in both files so tooling allows correct dependency
+resolution.

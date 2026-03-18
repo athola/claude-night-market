@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Comprehensive PR/MR review with scope validation and code analysis (GitHub/GitLab)
-usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
+usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -81,6 +81,10 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 # Dry run (no comments posted)
 /pr-review --dry-run
 
+# Write report to local .md file instead of posting to PR
+/pr-review --local
+/pr-review --local reviews/my-review.md
+
 # Auto-approve safe PRs
 /pr-review --auto-approve-safe-prs
 
@@ -98,9 +102,9 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 3. **Slop Detection** - AI content markers in docs, commits, PR description (MANDATORY)
 4. **Code Analysis** - Deep technical review
 5. **Code Quality** - Duplication, redundancy analysis
-6. **GitHub Review** - Post review comments to PR (MANDATORY)
-7. **Test Plan** - Post verification checklist to PR (MANDATORY)
-8. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
+6. **GitHub Review** - Post review comments to PR (MANDATORY; or write to local file with `--local`)
+7. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
+8. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.

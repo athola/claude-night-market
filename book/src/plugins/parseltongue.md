@@ -1,10 +1,13 @@
 # parseltongue
 
-Modern Python development suite for testing, performance, async patterns, and packaging.
+Modern Python development suite for testing, performance, async patterns,
+and packaging.
 
 ## Overview
 
-Parseltongue brings Python 3.12+ best practices to your workflow. It covers the full development lifecycle: testing with pytest, performance optimization, async patterns, and modern packaging with uv.
+Parseltongue brings Python 3.12+ best practices to your workflow.
+It covers the full development lifecycle: testing with pytest,
+performance optimization, async patterns, and modern packaging with uv.
 
 ## Installation
 

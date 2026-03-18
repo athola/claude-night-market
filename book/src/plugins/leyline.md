@@ -4,7 +4,9 @@ Infrastructure and pipeline building blocks for plugins.
 
 ## Overview
 
-Leyline provides reusable infrastructure patterns that other plugins build on. Think of it as a standard library for plugin development - error handling, authentication, storage, and testing patterns.
+Leyline provides reusable infrastructure patterns that other plugins build on.
+Think of it as a standard library for plugin development - error handling,
+authentication, storage, and testing patterns.
 
 ## Installation
 
@@ -142,15 +144,26 @@ data = storage.load("key")
 
 ## Discussion Operations (GitHub Only)
 
-The `git-platform` skill's `command-mapping` module provides GraphQL templates for GitHub Discussions. These templates are consumed by attune (war room publishing), imbue (scope-guard linking), memory-palace (knowledge promotion), and minister (playbook rituals).
+The `git-platform` skill's `command-mapping` module provides GraphQL templates
+for GitHub Discussions. These templates are consumed by attune (war room
+publishing), imbue (scope-guard linking), memory-palace (knowledge promotion),
+and minister (playbook rituals).
 
-Supported operations: create, comment, threaded reply, mark-as-answer, search, get-by-number, update, and list-by-category. Category resolution from slug to `nodeId` is included as a prerequisite step.
+Supported operations: create, comment, threaded reply, mark-as-answer, search,
+get-by-number, update, and list-by-category.
+Category resolution from slug to `nodeId` is included as a prerequisite step.
 
-On non-GitHub platforms (GitLab, Bitbucket), all Discussion operations are skipped with a warning.
+On non-GitHub platforms (GitLab, Bitbucket),
+all Discussion operations are skipped with a warning.
 
-A `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent "Decisions" discussions at session start and injects a summary (<600 tokens) so that new sessions can discover prior deliberations.
+A `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent
+"Decisions" discussions at session start
+and injects a summary (<600 tokens) so that new sessions can discover prior
+deliberations.
 
-An `auto-star-repo.sh` SessionStart hook stars the repository if not already starred. The hook is idempotent (checks status before acting), never unstars, and fails silently if no auth method is available.
+An `auto-star-repo.sh` SessionStart hook stars the repository if not already
+starred. The hook is idempotent (checks status before acting), never unstars,
+and fails silently if no auth method is available.
 
 ## Integration
 

@@ -1,8 +1,14 @@
 # Hook Reference
 
-Hooks let you run scripts at specific lifecycle events (session start, before/after tool calls, session end). They're registered in YAML configuration and implemented in Bash or Python. Common uses: injecting context, caching web results, logging for observability, and enforcing policies.
+Hooks let you run scripts at specific lifecycle events (session start,
+before/after tool calls, session end).
+They're registered in YAML configuration and implemented in Bash or Python.
+Common uses: injecting context, caching web results, logging for observability,
+and enforcing policies.
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Commands][cap-cmd] | [Skills][cap-skills] |
+[Agents][cap-agents] | [Workflows][cap-wf]
 
 ---
 
@@ -302,9 +308,12 @@ safety:
 **Matcher**: `WebFetch|WebSearch`
 **Uses additionalContext**: Yes (2.1.9+)
 
-Checks knowledge corpus before web requests. Injects cached knowledge as visible context before tool execution.
+Checks knowledge corpus before web requests.
+Injects cached knowledge as visible context before tool execution.
 
-**Modes**: `cache_only` blocks all web requests; `cache_first` checks the corpus then hits the web if nothing matches; `augment` always mixes corpus context into web responses.
+**Modes**: `cache_only` blocks all web requests;
+`cache_first` checks the corpus then hits the web if nothing matches;
+`augment` always mixes corpus context into web responses.
 
 ### `url_detector.py`
 **Type**: UserPromptSubmit
@@ -337,7 +346,11 @@ Records skill execution completion and metrics.
 **Type**: PreToolUse
 **Matcher**: `.*`
 
-Monitors context utilization and alerts at thresholds. At EMERGENCY (80%+), directs Claude to delegate via `Skill(conserve:clear-context)` and a continuation agent rather than wrapping up. Uses tail-based JSONL parsing to avoid false alerts from compressed history.
+Monitors context utilization and alerts at thresholds.
+At EMERGENCY (80%+), directs Claude to delegate via
+`Skill(conserve:clear-context)`
+and a continuation agent rather than wrapping up.
+Uses tail-based JSONL parsing to avoid false alerts from compressed history.
 
 ### `permission_request.py`
 **Type**: PermissionRequest
@@ -371,14 +384,19 @@ Verifies workflow completion before session end.
 ### `session_complete_notify.py`
 **Type**: Stop
 
-Cross-platform toast notifications when Claude awaits input. Supports Linux (notify-send), macOS (osascript), Windows (PowerShell), and WSL. Shows terminal context (Zellij, tmux, project name). Non-blocking background execution. Disable with `CLAUDE_NO_NOTIFICATIONS=1`.
+Cross-platform toast notifications when Claude awaits input.
+Supports Linux (notify-send), macOS (osascript), Windows (PowerShell), and WSL.
+Shows terminal context (Zellij, tmux, project name).
+Non-blocking background execution. Disable with `CLAUDE_NO_NOTIFICATIONS=1`.
 
 ### `security_pattern_check.py`
 **Type**: PreToolUse
 **Matcher**: `Edit|Write|MultiEdit`
 **Uses additionalContext**: Yes (2.1.9+)
 
-Checks for security anti-patterns in code changes. Injects security warnings as visible context when risky patterns detected. Context-aware: distinguishes actual code from documentation examples.
+Checks for security anti-patterns in code changes.
+Injects security warnings as visible context when risky patterns detected.
+Context-aware: distinguishes actual code from documentation examples.
 
 ---
 
@@ -395,7 +413,8 @@ Logs skill executions for metrics.
 **Matcher**: `Skill`
 **Uses additionalContext**: Yes (2.1.9+)
 
-Tracks skill executions and injects skill context before execution. Creates state files for PostToolUse duration calculation.
+Tracks skill executions and injects skill context before execution.
+Creates state files for PostToolUse duration calculation.
 
 ---
 
@@ -404,13 +423,19 @@ Tracks skill executions and injects skill context before execution. Creates stat
 ### `detect-git-platform.sh`
 **Type**: SessionStart
 
-Detects the git hosting platform (GitHub, GitLab, Bitbucket) and sets session context variables used by downstream skills and hooks.
+Detects the git hosting platform (GitHub, GitLab,
+Bitbucket) and sets session context variables used by downstream skills
+and hooks.
 
 ### `fetch-recent-discussions.sh`
 **Type**: SessionStart
 **Timeout**: 3 seconds
 
-Queries the 5 most recent "Decisions" discussions from GitHub Discussions and injects a summary into session context. Enables cross-session discovery of prior deliberations. Skips silently when `gh` CLI is unavailable, unauthenticated, or the repository lacks Discussions. Token budget: <600 tokens.
+Queries the 5 most recent "Decisions" discussions from GitHub Discussions
+and injects a summary into session context.
+Enables cross-session discovery of prior deliberations.
+Skips silently when `gh` CLI is unavailable, unauthenticated,
+or the repository lacks Discussions. Token budget: <600 tokens.
 
 ---
 
@@ -428,4 +453,14 @@ Scope validation on user input.
 
 ---
 
-**See also**: [Commands](capabilities-commands.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Commands][cap-cmd] |
+[Skills][cap-skills] | [Agents][cap-agents] |
+[Workflows][cap-wf]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-cmd-ext]: capabilities-commands-extended.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
+[cap-wf]: capabilities-workflows.md

@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/api-review.md",
@@ -27,6 +27,7 @@
     "./skills/safety-critical-patterns",
     "./skills/shell-review",
     "./skills/test-review",
+    "./skills/tiered-audit",
     "./skills/unified-review"
   ],
   "agents": [

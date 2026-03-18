@@ -1,6 +1,7 @@
 # Domain Specialists
 
-Domain specialist plugins provide deep expertise in specific areas of software development.
+Domain specialist plugins provide deep expertise in specific areas of software
+development.
 
 ## Purpose
 

@@ -1,6 +1,7 @@
 # Hook Types and Event Signatures
 
-Complete reference for Claude Code and SDK hook event types. See individual references for detailed specifications.
+Complete reference for Claude Code and SDK hook event types.
+See individual references for detailed specifications.
 
 ## Event Lifecycle
 
@@ -109,7 +110,8 @@ All matching hooks execute **in parallel** unless dependencies exist.
 
 ### Hook Failures
 
-**Claude Code**: If hook command exits with non-zero status, the event is blocked (for PreToolUse) or logged as error (for PostToolUse/Stop)
+**Claude Code**: If hook command exits with non-zero status,
+the event is blocked (for PreToolUse) or logged as error (for PostToolUse/Stop)
 
 **SDK**: If hook raises exception:
 - **PreToolUse**: Blocks tool execution, error propagates to agent
@@ -184,15 +186,19 @@ Use `mcp__server__*` to allow or deny all tools from a specific MCP server:
 
 ### MCP Server Loading Fix (2.0.71+)
 
-**Fixed**: MCP servers defined in `.mcp.json` now load correctly when using `--dangerously-skip-permissions`.
+**Fixed**: MCP servers defined in `.mcp.json` now load correctly when using
+`--dangerously-skip-permissions`.
 
-**Impact**: Enables fully automated workflows that combine `--dangerously-skip-permissions` with MCP server capabilities, particularly valuable for CI/CD environments.
+**Impact**: Enables fully automated workflows that combine
+`--dangerously-skip-permissions` with MCP server capabilities,
+particularly valuable for CI/CD environments.
 
 ## Bash Command Permissions
 
 ### Glob Pattern Support (2.0.71+)
 
-**Fixed**: Permission rules now correctly allow valid bash commands containing shell glob patterns.
+**Fixed**: Permission rules now correctly allow valid bash commands containing
+shell glob patterns.
 
 **Examples Now Supported**:
 ```bash
@@ -202,7 +208,10 @@ rm *.tmp
 cp src/*.js dist/
 ```
 
-**Security Note**: Hooks using `PreToolUse` or `PermissionRequest` should still validate glob patterns for appropriate use cases (see [security-patterns.md](security-patterns.md#bash-glob-pattern-validation)).
+**Security Note**: Hooks using `PreToolUse` or
+`PermissionRequest` should still validate glob patterns
+for appropriate use cases
+(see [security-patterns.md](security-patterns.md#bash-glob-pattern-validation)).
 
 ## Related Modules
 

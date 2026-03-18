@@ -6,22 +6,38 @@
 
 ## Context
 
-The `conjure` plugin initially implemented its own quota tracking system (`GeminiQuotaTracker`) to manage API rate limits for Gemini delegation. This implementation duplicated quota tracking logic that could benefit other plugins like Qwen and Claude.
+The `conjure` plugin initially implemented its own quota tracking system
+(`GeminiQuotaTracker`) to manage API rate limits for Gemini delegation.
+This implementation duplicated quota tracking logic that could benefit other
+plugins like Qwen and Claude.
 
-The original approach presented several problems. Code duplication meant that each service-specific plugin would need to implement identical quota tracking, increasing the maintenance burden as bug fixes and improvements had to be manually copied across implementations. This also led to inconsistent behavior between plugins and increased testing overhead by requiring each plugin to test common functionality. The original `GeminiQuotaTracker` was 287 lines with 11 methods that were generic to any quota tracking system.
+The original approach presented several problems.
+Code duplication meant that each service-specific plugin would need to
+implement identical quota tracking,
+increasing the maintenance burden as bug fixes
+and improvements had to be manually copied across implementations.
+This also led to inconsistent behavior between plugins
+and increased testing overhead by requiring each plugin to test common
+functionality. The original `GeminiQuotaTracker` was 287 lines with 11 methods
+that were generic to any quota tracking system.
 
 ## Decision
 
-Extract the service-agnostic quota tracking logic into `leyline.QuotaTracker` as a reusable base class, with the following principles:
+Extract the service-agnostic quota tracking logic into `leyline.QuotaTracker`
+as a reusable base class, with the following principles:
 
-1. **Service-agnostic base**: `leyline.QuotaTracker` provides core quota tracking for any service
-2. **Service-specific extensions**: Plugins extend the base class with service-specific features
+1. **Service-agnostic base**:
+   `leyline.QuotaTracker` provides core quota tracking for any service
+2. **Service-specific extensions**:
+   Plugins extend the base class with service-specific features
 3. **Backward compatibility**: Existing code continues to work without changes
 4. **Optional dependency**: Plugins work without leyline (graceful degradation)
 
 ### Exception: leyline (intentional dependency)
 
-Unlike the plugin isolation pattern (ADR-0001), `leyline` is intentionally imported as a required dependency for quota tracking. This is acceptable because:
+Unlike the plugin isolation pattern (ADR-0001),
+`leyline` is intentionally imported as a required dependency for quota
+tracking. This is acceptable because:
 
 - `leyline` is infrastructure, not a feature plugin
 - The dependency is declared in `pyproject.toml`
@@ -94,7 +110,8 @@ flowchart TB
     style Conj fill:#e7f3ff,stroke:#0066cc
 ```
 
-**Solution**: Common quota logic in leyline, service-specific features in plugins.
+**Solution**: Common quota logic in leyline,
+service-specific features in plugins.
 
 ## Implementation
 
@@ -180,7 +197,12 @@ dependencies = [
 
 ### Benefits
 
-This refactoring establishes a single source of truth for quota tracking. Bug fixes in the base class now benefit all inheriting plugins, ensuring consistent behavior. Testing now focuses on service-specific features rather than common functionality. The pattern allows other plugins to extend `QuotaTracker` through override methods.
+This refactoring establishes a single source of truth for quota tracking.
+Bug fixes in the base class now benefit all inheriting plugins,
+ensuring consistent behavior.
+Testing now focuses on service-specific features rather than common
+functionality. The pattern allows other plugins to extend `QuotaTracker`
+through override methods.
 
 ### Backward Compatibility
 
@@ -203,11 +225,19 @@ limits_dict = tracker.limits  # Backward-compatible property
 
 ## Consequences
 
-Centralizing quota logic in a shared base class eliminates redundant methods and ensures consistent patterns across plugins. While this introduces a dependency on `leyline` and version coupling, the improved testability provides a more stable foundation for multi-model delegation.
+Centralizing quota logic in a shared base class eliminates redundant methods
+and ensures consistent patterns across plugins.
+While this introduces a dependency on `leyline` and version coupling,
+the improved testability provides a more stable foundation for multi-model
+delegation.
 
 ## Migration Guide
 
-To migrate, add `leyline` to `pyproject.toml` and extend the `QuotaTracker` base class. Configure a service-specific `QuotaConfig` and override unique logic like `estimate_task_tokens`. Verify functionality with tests before removing duplicated code.
+To migrate, add `leyline` to `pyproject.toml`
+and extend the `QuotaTracker` base class.
+Configure a service-specific `QuotaConfig`
+and override unique logic like `estimate_task_tokens`.
+Verify functionality with tests before removing duplicated code.
 
 ## Related
 

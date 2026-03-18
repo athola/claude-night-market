@@ -1,6 +1,7 @@
 # Capabilities Reference Details
 
-Full flag and option documentation for commands, skills, agents, and hooks, with working examples.
+Full flag and option documentation for commands, skills, agents, and hooks,
+with working examples.
 
 **Quick lookup**: [Capabilities Reference](capabilities-reference.md)
 

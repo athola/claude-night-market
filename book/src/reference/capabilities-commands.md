@@ -1,10 +1,14 @@
 # Command Reference — Core Plugins
 
-Flag and option documentation for core plugin commands (abstract, attune, conserve, imbue, sanctum).
+Flag and option documentation for core plugin commands (abstract, attune,
+conserve, imbue, sanctum).
 
-**Extended plugins**: [Memory Palace, Pensive, Parseltongue, Spec-Kit, Scribe, Scry, Hookify, Leyline](capabilities-commands-extended.md)
+**Extended plugins**: [Memory Palace, Pensive, Parseltongue, Spec-Kit, Scribe,
+Scry, Hookify, Leyline](capabilities-commands-extended.md)
 
-**See also**: [Capabilities Reference](capabilities-reference.md) | [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Capabilities Reference][cap-ref] |
+[Skills][cap-skills] | [Agents][cap-agents] |
+[Hooks][cap-hooks] | [Workflows][cap-wf]
 
 ---
 
@@ -382,7 +386,8 @@ Optimize context window usage.
 
 ### `/conserve:analyze-growth`
 
-**Consolidated:** This command has been merged into `/bloat-scan`. See [bloat-scan](#conservebloat-scan).
+**Consolidated:** This command has been merged into `/bloat-scan`.
+See [bloat-scan](#conservebloat-scan).
 
 ~~Analyze skill growth patterns.~~
 
@@ -418,7 +423,8 @@ Quick context recovery after session restart.
 
 ### `/imbue:feature-review`
 
-**Consolidated:** This command has been merged into `Skill(imbue:scope-guard)`. Invoke via `Skill(imbue:scope-guard)` instead.
+**Consolidated:** This command has been merged into `Skill(imbue:scope-guard)`.
+Invoke via `Skill(imbue:scope-guard)` instead.
 
 ~~Feature prioritization and gap analysis.~~
 
@@ -592,7 +598,9 @@ Update project documentation.
 
 ### `/sanctum:update-readme`
 
-**Consolidated:** This command has been merged into `/update-docs`. See [update-docs](#sanctumupdate-docs). Use `/update-docs --scope readme` for README-specific updates.
+**Consolidated:** This command has been merged into `/update-docs`.
+See [update-docs](#sanctumupdate-docs).
+Use `/update-docs --scope readme` for README-specific updates.
 
 ~~Modernize README.~~
 
@@ -700,6 +708,17 @@ VERSION        Tag version (e.g., v1.0.0)
 
 ---
 
-**Extended plugins**: [Memory Palace, Pensive, Parseltongue, Spec-Kit, Scribe, Scry, Hookify, Leyline](capabilities-commands-extended.md)
+**Extended plugins**: [Memory Palace, Pensive, Parseltongue, Spec-Kit, Scribe,
+Scry, Hookify, Leyline](capabilities-commands-extended.md)
 
-**See also**: [Skills](capabilities-skills.md) | [Agents](capabilities-agents.md) | [Hooks](capabilities-hooks.md) | [Workflows](capabilities-workflows.md)
+**See also**: [Skills][cap-skills] |
+[Agents][cap-agents] | [Hooks][cap-hooks] |
+[Workflows][cap-wf]
+
+[cap-ref]: capabilities-reference.md
+[cap-cmd]: capabilities-commands.md
+[cap-cmd-ext]: capabilities-commands-extended.md
+[cap-skills]: capabilities-skills.md
+[cap-agents]: capabilities-agents.md
+[cap-hooks]: capabilities-hooks.md
+[cap-wf]: capabilities-workflows.md

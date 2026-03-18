@@ -4,11 +4,14 @@ Issue #56: Explore .claude/rules/ templates for plugin context injection
 
 ## Overview
 
-Claude Code supports a `.claude/rules/` directory for modular, path-scoped instructions. This provides an elegant alternative to CLAUDE.md injection for plugin context.
+Claude Code supports a `.claude/rules/` directory for modular,
+path-scoped instructions.
+This provides an elegant alternative to CLAUDE.md injection for plugin context.
 
 ## How Rules Work
 
-From the [Claude Code memory documentation](https://code.claude.com/docs/en/memory):
+From the [Claude Code memory
+documentation](https://code.claude.com/docs/en/memory):
 
 - Rules files are automatically discovered and loaded as project memory
 - Supports **path-scoped rules** via YAML frontmatter (`paths: src/**/*.ts`)
@@ -17,7 +20,8 @@ From the [Claude Code memory documentation](https://code.claude.com/docs/en/memo
 
 ## Plugin Integration Pattern
 
-Plugins can provide optional `.claude/rules/` templates that users symlink into their projects:
+Plugins can provide optional `.claude/rules/` templates that users symlink into
+their projects:
 
 ```
 # User's project structure

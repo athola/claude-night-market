@@ -6,7 +6,11 @@
 
 ## Overview
 
-This module provides an interactive authentication system for external services (GitHub, GitLab, AWS, GCP, Azure) with automatic token caching, session management, and CI/CD support. This allows users to authenticate during workflow execution rather than requiring environment variables to be set upfront.
+This module provides an interactive authentication system for external services
+(GitHub, GitLab, AWS, GCP, Azure) with automatic token caching,
+session management, and CI/CD support.
+This allows users to authenticate during workflow execution rather than
+requiring environment variables to be set upfront.
 
 ## Features
 
@@ -39,14 +43,18 @@ aws_with_auth [args...]          # Wrapper for aws commands
 ### 2. Documentation
 
 **Files:**
-- `plugins/leyline/skills/authentication-patterns/modules/interactive-auth.md` - Module documentation
+- `plugins/leyline/skills/authentication-patterns/modules/interactive-auth.md`
+  - Module documentation
 - `plugins/leyline/skills/authentication-patterns/README.md` - Quick start guide
-- `plugins/leyline/skills/authentication-patterns/examples/workflow-integration.md` - Integration examples
-- `plugins/leyline/skills/authentication-patterns/SKILL.md` - Skill documentation
+- `plugins/leyline/skills/authentication-patterns/examples/workflow-integration.
+  md` - Integration examples
+- `plugins/leyline/skills/authentication-patterns/SKILL.md` - Skill
+  documentation
 
 ### 3. Test Suite
 
-**File:** `plugins/leyline/skills/authentication-patterns/tests/test-interactive_auth.sh`
+**File:**
+`plugins/leyline/skills/authentication-patterns/tests/test-interactive_auth.sh`
 
 **Tests:**
 - Syntax validation

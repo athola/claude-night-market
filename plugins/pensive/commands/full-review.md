@@ -43,8 +43,28 @@ Automatically selects review skills based on:
 
 1. **Context Analysis**: Analyze repository structure
 2. **Skill Selection**: Choose based on detected patterns
-3. **Parallel Execution**: Run selected skills concurrently
+3. **Parallel Dispatch**: Launch agents using the mapping below
 4. **Integrated Report**: Consolidate findings
+
+## Agent Dispatch Mapping
+
+Skills are NOT agents. Use this table to dispatch correctly:
+
+| Skill | Agent Type | Scope |
+|---|---|---|
+| bug-review | `pensive:code-reviewer` | Bugs, API, tests |
+| api-review | `pensive:code-reviewer` | API focus |
+| test-review | `pensive:code-reviewer` | Test focus |
+| architecture-review | `pensive:architecture-reviewer` | ADR, design |
+| rust-review | `pensive:rust-auditor` | Rust-specific |
+| code-refinement | `pensive:code-refiner` | Quality |
+| math-review | `general-purpose` | Invoke `Skill(pensive:math-review)` |
+| makefile-review | `general-purpose` | Invoke `Skill(pensive:makefile-review)` |
+| shell-review | `general-purpose` | Invoke `Skill(pensive:shell-review)` |
+
+When `pensive:code-reviewer` covers multiple domains,
+dispatch once with combined scope rather than multiple
+times with the same agent type.
 
 ## Output
 

@@ -1,6 +1,7 @@
 # Pensive
 
-Code review skills for Claude Code. Specialized reviewers cover Rust, APIs, tests, and architecture.
+Code review skills for Claude Code.
+Specialized reviewers cover Rust, APIs, tests, and architecture.
 
 ## Installation
 
@@ -66,39 +67,66 @@ Or reference from the marketplace:
 
 ### Unified Review
 
-Run `/full-review` to automatically detect and execute relevant checks. Focus on specific areas by appending the domain, such as `/full-review api` or `/full-review bugs`. Use `/full-review all` to execute all applicable domain reviews.
+Run `/full-review` to automatically detect and execute relevant checks.
+Focus on specific areas by appending the domain,
+such as `/full-review api` or `/full-review bugs`.
+Use `/full-review all` to execute all applicable domain reviews.
 
 ### Domain-Specific Reviews
 
-Trigger specialized reviews directly for focused audits: `/rust-review`, `/api-review`, `/test-review`, or `/fpf-review` for architectural analysis.
+Trigger specialized reviews directly for focused audits: `/rust-review`,
+`/api-review`, `/test-review`, or `/fpf-review` for architectural analysis.
 
 ### Skill Performance Review
 
-Use `/skill-review` to view health metrics across all skills. Append `--unstable-only` to identify skills with a stability gap greater than 0.3. Use `/skill-history` to view executions from the last hour or filter by failures using `--failures-only`.
+Use `/skill-review` to view health metrics across all skills.
+Append `--unstable-only` to identify skills with a stability gap greater than
+0.3. Use `/skill-history` to view executions from the last hour
+or filter by failures using `--failures-only`.
 
 ## Skill Selection Logic
 
-Unified reviews select skills based on codebase patterns. Rust files (`*.rs`, `Cargo.toml`) trigger `rust-review`, `bug-review`, and `api-review`. API definitions (`openapi.yaml`) trigger `api-review` and `architecture-review`. Test files trigger `test-review`, and build scripts trigger `makefile-review` or `shell-review`.
+Unified reviews select skills based on codebase patterns.
+Rust files (`*.rs`, `Cargo.toml`) trigger `rust-review`, `bug-review`,
+and `api-review`. API definitions (`openapi.yaml`) trigger `api-review`
+and `architecture-review`. Test files trigger `test-review`,
+and build scripts trigger `makefile-review` or `shell-review`.
 
 ## Output Standards
 
-Reviews produce structured output including an overall assessment, high/medium/low severity findings with file and line references, actionable tasks with owners and dates, and a final recommendation to approve, block, or approve with actions.
+Reviews produce structured output including an overall assessment,
+high/medium/low severity findings with file and line references,
+actionable tasks with owners and dates, and a final recommendation to approve,
+block, or approve with actions.
 
 ## Review Workflow
 
-Reviews identify modified files and apply domain-specific checks. Findings are documented with precise location data, severity rankings, and specific remediation steps.
+Reviews identify modified files and apply domain-specific checks.
+Findings are documented with precise location data, severity rankings,
+and specific remediation steps.
 
 ## Progress Tracking
 
-Skills use `TodoWrite` for lifecycle tracking, moving from surface inventory and exemplar research to consistency audits and evidence logging.
+Skills use `TodoWrite` for lifecycle tracking,
+moving from surface inventory and exemplar research to consistency audits
+and evidence logging.
 
 ## Session Forking (Claude Code 2.0.73+)
 
-Fork sessions for parallel specialized reviews. For example, use `claude --fork-session --session-id "security-audit"` to isolate a security audit while maintaining the main review context. Extract findings before closing the fork and synthesize them into the final report.
+Fork sessions for parallel specialized reviews.
+For example, use `claude --fork-session --session-id "security-audit"` to
+isolate a security audit while maintaining the main review context.
+Extract findings before closing the fork
+and synthesize them into the final report.
 
 ## Skill Performance Monitoring
 
-Pensive tracks skill execution to identify brittle tools by calculating the stability gap (the difference between average and worst-case accuracy). A gap below 0.2 indicates stable performance, while a gap above 0.3 requires investigation. Data is stored in `~/.claude/skills/logs/` in JSONL format, with history aggregated in `.history.json`.
+Pensive tracks skill execution to identify brittle tools by calculating the
+stability gap (the difference between average and worst-case accuracy).
+A gap below 0.2 indicates stable performance,
+while a gap above 0.3 requires investigation.
+Data is stored in `~/.claude/skills/logs/` in JSONL format,
+with history aggregated in `.history.json`.
 
 ## Stewardship
 

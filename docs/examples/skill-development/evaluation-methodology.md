@@ -8,20 +8,25 @@ estimated_tokens: 800
 
 # Multi-Metric Evaluation Methodology
 
-Framework for evaluating artifacts across multiple dimensions using Multi-Criteria Decision Analysis (MCDA).
+Framework for evaluating artifacts across multiple dimensions using
+Multi-Criteria Decision Analysis (MCDA).
 
 ## Core Principles
 
 ### Core Principles
 
-1. **Scale Invariance**: Rankings unchanged when units change (use vector normalization)
-2. **Explicit Trade-offs**: Use Pareto analysis, context weighting, multi-dimensional reporting
-3. **Validated Weights**: Derive through AHP, expert judgment, or empirical validation
+1. **Scale Invariance**: Rankings unchanged when units change (use vector
+   normalization)
+2. **Explicit Trade-offs**: Use Pareto analysis, context weighting,
+   multi-dimensional reporting
+3. **Validated Weights**: Derive through AHP, expert judgment,
+   or empirical validation
 
 ## Normalization Techniques
 
 ### Vector Normalization (Recommended)
-Scale-invariant normalization using Euclidean norm: `value / sqrt(sum_of_squares)`
+Scale-invariant normalization using Euclidean norm:
+`value / sqrt(sum_of_squares)`
 
 ### Logarithmic Normalization
 For values spanning multiple orders of magnitude: `log(value + 1)`
@@ -32,21 +37,26 @@ NOT scale-invariant. Only use when absolute 0-100 bounds required.
 ## Weighting Methodologies
 
 ### Analytic Hierarchy Process (AHP)
-Pairwise comparison with consistency checking. Consistency ratio must be < 0.1 to be acceptable.
+Pairwise comparison with consistency checking.
+Consistency ratio must be < 0.1 to be acceptable.
 
 ### Expert Judgment Elicitation
-Structured process using 5-15 calibrated experts with performance-based weighting.
+Structured process using 5-15 calibrated experts with performance-based
+weighting.
 
 ## Handling Contradictory Metrics
 
 ### Pareto Frontier Analysis
-Identify non-dominated solutions where no metric can improve without worsening another.
+Identify non-dominated solutions where no metric can improve without worsening
+another.
 
 ### Context-Aware Weighting
-Adjust weights based on use case (e.g., safety-critical vs performance-critical).
+Adjust weights based on use case (e.g.,
+safety-critical vs performance-critical).
 
 ### Multi-Dimensional Reporting
-Report scores by dimension instead of collapsing to single score. Show trade-offs explicitly.
+Report scores by dimension instead of collapsing to single score.
+Show trade-offs explicitly.
 
 ## Aggregation Methods
 
@@ -373,5 +383,6 @@ When implementing evaluation frameworks:
 - OECD Handbook on Constructing Composite Indicators (4,461 citations)
 - "Normalization Techniques for MCDA" - Vafaei et al. (339 citations)
 - "Scale dependence in MCDA methods" - Abbas (2023)
-- "Multi-Objective Bayesian Optimization using Pareto-frontier Entropy" - Suzuki et al. (119 citations)
+- "Multi-Objective Bayesian Optimization using Pareto-frontier Entropy" -
+  Suzuki et al. (119 citations)
 - "A Comprehensive Guide to TOPSIS" - SSRN (159 citations)

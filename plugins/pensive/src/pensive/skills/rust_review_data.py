@@ -118,6 +118,97 @@ DEPENDENCY_RECOMMENDATION: dict[str, str] = {
 
 # ── Security report template ─────────────────────────────────
 
+# ── Builtin preference patterns (#prefer-builtins) ─────────
+
+# Conversion function name patterns that suggest a From/Into/
+# TryFrom/TryInto/FromStr impl is more idiomatic.
+BUILTIN_CONVERSION_PATTERNS: list[tuple[str, str, str]] = [
+    (r"\bfn\s+parse_\w+\s*\(\s*\w+:\s*&str", "FromStr", "impl FromStr for <Type>"),
+    (r"\bfn\s+\w+_from_\w+\s*\(", "From", "impl From<Source> for Target"),
+    (r"\bfn\s+from_\w+\s*\(", "From", "impl From<Source> for Target"),
+    (r"\bfn\s+try_convert\w*\s*\(", "TryFrom", "impl TryFrom<Source> for Target"),
+    (r"\bfn\s+try_parse\w*\s*\(", "TryFrom", "impl TryFrom<Source> for Target"),
+    (
+        r"\bfn\s+into_\w+\s*\(",
+        "Into",
+        "impl From<Source> for Target (provides Into for free)",
+    ),
+    (r"\bfn\s+convert_\w+\s*\(", "From/TryFrom", "impl From<Source> for Target"),
+]
+
+# fn to_<type>(&self) -> suggest Into/From
+BUILTIN_TO_METHOD_PATTERN = r"\bfn\s+to_\w+\s*\(\s*&self"
+BUILTIN_TO_METHOD_TRAIT = "Into"
+BUILTIN_TO_METHOD_REC = "impl From<&Self> for Target (provides Into for free)"
+
+# fn *_to_string(&self) -> String -> suggest Display
+BUILTIN_TO_STRING_PATTERN = r"\bfn\s+\w+_to_string\s*\(\s*&self\s*\)\s*->\s*String"
+BUILTIN_TO_STRING_TRAIT = "Display"
+BUILTIN_TO_STRING_REC = "impl Display for <Type> (provides ToString for free)"
+
+# Standard trait replacement patterns
+BUILTIN_STANDARD_TRAIT_PATTERNS: list[tuple[str, str, str]] = [
+    (
+        r"\bfn\s+(?:default_\w+|new_default)\s*\(\s*\)\s*->",
+        "Default",
+        "impl Default or #[derive(Default)]",
+    ),
+    (r"\bfn\s+(?:format_\w+|display_\w+)\s*\(", "Display", "impl Display for <Type>"),
+    (r"\bfn\s+as_\w+\s*\(\s*&self\s*\)\s*->\s*&", "AsRef", "impl AsRef<T> for <Type>"),
+    (r"\bfn\s+(?:compare|equals?|is_equal)\s*\(", "PartialEq", "#[derive(PartialEq)]"),
+]
+
+# Error conversion helpers -> From<Error>
+BUILTIN_ERROR_CONVERSION_PATTERNS: list[tuple[str, str, str]] = [
+    (
+        r"\bfn\s+\w+_to_\w*err\w*\s*\(\s*\w+:\s*\w+",
+        "From<Error>",
+        "impl From<SourceError> for TargetError",
+    ),
+    (
+        r"\bfn\s+(?:wrap|convert)_\w*err\w*\s*\(",
+        "From<Error>",
+        "impl From or thiserror #[from]",
+    ),
+]
+
+# Manual combinator reimplementations
+BUILTIN_MANUAL_COMBINATOR_PATTERNS: list[tuple[str, str, str, str]] = [
+    (
+        r"match\s+\w+\s*\{[^}]*Some\(\w+\)\s*=>\s*Some\(",
+        "manual_map",
+        ".map()",
+        "clippy::manual_map",
+    ),
+    (
+        r"match\s+\w+\s*\{[^}]*Some\(\w+\)\s*=>\s*\w+\s*,\s*None\s*=>",
+        "manual_unwrap_or",
+        ".unwrap_or()",
+        "clippy::manual_unwrap_or",
+    ),
+    (
+        r"if\s+\w+\.is_some\(\)\s*\{[^}]*\.unwrap\(\)",
+        "manual_unwrap",
+        "if let Some(v) = x",
+        "",
+    ),
+]
+
+# Exclusion patterns -- functions that should NOT be flagged
+BUILTIN_EXCLUSION_PATTERNS: list[str] = [
+    r"\bfn\s+to_lossy",
+    r"\bfn\s+with_\w+\s*\(self",
+    r"\bfn\s+serialize",
+    r"\bfn\s+encode",
+    r"\bfn\s+decode",
+    r"\bfn\s+marshal",
+    r"\bfn\s+unmarshal",
+    # Multi-param conversions are context-dependent
+    r"\bfn\s+(?:parse|convert|from)_\w+\([^)]*,[^)]*\)",
+]
+
+# ── Security report template ─────────────────────────────────
+
 SECURITY_REPORT_TEMPLATE = """\
 ## Rust Security Assessment
 

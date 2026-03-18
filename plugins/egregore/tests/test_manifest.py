@@ -73,6 +73,34 @@ class TestWorkItem:
         assert restored.max_attempts == 5
         assert restored.decisions == [{"step": "parse", "chose": "A", "why": "better"}]
 
+    def test_worktree_path_default_empty(self) -> None:
+        """WorkItem.worktree_path defaults to empty string."""
+        item = WorkItem(id="wrk_004", source="prompt", source_ref="task")
+        assert item.worktree_path == ""
+
+    def test_worktree_path_roundtrip(self) -> None:
+        """WorkItem.worktree_path survives to_dict/from_dict."""
+        item = WorkItem(
+            id="wrk_004",
+            source="prompt",
+            source_ref="task",
+            worktree_path="/worktrees/wt-004",
+        )
+        d = item.to_dict()
+        assert d["worktree_path"] == "/worktrees/wt-004"
+        restored = WorkItem.from_dict(d)
+        assert restored.worktree_path == "/worktrees/wt-004"
+
+    def test_worktree_path_missing_in_dict_defaults(self) -> None:
+        """from_dict handles missing worktree_path gracefully."""
+        d = {
+            "id": "wrk_005",
+            "source": "prompt",
+            "source_ref": "task",
+        }
+        item = WorkItem.from_dict(d)
+        assert item.worktree_path == ""
+
 
 class TestManifest:
     """Tests for Manifest dataclass."""
@@ -115,6 +143,17 @@ class TestManifest:
         assert item2.id == "wrk_002"
         assert item3.id == "wrk_003"
 
+    def test_next_id_avoids_collision_after_removal(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.add_work_item(source="prompt", source_ref="first")
+        m.add_work_item(source="prompt", source_ref="second")
+        m.add_work_item(source="prompt", source_ref="third")
+        # Simulate removal of the middle item
+        m.work_items = [m.work_items[0], m.work_items[2]]
+        # Next ID should be wrk_004 (max existing is wrk_003)
+        item4 = m.add_work_item(source="prompt", source_ref="fourth")
+        assert item4.id == "wrk_004"
+
     def test_advance_within_stage(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
         item = m.add_work_item(source="prompt", source_ref="task")
@@ -153,6 +192,16 @@ class TestManifest:
         # One final advance should mark it completed
         m.advance(item.id)
         assert item.status == "completed"
+
+    def test_advance_corrupt_step_marks_failed(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        item = m.add_work_item(source="prompt", source_ref="task")
+        # Corrupt the pipeline step to a value not in the stage
+        item.pipeline_step = "nonexistent-step"
+        m.advance(item.id)
+        assert item.status == "failed"
+        assert "Corrupt pipeline step" in item.failure_reason
+        assert "nonexistent-step" in item.failure_reason
 
     def test_advance_completed_item_is_noop(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
@@ -245,6 +294,39 @@ class TestManifest:
         m.record_decision(item.id, "validate", "B", "reason2")
         assert len(item.decisions) == 2
 
+    def test_history_starts_empty(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        assert m.history == []
+
+    def test_record_history_appends_entry(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("advance", "moved wrk_001 to build/specify")
+        assert len(m.history) == 1
+        assert m.history[0]["event"] == "advance"
+        assert m.history[0]["detail"] == "moved wrk_001 to build/specify"
+        assert "timestamp" in m.history[0]
+
+    def test_record_history_multiple_entries(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("start", "session started")
+        m.record_history("advance", "moved forward")
+        assert len(m.history) == 2
+
+    def test_history_roundtrips_through_dict(self) -> None:
+        m = Manifest(project_dir="/tmp/test-project")
+        m.record_history("test", "roundtrip check")
+        d = m.to_dict()
+        assert "history" in d
+        assert len(d["history"]) == 1
+        restored = Manifest.from_dict(d)
+        assert len(restored.history) == 1
+        assert restored.history[0]["event"] == "test"
+
+    def test_from_dict_without_history_defaults_empty(self) -> None:
+        data = {"project_dir": "/tmp/test", "work_items": []}
+        m = Manifest.from_dict(data)
+        assert m.history == []
+
     def test_manifest_to_dict_from_dict_roundtrip(self) -> None:
         m = Manifest(project_dir="/tmp/test-project")
         m.session_count = 3
@@ -262,6 +344,26 @@ class TestManifest:
         assert restored.work_items[0].id == "wrk_001"
         assert restored.work_items[0].pipeline_step == "validate"
         assert len(restored.work_items[0].decisions) == 1
+
+    def test_max_concurrent_worktrees_default(self) -> None:
+        """Manifest.max_concurrent_worktrees defaults to 3."""
+        m = Manifest(project_dir="/tmp/test-project")
+        assert m.max_concurrent_worktrees == 3
+
+    def test_max_concurrent_worktrees_roundtrip(self) -> None:
+        """max_concurrent_worktrees survives to_dict/from_dict."""
+        m = Manifest(project_dir="/tmp/test-project")
+        m.max_concurrent_worktrees = 5
+        d = m.to_dict()
+        assert d["max_concurrent_worktrees"] == 5
+        restored = Manifest.from_dict(d)
+        assert restored.max_concurrent_worktrees == 5
+
+    def test_max_concurrent_worktrees_missing_in_dict(self) -> None:
+        """from_dict handles missing max_concurrent_worktrees."""
+        d = {"project_dir": "/tmp/test-project"}
+        m = Manifest.from_dict(d)
+        assert m.max_concurrent_worktrees == 3
 
 
 class TestSaveLoad:

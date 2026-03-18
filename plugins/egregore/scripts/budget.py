@@ -7,7 +7,7 @@ periods after rate limits.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -85,4 +85,6 @@ def load_budget(path: Path) -> Budget:
         return Budget()
 
     data = json.loads(path.read_text())
-    return Budget(**data)
+    known_fields = {f.name for f in fields(Budget)}
+    filtered = {k: v for k, v in data.items() if k in known_fields}
+    return Budget(**filtered)

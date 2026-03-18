@@ -4,7 +4,9 @@
 
 ## Overview
 
-This document provides standards and guidelines for function extraction and refactoring in the Claude Night Market plugin ecosystem. Following these guidelines validates maintainable, testable, and readable code.
+This document provides standards and guidelines for function extraction
+and refactoring in the Claude Night Market plugin ecosystem.
+Following these guidelines validates maintainable, testable, and readable code.
 
 ## Principles
 
@@ -562,10 +564,15 @@ This refactoring:
 
 Following these function extraction guidelines will:
 
-1. **Improve Maintainability**: Smaller, focused functions are easier to understand and modify
+1. **Improve Maintainability**: Smaller,
+   focused functions are easier to understand and modify
 2. **Enhance Testability**: Each function can be tested in isolation
-3. **Increase Reusability**: Extracted functions can be reused in different contexts
-4. **Reduce Bugs**: Simpler functions have fewer edge cases and are easier to verify
-5. **Improve Code Review**: Smaller functions are easier to review and understand
+3. **Increase Reusability**:
+   Extracted functions can be reused in different contexts
+4. **Reduce Bugs**: Simpler functions have fewer edge cases
+   and are easier to verify
+5. **Improve Code Review**: Smaller functions are easier to review
+   and understand
 
-Remember: **The goal is not just to make functions smaller, but to make the code more readable, maintainable, and testable.**
+Remember: **The goal is not just to make functions smaller,
+but to make the code more readable, maintainable, and testable.**

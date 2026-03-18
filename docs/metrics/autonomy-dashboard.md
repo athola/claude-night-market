@@ -18,9 +18,12 @@ Tracks guardrails for the autonomy control loop during rollout.
 
 ## Recovery Actions
 
-- Run `python -m memory_palace.cli autonomy status --json` and attach output to incident thread.
-- Trigger `python plugins/memory-palace/scripts/update_autonomy_state.py --alerts-json telemetry/alerts/autonomy.json`.
-- If a domain is locked, use `python -m memory_palace.cli garden demote --domain <domain> --level 0 --lock`.
+- Run `python -m memory_palace.cli autonomy status --json`
+  and attach output to incident thread.
+- Trigger `python plugins/memory-palace/scripts/update_autonomy_state.py
+  --alerts-json telemetry/alerts/autonomy.json`.
+- If a domain is locked, use `python -m memory_palace.cli garden demote
+  --domain <domain> --level 0 --lock`.
 - Document actions in the relevant rollout tracking issue.
 
 ## Data Sources

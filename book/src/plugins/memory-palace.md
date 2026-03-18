@@ -4,7 +4,9 @@ Knowledge organization using spatial memory techniques.
 
 ## Overview
 
-Memory Palace applies the ancient method of loci to digital knowledge management. It helps you build "palaces" - structured knowledge repositories that use spatial metaphors for organization and retrieval.
+Memory Palace applies the ancient method of loci to digital knowledge
+management. It helps you build "palaces" - structured knowledge repositories
+that use spatial metaphors for organization and retrieval.
 
 ## Installation
 
@@ -154,11 +156,17 @@ New Information
 [Cross-Reference] --> Link to related concepts
 ```
 
-The `SemanticDeduplicator` uses FAISS cosine similarity (threshold: 0.8) to detect near-duplicate content before storage. When FAISS is unavailable, it falls back to Jaccard word-set similarity. Suppressed duplicates increment a counter rather than being stored, keeping the corpus dense.
+The `SemanticDeduplicator` uses FAISS cosine similarity (threshold:
+0.8) to detect near-duplicate content before storage.
+When FAISS is unavailable, it falls back to Jaccard word-set similarity.
+Suppressed duplicates increment a counter rather than being stored,
+keeping the corpus dense.
 
 ## Semantic Deduplication
 
-FAISS-based duplicate detection is included as a mandatory dependency. The `SemanticDeduplicator.should_store()` API uses cosine similarity on L2-normalized vectors to detect near-duplicates before storage.
+FAISS-based duplicate detection is included as a mandatory dependency.
+The `SemanticDeduplicator.should_store()` API uses cosine similarity on
+L2-normalized vectors to detect near-duplicates before storage.
 
 ## Embedding Support
 
@@ -209,7 +217,13 @@ Unlike palaces (structured), gardens are organic:
 
 ## Knowledge Promotion to Discussions
 
-Evergreen corpus entries can be promoted to a GitHub Discussion in the "Knowledge" (Q&A) category. The `discussion-promotion` module in `knowledge-intake` checks entry maturity — only entries at the `evergreen` lifecycle stage are eligible. Promotion creates a structured Discussion with title, summary, key findings, and source references. Entries that already have a `discussion_url` field are updated rather than duplicated.
+Evergreen corpus entries can be promoted to a GitHub Discussion in the
+"Knowledge" (Q&A) category.
+The `discussion-promotion` module in `knowledge-intake` checks entry maturity —
+only entries at the `evergreen` lifecycle stage are eligible.
+Promotion creates a structured Discussion with title, summary, key findings,
+and source references. Entries that already have a `discussion_url` field are
+updated rather than duplicated.
 
 ## Related Plugins
 

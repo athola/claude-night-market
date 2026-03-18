@@ -101,6 +101,42 @@ class TestSkillStructure:
             assert mod_path.exists(), f"Module {mod} not found at {mod_path}"
 
 
+class TestLocalOutputOption:
+    """Feature: PR review supports local file output
+
+    As a developer
+    I want to write PR reviews to a local file
+    So that I can review offline or share without posting to the PR
+    """
+
+    @pytest.fixture()
+    def skill_content(self) -> str:
+        """Load the SKILL.md content."""
+        return SKILL_FILE.read_text()
+
+    @pytest.fixture()
+    def command_content(self) -> str:
+        """Load the command file content."""
+        cmd_path = SKILL_DIR.parent.parent / "commands" / "pr-review.md"
+        return cmd_path.read_text()
+
+    @pytest.mark.unit
+    def test_local_flag_in_command_usage(self, command_content: str) -> None:
+        """Given the pr-review command, --local appears in usage line."""
+        first_line_block = command_content[:500]
+        assert "--local" in first_line_block
+
+    @pytest.mark.unit
+    def test_local_flag_documented_in_skill(self, skill_content: str) -> None:
+        """Given the pr-review SKILL.md, --local behavior is described."""
+        assert "--local" in skill_content
+
+    @pytest.mark.unit
+    def test_local_default_path_documented(self, skill_content: str) -> None:
+        """Given the skill, the default output path pattern is specified."""
+        assert ".pr-review/" in skill_content
+
+
 class TestEducationalInsightsModule:
     """Feature: Educational insights module content
 

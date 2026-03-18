@@ -1,14 +1,23 @@
 # Data Extraction Pattern: Separating Data from Code
 
-**Purpose**: Reduce script token footprint by extracting embedded data to YAML configuration files
+**Purpose**: Reduce script token footprint by extracting embedded data to YAML
+configuration files
 
-**Benefits**: 75% average code reduction, easier maintenance, non-programmer editable
+**Benefits**: 75% average code reduction, easier maintenance,
+non-programmer editable
 
 ---
 
 ## The Problem
 
-Large Python scripts often embed data directly in code, leading to several maintenance challenges. When data changes require code modifications, it increases the risk of introducing bugs in the logic. Large data structures also bloat script files, making them harder to read and navigate. Furthermore, this pattern prevents non-programmers from updating catalogs or templates and results in messy diffs when data changes.
+Large Python scripts often embed data directly in code,
+leading to several maintenance challenges.
+When data changes require code modifications,
+it increases the risk of introducing bugs in the logic.
+Large data structures also bloat script files,
+making them harder to read and navigate.
+Furthermore, this pattern prevents non-programmers from updating catalogs
+or templates and results in messy diffs when data changes.
 
 ---
 
@@ -465,12 +474,14 @@ def resolve_references(items: list[Item]) -> list[Item]:
 
 ## See Also
 
-- [Progressive Disclosure Pattern](./documentation-standards.md#progressive-disclosure)
+- [Progressive Disclosure
+  Pattern](./documentation-standards.md#progressive-disclosure)
 - [Optimization Patterns](../optimization-patterns.md)
 - [Plugin Overview](../../book/src/plugins/README.md)
 
 ---
 
 **Pattern Status**: Production-ready
-**Applied to**: 4 scripts in claude-night-market (Memory Palace, Abstract, Attune)
+**Applied to**: 4 scripts in claude-night-market (Memory Palace, Abstract,
+Attune)
 **Maintained by**: claude-night-market core team

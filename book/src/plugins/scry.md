@@ -1,10 +1,14 @@
 # scry
 
-Media generation for terminal recordings, browser recordings, GIF processing, and media composition.
+Media generation for terminal recordings, browser recordings, GIF processing,
+and media composition.
 
 ## Overview
 
-Scry creates documentation assets through terminal recordings (VHS), browser automation recordings (Playwright), GIF processing, and multi-source media composition. Use it to build tutorials, demos, and README assets.
+Scry creates documentation assets through terminal recordings (VHS),
+browser automation recordings (Playwright), GIF processing,
+and multi-source media composition.
+Use it to build tutorials, demos, and README assets.
 
 ## Installation
 

@@ -23,7 +23,7 @@ def main() -> None:
     manifest_path = find_manifest()
 
     if not has_active_work(manifest_path):
-        print(json.dumps({"decision": "allow"}))
+        print(json.dumps({"decision": "approve"}))
         sys.exit(0)
 
     # Active work remains: block exit and re-inject prompt

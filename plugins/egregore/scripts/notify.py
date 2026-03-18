@@ -9,13 +9,80 @@ rate limits, pipeline failures, completions, and watchdog relaunches.
 from __future__ import annotations
 
 import enum
+import ipaddress
 import json
 import logging
+import socket
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
+
+
+class WebhookURLError(ValueError):
+    """Raised when a webhook URL fails validation."""
+
+
+def validate_webhook_url(url: str) -> None:
+    """Validate that a webhook URL is safe to request.
+
+    Only ``https://`` URLs pointing to public IP addresses are
+    allowed.  This prevents SSRF attacks where an attacker who
+    controls webhook configuration could reach internal services.
+
+    Args:
+        url: The webhook URL to validate.
+
+    Raises:
+        WebhookURLError: If the URL uses a forbidden scheme, points
+            to localhost, or resolves to a private/reserved IP range.
+
+    """
+    parsed = urlparse(url)
+
+    # Scheme must be https
+    if parsed.scheme != "https":
+        raise WebhookURLError(
+            f"Webhook URL must use https:// scheme, got {parsed.scheme!r}"
+        )
+
+    hostname = parsed.hostname or ""
+
+    # Reject empty hostname
+    if not hostname:
+        raise WebhookURLError("Webhook URL has no hostname")
+
+    # Reject localhost variants
+    localhost_names = {"localhost", "localhost.localdomain"}
+    if hostname.lower() in localhost_names:
+        raise WebhookURLError(f"Webhook URL must not target localhost ({hostname!r})")
+
+    # Check if hostname is an IP address and reject private/reserved ranges
+    try:
+        addr = ipaddress.ip_address(hostname)
+    except ValueError:
+        # DNS name -- resolve and validate all addresses
+        try:
+            results = socket.getaddrinfo(hostname, None)
+        except socket.gaierror:
+            # Cannot resolve -- allow through; the actual HTTP
+            # request will fail with a clear network error.
+            return
+        for _family, _type, _proto, _canon, sockaddr in results:
+            resolved = ipaddress.ip_address(sockaddr[0])
+            if resolved.is_private or resolved.is_reserved or resolved.is_loopback:
+                raise WebhookURLError(
+                    f"Webhook URL hostname {hostname!r} resolves to "
+                    f"private/reserved IP ({sockaddr[0]})"
+                ) from None
+        return
+
+    if addr.is_private or addr.is_reserved or addr.is_loopback:
+        raise WebhookURLError(
+            f"Webhook URL must not target private/reserved IP ({hostname})"
+        )
 
 
 class AlertEvent(enum.Enum):
@@ -169,6 +236,12 @@ def send_webhook(
         True if the webhook was sent successfully, False otherwise.
 
     """
+    try:
+        validate_webhook_url(url)
+    except WebhookURLError as exc:
+        logger.error("Webhook URL rejected: %s", exc)
+        return False
+
     prefix = f"[egregore] {event.value}"
     if webhook_format == "slack":
         message = f"{prefix}: {detail}" if detail else prefix

@@ -1,10 +1,13 @@
 # spec-kit
 
-Specification-Driven Development (SDD) toolkit for structured feature development.
+Specification-Driven Development (SDD) toolkit for structured feature
+development.
 
 ## Overview
 
-Spec-Kit enforces "define before implement" - you write specifications first, generate plans, create tasks, then execute. This reduces wasted effort and validates features match requirements.
+Spec-Kit enforces "define before implement" - you write specifications first,
+generate plans, create tasks, then execute.
+This reduces wasted effort and validates features match requirements.
 
 ## Installation
 

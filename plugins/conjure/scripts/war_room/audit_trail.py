@@ -174,9 +174,13 @@ class AuditTrailManager:
 
             if sealed:
                 # Cannot recompute metadata when attribution is masked;
-                # trust the stored values for sealed nodes
+                # trust the stored metadata hash for sealed nodes
                 metadata_valid = True
-                combined_valid = True
+                # But we CAN verify combined = sha256(content_hash:stored_metadata_hash)
+                computed_combined = sha256(
+                    f"{computed_content_hash}:{stored_metadata_hash}".encode()
+                ).hexdigest()
+                combined_valid = computed_combined == stored_combined_hash
             else:
                 computed_metadata_hash = sha256(
                     f"{expert_role}:{expert_model}".encode()

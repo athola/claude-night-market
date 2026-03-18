@@ -4,7 +4,8 @@ Track your learning progress through the Claude Night Market documentation.
 
 ## How It Works
 
-As you explore the documentation, complete tutorials, and try plugins, you earn achievements. Progress is saved in your browser's local storage.
+As you explore the documentation, complete tutorials, and try plugins,
+you earn achievements. Progress is saved in your browser's local storage.
 
 ## Your Progress
 

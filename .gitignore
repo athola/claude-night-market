@@ -96,6 +96,7 @@ docs/specification.md
 # Intake queue for memory palace artifacts
 plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/
+plugins/memory-palace/data/sessions/
 plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
 

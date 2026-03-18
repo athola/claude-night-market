@@ -5,7 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
 
 # Default language
 DEFAULT_LANGUAGE = "en"
@@ -51,7 +54,13 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     if not pattern_file.exists():
         raise FileNotFoundError(f"Pattern file not found: {pattern_file}")
 
-    with open(pattern_file) as f:
+    if yaml is None:
+        raise ImportError(
+            "pyyaml is required to load language patterns. "
+            "Install it with: pip install pyyaml"
+        )
+
+    with open(pattern_file, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
