@@ -69,6 +69,26 @@ merging.
 /uninstall-watchdog
 ```
 
+## Hooks
+
+| Hook | Event | Description |
+|------|-------|-------------|
+| `session_start_hook.py` | SessionStart | Injects manifest context into new sessions |
+| `user_prompt_hook.py` | UserPromptSubmit | Reminds orchestrator to resume after user interrupts |
+| `stop_hook.py` | Stop | Prevents early exit while work items remain |
+
+The `UserPromptSubmit` hook lets users interact with a
+running egregore session without breaking the orchestration
+loop. After handling the user's request, the orchestrator
+re-reads the manifest and resumes where it left off.
+
+## Self-Healing Heartbeat
+
+A recurring cron (`*/5 * * * *`) detects stalled pipelines
+and re-enters the orchestration loop automatically.
+This catches edge cases where context compaction or
+unexpected errors break the loop despite the hooks.
+
 ## Architecture
 
 Egregore uses a convention-based approach where

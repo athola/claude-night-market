@@ -27,6 +27,7 @@
     "./skills/safety-critical-patterns",
     "./skills/shell-review",
     "./skills/test-review",
+    "./skills/tiered-audit",
     "./skills/unified-review"
   ],
   "agents": [

@@ -409,6 +409,38 @@ For each work item:
 
 4. **Do not merge.** The overseer reviews and merges.
 
+## Handling User Prompts
+
+A `UserPromptSubmit` hook injects a reminder when a user
+sends a message during your session. When you see it:
+
+1. **Handle the user's request** as asked.
+2. **Immediately after**, re-read `.egregore/manifest.json`.
+3. **Resume the orchestration loop** from where you left
+   off. Do NOT emit `end_turn` after handling the request.
+
+User prompts are interrupts, not exits. They do not change
+your mission. Treat them like a brief detour: handle, then
+return to the pipeline.
+
+## Self-Healing Heartbeat
+
+The progress pulse cron (`*/5 * * * *`) doubles as a
+self-healing mechanism. When it fires and detects stalled
+work, it re-enters the loop:
+
+```
+CronCreate(
+  cron_expression: "*/5 * * * *",
+  prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon).",
+  recurring: true
+)
+```
+
+This catches edge cases where the loop breaks despite the
+UserPromptSubmit and Stop hooks (e.g., context compaction
+losing state, unexpected tool errors).
+
 ## DO NOT RETURN EARLY
 
 This is your final reminder.
@@ -419,7 +451,7 @@ you feel like stopping. Not until the manifest is empty.
 
 Before you even THINK about finishing:
 
-1. Check the manifest. Are there active work items?
+1. Check the manifest. Are there active or pending items?
    If yes, KEEP WORKING.
 2. Check for failed items that still have retries left.
    If any, RETRY THEM.

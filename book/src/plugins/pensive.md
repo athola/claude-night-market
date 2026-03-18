@@ -30,6 +30,7 @@ selecting the right skills for each codebase.
 | `shell-review` | Shell script auditing | Exit codes, portability, safety patterns |
 | `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
+| `tiered-audit` | Three-tier escalation audit | Codebase audits starting from git history |
 
 ## Commands
 
@@ -163,6 +164,7 @@ Specify depth when invoking:
 - `#[cfg(test)]` misuse patterns
 - Error message quality
 - Duplicate validator detection
+- Builtin preference (From/Into/TryFrom/Default over helpers)
 
 ## Dependencies
 

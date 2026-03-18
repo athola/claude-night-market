@@ -1,0 +1,28 @@
+{
+  "sessions": [
+    {
+      "session_id": "d1726ea2-e00a-4d38-9cad-6f0fd818dabf",
+      "started_at": "2026-03-16T17:07:03.736358+00:00",
+      "ended_at": "2026-03-16T17:07:03.736370+00:00",
+      "summary": "",
+      "topics": [],
+      "outcome": "completed",
+      "tags": [],
+      "parent_session_id": null
+    },
+    {
+      "session_id": "778fa3ac-6c6c-49ca-993f-73090521c215",
+      "started_at": "2026-03-17T04:55:01.599918+00:00",
+      "ended_at": "2026-03-17T04:55:01.599929+00:00",
+      "summary": "",
+      "topics": [],
+      "outcome": "completed",
+      "tags": [],
+      "parent_session_id": null
+    }
+  ],
+  "stats": {
+    "total": 2,
+    "last_updated": "2026-03-17T04:55:01.600267+00:00"
+  }
+}

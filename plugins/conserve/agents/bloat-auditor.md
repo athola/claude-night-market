@@ -74,6 +74,24 @@ def prioritize_findings(findings):
     return sorted(findings, key=lambda f: f.priority, reverse=True)
 ```
 
+## Output Contract
+
+```yaml
+output_contract:
+  required_sections:
+    - summary
+    - findings
+    - evidence
+  min_evidence_count: 3
+  expected_artifacts: []
+  retry_budget: 1
+  strictness: normal
+```
+
+Every bloat finding must cite evidence (file stats,
+reference counts, staleness data) via `[EN]` tags.
+See `imbue:proof-of-work/modules/output-contracts`.
+
 ## Report Format
 
 ```yaml

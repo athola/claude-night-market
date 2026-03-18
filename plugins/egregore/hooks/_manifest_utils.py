@@ -37,13 +37,22 @@ def find_manifest() -> Path:
     return cwd / ".egregore" / "manifest.json"
 
 
+def get_items(data: dict) -> list:
+    """Get work items from manifest, supporting both key names."""
+    return data.get("work_items", []) or data.get("items", [])
+
+
+# Statuses that indicate remaining work
+ACTIVE_STATUSES = ("active", "paused", "pending")
+
+
 def has_active_work(manifest_path: Path) -> bool:
-    """Check if manifest has active or paused work items."""
+    """Check if manifest has unfinished work items."""
     if not manifest_path.exists():
         return False
     try:
         data = json.loads(manifest_path.read_text())
-        items = data.get("work_items", [])
-        return any(item.get("status") in ("active", "paused") for item in items)
+        items = get_items(data)
+        return any(item.get("status") in ACTIVE_STATUSES for item in items)
     except (json.JSONDecodeError, OSError):
         return False
