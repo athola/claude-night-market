@@ -102,6 +102,34 @@ For detailed task planning workflows, this skill delegates to `spec-kit:task-pla
 
 **Output**: Architecture documentation with diagrams
 
+### Phase 1.5: File Structure (REQUIRED)
+
+**Activities**:
+1. Map which files will be created or modified
+2. Assign one-line purpose to each file
+3. Verify each file has a single clear responsibility
+4. Lock in decomposition decisions before task breakdown
+
+**This phase MUST complete before Phase 2 begins.**
+Tasks reference files declared here; undeclared files
+require revisiting this phase.
+
+**Output**: File structure table
+
+**Template**:
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `path/to/file.py` | Create | One-line purpose |
+| `path/to/existing.py` | Modify | What changes |
+| `path/to/obsolete.py` | Delete | Why removed |
+
+**Validation**:
+- Every file in the plan appears in this table
+- Every file has exactly one Action (Create/Modify/Delete)
+- No file appears twice with different actions
+- Purpose describes WHAT, not HOW
+
 ### Phase 2: Task Breakdown
 
 **Activities**:
@@ -324,6 +352,12 @@ Save to `docs/implementation-plan.md`:
 ### Data Flow
 [How data moves through system]
 
+## File Structure
+
+| File | Action | Purpose |
+|------|--------|---------|
+| [path] | Create/Modify/Delete | [purpose] |
+
 ## Task Breakdown
 
 ### Phase 1: [Name] (Sprint [N]) - TASK-001 through TASK-010
@@ -370,6 +404,8 @@ Save to `docs/implementation-plan.md`:
 Before completing plan:
 
 - ✅ All architecture components documented
+- ✅ File Structure section present before tasks
+- ✅ All task files appear in File Structure table
 - ✅ All FRs mapped to tasks
 - ✅ All tasks have acceptance criteria
 - ✅ Dependencies are acyclic
