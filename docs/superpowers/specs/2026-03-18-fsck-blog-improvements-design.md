@@ -41,8 +41,20 @@ review subagent that checks for:
 - Missing edge cases referenced elsewhere
 
 **Mechanism**: Dispatch subagent with spec content (not
-session history). If issues found, fix and re-dispatch.
-Max 3 iterations, then surface to human.
+session history). The loop is fully automated:
+
+1. Subagent reads spec, returns numbered issue list
+2. Main agent applies fixes to the spec document
+3. Re-dispatch subagent with updated spec
+4. Repeat until subagent returns "APPROVED" or 3
+   iterations reached
+5. If 3 iterations exhausted without approval, surface
+   remaining issues to human via structured output
+   (numbered list with severity and suggested fixes)
+
+The main agent (not the human) performs fixes between
+iterations. The subagent only identifies issues; it does
+not modify files.
 
 **Acceptance Criteria**:
 
@@ -51,6 +63,10 @@ Max 3 iterations, then surface to human.
 - [ ] Dispatch uses `model: "haiku"` for cost efficiency
 - [ ] Loop terminates after 3 iterations maximum
 - [ ] Issues surfaced as a numbered list with severity
+  (blocking/non-blocking) and rationale
+- [ ] Main agent auto-fixes issues between iterations
+- [ ] After 3 iterations, remaining issues surface to
+  human as a structured list
 
 ### 1B. Unit Decomposition Teaching
 
@@ -65,12 +81,16 @@ tests:
    reading its internals?"
 2. "Can you change internals without breaking consumers?"
 
-Flag large files as "design smell, not just style issue."
+Flag large files as design smell with concrete thresholds:
+files >500 lines (Python/Go) or >300 lines
+(JavaScript/TypeScript) suggest cohesion issues. Suggest
+extracting specific concerns into separate modules.
 
 **Acceptance Criteria**:
 
 - [ ] Two isolation tests appear in approach generation phase
-- [ ] Large file signal documented as design smell
+- [ ] Large file signal documented with line-count thresholds
+- [ ] Guidance suggests extracting specific concerns
 - [ ] Guidance is concise (under 30 lines added)
 
 ### 1C. File Structure in Plans
@@ -98,6 +118,8 @@ will be created or modified, with a one-line purpose each.
 - [ ] File Structure section template added to planning skill
 - [ ] Section is marked as required before task breakdown
 - [ ] Template includes Action column (Create/Modify/Delete)
+- [ ] Generated plans include File Structure before tasks
+  (verified via manual review)
 
 ### 1D. Subagent Model Cost Optimization
 
@@ -111,14 +133,23 @@ Add "cheapest-capable model" selection heuristic:
 | Implementation | Yes | haiku |
 | Implementation | No | sonnet |
 | Planning/reasoning | Any | sonnet/opus |
-| Security/safety review | Any | never downgrade |
+| Security/safety review | Any | sonnet minimum, prefer opus |
 | Code review | Any | sonnet minimum |
+
+**Security/safety scope**: security-audit, secret-scanning,
+permissions-analysis, auth-critical review, dependency
+vulnerability scanning. Code review defaults to sonnet; if
+a code review surfaces security findings, the reviewer
+should note "security-relevant" to prevent downstream
+downgrade.
 
 **Acceptance Criteria**:
 
 - [ ] Selection matrix added to cost-estimation module
-- [ ] Security/safety tasks explicitly excluded from downgrade
+- [ ] Security/safety task types explicitly enumerated
 - [ ] Heuristic framed as recommendation, not mandate
+- [ ] Fallback behavior documented (sonnet if downgrade
+  rule triggers)
 
 ## Phase 2: New Skills
 
@@ -162,8 +193,20 @@ sanitization checklist documenting all patterns above.
 - [ ] Skill checklist updated with new section
 - [ ] Existing tests still pass
 - [ ] New test cases cover each pattern category
-- [ ] Python 3.9 compatible (no walrus operators, no
-  match/case, no union type syntax)
+- [ ] Python 3.9 compatible in both hook and test files
+  (no walrus operators, no match/case, no union syntax)
+
+**Edge case behavior**:
+
+- Pattern matching is content-agnostic (triggers in any
+  text content regardless of context)
+- Overlapping patterns all trigger high severity
+  independently
+- Escaped versions (backslash-escaped, URL-encoded) are
+  NOT matched (out of scope for this iteration)
+- Hook is stateless and thread-safe; regex patterns are
+  pre-compiled at module load time in a read-only dict
+- No shared mutable state beyond compiled patterns
 
 ### 2B. Latent Space Engineering
 
@@ -176,9 +219,23 @@ sanitization checklist documenting all patterns above.
 
 #### Hub Skill
 
-Reference skill consulted by other skills when writing
-agent dispatch prompts or framing instructions. Progressive
-loading: hub loads first, modules on demand.
+Reference skill loaded into agent context via skill
+frontmatter `dependencies`. Other skills consult this
+skill's modules when composing agent dispatch prompts.
+Integration model:
+
+- Hub SKILL.md provides overview and module index
+- Modules are loaded via `progressive_loading: true`
+  frontmatter (hub loads first, modules on demand via
+  `dependencies.modules` list)
+- Skills reference modules as markdown includes in their
+  own dispatch prompts
+- Emotional framing rules apply when composing any agent
+  prompt
+- Style gene transfer applies when requesting code or
+  documentation output
+- Competitive review applies when dispatching 3+ parallel
+  review agents
 
 #### Module: Emotional Framing
 
@@ -233,6 +290,16 @@ and well-evidenced findings will be prioritized for action.
 Focus on depth over breadth.
 ```
 
+**For 2-agent dispatch**: Use collaborative framing instead:
+"You and one other reviewer will cover different angles.
+Your findings will be integrated into a single report."
+Competitive framing adds overhead for fewer than 3 agents.
+
+**Avoiding perverse incentives**: "Thorough" means
+evidence-backed and prioritized by severity, not volume.
+Reviewers should not inflate issue counts to appear more
+productive.
+
 **Where to apply**: pensive review agents, pr-review-toolkit
 agents, attune war-room expert panels.
 
@@ -257,8 +324,12 @@ dispatch workflows.
 
 #### Waste Signals
 
-1. **Ghost agent**: Produces no actionable output
-   (empty findings, "everything looks good")
+1. **Ghost agent**: Token expenditure >1.5x median for
+   task type AND findings count <30% of median for that
+   agent type AND findings lack evidence citations.
+   Exception: zero-finding results from low-risk scans
+   (e.g., security audit of already-linted code) are
+   valid, not waste
 2. **Redundant reader**: Re-reads files already loaded
    by another agent in the same dispatch
 3. **Duplicate worker**: Overlaps >50% with another
@@ -266,7 +337,9 @@ dispatch workflows.
 4. **Token hog**: Exceeds 3x the median token count
    for its task type without proportional output
 5. **Coordination overhead**: When N > 5 agents and
-   shared-file conflicts exceed 20% of agent time
+   shared-file conflicts (concurrent Read/Write on same
+   file by different agents) exceed 20% of total agent
+   runtime
 
 #### Brooks's Law Threshold
 
@@ -335,10 +408,18 @@ dimension.
     "converged": true
   }
   ```
-- A pass that finds zero issues means convergence for
-  that dimension
+- Convergence: when a pass on dimension X completes with
+  `issues_found: 0`, dimension X is marked converged.
+  Convergence is irreversible per run; a converged
+  dimension is not re-run. If a later pass discovers
+  issues affecting a converged dimension, surface to
+  human for manual intervention
 - When all 4 dimensions converge, polishing is complete
-- Maximum 10 total passes before surfacing to human
+- Maximum 10 total passes (hard limit). If not converged
+  after 10 passes, surface state file to human with
+  recommendation to split target into smaller units
+- Subagent dispatch is optional for targets under 100
+  lines; human review is sufficient for small files
 - State file enables resume across sessions (persistence
   for long polishing runs)
 
