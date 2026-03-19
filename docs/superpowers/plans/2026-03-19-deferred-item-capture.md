@@ -12,6 +12,8 @@
 
 **Spec review correction:** The spec was updated to read stdin JSON for the PostToolUse hook, but the actual working pattern in `plugins/abstract/hooks/skill_execution_logger.py:326-328` uses environment variables (`CLAUDE_TOOL_NAME`, `CLAUDE_TOOL_INPUT`, `CLAUDE_TOOL_OUTPUT`). This plan uses the env var pattern (the proven, working approach).
 
+**Plan review correction:** The PostToolUse hook must complete within its 2-second timeout. It cannot call `deferred_capture.py` (which does `gh` I/O). Instead, the watcher is a **pure ledger writer**: it detects deferral signals and writes `filed: false` entries to the session ledger. The Stop hook does all `gh` calls. This is a clean two-phase split: detect (PostToolUse) → file (Stop).
+
 ---
 
 ## File Map
@@ -617,9 +619,40 @@ class TestDeferralDetection:
         from deferred_item_watcher import scan_for_deferrals
         assert scan_for_deferrals("This is out of scope for the current work")
 
+    def test_detects_rejected_keyword(self):
+        from deferred_item_watcher import scan_for_deferrals
+        assert scan_for_deferrals("COA was rejected during voting")
+
+    def test_detects_deferred_keyword(self):
+        from deferred_item_watcher import scan_for_deferrals
+        assert scan_for_deferrals("This feature is deferred to next cycle")
+
     def test_ignores_normal_output(self):
         from deferred_item_watcher import scan_for_deferrals
         assert not scan_for_deferrals("Task completed successfully")
+
+
+class TestTitleExtraction:
+    """Title extraction and normalization."""
+
+    def test_extracts_deferred_marker_title(self):
+        from deferred_item_watcher import extract_deferred_titles
+        titles = extract_deferred_titles("[Deferred] Add caching layer")
+        assert titles == ["Add caching layer"]
+
+    def test_fallback_title_when_no_marker(self):
+        from deferred_item_watcher import extract_deferred_titles
+        titles = extract_deferred_titles("This is out of scope but no marker")
+        assert titles == ["Untitled deferred item"]
+
+    def test_skips_title_already_in_ledger(self, tmp_path):
+        from deferred_item_watcher import write_ledger_entry, read_ledger
+        ledger = tmp_path / "ledger.json"
+        write_ledger_entry(ledger, {
+            "title": "Add caching layer", "source": "test", "filed": False,
+        })
+        existing = {e["title"] for e in read_ledger(ledger)}
+        assert "Add caching layer" in existing
 
 
 class TestLedger:
@@ -672,7 +705,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -683,11 +715,10 @@ WATCH_LIST = {
 }
 
 DEFERRAL_PATTERNS = re.compile(
-    r"\[Deferred\]|out of scope|not yet applicable|future cycle",
+    r"\[Deferred\]|out of scope|not yet applicable|future cycle"
+    r"|(?<!\w)rejected(?!\w)|(?<!\w)deferred(?!\w)",
     re.IGNORECASE,
 )
-
-SCRIPT_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 
 def get_ledger_path() -> Path:
@@ -771,44 +802,27 @@ def main() -> None:
     # Extract deferred items
     titles = extract_deferred_titles(tool_output)
     ledger_path = get_ledger_path()
-    existing = {e["title"] for e in read_ledger(ledger_path)}
+    existing = {e["title"].replace("[Deferred] ", "").strip()
+                for e in read_ledger(ledger_path)}
 
     tool_input = json.loads(os.environ.get("CLAUDE_TOOL_INPUT", "{}"))
     skill_ref = tool_input.get("skill", "unknown")
     source = skill_ref.split(":", 1)[-1] if ":" in skill_ref else skill_ref
 
+    # Normalize titles for consistent dedup
     for title in titles:
-        if title in existing:
+        normalized = title.replace("[Deferred] ", "").strip()
+        if normalized in existing:
             continue
 
-        # Phase 1: write filed=false
+        # Write ledger entry only (no gh calls -- Stop hook files them)
         entry = {
-            "title": title,
+            "title": normalized,
             "source": source,
             "filed": False,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         write_ledger_entry(ledger_path, entry)
-
-        # Phase 2: call deferred_capture.py
-        script = SCRIPT_DIR / "deferred_capture.py"
-        try:
-            result = subprocess.run(
-                [sys.executable, str(script),
-                 "--title", title,
-                 "--source", source,
-                 "--context", f"Detected by safety-net hook from {skill_ref}",
-                 "--captured-by", "safety-net"],
-                capture_output=True, text=True, timeout=15,
-            )
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                update_ledger_entry(
-                    ledger_path, title, filed=True,
-                    issue_number=data.get("number"),
-                )
-        except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError):
-            pass  # entry remains filed=false for Stop hook
 
 
 if __name__ == "__main__":
@@ -1143,7 +1157,154 @@ Each wrapper is a self-contained script (~30 lines) that implements the leyline 
 
 `plugins/egregore/scripts/deferred_capture.py` -- defaults to `egregore` source, enriches context with pipeline step info.
 
-- [ ] **Step 6: Verify all wrappers pass compliance test**
+- [ ] **Step 6: Canonical wrapper template (attune as reference)**
+
+All wrappers follow this structure. Attune example:
+
+```python
+#!/usr/bin/env python3
+"""Deferred-item capture for attune plugin.
+
+Canonical contract: leyline/skills/deferred-capture/SKILL.md
+Implements the same CLI interface with attune-specific defaults.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+
+LABEL_COLORS = {
+    "deferred": "7B61FF",
+    "war-room": "B60205",
+    "brainstorm": "1D76DB",
+}
+
+
+def get_session_id(override):
+    if override:
+        return override
+    return os.environ.get(
+        "CLAUDE_SESSION_ID",
+        datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"),
+    )
+
+
+def get_branch():
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return r.stdout.strip() if r.returncode == 0 else "unknown"
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return "unknown"
+
+
+def build_body(source, sid, branch, captured_by, context, artifact):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return (
+        f"## Deferred Item\n\n"
+        f"**Source:** {source} (session {sid})\n"
+        f"**Captured:** {today}\n"
+        f"**Branch:** {branch}\n"
+        f"**Captured by:** {captured_by}\n\n"
+        f"### Context\n\n{context}\n\n"
+        f"### Original Artifact\n\n{artifact or 'N/A'}\n\n"
+        f"### Next Steps\n\n"
+        f"- [ ] Evaluate feasibility in a future cycle\n"
+        f"- [ ] Link to related work if applicable"
+    )
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--title", required=True)
+    p.add_argument("--source", required=True)
+    p.add_argument("--context", required=True)
+    p.add_argument("--labels", default=None)
+    p.add_argument("--session-id", default=None)
+    p.add_argument("--artifact-path", default=None)
+    p.add_argument("--captured-by", default="explicit")
+    p.add_argument("--dry-run", action="store_true")
+    a = p.parse_args()
+
+    title = a.title if a.title.startswith("[Deferred]") else f"[Deferred] {a.title}"
+    sid = get_session_id(a.session_id)
+    labels = ["deferred", a.source]
+    if a.labels:
+        labels.extend(l.strip() for l in a.labels.split(",") if l.strip())
+
+    # Attune-specific: enrich context with strategeion path
+    context = a.context
+    strat_dir = os.environ.get("STRATEGEION_SESSION_DIR", "")
+    if strat_dir and a.source == "war-room":
+        context += f"\n\nStrategeion session: {strat_dir}"
+
+    body = build_body(a.source, sid, get_branch(), a.captured_by, context, a.artifact_path)
+
+    if a.dry_run:
+        print(json.dumps({"status": "dry_run", "title": title, "source": a.source,
+                          "session_id": sid, "labels": labels, "body": body}))
+        return
+
+    # Duplicate detection
+    try:
+        r = subprocess.run(
+            ["gh", "issue", "list", "--search", f"{a.title} in:title",
+             "--state", "open", "--json", "number,title,url"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0:
+            for iss in json.loads(r.stdout):
+                if iss["title"].replace("[Deferred] ", "").lower() == a.title.replace("[Deferred] ", "").lower():
+                    print(json.dumps({"status": "duplicate", "existing_url": iss.get("url", ""), "number": iss["number"]}))
+                    return
+    except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError):
+        pass
+
+    # Create labels + issue
+    for label in labels:
+        if label in LABEL_COLORS:
+            subprocess.run(["gh", "label", "create", label, "--color", LABEL_COLORS[label],
+                           "--description", f"Deferred: {label}"], capture_output=True, timeout=10)
+    try:
+        cmd = ["gh", "issue", "create", "--title", title, "--body", body]
+        for label in labels:
+            cmd.extend(["--label", label])
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if r.returncode == 0:
+            url = r.stdout.strip()
+            num = int(url.rstrip("/").split("/")[-1])
+            print(json.dumps({"status": "created", "issue_url": url, "number": num}))
+            return
+        print(json.dumps({"status": "error", "message": r.stderr.strip()}))
+        sys.exit(1)
+    except FileNotFoundError:
+        print(json.dumps({"status": "error", "message": "gh CLI not found"}))
+        sys.exit(1)
+    except subprocess.TimeoutExpired:
+        print(json.dumps({"status": "error", "message": "gh timed out"}))
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+The other four wrappers (imbue, pensive, abstract, egregore) follow this same structure. Differences:
+
+- **imbue**: `LABEL_COLORS` includes `scope-guard` and `feature-review`. Context enrichment: appends worthiness score if `--source scope-guard`.
+- **pensive**: `LABEL_COLORS` includes `review`. Context enrichment: appends review dimension.
+- **abstract**: `LABEL_COLORS` includes `regression`. Context enrichment: appends stability gap metrics.
+- **egregore**: `LABEL_COLORS` includes `egregore`. Context enrichment: appends pipeline step info from `$EGREGORE_STEP` env var.
+
+- [ ] **Step 7: Verify all wrappers pass compliance test**
 
 Run for each:
 ```bash
@@ -1206,7 +1367,11 @@ Add a note at Phase 6 (GitHub Integration) to call `scripts/deferred_capture.py`
 
 Add a note at Phase 4 (Action Plan) to call `scripts/deferred_capture.py` for findings triaged to backlog. Review dimension goes into `--context`.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Update egregore pipeline for deferred capture**
+
+Add a step to the egregore pipeline configuration (SKILL.md or pipeline.md) to call `scripts/deferred_capture.py` when `content_type` is `tangential_idea` or `discovery`. This is automatic (no confirmation), consistent with egregore's "never wait for human input" rule. The Discussion URL (if already published) goes into `--artifact-path`.
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add plugins/attune/skills/war-room/modules/deferred-capture.md \
@@ -1214,7 +1379,7 @@ git add plugins/attune/skills/war-room/modules/deferred-capture.md \
        plugins/imbue/skills/scope-guard/modules/github-integration.md \
        plugins/imbue/skills/feature-review/SKILL.md \
        plugins/pensive/skills/unified-review/SKILL.md
-git commit -m "feat: add deferred-capture integration to war-room, brainstorm, scope-guard, feature-review, unified-review"
+git commit -m "feat: add deferred-capture integration to war-room, brainstorm, scope-guard, feature-review, unified-review, egregore"
 ```
 
 ---
