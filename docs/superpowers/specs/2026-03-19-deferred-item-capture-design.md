@@ -147,7 +147,10 @@ python3 scripts/deferred_capture.py \
    --search "<title> in:title" --state open
    --json number,title`. Compare by exact title match
    after stripping the `[Deferred]` prefix and normalizing
-   to lowercase. Skip if a match is found
+   to lowercase. Skip if a match is found. Only open
+   issues are checked: re-filing a previously closed
+   deferred item is intentional (the item may need
+   re-evaluation in a new context)
 2. Label management: ensure `deferred` label exists
    (auto-create with color `#7B61FF` if missing)
 3. Issue creation: `gh issue create` with unified template
@@ -198,6 +201,7 @@ where this originated. Optional but encouraged.>
 | `war-room` | `#B60205` | Source: war-room deliberation |
 | `brainstorm` | `#1D76DB` | Source: brainstorming session |
 | `scope-guard` | `#FBCA04` | Source: scope-guard deferral |
+| `feature-review` | `#F9A825` | Source: feature-review suggestions |
 | `review` | `#0E8A16` | Source: code/PR review |
 | `regression` | `#D73A4A` | Source: skill regression |
 | `egregore` | `#5319E7` | Source: autonomous agent |
@@ -235,16 +239,25 @@ feature-review, unified-review, rollback-reviewer
 1. Read hook input JSON from stdin (standard Claude Code
    hook protocol, same as `skill_execution_logger.py`).
    Parse the `tool_input` field to identify the invoked
-   skill name and the `tool_output` field for content
+   skill name. Parse the tool result field for content.
+   Note: the exact JSON key for tool output must be
+   verified against `skill_execution_logger.py` during
+   implementation (may be `tool_output`, `output`, or
+   `tool_result` depending on Claude Code version)
 2. If skill not in watch list, exit (fast path)
 3. Scan tool_output for deferral signals: `[Deferred]`
    markers, `rejected`, `out of scope`, `deferred`,
    `not yet applicable`, `future cycle`
 4. Check session ledger
    (`.claude/deferred-items-session.json`) for duplicates
-5. If uncaptured, call `scripts/deferred_capture.py`
+5. If uncaptured, write a preliminary ledger entry:
+   `{"title": "...", "source": "...", "filed": false,
+   "timestamp": "..."}`
+6. Call `scripts/deferred_capture.py`
    with `--captured-by safety-net`
-6. Append to ledger with `{"title": "...", "filed": true}`
+7. On success, update ledger entry: set `filed: true`
+   and add `issue_number`. On failure, entry remains
+   `filed: false` for the Stop hook to retry
 
 **Constraint:** Completes in under 2 seconds. Conservative
 matching (better to miss than create spurious issues).
@@ -264,7 +277,10 @@ matching (better to miss than create spurious issues).
    `scripts/deferred_capture.py`
 4. Print summary to stderr:
    `"Deferred items: N filed, M skipped (duplicate)"`
-5. Delete the session ledger file
+5. Delete the session ledger file only if all entries
+   are `filed: true`. If any entries remain unfiled
+   after retry (e.g., persistent `gh` failure), log
+   a warning and leave the ledger for manual inspection
 
 **Ledger schema:**
 
