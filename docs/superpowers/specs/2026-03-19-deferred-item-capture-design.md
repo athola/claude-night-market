@@ -68,7 +68,8 @@ capture. A leyline skill documents the contract.
 
 - Six copies of similar (not identical) scripts across plugins.
   Mitigated by: each is small (~30-80 lines), spec compliance
-  test catches drift, `update_versions.py` verifies checksums
+  test catches drift, a dedicated `make verify-deferred-capture`
+  target runs the dry-run compliance test for all wrappers
 - Safety-net hook pattern matching is conservative and may miss
   implicit deferrals.
   Mitigated by: explicit skill-level capture handles the
@@ -113,7 +114,7 @@ python3 scripts/deferred_capture.py \
     infrastructure that doesn't exist yet." \
   --labels "deferred,war-room,enhancement" \
   --session-id "20260319-143022" \
-  --artifact-path "~/.claude/memory-palace/strategeion/..." \
+  --artifact-path "$HOME/.claude/memory-palace/strategeion/..." \
   --captured-by explicit \
   --dry-run
 ```
@@ -129,16 +130,24 @@ python3 scripts/deferred_capture.py \
 **Optional arguments:**
 
 - `--labels`: Additional labels beyond `deferred` + source
-- `--session-id`: Session identifier for traceability
-- `--artifact-path`: Link to source artifact
+- `--session-id`: Session identifier for traceability.
+  Canonical source: `$CLAUDE_SESSION_ID` env var if set,
+  otherwise a UTC timestamp generated at script startup
+  (`YYYYMMDD-HHMMSS`). All callers use the same resolution
+  order so ledger deduplication is consistent.
+- `--artifact-path`: Link to source artifact. Must use
+  `$HOME` or absolute paths, not `~` (Python does not
+  auto-expand tilde in subprocess contexts)
 - `--captured-by`: `explicit` (default) or `safety-net`
 - `--dry-run`: Print without creating
 
 **Behavior:**
 
-1. Duplicate detection: `gh issue list --search "<title>"
-   --state open --json number,title`. Skip if existing
-   issue title contains the deferred title (or vice versa)
+1. Duplicate detection: `gh issue list
+   --search "<title> in:title" --state open
+   --json number,title`. Compare by exact title match
+   after stripping the `[Deferred]` prefix and normalizing
+   to lowercase. Skip if a match is found
 2. Label management: ensure `deferred` label exists
    (auto-create with color `#7B61FF` if missing)
 3. Issue creation: `gh issue create` with unified template
@@ -208,8 +217,9 @@ that pre-fills plugin-specific defaults and enriches context:
 | egregore | egregore | Pipeline step context |
 
 Each wrapper implements the leyline contract independently.
-No cross-plugin imports. The `update_versions.py` release
-script verifies all wrappers pass the compliance test.
+No cross-plugin imports. A dedicated `make verify-deferred-capture`
+target runs the dry-run compliance test for all wrappers during
+the release process.
 
 ### Safety-Net Hooks
 
@@ -222,16 +232,19 @@ feature-review, unified-review, rollback-reviewer
 
 **Logic:**
 
-1. Read `CLAUDE_TOOL_OUTPUT`
+1. Read hook input JSON from stdin (standard Claude Code
+   hook protocol, same as `skill_execution_logger.py`).
+   Parse the `tool_input` field to identify the invoked
+   skill name and the `tool_output` field for content
 2. If skill not in watch list, exit (fast path)
-3. Scan output for deferral signals: `[Deferred]` markers,
-   `rejected`, `out of scope`, `deferred`,
+3. Scan tool_output for deferral signals: `[Deferred]`
+   markers, `rejected`, `out of scope`, `deferred`,
    `not yet applicable`, `future cycle`
 4. Check session ledger
    (`.claude/deferred-items-session.json`) for duplicates
 5. If uncaptured, call `scripts/deferred_capture.py`
    with `--captured-by safety-net`
-6. Append to ledger
+6. Append to ledger with `{"title": "...", "filed": true}`
 
 **Constraint:** Completes in under 2 seconds. Conservative
 matching (better to miss than create spurious issues).
@@ -243,22 +256,41 @@ matching (better to miss than create spurious issues).
 **Logic:**
 
 1. Read session ledger
-2. Scan for pending tasks with deferral keywords
-3. Create issues for uncaptured items
-4. Print summary to stderr
-5. Clean up ledger
+   (`.claude/deferred-items-session.json`)
+2. Filter for entries where `filed` is `false` (items
+   logged by the PostToolUse hook that failed to file,
+   e.g., due to `gh` timeout or network error)
+3. Create issues for unfiled entries via
+   `scripts/deferred_capture.py`
+4. Print summary to stderr:
+   `"Deferred items: N filed, M skipped (duplicate)"`
+5. Delete the session ledger file
+
+**Ledger schema:**
+
+```json
+[
+  {
+    "title": "...",
+    "source": "war-room",
+    "filed": true,
+    "issue_number": 42,
+    "timestamp": "2026-03-19T14:30:22Z"
+  }
+]
+```
 
 ### Skill Integration Points
 
 | Skill | Deferral point | Trigger |
 |-------|---------------|---------|
-| attune:war-room | Phase 7 (Synthesis) | Rejected COAs with votes |
-| attune:brainstorm | Phase 4 (Approach Selection) | Non-selected approaches (user confirms) |
+| attune:war-room | Phase 5 (Voting + Narrowing) | Rejected COAs with votes. Context: COA summary + rejection rationale from Phase 5 output |
+| attune:brainstorm | Phase 5 (Decision + Rationale) | Non-selected approaches from "Rejected Approaches" section (user confirms) |
 | imbue:scope-guard | Existing deferral (Worthiness < 1.0) | Replaces bespoke gh issue create |
 | imbue:feature-review | Phase 6 (GitHub Integration) | Suggestions scored > 2.5 |
 | pensive:unified-review | Phase 4 (Action Plan) | Out-of-scope findings |
 | abstract:rollback-reviewer | Regression detection | Converges from bespoke method |
-| egregore | Pipeline completion | tangential_idea or discovery |
+| egregore | Pipeline completion | tangential_idea or discovery (automatic, no confirmation -- respects egregore's "never wait for human input" rule) |
 
 ### Leyline Contract
 
@@ -267,7 +299,8 @@ matching (better to miss than create spurious issues).
 1. CLI interface spec (arguments, types, defaults)
 2. Issue template spec (markdown body format)
 3. Label taxonomy (names, colors, purposes)
-4. Duplicate detection spec (substring containment)
+4. Duplicate detection spec (exact title match,
+   case-normalized, `in:title` search filter)
 5. Output spec (JSON to stdout)
 6. Compliance test (dry-run validation snippet)
 
@@ -295,6 +328,38 @@ matching (better to miss than create spurious issues).
 **Estimated total:** ~400 new lines, ~30 lines removed
 from bespoke implementations.
 
+## Migration Notes
+
+### Scope-guard label migration
+
+Scope-guard currently uses the label `scope-guard-deferred`.
+The new taxonomy replaces this with `deferred` + `scope-guard`
+(two labels). During rollout:
+
+1. Run a one-time migration:
+   `gh issue list --label scope-guard-deferred --json number |
+   jq -r '.[].number' | xargs -I{} gh issue edit {}
+   --add-label deferred --add-label scope-guard`
+2. Remove `scope-guard-deferred` from scope-guard's
+   `github-integration.md`
+3. Optionally delete the old label:
+   `gh label delete scope-guard-deferred --yes`
+
+Pre-existing issues created before this migration will not
+match `gh issue list --label deferred` until the migration
+runs. This is acceptable for a one-time transition.
+
+### Cross-plugin observability
+
+The PostToolUse safety-net hook (owned by sanctum) watches
+attune skill outputs (war-room, brainstorm). This is an
+intentional cross-plugin observability dependency: sanctum
+monitors other plugins' outputs but never imports their
+files. If attune's skills have bugs or skip explicit capture,
+sanctum's hook provides the fallback. This is the same
+pattern used by `skill_execution_logger.py` (abstract)
+which already monitors all Skill invocations.
+
 ## Out of Scope
 
 - Central deferred-items registry or dashboard (future: could
@@ -313,4 +378,4 @@ from bespoke implementations.
 2. Implement reference script (sanctum) with tests
 3. Build safety-net hooks
 4. Integrate with skills (one plugin at a time)
-5. Update `update_versions.py` for replica compliance checks
+5. Add `make verify-deferred-capture` target for compliance
