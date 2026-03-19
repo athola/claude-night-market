@@ -1,5 +1,5 @@
 name: scribe
-version: 1.6.5
+version: 1.6.7
 description: Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing
   enforcement
 keywords:

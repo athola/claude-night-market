@@ -1,5 +1,5 @@
 name: hookify
-version: 1.6.5
+version: 1.6.7
 description: Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern
   matching
 keywords:

@@ -4,6 +4,7 @@
 Finds and updates:
 - pyproject.toml, Cargo.toml, package.json (standard config files)
 - plugin.json, metadata.json, marketplace.json (Claude Code plugins)
+- openpackage.yml (OpenPackage manifests)
 
 Excludes virtual environments and build directories by default.
 """
@@ -39,6 +40,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/.claude-plugin/metadata.json",
         "**/.claude-plugin/marketplace.json",
         "**/__init__.py",
+        "**/openpackage.yml",
     ]
 
     # Shared exclusion set from update_plugins_modules.constants
@@ -102,6 +104,14 @@ def update_init_py_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
 
+def update_openpackage_version(content: str, new_version: str) -> str:
+    """Update version in openpackage.yml content."""
+    # Match: version: 1.2.3 (YAML unquoted or quoted)
+    pattern = r'^version:\s*["\']?[0-9]+\.[0-9]+\.[0-9]+["\']?'
+    replacement = f"version: {new_version}"
+    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -120,6 +130,8 @@ def update_version_file(
             content = update_plugin_json_version(content, new_version)
         elif file_path.name == "__init__.py":
             content = update_init_py_version(content, new_version)
+        elif file_path.name == "openpackage.yml":
+            content = update_openpackage_version(content, new_version)
 
         if content != original:
             if not dry_run:
