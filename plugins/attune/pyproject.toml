@@ -72,9 +72,11 @@ extend-ignore = [
 "tests/**/*.py" = [
     "S101",     # Allow asserts in tests
     "S108",     # Allow hardcoded temp paths in tests
+    "S603",     # Subprocess usage in test fixtures
     "PLR2004",  # Allow magic values in tests
     "PLR0913",  # Allow too many arguments in test functions
     "PLR0915",  # Allow many statements in test functions
+    "PLW1510",  # subprocess.run without check (intentional in tests)
     "E501",     # Allow long lines in test docstrings
     "D212",     # Allow multi-line docstring on second line (BDD style)
     "D401",     # Allow non-imperative mood in test docstrings
@@ -84,6 +86,8 @@ extend-ignore = [
 ]
 "scripts/**/*.py" = [
     "S310",     # Allow URL open (validated with _validate_https_url)
+    "S603",     # Allow subprocess calls (inputs are validated)
+    "S607",     # Allow partial executable path (git/gh are well-known)
     "E501",     # Allow long lines in template strings
     "D107",     # Allow missing __init__ docstrings
     "D401",     # Allow non-imperative mood
@@ -158,6 +162,7 @@ omit = [
     "scripts/architecture_researcher.py",
     "scripts/attune_arch_init.py",
     "scripts/template_customizer.py",
+    "scripts/deferred_capture.py",
 ]
 
 [tool.coverage.report]

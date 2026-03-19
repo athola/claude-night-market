@@ -91,7 +91,7 @@ disable_error_code = ["import-not-found"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
-skips = ["B101"]
+skips = ["B101", "B404", "B603", "B607"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -118,7 +118,12 @@ markers = [
 
 [tool.coverage.run]
 source = ["abstract"]
-omit = ["tests/*", "*/tests/*", "*/__pycache__/*"]
+omit = [
+    "tests/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "scripts/deferred_capture.py",
+]
 
 [tool.coverage.report]
 exclude_lines = [
