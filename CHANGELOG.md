@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.7] - 2026-03-18
+
+### Added
+
+- Invisible text injection detection in leyline:
+  identifies hidden Unicode characters and zero-width
+  sequences in external content
+- Dorodango polishing workflow in attune: iterative
+  refinement cycle for project artifacts
+- Spec review loop and unit decomposition teaching in
+  attune: structured feedback for specifications with
+  unit-level breakdown guidance
+- Cheapest-capable model selection heuristic in conjure:
+  routes delegation tasks to the most cost-effective
+  model that meets capability requirements
+- Mandatory file structure section in attune planning:
+  implementation plans now require explicit directory
+  and file layout
+
+### Fixed
+
+- PR review findings from #283 and #292: formatting
+  fixes in test files, corrected Brooks's Law threshold
+  assertions, removed duplicate verdict calculation code
+- Tiered audit skill: added table of contents and
+  verification steps for each tier
+
 ## [1.6.6] - 2026-03-16
 
 ### Added

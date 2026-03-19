@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.6-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.7-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
-[![Skills](https://img.shields.io/badge/skills-131-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-134-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -17,7 +17,7 @@ slash commands, and autonomous agents for git workflows,
 code review, spec-driven development, and issue
 management.
 
-17 plugins providing 131 skills, 105 commands, and
+17 plugins providing 134 skills, 105 commands, and
 43 agents. Each plugin installs independently.
 
 <p align="center">
@@ -120,15 +120,15 @@ flowchart TB
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, stability monitoring | 11 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, ERC-8004 trust verification | 16 | 3 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection | 16 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions | 14 | 18 |
-| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 9 | 3 |
-| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 10 | 4 |
-| **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) | 4 | 0 |
+| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
+| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 11 | 4 |
+| **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, NASA Power of 10 | 12 | 12 |
-| **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room | 12 | 10 |
+| **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room, dorodango polishing | 13 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
@@ -192,12 +192,10 @@ See the [Common Workflows Guide][workflows] for full details.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
-**1.6.5** added six new Rust review checks in pensive,
-shared CLI scaffolding in abstract, and O(n) session
-chain traversal in memory-palace. Upcoming: output
-contracts for agent dispatch, tiered audit escalation
-in pensive, and self-healing heartbeat monitoring in
-egregore.
+**1.6.7** added invisible text injection detection in
+leyline, cheapest-capable model selection in conjure,
+and dorodango polishing workflows in attune with spec
+review loops and unit decomposition teaching.
 
 ## Requirements
 

@@ -1,6 +1,6 @@
 # API Overview
 
-*Updated: 2026-03-11*
+*Updated: 2026-03-18*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
@@ -18,27 +18,27 @@ with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.6.2 | 18 | 10 | 5 | Yes | abstract-skills |
-| archetypes | 1.6.2 | 0 | 14 | 0 | No | - |
-| attune | 1.6.2 | 10 | 12 | 2 | No | - |
-| conjure | 1.6.2 | 0 | 4 | 0 | No | - |
-| conserve | 1.6.2 | 4 | 10 | 5 | No | - |
-| hookify | 1.6.2 | 6 | 2 | 0 | No | - |
-| imbue | 1.6.2 | 2 | 9 | 1 | No | - |
-| leyline | 1.6.2 | 3 | 16 | 0 | Yes | - |
-| memory-palace | 1.6.2 | 5 | 6 | 4 | Yes | - |
-| minister | 1.6.2 | 3 | 2 | 0 | Yes | - |
-| parseltongue | 1.6.2 | 3 | 4 | 4 | No | - |
-| pensive | 1.6.2 | 12 | 11 | 4 | Yes | - |
-| sanctum | 1.6.2 | 17 | 14 | 9 | Yes | - |
-| scribe | 1.6.2 | 3 | 3 | 3 | No | - |
-| scry | 1.6.2 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.6.2 | 9 | 3 | 3 | Yes | - |
-| egregore | 1.6.2 | 5 | 4 | 2 | No | - |
+| abstract | 1.6.7 | 18 | 10 | 5 | Yes | abstract-skills |
+| archetypes | 1.6.7 | 0 | 14 | 0 | No | - |
+| attune | 1.6.7 | 10 | 12 | 2 | No | - |
+| conjure | 1.6.7 | 0 | 4 | 0 | No | - |
+| conserve | 1.6.7 | 4 | 10 | 5 | No | - |
+| hookify | 1.6.7 | 6 | 2 | 0 | No | - |
+| imbue | 1.6.7 | 2 | 9 | 1 | No | - |
+| leyline | 1.6.7 | 3 | 16 | 0 | Yes | - |
+| memory-palace | 1.6.7 | 5 | 6 | 4 | Yes | - |
+| minister | 1.6.7 | 3 | 2 | 0 | Yes | - |
+| parseltongue | 1.6.7 | 3 | 4 | 4 | No | - |
+| pensive | 1.6.7 | 12 | 11 | 4 | Yes | - |
+| sanctum | 1.6.7 | 17 | 14 | 9 | Yes | - |
+| scribe | 1.6.7 | 3 | 3 | 3 | No | - |
+| scry | 1.6.7 | 2 | 4 | 1 | No | - |
+| spec-kit | 1.6.7 | 9 | 3 | 3 | Yes | - |
+| egregore | 1.6.7 | 5 | 4 | 2 | No | - |
 
 ## Plugin Details
 
-### Abstract (v1.6.2)
+### Abstract (v1.6.7)
 Validation and analysis framework for the ecosystem.
 Includes commands for creating and validating skills, hooks,
 and plugins (`validate-plugin`, `create-skill`).
@@ -47,12 +47,12 @@ Skills focus on governance, authoring, and evaluation, including `skills-eval`,
 A daily learning aggregation hook generates LEARNINGS.md
 and promotes findings to GitHub Issues or Discussions based on severity.
 
-### Archetypes (v1.6.2)
+### Archetypes (v1.6.7)
 Reference library for architecture paradigms.
 Contains 14 skills covering patterns like hexagonal architecture,
 microservices, and event-driven design.
 
-### Attune (v1.6.2)
+### Attune (v1.6.7)
 Project initialization, architecture templates, and strategic decision-making.
 Commands include `arch-init`, `init`,
 `war-room` (multi-expert deliberation with optional agent teams execution for
@@ -60,32 +60,32 @@ Full Council and Delphi modes),
 and `mission` (unified lifecycle orchestrator with state detection
 and session recovery).
 
-### Conjure (v1.6.2)
+### Conjure (v1.6.7)
 Cross-model delegation and multi-agent coordination.
 Skills like `gemini-delegation`
 and `qwen-delegation` route tasks to specific models,
 while `agent-teams` coordinates parallel Claude Code agents through a
 filesystem-based protocol.
 
-### Conserve (v1.6.2)
+### Conserve (v1.6.7)
 Context window usage and resource management.
 Commands like `bloat-scan`
 and `optimize-context` help developers understand token consumption.
 Skills include `context-optimization`, `clear-context`,
 and `cpu-gpu-performance`.
 
-### Hookify (v1.6.2)
+### Hookify (v1.6.7)
 Behavioral rules engine with markdown-based configuration.
 Commands convert Python hooks to declarative rules (`from-hook`),
 manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
-### Imbue (v1.6.2)
+### Imbue (v1.6.7)
 Structured review workflows. Offers commands for catchups
 and structured reviews (`catchup`, `structured-review`).
 Skills include `proof-of-work`, `scope-guard`, and `rigorous-reasoning`.
 
-### Leyline (v1.6.2)
+### Leyline (v1.6.7)
 Shared patterns and utilities library.
 Allows for bulk plugin updates via `reinstall-all-plugins`.
 Skills cover authentication,
@@ -93,35 +93,35 @@ error handling (including agent crash recovery via `error-patterns`),
 testing standards, cross-platform git forge detection via `git-platform`,
 4-tier risk routing via `risk-classification`, and stewardship principles.
 
-### Memory-Palace (v1.6.2)
+### Memory-Palace (v1.6.7)
 Knowledge management organization.
 Commands like `garden` and `palace` help users navigate
 and structure information. Skills focus on knowledge intake and retrieval.
 
-### Minister (v1.6.2)
+### Minister (v1.6.7)
 GitHub issue management and initiative tracking.
 Commands include `create-issue`, `close-issue`, and `update-labels`.
 Skills provide release health gates and initiative pulse dashboards.
 
-### Parseltongue (v1.6.2)
+### Parseltongue (v1.6.7)
 Python development utilities. Includes tools for analyzing tests
 and profiling performance (`analyze-tests`, `run-profiler`).
 Skills support async programming and packaging.
 
-### Pensive (v1.6.2)
+### Pensive (v1.6.7)
 Code review and analysis framework.
 Provides specific review commands for various languages and domains,
 such as `api-review`, `rust-review`, and `bug-review`.
 Includes `safety-critical-patterns` for NASA Power of 10 rules adapted for
 robust code.
 
-### Sanctum (v1.6.2)
+### Sanctum (v1.6.7)
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
 quality analysis. Commands include `fix-pr`, `merge-docs`,
 and `update-dependencies`.
 
-### Scribe (v1.6.2)
+### Scribe (v1.6.7)
 Documentation quality enforcement.
 Commands include `doc-polish` (interactive editing),
 `doc-generate` (documentation generation), and `style-learn` (style profiling).
@@ -131,17 +131,17 @@ Skills detect AI-generated content markers (`slop-detector`),
 learn writing styles (`style-learner`),
 and generate human-quality documentation (`doc-generator`).
 
-### Scry (v1.6.2)
+### Scry (v1.6.7)
 Terminal and browser session recording.
 Supports creating media assets with commands like `record-browser`
 and `record-terminal`.
 
-### Spec-Kit (v1.6.2)
+### Spec-Kit (v1.6.7)
 Specification-driven development.
 Offers a suite of commands for planning, specifying,
 and implementing features based on strict requirements.
 
-### Egregore (v1.6.2)
+### Egregore (v1.6.7)
 Autonomous agent orchestrator for development lifecycles.
 Commands include `summon` (spawn sessions), `dismiss`
 (terminate), `status` (check progress),

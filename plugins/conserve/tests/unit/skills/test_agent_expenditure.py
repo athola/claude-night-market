@@ -41,7 +41,7 @@ class TestWasteSignalDetection:
             },
             "ghost_agent": {
                 "tokens_spent": 1600,  # 1.6x median
-                "findings_count": 2,   # 20% of median
+                "findings_count": 2,  # 20% of median
                 "has_evidence": False,
             },
             "high_effort_normal": {
@@ -59,9 +59,9 @@ class TestWasteSignalDetection:
             name: agent
             for name, agent in agents.items()
             if (
-                agent["tokens_spent"] > ghost_threshold_tokens and
-                agent["findings_count"] < ghost_threshold_findings and
-                not agent["has_evidence"]
+                agent["tokens_spent"] > ghost_threshold_tokens
+                and agent["findings_count"] < ghost_threshold_findings
+                and not agent["has_evidence"]
             )
         }
 
@@ -99,20 +99,20 @@ class TestWasteSignalDetection:
         }
 
         # Act - find redundant reads
-        all_reads = {
-            agent: set(reads) for agent, reads in agent_file_reads.items()
-        }
+        all_reads = {agent: set(reads) for agent, reads in agent_file_reads.items()}
 
         redundant_pairs = []
         agents_list = list(all_reads.keys())
         for i, agent_a in enumerate(agents_list):
-            for agent_b in agents_list[i + 1:]:
+            for agent_b in agents_list[i + 1 :]:
                 overlap = all_reads[agent_a] & all_reads[agent_b]
                 if overlap:
-                    redundant_pairs.append({
-                        "agents": (agent_a, agent_b),
-                        "overlapping_files": overlap,
-                    })
+                    redundant_pairs.append(
+                        {
+                            "agents": (agent_a, agent_b),
+                            "overlapping_files": overlap,
+                        }
+                    )
 
         # Assert
         assert len(redundant_pairs) == 1
@@ -160,7 +160,7 @@ class TestWasteSignalDetection:
         overlap_percentage = overlap_count / total_unique
 
         # Assert
-        assert overlap_percentage > 0.5  # >50% overlap
+        assert overlap_percentage >= 0.5  # >=50% overlap
         assert overlap_count == 2
         assert overlap_percentage == 2 / 4  # 50%
 
@@ -204,8 +204,8 @@ class TestWasteSignalDetection:
             name: result
             for name, result in task_type_results.items()
             if (
-                result["tokens"] > hog_threshold and
-                result["quality"] in ["poor", "mediocre"]
+                result["tokens"] > hog_threshold
+                and result["quality"] in ["poor", "mediocre"]
             )
         }
 
@@ -251,10 +251,7 @@ class TestWasteSignalDetection:
         # Act - flag coordination overhead
         overhead_detected = {}
         for scenario, data in dispatch_scenarios.items():
-            has_overhead = (
-                data["agent_count"] > 5 and
-                data["conflict_percentage"] > 20
-            )
+            has_overhead = data["agent_count"] > 5 and data["conflict_percentage"] > 20
             overhead_detected[scenario] = has_overhead
 
         # Assert
@@ -324,8 +321,8 @@ class TestBrooksLawThresholds:
             1: {"dispatch_freely": True, "plan_required": False},
             2: {"dispatch_freely": True, "plan_required": False},
             3: {"dispatch_freely": True, "plan_required": False},
-            4: {"dispatch_freely": True, "plan_required": True},
-            5: {"dispatch_freely": True, "plan_required": True},
+            4: {"dispatch_freely": False, "plan_required": True},
+            5: {"dispatch_freely": False, "plan_required": True},
             6: {"dispatch_freely": False, "plan_required": True},
             8: {"dispatch_freely": False, "plan_required": True},
             9: {"dispatch_freely": False, "plan_required": True},
@@ -341,8 +338,8 @@ class TestBrooksLawThresholds:
             should_dispatch_freely = count <= threshold_free
             should_plan = count >= threshold_plan
             is_correct = (
-                expected["dispatch_freely"] == should_dispatch_freely and
-                expected["plan_required"] == should_plan
+                expected["dispatch_freely"] == should_dispatch_freely
+                and expected["plan_required"] == should_plan
             )
             verified[count] = is_correct
 
@@ -372,14 +369,14 @@ class TestBrooksLawThresholds:
 
         # Act - check waste criteria
         looks_like_ghost = (
-            low_risk_scan["tokens_spent"] > median_tokens * 1.5 and
-            low_risk_scan["findings"] < median_findings * 0.3
+            low_risk_scan["tokens_spent"] > median_tokens * 1.5
+            and low_risk_scan["findings"] < median_findings * 0.3
         )
 
         # Context matters: is this a legitimate zero-finding result?
         is_legitimate_zero = (
-            low_risk_scan["reason"] != "" and
-            "already" in low_risk_scan["reason"].lower()
+            low_risk_scan["reason"] != ""
+            and "already" in low_risk_scan["reason"].lower()
         )
 
         is_waste = looks_like_ghost and not is_legitimate_zero
@@ -449,21 +446,21 @@ class TestPostDispatchReview:
                 "unique_findings": True,
                 "token_proportional": True,
                 "no_duplication": True,
-                "few_agents_insufficient": False,
+                "few_agents_insufficient": True,
                 "expected_verdict": "continue",
             },
             "inefficient": {
                 "unique_findings": False,
                 "token_proportional": False,
                 "no_duplication": False,
-                "few_agents_insufficient": True,
+                "few_agents_insufficient": False,
                 "expected_verdict": "reduce",
             },
             "marginal": {
                 "unique_findings": True,
                 "token_proportional": False,
                 "no_duplication": True,
-                "few_agents_insufficient": False,
+                "few_agents_insufficient": True,
                 "expected_verdict": "monitor",
             },
         }
@@ -471,25 +468,8 @@ class TestPostDispatchReview:
         # Act - calculate verdicts
         verdicts = {}
         for scenario, responses in review_scenarios.items():
-            "no" answers = sum(
-                1 for k, v in responses.items()
-                if k != "expected_verdict" and not v
-            )
-            if "no" > 1:
-                verdict = "reduce"
-            elif "no" == 0:
-                verdict = "continue"
-            else:
-                verdict = "monitor"
-            verdicts[scenario] = verdict
-
-        # Note: fix syntax by using a different variable name
-        # Act (corrected) - calculate verdicts
-        verdicts = {}
-        for scenario, responses in review_scenarios.items():
             no_count = sum(
-                1 for k, v in responses.items()
-                if k != "expected_verdict" and not v
+                1 for k, v in responses.items() if k != "expected_verdict" and not v
             )
             if no_count > 1:
                 verdict = "reduce"

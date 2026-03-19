@@ -47,9 +47,10 @@ class TestEmotionalFraming:
 
         # Assert
         assert len(flagged_instructions) == 5
-        assert all(marker in instr for instr, marker in zip(
-            flagged_instructions, threat_markers
-        ))
+        assert all(
+            marker in instr
+            for instr, marker in zip(flagged_instructions, threat_markers)
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -62,16 +63,11 @@ class TestEmotionalFraming:
         """
         # Arrange
         confident_patterns = {
-            "You've got this. Take your time with X.":
-                "encourages careful reasoning",
-            "Focus on getting X right. The details matter here.":
-                "directs attention without threat",
-            "This is important work. Here's what good looks like...":
-                "sets positive exemplar",
-            "Take a careful look at X before proceeding.":
-                "promotes deliberation",
-            "Your goal is to produce Y. Here's the approach...":
-                "outcome-focused",
+            "You've got this. Take your time with X.": "encourages careful reasoning",
+            "Focus on getting X right. The details matter here.": "directs attention without threat",
+            "This is important work. Here's what good looks like...": "sets positive exemplar",
+            "Take a careful look at X before proceeding.": "promotes deliberation",
+            "Your goal is to produce Y. Here's the approach...": "outcome-focused",
         }
 
         # Act - verify confident patterns
@@ -116,8 +112,10 @@ class TestEmotionalFraming:
 
         # Assert
         assert len(legitimate_urgency) == 3
-        assert all("NEVER" in c or "CRITICAL" in c or "WARNING" in c
-                   for c in legitimate_urgency)
+        assert all(
+            "NEVER" in c or "CRITICAL" in c or "WARNING" in c
+            for c in legitimate_urgency
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -144,9 +142,7 @@ Shape agent behavior by framing instructions.
         threat_markers = ["MUST", "NEVER", "CRITICAL", "WARNING"]
 
         # Act - count unnecessary urgency
-        urgent_count = sum(
-            skill_content.count(marker) for marker in threat_markers
-        )
+        urgent_count = sum(skill_content.count(marker) for marker in threat_markers)
 
         # Assert - should be 0 for methodology skill
         assert urgent_count == 0
@@ -171,11 +167,11 @@ class TestStyleGeneTransfer:
         """
         # Arrange
         exemplars = {
-            "tiny": 20,          # Low effectiveness
-            "small": 75,         # Good balance
-            "medium": 150,       # Excellent fidelity
-            "large": 300,        # Diminishing returns
-            "huge": 500,         # Wasteful
+            "tiny": 20,  # Low effectiveness
+            "small": 75,  # Good balance
+            "medium": 150,  # Excellent fidelity
+            "large": 300,  # Diminishing returns
+            "huge": 500,  # Wasteful
         }
 
         effectiveness_scores = {
@@ -269,9 +265,9 @@ class TestStyleGeneTransfer:
 
         # Act - determine if style transfer needed
         needs_style_transfer = (
-            not project_state["is_greenfield"] and
-            project_state["has_existing_code"] and
-            project_state["precedent_count"] > 0
+            not project_state["is_greenfield"]
+            and project_state["has_existing_code"]
+            and project_state["precedent_count"] > 0
         )
 
         # Assert
@@ -342,16 +338,14 @@ class TestCompetitiveReview:
         expected_framing = {
             1: "collaborative",  # Single agent, no framing needed
             2: "collaborative",  # Pair, use collaboration not competition
-            3: "competitive",    # Threshold for competitive
+            3: "competitive",  # Threshold for competitive
             4: "competitive",
             5: "competitive",
         }
 
         # Act - determine framing by agent count
         framings = {
-            count: (
-                "competitive" if count >= 3 else "collaborative"
-            )
+            count: ("competitive" if count >= 3 else "collaborative")
             for count in agent_counts
         }
 
@@ -465,12 +459,12 @@ class TestCompetitiveReview:
         for name, config in scenarios.items():
             # Competitive is only appropriate for review with 3+ agents
             is_appropriate = (
-                config["agent_type"] == "review" and
-                config["count"] >= 3 and
-                config["should_be_competitive"]
+                config["agent_type"] == "review"
+                and config["count"] >= 3
+                and config["should_be_competitive"]
             ) or (
-                (config["agent_type"] != "review" or config["count"] < 3) and
-                not config["should_be_competitive"]
+                (config["agent_type"] != "review" or config["count"] < 3)
+                and not config["should_be_competitive"]
             )
             appropriate[name] = is_appropriate
 
