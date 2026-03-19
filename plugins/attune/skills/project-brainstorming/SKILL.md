@@ -11,6 +11,7 @@ progressive_loading: true
 dependencies:
   modules:
     - modules/spec-review-loop.md
+    - modules/deferred-capture.md
 ---
 ## Table of Contents
 

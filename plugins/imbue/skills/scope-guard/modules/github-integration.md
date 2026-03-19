@@ -11,50 +11,34 @@
 
 ## Deferral Process
 
-### Step 1: Create GitHub Issue (MANDATORY)
+### Step 1: Create Deferred Item (MANDATORY)
 
 When deferring an item, you MUST run this command:
 
 ```bash
-gh issue create \
-  --title "[Deferred] <Brief feature description>" \
-  --body "$(cat <<'EOF'
-## Deferred by scope-guard
+python3 scripts/deferred_capture.py \
+  --title "<feature name>" \
+  --source scope-guard \
+  --context "Worthiness: <score>. <breakdown>. <reason>" \
+  --labels "deferred,scope-guard,<priority>"
+```
 
-**Worthiness Score:** X.XX (threshold: 1.0)
-**Branch:** <current-branch-name>
-**Date:** <YYYY-MM-DD>
-**Reason:** <Why score was low OR branch budget exceeded>
+The `<breakdown>` field should summarise the scoring factors
+inline (e.g. "Business Value: 2, Complexity: 4, Scope Drift: 3").
+The `<priority>` label should be `priority/low`,
+`priority/medium`, or omitted based on the worthiness score.
 
-### Feature Description
+**Migration note:** repositories that previously used the
+`scope-guard-deferred` label can migrate existing issues
+with:
 
-<Full description of the proposed feature>
-
-### Scoring Breakdown
-
-| Factor | Score | Rationale |
-|--------|-------|-----------|
-| Business Value | X | <reason> |
-| Time Criticality | X | <reason> |
-| Risk Reduction | X | <reason> |
-| Complexity | X | <reason> |
-| Token Cost | X | <reason> |
-| Scope Drift | X | <reason> |
-
-**Formula:** (X + X + X) / (X + X + X) = X.XX
-
-### Context
-
-<Any additional context, alternatives considered, or notes for future implementation>
-
-### When to Revisit
-
-- [ ] When branch budget frees up
-- [ ] When related work is scheduled
-- [ ] During next planning cycle
-EOF
-)" \
-  --label "scope-guard-deferred"
+```bash
+gh label create deferred --color "#e4e669" --description \
+  "Deferred work items" || true
+gh issue list --label scope-guard-deferred --json number \
+  --jq '.[].number' \
+  | xargs -I{} gh issue edit {} --add-label deferred \
+      --add-label scope-guard
 ```
 
 ### Step 2: Record Issue Number
@@ -105,7 +89,8 @@ Use consistent labels for filtering:
 
 | Label | Purpose |
 |-------|---------|
-| `scope-guard-deferred` | All scope-guard deferrals (required) |
+| `deferred` | All deferred work items (required) |
+| `scope-guard` | All scope-guard deferrals (required) |
 | `priority/low` | Low worthiness score (< 0.8) |
 | `priority/medium` | Medium worthiness (0.8 - 1.0) |
 | `enhancement` | New features |
@@ -219,7 +204,7 @@ After creating the issue, verify:
 gh issue view <issue-number>
 
 # List all deferred items
-gh issue list --label scope-guard-deferred
+gh issue list --label deferred --label scope-guard
 ```
 
 ## Failure Handling
