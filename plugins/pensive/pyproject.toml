@@ -166,7 +166,6 @@ unfixable = [
     "D102",    # Missing method docstrings in test classes
     "D103",    # Missing function docstrings in tests
     "S108",    # Allow hardcoded temp paths in tests
-    "PLC0415", # Allow conditional imports
     "D205",    # Multiline docstring summary (Given/When/Then patterns)
     "PLR0913", # Too many arguments in test helpers
 ]

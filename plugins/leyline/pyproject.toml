@@ -46,7 +46,7 @@ extend-ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/test_auto_star_repo.py" = ["D101", "D102", "D103", "D205", "D212", "D400", "D415", "E501", "PLC0415"]
+"tests/test_auto_star_repo.py" = ["D101", "D102", "D103", "D205", "D212", "D400", "D415", "E501"]
 "tests/test_manifest_consistency.py" = ["D101", "D102", "D103", "D205", "D212", "D400", "D415", "E501"]
 
 [tool.ruff.lint.pydocstyle]

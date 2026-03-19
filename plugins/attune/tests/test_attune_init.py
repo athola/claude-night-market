@@ -3,6 +3,7 @@
 Following BDD principles with Given/When/Then structure.
 """
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -993,8 +994,6 @@ class TestCopyTemplatesBackup:
         """Given backup=True, when copying, then backup subdir name matches
         YYYYMMDD_HHMMSS timestamp pattern.
         """
-        import re  # noqa: PLC0415
-
         # Given
         templates_root = tmp_path / "templates"
         python_dir = templates_root / "python"

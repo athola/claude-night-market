@@ -8,12 +8,15 @@ Feature: Dogfooder package reporter module
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
+
+from dogfooder.reporter import MakefileDogfooder, ProcessingConfig
 
 
 class TestDogfooderReporterImports:
@@ -31,7 +34,6 @@ class TestDogfooderReporterImports:
         When I import MakefileDogfooder from dogfooder.reporter
         Then the import succeeds and the symbol is a class
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         assert isinstance(MakefileDogfooder, type)
 
@@ -42,7 +44,6 @@ class TestDogfooderReporterImports:
         When I import ProcessingConfig from dogfooder.reporter
         Then the import succeeds and the symbol is a class
         """
-        from dogfooder.reporter import ProcessingConfig  # noqa: PLC0415
 
         assert isinstance(ProcessingConfig, type)
 
@@ -64,7 +65,6 @@ class TestMakefileDogfooderFromReporter:
         Then essential_targets, recommended_targets, convenience_targets,
         and skip_dirs attributes are set
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder()
 
@@ -80,7 +80,6 @@ class TestMakefileDogfooderFromReporter:
         When MakefileDogfooder(root_dir=tmp_path) is instantiated
         Then dogfooder.root_dir equals tmp_path
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
 
@@ -93,7 +92,6 @@ class TestMakefileDogfooderFromReporter:
         When MakefileDogfooder(verbose=True) is instantiated
         Then dogfooder.verbose is True
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(verbose=True)
 
@@ -106,7 +104,6 @@ class TestMakefileDogfooderFromReporter:
         When MakefileDogfooder(explain=True) is instantiated
         Then dogfooder.explain is True
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(explain=True)
 
@@ -119,7 +116,6 @@ class TestMakefileDogfooderFromReporter:
         When analyze_plugin() is called
         Then a dict containing commands_documented and coverage_percent is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "sample"
         plugin_dir.mkdir(parents=True)
@@ -140,7 +136,6 @@ class TestMakefileDogfooderFromReporter:
         When generate_report() is called
         Then the result contains 'Findings by Plugin'
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "reported"
         plugin_dir.mkdir(parents=True)
@@ -160,9 +155,6 @@ class TestMakefileDogfooderFromReporter:
         When generate_report(output_format='json') is called
         Then the result is a valid JSON string
         """
-        import json  # noqa: PLC0415
-
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         report_json = dogfooder.generate_report(output_format="json")
@@ -181,7 +173,6 @@ class TestMakefileDogfooderFromReporter:
         Then coverage_percent is 50 (1 of 2 required targets present)
              not inflated by unrelated targets
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "cov-test"
         plugin_dir.mkdir(parents=True)
@@ -215,7 +206,6 @@ class TestMakefileDogfooderFromReporter:
         When _calc_coverage() is called
         Then 100 is returned (no commands = full coverage by convention)
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder()
 
@@ -228,7 +218,6 @@ class TestMakefileDogfooderFromReporter:
         When _calc_coverage() is called
         Then 50 is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder()
 
@@ -241,7 +230,6 @@ class TestMakefileDogfooderFromReporter:
         When _find_phony_block() is called
         Then a list containing that line is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = ".PHONY: help test\n\nhelp:\n\t@echo help\n"
@@ -257,7 +245,6 @@ class TestMakefileDogfooderFromReporter:
         When _extract_phony_targets() is called
         Then all target names are returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         phony_lines = [
@@ -279,7 +266,6 @@ class TestMakefileDogfooderFromReporter:
         When _filter_duplicate_targets() is called with the existing set
         Then only new targets remain in the output
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         existing = {"old-target"}
@@ -310,7 +296,6 @@ class TestProcessingConfigFromReporter:
         When ProcessingConfig is instantiated
         Then all four attributes are set correctly
         """
-        from dogfooder.reporter import ProcessingConfig  # noqa: PLC0415
 
         cfg = ProcessingConfig(
             mode="analyze",
@@ -340,7 +325,6 @@ class TestAnalyzePluginEdgeCases:
         When analyze_plugin() is called
         Then it returns a dict with status 'no-readme'
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "no-readme-plugin"
         plugin_dir.mkdir(parents=True)
@@ -358,7 +342,6 @@ class TestAnalyzePluginEdgeCases:
         When analyze_plugin(generate_missing=False) is called
         Then it returns a dict with status 'no-makefile'
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "no-makefile-plugin"
         plugin_dir.mkdir(parents=True)
@@ -386,7 +369,6 @@ class TestInsertionStrategies:
         When _insert_content_before_catchall() is called
         Then the new content appears before the comment
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = (
@@ -412,7 +394,6 @@ class TestInsertionStrategies:
         When _insert_content_before_percent_colon() is called
         Then the new content appears before %::
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = ".PHONY: help\n\nhelp:\n\t@echo help\n\n%::\n\t@:\n"
@@ -430,7 +411,6 @@ class TestInsertionStrategies:
         When _determine_insertion_strategy() is called
         Then content is inserted before the guard comment
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = (
@@ -451,7 +431,6 @@ class TestInsertionStrategies:
         When _determine_insertion_strategy() is called
         Then content is inserted before %::
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = ".PHONY: help\n\nhelp:\n\t@echo help\n\n%::\n\t@:\n"
@@ -469,7 +448,6 @@ class TestInsertionStrategies:
         When _determine_insertion_strategy() is called
         Then content is appended at the end
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         content = ".PHONY: help\n\nhelp:\n\t@echo help\n"
@@ -495,7 +473,6 @@ class TestApplyTargetsToMakefile:
         When apply_targets_to_makefile() is called
         Then False is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         finding = {"makefile": "plugins/ghost/Makefile"}
@@ -513,7 +490,6 @@ class TestApplyTargetsToMakefile:
         When apply_targets_to_makefile() is called
         Then True is returned without writing
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "dup" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -535,7 +511,6 @@ class TestApplyTargetsToMakefile:
         When apply_targets_to_makefile(dry_run=True) is called
         Then True is returned and Makefile is unchanged
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "dry" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -568,7 +543,6 @@ class TestBuildPhonyBlock:
         When _build_phony_block() is called
         Then all targets appear on a single .PHONY line
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         targets = ["help", "test", "lint"]
@@ -586,7 +560,6 @@ class TestBuildPhonyBlock:
         When _build_phony_block() is called
         Then backslash continuations appear in the output
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         targets = [f"very-long-target-name-{i}" for i in range(15)]
@@ -611,7 +584,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce() is called
         Then False is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         finding = {"makefile": "plugins/ghost/Makefile", "missing_targets": ["test"]}
@@ -627,7 +599,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce() is called
         Then True is returned (nothing to do)
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "ok" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -645,7 +616,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce() is called
         Then False is returned
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "nophony" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -666,7 +636,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce(dry_run=False) is called
         Then the Makefile .PHONY line includes 'test'
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "addme" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -692,7 +661,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce(dry_run=True) is called
         Then True is returned but Makefile content is unchanged
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "dryfix" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -717,7 +685,6 @@ class TestFixMakefilePronouce:
         When fix_makefile_pronounce() is called
         Then True is returned without modification
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         makefile = tmp_path / "plugins" / "already" / "Makefile"
         makefile.parent.mkdir(parents=True)
@@ -746,7 +713,6 @@ class TestBuildPhonyBlockNoSpuriousLine:
         When _build_phony_block() is called
         Then the first line is NOT a bare '.PHONY:' without targets
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         targets = ["help", "test", "lint"]
@@ -771,7 +737,6 @@ class TestFilterDuplicateTargetsOrphanedRecipes:
         When _filter_duplicate_targets() is called
         Then neither the target header nor its recipe lines appear
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         existing = {"old-target"}
@@ -807,7 +772,6 @@ class TestAnalyzeAllVerboseNoReadme:
         When analyze_all() is called with verbose=True
         Then no KeyError is raised
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "no-readme"
         plugin_dir.mkdir(parents=True)
@@ -834,7 +798,6 @@ class TestAnalyzeAllVerbose:
         When analyze_all() is called on a verbose MakefileDogfooder
         Then plugin details are printed to stdout
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "verbose-test"
         plugin_dir.mkdir(parents=True)
@@ -864,7 +827,6 @@ class TestGenerateReportTruncation:
         When generate_report() is called
         Then the report contains '... and 3 more'
         """
-        from dogfooder.reporter import MakefileDogfooder  # noqa: PLC0415
 
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
         dogfooder.report["findings"].append(

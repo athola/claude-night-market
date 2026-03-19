@@ -12,26 +12,26 @@ review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 103 CLI commands, 130 modular
+The ecosystem includes 102 CLI commands, 128 modular
 skills, 43 specialized agents, and 7 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.6.2 | 18 | 11 | 5 | Yes | abstract-skills |
+| abstract | 1.6.2 | 18 | 10 | 5 | Yes | abstract-skills |
 | archetypes | 1.6.2 | 0 | 14 | 0 | No | - |
 | attune | 1.6.2 | 10 | 12 | 2 | No | - |
 | conjure | 1.6.2 | 0 | 4 | 0 | No | - |
 | conserve | 1.6.2 | 4 | 10 | 5 | No | - |
 | hookify | 1.6.2 | 6 | 2 | 0 | No | - |
-| imbue | 1.6.2 | 3 | 9 | 1 | No | - |
-| leyline | 1.6.2 | 2 | 16 | 0 | Yes | - |
+| imbue | 1.6.2 | 2 | 9 | 1 | No | - |
+| leyline | 1.6.2 | 3 | 16 | 0 | Yes | - |
 | memory-palace | 1.6.2 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.2 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.6.2 | 3 | 4 | 4 | No | - |
 | pensive | 1.6.2 | 12 | 11 | 4 | Yes | - |
-| sanctum | 1.6.2 | 18 | 14 | 9 | Yes | - |
-| scribe | 1.6.2 | 3 | 4 | 3 | No | - |
+| sanctum | 1.6.2 | 17 | 14 | 9 | Yes | - |
+| scribe | 1.6.2 | 3 | 3 | 3 | No | - |
 | scry | 1.6.2 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.6.2 | 9 | 3 | 3 | Yes | - |
 | egregore | 1.6.2 | 5 | 4 | 2 | No | - |

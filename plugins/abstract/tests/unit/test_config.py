@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 import pytest
+import yaml
 
 from abstract.config import (
     AbstractConfig,
@@ -323,7 +324,6 @@ class TestAbstractConfig:
         When loaded via from_file
         Then verbose is True
         """
-        import yaml  # noqa: PLC0415
 
         config_data = {"verbose": True}
         config_file = tmp_path / "config.yaml"
@@ -349,7 +349,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_delegates_to_from_file(self, tmp_path: Path) -> None:
         """Scenario: from_yaml is equivalent to from_file for .yaml files."""
-        import yaml  # noqa: PLC0415
 
         config_data = {"debug": True}
         config_file = tmp_path / "config.yaml"
@@ -441,7 +440,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_with_sub_configs(self, tmp_path: Path) -> None:
         """Scenario: YAML with nested skill_validation config is loaded."""
-        import yaml  # noqa: PLC0415
 
         config_data = {
             "environment": "testing",
@@ -459,7 +457,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_with_skill_analyzer_sub_config(self, tmp_path: Path) -> None:
         """Scenario: YAML with nested skill_analyzer config is loaded."""
-        import yaml  # noqa: PLC0415
 
         config_data = {
             "skill_analyzer": {
@@ -476,7 +473,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_with_skills_eval_sub_config(self, tmp_path: Path) -> None:
         """Scenario: YAML with nested skills_eval config is loaded."""
-        import yaml  # noqa: PLC0415
 
         config_data = {
             "skills_eval": {
@@ -493,7 +489,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_with_context_optimizer_sub_config(self, tmp_path: Path) -> None:
         """Scenario: YAML with nested context_optimizer config is loaded."""
-        import yaml  # noqa: PLC0415
 
         config_data = {
             "context_optimizer": {
@@ -510,7 +505,6 @@ class TestAbstractConfig:
     @pytest.mark.unit
     def test_from_yaml_with_error_handling_sub_config(self, tmp_path: Path) -> None:
         """Scenario: YAML with nested error_handling config is loaded."""
-        import yaml  # noqa: PLC0415
 
         config_data = {
             "error_handling": {

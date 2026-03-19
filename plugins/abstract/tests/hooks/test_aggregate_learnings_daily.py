@@ -13,6 +13,7 @@ from __future__ import annotations
 import io
 import json
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -589,7 +590,6 @@ class TestWriteLearningsIntegration:
         Then: The output file contains both new content AND the
               preserved pinned learnings
         """
-        from datetime import datetime, timezone  # noqa: PLC0415
 
         learnings_file = tmp_path / "skills" / "LEARNINGS.md"
         learnings_file.parent.mkdir(parents=True, exist_ok=True)
@@ -685,7 +685,6 @@ class TestWriteLearningsIntegration:
         When: _write_learnings() is called
         Then: A new file is created with the aggregated content
         """
-        from datetime import datetime, timezone  # noqa: PLC0415
 
         learnings_file = tmp_path / "new_dir" / "LEARNINGS.md"
 

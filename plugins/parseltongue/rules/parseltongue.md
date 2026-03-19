@@ -18,6 +18,15 @@ globs: "**/*.py"
 - mypy for type checking
 - 88 character line limit (black default)
 
+## Imports
+
+- All imports at the top of the file (PLC0415 enforced by ruff)
+- Hook files are exempt (they use deferred imports for
+  optional deps and Python 3.9 compatibility)
+- Only use function-level imports for: try/except ImportError
+  guards, dynamic module reloads, or circular import avoidance
+  (with a comment explaining why)
+
 ## Testing
 
 - pytest with fixtures

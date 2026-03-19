@@ -37,7 +37,7 @@ Capture:
 
 ### 4. Quick Bloat Scan
 
-Invoke `Skill(conserve:bloat-scan)` at Tier 1 (quick) for
+Invoke `Skill(conserve:bloat-detector)` at Tier 1 (quick) for
 each affected plugin. Capture:
 - Dead code candidates
 - Duplicate content

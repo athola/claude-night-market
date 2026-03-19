@@ -8,6 +8,7 @@ Feature: Dogfooder package validator module
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -391,7 +392,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory() is called
         Then True is returned
         """
-        import os  # noqa: PLC0415
 
         original = os.getcwd()
         try:
@@ -408,7 +408,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory(plugin_name='ghost') is called
         Then False is returned
         """
-        import os  # noqa: PLC0415
 
         plugins = tmp_path / "plugins" / "ghost"
         plugins.mkdir(parents=True)
@@ -428,7 +427,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory(plugin_name='good') is called
         Then True is returned
         """
-        import os  # noqa: PLC0415
 
         plugin_dir = tmp_path / "plugins" / "good"
         plugin_dir.mkdir(parents=True)

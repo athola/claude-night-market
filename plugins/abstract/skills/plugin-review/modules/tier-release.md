@@ -26,7 +26,7 @@ quality dimensions.
 
 ### 3. Deep Bloat Scan
 
-Invoke `Skill(conserve:bloat-scan)` at Tier 2-3 (deep) for
+Invoke `Skill(conserve:bloat-detector)` at Tier 2-3 (deep) for
 full dead code analysis, cross-file duplication detection,
 and dependency audit.
 
@@ -78,8 +78,8 @@ the release-specific checks.
 ## Full Ecosystem Report
 
 ```
-Plugin Review (release tier) - v1.5.6
-Date: 2026-03-08
+Plugin Review (release tier) - vX.Y.Z
+Date: YYYY-MM-DD
 Plugins: 17/17
 
 ECOSYSTEM HEALTH

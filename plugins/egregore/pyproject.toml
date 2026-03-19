@@ -41,7 +41,7 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = ["S101", "E203", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415", "PLC0415"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415"]
 
 [tool.mypy]
 python_version = "3.9"

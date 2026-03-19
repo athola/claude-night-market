@@ -72,7 +72,6 @@ extend-ignore = [
 "tests/**/*.py" = [
     "S101",     # Allow asserts in tests
     "S108",     # Allow hardcoded temp paths in tests
-    "PLC0415",  # Allow imports not at top (conditional test imports)
     "PLR2004",  # Allow magic values in tests
     "PLR0913",  # Allow too many arguments in test functions
     "PLR0915",  # Allow many statements in test functions

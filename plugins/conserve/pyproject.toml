@@ -86,7 +86,7 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
-"tests/**/*.py" = ["S101", "PLR2004", "D103", "PLC0415"]  # Test-specific ignores
+"tests/**/*.py" = ["S101", "PLR2004", "D103"]  # Test-specific ignores
 
 [tool.ruff.format]
 quote-style = "double"

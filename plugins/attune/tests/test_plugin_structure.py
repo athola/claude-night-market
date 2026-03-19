@@ -2,6 +2,7 @@
 
 import json
 import re
+import stat
 from pathlib import Path
 
 import pytest
@@ -127,8 +128,6 @@ def test_init_script_executable():
     assert init_script.exists(), "attune_init.py not found"
 
     # Check if file has execute permissions
-    import stat  # noqa: PLC0415
-
     st = init_script.stat()
     assert st.st_mode & stat.S_IXUSR, "attune_init.py is not executable"
 

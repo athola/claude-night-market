@@ -99,8 +99,11 @@ def scan_pyproject_deps(
     for line in content.splitlines():
         line_stripped = line.strip().strip('"').strip("'").strip(",")
         for norm_name, orig_name in plugin_names.items():
-            if norm_name == plugin_dir.name or norm_name == plugin_dir.name.replace(
-                "-", "_"
+            self_name = plugin_dir.name
+            if norm_name in (
+                self_name,
+                self_name.replace("-", "_"),
+                self_name.replace("-", ""),
             ):
                 continue
             if re.match(
@@ -172,6 +175,7 @@ def generate_map(plugins_dir: Path) -> dict:
 
     dependencies = {}
     reverse_index = {}
+    dep_types_by_target = {}
 
     # Initialize reverse index for all plugins
     for plugin in all_plugins:
@@ -187,10 +191,13 @@ def generate_map(plugins_dir: Path) -> dict:
             scan_python_imports(plugin_dir, plugin, all_plugins),
         )
 
-        # Deduplicate and build reverse index
+        # Deduplicate and build reverse index + type tracking
         seen_plugins = set()
         for dep in all_deps:
             dep_name = dep["plugin"]
+            dep_types_by_target.setdefault(dep_name, set()).add(
+                dep["type"],
+            )
             if dep_name in seen_plugins:
                 continue
             seen_plugins.add(dep_name)
@@ -204,7 +211,15 @@ def generate_map(plugins_dir: Path) -> dict:
             p for p, deps in reverse_index.items() if plugin in deps and p != plugin
         ]
         if dependents:
-            dep_type = "build"
+            types = dep_types_by_target.get(plugin, set())
+            if types == {"build"}:
+                dep_type = "build"
+            elif types == {"runtime"}:
+                dep_type = "runtime"
+            elif "build" in types and "runtime" in types:
+                dep_type = "build+runtime"
+            else:
+                dep_type = "build"
             reason = "Shared infrastructure"
             # Check if all other plugins depend on it
             non_self = [p for p in all_plugins if p != plugin]

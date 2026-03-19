@@ -8,6 +8,7 @@ Feature: Compatibility validator extended coverage
 
 from __future__ import annotations
 
+import builtins
 import sys
 import textwrap
 from pathlib import Path
@@ -57,8 +58,6 @@ class TestParseMarkdownCommandException:
         self, validator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: Exception during parsing returns empty features gracefully."""
-        import builtins  # noqa: PLC0415
-
         md_file = tmp_path / "test.md"
         md_file.write_text("---\nname: test\n---\n\nContent.\n")
 
@@ -282,8 +281,6 @@ class TestParsePythonWrapper:
         self, validator, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: Python file that can't be read returns empty features."""
-        import builtins  # noqa: PLC0415
-
         py_file = tmp_path / "unreadable.py"
         py_file.write_text("def func(): pass\n")
 
