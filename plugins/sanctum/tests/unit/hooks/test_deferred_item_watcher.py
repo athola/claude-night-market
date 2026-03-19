@@ -1,4 +1,4 @@
-# ruff: noqa: D101,D102,D103,PLR2004,S603,S607
+# ruff: noqa: D101,D102,D103,PLR2004,PLC0415,S603,S607
 """Unit tests for the deferred_item_watcher PostToolUse hook.
 
 Tests cover: watch-list filtering, deferral detection regex,
@@ -13,6 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import deferred_item_watcher as mod
+import pytest
 from deferred_item_watcher import (
     WATCH_LIST,
     extract_deferred_titles,
@@ -389,6 +390,143 @@ class TestLedger:
         )
         entries = read_ledger(ledger_path)
         assert entries[0]["filed"] is True
+
+
+# ---------------------------------------------------------------------------
+# 5. TestParseSkillName: _parse_skill_name() direct unit tests
+# ---------------------------------------------------------------------------
+
+
+class TestParseSkillName:
+    """Test _parse_skill_name() handles all skill reference formats."""
+
+    def test_bare_skill_name(self) -> None:
+        """A bare skill name like 'war-room' is returned unchanged."""
+        assert mod._parse_skill_name({"skill": "war-room"}) == "war-room"
+
+    def test_plugin_qualified_name_strips_prefix(self) -> None:
+        """'sanctum:war-room' strips the plugin prefix to return 'war-room'."""
+        assert mod._parse_skill_name({"skill": "sanctum:war-room"}) == "war-room"
+
+    def test_empty_skill_field(self) -> None:
+        """Empty skill field returns empty string."""
+        assert mod._parse_skill_name({"skill": ""}) == ""
+
+    def test_missing_skill_key(self) -> None:
+        """Missing 'skill' key returns empty string."""
+        assert mod._parse_skill_name({}) == ""
+
+    def test_multiple_colons_splits_on_first(self) -> None:
+        """'a:b:c' splits on first colon, returning 'b:c'."""
+        assert mod._parse_skill_name({"skill": "a:b:c"}) == "b:c"
+
+
+# ---------------------------------------------------------------------------
+# 6. TestMainOrchestration: main() entry point integration
+# ---------------------------------------------------------------------------
+
+
+class TestMainOrchestration:
+    """Test main() wires detection, extraction, and ledger writes together."""
+
+    def test_main_writes_ledger_when_deferral_detected(self, tmp_path: Path) -> None:
+        """
+        GIVEN a watched skill with deferral signals in output
+        WHEN main() runs
+        THEN entries are written to the session ledger
+        """
+        ledger_path = tmp_path / "deferred-items-session.json"
+        tool_input = json.dumps({"skill": "war-room"})
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": tool_input,
+            "CLAUDE_TOOL_OUTPUT": "[Deferred] Add OAuth support\nSome other text.",
+        }
+        with (
+            patch.dict(os.environ, env),
+            patch.object(mod, "get_ledger_path", return_value=ledger_path),
+        ):
+            mod.main()
+
+        entries = json.loads(ledger_path.read_text())
+        assert len(entries) == 1
+        assert entries[0]["title"] == "Add OAuth support"
+        assert entries[0]["source"] == "war-room"
+        assert entries[0]["filed"] is False
+
+    def test_main_skips_non_watched_skill(self, tmp_path: Path) -> None:
+        """
+        GIVEN a non-watched skill
+        WHEN main() runs
+        THEN no ledger file is created
+        """
+        ledger_path = tmp_path / "deferred-items-session.json"
+        tool_input = json.dumps({"skill": "commit-messages"})
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": tool_input,
+            "CLAUDE_TOOL_OUTPUT": "[Deferred] Some item",
+        }
+        with (
+            patch.dict(os.environ, env),
+            patch.object(mod, "get_ledger_path", return_value=ledger_path),
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                mod.main()
+            assert exc_info.value.code == 0
+        assert not ledger_path.exists()
+
+    def test_main_skips_when_no_deferral_signal(self, tmp_path: Path) -> None:
+        """
+        GIVEN a watched skill with no deferral signals
+        WHEN main() runs
+        THEN no ledger file is created
+        """
+        ledger_path = tmp_path / "deferred-items-session.json"
+        tool_input = json.dumps({"skill": "war-room"})
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": tool_input,
+            "CLAUDE_TOOL_OUTPUT": "All items approved and completed.",
+        }
+        with (
+            patch.dict(os.environ, env),
+            patch.object(mod, "get_ledger_path", return_value=ledger_path),
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                mod.main()
+            assert exc_info.value.code == 0
+        assert not ledger_path.exists()
+
+    def test_main_writes_multiple_deferred_items(self, tmp_path: Path) -> None:
+        """
+        GIVEN output with multiple [Deferred] markers
+        WHEN main() runs
+        THEN all items are written to the ledger
+        """
+        ledger_path = tmp_path / "deferred-items-session.json"
+        tool_input = json.dumps({"skill": "brainstorm"})
+        output = (
+            "[Deferred] Add retry logic\n"
+            "Normal text here.\n"
+            "[Deferred] Improve error messages\n"
+        )
+        env = {
+            "CLAUDE_TOOL_NAME": "Skill",
+            "CLAUDE_TOOL_INPUT": tool_input,
+            "CLAUDE_TOOL_OUTPUT": output,
+        }
+        with (
+            patch.dict(os.environ, env),
+            patch.object(mod, "get_ledger_path", return_value=ledger_path),
+        ):
+            mod.main()
+
+        entries = json.loads(ledger_path.read_text())
+        assert len(entries) == 2
+        titles = {e["title"] for e in entries}
+        assert "Add retry logic" in titles
+        assert "Improve error messages" in titles
 
 
 # Keep the module import accessible for any patching tests

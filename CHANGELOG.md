@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.7] - 2026-03-18
+## [1.6.7] - 2026-03-19
 
 ### Added
 
@@ -25,6 +25,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mandatory file structure section in attune planning:
   implementation plans now require explicit directory
   and file layout
+- Deferred-item capture system in sanctum: PostToolUse
+  watcher detects deferred items from skill output,
+  Stop hook sweeps the session ledger and files GitHub
+  issues via `deferred_capture.py`
+- Deferred-capture contract skill in leyline: defines
+  the CLI interface, issue template, and label taxonomy
+  that all plugin capture wrappers implement
+- Per-plugin `deferred_capture.py` wrappers for attune,
+  conserve, egregore, imbue, and pensive, each routing
+  to the sanctum reference implementation
+- Makefile `deferred-capture-test` target for running
+  the deferred-capture test suite
 
 ### Fixed
 

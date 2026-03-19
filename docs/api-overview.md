@@ -1,6 +1,6 @@
 # API Overview
 
-*Updated: 2026-03-18*
+*Updated: 2026-03-19*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
@@ -25,7 +25,7 @@ with public APIs. We also maintain 25 execution hooks.
 | conserve | 1.6.7 | 4 | 10 | 5 | No | - |
 | hookify | 1.6.7 | 6 | 2 | 0 | No | - |
 | imbue | 1.6.7 | 2 | 9 | 1 | No | - |
-| leyline | 1.6.7 | 3 | 16 | 0 | Yes | - |
+| leyline | 1.6.7 | 3 | 17 | 0 | Yes | - |
 | memory-palace | 1.6.7 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.7 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.6.7 | 3 | 4 | 4 | No | - |
@@ -91,7 +91,8 @@ Allows for bulk plugin updates via `reinstall-all-plugins`.
 Skills cover authentication,
 error handling (including agent crash recovery via `error-patterns`),
 testing standards, cross-platform git forge detection via `git-platform`,
-4-tier risk routing via `risk-classification`, and stewardship principles.
+4-tier risk routing via `risk-classification`, stewardship principles,
+and a `deferred-capture` contract for unified deferred-item filing.
 
 ### Memory-Palace (v1.6.7)
 Knowledge management organization.
@@ -119,7 +120,8 @@ robust code.
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
 quality analysis. Commands include `fix-pr`, `merge-docs`,
-and `update-dependencies`.
+and `update-dependencies`. Hooks include a PostToolUse deferred-item watcher
+and a Stop hook that sweeps the session ledger to file GitHub issues.
 
 ### Scribe (v1.6.7)
 Documentation quality enforcement.

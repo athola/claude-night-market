@@ -33,6 +33,7 @@ authentication, storage, and testing patterns.
 | `storage-templates` | Storage abstraction | File and database patterns |
 | `stewardship` | Cross-cutting stewardship principles with five virtues (Care, Curiosity, Humility, Diligence, Foresight) | Working with project health, codebase improvement, or virtue-aligned development |
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
+| `deferred-capture` | Contract for unified deferred-item capture across plugins | Implementing or testing deferred-capture wrappers |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 
 ## Commands
