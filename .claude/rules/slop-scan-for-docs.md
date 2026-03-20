@@ -19,3 +19,8 @@ When creating or updating markdown documentation files (tutorials, guides, READM
 - Replace "actionable" with "specific" or "concrete"
 - Replace "comprehensive" with "thorough" or "complete"
 - Break up participial phrases into separate sentences
+- Replace ASCII arrows (`->`, `→`) used as prose connectors
+  with "to", "into", or "produces" (arrows are fine in code
+  and type signatures)
+- Replace `+` used as a prose conjunction with "and" or
+  rewrite the sentence (fine in code, math, and labels)
