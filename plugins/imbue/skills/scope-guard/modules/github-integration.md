@@ -1,6 +1,9 @@
 # GitHub Issue Integration
 
-**MANDATORY:** When deferring features due to scope-guard (Worthiness < 1.0 or branch budget exceeded), you MUST create a GitHub issue to preserve context. This is NON-NEGOTIABLE.
+When deferring features due to scope-guard (Worthiness < 1.0
+or branch budget exceeded), create a GitHub issue to preserve
+context. This step matters because deferred ideas lose context
+quickly without a persistent record.
 
 ## Why This Is Required
 
@@ -11,9 +14,9 @@
 
 ## Deferral Process
 
-### Step 1: Create Deferred Item (MANDATORY)
+### Step 1: Create Deferred Item
 
-When deferring an item, you MUST run this command:
+When deferring an item, run this command:
 
 ```bash
 python3 scripts/deferred_capture.py \
@@ -81,7 +84,8 @@ The deferral workflow requires this todo item:
 
 - `scope-guard:github-issue-created` - Mark complete ONLY after issue URL is confirmed
 
-This todo is MANDATORY and blocks marking `scope-guard:decision-documented` as complete.
+This todo blocks marking `scope-guard:decision-documented`
+as complete.
 
 ## Labels
 

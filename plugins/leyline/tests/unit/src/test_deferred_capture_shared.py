@@ -1,4 +1,4 @@
-# ruff: noqa: D101,D102,D103,PLR2004,PLC0415,PLW1510,S108,S603,S607
+# ruff: noqa: D101,D102,E402,PLR2004,PLC0415,S108,S603
 """Tests for the shared leyline deferred_capture module.
 
 Tests validate helpers, body template, dry-run, argument parsing,
@@ -55,6 +55,7 @@ def _run_via_wrapper(*args: str) -> subprocess.CompletedProcess:
         [sys.executable, str(wrapper), *args],
         capture_output=True,
         text=True,
+        check=False,
     )
 
 
