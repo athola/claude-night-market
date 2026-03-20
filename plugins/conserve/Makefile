@@ -7,8 +7,8 @@
 .PHONY: benchmark check clean cli-status cli-validate debug-variables demo-ai-hygiene-audit \
 	demo-bloat demo-bloat-scan demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
 	fix-apply format help install-hooks lint memory-profile mutation-test perf-check plugin-check \
-	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-skills test-unbloat \
-	token-estimate type-check typecheck validate-all validate-skills
+	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \
+	test-unbloat token-estimate type-check typecheck validate-all validate-skills
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts
@@ -273,6 +273,11 @@ test-unbloat: ## Test unbloat command (runs unbloat-related unit tests)
 test-ai-hygiene-audit: ## Test ai-hygiene-audit command (runs hygiene unit tests)
 	@echo "Running ai-hygiene-audit tests..."
 	$(PYTEST) tests/ -v -k "hygiene or audit" || $(PYTEST) tests/unit/ -v
+
+test-context: ## Test context optimization (runs context-related unit tests)
+	@echo "Running context optimization tests..."
+	$(PYTEST) tests/unit/skills/test_context_optimization.py tests/unit/agents/test_context_optimizer.py tests/unit/test_context_warning.py -v || \
+		$(PYTEST) tests/ -v -k "context"
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

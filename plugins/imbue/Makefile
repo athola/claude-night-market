@@ -6,7 +6,7 @@
 .PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
         test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
         dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests mutation-test benchmark \
-        demo-catchup demo-review demo-skills plugin-check debug-variables
+        demo-catchup demo-feature-review demo-review demo-skills plugin-check debug-variables test-feature-review
 
 # Override source directories for this plugin
 SRC_DIRS := scripts
@@ -186,7 +186,23 @@ demo-skills: ## List imbue skills
 		echo "  - $$name"; \
 	done
 
-plugin-check: demo-catchup demo-validator demo-skills ## Run all live demos
+demo-feature-review: ## Demo feature review with RICE scoring (LIVE)
+	@echo "=== Imbue Feature Review Demo (LIVE) ==="
+	@echo ""
+	@echo "Scanning plugin for feature-related patterns..."
+	@echo "Skills with feature triggers:"
+	@grep -rl 'feature' skills/ 2>/dev/null | head -5 | sed 's/^/  /'
+	@echo ""
+	@echo "Recent feature commits:"
+	@git log --oneline --all --grep="feat(imbue)" -5 2>/dev/null || echo "  (none found)"
+	@echo ""
+	@echo "Use /imbue:feature-review for full RICE/WSJF analysis."
+
+test-feature-review: ## Test feature review (runs feature review unit tests)
+	$(PYTEST) tests/unit/skills/test_feature_review.py -v || \
+		$(PYTEST) tests/ -v -k "feature_review or feature-review"
+
+plugin-check: demo-catchup demo-validator demo-skills demo-feature-review ## Run all live demos
 	@echo ""
 	@echo "=== Imbue Plugin Check Complete ==="
 

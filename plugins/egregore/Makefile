@@ -2,7 +2,8 @@
 # Autonomous agent orchestrator
 
 .PHONY: help deps fix check clean \
-	status debug-variables plugin-check demo-skills \
+	status debug-variables plugin-check demo-skills demo-egregore demo-loop \
+	test-egregore test-loop \
 	lint format type-check typecheck security test-unit test
 
 # Plugin-specific variables (must be before include)
@@ -62,7 +63,50 @@ demo-skills: ## Validate egregore skill structure
 		echo "  - $$name"; \
 	done 2>/dev/null || echo "  (no skills found)"
 
-plugin-check: demo-skills status ## Run all demo workflows
+demo-egregore: ## Demo egregore manifest and work items (LIVE)
+	@echo "=== Egregore Orchestrator Demo (LIVE) ==="
+	@echo ""
+	@echo "Commands:"
+	@for cmd in commands/*.md; do \
+		name=$$(basename "$$cmd" .md); \
+		echo "  /$$name"; \
+	done
+	@echo ""
+	@echo "Agents:"
+	@for agent in agents/*.md; do \
+		name=$$(basename "$$agent" .md); \
+		echo "  $$name"; \
+	done 2>/dev/null || echo "  (none)"
+	@echo ""
+	@echo "Scripts:"
+	@find scripts/ -name "*.py" 2>/dev/null | wc -l | xargs -I{} echo "  {} Python scripts"
+	@echo ""
+	@echo "Use /egregore:summon to start the orchestrator."
+
+demo-loop: ## Demo egregore loop lifecycle (LIVE)
+	@echo "=== Egregore Loop Demo (LIVE) ==="
+	@echo ""
+	@echo "Testing manifest loading..."
+	$(UV_RUN) python -c "\
+	import json, os; \
+	path = '.egregore/manifest.json'; \
+	exists = os.path.exists(path); \
+	print(f'  Manifest: {\"found\" if exists else \"not found (expected in projects)\"}'); \
+	" 2>/dev/null || echo "  Manifest check: skipped (no Python env)"
+	@echo ""
+	@echo "Test infrastructure:"
+	@echo "  Tests: $$(find tests/ -name 'test_*.py' | wc -l) files"
+	@echo "  Parallel: $$(grep -l 'parallel' tests/*.py 2>/dev/null | wc -l) test files"
+	@echo ""
+	@echo "Use /egregore:summon for autonomous operation."
+
+test-egregore: ## Test egregore core functionality
+	$(PYTEST) $(PYTEST_TARGETS) -v -k "manifest or specialist or scout" --tb=short
+
+test-loop: ## Test egregore loop and parallel execution
+	$(PYTEST) tests/test_parallel.py tests/test_manifest.py -v --tb=short
+
+plugin-check: demo-skills demo-egregore demo-loop status ## Run all demo workflows
 	@echo ""
 	@echo "=== Egregore Plugin Check Complete ==="
 
