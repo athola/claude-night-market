@@ -84,7 +84,10 @@ def process_ledger(ledger_path: Path) -> dict:
             stats["already_filed"] += 1
             continue
 
-        result = call_capture_script(entry["title"], entry.get("source", "unknown"))
+        result = call_capture_script(
+            entry.get("title", "Untitled deferred item"),
+            entry.get("source", "unknown"),
+        )
         status = result.get("status", "error")
         if status == "created":
             entry["filed"] = True
@@ -128,5 +131,7 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        pass  # hooks must never crash the session
+    except Exception:  # noqa: BLE001
+        import traceback
+
+        sys.stderr.write(f"deferred_item_sweep: {traceback.format_exc()}")

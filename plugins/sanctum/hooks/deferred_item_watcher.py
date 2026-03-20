@@ -53,8 +53,9 @@ def _normalize_title(title: str) -> str:
 
 
 def get_ledger_path() -> Path:
-    """Return the session ledger path: ~/.claude/deferred-items-session.json."""
-    return Path.home() / ".claude" / "deferred-items-session.json"
+    """Return the session ledger path, respecting CLAUDE_HOME."""
+    claude_dir = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+    return claude_dir / "deferred-items-session.json"
 
 
 def read_ledger(path: Path) -> list[dict]:
@@ -69,7 +70,8 @@ def read_ledger(path: Path) -> list[dict]:
         if isinstance(data, list):
             return data
         return []
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError) as exc:
+        sys.stderr.write(f"deferred_item_watcher: ledger corrupt at {path}: {exc}\n")
         return []
 
 
@@ -223,4 +225,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception:  # noqa: BLE001
-        pass
+        import traceback
+
+        sys.stderr.write(f"deferred_item_watcher: {traceback.format_exc()}")
