@@ -1,0 +1,9 @@
+name: tome
+version: 1.7.0
+description: >-
+  Multi-source research plugin for Claude Code.
+  Code archaeology, community discourse, academic
+  literature, and TRIZ cross-domain analysis with
+  domain-adaptive depth.
+license: MIT
+repository: https://github.com/athola/claude-night-market

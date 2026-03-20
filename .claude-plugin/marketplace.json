@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-night-market",
   "version": "1.6.7",
-  "description": "17 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, and multi-LLM delegation",
+  "description": "18 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, multi-LLM delegation, and multi-source research",
   "owner": {
     "name": "athola",
     "email": "athola@users.noreply.github.com"
@@ -109,6 +109,12 @@
       "source": "./plugins/egregore",
       "description": "Autonomous agent orchestrator for full development lifecycles with session budget management and crash recovery",
       "version": "1.6.7"
+    },
+    {
+      "name": "tome",
+      "source": "./plugins/tome",
+      "description": "Multi-source research across GitHub, HN, Reddit, arXiv, Semantic Scholar with TRIZ cross-domain analysis and domain-adaptive depth",
+      "version": "1.7.0"
     }
   ]
 }
