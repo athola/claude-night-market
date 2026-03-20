@@ -24,11 +24,11 @@ _MAX_SCAN_SIZE = 100 * 1024  # 100KB
 _HIGH_SEVERITY = [
     re.compile(p)
     for p in [
-        r"<system[^>]*>",
-        r"<assistant[^>]*>",
-        r"<human[^>]*>",
-        r"<IMPORTANT[^>]*>",
-        r"system-reminder",
+        r"(?i)<system[^>]*>",
+        r"(?i)<assistant[^>]*>",
+        r"(?i)<human[^>]*>",
+        r"(?i)<IMPORTANT[^>]*>",
+        r"(?i)system-reminder",
         r"(?i)you\s+are\s+now\b",
         r"(?i)ignore\s+(all\s+)?previous",
         r"(?i)disregard\s+(all\s+)?prior",
@@ -42,6 +42,28 @@ _HIGH_SEVERITY = [
         r"__builtins__",
     ]
 ]
+
+# --- Invisible text injection patterns (high severity) ---
+
+_INVISIBLE_TEXT = [
+    re.compile(p)
+    for p in [
+        r"display:\s*none",
+        r"visibility:\s*hidden",
+        r"color:\s*(?:white|#fff(?:fff)?)\b",
+        r"color:\s*rgb\(\s*255",
+        r"font-size:\s*0\b",
+        r"opacity:\s*0\b",
+        r"height:\s*0[^0-9].*overflow:\s*hidden",
+    ]
+]
+
+_INSTRUCTION_COMMENT = re.compile(
+    r"<!--[^>]*(?:ignore|override|forget|you are)[^>]*-->",
+    re.IGNORECASE,
+)
+
+_ZERO_WIDTH_CHARS = re.compile("[\u200b\u200c\u200d\ufeff]")
 
 _MEDIUM_SEVERITY = [
     re.compile(p)
@@ -97,7 +119,7 @@ def sanitize_output(content: str | None) -> str:
             "<system",
             "<assistant",
             "<human",
-            "<IMPORTANT",
+            "<important",
             "!!python",
             "__import__",
             "__globals__",
@@ -105,15 +127,24 @@ def sanitize_output(content: str | None) -> str:
             "system-reminder",
             "you are now",
             "ignore previous",
-            "Ignore all previous",
+            "ignore all previous",
             "disregard",
             "override",
             "new instructions",
             "eval(",
             "exec(",
+            "display:none",
+            "display: none",
+            "visibility:hidden",
+            "visibility: hidden",
+            "opacity:0",
+            "opacity: 0",
+            "font-size:0",
+            "font-size: 0",
         ]
+        lowered = content[:_MAX_SCAN_SIZE].lower()
         for check in fast_checks:
-            if check in content[:_MAX_SCAN_SIZE]:
+            if check in lowered:
                 return "[CONTENT BLOCKED: injection pattern detected in large output]"
         return content
 
@@ -121,6 +152,18 @@ def sanitize_output(content: str | None) -> str:
     for pattern in _HIGH_SEVERITY:
         if pattern.search(modified):
             modified = pattern.sub("[BLOCKED]", modified)
+
+    # Invisible text patterns: strip (fail-closed)
+    for pattern in _INVISIBLE_TEXT:
+        if pattern.search(modified):
+            modified = pattern.sub("[BLOCKED]", modified)
+
+    # Instruction-bearing HTML comments: strip entirely
+    if _INSTRUCTION_COMMENT.search(modified):
+        modified = _INSTRUCTION_COMMENT.sub("[BLOCKED]", modified)
+
+    # Zero-width characters: strip silently
+    modified = _ZERO_WIDTH_CHARS.sub("", modified)
 
     # Medium severity: escape with backticks (all occurrences)
     for pattern in _MEDIUM_SEVERITY:
@@ -165,7 +208,7 @@ def process_hook(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
-    """Hook entry point. Fail-closed on processing errors."""
+    """Hook entry point. On errors, allows content with a safety warning."""
     try:
         payload = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, OSError) as e:
@@ -177,8 +220,8 @@ def main() -> None:
     try:
         result = process_hook(payload)
         print(json.dumps(result))
-    except Exception as e:
-        # Processing errors: block content (fail-closed)
+    except Exception as e:  # noqa: BLE001
+        # Processing errors: allow with caution warning
         sys.stderr.write(f"[sanitize] Processing error: {e}\n")
         print(
             json.dumps(

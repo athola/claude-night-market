@@ -8,6 +8,7 @@ Feature: CLI wrapper scripts
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -205,8 +206,6 @@ class TestUpdateChangelog:
         When update_changelog is called
         Then no crash and no output
         """
-        import os  # noqa: PLC0415
-
         entries = {"Added": ["New feature."]}
         original = os.getcwd()
         os.chdir(tmp_path)
@@ -218,8 +217,6 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_no_unreleased_section(self, tmp_path: Path) -> None:
         """Scenario: update_changelog silently exits when no Unreleased section."""
-        import os  # noqa: PLC0415
-
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text("# Changelog\n\n## [1.0.0] - 2024-01-01\n\nContent.\n")
 
@@ -236,8 +233,6 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_inserts_entry(self, tmp_path: Path) -> None:
         """Scenario: update_changelog inserts new entries after Unreleased section."""
-        import os  # noqa: PLC0415
-
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
             "# Changelog\n\n## [Unreleased]\n\n## [1.0.0] - 2024-01-01\n\nContent.\n"
@@ -256,8 +251,6 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_with_version(self, tmp_path: Path) -> None:
         """Scenario: update_changelog uses provided version in entry header."""
-        import os  # noqa: PLC0415
-
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
             "# Changelog\n\n## [Unreleased]\n\n## [1.0.0] - 2024-01-01\n\nContent.\n"
@@ -275,8 +268,6 @@ class TestUpdateChangelog:
     @pytest.mark.unit
     def test_update_changelog_deduplicates_entries(self, tmp_path: Path) -> None:
         """Scenario: Duplicate changelog entries are removed."""
-        import os  # noqa: PLC0415
-
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
             "# Changelog\n\n## [Unreleased]\n\n## [1.0.0] - 2024-01-01\n\nContent.\n"
@@ -298,8 +289,6 @@ class TestUpdateChangelog:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: main --validate-only with valid changelog exits 0."""
-        import os  # noqa: PLC0415
-
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text(
             "# Changelog\n\n## [Unreleased]\n\n## [1.0.0] - 2024-01-01\n\nContent.\n"
@@ -320,8 +309,6 @@ class TestUpdateChangelog:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Scenario: main --validate-only with no changelog exits 1."""
-        import os  # noqa: PLC0415
-
         original = os.getcwd()
         os.chdir(tmp_path)
         monkeypatch.setattr(sys, "argv", ["update_changelog.py", "--validate-only"])

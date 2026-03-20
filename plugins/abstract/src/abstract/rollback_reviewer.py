@@ -10,10 +10,11 @@ docs/plans/2026-02-15-self-adapting-systems-design.md
 
 from __future__ import annotations
 
+import json
 import re
-import shutil
 import subprocess  # nosec: B404
 import sys
+from pathlib import Path
 
 
 class RollbackReviewer:
@@ -89,39 +90,31 @@ The skill was improved automatically but showed regression during the
         improvement_diff: str,
         rollback_command: str,
     ) -> str | None:
-        """Create a GitHub issue via gh CLI.
+        """Create a GitHub issue via the shared deferred_capture script.
 
         Returns the issue URL if successful, None otherwise.
         """
-        title = self.generate_issue_title(skill_name)
-        body = self.generate_issue_body(
-            skill_name,
-            baseline_gap,
-            current_gap,
-            improvement_diff,
-            rollback_command,
+        script = Path(__file__).resolve().parents[2] / "scripts" / "deferred_capture.py"
+        context = (
+            f"Skill regression detected for {skill_name}.\n"
+            f"Baseline stability gap: {baseline_gap:.3f}\n"
+            f"Current stability gap: {current_gap:.3f}\n"
+            f"Improvement diff: {improvement_diff}\n"
+            f"Rollback command: {rollback_command}"
         )
-
-        gh_path = shutil.which("gh")
-        if not gh_path:
-            sys.stderr.write(
-                "rollback_reviewer: gh CLI not found, "
-                f"cannot create issue for {skill_name}\n"
-            )
-            return None
-
         try:
             result = subprocess.run(  # nosec: B603
                 [
-                    gh_path,
-                    "issue",
-                    "create",
+                    sys.executable,
+                    str(script),
                     "--title",
-                    title,
-                    "--body",
-                    body,
-                    "--label",
-                    "skill-regression",
+                    f"Skill regression: {skill_name}",
+                    "--source",
+                    "regression",
+                    "--context",
+                    context,
+                    "--captured-by",
+                    "explicit",
                 ],
                 capture_output=True,
                 text=True,
@@ -129,20 +122,17 @@ The skill was improved automatically but showed regression during the
                 check=False,
             )
             if result.returncode == 0:
-                return result.stdout.strip()
+                data = json.loads(result.stdout)
+                url = data.get("issue_url")
+                return str(url) if url is not None else None
             sys.stderr.write(
-                f"rollback_reviewer: gh issue create failed "
-                f"(exit {result.returncode}) for {skill_name}: "
-                f"{result.stderr.strip()}\n"
+                f"rollback_reviewer: deferred_capture failed: {result.stderr.strip()}\n"
             )
             return None
-        except FileNotFoundError:
-            sys.stderr.write(
-                f"rollback_reviewer: gh CLI not executable for {skill_name}\n"
-            )
-            return None
-        except subprocess.TimeoutExpired:
-            sys.stderr.write(
-                f"rollback_reviewer: gh issue create timed out for {skill_name}\n"
-            )
+        except (
+            FileNotFoundError,
+            subprocess.TimeoutExpired,
+            json.JSONDecodeError,
+        ) as e:
+            sys.stderr.write(f"rollback_reviewer: {e}\n")
             return None

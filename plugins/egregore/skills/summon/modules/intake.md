@@ -110,6 +110,34 @@ session), check it out without creating a new one:
 git checkout egregore/wrk-001-slug
 ```
 
+## Deferred Capture for Discoveries
+
+During the intake stage, the orchestrator may encounter items
+whose `content_type` is `tangential_idea` or `discovery`.
+These are captured automatically without waiting for human
+input, per egregore's "never wait for human input" rule.
+
+For each such item, run:
+
+```bash
+python3 scripts/deferred_capture.py \
+  --title "<discovery title>" \
+  --source egregore \
+  --context "<discovery description>" \
+  --captured-by explicit
+```
+
+The `<discovery title>` and `<discovery description>` values
+come from the parsed work item's `title` and `body` fields.
+This call is made during the validate step, immediately after
+the item is confirmed as a `tangential_idea` or `discovery`
+type.
+The item is then removed from the active pipeline queue so the
+orchestrator does not attempt to build or ship it.
+
+If `scripts/deferred_capture.py` is not present, log a warning
+and continue processing the queue.
+
 ## Brainstorm Skip Logic
 
 The brainstorm step can be skipped when the source already

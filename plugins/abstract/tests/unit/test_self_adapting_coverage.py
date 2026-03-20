@@ -50,7 +50,6 @@ class TestLoadCorruptRecovery:
         When ImprovementQueue loads the file
         Then skills dict is reset to empty
         """
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
         queue_file.write_text("{{{not valid json!!!")
 
         queue = ImprovementQueue(queue_file)
@@ -66,7 +65,6 @@ class TestLoadCorruptRecovery:
         When ImprovementQueue loads
         Then a warning about the corrupt file is written to stderr
         """
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
         queue_file.write_text("not json at all")
 
         _queue = ImprovementQueue(queue_file)
@@ -81,7 +79,6 @@ class TestLoadCorruptRecovery:
         When a skill is flagged (triggering _save)
         Then the file now contains valid JSON
         """
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
         queue_file.write_text("GARBAGE")
 
         queue = ImprovementQueue(queue_file)
@@ -98,7 +95,6 @@ class TestLoadCorruptRecovery:
         When ImprovementQueue loads
         Then skills is empty dict
         """
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
         queue_file.write_text("{}")
 
         queue = ImprovementQueue(queue_file)
@@ -232,7 +228,6 @@ class TestHomeostaticMonitorSkipPath:
 
         entry = queue.skills.get("test-skill", {})
         assert entry.get("status") == "pending_rollback_review"
-        assert entry.get("status") in ("evaluating", "pending_rollback_review")
 
     @pytest.mark.unit
     def test_monitoring_skill_is_not_skipped(self, queue_file: Path) -> None:

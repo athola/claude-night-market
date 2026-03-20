@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.6.6"
+version = "1.6.7"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -76,6 +76,7 @@ extend-ignore = [
     "E203",    # whitespace before ':' (conflicts with black/ruff format)
     "D203",    # incorrect-blank-line-before-class (incompatible with D211)
     "D213",    # multi-line-summary-second-line (incompatible with D212)
+    "UP017",   # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -84,12 +85,24 @@ extend-ignore = [
     "D102",  # Missing method docstrings in tests
     "D103",  # Missing function docstrings in tests
     "D401",  # Imperative mood in test docstrings
+    "D400",  # First line should end with period
+    "D415",  # First line should end with punctuation
+    "D205",  # Blank line after summary
+    "D212",  # Multi-line docstring summary on first line (BDD style)
     "E501",  # Long test lines are acceptable
     "PLR2004",  # Magic values in tests
     "PLR0915",  # Complex test flows
+    "S108",  # Allow hardcoded temp paths in tests
     "S603",  # Subprocess usage in test fixtures
+    "S607",  # Partial executable path in test fixtures
     "S608",  # SQL strings in test data
     "B007",  # Unused loop variables in tests
+    "PLW1510",  # subprocess.run without check (intentional in tests)
+]
+"scripts/**/*.py" = [
+    "S603",  # Subprocess calls (inputs are validated)
+    "S607",  # Partial executable path (git/gh are well-known)
+    "UP017", # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
 ]
 
 [tool.ruff.format]
@@ -157,7 +170,8 @@ omit = [
     "*/test_*",
     "*/__pycache__/*",
     "*/.*",
-    "setup.py"
+    "setup.py",
+    "scripts/deferred_capture.py",
 ]
 
 [tool.coverage.report]

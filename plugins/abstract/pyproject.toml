@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.6.6"
+version = "1.6.7"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -57,7 +57,7 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "PLC0415", "D205", "PLR0913", "S103"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "D205", "PLR0913", "S103"]
 "hooks/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
 "scripts/**/*.py" = ["S603", "S607", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0915"]
 "scripts/makefile_dogfooder.py" = ["F401"]
@@ -91,7 +91,7 @@ disable_error_code = ["import-not-found"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
-skips = ["B101"]
+skips = ["B101", "B404", "B603", "B607"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -118,7 +118,12 @@ markers = [
 
 [tool.coverage.run]
 source = ["abstract"]
-omit = ["tests/*", "*/tests/*", "*/__pycache__/*"]
+omit = [
+    "tests/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "scripts/deferred_capture.py",
+]
 
 [tool.coverage.report]
 exclude_lines = [

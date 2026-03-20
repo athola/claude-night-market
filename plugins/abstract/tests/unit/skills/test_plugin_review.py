@@ -293,13 +293,13 @@ class TestPluginReviewModules:
         Given the PR tier module
         When reading its content
         Then it should reference skills-eval, hooks-eval,
-        test-review, and bloat-scan
+        test-review, and bloat-detector
         """
         content = (modules_dir / "tier-pr.md").read_text()
         assert "skills-eval" in content
         assert "hooks-eval" in content
         assert "test-review" in content
-        assert "bloat-scan" in content
+        assert "bloat-detector" in content
 
     @pytest.mark.bdd
     @pytest.mark.unit

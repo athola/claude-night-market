@@ -51,16 +51,7 @@ jobs:
         run: |
           cd "plugins/$PLUGIN_NAME"
           # Build comma-separated list of directories to mutate
-          mutate_paths=""
-          for dir in scripts src; do
-            if [ -d "$dir" ]; then
-              if [ -n "$mutate_paths" ]; then
-                mutate_paths="$mutate_paths,$dir/"
-              else
-                mutate_paths="$dir/"
-              fi
-            fi
-          done
+          mutate_paths=$(find . -maxdepth 1 -type d \( -name scripts -o -name src \) -printf '%f/,' | sed 's/,$//')
           if [ -n "$mutate_paths" ]; then
             # Exit codes: 0=no survivors, 2=survivors found, other=crash
             set +e

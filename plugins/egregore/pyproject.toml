@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "egregore-dev"
-version = "1.6.6"
+version = "1.6.7"
 description = "Autonomous agent orchestrator plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -38,10 +38,14 @@ exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
-extend-ignore = ["S101", "E203", "D203", "D213"]
+extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415", "PLC0415"]
+"tests/**/*.py" = [
+    "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
+    "D212", "S603", "S607", "PLW1510",
+]
+"scripts/**/*.py" = ["S603", "S607", "PLR0911", "PLR0912", "PLR0915"]
 
 [tool.mypy]
 python_version = "3.9"

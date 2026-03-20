@@ -16,6 +16,11 @@ from typing import Any
 from .utils import safe_json_load
 
 
+def _warn(message: str) -> None:
+    """Write a warning message to stderr."""
+    sys.stderr.write(f"improvement_queue: {message}\n")
+
+
 class ImprovementQueue:
     """Manages the skill improvement queue."""
 
@@ -29,9 +34,7 @@ class ImprovementQueue:
         if self.queue_file.exists():
             data = safe_json_load(self.queue_file)
             if data is None:
-                sys.stderr.write(
-                    f"improvement_queue: corrupt queue file {self.queue_file}\n"
-                )
+                _warn(f"corrupt queue file {self.queue_file}")
                 self.skills = {}
             else:
                 self.skills = data.get("skills", {})
@@ -51,9 +54,7 @@ class ImprovementQueue:
             )
             tmp_file.replace(self.queue_file)
         except OSError as e:
-            sys.stderr.write(
-                f"improvement_queue: failed to save queue to {self.queue_file}: {e}\n"
-            )
+            _warn(f"failed to save queue to {self.queue_file}: {e}")
 
     TRIGGER_THRESHOLD = 3
 
@@ -98,6 +99,10 @@ class ImprovementQueue:
     def start_evaluation(self, skill_ref: str, baseline_gap: float) -> bool:
         """Mark a skill as under evaluation after improvement.
 
+        Side effects:
+            Resets ``flagged_count`` to 0 and clears ``execution_ids``
+            so the evaluation window starts from a clean slate.
+
         Returns:
             True if the skill was found and marked as evaluating,
             False if the skill_ref is unknown.
@@ -105,10 +110,7 @@ class ImprovementQueue:
         """
         entry = self.skills.get(skill_ref)
         if not entry:
-            sys.stderr.write(
-                f"improvement_queue: start_evaluation called for"
-                f" unknown skill {skill_ref!r}\n"
-            )
+            _warn(f"start_evaluation called for unknown skill {skill_ref!r}")
             return False
         entry["status"] = "evaluating"
         entry["evaluating"] = True
@@ -131,16 +133,13 @@ class ImprovementQueue:
         """
         entry = self.skills.get(skill_ref)
         if not entry:
-            sys.stderr.write(
-                f"improvement_queue: record_eval_execution called for"
-                f" unknown skill {skill_ref!r}\n"
-            )
+            _warn(f"record_eval_execution called for unknown skill {skill_ref!r}")
             return False
         if entry.get("status") != "evaluating":
-            sys.stderr.write(
-                f"improvement_queue: record_eval_execution called for"
+            _warn(
+                f"record_eval_execution called for"
                 f" skill {skill_ref!r} with status"
-                f" {entry.get('status')!r}, expected 'evaluating'\n"
+                f" {entry.get('status')!r}, expected 'evaluating'"
             )
             return False
         entry["eval_executions"] = entry.get("eval_executions", 0) + 1
@@ -166,9 +165,7 @@ class ImprovementQueue:
         """
         entry = self.skills.get(skill_ref)
         if not entry:
-            sys.stderr.write(
-                f"improvement_queue: evaluate called for unknown skill {skill_ref!r}\n"
-            )
+            _warn(f"evaluate called for unknown skill {skill_ref!r}")
             return "unknown"
 
         baseline = entry.get("baseline_gap", 0)

@@ -236,17 +236,20 @@ Includes:
 - name: Plugin Quality Gate
   run: |
     /plugin-review --quality-gate --format json --output report.json
-    if [ $? -ne 0 ]; then
-      echo "Quality gate failed"
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -ge 2 ]; then
+      echo "Quality gate failed (exit code $EXIT_CODE)"
       exit 1
+    elif [ $EXIT_CODE -eq 1 ]; then
+      echo "Quality gate passed with warnings"
     fi
 ```
 
 Exit codes:
 - `0`: All quality gates passed
-- `1`: Warnings present but gates passed
-- `2`: Quality gate failures
-- `3`: Critical issues found
+- `1`: Warnings present but gates passed (non-blocking)
+- `2`: Quality gate failures (blocking)
+- `3`: Critical issues found (blocking)
 
 ## Implementation
 

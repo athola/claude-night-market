@@ -56,32 +56,32 @@ class TestCreateGithubIssue:
     }
 
     @patch("abstract.rollback_reviewer.subprocess.run")
-    @patch("abstract.rollback_reviewer.shutil.which", return_value="/usr/bin/gh")
-    def test_should_return_url_on_success(self, _mock_which, mock_run) -> None:
-        """Given gh CLI available, when issue created, then return URL."""
+    def test_should_return_url_on_success(self, mock_run) -> None:
+        """Given deferred_capture script succeeds, when issue created, then return URL."""
         mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout="https://github.com/org/repo/issues/42\n"
+            args=[],
+            returncode=0,
+            stdout='{"status": "created", "issue_url": "https://github.com/org/repo/issues/42", "number": 42}',
         )
         reviewer = RollbackReviewer()
         url = reviewer.create_github_issue(**self.ISSUE_KWARGS)
         assert url == "https://github.com/org/repo/issues/42"
         mock_run.assert_called_once()
         call_args = mock_run.call_args[0][0]
-        assert call_args[0] == "/usr/bin/gh"
-        assert "issue" in call_args
-        assert "--label" in call_args
+        assert "--title" in call_args
+        assert "--source" in call_args
+        assert "--context" in call_args
 
-    @patch("abstract.rollback_reviewer.shutil.which", return_value=None)
-    def test_should_return_none_when_gh_not_found(self, _mock_which) -> None:
-        """Given gh CLI not installed, when issue created, then return None."""
+    @patch("abstract.rollback_reviewer.subprocess.run", side_effect=FileNotFoundError)
+    def test_should_return_none_when_gh_not_found(self, _mock_run) -> None:
+        """Given deferred_capture script not found, when called, then return None."""
         reviewer = RollbackReviewer()
         result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
         assert result is None
 
     @patch("abstract.rollback_reviewer.subprocess.run")
-    @patch("abstract.rollback_reviewer.shutil.which", return_value="/usr/bin/gh")
-    def test_should_return_none_on_nonzero_exit(self, _mock_which, mock_run) -> None:
-        """Given gh command fails, when issue created, then return None."""
+    def test_should_return_none_on_nonzero_exit(self, mock_run) -> None:
+        """Given deferred_capture fails, when issue created, then return None."""
         mock_run.return_value = subprocess.CompletedProcess(
             args=[], returncode=1, stdout="", stderr="auth required"
         )
@@ -90,20 +90,18 @@ class TestCreateGithubIssue:
         assert result is None
 
     @patch("abstract.rollback_reviewer.subprocess.run", side_effect=FileNotFoundError)
-    @patch("abstract.rollback_reviewer.shutil.which", return_value="/usr/bin/gh")
-    def test_should_return_none_on_file_not_found(self, _mock_which, _mock_run) -> None:
-        """Given gh binary disappears at runtime, when called, then return None."""
+    def test_should_return_none_on_file_not_found(self, _mock_run) -> None:
+        """Given script binary disappears at runtime, when called, then return None."""
         reviewer = RollbackReviewer()
         result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
         assert result is None
 
     @patch(
         "abstract.rollback_reviewer.subprocess.run",
-        side_effect=subprocess.TimeoutExpired(cmd="gh", timeout=30),
+        side_effect=subprocess.TimeoutExpired(cmd="python3", timeout=30),
     )
-    @patch("abstract.rollback_reviewer.shutil.which", return_value="/usr/bin/gh")
-    def test_should_return_none_on_timeout(self, _mock_which, _mock_run) -> None:
-        """Given gh command hangs, when timeout reached, then return None."""
+    def test_should_return_none_on_timeout(self, _mock_run) -> None:
+        """Given script hangs, when timeout reached, then return None."""
         reviewer = RollbackReviewer()
         result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
         assert result is None

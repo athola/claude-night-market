@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -138,6 +138,19 @@ check-examples: ## Verify all plugins have proper examples
 
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
+
+verify-deferred-capture:  ## Verify all deferred_capture.py wrappers conform to leyline contract
+	@echo "Verifying deferred_capture.py compliance..."
+	@for plugin in sanctum attune imbue pensive abstract egregore; do \
+		echo "  $$plugin..."; \
+		python3 plugins/$$plugin/scripts/deferred_capture.py \
+			--title "Test: compliance" \
+			--source test \
+			--context "Automated compliance check" \
+			--dry-run | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'status' in d, 'Missing status field'" \
+		|| { echo "  FAIL: $$plugin"; exit 1; }; \
+	done
+	@echo "All wrappers compliant."
 
 demo: ## Demonstrate Claude Night Market capabilities
 	@echo "=== Claude Night Market Demo ==="

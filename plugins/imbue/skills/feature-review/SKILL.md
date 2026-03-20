@@ -207,6 +207,23 @@ See [tradeoff-dimensions.md](modules/tradeoff-dimensions.md) for criteria.
 3. Link to related issues.
 4. Confirm with user before creation.
 
+**Deferred capture for high-scoring suggestions:**
+After the user confirms which suggestions to act on, any
+high-scoring suggestion (score > 2.5) that is not acted on
+should be preserved as a deferred item.
+Run once per skipped high-scoring suggestion:
+
+```bash
+python3 scripts/deferred_capture.py \
+  --title "<suggestion title>" \
+  --source feature-review \
+  --context "RICE score: <score>. <description>"
+```
+
+This runs automatically without prompting the user.
+Suggestions with scores of 2.5 or below do not need
+to be captured.
+
 ## Configuration
 
 Feature-review uses opinionated defaults but allows customization.

@@ -347,9 +347,11 @@ class TestGenerateMap:
         when generating map, then beta appears in dependencies
         with gamma as a dependent."""
         result = generate_map(plugin_tree)
-        if "beta" in result["dependencies"]:
-            dependents = result["dependencies"]["beta"]["dependents"]
-            assert "gamma" in dependents or dependents == ["*"]
+        assert "beta" in result["dependencies"], (
+            "beta should appear in dependencies since gamma depends on it"
+        )
+        dependents = result["dependencies"]["beta"]["dependents"]
+        assert "gamma" in dependents or dependents == ["*"]
 
     def test_wildcard_when_all_depend(
         self,

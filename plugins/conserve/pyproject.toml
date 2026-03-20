@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.6.6"
+version = "1.6.7"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -86,7 +86,7 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
-"tests/**/*.py" = ["S101", "PLR2004", "D103", "PLC0415"]  # Test-specific ignores
+"tests/**/*.py" = ["S101", "PLR2004", "D103"]  # Test-specific ignores
 
 [tool.ruff.format]
 quote-style = "double"

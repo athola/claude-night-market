@@ -4,4 +4,4 @@ Like ancient ley lines connecting sacred sites, leyline provides the foundationa
 patterns that connect and power plugin ecosystems.
 """
 
-__version__ = "1.6.6"
+__version__ = "1.6.7"

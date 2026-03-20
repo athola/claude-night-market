@@ -63,6 +63,39 @@ Delegate if: Benefit > Cost * 3 (safety margin for quality risks)
 - Reserve Pro models for complex analysis only
 - Consider batch processing for repetitive tasks
 
+### Cheapest-Capable Model Selection
+
+When dispatching subagents, select the cheapest model
+that can handle the task. This is a recommendation,
+not a mandate; override when judgment dictates.
+
+| Task Type | Has Detailed Plan? | Recommended Model |
+|-----------|-------------------|-------------------|
+| Implementation | Yes | haiku |
+| Implementation | No | sonnet |
+| Planning/reasoning | Any | sonnet/opus |
+| Security/safety review | Any | sonnet minimum, prefer opus |
+| Code review | Any | sonnet minimum |
+
+**Security/safety task types** (never downgrade):
+- Security audit
+- Secret scanning
+- Permissions analysis
+- Auth-critical review
+- Dependency vulnerability scanning
+
+If a code review surfaces security-relevant findings,
+the reviewer should note "security-relevant" in its
+output to prevent downstream model downgrade.
+
+**Fallback**: When a downgrade rule triggers but the
+task type is ambiguous, default to sonnet.
+
+**Rationale**: Implementation tasks with detailed plans
+are well-scoped and predictable; haiku handles these
+effectively. Planning and security tasks require
+reasoning depth that cheaper models may lack.
+
 **Alternative Strategies:**
 - Break large tasks into smaller, targeted analyses
 - Use local processing for sensitive operations

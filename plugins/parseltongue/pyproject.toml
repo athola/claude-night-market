@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.6.6"
+version = "1.6.7"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -168,7 +168,6 @@ unfixable = [
     "D102",    # Missing method docstrings in test classes
     "D103",    # Missing function docstrings in tests
     "S108",    # Allow hardcoded temp paths in tests
-    "PLC0415", # Allow conditional imports
     "D205",    # Multiline docstring summary (Given/When/Then patterns)
     "ERA001",  # BDD-style comments (Given/When/Then) misdetected as commented code
 ]

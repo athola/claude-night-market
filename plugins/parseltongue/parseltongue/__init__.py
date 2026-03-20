@@ -7,4 +7,4 @@ This package provides specialized expertise in:
 - Python packaging
 """
 
-__version__ = "1.6.6"
+__version__ = "1.6.7"

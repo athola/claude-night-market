@@ -6,6 +6,7 @@ and parametrize for repeated patterns.
 
 from __future__ import annotations
 
+import importlib.machinery
 import json
 import sys
 from pathlib import Path
@@ -19,8 +20,6 @@ HOOKS_DIR = Path(__file__).parent.parent / "hooks" / "gemini"
 
 def load_hook_module(name: str, file_path: Path):
     """Load a Python module from a file without .py extension."""
-    import importlib.machinery  # noqa: PLC0415
-
     loader = importlib.machinery.SourceFileLoader(name, str(file_path))
     spec = importlib.util.spec_from_loader(name, loader, origin=str(file_path))
     if spec is None or spec.loader is None:

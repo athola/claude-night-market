@@ -167,6 +167,37 @@ AI over-relies on correlative pairs in close proximity:
 
 2+ correlative pairs in the same paragraph is a signal.
 
+## ASCII Arrow Prose Connector
+
+AI uses `->` and `→` as prose shorthand instead of writing
+"to", "into", or "produces". Arrows are fine in code, type
+signatures, and diagrams but mark AI-generated prose.
+
+Examples:
+- "spec -> plan -> tasks" (slop)
+- "spec to plan to tasks" (human)
+- "returns `int -> str`" (fine, code context)
+
+```bash
+# Detect arrows in prose (exclude code blocks)
+awk '/^```/{c=!c}!c' file.md | grep -oP '\s->\s|→' | wc -l
+```
+
+## Plus-Sign Conjunction
+
+AI uses `+` as a conjunction ("X + Y") in prose instead of
+"and" or "with". Fine in code, math, and labels.
+
+Examples:
+- "hooks + skills" (slop)
+- "hooks and skills" (human)
+- "1 + 1 = 2" (fine, math)
+
+```bash
+# Detect prose plus signs (word + word pattern)
+awk '/^```/{c=!c}!c' file.md | grep -oP '\w\s\+\s\w' | wc -l
+```
+
 ## Colon Addiction
 
 AI uses colons to introduce explanations at 3-5x the human rate.
@@ -245,6 +276,10 @@ def structural_score(metrics):
     if metrics.get('semicolon_count', 1) == 0 and metrics.get('em_dash_density', 0) > 3:
         score += 1  # em dashes without semicolons
     if metrics.get('correlative_pairs', 0) > 2:
+        score += 1
+    if metrics.get('arrow_connectors', 0) > 0:
+        score += 1
+    if metrics.get('plus_conjunctions', 0) > 1:
         score += 1
     return min(10, score)
 ```

@@ -43,6 +43,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
+| `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
@@ -298,7 +299,10 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 |------|--------|------|-------------|
 | `bridge.after_tool_use` | conjure | PostToolUse | Suggests delegation for large output |
 | `bridge.on_tool_start` | conjure | PreToolUse | Suggests delegation for large input |
+| `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
+| `deferred_item_sweep.py` | sanctum | Stop | Sweep session ledger and file deferred items as GitHub issues |
+| `deferred_item_watcher.py` | sanctum | PostToolUse | Detect deferred items in Skill output and write to session ledger |
 | `auto-star-repo.sh` | leyline | SessionStart | Auto-star the repo if not already starred |
 | `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
