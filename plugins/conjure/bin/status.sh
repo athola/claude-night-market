@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Gemini CLI Status Monitor
 
 set -euo pipefail

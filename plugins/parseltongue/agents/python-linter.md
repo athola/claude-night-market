@@ -1,6 +1,6 @@
 ---
 name: python-linter
-description: Expert Python linting agent that enforces strict ruff rules and ensures code passes all lint checks WITHOUT bypassing via per-file-ignores. Use when fixing lint errors, setting up linting, or reviewing code quality. NEVER adds per-file-ignores to bypass lint checks.
+description: Enforce strict ruff rules without per-file-ignores bypasses. Use for lint errors or code quality reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: haiku
 escalation:

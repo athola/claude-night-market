@@ -2,6 +2,7 @@
 #
 # Interactive Authentication Module
 # Provides token caching, session management, and multi-service support
+# Requires: bash 4+ (associative arrays)
 #
 # Usage:
 #   source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh

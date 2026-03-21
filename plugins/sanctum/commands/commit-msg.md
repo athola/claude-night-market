@@ -1,5 +1,5 @@
 ---
-description: Draft a slop-free Conventional Commit message for staged changes using the commit-messages skill with AI slop detection.
+description: Draft a Conventional Commit message for staged changes with slop detection.
 ---
 
 # Draft a Conventional Commit Message

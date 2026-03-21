@@ -1,6 +1,6 @@
 ---
 name: palace-architect
-description: Use this agent when the user asks to "create a memory palace", "design a knowledge structure", "organize information spatially", or needs help building memory palace architectures. Trigger when user mentions mnemonic techniques or spatial knowledge organization.
+description: Design memory palace structures and spatial knowledge architectures. Use for creating palaces or mnemonic design.
 tools: [Read, Write, Bash, Grep, Glob]
 model: opus
 examples:

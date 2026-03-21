@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Version validation script for claude-night-market
 # Used by /pr-review Phase 1.5 to check version consistency
 #

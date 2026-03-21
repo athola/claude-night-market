@@ -195,7 +195,7 @@ fi
 escape_for_json() {
     local input="$1"
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         # Pure bash fallback with complete JSON control character handling
         [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1

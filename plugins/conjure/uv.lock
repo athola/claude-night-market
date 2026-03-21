@@ -219,7 +219,7 @@ wheels = [
 
 [[package]]
 name = "conjure-dev"
-version = "1.6.7"
+version = "1.7.0"
 source = { editable = "." }
 
 [package.optional-dependencies]
@@ -491,7 +491,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.6.7"
+version = "1.7.0"
 source = { directory = "../leyline" }
 
 [package.metadata]

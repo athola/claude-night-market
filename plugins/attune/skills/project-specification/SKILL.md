@@ -1,6 +1,6 @@
 ---
 name: project-specification
-description: "Transform project briefs into testable specifications with acceptance criteria. Use for requirements translation, spec creation, pre-implementation. Skip if spec exists or still exploring."
+description: "Transform briefs into testable specs with acceptance criteria. Skip if spec exists."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 category: workflow

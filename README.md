@@ -2,8 +2,8 @@
 
 [![Version](https://img.shields.io/badge/version-1.6.7-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-17-orange)]()
-[![Skills](https://img.shields.io/badge/skills-136-teal)](book/src/reference/capabilities-reference.md)
+[![Plugins](https://img.shields.io/badge/plugins-18-orange)]()
+[![Skills](https://img.shields.io/badge/skills-142-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -17,8 +17,8 @@ slash commands, and autonomous agents for git workflows,
 code review, spec-driven development, and issue
 management.
 
-17 plugins providing 136 skills, 105 commands, and
-43 agents. Each plugin installs independently.
+18 plugins providing 142 skills, 109 commands, and
+47 agents. Each plugin installs independently.
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
@@ -67,7 +67,7 @@ for detailed setup options.
 
 ## Architecture
 
-17 plugins organized in four layers.
+18 plugins organized in four layers.
 Domain specialists depend on utility plugins,
 which depend on foundation plugins,
 which depend on the meta layer.
@@ -90,6 +90,7 @@ flowchart TB
         D7[attune]:::domainClass
         D8[scry]:::domainClass
         D9[scribe]:::domainClass
+        D10[tome]:::domainClass
     end
 
     subgraph Utility["Utility Layer"]
@@ -119,7 +120,7 @@ flowchart TB
 
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
-| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 11 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 17 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 18 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
@@ -136,6 +137,7 @@ flowchart TB
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
 | **scribe** | Domain | Documentation with AI slop detection, style learning, tech tutorials | 4 | 3 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
+| **tome** | Domain | Multi-source research: code archaeology, community discourse, academic literature, TRIZ analysis | 7 | 4 |
 
 Full inventory:
 [Capabilities Reference](book/src/reference/capabilities-reference.md).
@@ -191,6 +193,12 @@ See the [Common Workflows Guide][workflows] for full details.
 ## What's New
 
 See the [Changelog](CHANGELOG.md) for the full history.
+
+**Next release** adds the tome plugin for multi-source
+research (code archaeology, academic literature, TRIZ
+analysis), 100% Makefile dogfood coverage across all
+18 plugins, and 20 newly registered API assets with
+6 cross-plugin dependency declarations.
 
 **1.6.7** added a deferred-item capture system in sanctum
 (PostToolUse watcher + Stop hook that files GitHub issues

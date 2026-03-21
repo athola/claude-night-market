@@ -1,6 +1,6 @@
 ---
 name: python-optimizer
-description: Expert Python performance optimization agent specializing in profiling, bottleneck identification, memory optimization, and algorithm improvements. Use when code is slow or memory-intensive.
+description: Python profiling, bottleneck identification, and algorithm optimization. Use when code is slow.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
 escalation:

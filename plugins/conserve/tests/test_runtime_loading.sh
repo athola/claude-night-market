@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Runtime module loading verification for bloat-detector
 
 set -euo pipefail

@@ -1,6 +1,6 @@
 ---
 name: architecture-reviewer
-description: Principal-level architecture review agent specializing in system design, ADR compliance, coupling analysis, and design pattern evaluation. Use for major refactors, new system designs, and architectural decisions.
+description: Architecture review for system design, ADR compliance, and coupling analysis. Use for major refactors.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: opus
 skills: pensive:architecture-review, imbue:proof-of-work

@@ -101,7 +101,7 @@ TEMPLATE
     fi
 
     # 4. Set environment variables via CLAUDE_ENV_FILE
-    if [ -n "${CLAUDE_ENV_FILE:-}" ] && [ -w "${CLAUDE_ENV_FILE}" -o ! -e "${CLAUDE_ENV_FILE}" ]; then
+    if [ -n "${CLAUDE_ENV_FILE:-}" ] && { [ -w "${CLAUDE_ENV_FILE}" ] || [ ! -e "${CLAUDE_ENV_FILE}" ]; }; then
         echo "export CONSERVE_SESSION_STATE_PATH=\"${SESSION_STATE_FILE}\"" >> "$CLAUDE_ENV_FILE"
         setup_tasks+=("Persisted CONSERVE_SESSION_STATE_PATH to environment")
     fi
@@ -169,7 +169,7 @@ fi
 escape_for_json() {
     local input="$1"
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         # Pure bash fallback with complete JSON control character handling
         [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1

@@ -19,8 +19,15 @@ class LearnedPattern:
     description: str
     frequency: int = 1
     last_seen: str = ""
-    success_rate: float = 0.0  # 0.0-1.0
+    success_count: int = 0
     source_items: list[str] = field(default_factory=list)
+
+    @property
+    def success_rate(self) -> float:
+        """Compute success rate from integer counts (no drift)."""
+        if self.frequency == 0:
+            return 0.0
+        return self.success_count / self.frequency
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
@@ -29,6 +36,7 @@ class LearnedPattern:
             "description": self.description,
             "frequency": self.frequency,
             "last_seen": self.last_seen,
+            "success_count": self.success_count,
             "success_rate": self.success_rate,
             "source_items": list(self.source_items),
         }
@@ -41,10 +49,14 @@ class LearnedPattern:
             "description",
             "frequency",
             "last_seen",
-            "success_rate",
+            "success_count",
             "source_items",
         }
         filtered = {k: v for k, v in data.items() if k in known}
+        # Backward compat: reconstruct success_count from success_rate
+        if "success_count" not in filtered and "success_rate" in data:
+            freq = filtered.get("frequency", 1)
+            filtered["success_count"] = round(data["success_rate"] * freq)
         return cls(**filtered)
 
 
@@ -94,19 +106,15 @@ def extract_patterns(
                 pattern = patterns[key]
                 pattern.frequency += 1
                 pattern.source_items.append(item_id)
-                total = pattern.frequency
-                prev_successes = pattern.success_rate * (total - 1)
                 if status == "completed":
-                    pattern.success_rate = (prev_successes + 1.0) / total
-                else:
-                    pattern.success_rate = prev_successes / total
+                    pattern.success_count += 1
             else:
                 patterns[key] = LearnedPattern(
                     category=_categorize_decision(step, chose),
                     description=f"{step}: {chose}" + (f" ({why})" if why else ""),
                     frequency=1,
                     last_seen=item.get("started_at", ""),
-                    success_rate=1.0 if status == "completed" else 0.0,
+                    success_count=1 if status == "completed" else 0,
                     source_items=[item_id],
                 )
 
@@ -163,7 +171,7 @@ def weight_by_recency(
 
     for i, pattern in enumerate(sorted_patterns):
         weight = decay_factor**i
-        pattern.frequency = max(1, int(pattern.frequency * weight))
+        pattern.frequency = max(1, round(pattern.frequency * weight))
 
     return sorted_patterns
 

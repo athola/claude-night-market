@@ -30,14 +30,22 @@ and other plugins understand the available enhancements.
 
 ### Exception: leyline (intentional)
 
-`leyline` is the one intentional exception:
-it is a shared infrastructure plugin that provides reusable building blocks
-(e.g., token estimation,
-quota tracking) intended to be imported by other plugins.
+`leyline` is a shared infrastructure plugin that provides reusable building
+blocks (e.g., token estimation, quota tracking, deferred capture)
+intended to be imported by other plugins.
 Any import of `leyline` must be optional,
 typically guarded with a try/except ImportError block,
 and must provide a safe secondary behavior so the consumer plugin still loads
 and runs without leyline installed.
+
+### Exception: abstract (intentional)
+
+`abstract` is a second infrastructure plugin that provides shared base classes
+for cross-plugin reuse (e.g., `tasks_manager_base` for Claude Code Tasks
+integration).
+Consumers: attune, sanctum, spec-kit.
+The same rules as leyline apply: imports must be guarded with try/except
+ImportError and the consumer must degrade gracefully when abstract is absent.
 
 ## Architecture
 

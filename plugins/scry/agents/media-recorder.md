@@ -1,6 +1,6 @@
 ---
 name: media-recorder
-description: Autonomous media generation agent for terminal recordings (VHS), browser recordings (Playwright), and GIF processing. Use when user asks to "record a demo", "create a GIF", "capture terminal session", "record browser interaction", or needs automated media generation for documentation.
+description: Generate terminal recordings (VHS), browser recordings (Playwright), and GIFs for documentation.
 tools: [Read, Bash, Glob, Write]
 model: haiku
 escalation:

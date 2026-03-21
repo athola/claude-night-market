@@ -115,7 +115,13 @@ class GrowthAnalyzer:
         acceleration: float,
         turns: int = 20,
     ) -> dict[str, float | dict[str, float]]:
-        """Project growth over specified number of turns."""
+        """Project growth over specified number of turns.
+
+        Uses a hybrid model: compound exponential growth multiplied by a
+        quadratic acceleration factor.  This intentionally overestimates
+        when acceleration > 0 to provide conservative (pessimistic)
+        projections for context budget planning.
+        """
         projections: dict[str, float | dict[str, float]] = {}
 
         for turn in PROJECTION_TURNS:
@@ -162,19 +168,22 @@ class GrowthAnalyzer:
     ) -> float:
         """Estimate turns until MECW violation (100% usage)."""
         if current_usage >= MECW_USAGE_LIMIT:
-            return 0
+            return 0.0
 
         if growth_rate <= 0:
             return float("inf")
 
         # Guard against log domain errors (growth_rate must be > 0 for log)
         if growth_rate >= 1.0:
-            return 1  # Doubling+ per turn guarantees immediate violation
+            return 1.0  # Doubling+ per turn guarantees immediate violation
 
         # Simple estimation for positive growth without acceleration
         if acceleration <= 0:
-            return math.ceil(
-                math.log(MECW_USAGE_LIMIT / current_usage) / math.log(1 + growth_rate)
+            return float(
+                math.ceil(
+                    math.log(MECW_USAGE_LIMIT / current_usage)
+                    / math.log(1 + growth_rate)
+                )
             )
 
         # For positive acceleration, use iterative approach with
@@ -188,9 +197,9 @@ class GrowthAnalyzer:
                 accel_factor = 1 + (acceleration * turns * (turns - 1) / 2)
                 usage = projected * accel_factor
             except OverflowError:
-                return turns
+                return float(turns)
 
-        return turns if usage >= MECW_USAGE_LIMIT else float("inf")
+        return float(turns) if usage >= MECW_USAGE_LIMIT else float("inf")
 
 
 def main() -> None:

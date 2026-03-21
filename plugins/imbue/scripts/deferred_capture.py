@@ -13,10 +13,17 @@ from pathlib import Path
 _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
 sys.path.insert(0, str(_LEYLINE_SRC))
 
-from leyline.deferred_capture import (  # type: ignore[import-not-found]  # noqa: E402
-    PluginConfig,
-    run_capture,
-)
+try:
+    from leyline.deferred_capture import (  # type: ignore[import-not-found]  # noqa: E402
+        PluginConfig,
+        run_capture,
+    )
+except ImportError:
+    print(
+        "ERROR: leyline plugin not found. Install leyline for deferred capture support.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def _enrich(source: str, context: str) -> str:
