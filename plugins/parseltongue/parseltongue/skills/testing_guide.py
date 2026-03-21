@@ -14,6 +14,13 @@ HEAVY_PARAMETRIZE_THRESHOLD = 100
 class TestingGuideSkill:
     """Analyze test quality and provide testing recommendations."""
 
+    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
+        """Parse code into an AST, returning an error dict on failure."""
+        try:
+            return ast.parse(code), None
+        except SyntaxError:
+            return None, {"error": "Invalid Python syntax"}
+
     async def analyze_testing(self, code: str, test_code: str = "") -> dict[str, Any]:
         recommendations: list[dict[str, Any]] = []
         findings: dict[str, Any] = {
@@ -48,11 +55,14 @@ class TestingGuideSkill:
 
         return {"recommendations": recommendations, "findings": findings}
 
-    def analyze_test_structure(self, code: str) -> dict[str, Any]:
+    def analyze_test_structure(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze the structure of test code.
 
         Args:
             code: Test code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing test structure analysis
@@ -66,10 +76,11 @@ class TestingGuideSkill:
         if not code:
             return {"test_structure": structure}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"test_structure": structure}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"test_structure": structure, **(err or {})}
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
@@ -99,11 +110,14 @@ class TestingGuideSkill:
 
         return {"test_structure": structure}
 
-    def identify_anti_patterns(self, code: str) -> dict[str, Any]:
+    def identify_anti_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Identify testing anti-patterns in test code.
 
         Args:
             code: Test code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing identified anti-patterns
@@ -113,10 +127,11 @@ class TestingGuideSkill:
         if not code:
             return {"anti_patterns": anti_patterns}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"anti_patterns": anti_patterns}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"anti_patterns": anti_patterns, **(err or {})}
 
         self._check_direct_instantiation(tree, anti_patterns)
         self._check_private_method_testing(code, anti_patterns)
@@ -241,11 +256,16 @@ class TestingGuideSkill:
 
         return {"coverage_analysis": coverage}
 
-    def _extract_source_metrics(self, source_code: str) -> tuple[list[str], int]:
+    def _extract_source_metrics(
+        self,
+        source_code: str,
+        _tree: ast.Module | None = None,
+    ) -> tuple[list[str], int]:
         """Extract methods and branch count from source code.
 
         Args:
             source_code: Source code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Tuple of (methods list, branch count)
@@ -253,25 +273,30 @@ class TestingGuideSkill:
         source_methods: list[str] = []
         branch_count = 0
 
-        try:
-            source_tree = ast.parse(source_code)
-            for node in ast.walk(source_tree):
-                if isinstance(node, ast.FunctionDef):
-                    source_methods.append(node.name)
-                if isinstance(node, ast.If):
-                    branch_count += 1
-                if isinstance(node, ast.ExceptHandler):
-                    branch_count += 1
-        except SyntaxError:
-            pass
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(source_code)
+            if tree is None:
+                return source_methods, branch_count
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                source_methods.append(node.name)
+            if isinstance(node, ast.If):
+                branch_count += 1
+            if isinstance(node, ast.ExceptHandler):
+                branch_count += 1
 
         return source_methods, branch_count
 
-    def _extract_tested_methods(self, test_code: str) -> list[str]:
+    def _extract_tested_methods(
+        self, test_code: str, _tree: ast.Module | None = None
+    ) -> list[str]:
         """Extract tested method names from test code.
 
         Args:
             test_code: Test code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             List of tested method names
@@ -281,14 +306,16 @@ class TestingGuideSkill:
         if not test_code:
             return tested_methods
 
-        try:
-            test_tree = ast.parse(test_code)
-            for node in ast.walk(test_tree):
-                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
-                    name = node.name.replace("test_", "", 1)
-                    tested_methods.append(name)
-        except SyntaxError:
-            pass
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(test_code)
+            if tree is None:
+                return tested_methods
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                name = node.name.replace("test_", "", 1)
+                tested_methods.append(name)
 
         return tested_methods
 
@@ -488,11 +515,14 @@ class TestingGuideSkill:
 
         return {"suggestions": suggestions}
 
-    def generate_test_fixtures(self, code: str) -> dict[str, Any]:
+    def generate_test_fixtures(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Generate test fixtures for the given source code.
 
         Args:
             code: Source code to generate fixtures for
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing generated fixtures
@@ -503,10 +533,11 @@ class TestingGuideSkill:
         if not code:
             return {"fixtures": fixtures, "imports": imports}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"fixtures": fixtures, "imports": imports}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"fixtures": fixtures, "imports": imports, **(err or {})}
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
@@ -735,11 +766,14 @@ class TestingGuideSkill:
 
         return {"tool_recommendations": recommendations}
 
-    def generate_test_documentation(self, code: str) -> dict[str, Any]:
+    def generate_test_documentation(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Generate documentation for test code.
 
         Args:
             code: Test code to document
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing test documentation
@@ -752,10 +786,11 @@ class TestingGuideSkill:
         if not code:
             return {"documentation": documentation}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"documentation": documentation}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"documentation": documentation, **(err or {})}
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
@@ -817,7 +852,7 @@ class TestingGuideSkill:
             score += 15
 
         # Check for data-driven testing
-        if "parametrize" in code or "for " in code:
+        if "parametrize" in code:
             maintainability["factors"]["data_driven_testing"] = True
             score += 10
 
@@ -842,26 +877,32 @@ class TestingGuideSkill:
 
         return {"maintainability_analysis": maintainability}
 
-    def _extract_source_elements(self, code: str) -> tuple[list[str], list[str]]:
+    def _extract_source_elements(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> tuple[list[str], list[str]]:
         """Extract public functions and classes from source code.
 
         Args:
             code: Source code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Tuple of (functions list, classes list)
         """
         source_functions: list[str] = []
         source_classes: list[str] = []
-        try:
-            tree = ast.parse(code)
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
-                    source_functions.append(node.name)
-                if isinstance(node, ast.ClassDef):
-                    source_classes.append(node.name)
-        except SyntaxError:
-            pass
+
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(code)
+            if tree is None:
+                return source_functions, source_classes
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
+                source_functions.append(node.name)
+            if isinstance(node, ast.ClassDef):
+                source_classes.append(node.name)
 
         return source_functions, source_classes
 
@@ -956,7 +997,9 @@ class TestingGuideSkill:
 
         return recommendations
 
-    def _analyze_test_file(self, test_code: str) -> dict[str, Any]:
+    def _analyze_test_file(
+        self, test_code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         info: dict[str, Any] = {
             "tested_functions": [],
             "assertion_types": set(),
@@ -966,10 +1009,11 @@ class TestingGuideSkill:
             "test_count": 0,
         }
 
-        try:
-            tree = ast.parse(test_code)
-        except SyntaxError:
-            return info
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(test_code)
+            if tree is None:
+                return info
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):

@@ -24,6 +24,12 @@ author:
   name: Alex Thola
   url: https://github.com/athola
 license: MIT
+dependencies:
+  leyline:
+    source: gh@athola/claude-night-market
+    path: plugins/leyline
+    skills:
+    - deferred-capture
 skills:
 - skills/escalation-governance
 - skills/hook-authoring
@@ -35,6 +41,7 @@ skills:
 - skills/skill-authoring
 - skills/skills-eval
 - skills/subagent-testing
+- skills/plugin-review
 commands:
 - commands/aggregate-logs.md
 - commands/analyze-skill.md

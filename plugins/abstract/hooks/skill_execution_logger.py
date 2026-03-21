@@ -126,11 +126,10 @@ def get_log_directory() -> Path:
     return log_base
 
 
-_SAFE_COMPONENT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
-
-
 def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
     """Parse plugin and skill name from Skill tool input.
+
+    Delegates to shared.skill_utils for consistent sanitization.
 
     Args:
         tool_input: Skill tool input dictionary
@@ -139,22 +138,9 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
         Tuple of (plugin_name, skill_name)
 
     """
-    # Skill tool uses "skill" parameter with format "plugin:skill-name"
-    skill_ref = tool_input.get("skill", "unknown:unknown")
+    from shared.skill_utils import parse_skill_name as _parse
 
-    if ":" in skill_ref:
-        plugin, skill = skill_ref.split(":", 1)
-        plugin = plugin.strip()
-        skill = skill.strip()
-    else:
-        plugin, skill = "unknown", skill_ref.strip()
-
-    # Sanitize to prevent path traversal
-    if not _SAFE_COMPONENT.match(plugin):
-        plugin = "unknown"
-    if not _SAFE_COMPONENT.match(skill):
-        skill = "unknown"
-    return plugin, skill
+    return _parse(tool_input)
 
 
 def sanitize_output(output: str, max_length: int = 5000) -> str:

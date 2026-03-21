@@ -41,8 +41,10 @@ class RustReviewSkill(BaseReviewSkill):
     skill_name: ClassVar[str] = "rust_review"
     supported_languages: ClassVar[list[str]] = ["rust"]
 
-    _cached_content: str = ""
-    _cached_lines: list[str] = []  # noqa: RUF012
+    def __init__(self) -> None:
+        super().__init__()
+        self._cached_content: str = ""
+        self._cached_lines: list[str] = []
 
     def _get_lines(self, content: str) -> list[str]:
         if self._cached_content is not content:
@@ -123,21 +125,26 @@ class RustReviewSkill(BaseReviewSkill):
         reference_cycles = []
         borrow_checker_issues = []
 
+        # Pattern to detect variable moves: `let new_var = old_var;`
+        move_pattern = re.compile(r"\blet\s+(\w+)\s*=\s*(\w+)\s*;")
+
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            # Detect use after move patterns
-            if "data.value" in line and "println!" in line:
-                # Check if there's a move before this
-                for j in range(max(0, i - 10), i):
-                    if (
-                        "let moved_data = data" in lines[j]
-                        or "let owned_data = data" in lines[j]
-                    ):
+            # Detect use after move patterns by checking if a moved
+            # variable is referenced after the move statement.
+            for j in range(max(0, i - 10), i):
+                m = move_pattern.search(lines[j])
+                if m:
+                    moved_from = m.group(2)
+                    # Check if the current line uses the moved-from variable
+                    if re.search(
+                        rf"\b{re.escape(moved_from)}\b", line
+                    ) and moved_from != m.group(1):
                         violations.append(
                             {
                                 "line": i + 1,
                                 "type": "use_after_move",
-                                "description": "Potential use after move",
+                                "description": f"Potential use of '{moved_from}' after move",
                             }
                         )
                         break
@@ -158,8 +165,13 @@ class RustReviewSkill(BaseReviewSkill):
                         )
                         break
 
-            # Detect borrow checker issues
-            if re.search(r"&mut\s+\w+", line) and re.search(r"&\s+\w+", line):
+            # Detect borrow checker issues (exclude fn signatures and traits)
+            if (
+                re.search(r"&mut\s+\w+", line)
+                and re.search(r"&\w+", line)
+                and not re.search(r"^\s*(pub\s+)?(async\s+)?fn\s+", line)
+                and not re.search(r"^\s*(pub\s+)?trait\s+", line)
+            ):
                 borrow_checker_issues.append(
                     {
                         "line": i + 1,
@@ -399,14 +411,23 @@ class RustReviewSkill(BaseReviewSkill):
         send_sync_issues = []
 
         lines = self._get_lines(content)
-        in_async_fn = False
+        async_start_depth = -1  # brace depth when async fn started
+        brace_depth = 0
 
         for i, line in enumerate(lines):
-            # Track if we're in an async function
-            if re.search(r"async\s+fn\s+\w+", line):
-                in_async_fn = True
+            # Track brace depth
+            brace_depth += line.count("{") - line.count("}")
 
-            if in_async_fn and line.strip() == "}":
+            # Track if we're entering an async function
+            if re.search(r"async\s+fn\s+\w+", line):
+                # Record the depth *before* this line's opening brace
+                async_start_depth = brace_depth - line.count("{")
+
+            in_async_fn = async_start_depth >= 0
+
+            # Exit async fn when braces return to the level where it started
+            if in_async_fn and brace_depth <= async_start_depth:
+                async_start_depth = -1
                 in_async_fn = False
 
             # Detect blocking operations in async context
@@ -1348,13 +1369,37 @@ class RustReviewSkill(BaseReviewSkill):
         Returns:
             Markdown formatted security report
         """
-        unsafe_blocks = analysis.get("unsafe_blocks", 0)
-        unsafe_documented = analysis.get("unsafe_documented", 0)
-        ownership_violations = analysis.get("ownership_violations", 0)
-        data_races = analysis.get("data_races", 0)
-        memory_safety_issues = analysis.get("memory_safety_issues", 0)
-        dependency_vulnerabilities = analysis.get("dependency_vulnerabilities", 0)
-        panic_points = analysis.get("panic_points", 0)
+        # Read from the nested dicts that analyze() actually produces.
+        unsafe_code = analysis.get("unsafe_code", {})
+        unsafe_block_list = unsafe_code.get("unsafe_blocks", [])
+        unsafe_blocks = len(unsafe_block_list)
+        unsafe_documented = sum(
+            1 for b in unsafe_block_list if not b.get("lacks_documentation", True)
+        )
+
+        ownership = analysis.get("ownership", {})
+        ownership_violations = len(ownership.get("violations", []))
+
+        data_race_info = analysis.get("data_races", 0)
+        data_races = (
+            data_race_info
+            if isinstance(data_race_info, int)
+            else len(data_race_info.get("data_races", []))
+        )
+
+        memory_safety = analysis.get("memory_safety", {})
+        memory_safety_issues = (
+            len(memory_safety.get("unsafe_operations", []))
+            + len(memory_safety.get("buffer_overflows", []))
+            + len(memory_safety.get("use_after_free", []))
+        )
+
+        deps = analysis.get("dependencies", {})
+        dependency_vulnerabilities = len(deps.get("security_concerns", []))
+
+        panic_info = analysis.get("panic_propagation", {})
+        panic_points = len(panic_info.get("panic_points", []))
+
         security_score = analysis.get("security_score", 0.0)
 
         report = f"""## Rust Security Assessment

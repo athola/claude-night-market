@@ -29,6 +29,7 @@ skills:
 - skills/response-compression
 - skills/smart-sourcing
 - skills/token-conservation
+- skills/agent-expenditure
 commands:
 - commands/ai-hygiene-audit.md
 - commands/bloat-scan.md

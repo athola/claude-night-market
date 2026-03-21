@@ -52,7 +52,13 @@ def check_for_suppressions(text: str) -> list[str]:
 
 
 def main() -> None:
-    """Check tool input for lint suppression directives."""
+    """Check tool input for lint suppression directives.
+
+    Reads CLAUDE_TOOL_NAME and CLAUDE_TOOL_INPUT from environment
+    variables (not stdin) because PreToolUse hooks receive tool
+    metadata via env vars set by Claude Code, while stdin carries
+    the hook event JSON payload which does not include tool input.
+    """
     tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
     if tool_name not in ("Edit", "Write"):
         print(json.dumps({}))

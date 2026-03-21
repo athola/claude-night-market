@@ -8,7 +8,7 @@ Supports multiple strategy types and implementation planning.
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 # Constants
@@ -60,7 +60,7 @@ class GrowthController:
         return {
             "metadata": {
                 "strategy_type": strategy_type,
-                "generated_at": datetime.now().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
                 "analysis_severity": severity,
                 "analysis_urgency": urgency,
                 "target_growth_rate": self._calculate_target_growth_rate(

@@ -56,17 +56,16 @@ class SessionManager:
         return ResearchSession.from_dict(data)
 
     def load_latest(self) -> ResearchSession | None:
-        """Return the session with the most recent created_at, or None."""
-        sessions = [
-            ResearchSession.from_dict(json.loads(p.read_text(encoding="utf-8")))
-            for p in self._sessions_dir.glob("*.json")
-        ]
-        if not sessions:
+        """Return the most recently modified session, or None."""
+        json_files = list(self._sessions_dir.glob("*.json"))
+        if not json_files:
             return None
-        return max(
-            sessions,
-            key=lambda s: s.created_at or datetime.min.replace(tzinfo=timezone.utc),
-        )
+        latest_file = max(json_files, key=lambda p: p.stat().st_mtime)
+        try:
+            data = json.loads(latest_file.read_text(encoding="utf-8"))
+            return ResearchSession.from_dict(data)
+        except (json.JSONDecodeError, OSError):
+            return None
 
     def list_all(self) -> list[SessionSummary]:
         """Return summaries of all sessions, sorted by created_at descending.

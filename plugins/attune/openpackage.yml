@@ -45,6 +45,9 @@ dependencies:
     skills:
     - risk-classification
     - git-platform
+  abstract:
+    source: gh@athola/claude-night-market
+    path: plugins/abstract
 skills:
 - skills/architecture-aware-init
 - skills/makefile-generation
@@ -58,6 +61,7 @@ skills:
 - skills/war-room-checkpoint
 - skills/workflow-setup
 - skills/mission-orchestrator
+- skills/dorodango
 commands:
 - commands/arch-init.md
 - commands/blueprint.md

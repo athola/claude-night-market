@@ -174,9 +174,7 @@ def generate_executive_summary(findings: list[Finding], topic: str) -> str:
             "Consider expanding the search channels or adjusting the query."
         )
 
-    groups: dict[str, list[Finding]] = {}
-    for f in findings:
-        groups.setdefault(f.channel, []).append(f)
+    groups = group_by_theme(findings)
 
     total = len(findings)
     channel_count = len(groups)

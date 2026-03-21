@@ -6,7 +6,17 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from dataclasses import dataclass, field
 from pathlib import Path
+
+
+@dataclass
+class DependencyScan:
+    """Result of scanning plugin dependencies."""
+
+    found: set[str] = field(default_factory=set)
+    expected: set[str] = field(default_factory=set)
+    issues: list[str] = field(default_factory=list)
 
 
 class DependencyManager:
@@ -23,13 +33,9 @@ class DependencyManager:
         self.skill_files = list(plugin_root.rglob("SKILL.md"))
         self.plugin_config = plugin_root / "plugin.json"
 
-    def scan_dependencies(self) -> dict[str, set[str] | list[str]]:
+    def scan_dependencies(self) -> DependencyScan:
         """Scan all files for dependency references."""
-        dependencies: dict[str, set[str] | list[str]] = {
-            "found": set(),
-            "expected": set(),
-            "issues": [],
-        }
+        scan = DependencyScan()
 
         # Load expected dependencies from plugin.json
         if self.plugin_config.exists():
@@ -37,13 +43,11 @@ class DependencyManager:
                 config = json.loads(self.plugin_config.read_text())
                 deps = config.get("dependencies", [])
                 if isinstance(deps, list):
-                    dependencies["expected"] = set(deps)
+                    scan.expected = set(deps)
                 else:
-                    dependencies["expected"] = set(deps.keys())
+                    scan.expected = set(deps.keys())
             except json.JSONDecodeError:
-                issues_list = dependencies["issues"]
-                if isinstance(issues_list, list):
-                    issues_list.append("Invalid plugin.json")
+                scan.issues.append("Invalid plugin.json")
 
         # Scan skill files for references
         plugin_patterns = {
@@ -56,11 +60,9 @@ class DependencyManager:
 
             for plugin, pattern in plugin_patterns.items():
                 if re.search(pattern, content):
-                    found_set = dependencies["found"]
-                    if isinstance(found_set, set):
-                        found_set.add(plugin)
+                    scan.found.add(plugin)
 
-        return dependencies
+        return scan
 
     def detect_issues(self) -> list[str]:
         """Detect dependency-related issues."""
@@ -68,20 +70,12 @@ class DependencyManager:
         issues = []
 
         # Check for missing expected dependencies
-        found_deps = deps["found"]
-        if not isinstance(found_deps, set):
-            found_deps = set(found_deps)
-
-        expected_deps = deps["expected"]
-        if not isinstance(expected_deps, set):
-            expected_deps = set(expected_deps)
-
-        missing = expected_deps - found_deps
+        missing = deps.expected - deps.found
         if missing:
             issues.append(f"Expected dependencies not found in skills: {missing}")
 
         # Check for unexpected dependencies
-        unexpected = found_deps - expected_deps
+        unexpected = deps.found - deps.expected
         if unexpected:
             issues.append(f"Found dependencies not in plugin.json: {unexpected}")
 
@@ -178,8 +172,8 @@ class DependencyManager:
         report.append(f"\nPlugin Root: {self.plugin_root}")
         report.append(f"Skill Files: {len(self.skill_files)}")
 
-        report.append(f"\nExpected Dependencies: {sorted(deps['expected'])}")
-        report.append(f"Found Dependencies: {sorted(deps['found'])}")
+        report.append(f"\nExpected Dependencies: {sorted(deps.expected)}")
+        report.append(f"Found Dependencies: {sorted(deps.found)}")
 
         if issues:
             report.append(f"\nIssues Found ({len(issues)}):")

@@ -10,7 +10,7 @@ import argparse
 import json
 import math
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Constants
 CONTROLLABLE_GROWTH_THRESHOLD = 0.10
@@ -67,7 +67,7 @@ class GrowthAnalyzer:
             "controllable_percentage": controllable_percentage,
             "projections": projections,
             "content_breakdown": content_breakdown,
-            "analysis_timestamp": datetime.now().isoformat(),
+            "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _assess_severity(self, growth_rate: float) -> str:

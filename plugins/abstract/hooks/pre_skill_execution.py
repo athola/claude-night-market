@@ -30,6 +30,8 @@ def get_observability_dir() -> Path:
 def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
     """Parse plugin and skill name from Skill tool input.
 
+    Delegates to shared.skill_utils for consistent sanitization.
+
     Args:
         tool_input: Skill tool input dictionary
 
@@ -37,13 +39,9 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
         Tuple of (plugin_name, skill_name)
 
     """
-    skill_ref = tool_input.get("skill", "unknown:unknown")
+    from shared.skill_utils import parse_skill_name as _parse
 
-    if ":" in skill_ref:
-        plugin, skill = skill_ref.split(":", 1)
-        return plugin.strip(), skill.strip()
-
-    return "unknown", skill_ref.strip()
+    return _parse(tool_input)
 
 
 def main() -> None:

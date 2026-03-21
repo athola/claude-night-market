@@ -24,6 +24,7 @@ skills:
 - skills/slop-detector
 - skills/style-learner
 - skills/doc-generator
+- skills/tech-tutorial
 commands:
 - commands/doc-generate.md
 - commands/doc-polish.md

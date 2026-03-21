@@ -6,34 +6,25 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+try:
+    from hooks._session_utils import load_active_session
+except ImportError:
+    from _session_utils import load_active_session
+
 
 def main() -> None:
     """Check for active tome research sessions on startup."""
     tome_dir = Path.cwd() / ".tome" / "sessions"
-    if not tome_dir.exists():
+    result = load_active_session(tome_dir)
+    if result is None:
         return
-
-    sessions = sorted(
-        tome_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+    topic, finding_count = result
+    msg = (
+        f'Active tome research session: "{topic}" '
+        f"({finding_count} findings). "
+        f"Use /tome:dig to refine or /tome:research --resume to continue."
     )
-    if not sessions:
-        return
-
-    try:
-        with open(sessions[0], encoding="utf-8") as f:
-            data = json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return
-
-    if data.get("status") == "active":
-        topic = data.get("topic", "unknown")
-        finding_count = len(data.get("findings", []))
-        msg = (
-            f'Active tome research session: "{topic}" '
-            f"({finding_count} findings). "
-            f"Use /tome:dig to refine or /tome:research --resume to continue."
-        )
-        print(json.dumps({"additionalContext": msg}))
+    print(json.dumps({"additionalContext": msg}))
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ from typing import Any
 from scripts.war_room import experts as _experts_mod
 from scripts.war_room.delphi import (
     compute_convergence,
+    convene_delphi,
     delphi_revision_round,
 )
 from scripts.war_room.experts import (
@@ -384,6 +385,8 @@ class WarRoomOrchestrator:
     ) -> WarRoomSession:
         """Convene Delphi-style War Room with iterative convergence.
 
+        Delegates to delphi.convene_delphi to avoid code duplication.
+
         Args:
             problem: The problem/decision to deliberate
             context_files: Optional file globs for context
@@ -394,60 +397,9 @@ class WarRoomOrchestrator:
             Completed WarRoomSession with Delphi convergence data
 
         """
-        # Clear availability cache for fresh session
-        clear_availability_cache()
-
-        # Initialize with full council for Delphi
-        session = self._initialize_session(problem, "full_council")
-        session.metrics["start_time"] = datetime.now().isoformat()
-        session.metrics["delphi_mode"] = True
-        session.metrics["max_rounds"] = max_rounds
-        session.metrics["convergence_threshold"] = convergence_threshold
-
-        try:
-            # Round 1: Standard generation
-            await self._phase_intel(session, context_files)
-            await self._phase_assessment(session)
-            await self._phase_coa_development(session)
-            await self._phase_red_team(session)
-            await self._phase_voting(session)
-
-            convergence = self._compute_convergence(session)
-            session.metrics["round_1_convergence"] = convergence
-
-            delphi_round = 2
-            while convergence < convergence_threshold and delphi_round <= max_rounds:
-                # Delphi revision round
-                await self._delphi_revision_round(session, delphi_round)
-                await self._phase_red_team(session)
-                await self._phase_voting(session)
-
-                convergence = self._compute_convergence(session)
-                session.metrics[f"round_{delphi_round}_convergence"] = convergence
-                delphi_round += 1
-
-            session.metrics["final_convergence"] = convergence
-            session.metrics["total_rounds"] = delphi_round - 1
-
-            # Final phases
-            await self._phase_premortem(session)
-            await self._phase_synthesis(session)
-
-            session.status = "completed"
-
-        except Exception as e:
-            session.status = f"failed: {e}"
-            raise
-
-        finally:
-            session.metrics["end_time"] = datetime.now().isoformat()
-            # Capture any fallback notices
-            fallback_notice = get_fallback_notice()
-            if fallback_notice:
-                session.artifacts["fallback_notice"] = fallback_notice
-            self._persist_session(session)
-
-        return session
+        return await convene_delphi(
+            self, problem, context_files, max_rounds, convergence_threshold
+        )
 
     async def _delphi_revision_round(
         self, session: WarRoomSession, round_number: int

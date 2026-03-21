@@ -5,5 +5,34 @@ description: >-
   Code archaeology, community discourse, academic
   literature, and TRIZ cross-domain analysis with
   domain-adaptive depth.
+keywords:
+- research
+- code-archaeology
+- discourse
+- academic
+- triz
+- literature
+- synthesis
+author:
+  name: Alex Thola
+  url: https://github.com/athola
 license: MIT
 repository: https://github.com/athola/claude-night-market
+skills:
+- skills/code-search
+- skills/dig
+- skills/discourse
+- skills/papers
+- skills/research
+- skills/synthesize
+- skills/triz
+commands:
+- commands/cite.md
+- commands/dig.md
+- commands/export.md
+- commands/research.md
+agents:
+- agents/code-searcher.md
+- agents/discourse-scanner.md
+- agents/literature-reviewer.md
+- agents/triz-analyst.md

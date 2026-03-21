@@ -8,7 +8,6 @@ filed=false, prints summary, cleans up.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,8 +17,9 @@ SCRIPT_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 def get_ledger_path() -> Path:
     """Return the session-scoped ledger path."""
-    claude_dir = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    return claude_dir / "deferred-items-session.json"
+    from _ledger_utils import get_ledger_path as _get_path
+
+    return _get_path()
 
 
 def call_capture_script(title: str, source: str) -> dict:

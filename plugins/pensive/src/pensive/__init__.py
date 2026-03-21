@@ -10,11 +10,14 @@ from pensive.skills import (
     ApiReviewSkill,
     ArchitectureReviewSkill,
     BugReviewSkill,
+    EscalationFlag,
     MakefileReviewSkill,
     MathReviewSkill,
     RustReviewSkill,
     TestReviewSkill,
+    Tier1Results,
     UnifiedReviewSkill,
+    should_escalate_to_tier2,
 )
 from pensive.workflows import CodeReviewWorkflow
 
@@ -25,13 +28,16 @@ __all__ = [
     "BugReviewSkill",
     "CodeReviewWorkflow",
     "ConfigurationError",
+    "EscalationFlag",
     "MakefileReviewSkill",
     "MathReviewSkill",
     "PensiveError",
     "PluginError",
     "RustReviewSkill",
     "TestReviewSkill",
+    "Tier1Results",
     "UnifiedReviewSkill",
+    "should_escalate_to_tier2",
 ]
 
 __version__ = "1.6.7"

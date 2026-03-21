@@ -52,11 +52,10 @@ class TestSpecKitCacheInit:
         assert cache.cache_dir == nested
 
     def test_initial_state(self, tmp_path: Path) -> None:
-        """Should start with empty memory, timestamps, and LRU caches."""
+        """Should start with empty memory and timestamps caches."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         assert cache._memory_cache == {}
         assert cache._cache_timestamps == {}
-        assert len(cache._lru_cache) == 0
         assert cache.default_ttl == 3600
 
 
@@ -213,12 +212,6 @@ class TestSetAndGet:
         assert cache._memory_cache["mk"] == [1, 2, 3]
         assert "mk" in cache._cache_timestamps
 
-    def test_set_stores_in_lru(self, tmp_path: Path) -> None:
-        """Should populate the LRU cache."""
-        cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        cache.set("lk", "value")
-        assert cache._lru_cache["lk"] == "value"
-
     def test_set_stores_on_disk(self, tmp_path: Path) -> None:
         """Should write a JSON file to the cache directory."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
@@ -247,22 +240,12 @@ class TestSetAndGet:
         cache.set("ek", "old_value")
         # Force expiry
         cache._cache_timestamps["ek"] = time.time() - 7200
-        # Also remove from LRU so it doesn't fall through
-        cache._lru_cache.pop("ek", None)
         # Remove disk file so no fallback either
         cache._get_cache_path("ek").unlink(missing_ok=True)
         result = cache.get("ek")
         assert result is None
         assert "ek" not in cache._memory_cache
         assert "ek" not in cache._cache_timestamps
-
-    def test_get_falls_through_to_lru(self, tmp_path: Path) -> None:
-        """Should find value in LRU when memory cache misses."""
-        cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        # Put directly in LRU, skip memory
-        cache._lru_cache["lru_only"] = "from_lru"
-        result = cache.get("lru_only")
-        assert result == "from_lru"
 
     def test_get_falls_through_to_disk(self, tmp_path: Path) -> None:
         """Should load from disk when both memory and LRU miss."""
@@ -285,7 +268,7 @@ class TestSetAndGet:
         assert not cache_path.exists()
 
     def test_set_handles_unserializable_value(self, tmp_path: Path) -> None:
-        """Should still store in memory/LRU even if disk write fails."""
+        """Should still store in memory even if disk write fails."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         # A set with a custom object that json.dump cannot serialize
         object()
@@ -309,7 +292,6 @@ class TestSetAndGet:
         # With TTL of 10, should be valid
         assert cache.get("ttl_key", ttl=10) == "val"
         # With TTL of 2, should be expired
-        cache._lru_cache.pop("ttl_key", None)
         cache._get_cache_path("ttl_key").unlink(missing_ok=True)
         assert cache.get("ttl_key", ttl=2) is None
 
@@ -349,7 +331,6 @@ class TestInvalidate:
         cache.invalidate()
         assert cache._memory_cache == {}
         assert cache._cache_timestamps == {}
-        assert len(cache._lru_cache) == 0
         assert list(cache.cache_dir.glob("*.json")) == []
 
     def test_invalidate_nonexistent_key_no_error(self, tmp_path: Path) -> None:
@@ -371,7 +352,6 @@ class TestGetCacheStats:
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         stats = cache.get_cache_stats()
         assert stats["memory_cache_size"] == 0
-        assert stats["lru_cache_size"] == 0
         assert stats["file_cache_count"] == 0
         assert stats["file_cache_size_bytes"] == 0
         assert stats["file_cache_size_mb"] == 0.0
@@ -384,7 +364,6 @@ class TestGetCacheStats:
         cache.set("b", {"data": "bravo"})
         stats = cache.get_cache_stats()
         assert stats["memory_cache_size"] == 2
-        assert stats["lru_cache_size"] == 2
         assert stats["file_cache_count"] == 2
         assert stats["file_cache_size_bytes"] > 0
         assert isinstance(stats["file_cache_size_mb"], float)

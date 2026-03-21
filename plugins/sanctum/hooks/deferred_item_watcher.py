@@ -54,8 +54,9 @@ def _normalize_title(title: str) -> str:
 
 def get_ledger_path() -> Path:
     """Return the session ledger path, respecting CLAUDE_HOME."""
-    claude_dir = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    return claude_dir / "deferred-items-session.json"
+    from _ledger_utils import get_ledger_path as _get_path
+
+    return _get_path()
 
 
 def read_ledger(path: Path) -> list[dict]:
@@ -151,15 +152,25 @@ def extract_deferred_titles(text: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+_SAFE_SKILL_COMPONENT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
+
+
 def _parse_skill_name(tool_input: dict) -> str:
     """Extract the bare skill name from tool input.
 
     Handles both ``"skill": "name"`` and ``"skill": "plugin:name"`` forms.
+    Sanitizes non-empty output to prevent path-traversal (consistent with
+    abstract/hooks/shared/skill_utils.py).
     """
     skill_ref = tool_input.get("skill", "")
     # Strip optional plugin prefix (e.g. "sanctum:war-room" -> "war-room")
     if ":" in skill_ref:
-        skill_ref = skill_ref.split(":", 1)[1]
+        skill_ref = skill_ref.split(":", 1)[1].strip()
+    else:
+        skill_ref = skill_ref.strip()
+    # Empty values are harmless (won't match WATCH_LIST); sanitize non-empty
+    if skill_ref and not _SAFE_SKILL_COMPONENT.match(skill_ref):
+        return "unknown"
     return skill_ref
 
 

@@ -22,6 +22,9 @@ dependencies:
     path: plugins/leyline
     skills:
     - git-platform
+  abstract:
+    source: gh@athola/claude-night-market
+    path: plugins/abstract
 skills:
 - skills/commit-messages
 - skills/do-issue
@@ -54,6 +57,7 @@ commands:
 - commands/update-plugins.md
 - commands/update-tests.md
 - commands/update-tutorial.md
+- commands/sync-capabilities.md
 - commands/update-version.md
 agents:
 - agents/git-workspace-agent.md

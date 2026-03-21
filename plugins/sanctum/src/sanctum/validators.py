@@ -214,6 +214,22 @@ class AgentValidator:
         return capabilities
 
 
+def _extract_skill_refs_from_content(content: str) -> list[str]:
+    """Extract skill references from content (shared helper).
+
+    Finds all ``Skill(plugin:skill-name)`` patterns and returns the
+    skill name portion (after the colon when present).
+    """
+    refs: list[str] = []
+    matches = re.findall(r"Skill\(([^)]+)\)", content)
+    for match in matches:
+        if ":" in match:
+            refs.append(match.split(":")[1])
+        else:
+            refs.append(match)
+    return refs
+
+
 class SkillValidator:
     """Validator for skill markdown files."""
 
@@ -385,16 +401,12 @@ class SkillValidator:
 
     @staticmethod
     def extract_skill_references(content: str) -> list[str]:
-        """Extract skill references from content."""
-        refs = []
-        # Find Skill(plugin:skill-name) patterns
-        matches = re.findall(r"Skill\(([^)]+)\)", content)
-        for match in matches:
-            # Extract skill name (after : if present)
-            if ":" in match:
-                refs.append(match.split(":")[1])
-            else:
-                refs.append(match)
+        """Extract skill references from content.
+
+        Uses the shared regex helper and additionally checks
+        frontmatter ``dependencies`` for skill-level refs.
+        """
+        refs = _extract_skill_refs_from_content(content)
 
         # Also check frontmatter dependencies
         frontmatter = parse_frontmatter(content)
@@ -534,16 +546,7 @@ class CommandValidator:
     @staticmethod
     def extract_skill_references(content: str) -> list[str]:
         """Extract skill references from command content."""
-        refs = []
-        # Find Skill(plugin:skill-name) patterns
-        matches = re.findall(r"Skill\(([^)]+)\)", content)
-        for match in matches:
-            # Extract skill name (after : if present)
-            if ":" in match:
-                refs.append(match.split(":")[1])
-            else:
-                refs.append(match)
-        return refs
+        return _extract_skill_refs_from_content(content)
 
     @staticmethod
     def validate_skill_references(

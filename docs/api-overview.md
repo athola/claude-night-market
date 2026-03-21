@@ -1,40 +1,41 @@
 # API Overview
 
-*Updated: 2026-03-19*
+*Updated: 2026-03-20*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
 
-Claude Night Market consists of 17 plugins that provide
+Claude Night Market consists of 18 plugins that provide
 CLI commands, Python packages, and skill-based APIs.
 These tools support a range of workflows, from code
 review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 102 CLI commands, 128 modular
-skills, 43 specialized agents, and 7 Python packages
+The ecosystem includes 109 CLI commands, 142 modular
+skills, 47 specialized agents, and 9 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.6.7 | 18 | 10 | 5 | Yes | abstract-skills |
+| abstract | 1.6.7 | 18 | 11 | 5 | Yes | abstract-skills |
 | archetypes | 1.6.7 | 0 | 14 | 0 | No | - |
-| attune | 1.6.7 | 10 | 12 | 2 | No | - |
+| attune | 1.6.7 | 10 | 13 | 2 | No | - |
 | conjure | 1.6.7 | 0 | 4 | 0 | No | - |
-| conserve | 1.6.7 | 4 | 10 | 5 | No | - |
+| conserve | 1.6.7 | 4 | 11 | 5 | No | - |
+| egregore | 1.6.7 | 5 | 4 | 2 | No | - |
 | hookify | 1.6.7 | 6 | 2 | 0 | No | - |
-| imbue | 1.6.7 | 2 | 9 | 1 | No | - |
+| imbue | 1.6.7 | 3 | 10 | 1 | No | - |
 | leyline | 1.6.7 | 3 | 17 | 0 | Yes | - |
 | memory-palace | 1.6.7 | 5 | 6 | 4 | Yes | - |
 | minister | 1.6.7 | 3 | 2 | 0 | Yes | - |
-| parseltongue | 1.6.7 | 3 | 4 | 4 | No | - |
-| pensive | 1.6.7 | 12 | 11 | 4 | Yes | - |
-| sanctum | 1.6.7 | 17 | 14 | 9 | Yes | - |
-| scribe | 1.6.7 | 3 | 3 | 3 | No | - |
+| parseltongue | 1.6.7 | 3 | 4 | 4 | No | parseltongue |
+| pensive | 1.6.7 | 12 | 12 | 4 | Yes | - |
+| sanctum | 1.6.7 | 18 | 14 | 9 | Yes | - |
+| scribe | 1.6.7 | 3 | 4 | 3 | Yes | - |
 | scry | 1.6.7 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.6.7 | 9 | 3 | 3 | Yes | - |
-| egregore | 1.6.7 | 5 | 4 | 2 | No | - |
+| spec-kit | 1.6.7 | 10 | 3 | 3 | Yes | - |
+| tome | 1.7.0 | 4 | 7 | 4 | No | - |
 
 ## Plugin Details
 
@@ -81,9 +82,11 @@ manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
 ### Imbue (v1.6.7)
-Structured review workflows. Offers commands for catchups
-and structured reviews (`catchup`, `structured-review`).
-Skills include `proof-of-work`, `scope-guard`, and `rigorous-reasoning`.
+Structured review workflows. Offers commands for catchups,
+structured reviews, and stewardship health checks
+(`catchup`, `structured-review`, `stewardship-health`).
+Skills include `proof-of-work`, `scope-guard`,
+`rigorous-reasoning`, and `latent-space-engineering`.
 
 ### Leyline (v1.6.7)
 Shared patterns and utilities library.
@@ -111,10 +114,11 @@ Skills support async programming and packaging.
 
 ### Pensive (v1.6.7)
 Code review and analysis framework.
-Provides specific review commands for various languages and domains,
-such as `api-review`, `rust-review`, and `bug-review`.
-Includes `safety-critical-patterns` for NASA Power of 10 rules adapted for
-robust code.
+Provides specific review commands for various languages
+and domains, such as `api-review`, `rust-review`, and
+`bug-review`. Includes `safety-critical-patterns` for
+NASA Power of 10 rules and `tiered-audit` for
+three-tier escalation analysis.
 
 ### Sanctum (v1.6.7)
 Git workflow automation.
@@ -151,6 +155,17 @@ Commands include `summon` (spawn sessions), `dismiss`
 recovery). Skills cover session spawning with budget
 management (`summon`), pre-merge validation
 (`quality-gate`), and watchdog lifecycle management.
+
+### Tome (v1.7.0)
+Multi-source research plugin for code archaeology,
+community discourse, academic literature, and TRIZ
+cross-domain analysis.
+Commands include `research` (multi-source research),
+`dig` (code archaeology), `cite` (citation management),
+and `export` (output formatting).
+Skills cover `code-search`, `discourse`, `papers`,
+`synthesize`, and `triz` (cross-domain inventive
+problem solving).
 
 ## API Quality Assessment
 

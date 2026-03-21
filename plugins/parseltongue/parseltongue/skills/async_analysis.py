@@ -21,6 +21,7 @@ Provides detailed analysis of async Python code including:
 from __future__ import annotations
 
 import ast
+import asyncio
 from typing import Any
 
 
@@ -31,11 +32,21 @@ class AsyncAnalysisSkill:
         """Initialize the async analysis skill."""
         pass
 
-    async def analyze_async_functions(self, code: str) -> dict[str, Any]:
+    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
+        """Parse code into an AST, returning an error dict on failure."""
+        try:
+            return ast.parse(code), None
+        except SyntaxError:
+            return None, {"error": "Invalid Python syntax"}
+
+    async def analyze_async_functions(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async functions in the provided code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing async function analysis
@@ -44,10 +55,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"async_functions": []}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"async_functions": [], "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"async_functions": [], **(err or {})}
 
         async_functions = []
 
@@ -72,11 +84,14 @@ class AsyncAnalysisSkill:
 
         return {"async_functions": async_functions}
 
-    async def analyze_context_managers(self, code: str) -> dict[str, Any]:
+    async def analyze_context_managers(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async context managers in the code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing context manager analysis
@@ -85,10 +100,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"context_managers": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"context_managers": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"context_managers": {}, **(err or {})}
 
         context_managers = {}
 
@@ -113,11 +129,14 @@ class AsyncAnalysisSkill:
 
         return {"context_managers": context_managers}
 
-    async def analyze_concurrency_patterns(self, code: str) -> dict[str, Any]:
+    async def analyze_concurrency_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Detect concurrency patterns in async code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing concurrency pattern analysis
@@ -126,10 +145,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"concurrency_patterns": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"concurrency_patterns": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"concurrency_patterns": {}, **(err or {})}
 
         patterns: dict[str, Any] = {}
         gather_functions: list[str] = []
@@ -303,11 +323,14 @@ class AsyncAnalysisSkill:
             if isinstance(child, ast.Call) and self._is_call_to(child, "TaskGroup"):
                 task_group_functions.append(node.name)
 
-    async def detect_blocking_calls(self, code: str) -> dict[str, Any]:
+    async def detect_blocking_calls(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Detect blocking calls in async code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing blocking call analysis
@@ -316,10 +339,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"blocking_patterns": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"blocking_patterns": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"blocking_patterns": {}, **(err or {})}
 
         blocking_patterns: dict[str, Any] = {}
         recommendations: list[str] = []
@@ -470,11 +494,14 @@ class AsyncAnalysisSkill:
                     blocking_patterns["time_sleep"] = {"blocks_event_loop": True}
                     recommendations.append("Replace time.sleep() with asyncio.sleep()")
 
-    async def detect_missing_await(self, code: str) -> dict[str, Any]:
+    async def detect_missing_await(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Detect missing await keywords in async code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing missing await analysis
@@ -483,10 +510,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"missing_awaits": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"missing_awaits": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"missing_awaits": {}, **(err or {})}
 
         missing_awaits: dict[str, Any] = {}
 
@@ -527,11 +555,14 @@ class AsyncAnalysisSkill:
 
         return {"missing_awaits": missing_awaits}
 
-    async def analyze_error_handling(self, code: str) -> dict[str, Any]:
+    async def analyze_error_handling(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async error handling patterns.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing error handling analysis
@@ -540,10 +571,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"error_handling": {"try_catch_blocks": [], "functions": {}}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"error_handling": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"error_handling": {}, **(err or {})}
 
         try_catch_blocks: list[dict[str, Any]] = []
         functions: dict[str, Any] = {}
@@ -597,11 +629,14 @@ class AsyncAnalysisSkill:
             }
         }
 
-    async def analyze_timeouts(self, code: str) -> dict[str, Any]:
+    async def analyze_timeouts(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze timeout patterns in async code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing timeout analysis
@@ -610,10 +645,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"timeout_analysis": {"wait_for_usage": {}, "functions": {}}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"timeout_analysis": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"timeout_analysis": {}, **(err or {})}
 
         wait_for_functions: list[str] = []
         functions: dict[str, Any] = {}
@@ -731,11 +767,14 @@ class AsyncAnalysisSkill:
                             return True
         return False
 
-    async def analyze_resource_management(self, code: str) -> dict[str, Any]:
+    async def analyze_resource_management(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async resource management patterns.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing resource management analysis
@@ -744,10 +783,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"resource_management": {"services": {}}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"resource_management": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"resource_management": {}, **(err or {})}
 
         services: dict[str, Any] = {}
         has_session_management = False
@@ -847,11 +887,14 @@ class AsyncAnalysisSkill:
                 return True
         return False
 
-    async def analyze_performance(self, code: str) -> dict[str, Any]:
+    async def analyze_performance(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async performance patterns.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing performance analysis
@@ -860,10 +903,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"performance_analysis": {"issues": {}}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"performance_analysis": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"performance_analysis": {}, **(err or {})}
 
         issues: dict[str, Any] = {}
         concurrent_alternative: dict[str, Any] = {}
@@ -919,11 +963,14 @@ class AsyncAnalysisSkill:
             }
         }
 
-    async def detect_race_conditions(self, code: str) -> dict[str, Any]:
+    async def detect_race_conditions(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Detect potential race conditions in async code.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing race condition analysis
@@ -938,10 +985,11 @@ class AsyncAnalysisSkill:
                 }
             }
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"race_conditions": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"race_conditions": {}, **(err or {})}
 
         unsynchronized: dict[str, Any] = {}
         safe_patterns: dict[str, Any] = {}
@@ -1021,7 +1069,7 @@ class AsyncAnalysisSkill:
 
         """
         module_shared_state: dict[str, int] = {}
-        for node in ast.walk(tree):
+        for node in tree.body:
             if isinstance(node, ast.Assign):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
@@ -1116,11 +1164,14 @@ class AsyncAnalysisSkill:
                         return True
         return False
 
-    async def analyze_testing_patterns(self, code: str) -> dict[str, Any]:
+    async def analyze_testing_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Analyze async testing patterns.
 
         Args:
             code: Python code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary containing testing pattern analysis
@@ -1129,10 +1180,11 @@ class AsyncAnalysisSkill:
         if not code:
             return {"testing_analysis": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"testing_analysis": {}, "error": "Invalid Python syntax"}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"testing_analysis": {}, **(err or {})}
 
         uses_pytest_asyncio = False
         async_test_count = 0
@@ -1238,6 +1290,16 @@ class AsyncAnalysisSkill:
         if not code:
             return {"validation": {"good_practices": {}, "compliance_score": 0.0}}
 
+        tree, err = self._parse_code(code)
+        if tree is None:
+            return {
+                "validation": {
+                    "good_practices": {},
+                    "compliance_score": 0.0,
+                    **(err or {}),
+                }
+            }
+
         good_practices: dict[str, bool] = {}
         recommendations: list[str] = []
         score = 0.0
@@ -1250,8 +1312,12 @@ class AsyncAnalysisSkill:
         else:
             recommendations.append("Use async context managers for resources")
 
-        # Check for error handling
-        error_result = await self.analyze_error_handling(code)
+        # Check for error handling and resource cleanup concurrently
+        error_result, resource_result = await asyncio.gather(
+            self.analyze_error_handling(code, _tree=tree),
+            self.analyze_resource_management(code, _tree=tree),
+        )
+
         if error_result["error_handling"].get("try_catch_blocks"):
             good_practices["error_handling"] = True
             score += 1
@@ -1259,7 +1325,6 @@ class AsyncAnalysisSkill:
             recommendations.append("Add try/except blocks for error handling")
 
         # Check for resource cleanup
-        resource_result = await self.analyze_resource_management(code)
         services = resource_result["resource_management"].get("services", {})
         if (
             any(s.get("closes_session", False) for s in services.values())
@@ -1353,23 +1418,28 @@ class AsyncAnalysisSkill:
             complex_analysis["custom_context_manager"] = True
 
     def _analyze_resource_cleanup(
-        self, code: str, complex_analysis: dict[str, Any]
+        self,
+        code: str,
+        complex_analysis: dict[str, Any],
+        _tree: ast.Module | None = None,
     ) -> None:
         """Analyze resource cleanup in try/except blocks.
 
         Args:
             code: Python code to analyze
             complex_analysis: Dictionary to accumulate analysis results
+            _tree: Pre-parsed AST (internal optimisation)
 
         """
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            complex_analysis["resource_cleanup"] = {
-                "error_cleanup": False,
-                "finally_blocks": 0,
-            }
-            return
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(code)
+            if tree is None:
+                complex_analysis["resource_cleanup"] = {
+                    "error_cleanup": False,
+                    "finally_blocks": 0,
+                }
+                return
 
         finally_blocks = 0
         error_cleanup = False
@@ -1405,13 +1475,17 @@ class AsyncAnalysisSkill:
         if not code:
             return {"improvements": []}
 
+        tree, err = self._parse_code(code)
+        if tree is None:
+            return {"improvements": [], **(err or {})}
+
         improvements: list[dict[str, str]] = []
 
-        # Run various analyses
-        blocking = await self.detect_blocking_calls(code)
-        performance = await self.analyze_performance(code)
-        race_conditions = await self.detect_race_conditions(code)
-        missing_await = await self.detect_missing_await(code)
+        # Run various analyses with shared parse tree
+        blocking = await self.detect_blocking_calls(code, _tree=tree)
+        performance = await self.analyze_performance(code, _tree=tree)
+        race_conditions = await self.detect_race_conditions(code, _tree=tree)
+        missing_await = await self.detect_missing_await(code, _tree=tree)
 
         # Add suggestions based on findings
         if blocking.get("blocking_patterns"):

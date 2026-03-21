@@ -185,6 +185,10 @@ def main() -> None:
             }
             output_result(result, args)
 
+    except FileNotFoundError as e:
+        output_error(f"File not found: {e}", args)
+    except PermissionError as e:
+        output_error(f"Permission denied: {e}", args)
     except Exception as e:
         output_error(f"Error updating references: {e}", args)
 

@@ -12,8 +12,6 @@ from typing import Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-import cachetools  # type: ignore[import-untyped]
-
 
 class SpecKitCache:
     """Implement a caching system for spec-kit operations."""
@@ -29,9 +27,6 @@ class SpecKitCache:
 
         # Default TTL: 1 hour
         self.default_ttl = 3600
-
-        # Initialize cachetools LRU cache
-        self._lru_cache: cachetools.LRUCache = cachetools.LRUCache(maxsize=128)
 
     def _get_cache_key(self, key: str, data: Any | None = None) -> str:
         """Generate a unique cache key."""
@@ -80,12 +75,6 @@ class SpecKitCache:
             if cache_key in self._cache_timestamps:
                 del self._cache_timestamps[cache_key]
 
-        # Check LRU cache
-        try:
-            return self._lru_cache[cache_key]
-        except KeyError:
-            pass
-
         # Check file-based cache
         cache_path = self._get_cache_path(cache_key)
         if cache_path.exists() and not self.is_expired(cache_key, ttl):
@@ -116,9 +105,6 @@ class SpecKitCache:
         self._memory_cache[cache_key] = value
         self._cache_timestamps[cache_key] = time.time()
 
-        # Store in LRU cache
-        self._lru_cache[cache_key] = value
-
         # Store in file-based cache
         cache_path = self._get_cache_path(cache_key)
         try:
@@ -128,17 +114,14 @@ class SpecKitCache:
             # Log error but don't fail
             pass
 
-    def invalidate(self, key: str | None = None) -> None:
+    def invalidate(self, key: str | None = None, data: Any = None) -> None:
         """Invalidate cache entries."""
         if key:
-            cache_key = self._get_cache_key(key)
+            cache_key = self._get_cache_key(key, data)
 
             # Remove from memory cache
             self._memory_cache.pop(cache_key, None)
             self._cache_timestamps.pop(cache_key, None)
-
-            # Remove from LRU cache
-            self._lru_cache.pop(cache_key, None)
 
             # Remove file-based cache
             cache_path = self._get_cache_path(cache_key)
@@ -147,7 +130,6 @@ class SpecKitCache:
             # Clear all caches
             self._memory_cache.clear()
             self._cache_timestamps.clear()
-            self._lru_cache.clear()
 
             # Remove all cache files
             for cache_file in self.cache_dir.glob("*.json"):
@@ -160,7 +142,6 @@ class SpecKitCache:
 
         return {
             "memory_cache_size": len(self._memory_cache),
-            "lru_cache_size": len(self._lru_cache),
             "file_cache_count": len(cache_files),
             "file_cache_size_bytes": total_size,
             "file_cache_size_mb": round(total_size / 1024 / 1024, 2),
