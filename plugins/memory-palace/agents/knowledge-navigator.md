@@ -1,6 +1,6 @@
 ---
 name: knowledge-navigator
-description: Use this agent when the user asks to "find information", "search palaces", "locate concepts", "navigate knowledge", or needs to retrieve information from existing memory palaces. Trigger for cross-referencing or discovery tasks.
+description: Search and navigate existing memory palaces to find, cross-reference, or locate stored knowledge and concepts.
 tools: [Read, Bash, Grep, Glob]
 model: haiku
 escalation:

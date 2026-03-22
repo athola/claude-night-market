@@ -2,6 +2,15 @@
 # Shared JSON utilities for Claude Code hooks
 # Provides portable JSON handling across BSD/macOS/Linux with jq/grep/sed fallbacks
 #
+# INLINED COPIES: Plugin hooks inline these functions to avoid broken
+# relative paths when running from Claude Code's plugin cache. When
+# updating this file, also update the inlined copies in:
+#   - plugins/imbue/hooks/session-start.sh
+#   - plugins/imbue/hooks/user-prompt-submit.sh
+#   - plugins/conserve/hooks/session-start.sh
+#   - plugins/conserve/hooks/setup.sh
+#   - plugins/memory-palace/hooks/setup.sh
+#
 # Usage:
 #   source "$(dirname "${BASH_SOURCE[0]}")/../../scripts/shared/json_utils.sh"
 #   # or with absolute path:
@@ -68,7 +77,7 @@ escape_for_json() {
 
     # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
     else
         # Pure bash fallback with complete JSON control character handling
         # WARNING: jq is recommended for production use. Install with: apt-get install jq

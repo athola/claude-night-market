@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run linting for specified plugins or all plugins
 #
 # Usage:

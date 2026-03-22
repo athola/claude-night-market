@@ -1,6 +1,6 @@
 ---
 name: specify
-description: "Create detailed specifications from project briefs using spec-driven methodology with acceptance criteria and testable requirements"
+description: "Create specs from project briefs with acceptance criteria and testable requirements"
 usage: /attune:specify [--input FILE] [--feature NAME]
 ---
 

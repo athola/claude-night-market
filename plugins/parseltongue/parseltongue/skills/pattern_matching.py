@@ -11,9 +11,28 @@ MIN_OBSERVER_METHODS = 2
 MIN_FACTORY_RETURN_CLASSES = 2
 MIN_REPO_METHODS = 2
 
+_OBSERVER_METHODS = frozenset(
+    {
+        "subscribe",
+        "notify",
+        "attach",
+        "detach",
+        "add_observer",
+        "remove_observer",
+        "notify_observers",
+    }
+)
+
 
 class PatternMatchingSkill:
     """Detect design patterns in Python code using AST analysis."""
+
+    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
+        """Parse code into an AST, returning an error dict on failure."""
+        try:
+            return ast.parse(code), None
+        except SyntaxError:
+            return None, {"error": "Invalid Python syntax"}
 
     def _detect_class_patterns(
         self,
@@ -68,15 +87,7 @@ class PatternMatchingSkill:
         patterns: list[dict[str, Any]],
     ) -> None:
         """Check for observer pattern in class."""
-        observer_methods = methods & {
-            "subscribe",
-            "notify",
-            "attach",
-            "detach",
-            "add_observer",
-            "remove_observer",
-            "notify_observers",
-        }
+        observer_methods = methods & _OBSERVER_METHODS
         if len(observer_methods) >= MIN_OBSERVER_METHODS:
             patterns.append(
                 {
@@ -180,13 +191,17 @@ class PatternMatchingSkill:
                 )
 
     async def find_patterns(
-        self, code: str, language: str = "python"
+        self,
+        code: str,
+        language: str = "python",
+        _tree: ast.Module | None = None,
     ) -> dict[str, Any]:
         """Find design patterns in code.
 
         Args:
             code: Code to analyze
             language: Programming language
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with patterns found
@@ -201,14 +216,15 @@ class PatternMatchingSkill:
         if not code:
             return {"patterns": [], "optimization_suggestions": []}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {
-                "patterns": [],
-                "optimization_suggestions": [],
-                "error": "Invalid Python syntax",
-            }
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {
+                    "patterns": [],
+                    "optimization_suggestions": [],
+                    **(err or {}),
+                }
 
         patterns: list[dict[str, Any]] = []
 
@@ -246,11 +262,14 @@ class PatternMatchingSkill:
 
         return {"patterns": patterns, "confidence": confidence}
 
-    def recognize_test_patterns(self, code: str) -> dict[str, Any]:
+    def recognize_test_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Recognize testing patterns in code.
 
         Args:
             code: Test code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with recognized testing patterns
@@ -272,17 +291,18 @@ class PatternMatchingSkill:
                 "lifecycle_methods": lifecycle_methods,
             }
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {
-                "recognized_patterns": [],
-                "confidence": 0.0,
-                "patterns": {"pytest": []},
-                "structures": [],
-                "test_classes": [],
-                "lifecycle_methods": [],
-            }
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {
+                    "recognized_patterns": [],
+                    "confidence": 0.0,
+                    "patterns": {"pytest": []},
+                    "structures": [],
+                    "test_classes": [],
+                    "lifecycle_methods": [],
+                }
 
         # Detect pytest fixtures
         if "@pytest.fixture" in code or "@fixture" in code:
@@ -441,11 +461,14 @@ class PatternMatchingSkill:
             ddd_patterns["domain_services"] = domain_services
         return ddd_patterns
 
-    def recognize_ddd_patterns(self, code: str) -> dict[str, Any]:
+    def recognize_ddd_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Recognize Domain-Driven Design patterns.
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with DDD pattern analysis
@@ -453,10 +476,11 @@ class PatternMatchingSkill:
         if not code:
             return {"ddd_patterns": {}}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"ddd_patterns": {}}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"ddd_patterns": {}, **(err or {})}
 
         entities: list[str] = []
         value_objects: list[str] = []
@@ -490,11 +514,14 @@ class PatternMatchingSkill:
         )
         return {"ddd_patterns": ddd_patterns}
 
-    def recognize_gof_patterns(self, code: str) -> dict[str, Any]:
+    def recognize_gof_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Recognize Gang of Four design patterns.
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with GoF pattern analysis
@@ -507,10 +534,11 @@ class PatternMatchingSkill:
         if not code:
             return {"gof_patterns": gof_patterns}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"gof_patterns": gof_patterns}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"gof_patterns": gof_patterns, **(err or {})}
 
         for node in ast.walk(tree):
             if not isinstance(node, ast.ClassDef):
@@ -537,15 +565,7 @@ class PatternMatchingSkill:
                 factories.append(node.name)
 
             # Observer: has subscribe/notify methods
-            observer_methods = methods & {
-                "subscribe",
-                "notify",
-                "attach",
-                "detach",
-                "notify_observers",
-                "add_observer",
-                "remove_observer",
-            }
+            observer_methods = methods & _OBSERVER_METHODS
             if len(observer_methods) >= MIN_OBSERVER_METHODS or (
                 "Observer" in node.name and "ABC" in bases
             ):
@@ -659,11 +679,14 @@ class PatternMatchingSkill:
                 pattern_instances.append(node.name)
                 performance_patterns["memory_efficient"] = True
 
-    def recognize_performance_patterns(self, code: str) -> dict[str, Any]:
+    def recognize_performance_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Recognize performance patterns and anti-patterns.
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with performance pattern analysis
@@ -681,15 +704,17 @@ class PatternMatchingSkill:
                 "pattern_instances": pattern_instances,
             }
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {
-                "performance_patterns": {},
-                "anti_patterns": [],
-                "good_patterns": [],
-                "pattern_instances": [],
-            }
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {
+                    "performance_patterns": {},
+                    "anti_patterns": [],
+                    "good_patterns": [],
+                    "pattern_instances": [],
+                    **(err or {}),
+                }
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
@@ -880,11 +905,14 @@ class PatternMatchingSkill:
 
         return {"suggestions": suggestions}
 
-    def validate_pattern_consistency(self, code: str) -> dict[str, Any]:
+    def validate_pattern_consistency(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Validate consistency of design patterns used in code.
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with consistency analysis
@@ -898,10 +926,11 @@ class PatternMatchingSkill:
         if not code:
             return {"consistency_analysis": consistency}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"consistency_analysis": consistency}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"consistency_analysis": consistency, **(err or {})}
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
@@ -933,12 +962,14 @@ class PatternMatchingSkill:
         self,
         code: str,
         variations: dict[str, Any],
+        _tree: ast.Module | None = None,
     ) -> None:
         """Detect singleton pattern variations."""
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return
+        tree = _tree
+        if tree is None:
+            tree, _ = self._parse_code(code)
+            if tree is None:
+                return
 
         for node in ast.walk(tree):
             if not isinstance(node, ast.ClassDef):
@@ -1011,13 +1042,17 @@ class PatternMatchingSkill:
             }
 
     def detect_pattern_variations(
-        self, code: str, pattern_name: str = ""
+        self,
+        code: str,
+        pattern_name: str = "",
+        _tree: ast.Module | None = None,
     ) -> dict[str, Any]:
         """Detect variations of a specific design pattern.
 
         Args:
             code: Code to analyze
             pattern_name: Name of the pattern to look for
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with pattern variation analysis
@@ -1032,7 +1067,7 @@ class PatternMatchingSkill:
             }
 
         if pattern_name == "singleton":
-            self._detect_singleton_variations(code, variations)
+            self._detect_singleton_variations(code, variations, _tree=_tree)
             trade_offs = {
                 "simple_vs_threadsafe": "Classic is simpler but not thread-safe",
             }
@@ -1042,11 +1077,14 @@ class PatternMatchingSkill:
             "trade_offs": trade_offs,
         }
 
-    def recognize_patterns(self, code: str) -> dict[str, Any]:
+    def recognize_patterns(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Recognize any patterns in code (general purpose).
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with recognized patterns
@@ -1060,14 +1098,15 @@ class PatternMatchingSkill:
                 "confidence": confidence,
             }
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {
-                "recognized_patterns": [],
-                "confidence": 0.0,
-                "error": "Could not parse code",
-            }
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {
+                    "recognized_patterns": [],
+                    "confidence": 0.0,
+                    **(err or {}),
+                }
 
         # Check for class definitions
         for node in ast.walk(tree):
@@ -1086,11 +1125,14 @@ class PatternMatchingSkill:
             "confidence": confidence,
         }
 
-    def generate_pattern_documentation(self, code: str) -> dict[str, Any]:
+    def generate_pattern_documentation(
+        self, code: str, _tree: ast.Module | None = None
+    ) -> dict[str, Any]:
         """Generate documentation for patterns found in code.
 
         Args:
             code: Code to analyze
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with pattern documentation
@@ -1100,10 +1142,11 @@ class PatternMatchingSkill:
         if not code:
             return {"documentation": docs}
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {"documentation": docs}
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {"documentation": docs, **(err or {})}
 
         for node in ast.walk(tree):
             if not isinstance(node, ast.ClassDef):
@@ -1145,13 +1188,17 @@ class PatternMatchingSkill:
         return {"documentation": docs}
 
     def compare_pattern_alternatives(
-        self, code: str, pattern_type: str = ""
+        self,
+        code: str,
+        pattern_type: str = "",
+        _tree: ast.Module | None = None,
     ) -> dict[str, Any]:
         """Compare alternative implementations of a pattern.
 
         Args:
             code: Code containing multiple pattern implementations
             pattern_type: Type of pattern to compare
+            _tree: Pre-parsed AST (internal optimisation)
 
         Returns:
             Dictionary with comparison analysis
@@ -1169,16 +1216,18 @@ class PatternMatchingSkill:
                 }
             }
 
-        try:
-            tree = ast.parse(code)
-        except SyntaxError:
-            return {
-                "comparison": {
-                    "alternatives": [],
-                    "comparison_matrix": [],
-                    "recommendations": {},
+        tree = _tree
+        if tree is None:
+            tree, err = self._parse_code(code)
+            if tree is None:
+                return {
+                    "comparison": {
+                        "alternatives": [],
+                        "comparison_matrix": [],
+                        "recommendations": {},
+                        **(err or {}),
+                    }
                 }
-            }
 
         if pattern_type == "factory":
             # Find factory functions and classes

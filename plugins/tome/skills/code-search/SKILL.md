@@ -1,0 +1,33 @@
+---
+name: code-search
+description: >-
+  Search GitHub for existing implementations of a topic.
+  Use when the user wants to find code examples, libraries,
+  or implementation patterns. Standalone or as part of a
+  full research session.
+category: research
+tags:
+  - github
+  - code
+  - search
+estimated_tokens: 200
+---
+
+# Code Search
+
+Search GitHub for implementations of a given topic.
+
+## Usage
+
+Invoked as part of `/tome:research` or standalone.
+
+## Workflow
+
+1. Build search queries using
+   `tome.channels.github.build_github_search_queries()`
+2. Execute queries via WebSearch
+3. Parse results via `parse_github_result()`
+4. Optionally use GitHub API via
+   `build_github_api_search()` for richer metadata
+5. Rank via `rank_github_findings()`
+6. Return Finding objects

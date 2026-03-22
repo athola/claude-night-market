@@ -474,7 +474,8 @@ class MemoryPalaceCLI:
                         # Extract description from YAML frontmatter
                         for line in content.split("\n"):
                             if line.startswith("description:"):
-                                line.split(":", 1)[1].strip().strip('"')
+                                desc = line.split(":", 1)[1].strip().strip('"')
+                                self.print_status(f"  {skill_dir.name}: {desc}")
                                 break
 
                     except Exception as e:
@@ -558,6 +559,12 @@ class MemoryPalaceCLI:
                     print(f"  - {q}")
 
             return True
+        except FileNotFoundError as e:
+            self.print_error(f"Failed to sync queue: file not found: {e}")
+            return False
+        except json.JSONDecodeError as e:
+            self.print_error(f"Failed to sync queue: corrupt JSON: {e}")
+            return False
         except Exception as e:
             self.print_error(f"Failed to sync queue: {e}")
             return False
@@ -616,12 +623,13 @@ class MemoryPalaceCLI:
     def prune_apply(self, actions: list[str]) -> bool:
         """Apply prune actions after user approval."""
         try:
-            results = self._manager().prune_check()
+            manager = self._manager()
+            results = manager.prune_check()
             if not results["recommendations"]:
                 print("No cleanup needed.")
                 return True
 
-            removed = self._manager().apply_prune(results, actions)
+            removed = manager.apply_prune(results, actions)
             print("Prune Applied:")
             print(f"  Stale removed: {removed['stale']}")
             print(f"  Low quality removed: {removed['low_quality']}")
@@ -651,6 +659,12 @@ class MemoryPalaceCLI:
             else:
                 print(f"No matches found for query: {query}")
             return True
+        except FileNotFoundError as e:
+            self.print_error(f"Search failed: file not found: {e}")
+            return False
+        except json.JSONDecodeError as e:
+            self.print_error(f"Search failed: corrupt palace file: {e}")
+            return False
         except Exception as e:
             self.print_error(f"Search failed: {e}")
             return False
@@ -722,6 +736,10 @@ class MemoryPalaceCLI:
         try:
             manager = self._manager(palaces_dir)
             manager.export_state(destination)
+        except FileNotFoundError as e:
+            self.print_error(f"Export failed: file not found: {e}")
+        except json.JSONDecodeError as e:
+            self.print_error(f"Export failed: corrupt palace file: {e}")
         except Exception as e:
             self.print_error(f"Export failed: {e}")
 
@@ -736,6 +754,10 @@ class MemoryPalaceCLI:
         try:
             manager = self._manager(palaces_dir)
             manager.import_state(source, keep_existing=keep_existing)
+        except FileNotFoundError as e:
+            self.print_error(f"Import failed: file not found: {e}")
+        except json.JSONDecodeError as e:
+            self.print_error(f"Import failed: corrupt JSON in source: {e}")
         except Exception as e:
             self.print_error(f"Import failed: {e}")
 

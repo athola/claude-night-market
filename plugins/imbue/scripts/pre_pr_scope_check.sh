@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # pre_pr_scope_check.sh
 # Checks branch metrics against scope-guard thresholds before PR creation
 #

@@ -269,8 +269,8 @@ class TestBuildLearningContext:
             LearnedPattern(
                 category="approach",
                 description="build: do X",
-                frequency=2,
-                success_rate=0.8,
+                frequency=5,
+                success_count=4,
             )
         ]
         ctx = build_learning_context(patterns)
@@ -287,8 +287,8 @@ class TestBuildLearningContext:
             LearnedPattern(
                 category="approach",
                 description="build: do X",
-                frequency=1,
-                success_rate=0.75,
+                frequency=4,
+                success_count=3,
             )
         ]
         ctx = build_learning_context(patterns)
@@ -306,7 +306,7 @@ class TestBuildLearningContext:
                 category="failure_mode",
                 description="execute: retry blindly",
                 frequency=3,
-                success_rate=0.2,
+                success_count=0,
             )
         ]
         ctx = build_learning_context(patterns)
@@ -324,7 +324,7 @@ class TestBuildLearningContext:
                 category="approach",
                 description="build: X",
                 frequency=5,
-                success_rate=0.8,
+                success_count=4,
             )
         ]
         ctx = build_learning_context(patterns)
@@ -435,9 +435,9 @@ class TestLearnedPatternSerialization:
         original = LearnedPattern(
             category="tech_stack",
             description="build: use Flask framework (lightweight)",
-            frequency=3,
+            frequency=4,
             last_seen="2026-03-10T00:00:00+00:00",
-            success_rate=0.75,
+            success_count=3,
             source_items=["wrk_001", "wrk_002", "wrk_003"],
         )
         d = original.to_dict()
@@ -446,8 +446,28 @@ class TestLearnedPatternSerialization:
         assert restored.description == original.description
         assert restored.frequency == original.frequency
         assert restored.last_seen == original.last_seen
+        assert restored.success_count == original.success_count
         assert restored.success_rate == original.success_rate
         assert restored.source_items == original.source_items
+
+    def test_from_dict_backward_compat_with_success_rate(self) -> None:
+        """Scenario: Deserialize old format that has success_rate but no success_count.
+
+        Given a dict with success_rate but no success_count
+        When deserialized
+        Then success_count is reconstructed from success_rate * frequency
+        """
+        d = {
+            "category": "approach",
+            "description": "test",
+            "frequency": 4,
+            "last_seen": "",
+            "success_rate": 0.75,
+            "source_items": [],
+        }
+        pattern = LearnedPattern.from_dict(d)
+        assert pattern.success_count == 3  # round(0.75 * 4)
+        assert pattern.success_rate == 0.75
 
     def test_from_dict_ignores_unknown_fields(self) -> None:
         """Scenario: Extra fields in dict are ignored.
@@ -459,9 +479,9 @@ class TestLearnedPatternSerialization:
         d = {
             "category": "approach",
             "description": "test",
-            "frequency": 1,
+            "frequency": 2,
             "last_seen": "",
-            "success_rate": 0.5,
+            "success_count": 1,
             "source_items": [],
             "unknown_field": "should be ignored",
         }
@@ -481,14 +501,14 @@ class TestLearnedPatternSerialization:
                 category="tech_stack",
                 description="use X",
                 frequency=2,
-                success_rate=1.0,
+                success_count=2,
                 source_items=["wrk_001"],
             ),
             LearnedPattern(
                 category="approach",
                 description="try Y",
-                frequency=1,
-                success_rate=0.5,
+                frequency=2,
+                success_count=1,
                 source_items=["wrk_002"],
             ),
         ]

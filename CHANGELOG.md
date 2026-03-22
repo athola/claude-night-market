@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-03-21
+
+### Added
+
+- ADR-0001 amendment: `abstract` declared as a second
+  intentional cross-plugin dependency alongside leyline,
+  with the same try/except ImportError guard requirements
+- Shell metacharacter rejection in conserve
+  `permission_request.py`: commands containing `;`, `|`,
+  `&&`, backticks, or `$()` are never auto-approved,
+  preventing bypass via `ls; dangerous_command`
+- Inlined-copy sync notice in `scripts/shared/json_utils.sh`
+  listing the five plugin hooks that inline these functions
+- New tests for conserve `growth_analyzer.py` and
+  `permission_request.py` hooks
+
+### Changed
+
+- Egregore `learning.py`: replaced floating-point
+  `success_rate` field with integer `success_count` and a
+  computed property to prevent cumulative drift; includes
+  backward-compatible deserialization from the old format
+- Conserve `growth_analyzer.py`: all return paths in
+  `estimate_turns_to_violation` now return `float` for
+  type consistency
+- All six `deferred_capture.py` wrappers (abstract, attune,
+  egregore, imbue, pensive, sanctum) now guard their leyline
+  import with try/except ImportError and exit with a message
+  when leyline is absent
+- Leyline `auto-star-repo.sh` emits SessionStart JSON with
+  `hookSpecificOutput` fields instead of raw text, including
+  opt-out and fallback paths
+- Shell hooks in conserve and imbue updated to return
+  SessionStart JSON with `additionalContext` field
+- `json_utils.sh` `escape_for_json` uses `jq -Rs 'rtrimstr'`
+  instead of the fragile `.[:-1] // ""` slice
+
+### Fixed
+
+- Growth analyzer `estimate_turns_to_violation` returned
+  `int` on some code paths and `float` on others; all paths
+  now return `float`
+
 ## [1.6.7] - 2026-03-19
 
 ### Added

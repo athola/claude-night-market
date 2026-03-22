@@ -1,6 +1,6 @@
 ---
 name: resolve-threads
-description: Batch-resolve all unresolved PR/MR review threads via platform GraphQL API (GitHub/GitLab)
+description: Batch-resolve unresolved PR/MR review threads via GraphQL API (GitHub/GitLab)
 usage: /resolve-threads [<pr-number> | <pr-url> | <mr-url>]
 ---
 

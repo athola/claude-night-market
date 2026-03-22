@@ -540,5 +540,88 @@ class TestGrowthAnalyzerEdgeCases:
             )
 
 
+class TestEstimateTurnsReturnType:
+    """Feature: estimate_turns_to_violation always returns float.
+
+    As a downstream consumer
+    I want turns-to-violation to always be a float
+    So that type checks are consistent across all code paths
+    """
+
+    @pytest.fixture
+    def analyzer(self) -> GrowthAnalyzer:
+        """Provide a GrowthAnalyzer instance."""
+        return GrowthAnalyzer()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_already_violated_returns_float_zero(
+        self, analyzer: GrowthAnalyzer
+    ) -> None:
+        """Scenario: Usage already at limit.
+
+        Given current_usage >= 100
+        When estimating turns
+        Then it returns 0.0 (float, not int).
+        """
+        result = analyzer._estimate_mecw_violation(100, 0.1, 0.0)
+        assert result == 0.0
+        assert isinstance(result, float)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_extreme_growth_returns_float_one(self, analyzer: GrowthAnalyzer) -> None:
+        """Scenario: Growth rate >= 100% per turn.
+
+        Given growth_rate >= 1.0
+        When estimating turns
+        Then it returns 1.0 (float, not int).
+        """
+        result = analyzer._estimate_mecw_violation(50, 1.0, 0.0)
+        assert result == 1.0
+        assert isinstance(result, float)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_no_acceleration_returns_float(self, analyzer: GrowthAnalyzer) -> None:
+        """Scenario: Simple exponential growth without acceleration.
+
+        Given positive growth with zero acceleration
+        When estimating turns
+        Then the result is a float (from math.ceil wrapped in float()).
+        """
+        result = analyzer._estimate_mecw_violation(50, 0.1, 0.0)
+        assert isinstance(result, float)
+        assert result > 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_positive_acceleration_returns_float(
+        self, analyzer: GrowthAnalyzer
+    ) -> None:
+        """Scenario: Growth with positive acceleration (iterative path).
+
+        Given positive growth with positive acceleration
+        When estimating turns
+        Then the result is a float.
+        """
+        result = analyzer._estimate_mecw_violation(50, 0.05, 0.01)
+        assert isinstance(result, float)
+        assert result > 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_zero_growth_returns_float_inf(self, analyzer: GrowthAnalyzer) -> None:
+        """Scenario: No growth means no violation.
+
+        Given zero growth rate
+        When estimating turns
+        Then it returns float('inf').
+        """
+        result = analyzer._estimate_mecw_violation(50, 0.0, 0.0)
+        assert result == float("inf")
+        assert isinstance(result, float)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

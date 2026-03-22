@@ -5,9 +5,10 @@ import argparse
 import sys
 from pathlib import Path
 
-from attune_init import copy_templates  # type: ignore[import]
-from project_detector import ProjectDetector  # type: ignore[import]
-from template_engine import get_default_variables  # type: ignore[import]
+sys.path.insert(0, str(Path(__file__).parent))
+from attune_init import copy_templates  # type: ignore[import-not-found]
+from project_detector import ProjectDetector  # type: ignore[import-not-found]
+from template_engine import get_default_variables  # type: ignore[import-not-found]
 
 
 class ProjectUpgrader:

@@ -225,6 +225,101 @@ class TestSafePatterns:
         assert decision.behavior == PermissionDecision.ALLOW
 
 
+class TestChainInjectionProtection:
+    """Feature: Reject safe-looking commands with shell chaining.
+
+    As a security hook
+    I want to reject commands containing shell metacharacters
+    So that 'ls; rm -rf /' is not auto-approved as safe
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_semicolon_prevents_safe_match(self) -> None:
+        """Scenario: Semicolon chains bypass safe prefix.
+
+        Given a command 'ls; rm -rf /'
+        When checking safe patterns
+        Then it returns None (not auto-approved).
+        """
+        decision = check_safe("ls; rm -rf /")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_pipe_prevents_safe_match(self) -> None:
+        """Scenario: Pipe chains bypass safe prefix.
+
+        Given a command 'ls | xargs rm'
+        When checking safe patterns
+        Then it returns None.
+        """
+        decision = check_safe("ls | xargs rm")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_double_ampersand_prevents_safe_match(self) -> None:
+        """Scenario: && chains bypass safe prefix.
+
+        Given a command 'pwd && whoami'
+        When checking safe patterns
+        Then it returns None.
+        """
+        decision = check_safe("pwd && whoami")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_command_substitution_prevents_safe_match(self) -> None:
+        """Scenario: $() substitution bypasses safe prefix.
+
+        Given a command 'echo $(id)'
+        When checking safe patterns
+        Then it returns None.
+        """
+        decision = check_safe("echo $(id)")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_backtick_prevents_safe_match(self) -> None:
+        """Scenario: Backtick substitution bypasses safe prefix.
+
+        Given a command with backtick substitution
+        When checking safe patterns
+        Then it returns None.
+        """
+        decision = check_safe("echo `id`")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_simple_safe_command_still_approved(self) -> None:
+        """Scenario: Simple safe commands without chains still pass.
+
+        Given a plain 'ls -la' without metacharacters
+        When checking safe patterns
+        Then it is still approved.
+        """
+        decision = check_safe("ls -la")
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_git_status_without_chain_still_safe(self) -> None:
+        """Scenario: Plain git commands without chains still pass.
+
+        Given 'git status' without metacharacters
+        When checking safe patterns
+        Then it is still approved.
+        """
+        decision = check_safe("git status")
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW
+
+
 class TestUnknownCommands:
     """Feature: Unknown commands show dialog.
 

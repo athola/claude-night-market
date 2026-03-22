@@ -1,5 +1,5 @@
 name: scribe
-version: 1.6.7
+version: 1.7.0
 description: Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing
   enforcement
 keywords:
@@ -24,6 +24,7 @@ skills:
 - skills/slop-detector
 - skills/style-learner
 - skills/doc-generator
+- skills/tech-tutorial
 commands:
 - commands/doc-generate.md
 - commands/doc-polish.md

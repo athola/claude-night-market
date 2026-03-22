@@ -2,6 +2,7 @@
 # capabilities-sync-check.sh - Verify capabilities docs match plugin registrations
 # Used by: make docs-sync-check
 # Exit non-zero if discrepancies found
+# Requires: bash 4+ (associative arrays), jq
 
 set -euo pipefail
 

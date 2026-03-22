@@ -417,8 +417,8 @@ class TestParseSkillName:
         assert mod._parse_skill_name({}) == ""
 
     def test_multiple_colons_splits_on_first(self) -> None:
-        """'a:b:c' splits on first colon, returning 'b:c'."""
-        assert mod._parse_skill_name({"skill": "a:b:c"}) == "b:c"
+        """'a:b:c' splits on first colon; 'b:c' fails sanitization."""
+        assert mod._parse_skill_name({"skill": "a:b:c"}) == "unknown"
 
 
 # ---------------------------------------------------------------------------

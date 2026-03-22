@@ -189,10 +189,13 @@ class ProjectTracker:
         total_tasks = len(all_tasks)
         overall_completion = (completed_count / total_tasks) * 100
 
-        start_date = datetime.fromisoformat(earliest)  # type: ignore[arg-type]
-        if start_date.tzinfo is None:
-            start_date = start_date.replace(tzinfo=timezone.utc)
-        weeks_elapsed = max(1, (datetime.now(timezone.utc) - start_date).days / 7)
+        if earliest is None or earliest == "":
+            weeks_elapsed = 1.0
+        else:
+            start_date = datetime.fromisoformat(earliest)
+            if start_date.tzinfo is None:
+                start_date = start_date.replace(tzinfo=timezone.utc)
+            weeks_elapsed = max(1, (datetime.now(timezone.utc) - start_date).days / 7)
         burn_rate = completed_effort / weeks_elapsed
 
         return {

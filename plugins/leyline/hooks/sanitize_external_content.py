@@ -142,9 +142,13 @@ def sanitize_output(content: str | None) -> str:
             "font-size:0",
             "font-size: 0",
         ]
-        lowered = content[:_MAX_SCAN_SIZE].lower()
+        # Scan both head and tail — attackers pad benign content before payloads
+        head = content[:_MAX_SCAN_SIZE].lower()
+        tail = (
+            content[-_MAX_SCAN_SIZE:].lower() if len(content) > _MAX_SCAN_SIZE else ""
+        )
         for check in fast_checks:
-            if check in lowered:
+            if check in head or check in tail:
                 return "[CONTENT BLOCKED: injection pattern detected in large output]"
         return content
 

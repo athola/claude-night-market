@@ -1,5 +1,5 @@
 name: spec-kit
-version: 1.6.7
+version: 1.7.0
 description: Spec Driven Development toolkit - structured specification, planning, and implementation workflows for systematic
   feature development
 keywords:
@@ -15,6 +15,10 @@ author:
   name: Alex Thola
   url: https://github.com/athola
 license: MIT
+dependencies:
+  abstract:
+    source: gh@athola/claude-night-market
+    path: plugins/abstract
 skills:
 - skills/speckit-orchestrator
 - skills/spec-writing
@@ -29,6 +33,7 @@ commands:
 - commands/speckit-specify.md
 - commands/speckit-startup.md
 - commands/speckit-tasks.md
+- commands/speckit-taskstoissues.md
 agents:
 - agents/spec-analyzer.md
 - agents/task-generator.md

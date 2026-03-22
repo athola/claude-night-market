@@ -1,6 +1,6 @@
 ---
 name: mission
-description: "Run the full attune project lifecycle as a single mission with automatic state detection, phase routing, and session recovery"
+description: "Run full attune lifecycle as a mission with state detection and phase routing"
 ---
 
 # Attune Mission Command

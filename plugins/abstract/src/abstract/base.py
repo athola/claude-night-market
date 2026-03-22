@@ -108,11 +108,7 @@ class AbstractScript:
             List of paths to markdown files, sorted by path.
 
         """
-        if not directory.exists():
-            return []
-
-        md_files = list(directory.rglob("*.md"))
-        return sorted(md_files)
+        return find_markdown_files(directory)
 
     def check_frontmatter_exists(self, content: str) -> bool:
         """Check if content has valid frontmatter delimiters.

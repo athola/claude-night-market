@@ -169,6 +169,14 @@ class RuleEngine:
 
         return False
 
+    _DEFAULT_FIELD_PRIORITY = [
+        "command",
+        "new_text",
+        "content",
+        "user_prompt",
+        "transcript",
+    ]
+
     def _get_default_field(self, context: dict[str, Any]) -> str | None:
         """Get the default field to match against based on context.
 
@@ -178,34 +186,10 @@ class RuleEngine:
         Returns:
             Default field value or None
         """
-        # Bash events: match against command
-        if "command" in context:
-            return str(context["command"]) if context["command"] is not None else None
-
-        # File events: match against new_text by default
-        if "new_text" in context:
-            return str(context["new_text"]) if context["new_text"] is not None else None
-
-        # File events: default to content
-        if "content" in context:
-            return str(context["content"]) if context["content"] is not None else None
-
-        # Prompt events: match against user_prompt
-        if "user_prompt" in context:
-            return (
-                str(context["user_prompt"])
-                if context["user_prompt"] is not None
-                else None
-            )
-
-        # Stop events: match against transcript or anything
-        if "transcript" in context:
-            return (
-                str(context["transcript"])
-                if context["transcript"] is not None
-                else None
-            )
-
+        for key in self._DEFAULT_FIELD_PRIORITY:
+            if key in context:
+                val = context[key]
+                return str(val) if val is not None else None
         return None
 
     def has_blocking_results(self, results: list[RuleResult]) -> bool:

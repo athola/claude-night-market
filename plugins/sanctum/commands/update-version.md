@@ -1,5 +1,5 @@
 ---
-description: Bump project versions using the git-workspace-review and version-updates skills.
+description: Bump project versions using git-workspace-review and version-updates skills.
 ---
 
 # Bump Project Versions

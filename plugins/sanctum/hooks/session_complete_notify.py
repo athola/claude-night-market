@@ -62,7 +62,6 @@ class NotificationState:
         except (OSError, json.JSONDecodeError) as e:
             # Log to stderr for debugging (doesn't break hook output)
             print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
-            pass
         return cls(session_id=session_id)
 
     def save(self) -> None:
@@ -72,8 +71,10 @@ class NotificationState:
             fd = os.open(str(state_file), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w") as f:
                 f.write(json.dumps(asdict(self)))
-        except OSError:
-            pass  # Non-critical, fail silently
+        except OSError as exc:
+            import sys
+
+            print(f"session_complete_notify: save failed: {exc}", file=sys.stderr)
 
     def clear_input_flag(self) -> None:
         """Clear the notified_since_input flag (called on user input)."""
@@ -317,13 +318,22 @@ def notify_macos(title: str, message: str) -> bool:
         return False
 
 
-def notify_windows(title: str, message: str) -> bool:
-    """Send notification on Windows using PowerShell toast."""
-    # Escape for XML content (prevents injection via <, >, &, ", ')
+def _build_toast_script(title: str, message: str) -> str:
+    """Build PowerShell toast notification script.
+
+    Escapes title and message for XML, respects CLAUDE_NOTIFICATION_SOUND.
+
+    Args:
+        title: Notification title (will be HTML-escaped for XML safety)
+        message: Notification body (will be HTML-escaped for XML safety)
+
+    Returns:
+        Complete PowerShell script string for toast notification
+
+    """
     safe_title = html.escape(title)
     safe_message = html.escape(message)
 
-    # Check if sound is disabled via environment variable
     sound_enabled = os.environ.get("CLAUDE_NOTIFICATION_SOUND", "1") != "0"
     audio_element = (
         '<audio src="ms-winsoundevent:Notification.Default"/>'
@@ -331,10 +341,9 @@ def notify_windows(title: str, message: str) -> bool:
         else '<audio silent="true"/>'
     )
 
-    # PowerShell script for Windows toast notification
     toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
     xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
-    ps_script = f"""
+    return f"""
 [{toast_mgr}, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [{xml_doc}, {xml_doc}, ContentType = WindowsRuntime] | Out-Null
 
@@ -355,6 +364,49 @@ $xml.LoadXml($template)
 $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
 [{toast_mgr}]::CreateToastNotifier("Claude Code").Show($toast)
 """
+
+
+def _try_burnt_toast(
+    title: str, message: str, ps_paths: list[str], timeout: int = 2
+) -> bool:
+    """Try BurntToast PowerShell module as fallback notification.
+
+    Args:
+        title: Notification title
+        message: Notification body
+        ps_paths: List of PowerShell executable paths to try
+        timeout: Subprocess timeout in seconds
+
+    Returns:
+        True if notification sent successfully
+
+    """
+    ps_title = title.replace('"', '`"')
+    ps_message = message.replace('"', '`"')
+    burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
+
+    for ps_path in ps_paths:
+        try:
+            subprocess.run(  # noqa: S603
+                [ps_path, "-NoProfile", "-Command", burnt_cmd],
+                check=True,
+                timeout=timeout,
+                capture_output=True,
+            )
+            return True
+        except (
+            FileNotFoundError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+        ):
+            continue
+    return False
+
+
+def notify_windows(title: str, message: str) -> bool:
+    """Send notification on Windows using PowerShell toast."""
+    ps_script = _build_toast_script(title, message)
+
     try:
         subprocess.run(  # noqa: S603
             ["powershell", "-NoProfile", "-Command", ps_script],  # noqa: S607
@@ -368,24 +420,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         FileNotFoundError,
         subprocess.TimeoutExpired,
     ):
-        # Fallback: try simpler BurntToast if available
-        ps_title = title.replace('"', '`"')
-        ps_message = message.replace('"', '`"')
-        try:
-            burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
-            subprocess.run(  # noqa: S603
-                ["powershell", "-NoProfile", "-Command", burnt_cmd],  # noqa: S607
-                check=True,
-                timeout=2,
-                capture_output=True,
-            )
-            return True
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-            subprocess.TimeoutExpired,
-        ):
-            return False
+        return _try_burnt_toast(title, message, ["powershell"], timeout=2)
 
 
 def is_wsl() -> bool:
@@ -396,42 +431,8 @@ def is_wsl() -> bool:
 
 def notify_wsl(title: str, message: str) -> bool:
     """Send notification on WSL using Windows PowerShell."""
-    # Escape for XML content (prevents injection via <, >, &, ", ')
-    safe_title = html.escape(title)
-    safe_message = html.escape(message)
+    ps_script = _build_toast_script(title, message)
 
-    # Check if sound is disabled via environment variable
-    sound_enabled = os.environ.get("CLAUDE_NOTIFICATION_SOUND", "1") != "0"
-    audio_element = (
-        '<audio src="ms-winsoundevent:Notification.Default"/>'
-        if sound_enabled
-        else '<audio silent="true"/>'
-    )
-
-    # PowerShell script for Windows toast notification
-    toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
-    xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
-    ps_script = f"""
-[{toast_mgr}, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
-[{xml_doc}, {xml_doc}, ContentType = WindowsRuntime] | Out-Null
-
-$template = @"
-<toast>
-    <visual>
-        <binding template="ToastText02">
-            <text id="1">{safe_title}</text>
-            <text id="2">{safe_message}</text>
-        </binding>
-    </visual>
-    {audio_element}
-</toast>
-"@
-
-$xml = New-Object {xml_doc}
-$xml.LoadXml($template)
-$toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
-[{toast_mgr}]::CreateToastNotifier("Claude Code").Show($toast)
-"""
     # Try multiple PowerShell paths for WSL compatibility
     powershell_paths = [
         "powershell.exe",
@@ -453,27 +454,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             continue
 
-    # Fallback: try BurntToast if available
-    ps_title = title.replace('"', '`"')
-    ps_message = message.replace('"', '`"')
-    for ps_path in powershell_paths:
-        try:
-            burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
-            subprocess.run(  # noqa: S603
-                [ps_path, "-NoProfile", "-Command", burnt_cmd],
-                check=True,
-                timeout=3,
-                capture_output=True,
-            )
-            return True
-        except (
-            FileNotFoundError,
-            subprocess.CalledProcessError,
-            subprocess.TimeoutExpired,
-        ):
-            continue
-
-    return False
+    return _try_burnt_toast(title, message, powershell_paths, timeout=3)
 
 
 def send_notification(title: str, message: str) -> bool:

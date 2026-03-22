@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run comprehensive quality checks on entire codebase
 #
 # Usage:

@@ -92,7 +92,19 @@ class ImbueValidator:
         self.plugin_config = plugin_json
 
     def scan_and_validate(self) -> tuple[ImbueValidationResult, list[str]]:
-        """Scan for review workflow skills and validate in a single pass."""
+        """Scan for review workflow skills and validate in a single pass.
+
+        Results are cached so that callers like scan_review_workflows
+        and validate_review_workflows do not trigger redundant scans.
+        """
+        if hasattr(self, "_cached_scan_result"):
+            return self._cached_scan_result  # type: ignore[return-value]
+        result = self._scan_and_validate_impl()
+        self._cached_scan_result: tuple[ImbueValidationResult, list[str]] = result
+        return result
+
+    def _scan_and_validate_impl(self) -> tuple[ImbueValidationResult, list[str]]:
+        """Run the actual scan and validation pass."""
         skills_found: set[str] = set()
         review_workflow_skills: set[str] = set()
         evidence_logging_patterns: set[str] = set()

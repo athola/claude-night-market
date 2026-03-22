@@ -6,14 +6,14 @@
 .PHONY:
 .PHONY: all benchmark ci clean complexity-check coverage coverage-badge coverage-check \
 	debug-variables demo-api-review demo-architecture-review demo-bug-review demo-fpf-review \
-	demo-full-review demo-makefile-review demo-math-review demo-refine-code demo-rust-review \
-	demo-shell-review demo-skill-history demo-skill-review demo-skills demo-test-review deps-outdated \
-	deps-update dev dev-install docs docs-serve duplication-check format help install lint \
-	memory-profile mutation-test perf-test plugin-check quality-check security status test \
-	test-api-review test-architecture-review test-bug-review test-edge-case test-file test-fpf-review \
-	test-full-review test-integration test-makefile-review test-math-review test-parallel test-pattern \
-	test-refine-code test-rust-review test-shell-review test-skill-history test-skill-review \
-	test-structure test-test-review test-unit type-check typecheck
+	demo-full-review demo-makefile-review demo-math-review demo-pensive-commands demo-refine-code \
+	demo-rust-review demo-shell-review demo-skill-history demo-skill-review demo-skills \
+	demo-test-review deps-outdated deps-update dev dev-install docs docs-serve duplication-check \
+	format help install lint memory-profile mutation-test perf-test plugin-check quality-check \
+	security status test test-api-review test-architecture-review test-bug-review test-edge-case \
+	test-file test-fpf-review test-full-review test-integration test-makefile-review test-math-review \
+	test-parallel test-pattern test-refine-code test-rust-review test-shell-review test-skill-history \
+	test-skill-review test-structure test-test-review test-unit type-check typecheck
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -337,10 +337,55 @@ demo-cli-plugins: ## Demo CLI invocation: plugins install pensive
 	@echo "Use plugins install pensive for full workflow."
 
 
-demo-pensive-commands: demo-full-review demo-api-review demo-architecture-review demo-bug-review demo-rust-review demo-test-review demo-math-review demo-makefile-review demo-shell-review demo-fpf-review ## Run all pensive documented command demos
+demo-refine-code: ## Demo code refinement analysis (LIVE)
+	@echo "=== Pensive Code Refinement Demo (LIVE) ==="
+	@echo ""
+	@echo "Analyzing pensive source for refinement candidates..."
+	@echo "Files by complexity (lines):"
+	@find src/ -name "*.py" -exec wc -l {} \; 2>/dev/null | sort -rn | head -5 | \
+		awk '{if($$1>200) printf "  [REVIEW] %s (%d lines)\n", $$2, $$1; else printf "  [OK] %s (%d lines)\n", $$2, $$1}'
+	@echo ""
+	@echo "Duplicate patterns:"
+	@grep -rn 'def ' src/ 2>/dev/null | awk -F: '{print $$3}' | sort | uniq -d | head -5 || echo "  (none found)"
+	@echo ""
+	@echo "Use /pensive:refine-code for full analysis."
+
+demo-skill-history: ## Demo skill usage history (LIVE)
+	@echo "=== Pensive Skill History Demo (LIVE) ==="
+	@echo ""
+	@echo "Recent skill-related commits:"
+	@git log --oneline --all --grep="pensive" -5 2>/dev/null || echo "  (no pensive commits found)"
+	@echo ""
+	@echo "Skill file modification dates:"
+	@for skill in skills/*/SKILL.md; do \
+		mod=$$(git log -1 --format="%ci" -- "$$skill" 2>/dev/null | cut -d' ' -f1); \
+		name=$$(basename $$(dirname "$$skill")); \
+		echo "  $$name: $$mod"; \
+	done
+	@echo ""
+	@echo "Use /pensive:skill-history for detailed analysis."
+
+demo-skill-review: ## Demo skill quality review (LIVE)
+	@echo "=== Pensive Skill Review Demo (LIVE) ==="
+	@echo ""
+	@echo "Skill frontmatter validation:"
+	@for skill in skills/*/SKILL.md; do \
+		name=$$(basename $$(dirname "$$skill")); \
+		has_name=$$(head -20 "$$skill" | grep -c '^name:'); \
+		has_desc=$$(head -20 "$$skill" | grep -c '^description:'); \
+		if [ "$$has_name" -gt 0 ] && [ "$$has_desc" -gt 0 ]; then \
+			echo "  [OK] $$name"; \
+		else \
+			echo "  [WARN] $$name - missing frontmatter"; \
+		fi; \
+	done
+	@echo ""
+	@echo "Use /pensive:skill-review for comprehensive review."
+
+demo-pensive-commands: demo-full-review demo-api-review demo-architecture-review demo-bug-review demo-rust-review demo-test-review demo-math-review demo-makefile-review demo-shell-review demo-fpf-review demo-refine-code demo-skill-history demo-skill-review ## Run all pensive documented command demos
 	@echo ""
 	@echo "=== Pensive All Commands Demo Complete ==="
-	@echo "Ran 10 documented commands"
+	@echo "Ran 13 documented commands"
 	@echo ""
 
 
@@ -381,7 +426,15 @@ test-shell-review: ## Test shell-review command (not applicable: skill-only, no 
 test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"
 
+test-refine-code: ## Test code refinement (runs refinement tests)
+	$(PYTEST) tests/test_code_refinement.py -v || \
+		$(PYTEST) $(PYTEST_TARGETS) -v -k "refine or refinement"
 
+test-skill-history: ## Test skill history (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: skill-history is a skill-only command with no unit tests"
+
+test-skill-review: ## Test skill review (not applicable: skill-only, no unit tests)
+	@echo "Not applicable: skill-review is a skill-only command with no unit tests"
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

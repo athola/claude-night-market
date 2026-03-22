@@ -1,9 +1,11 @@
 """Shared utilities for pensive review skills."""
 
 from .content_parser import ContentParser
-from .severity_mapper import SeverityMapper
+from .severity_mapper import categorize, count_by_severity, get_severity_weight
 
 __all__ = [
     "ContentParser",
-    "SeverityMapper",
+    "categorize",
+    "count_by_severity",
+    "get_severity_weight",
 ]

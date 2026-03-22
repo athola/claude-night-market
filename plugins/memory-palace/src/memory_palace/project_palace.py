@@ -21,10 +21,12 @@ Project Palace Structure:
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
 import sys
+import uuid
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
@@ -137,9 +139,7 @@ class ReviewEntry:
                 for decisions, 40 for other room types.
 
         """
-        self.id = hashlib.sha256(
-            f"{source_pr}{title}{datetime.now(timezone.utc)}".encode()
-        ).hexdigest()[:12]
+        self.id = uuid.uuid4().hex[:12]
         self.source_pr = source_pr
         self.title = title
         self.room_type = room_type
@@ -356,13 +356,11 @@ class ProjectPalaceManager(MemoryPalaceManager):
             Project palace dictionary or None if not found
 
         """
-        for file_path in Path(self.project_palaces_dir).glob("*.json"):
-            if file_path.name == "project_index.json":
-                continue
-            with open(file_path) as f:
-                palace = json.load(f)
-                if palace.get("name") == repo_name:
-                    return palace
+        for _file_path, palace in self._iter_palace_files(
+            Path(self.project_palaces_dir)
+        ):
+            if palace.get("name") == repo_name:
+                return palace
         return None
 
     def get_or_create_project_palace(
@@ -653,11 +651,10 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         """
         palaces = []
-        for file_path in Path(self.project_palaces_dir).glob("*.json"):
-            if file_path.name == "project_index.json":
-                continue
-            with open(file_path) as f:
-                palace = json.load(f)
+        for _file_path, palace in self._iter_palace_files(
+            Path(self.project_palaces_dir)
+        ):
+            with contextlib.suppress(KeyError):
                 palaces.append(
                     {
                         "id": palace["id"],
@@ -682,26 +679,24 @@ class ProjectPalaceManager(MemoryPalaceManager):
             },
         }
 
-        for file_path in Path(self.project_palaces_dir).glob("*.json"):
-            if file_path.name == "project_index.json":
-                continue
+        for _file_path, palace in self._iter_palace_files(
+            Path(self.project_palaces_dir)
+        ):
             try:
-                with open(file_path) as f:
-                    palace = json.load(f)
-                    index["projects"].append(
-                        {
-                            "id": palace["id"],
-                            "name": palace["name"],
-                            "last_modified": palace["last_modified"],
-                        }
-                    )
-                    index["stats"]["total_projects"] += 1
-                    index["stats"]["total_review_entries"] += palace["metadata"].get(
-                        "review_entries", 0
-                    )
-            except (json.JSONDecodeError, KeyError) as e:
+                index["projects"].append(
+                    {
+                        "id": palace["id"],
+                        "name": palace["name"],
+                        "last_modified": palace["last_modified"],
+                    }
+                )
+                index["stats"]["total_projects"] += 1
+                index["stats"]["total_review_entries"] += palace["metadata"].get(
+                    "review_entries", 0
+                )
+            except KeyError as e:
                 sys.stderr.write(
-                    f"project_palace: skipping malformed palace file {file_path}: {e}\n"
+                    f"project_palace: skipping malformed palace file: {e}\n"
                 )
 
         index_file = os.path.join(self.project_palaces_dir, "project_index.json")

@@ -1,6 +1,6 @@
 ---
 name: analyze-skill
-description: Analyze individual skill complexity and get modularization recommendations. For ecosystem-wide evaluation, use /skills-eval instead.
+description: Analyze skill complexity and get modularization recommendations. For ecosystem-wide evaluation, use /skills-eval.
 usage: /analyze-skill [skill-path]
 ---
 

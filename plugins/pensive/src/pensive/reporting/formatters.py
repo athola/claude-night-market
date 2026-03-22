@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from pathlib import Path
 
-from pensive.utils.severity_mapper import SeverityMapper
+from pensive.utils.severity_mapper import count_by_severity
 
 
 class MarkdownFormatter:
@@ -34,7 +34,7 @@ class MarkdownFormatter:
         lines = ["# Code Review Results", ""]
 
         # Summary
-        counts = SeverityMapper.count_by_severity(findings)
+        counts = count_by_severity(findings)
         critical = counts["critical"]
         high = counts["high"]
         medium = counts["medium"]
