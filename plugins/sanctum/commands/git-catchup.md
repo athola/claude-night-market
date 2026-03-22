@@ -1,6 +1,6 @@
 ---
 name: git-catchup
-description: Catch up on repository changes with structured analysis and actionable insights
+description: Catch up on repository changes with structured analysis and insights
 usage: /git-catchup [baseline]
 ---
 

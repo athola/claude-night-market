@@ -4,7 +4,10 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-coverage lint format type-check typecheck security clean \
-        install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota demo-skills demo-formatting plugin-check debug-variables
+        install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota \
+        demo-skills demo-formatting demo-reinstall-all-plugins demo-update-all-plugins \
+        demo-verify-plugin test-reinstall-all-plugins test-update-all-plugins test-verify-plugin \
+        plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -150,7 +153,54 @@ demo-formatting: ## Validate markdown-formatting skill structure
 	@echo ""
 	@echo "Formatting skill demo complete."
 
-plugin-check: demo-tokens demo-quota demo-skills demo-formatting status ## Run all demo workflows
+demo-reinstall-all-plugins: ## Demo reinstall-all-plugins command (LIVE)
+	@echo "=== Leyline Reinstall All Plugins Demo (LIVE) ==="
+	@echo ""
+	@echo "Scanning installed plugins..."
+	@find ../../plugins/ -maxdepth 1 -mindepth 1 -type d | sort | while read dir; do \
+		name=$$(basename "$$dir"); \
+		has_manifest=$$(test -f "$$dir/plugin.json" -o -f "$$dir/openpackage.yml" && echo "OK" || echo "MISSING"); \
+		echo "  $$name: manifest=$$has_manifest"; \
+	done
+	@echo ""
+	@echo "Use /leyline:reinstall-all-plugins for full reinstall workflow."
+
+demo-update-all-plugins: ## Demo update-all-plugins command (LIVE)
+	@echo "=== Leyline Update All Plugins Demo (LIVE) ==="
+	@echo ""
+	@echo "Plugin versions:"
+	@for dir in ../../plugins/*/; do \
+		name=$$(basename "$$dir"); \
+		ver=$$(grep -m1 'version' "$$dir/openpackage.yml" 2>/dev/null | awk '{print $$2}' || echo "?"); \
+		echo "  $$name: $$ver"; \
+	done
+	@echo ""
+	@echo "Use /leyline:update-all-plugins for full update workflow."
+
+demo-verify-plugin: ## Demo verify-plugin attestation check (LIVE)
+	@echo "=== Leyline Verify Plugin Demo (LIVE) ==="
+	@echo ""
+	@echo "Verifying leyline plugin structure..."
+	@test -f openpackage.yml && echo "  openpackage.yml: OK" || echo "  openpackage.yml: MISSING"
+	@test -d skills && echo "  skills/: OK ($$(find skills/ -name 'SKILL.md' | wc -l) skills)" || echo "  skills/: MISSING"
+	@test -d src && echo "  src/: OK ($$(find src/ -name '*.py' | wc -l) files)" || echo "  src/: MISSING"
+	@test -d tests && echo "  tests/: OK ($$(find tests/ -name 'test_*.py' | wc -l) tests)" || echo "  tests/: MISSING"
+	@echo ""
+	@echo "Use /leyline:verify-plugin for full attestation verification."
+
+test-reinstall-all-plugins: ## Test reinstall-all-plugins (runs plugin health tests)
+	$(PYTEST) tests/test_plugin_health.py -v || \
+		$(PYTEST) tests/ -v -k "plugin_health or reinstall"
+
+test-update-all-plugins: ## Test update-all-plugins (runs update workflow tests)
+	$(PYTEST) tests/test_update_all_plugins.py -v || \
+		$(PYTEST) tests/ -v -k "update_all"
+
+test-verify-plugin: ## Test verify-plugin (runs plugin health tests)
+	$(PYTEST) tests/test_plugin_health.py -v || \
+		$(PYTEST) tests/ -v -k "plugin_health or verify"
+
+plugin-check: demo-tokens demo-quota demo-skills demo-formatting demo-reinstall-all-plugins demo-update-all-plugins demo-verify-plugin status ## Run all demo workflows
 	@echo ""
 	@echo "=== Leyline Plugin Check Complete ==="
 

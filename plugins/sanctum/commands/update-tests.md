@@ -1,6 +1,6 @@
 ---
 name: update-tests
-description: Update tests using TDD/BDD principles with quality validation
+description: Update tests using TDD/BDD with quality validation
 usage: /update-tests [paths...]
 ---
 

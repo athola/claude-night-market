@@ -15,6 +15,7 @@ from __future__ import annotations
 
 # ruff: noqa: S324, PLR0912, PLR2004
 import argparse
+import bisect
 import hashlib
 import json
 import re
@@ -230,12 +231,18 @@ def find_duplicates(
         for filepath, start, end, content in locations:
             # Skip if overlaps with already-reported range in same file
             file_key = str(filepath)
-            overlaps = any(
-                not (end < s or start > e) for s, e in seen_by_file[file_key]
-            )
+            seen = seen_by_file[file_key]
+            # Binary search for potential overlaps (seen is sorted by start)
+            idx = bisect.bisect_right(seen, (start,))
+            overlaps = False
+            for i in range(max(0, idx - 1), min(len(seen), idx + 2)):
+                s, e = seen[i]
+                if start <= e and end >= s:
+                    overlaps = True
+                    break
             if not overlaps:
                 unique_locations.append((filepath, start, end, content))
-                seen_by_file[file_key].append((start, end))
+                bisect.insort(seen, (start, end))
 
         if len(unique_locations) >= 2:
             dup = DuplicateBlock(
@@ -262,23 +269,30 @@ def find_duplicates(
     )
 
 
-def find_similar_functions(path: Path) -> list[tuple[str, list[str]]]:
+def find_similar_functions(
+    path: Path,
+    extensions: list[str] | None = None,
+) -> list[tuple[str, list[str]]]:
     """Find functions with similar names (potential abstraction candidates).
 
     Returns: list of (base_name, [full_names])
     """
+    if extensions is None:
+        extensions = [".py"]
     # Extract function definitions
     func_pattern = re.compile(r"^\s*(?:def|function|fn|func)\s+(\w+)", re.MULTILINE)
 
     func_names: list[str] = []
-    for filepath in path.rglob("*.py"):
-        if any(excl in filepath.parts for excl in ("__pycache__", ".venv", "venv")):
-            continue
-        try:
-            content = filepath.read_text(encoding="utf-8", errors="ignore")
-            func_names.extend(func_pattern.findall(content))
-        except (OSError, UnicodeDecodeError):
-            continue
+    for ext in extensions:
+        glob_pattern = f"*{ext}" if ext.startswith(".") else f"*.{ext}"
+        for filepath in path.rglob(glob_pattern):
+            if any(excl in filepath.parts for excl in ("__pycache__", ".venv", "venv")):
+                continue
+            try:
+                content = filepath.read_text(encoding="utf-8", errors="ignore")
+                func_names.extend(func_pattern.findall(content))
+            except (OSError, UnicodeDecodeError):
+                continue
 
     # Group by common prefixes/suffixes
     # Find functions that differ only by a suffix like _1, _v2, _new, etc.

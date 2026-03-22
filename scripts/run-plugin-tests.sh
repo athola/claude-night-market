@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run tests for specified plugins or all plugins
 #
 # Usage:
@@ -21,11 +21,17 @@ FAILED_PLUGINS=()
 PASSED_PLUGINS=()
 SKIPPED_PLUGINS=()
 
+# Accumulate temp files for cleanup on exit
+_TEMP_FILES=()
+_cleanup_temp() { rm -f "${_TEMP_FILES[@]}" 2>/dev/null || true; }
+trap _cleanup_temp EXIT
+
 run_plugin_tests() {
     local plugin_dir="$1"
     local plugin_name=$(basename "$plugin_dir")
     local temp_output
     temp_output=$(mktemp "/tmp/test_output_${plugin_name}_XXXXXX")
+    _TEMP_FILES+=("$temp_output")
 
     echo -e "${YELLOW}Testing $plugin_name...${NC}"
 

@@ -110,9 +110,17 @@ def fix_skill_file(file_path: str, max_length: int = 80) -> bool:
             f.write(fixed_content)
 
         # Show improvement
-        sum(1 for line in original_lines if len(line) > max_length)
+        logger = logging.getLogger(__name__)
+        before_count = sum(1 for line in original_lines if len(line) > max_length)
         new_lines = fixed_content.split("\n")
-        sum(1 for line in new_lines if len(line) > max_length)
+        after_count = sum(1 for line in new_lines if len(line) > max_length)
+        if before_count != after_count:
+            logger.info(
+                "Fixed %d -> %d long lines in %s",
+                before_count,
+                after_count,
+                file_path,
+            )
 
         return True
 

@@ -1,0 +1,35 @@
+name: egregore
+version: 1.7.0
+description: Autonomous agent orchestrator for development lifecycles - session spawning, quality gates, and crash recovery
+keywords:
+- orchestrator
+- autonomous
+- agent
+- session
+- watchdog
+- quality-gate
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  leyline:
+    source: gh@athola/claude-night-market
+    path: plugins/leyline
+    skills:
+    - deferred-capture
+skills:
+- skills/install-watchdog
+- skills/quality-gate
+- skills/summon
+- skills/uninstall-watchdog
+commands:
+- commands/dismiss.md
+- commands/install-watchdog.md
+- commands/status.md
+- commands/summon.md
+- commands/uninstall-watchdog.md
+agents:
+- agents/orchestrator.md
+- agents/sentinel.md
+hooks: hooks/hooks.json

@@ -1,5 +1,5 @@
 ---
-description: Update project documentation with consolidation, debloating, AI slop detection, capabilities sync, and accuracy verification.
+description: Update project documentation with consolidation, debloating, slop detection, and accuracy verification.
 usage: /update-docs [--skip-consolidation] [--skip-slop] [--skip-capabilities] [--strict] [--book-style]
 ---
 

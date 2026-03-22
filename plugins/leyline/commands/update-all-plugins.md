@@ -1,6 +1,6 @@
 ---
 name: update-all-plugins
-description: Update every installed Claude Code plugin from all marketplaces without manual selection.
+description: Update all installed Claude Code plugins from all marketplaces.
 usage: /update-all-plugins
 ---
 

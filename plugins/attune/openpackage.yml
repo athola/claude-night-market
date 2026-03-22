@@ -1,5 +1,5 @@
 name: attune
-version: 1.6.7
+version: 1.7.0
 description: Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects,
   and execute implementation with integrated workflows from superpowers and spec-kit
 keywords:
@@ -45,6 +45,9 @@ dependencies:
     skills:
     - risk-classification
     - git-platform
+  abstract:
+    source: gh@athola/claude-night-market
+    path: plugins/abstract
 skills:
 - skills/architecture-aware-init
 - skills/makefile-generation
@@ -58,6 +61,7 @@ skills:
 - skills/war-room-checkpoint
 - skills/workflow-setup
 - skills/mission-orchestrator
+- skills/dorodango
 commands:
 - commands/arch-init.md
 - commands/blueprint.md

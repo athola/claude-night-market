@@ -141,7 +141,6 @@ class QuotaTracker:
 
     def get_current_usage(self) -> UsageStats:
         """Get current usage statistics."""
-        self._cleanup_old_data()
         return self.usage
 
     def get_quota_status(self) -> tuple[str, list[str]]:
@@ -152,7 +151,6 @@ class QuotaTracker:
             Status levels: "healthy", "warning", "critical"
 
         """
-        self._cleanup_old_data()
         warnings = []
 
         # Calculate usage percentages (guard against zero config limits)
@@ -208,7 +206,6 @@ class QuotaTracker:
             Tuple of (can_proceed, list of issues)
 
         """
-        self._cleanup_old_data()
         issues = []
 
         # Check if tokens would exceed limits

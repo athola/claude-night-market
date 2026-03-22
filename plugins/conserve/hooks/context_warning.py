@@ -196,7 +196,8 @@ def _resolve_session_file() -> Path | None:
         Path to the session file, or None if not found.
 
     """
-    claude_projects = Path.home() / ".claude" / "projects"
+    claude_dir = Path(os.environ.get("CLAUDE_HOME", str(Path.home() / ".claude")))
+    claude_projects = claude_dir / "projects"
     if not claude_projects.exists():
         return None
 

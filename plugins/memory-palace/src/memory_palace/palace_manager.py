@@ -99,6 +99,28 @@ class MemoryPalaceManager:
         os.makedirs(self.palaces_dir, exist_ok=True)
         os.makedirs(os.path.join(self.palaces_dir, "backups"), exist_ok=True)
 
+    @staticmethod
+    def _iter_palace_files(
+        directory: Path,
+    ) -> list[tuple[Path, dict[str, Any]]]:
+        """Load all non-index JSON files from *directory*.
+
+        Skip ``master_index.json`` and ``project_index.json``.
+        Files that fail to parse are silently skipped.
+        """
+        results: list[tuple[Path, dict[str, Any]]] = []
+        skip = {"master_index.json", "project_index.json"}
+        for file_path in directory.glob("*.json"):
+            if file_path.name in skip:
+                continue
+            try:
+                with open(file_path) as f:
+                    data = json.load(f)
+                results.append((file_path, data))
+            except (json.JSONDecodeError, KeyError):
+                pass
+        return results
+
     def create_palace(
         self, name: str, domain: str, metaphor: str = "building"
     ) -> dict[str, Any]:
@@ -230,38 +252,31 @@ class MemoryPalaceManager:
             "global_stats": global_stats,
         }
 
-        for file_path in Path(self.palaces_dir).glob("*.json"):
-            if file_path.name != "master_index.json":
-                try:
-                    with open(file_path) as f:
-                        palace = json.load(f)
+        for _file_path, palace in self._iter_palace_files(Path(self.palaces_dir)):
+            try:
+                palace_summary = {
+                    "id": palace["id"],
+                    "name": palace["name"],
+                    "domain": palace["domain"],
+                    "metaphor": palace["metaphor"],
+                    "created": palace["created"],
+                    "last_modified": palace["last_modified"],
+                    "concept_count": palace["metadata"]["concept_count"],
+                }
 
-                    palace_summary = {
-                        "id": palace["id"],
-                        "name": palace["name"],
-                        "domain": palace["domain"],
-                        "metaphor": palace["metaphor"],
-                        "created": palace["created"],
-                        "last_modified": palace["last_modified"],
-                        "concept_count": palace["metadata"]["concept_count"],
-                    }
+                palaces: list[dict[str, Any]] = index["palaces"]
+                palaces.append(palace_summary)
+                global_stats["total_palaces"] += 1
+                global_stats["total_concepts"] += palace["metadata"]["concept_count"]
+                global_stats["total_locations"] += len(
+                    palace.get("layout", {}).get("rooms", [])
+                )
 
-                    palaces: list[dict[str, Any]] = index["palaces"]
-                    palaces.append(palace_summary)
-                    global_stats["total_palaces"] += 1
-                    global_stats["total_concepts"] += palace["metadata"][
-                        "concept_count"
-                    ]
-                    global_stats["total_locations"] += len(
-                        palace.get("layout", {}).get("rooms", [])
-                    )
+                domain = palace["domain"]
+                domains[domain] = domains.get(domain, 0) + 1
 
-                    domain = palace["domain"]
-                    domains[domain] = domains.get(domain, 0) + 1
-
-                except (json.JSONDecodeError, KeyError) as e:
-                    # Log skipped files so operators know some files were not indexed
-                    print(f"[WARN] Skipped malformed palace file {file_path}: {e}")
+            except KeyError as e:
+                print(f"[WARN] Skipped malformed palace file: {e}")
 
         with open(self.index_file, "w") as f:
             json.dump(index, f, indent=2)
@@ -355,11 +370,8 @@ class MemoryPalaceManager:
             "exported_at": datetime.now(timezone.utc).isoformat(),
             "palaces": palaces,
         }
-        for file_path in Path(self.palaces_dir).glob("*.json"):
-            if file_path.name == "master_index.json":
-                continue
-            with open(file_path) as f:
-                palaces.append(json.load(f))
+        for _file_path, data in self._iter_palace_files(Path(self.palaces_dir)):
+            palaces.append(data)
 
         dest_path = Path(destination)
         dest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -555,8 +567,7 @@ class MemoryPalaceManager:
         if not dry_run and entries_to_keep:
             with open(queue_path, "w") as f:
                 f.write("\n".join(entries_to_keep))
-                if entries_to_keep:
-                    f.write("\n")
+                f.write("\n")
         elif not dry_run and not entries_to_keep:
             # Clear the queue file
             with open(queue_path, "w") as f:
@@ -652,10 +663,13 @@ class MemoryPalaceManager:
                     entry_time = datetime.fromisoformat(
                         timestamp_str.replace("Z", "+00:00")
                     )
-                    # Normalize both to naive UTC for comparison
-                    cutoff_cmp = cutoff.replace(tzinfo=None)
-                    entry_cmp = entry_time.replace(tzinfo=None)
-                    if entry_cmp < cutoff_cmp:
+                    # Ensure entry_time is UTC-aware
+                    entry_utc = (
+                        entry_time
+                        if entry_time.tzinfo
+                        else entry_time.replace(tzinfo=timezone.utc)
+                    )
+                    if entry_utc < cutoff:
                         palace_recs["stale"].append(entry_id)
                         results["total_stale"] += 1
                 except (ValueError, AttributeError) as e:

@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+from hookify.core.config_loader import VALID_EVENT_TYPES
+
 
 def format_rule_name(name: str) -> str:
     """Format a rule name to kebab-case.
@@ -63,8 +65,7 @@ def validate_event_type(event: str) -> bool:
     Returns:
         True if valid event type
     """
-    valid_events = {"bash", "file", "stop", "prompt", "all"}
-    return event in valid_events
+    return event in VALID_EVENT_TYPES
 
 
 def validate_action_type(action: str) -> bool:

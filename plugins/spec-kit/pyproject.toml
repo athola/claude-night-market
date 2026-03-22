@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.6.7"
+version = "1.7.0"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -28,7 +28,6 @@ classifiers = [
 
 dependencies = [
     "pyyaml>=6.0.0,<7.0.0",
-    "cachetools>=5.5.2",
 ]
 
 [project.optional-dependencies]
@@ -38,7 +37,6 @@ dev = [
     "ruff>=0.14.13,<1.0.0",             # Linting and formatting
     "mypy>=1.6.0,<2.0.0",               # Type checking
     "pre-commit>=3.5.0,<4.0.0",         # Git hooks
-    "types-cachetools>=5.3.0.0",
 
     # Testing
     "pytest>=7.4.0,<8.0.0",
@@ -121,12 +119,6 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
-
-[[tool.mypy.overrides]]
-module = [
-    "cachetools.*",
-]
-ignore_missing_imports = true
 
 # Pytest configuration
 [tool.pytest.ini_options]

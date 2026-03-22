@@ -355,7 +355,12 @@ Uses tail-based JSONL parsing to avoid false alerts from compressed history.
 ### `permission_request.py`
 **Type**: PermissionRequest
 
-Automates permission decisions based on patterns.
+Automates permission decisions based on safe/dangerous
+command patterns.
+Rejects commands containing shell chaining metacharacters
+(`;`, `|`, `&&`, backticks, `$()`) even when the prefix
+matches a safe pattern, preventing auto-approval of
+payloads like `ls; rm -rf /`.
 
 ### `session-start.sh`
 **Type**: SessionStart

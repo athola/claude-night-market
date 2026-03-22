@@ -5,10 +5,11 @@
 
 .PHONY:
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
-	demo-import demo-navigate demo-palace demo-pensive demo-reset demo-review-room demo-skill-logs \
-	demo-status deps disable enable export fix format garden-metrics garden-tend help import install skills \
-	install-hooks lint list manager memory-profile mutation-test plugin-check precommit search security \
-	skills spellcheck status test test-garden test-navigate test-palace test-pensive test-review-room \
+	demo-import demo-memory demo-memory-palace-commands demo-navigate demo-palace demo-pensive \
+	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix format \
+	garden-metrics garden-tend help import install skills install-hooks lint list manager \
+	memory-profile mutation-test plugin-check precommit search security skills spellcheck status \
+	test test-garden test-memory test-navigate test-palace test-pensive test-review-room \
 	test-skill-logs test-unit type-check typecheck
 
 # Plugin-specific variables (must be before include)
@@ -274,10 +275,26 @@ demo-skill-logs: ## Demo skill-logs command (LIVE)
 	@echo ""
 	@echo "Use /skill-logs for full workflow."
 
-demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs ## Run all memory-palace documented command demos
+demo-memory: ## Demo memory command (LIVE)
+	@echo "=== Memory Palace Memory Demo (LIVE) ==="
+	@echo ""
+	@echo "Memory palace infrastructure:"
+	@echo "  CLI: $$(test -f scripts/memory_palace_cli.py && echo 'OK' || echo 'MISSING')"
+	@echo "  Palaces dir: $(PALACES_DIR)"
+	@echo ""
+	@echo "Source modules:"
+	@find src/ -name "*.py" -not -name "__init__.py" 2>/dev/null | sort | sed 's/^/  /'
+	@echo ""
+	@echo "Use /memory-palace for full memory management."
+
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory ## Run all memory-palace documented command demos
 	@echo ""
 	@echo "=== Memory-palace All Commands Demo Complete ==="
 	@echo ""
+
+test-memory: ## Test memory command (runs memory management unit tests)
+	@echo "Running memory tests..."
+	$(PYTEST) tests/ -v -k "memory or palace" --tb=short
 
 test-palace: ## Test palace command (runs palace management unit tests)
 	@echo "Running palace tests..."

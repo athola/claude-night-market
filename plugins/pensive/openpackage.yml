@@ -1,5 +1,5 @@
 name: pensive
-version: 1.6.7
+version: 1.7.0
 description: Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration
 keywords:
 - review
@@ -21,6 +21,12 @@ author:
   name: Alex Thola
   url: https://github.com/athola
 license: MIT
+dependencies:
+  leyline:
+    source: gh@athola/claude-night-market
+    path: plugins/leyline
+    skills:
+    - deferred-capture
 skills:
 - skills/api-review
 - skills/architecture-review
@@ -33,6 +39,7 @@ skills:
 - skills/shell-review
 - skills/test-review
 - skills/unified-review
+- skills/tiered-audit
 commands:
 - commands/api-review.md
 - commands/architecture-review.md

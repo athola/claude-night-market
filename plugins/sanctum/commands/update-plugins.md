@@ -1,5 +1,5 @@
 ---
-description: Audit and sync plugin.json files with disk contents (commands, skills, agents, hooks)
+description: Sync plugin.json files with disk contents (commands, skills, agents, hooks)
 usage: /update-plugins [plugin-name] [--dry-run] [--fix]
 ---
 

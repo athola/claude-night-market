@@ -1,5 +1,5 @@
 name: conserve
-version: 1.6.7
+version: 1.7.0
 description: Resource optimization and performance monitoring toolkit for efficient Claude Code workflows
 keywords:
 - conserve
@@ -29,6 +29,7 @@ skills:
 - skills/response-compression
 - skills/smart-sourcing
 - skills/token-conservation
+- skills/agent-expenditure
 commands:
 - commands/ai-hygiene-audit.md
 - commands/bloat-scan.md

@@ -1,5 +1,5 @@
 ---
-description: Consolidate ephemeral LLM-generated markdown files into permanent documentation.
+description: Consolidate ephemeral LLM-generated markdown into permanent documentation.
 usage: /merge-docs [file...] [--scan-only] [--docs-dir PATH]
 ---
 

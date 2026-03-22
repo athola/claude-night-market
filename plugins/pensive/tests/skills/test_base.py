@@ -17,7 +17,7 @@ from pensive.skills.base import (
     ReviewFinding,
 )
 from pensive.utils import content_parser
-from pensive.utils.severity_mapper import SeverityMapper
+from pensive.utils.severity_mapper import categorize
 
 
 class TestReviewFinding:
@@ -334,7 +334,7 @@ class TestBaseReviewSkill:
             {"type": "performance", "issue": "Performance issue"},
         ]
 
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         assert len(categorized) == 2
 

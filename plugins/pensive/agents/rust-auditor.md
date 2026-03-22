@@ -1,6 +1,6 @@
 ---
 name: rust-auditor
-description: Expert Rust security and safety auditor specializing in ownership analysis, unsafe code review, concurrency verification, and dependency scanning. Use for Rust-specific code audits and security reviews.
+description: Rust security audits for ownership, unsafe code, concurrency, and dependency scanning.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: opus
 skills: pensive:rust-review

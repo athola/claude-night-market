@@ -177,6 +177,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             Dict with cohesion score and identified responsibilities
         """
         content = context.get_file_content(module_path)
+        content_lower = content.lower()
         responsibilities = []
         cohesion_score = 1.0
 
@@ -196,7 +197,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         }
 
         for responsibility, keywords in responsibility_keywords.items():
-            if any(keyword in content.lower() for keyword in keywords):
+            if any(keyword in content_lower for keyword in keywords):
                 responsibilities.append(responsibility)
 
         # Calculate cohesion score - lower score for more diverse responsibilities
@@ -314,24 +315,25 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         content = context.get_file_content(file_path)
         violations = []
 
-        # Detect concrete class instantiations in __init__ or constructors
-        concrete_class_patterns = [
-            ("MySQLDatabase()", "MySQLDatabase"),
-            ("PostgresDatabase()", "PostgresDatabase"),
-            ("SMTPEmailSender()", "SMTPEmailSender"),
-            ("FileLogger()", "FileLogger"),
-            ("RedisCache()", "RedisCache"),
-            ("MongoDBRepository()", "MongoDBRepository"),
+        # Check for direct instantiation of infrastructure classes in
+        # business logic using general patterns rather than hardcoded names.
+        concrete_patterns = [
+            r"\b\w+Database\(",
+            r"\b\w+Repository\(",
+            r"\b\w+Service\(",
+            r"\b\w+Client\(",
+            r"\bnew\s+\w+(Database|Repository|Service|Client)",
         ]
 
-        for pattern, class_name in concrete_class_patterns:
-            if pattern in content:
+        for pattern in concrete_patterns:
+            for match in re.finditer(pattern, content):
+                matched_text = match.group(0).rstrip("(")
                 violations.append(
                     {
                         "type": "concrete_dependency",
-                        "issue": f"Depends on concrete class {class_name}",
+                        "issue": f"Depends on concrete class {matched_text}",
                         "location": file_path,
-                        "suggestion": f"Inject {class_name} through interface/protocol",
+                        "suggestion": f"Inject {matched_text} through interface/protocol",
                     }
                 )
 
@@ -556,26 +558,22 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         scalability_score = 10.0  # Start with perfect score
 
         # Try to get file content directly if available
+        content = ""
         try:
-            content = context.get_file_content("")
-        except Exception:
-            # If no direct content access, try files
+            content = context.get_file_content("") or ""
+        except (AttributeError, OSError, NotImplementedError):
             try:
                 files = context.get_files()
-                # Convert to list if it's a mock return value
-                if hasattr(files, "__iter__") and not isinstance(files, str):
-                    files = list(files)[:5]
-                else:
-                    files = []
-
-                # Sample some files to analyze
-                for file_path in files:
-                    try:
-                        content = context.get_file_content(file_path)
-                    except Exception:
-                        continue
-            except Exception:
-                content = ""
+                if files:
+                    for file_path in files:
+                        try:
+                            content = context.get_file_content(file_path)
+                            if content:
+                                break
+                        except (AttributeError, OSError):
+                            continue
+            except (AttributeError, OSError):
+                pass
 
         # Check for stateful singletons
         if "_instance" in content and "cls._instance" in content:
@@ -599,17 +597,24 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             )
             scalability_score -= 1.5
 
-        # Check for sequential processing of collections
-        if "for item in items:" in content or "for item in " in content:
-            if "expensive_operation" in content or "process_" in content:
-                bottlenecks.append(
-                    {
-                        "type": "sequential_processing",
-                        "location": "code",
-                        "issue": "Sequential processing limits throughput",
-                    }
-                )
-                scalability_score -= 1.0
+        # Check for sequential processing with expensive operations
+        # Look for nested loops or known sequential patterns, not just any
+        # iteration.  A bare "for item in" matches too many benign loops.
+        sequential_patterns = [
+            re.compile(r"for\s+\w+\s+in\s+.*:\s*\n\s+for\s+\w+\s+in\s+"),
+            re.compile(
+                r"for\s+\w+\s+in\s+.*:\s*\n(?:.*\n)*?\s+(?:time\.sleep|requests\.\w+|db\.|cursor\.)"
+            ),
+        ]
+        if any(p.search(content) for p in sequential_patterns):
+            bottlenecks.append(
+                {
+                    "type": "sequential_processing",
+                    "location": "code",
+                    "issue": "Sequential processing limits throughput",
+                }
+            )
+            scalability_score -= 1.0
 
         scalability_score = max(scalability_score, 0.0)
 

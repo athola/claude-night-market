@@ -1,0 +1,1 @@
+"""Tome hook scripts."""

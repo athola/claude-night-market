@@ -107,15 +107,3 @@ def count_by_severity(issues: list[dict[str, Any]]) -> dict[str, int]:
             counts[severity] += 1
 
     return counts
-
-
-# Backwards-compatible class wrapper so existing imports keep working.
-# Prefer importing the module functions directly.
-class SeverityMapper:
-    """Deprecated: use module-level functions instead."""
-
-    SEVERITY_MAP = SEVERITY_MAP
-
-    categorize = staticmethod(categorize)
-    get_severity_weight = staticmethod(get_severity_weight)
-    count_by_severity = staticmethod(count_by_severity)

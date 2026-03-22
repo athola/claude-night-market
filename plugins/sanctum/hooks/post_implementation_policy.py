@@ -107,7 +107,6 @@ def main() -> None:
         # Gracefully handle missing or malformed input
         # Log to stderr for debugging (doesn't break hook output)
         print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
-        pass
 
     # Skip full governance for lightweight agents
     if agent_type in LIGHTWEIGHT_AGENTS:

@@ -6,7 +6,7 @@ import re
 from typing import Any, ClassVar
 
 from pensive.analysis.repository_analyzer import RepositoryAnalyzer
-from pensive.utils.severity_mapper import SeverityMapper
+from pensive.utils.severity_mapper import count_by_severity
 
 from .base import AnalysisResult, BaseReviewSkill
 
@@ -204,7 +204,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
         """
         summary_parts = ["## Summary\n"]
 
-        severity_counts = SeverityMapper.count_by_severity(findings)
+        severity_counts = count_by_severity(findings)
 
         summary_parts.append(
             f"Found {len(findings)} total findings: "

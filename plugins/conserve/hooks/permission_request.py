@@ -166,8 +166,16 @@ def check_dangerous(command: str) -> Decision | None:
     return None
 
 
+# Shell metacharacters that indicate command chaining — never auto-approve
+_CHAIN_CHARS = re.compile(r"[;|&`\(]|\$\(")
+
+
 def check_safe(command: str) -> Decision | None:
     """Check if command matches safe patterns.
+
+    Rejects commands containing shell chaining metacharacters
+    (;, |, &&, ``, $()) even if the prefix looks safe, to
+    prevent auto-approving ``ls; dangerous_command``.
 
     Args:
         command: The command string to check.
@@ -176,6 +184,10 @@ def check_safe(command: str) -> Decision | None:
         Decision to allow if safe, None otherwise.
 
     """
+    # Commands with chaining/substitution never get auto-approved
+    if _CHAIN_CHARS.search(command):
+        return None
+
     for pattern in SAFE_PATTERNS:
         if re.match(pattern, command, re.IGNORECASE):
             logger.debug("Safe pattern matched: %s", pattern)

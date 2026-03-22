@@ -39,7 +39,12 @@ cat > "$PLIST_PATH" << EOF
 </plist>
 EOF
 
-launchctl load "$PLIST_PATH"
+GUI_DOMAIN="gui/$(id -u)"
+if launchctl bootstrap "$GUI_DOMAIN" "$PLIST_PATH" 2>/dev/null; then
+    : # modern macOS (10.10+)
+else
+    launchctl load "$PLIST_PATH"  # fallback for older macOS
+fi
 echo "Installed: $PLIST_PATH"
 echo "Checking every ${INTERVAL}s in ${WORKING_DIR}"
-echo "To uninstall: launchctl unload $PLIST_PATH && rm $PLIST_PATH"
+echo "To uninstall: launchctl bootout $GUI_DOMAIN/$PLIST_NAME 2>/dev/null || launchctl unload $PLIST_PATH; rm $PLIST_PATH"

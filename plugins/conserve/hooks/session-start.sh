@@ -28,9 +28,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
-# --- Inlined JSON utilities (from scripts/shared/json_utils.sh) ---
+# --- Inlined JSON utilities (canonical: scripts/shared/json_utils.sh) ---
 # Inlined to avoid broken relative path when plugin runs from Claude Code cache.
-# NOTE: Intentionally duplicated in imbue/hooks/session-start.sh — do not DRY-refactor.
+# NOTE: Intentionally duplicated — do not DRY-refactor. Update canonical source + all copies together.
 
 # Extract a field value from a JSON string
 # Uses three-tier fallback: jq → GNU grep → POSIX sed
@@ -109,7 +109,7 @@ escape_for_json() {
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""
 AGENT_TYPE=""
-if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
     # Validate: only allow alphanumeric, hyphens, and underscores
     if [[ -n "$AGENT_TYPE" && ! "$AGENT_TYPE" =~ ^[a-zA-Z0-9_-]+$ ]]; then

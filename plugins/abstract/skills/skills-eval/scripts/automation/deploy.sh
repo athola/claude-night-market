@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Deployment script for Skills Evaluation Framework
 # Sets up and validates the evaluation environment
 

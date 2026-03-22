@@ -165,6 +165,66 @@ class TestTargetRepo:
         assert 'REPO="claude-night-market"' in hook_source
 
 
+class TestJsonOutputStructure:
+    """Feature: Hook outputs valid SessionStart JSON.
+
+    As a Claude Code hook
+    I want to emit structured hookSpecificOutput JSON
+    So that the harness can parse session context reliably
+    """
+
+    @pytest.mark.unit
+    def test_emit_empty_helper_exists(self, hook_source: str) -> None:
+        """Scenario: _emit_empty helper is defined.
+
+        Given the hook script
+        When checking for _emit_empty
+        Then it exists and outputs hookSpecificOutput JSON.
+        """
+        assert "_emit_empty()" in hook_source, "_emit_empty helper must be defined"
+
+    @pytest.mark.unit
+    def test_emit_empty_outputs_session_start(self, hook_source: str) -> None:
+        """Scenario: _emit_empty produces SessionStart event.
+
+        Given the _emit_empty function
+        When checking its output
+        Then it contains hookEventName SessionStart.
+        """
+        body = _extract_function(hook_source, "_emit_empty")
+        assert body is not None, "_emit_empty function must exist"
+        assert "hookSpecificOutput" in body
+        assert "SessionStart" in body
+
+    @pytest.mark.unit
+    def test_not_starred_outputs_hook_json(self, hook_source: str) -> None:
+        """Scenario: not_starred branch outputs hookSpecificOutput JSON.
+
+        Given the not_starred code path
+        When examining its output
+        Then it uses hookSpecificOutput JSON format.
+        """
+        assert "hookSpecificOutput" in hook_source
+
+    @pytest.mark.unit
+    def test_opt_out_calls_emit_empty(self, hook_source: str) -> None:
+        """Scenario: Opt-out path uses _emit_empty.
+
+        Given CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1
+        When the opt-out triggers
+        Then it calls _emit_empty (not bare exit 0).
+        """
+        lines = hook_source.split("\n")
+        for i, line in enumerate(lines):
+            # Find the runtime check (if [...] = "1"), not comments
+            if "CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT" in line and line.strip().startswith(
+                "if"
+            ):
+                block = "\n".join(lines[i : i + 5])
+                assert "_emit_empty" in block, "Opt-out path must call _emit_empty"
+                break
+
+
 class TestStarPromptOutputBehavior:
     """Verify the script outputs a prompt only when not starred."""
 

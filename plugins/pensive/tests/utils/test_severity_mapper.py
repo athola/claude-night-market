@@ -8,15 +8,15 @@ from __future__ import annotations
 
 import pytest
 
-from pensive.utils.severity_mapper import SeverityMapper
+from pensive.utils.severity_mapper import (
+    categorize,
+    count_by_severity,
+    get_severity_weight,
+)
 
 
 class TestSeverityMapper:
     """Test suite for SeverityMapper utility class."""
-
-    def setup_method(self) -> None:
-        """Set up test fixtures before each test."""
-        self.mapper = SeverityMapper()
 
     # ========================================================================
     # categorize tests
@@ -34,7 +34,7 @@ class TestSeverityMapper:
         ]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["severity"] == "critical"
@@ -49,7 +49,7 @@ class TestSeverityMapper:
         issues = [{"type": "unknown_type", "issue": "Some unknown issue"}]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["severity"] == "low"
@@ -63,7 +63,7 @@ class TestSeverityMapper:
         custom_map = {"custom_issue": "critical"}
 
         # Act
-        categorized = SeverityMapper.categorize(issues, custom_map)
+        categorized = categorize(issues, custom_map)
 
         # Assert
         assert categorized[0]["severity"] == "critical"
@@ -77,7 +77,7 @@ class TestSeverityMapper:
         custom_map = {"performance": "high"}
 
         # Act
-        categorized = SeverityMapper.categorize(issues, custom_map)
+        categorized = categorize(issues, custom_map)
 
         # Assert
         assert categorized[0]["severity"] == "high"
@@ -98,7 +98,7 @@ class TestSeverityMapper:
         ]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["file"] == "main.py"
@@ -114,7 +114,7 @@ class TestSeverityMapper:
         original_copy = [dict(issue) for issue in original_issues]
 
         # Act
-        _ = SeverityMapper.categorize(original_issues)
+        _ = categorize(original_issues)
 
         # Assert
         assert original_issues == original_copy
@@ -128,7 +128,7 @@ class TestSeverityMapper:
         issues = [{"type": "performance", "issue": "SQL injection vulnerability found"}]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["severity"] == "critical"
@@ -141,7 +141,7 @@ class TestSeverityMapper:
         issues = [{"type": "style", "issue": "Dangerous code pattern detected"}]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["severity"] == "high"
@@ -151,7 +151,7 @@ class TestSeverityMapper:
     def test_categorize_empty_list(self) -> None:
         """Given empty issues list, returns empty list."""
         # Act
-        categorized = SeverityMapper.categorize([])
+        categorized = categorize([])
 
         # Assert
         assert categorized == []
@@ -164,7 +164,7 @@ class TestSeverityMapper:
         issues = [{"type": "SQL_INJECTION", "issue": "Issue"}]
 
         # Act
-        categorized = SeverityMapper.categorize(issues)
+        categorized = categorize(issues)
 
         # Assert
         assert categorized[0]["severity"] == "critical"
@@ -178,7 +178,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_critical(self) -> None:
         """Given critical severity, returns highest weight."""
         # Act
-        weight = SeverityMapper.get_severity_weight("critical")
+        weight = get_severity_weight("critical")
 
         # Assert
         assert weight == 10.0
@@ -188,7 +188,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_high(self) -> None:
         """Given high severity, returns appropriate weight."""
         # Act
-        weight = SeverityMapper.get_severity_weight("high")
+        weight = get_severity_weight("high")
 
         # Assert
         assert weight == 5.0
@@ -198,7 +198,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_medium(self) -> None:
         """Given medium severity, returns appropriate weight."""
         # Act
-        weight = SeverityMapper.get_severity_weight("medium")
+        weight = get_severity_weight("medium")
 
         # Assert
         assert weight == 2.5
@@ -208,7 +208,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_low(self) -> None:
         """Given low severity, returns lowest weight."""
         # Act
-        weight = SeverityMapper.get_severity_weight("low")
+        weight = get_severity_weight("low")
 
         # Assert
         assert weight == 1.0
@@ -218,7 +218,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_unknown_defaults_to_low(self) -> None:
         """Given unknown severity, defaults to low weight."""
         # Act
-        weight = SeverityMapper.get_severity_weight("unknown")
+        weight = get_severity_weight("unknown")
 
         # Assert
         assert weight == 1.0
@@ -228,7 +228,7 @@ class TestSeverityMapper:
     def test_get_severity_weight_case_insensitive(self) -> None:
         """Given mixed case severity, matches correctly."""
         # Act
-        weight = SeverityMapper.get_severity_weight("CRITICAL")
+        weight = get_severity_weight("CRITICAL")
 
         # Assert
         assert weight == 10.0
@@ -253,7 +253,7 @@ class TestSeverityMapper:
         ]
 
         # Act
-        counts = SeverityMapper.count_by_severity(issues)
+        counts = count_by_severity(issues)
 
         # Assert
         assert counts == {"critical": 1, "high": 2, "medium": 1, "low": 3}
@@ -263,7 +263,7 @@ class TestSeverityMapper:
     def test_count_by_severity_empty_list(self) -> None:
         """Given empty issues list, returns all zeros."""
         # Act
-        counts = SeverityMapper.count_by_severity([])
+        counts = count_by_severity([])
 
         # Assert
         assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -276,7 +276,7 @@ class TestSeverityMapper:
         issues = [{"severity": "critical"}, {"severity": "critical"}]
 
         # Act
-        counts = SeverityMapper.count_by_severity(issues)
+        counts = count_by_severity(issues)
 
         # Assert
         assert counts == {"critical": 2, "high": 0, "medium": 0, "low": 0}
@@ -289,7 +289,7 @@ class TestSeverityMapper:
         issues = [{"issue": "No severity specified"}]
 
         # Act
-        counts = SeverityMapper.count_by_severity(issues)
+        counts = count_by_severity(issues)
 
         # Assert
         assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 1}
@@ -302,7 +302,7 @@ class TestSeverityMapper:
         issues = [{"severity": "unknown_level"}]
 
         # Act
-        counts = SeverityMapper.count_by_severity(issues)
+        counts = count_by_severity(issues)
 
         # Assert
         # Unknown levels are not counted
@@ -321,7 +321,7 @@ class TestSeverityMapper:
         ]
 
         # Act
-        counts = SeverityMapper.count_by_severity(issues)
+        counts = count_by_severity(issues)
 
         # Assert
         assert counts == {"critical": 1, "high": 1, "medium": 1, "low": 1}
@@ -345,7 +345,7 @@ class TestSeverityMapContent:
 
         for issue_type in security_types:
             issues = [{"type": issue_type, "issue": "test"}]
-            categorized = SeverityMapper.categorize(issues)
+            categorized = categorize(issues)
             assert categorized[0]["severity"] == "critical", (
                 f"{issue_type} should be critical"
             )
@@ -357,7 +357,7 @@ class TestSeverityMapContent:
 
         for issue_type in memory_types:
             issues = [{"type": issue_type, "issue": "test"}]
-            categorized = SeverityMapper.categorize(issues)
+            categorized = categorize(issues)
             assert categorized[0]["severity"] == "high", f"{issue_type} should be high"
 
     @pytest.mark.unit
@@ -367,7 +367,7 @@ class TestSeverityMapContent:
 
         for issue_type in quality_types:
             issues = [{"type": issue_type, "issue": "test"}]
-            categorized = SeverityMapper.categorize(issues)
+            categorized = categorize(issues)
             assert categorized[0]["severity"] in [
                 "low",
                 "medium",

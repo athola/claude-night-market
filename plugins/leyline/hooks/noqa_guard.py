@@ -52,7 +52,13 @@ def check_for_suppressions(text: str) -> list[str]:
 
 
 def main() -> None:
-    """Check tool input for lint suppression directives."""
+    """Check tool input for lint suppression directives.
+
+    Reads CLAUDE_TOOL_NAME and CLAUDE_TOOL_INPUT from environment
+    variables (not stdin) because PreToolUse hooks receive tool
+    metadata via env vars set by Claude Code, while stdin carries
+    the hook event JSON payload which does not include tool input.
+    """
     tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
     if tool_name not in ("Edit", "Write"):
         print(json.dumps({}))
@@ -97,7 +103,8 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        # Crash-proof: never block on hook errors
+    except Exception as exc:
+        # Crash-proof: never block on hook errors, but log for debugging
+        print(f"noqa_guard: hook error: {exc}", file=sys.stderr)
         print(json.dumps({}))
         sys.exit(0)

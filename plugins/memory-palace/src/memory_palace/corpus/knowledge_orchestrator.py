@@ -155,7 +155,7 @@ class KnowledgeOrchestrator:
                             entry_id,
                             created_str,
                         )
-                    last_validated = datetime.now(timezone.utc)
+                        last_validated = datetime.now(timezone.utc)
                 else:
                     last_validated = datetime.now(timezone.utc)
 

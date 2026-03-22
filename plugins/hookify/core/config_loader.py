@@ -16,6 +16,8 @@ from typing import Any
 
 import yaml
 
+VALID_EVENT_TYPES: frozenset[str] = frozenset({"bash", "file", "stop", "prompt", "all"})
+
 
 @dataclass
 class Condition:
@@ -58,10 +60,9 @@ class RuleConfig:
 
     def __post_init__(self) -> None:
         """Validate rule configuration."""
-        valid_events = {"bash", "file", "stop", "prompt", "all"}
-        if self.event not in valid_events:
+        if self.event not in VALID_EVENT_TYPES:
             raise ValueError(
-                f"Invalid event '{self.event}'. Must be one of: {', '.join(sorted(valid_events))}"
+                f"Invalid event '{self.event}'. Must be one of: {', '.join(sorted(VALID_EVENT_TYPES))}"
             )
 
         valid_actions = {"warn", "block"}
@@ -119,6 +120,16 @@ class ConfigLoader:
         self.include_bundled = include_bundled
         self.bundled_rules_dir = _get_bundled_rules_dir()
 
+    def _iter_bundled_rule_files(self) -> list[Path]:
+        """Return all bundled rule markdown files."""
+        rule_files: list[Path] = []
+        if not self.bundled_rules_dir.exists():
+            return rule_files
+        for category_dir in self.bundled_rules_dir.iterdir():
+            if category_dir.is_dir():
+                rule_files.extend(category_dir.glob("*.md"))
+        return rule_files
+
     def load_all_rules(self) -> list[RuleConfig]:
         """Load all hookify rules from bundled and user directories.
 
@@ -148,22 +159,13 @@ class ConfigLoader:
         """
         rules: list[RuleConfig] = []
 
-        if not self.bundled_rules_dir.exists():
-            return rules
-
-        # Scan all category directories
-        for category_dir in self.bundled_rules_dir.iterdir():
-            if not category_dir.is_dir():
-                continue
-
-            # Load all .md files in category
-            for rule_file in category_dir.glob("*.md"):
-                try:
-                    rule = self.load_rule(rule_file, source="bundled")
-                    rules.append(rule)
-                except Exception as e:
-                    # Log error but continue loading other rules
-                    print(f"Error loading bundled rule {rule_file}: {e}")
+        for rule_file in self._iter_bundled_rule_files():
+            try:
+                rule = self.load_rule(rule_file, source="bundled")
+                rules.append(rule)
+            except Exception as e:
+                # Log error but continue loading other rules
+                print(f"Error loading bundled rule {rule_file}: {e}")
 
         return rules
 
@@ -284,16 +286,7 @@ class ConfigLoader:
         Returns:
             List of bundled rule names.
         """
-        names: list[str] = []
-        if not self.bundled_rules_dir.exists():
-            return names
-
-        for category_dir in self.bundled_rules_dir.iterdir():
-            if category_dir.is_dir():
-                for rule_file in category_dir.glob("*.md"):
-                    names.append(rule_file.stem)
-
-        return names
+        return [f.stem for f in self._iter_bundled_rule_files()]
 
     def get_rule_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all rules (bundled and user).
@@ -304,17 +297,15 @@ class ConfigLoader:
         status: dict[str, dict[str, Any]] = {}
 
         # Get bundled rules
-        if self.include_bundled and self.bundled_rules_dir.exists():
-            for category_dir in self.bundled_rules_dir.iterdir():
-                if category_dir.is_dir():
-                    for rule_file in category_dir.glob("*.md"):
-                        name = rule_file.stem
-                        status[name] = {
-                            "source": "bundled",
-                            "category": category_dir.name,
-                            "path": str(rule_file),
-                            "overridden": False,
-                        }
+        if self.include_bundled:
+            for rule_file in self._iter_bundled_rule_files():
+                name = rule_file.stem
+                status[name] = {
+                    "source": "bundled",
+                    "category": rule_file.parent.name,
+                    "path": str(rule_file),
+                    "overridden": False,
+                }
 
         # Check for user overrides
         if self.user_rules_dir.exists():

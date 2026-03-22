@@ -1,0 +1,46 @@
+{
+  "name": "tome",
+  "version": "1.7.0",
+  "description": "Multi-source research plugin — code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
+  "skills": [
+    "./skills/research",
+    "./skills/code-search",
+    "./skills/discourse",
+    "./skills/papers",
+    "./skills/triz",
+    "./skills/synthesize",
+    "./skills/dig"
+  ],
+  "commands": [
+    "./commands/research.md",
+    "./commands/dig.md",
+    "./commands/cite.md",
+    "./commands/export.md"
+  ],
+  "agents": [
+    "./agents/code-searcher.md",
+    "./agents/discourse-scanner.md",
+    "./agents/literature-reviewer.md",
+    "./agents/triz-analyst.md"
+  ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
+  "keywords": [
+    "research",
+    "literature",
+    "papers",
+    "arxiv",
+    "github",
+    "triz",
+    "discourse",
+    "academic",
+    "cross-domain",
+    "synthesis"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}
