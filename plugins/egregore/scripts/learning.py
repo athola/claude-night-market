@@ -172,6 +172,7 @@ def weight_by_recency(
     for i, pattern in enumerate(sorted_patterns):
         weight = decay_factor**i
         pattern.frequency = max(1, round(pattern.frequency * weight))
+        pattern.success_count = max(0, round(pattern.success_count * weight))
 
     return sorted_patterns
 

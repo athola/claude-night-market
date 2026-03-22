@@ -27,7 +27,7 @@ the given topic.
      abstract, categories, PDF link
 
 3. **Search Semantic Scholar**:
-   - Use WebFetch on: `https://api.semanticscholar.org/graph/v1/paper/search?query={topic}&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue`
+   - Use WebFetch on: `https://api.semanticscholar.org/graph/v1/paper/search?query={topic}&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds`
    - Rank results by citation count
    - Note which papers have open access PDFs
 

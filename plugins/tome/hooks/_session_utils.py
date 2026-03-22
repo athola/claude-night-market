@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 
@@ -17,7 +18,8 @@ def load_active_session(tome_dir: Path) -> tuple[str, int] | None:
         return None
     try:
         data = json.loads(sessions[0].read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"tome: corrupt session file {sessions[0]}: {exc}", file=sys.stderr)
         return None
     if data.get("status") == "active":
         return data.get("topic", "unknown"), len(data.get("findings", []))

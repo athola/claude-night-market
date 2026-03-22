@@ -41,8 +41,8 @@ to find solutions from adjacent fields.
 
 ## Field Mapping Strategy
 
-- Software architecture -> civil engineering, biology
-- Data structures -> logistics, materials science
-- Algorithms -> operations research, genetics
-- Security -> military strategy, immunology
-- Financial -> game theory, ecology
+- Software architecture: civil engineering, biology
+- Data structures: logistics, materials science
+- Algorithms: operations research, genetics
+- Security: military strategy, immunology
+- Financial: game theory, ecology

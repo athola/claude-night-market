@@ -11,7 +11,7 @@ from __future__ import annotations
 import html
 import re
 from typing import Any
-from urllib.parse import quote_plus
+from urllib.parse import quote, quote_plus
 
 from tome.models import Finding
 
@@ -20,6 +20,7 @@ from tome.models import Finding
 # ---------------------------------------------------------------------------
 
 _ARXIV_API_BASE = "https://export.arxiv.org/api/query"
+_ARXIV_BASE_RELEVANCE = 0.7
 
 
 def build_arxiv_search_url(topic: str, max_results: int = 10) -> str:
@@ -33,7 +34,10 @@ def build_arxiv_search_url(topic: str, max_results: int = 10) -> str:
         URL string for the arXiv Atom API, sorted by relevance.
     """
     encoded = quote_plus(topic)
-    return f"{_ARXIV_API_BASE}?search_query=all:{encoded}&max_results={max_results}&sortBy=relevance"
+    return (
+        f"{_ARXIV_API_BASE}?search_query=all:{encoded}"
+        f"&max_results={max_results}&sortBy=relevance"
+    )
 
 
 def _extract_tag_text(xml: str, tag: str) -> str | None:
@@ -140,7 +144,7 @@ def parse_arxiv_response(xml_text: str) -> list[Finding]:
                 channel="academic",
                 title=title or arxiv_id,
                 url=url,
-                relevance=0.7,
+                relevance=_ARXIV_BASE_RELEVANCE,
                 summary=summary,
                 metadata=metadata,
             )
@@ -286,7 +290,7 @@ def build_unpaywall_url(doi: str, email: str = "research@example.com") -> str:
     Returns:
         URL string for the Unpaywall v2 API.
     """
-    return f"{_UNPAYWALL_BASE}/{doi}?email={email}"
+    return f"{_UNPAYWALL_BASE}/{quote(doi, safe='')}?email={quote(email, safe='@.')}"
 
 
 def parse_unpaywall_response(data: dict[str, Any]) -> str | None:
@@ -373,7 +377,7 @@ def generate_access_fallback_guidance(title: str, doi: str | None = None) -> str
             "### 3. DeepDyve Rental",
             "",
             "Rent this article short-term via DeepDyve:",
-            f"https://www.deepdyve.com/lp/doi/{doi}",
+            f"https://www.deepdyve.com/lp/doi/{quote(doi, safe='')}",
             "",
         ]
 

@@ -28,32 +28,32 @@ def compute_relevance_score(finding: Finding) -> float:
     source = finding.source.lower()
 
     if source == "github":
-        stars = int(meta.get("stars", 0))
+        stars = int(meta.get("stars", 0) or 0)
         if stars > 5000:
             score += 0.2
         elif stars > 1000:
             score += 0.1
     elif source == "hn":
-        hn_score = int(meta.get("score", 0))
+        hn_score = int(meta.get("score", 0) or 0)
         if hn_score > 500:
             score += 0.2
         elif hn_score > 100:
             score += 0.1
-    elif source in ("arxiv", "academic"):
-        citations = int(meta.get("citations", 0))
+    elif source in ("arxiv", "academic", "semantic_scholar"):
+        citations = int(meta.get("citations", 0) or 0)
         if citations > 200:
             score += 0.2
         elif citations > 50:
             score += 0.1
     elif source == "reddit":
-        reddit_score = int(meta.get("score", 0))
+        reddit_score = int(meta.get("score", 0) or 0)
         if reddit_score > 200:
             score += 0.1
         elif reddit_score > 50:
             score += 0.05
 
     year = meta.get("year")
-    if year is not None and (_CURRENT_YEAR - int(year)) <= 2:
+    if year is not None and (_CURRENT_YEAR - int(year or 0)) <= 2:
         score += 0.05
 
     return min(score, 1.0)

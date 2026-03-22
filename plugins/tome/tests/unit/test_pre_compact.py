@@ -17,8 +17,8 @@ class TestPreCompactHook:
     Feature: Pre-compact session checkpoint
 
     As a researcher
-    I want my session state preserved before compaction
-    So that I don't lose research context
+    I want active session context injected before compaction
+    So that compacted prompts retain research context
     """
 
     @pytest.mark.unit
@@ -43,7 +43,7 @@ class TestPreCompactHook:
         Scenario: Active session during compaction
         Given a session file with status "active"
         When the hook runs
-        Then additionalContext confirms checkpoint
+        Then additionalContext mentions the active session topic
         """
         sessions_dir = tmp_path / ".tome" / "sessions"
         sessions_dir.mkdir(parents=True)
@@ -58,7 +58,7 @@ class TestPreCompactHook:
         result = json.loads(output)
         assert "additionalContext" in result
         assert "cache eviction" in result["additionalContext"]
-        assert "checkpointed" in result["additionalContext"]
+        assert "active" in result["additionalContext"]
 
     @pytest.mark.unit
     def test_no_output_for_complete_session(

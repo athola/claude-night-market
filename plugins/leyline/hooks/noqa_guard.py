@@ -103,7 +103,8 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        # Crash-proof: never block on hook errors
+    except Exception as exc:
+        # Crash-proof: never block on hook errors, but log for debugging
+        print(f"noqa_guard: hook error: {exc}", file=sys.stderr)
         print(json.dumps({}))
         sys.exit(0)

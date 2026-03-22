@@ -215,8 +215,7 @@ def _generate_recommendations(findings: list[Finding], topic: str) -> str:
             "2. Verify the topic query covers the intended domain.\n"
             "3. Consult domain experts directly."
         )
-    ranked = sorted(findings, key=compute_relevance_score, reverse=True)
-    top = ranked[0]
+    top = max(findings, key=compute_relevance_score)
     unique_channels = len({f.channel for f in findings})
     lines = [
         f"1. Start with the highest-ranked source: [{top.title}]({top.url}).",
@@ -231,8 +230,7 @@ def _generate_recommendations(findings: list[Finding], topic: str) -> str:
 def _generate_next_steps(findings: list[Finding], topic: str) -> str:
     if not findings:
         return "- Expand search channels.\n- Refine the research query.\n- Consult domain experts."
-    ranked = sorted(findings, key=compute_relevance_score, reverse=True)
-    top = ranked[0]
+    top = max(findings, key=compute_relevance_score)
     return (
         f"- Review the top-ranked source on '{topic}': "
         f"[{top.title}]({top.url}).\n"

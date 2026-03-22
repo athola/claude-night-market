@@ -502,7 +502,7 @@ class TestOpenAccess:
         """
         url = build_unpaywall_url("10.1234/test")
 
-        assert "10.1234/test" in url
+        assert "10.1234%2Ftest" in url
         assert "email=" in url
 
     @pytest.mark.unit

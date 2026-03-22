@@ -26,7 +26,7 @@ def format_citation(finding: Finding) -> str:
     """
     source = finding.source.lower()
 
-    if source in ("arxiv", "academic"):
+    if source in ("arxiv", "academic", "semantic_scholar"):
         return _format_academic(finding)
     if source == "github":
         return _format_github(finding)

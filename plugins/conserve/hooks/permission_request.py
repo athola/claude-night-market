@@ -167,7 +167,7 @@ def check_dangerous(command: str) -> Decision | None:
 
 
 # Shell metacharacters that indicate command chaining — never auto-approve
-_CHAIN_CHARS = re.compile(r"[;|&`$\(]")
+_CHAIN_CHARS = re.compile(r"[;|&`\(]|\$\(")
 
 
 def check_safe(command: str) -> Decision | None:

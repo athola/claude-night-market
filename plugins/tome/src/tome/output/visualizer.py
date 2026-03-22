@@ -32,7 +32,9 @@ def _mermaid_diagram(findings: list[Finding]) -> str:
     lines = ["```mermaid", "graph TD"]
     for i, f in enumerate(findings[:8]):
         node_id = f"N{i}"
-        label = f.title.replace('"', "'")[:40]
+        sanitized = f.title.replace('"', "'").replace("[", "(")
+        sanitized = sanitized.replace("]", ")").replace("-->", "-")
+        label = sanitized[:40]
         lines.append(f'    {node_id}["{label}"]')
     # Connect nodes sequentially as a simple flow
     for i in range(len(findings[:8]) - 1):

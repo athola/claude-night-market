@@ -42,12 +42,12 @@ different fields. You systematically find these bridges.
    - Maximum: 5 fields including deliberately distant ones
 
    Field mapping strategy:
-   - Software architecture -> civil engineering, biology
-   - Data structures -> logistics, materials science
-   - Algorithms -> operations research, genetics
-   - Security -> military strategy, immunology
-   - Financial -> game theory, ecology
-   - Scientific -> engineering, philosophy of science
+   - Software architecture: civil engineering, biology
+   - Data structures: logistics, materials science
+   - Algorithms: operations research, genetics
+   - Security: military strategy, immunology
+   - Financial: game theory, ecology
+   - Scientific: engineering, philosophy of science
 
 4. **Search for analogous solutions** in each field:
    - Use WebSearch: "{field} solution to {abstracted problem}"
@@ -68,7 +68,7 @@ different fields. You systematically find these bridges.
     {
       "source": "triz",
       "channel": "triz",
-      "title": "Bridge: Biology -> Cache Eviction",
+      "title": "Bridge: Biology to Cache Eviction",
       "url": "https://source-url-if-applicable",
       "relevance": 0.80,
       "summary": "In biology, LRU-like memory consolidation during sleep mirrors cache eviction. Neural pruning of least-accessed synapses suggests...",

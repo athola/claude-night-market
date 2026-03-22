@@ -18,11 +18,20 @@ def export_for_memory_palace(session: ResearchSession) -> str:
     if session.created_at:
         created = session.created_at.strftime("%Y-%m-%d")
 
+    def _yaml_quote(val: str) -> str:
+        if any(c in val for c in (":", "#", "\n", '"', "'", "{", "}")):
+            return (
+                '"'
+                + val.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+                + '"'
+            )
+        return val
+
     # Build YAML frontmatter
     lines = [
         "---",
-        f"topic: {session.topic}",
-        f"domain: {session.domain}",
+        f"topic: {_yaml_quote(session.topic)}",
+        f"domain: {_yaml_quote(session.domain)}",
         f"session_id: {session.id}",
         f"date: {created}",
         f"finding_count: {len(session.findings)}",

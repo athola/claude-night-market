@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,7 +18,11 @@ class SessionManager:
         self._sessions_dir = base_dir / ".tome" / "sessions"
         self._sessions_dir.mkdir(parents=True, exist_ok=True)
 
+    _SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+
     def _path_for(self, session_id: str) -> Path:
+        if not self._SAFE_ID_RE.match(session_id):
+            raise ValueError(f"Invalid session ID: {session_id!r}")
         return self._sessions_dir / f"{session_id}.json"
 
     def create(
@@ -64,19 +70,25 @@ class SessionManager:
         try:
             data = json.loads(latest_file.read_text(encoding="utf-8"))
             return ResearchSession.from_dict(data)
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"tome: corrupt session file {latest_file}: {exc}", file=sys.stderr)
             return None
 
     def list_all(self) -> list[SessionSummary]:
         """Return summaries of all sessions, sorted by created_at descending.
 
         Sessions without a created_at timestamp sort to the end.
+        Corrupt files are logged to stderr and skipped.
         """
         summaries: list[SessionSummary] = []
         for path in self._sessions_dir.glob("*.json"):
-            data = json.loads(path.read_text(encoding="utf-8"))
-            session = ResearchSession.from_dict(data)
-            summaries.append(session.to_summary())
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                session = ResearchSession.from_dict(data)
+                summaries.append(session.to_summary())
+            except (json.JSONDecodeError, KeyError, OSError) as exc:
+                print(f"tome: corrupt session file {path}: {exc}", file=sys.stderr)
+                continue
         summaries.sort(
             key=lambda s: s.created_at or datetime.min.replace(tzinfo=timezone.utc),
             reverse=True,

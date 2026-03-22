@@ -228,15 +228,17 @@ def _parse_updated_at(value: str | None) -> datetime:
 
 
 def rank_github_findings(findings: list[Finding]) -> list[Finding]:
-    """Rank GitHub findings by a composite score of stars, recency, and relevance.
+    """Rank GitHub findings using the shared relevance scorer plus recency.
+
+    Delegates authority scoring to ``synthesis.ranker.compute_relevance_score``
+    and blends with a recency factor based on ``updated_at`` metadata.
 
     Score formula::
 
-        score = star_score * 0.5 + recency * 0.2 + relevance * 0.3
+        score = compute_relevance_score(f) * 0.8 + recency * 0.2
 
-    where ``star_score`` = min(stars / 10_000, 1.0) and ``recency``
-    decays from 1.0 (updated today) toward 0.0 for repos last updated
-    5+ years ago.
+    where ``recency`` decays from 1.0 (updated today) toward 0.0 for
+    repos last updated 5+ years ago.
 
     Args:
         findings: Unordered list of GitHub Findings.
@@ -245,14 +247,14 @@ def rank_github_findings(findings: list[Finding]) -> list[Finding]:
         New list sorted descending by composite score. The input list
         is not mutated.
     """
+    from tome.synthesis.ranker import compute_relevance_score  # noqa: PLC0415
+
     now = datetime.now(tz=timezone.utc)  # noqa: UP017
 
     def _score(f: Finding) -> float:
-        stars: int = f.metadata.get("stars", 0) or 0
         updated_at = _parse_updated_at(f.metadata.get("updated_at"))
         age_days = max((now - updated_at).days, 0)
         recency = max(1.0 - age_days / (5 * 365), 0.0)
-        star_score = min(stars / 10_000, 1.0)
-        return star_score * 0.5 + recency * 0.2 + f.relevance * 0.3
+        return compute_relevance_score(f) * 0.8 + recency * 0.2
 
     return sorted(findings, key=_score, reverse=True)

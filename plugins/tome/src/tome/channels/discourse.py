@@ -14,6 +14,9 @@ from urllib.parse import quote_plus
 
 from tome.models import Finding
 
+_LOBSTERS_BASE_RELEVANCE = 0.6
+_BLOG_BASE_RELEVANCE = 0.65
+
 # ---------------------------------------------------------------------------
 # Hacker News (Algolia API)
 # ---------------------------------------------------------------------------
@@ -167,7 +170,7 @@ def parse_lobsters_result(result: dict[str, Any]) -> Finding:
         channel="discourse",
         title=title,
         url=url,
-        relevance=0.6,
+        relevance=_LOBSTERS_BASE_RELEVANCE,
         summary=snippet or title,
         metadata={},
     )
@@ -189,7 +192,7 @@ _REDDIT_SUBREDDITS: dict[str, list[str]] = {
     "general": ["programming", "coding", "learnprogramming"],
 }
 
-_REDDIT_GENERAL = ["programming", "coding", "learnprogramming"]
+_REDDIT_GENERAL = _REDDIT_SUBREDDITS["general"]
 
 
 def build_reddit_search_url(
@@ -382,7 +385,7 @@ def parse_blog_result(result: dict[str, Any]) -> Finding:
         channel="discourse",
         title=title,
         url=url,
-        relevance=0.65,
+        relevance=_BLOG_BASE_RELEVANCE,
         summary=snippet or title,
         metadata={"domain": source},
     )

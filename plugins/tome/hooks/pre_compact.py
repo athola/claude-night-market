@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreCompact hook: checkpoint active research session."""
+"""PreCompact hook: inject active research session context."""
 
 from __future__ import annotations
 
@@ -13,16 +13,18 @@ except ImportError:
 
 
 def main() -> None:
-    """Save active session state before context compaction."""
+    """Inject active session context before compaction.
+
+    Reads the most recent active session and emits its topic
+    as additionalContext so the compacted prompt retains it.
+    Does not save or modify any session state.
+    """
     tome_dir = Path.cwd() / ".tome" / "sessions"
     result = load_active_session(tome_dir)
     if result is None:
         return
     topic, _finding_count = result
-    msg = (
-        f'Tome research session "{topic}" is active. '
-        f"Session state has been checkpointed."
-    )
+    msg = f'Tome research session "{topic}" is active.'
     print(json.dumps({"additionalContext": msg}))
 
 

@@ -71,8 +71,10 @@ class NotificationState:
             fd = os.open(str(state_file), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w") as f:
                 f.write(json.dumps(asdict(self)))
-        except OSError:
-            pass  # Non-critical, fail silently
+        except OSError as exc:
+            import sys
+
+            print(f"session_complete_notify: save failed: {exc}", file=sys.stderr)
 
     def clear_input_flag(self) -> None:
         """Clear the notified_since_input flag (called on user input)."""

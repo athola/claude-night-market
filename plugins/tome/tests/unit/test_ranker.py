@@ -332,14 +332,20 @@ class TestGroupByTheme:
         When group_by_theme is called
         Then an empty dict is returned
         """
-        assert group_by_theme({}) == {}  # type: ignore[arg-type]
+        assert group_by_theme([]) == {}
 
     @pytest.mark.unit
-    def test_empty_list_returns_empty_dict(self) -> None:
+    def test_semantic_scholar_gets_academic_bonus(self) -> None:
         """
-        Scenario: Empty list input
-        Given an empty list
-        When group_by_theme is called
-        Then an empty dict is returned
+        Scenario: Semantic Scholar findings get citation authority bonus
+        Given a semantic_scholar finding with 201 citations
+        When compute_relevance_score is called
+        Then score includes the +0.2 academic bonus
         """
-        assert group_by_theme([]) == {}
+        f = _make_finding(
+            0.6,
+            source="semantic_scholar",
+            channel="academic",
+            metadata={"citations": 201},
+        )
+        assert compute_relevance_score(f) == pytest.approx(0.8)

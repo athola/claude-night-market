@@ -35,7 +35,7 @@ with public APIs. We also maintain 25 execution hooks.
 | scribe | 1.7.0 | 3 | 4 | 3 | Yes | - |
 | scry | 1.7.0 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.7.0 | 10 | 3 | 3 | Yes | - |
-| tome | 1.7.0 | 4 | 7 | 4 | No | - |
+| tome | 1.7.0 | 4 | 7 | 4 | Yes | tome |
 
 ## Plugin Details
 
@@ -82,8 +82,8 @@ manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
 ### Imbue (v1.7.0)
-Structured review workflows. Offers commands for catchups,
-structured reviews, and stewardship health checks
+Review workflows. Offers commands for catchups,
+reviews, and stewardship health checks
 (`catchup`, `structured-review`, `stewardship-health`).
 Skills include `proof-of-work`, `scope-guard`,
 `rigorous-reasoning`, and `latent-space-engineering`.

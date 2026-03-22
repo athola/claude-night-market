@@ -29,15 +29,21 @@ class Finding:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Finding:
-        return cls(
-            source=d["source"],
-            channel=d["channel"],
-            title=d["title"],
-            url=d["url"],
-            relevance=d["relevance"],
-            summary=d["summary"],
-            metadata=d.get("metadata", {}),
-        )
+        try:
+            return cls(
+                source=d["source"],
+                channel=d["channel"],
+                title=d["title"],
+                url=d["url"],
+                relevance=d["relevance"],
+                summary=d["summary"],
+                metadata=d.get("metadata", {}),
+            )
+        except KeyError as exc:
+            raise KeyError(
+                f"Finding.from_dict missing required field {exc}: "
+                f"keys present = {sorted(d.keys())}"
+            ) from exc
 
 
 @dataclass
@@ -146,19 +152,25 @@ class ResearchSession:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> ResearchSession:
-        raw_created: str | None = d.get("created_at")
-        raw_updated: str | None = d.get("updated_at")
-        return cls(
-            id=d["id"],
-            topic=d["topic"],
-            domain=d["domain"],
-            triz_depth=d["triz_depth"],
-            channels=list(d["channels"]),
-            findings=[Finding.from_dict(f) for f in d.get("findings", [])],
-            status=d.get("status", "pending"),
-            created_at=datetime.fromisoformat(raw_created) if raw_created else None,
-            updated_at=datetime.fromisoformat(raw_updated) if raw_updated else None,
-        )
+        try:
+            raw_created: str | None = d.get("created_at")
+            raw_updated: str | None = d.get("updated_at")
+            return cls(
+                id=d["id"],
+                topic=d["topic"],
+                domain=d["domain"],
+                triz_depth=d["triz_depth"],
+                channels=list(d["channels"]),
+                findings=[Finding.from_dict(f) for f in d.get("findings", [])],
+                status=d.get("status", "pending"),
+                created_at=datetime.fromisoformat(raw_created) if raw_created else None,
+                updated_at=datetime.fromisoformat(raw_updated) if raw_updated else None,
+            )
+        except KeyError as exc:
+            raise KeyError(
+                f"ResearchSession.from_dict missing required field {exc}: "
+                f"keys present = {sorted(d.keys())}"
+            ) from exc
 
 
 @dataclass

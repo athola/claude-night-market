@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -271,7 +272,12 @@ class TestSessionManagerLoadLatest:
         Then the second (most recently written) session is returned
         """
         manager = SessionManager(tmp_path)
-        manager.create("first topic", "algorithm", "light", [])
+        first_session = manager.create("first topic", "algorithm", "light", [])
+        # Ensure distinct mtime on filesystems with 1-second resolution
+        first_path = manager._path_for(first_session.id)
+        os.utime(
+            first_path, (first_path.stat().st_mtime - 2, first_path.stat().st_mtime - 2)
+        )
         second = manager.create("second topic", "algorithm", "light", [])
 
         latest = manager.load_latest()
@@ -370,3 +376,195 @@ class TestSessionManagerListAll:
         assert s.domain == "algorithm"
         assert s.status == "complete"
         assert s.finding_count == 0
+
+
+class TestSessionManagerIdValidation:
+    """
+    Feature: Session ID path-traversal prevention
+
+    As a security safeguard
+    I want invalid session IDs rejected with ValueError
+    So that path-traversal attacks cannot escape the sessions directory
+    """
+
+    @pytest.mark.unit
+    def test_path_traversal_id_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: ID containing '../' is rejected
+        Given a session ID with path traversal characters
+        When load is called
+        Then ValueError is raised
+        """
+        manager = SessionManager(tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session ID"):
+            manager.load("../../etc/cron")
+
+    @pytest.mark.unit
+    def test_slash_in_id_rejected(self, tmp_path: Path) -> None:
+        """
+        Scenario: ID with forward slash is rejected
+        """
+        manager = SessionManager(tmp_path)
+
+        with pytest.raises(ValueError, match="Invalid session ID"):
+            manager.load("foo/bar")
+
+    @pytest.mark.unit
+    def test_valid_uuid_id_accepted(self, tmp_path: Path) -> None:
+        """
+        Scenario: Standard UUID-style ID is accepted
+        Given a session saved with a UUID id
+        When load is called with the same id
+        Then the session is returned without error
+        """
+        manager = SessionManager(tmp_path)
+        session = manager.create("test", "domain", "light", [])
+
+        loaded = manager.load(session.id)
+
+        assert loaded.id == session.id
+
+
+class TestSessionManagerCorruptFiles:
+    """
+    Feature: Graceful handling of corrupt session files
+
+    As a user with damaged session data
+    I want corrupt files skipped with a warning
+    So that valid sessions remain accessible
+    """
+
+    @pytest.mark.unit
+    def test_list_all_skips_corrupt_file(self, tmp_path: Path) -> None:
+        """
+        Scenario: One corrupt file among valid sessions
+        Given a valid session and a corrupt JSON file
+        When list_all is called
+        Then only the valid session appears in results
+        """
+        manager = SessionManager(tmp_path)
+        manager.create("valid topic", "domain", "light", [])
+        corrupt_path = tmp_path / ".tome" / "sessions" / "corrupt.json"
+        corrupt_path.write_text("{invalid json", encoding="utf-8")
+
+        summaries = manager.list_all()
+
+        assert len(summaries) == 1
+        assert summaries[0].topic == "valid topic"
+
+    @pytest.mark.unit
+    def test_load_latest_returns_none_on_corrupt_only(self, tmp_path: Path) -> None:
+        """
+        Scenario: Only file is corrupt
+        Given a single corrupt session file
+        When load_latest is called
+        Then None is returned
+        """
+        manager = SessionManager(tmp_path)
+        corrupt_path = tmp_path / ".tome" / "sessions" / "corrupt.json"
+        corrupt_path.write_text("not json at all", encoding="utf-8")
+
+        assert manager.load_latest() is None
+
+
+class TestFindingRoundTrip:
+    """
+    Feature: Finding serialization round-trip
+
+    As a persistence layer
+    I want to_dict/from_dict to be lossless
+    So that findings survive save/load without silent corruption
+    """
+
+    @pytest.mark.unit
+    def test_finding_round_trip(self) -> None:
+        """
+        Scenario: Finding survives to_dict then from_dict
+        Given a Finding with all fields populated
+        When serialized and deserialized
+        Then all fields match the original
+        """
+        original = Finding(
+            source="arxiv",
+            channel="academic",
+            title="Test Paper",
+            url="https://arxiv.org/abs/2301.12345",
+            relevance=0.85,
+            summary="A test paper.",
+            metadata={"authors": ["Smith"], "year": 2023},
+        )
+
+        restored = Finding.from_dict(original.to_dict())
+
+        assert restored.source == original.source
+        assert restored.channel == original.channel
+        assert restored.title == original.title
+        assert restored.url == original.url
+        assert restored.relevance == original.relevance
+        assert restored.summary == original.summary
+        assert restored.metadata == original.metadata
+
+    @pytest.mark.unit
+    def test_session_round_trip(self, tmp_path: Path) -> None:
+        """
+        Scenario: Full session with findings survives round-trip
+        Given a session with two findings
+        When saved and loaded
+        Then both findings and session metadata are preserved
+        """
+        manager = SessionManager(tmp_path)
+        session = manager.create("round-trip", "algorithm", "deep", ["code"])
+        session.add_finding(
+            Finding(
+                source="github",
+                channel="code",
+                title="repo-a",
+                url="https://github.com/a",
+                relevance=0.9,
+                summary="First finding",
+                metadata={"stars": 100},
+            )
+        )
+        session.add_finding(
+            Finding(
+                source="arxiv",
+                channel="academic",
+                title="paper-b",
+                url="https://arxiv.org/abs/1234",
+                relevance=0.7,
+                summary="Second finding",
+                metadata={"citations": 50},
+            )
+        )
+        manager.save(session)
+
+        loaded = manager.load(session.id)
+
+        assert loaded.topic == session.topic
+        assert loaded.domain == session.domain
+        assert loaded.triz_depth == session.triz_depth
+        assert len(loaded.findings) == 2
+        assert loaded.findings[0].title == "repo-a"
+        assert loaded.findings[0].metadata == {"stars": 100}
+        assert loaded.findings[1].title == "paper-b"
+        assert loaded.findings[1].metadata == {"citations": 50}
+
+    @pytest.mark.unit
+    def test_finding_from_dict_missing_key_gives_context(self) -> None:
+        """
+        Scenario: from_dict with missing key shows which field is absent
+        Given a dict missing the 'source' key
+        When Finding.from_dict is called
+        Then KeyError message names the missing field
+        """
+        incomplete = {
+            "channel": "code",
+            "title": "x",
+            "url": "",
+            "relevance": 0.5,
+            "summary": "",
+        }
+
+        with pytest.raises(KeyError, match="source"):
+            Finding.from_dict(incomplete)

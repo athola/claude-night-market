@@ -446,15 +446,13 @@ def suggest_inventive_principles(
     for num in selected_numbers:
         name, description = INVENTIVE_PRINCIPLES[num]
         # Look up the most specific application hint available
-        hint_key: tuple[int, str] | None = None
-        for (pnum, imp_frag), _ in _APPLICATION_HINTS.items():
+        application: str | None = None
+        for (pnum, imp_frag), hint in _APPLICATION_HINTS.items():
             if pnum == num and imp_frag in improving_lower:
-                hint_key = (pnum, imp_frag)
+                application = hint
                 break
 
-        if hint_key is not None:
-            application = _APPLICATION_HINTS[hint_key]
-        else:
+        if application is None:
             application = _default_application(num, improving)
 
         results.append(
@@ -497,8 +495,11 @@ def format_bridge_statement(
         A Finding with source="triz", channel="triz", and metadata
         recording bridge_confidence, source_field, and target_field.
     """
-    title = f"Bridge: {source_field} -> {target_domain}"
-    summary = f"In {source_field}, {source_solution}. This maps to {target_domain} as {application}."
+    title = f"Bridge: {source_field} to {target_domain}"
+    summary = (
+        f"In {source_field}, {source_solution}. "
+        f"This maps to {target_domain} as {application}."
+    )
     url = f"triz://bridge/{source_field.replace(' ', '-')}/{target_domain}"
 
     return Finding(
