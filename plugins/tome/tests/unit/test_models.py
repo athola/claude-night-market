@@ -113,6 +113,85 @@ class TestResearchPlan:
         assert plan.weights["code"] == 0.35
 
 
+class TestFindingValidation:
+    """
+    Feature: Finding post-init validation
+
+    As a pipeline consumer
+    I want relevance clamped to [0.0, 1.0] and channel validated
+    So that invalid data is caught at construction time
+    """
+
+    @pytest.mark.unit
+    def test_relevance_clamped_above_1(self) -> None:
+        """
+        Scenario: Relevance exceeds 1.0
+        Given a relevance of 1.5
+        When Finding is instantiated
+        Then relevance is clamped to 1.0
+        """
+        f = Finding("github", "code", "t", "u", 1.5, "s")
+        assert f.relevance == 1.0
+
+    @pytest.mark.unit
+    def test_relevance_clamped_below_0(self) -> None:
+        """
+        Scenario: Relevance is negative
+        Given a relevance of -0.3
+        When Finding is instantiated
+        Then relevance is clamped to 0.0
+        """
+        f = Finding("github", "code", "t", "u", -0.3, "s")
+        assert f.relevance == 0.0
+
+    @pytest.mark.unit
+    def test_relevance_within_range_unchanged(self) -> None:
+        """
+        Scenario: Relevance is within valid range
+        Given a relevance of 0.75
+        When Finding is instantiated
+        Then relevance stays 0.75
+        """
+        f = Finding("github", "code", "t", "u", 0.75, "s")
+        assert f.relevance == 0.75
+
+    @pytest.mark.unit
+    def test_relevance_at_boundaries(self) -> None:
+        """
+        Scenario: Relevance at exact boundaries
+        Given relevance of 0.0 and 1.0
+        When Finding is instantiated
+        Then values are preserved exactly
+        """
+        f0 = Finding("github", "code", "t", "u", 0.0, "s")
+        f1 = Finding("github", "code", "t", "u", 1.0, "s")
+        assert f0.relevance == 0.0
+        assert f1.relevance == 1.0
+
+    @pytest.mark.unit
+    def test_invalid_channel_raises_value_error(self) -> None:
+        """
+        Scenario: Unknown channel name
+        Given a channel value of 'invalid'
+        When Finding is instantiated
+        Then a ValueError is raised naming the bad channel
+        """
+        with pytest.raises(ValueError, match="Unknown channel.*'invalid'"):
+            Finding("github", "invalid", "t", "u", 0.5, "s")
+
+    @pytest.mark.unit
+    def test_valid_channels_accepted(self) -> None:
+        """
+        Scenario: All four valid channels
+        Given channels code, discourse, academic, triz
+        When Finding is instantiated for each
+        Then no error is raised
+        """
+        for ch in ("code", "discourse", "academic", "triz"):
+            f = Finding("src", ch, "t", "u", 0.5, "s")
+            assert f.channel == ch
+
+
 class TestFinding:
     """
     Feature: Finding model

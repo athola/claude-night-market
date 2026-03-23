@@ -75,6 +75,14 @@ Confirm that `Skill(sanctum:git-workspace-review)` is complete. If changes were 
 
 Execute formatting, linting, and tests using project-specific commands (e.g., `make fmt`, `make lint`, `make test`). Resolve all failures before proceeding. If a task cannot be executed locally, document the reason and the alternative validation performed. Language-specific commands and failure handling are detailed in `modules/quality-gates.md`.
 
+### Capabilities Reference Sync
+
+If any plugin files changed (plugin.json, skills, commands,
+agents, or hooks), run `make docs-sync-check` to verify
+`book/src/reference/capabilities-reference.md` is current.
+If it reports discrepancies, run `/sync-capabilities --fix`
+or update the reference manually before proceeding.
+
 ## Step 3: Summarize Changes (`changes-summarized`)
 
 Use the notes from the workspace review and the output of `git diff --stat origin/main...HEAD` to understand the scope. Identify key points in the diffs and group them into 2-4 paragraphs highlighting the technical changes and their rationale. Note breaking changes, migrations, or documentation updates.

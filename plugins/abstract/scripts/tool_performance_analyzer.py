@@ -98,9 +98,11 @@ class ToolPerformanceAnalyzer:
             )
 
             for tool_name, perf in results["tools"].items():
-                status = "" if perf["success"] else ""
-                " (timeout)" if perf.get("timeout") else ""
-                " (error)" if perf.get("error") else ""
+                status = "OK" if perf["success"] else "FAIL"
+                if perf.get("timeout"):
+                    status += " (timeout)"
+                if perf.get("error"):
+                    status += " (error)"
 
                 lines.append(
                     f"| {status} {tool_name} | {perf['execution_time']:.3f}s | "

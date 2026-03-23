@@ -89,7 +89,7 @@ guards.
 
 ## Launching the Orchestrator
 
-**You MUST launch the orchestrator agent in the FOREGROUND.**
+**Always launch the orchestrator agent in the FOREGROUND.**
 Do not use `run_in_background: true`. The main session
 becomes the egregore -- it blocks on the orchestrator agent
 until the egregore finishes or is dismissed.
@@ -98,7 +98,7 @@ until the egregore finishes or is dismissed.
 Agent(
   subagent_type: "egregore:orchestrator",
   prompt: "<context about work items and current state>",
-  run_in_background: false   // THIS IS CRITICAL
+  run_in_background: false   // Required
 )
 ```
 

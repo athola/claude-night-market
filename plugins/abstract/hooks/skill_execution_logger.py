@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from shared.skill_utils import parse_skill_name as _parse_skill_name
+
 # Threshold for triggering stability gap warnings
 # Based on Avalanche paper: gap > 0.3 indicates significant instability
 # See: https://avalanche.continualai.org/
@@ -138,9 +140,7 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
         Tuple of (plugin_name, skill_name)
 
     """
-    from shared.skill_utils import parse_skill_name as _parse
-
-    return _parse(tool_input)
+    return _parse_skill_name(tool_input)
 
 
 def sanitize_output(output: str, max_length: int = 5000) -> str:

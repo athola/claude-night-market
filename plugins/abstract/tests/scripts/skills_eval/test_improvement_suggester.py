@@ -1,5 +1,7 @@
 """Tests for improvement suggestion functionality."""
 
+from pathlib import Path
+
 import pytest
 
 from abstract.skills_eval import ImprovementSuggester
@@ -174,6 +176,26 @@ dependencies: [basic-skill]
         assert len(all_analyses) == self.EXPECTED_SKILL_COUNT
         assert all("name" in analysis for analysis in all_analyses)
         assert all("suggestions" in analysis for analysis in all_analyses)
+
+    def test_directory_path_used_directly_not_parent(self, tmp_path: Path) -> None:
+        """Test that directory path is used as skill_root, not its parent.
+
+        Bug #315: When skill_path is a directory, the suggester should
+        use that directory directly -- not .parent -- as the skill root.
+        """
+        skill_dir = tmp_path / "my-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: my-skill\ndescription: test\n---\n\n# My Skill\n"
+        )
+
+        # When given a directory, the suggester should use it directly
+        suggester = ImprovementSuggester(skill_dir)
+        assert suggester.skill_root == skill_dir
+
+        # When given a file, the suggester should use its parent
+        suggester_from_file = ImprovementSuggester((skill_dir / "SKILL.md").parent)
+        assert suggester_from_file.skill_root == skill_dir
 
     def test_prioritize_suggestions(self, temp_skill_dir) -> None:
         """Test suggestion prioritization."""

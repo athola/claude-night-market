@@ -5,9 +5,10 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 HOOK_DIR = Path(__file__).resolve().parents[3] / "hooks"
 sys.path.insert(0, str(HOOK_DIR))
@@ -256,3 +257,98 @@ class TestMainFunction:
         ledger = tmp_path / "nonexistent.json"
         with patch("deferred_item_sweep.get_ledger_path", return_value=ledger):
             main()
+
+
+class TestCallCaptureScriptDirect:
+    """Test call_capture_script with subprocess.run mocked at the subprocess level."""
+
+    def test_argument_construction(self) -> None:
+        """Verify correct args are passed to subprocess.run."""
+        from deferred_item_sweep import SCRIPT_DIR, call_capture_script
+
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"status": "created", "number": 1}'
+
+        with patch(
+            "deferred_item_sweep.subprocess.run", return_value=mock_proc
+        ) as mock_run:
+            call_capture_script("My Title", "war-room")
+
+        mock_run.assert_called_once()
+        args, kwargs = mock_run.call_args
+        cmd = args[0]
+
+        expected_script = str(SCRIPT_DIR / "deferred_capture.py")
+        assert cmd[0] == sys.executable
+        assert cmd[1] == expected_script
+        assert cmd[2:4] == ["--title", "My Title"]
+        assert cmd[4:6] == ["--source", "war-room"]
+        assert cmd[6:8] == ["--context", "Captured by Stop hook sweep"]
+        assert cmd[8:10] == ["--captured-by", "safety-net"]
+        assert kwargs["capture_output"] is True
+        assert kwargs["text"] is True
+        assert kwargs["timeout"] == 15
+
+    def test_successful_json_output_is_parsed(self) -> None:
+        """When subprocess exits 0 with valid JSON, the parsed dict is returned."""
+        from deferred_item_sweep import call_capture_script
+
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"status": "created", "number": 42}'
+
+        with patch("deferred_item_sweep.subprocess.run", return_value=mock_proc):
+            result = call_capture_script("Item", "test")
+
+        assert result == {"status": "created", "number": 42}
+
+    def test_nonzero_returncode_returns_stderr(self) -> None:
+        """When subprocess exits non-zero, stderr is returned as an error."""
+        from deferred_item_sweep import call_capture_script
+
+        mock_proc = MagicMock()
+        mock_proc.returncode = 1
+        mock_proc.stderr = "  gh: authentication required  "
+
+        with patch("deferred_item_sweep.subprocess.run", return_value=mock_proc):
+            result = call_capture_script("Item", "test")
+
+        assert result["status"] == "error"
+        assert result["message"] == "gh: authentication required"
+
+    def test_timeout_expired_handled_gracefully(self) -> None:
+        """TimeoutExpired from subprocess is caught and returns error dict."""
+        from deferred_item_sweep import call_capture_script
+
+        exc = subprocess.TimeoutExpired(cmd=["python", "script.py"], timeout=15)
+        with patch("deferred_item_sweep.subprocess.run", side_effect=exc):
+            result = call_capture_script("Slow item", "test")
+
+        assert result["status"] == "error"
+        assert "timed out" in result["message"].lower() or "15" in result["message"]
+
+    def test_malformed_json_output_handled_gracefully(self) -> None:
+        """When subprocess exits 0 but stdout is not valid JSON, error dict is returned."""
+        from deferred_item_sweep import call_capture_script
+
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = "not valid json {{{{"
+
+        with patch("deferred_item_sweep.subprocess.run", return_value=mock_proc):
+            result = call_capture_script("Bad output", "test")
+
+        assert result["status"] == "error"
+        assert result["message"]  # non-empty error message
+
+    def test_oserror_handled_gracefully(self) -> None:
+        """OSError (e.g. script not found) is caught and returns error dict."""
+        from deferred_item_sweep import call_capture_script
+
+        exc = OSError("No such file or directory: 'deferred_capture.py'")
+        with patch("deferred_item_sweep.subprocess.run", side_effect=exc):
+            result = call_capture_script("Missing script", "test")
+
+        assert result["status"] == "error"
+        assert "No such file" in result["message"]

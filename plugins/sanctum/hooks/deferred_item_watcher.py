@@ -15,6 +15,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from _ledger_utils import get_ledger_path as _get_ledger_path
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -54,9 +56,7 @@ def _normalize_title(title: str) -> str:
 
 def get_ledger_path() -> Path:
     """Return the session ledger path, respecting CLAUDE_HOME."""
-    from _ledger_utils import get_ledger_path as _get_path
-
-    return _get_path()
+    return _get_ledger_path()
 
 
 def read_ledger(path: Path) -> list[dict]:

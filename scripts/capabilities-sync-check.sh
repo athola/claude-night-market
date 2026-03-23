@@ -58,10 +58,12 @@ done
 # Extract documented entries from the capabilities reference markdown tables
 # Skills section: between "### All Skills" and the next "###"
 doc_skills=$(sed -n '/^### All Skills/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
-# Commands section
-doc_commands=$(sed -n '/^### All Commands/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
+# Commands section: strip leading / and plugin: namespace prefix so
+# /tome:research -> research, /commit-msg -> commit-msg
+doc_commands=$(sed -n '/^### All Commands/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF" \
+  | sed 's|^/||; s|^[a-z-]*:||')
 # Agents section
-doc_agents=$(sed -n '/^### All Agents/,/^### \|^$/{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
+doc_agents=$(sed -n '/^### All Agents/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
 
 echo "=== Capabilities Sync Check ==="
 echo ""

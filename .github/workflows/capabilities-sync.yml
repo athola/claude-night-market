@@ -1,0 +1,38 @@
+name: Capabilities Sync
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/**/.claude-plugin/plugin.json'
+      - 'plugins/*/skills/**'
+      - 'plugins/*/commands/**'
+      - 'plugins/*/agents/**'
+      - 'plugins/*/hooks/**'
+      - 'book/src/reference/capabilities-reference.md'
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check capabilities reference is in sync
+        id: check
+        run: bash scripts/capabilities-sync-check.sh
+
+      - name: Comment on PR if out of sync
+        if: failure() && steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" --body "**Capabilities reference out of sync**
+
+          Plugin registrations (plugin.json) do not match
+          \`book/src/reference/capabilities-reference.md\`.
+
+          Run \`/sync-capabilities --fix\` or update the
+          reference manually, then push the fix."

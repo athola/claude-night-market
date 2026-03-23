@@ -143,7 +143,7 @@ pytest tests/scripts/test_python_pro_agent.py -v
 ## Test Data and Fixtures
 
 ### Language Samples
-- **Python**: Modern Python 3.12+ with type hints, async/await
+- **Python**: Modern Python 3.9+ with type hints, async/await
 - **JavaScript**: ES6+ with async/await, classes, modules
 - **TypeScript**: Type-safe JavaScript with interfaces and generics
 - **Rust**: Safe systems programming with ownership and lifetimes

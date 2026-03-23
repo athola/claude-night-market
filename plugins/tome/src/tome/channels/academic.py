@@ -157,6 +157,17 @@ def parse_arxiv_response(xml_text: str) -> list[Finding]:
 # Semantic Scholar
 # ---------------------------------------------------------------------------
 
+_CITATION_TIER_LANDMARK = 500
+_CITATION_TIER_HIGH = 100
+_CITATION_TIER_MODERATE = 50
+_CITATION_TIER_LOW = 10
+
+_RELEVANCE_LANDMARK = 0.9
+_RELEVANCE_HIGH = 0.8
+_RELEVANCE_MODERATE = 0.7
+_RELEVANCE_LOW = 0.6
+_RELEVANCE_MINIMAL = 0.5
+
 _SS_API_BASE = "https://api.semanticscholar.org/graph/v1/paper/search"
 _SS_FIELDS = (
     "title,abstract,year,citationCount,influentialCitationCount,"
@@ -180,15 +191,15 @@ def build_semantic_scholar_url(topic: str, limit: int = 10) -> str:
 
 def _citation_relevance(citations: int) -> float:
     """Map citation count to a relevance score on the configured tiers."""
-    if citations >= 500:
-        return 0.9
-    if citations >= 100:
-        return 0.8
-    if citations >= 50:
-        return 0.7
-    if citations >= 10:
-        return 0.6
-    return 0.5
+    if citations >= _CITATION_TIER_LANDMARK:
+        return _RELEVANCE_LANDMARK
+    if citations >= _CITATION_TIER_HIGH:
+        return _RELEVANCE_HIGH
+    if citations >= _CITATION_TIER_MODERATE:
+        return _RELEVANCE_MODERATE
+    if citations >= _CITATION_TIER_LOW:
+        return _RELEVANCE_LOW
+    return _RELEVANCE_MINIMAL
 
 
 def parse_semantic_scholar_response(data: dict[str, Any]) -> list[Finding]:

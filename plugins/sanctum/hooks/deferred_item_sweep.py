@@ -12,14 +12,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+from _ledger_utils import get_ledger_path as _get_ledger_path
+
 SCRIPT_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
 
 def get_ledger_path() -> Path:
     """Return the session-scoped ledger path."""
-    from _ledger_utils import get_ledger_path as _get_path
-
-    return _get_path()
+    return _get_ledger_path()
 
 
 def call_capture_script(title: str, source: str) -> dict:

@@ -12,6 +12,9 @@ def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
+_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
+
+
 @dataclass
 class Finding:
     """A single research finding from a channel."""
@@ -23,6 +26,13 @@ class Finding:
     relevance: float
     summary: str
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self.relevance = max(0.0, min(1.0, self.relevance))
+        if self.channel not in _VALID_CHANNELS:
+            raise ValueError(
+                f"Unknown channel: {self.channel!r}. Valid: {sorted(_VALID_CHANNELS)}"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

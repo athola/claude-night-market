@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check stargazer-analysis demo verify-deferred-capture
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -138,6 +138,66 @@ check-examples: ## Verify all plugins have proper examples
 
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
+
+stargazer-analysis: ## Analyze stargazer overlap for community targeting
+	@bash scripts/stargazer-overlap.sh --limit 50
+
+# ---------- ClawHub / OpenClaw export ----------
+
+CLAWHUB_DIR := clawhub
+
+.PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean
+
+clawhub-export: ## Export all skills to ClawHub/OpenClaw format
+	@echo "=== Exporting skills to ClawHub format ==="
+	@uv run python scripts/clawhub_export.py --output $(CLAWHUB_DIR)
+	@uv run python scripts/clawhub_export.py --validate --output $(CLAWHUB_DIR)
+	@echo "=== Export complete and validated ==="
+
+clawhub-export-top: ## Export top 20 most marketable skills to ClawHub
+	@echo "=== Exporting top 20 skills to ClawHub format ==="
+	@uv run python scripts/clawhub_export.py --output $(CLAWHUB_DIR) --top 20
+	@uv run python scripts/clawhub_export.py --validate --output $(CLAWHUB_DIR)
+	@echo "=== Export complete and validated ==="
+
+clawhub-validate: ## Validate existing ClawHub export
+	@uv run python scripts/clawhub_export.py --validate --output $(CLAWHUB_DIR)
+
+clawhub-stats: ## Show skill export statistics
+	@uv run python scripts/clawhub_export.py --stats
+
+clawhub-clean: ## Remove ClawHub export directory
+	@rm -rf $(CLAWHUB_DIR)
+	@echo "Cleaned $(CLAWHUB_DIR)/"
+
+bridge-build: clawhub-export ## Build OpenClaw bridge plugin from export
+	@echo "=== Building OpenClaw bridge plugin ==="
+	@uv run python scripts/build_bridge.py
+	@echo "=== Bridge plugin ready at bridge/openclaw/ ==="
+
+bridge-clean: ## Clean bridge plugin skills
+	@rm -rf bridge/openclaw/skills bridge/a2a
+	@echo "Cleaned bridge/"
+
+a2a-cards: ## Generate A2A agent cards for cross-framework discovery
+	@echo "=== Generating A2A agent cards ==="
+	@uv run python scripts/a2a_cards.py --output bridge/a2a/
+	@echo "=== A2A cards ready at bridge/a2a/ ==="
+
+a2a-list: ## List agents available for A2A card generation
+	@uv run python scripts/a2a_cards.py --list
+
+detect-framework: ## Detect active agentic framework
+	@uv run python scripts/framework_detect.py
+
+cross-framework: clawhub-export bridge-build a2a-cards ## Build all cross-framework artifacts
+	@echo ""
+	@echo "=== Cross-Framework Build Complete ==="
+	@echo "  ClawHub export: clawhub/ (142 skills)"
+	@echo "  OpenClaw bridge: bridge/openclaw/ (plugin ready)"
+	@echo "  A2A agent cards: bridge/a2a/ (47 agents)"
+	@echo ""
+	@uv run python scripts/framework_detect.py
 
 verify-deferred-capture:  ## Verify all deferred_capture.py wrappers conform to leyline contract
 	@echo "Verifying deferred_capture.py compliance..."

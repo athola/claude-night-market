@@ -48,7 +48,7 @@ _HIGH_SEVERITY = [
 _INVISIBLE_TEXT = [
     re.compile(p)
     for p in [
-        r"display:\s*none",
+        r'style\s*=\s*["\'][^"\']*display:\s*none',
         r"visibility:\s*hidden",
         r"color:\s*(?:white|#fff(?:fff)?)\b",
         r"color:\s*rgb\(\s*255",
@@ -133,8 +133,10 @@ def sanitize_output(content: str | None) -> str:
             "new instructions",
             "eval(",
             "exec(",
-            "display:none",
-            "display: none",
+            'style="display:none',
+            "style='display:none",
+            'style="display: none',
+            "style='display: none",
             "visibility:hidden",
             "visibility: hidden",
             "opacity:0",
@@ -142,14 +144,19 @@ def sanitize_output(content: str | None) -> str:
             "font-size:0",
             "font-size: 0",
         ]
-        # Scan both head and tail — attackers pad benign content before payloads
-        head = content[:_MAX_SCAN_SIZE].lower()
-        tail = (
-            content[-_MAX_SCAN_SIZE:].lower() if len(content) > _MAX_SCAN_SIZE else ""
-        )
-        for check in fast_checks:
-            if check in head or check in tail:
-                return "[CONTENT BLOCKED: injection pattern detected in large output]"
+        # Scan in chunks with overlap to cover entire content
+        chunk_size = _MAX_SCAN_SIZE  # 100KB
+        overlap = 1024  # 1KB overlap to catch patterns at boundaries
+        pos = 0
+        while pos < len(content):
+            end = min(pos + chunk_size, len(content))
+            chunk = content[pos:end].lower()
+            for check in fast_checks:
+                if check in chunk:
+                    return (
+                        "[CONTENT BLOCKED: injection pattern detected in large output]"
+                    )
+            pos += chunk_size - overlap
         return content
 
     # High severity: strip (fail-closed)

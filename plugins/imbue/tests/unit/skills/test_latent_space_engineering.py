@@ -2,11 +2,109 @@
 
 This module tests the three core techniques: emotional framing, style gene
 transfer, and competitive review patterns. Following TDD/BDD principles.
+
+Note: latent-space-engineering is a markdown-only methodology skill with no
+Python source modules. The tests below validate:
+  1. Skill file structure (SKILL.md exists, has frontmatter, modules present)
+  2. Methodology concepts (emotional framing, style gene transfer, competitive
+     review) using inline logic that mirrors the rules documented in the skill
+     markdown files.
+Structural and conceptual tests are the appropriate test type for skills that
+contain no executable Python code. See GitHub issue #320.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
+
+
+class TestLatentSpaceEngineeringStructure:
+    """Feature: Skill file structure is valid and discoverable.
+
+    As a plugin developer
+    I want the skill to have proper structure
+    So that it can be discovered and loaded correctly
+    """
+
+    @pytest.fixture
+    def skill_dir(self) -> Path:
+        """Return the skill directory path."""
+        return Path(__file__).parents[3] / "skills" / "latent-space-engineering"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_file_exists(self, skill_dir: Path) -> None:
+        """Scenario: SKILL.md file exists.
+
+        Given the latent-space-engineering skill directory
+        When checking for SKILL.md
+        Then the file should exist
+        """
+        skill_file = skill_dir / "SKILL.md"
+        assert skill_file.exists(), f"SKILL.md not found at {skill_file}"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_has_frontmatter(self, skill_dir: Path) -> None:
+        """Scenario: SKILL.md has valid YAML frontmatter.
+
+        Given the SKILL.md file
+        When parsing the file
+        Then it should have YAML frontmatter with required fields
+        """
+        skill_file = skill_dir / "SKILL.md"
+        content = skill_file.read_text()
+
+        assert content.startswith("---"), "SKILL.md should start with frontmatter"
+        assert content.count("---") >= 2, "SKILL.md should have closing frontmatter"
+
+        # Verify required frontmatter fields
+        frontmatter_end = content.index("---", 3)
+        frontmatter = content[3:frontmatter_end]
+        assert "name:" in frontmatter, "Frontmatter missing 'name' field"
+        assert "description:" in frontmatter, "Frontmatter missing 'description' field"
+        assert "category:" in frontmatter, "Frontmatter missing 'category' field"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_all_modules_exist(self, skill_dir: Path) -> None:
+        """Scenario: All declared modules are present on disk.
+
+        Given the SKILL.md frontmatter declares module dependencies
+        When checking the modules directory
+        Then each declared module file should exist
+        """
+        expected_modules = [
+            "modules/emotional-framing.md",
+            "modules/style-gene-transfer.md",
+            "modules/competitive-review.md",
+        ]
+        for module_path in expected_modules:
+            full_path = skill_dir / module_path
+            assert full_path.exists(), f"Module not found: {full_path}"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_modules_have_frontmatter(self, skill_dir: Path) -> None:
+        """Scenario: Each module file has valid frontmatter.
+
+        Given the module markdown files
+        When parsing each file
+        Then each should have YAML frontmatter with parent_skill
+        """
+        modules_dir = skill_dir / "modules"
+        for md_file in sorted(modules_dir.glob("*.md")):
+            content = md_file.read_text()
+            assert content.startswith("---"), (
+                f"{md_file.name} should start with frontmatter"
+            )
+            frontmatter_end = content.index("---", 3)
+            frontmatter = content[3:frontmatter_end]
+            assert "parent_skill:" in frontmatter, (
+                f"{md_file.name} missing 'parent_skill' field"
+            )
 
 
 class TestEmotionalFraming:

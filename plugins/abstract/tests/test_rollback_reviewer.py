@@ -105,3 +105,47 @@ class TestCreateGithubIssue:
         reviewer = RollbackReviewer()
         result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
         assert result is None
+
+    @patch("abstract.rollback_reviewer.subprocess.run")
+    def test_should_return_none_on_malformed_json(self, mock_run) -> None:
+        """Given script returns rc=0 but invalid JSON, then return None.
+
+        Bug #321: When subprocess succeeds (returncode 0) but stdout
+        is not valid JSON, create_github_issue should return None
+        instead of raising JSONDecodeError.
+        """
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="not valid json at all",
+            stderr="",
+        )
+        reviewer = RollbackReviewer()
+        result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
+        assert result is None
+
+    @patch("abstract.rollback_reviewer.subprocess.run")
+    def test_should_return_none_on_empty_stdout(self, mock_run) -> None:
+        """Given script returns rc=0 but empty stdout, then return None."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="",
+            stderr="",
+        )
+        reviewer = RollbackReviewer()
+        result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
+        assert result is None
+
+    @patch("abstract.rollback_reviewer.subprocess.run")
+    def test_should_return_none_when_json_missing_issue_url(self, mock_run) -> None:
+        """Given script returns valid JSON without issue_url key, then return None."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout='{"status": "created", "number": 42}',
+            stderr="",
+        )
+        reviewer = RollbackReviewer()
+        result = reviewer.create_github_issue(**self.ISSUE_KWARGS)
+        assert result is None

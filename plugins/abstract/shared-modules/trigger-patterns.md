@@ -89,8 +89,8 @@ description: |
   DO NOT use when: exploring/reading code only - no skill needed.
   DO NOT use when: writing documentation - use technical-writing.
 
-  YOU MUST use this skill before writing any production code.
-  This is NON-NEGOTIABLE. No exceptions without explicit user permission.
+  Always use this skill before writing any production code.
+  This is essential. No exceptions without explicit user permission.
 ---
 ```
 

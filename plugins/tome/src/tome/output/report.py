@@ -10,6 +10,13 @@ from tome.synthesis.ranker import compute_relevance_score, group_by_theme
 
 _WRAP = 80
 
+_SECTIONS = [
+    ("code", "Code Implementations", "stars"),
+    ("discourse", "Community Perspectives", "score"),
+    ("academic", "Academic Literature", "citations"),
+    ("triz", "Cross-Domain Insights", None),
+]
+
 
 def _wrap(text: str) -> str:
     """Wrap a prose paragraph at _WRAP characters."""
@@ -45,33 +52,16 @@ def format_report(session: ResearchSession) -> str:
     parts.append(_section("Executive Summary"))
     parts.append(_wrap(generate_executive_summary(session.findings, session.topic)))
 
-    # --- Code Implementations ---
-    code_findings = groups.get("code", [])
-    if code_findings:
-        parts.append(_section("Code Implementations"))
-        for f in code_findings:
-            parts.append(_finding_block(f, show_key="stars"))
-
-    # --- Community Perspectives ---
-    discourse_findings = groups.get("discourse", [])
-    if discourse_findings:
-        parts.append(_section("Community Perspectives"))
-        for f in discourse_findings:
-            parts.append(_finding_block(f, show_key="score"))
-
-    # --- Academic Literature ---
-    academic_findings = groups.get("academic", [])
-    if academic_findings:
-        parts.append(_section("Academic Literature"))
-        for f in academic_findings:
-            parts.append(_finding_block(f, show_key="citations"))
-
-    # --- Cross-Domain Insights (TRIZ) ---
-    triz_findings = groups.get("triz", [])
-    if triz_findings:
-        parts.append(_section("Cross-Domain Insights"))
-        for f in triz_findings:
-            parts.append(_finding_block(f))
+    # --- Channel sections (data-driven) ---
+    for group_key, heading, show_key in _SECTIONS:
+        section_findings = groups.get(group_key, [])
+        if section_findings:
+            parts.append(_section(heading))
+            for f in section_findings:
+                if show_key:
+                    parts.append(_finding_block(f, show_key=show_key))
+                else:
+                    parts.append(_finding_block(f))
 
     # --- Recommendations ---
     parts.append(_section("Recommendations"))

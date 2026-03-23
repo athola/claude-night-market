@@ -9,24 +9,9 @@ So that the ranker and report formatter receive unique, high-quality inputs
 from __future__ import annotations
 
 import pytest
-from tome.models import Finding
 from tome.synthesis.merger import deduplicate, merge_findings
 
-
-def _make_finding(
-    url: str,
-    relevance: float,
-    source: str = "github",
-    channel: str = "code",
-) -> Finding:
-    return Finding(
-        source=source,
-        channel=channel,
-        title=f"Title for {url}",
-        url=url,
-        relevance=relevance,
-        summary="A summary.",
-    )
+from tests.factories import make_finding
 
 
 class TestDeduplicate:
@@ -47,9 +32,9 @@ class TestDeduplicate:
         Then all findings are returned, order preserved
         """
         findings = [
-            _make_finding("https://example.com/a", 0.8),
-            _make_finding("https://example.com/b", 0.6),
-            _make_finding("https://example.com/c", 0.7),
+            make_finding(0.8, url="https://example.com/a"),
+            make_finding(0.6, url="https://example.com/b"),
+            make_finding(0.7, url="https://example.com/c"),
         ]
 
         result = deduplicate(findings)
@@ -69,8 +54,8 @@ class TestDeduplicate:
         When deduplicate is called
         Then only the 0.9-relevance finding is kept
         """
-        low = _make_finding("https://example.com/shared", 0.5)
-        high = _make_finding("https://example.com/shared", 0.9)
+        low = make_finding(0.5, url="https://example.com/shared")
+        high = make_finding(0.9, url="https://example.com/shared")
 
         result = deduplicate([low, high])
 
@@ -85,8 +70,8 @@ class TestDeduplicate:
         When deduplicate is called
         Then exactly one finding is returned
         """
-        a = _make_finding("https://example.com/tied", 0.7)
-        b = _make_finding("https://example.com/tied", 0.7)
+        a = make_finding(0.7, url="https://example.com/tied")
+        b = make_finding(0.7, url="https://example.com/tied")
 
         result = deduplicate([a, b])
 
@@ -110,7 +95,7 @@ class TestDeduplicate:
         When deduplicate is called
         Then that finding is returned unchanged
         """
-        f = _make_finding("https://example.com/only", 0.75)
+        f = make_finding(0.75, url="https://example.com/only")
         result = deduplicate([f])
         assert result == [f]
 
@@ -123,11 +108,11 @@ class TestDeduplicate:
         Then two findings are returned, each the highest-relevance version
         """
         findings = [
-            _make_finding("https://example.com/a", 0.4),
-            _make_finding("https://example.com/b", 0.3),
-            _make_finding("https://example.com/a", 0.8),
-            _make_finding("https://example.com/b", 0.6),
-            _make_finding("https://example.com/b", 0.5),
+            make_finding(0.4, url="https://example.com/a"),
+            make_finding(0.3, url="https://example.com/b"),
+            make_finding(0.8, url="https://example.com/a"),
+            make_finding(0.6, url="https://example.com/b"),
+            make_finding(0.5, url="https://example.com/b"),
         ]
 
         result = deduplicate(findings)
@@ -156,11 +141,11 @@ class TestMergeFindings:
         Then all findings appear in the result
         """
         code = [
-            _make_finding("https://github.com/a", 0.8, channel="code"),
-            _make_finding("https://github.com/b", 0.7, channel="code"),
+            make_finding(0.8, url="https://github.com/a", channel="code"),
+            make_finding(0.7, url="https://github.com/b", channel="code"),
         ]
         discourse = [
-            _make_finding("https://hn.com/1", 0.6, source="hn", channel="discourse"),
+            make_finding(0.6, url="https://hn.com/1", source="hn", channel="discourse"),
         ]
 
         result = merge_findings([code, discourse])
@@ -176,8 +161,8 @@ class TestMergeFindings:
         Then only one finding for that URL is in the result
         """
         shared_url = "https://example.com/shared"
-        code = [_make_finding(shared_url, 0.5, channel="code")]
-        discourse = [_make_finding(shared_url, 0.9, channel="discourse")]
+        code = [make_finding(0.5, url=shared_url, channel="code")]
+        discourse = [make_finding(0.9, url=shared_url, channel="discourse")]
 
         result = merge_findings([code, discourse])
 
@@ -212,11 +197,11 @@ class TestMergeFindings:
         When merge_findings is called
         Then all three findings are present
         """
-        code = [_make_finding("https://github.com/x", 0.8, channel="code")]
-        discourse = [_make_finding("https://hn.com/x", 0.7, channel="discourse")]
+        code = [make_finding(0.8, url="https://github.com/x", channel="code")]
+        discourse = [make_finding(0.7, url="https://hn.com/x", channel="discourse")]
         academic = [
-            _make_finding(
-                "https://arxiv.org/x", 0.9, source="arxiv", channel="academic"
+            make_finding(
+                0.9, url="https://arxiv.org/x", source="arxiv", channel="academic"
             )
         ]
 
