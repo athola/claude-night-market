@@ -49,6 +49,19 @@ Agents without contracts will not have their output
 validated. See `imbue:proof-of-work/modules/output-contracts`
 for the full schema and templates.
 
+**Worktree isolation decision:**
+
+- Agents modifying **overlapping files**: use
+  `isolation: "worktree"` for ALL of them
+- Agents modifying **disjoint files**: skip isolation
+- **Never mix** worktree and direct agents on the
+  same file set (silent data loss)
+- After dispatch: verify with `git worktree list`
+  and `git diff --stat`
+
+Reference: `do-issue/modules/parallel-execution.md`
+(Worktree Isolation section)
+
 **Why this rule exists:**
 
 - 4+ agents without a plan -> lost observability,
@@ -59,6 +72,8 @@ for the full schema and templates.
   the wrong dimensions
 - Without output contracts, agents cut corners and
   produce unverifiable findings
+- Agents can delete files and fail to recreate
+  replacements (verify outputs exist)
 
 **Threshold:** 1-3 agents can dispatch directly.
 4+ agents require plan mode.

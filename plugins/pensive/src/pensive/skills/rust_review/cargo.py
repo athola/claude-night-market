@@ -1,0 +1,252 @@
+"""Cargo dependency, build configuration, and panic analysis for Rust review."""
+
+from __future__ import annotations
+
+import re
+from typing import Any
+
+__all__ = ["CargoBuildMixin"]
+
+
+class CargoBuildMixin:
+    """Mixin providing Cargo.toml, build configuration, and panic analysis."""
+
+    def analyze_panic_propagation(
+        self,
+        context: Any,
+        file_path: str,
+    ) -> dict[str, Any]:
+        """Analyze error handling and panic usage.
+
+        Args:
+            context: Skill context with file access
+            file_path: Path to Rust file to analyze
+
+        Returns:
+            Dictionary with panic_points, unwrap_usage, and index_panics
+        """
+        content = context.get_file_content(file_path)
+        panic_points = []
+        unwrap_usage = []
+        index_panics = []
+
+        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        for i, line in enumerate(lines):
+            # Detect explicit panic! calls
+            if re.search(r"panic!\s*\(", line):
+                panic_points.append(
+                    {
+                        "line": i + 1,
+                        "type": "explicit_panic",
+                        "description": "Explicit panic! call",
+                    }
+                )
+
+            # Detect unwrap() usage
+            if re.search(r"\.unwrap\(\)", line):
+                unwrap_usage.append(
+                    {
+                        "line": i + 1,
+                        "type": "unwrap",
+                        "description": "Using unwrap() - can panic if None/Err",
+                    }
+                )
+                panic_points.append(
+                    {
+                        "line": i + 1,
+                        "type": "unwrap_panic",
+                        "description": "unwrap() can cause panic",
+                    }
+                )
+
+            # Detect array/vector indexing that can panic
+            if re.search(r"\w+\[\d+\]", line) and "get(" not in line:
+                index_panics.append(
+                    {
+                        "line": i + 1,
+                        "type": "index_access",
+                        "description": (
+                            "Direct index access can panic if out of bounds"
+                        ),
+                    }
+                )
+
+        return {
+            "panic_points": panic_points,
+            "unwrap_usage": unwrap_usage,
+            "index_panics": index_panics,
+        }
+
+    def analyze_dependencies(
+        self,
+        context: Any,
+    ) -> dict[str, Any]:
+        """Analyze Cargo.toml dependencies.
+
+        Args:
+            context: Skill context with file access
+
+        Returns:
+            Dictionary with dependency analysis
+        """
+        try:
+            content = context.get_file_content("Cargo.toml")
+        except Exception:
+            return {
+                "dependencies": [],
+                "version_issues": [],
+                "security_concerns": [],
+                "feature_analysis": [],
+            }
+
+        dependencies = []
+        version_issues = []
+        security_concerns = []
+        feature_analysis = []
+
+        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        in_dependencies = False
+        in_features = False
+
+        for _i, line in enumerate(lines):
+            if "[dependencies]" in line:
+                in_dependencies = True
+                in_features = False
+                continue
+            elif "[features]" in line:
+                in_features = True
+                in_dependencies = False
+                continue
+            elif line.startswith("[") and line.endswith("]"):
+                in_dependencies = False
+                in_features = False
+                continue
+
+            if in_dependencies and "=" in line and not line.strip().startswith("#"):
+                deps = re.match(r'(\w+)\s*=\s*"([^"]+)"', line.strip())
+                if deps:
+                    name, version = deps.groups()
+                    dependencies.append({"name": name, "version": version})
+
+                    if not any(c in version for c in ["^", "~", ">", "<", "*"]):
+                        version_issues.append(
+                            {
+                                "dependency": name,
+                                "issue": ("Exact version - consider version ranges"),
+                            }
+                        )
+
+                if "tokio" in line and 'features = ["full"]' in line:
+                    version_issues.append(
+                        {
+                            "dependency": "tokio",
+                            "issue": (
+                                "'full' features - consider selecting only needed"
+                            ),
+                        }
+                    )
+
+                if re.search(r'openssl.*"0\.', line):
+                    security_concerns.append(
+                        {
+                            "dependency": "openssl",
+                            "issue": "Older version - check security issues",
+                        }
+                    )
+
+            if in_features and "=" in line and not line.strip().startswith("#"):
+                feature_match = re.match(r"(\w+)\s*=\s*\[(.*)\]", line.strip())
+                if feature_match:
+                    name, features = feature_match.groups()
+                    if not features.strip():
+                        feature_analysis.append(
+                            {
+                                "feature": name,
+                                "issue": "Empty feature definition",
+                            }
+                        )
+
+        return {
+            "dependencies": dependencies,
+            "version_issues": version_issues,
+            "security_concerns": security_concerns,
+            "feature_analysis": feature_analysis,
+        }
+
+    def analyze_build_configuration(
+        self,
+        context: Any,
+    ) -> dict[str, Any]:
+        """Analyze build configuration for optimization opportunities.
+
+        Args:
+            context: Skill context with file access
+
+        Returns:
+            Dictionary with build configuration analysis
+        """
+        optimization_level = "default"
+        target_specific = []
+        dependency_optimization = []
+        recommendations = []
+
+        try:
+            cargo_content = context.get_file_content("Cargo.toml")
+            if "[profile.release]" in cargo_content:
+                optimization_level = "release"
+            if "opt-level" in cargo_content:
+                optimization_level = "custom"
+
+            if 'features = ["derive"]' in cargo_content:
+                dependency_optimization.append(
+                    {
+                        "type": "feature_selection",
+                        "description": ("Using selective features for dependencies"),
+                    }
+                )
+        except (FileNotFoundError, OSError):
+            pass
+
+        try:
+            config_content = context.get_file_content(".cargo/config.toml")
+            if "[target." in config_content:
+                target_match = re.search(r"\[target\.([^\]]+)\]", config_content)
+                if target_match:
+                    target_specific.append(
+                        {
+                            "target": target_match.group(1),
+                            "configured": True,
+                        }
+                    )
+
+            if "linker" in config_content:
+                target_specific.append(
+                    {
+                        "type": "custom_linker",
+                        "description": "Custom linker configured",
+                    }
+                )
+        except (FileNotFoundError, OSError):
+            pass
+
+        if optimization_level == "default":
+            recommendations.append(
+                "Consider adding [profile.release] optimization settings"
+            )
+
+        if not target_specific:
+            recommendations.append(
+                "Consider target-specific optimizations in .cargo/config.toml"
+            )
+
+        if not dependency_optimization:
+            recommendations.append(
+                "Review dependency features to reduce compilation time"
+            )
+
+        return {
+            "optimization_level": optimization_level,
+            "target_specific": target_specific,
+            "dependency_optimization": dependency_optimization,
+            "recommendations": recommendations,
+        }
