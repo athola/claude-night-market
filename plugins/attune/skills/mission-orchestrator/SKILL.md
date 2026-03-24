@@ -89,9 +89,11 @@ Wraps the entire attune development lifecycle (brainstorm → specify → plan �
        a. Pre-phase validation (check prerequisites)
        b. Invoke Skill(attune:{phase-skill})
        c. Post-phase artifact check (verify output exists)
-       d. Update mission state
-       e. User checkpoint (skippable with --auto)
-       f. Error handling via leyline:damage-control
+       d. Post-phase backlog triage (create GitHub issues
+          for out-of-scope items after brainstorm/specify)
+       e. Update mission state
+       f. User checkpoint (skippable with --auto)
+       g. Error handling via leyline:damage-control
        |
 4. Completion
    All phases complete, final state saved

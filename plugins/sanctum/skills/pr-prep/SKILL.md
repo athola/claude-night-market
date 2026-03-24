@@ -60,10 +60,11 @@ Use this skill to stage changes and generate a PR summary. Run `Skill(sanctum:gi
 Create `TodoWrite` items for these steps before starting:
 1. `pr-prep:workspace-reviewed`
 2. `pr-prep:quality-gates`
-3. `pr-prep:changes-summarized`
-4. `pr-prep:testing-documented`
-5. `pr-prep:pr-drafted`
-6. `pr-prep:content-verified`
+3. `pr-prep:self-reviewed`
+4. `pr-prep:changes-summarized`
+5. `pr-prep:testing-documented`
+6. `pr-prep:pr-drafted`
+7. `pr-prep:content-verified`
 
 Mark each item as complete as the section is finished.
 
@@ -82,6 +83,40 @@ agents, or hooks), run `make docs-sync-check` to verify
 `book/src/reference/capabilities-reference.md` is current.
 If it reports discrepancies, run `/sync-capabilities --fix`
 or update the reference manually before proceeding.
+
+## Step 2.5: Self-Review Pass (`self-reviewed`)
+
+Read the diff as if you are a reviewer seeing it for the
+first time. This catches scope creep, stale debug code,
+and unclear changes before anyone else spends time on
+them.
+
+**Automated checks:**
+
+```bash
+# Check for debug statements left in
+git diff --cached --name-only | xargs grep -nE \
+  '(console\.log|print\(|debugger|TODO|FIXME|HACK|XXX)' \
+  2>/dev/null || true
+
+# Check for commented-out code blocks (3+ consecutive lines)
+git diff --cached | grep -c '^+.*//.*[a-zA-Z]' || true
+
+# Check for formatting-only commits mixed with feature work
+git log --oneline $(git merge-base HEAD origin/master)..HEAD | \
+  grep -iE '(fmt|format|lint|style|whitespace)' || true
+```
+
+**Manual verification:**
+
+- [ ] Read the full diff -- does every change serve the
+      stated goal?
+- [ ] No debug statements or `TODO` markers left in
+- [ ] No commented-out code blocks
+- [ ] No formatting changes mixed with logic changes
+- [ ] No fixup commits that should be squashed
+
+If issues are found, fix them before proceeding.
 
 ## Step 3: Summarize Changes (`changes-summarized`)
 

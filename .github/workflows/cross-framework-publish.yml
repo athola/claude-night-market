@@ -1,0 +1,312 @@
+name: Cross-Framework Publish
+
+# Security note: All dynamic values in run: blocks come from
+# controlled step outputs (version, skill_count, agent_count)
+# or environment variables. No untrusted user input is used
+# in shell commands. Tag names are validated by the version
+# extraction step.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish_clawhub:
+        description: "Open PR to openclaw/clawhub"
+        type: boolean
+        default: true
+      publish_awesome:
+        description: "Open PRs to awesome-openclaw lists"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run (build only, no publish)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      skill_count: ${{ steps.build.outputs.skill_count }}
+      agent_count: ${{ steps.build.outputs.agent_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Extract version from tag
+        id: version
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$REF" == refs/tags/v* ]]; then
+            VERSION="${REF#refs/tags/v}"
+            # Validate semver-like format
+            if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+              echo "::error::Invalid version format: $VERSION"
+              exit 1
+            fi
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          else
+            VERSION=$(python3 -c "import json; print(json.load(open('plugins/abstract/.claude-plugin/plugin.json'))['version'])")
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run cross-framework tests
+        run: |
+          uv run python -m pytest \
+            tests/unit/test_clawhub_export.py \
+            tests/unit/test_build_bridge.py \
+            tests/unit/test_a2a_cards.py \
+            tests/unit/test_framework_detect.py \
+            -v --tb=short
+
+      - name: Build cross-framework artifacts
+        id: build
+        run: |
+          make cross-framework
+          SKILL_COUNT=$(python3 -c "import json; m=json.load(open('clawhub/manifest.json')); print(m['total_exported'])")
+          AGENT_COUNT=$(python3 -c "import json; m=json.load(open('bridge/a2a/agent-cards.json')); print(m['total_agents'])")
+          echo "skill_count=$SKILL_COUNT" >> "$GITHUB_OUTPUT"
+          echo "agent_count=$AGENT_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Package release assets
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tar -czf "night-market-clawhub-v${VERSION}.tar.gz" -C clawhub .
+          tar -czf "night-market-openclaw-bridge-v${VERSION}.tar.gz" -C bridge/openclaw .
+          tar -czf "night-market-a2a-cards-v${VERSION}.tar.gz" -C bridge/a2a .
+
+          mkdir -p dist
+          cp -r clawhub dist/
+          cp -r bridge dist/
+          tar -czf "night-market-cross-framework-v${VERSION}.tar.gz" -C dist .
+          rm -rf dist
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SKILLS: ${{ steps.build.outputs.skill_count }}
+          AGENTS: ${{ steps.build.outputs.agent_count }}
+        run: |
+          BODY=$(cat <<'RELEASEEOF'
+          ## Cross-Framework Artifacts
+
+          Pre-built artifacts for OpenClaw, NemoClaw, and A2A frameworks.
+
+          | Artifact | Contents |
+          |----------|----------|
+          | `night-market-clawhub-*.tar.gz` | ClawHub-compatible skills |
+          | `night-market-openclaw-bridge-*.tar.gz` | OpenClaw bridge plugin |
+          | `night-market-a2a-cards-*.tar.gz` | A2A agent cards |
+          | `night-market-cross-framework-*.tar.gz` | All of the above |
+
+          ### Install in OpenClaw
+          ```bash
+          openclaw skills install night-market
+          ```
+
+          ### Install in Claude Code (full experience)
+          ```bash
+          claude plugin install athola/claude-night-market
+          ```
+          RELEASEEOF
+
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --notes "$BODY" \
+            "night-market-clawhub-v${VERSION}.tar.gz" \
+            "night-market-openclaw-bridge-v${VERSION}.tar.gz" \
+            "night-market-a2a-cards-v${VERSION}.tar.gz" \
+            "night-market-cross-framework-v${VERSION}.tar.gz"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-framework-build
+          path: |
+            clawhub/
+            bridge/
+          retention-days: 7
+
+  publish-clawhub:
+    needs: build-and-release
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+      || (github.event_name == 'workflow_dispatch' && inputs.publish_clawhub)
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build-and-release.outputs.version }}
+      SKILLS: ${{ needs.build-and-release.outputs.skill_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Fork and clone clawhub
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+        run: |
+          gh repo fork openclaw/clawhub --clone --remote 2>/dev/null || {
+            gh repo clone "$(gh api user --jq .login)/clawhub" clawhub
+            cd clawhub
+            git remote add upstream https://github.com/openclaw/clawhub.git
+            git fetch upstream
+            git checkout -B main upstream/main
+          }
+
+      - name: Add night-market skills
+        if: inputs.dry_run != true
+        run: |
+          BRANCH="night-market-v${VERSION}"
+
+          cd clawhub
+          git checkout -b "$BRANCH"
+
+          # Export top 20 skills directly into clawhub skills dir
+          cd ..
+          uv run python scripts/clawhub_export.py \
+            --output /tmp/clawhub-top --top 20
+
+          # Copy into fork's skills directory
+          mkdir -p clawhub/skills/athola
+          for skill_dir in /tmp/clawhub-top/nm-*/; do
+            skill_name=$(basename "$skill_dir")
+            cp -r "$skill_dir" "clawhub/skills/athola/$skill_name/"
+          done
+
+      - name: Commit and open PR
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+        run: |
+          BRANCH="night-market-v${VERSION}"
+
+          cd clawhub
+          git add -A
+          git commit -m "$(cat <<COMMITEOF
+          feat: add night-market skills (v${VERSION})
+
+          Claude Night Market cross-framework export.
+          Source: https://github.com/athola/claude-night-market
+          COMMITEOF
+          )"
+
+          git push origin "$BRANCH"
+
+          PR_BODY=$(cat <<'PRBODYEOF'
+          ## Night Market Skills for OpenClaw
+
+          Top 20 curated skills from [Claude Night Market](https://github.com/athola/claude-night-market).
+
+          **Categories:** code review, testing, documentation, git workflow,
+          token conservation, architecture, skill development, project lifecycle.
+
+          **Provenance:** MIT licensed, automated export with validation.
+          Full plugin (agents, hooks, commands) available for Claude Code.
+          PRBODYEOF
+
+          gh pr create \
+            --repo openclaw/clawhub \
+            --title "Add night-market skills (v${VERSION})" \
+            --body "$PR_BODY"
+
+  publish-awesome-lists:
+    needs: build-and-release
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.publish_awesome
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build-and-release.outputs.version }}
+      SKILLS: ${{ needs.build-and-release.outputs.skill_count }}
+      AGENTS: ${{ needs.build-and-release.outputs.agent_count }}
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - vincentkoc/awesome-openclaw
+          - SamurAIGPT/awesome-openclaw
+    steps:
+      - name: Fork and add entry
+        env:
+          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+          TARGET_REPO: ${{ matrix.repo }}
+        run: |
+          BRANCH="add-night-market-v${VERSION}"
+          REPO_NAME=$(echo "$TARGET_REPO" | cut -d/ -f2)
+
+          gh repo fork "$TARGET_REPO" --clone --remote 2>/dev/null || {
+            LOGIN=$(gh api user --jq .login)
+            gh repo clone "${LOGIN}/${REPO_NAME}" "$REPO_NAME"
+          }
+
+          cd "$REPO_NAME"
+          git checkout -b "$BRANCH"
+
+          # Add entry if not already present
+          if ! grep -q "night-market" README.md; then
+            ENTRY="- [night-market](https://github.com/athola/claude-night-market) - ${SKILLS} curated skills for code review, testing, docs, and architecture."
+
+            # Try to add after Skills section header, fall back to end
+            if grep -q "## Skills" README.md; then
+              python3 -c "
+          content = open('README.md').read()
+          import re
+          # Find Skills section and add before next section
+          m = re.search(r'(## Skills[^\n]*\n(?:.*?\n)*?)(\n## |\Z)', content, re.DOTALL)
+          if m:
+              before = m.group(1).rstrip()
+              after = m.group(2)
+              content = content[:m.start()] + before + '\n$ENTRY\n' + after + content[m.end():]
+          else:
+              content += '\n$ENTRY\n'
+          open('README.md', 'w').write(content)
+          "
+            else
+              echo "" >> README.md
+              echo "$ENTRY" >> README.md
+            fi
+          fi
+
+          if git diff --quiet; then
+            echo "No changes needed for $TARGET_REPO"
+            exit 0
+          fi
+
+          git add README.md
+          git commit -m "Add night-market: ${SKILLS} skills for code review, testing, architecture"
+          git push origin "$BRANCH"
+
+          PR_BODY=$(cat <<'AWESOMEEOF'
+          Adds [Claude Night Market](https://github.com/athola/claude-night-market)
+          -- curated skills for code review, testing, documentation, architecture,
+          and git workflows. MIT licensed, published on ClawHub.
+          AWESOMEEOF
+
+          gh pr create \
+            --repo "$TARGET_REPO" \
+            --title "Add night-market skills" \
+            --body "$PR_BODY"

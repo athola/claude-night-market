@@ -39,6 +39,122 @@ label `skip-version-check`, or PR description marker
 Run AI slop detection on changed `.md` files and commit messages
 using `Skill(scribe:slop-detector)` before code review.
 
+### Phase 1.9: PR Hygiene Checks
+
+**Run PR hygiene checks BEFORE detailed code analysis.**
+
+See `plugins/sanctum/skills/pr-review/modules/pr-hygiene.md`
+for the full detection heuristics.
+
+1. **Atomicity check (one PR = one logical change)**
+
+   ```bash
+   # Count distinct conventional commit types
+   COMMIT_TYPES=$(gh pr view $PR_NUMBER --json commits \
+     --jq '.commits[].messageHeadline' | \
+     grep -oE '^(feat|fix|refactor|docs|test|chore|style|perf)' | \
+     sort -u | wc -l)
+
+   CHANGED_FILES=$(gh pr view $PR_NUMBER --json changedFiles \
+     --jq '.changedFiles')
+
+   if [[ "$COMMIT_TYPES" -gt 2 ]]; then
+     echo "[G-ATOMICITY] $COMMIT_TYPES distinct commit types"
+   fi
+
+   if [[ "$CHANGED_FILES" -gt 30 ]]; then
+     echo "[G-ATOMICITY] $CHANGED_FILES files changed"
+   fi
+   ```
+
+2. **Self-review signals**
+
+   ```bash
+   # Check for unsquashed fixup/typo commits
+   FIXUPS=$(gh pr view $PR_NUMBER --json commits \
+     --jq '.commits[].messageHeadline' | \
+     grep -ciE '(fixup|fix typo|oops|wip|forgot|actually)' || true)
+
+   # Check for formatting commits mixed with logic
+   FMT_COMMITS=$(gh pr view $PR_NUMBER --json commits \
+     --jq '.commits[].messageHeadline' | \
+     grep -ciE '(fmt|format|lint|style|whitespace|cleanup)' || true)
+
+   if [[ "$FIXUPS" -gt 2 ]]; then
+     echo "[G-SELFREVIEW] $FIXUPS fixup commits - author may not have self-reviewed"
+   fi
+
+   if [[ "$FMT_COMMITS" -gt 0 ]]; then
+     echo "[G-SELFREVIEW] Formatting commits mixed with feature work"
+   fi
+   ```
+
+3. **Agent-generated code signals (structural)**
+
+   Run Tier 1 checks from `modules/pr-hygiene.md`:
+
+   ```bash
+   # Debug/TODO left in new code
+   DEBUG_LINES=$(gh pr diff $PR_NUMBER | \
+     grep -cE '^\+.*(console\.log|print\(|debugger|TODO|FIXME|HACK)' || true)
+
+   # Wrapper functions (body is a single delegation call)
+   WRAPPERS=$(gh pr diff $PR_NUMBER | \
+     awk '/^\+.*def |^\+.*fn |^\+.*function /{name=$0; getline; \
+     if(/^\+\s*(return |self\.)/ && !/^\+\s*$/) print name}' \
+     2>/dev/null | wc -l || true)
+
+   # Add/delete ratio (agents add 5x+ more than they remove)
+   STATS=$(gh pr view $PR_NUMBER --json additions,deletions \
+     --jq '"\(.additions) \(.deletions)"')
+   ADDITIONS=$(echo $STATS | cut -d' ' -f1)
+   DELETIONS=$(echo $STATS | cut -d' ' -f2)
+   if [[ "$DELETIONS" -gt 0 ]]; then
+     RATIO=$((ADDITIONS / DELETIONS))
+   else
+     RATIO="$ADDITIONS"
+   fi
+
+   if [[ "$DEBUG_LINES" -gt 0 ]]; then
+     echo "[S-CURATION] $DEBUG_LINES debug/TODO lines in new code"
+   fi
+   if [[ "$WRAPPERS" -gt 0 ]]; then
+     echo "[S-CURATION] $WRAPPERS possible wrapper functions"
+   fi
+   if [[ "$RATIO" -gt 5 ]]; then
+     echo "[S-CURATION] Add/delete ratio $RATIO:1"
+   fi
+   ```
+
+   For PRs with >10 files, also run Tier 2 checks
+   (import bloat, directory spread). See
+   `modules/pr-hygiene.md` for the full heuristic set.
+
+**Classification:**
+
+| Signal | Severity |
+|--------|----------|
+| Mixed commit types (>2) | SUGGESTION |
+| >30 files changed | SUGGESTION |
+| Unsquashed fixup commits (>2) | SUGGESTION |
+| Formatting commits mixed with logic | SUGGESTION |
+| Debug statements in new code | IN-SCOPE |
+| Wrapper functions (single-call body) | SUGGESTION |
+| Add/delete ratio >5:1 | SUGGESTION |
+| Incomplete refactor (old + new coexist) | IN-SCOPE |
+
+**Output from this phase:**
+
+```markdown
+### PR Hygiene
+
+**Atomicity**: N commit types, M files changed
+**Self-Review Signals**: [clean | N issues found]
+**Agent Curation Signals**: [clean | N issues found]
+
+[Detailed findings if any]
+```
+
 ### Phase 2: Code Analysis (Superpowers)
 
 Detailed code review examining implementation correctness,
@@ -47,6 +163,9 @@ requirement coverage, and finding classification.
 ### Phase 2.5: Code Quality Analysis (MANDATORY)
 
 Targeted quality checks with completion checklist.
+See `review-workflow-phases-1-4.md` for full Phase 2.5
+details including duplication scan, quality findings
+classification, and test quality analysis.
 
 ### Phase 3: Synthesis & Validation
 

@@ -100,11 +100,12 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 1. **Scope Establishment** - Discover requirements from plan/spec/tasks
 2. **Version Validation** - Ensure version consistency (mandatory unless bypassed)
 3. **Slop Detection** - AI content markers in docs, commits, PR description (MANDATORY)
-4. **Code Analysis** - Deep technical review
-5. **Code Quality** - Duplication, redundancy analysis
-6. **GitHub Review** - Post review comments to PR (MANDATORY; or write to local file with `--local`)
-7. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
-8. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
+4. **PR Hygiene** - Atomicity, self-review signals, agent curation (MANDATORY)
+5. **Code Analysis** - Deep technical review
+6. **Code Quality** - Duplication, redundancy, test quality analysis
+7. **GitHub Review** - Post review comments to PR (MANDATORY; or write to local file with `--local`)
+8. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
+9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
@@ -301,11 +302,13 @@ Every PR review automatically invokes `pensive:code-refinement` patterns for:
 - **Duplication detection**: Near-identical blocks, similar functions
 - **Redundancy analysis**: Repeated patterns, copy-paste indicators
 - **Clean code checks**: Complexity, naming, magic values
+- **Agent curation**: Incomplete refactors, premature abstractions, scope drift
+- **Test quality (the revert test)**: Do tests break if the fix is reverted?
 
 Code quality findings are classified as:
-- **BLOCKING**: Exact duplication >10 lines affecting maintainability
-- **IN-SCOPE**: Similar patterns that should be consolidated
-- **SUGGESTION**: Minor redundancy for author discretion
+- **BLOCKING**: Exact duplication >10 lines, tests that pass on revert
+- **IN-SCOPE**: Similar patterns to consolidate, uncurated agent code, tests that only assert old behavior
+- **SUGGESTION**: Minor redundancy, PR atomicity recommendations
 
 ## Getting Help
 

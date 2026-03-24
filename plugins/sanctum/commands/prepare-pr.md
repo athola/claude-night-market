@@ -203,7 +203,10 @@ The generated PR description includes:
 
 ## Checklist
 - [ ] Code follows project style guidelines
-- [ ] Self-review completed
+- [ ] Self-review completed (read diff as a reviewer, no debug/TODO/fixups)
+- [ ] One logical change per PR (no bundled formatting or unrelated refactors)
+- [ ] Tests break if fix is reverted (regression protection, not demonstration)
+- [ ] Agent-generated code curated (no redundant implementations or premature abstractions)
 - [ ] Documentation updated
 - [ ] Tests added/updated
 ```
