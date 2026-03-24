@@ -15,6 +15,42 @@ from urllib.parse import quote_plus
 from tome.models import Finding
 
 # ---------------------------------------------------------------------------
+# Query Expansion
+# ---------------------------------------------------------------------------
+
+
+def expand_github_queries(topic: str, max_variants: int = 5) -> list[str]:
+    """Generate diverse GitHub search query variants.
+
+    Produces the original topic plus implementation, library, framework,
+    and alternative-keyword variants.
+
+    Args:
+        topic: Free-text research topic.
+        max_variants: Maximum total queries to return (default 5).
+
+    Returns:
+        List of distinct query strings.
+    """
+    queries: list[str] = [
+        f"site:github.com {topic}",
+        f"site:github.com {topic} implementation",
+        f"site:github.com {topic} library",
+        f"github {topic} stars:>100",
+        f"site:github.com {topic} framework example",
+    ]
+
+    seen: set[str] = set()
+    unique: list[str] = []
+    for q in queries:
+        if q not in seen:
+            seen.add(q)
+            unique.append(q)
+
+    return unique[:max_variants]
+
+
+# ---------------------------------------------------------------------------
 # Query builders
 # ---------------------------------------------------------------------------
 

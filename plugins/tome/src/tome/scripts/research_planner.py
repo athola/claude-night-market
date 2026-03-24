@@ -17,7 +17,7 @@ Budget (estimated token usage):
 
 from __future__ import annotations
 
-from tome.models import DomainClassification, ResearchPlan
+from tome.models import DomainClassification, Finding, ResearchPlan
 
 _BUDGET: dict[str, int] = {
     "light": 2000,
@@ -66,4 +66,50 @@ def plan(classification: DomainClassification) -> ResearchPlan:
         weights=normalised,
         triz_depth=classification.triz_depth,
         estimated_budget=_BUDGET.get(classification.triz_depth, 2000),
+    )
+
+
+def replan(
+    original: ResearchPlan,
+    partial_results: dict[str, list[Finding]],
+) -> ResearchPlan:
+    """Adjust channel weights based on partial results.
+
+    Channels that yielded more findings gain weight; channels that
+    returned nothing lose weight. If all channels are empty, weights
+    remain equal.
+
+    Args:
+        original: The plan from the first research pass.
+        partial_results: Channel name to findings list.
+
+    Returns:
+        A new ResearchPlan with adjusted weights.
+    """
+    counts = {ch: len(partial_results.get(ch, [])) for ch in original.channels}
+    total_findings = sum(counts.values())
+
+    if total_findings == 0:
+        # No results anywhere: keep equal weights
+        equal = 1.0 / len(original.channels)
+        weights = dict.fromkeys(original.channels, equal)
+    else:
+        # Blend: 50% original weight + 50% proportional to findings
+        raw: dict[str, float] = {}
+        for ch in original.channels:
+            proportion = counts[ch] / total_findings
+            raw[ch] = 0.5 * original.weights.get(ch, 0.0) + 0.5 * proportion
+
+        total = sum(raw.values())
+        weights = (
+            {ch: w / total for ch, w in raw.items()}
+            if total
+            else {ch: 1.0 / len(original.channels) for ch in original.channels}
+        )
+
+    return ResearchPlan(
+        channels=list(original.channels),
+        weights=weights,
+        triz_depth=original.triz_depth,
+        estimated_budget=original.estimated_budget,
     )

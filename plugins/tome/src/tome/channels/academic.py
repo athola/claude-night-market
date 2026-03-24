@@ -16,6 +16,51 @@ from urllib.parse import quote, quote_plus
 from tome.models import Finding
 
 # ---------------------------------------------------------------------------
+# Query Expansion
+# ---------------------------------------------------------------------------
+
+
+def expand_academic_queries(topic: str, max_variants: int = 5) -> list[str]:
+    """Generate multiple query reformulations for academic search.
+
+    Produces the original topic plus synonym, specificity, and temporal
+    variants so that arXiv and Semantic Scholar searches cover more ground.
+
+    Args:
+        topic: Free-text research topic.
+        max_variants: Maximum total queries to return (default 5).
+
+    Returns:
+        List of distinct query strings, original topic always first.
+    """
+    queries: list[str] = [topic]
+
+    # Broad variant: drop the first word if multi-word
+    words = topic.split()
+    if len(words) > 2:
+        queries.append(" ".join(words[1:]))
+
+    # Survey variant
+    queries.append(f"{topic} survey")
+
+    # Review variant
+    queries.append(f"{topic} review")
+
+    # Recent variant
+    queries.append(f"recent advances {topic}")
+
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    unique: list[str] = []
+    for q in queries:
+        if q not in seen:
+            seen.add(q)
+            unique.append(q)
+
+    return unique[:max_variants]
+
+
+# ---------------------------------------------------------------------------
 # arXiv
 # ---------------------------------------------------------------------------
 
@@ -442,6 +487,115 @@ def estimate_page_chunks(total_pages: int, chunk_size: int = 20) -> list[str]:
         ranges.append(f"{start}-{end}")
         start = end + 1
     return ranges
+
+
+# ---------------------------------------------------------------------------
+# Citation Chaining (Semantic Scholar)
+# ---------------------------------------------------------------------------
+
+_SS_CHAIN_FIELDS = "title,year,citationCount,authors,externalIds"
+
+
+def build_citation_references_url(paper_id: str, limit: int = 10) -> str:
+    """Build Semantic Scholar URL for papers cited by *paper_id*.
+
+    Args:
+        paper_id: Semantic Scholar paper ID.
+        limit: Maximum references to return (default 10).
+
+    Returns:
+        URL string for the S2 references endpoint.
+    """
+    return (
+        f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}"
+        f"/references?fields={_SS_CHAIN_FIELDS}&limit={limit}"
+    )
+
+
+def build_citation_citations_url(paper_id: str, limit: int = 10) -> str:
+    """Build Semantic Scholar URL for papers that cite *paper_id*.
+
+    Args:
+        paper_id: Semantic Scholar paper ID.
+        limit: Maximum citing papers to return (default 10).
+
+    Returns:
+        URL string for the S2 citations endpoint.
+    """
+    return (
+        f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}"
+        f"/citations?fields={_SS_CHAIN_FIELDS}&limit={limit}"
+    )
+
+
+def parse_citation_chain_response(data: dict[str, Any]) -> list[Finding]:
+    """Parse a Semantic Scholar references or citations response.
+
+    Handles both ``/references`` (key: ``citedPaper``) and
+    ``/citations`` (key: ``citingPaper``) response shapes.
+
+    Args:
+        data: Parsed JSON from the S2 references or citations endpoint.
+
+    Returns:
+        List of Findings with ``source="semantic_scholar_chain"``.
+    """
+    findings: list[Finding] = []
+    items = data.get("data", [])
+    if not isinstance(items, list):
+        return findings
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        # References use "citedPaper", citations use "citingPaper"
+        paper = item.get("citedPaper") or item.get("citingPaper") or {}
+        if not isinstance(paper, dict):
+            continue
+
+        title: str = paper.get("title") or ""
+        if not title:
+            continue
+
+        paper_id: str = paper.get("paperId") or ""
+        year: int | None = paper.get("year")
+        citations: int = paper.get("citationCount") or 0
+
+        # URL: prefer arXiv if available
+        ext_ids = paper.get("externalIds") or {}
+        arxiv_id = ext_ids.get("ArXiv") if isinstance(ext_ids, dict) else None
+        if arxiv_id:
+            url = f"https://arxiv.org/abs/{arxiv_id}"
+        elif paper_id:
+            url = f"https://www.semanticscholar.org/paper/{paper_id}"
+        else:
+            url = ""
+
+        relevance = _citation_relevance(citations)
+
+        authors_raw = paper.get("authors") or []
+        authors: list[str] = [
+            a["name"] for a in authors_raw if isinstance(a, dict) and a.get("name")
+        ]
+
+        findings.append(
+            Finding(
+                source="semantic_scholar_chain",
+                channel="academic",
+                title=title,
+                url=url,
+                relevance=relevance,
+                summary="",
+                metadata={
+                    "authors": authors,
+                    "year": year,
+                    "citations": citations,
+                    "paper_id": paper_id,
+                },
+            )
+        )
+
+    return findings
 
 
 def build_paper_summary_prompt(title: str, abstract: str) -> str:

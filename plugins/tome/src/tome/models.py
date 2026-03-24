@@ -214,6 +214,30 @@ class Citation:
 
 
 @dataclass
+class QueryLog:
+    """A record of a query attempted during research."""
+
+    channel: str
+    query: str
+    source: str
+    result_count: int = 0
+    succeeded: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> QueryLog:
+        return cls(
+            channel=d["channel"],
+            query=d["query"],
+            source=d["source"],
+            result_count=d.get("result_count", 0),
+            succeeded=d.get("succeeded", True),
+        )
+
+
+@dataclass
 class ResearchPlan:
     """A planned research execution with channel weights and budget."""
 

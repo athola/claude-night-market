@@ -2,12 +2,67 @@
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 
 from tome.models import Finding
 
 # Computed once at import time; stable for the lifetime of the process.
 _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
+
+# ---------------------------------------------------------------------------
+# Cross-Channel Triangulation
+# ---------------------------------------------------------------------------
+
+_PUNCTUATION_RE = re.compile(r"[^\w\s]")
+_TRIANGULATION_CAP = 0.15
+_TRIANGULATION_PER_CHANNEL = 0.05
+
+
+def _normalize_for_match(title: str) -> set[str]:
+    """Return a set of lowercase words from a title, punctuation stripped."""
+    return set(_PUNCTUATION_RE.sub("", title.lower()).split())
+
+
+def compute_triangulation_bonus(finding: Finding, all_findings: list[Finding]) -> float:
+    """Compute a bonus for findings corroborated across channels.
+
+    Checks how many *other* channels contain a finding with a similar
+    title (Jaccard word overlap >= 0.6). Each additional channel adds
+    +0.05, capped at 0.15.
+
+    Args:
+        finding: The finding to score.
+        all_findings: The full list of findings for cross-referencing.
+
+    Returns:
+        Bonus float in [0.0, 0.15].
+    """
+    target_words = _normalize_for_match(finding.title)
+    if not target_words:
+        return 0.0
+
+    corroborating_channels: set[str] = set()
+
+    for other in all_findings:
+        if other is finding:
+            continue
+        if other.channel == finding.channel:
+            continue
+
+        other_words = _normalize_for_match(other.title)
+        if not other_words:
+            continue
+
+        intersection = target_words & other_words
+        union = target_words | other_words
+        jaccard = len(intersection) / len(union)
+
+        if jaccard >= 0.6:
+            corroborating_channels.add(other.channel)
+
+    bonus = len(corroborating_channels) * _TRIANGULATION_PER_CHANNEL
+    return min(bonus, _TRIANGULATION_CAP)
 
 
 def compute_relevance_score(finding: Finding) -> float:
