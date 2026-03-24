@@ -13,11 +13,10 @@
 	test-structure test-testing test-unit testing-guidance-tests type-check typecheck
 
 # Plugin-specific variables (must be before include)
-# Note: source is in 'parseltongue/' not 'src/'
-SRC_DIRS := parseltongue tests
-MYPY_TARGETS := parseltongue
-BANDIT_TARGETS := parseltongue
-COV_DIRS := parseltongue
+SRC_DIRS := src/parseltongue tests
+MYPY_TARGETS := src/parseltongue
+BANDIT_TARGETS := src/parseltongue
+COV_DIRS := src/parseltongue
 PYTEST_TARGETS := tests/
 TEST_UNIT_ARGS := -v -m unit
 SECURITY_EXTRA = $(UV_RUN) safety check || echo "[WARNING] Safety check unavailable"
