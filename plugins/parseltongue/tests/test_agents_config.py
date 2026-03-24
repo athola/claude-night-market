@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from parseltongue.skills.skill_loader import SkillLoader
+from parseltongue.analysis.skill_loader import SkillLoader
 
 
 class TestSkillLoaderValidateMetadata:

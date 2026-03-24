@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 # Import the skills we're testing
-from parseltongue.skills.pattern_matching import PatternMatchingSkill
+from parseltongue.analysis.pattern_matching import PatternMatchingSkill
 
 
 class TestPatternMatchingSkill:

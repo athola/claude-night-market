@@ -8,11 +8,11 @@ import json
 import sys
 from pathlib import Path
 
-from parseltongue.skills.async_analysis import AsyncAnalysisSkill
-from parseltongue.skills.code_transformation import CodeTransformationSkill
-from parseltongue.skills.compatibility_checker import CompatibilityChecker
-from parseltongue.skills.pattern_matching import PatternMatchingSkill
-from parseltongue.skills.testing_guide import TestingGuideSkill
+from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
+from parseltongue.analysis.code_transformation import CodeTransformationSkill
+from parseltongue.analysis.compatibility_checker import CompatibilityChecker
+from parseltongue.analysis.pattern_matching import PatternMatchingSkill
+from parseltongue.analysis.testing_guide import TestingGuideSkill
 
 
 def main(argv: list[str] | None = None) -> int:

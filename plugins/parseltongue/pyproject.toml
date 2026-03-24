@@ -174,18 +174,18 @@ unfixable = [
 "__init__.py" = [
     "F401",   # Unused import
 ]
-# Skill modules are single-class files with many analysis methods.
+# Analysis modules are single-class files with many analysis methods.
 # Split into packages if any file exceeds 1500 LOC.
-"src/parseltongue/skills/async_analysis.py" = [
+"src/parseltongue/analysis/async_analysis.py" = [
     "PLR0904", # Too many public methods - single analysis class
 ]
-"src/parseltongue/skills/pattern_matching.py" = [
+"src/parseltongue/analysis/pattern_matching.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class
 ]
-"src/parseltongue/skills/testing_guide.py" = [
+"src/parseltongue/analysis/testing_guide.py" = [
     "PLR0904", # Too many public methods - single guide class
 ]
-"src/parseltongue/skills/language_detection.py" = [
+"src/parseltongue/analysis/language_detection.py" = [
     "PLR0904", # Too many public methods - single detection class
 ]
 

@@ -15,13 +15,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from parseltongue.skills.async_analysis import AsyncAnalysisSkill
-from parseltongue.skills.code_transformation import CodeTransformationSkill
-from parseltongue.skills.compatibility_checker import CompatibilityChecker
-from parseltongue.skills.language_detection import LanguageDetectionSkill
-from parseltongue.skills.pattern_matching import PatternMatchingSkill
-from parseltongue.skills.skill_loader import SkillLoader
-from parseltongue.skills.testing_guide import TestingGuideSkill
+from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
+from parseltongue.analysis.code_transformation import CodeTransformationSkill
+from parseltongue.analysis.compatibility_checker import CompatibilityChecker
+from parseltongue.analysis.language_detection import LanguageDetectionSkill
+from parseltongue.analysis.pattern_matching import PatternMatchingSkill
+from parseltongue.analysis.skill_loader import SkillLoader
+from parseltongue.analysis.testing_guide import TestingGuideSkill
 
 # Test data constants
 PYTHON_SAMPLE_CODE = '''

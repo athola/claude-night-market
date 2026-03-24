@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 # Import the skills we're testing
-from parseltongue.skills.testing_guide import TestingGuideSkill
+from parseltongue.analysis.testing_guide import TestingGuideSkill
 
 
 class TestTestingGuideSkill:

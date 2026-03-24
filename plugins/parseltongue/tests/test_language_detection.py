@@ -16,7 +16,7 @@ from conftest import (
 )
 
 # Import the skills we're testing
-from parseltongue.skills.language_detection import LanguageDetectionSkill
+from parseltongue.analysis.language_detection import LanguageDetectionSkill
 
 
 class TestLanguageDetectionSkill:
