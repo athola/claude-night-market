@@ -1305,14 +1305,14 @@ name = "memory-palace"
 version = "1.7.0"
 source = { editable = "." }
 dependencies = [
-    { name = "pre-commit", version = "4.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "pre-commit", version = "4.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
 dev = [
     { name = "mypy" },
+    { name = "pre-commit", version = "4.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pre-commit", version = "4.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytype", marker = "python_full_version >= '3.10'" },
     { name = "ruff" },
     { name = "ty" },
@@ -1345,11 +1345,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.0,<2.0" },
-    { name = "pre-commit", specifier = ">=3.0.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.0" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.0.0" },
     { name = "pytype", marker = "python_full_version >= '3.10' and extra == 'dev'", specifier = ">=2024.10.11" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13,<1.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13" },
     { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.7.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.1a23" },
     { name = "typos", marker = "extra == 'dev'", specifier = ">=1.0.0" },
@@ -1363,9 +1363,9 @@ dev = [
     { name = "blacken-docs", specifier = ">=1.16.0,<2.0" },
     { name = "interrogate", specifier = ">=1.7.0,<2.0" },
     { name = "mypy", specifier = ">=1.18.2" },
-    { name = "pre-commit", specifier = ">=4.0.1,<5.0" },
-    { name = "pytest", specifier = ">=8.0.0,<9.0" },
-    { name = "pytest-cov", specifier = ">=4.0.0,<5.0" },
+    { name = "pre-commit", specifier = ">=4.0.0" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-cov", specifier = ">=4.0" },
     { name = "ruff", specifier = ">=0.14.13" },
     { name = "safety", specifier = ">=3.7.0,<4.0" },
     { name = "ty", specifier = ">=0.0.1a23" },

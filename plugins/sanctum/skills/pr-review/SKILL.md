@@ -30,6 +30,7 @@ modules:
 - modules/educational-insights.md
 - modules/github-comments.md
 - modules/knowledge-capture.md
+- modules/pr-hygiene.md
 - modules/version-validation.md
 dependencies:
 - leyline:git-platform

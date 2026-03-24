@@ -264,12 +264,70 @@ If tmux is unavailable or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is not set, `--
 
 ## Worktree Isolation for Parallel Safety (Claude Code 2.1.49+)
 
-Subagents with `isolation: worktree` in their frontmatter run in a temporary git worktree, providing filesystem-level isolation without relying on conflict analysis alone.
+Subagents with `isolation: "worktree"` run in a temporary
+git worktree, providing filesystem-level isolation.
 
-- **Use case**: When parallel tasks touch files in the same directory or have uncertain conflict boundaries
-- **Benefit**: Each agent gets its own working copy — merge conflicts are resolved at worktree merge time, not during execution
-- **Auto-cleanup**: Empty worktrees are removed automatically; worktrees with commits are preserved for review
-- **Combine with conflict analysis**: Worktree isolation is a safety net, not a replacement for the conflict check above — still analyze dependencies before dispatching
+### When to Use Worktree Isolation
+
+| Scenario | Use Worktree? | Reason |
+|----------|--------------|--------|
+| Agents touch different files | No | No conflict possible |
+| Agents touch overlapping files | **Yes** | Prevents race conditions |
+| Agent does destructive ops (delete + recreate) | **Yes** | Failed agent won't corrupt main |
+| Research/read-only agents | No | No writes to conflict |
+
+### Worktree Behavior
+
+- Agents with worktree isolation get a separate checkout
+- Empty worktrees are auto-cleaned; worktrees with
+  changes return `worktreePath` and `worktreeBranch`
+- If `worktreePath` is NOT in the agent result, changes
+  either landed in the main workdir or were lost
+
+### Post-Dispatch Verification (MANDATORY)
+
+After ALL parallel agents complete, verify before
+proceeding:
+
+```markdown
+## Post-Dispatch Checklist
+
+1. [ ] Check `git worktree list` for remaining worktrees
+2. [ ] Check `git diff --stat` in main workdir for changes
+3. [ ] For each agent with worktree output:
+   - Verify worktree changes via `git diff` in worktree
+   - Merge or cherry-pick into main branch
+   - Remove worktree: `git worktree remove <path>`
+4. [ ] For agents that deleted + recreated files:
+   - Verify new files exist: `ls <expected-paths>`
+   - Verify imports work: `python -c "from X import Y"`
+   - If directory exists but is empty, restore original:
+     `git checkout HEAD -- <original-path>`
+5. [ ] Run affected tests before committing
+```
+
+### Never Mix Worktree and Direct Agents on Same Files
+
+When agents A (worktree) and B (direct) both modify
+`foo.py`, only one set of changes survives. Either:
+
+- Use worktree isolation for ALL agents in the batch, or
+- Use direct (no isolation) for ALL agents in the batch
+
+Mixing isolation modes on overlapping files causes
+silent data loss.
+
+### Agent Path Confusion
+
+Agents in worktrees or with `cd` in their prompts can
+write files to wrong paths. Common failure modes:
+
+- Creates `./foo/` instead of `./plugins/bar/foo/`
+- Deletes original but new directory is empty (agent
+  hit context limit mid-operation)
+
+Mitigation: include absolute paths in agent prompts
+and verify file existence after completion.
 
 ## Next Phase
 

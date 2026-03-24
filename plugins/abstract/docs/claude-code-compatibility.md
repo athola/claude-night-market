@@ -114,7 +114,8 @@ Create isolated conversation branches for exploration:
 - **Minimum**: 2.0.65+ (recommended 2.0.74+)
 - **Features**: Session forking reviews, LSP semantic analysis
 
-**Full plugin compatibility**: See [Features](compatibility/compatibility-features.md#plugin-specific-compatibility)
+**Full plugin compatibility**: See
+[Plugin Compatibility](compatibility/compatibility-features-plugin-compat.md)
 
 ## Getting Help
 

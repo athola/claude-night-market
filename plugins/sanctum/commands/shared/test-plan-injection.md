@@ -5,7 +5,7 @@ ensuring PR descriptions contain step-by-step manual
 testing instructions.
 
 > **Referenced by**:
-> [pr-review Phase 6](../pr-review/modules/review-workflow.md)
+> [pr-review Phase 6](../pr-review/modules/review-workflow-phases-5-6.md)
 > | [fix-pr Step 6.5b](../fix-pr-modules/steps/6-complete/summary.md)
 
 ---
