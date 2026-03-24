@@ -1,0 +1,30 @@
+name: phantom
+version: 0.1.0
+description: Computer use toolkit - drive desktop environments through Claude's
+  vision and action API with screenshot capture, mouse/keyboard control,
+  and an autonomous agent loop
+keywords:
+- computer-use
+- desktop
+- automation
+- screenshot
+- mouse
+- keyboard
+- agent-loop
+- gui
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  leyline:
+    source: gh@athola/claude-night-market
+    path: plugins/leyline
+    skills:
+    - error-patterns
+skills:
+- skills/computer-control
+agents:
+- agents/desktop-pilot.md
+commands:
+- commands/control-desktop.md
