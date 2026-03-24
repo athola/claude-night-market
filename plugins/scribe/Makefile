@@ -32,12 +32,12 @@ validate: ## Validate plugin structure
 # ---------- Testing ----------
 test: ## Run scribe tests
 	@echo "Running scribe tests..."
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short 2>/dev/null || echo "No tests found or test runner not available"
+	@uv run pytest tests/ -v --tb=short 2>/dev/null || echo "No tests found or test runner not available"
 
 test-coverage: ## Run tests with coverage measurement
 	@echo "Running scribe tests with coverage..."
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short \
-		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch \
+	@uv run pytest tests/ -v --tb=short \
+		--cov=src/scribe --cov-report=term-missing --cov-branch \
 		2>/dev/null || echo "Coverage measurement not available (install pytest-cov)"
 
 # ---------- Linting ----------
@@ -208,43 +208,43 @@ demo-scribe-commands: demo-slop-scan demo-style-learn demo-doc-polish demo-doc-g
 # ---------- Test Targets ----------
 # Each test-* target runs the subset of tests matching the command name
 test-slop-scan: ## Test slop-scan command (runs slop detection tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "slop" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "slop" --tb=short 2>/dev/null || \
 		echo "Not applicable: slop-scan is skill-based; run 'make lint' to check for slop"
 
 test-style-learn: ## Test style-learn command (runs style tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "style" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "style" --tb=short 2>/dev/null || \
 		echo "Not applicable: style-learn is a skill-only command with no unit tests"
 
 test-doc-polish: ## Test doc-polish command (runs doc tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "polish" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "polish" --tb=short 2>/dev/null || \
 		echo "Not applicable: doc-polish is a skill-only command with no unit tests"
 
 test-doc-generate: ## Test doc-generate command (runs doc generation tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "generate" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "generate" --tb=short 2>/dev/null || \
 		echo "Not applicable: doc-generate is a skill-only command with no unit tests"
 
 test-doc-verify: ## Test doc-verify command (runs doc verification tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "verify" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "verify" --tb=short 2>/dev/null || \
 		echo "Not applicable: doc-verify is a skill-only command with no unit tests"
 
 test-pr-review: ## Test pr-review command (runs PR review tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "pr_review or pr-review" --tb=short \
+	@uv run pytest tests/ -v -k "pr_review or pr-review" --tb=short \
 		2>/dev/null || echo "Not applicable: pr-review is a skill-only command with no unit tests"
 
 test-update-docs: ## Test update-docs command (runs doc update tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "update_docs or update-docs" --tb=short \
+	@uv run pytest tests/ -v -k "update_docs or update-docs" --tb=short \
 		2>/dev/null || echo "Not applicable: update-docs is a skill-only command with no unit tests"
 
 test-update-readme: ## Test update-readme command (runs readme tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "update_readme or readme" --tb=short \
+	@uv run pytest tests/ -v -k "update_readme or readme" --tb=short \
 		2>/dev/null || echo "Not applicable: update-readme is a skill-only command with no unit tests"
 
 test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "prepare_pr or prepare-pr" --tb=short \
+	@uv run pytest tests/ -v -k "prepare_pr or prepare-pr" --tb=short \
 		2>/dev/null || echo "Not applicable: prepare-pr is a skill-only command with no unit tests"
 
 test-pr: ## Test pr command (runs general PR tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "pr" --tb=short 2>/dev/null || \
+	@uv run pytest tests/ -v -k "pr" --tb=short 2>/dev/null || \
 		echo "Not applicable: pr is a skill-only command with no unit tests"
 
 plugin-check: validate demo status ## Run all checks
