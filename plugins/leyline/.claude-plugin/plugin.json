@@ -24,7 +24,8 @@
     "./skills/stewardship",
     "./skills/storage-templates",
     "./skills/testing-quality-standards",
-    "./skills/usage-logging"
+    "./skills/usage-logging",
+    "./skills/utility"
   ],
   "keywords": [
     "infrastructure",

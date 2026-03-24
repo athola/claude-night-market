@@ -33,6 +33,7 @@ skills:
 - skills/storage-templates
 - skills/testing-quality-standards
 - skills/usage-logging
+- skills/utility
 commands:
 - commands/reinstall-all-plugins.md
 - commands/update-all-plugins.md
