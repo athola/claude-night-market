@@ -5,6 +5,8 @@ description: 'Provides structural context for downstream review and refactoring 
   unfamiliar codebases to map structure, estimating scope for refactoring or migration.
   Do not use when general code exploration - use the Explore agent. DO NOT use when:
   searching for specific patterns - use Grep directly.'
+version: 1.7.1
+alwaysApply: false
 category: workspace-ops
 tags:
 - files
@@ -23,7 +25,6 @@ dependencies:
 - sanctum:shared
 - imbue:proof-of-work
 ---
-
 # File Analysis
 
 ## When To Use

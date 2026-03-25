@@ -1,6 +1,8 @@
 ---
 name: project-execution
 description: "Execute implementation plans systematically with progress tracking, checkpoint validation, and quality gates. Use when an implementation plan is ready for execution. Skip if no plan exists."
+version: 1.7.1
+alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 tools_allowed: all

@@ -4,6 +4,8 @@ description: 'CQRS and Event Sourcing for auditability, read/write separation, a
   temporal queries. Use when read/write scaling differs or audit trail required.
   Do not use when selecting paradigms (use architecture-paradigms first), simple CRUD
   without audit needs.'
+version: 1.7.1
+alwaysApply: false
 category: architectural-pattern
 tags:
 - architecture
@@ -25,7 +27,6 @@ usage_patterns:
 complexity: high
 estimated_tokens: 800
 ---
-
 # The CQRS and Event Sourcing Paradigm
 
 

@@ -4,8 +4,9 @@ description: 'Guide Claude through computer use API integration - screenshot cap
   mouse/keyboard control, agent loops, and sandboxed desktop automation. Use when:
   computer use, computer control, desktop automation, screenshot capture, mouse control,
   keyboard control, agent loop, GUI automation, display toolkit, phantom.'
+version: 1.0.0
+alwaysApply: false
 ---
-
 # Computer Control Skill
 
 Use Claude's Computer Use API to see and control desktop

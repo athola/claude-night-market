@@ -6,6 +6,8 @@ description: >
   and invokes specialist skills for each pipeline step. Handles
   context overflow via continuation agents and token budget via
   graceful shutdown.
+version: 1.7.1
+alwaysApply: false
 category: orchestration
 tags:
   - autonomous
@@ -39,7 +41,6 @@ modules:
   - modules/intake.md
   - modules/decisions.md
 ---
-
 ## Table of Contents
 
 - [Overview](#overview)

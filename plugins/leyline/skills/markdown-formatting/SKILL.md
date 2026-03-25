@@ -5,6 +5,9 @@ description: >-
   documentation. Consult this skill when generating, editing,
   or reviewing markdown prose. Defines hybrid line wrapping,
   heading style, list spacing, and link conventions.
+version: 1.7.1
+globs: "**/*.md"
+alwaysApply: false
 category: cross-plugin-patterns
 tags:
   - markdown
@@ -20,7 +23,6 @@ modules:
   - wrapping-rules
 dependencies: []
 ---
-
 # Markdown Formatting Conventions
 
 ## When To Use

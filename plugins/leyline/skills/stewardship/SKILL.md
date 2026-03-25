@@ -7,6 +7,8 @@ description: >-
   Diligence, Foresight), layer-specific guidance, a
   decision heuristic for identifying stewardship moments,
   and a reflection template for workflow boundaries.
+version: 1.7.1
+alwaysApply: true
 category: cross-plugin-patterns
 tags:
   - stewardship
@@ -29,7 +31,6 @@ modules:
   - modules/foresight.md
   - modules/reflection.md
 ---
-
 # Stewardship
 
 ## When To Use

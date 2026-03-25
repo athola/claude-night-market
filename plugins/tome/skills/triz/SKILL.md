@@ -6,6 +6,8 @@ description: >-
   from light (1 field) to maximum (5 fields with full
   contradiction analysis). Use when the user is stuck on a
   problem or needs fresh perspectives from other domains.
+version: 1.7.1
+alwaysApply: false
 category: research
 tags:
   - triz
@@ -15,7 +17,6 @@ tags:
   - altshuller
 estimated_tokens: 300
 ---
-
 # TRIZ Cross-Domain Analysis
 
 ## When To Use

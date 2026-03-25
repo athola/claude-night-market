@@ -7,6 +7,8 @@ description: >-
   Use when deciding whether to take another action, launch
   another agent, or stop.
   Do not use for simple single-step operations.
+version: 1.7.1
+alwaysApply: false
 category: infrastructure
 tags:
 - orchestration
@@ -40,7 +42,6 @@ modules:
 - modules/action-selector.md
 - modules/integration.md
 ---
-
 # Utility Skill
 
 ## Overview

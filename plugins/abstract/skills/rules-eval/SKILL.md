@@ -5,6 +5,8 @@ description: Evaluate and validate Claude Code rules in .claude/rules/ directori
   checking rules organization before deployment. Do not use when writing new rules
   from scratch - use rule authoring guides instead. Do not use when evaluating skills
   or hooks - use skills-eval or hooks-eval instead.
+version: 1.7.1
+alwaysApply: false
 category: rule-management
 tags:
 - evaluation

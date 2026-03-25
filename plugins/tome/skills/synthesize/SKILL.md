@@ -4,6 +4,8 @@ description: >-
   Merge, deduplicate, rank, and format research findings
   from multiple channels into a coherent report. Use after
   research agents return their results.
+version: 1.7.1
+alwaysApply: false
 category: synthesis
 tags:
   - merge
@@ -12,7 +14,6 @@ tags:
   - report
 estimated_tokens: 150
 ---
-
 # Finding Synthesis
 
 ## When To Use

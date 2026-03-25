@@ -15,6 +15,8 @@ description: 'Architecture-aware project initialization combining online researc
 
 
   DO NOT use when: architecture is already decided - use project-init instead.'
+version: 1.7.1
+alwaysApply: false
 category: project-initialization
 tags:
 - architecture

@@ -5,12 +5,13 @@ description: 'Use this skill at the START of every session. This is MANDATORY fo
   prompt sizes spike, tool calls increase, before long-running analyses or massive
   context loads. Do not use when context-optimization already handles the scenario.
   DO NOT use when: simple queries with minimal context.'
+version: 1.7.1
+alwaysApply: true
 progressive_loading: true
 dependencies:
   hub: []
   modules: []
 ---
-
 # Token Conservation Workflow
 
 ## When To Use

@@ -4,6 +4,8 @@ description: "Tiered plugin quality review with dependency-aware
   scoping. Use when: reviewing plugin changes, preparing PRs,
   pre-release validation. Do not use when: single skill analysis
   (use /analyze-skill), creating new skills (use /create-skill)."
+version: 1.7.1
+alwaysApply: false
 category: plugin-management
 tags:
 - review
@@ -21,7 +23,6 @@ tools:
 - generate_dependency_map.py
 progressive_loading: true
 ---
-
 # Plugin Review
 
 Tiered quality review of plugins with dependency-aware scoping.

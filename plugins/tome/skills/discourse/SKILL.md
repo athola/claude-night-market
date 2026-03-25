@@ -5,6 +5,8 @@ description: >-
   tech blogs) for experience reports and opinions on a
   topic. Use when the user wants community perspectives
   on a technology or approach.
+version: 1.7.1
+alwaysApply: false
 category: research
 tags:
   - hackernews
@@ -14,7 +16,6 @@ tags:
   - discourse
 estimated_tokens: 200
 ---
-
 # Discourse Search
 
 ## When To Use

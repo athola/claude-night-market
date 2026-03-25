@@ -4,6 +4,9 @@ description: 'Use this skill for Makefile audit and optimization. Use when audit
   Makefiles, reviewing build system, checking portability, eliminating recipe duplication.
   Do not use when creating new Makefiles - use abstract:make-dogfood. DO NOT use when:
   architecture review - use architecture-review.'
+version: 1.7.1
+globs: "**/Makefile"
+alwaysApply: false
 category: build
 tags:
 - makefile

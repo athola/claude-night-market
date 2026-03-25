@@ -4,6 +4,8 @@ description: 'Use this skill for scope-focused PR reviews. Use when reviewing PR
   validating against requirements, triaging findings to backlog, preventing overengineering.
   Do not use when preparing PRs - use pr-prep instead. DO NOT use when: deep code
   review - use pensive:unified-review.'
+version: 1.7.1
+alwaysApply: false
 category: review
 tags:
 - pr

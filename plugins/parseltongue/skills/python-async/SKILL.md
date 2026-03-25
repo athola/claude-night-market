@@ -4,6 +4,9 @@ description: 'Consult this skill for async Python patterns and concurrency. Use 
   building async APIs, concurrent systems, I/O-bound applications, implementing rate
   limiting, async context managers. Do not use when CPU-bound optimization - use python-performance
   instead. DO NOT use when: testing async code - use python-testing async module.'
+version: 1.7.1
+globs: "**/*.py"
+alwaysApply: false
 category: async
 tags:
 - python
@@ -32,7 +35,6 @@ modules:
 - real-world-applications
 - pitfalls-best-practices
 ---
-
 # Async Python Patterns
 
 asyncio and async/await patterns for Python applications.

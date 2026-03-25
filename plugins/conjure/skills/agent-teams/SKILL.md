@@ -1,6 +1,8 @@
 ---
 name: agent-teams
 description: Coordinate Claude Code Agent Teams through filesystem-based protocol. Use
+version: 1.7.1
+alwaysApply: false
   when orchestrating multiple Claude agents on parallel tasks, need task dependency
   management, multi-agent code review or implementation. Do not use when single-agent
   work suffices, task is not parallelizable.

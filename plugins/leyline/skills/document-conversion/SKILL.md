@@ -11,6 +11,8 @@ description: >-
   to markdown for LLM consumption
 
   DO NOT use when: content is already markdown or plain text
+version: 1.7.1
+alwaysApply: false
 category: infrastructure
 tags:
 - conversion
@@ -41,7 +43,6 @@ modules:
 - modules/fallback-tiers.md
 - modules/uri-construction.md
 ---
-
 # Document Conversion
 
 Convert documents and URLs to markdown using a three-tier

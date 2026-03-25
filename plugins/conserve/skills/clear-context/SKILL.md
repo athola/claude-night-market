@@ -5,6 +5,8 @@ description: 'Automatic context management with graceful handoff to continuation
   automatic continuation without manual /clear. The key insight: Subagents have fresh
   context windows. By delegating remaining work to a continuation subagent, we achieve
   effective "auto-clear" without stopping the workflow.'
+version: 1.7.1
+alwaysApply: false
 category: conservation
 token_budget: 200
 progressive_loading: true

@@ -4,6 +4,8 @@ description: 'Use this skill for general documentation updates with built-in qua
   gates. Use when updating documentation after code changes, enforcing writing guidelines,
   maintaining ADRs. Do not use when README-specific updates - use update-readme instead.
   DO NOT use when: complex multi-file consolidation - use doc-consolidation.'
+version: 1.7.1
+alwaysApply: false
 category: artifact-generation
 tags:
 - documentation

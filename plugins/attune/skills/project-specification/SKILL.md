@@ -1,6 +1,8 @@
 ---
 name: project-specification
 description: "Transform project briefs into testable specifications with user stories, acceptance criteria, and measurable requirements. Use when starting from a project brief that needs formal specification. Skip if a spec already exists."
+version: 1.7.1
+alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 category: workflow

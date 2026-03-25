@@ -7,9 +7,10 @@ description: >
   modifies how future improvements are generated.
   Auto-triggers on regression detection or low
   effectiveness rate.
+version: 1.7.1
+alwaysApply: false
 trigger: metacognitive, self-modification, improve the improver, meta-improvement, improvement effectiveness, regression detected, improvement failed
 ---
-
 # Metacognitive Self-Modification
 
 Analyze the effectiveness of past skill improvements and

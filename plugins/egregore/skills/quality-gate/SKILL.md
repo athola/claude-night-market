@@ -5,6 +5,8 @@ description: >
   Runs convention checks and invokes review skills
   for each quality step. Supports self-review (pre-PR)
   and PR-review (other agents' PRs) modes.
+version: 1.7.1
+alwaysApply: false
 category: orchestration
 tags:
   - egregore
@@ -19,7 +21,6 @@ tools:
 complexity: intermediate
 estimated_tokens: 300
 ---
-
 # Quality Gate
 
 ## When To Use

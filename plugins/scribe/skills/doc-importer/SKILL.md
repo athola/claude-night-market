@@ -12,6 +12,8 @@ description: >-
   DO NOT use when: web articles (use WebFetch directly),
   academic papers (use tome:papers), content already in
   markdown (use scribe:doc-generator remediation mode)
+version: 1.7.1
+alwaysApply: false
 category: artifact-generation
 tags:
 - import
@@ -26,7 +28,6 @@ dependencies:
 complexity: basic
 estimated_tokens: 400
 ---
-
 # Document Importer
 
 Import external documents into editable markdown.

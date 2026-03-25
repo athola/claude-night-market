@@ -4,6 +4,8 @@ description: 'Minimal core system with plugin-based feature extensibility for pl
   development. Use when platforms/IDEs/marketplaces, core stability critical, plugin
   isolation needed. Do not use when selecting paradigms (use architecture-paradigms
   first), no extensibility needed.'
+version: 1.7.1
+alwaysApply: false
 category: architectural-pattern
 tags:
 - architecture
@@ -23,7 +25,6 @@ usage_patterns:
 complexity: high
 estimated_tokens: 900
 ---
-
 # The Microkernel (Plugin) Architecture Paradigm
 
 

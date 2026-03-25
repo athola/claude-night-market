@@ -5,6 +5,8 @@ description: >-
   and open-access discovery chains. Fetches and parses
   PDFs for key findings. Use when the user needs academic
   papers, citations, or formal research on a topic.
+version: 1.7.1
+alwaysApply: false
 category: research
 tags:
   - arxiv
@@ -16,7 +18,6 @@ dependencies:
   - leyline:document-conversion
 estimated_tokens: 350
 ---
-
 # Academic Papers Search
 
 ## When To Use

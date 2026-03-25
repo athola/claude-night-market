@@ -7,6 +7,8 @@ description: >-
   Tracks convergence state for resume across sessions.
   Use after initial implementation to refine code
   quality through focused, incremental passes.
+version: 1.7.1
+alwaysApply: false
 category: workflow
 tags:
   - polishing
@@ -21,7 +23,6 @@ dependencies:
 complexity: intermediate
 estimated_tokens: 400
 ---
-
 # Dorodango Polishing Workflow
 
 Named after the Japanese art of polishing a ball of

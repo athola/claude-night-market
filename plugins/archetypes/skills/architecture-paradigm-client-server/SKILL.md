@@ -5,6 +5,8 @@ description: 'Consult this skill when designing client-server systems or API arc
   between client and server responsibilities needed. Do not use when selecting from
   multiple paradigms - use architecture-paradigms first. DO NOT use when: peer-to-peer
   dominates - consider dedicated P2P patterns.'
+version: 1.7.1
+alwaysApply: false
 category: architectural-pattern
 tags:
 - architecture
@@ -22,7 +24,6 @@ usage_patterns:
 complexity: low
 estimated_tokens: 600
 ---
-
 # The Client-Server and Peer-to-Peer Paradigms
 
 ## When to Employ This Paradigm

@@ -5,6 +5,8 @@ description: >-
   dispatch workflows. Consult after running parallel agents to evaluate
   whether expenditure was proportional to value. Cross-references the
   plan-before-large-dispatch rule.
+version: 1.7.1
+alwaysApply: false
 category: resource-optimization
 tags:
   - token-waste
@@ -19,7 +21,6 @@ dependencies:
 complexity: basic
 estimated_tokens: 300
 ---
-
 # Agent Token Waste Monitoring
 
 ## When To Use

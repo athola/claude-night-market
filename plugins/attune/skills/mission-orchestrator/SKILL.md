@@ -4,6 +4,8 @@ description: 'Unified lifecycle orchestrator for attune project development. Aut
   project state, selects mission type, routes through phases via Skill() delegation,
   and manages session recovery. Wraps brainstorm-specify-plan-execute into a single
   mission lifecycle.'
+version: 1.7.1
+alwaysApply: false
 category: workflow-orchestration
 tags:
 - mission

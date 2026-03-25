@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigms
 description: Interactive selector and router for architecture paradigms. Use when
+version: 1.7.1
+alwaysApply: false
   selecting architecture patterns for new systems, comparing paradigm trade-offs,
   creating architecture decision records, evaluating architecture fit for team size
   and domain complexity, planning implementation roadmaps. Do not use when implementing

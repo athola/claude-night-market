@@ -1,6 +1,8 @@
 ---
 name: content-sanitization
 description: Sanitization guidelines for external content
+version: 1.7.1
+alwaysApply: false
   consumed by skills and hooks. Use when loading external
   content (GitHub Issues, PRs, Discussions), processing
   WebFetch/WebSearch results, or any workflow consuming
@@ -24,7 +26,6 @@ usage_patterns:
 complexity: basic
 estimated_tokens: 400
 ---
-
 # Content Sanitization Guidelines
 
 ## When To Use

@@ -34,6 +34,31 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "_comment": "Monitor tool output bloat for verbose tools",
+        "matcher": "Bash|Read|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/tool_output_summarizer.py",
+            "timeout": 1
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "_comment": "Preserve critical context before compression",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_compact_preserve.py",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "_comment": "Order 1: Initialize conservation metrics and context tracking on session start/resume",

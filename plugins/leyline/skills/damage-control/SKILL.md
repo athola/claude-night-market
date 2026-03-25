@@ -6,6 +6,8 @@ description: >
   state reconciliation. Provides triage decision trees and
   step-by-step procedures to restore forward progress without
   losing work.
+version: 1.7.1
+alwaysApply: false
 category: infrastructure
 tags:
 - recovery
@@ -39,7 +41,6 @@ modules:
 - modules/merge-conflict-resolution.md
 - modules/state-reconciliation.md
 ---
-
 ## Table of Contents
 
 - [Overview](#overview)
