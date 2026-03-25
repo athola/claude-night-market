@@ -41,6 +41,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `code-search` | [tome](../plugins/tome.md) | GitHub implementation search |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
+| `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
 | `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
@@ -54,7 +55,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `discourse` | [tome](../plugins/tome.md) | Community discussion scanning |
 | `doc-consolidation` | [sanctum](../plugins/sanctum.md) | Document merging |
 | `doc-generator` | [scribe](../plugins/scribe.md) | Generate and remediate documentation |
+| `doc-importer` | [scribe](../plugins/scribe.md) | Import external documents to markdown |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
+| `document-conversion` | [leyline](../plugins/leyline.md) | Universal document-to-markdown conversion |
 | `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `dorodango` | [attune](../plugins/attune.md) | Iterative code polishing workflow |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
@@ -80,6 +83,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
+| `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
@@ -146,6 +150,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `uninstall-watchdog` | [egregore](../plugins/egregore.md) | Remove crash-recovery watchdog |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
+| `utility` | [leyline](../plugins/leyline.md) | Utility-guided action selection for orchestration |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
