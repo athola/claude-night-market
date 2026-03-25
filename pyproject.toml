@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.7.0"
+version = "1.7.1"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -47,6 +47,17 @@ addopts = [
     "--disable-warnings",
 ]
 testpaths = ["tests"]
+# Exclude plugin test directories to avoid conftest.py import conflicts.
+# Plugin tests should be run from within each plugin directory.
+norecursedirs = [
+    "plugins/*",
+    ".venv",
+    ".uv-cache",
+    "__pycache__",
+    "*.egg-info",
+    "build",
+    "dist",
+]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

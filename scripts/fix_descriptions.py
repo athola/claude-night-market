@@ -89,8 +89,9 @@ def process_skill_file(filepath: Path, dry_run: bool = True) -> dict | None:
     )
     desc = frontmatter.get("description", "")
     has_truncated_do_not = bool(re.search(r"\bDO NOT\.\s*$", desc))
+    has_embedded_triggers = bool(re.search(r"\bTriggers:", desc, flags=re.IGNORECASE))
 
-    if not has_custom and not has_truncated_do_not:
+    if not has_custom and not has_truncated_do_not and not has_embedded_triggers:
         return None
 
     # Flag truncated "DO NOT." as needing manual fix (cannot auto-generate)

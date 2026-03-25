@@ -11,12 +11,17 @@ description: 'Guide Claude through computer use API integration - screenshot cap
 Use Claude's Computer Use API to see and control desktop
 environments through screenshots and mouse/keyboard actions.
 
-## When to Use
+## When To Use
 
 - Automating GUI-based workflows that lack CLI alternatives
 - Testing web applications through visual interaction
 - Filling forms, navigating menus, or interacting with desktop apps
 - Building automation pipelines that need visual verification
+
+## When NOT To Use
+
+- Tasks achievable through CLI or API (no GUI needed)
+- Browser automation better served by Playwright or CDP
 
 ## Architecture
 

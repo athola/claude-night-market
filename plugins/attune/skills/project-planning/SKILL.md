@@ -1,6 +1,6 @@
 ---
 name: project-planning
-description: "Transform specs into dependency-ordered implementation plans. Skip if no spec exists."
+description: "Transform specifications into dependency-ordered implementation plans with phased tasks and parallel execution opportunities. Use when a spec is ready for breakdown into tasks. Skip if no spec exists."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 category: workflow

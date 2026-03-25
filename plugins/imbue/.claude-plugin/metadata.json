@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "main": "skills",
   "skills": [
     "skills/review-core",

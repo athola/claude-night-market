@@ -15,6 +15,16 @@ estimated_tokens: 200
 
 # Code Search
 
+## When To Use
+
+- Finding existing implementations or libraries on GitHub
+- Part of a `/tome:research` session or standalone search
+
+## When NOT To Use
+
+- Searching local codebase (use Grep or Explore agent)
+- Academic literature (use `/tome:papers`)
+
 Search GitHub for implementations of a given topic.
 
 ## Usage

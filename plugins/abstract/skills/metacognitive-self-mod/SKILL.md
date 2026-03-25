@@ -78,13 +78,18 @@ if needs_metacognition:
     pass  # Skill(abstract:metacognitive-self-mod)
 ```
 
-## When to Use (manual)
+## When To Use (Manual)
 
 - After a batch of skill improvements to assess what
   worked
 - When improvement outcomes show regressions
 - Periodically (monthly) to refine improvement strategy
 - When the skill-improver agent seems ineffective
+
+## When NOT To Use
+
+- Routine skill improvements (use skill-improver directly)
+- First-time skill creation (use skill-authoring)
 
 ## Workflow
 

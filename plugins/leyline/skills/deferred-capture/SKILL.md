@@ -8,6 +8,18 @@ description: >-
 
 # Deferred Capture Contract
 
+## When To Use
+
+- Building a new plugin deferred-capture wrapper
+- Validating an existing wrapper against the contract
+- Adding new source labels or template fields
+
+## When NOT To Use
+
+- Capturing a deferred item at runtime (use the plugin
+  wrapper directly, e.g. `scripts/deferred_capture.py`)
+- Creating GitHub issues manually
+
 Specification that all plugin deferred-capture wrappers implement.
 Not a runtime dependency -- a convention.
 

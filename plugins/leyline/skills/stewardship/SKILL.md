@@ -32,6 +32,17 @@ modules:
 
 # Stewardship
 
+## When To Use
+
+- Working on any plugin and making design decisions
+- Reviewing code for quality and contributor experience
+- Reflecting at workflow boundaries (pre-commit, post-PR)
+
+## When NOT To Use
+
+- Quick one-line fixes that do not affect design
+- External projects outside the night-market ecosystem
+
 Apply these principles whenever you touch a plugin. The full
 manifesto with research origins is at `STEWARDSHIP.md` in the
 project root.

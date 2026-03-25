@@ -27,7 +27,7 @@ estimated_tokens: 400
 
 # Content Sanitization Guidelines
 
-## When This Applies
+## When To Use
 
 Any skill or hook that loads content from external sources:
 
@@ -35,6 +35,11 @@ Any skill or hook that loads content from external sources:
 - WebFetch / WebSearch results
 - User-provided URLs
 - Any content not controlled by this repository
+
+## When NOT To Use
+
+- Processing local, git-controlled files (trusted content)
+- Internal code analysis with no external input
 
 ## Trust Levels
 

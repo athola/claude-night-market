@@ -17,6 +17,16 @@ estimated_tokens: 200
 
 # Discourse Search
 
+## When To Use
+
+- Gathering community opinions on a technology or approach
+- Finding experience reports from HN, Reddit, or Lobsters
+
+## When NOT To Use
+
+- Academic research (use `/tome:papers`)
+- Code examples (use `/tome:code-search`)
+
 Scan community channels for discussions on a topic.
 
 ## Channels

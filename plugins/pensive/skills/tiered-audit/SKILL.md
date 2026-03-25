@@ -43,7 +43,7 @@ dependencies:
 - [Tier 3: Full Codebase Audit](#tier-3-full-codebase-audit)
 - [Output Contract](#output-contract)
 
-## When to Use
+## When To Use
 
 - Auditing codebase quality, patterns, or problems
 - Reviewing what changed on a branch before merge

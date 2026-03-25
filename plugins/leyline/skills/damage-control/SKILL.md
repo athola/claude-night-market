@@ -43,8 +43,8 @@ modules:
 ## Table of Contents
 
 - [Overview](#overview)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
+- [When To Use](#when-to-use)
+- [When NOT To Use](#when-not-to-use)
 - [Damage Triage](#damage-triage)
 - [Module Reference](#module-reference)
 - [Integration Pattern](#integration-pattern)
@@ -65,7 +65,7 @@ The skill does not prevent failures. It defines what to do after
 one has already happened, so recovery is consistent, auditable,
 and does not silently discard work.
 
-## When to Use
+## When To Use
 
 - An agent process crashed and left files in an unknown state
 - A session hit the context limit and cannot load prior decisions

@@ -23,6 +23,18 @@ dependencies: []
 
 # Markdown Formatting Conventions
 
+## When To Use
+
+- Writing or editing any markdown documentation
+- Reviewing prose for line-wrapping compliance
+- Generating markdown from plugins (scribe, sanctum, etc.)
+
+## When NOT To Use
+
+- Editing code blocks, tables, or frontmatter (these have
+  their own formatting rules)
+- Quick scratch notes that will not be committed
+
 These conventions apply to all markdown documentation generated
 or modified by any plugin. The goal: produce prose that creates
 clean, reviewable git diffs and reads well on mobile devices.

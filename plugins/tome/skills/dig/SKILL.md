@@ -16,6 +16,16 @@ estimated_tokens: 200
 
 # Dig Deeper
 
+## When To Use
+
+- Drilling into a subtopic after an initial research session
+- Narrowing results to a specific channel (e.g. papers only)
+
+## When NOT To Use
+
+- Starting a new research topic (use `/tome:research` first)
+- Synthesizing results (use `/tome:synthesize`)
+
 Refine an active research session interactively.
 
 ## Workflow

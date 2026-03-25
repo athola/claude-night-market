@@ -18,6 +18,17 @@ estimated_tokens: 300
 
 # TRIZ Cross-Domain Analysis
 
+## When To Use
+
+- Stuck on a problem and need perspectives from other domains
+- Exploring cross-domain analogies for inventive solutions
+
+## When NOT To Use
+
+- Standard code search or literature review (use other
+  tome channels)
+- Problems with obvious, well-known solutions
+
 Apply Altshuller's Theory of Inventive Problem Solving
 to find solutions from adjacent fields.
 

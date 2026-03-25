@@ -55,7 +55,7 @@ The framework prevents over-calling tools and premature stopping by
 making both errors costly.
 Utility range is [-2.3, 1.0].
 
-## When to Use
+## When To Use
 
 - Deciding whether to dispatch another agent or tool call
 - Gating expensive tool calls (search, code execution, delegation)

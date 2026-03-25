@@ -22,6 +22,17 @@ estimated_tokens: 300
 
 # Quality Gate
 
+## When To Use
+
+- Running quality checks on egregore work items
+- Self-review before creating a PR
+- Reviewing another agent's PR in PR-review mode
+
+## When NOT To Use
+
+- Manual code reviews outside egregore pipeline
+- One-off lint or format checks (use `make lint` directly)
+
 Orchestrate the QUALITY stage of egregore's pipeline.
 Each quality step runs convention checks from the codex
 and invokes mapped skills.

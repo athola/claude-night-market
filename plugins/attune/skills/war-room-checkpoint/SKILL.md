@@ -1,6 +1,6 @@
 ---
 name: war-room-checkpoint
-description: "Reversibility assessment for War Room escalation at decision points. Skip for standalone decisions."
+description: "Assess decision reversibility and risk at critical checkpoints to determine whether War Room escalation is warranted. Use when evaluating whether a decision needs multi-LLM deliberation. Skip for standalone or easily reversible decisions."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 category: strategic-planning

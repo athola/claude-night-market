@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.7.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.1-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-18-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-142-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-148-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -15,7 +15,7 @@ Night Market extends Claude Code with 18 plugins
 covering git workflows, code review, spec-driven
 development, architecture selection, autonomous agents,
 multi-LLM delegation, and multi-source research.
-142 skills, 132 slash commands, and 47 agents.
+148 skills, 136 slash commands, and 48 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -192,7 +192,7 @@ See the [Common Workflows Guide][workflows] for full details.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
-**1.7.0** added the tome plugin for multi-source research
+**1.7.1** added the tome plugin for multi-source research
 (code archaeology, academic literature, TRIZ analysis),
 100% Makefile dogfood coverage across all 18 plugins,
 and 20 newly registered API assets with 6 cross-plugin

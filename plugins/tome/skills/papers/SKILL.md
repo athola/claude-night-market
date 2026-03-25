@@ -19,6 +19,16 @@ estimated_tokens: 350
 
 # Academic Papers Search
 
+## When To Use
+
+- Finding academic papers, citations, or formal research
+- Building literature reviews or citation chains
+
+## When NOT To Use
+
+- Community opinions (use `/tome:discourse`)
+- Code implementations (use `/tome:code-search`)
+
 Search arXiv, Semantic Scholar, and open-access sources.
 
 ## Sources (Priority Order)

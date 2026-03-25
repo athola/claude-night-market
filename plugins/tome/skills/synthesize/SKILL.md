@@ -15,6 +15,16 @@ estimated_tokens: 150
 
 # Finding Synthesis
 
+## When To Use
+
+- After research agents return results from multiple channels
+- Producing a final ranked report from raw findings
+
+## When NOT To Use
+
+- No research session is active (run `/tome:research` first)
+- Refining a single channel (use `/tome:dig` instead)
+
 Merge findings from all channels into a ranked report.
 
 ## Workflow
