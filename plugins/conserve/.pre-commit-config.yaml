@@ -52,11 +52,3 @@ repos:
         args: [tests/, --cov=scripts, --cov-fail-under=85, -q]
         pass_filenames: false
         always_run: true
-
-      - id: conservation-validator
-        name: conservation-validator
-        entry: python
-        language: system
-        args: [-c, "from scripts.conservation_validator import ConservationValidator; ConservationValidator('.').validate_all()"]
-        pass_filenames: false
-        always_run: true

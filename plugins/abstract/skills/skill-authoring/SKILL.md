@@ -13,6 +13,14 @@ tags:
 - writing
 - best-practices
 - validation
+modules:
+- tdd-methodology
+- persuasion-principles
+- description-writing
+- progressive-disclosure
+- anti-rationalization
+- graphviz-conventions
+- deployment-checklist
 dependencies:
 - modular-skills
 estimated_tokens: 1500

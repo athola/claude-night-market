@@ -11,6 +11,7 @@
     "./skills/slop-detector",
     "./skills/style-learner",
     "./skills/doc-generator",
+    "./skills/doc-importer",
     "./skills/tech-tutorial"
   ],
   "agents": [

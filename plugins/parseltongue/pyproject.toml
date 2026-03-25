@@ -86,7 +86,6 @@ markers = [
     "asyncio: Async-focused tests",
     "testing: Testing-focused tests",
     "packaging: Packaging-focused tests",
-    "language_detection: Language detection tests",
     "edge_case: Edge case and boundary condition tests",
 ]
 asyncio_mode = "auto"
@@ -185,10 +184,6 @@ unfixable = [
 "src/parseltongue/analysis/testing_guide.py" = [
     "PLR0904", # Too many public methods - single guide class
 ]
-"src/parseltongue/analysis/language_detection.py" = [
-    "PLR0904", # Too many public methods - single detection class
-]
-
 [tool.ruff.lint.pylint]
 max-public-methods = 20
 

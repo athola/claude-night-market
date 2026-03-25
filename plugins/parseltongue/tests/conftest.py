@@ -18,9 +18,7 @@ import pytest
 from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
 from parseltongue.analysis.code_transformation import CodeTransformationSkill
 from parseltongue.analysis.compatibility_checker import CompatibilityChecker
-from parseltongue.analysis.language_detection import LanguageDetectionSkill
 from parseltongue.analysis.pattern_matching import PatternMatchingSkill
-from parseltongue.analysis.skill_loader import SkillLoader
 from parseltongue.analysis.testing_guide import TestingGuideSkill
 
 # Test data constants
@@ -684,10 +682,6 @@ def pytest_configure(config) -> None:
     config.addinivalue_line("markers", "asyncio: Mark test as async-focused")
     config.addinivalue_line("markers", "testing: Mark test as testing-focused")
     config.addinivalue_line("markers", "packaging: Mark test as packaging-focused")
-    config.addinivalue_line(
-        "markers",
-        "language_detection: Mark test as language detection test",
-    )
     config.addinivalue_line("markers", "bdd: Mark test as BDD-style test")
 
 
@@ -719,15 +713,3 @@ def pattern_matching_skill():
 def testing_guide_skill():
     """Create a TestingGuideSkill instance for testing."""
     return TestingGuideSkill()
-
-
-@pytest.fixture
-def skill_loader():
-    """Create a SkillLoader instance for testing."""
-    return SkillLoader()
-
-
-@pytest.fixture
-def language_detection_skill():
-    """Create a LanguageDetectionSkill instance for testing."""
-    return LanguageDetectionSkill()

@@ -21,6 +21,7 @@ dependencies:
 - digital-garden-cultivator
 - leyline:evaluation-framework
 - leyline:storage-templates
+- leyline:document-conversion
 - scribe:slop-detector
 scripts: []
 usage_patterns:
@@ -111,7 +112,7 @@ The act of sharing indicates the resource passed the user's own filter. Our job 
 When a user shares a link:
 
 ```
-1. FETCH    → Retrieve and parse the content
+1. FETCH    → Detect format, retrieve and convert content
 2. EVALUATE → Apply importance criteria
 3. DECIDE   → Storage location and application type
 4. STORE    → Create structured knowledge entry
@@ -121,6 +122,43 @@ When a user shares a link:
 8. APPLY    → Route to codebase or infrastructure updates
 9. PRUNE    → Identify displaced/outdated knowledge
 ```
+
+### Step 1: FETCH with Format Detection
+
+Before retrieving content, detect the source format from
+the URL or file path to choose the right retrieval method.
+
+**Web articles and blog posts** (default path):
+Use WebFetch to retrieve HTML content directly.
+No conversion needed.
+
+**Document URLs** (PDF, DOCX, PPTX, XLSX):
+Apply the `leyline:document-conversion` protocol.
+This tries the markitdown MCP tool first for high-quality
+markdown, then falls back to native Claude Code tools
+(Read for PDFs, etc.), then informs the user if the
+format is unsupported without markitdown.
+
+**Local files** (user shares a file path):
+Construct a `file://` URI from the absolute path and
+apply the `leyline:document-conversion` protocol.
+
+**Format detection heuristics:**
+
+| URL Pattern | Format | Retrieval |
+|-------------|--------|-----------|
+| `*.pdf`, `arxiv.org/pdf/*` | PDF | document-conversion |
+| `*.docx`, `*.doc` | Word | document-conversion |
+| `*.pptx`, `*.ppt` | PowerPoint | document-conversion |
+| `*.xlsx`, `*.xls` | Excel | document-conversion |
+| `*.epub` | E-book | document-conversion |
+| `drive.google.com/*` | Various | document-conversion |
+| Everything else | HTML/web | WebFetch (existing) |
+
+After retrieval (regardless of method), wrap the content
+in external content boundary markers per
+`leyline:content-sanitization` before proceeding to
+Step 2 (EVALUATE).
 
 ### Step 5: Scribe Validation (Required)
 

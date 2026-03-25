@@ -5,8 +5,7 @@ release period.
 
 > **See Also**: [Reference](compatibility-reference.md) |
 > [Patterns](compatibility-patterns.md) |
-> [Issues](compatibility-issues.md) |
-> [2025 Archive](compatibility-features-2025.md)
+> [Issues](compatibility-issues.md)
 
 ## Timeline Index
 
@@ -14,10 +13,6 @@ release period.
 |--------|----------|------|
 | March 2026 (Recent) | 2.1.63 – 2.1.71 | [March 2026 Recent](compatibility-features-march2026-recent.md) |
 | March 2026 (Early) | 2.1.50 – 2.1.62 | [March 2026 Early](compatibility-features-march2026-early.md) |
-| February 2026 (Early) | 2.1.38 – 2.1.49 | [February 2026 Early](compatibility-features-feb2026-early.md) |
-| February 2026 (Late) | 2.1.21 – 2.1.34 | [February 2026 Late](compatibility-features-feb2026-late.md) |
-| January 2026 | 2.1.0 – 2.1.18 | [January 2026](compatibility-features-jan2026.md) |
-| Nov-Dec 2025 | 2.0.65 – 2.0.74 | [2025 Archive](compatibility-features-2025.md) |
 
 ## Plugin-Specific Compatibility
 
@@ -81,5 +76,5 @@ Per-plugin minimum version requirements and version-specific notes:
   hooks in agent/skill/command frontmatter, context window percentage
   fields
 
-> **2025 releases**: See [2025 Archive](compatibility-features-2025.md)
-> for November-December 2025 (2.0.65-2.0.74).
+> **Older releases**: Archived compatibility data for Jan 2026 and
+> earlier is available in git history.

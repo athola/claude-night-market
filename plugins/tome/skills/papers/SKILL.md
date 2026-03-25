@@ -12,7 +12,9 @@ tags:
   - academic
   - papers
   - pdf
-estimated_tokens: 200
+dependencies:
+  - leyline:document-conversion
+estimated_tokens: 350
 ---
 
 # Academic Papers Search
@@ -30,10 +32,33 @@ Search arXiv, Semantic Scholar, and open-access sources.
 
 ## PDF Processing
 
-- Fetch via WebFetch
-- Read via Read tool (20 pages max per request)
-- Chunk longer papers with page ranges
-- Extract: abstract, key findings, methodology
+After acquiring a paper URL or local file path, convert
+the PDF to markdown for better extraction quality.
+
+### Conversion (prefer markitdown)
+
+Apply the `leyline:document-conversion` protocol:
+
+1. **Try markitdown first**: call the MCP `convert_to_markdown`
+   tool with the PDF URL or `file://` path. This produces
+   structured markdown preserving tables, equations, figures,
+   and section hierarchy.
+
+2. **Fall back to Read tool** if markitdown is unavailable:
+   - Read with `pages: "1-20"` for the first chunk
+   - Continue with `pages: "21-40"` for longer papers
+   - Continue in 20-page increments as needed
+   - Note: tables and figures will not extract as cleanly
+
+### Extraction Targets
+
+From the converted markdown, extract:
+
+- Abstract and key findings
+- Methodology and experimental setup
+- Results tables and figures
+- Citation information (authors, year, venue)
+- Key equations or formal definitions
 
 ## Fallback Guidance
 

@@ -54,9 +54,6 @@ test-testing: ## Run testing-focused tests
 test-edge-case: ## Run edge case tests
 	$(PYTEST) -v -m edge_case
 
-test-language: ## Run language detection tests
-	$(PYTEST) -v -m language_detection
-
 coverage: ## Run tests with coverage report
 	$(PYTEST) --cov=parseltongue --cov-report=html --cov-report=term-missing
 

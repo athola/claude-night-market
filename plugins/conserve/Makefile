@@ -97,15 +97,6 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
-# ---------- CLI Tools ----------
-cli-status: ## Show plugin status via CLI
-	@echo "Running CLI status check..."
-	./bin/conservation_cli status || echo "CLI not available"
-
-cli-validate: ## Run full validation via CLI
-	@echo "Running CLI validation..."
-	./bin/conservation_cli validate || echo "CLI not available"
-
 # ---------- Resource Management ----------
 token-estimate: ## Estimate token usage for skills (ARGS=...)
 	@echo "Estimating token usage (via abstract plugin)..."
