@@ -140,7 +140,7 @@ docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
 
 stargazer-analysis: ## Analyze stargazer overlap for community targeting
-	@bash scripts/stargazer-overlap.sh --limit 50
+	@uv run python scripts/stargazer_overlap.py --limit 50
 
 # ---------- ClawHub / OpenClaw export ----------
 
