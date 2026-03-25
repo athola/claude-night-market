@@ -39,12 +39,19 @@ class QueryTemplateManager:
         self.index_dir = Path(index_dir)
         self.index_file = self.index_dir / "query-templates.yaml"
         self.index: dict[str, Any] = {"entries": {}, "queries": {}, "metadata": {}}
+        # Pre-computed keyword frozensets for each indexed query string.
+        # Populated by load_index() and build_index() to avoid re-extracting
+        # keywords on every call to search().
+        self._keyword_cache: dict[str, frozenset[str]] = {}
 
-    def extract_queries(self, entry_path: Path) -> list[str]:
+    def extract_queries(
+        self, entry_path: Path, content: str | None = None
+    ) -> list[str]:
         """Extract query templates from a single knowledge entry.
 
         Args:
-            entry_path: Path to the markdown file
+            entry_path: Path to the markdown file.
+            content: File content string. When provided, skips disk read.
 
         Returns:
             List of query strings this entry can answer
@@ -53,7 +60,8 @@ class QueryTemplateManager:
         queries = []
 
         try:
-            content = entry_path.read_text()
+            if content is None:
+                content = entry_path.read_text()
 
             # Parse frontmatter for query templates
             metadata = parse_entry_frontmatter(content)
@@ -154,28 +162,40 @@ class QueryTemplateManager:
 
         return {w for w in words if len(w) >= MIN_WORD_LEN and w not in stop_words}
 
-    def _calculate_similarity(self, query1: str, query2: str) -> float:
+    def _calculate_similarity(
+        self,
+        query1: str,
+        query2: str,
+        keywords1: frozenset[str] | None = None,
+        keywords2: frozenset[str] | None = None,
+    ) -> float:
         """Calculate similarity score between two queries.
 
         Uses keyword overlap as a simple similarity measure.
 
         Args:
-            query1: First query string
-            query2: Second query string
+            query1: First query string (used only when keywords1 is None).
+            query2: Second query string (used only when keywords2 is None).
+            keywords1: Pre-extracted keyword set for query1 (optional).
+            keywords2: Pre-extracted keyword set for query2 (optional).
 
         Returns:
             Similarity score between 0.0 and 1.0
 
         """
-        keywords1 = self._extract_query_keywords(query1)
-        keywords2 = self._extract_query_keywords(query2)
+        kw1 = (
+            keywords1 if keywords1 is not None else self._extract_query_keywords(query1)
+        )
+        kw2 = (
+            keywords2 if keywords2 is not None else self._extract_query_keywords(query2)
+        )
 
-        if not keywords1 or not keywords2:
+        if not kw1 or not kw2:
             return 0.0
 
         # Calculate Jaccard similarity (intersection over union)
-        intersection = keywords1 & keywords2
-        union = keywords1 | keywords2
+        intersection = kw1 & kw2
+        union = kw1 | kw2
 
         return len(intersection) / len(union) if union else 0.0
 
@@ -201,14 +221,14 @@ class QueryTemplateManager:
             relative_str = relative.as_posix()
             entry_id = relative_str.removesuffix(".md").replace("/", "-")
 
-            # Extract queries
-            queries = self.extract_queries(md_file)
+            # Read file once; pass content to both query extraction and
+            # frontmatter parsing to avoid a second disk read.
+            file_content = md_file.read_text()
+            queries = self.extract_queries(md_file, content=file_content)
 
-            # Read frontmatter for additional metadata
-            content = md_file.read_text()
             title = entry_id
 
-            metadata = parse_entry_frontmatter(content)
+            metadata = parse_entry_frontmatter(file_content)
             if metadata:
                 title = metadata.get("title", title)
 
@@ -236,6 +256,9 @@ class QueryTemplateManager:
             },
         }
 
+        # Rebuild keyword cache for the new index.
+        self._rebuild_keyword_cache()
+
         # Save to disk
         self.save_index()
 
@@ -246,6 +269,13 @@ class QueryTemplateManager:
         with open(self.index_file, "w") as f:
             yaml.safe_dump(self.index, f, default_flow_style=False, sort_keys=False)
 
+    def _rebuild_keyword_cache(self) -> None:
+        """Precompute keyword frozensets for all indexed query strings."""
+        self._keyword_cache = {
+            q: frozenset(self._extract_query_keywords(q))
+            for q in self.index.get("queries", {})
+        }
+
     def load_index(self) -> None:
         """Load the index from disk."""
         if self.index_file.exists():
@@ -255,6 +285,7 @@ class QueryTemplateManager:
                     "queries": {},
                     "metadata": {},
                 }
+        self._rebuild_keyword_cache()
 
     def search(self, query: str, threshold: float = 0.3) -> list[dict[str, Any]]:
         """Search for entries that answer the given query.
@@ -272,11 +303,21 @@ class QueryTemplateManager:
         if not self.index.get("queries"):
             self.load_index()
 
+        # Extract keywords for the user query once; reuse for all comparisons.
+        user_keywords: frozenset[str] = frozenset(self._extract_query_keywords(query))
+
         # Calculate similarity scores for all indexed queries
         matches = []
 
         for indexed_query, entry_ids in self.index.get("queries", {}).items():
-            similarity = self._calculate_similarity(query, indexed_query)
+            # Use the pre-cached keyword set for the indexed query when available.
+            indexed_keywords = self._keyword_cache.get(indexed_query)
+            similarity = self._calculate_similarity(
+                query,
+                indexed_query,
+                keywords1=user_keywords,
+                keywords2=indexed_keywords,
+            )
 
             if similarity >= threshold:
                 for entry_id in entry_ids:

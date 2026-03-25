@@ -9,7 +9,7 @@
 	demo-skills demo-testing dev dev-install format help install lint memory-profile mutation-test \
 	plugin-check python-tests quality-check security status test test-analyze-tests test-async \
 	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
-	test-language test-parallel test-pattern test-perf test-performance test-run-profiler \
+	test-parallel test-pattern test-perf test-performance test-run-profiler \
 	test-structure test-testing test-unit testing-guidance-tests type-check typecheck
 
 # Plugin-specific variables (must be before include)
@@ -55,10 +55,10 @@ test-edge-case: ## Run edge case tests
 	$(PYTEST) -v -m edge_case
 
 coverage: ## Run tests with coverage report
-	$(PYTEST) --cov=parseltongue --cov-report=html --cov-report=term-missing
+	$(PYTEST) --cov=src/parseltongue --cov-report=html --cov-report=term-missing
 
 coverage-check: ## Check coverage meets 85% threshold
-	$(PYTEST) --cov=parseltongue --cov-fail-under=85 --cov-report=term-missing
+	$(PYTEST) --cov=src/parseltongue --cov-fail-under=85 --cov-report=term-missing
 
 test-parallel: ## Run tests in parallel
 	$(PYTEST) -n auto -v
@@ -125,7 +125,7 @@ test-fixtures: ## Validate test fixtures
 	@python -c "from tests.conftest import *; print('All fixtures imported successfully')" || echo "Fixture validation failed"
 
 coverage-report: ## Generate coverage report
-	$(PYTEST) --cov=parseltongue --cov-report=html --cov-report=xml
+	$(PYTEST) --cov=src/parseltongue --cov-report=html --cov-report=xml
 	@echo "Coverage report generated in htmlcov/"
 
 # ---------- Workflows ----------
@@ -171,7 +171,7 @@ demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
 demo-coverage: ## Run coverage analysis (LIVE)
 	@echo "=== Parseltongue Coverage Demo (LIVE) ==="
 	@echo ""
-	$(PYTEST) --cov=parseltongue --cov-report=term-missing -q 2>/dev/null | head -30 || echo "Coverage: run 'make coverage' for full report"
+	$(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q 2>/dev/null | head -30 || echo "Coverage: run 'make coverage' for full report"
 
 demo-lint: ## Run linting on parseltongue code (LIVE)
 	@echo "=== Parseltongue Lint Demo (LIVE) ==="

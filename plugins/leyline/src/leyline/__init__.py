@@ -4,6 +4,12 @@ Like ancient ley lines connecting sacred sites, leyline provides the foundationa
 patterns that connect and power plugin ecosystems.
 """
 
+from leyline.fs import (
+    FILE_OVERHEAD_TOKENS,
+    SKIP_DIRS,
+    SOURCE_EXTENSIONS,
+    iter_source_files,
+)
 from leyline.mecw import (
     MECW_THRESHOLDS,
     MECWMonitor,
@@ -12,8 +18,8 @@ from leyline.mecw import (
     check_mecw_compliance,
 )
 from leyline.quota_tracker import QuotaConfig, QuotaStatus, QuotaTracker, UsageStats
+from leyline.session_store import SessionStore, validate_session_id
 from leyline.tokens import (
-    FILE_OVERHEAD_TOKENS,
     FILE_TOKEN_RATIOS,
     estimate_file_tokens,
     estimate_tokens,
@@ -23,6 +29,10 @@ __version__ = "1.7.0"
 
 __all__ = [
     "FILE_OVERHEAD_TOKENS",
+    # File system utilities
+    "SKIP_DIRS",
+    "SOURCE_EXTENSIONS",
+    "iter_source_files",
     # Token estimation
     "FILE_TOKEN_RATIOS",
     # MECW utilities
@@ -38,4 +48,7 @@ __all__ = [
     "check_mecw_compliance",
     "estimate_file_tokens",
     "estimate_tokens",
+    # Session store
+    "SessionStore",
+    "validate_session_id",
 ]

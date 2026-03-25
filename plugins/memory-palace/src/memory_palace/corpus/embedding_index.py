@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+logger = logging.getLogger(__name__)
+
+try:
+    import numpy as np  # type: ignore[import-not-found,import-untyped]
+
+    _HAS_NUMPY = True
+except Exception:  # pragma: no cover - optional dependency
+    np = None  # type: ignore[assignment]
+    _HAS_NUMPY = False
 
 try:
     from sentence_transformers import (  # type: ignore[import-not-found]
@@ -262,5 +273,20 @@ class EmbeddingIndex:
 
     @staticmethod
     def _dot(a: list[float], b: list[float]) -> float:
+        """Compute dot product of two float vectors.
+
+        Uses numpy when available; falls back to pure Python otherwise.
+        Logs a warning if vector dimensions differ (partial dot product).
+        """
+        if len(a) != len(b):
+            logger.warning(
+                "Vector dimension mismatch in dot product: %d vs %d. "
+                "Truncating to shorter length; results may be unreliable.",
+                len(a),
+                len(b),
+            )
+        if _HAS_NUMPY and np is not None:
+            length = min(len(a), len(b))
+            return float(np.dot(a[:length], b[:length]))
         length = min(len(a), len(b))
         return sum(a[i] * b[i] for i in range(length))

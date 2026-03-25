@@ -91,7 +91,7 @@ extend-ignore = ["E203", "D203", "D213", "S101"]  # Added S101 for assert usage
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D103"]
+"tests/**/*.py" = ["S101", "PLR2004", "D103", "D205", "D400", "D415"]
 
 [tool.ruff.format]
 quote-style = "double"

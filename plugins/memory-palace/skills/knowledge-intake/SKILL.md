@@ -186,15 +186,27 @@ Agent(scribe:doc-verifier) "Verify docs/knowledge-corpus/[entry-name].md"
 
 ### Step 7: Discussion Promotion (Score 80+ Only)
 
-When the evaluation score is 80-100 (evergreen), follow
-`modules/discussion-promotion.md` to publish the entry
-to the "Knowledge" Discussion category.
+When the evaluation score is 80-100 (evergreen), you
+MUST execute the Discussion promotion workflow. If the
+score is below 80, skip this step entirely.
+
+**Execute these steps in order:**
+
+1. Read `modules/discussion-promotion.md` for the
+   full GraphQL workflow
+2. Tell the user: "This entry has reached evergreen
+   maturity. Publishing to GitHub Discussions. [Y/n]"
+3. If the user says "n", skip to Step 8 (APPLY)
+4. Run the `gh api graphql` commands from the module
+   to create or update a Discussion in the "Knowledge"
+   category
+5. Update the local corpus entry with `discussion_url`
 
 - If the entry already has a `discussion_url` field,
-  update the existing Discussion instead
-- If the user explicitly declines or promotion fails,
-  continue to Step 8 (APPLY)
-- If the score is below 80, skip this step entirely
+  update the existing Discussion instead of creating
+  a new one
+- If `gh` is unavailable or promotion fails, warn
+  the user and continue to Step 8 (APPLY)
 
 Publishing is the default for qualifying entries. It
 never blocks the intake workflow.

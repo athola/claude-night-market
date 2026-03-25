@@ -1,3 +1,6 @@
+SHELL := /bin/bash
+.SHELLFLAGS := -euo pipefail -c
+
 .PHONY: help install test lint format check docker-build docker-run clean
 
 help: ## Show this help
@@ -5,7 +8,7 @@ help: ## Show this help
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
 
 install: ## Install phantom with dev dependencies
-	uv pip install --extra dev -e .
+	uv sync --extra dev
 
 test: ## Run all tests
 	uv run --extra dev python -m pytest tests/ -v --tb=short

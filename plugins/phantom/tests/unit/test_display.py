@@ -288,7 +288,7 @@ class TestCheckDisplayEnvironment:
         assert info["all_tools_available"] is True
 
     @patch("phantom.display._check_command")
-    @patch.dict("os.environ", {"DISPLAY": ""}, clear=False)
+    @patch.dict("os.environ", {"DISPLAY": "", "WAYLAND_DISPLAY": ""}, clear=False)
     def test_detects_missing_display(self, mock_check):
         mock_check.return_value = False
         info = check_display_environment()

@@ -147,6 +147,7 @@ stargazer-analysis: ## Analyze stargazer overlap for community targeting
 CLAWHUB_DIR := clawhub
 
 .PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean
+.PHONY: bridge-build bridge-clean a2a-cards a2a-list detect-framework cross-framework
 
 clawhub-export: ## Export all skills to ClawHub/OpenClaw format
 	@echo "=== Exporting skills to ClawHub format ==="
@@ -193,9 +194,9 @@ detect-framework: ## Detect active agentic framework
 cross-framework: clawhub-export bridge-build a2a-cards ## Build all cross-framework artifacts
 	@echo ""
 	@echo "=== Cross-Framework Build Complete ==="
-	@echo "  ClawHub export: clawhub/ (142 skills)"
+	@echo "  ClawHub export: clawhub/ ($$(find clawhub -name '*.json' 2>/dev/null | wc -l | tr -d ' ') skills)"
 	@echo "  OpenClaw bridge: bridge/openclaw/ (plugin ready)"
-	@echo "  A2A agent cards: bridge/a2a/ (47 agents)"
+	@echo "  A2A agent cards: bridge/a2a/ ($$(find bridge/a2a -name '*.json' 2>/dev/null | wc -l | tr -d ' ') agents)"
 	@echo ""
 	@uv run python scripts/framework_detect.py
 

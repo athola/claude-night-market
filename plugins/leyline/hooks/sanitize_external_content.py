@@ -49,12 +49,12 @@ _INVISIBLE_TEXT = [
     re.compile(p)
     for p in [
         r'style\s*=\s*["\'][^"\']*display:\s*none',
-        r"visibility:\s*hidden",
-        r"color:\s*(?:white|#fff(?:fff)?)\b",
-        r"color:\s*rgb\(\s*255",
-        r"font-size:\s*0\b",
-        r"opacity:\s*0\b",
-        r"height:\s*0[^0-9].*overflow:\s*hidden",
+        r'style\s*=\s*["\'][^"\']*visibility:\s*hidden',
+        r'style\s*=\s*["\'][^"\']*color:\s*(?:white|#fff(?:fff)?)\b',
+        r'style\s*=\s*["\'][^"\']*color:\s*rgb\(\s*255',
+        r'style\s*=\s*["\'][^"\']*font-size:\s*0\b',
+        r'style\s*=\s*["\'][^"\']*opacity:\s*0\b',
+        r'style\s*=\s*["\'][^"\']*height:\s*0[^0-9].*overflow:\s*hidden',
     ]
 ]
 
@@ -137,12 +137,18 @@ def sanitize_output(content: str | None) -> str:
             "style='display:none",
             'style="display: none',
             "style='display: none",
-            "visibility:hidden",
-            "visibility: hidden",
-            "opacity:0",
-            "opacity: 0",
-            "font-size:0",
-            "font-size: 0",
+            'style="visibility:hidden',
+            "style='visibility:hidden",
+            'style="visibility: hidden',
+            "style='visibility: hidden",
+            'style="opacity:0',
+            "style='opacity:0",
+            'style="opacity: 0',
+            "style='opacity: 0",
+            'style="font-size:0',
+            "style='font-size:0",
+            'style="font-size: 0',
+            "style='font-size: 0",
         ]
         # Scan in chunks with overlap to cover entire content
         chunk_size = _MAX_SCAN_SIZE  # 100KB

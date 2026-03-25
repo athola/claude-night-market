@@ -19,9 +19,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from abstract.cli_framework import AbstractCLI, CLIResult, cli_main  # noqa: E402
 from abstract.config import AbstractConfig  # noqa: E402
-from abstract.tokens import estimate_tokens  # noqa: E402
+from abstract.frontmatter import FrontmatterProcessor  # noqa: E402
+from abstract.tokens import estimate_text_tokens  # noqa: E402
 from abstract.utils import (  # noqa: E402
-    extract_frontmatter,
     find_project_root,
     find_skill_files,
     load_config_with_defaults,
@@ -61,12 +61,12 @@ class ContextOptimizer:
         return {
             "bytes": size,
             "category": category,
-            "estimated_tokens": estimate_tokens(skill_path.read_text()),
+            "estimated_tokens": estimate_text_tokens(skill_path.read_text()),
         }
 
     def extract_content_summary(self, content: str, max_section_lines: int) -> str:
         """Extract a summary of content based on sections."""
-        frontmatter, body = extract_frontmatter(content)
+        frontmatter, body = FrontmatterProcessor.extract_raw(content)
 
         # Extract main sections (headers)
         lines = body.split("\n")

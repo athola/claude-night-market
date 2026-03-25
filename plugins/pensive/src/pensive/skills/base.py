@@ -3,6 +3,7 @@ Base classes for pensive review skills."""
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
@@ -56,6 +57,46 @@ class BaseReviewSkill:
         Subclasses should override this method to implement specific analysis.
         """
         return AnalysisResult()
+
+    def _detect_patterns(
+        self,
+        context: Any,
+        filename: str,
+        patterns: list[tuple[str, str]],
+        content_parser: Any,
+        bug_type: str = "",
+        re_flags: int = 0,
+    ) -> list[dict[str, str]]:
+        """Detect regex patterns in file content and return findings.
+
+        Args:
+            context: Skill context with file access methods.
+            filename: File to scan.
+            patterns: List of (regex_pattern, issue_description) tuples.
+            content_parser: Module or object with get_file_content and
+                find_line_number helpers.
+            bug_type: Bug category label placed in the "type" field.
+            re_flags: Flags forwarded to re.finditer.
+
+        Returns:
+            List of finding dicts with keys: type, location, issue, code.
+        """
+        code = content_parser.get_file_content(context, filename)
+        if not code:
+            return []
+        findings: list[dict[str, str]] = []
+        for pattern, issue_desc in patterns:
+            for match in re.finditer(pattern, code, re_flags):
+                line_num = content_parser.find_line_number(code, match.start())
+                findings.append(
+                    {
+                        "type": bug_type,
+                        "location": f"{filename}:{line_num}",
+                        "issue": issue_desc,
+                        "code": content_parser.extract_code_snippet(code, line_num),
+                    }
+                )
+        return findings
 
     def generate_report(self, findings: list[ReviewFinding]) -> str:
         """Generate a summary report from findings."""

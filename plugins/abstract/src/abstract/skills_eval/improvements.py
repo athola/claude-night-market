@@ -54,8 +54,28 @@ class ImprovementSuggester:
     def __init__(self, skills_dir: Path) -> None:
         """Initialize the improvement suggester."""
         self.skills_dir = skills_dir
+        # Deprecated: use skills_dir directly
         self.skills_root = skills_dir  # Add alias for compatibility
+        # Deprecated: use skills_dir directly
         self.skill_root = skills_dir  # Add alias for test compatibility
+
+    def _read_skill_content(self, skill_name: str) -> str | None:
+        """Read the content of a skill's SKILL.md file.
+
+        Args:
+            skill_name: Name of the skill directory.
+
+        Returns:
+            File content string on success, None on failure.
+
+        """
+        skill_path = self.skills_dir / skill_name / "SKILL.md"
+        try:
+            with open(skill_path, encoding="utf-8") as f:
+                return f.read()
+        except (OSError, UnicodeDecodeError) as e:
+            logger.warning("Could not read skill file %s: %s", skill_path, e)
+            return None
 
     def analyze_skill(self, skill_name: str) -> dict[str, Any]:
         """Analyze a specific skill for improvements."""
@@ -68,13 +88,11 @@ class ImprovementSuggester:
                 "suggestions": ["Create SKILL.md file in skill directory"],
             }
 
-        try:
-            with open(skill_path, encoding="utf-8") as f:
-                content = f.read()
-        except Exception as e:
+        content = self._read_skill_content(skill_name)
+        if content is None:
             return {
                 "name": skill_name,
-                "issues": [f"Error reading skill file: {e}"],
+                "issues": ["Error reading skill file"],
                 "suggestions": ["Check file permissions and encoding"],
             }
 
@@ -137,10 +155,8 @@ class ImprovementSuggester:
         if not skill_path.exists():
             return ["Skill file not found"]
 
-        try:
-            with open(skill_path, encoding="utf-8") as f:
-                content = f.read()
-        except Exception:
+        content = self._read_skill_content(skill_name)
+        if content is None:
             return ["Error reading skill file"]
 
         # Check content length
@@ -170,10 +186,8 @@ class ImprovementSuggester:
         if not skill_path.exists():
             return ["Skill file not found"]
 
-        try:
-            with open(skill_path, encoding="utf-8") as f:
-                content = f.read()
-        except Exception:
+        content = self._read_skill_content(skill_name)
+        if content is None:
             return ["Error reading skill file"]
 
         # Check sections

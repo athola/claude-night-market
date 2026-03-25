@@ -50,8 +50,11 @@ def build_bridge(clawhub_dir: Path, bridge_dir: Path) -> None:
     plugin_json = bridge_dir / "openclaw.plugin.json"
     if plugin_json.exists():
         pj = json.loads(plugin_json.read_text())
-        pj["version"] = (
-            manifest["skills"][0]["version"] if manifest["skills"] else "1.0.0"
+        pj["version"] = manifest.get(
+            "version",
+            manifest["skills"][0].get("version", "1.0.0")
+            if manifest.get("skills")
+            else "1.0.0",
         )
         plugin_json.write_text(json.dumps(pj, indent=2) + "\n")
         print(f"Updated {plugin_json} version to {pj['version']}")

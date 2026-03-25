@@ -13,8 +13,20 @@ Key principles:
 from __future__ import annotations
 
 import re
+import sys
+from pathlib import Path
 
 from .frontmatter import FrontmatterProcessor
+
+# Try to delegate basic text→token estimation to leyline
+_LEYLINE_SRC = Path(__file__).resolve().parents[3] / "leyline" / "src"
+sys.path.insert(0, str(_LEYLINE_SRC))
+try:
+    from leyline.tokens import estimate_tokens as _leyline_estimate_tokens
+
+    _HAS_LEYLINE = True
+except ImportError:  # pragma: no cover - optional peer dependency
+    _HAS_LEYLINE = False
 
 # Constants for token estimation
 CHARS_PER_TOKEN = 4
@@ -22,11 +34,18 @@ FRONTMATTER_MULTIPLIER = 1.2  # YAML tends to be denser
 CODE_MULTIPLIER = 1.5  # Code has more symbols/special chars
 
 
-def estimate_tokens(text: str) -> int:
-    """Estimate token count for text using standard ratio.
+def estimate_text_tokens(text: str) -> int:
+    """Estimate token count for a text string using standard ratio.
 
     Simple token estimation without content-type adjustments.
     Use this for quick estimates or when content type doesn't matter.
+
+    Delegates to leyline's estimator when available so both plugins
+    share a single base estimation implementation.
+
+    Named ``estimate_text_tokens`` to avoid collision with
+    ``leyline.tokens.estimate_tokens(files, prompt)`` which has an
+    incompatible signature.
 
     Args:
         text: The text to estimate tokens for.
@@ -35,17 +54,27 @@ def estimate_tokens(text: str) -> int:
         Estimated token count.
 
     Example:
-        >>> estimate_tokens("Hello, world!")
+        >>> estimate_text_tokens("Hello, world!")
         3  # 13 characters / 4 = ~3 tokens
 
     """
     if not text:
         return 0
+    if _HAS_LEYLINE:
+        # leyline.tokens.estimate_tokens accepts (files, prompt); pass the
+        # text as the prompt with no files for a pure-text estimate.
+        return _leyline_estimate_tokens([], text)
     return TokenAnalyzer.analyze_content(text)["total_tokens"]
 
 
-# Unambiguous alias to distinguish from leyline.estimate_tokens(files, prompt)
-estimate_text_tokens = estimate_tokens
+def estimate_tokens(text: str) -> int:
+    """Estimate token count for text.
+
+    .. deprecated::
+        Use :func:`estimate_text_tokens` to avoid name collision with
+        ``leyline.tokens.estimate_tokens(files, prompt)``.
+    """
+    return estimate_text_tokens(text)
 
 
 def extract_code_blocks(content: str) -> list[str]:

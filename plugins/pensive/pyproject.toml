@@ -198,9 +198,6 @@ unfixable = [
 "src/pensive/workflows/code_review.py" = [
     "PLC0415", # Deferred import for dynamic skill loading
 ]
-"src/pensive/workflows/skill_coordinator.py" = [
-    "PLC0415", # Deferred import for async context
-]
 "src/pensive/plugin/base.py" = [
     "PLC0415", # Deferred imports for plugin base
 ]

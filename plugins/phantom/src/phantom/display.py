@@ -261,6 +261,10 @@ class DisplayToolkit:
                 success=False,
                 error="type requires text",
             )
+        # Cap length to prevent blocking the event loop
+        _MAX_TYPE_LEN = 4096
+        if len(text) > _MAX_TYPE_LEN:
+            text = text[:_MAX_TYPE_LEN]
         # xdotool type handles special characters
         _run(["xdotool", "type", "--clearmodifiers", text])
         return ActionResult(success=True)
@@ -326,8 +330,10 @@ class DisplayToolkit:
         key = self._normalize_key(text)
 
         _run(["xdotool", "keydown", key])
-        time.sleep(duration)
-        _run(["xdotool", "keyup", key])
+        try:
+            time.sleep(duration)
+        finally:
+            _run(["xdotool", "keyup", key], check=False)
         return ActionResult(success=True)
 
     def _do_wait(self, action: dict[str, Any]) -> ActionResult:

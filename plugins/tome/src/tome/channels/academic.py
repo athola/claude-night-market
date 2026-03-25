@@ -13,6 +13,7 @@ import re
 from typing import Any
 from urllib.parse import quote, quote_plus
 
+from tome.channels import deduplicate_queries
 from tome.models import Finding
 
 # ---------------------------------------------------------------------------
@@ -49,15 +50,7 @@ def expand_academic_queries(topic: str, max_variants: int = 5) -> list[str]:
     # Recent variant
     queries.append(f"recent advances {topic}")
 
-    # Deduplicate while preserving order
-    seen: set[str] = set()
-    unique: list[str] = []
-    for q in queries:
-        if q not in seen:
-            seen.add(q)
-            unique.append(q)
-
-    return unique[:max_variants]
+    return deduplicate_queries(queries)[:max_variants]
 
 
 # ---------------------------------------------------------------------------
@@ -585,7 +578,7 @@ def parse_citation_chain_response(data: dict[str, Any]) -> list[Finding]:
                 title=title,
                 url=url,
                 relevance=relevance,
-                summary="",
+                summary=f"Cited paper ({year or 'unknown year'}, {citations} citations)",
                 metadata={
                     "authors": authors,
                     "year": year,

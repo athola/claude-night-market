@@ -12,6 +12,7 @@ import re
 from typing import Any
 from urllib.parse import quote_plus
 
+from tome.channels import deduplicate_queries
 from tome.models import Finding
 
 # ---------------------------------------------------------------------------
@@ -38,14 +39,7 @@ def expand_discourse_queries(topic: str, max_variants: int = 4) -> list[str]:
         f"{topic} comparison alternatives",
     ]
 
-    seen: set[str] = set()
-    unique: list[str] = []
-    for q in queries:
-        if q not in seen:
-            seen.add(q)
-            unique.append(q)
-
-    return unique[:max_variants]
+    return deduplicate_queries(queries)[:max_variants]
 
 
 _LOBSTERS_BASE_RELEVANCE = 0.6

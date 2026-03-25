@@ -175,10 +175,10 @@ unfixable = [
 ]
 # Analysis modules are single-class files with many analysis methods.
 # Split into packages if any file exceeds 1500 LOC.
-"src/parseltongue/analysis/async_analysis.py" = [
+"src/parseltongue/analysis/async_analysis/__init__.py" = [
     "PLR0904", # Too many public methods - single analysis class
 ]
-"src/parseltongue/analysis/pattern_matching.py" = [
+"src/parseltongue/analysis/pattern_matching/__init__.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class
 ]
 "src/parseltongue/analysis/testing_guide.py" = [

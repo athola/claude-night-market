@@ -412,11 +412,11 @@ Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonn
 7. **Phase 7 (Synthesis)**: Lead collects all artifacts, produces decision
 8. **Phase 8 (Discussion Publishing)**: After the
    Supreme Commander Decision document is finalized,
-   follow `modules/discussion-publishing.md` to publish
-   the decision to GitHub Discussions. The user can
-   decline, but publishing is the default. If the user
-   declines or publishing fails, the local strategeion
-   record is unaffected.
+   you MUST execute `modules/discussion-publishing.md`
+   to publish the decision to GitHub Discussions.
+   Publishing is the default. The user can decline
+   with "n". See the "Discussion Publishing (REQUIRED)"
+   section below for the full step-by-step workflow.
 
 ### Falling Back to Conjure Delegation
 
@@ -426,21 +426,31 @@ If agent teams fails (tmux unavailable, team creation error), the War Room autom
 
 Agent teams is significantly more token-intensive than conjure delegation (each teammate maintains its own context window). Use only when the coordination value justifies the cost — typically Delphi mode where multiple rounds of revision make persistent teammates worthwhile.
 
-### Discussion Publishing
+### Discussion Publishing (REQUIRED)
 
 After Phase 7 synthesis completes (in any execution
-mode), invoke the `modules/discussion-publishing.md`
-workflow. Publishing is the default action. This module:
+mode), you MUST execute the discussion publishing
+workflow. This is not optional unless the user
+explicitly declines.
 
-1. Notifies the user that the decision will be published
-   (they can opt out with "n")
-2. Creates a Discussion in the "Decisions" category
-3. Posts deliberation phases as threaded comments
-4. Updates the local strategeion with the Discussion URL
+**Execute these steps in order:**
+
+1. Read `modules/discussion-publishing.md` for the
+   full GraphQL workflow
+2. Ask the user: "Publishing this decision to GitHub
+   Discussions. [Y/n]"
+3. If the user says "n", skip to Related Skills.
+   Otherwise proceed with steps 4-6.
+4. Run the `gh api graphql` commands from the module
+   to create a Discussion in the "Decisions" category
+5. Post phase summaries as threaded comments on the
+   Discussion
+6. Update the local strategeion file with the
+   Discussion URL
 
 If GitHub Discussions are unavailable (non-GitHub
 platform, Discussions disabled, `gh` not authenticated),
-the module skips silently. Publishing failures never
+warn the user and skip. Publishing failures never
 block the war room workflow.
 
 ## Related Skills

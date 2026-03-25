@@ -22,21 +22,27 @@ def no_confirm(action: dict[str, Any]) -> bool:
     return True
 
 
-def always_confirm(action: dict[str, Any]) -> bool:
-    """Approve all actions (placeholder for interactive confirmation).
+def always_approve(action: dict[str, Any]) -> bool:
+    """Auto-approve all actions (stub, no interactive prompt).
 
-    In a real implementation, this would prompt the user via
-    stdin, a GUI dialog, or a webhook. Returns True as a default.
+    This is a no-op placeholder that always returns True.
+    Replace with an interactive callback (stdin prompt, GUI dialog,
+    or webhook) to enable real human-in-the-loop confirmation.
     """
     return True
 
 
-def confirm_clicks_only(action: dict[str, Any]) -> bool:
-    """Only require confirmation for click actions.
+# Backward-compatible alias
+always_confirm = always_approve
 
-    Non-click actions (type, key, screenshot) are auto-approved.
-    Click actions are approved by default (swap with an interactive
-    callback for real human-in-the-loop).
+
+def approve_clicks_only(action: dict[str, Any]) -> bool:
+    """Auto-approve all actions including clicks (stub).
+
+    Non-click actions are auto-approved by design.
+    Click actions are also auto-approved in this stub implementation.
+    Replace the final ``return True`` with an interactive prompt
+    to gate click actions on human confirmation.
     """
     click_actions = {
         "left_click",
@@ -50,6 +56,10 @@ def confirm_clicks_only(action: dict[str, Any]) -> bool:
         return True
     # Default: approve (replace with interactive prompt)
     return True
+
+
+# Backward-compatible alias
+confirm_clicks_only = approve_clicks_only
 
 
 @dataclass

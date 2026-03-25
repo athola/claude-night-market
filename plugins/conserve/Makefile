@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY:
-.PHONY: benchmark check clean cli-status cli-validate debug-variables demo-ai-hygiene-audit \
+.PHONY: benchmark check clean debug-variables demo-ai-hygiene-audit \
 	demo-bloat demo-bloat-scan demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
 	fix-apply format help install-hooks lint memory-profile mutation-test perf-check plugin-check \
 	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \

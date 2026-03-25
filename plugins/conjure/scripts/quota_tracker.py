@@ -14,10 +14,69 @@ import argparse
 import logging
 import os
 import shlex
+import sys
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+sys.path.insert(0, str(_LEYLINE_SRC))
+
+try:
+    from leyline.fs import (  # type: ignore[import-not-found]
+        FILE_OVERHEAD_TOKENS,
+        SKIP_DIRS,
+        SOURCE_EXTENSIONS,
+        iter_source_files,
+    )
+
+    _HAS_LEYLINE_FS = True
+except ImportError:  # pragma: no cover
+    _HAS_LEYLINE_FS = False
+    FILE_OVERHEAD_TOKENS = 6  # type: ignore[assignment]
+    SKIP_DIRS = frozenset(
+        {  # type: ignore[assignment]
+            "__pycache__",
+            "node_modules",
+            ".git",
+            "venv",
+            ".venv",
+            "dist",
+            "build",
+            ".pytest_cache",
+        }
+    )
+    SOURCE_EXTENSIONS = frozenset(
+        {  # type: ignore[assignment]
+            ".py",
+            ".js",
+            ".ts",
+            ".rs",
+            ".md",
+            ".txt",
+            ".json",
+            ".yaml",
+            ".yml",
+            ".toml",
+        }
+    )
+
+    def iter_source_files(  # type: ignore[misc]
+        root_dir: Any,
+        extensions: Any = None,
+        skip_dirs: Any = None,
+    ) -> Any:
+        """Fallback directory walker when leyline.fs is unavailable."""
+        effective_ext = extensions if extensions is not None else SOURCE_EXTENSIONS
+        effective_skip = skip_dirs if skip_dirs is not None else SKIP_DIRS
+        for root, dirs, files in os.walk(root_dir):
+            dirs[:] = [d for d in dirs if d not in effective_skip]
+            for file in files:
+                candidate = Path(root) / file
+                if candidate.suffix.lower() in effective_ext:
+                    yield candidate
+
 
 try:
     from leyline import (  # type: ignore[import-not-found,no-redef]
@@ -79,15 +138,25 @@ GEMINI_QUOTA_CONFIG = QuotaConfig(
     tokens_per_day=1000000,
 )
 
-# File overhead for token estimation
-FILE_OVERHEAD_TOKENS = 6
-
 # Default limits dict for backward compatibility with tests
 DEFAULT_LIMITS = {
     "requests_per_minute": 60,
     "requests_per_day": 1000,
     "tokens_per_minute": 32000,
     "tokens_per_day": 1000000,
+}
+
+# Named per-service quota limit dicts for use by delegation_executor
+DEFAULT_GEMINI_LIMITS: dict[str, int] = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_day": 1000000,
+}
+
+DEFAULT_QWEN_LIMITS: dict[str, int] = {
+    "requests_per_minute": 120,
+    "requests_per_day": 2000,
+    "tokens_per_day": 2000000,
 }
 
 
@@ -210,46 +279,19 @@ class GeminiQuotaTracker(QuotaTracker):  # type: ignore[misc]
     def _iter_source_paths(self, file_paths: Sequence[str | Path]) -> Iterable[str]:
         """Iterate over source file paths, walking directories.
 
-        Skips common build/dependency directories and filters for relevant
-        file types.
+        Delegates to leyline.fs.iter_source_files (with fallback) so that
+        skip-dir and extension logic stays in one place.
+
+        Yields string paths for backward compatibility with callers.
         """
-        skip_dirs = {
-            "__pycache__",
-            "node_modules",
-            ".git",
-            "venv",
-            ".venv",
-            "dist",
-            "build",
-        }
-
-        valid_extensions = {
-            ".py",
-            ".js",
-            ".ts",
-            ".md",
-            ".yaml",
-            ".yml",
-            ".json",
-            ".toml",
-            ".txt",
-            ".rs",
-            ".go",
-        }
-
         for file_path in file_paths:
-            path_value = str(file_path)
+            path = Path(file_path)
             try:
-                if os.path.isfile(path_value):
-                    yield path_value
-                elif os.path.isdir(path_value):
-                    for root, dirs, files in os.walk(path_value):
-                        # Filter out skip directories
-                        dirs[:] = [d for d in dirs if d not in skip_dirs]
-                        for file in files:
-                            candidate = os.path.join(root, file)
-                            if Path(candidate).suffix.lower() in valid_extensions:
-                                yield candidate
+                if path.is_file():
+                    yield str(path)
+                elif path.is_dir():
+                    for p in iter_source_files(path):
+                        yield str(p)
             except (OSError, PermissionError):
                 continue
 

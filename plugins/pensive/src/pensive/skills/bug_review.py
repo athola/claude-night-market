@@ -45,41 +45,36 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential null pointer dereference bugs."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         # Pattern: accessing property without null check after potential null return
         patterns = [
             # JavaScript/TypeScript: accessing .property without optional chaining
             (
                 r"(\w+)\.(\w+)\.(\w+)",
-                "Potential null/undefined dereference on chained access",
+                "Null/undefined dereference: Potential null/undefined dereference"
+                " on chained access",
             ),
             # Accessing after function that might return null
             (
                 r"const\s+(\w+)\s*=\s*\w+\(\);\s*\n.*\1\.(\w+)",
-                "Accessing property after function that might return null",
+                "Null/undefined dereference: Accessing property after function"
+                " that might return null",
             ),
             # Direct access without null check
             (
                 r"return\s+(\w+)\.(\w+)",
-                "Potential null dereference in return statement",
+                "Null/undefined dereference: Potential null dereference in"
+                " return statement",
             ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "null_pointer",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Null/undefined dereference: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="null_pointer",
+            re_flags=re.MULTILINE,
+        )
 
     def detect_race_conditions(
         self,
@@ -87,45 +82,41 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential race condition bugs."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # Python threading without locks
             (
                 r"threading\.Thread\(target=",
-                "Thread created - race condition without synchronization",
+                "Race condition or thread safety issue: Thread created"
+                " - race condition without synchronization",
             ),
             # Check-then-act pattern
             (
                 r"if\s+self\.(\w+).*:\s*\n\s*.*self\.\1",
-                "Check-then-act pattern: race condition or thread safety",
+                "Race condition or thread safety issue: Check-then-act"
+                " pattern: race condition or thread safety",
             ),
             # Shared state modification
             (
                 r"self\.(\w+)\s*[+\-*/]?=",
-                "Shared state modification without lock - thread safety concern",
+                "Race condition or thread safety issue: Shared state"
+                " modification without lock - thread safety concern",
             ),
             # Time.sleep in critical section
             (
                 r"time\.sleep\(",
-                "Sleep in potential critical section - race condition window",
+                "Race condition or thread safety issue: Sleep in potential"
+                " critical section - race condition window",
             ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE | re.DOTALL):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "race_condition",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Race condition or thread safety issue: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="race_condition",
+            re_flags=re.MULTILINE | re.DOTALL,
+        )
 
     def detect_memory_leaks(
         self,
@@ -133,44 +124,47 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential memory leak bugs."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # Event listeners without cleanup
             (
                 r"addEventListener\(",
-                "Event listener added - potential memory leak if not removed",
+                "Memory leak or event listener issue: Event listener added"
+                " - potential memory leak if not removed",
             ),
             # Cache growing without bounds
             (
                 r"\.push\(.*\)",
-                "Array/cache growing - potential memory leak without cleanup",
+                "Memory leak or event listener issue: Array/cache growing"
+                " - potential memory leak without cleanup",
             ),
             # Global cache without cleanup
-            (r"var\s+\w*[Cc]ache\s*=\s*\[\]", "Global cache - potential memory leak"),
+            (
+                r"var\s+\w*[Cc]ache\s*=\s*\[\]",
+                "Memory leak or event listener issue: Global cache"
+                " - potential memory leak",
+            ),
             # Map/Set growing
-            (r"\.set\(", "Map/Set growing - potential memory leak without eviction"),
+            (
+                r"\.set\(",
+                "Memory leak or event listener issue: Map/Set growing"
+                " - potential memory leak without eviction",
+            ),
             # Circular references
             (
                 r"(\w+)\.ref\s*=\s*(\w+).*\n.*\2\.ref\s*=\s*\1",
-                "Circular reference - potential memory leak",
+                "Memory leak or event listener issue: Circular reference"
+                " - potential memory leak",
             ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "memory_leak",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Memory leak or event listener issue: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="memory_leak",
+            re_flags=re.MULTILINE,
+        )
 
     def detect_sql_injection(
         self,
@@ -178,37 +172,45 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential SQL injection vulnerabilities."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # f-string SQL
-            (r'f"SELECT.*\{', "SQL injection: f-string with user input in query"),
-            (r"f'SELECT.*\{", "SQL injection: f-string with user input in query"),
+            (
+                r'f"SELECT.*\{',
+                "SQL injection vulnerability: f-string with user input in query",
+            ),
+            (
+                r"f'SELECT.*\{",
+                "SQL injection vulnerability: f-string with user input in query",
+            ),
             # String concatenation in SQL
-            (r'"SELECT.*\+.*\+', "SQL injection: string concatenation in query"),
-            (r"'SELECT.*\+.*\+", "SQL injection: string concatenation in query"),
+            (
+                r'"SELECT.*\+.*\+',
+                "SQL injection vulnerability: string concatenation in query",
+            ),
+            (
+                r"'SELECT.*\+.*\+",
+                "SQL injection vulnerability: string concatenation in query",
+            ),
             # Format string SQL
             (
                 r'"SELECT.*%s',
-                "SQL injection: format string in query (use parameterized queries)",
+                "SQL injection vulnerability: format string in query"
+                " (use parameterized queries)",
             ),
-            (r'"SELECT.*\.format\(', "SQL injection: .format() in query"),
+            (
+                r'"SELECT.*\.format\(',
+                "SQL injection vulnerability: .format() in query",
+            ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.IGNORECASE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "sql_injection",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"SQL injection vulnerability: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="sql_injection",
+            re_flags=re.IGNORECASE,
+        )
 
     def detect_off_by_one_errors(
         self,
@@ -216,40 +218,41 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential off-by-one errors."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # <= instead of < for array bounds
             (
                 r"for.*<=\s*\w+\.length",
                 "Off-by-one error: using <= with .length (should be <)",
             ),
-            (r"for.*<=\s*len\(", "Off-by-one error: using <= with len() (should be <)"),
+            (
+                r"for.*<=\s*len\(",
+                "Off-by-one error: using <= with len() (should be <)",
+            ),
             # range with +1 that might be wrong
             (
                 r"range\(len\(\w+\)\s*\+\s*1\)",
                 "Off-by-one error: range with len() + 1 may exceed bounds",
             ),
             # <= in for loop
-            (r"for\s*\(.*<=.*\.length", "Off-by-one error: <= in array iteration"),
+            (
+                r"for\s*\(.*<=.*\.length",
+                "Off-by-one error: <= in array iteration",
+            ),
             # Slice with +1
-            (r"\[\w+:\w+\+1\]", "Potential off-by-one: slice with +1 adjustment"),
+            (
+                r"\[\w+:\w+\+1\]",
+                "Off-by-one error: Potential off-by-one: slice with +1 adjustment",
+            ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "off_by_one",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Off-by-one error: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="off_by_one",
+            re_flags=re.MULTILINE,
+        )
 
     def detect_integer_overflow(
         self,
@@ -297,47 +300,43 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential resource leak bugs."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # File open without context manager
             (
                 r"open\([^)]+\)(?!\s*as\s)",
-                "File opened without context manager - potential leak",
+                "Resource leak: File opened without context manager - potential leak",
             ),
             # Socket without close
             (
                 r"socket\.socket\(",
-                "Socket created - potential socket leak without close()",
+                "Resource leak: Socket created - potential socket leak without close()",
             ),
             # Database connection without close
             (
                 r"\.connect\(",
-                "Connection opened - potential file or socket leak without close",
+                "Resource leak: Connection opened - potential file or"
+                " socket leak without close",
             ),
             # Thread without join
             (
                 r"\.start\(\)(?!.*\.join)",
-                "Thread started - potential leak without join()",
+                "Resource leak: Thread started - potential leak without join()",
             ),
             # Cursor without close
-            (r"\.cursor\(\)", "Cursor created - potential resource leak"),
+            (
+                r"\.cursor\(\)",
+                "Resource leak: Cursor created - potential resource leak",
+            ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "resource_leak",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Resource leak: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="resource_leak",
+            re_flags=re.MULTILINE,
+        )
 
     def detect_logical_errors(
         self,
@@ -345,9 +344,6 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential logical errors."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # Duplicate conditions
             (
@@ -372,23 +368,18 @@ class BugReviewSkill(BaseReviewSkill):
             # Assignment in condition
             (
                 r"if\s+\w+\s*=\s*\w+\s*:",
-                "Potential logic error: assignment in condition",
+                "Logic error: Potential logic error: assignment in condition",
             ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.MULTILINE | re.DOTALL):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "logical_error",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Logic error: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="logical_error",
+            re_flags=re.MULTILINE | re.DOTALL,
+        )
 
     def detect_type_confusion(
         self,
@@ -396,40 +387,41 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential type confusion bugs."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # String + number concatenation
             (
                 r'[\'"][^"\']*[\'"]\s*\+\s*\d',
-                "Type confusion: string + number concatenation",
+                "Type mismatch: Type confusion: string + number concatenation",
             ),
             # Loose comparison in PHP/JS
-            (r"\$\w+\s*==\s*\$\w+", "Type confusion: loose comparison (consider ===)"),
+            (
+                r"\$\w+\s*==\s*\$\w+",
+                "Type mismatch: Type confusion: loose comparison (consider ===)",
+            ),
             # sum() on potentially mixed list
-            (r"sum\(\w+\)", "Type confusion: sum() on potentially mixed type list"),
+            (
+                r"sum\(\w+\)",
+                "Type mismatch: Type confusion: sum() on potentially mixed type list",
+            ),
             # Generic type assumptions
             (
                 r"data\[['\"]key['\"]\]",
-                "Type confusion: assuming dict structure without check",
+                "Type mismatch: Type confusion: assuming dict structure without check",
             ),
-            (r"data\[0\]", "Type confusion: assuming list structure without check"),
+            (
+                r"data\[0\]",
+                "Type mismatch: Type confusion: assuming list structure without check",
+            ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "type_confusion",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Type mismatch: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="type_confusion",
+            re_flags=0,
+        )
 
     def detect_timing_attacks(
         self,
@@ -437,9 +429,6 @@ class BugReviewSkill(BaseReviewSkill):
         filename: str,
     ) -> list[dict[str, str]]:
         """Detect potential timing attack vulnerabilities."""
-        code = content_parser.get_file_content(context, filename)
-        bugs: list[dict[str, str]] = []
-
         patterns = [
             # String comparison for secrets
             (
@@ -449,7 +438,8 @@ class BugReviewSkill(BaseReviewSkill):
             # Early return on length check
             (
                 r"if\s+len\([^)]+\)\s*!=\s*len\([^)]+\):\s*\n\s*return\s+False",
-                "Timing attack: early exit on length mismatch reveals information",
+                "Timing attack vulnerability: early exit on length mismatch"
+                " reveals information",
             ),
             # Character-by-character comparison
             (
@@ -459,28 +449,24 @@ class BugReviewSkill(BaseReviewSkill):
             # Sleep in comparison
             (
                 r"time\.sleep.*compare",
-                "Timing attack: sleep amplifies timing differences",
+                "Timing attack vulnerability: sleep amplifies timing differences",
             ),
             # insecure_compare function name
             (
                 r"def\s+insecure_compare",
-                "Timing attack: function explicitly marked as insecure comparison",
+                "Timing attack vulnerability: function explicitly marked as"
+                " insecure comparison",
             ),
         ]
 
-        for pattern, issue_desc in patterns:
-            for match in re.finditer(pattern, code, re.IGNORECASE | re.MULTILINE):
-                line_num = content_parser.find_line_number(code, match.start())
-                bugs.append(
-                    {
-                        "type": "timing_attack",
-                        "location": f"{filename}:{line_num}",
-                        "issue": f"Timing attack vulnerability: {issue_desc}",
-                        "code": content_parser.extract_code_snippet(code, line_num),
-                    }
-                )
-
-        return bugs
+        return self._detect_patterns(
+            context,
+            filename,
+            patterns,
+            content_parser,
+            bug_type="timing_attack",
+            re_flags=re.IGNORECASE | re.MULTILINE,
+        )
 
     # ========================================================================
     # Bug Analysis Methods

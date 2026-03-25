@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import re
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -160,6 +161,12 @@ def extract_frontmatter(content: str) -> tuple[str, str]:
         Tuple of (frontmatter, body).
 
     """
+    # Deprecated: use FrontmatterProcessor.parse() directly
+    warnings.warn(
+        "extract_frontmatter is deprecated; use FrontmatterProcessor directly",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return FrontmatterProcessor.extract_raw(content)
 
 
@@ -177,6 +184,12 @@ def parse_frontmatter_fields(frontmatter: str) -> dict[str, str]:
         Dictionary of field names to string values.
 
     """
+    # Deprecated: use FrontmatterProcessor.parse() directly
+    warnings.warn(
+        "parse_frontmatter_fields is deprecated; use FrontmatterProcessor directly",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     fields = {}
     # Remove --- markers
     content = frontmatter.strip().strip("-").strip()
@@ -205,6 +218,12 @@ def validate_skill_frontmatter(
         List of validation issues (empty if valid).
 
     """
+    # Deprecated: use FrontmatterProcessor.parse() directly
+    warnings.warn(
+        "validate_skill_frontmatter is deprecated; use FrontmatterProcessor directly",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     issues = []
 
     # Use FrontmatterProcessor for parsing
@@ -296,6 +315,12 @@ def parse_yaml_frontmatter(content: str) -> dict:
         Dictionary of frontmatter fields, empty dict if no frontmatter.
 
     """
+    # Deprecated: use FrontmatterProcessor.parse() directly
+    warnings.warn(
+        "parse_yaml_frontmatter is deprecated; use FrontmatterProcessor directly",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     result = FrontmatterProcessor.parse(content, required_fields=[])
     return result.parsed
 

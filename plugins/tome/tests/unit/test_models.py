@@ -169,14 +169,14 @@ class TestFindingValidation:
         assert f1.relevance == 1.0
 
     @pytest.mark.unit
-    def test_invalid_channel_raises_value_error(self) -> None:
+    def test_invalid_channel_warns(self) -> None:
         """
         Scenario: Unknown channel name
         Given a channel value of 'invalid'
         When Finding is instantiated
-        Then a ValueError is raised naming the bad channel
+        Then a UserWarning is emitted naming the bad channel
         """
-        with pytest.raises(ValueError, match="Unknown channel.*'invalid'"):
+        with pytest.warns(UserWarning, match="Unknown channel.*'invalid'"):
             Finding("github", "invalid", "t", "u", 0.5, "s")
 
     @pytest.mark.unit

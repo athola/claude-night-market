@@ -8,13 +8,15 @@ So that the top results in a report are the most credible sources
 
 from __future__ import annotations
 
+# Use the same dynamic year as the production ranker.
+from datetime import datetime, timezone
+
 import pytest
 from tome.synthesis.ranker import compute_relevance_score, group_by_theme, rank_findings
 
 from tests.factories import make_finding
 
-# Use a fixed "current year" so tests are stable over time.
-_THIS_YEAR = 2026
+_THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
 
 
 class TestComputeRelevanceScore:

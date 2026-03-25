@@ -87,7 +87,10 @@ def compute_quality_score(
 
     # Channel coverage: fraction of planned channels with results
     channels_hit = {f.channel for f in findings}
-    coverage = len(channels_hit & set(planned_channels)) / len(planned_channels)
+    if planned_channels:
+        coverage = len(channels_hit & set(planned_channels)) / len(planned_channels)
+    else:
+        coverage = 0.0
 
     # Source diversity: 1 - Herfindahl index (concentration measure)
     channel_counts: dict[str, int] = {}

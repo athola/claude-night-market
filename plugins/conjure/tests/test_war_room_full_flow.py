@@ -33,17 +33,19 @@ _CONVENE_PHASES = (
     "_phase_synthesis",
 )
 
-_DELPHI_PHASES = (
-    "_phase_intel",
-    "_phase_assessment",
-    "_phase_coa_development",
-    "_phase_red_team",
-    "_phase_voting",
-    "_compute_convergence",
-    "_delphi_revision_round",
-    "_phase_premortem",
-    "_phase_synthesis",
-)
+# convene_delphi lives in delphi.py and calls functions via its own
+# module-level imports, so ALL patches must target delphi's namespace.
+_DELPHI_PATCHES = {
+    "_phase_intel": ("scripts.war_room.delphi.phase_intel", True),
+    "_phase_assessment": ("scripts.war_room.delphi.phase_assessment", True),
+    "_phase_coa_development": ("scripts.war_room.delphi.phase_coa_development", True),
+    "_phase_red_team": ("scripts.war_room.delphi.phase_red_team", True),
+    "_phase_voting": ("scripts.war_room.delphi.phase_voting", True),
+    "_phase_premortem": ("scripts.war_room.delphi.phase_premortem", True),
+    "_phase_synthesis": ("scripts.war_room.delphi.phase_synthesis", True),
+    "_compute_convergence": ("scripts.war_room.delphi.compute_convergence", False),
+    "_delphi_revision_round": ("scripts.war_room.delphi.delphi_revision_round", True),
+}
 
 
 @pytest.fixture
@@ -77,12 +79,16 @@ def convene_mocks(orchestrator: WarRoomOrchestrator):
 
 @pytest.fixture
 def delphi_mocks(orchestrator: WarRoomOrchestrator):
-    """Patch all Delphi-flow phase methods and yield a name-to-mock dict."""
+    """Patch all functions used by delphi.convene_delphi.
+
+    Since convene_delphi calls functions via its own module-level imports,
+    patches must target scripts.war_room.delphi.<func>, not the instance.
+    """
     with ExitStack() as stack:
         mocks: dict[str, AsyncMock] = {}
-        for name in _DELPHI_PHASES:
-            kw = {"new_callable": AsyncMock} if name != "_compute_convergence" else {}
-            mock = stack.enter_context(patch.object(orchestrator, name, **kw))
+        for name, (module_path, is_async) in _DELPHI_PATCHES.items():
+            kw = {"new_callable": AsyncMock} if is_async else {}
+            mock = stack.enter_context(patch(module_path, **kw))
             mocks[name] = mock
         yield mocks
 
@@ -310,8 +316,9 @@ class TestDelphiConvene:
         orchestrator: WarRoomOrchestrator,
     ) -> None:
         """Delphi convene persists session on failure."""
-        with patch.object(
-            orchestrator, "_phase_intel", new_callable=AsyncMock
+        with patch(
+            "scripts.war_room.delphi.phase_intel",
+            new_callable=AsyncMock,
         ) as mock_intel:
             mock_intel.side_effect = RuntimeError("Delphi failure")
 

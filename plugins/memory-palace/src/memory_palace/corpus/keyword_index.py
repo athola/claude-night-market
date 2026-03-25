@@ -47,11 +47,14 @@ class KeywordIndexer:
             "metadata": {},
         }
 
-    def extract_keywords(self, entry_path: Path) -> list[str]:
+    def extract_keywords(
+        self, entry_path: Path, content: str | None = None
+    ) -> list[str]:
         """Extract keywords from a single knowledge entry.
 
         Args:
-            entry_path: Path to the markdown file
+            entry_path: Path to the markdown file.
+            content: File content string. When provided, skips disk read.
 
         Returns:
             List of extracted keywords (lowercase, deduplicated)
@@ -60,7 +63,8 @@ class KeywordIndexer:
         keywords: set[str] = set()
 
         try:
-            content = entry_path.read_text()
+            if content is None:
+                content = entry_path.read_text()
 
             # Split frontmatter and content
             metadata, body = split_entry(content)
@@ -187,15 +191,15 @@ class KeywordIndexer:
             relative_str = relative.as_posix()
             entry_id = relative_str.removesuffix(".md").replace("/", "-")
 
-            # Extract keywords
-            keywords = self.extract_keywords(md_file)
+            # Read file once; pass content to both keyword extraction and
+            # frontmatter parsing to avoid a second disk read.
+            file_content = md_file.read_text()
+            keywords = self.extract_keywords(md_file, content=file_content)
 
-            # Read frontmatter for additional metadata
-            content = md_file.read_text()
             title = entry_id
             tags = []
 
-            metadata = parse_entry_frontmatter(content)
+            metadata = parse_entry_frontmatter(file_content)
             if metadata:
                 title = metadata.get("title", title)
                 tags = metadata.get("tags", [])

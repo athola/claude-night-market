@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any
@@ -30,8 +31,9 @@ class Finding:
     def __post_init__(self) -> None:
         self.relevance = max(0.0, min(1.0, self.relevance))
         if self.channel not in _VALID_CHANNELS:
-            raise ValueError(
-                f"Unknown channel: {self.channel!r}. Valid: {sorted(_VALID_CHANNELS)}"
+            warnings.warn(
+                f"Unknown channel: {self.channel!r}. Valid: {sorted(_VALID_CHANNELS)}",
+                stacklevel=2,
             )
 
     def to_dict(self) -> dict[str, Any]:

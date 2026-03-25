@@ -8,10 +8,14 @@ So that I understand the boundaries of the investigation
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pytest
 from tome.synthesis.quality import identify_gaps
 
 from tests.factories import make_finding
+
+_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
 
 
 class TestIdentifyGaps:
@@ -96,10 +100,27 @@ class TestIdentifyGaps:
         Then recency_gap is True
         """
         findings = [
-            make_finding(0.7, channel="code", metadata={"year": 2018}),
-            make_finding(0.6, channel="code", metadata={"year": 2019}),
+            make_finding(0.7, channel="code", metadata={"year": _CURRENT_YEAR - 5}),
+            make_finding(0.6, channel="code", metadata={"year": _CURRENT_YEAR - 6}),
         ]
 
         gaps = identify_gaps(findings, ["code"])
 
         assert gaps["recency_gap"] is True
+
+    @pytest.mark.unit
+    def test_recency_gap_not_flagged_for_recent_findings(self) -> None:
+        """
+        Scenario: Findings are recent
+        Given findings where all years are within recency window
+        When identify_gaps is called
+        Then recency_gap is False
+        """
+        findings = [
+            make_finding(0.7, channel="code", metadata={"year": _CURRENT_YEAR - 1}),
+            make_finding(0.6, channel="code", metadata={"year": _CURRENT_YEAR - 2}),
+        ]
+
+        gaps = identify_gaps(findings, ["code"])
+
+        assert gaps["recency_gap"] is False

@@ -218,7 +218,7 @@ class TestHookOutputFormat:
         # The hook should output empty/pass-through for UserPromptSubmit
         output = hook_module.format_hook_output()
         parsed = json.loads(output)
-        assert "decision" in parsed or "hookSpecificOutput" in parsed
+        assert parsed.get("decision") == "ALLOW"
 
     def test_hook_always_allows_prompt(self, hook_module) -> None:
         """Given: Hook runs (regardless of aggregation state)
@@ -283,14 +283,19 @@ class TestAggregationExecution:
 
 
 class TestAutoPromoteChaining:
-    """Test that daily hook chains to auto_promote after aggregation."""
+    """Test that network-heavy operations are NOT in the daily pipeline.
 
-    def test_chains_to_auto_promote_after_successful_aggregation(
+    Auto-promote and post-learnings moved to the Stop hook
+    (post_learnings_stop.py) to avoid exceeding the 2-second
+    UserPromptSubmit timeout.
+    """
+
+    def test_does_not_call_auto_promote(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation completed successfully
         When: run_daily_pipeline() is called
-        Then: auto_promote is also triggered
+        Then: auto_promote is NOT triggered (moved to Stop hook)
         """
         monkeypatch.setattr(
             hook_module, "run_aggregation", MagicMock(return_value=True)
@@ -306,14 +311,14 @@ class TestAutoPromoteChaining:
         )
 
         hook_module.run_daily_pipeline()
-        mock_promote.assert_called_once()
+        mock_promote.assert_not_called()
 
-    def test_chains_to_post_learnings_after_successful_aggregation(
+    def test_does_not_call_post_learnings(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation completed successfully
         When: run_daily_pipeline() is called
-        Then: post_learnings is also triggered
+        Then: post_learnings is NOT triggered (moved to Stop hook)
         """
         monkeypatch.setattr(
             hook_module, "run_aggregation", MagicMock(return_value=True)
@@ -329,29 +334,7 @@ class TestAutoPromoteChaining:
         )
 
         hook_module.run_daily_pipeline()
-        mock_post.assert_called_once()
-
-    def test_skips_auto_promote_when_aggregation_fails(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Given: Aggregation failed
-        When: run_daily_pipeline() is called
-        Then: auto_promote is NOT triggered
-        """
-        monkeypatch.setattr(
-            hook_module, "run_aggregation", MagicMock(return_value=False)
-        )
-        mock_promote = MagicMock()
-        monkeypatch.setattr(hook_module, "run_auto_promote", mock_promote)
-        monkeypatch.setattr(
-            hook_module, "should_aggregate", MagicMock(return_value=True)
-        )
-        monkeypatch.setattr(
-            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
-        )
-
-        hook_module.run_daily_pipeline()
-        mock_promote.assert_not_called()
+        mock_post.assert_not_called()
 
     def test_skips_everything_when_not_due(
         self, hook_module, monkeypatch: pytest.MonkeyPatch

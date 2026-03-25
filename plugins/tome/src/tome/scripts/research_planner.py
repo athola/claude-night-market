@@ -86,6 +86,9 @@ def replan(
     Returns:
         A new ResearchPlan with adjusted weights.
     """
+    if not original.channels:
+        return original
+
     counts = {ch: len(partial_results.get(ch, [])) for ch in original.channels}
     total_findings = sum(counts.values())
 

@@ -111,14 +111,21 @@ def load_log_entries(
                             if not line.strip():
                                 continue
 
-                            entry = json.loads(line)
-
-                            # Filter by date
-                            entry_time = datetime.fromisoformat(entry["timestamp"])
-                            if entry_time >= cutoff:
-                                entries_by_skill[skill_key].append(entry)
-                except (json.JSONDecodeError, KeyError, ValueError) as e:
-                    print(f"Warning: Skipping malformed log entry in {log_file}: {e}")
+                            try:
+                                entry = json.loads(line)
+                                # Filter by date
+                                entry_time = datetime.fromisoformat(entry["timestamp"])
+                                if entry_time >= cutoff:
+                                    entries_by_skill[skill_key].append(entry)
+                            except (
+                                json.JSONDecodeError,
+                                KeyError,
+                                ValueError,
+                            ):
+                                # Skip individual bad entries, not the whole file
+                                continue
+                except OSError as e:
+                    print(f"Warning: Could not read {log_file}: {e}")
                     continue
 
     return dict(entries_by_skill)
@@ -503,6 +510,7 @@ def _format_hyperagents_section() -> list[str]:
     Best-effort: returns empty list if modules unavailable.
     """
     lines: list[str] = []
+    _max_trend_skills = 20
 
     # Performance trends from PerformanceTracker
     try:
@@ -518,16 +526,18 @@ def _format_hyperagents_section() -> list[str]:
                 lines.extend(["", "## Performance Trends (Hyperagents)", ""])
                 seen: set[str] = set()
                 for entry in tracker.history:
-                    ref = entry["skill_ref"]
-                    if ref in seen:
+                    ref = entry.get("skill_ref")
+                    if not ref or ref in seen:
                         continue
                     seen.add(ref)
                     trend = tracker.get_improvement_trend(ref)
                     if trend is not None:
                         direction = "improving" if trend > 0 else "degrading"
                         lines.append(f"- `{ref}`: {direction} (trend: {trend:+.3f})")
+                    if len(seen) >= _max_trend_skills:
+                        break
                 lines.append("")
-    except (ImportError, OSError):
+    except (ImportError, OSError, KeyError):
         pass
 
     # Meta-insights from ImprovementMemory
@@ -550,17 +560,17 @@ def _format_hyperagents_section() -> list[str]:
                 if effective:
                     best = effective[0]
                     lines.append(
-                        f"Best strategy: {best['change_summary']}"
-                        f" (+{best['improvement']:.3f})"
+                        f"Best strategy: {best.get('change_summary', 'N/A')}"
+                        f" (+{best.get('improvement', 0):.3f})"
                     )
                 if failed:
                     worst = failed[0]
                     lines.append(
-                        f"Avoid: {worst['change_summary']}"
-                        f" ({worst['improvement']:+.3f})"
+                        f"Avoid: {worst.get('change_summary', 'N/A')}"
+                        f" ({worst.get('improvement', 0):+.3f})"
                     )
                 lines.append("")
-    except (ImportError, OSError):
+    except (ImportError, OSError, KeyError):
         pass
 
     return lines

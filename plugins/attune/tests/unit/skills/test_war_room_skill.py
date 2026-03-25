@@ -173,7 +173,7 @@ class TestWarRoomDiscussionPublishingSection:
         Then it should use the 'Decisions' category
         """
         section_start = skill_content.find("### Discussion Publishing")
-        section = skill_content[section_start : section_start + 500]
+        section = skill_content[section_start : section_start + 700]
         assert "Decisions" in section
 
 

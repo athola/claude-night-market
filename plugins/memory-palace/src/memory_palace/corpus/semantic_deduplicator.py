@@ -33,17 +33,6 @@ def _jaccard_similarity(a: str, b: str) -> float:
     return intersection / union
 
 
-def _cosine_similarity_numpy(vec_a: np.ndarray, vec_b: np.ndarray) -> float:  # type: ignore[type-arg]
-    """Compute cosine similarity between two numpy vectors."""
-    assert np is not None  # noqa: S101  # caller guarantees numpy is available  # nosec B101
-    norm_a = float(np.linalg.norm(vec_a))
-    norm_b = float(np.linalg.norm(vec_b))
-    _NEAR_ZERO = 1e-10  # noqa: N806
-    if norm_a < _NEAR_ZERO or norm_b < _NEAR_ZERO:
-        return 0.0
-    return float(np.dot(vec_a, vec_b) / (norm_a * norm_b))
-
-
 class SemanticDeduplicator:
     """Detect near-duplicate content before storing new entries.
 
@@ -89,6 +78,7 @@ class SemanticDeduplicator:
         existing_embeddings: dict[str, list[float]] | None = None,
         *,
         entry_id: str | None = None,
+        new_vector: list[float] | None = None,
     ) -> bool:
         """Return True if new_content is sufficiently distinct to store.
 
@@ -103,6 +93,10 @@ class SemanticDeduplicator:
                 instead of the internal index. Ignored by the fallback path.
             entry_id: Identifier for new_content, used for counter bookkeeping.
                 Defaults to a truncated hash of the content.
+            new_vector: Optional pre-computed embedding for new_content.
+                When provided, this vector is used for similarity comparison
+                instead of deriving one via hashing. This keeps the comparison
+                in the same vector space as vectors added via ``add_vector``.
 
         Returns:
             True if the content should be stored, False if it is a near-duplicate.
@@ -112,7 +106,7 @@ class SemanticDeduplicator:
 
         if self._use_faiss:
             return self._should_store_faiss(
-                new_content, existing_embeddings, resolved_id
+                new_content, existing_embeddings, resolved_id, new_vector
             )
         return self._should_store_jaccard(new_content, resolved_id)
 
@@ -182,19 +176,26 @@ class SemanticDeduplicator:
         content: str,
         existing_embeddings: dict[str, list[float]] | None,
         entry_id: str,
+        new_vector: list[float] | None = None,
     ) -> bool:
         """FAISS-backed duplicate check.
 
         When existing_embeddings is provided the check runs against that dict
         (useful for one-shot evaluation without mutating the index).  Otherwise
         the internal FAISS index is queried.
+
+        When ``new_vector`` is supplied it is used directly for the similarity
+        comparison, keeping the query in the same vector space as the stored
+        vectors.  Without it, a hash-derived vector is used as a fallback.
         """
         if existing_embeddings:
-            best_id, best_score = _best_match_from_dict(content, existing_embeddings)
+            best_id, best_score = _best_match_from_dict(
+                content, existing_embeddings, query_vector=new_vector
+            )
         else:
             if self._index.ntotal == 0:  # type: ignore[union-attr]
                 return True
-            best_id, best_score = self._query_index(content)
+            best_id, best_score = self._query_index(content, new_vector)
 
         if best_score >= self.threshold:
             target = best_id or entry_id
@@ -238,13 +239,23 @@ class SemanticDeduplicator:
             return False
         return True
 
-    def _query_index(self, content: str) -> tuple[str | None, float]:
-        """Query the internal FAISS index with a hash-derived vector.
+    def _query_index(
+        self,
+        content: str,
+        query_vector: list[float] | None = None,
+    ) -> tuple[str | None, float]:
+        """Query the internal FAISS index.
+
+        Args:
+            content: Text content (used for hash fallback when no vector).
+            query_vector: Pre-computed embedding to query with.  When
+                provided, keeps the search in the same vector space as
+                vectors registered via ``add_vector``.
 
         Returns the best matching entry_id and its cosine similarity score.
+
         """
-        # Derive a deterministic float32 vector from content via hashing
-        vec = _hash_to_vector(content, self.vector_dim)
+        vec = query_vector or _hash_to_vector(content, self.vector_dim)
         arr = np.array([vec], dtype="float32")  # type: ignore[call-overload]
         _l2_normalize_rows(arr)
         distances, indices = self._index.search(arr, 1)  # type: ignore[union-attr]
@@ -266,48 +277,76 @@ def _content_id(content: str, length: int = 12) -> str:
 
 
 def _hash_to_vector(text: str, dim: int) -> list[float]:
-    """Derive a float vector from text using SHA-256 byte spreading."""
-    digest = hashlib.sha256(text.lower().strip().encode("utf-8")).digest()
-    vec = []
-    for i in range(dim):
-        byte_val = digest[i % len(digest)]
-        vec.append(float(byte_val) / 255.0)
+    """Derive a float vector from text using chained SHA-256 digests.
+
+    Generates *dim* independent bytes by hashing with incrementing
+    salt values, avoiding the repetition that occurs when cycling a
+    single 32-byte digest across higher dimensions.
+    """
+    data = text.lower().strip().encode("utf-8")
+    chunks_needed = (dim + 31) // 32
+    raw_bytes = b""
+    for i in range(chunks_needed):
+        raw_bytes += hashlib.sha256(data + i.to_bytes(2, "big")).digest()
+    vec = [float(b) / 255.0 for b in raw_bytes[:dim]]
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]
+
+
+_NORM_EPSILON = 1e-10
 
 
 def _l2_normalize_rows(arr: np.ndarray) -> None:  # type: ignore[type-arg]
     """In-place L2 normalisation of each row in a float32 numpy array."""
     norms = np.linalg.norm(arr, axis=1, keepdims=True)  # type: ignore[union-attr]
-    norms = np.where(norms == 0, 1.0, norms)  # type: ignore[union-attr]
+    norms = np.where(norms < _NORM_EPSILON, 1.0, norms)  # type: ignore[union-attr]
     arr /= norms
 
 
 def _best_match_from_dict(
     content: str,
     embeddings: dict[str, list[float]],
+    *,
+    query_vector: list[float] | None = None,
 ) -> tuple[str | None, float]:
     """Find the closest entry in an embeddings dict using cosine similarity.
 
-    Returns the entry_id of the closest match and its similarity score.
-    Requires numpy (only called from the FAISS path where numpy is available).
+    Pre-stacks all candidate vectors into a single (N, D) matrix and uses
+    a vectorized dot product for the similarity computation.  Requires numpy
+    (only called from the FAISS path where numpy is always available).
+
+    Args:
+        content: Text content (used for hash fallback when no vector).
+        embeddings: Dict mapping entry_id to embedding vector.
+        query_vector: Pre-computed embedding for the query content.
+            When provided, keeps the comparison in the same vector
+            space as the embeddings dict.
+
     """
     if not embeddings:
         return None, 0.0
-    query_vec = np.array(
-        _hash_to_vector(content, len(next(iter(embeddings.values())))), dtype="float32"
-    )  # type: ignore[call-overload]
+
+    entry_ids = list(embeddings.keys())
+    dim = len(next(iter(embeddings.values())))
+
+    raw_vec = query_vector or _hash_to_vector(content, dim)
+    query_vec = np.array(raw_vec, dtype="float32")  # type: ignore[call-overload]
     norm_q = float(np.linalg.norm(query_vec))  # type: ignore[union-attr]
     if norm_q > 0:
         query_vec /= norm_q
 
-    best_id: str | None = None
-    best_score = -1.0
-    for eid, vec in embeddings.items():
-        candidate = np.array(vec, dtype="float32")  # type: ignore[call-overload]
-        score = _cosine_similarity_numpy(query_vec, candidate)
-        if score > best_score:
-            best_score = score
-            best_id = eid
+    # Stack all candidate vectors into a single (N, D) matrix.
+    matrix = np.array(  # type: ignore[call-overload]
+        [embeddings[eid] for eid in entry_ids], dtype="float32"
+    )
+    # L2-normalise rows in-place.
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)  # type: ignore[union-attr]
+    norms = np.where(norms == 0, 1.0, norms)  # type: ignore[union-attr]
+    matrix /= norms
 
-    return best_id, max(best_score, 0.0)
+    # Vectorized dot product: shape (N,)
+    scores = np.dot(matrix, query_vec)  # type: ignore[union-attr]
+    best_idx = int(np.argmax(scores))  # type: ignore[union-attr]
+    best_score = float(scores[best_idx])
+
+    return entry_ids[best_idx], max(best_score, 0.0)

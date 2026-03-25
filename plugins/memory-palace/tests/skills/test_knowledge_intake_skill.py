@@ -111,7 +111,7 @@ class TestKnowledgeIntakeDiscussionPromotion:
         Then it should require a score of 80 or above
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
-        section = skill_content[section_start : section_start + 600]
+        section = skill_content[section_start : section_start + 1000]
         assert "80" in section
         assert "evergreen" in section.lower()
 
@@ -125,7 +125,7 @@ class TestKnowledgeIntakeDiscussionPromotion:
         Then it should use the 'Knowledge' category
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
-        section = skill_content[section_start : section_start + 600]
+        section = skill_content[section_start : section_start + 1000]
         assert "Knowledge" in section
 
     @pytest.mark.bdd
@@ -138,7 +138,7 @@ class TestKnowledgeIntakeDiscussionPromotion:
         Then publishing should be the default and never block intake
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
-        section = skill_content[section_start : section_start + 600]
+        section = skill_content[section_start : section_start + 1000]
         assert "default" in section.lower()
         assert "never block" in section.lower()
 
@@ -152,7 +152,7 @@ class TestKnowledgeIntakeDiscussionPromotion:
         Then it should update the existing Discussion instead
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
-        section = skill_content[section_start : section_start + 600]
+        section = skill_content[section_start : section_start + 1000]
         assert "discussion_url" in section
         assert "update" in section.lower() and "discussion" in section
 
@@ -177,7 +177,7 @@ class TestKnowledgeIntakeDiscussionPromotion:
         Then the step should be skipped
         """
         section_start = skill_content.find("### Step 7: Discussion Promotion")
-        section = skill_content[section_start : section_start + 600]
+        section = skill_content[section_start : section_start + 1000]
         assert "below 80" in section.lower() or "skip" in section.lower()
 
 

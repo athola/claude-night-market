@@ -89,6 +89,10 @@ class UsageTracker:
         """
         self._events: deque[UsageEvent] = deque(maxlen=max_events)
         self._event_handlers: list[Callable[[UsageEvent], None]] = []
+        # Per-entry running totals; avoids scanning the deque for scoring.
+        # Each value: access_count, citation_count, positive_count,
+        # negative_count, raw_score, last_access
+        self._aggregates: dict[str, dict[str, Any]] = {}
 
     def record_event(
         self,
@@ -115,6 +119,29 @@ class UsageTracker:
         )
         self._events.append(event)
 
+        # Maintain incremental aggregates so get_score() never scans the deque.
+        agg = self._aggregates.setdefault(
+            entry_id,
+            {
+                "access_count": 0,
+                "citation_count": 0,
+                "positive_count": 0,
+                "negative_count": 0,
+                "raw_score": 0.0,
+                "last_access": None,
+            },
+        )
+        agg["raw_score"] += SIGNAL_WEIGHTS.get(signal, 0.0)
+        if signal == UsageSignal.ACCESS:
+            agg["access_count"] += 1
+            agg["last_access"] = event.timestamp
+        elif signal == UsageSignal.CITATION:
+            agg["citation_count"] += 1
+        elif signal == UsageSignal.POSITIVE_FEEDBACK:
+            agg["positive_count"] += 1
+        elif signal == UsageSignal.NEGATIVE_FEEDBACK:
+            agg["negative_count"] += 1
+
         # Notify handlers
         for handler in self._event_handlers:
             handler(event)
@@ -136,9 +163,9 @@ class UsageTracker:
             UsageScore with aggregated metrics
 
         """
-        events = [e for e in self._events if e.entry_id == entry_id]
+        agg = self._aggregates.get(entry_id)
 
-        if not events:
+        if agg is None:
             return UsageScore(
                 entry_id=entry_id,
                 raw_score=0.0,
@@ -150,25 +177,13 @@ class UsageTracker:
                 decay_factor=decay_factor,
             )
 
-        # Calculate metrics
-        raw_score = sum(SIGNAL_WEIGHTS[e.signal] for e in events)
-        access_count = sum(1 for e in events if e.signal == UsageSignal.ACCESS)
-        citation_count = sum(1 for e in events if e.signal == UsageSignal.CITATION)
+        raw_score: float = agg["raw_score"]
+        access_count: int = agg["access_count"]
+        citation_count: int = agg["citation_count"]
+        feedback_balance: int = agg["positive_count"] - agg["negative_count"]
+        last_accessed: datetime | None = agg["last_access"]
 
-        positive_feedback = sum(
-            1 for e in events if e.signal == UsageSignal.POSITIVE_FEEDBACK
-        )
-        negative_feedback = sum(
-            1 for e in events if e.signal == UsageSignal.NEGATIVE_FEEDBACK
-        )
-        feedback_balance = positive_feedback - negative_feedback
-
-        # Find last access
-        access_events = [e for e in events if e.signal == UsageSignal.ACCESS]
-        last_accessed = max((e.timestamp for e in access_events), default=None)
-
-        # Normalize score using sigmoid-like function
-        normalized_score = self._normalize_score(raw_score)
+        normalized_score = self._normalize_score(raw_score) * decay_factor
 
         return UsageScore(
             entry_id=entry_id,
@@ -211,10 +226,9 @@ class UsageTracker:
 
         """
         decay_factors = decay_factors or {}
-        entry_ids = {e.entry_id for e in self._events}
         return [
             self.get_score(entry_id, decay_factors.get(entry_id, 1.0))
-            for entry_id in entry_ids
+            for entry_id in self._aggregates
         ]
 
     def get_events(
@@ -255,6 +269,7 @@ class UsageTracker:
             (e for e in self._events if e.entry_id != entry_id),
             maxlen=max_events,
         )
+        self._aggregates.pop(entry_id, None)
 
     def add_event_handler(self, handler: Callable[[UsageEvent], None]) -> None:
         """Add a handler to be called on new events.
@@ -291,13 +306,37 @@ class UsageTracker:
         """
         for data in events_data:
             try:
+                signal = UsageSignal(data["signal"])
                 event = UsageEvent(
                     entry_id=data["entry_id"],
-                    signal=UsageSignal(data["signal"]),
+                    signal=signal,
                     timestamp=datetime.fromisoformat(data["timestamp"]),
                     context=data.get("context", {}),
                 )
                 self._events.append(event)
+                # Maintain aggregates for imported events.
+                entry_id = event.entry_id
+                agg = self._aggregates.setdefault(
+                    entry_id,
+                    {
+                        "access_count": 0,
+                        "citation_count": 0,
+                        "positive_count": 0,
+                        "negative_count": 0,
+                        "raw_score": 0.0,
+                        "last_access": None,
+                    },
+                )
+                agg["raw_score"] += SIGNAL_WEIGHTS.get(signal, 0.0)
+                if signal == UsageSignal.ACCESS:
+                    agg["access_count"] += 1
+                    agg["last_access"] = event.timestamp
+                elif signal == UsageSignal.CITATION:
+                    agg["citation_count"] += 1
+                elif signal == UsageSignal.POSITIVE_FEEDBACK:
+                    agg["positive_count"] += 1
+                elif signal == UsageSignal.NEGATIVE_FEEDBACK:
+                    agg["negative_count"] += 1
             except (ValueError, KeyError) as e:
                 logger.warning(
                     "Skipping event with invalid data: %r (error: %s)",
