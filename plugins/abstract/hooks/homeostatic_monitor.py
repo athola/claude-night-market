@@ -50,7 +50,7 @@ def _get_improvement_trend(claude_home: Path, skill_ref: str) -> float | None:  
 
 def _build_output(
     skill_ref: str, gap: float, status: str, velocity: int, trend: float | None, **extra
-) -> dict:  # noqa: UP007
+) -> dict:
     """Build hookSpecificOutput dict."""
     payload: dict = {
         "hookEventName": "PostToolUse",
@@ -105,8 +105,10 @@ def _needs_metacognition(claude_home: Path) -> bool:
                 all_outcomes.sort(key=lambda o: o.get("timestamp", ""))
                 if all_outcomes[-1].get("outcome_type") == "failure":
                     return True
-    except (ImportError, OSError, KeyError):
-        pass
+    except ImportError:
+        pass  # ImprovementMemory not available
+    except (OSError, KeyError) as e:
+        sys.stderr.write(f"homeostatic_monitor: _needs_metacognition: {e}\n")
     return False
 
 
@@ -115,7 +117,7 @@ def _flag_and_build_output(
     skill_ref: str,
     gap: float,
     velocity: int,
-    trend: float | None,  # noqa: UP007
+    trend: float | None,
 ) -> dict:
     """Flag degrading skill in queue and return output dict."""
     queue_file = claude_home / "skills" / "improvement-queue.json"
@@ -123,7 +125,7 @@ def _flag_and_build_output(
 
     entry = queue.skills.get(skill_ref, {})
     if entry.get("status") in ("evaluating", "pending_rollback_review"):
-        sys.exit(0)
+        return None  # type: ignore[return-value]  # caller handles None
 
     invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
     queue.flag_skill(skill_ref, gap, invocation_id)
@@ -257,12 +259,14 @@ def main() -> None:
 
         # Skill is degrading -- flag it in the queue via ImprovementQueue
         output = _flag_and_build_output(claude_home, skill_ref, gap, velocity, trend)
+        if output is None:
+            sys.exit(0)
         print(json.dumps(output))
         sys.exit(0)
 
     except (json.JSONDecodeError, OSError, KeyError) as e:
         sys.stderr.write(f"homeostatic_monitor error: {e}\n")
-        sys.exit(0)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

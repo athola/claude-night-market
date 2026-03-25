@@ -59,8 +59,8 @@ def main() -> None:
     # Read and discard stdin (hook protocol)
     try:
         sys.stdin.read()
-    except Exception:
-        pass
+    except (OSError, EOFError):
+        pass  # Hook protocol: stdin may be empty or closed
 
     if not _HAS_SCRIPTS or not _learnings_have_content():
         return

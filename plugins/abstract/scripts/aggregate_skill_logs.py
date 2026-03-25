@@ -537,8 +537,12 @@ def _format_hyperagents_section() -> list[str]:
                     if len(seen) >= _max_trend_skills:
                         break
                 lines.append("")
-    except (ImportError, OSError, KeyError):
-        pass
+    except ImportError:
+        pass  # PerformanceTracker not available
+    except (OSError, KeyError) as e:
+        sys.stderr.write(
+            f"aggregate_skill_logs: PerformanceTracker section skipped: {e}\n"
+        )
 
     # Meta-insights from ImprovementMemory
     try:
@@ -570,8 +574,12 @@ def _format_hyperagents_section() -> list[str]:
                         f" ({worst.get('improvement', 0):+.3f})"
                     )
                 lines.append("")
-    except (ImportError, OSError, KeyError):
-        pass
+    except ImportError:
+        pass  # ImprovementMemory not available
+    except (OSError, KeyError) as e:
+        sys.stderr.write(
+            f"aggregate_skill_logs: ImprovementMemory section skipped: {e}\n"
+        )
 
     return lines
 

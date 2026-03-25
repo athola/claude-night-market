@@ -62,6 +62,12 @@ class ImprovementMemory:
             data = safe_json_load(self.memory_file)
             if data is None:
                 _warn(f"corrupt memory file {self.memory_file}")
+                backup = self.memory_file.with_suffix(".corrupt")
+                try:
+                    self.memory_file.rename(backup)
+                    _warn(f"backed up corrupt file to {backup}")
+                except OSError:
+                    pass
                 self.insights = {}
                 self.outcomes = {}
             else:
@@ -84,6 +90,8 @@ class ImprovementMemory:
             tmp_file.replace(self.memory_file)
         except OSError as e:
             _warn(f"failed to save memory to {self.memory_file}: {e}")
+            if tmp_file.exists():
+                tmp_file.unlink(missing_ok=True)
 
     def _prune_insights(self, skill_ref: str) -> None:
         """Keep only the most recent MAX_INSIGHTS_PER_SKILL entries."""

@@ -69,21 +69,29 @@ def resolve_session_file() -> Path | None:
     return max(jsonl_files, key=lambda f: f.stat().st_mtime)
 
 
-def get_session_output_size(session_file: Path) -> int:
+def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int:
     """Calculate total size of tool outputs in session.
+
+    Reads at most *max_bytes* of the file to stay within the hook
+    timeout budget.  The result is an approximation for large sessions.
 
     Args:
         session_file: Path to the JSONL session file.
+        max_bytes: Maximum bytes to read (default 512 KB).
 
     Returns:
-        Total bytes of tool result content.
+        Total bytes of tool result content (may be approximate).
 
     """
     total_size = 0
+    bytes_read = 0
 
     try:
         with open(session_file, encoding="utf-8", errors="replace") as f:
             for raw_line in f:
+                bytes_read += len(raw_line)
+                if bytes_read > max_bytes:
+                    break
                 stripped = raw_line.strip()
                 if not stripped:
                     continue

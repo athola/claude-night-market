@@ -135,7 +135,6 @@ The skill was improved automatically but showed regression during the
         except (
             FileNotFoundError,
             subprocess.TimeoutExpired,
-            json.JSONDecodeError,
         ) as e:
             sys.stderr.write(f"rollback_reviewer: {e}\n")
             return None

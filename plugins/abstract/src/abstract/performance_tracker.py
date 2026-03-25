@@ -45,6 +45,12 @@ class PerformanceTracker:
             data = safe_json_load(self.tracking_file)
             if data is None:
                 _warn(f"corrupt tracking file {self.tracking_file}")
+                backup = self.tracking_file.with_suffix(".corrupt")
+                try:
+                    self.tracking_file.rename(backup)
+                    _warn(f"backed up corrupt file to {backup}")
+                except OSError:
+                    pass
                 self.history = []
             else:
                 self.history = data.get("history", [])
@@ -65,6 +71,8 @@ class PerformanceTracker:
             tmp_file.replace(self.tracking_file)
         except OSError as e:
             _warn(f"failed to save history to {self.tracking_file}: {e}")
+            if tmp_file.exists():
+                tmp_file.unlink(missing_ok=True)
 
     def record_generation(
         self,
@@ -72,7 +80,7 @@ class PerformanceTracker:
         version: str,
         score: float,
         domain: str = "general",
-        metadata: dict | None = None,  # noqa: UP006
+        metadata: dict | None = None,
     ) -> None:
         """Record performance for a skill version.
 
@@ -101,9 +109,9 @@ class PerformanceTracker:
     def get_improvement_trend(
         self,
         skill_ref: str,
-        domain: str | None = None,  # noqa: UP006
+        domain: str | None = None,
         window: int = 5,
-    ) -> float | None:  # noqa: UP006
+    ) -> float | None:
         """Calculate improvement trend using moving average.
 
         Returns positive float if improving, negative if degrading,
@@ -136,8 +144,8 @@ class PerformanceTracker:
 
     def get_statistics(
         self,
-        skill_ref: str | None = None,  # noqa: UP006
-        domain: str | None = None,  # noqa: UP006
+        skill_ref: str | None = None,
+        domain: str | None = None,
     ) -> dict:
         """Get comprehensive statistics.
 
@@ -169,7 +177,7 @@ class PerformanceTracker:
             }
 
         scores = [e["score"] for e in entries]
-        trend: float | None = None  # noqa: UP006
+        trend: float | None = None
         if skill_ref is not None:
             trend = self.get_improvement_trend(skill_ref, domain=domain)
 
@@ -183,7 +191,7 @@ class PerformanceTracker:
 
     def get_best_performers(
         self,
-        domain: str | None = None,  # noqa: UP006
+        domain: str | None = None,
         top_k: int = 5,
     ) -> list:
         """Get top performing skill versions.

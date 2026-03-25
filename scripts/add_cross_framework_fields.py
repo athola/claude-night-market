@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -374,8 +375,12 @@ def get_plugin_version(plugin_dir: Path) -> str:
         try:
             data = json.loads(pj.read_text())
             return data.get("version", "1.0.0")
-        except (json.JSONDecodeError, OSError):
-            pass
+        except (json.JSONDecodeError, OSError) as e:
+            print(
+                f"Warning: Could not read version from {pj}: {e}. "
+                f"Using default '1.0.0'.",
+                file=sys.stderr,
+            )
     return "1.0.0"
 
 
