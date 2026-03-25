@@ -305,119 +305,6 @@ def save_log_entry(log_entry: dict[str, Any]) -> None:
         f.write(json.dumps(log_entry) + "\n")
 
 
-def _find_skill_file(plugin: str, skill: str) -> Path | None:  # noqa: UP007
-    """Locate a skill's SKILL.md file."""
-    base = Path(__file__).resolve().parent.parent.parent  # plugins/
-    candidates = [
-        base / plugin / "skills" / skill / "SKILL.md",
-        base / plugin / "skills" / f"{skill}.md",
-    ]
-    for c in candidates:
-        if c.exists():
-            return c
-    return None
-
-
-def _classify_domain(plugin: str) -> str:
-    """Map plugin name to a domain category."""
-    domain_map = {
-        "pensive": "review",
-        "sanctum": "workflow",
-        "abstract": "meta",
-        "attune": "planning",
-        "imbue": "governance",
-        "conserve": "optimization",
-        "scribe": "documentation",
-        "parseltongue": "python",
-        "egregore": "orchestration",
-    }
-    return domain_map.get(plugin, "general")
-
-
-def _detect_version(plugin: str, skill: str) -> str:
-    """Read skill version from SKILL.md frontmatter (best-effort)."""
-    import yaml  # noqa: PLC0415
-
-    skill_file = _find_skill_file(plugin, skill)
-    if not skill_file or not skill_file.exists():
-        return "unknown"
-    content = skill_file.read_text()
-    match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-    if not match:
-        return "unknown"
-    fm = yaml.safe_load(match.group(1)) or {}
-    adapt = fm.get("adaptation", {})
-    return str(adapt.get("current_version", fm.get("version", "unknown")))
-
-
-def _load_pre_state(skill_ref: str) -> dict[str, Any] | None:  # noqa: UP007
-    """Claim and return the pre-execution state file for a skill, if present."""
-    state_dir = get_observability_dir()
-    state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
-    if not state_files:
-        return None
-    latest_file = max(state_files, key=lambda p: p.stat().st_mtime)
-    processing_file = latest_file.with_suffix(".processing")
-    try:
-        latest_file.rename(processing_file)
-        with open(processing_file) as f:
-            pre_state = json.load(f)
-        try:
-            processing_file.unlink()
-        except OSError as e:
-            sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
-        return pre_state
-    except FileNotFoundError:
-        return None  # Another hook already claimed this file
-    except (OSError, json.JSONDecodeError):
-        try:
-            processing_file.unlink()
-        except OSError as e:
-            sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
-        return None
-
-
-def _record_performance(
-    log_entry: dict[str, Any],
-    plugin: str,
-    skill: str,
-    skill_ref: str,
-) -> None:
-    """Feed PerformanceTracker with outcome of this execution (Hyperagents pattern).
-
-    Silently skips if PerformanceTracker is unavailable.
-    """
-    _src = Path(__file__).resolve().parent.parent / "src"
-    if str(_src) not in sys.path:
-        sys.path.insert(0, str(_src))
-
-    from abstract.performance_tracker import PerformanceTracker  # noqa: E402, PLC0415
-
-    tracker_file = (
-        Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-        / "skills"
-        / "performance_history.json"
-    )
-    tracker = PerformanceTracker(tracker_file)
-
-    score_map = {"success": 1.0, "partial": 0.5, "failure": 0.0}
-    score = score_map.get(log_entry["outcome"], 0.0)
-
-    try:
-        version = _detect_version(plugin, skill)
-    except Exception as e:
-        sys.stderr.write(f"skill_execution_logger: version detection failed: {e}\n")
-        version = "unknown"
-
-    tracker.record_generation(
-        skill_ref=skill_ref,
-        version=version,
-        score=score,
-        domain=_classify_domain(plugin),
-        metadata={"duration_ms": log_entry["duration_ms"]},
-    )
-
-
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
@@ -441,7 +328,32 @@ def main() -> None:
         skill_ref = f"{plugin}:{skill}"
 
         # Try to read pre-execution state
-        pre_state = _load_pre_state(skill_ref)
+        pre_state = None
+        state_dir = get_observability_dir()
+        state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
+
+        if state_files:
+            # Get most recent state file
+            latest_file = max(state_files, key=lambda p: p.stat().st_mtime)
+            processing_file = latest_file.with_suffix(".processing")
+            try:
+                # Atomic rename to claim the file before reading
+                latest_file.rename(processing_file)
+                with open(processing_file) as f:
+                    pre_state = json.load(f)
+                try:
+                    processing_file.unlink()
+                except OSError as e:
+                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
+            except FileNotFoundError:
+                # Another hook already claimed this file
+                pass
+            except (OSError, json.JSONDecodeError):
+                # Clean up .processing file on parse errors
+                try:
+                    processing_file.unlink()
+                except OSError as e:
+                    sys.stderr.write(f"skill_execution_logger: cleanup failed: {e}\n")
 
         # Initialize continual evaluator
         history_file = get_log_directory() / ".history.json"
@@ -452,14 +364,6 @@ def main() -> None:
 
         # Save log entry
         save_log_entry(log_entry)
-
-        # Feed PerformanceTracker (Hyperagents pattern)
-        try:
-            _record_performance(log_entry, plugin, skill, skill_ref)
-        except ImportError:
-            pass  # PerformanceTracker not available
-        except Exception as e:
-            sys.stderr.write(f"skill_execution_logger: tracker error: {e}\n")
 
         # Check for stability gap (automatic improvement trigger)
         if log_entry.get("continual_metrics"):
