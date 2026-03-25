@@ -3,9 +3,7 @@
 Feature timeline and version-specific capabilities, organized by
 release period.
 
-> **See Also**: [Reference](compatibility-reference.md) |
-> [Patterns](compatibility-patterns.md) |
-> [Issues](compatibility-issues.md)
+> **See Also**: [Patterns](compatibility-patterns.md)
 
 ## Timeline Index
 
