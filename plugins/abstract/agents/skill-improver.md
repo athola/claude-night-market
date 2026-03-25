@@ -15,26 +15,107 @@ isolation: worktree
 description: |
   Implements skill improvements based on observability data from LEARNINGS.md.
   Prioritizes by frequency × impact / ease, generates proposals, validates changes.
+  Enhanced with Hyperagents patterns: consults PerformanceTracker for trend data
+  and ImprovementMemory for causal hypotheses before proposing changes.
 ---
 
 # Skill Improver Agent
 
-Automatically improves skills based on execution logs, user evaluations, and aggregated insights from LEARNINGS.md.
+Automatically improves skills based on execution logs,
+user evaluations, and aggregated insights from
+LEARNINGS.md. Enhanced with Hyperagents (Zhang et al.,
+2026) patterns for data-driven improvement decisions.
 
 ## Purpose
 
-Part of Issue #69 Phase 5 - Self-Improvement Loop. This agent closes the observability loop by acting on insights gathered from:
+Part of Issue #69 Phase 5 - Self-Improvement Loop. This
+agent closes the observability loop by acting on insights
+gathered from:
+
 - Phase 1: Execution logs (failure rates, duration)
-- Phase 2: Qualitative evaluations (ratings, friction, suggestions)
-- Phase 3: LEARNINGS.md aggregation (patterns, common issues)
+- Phase 2: Qualitative evaluations (ratings, friction,
+  suggestions)
+- Phase 3: LEARNINGS.md aggregation (patterns, common
+  issues)
+- **Phase 6: Hyperagents integration** - PerformanceTracker
+  trends, ImprovementMemory hypotheses, metacognitive
+  self-modification
 
 ## Inputs
 
-- **mode**: `all` (default), `skill:<name>`, `top:<N>`, or `dry-run`
+- **mode**: `all` (default), `skill:<name>`, `top:<N>`,
+  `dry-run`, or `--metacognitive`
 - **LEARNINGS.md path**: `~/.claude/skills/LEARNINGS.md`
-- **auto_implement**: Boolean - automatically implement or prompt for confirmation
+- **auto_implement**: Boolean - automatically implement or
+  prompt for confirmation
 
 ## Workflow
+
+### 0. Load Hyperagents data (before LEARNINGS.md)
+
+Before loading LEARNINGS.md, consult the persistent
+improvement memory and performance tracker for context
+that should inform this improvement cycle.
+
+```python
+from pathlib import Path
+
+MEMORY_FILE = Path.home() / ".claude/skills/improvement_memory.json"
+TRACKER_FILE = Path.home() / ".claude/skills/performance_history.json"
+
+# Load improvement memory (if available)
+improvement_context = {}
+try:
+    from abstract.improvement_memory import ImprovementMemory
+    memory = ImprovementMemory(MEMORY_FILE)
+
+    # Get strategies that worked and failed
+    effective = memory.get_effective_strategies()
+    failed = memory.get_failed_strategies()
+
+    improvement_context = {
+        "effective_strategies": effective,
+        "failed_strategies": failed,
+        "effectiveness_rate": (
+            len(effective) / (len(effective) + len(failed))
+            if (effective or failed) else None
+        ),
+    }
+except ImportError:
+    pass  # Module not available
+
+# Load performance tracker (if available)
+tracker_context = {}
+try:
+    from abstract.performance_tracker import PerformanceTracker
+    tracker = PerformanceTracker(TRACKER_FILE)
+
+    # Identify skills with degrading trends
+    degrading_skills = []
+    for entry in tracker.history:
+        skill_ref = entry["skill_ref"]
+        trend = tracker.get_improvement_trend(skill_ref)
+        if trend is not None and trend < -0.05:
+            degrading_skills.append({
+                "skill": skill_ref,
+                "trend": trend,
+            })
+
+    tracker_context = {
+        "degrading_skills": degrading_skills,
+        "best_performers": tracker.get_best_performers(top_k=5),
+    }
+except ImportError:
+    pass  # Module not available
+```
+
+**Use this context to**:
+- Avoid strategies that previously failed (check
+  `failed_strategies`)
+- Prefer strategies that previously worked (check
+  `effective_strategies`)
+- Prioritize skills with degrading trends higher
+- Skip skills that are already top performers
 
 ### 1. Load LEARNINGS.md
 
@@ -43,7 +124,7 @@ Part of Issue #69 Phase 5 - Self-Improvement Loop. This agent closes the observa
 LEARNINGS_PATH=~/.claude/skills/LEARNINGS.md
 
 if [ ! -f "$LEARNINGS_PATH" ]; then
-  echo "❌ LEARNINGS.md not found"
+  echo "LEARNINGS.md not found"
   echo "Run /abstract:aggregate-logs first to generate insights"
   exit 1
 fi
@@ -322,9 +403,45 @@ Expected impact: ${expected_improvement}
 Data source: ~/.claude/skills/LEARNINGS.md"
 ```
 
-### 6. Track Improvements
+### 6. Track Improvements (Hyperagents pattern)
 
-**Create improvement tracking entry**:
+**Record improvement outcome in ImprovementMemory** so
+future improvement cycles can learn from what worked:
+
+```python
+from abstract.improvement_memory import ImprovementMemory
+from pathlib import Path
+
+memory = ImprovementMemory(
+    Path.home() / ".claude/skills/improvement_memory.json"
+)
+
+# Record the improvement outcome
+memory.record_improvement_outcome(
+    skill_ref="imbue:proof-of-work",
+    version="2.1.0",
+    change_summary="Added error handling + examples",
+    before_score=0.423,  # Previous success rate
+    after_score=0.423,   # Will be updated after eval window
+    hypothesis="Error handling reduces failure rate by "
+               "catching missing prerequisites",
+)
+
+# Record causal hypothesis for future reference
+memory.record_insight(
+    skill_ref="imbue:proof-of-work",
+    category="causal_hypothesis",
+    insight="High failure rate caused by missing PROOF.md "
+            "prerequisite check",
+    evidence=[
+        "11/26 executions failed",
+        "Error logs show FileNotFoundError",
+    ],
+)
+```
+
+**Also save legacy tracking entry** for backward
+compatibility:
 
 ```json
 {
@@ -354,6 +471,20 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 - Before: 42.3% success rate
 - After: Measured in next 30 days
 - Improvement: Calculated delta
+
+### 7. Metacognitive mode (--metacognitive)
+
+When invoked with `--metacognitive`, run the metacognitive
+self-modification skill instead of normal improvement:
+
+```
+Skill(abstract:metacognitive-self-mod)
+```
+
+This analyzes the effectiveness of past improvements and
+proposes modifications to the improvement process itself.
+See the metacognitive-self-mod skill for the full
+workflow.
 
 ## Output
 
@@ -524,11 +655,20 @@ Next: Monitor impact in next aggregation cycle
 
 ## Related
 
-- `/abstract:aggregate-logs` - Generates LEARNINGS.md (Phase 3)
-- `/abstract:evaluate-skill` - Qualitative feedback (Phase 2)
+- `/abstract:aggregate-logs` - Generates LEARNINGS.md
+  (Phase 3)
+- `/abstract:evaluate-skill` - Qualitative feedback
+  (Phase 2)
 - `/fix-workflow` - Uses LEARNINGS for analysis (Phase 4)
-- `Skill(abstract:skill-execution-logger)` - Raw data (Phase 1)
+- `Skill(abstract:skill-execution-logger)` - Raw data
+  (Phase 1)
+- `Skill(abstract:metacognitive-self-mod)` - Analyze and
+  improve the improvement process (Hyperagents)
+- `PerformanceTracker` - Cross-generation trend tracking
+  (`src/abstract/performance_tracker.py`)
+- `ImprovementMemory` - Persistent causal hypotheses
+  (`src/abstract/improvement_memory.py`)
 
 ## Version
 
-1.0.0 (Phase 5 - Self-Improvement Loop)
+2.0.0 (Hyperagents integration - Zhang et al., 2026)

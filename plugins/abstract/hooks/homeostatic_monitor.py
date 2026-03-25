@@ -28,8 +28,131 @@ try:
 except ImportError:
     _HAS_QUEUE = False
 
+try:
+    from abstract.performance_tracker import PerformanceTracker  # noqa: E402
+
+    _HAS_TRACKER = True
+except ImportError:
+    _HAS_TRACKER = False
+
 STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
+
+
+def _get_improvement_trend(claude_home: Path, skill_ref: str) -> float | None:  # noqa: UP007
+    """Fetch improvement trend from PerformanceTracker (best-effort)."""
+    if not _HAS_TRACKER:
+        return None
+    tracker_file = claude_home / "skills" / "performance_history.json"
+    tracker = PerformanceTracker(tracker_file)
+    return tracker.get_improvement_trend(skill_ref)
+
+
+def _build_output(
+    skill_ref: str, gap: float, status: str, velocity: int, trend: float | None, **extra
+) -> dict:  # noqa: UP007
+    """Build hookSpecificOutput dict."""
+    payload: dict = {
+        "hookEventName": "PostToolUse",
+        "monitor": "homeostatic",
+        "skill": skill_ref,
+        "stability_gap": gap,
+        "status": status,
+        "stewardship_actions": velocity,
+        "improvement_trend": trend,
+    }
+    payload.update(extra)
+    return {"hookSpecificOutput": payload}
+
+
+def _needs_metacognition(claude_home: Path) -> bool:
+    """Check if metacognitive analysis is warranted.
+
+    Triggers when:
+    1. Effectiveness rate < 50% (with >= 5 outcomes)
+    2. Every 10 improvement outcomes (periodic check)
+    3. Most recent outcome was a regression
+
+    Returns False if ImprovementMemory is unavailable.
+    """
+    min_outcomes = 5
+    low_effectiveness = 0.5
+    periodic_interval = 10
+    try:
+        from abstract.improvement_memory import ImprovementMemory  # noqa: E402
+
+        mem_file = claude_home / "skills" / "improvement_memory.json"
+        if not mem_file.exists():
+            return False
+        mem = ImprovementMemory(mem_file)
+        effective = mem.get_effective_strategies()
+        failed = mem.get_failed_strategies()
+        total = len(effective) + len(failed)
+        if total == 0:
+            return False
+        # Trigger 1: low effectiveness
+        if total >= min_outcomes and len(effective) / total < low_effectiveness:
+            return True
+        # Trigger 2: periodic
+        if total % periodic_interval == 0:
+            return True
+        # Trigger 3: recent regression
+        if failed:
+            all_outcomes: list = []
+            for skill_outcomes in mem.outcomes.values():
+                all_outcomes.extend(skill_outcomes)
+            if all_outcomes:
+                all_outcomes.sort(key=lambda o: o.get("timestamp", ""))
+                if all_outcomes[-1].get("outcome_type") == "failure":
+                    return True
+    except (ImportError, OSError, KeyError):
+        pass
+    return False
+
+
+def _flag_and_build_output(
+    claude_home: Path,
+    skill_ref: str,
+    gap: float,
+    velocity: int,
+    trend: float | None,  # noqa: UP007
+) -> dict:
+    """Flag degrading skill in queue and return output dict."""
+    queue_file = claude_home / "skills" / "improvement-queue.json"
+    queue = ImprovementQueue(queue_file)
+
+    entry = queue.skills.get(skill_ref, {})
+    if entry.get("status") in ("evaluating", "pending_rollback_review"):
+        sys.exit(0)
+
+    invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
+    queue.flag_skill(skill_ref, gap, invocation_id)
+
+    entry = queue.skills[skill_ref]
+    status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
+    trigger = queue.needs_improvement(skill_ref)
+
+    # Check if metacognitive analysis is warranted
+    metacognitive_needed = False
+    if trigger:
+        metacognitive_needed = _needs_metacognition(claude_home)
+        sys.stderr.write(
+            f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
+            f"(gap={gap:.2f}), improvement eligible"
+            f"{' [metacognitive recommended]' if metacognitive_needed else ''}\n"
+        )
+
+    return _build_output(
+        skill_ref,
+        gap,
+        status,
+        velocity,
+        trend,
+        flagged_count=entry["flagged_count"],
+        improvement_triggered=trigger,
+        metacognitive_needed=metacognitive_needed,
+    )
+
 
 # Stewardship integration: lightweight velocity read
 
@@ -110,21 +233,16 @@ def main() -> None:
 
         gap = calculate_stability_gap(skill_history)
 
+        try:
+            trend = _get_improvement_trend(claude_home, skill_ref)
+        except Exception as e:
+            sys.stderr.write(f"homeostatic_monitor: tracker error: {e}\n")
+            trend = None
+
         velocity = _stewardship_velocity(claude_home)
 
         if gap <= STABILITY_GAP_THRESHOLD:
-            # Skill is healthy, no action needed
-            output = {
-                "hookSpecificOutput": {
-                    "hookEventName": "PostToolUse",
-                    "monitor": "homeostatic",
-                    "skill": skill_ref,
-                    "stability_gap": gap,
-                    "status": "healthy",
-                    "stewardship_actions": velocity,
-                }
-            }
-            print(json.dumps(output))
+            print(json.dumps(_build_output(skill_ref, gap, "healthy", velocity, trend)))
             sys.exit(0)
 
         if not _HAS_QUEUE:
@@ -132,55 +250,14 @@ def main() -> None:
                 f"homeostatic_monitor: ImprovementQueue unavailable, "
                 f"skipping queue ops for {skill_ref} (gap={gap:.2f})\n"
             )
-            output = {
-                "hookSpecificOutput": {
-                    "hookEventName": "PostToolUse",
-                    "monitor": "homeostatic",
-                    "skill": skill_ref,
-                    "stability_gap": gap,
-                    "status": "degrading",
-                    "stewardship_actions": velocity,
-                }
-            }
-            print(json.dumps(output))
+            print(
+                json.dumps(_build_output(skill_ref, gap, "degrading", velocity, trend))
+            )
             sys.exit(0)
 
         # Skill is degrading -- flag it in the queue via ImprovementQueue
-        queue_file = claude_home / "skills" / "improvement-queue.json"
-        queue = ImprovementQueue(queue_file)
-
-        # Don't flag if already evaluating or pending review
-        entry = queue.skills.get(skill_ref, {})
-        if entry.get("status") in ("evaluating", "pending_rollback_review"):
-            sys.exit(0)
-
-        invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
-        queue.flag_skill(skill_ref, gap, invocation_id)
-
-        entry = queue.skills[skill_ref]
-        status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
-        trigger = queue.needs_improvement(skill_ref)
-
-        output = {
-            "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
-                "monitor": "homeostatic",
-                "skill": skill_ref,
-                "stability_gap": gap,
-                "status": status,
-                "flagged_count": entry["flagged_count"],
-                "improvement_triggered": trigger,
-                "stewardship_actions": velocity,
-            }
-        }
+        output = _flag_and_build_output(claude_home, skill_ref, gap, velocity, trend)
         print(json.dumps(output))
-
-        if trigger:
-            sys.stderr.write(
-                f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
-                f"(gap={gap:.2f}), improvement eligible\n"
-            )
-
         sys.exit(0)
 
     except (json.JSONDecodeError, OSError, KeyError) as e:

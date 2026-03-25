@@ -42,6 +42,7 @@ skills:
 - skills/skills-eval
 - skills/subagent-testing
 - skills/plugin-review
+- skills/metacognitive-self-mod
 commands:
 - commands/aggregate-logs.md
 - commands/analyze-skill.md

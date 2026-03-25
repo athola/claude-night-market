@@ -497,6 +497,75 @@ def extract_pinned_section(content: str) -> str:
     return section
 
 
+def _format_hyperagents_section() -> list[str]:
+    """Format Hyperagents performance trends and meta-insights.
+
+    Best-effort: returns empty list if modules unavailable.
+    """
+    lines: list[str] = []
+
+    # Performance trends from PerformanceTracker
+    try:
+        src = Path(__file__).resolve().parent.parent / "src"
+        if str(src) not in sys.path:
+            sys.path.insert(0, str(src))
+        from abstract.performance_tracker import PerformanceTracker  # noqa: PLC0415
+
+        tracker_file = Path.home() / ".claude" / "skills" / "performance_history.json"
+        if tracker_file.exists():
+            tracker = PerformanceTracker(tracker_file)
+            if tracker.history:
+                lines.extend(["", "## Performance Trends (Hyperagents)", ""])
+                seen: set[str] = set()
+                for entry in tracker.history:
+                    ref = entry["skill_ref"]
+                    if ref in seen:
+                        continue
+                    seen.add(ref)
+                    trend = tracker.get_improvement_trend(ref)
+                    if trend is not None:
+                        direction = "improving" if trend > 0 else "degrading"
+                        lines.append(f"- `{ref}`: {direction} (trend: {trend:+.3f})")
+                lines.append("")
+    except (ImportError, OSError):
+        pass
+
+    # Meta-insights from ImprovementMemory
+    try:
+        from abstract.improvement_memory import ImprovementMemory  # noqa: PLC0415
+
+        mem_file = Path.home() / ".claude" / "skills" / "improvement_memory.json"
+        if mem_file.exists():
+            mem = ImprovementMemory(mem_file)
+            effective = mem.get_effective_strategies()
+            failed = mem.get_failed_strategies()
+            if effective or failed:
+                lines.extend(["## Meta-Insights (Hyperagents)", ""])
+                total = len(effective) + len(failed)
+                rate = len(effective) / total if total else 0
+                lines.append(
+                    f"Improvement effectiveness: {rate:.0%} ({len(effective)}/{total})"
+                )
+                lines.append("")
+                if effective:
+                    best = effective[0]
+                    lines.append(
+                        f"Best strategy: {best['change_summary']}"
+                        f" (+{best['improvement']:.3f})"
+                    )
+                if failed:
+                    worst = failed[0]
+                    lines.append(
+                        f"Avoid: {worst['change_summary']}"
+                        f" ({worst['improvement']:+.3f})"
+                    )
+                lines.append("")
+    except (ImportError, OSError):
+        pass
+
+    return lines
+
+
 def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") -> str:
     """Generate LEARNINGS.md content from aggregation result.
 
@@ -541,6 +610,9 @@ def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") 
 
     # Skill performance summary
     lines.extend(format_skill_summary(result.metrics_by_skill))
+
+    # Hyperagents: Include performance trends and meta-insights
+    lines.extend(_format_hyperagents_section())
 
     lines.append("")
     lines.append("---")
