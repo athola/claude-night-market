@@ -9,6 +9,42 @@ mission before execution begins. It prevents scope drift,
 establishes clear completion criteria, and provides a reference
 point for checkpoint reviews.
 
+## When to Use
+
+Use a Mission Charter when:
+
+- Starting a new mission that will span multiple phases
+- Coordinating work across multiple agents or sessions
+- You need clear scope boundaries to prevent drift
+- Success criteria need to be explicit and measurable
+- Resource constraints (tokens, time) must be tracked
+
+Do NOT use when:
+
+- The task is a single, self-contained change
+- Scope is obvious and doesn't need formalization
+- The work is exploratory and boundaries are unknown
+
+## Getting Started
+
+1. Copy the template below into your mission planning document
+2. Fill in the required fields: `outcome`, `success_metric`,
+   `deadline`, `scope`, `stop_criteria`
+3. Add optional constraints if you have token/time budgets
+4. Store in `.attune/mission-state.json` or your planning document
+5. Reference during checkpoint reviews to verify scope adherence
+
+## Why This Pattern
+
+Mission Charters prevent the common failure mode of "scope creep by
+accident." Without explicit boundaries, missions tend to expand to
+fill available time and tokens. The charter creates a contract that
+forces explicit decisions when scope changes are proposed.
+
+This pattern emerged from observing that agents with clear
+boundaries complete missions faster and with fewer reworks than
+agents who discover scope as they go.
+
 ## Template
 
 ```yaml

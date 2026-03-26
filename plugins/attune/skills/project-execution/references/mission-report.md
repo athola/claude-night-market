@@ -9,6 +9,47 @@ mission. It documents what was delivered, why decisions were
 made, how success was validated, and what follow-up is needed.
 Use it to close missions and hand off to future maintainers.
 
+## When to Use
+
+Generate a Mission Report when:
+
+- A mission completes successfully (outcome: success)
+- A mission is terminated early (outcome: partial or failed)
+- User requests a final summary
+- Handing off work to another agent or session
+- Archiving for future reference
+
+Do NOT generate when:
+
+- The mission is still in progress (use Progress Report instead)
+- The work was a single trivial change
+
+## Getting Started
+
+1. Copy the template below
+2. Fill required fields: `mission`, `duration`, `outcome`,
+   `delivered_artifacts`, `decisions`, `validation_evidence`,
+   `follow_ups`
+3. Add optional `lessons_learned`, `blockers_resolved`, `metrics`
+   if relevant
+4. Store in mission archive or attach to PR/commit
+5. Link from any related issues or discussions
+
+## Why This Pattern
+
+Mission Reports create institutional memory. Without them, the
+rationale behind decisions decays: six months later, nobody
+remembers why a particular approach was chosen or what alternatives
+were considered.
+
+The `decisions` field with `alternatives_considered` is especially
+valuable: it prevents future contributors from re-litigating
+settled questions without new information.
+
+This pattern emerged from observing that teams with good
+documentation of "why" move faster than teams who must re-derive
+rationale from code archaeology.
+
 ## Template
 
 ```yaml

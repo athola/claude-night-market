@@ -9,6 +9,52 @@ could go wrong before execution begins. It prevents optimistic
 planning and ensures mitigation strategies are in place.
 Required for all Level 1 (Watch) and above tasks.
 
+## When to Use
+
+Complete this checklist when:
+
+- Task is classified as Level 1 (Watch) or higher
+- You're about to modify production-affecting code
+- The change touches security, data integrity, or user-facing APIs
+- You feel uncertain about the scope of impact
+
+Do NOT complete when:
+
+- Task is Level 0 (Routine) with trivial impact
+- The work is documentation-only
+- You're just reading files, not modifying
+
+## Getting Started
+
+1. Classify the task's Readiness Level first
+2. If Level 1+, copy the template below
+3. Answer all five questions before starting work
+4. Get review if Level 2+ (peer or adversarial)
+5. Keep the completed checklist with your task notes
+6. Reference it if something goes wrong
+
+## Why Five Questions
+
+The five questions cover the essential risk dimensions:
+
+1. **Failure modes** - What breaks?
+2. **Detection** - How do we know it broke?
+3. **Rollback** - How do we fix it?
+4. **Dependencies** - What else could break it?
+5. **Assumptions** - What are we guessing about?
+
+These five emerged from post-mortem analysis of production
+incidents. The most common root causes were: not anticipating the
+failure mode, not having detection, not knowing how to roll back,
+dependency failures, and invalid assumptions.
+
+Each question has a mitigation purpose:
+- Question 1 → Design for failure
+- Question 2 → Monitoring and alerting
+- Question 3 → Recovery planning
+- Question 4 → Dependency awareness
+- Question 5 → Humility about unknowns
+
 ## The Five Questions
 
 Before executing any Level 1+ task, answer these questions:

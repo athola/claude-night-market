@@ -9,6 +9,46 @@ coordinated agent work. Too few agents underutilize parallelism;
 too many create coordination overhead. Clear roles prevent
 confusion and ensure accountability.
 
+## When to Use
+
+Apply Team Formation rules when:
+
+- Planning a multi-agent mission (more than one agent needed)
+- Deciding between single-session, subagents, or agent-team mode
+- Sizing a team for a complex, multi-file change
+- Determining whether a Reviewer role is needed
+
+Do NOT apply when:
+
+- The task fits in a single session with one agent
+- Work is trivial and doesn't need parallelism
+- You're just running a quick one-off command
+
+## Getting Started
+
+1. Assess mission complexity (simple/moderate/complex/critical)
+2. Determine execution mode (single-session/subagents/agent-team)
+3. Apply sizing rules from the tables below
+4. Assign Coordinator role to main session
+5. Assign Agent roles to task executors
+6. Add Reviewer role if Level 2+ (Elevated/Critical)
+7. Define file ownership to prevent conflicts
+
+## Why This Pattern
+
+The 10-agent maximum isn't arbitrary. Coordination overhead grows
+quadratically: n agents create n(n-1)/2 communication channels.
+At 10 agents, you have 45 potential paths. Beyond that, the cost
+of coordination exceeds the benefit of parallelism.
+
+Clear roles prevent the "everyone owns everything" problem where
+no one is accountable. The Coordinator owns the mission outcome;
+Agents own their tasks; Reviewers own quality validation.
+
+This pattern emerged from observing that teams with explicit
+roles complete missions faster than teams where everyone tries
+to do everything.
+
 ## Role Definitions
 
 ### Coordinator (Always 1)

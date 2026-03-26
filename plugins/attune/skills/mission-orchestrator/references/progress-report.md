@@ -9,6 +9,46 @@ execution. They track progress, surface blockers, monitor budget
 consumption, and update risk status. Use them at natural phase
 boundaries or when significant changes occur.
 
+## When to Use
+
+Generate a Progress Report when:
+
+- Crossing phase boundaries (brainstorm→specify→plan→execute)
+- A blocker is identified that halts forward progress
+- Risk level escalates (e.g., Level 1→Level 2)
+- Budget thresholds reached (50%, 75%, 90% of tokens/time)
+- Every 30-60 minutes for long-running missions
+- User asks "what's the status?"
+
+Do NOT generate when:
+
+- Progress is continuous and unremarkable
+- No blockers, budget concerns, or risk changes
+- Less than 15 minutes since last report
+
+## Getting Started
+
+1. Copy the template below
+2. Fill required fields: `timestamp`, `phase`, `progress`, `blockers`,
+   `budget`, `risks`, `next_actions`
+3. Add optional `decisions` if significant choices were made
+4. Store in mission state or append to session log
+5. Compare against Mission Charter to check scope adherence
+
+## Why This Pattern
+
+Progress Reports create a verifiable audit trail. Without them,
+long missions become opaque: blockers hide, budgets silently
+exhaust, and scope drifts undetected until it's too late.
+
+The structured format forces explicit acknowledgment of:
+- What's blocked (and who owns unblocking)
+- How much budget remains (and whether to continue)
+- What risks have changed (and whether to escalate)
+
+This pattern emerged from observing that missions with regular
+checkpoints have higher success rates and fewer "surprise failures."
+
 ## Template
 
 ```yaml

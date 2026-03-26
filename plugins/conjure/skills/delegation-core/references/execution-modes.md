@@ -1,8 +1,7 @@
 # Execution Modes: Selection Guide
 
 Criteria for choosing between single-session, subagents, and
-agent-team execution modes. Adapted from the Nelson operational
-framework.
+agent-team execution modes.
 
 ## Purpose
 
@@ -10,6 +9,64 @@ Execution modes determine how Claude coordinates work across
 multiple tasks or agents. The right mode balances parallelism
 with coordination overhead, ensuring efficient execution without
 excessive context switching or communication complexity.
+
+## Quick Selection
+
+| Scenario | Mode | Why |
+|----------|------|-----|
+| One file, sequential changes | single-session | No parallelism benefit |
+| Multiple files, no dependencies | subagents | Parallelism helps |
+| Multiple files, shared interfaces | agent-team | Need coordination |
+| User will iterate with feedback | single-session | Easy to adjust |
+| Independent research tasks | subagents | Report back only |
+
+## When to Use Each Mode
+
+**Use single-session when**:
+
+- Tasks are sequential (each depends on previous)
+- Heavy same-file editing (no coordination needed)
+- User wants to iterate with feedback
+- Complexity is low, quick iteration matters
+
+**Use subagents when**:
+
+- Tasks are independent (no shared mutable state)
+- Files don't overlap (clear ownership)
+- Work is research or exploration
+- Parallel execution saves significant time
+
+**Use agent-team when**:
+
+- Tasks have shared interfaces that need coordination
+- Work spans multiple files with cross-dependencies
+- Real-time coordination would prevent conflicts
+- Mission complexity is critical (Level 3)
+
+## Getting Started
+
+1. List your tasks and their dependencies
+2. Check file overlap: do tasks touch the same files?
+3. Check interface coordination: do tasks share APIs/contracts?
+4. Apply the decision flowchart below
+5. If agent-team, enable experimental feature first
+
+## Why This Pattern
+
+The wrong execution mode creates problems:
+
+- **Single-session for parallel tasks**: Wastes time, no parallelism
+- **Subagents for same-file edits**: Conflicts, wasted coordination
+- **Agent-team for independent tasks**: Overhead exceeds benefit
+
+The selection criteria are derived from observing what works:
+independent tasks benefit from parallelism, but coordination
+overhead grows faster than linear. The break-even point is
+roughly 3+ independent files for subagents, and 5+ coordinated
+files for agent-team.
+
+This pattern emerged from watching agent teams struggle with
+file conflicts that could have been avoided with the right mode.
 
 ## Mode Definitions
 

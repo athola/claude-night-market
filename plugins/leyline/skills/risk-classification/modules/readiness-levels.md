@@ -9,6 +9,55 @@ Higher levels require more controls, verification, and oversight.
 This prevents high-risk changes from being treated casually and
 ensures appropriate safeguards are in place.
 
+## Quick Classification
+
+Ask these questions in order. Stop at the first "yes":
+
+1. **Is the action irreversible?** → Level 3 (Critical)
+2. **Does it involve security/compliance/data integrity?** → Level 2 (Elevated)
+3. **Is it user-visible or affects multiple files?** → Level 1 (Watch)
+4. **Otherwise** → Level 0 (Routine)
+
+## When to Apply
+
+Apply Readiness Levels when:
+
+- Starting any task that modifies code or configuration
+- Planning parallel agent work (determine verification needs)
+- Reviewing PRs (check that controls match the level)
+- Before executing any task marked in an implementation plan
+
+Do NOT apply when:
+
+- The change is documentation-only with no code implications
+- The work is purely exploratory with no production impact
+- You're just reading files (no modification)
+
+## Getting Started
+
+1. Assess the task using the Quick Classification questions
+2. Find the matching level in Level Definitions below
+3. Check all required controls listed for that level
+4. Document any additional controls you choose to add
+5. Never skip required controls; you may add optional ones
+
+## Why Four Levels
+
+Four levels balance granularity with usability:
+
+- **Too few levels**: Can't distinguish between "needs review" and
+  "needs human approval"
+- **Too many levels**: People stop using the system because it's
+  too complex
+
+The 0-3 scale maps naturally to: Routine/Watch/Elevated/Critical.
+Each level has a clear escalation trigger and distinct required
+controls. The gap between levels is meaningful, not arbitrary.
+
+This pattern emerged from observing that teams with simple,
+actionable risk frameworks actually use them, while teams with
+complex matrices create work that everyone ignores.
+
 ## Level Definitions
 
 ### Level 0: Routine
