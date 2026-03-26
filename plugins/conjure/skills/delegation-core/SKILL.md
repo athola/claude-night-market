@@ -40,6 +40,7 @@ references:
 - leyline/skills/error-patterns/SKILL.md
 - leyline/skills/authentication-patterns/SKILL.md
 - leyline/skills/service-registry/SKILL.md
+- references/execution-modes.md
 ---
 ## Table of Contents
 
@@ -181,6 +182,20 @@ See `modules/cost-estimation.md` for leyline integration examples.
 For detailed service workflows:
 - `Skill(conjure:gemini-delegation)`: Gemini CLI specifics.
 - `Skill(conjure:qwen-delegation)`: Qwen MCP specifics.
+
+## Execution Modes
+
+When delegating to multiple agents, choose the appropriate
+execution mode:
+
+| Mode | When to Use | How It Works |
+|------|-------------|--------------|
+| single-session | Sequential tasks, same-file edits | Claude works through tasks in order |
+| subagents | Parallel independent tasks | Agents work independently, report back |
+| agent-team | Parallel coordinated tasks | Agents can communicate with each other |
+
+See `references/execution-modes.md` for the selection decision
+matrix, mode compatibility notes, and anti-patterns to avoid.
 
 ## Module Reference
 

@@ -43,6 +43,9 @@ modules:
 - modules/state-detection.md
 - modules/phase-routing.md
 - modules/mission-state.md
+references:
+- references/mission-charter.md
+- references/progress-report.md
 ---
 ## Table of Contents
 
@@ -134,12 +137,45 @@ Missions persist state to `.attune/mission-state.json`. On resume:
 
 See `modules/mission-state.md` for the state schema and recovery protocol.
 
+## Mission Charter
+
+Define mission boundaries using the structured template from
+`references/mission-charter.md`. A Mission Charter specifies:
+
+- **Outcome**: What success looks like
+- **Success metric**: Measurable completion criteria
+- **Deadline**: Time boundary (session, date, or duration)
+- **Constraints**: Token/time budgets, forbidden actions
+- **Scope**: In-scope and out-of-scope areas
+- **Stop criteria**: Conditions that halt the mission
+
+See `references/mission-charter.md` for the full template and
+examples.
+
+## Progress Reports
+
+Track progress with structured checkpoints using
+`references/progress-report.md`. Generate reports at:
+
+- Phase boundaries (between brainstorm→specify→plan→execute)
+- Blocker identification
+- Risk escalation
+- Budget thresholds (50%, 75%, 90%)
+
+See `references/progress-report.md` for the template and
+checkpoint rhythm guidance.
+
 ## Module Reference
 
 - **mission-types.md**: Type definitions, auto-detection logic, custom types
 - **state-detection.md**: Artifact existence checks, quality validation, staleness
 - **phase-routing.md**: Phase execution protocol, transition hooks, error handling
 - **mission-state.md**: State schema, persistence, recovery protocol
+
+## Reference Modules
+
+- **mission-charter.md**: Structured mission definition template
+- **progress-report.md**: Checkpoint status report template
 
 ## Related Skills
 
