@@ -25,10 +25,12 @@ skills:
 - skills/style-learner
 - skills/doc-generator
 - skills/tech-tutorial
+- skills/session-to-post
 commands:
 - commands/doc-generate.md
 - commands/doc-polish.md
 - commands/style-learn.md
+- commands/session-to-post.md
 agents:
 - agents/doc-editor.md
 - agents/slop-hunter.md

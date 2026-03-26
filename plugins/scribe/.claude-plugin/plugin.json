@@ -5,14 +5,16 @@
   "commands": [
     "./commands/doc-generate.md",
     "./commands/doc-polish.md",
-    "./commands/style-learn.md"
+    "./commands/style-learn.md",
+    "./commands/session-to-post.md"
   ],
   "skills": [
     "./skills/slop-detector",
     "./skills/style-learner",
     "./skills/doc-generator",
     "./skills/doc-importer",
-    "./skills/tech-tutorial"
+    "./skills/tech-tutorial",
+    "./skills/session-to-post"
   ],
   "agents": [
     "./agents/doc-editor.md",
