@@ -35,8 +35,28 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://docs.litellm.ai/blog/security-update-march-2026
+  https://users.rust-lang.org/t/video-the-cost-of-concurrency-coordination/139185:
+    content_hash: sha256:0e225ec9de94aba7
+    stored_at: data/staging/webfetch-forum-post-summary-2026-03-27_14-02-56.md
+    importance_score: 50
+    last_updated: '2026-03-27T14:02:56.278476+00:00'
+    title: Forum Post Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://users.rust-lang.org/t/video-the-cost-of-concurrency-coordination/139185
+  https://travisdowns.github.io/blog/2020/07/06/concurrency-costs.html:
+    content_hash: sha256:95b6b17ee62f3bcc
+    stored_at: data/staging/webfetch-concurrency-cost-hierarchy-summary-2026-03-27_14-03-12.md
+    importance_score: 50
+    last_updated: '2026-03-27T14:03:12.466658+00:00'
+    title: Concurrency Cost Hierarchy Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://travisdowns.github.io/blog/2020/07/06/concurrency-costs.html
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
   sha256:e048937b2b5db0ab: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
   sha256:2b1bf022625ba38f: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
+  sha256:0e225ec9de94aba7: data/staging/webfetch-forum-post-summary-2026-03-27_14-02-56.md
+  sha256:95b6b17ee62f3bcc: data/staging/webfetch-concurrency-cost-hierarchy-summary-2026-03-27_14-03-12.md

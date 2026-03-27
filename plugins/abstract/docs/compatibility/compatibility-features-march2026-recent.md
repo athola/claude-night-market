@@ -418,6 +418,32 @@ released in March 2026.
   - **Action Required**: Done - mecw-principles module updated
 
 **Bug Fixes**:
+- ✅ **ToolSearch Proxy Fix**: Fixed API 400 errors when using
+  ANTHROPIC_BASE_URL with a third-party gateway. Tool search now
+  correctly detects proxy endpoints and disables tool_reference blocks.
+  - **Impact**: Proxy/gateway users no longer hit 400 errors from
+    tool_reference blocks that proxy endpoints don't support
+  - **Affected**: None - no proxy-specific guidance in our skills
+  - **Action Required**: None
+
+- ✅ **ToolSearch Empty Response Fix**: Fixed empty model responses
+  immediately after ToolSearch. The server rendered tool schemas with
+  system-prompt-style tags at the prompt tail, confusing models into
+  stopping early.
+  - **Impact**: Significant reliability fix for any workflow triggering
+    deferred tool loading via ToolSearch. All agent dispatches and MCP
+    tool discovery benefit automatically.
+  - **Affected**: conserve:mcp-code-execution (updated with fix note)
+  - **Action Required**: Done - mcp-code-execution SKILL.md updated
+
+- ✅ **MCP Prompt Cache Bust Fix**: Fixed prompt-cache bust when an MCP
+  server with instructions connects after the first turn
+  - **Impact**: MCP-heavy sessions maintain prompt cache reuse even when
+    servers connect late. Reduces token costs for workflows that trigger
+    MCP connections mid-session.
+  - **Affected**: conserve:mcp-code-execution (updated with fix note)
+  - **Action Required**: Done - mcp-code-execution SKILL.md updated
+
 - ✅ **Effort Parameter Fix**: Fixed API 400 error
   `This model does not support the effort parameter` when using custom
   Bedrock inference profiles or non-standard Claude model identifiers
@@ -434,6 +460,67 @@ released in March 2026.
   - **Affected**: leyline:update-all-plugins command (updated Notes
     section)
   - **Action Required**: Done - update-all-plugins.md updated
+
+- ✅ **AskUserQuestion Performance Fix**: Fixed a performance regression
+  in the AskUserQuestion preview dialog that re-ran markdown rendering
+  on every keystroke in the notes input
+  - **Impact**: Skills using AskUserQuestion (minister:close-issue,
+    minister:create-issue, interactive commands) are snappier
+  - **Affected**: None - automatic performance improvement
+  - **Action Required**: None
+
+- ✅ **permissions.defaultMode Remote Fix**: Fixed defaultMode settings
+  values other than acceptEdits or plan being applied in Claude Code
+  Remote environments (now ignored)
+  - **Impact**: Remote environment permission behavior is now consistent
+  - **Affected**: None - no remote-specific permission guidance
+  - **Action Required**: None
+
+- ✅ **Feature Flags Disk Cache Fix**: Fixed feature flags read during
+  early startup never refreshing their disk cache, causing stale values
+  to persist across sessions
+  - **Impact**: Plugin feature flag state is now fresh on each session
+  - **Affected**: None - automatic fix
+  - **Action Required**: None
+
+- ✅ **/security-review merge-base Fix**: Fixed /security-review command
+  failing with `unknown option merge-base` on older git versions
+  - **Impact**: /security-review now works on older git installations
+  - **Affected**: None - we reference /security-review in examples only
+  - **Action Required**: None
+
+**Improvements**:
+- ✅ **74% Prompt Re-render Reduction**: Reduced prompt input re-renders
+  during turns by ~74%
+  - **Impact**: Passive performance improvement for all workflows.
+    Reduces CPU overhead during long agent turns.
+  - **Affected**: None - automatic improvement
+  - **Action Required**: None
+
+- ✅ **Remote Control Poll Rate**: Reduced /poll rate to once per 10
+  minutes while connected (was 1-2s), cutting server load ~300x
+  - **Impact**: Infrastructure efficiency for remote control users
+  - **Affected**: None
+  - **Action Required**: None
+
+**Platform Fixes** (no plugin impact):
+- ✅ SSH enter key fix for slow connections
+- ✅ Windows/WSL clipboard non-ASCII corruption fix
+- ✅ Extra VS Code windows on Windows startup fix
+- ✅ Windows voice mode native binary fix
+- ✅ Push-to-talk activation on session start fix
+- ✅ Markdown #NNN link resolution fix
+- ✅ Repeated "Model updated to Opus 4.6" notification fix
+- ✅ /color reset command (new: /color default, gray, reset, none)
+- ✅ /rename works while Claude is processing
+- ✅ VS Code teleport marker rendering fix
+- ✅ Startup memory reduced ~426KB
+- ✅ Microphone silence error message improved
+
+**VS Code Features** (no plugin impact):
+- ✅ Spark icon in activity bar listing all sessions
+- ✅ Full markdown plan view with comment support
+- ✅ Native MCP server management dialog via /mcp
 
 ### Claude Code 2.1.68 (March 2026)
 
