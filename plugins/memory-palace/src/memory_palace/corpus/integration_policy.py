@@ -17,7 +17,7 @@ from memory_palace.corpus._mv_models import (
 )
 
 
-def decide_integration(  # noqa: PLR0911 - explicit branch decisions for clarity
+def decide_integration(
     redundancy: RedundancyCheck,
     delta: DeltaAnalysis | None,
 ) -> IntegrationPlan:
@@ -44,15 +44,14 @@ def decide_integration(  # noqa: PLR0911 - explicit branch decisions for clarity
 
     """
     if redundancy.level == RedundancyLevel.EXACT_MATCH:
-        return IntegrationPlan(
+        plan = IntegrationPlan(
             decision=IntegrationDecision.SKIP,
             target_entries=redundancy.matching_entries,
             rationale="Exact duplicate of existing content",
             confidence=1.0,
         )
-
-    if redundancy.level == RedundancyLevel.HIGHLY_REDUNDANT:
-        return IntegrationPlan(
+    elif redundancy.level == RedundancyLevel.HIGHLY_REDUNDANT:
+        plan = IntegrationPlan(
             decision=IntegrationDecision.SKIP,
             target_entries=redundancy.matching_entries,
             rationale=(
@@ -61,56 +60,51 @@ def decide_integration(  # noqa: PLR0911 - explicit branch decisions for clarity
             ),
             confidence=0.9,
         )
-
-    if redundancy.level == RedundancyLevel.NOVEL:
-        return IntegrationPlan(
+    elif redundancy.level == RedundancyLevel.NOVEL:
+        plan = IntegrationPlan(
             decision=IntegrationDecision.STANDALONE,
             target_entries=[],
             rationale="Novel content with no significant overlap",
             confidence=0.9,
         )
-
-    if delta:
-        if delta.delta_type == DeltaType.NOVEL_INSIGHT:
-            return IntegrationPlan(
-                decision=IntegrationDecision.STANDALONE,
-                target_entries=[],
-                rationale=f"Novel insights justify standalone: {delta.teaching_delta}",
-                confidence=0.8,
-            )
-
-        if delta.delta_type == DeltaType.CONTRADICTS:
-            return IntegrationPlan(
-                decision=IntegrationDecision.REPLACE,
-                target_entries=redundancy.matching_entries[:1],
-                rationale=f"Contradicts/corrects existing: {delta.teaching_delta}",
-                confidence=0.6,
-            )
-
-        if delta.delta_type == DeltaType.MORE_EXAMPLES:
-            return IntegrationPlan(
-                decision=IntegrationDecision.MERGE,
-                target_entries=redundancy.matching_entries[:1],
-                rationale=f"Enhances existing with examples: {delta.teaching_delta}",
-                confidence=0.7,
-            )
-
-        if delta.delta_type == DeltaType.NONE:
-            return IntegrationPlan(
-                decision=IntegrationDecision.SKIP,
-                target_entries=redundancy.matching_entries,
-                rationale=f"Insufficient marginal value: {delta.teaching_delta}",
-                confidence=0.7,
-            )
-
-    return IntegrationPlan(
-        decision=IntegrationDecision.MERGE,
-        target_entries=redundancy.matching_entries[:1]
-        if redundancy.matching_entries
-        else [],
-        rationale="Partial overlap suggests merge, but needs human review",
-        confidence=0.5,
-    )
+    elif delta and delta.delta_type == DeltaType.NOVEL_INSIGHT:
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale=f"Novel insights justify standalone: {delta.teaching_delta}",
+            confidence=0.8,
+        )
+    elif delta and delta.delta_type == DeltaType.CONTRADICTS:
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.REPLACE,
+            target_entries=redundancy.matching_entries[:1],
+            rationale=f"Contradicts/corrects existing: {delta.teaching_delta}",
+            confidence=0.6,
+        )
+    elif delta and delta.delta_type == DeltaType.MORE_EXAMPLES:
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.MERGE,
+            target_entries=redundancy.matching_entries[:1],
+            rationale=f"Enhances existing with examples: {delta.teaching_delta}",
+            confidence=0.7,
+        )
+    elif delta and delta.delta_type == DeltaType.NONE:
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.SKIP,
+            target_entries=redundancy.matching_entries,
+            rationale=f"Insufficient marginal value: {delta.teaching_delta}",
+            confidence=0.7,
+        )
+    else:
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.MERGE,
+            target_entries=redundancy.matching_entries[:1]
+            if redundancy.matching_entries
+            else [],
+            rationale="Partial overlap suggests merge, but needs human review",
+            confidence=0.5,
+        )
+    return plan
 
 
 def explain_decision(

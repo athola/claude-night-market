@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from abstract.improvement_memory import ImprovementMemory
+from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -114,10 +114,7 @@ class TestRecordImprovementOutcome:
         """
         mem.record_improvement_outcome(
             skill_ref="abstract:test-skill",
-            version="v1.1",
-            change_summary="Added concrete examples",
-            before_score=0.60,
-            after_score=0.80,
+            outcome=ImprovementOutcome("v1.1", "Added concrete examples", 0.60, 0.80),
         )
         outcome = mem.outcomes["abstract:test-skill"][0]
         assert outcome["outcome_type"] == "success"
@@ -131,10 +128,7 @@ class TestRecordImprovementOutcome:
         """
         mem.record_improvement_outcome(
             skill_ref="abstract:test-skill",
-            version="v1.2",
-            change_summary="Removed section headers",
-            before_score=0.80,
-            after_score=0.60,
+            outcome=ImprovementOutcome("v1.2", "Removed section headers", 0.80, 0.60),
         )
         outcome = mem.outcomes["abstract:test-skill"][0]
         assert outcome["outcome_type"] == "failure"
@@ -148,10 +142,7 @@ class TestRecordImprovementOutcome:
         """
         mem.record_improvement_outcome(
             skill_ref="abstract:test-skill",
-            version="v1.3",
-            change_summary="Reformatted whitespace",
-            before_score=0.70,
-            after_score=0.70,
+            outcome=ImprovementOutcome("v1.3", "Reformatted whitespace", 0.70, 0.70),
         )
         outcome = mem.outcomes["abstract:test-skill"][0]
         assert outcome["outcome_type"] == "neutral"
@@ -167,11 +158,13 @@ class TestRecordImprovementOutcome:
         """
         mem.record_improvement_outcome(
             skill_ref="abstract:test-skill",
-            version="v1.4",
-            change_summary="Clarified output format",
-            before_score=0.50,
-            after_score=0.75,
-            hypothesis="Explicit format constraints reduce ambiguity",
+            outcome=ImprovementOutcome(
+                "v1.4",
+                "Clarified output format",
+                0.50,
+                0.75,
+                hypothesis="Explicit format constraints reduce ambiguity",
+            ),
         )
         outcome = mem.outcomes["abstract:test-skill"][0]
         assert outcome["hypothesis"] == "Explicit format constraints reduce ambiguity"
@@ -191,9 +184,15 @@ class TestGetEffectiveStrategies:
         When get_effective_strategies is called with default threshold 0.1
         Then only outcomes with improvement >= 0.1 are returned
         """
-        mem.record_improvement_outcome("abstract:skill-a", "v1", "big win", 0.5, 0.8)
-        mem.record_improvement_outcome("abstract:skill-a", "v2", "tiny win", 0.5, 0.55)
-        mem.record_improvement_outcome("abstract:skill-a", "v3", "regression", 0.5, 0.3)
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v1", "big win", 0.5, 0.8)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v2", "tiny win", 0.5, 0.55)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v3", "regression", 0.5, 0.3)
+        )
 
         results = mem.get_effective_strategies(skill_ref="abstract:skill-a")
         assert len(results) == 1
@@ -207,8 +206,12 @@ class TestGetEffectiveStrategies:
         When get_effective_strategies is called
         Then the larger improvement appears first
         """
-        mem.record_improvement_outcome("abstract:skill-a", "v1", "medium", 0.5, 0.7)
-        mem.record_improvement_outcome("abstract:skill-a", "v2", "large", 0.5, 0.9)
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v1", "medium", 0.5, 0.7)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v2", "large", 0.5, 0.9)
+        )
 
         results = mem.get_effective_strategies(skill_ref="abstract:skill-a")
         assert results[0]["change_summary"] == "large"
@@ -222,8 +225,12 @@ class TestGetEffectiveStrategies:
         When get_effective_strategies is called with a specific skill_ref
         Then only outcomes for that skill are returned
         """
-        mem.record_improvement_outcome("abstract:skill-a", "v1", "win for A", 0.5, 0.8)
-        mem.record_improvement_outcome("abstract:skill-b", "v1", "win for B", 0.5, 0.9)
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v1", "win for A", 0.5, 0.8)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-b", ImprovementOutcome("v1", "win for B", 0.5, 0.9)
+        )
 
         results = mem.get_effective_strategies(skill_ref="abstract:skill-a")
         assert len(results) == 1
@@ -237,8 +244,12 @@ class TestGetEffectiveStrategies:
         When get_effective_strategies is called without a skill_ref
         Then results span all skills
         """
-        mem.record_improvement_outcome("abstract:skill-a", "v1", "win for A", 0.5, 0.8)
-        mem.record_improvement_outcome("abstract:skill-b", "v1", "win for B", 0.5, 0.9)
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v1", "win for A", 0.5, 0.8)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-b", ImprovementOutcome("v1", "win for B", 0.5, 0.9)
+        )
 
         results = mem.get_effective_strategies()
         assert len(results) == 2
@@ -259,11 +270,13 @@ class TestGetFailedStrategies:
         Then only outcomes with negative improvement are returned
         """
         mem.record_improvement_outcome(
-            "abstract:skill-a", "v1", "good change", 0.5, 0.8
+            "abstract:skill-a", ImprovementOutcome("v1", "good change", 0.5, 0.8)
         )
-        mem.record_improvement_outcome("abstract:skill-a", "v2", "bad change", 0.8, 0.5)
         mem.record_improvement_outcome(
-            "abstract:skill-a", "v3", "neutral change", 0.5, 0.5
+            "abstract:skill-a", ImprovementOutcome("v2", "bad change", 0.8, 0.5)
+        )
+        mem.record_improvement_outcome(
+            "abstract:skill-a", ImprovementOutcome("v3", "neutral change", 0.5, 0.5)
         )
 
         results = mem.get_failed_strategies(skill_ref="abstract:skill-a")
@@ -279,7 +292,7 @@ class TestGetFailedStrategies:
         Then an empty list is returned
         """
         mem.record_improvement_outcome(
-            "abstract:skill-a", "v1", "good change", 0.5, 0.8
+            "abstract:skill-a", ImprovementOutcome("v1", "good change", 0.5, 0.8)
         )
         assert mem.get_failed_strategies(skill_ref="abstract:skill-a") == []
 
@@ -412,10 +425,10 @@ class TestSynthesizeForwardPlan:
         Then the result has all four required keys with non-empty content
         """
         mem.record_improvement_outcome(
-            "abstract:test-skill", "v1", "Added examples", 0.5, 0.8
+            "abstract:test-skill", ImprovementOutcome("v1", "Added examples", 0.5, 0.8)
         )
         mem.record_improvement_outcome(
-            "abstract:test-skill", "v2", "Removed headers", 0.8, 0.6
+            "abstract:test-skill", ImprovementOutcome("v2", "Removed headers", 0.8, 0.6)
         )
         mem.record_insight(
             "abstract:test-skill",
@@ -461,10 +474,7 @@ class TestSynthesizeForwardPlan:
         """
         mem.record_improvement_outcome(
             "abstract:test-skill",
-            "v1",
-            "Added concrete examples",
-            0.5,
-            0.8,
+            ImprovementOutcome("v1", "Added concrete examples", 0.5, 0.8),
         )
 
         plan = mem.synthesize_forward_plan("abstract:test-skill")
@@ -507,7 +517,7 @@ class TestPersistence:
         first = ImprovementMemory(memory_file)
         first.record_insight("abstract:test-skill", "strategy_success", "It worked")
         first.record_improvement_outcome(
-            "abstract:test-skill", "v1", "Big change", 0.4, 0.9
+            "abstract:test-skill", ImprovementOutcome("v1", "Big change", 0.4, 0.9)
         )
 
         second = ImprovementMemory(memory_file)
@@ -569,10 +579,7 @@ class TestPruning:
         for i in range(limit + 5):
             mem.record_improvement_outcome(
                 "abstract:test-skill",
-                f"v{i}",
-                f"Change {i}",
-                0.5,
-                0.6,
+                ImprovementOutcome(f"v{i}", f"Change {i}", 0.5, 0.6),
             )
 
         stored = mem.outcomes["abstract:test-skill"]

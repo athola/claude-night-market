@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from project_detector import ProjectDetector  # type: ignore[import]
@@ -70,9 +72,6 @@ def copy_templates(
         List of created file paths
 
     """
-    import shutil  # noqa: PLC0415
-    from datetime import datetime  # noqa: PLC0415
-
     engine = TemplateEngine(variables)
     template_dir = templates_root / language
 

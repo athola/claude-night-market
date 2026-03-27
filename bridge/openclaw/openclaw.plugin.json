@@ -1,6 +1,6 @@
 {
   "name": "night-market",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Claude Night Market skills for OpenClaw \u2014 142 curated skills for code review, testing, documentation, architecture, and developer workflows",
   "author": {
     "name": "Alex Thola",

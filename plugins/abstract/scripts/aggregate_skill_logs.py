@@ -22,6 +22,23 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+# Optional Hyperagents modules (may not be installed)
+_src = Path(__file__).resolve().parent.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+try:
+    from abstract.improvement_memory import ImprovementMemory
+
+    _HAS_IMPROVEMENT_MEMORY = True
+except ImportError:
+    _HAS_IMPROVEMENT_MEMORY = False
+try:
+    from abstract.performance_tracker import PerformanceTracker
+
+    _HAS_PERFORMANCE_TRACKER = True
+except ImportError:
+    _HAS_PERFORMANCE_TRACKER = False
+
 # Analysis thresholds
 MIN_EXECUTIONS_FOR_FAILURE_ANALYSIS = 5
 HIGH_FAILURE_THRESHOLD_PERCENT = 70  # Success rate below this is concerning
@@ -513,73 +530,69 @@ def _format_hyperagents_section() -> list[str]:
     _max_trend_skills = 20
 
     # Performance trends from PerformanceTracker
-    try:
-        src = Path(__file__).resolve().parent.parent / "src"
-        if str(src) not in sys.path:
-            sys.path.insert(0, str(src))
-        from abstract.performance_tracker import PerformanceTracker  # noqa: PLC0415
-
-        tracker_file = Path.home() / ".claude" / "skills" / "performance_history.json"
-        if tracker_file.exists():
-            tracker = PerformanceTracker(tracker_file)
-            if tracker.history:
-                lines.extend(["", "## Performance Trends (Hyperagents)", ""])
-                seen: set[str] = set()
-                for entry in tracker.history:
-                    ref = entry.get("skill_ref")
-                    if not ref or ref in seen:
-                        continue
-                    seen.add(ref)
-                    trend = tracker.get_improvement_trend(ref)
-                    if trend is not None:
-                        direction = "improving" if trend > 0 else "degrading"
-                        lines.append(f"- `{ref}`: {direction} (trend: {trend:+.3f})")
-                    if len(seen) >= _max_trend_skills:
-                        break
-                lines.append("")
-    except ImportError:
-        pass  # PerformanceTracker not available
-    except (OSError, KeyError) as e:
-        sys.stderr.write(
-            f"aggregate_skill_logs: PerformanceTracker section skipped: {e}\n"
-        )
+    if _HAS_PERFORMANCE_TRACKER:
+        try:
+            tracker_file = (
+                Path.home() / ".claude" / "skills" / "performance_history.json"
+            )
+            if tracker_file.exists():
+                tracker = PerformanceTracker(tracker_file)
+                if tracker.history:
+                    lines.extend(["", "## Performance Trends (Hyperagents)", ""])
+                    seen: set[str] = set()
+                    for entry in tracker.history:
+                        ref = entry.get("skill_ref")
+                        if not ref or ref in seen:
+                            continue
+                        seen.add(ref)
+                        trend = tracker.get_improvement_trend(ref)
+                        if trend is not None:
+                            direction = "improving" if trend > 0 else "degrading"
+                            lines.append(
+                                f"- `{ref}`: {direction} (trend: {trend:+.3f})"
+                            )
+                        if len(seen) >= _max_trend_skills:
+                            break
+                    lines.append("")
+        except (OSError, KeyError) as e:
+            sys.stderr.write(
+                f"aggregate_skill_logs: PerformanceTracker section skipped: {e}\n"
+            )
 
     # Meta-insights from ImprovementMemory
-    try:
-        from abstract.improvement_memory import ImprovementMemory  # noqa: PLC0415
-
-        mem_file = Path.home() / ".claude" / "skills" / "improvement_memory.json"
-        if mem_file.exists():
-            mem = ImprovementMemory(mem_file)
-            effective = mem.get_effective_strategies()
-            failed = mem.get_failed_strategies()
-            if effective or failed:
-                lines.extend(["## Meta-Insights (Hyperagents)", ""])
-                total = len(effective) + len(failed)
-                rate = len(effective) / total if total else 0
-                lines.append(
-                    f"Improvement effectiveness: {rate:.0%} ({len(effective)}/{total})"
-                )
-                lines.append("")
-                if effective:
-                    best = effective[0]
+    if _HAS_IMPROVEMENT_MEMORY:
+        try:
+            mem_file = Path.home() / ".claude" / "skills" / "improvement_memory.json"
+            if mem_file.exists():
+                mem = ImprovementMemory(mem_file)
+                effective = mem.get_effective_strategies()
+                failed = mem.get_failed_strategies()
+                if effective or failed:
+                    lines.extend(["## Meta-Insights (Hyperagents)", ""])
+                    total = len(effective) + len(failed)
+                    rate = len(effective) / total if total else 0
                     lines.append(
-                        f"Best strategy: {best.get('change_summary', 'N/A')}"
-                        f" (+{best.get('improvement', 0):.3f})"
+                        f"Improvement effectiveness: {rate:.0%}"
+                        f" ({len(effective)}/{total})"
                     )
-                if failed:
-                    worst = failed[0]
-                    lines.append(
-                        f"Avoid: {worst.get('change_summary', 'N/A')}"
-                        f" ({worst.get('improvement', 0):+.3f})"
-                    )
-                lines.append("")
-    except ImportError:
-        pass  # ImprovementMemory not available
-    except (OSError, KeyError) as e:
-        sys.stderr.write(
-            f"aggregate_skill_logs: ImprovementMemory section skipped: {e}\n"
-        )
+                    lines.append("")
+                    if effective:
+                        best = effective[0]
+                        lines.append(
+                            f"Best strategy: {best.get('change_summary', 'N/A')}"
+                            f" (+{best.get('improvement', 0):.3f})"
+                        )
+                    if failed:
+                        worst = failed[0]
+                        lines.append(
+                            f"Avoid: {worst.get('change_summary', 'N/A')}"
+                            f" ({worst.get('improvement', 0):+.3f})"
+                        )
+                    lines.append("")
+        except (OSError, KeyError) as e:
+            sys.stderr.write(
+                f"aggregate_skill_logs: ImprovementMemory section skipped: {e}\n"
+            )
 
     return lines
 

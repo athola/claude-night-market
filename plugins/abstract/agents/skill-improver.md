@@ -409,7 +409,7 @@ Data source: ~/.claude/skills/LEARNINGS.md"
 future improvement cycles can learn from what worked:
 
 ```python
-from abstract.improvement_memory import ImprovementMemory
+from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
 from pathlib import Path
 
 memory = ImprovementMemory(
@@ -419,12 +419,14 @@ memory = ImprovementMemory(
 # Record the improvement outcome
 memory.record_improvement_outcome(
     skill_ref="imbue:proof-of-work",
-    version="2.1.0",
-    change_summary="Added error handling + examples",
-    before_score=0.423,  # Previous success rate
-    after_score=0.423,   # Will be updated after eval window
-    hypothesis="Error handling reduces failure rate by "
-               "catching missing prerequisites",
+    outcome=ImprovementOutcome(
+        version="2.1.0",
+        change_summary="Added error handling + examples",
+        before_score=0.423,  # Previous success rate
+        after_score=0.423,   # Will be updated after eval window
+        hypothesis="Error handling reduces failure rate by "
+                   "catching missing prerequisites",
+    ),
 )
 
 # Record causal hypothesis for future reference

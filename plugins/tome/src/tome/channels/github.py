@@ -13,6 +13,7 @@ from typing import Any
 from urllib.parse import quote_plus
 
 from tome.models import Finding
+from tome.synthesis.ranker import compute_relevance_score
 
 # ---------------------------------------------------------------------------
 # Query Expansion
@@ -283,8 +284,6 @@ def rank_github_findings(findings: list[Finding]) -> list[Finding]:
         New list sorted descending by composite score. The input list
         is not mutated.
     """
-    from tome.synthesis.ranker import compute_relevance_score  # noqa: PLC0415
-
     now = datetime.now(tz=timezone.utc)  # noqa: UP017
 
     def _score(f: Finding) -> float:

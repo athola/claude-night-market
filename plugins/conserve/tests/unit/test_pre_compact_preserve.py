@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ import pytest
 # Add hooks directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
+import pre_compact_preserve as preserve_module  # noqa: E402
 from pre_compact_preserve import (  # noqa: E402
     extract_decisions,
     extract_errors,
@@ -111,8 +113,6 @@ class TestPreCompactPreserve:
         test_file.write_text("# example")
 
         # Act - save with our temp path as archive dir
-        import pre_compact_preserve as preserve_module  # noqa: PLC0415
-
         original_get_archive = preserve_module.get_archive_dir
         preserve_module.get_archive_dir = lambda: tmp_path
 
@@ -168,16 +168,12 @@ class TestPreCompactPreserve:
         When resolve_session_file is called
         Then None is returned
         """
-        import os  # noqa: PLC0415
-
-        import pre_compact_preserve as preserve  # noqa: PLC0415
-
         original_env = os.environ.get("CLAUDE_HOME")
         os.environ["CLAUDE_HOME"] = str(tmp_path)
 
         try:
             # Act
-            result = preserve.resolve_session_file()
+            result = preserve_module.resolve_session_file()
 
             # Assert
             assert result is None
@@ -195,10 +191,6 @@ class TestPreCompactPreserve:
         When resolve_session_file is called with CLAUDE_SESSION_ID
         Then the matching file is returned
         """
-        import os  # noqa: PLC0415
-
-        import pre_compact_preserve as preserve  # noqa: PLC0415
-
         # Arrange - create project structure
         projects_dir = tmp_path / "projects"
         projects_dir.mkdir()
@@ -224,7 +216,7 @@ class TestPreCompactPreserve:
 
         try:
             # Act
-            result = preserve.resolve_session_file()
+            result = preserve_module.resolve_session_file()
 
             # Assert
             assert result is not None
@@ -322,16 +314,12 @@ class TestPreCompactPreserve:
         When get_archive_dir is called
         Then the archive directory is created
         """
-        import os  # noqa: PLC0415
-
-        import pre_compact_preserve as preserve  # noqa: PLC0415
-
         original_env = os.environ.get("CLAUDE_HOME")
         os.environ["CLAUDE_HOME"] = str(tmp_path)
 
         try:
             # Act
-            archive_dir = preserve.get_archive_dir()
+            archive_dir = preserve_module.get_archive_dir()
 
             # Assert
             assert archive_dir.exists()

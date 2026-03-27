@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ import pytest
 # Add hooks directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
+import tool_output_summarizer as summarizer  # noqa: E402
 from tool_output_summarizer import (  # noqa: E402
     BLOAT_WARNING_THRESHOLD,
     assess_output_bloat,
@@ -161,10 +163,6 @@ class TestToolOutputSummarizer:
         Then None is returned
         """
         # Arrange - set CLAUDE_HOME to temp directory without projects
-        import os  # noqa: PLC0415
-
-        import tool_output_summarizer as summarizer  # noqa: PLC0415
-
         original_env = os.environ.get("CLAUDE_HOME")
         os.environ["CLAUDE_HOME"] = str(tmp_path)
 
@@ -188,10 +186,6 @@ class TestToolOutputSummarizer:
         When resolve_session_file is called with CLAUDE_SESSION_ID
         Then the matching file is returned
         """
-        import os  # noqa: PLC0415
-
-        import tool_output_summarizer as summarizer  # noqa: PLC0415
-
         # Arrange - create project structure
         projects_dir = tmp_path / "projects"
         projects_dir.mkdir()

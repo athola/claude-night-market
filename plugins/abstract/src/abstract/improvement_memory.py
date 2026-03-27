@@ -13,11 +13,23 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from .utils import safe_json_load
+
+
+@dataclass
+class ImprovementOutcome:
+    """Data for a single improvement attempt."""
+
+    version: str
+    change_summary: str
+    before_score: float
+    after_score: float
+    hypothesis: str | None = None
 
 
 def _warn(message: str) -> None:
@@ -136,14 +148,10 @@ class ImprovementMemory:
         self._save()
         return True
 
-    def record_improvement_outcome(  # noqa: PLR0913
+    def record_improvement_outcome(
         self,
         skill_ref: str,
-        version: str,
-        change_summary: str,
-        before_score: float,
-        after_score: float,
-        hypothesis: str | None = None,
+        outcome: ImprovementOutcome,
     ) -> None:
         """Record the outcome of an improvement attempt.
 
@@ -151,7 +159,7 @@ class ImprovementMemory:
         hypothesis for why it worked or failed. Auto-classifies as
         success (after > before), failure (after < before), or neutral.
         """
-        improvement = after_score - before_score
+        improvement = outcome.after_score - outcome.before_score
         if improvement > 0:
             outcome_type = "success"
         elif improvement < 0:
@@ -160,12 +168,12 @@ class ImprovementMemory:
             outcome_type = "neutral"
 
         entry: dict[str, Any] = {
-            "version": version,
-            "change_summary": change_summary,
-            "before_score": before_score,
-            "after_score": after_score,
+            "version": outcome.version,
+            "change_summary": outcome.change_summary,
+            "before_score": outcome.before_score,
+            "after_score": outcome.after_score,
             "improvement": improvement,
-            "hypothesis": hypothesis,
+            "hypothesis": outcome.hypothesis,
             "timestamp": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
             "outcome_type": outcome_type,
         }
