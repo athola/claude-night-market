@@ -52,7 +52,7 @@ responding to compromised packages in Python ecosystems.
 
 ## Known-Bad Versions Blocklist
 
-The blocklist lives at `known-bad-versions.json` alongside this skill.
+The blocklist lives at `${CLAUDE_SKILL_DIR}/known-bad-versions.json`.
 It is consumed by:
 
 1. **SessionStart hook** — warns per-session when compromised versions detected
@@ -76,7 +76,7 @@ It is consumed by:
 
 ### Adding a New Entry
 
-1. Add the entry to `known-bad-versions.json`
+1. Add the entry to `${CLAUDE_SKILL_DIR}/known-bad-versions.json`
 2. Add version exclusions (`!=x.y.z`) to affected `pyproject.toml` files
 3. Document in `docs/dependency-audit.md` under Supply Chain Incidents
 4. Run `make supply-chain-scan` to verify detection works

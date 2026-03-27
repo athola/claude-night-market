@@ -6,12 +6,7 @@ released in March 2026.
 > **See Also**:
 > [Features Index](compatibility-features.md) |
 > [March 2026 Early](compatibility-features-march2026-early.md) |
-> [February 2026 Early](compatibility-features-feb2026-early.md) |
-> [February 2026 Late](compatibility-features-feb2026-late.md) |
-> [January 2026](compatibility-features-jan2026.md) |
-> [Plugin Compatibility](compatibility-features-plugin-compat.md) |
-> [Reference](compatibility-reference.md) |
-> [2025 Archive](compatibility-features-2025.md)
+> [Plugin Compatibility](compatibility-features-plugin-compat.md)
 
 ## Feature Timeline
 
@@ -25,8 +20,10 @@ released in March 2026.
     alongside scripts, data files, or modules. No more hardcoded
     absolute paths.
   - **Affected**: abstract:skill-authoring (updated with CLAUDE_SKILL_DIR
-    section and usage examples)
-  - **Action Required**: Done - skill-authoring SKILL.md updated
+    section and usage examples), leyline:supply-chain-advisory (adopted
+    for `known-bad-versions.json` path reference)
+  - **Action Required**: Done - skill-authoring and
+    supply-chain-advisory updated
 
 - ✅ **Skill Description Colon Fix**: Skill descriptions containing colons
   (e.g., `"Triggers include: X, Y, Z"`) no longer fail to load. Skills
@@ -141,6 +138,50 @@ released in March 2026.
   - **Affected**: abstract model-optimization-guide (noted in Sonnet
     migration section)
   - **Action Required**: Done - included in model migration note
+
+- ✅ **Hook Template Collision Fix**: Plugin hooks were silently
+  dropped when two plugins used the same `${CLAUDE_PLUGIN_ROOT}/...`
+  command template string. Now both fire correctly.
+  - **Impact**: Two collisions exist in our ecosystem:
+    (1) conserve + memory-palace both use
+    `${CLAUDE_PLUGIN_ROOT}/hooks/setup.sh` for Setup events;
+    (2) conserve + imbue both use
+    `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` for
+    SessionStart events. Before 2.1.69, one hook from each
+    pair was silently dropped. Both now run.
+  - **Affected**: conserve, memory-palace, imbue hooks
+  - **Action Required**: None needed on 2.1.69+. Users on
+    older versions may experience missing hook behavior.
+
+- ✅ **`InstructionsLoaded` Hook Event**: New hook event that fires
+  when CLAUDE.md or `.claude/rules/*.md` files load into context
+  - **Impact**: Enables plugins to react to instruction loading
+    (logging, validation, context-aware setup)
+  - **Affected**: None - no current use case, documented for
+    future adoption
+  - **Action Required**: None
+
+- ✅ **Plugin Stop/SessionEnd Hook Fix**: These hooks were not firing
+  after `/plugin` operations (install, uninstall, update)
+  - **Impact**: Lifecycle cleanup hooks now run reliably
+  - **Affected**: memory-palace (Stop hook for session_lifecycle.py),
+    egregore (Stop hook)
+  - **Action Required**: None - hooks now fire correctly
+
+- ✅ **`/clear` Session Cache Fix**: `/clear` now fully clears all
+  session caches, reducing memory retention
+  - **Impact**: conserve:clear-context workflow benefits; less stale
+    state after `/clear` invocations
+  - **Affected**: conserve clear-context skill
+  - **Action Required**: None - automatic improvement
+
+- ✅ **Concise Subagent Reports**: Multi-agent tasks produce more
+  concise final reports, reducing token usage
+  - **Impact**: All parallel agent dispatch workflows (do-issue,
+    execute-plan, dispatching-parallel-agents) benefit from
+    reduced token consumption on agent results
+  - **Affected**: All agent-dispatching skills
+  - **Action Required**: None - automatic improvement
 
 ### Claude Code 2.1.71 (March 2026)
 
