@@ -18,6 +18,7 @@ tags:
 - orchestration
 dependencies: []
 estimated_tokens: 800
+model_hint: standard
 ---
 ## Table of Contents
 

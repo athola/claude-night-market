@@ -24,6 +24,7 @@ usage_patterns:
 - derivation-verification
 - stability-assessment
 complexity: advanced
+model_hint: deep
 estimated_tokens: 200
 progressive_loading: true
 dependencies:

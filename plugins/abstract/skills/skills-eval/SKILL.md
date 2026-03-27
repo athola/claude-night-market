@@ -54,6 +54,7 @@ usage_patterns:
 - compliance-reporting
 - performance-benchmarking
 complexity: advanced
+model_hint: deep
 evaluation_criteria:
   structure_compliance: 25
   metadata_quality: 20

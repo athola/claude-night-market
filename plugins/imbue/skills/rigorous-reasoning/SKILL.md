@@ -20,6 +20,7 @@ tags:
 dependencies:
 - imbue:proof-of-work
 tools: []
+model_hint: deep
 ---
 ## Table of Contents
 

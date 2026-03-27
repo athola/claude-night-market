@@ -40,6 +40,7 @@ modules:
   - modules/budget.md
   - modules/intake.md
   - modules/decisions.md
+model_hint: standard
 ---
 ## Table of Contents
 

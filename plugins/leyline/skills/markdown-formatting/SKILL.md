@@ -17,6 +17,7 @@ tags:
   - style
 tools: []
 complexity: low
+model_hint: fast
 estimated_tokens: 800
 progressive_loading: true
 modules:

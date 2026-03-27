@@ -33,6 +33,7 @@ usage_patterns:
 - unified-execution
 - configuration-management
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 550
 progressive_loading: true
 modules:

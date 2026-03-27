@@ -31,6 +31,7 @@ usage_patterns:
 - usage-analytics
 - session-management
 complexity: beginner
+model_hint: fast
 estimated_tokens: 450
 progressive_loading: true
 modules:

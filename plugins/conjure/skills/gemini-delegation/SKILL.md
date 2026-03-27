@@ -22,6 +22,7 @@ usage_patterns:
 - large-context-analysis
 - batch-processing
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:

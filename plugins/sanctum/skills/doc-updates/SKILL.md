@@ -22,6 +22,7 @@ tools:
 - Bash
 - TodoWrite
 complexity: medium
+model_hint: standard
 estimated_tokens: 1200
 progressive_loading: true
 modules:

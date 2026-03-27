@@ -20,6 +20,7 @@ tools:
 - Bash
 - TodoWrite
 complexity: medium
+model_hint: standard
 estimated_tokens: 700
 dependencies:
 - sanctum:shared

@@ -12,6 +12,7 @@ tools:
   - Bash
   - Write
   - Read
+model_hint: standard
 ---
 # Install Watchdog
 

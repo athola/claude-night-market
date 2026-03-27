@@ -24,6 +24,7 @@ usage_patterns:
 - portability-review
 - deduplication
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 150
 progressive_loading: true
 dependencies:

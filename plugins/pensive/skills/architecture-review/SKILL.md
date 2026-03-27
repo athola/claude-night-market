@@ -24,6 +24,7 @@ usage_patterns:
 - refactor-review
 - design-validation
 complexity: advanced
+model_hint: deep
 estimated_tokens: 300
 progressive_loading: true
 dependencies:

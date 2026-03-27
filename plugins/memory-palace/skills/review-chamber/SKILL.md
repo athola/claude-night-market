@@ -11,6 +11,7 @@ usage_patterns:
 dependencies:
 - memory-palace:knowledge-intake
 - sanctum:pr-review
+model_hint: standard
 ---
 ## Table of Contents
 

@@ -24,6 +24,7 @@ usage_patterns:
 - risk-assessment
 - release-preparation
 complexity: intermediate
+model_hint: standard
 progressive_loading: true
 module_strategy: workflow-based
 estimated_tokens: 800

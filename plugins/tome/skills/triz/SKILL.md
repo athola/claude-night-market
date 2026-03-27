@@ -16,6 +16,7 @@ tags:
   - analogy
   - altshuller
 estimated_tokens: 300
+model_hint: standard
 ---
 # TRIZ Cross-Domain Analysis
 

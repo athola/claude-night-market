@@ -24,6 +24,7 @@ usage_patterns:
 - fix-preparation
 - verification-planning
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 450
 progressive_loading: true
 dependencies:

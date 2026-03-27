@@ -15,6 +15,7 @@ tags:
   - blogs
   - discourse
 estimated_tokens: 200
+model_hint: standard
 ---
 # Discourse Search
 

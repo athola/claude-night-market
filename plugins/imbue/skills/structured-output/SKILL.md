@@ -22,6 +22,7 @@ usage_patterns:
 - report-structure
 - consistent-output
 complexity: beginner
+model_hint: fast
 estimated_tokens: 1000
 ---
 ## Table of Contents

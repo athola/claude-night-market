@@ -27,6 +27,7 @@ usage_patterns:
 - test-refactoring
 - ci-cd-integration
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 900
 progressive_loading: true
 modules:

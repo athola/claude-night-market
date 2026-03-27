@@ -24,6 +24,7 @@ usage_patterns:
 - adr-support
 - infrastructure-migration
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 1200
 ---
 # The Hexagonal (Ports & Adapters) Paradigm

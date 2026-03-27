@@ -30,6 +30,7 @@ usage_patterns:
 - incident-response
 - supply-chain-audit
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 500
 progressive_loading: true
 modules:

@@ -25,6 +25,7 @@ usage_patterns:
 - adr-support
 - testability-improvement
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 1200
 ---
 # The Functional Core, Imperative Shell Paradigm

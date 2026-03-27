@@ -25,6 +25,7 @@ usage_patterns:
 - auditability
 - scalability-optimization
 complexity: high
+model_hint: deep
 estimated_tokens: 800
 ---
 # The CQRS and Event Sourcing Paradigm

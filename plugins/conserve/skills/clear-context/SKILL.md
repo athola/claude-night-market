@@ -16,6 +16,7 @@ hooks:
     command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
 
       '
+model_hint: standard
 ---
 ## Table of Contents
 

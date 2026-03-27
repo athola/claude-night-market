@@ -20,6 +20,7 @@ tags:
   - character
 tools: []
 complexity: low
+model_hint: fast
 estimated_tokens: 1800
 progressive_loading: true
 dependencies: []

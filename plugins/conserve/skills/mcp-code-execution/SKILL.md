@@ -16,6 +16,7 @@ dependencies:
   - mcp-subagents
   - mcp-patterns
   - mcp-validation
+model_hint: standard
 ---
 ## Table of Contents
 

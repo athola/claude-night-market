@@ -36,6 +36,7 @@ usage_patterns:
 - mission-resume
 - phase-routing
 complexity: advanced
+model_hint: deep
 estimated_tokens: 600
 progressive_loading: true
 modules:
