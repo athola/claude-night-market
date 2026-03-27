@@ -21,6 +21,7 @@ addopts = "-v --tb=short"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "bdd: Behavior-driven development style tests",
 ]
 
 [tool.coverage.run]
