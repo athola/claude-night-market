@@ -78,12 +78,13 @@ correctly.
 
 ### Cron Scheduling Tools (2.1.71+)
 
-Three new built-in tools for session-scoped scheduled
-tasks: `CronCreate`, `CronList`, `CronDelete`. These
-appear as tool names in `PreToolUse`/`PostToolUse`
-events. The `/loop` command uses `CronCreate`
-internally. Sessions can hold up to 50 scheduled tasks.
-Disable with `CLAUDE_CODE_DISABLE_CRON=1`.
+Three new built-in tools for scheduled tasks:
+`CronCreate`, `CronList`, `CronDelete`. These appear as
+tool names in `PreToolUse`/`PostToolUse` events. The
+`/loop` command uses `CronCreate` internally. Sessions
+hold up to 50 tasks with 7-day auto-expiry. Set
+`durable: true` to persist across restarts. Disable with
+`CLAUDE_CODE_DISABLE_CRON=1`.
 
 ### Bash Allowlist and Heredoc Fixes (2.1.71+)
 
@@ -95,6 +96,147 @@ auto-approval allowlist. These no longer trigger
 Compound bash commands containing heredoc commit
 messages no longer trigger false-positive permission
 prompts.
+
+### ExitWorktree Tool (2.1.72+)
+
+New `ExitWorktree` tool leaves an `EnterWorktree`
+session mid-conversation. Actions: `"keep"` (preserve
+worktree) or `"remove"` (delete). Appears as a tool
+name in `PreToolUse`/`PostToolUse` events.
+
+### Bash Allowlist Expansion (2.1.72+)
+
+Added `lsof`, `pgrep`, `tput`, `ss`, `fd`, `fdfind`
+to the auto-approval allowlist. These no longer trigger
+`PermissionRequest` events.
+
+### Skill Hook Double-Fire Fix (2.1.72+)
+
+Skill hooks no longer fire twice per event when a
+hooks-enabled skill is invoked by the model. Previously
+both the skill's hooks and the plugin's hooks would
+fire, producing duplicate events.
+
+### Hooks Fixes (2.1.72+)
+
+- `transcript_path` now points to the correct directory
+  for resumed and forked sessions
+- Agent prompt no longer silently deleted from
+  `settings.json` on every settings write
+- `PostToolUse` block reason no longer displays twice
+- Async hooks now receive stdin with `bash read -r`
+
+### CLAUDE.md Comment Hiding (2.1.72+)
+
+HTML comments (`<!-- ... -->`) in CLAUDE.md files are
+hidden from Claude when auto-injected into context.
+Comments remain visible when read with the Read tool.
+Use comments for human-only notes that should not
+consume context tokens.
+
+### Parallel Tool Call Behavior (2.1.72+)
+
+A failed `Read`, `WebFetch`, or `Glob` no longer
+cancels its sibling tool calls. Only `Bash` errors
+cascade. This improves reliability of parallel agent
+dispatch and multi-file operations.
+
+### Hook Source Display (2.1.75+)
+
+When a hook requires confirmation, the permission prompt
+now shows the source: `settings`, `plugin`, or `skill`.
+This helps users audit which component triggered the
+permission request.
+
+### Async Hook Messages Suppressed (2.1.75+)
+
+Async hook completion messages are suppressed by default.
+Visible via `--verbose`, transcript mode, or `Ctrl+O`.
+
+### Hook Conditional `if` Field (2.1.85+)
+
+| Field | Type | Scope | Purpose |
+|-------|------|-------|---------|
+| `if` | string | Tool events only | Permission rule syntax filter (e.g., `"Bash(git *)"`) |
+
+Reduces process spawning by evaluating conditions
+in-process before subprocess creation.
+
+### StopFailure Hook (2.1.78+)
+
+Non-blockable. Matcher on error type. For logging/alerts.
+
+### TaskCreated Hook (2.1.84+)
+
+Blockable. No matcher. For task audit/policy enforcement.
+
+### CwdChanged/FileChanged Hooks (2.1.83+)
+
+Both non-blockable. CwdChanged: no matcher. FileChanged:
+matcher on filename. Both have CLAUDE_ENV_FILE access.
+
+### PreToolUse "allow" Bypass Fix (2.1.77+)
+
+Hook `"allow"` decisions no longer bypass `deny` rules.
+Precedence: managed deny > hook deny > permission deny >
+hook allow > permission allow.
+
+### MCP Elicitation Hooks (2.1.76+)
+
+| Event | Trigger | Blockable | Matcher |
+|-------|---------|-----------|---------|
+| `Elicitation` | MCP server requests input | Yes | `mcp_server_name` |
+| `ElicitationResult` | User responds to elicitation | Yes | `mcp_server_name` |
+
+Both support `hookSpecificOutput` to auto-fill, override,
+or validate responses. `Elicitation` input includes
+`form_schema` (MCP `requestedSchema`).
+`ElicitationResult` input includes `action` and
+`content`.
+
+### PostCompact Hook (2.1.76+)
+
+Fires after context compaction completes. Non-blockable.
+Matcher filters on `trigger` (`"manual"` or `"auto"`).
+Input includes `compact_summary`. Use to re-inject
+framework instructions that were paraphrased during
+compaction.
+
+### SessionEnd Hooks Timeout Fix (2.1.74+)
+
+SessionEnd hooks were killed after 1.5 seconds on exit
+regardless of `hook.timeout`. Now configurable via
+`CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` env var.
+
+### New Hook Events (2.1.74+)
+
+Documentation now includes additional event types:
+
+| Event | Trigger | Blockable |
+|-------|---------|-----------|
+| `CwdChanged` | Working directory changes | No |
+| `FileChanged` | Watched file changes | No |
+| `PostCompact` | After context compaction | No |
+| `TaskCreated` | Task created | Yes |
+| `StopFailure` | API error occurred | No |
+| `Elicitation` | MCP server requests input | Yes |
+| `ElicitationResult` | User responds to elicitation | No |
+
+### SessionStart Resume Fix (2.1.73+)
+
+SessionStart hooks previously fired twice when resuming
+a session via `--resume` or `--continue`. Now they fire
+exactly once. The `source` field in hook input
+distinguishes: `"startup"`, `"resume"`, `"clear"`, or
+`"compact"`.
+
+### JSON-Output Hooks Fix (2.1.73+)
+
+JSON-output hooks previously injected no-op
+system-reminder messages into the model's context on
+every turn, wasting tokens. Fixed: hooks using JSON
+output format no longer produce spurious context
+injections.
 
 ### HTTP Hooks (2.1.63+)
 

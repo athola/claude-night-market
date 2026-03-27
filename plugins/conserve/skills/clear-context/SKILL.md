@@ -253,6 +253,8 @@ If Task tool is unavailable (permissions, context restrictions):
 
 > **Fixed in 2.1.63**: `/clear` now properly resets cached skills. Previously, stale skill content could persist into the new conversation. The `/clear` + `/catchup` pattern is now fully reliable.
 
+> **Fixed in 2.1.72**: `/clear` now only clears foreground tasks. Background agent and bash tasks continue running. Previously, `/clear` would kill all tasks including background ones, which was problematic for long-running background agents that should survive context resets.
+
 ## Integration with Existing Hooks
 
 This skill works with `context_warning.py` hook:

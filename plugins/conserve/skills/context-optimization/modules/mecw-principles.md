@@ -81,8 +81,16 @@ This complements our MECW thresholds:
 
 ### 1M Context Window (GA, March 2025)
 
-1M tokens is now generally available for Opus 4.6 and
+1M tokens is generally available for Opus 4.6 and
 Sonnet 4.6 at standard pricing (no long-context premium).
+
+**Default on Max/Team/Enterprise (2.1.75+)**: Opus 4.6
+now defaults to 1M context on Max, Team, and Enterprise
+plans with no extra usage required. Previously, the 1M
+window required extra usage credits. Opt out with
+`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`. Media capacity
+expands to 600 images or PDF pages (was 100).
+
 MECW thresholds scale proportionally:
 
 | Context Window | 30% (Optimal) | 50% (MECW Limit) | 80% (Emergency) |
@@ -167,12 +175,168 @@ in 2.1.71: failed image processing no longer injects
 oversized data into context. This protects MECW
 compliance in sessions that read many images.
 
+### Prompt Cache Fix (2.1.72+)
+
+Fixed prompt cache invalidation in SDK `query()` calls,
+reducing input token costs up to 12x for workflows
+using the Agent SDK or programmatic Claude Code
+invocations. Sessions with heavy SDK usage benefit
+most from this fix.
+
 ### Resume Token Savings (2.1.70+)
 
 Skill listings are no longer re-injected on every
 `--resume` invocation, saving ~600 tokens per resume.
 This improves context efficiency for workflows that
 frequently resume sessions.
+
+### `/context` Actionable Suggestions (2.1.74+)
+
+The `/context` command now identifies context-heavy
+tools, memory bloat, and capacity warnings with specific
+optimization tips. Instead of just showing a breakdown,
+it recommends actions such as compacting to reclaim
+tokens, disabling unused MCP servers, or clearing stale
+context. This makes `/context` a diagnostic tool that
+directly supports MECW optimization workflows.
+
+Use `/context` at natural breakpoints to get targeted
+recommendations rather than manually analyzing the
+breakdown.
+
+### Output Style Prompt Cache Improvement (2.1.73+)
+
+`/output-style` is deprecated; use `/config` instead.
+Output style is now fixed at session start, preventing
+mid-session style changes from invalidating the prompt
+cache. This improves cache hit rates for sessions that
+previously changed output style between turns. Set your
+preferred output style via `/config` before starting
+work to maximize cache reuse throughout the session.
+
+### `/compact` Context Exceeded Fix (2.1.85+)
+
+Fixed `/compact` failing when the conversation is too
+large for the compact request itself to fit within the
+remaining context. Previously a deadlock: compaction
+needed most when it could not run. Now handles the edge
+case, preventing forced `/clear` with total context loss.
+
+### MCP Tool Description Cap (2.1.84+)
+
+MCP tool descriptions and server instructions capped at
+2KB to prevent OpenAPI-generated servers from bloating
+context. Duplicate servers (local + claude.ai connectors)
+are deduplicated: local config wins. This protects MECW
+compliance for sessions using many MCP servers.
+
+### Idle-Return Prompt (2.1.84+)
+
+When returning after 75+ minutes of inactivity, Claude
+Code nudges the user to `/clear`. Sessions idle that
+long have expired prompt caches, so continued use wastes
+tokens re-caching stale context. The nudge supports the
+Plan-Clear-Implement pattern.
+
+### System-Prompt Caching Fix (2.1.84+)
+
+Global system-prompt caching now works when ToolSearch
+is enabled, including for users with MCP tools. This
+improves cache hit rates and reduces input token costs
+for sessions loading deferred tools.
+
+### MEMORY.md 25KB Truncation (2.1.83+)
+
+MEMORY.md auto-memory loads the first 200 lines or 25KB
+(whichever first) per session. Content beyond the limit
+is not injected. Move detailed notes to separate topic
+files that are read on demand. CLAUDE.md files are still
+loaded in full.
+
+### Progress Message Memory Fix (2.1.77+)
+
+Intermediate progress messages (status updates during
+tool execution) were not removed during compaction,
+causing unbounded memory growth in long sessions. Now
+properly excluded from compacted conversation history.
+Critical for egregore orchestration and agent team
+workflows that run for extended periods with many tool
+invocations.
+
+### Output Token Limit Impact on MECW (2.1.77+)
+
+Opus 4.6 default max output raised to 64k tokens (was
+32k). Upper bound raised to 128k for Opus 4.6 and
+Sonnet 4.6. Larger output limits reduce the effective
+context window available before auto-compaction triggers.
+Factor this into MECW calculations: a 128k max output
+on a 1M context window means auto-compaction may trigger
+at ~870k tokens instead of ~935k.
+
+### Deferred Tools Schema Fix (2.1.76+)
+
+Deferred tools (loaded via `ToolSearch`) previously lost
+their input schemas after compaction. The schemas existed
+only in conversation context, not in the persistent tool
+registry. After compaction, the summarized context no
+longer contained raw schemas, causing array and number
+parameters to be rejected with type errors. Affected
+tools: `CronCreate`, `TaskCreate`, `WebFetch`,
+`WebSearch`, `NotebookEdit`, `ExitWorktree`, and MCP
+tools. Pre-loaded tools (Bash, Read, Edit, etc.) were
+not affected. Schemas are now persisted in the registry
+and survive compaction.
+
+### Auto-Compaction Circuit Breaker (2.1.76+)
+
+Auto-compaction previously retried indefinitely after
+consecutive failures (API error, timeout, malformed
+summary), locking up the session in a compaction loop.
+A circuit breaker now stops after 3 consecutive failures.
+The session continues without compaction, allowing manual
+intervention (`/clear`, `/compact`, or continue working).
+The failure counter resets on a successful compaction.
+
+### Context Limit Fix with `model:` Frontmatter (2.1.76+)
+
+Skills with `model:` frontmatter (e.g., `model: sonnet`)
+no longer trigger spurious "Context limit reached" on 1M
+sessions. The context limit check was using the
+frontmatter model's default window (200K for Sonnet)
+instead of the session's actual window (1M). Sessions
+with >200K tokens loaded would falsely trigger the
+check. Now uses the session's actual context window size.
+
+This is particularly relevant for plugin skills using
+`model_hint` routing, where skills may temporarily
+switch to a different model for execution.
+
+### Token Estimation Fix (2.1.75+)
+
+Fixed token estimation over-counting for `thinking` and
+`tool_use` blocks, which triggered premature context
+compaction. The estimator inflated the apparent size of
+these block types, causing the system to compact earlier
+than necessary. Sessions now use more of their available
+context window before compaction kicks in.
+
+This is particularly significant for Opus 4.6 with
+extended thinking enabled, where thinking blocks can be
+substantial. Previous thinking blocks are automatically
+stripped from the context window by the API and should
+not count toward the active window, but the estimation
+bug was including them. Combined with the 1M default
+(2.1.75+), this fix means Max/Team/Enterprise users
+experience far fewer compaction interruptions.
+
+### JSON-Output Hook Token Savings (2.1.73+)
+
+JSON-output hooks previously injected no-op
+system-reminder messages into the model's context on
+every turn, wasting tokens. Fixed in 2.1.73: hooks
+using JSON output format no longer produce spurious
+context injections. Sessions using multiple JSON-output
+hooks benefit most from this fix.
 
 **"Summarize from here" (2.1.32+)**: Partial conversation summarization via the message selector provides a manual middle ground between `/compact` (full) and `/new` (clean slate). Use when only older context is stale.
 - **Conservation plugin** provides proactive optimization recommendations when approaching thresholds

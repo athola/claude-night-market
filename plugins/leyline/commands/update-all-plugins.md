@@ -83,6 +83,76 @@ This command currently has no options. It updates all plugins from all marketpla
 - If updates fail with git timeout errors, set
   `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` (default: 120s,
   increased from 30s in 2.1.51)
+- Marketplace git URLs without `.git` suffix now
+  supported (2.1.72+), enabling Azure DevOps and AWS
+  CodeCommit repos
+- Marketplace clone failures now show diagnostic info
+  even when git produces no stderr (2.1.72+)
+- Fixed: installation failing on Windows with EEXIST
+  error in OneDrive folders (2.1.72+)
+- Fixed: marketplace blocking user-scope installs when
+  a project-scope install exists (2.1.72+)
+- Fixed: `CLAUDE_CODE_PLUGIN_CACHE_DIR` creating literal
+  `~` directories instead of expanding home (2.1.72+)
+- Fixed: plugin.json with marketplace-only fields
+  failing to load (2.1.72+)
+- Fixed: marketplace update not syncing git submodules;
+  plugin sources in submodules no longer break after
+  update (2.1.74+)
+- Fixed: `/plugin install` failing inside the REPL for
+  marketplace plugins with local sources (2.1.74+)
+- `--plugin-dir` local dev copies now override installed
+  marketplace plugins with the same name (2.1.74+),
+  unless force-enabled by managed settings. Developers
+  no longer need to uninstall the marketplace version
+  before testing local copies.
+- Fixed: managed-disabled plugins (force-disabled by
+  organization) no longer appear in `/plugin` Installed
+  tab (2.1.75+). They are now hidden entirely.
+- Fixed: corrupted marketplace configuration path
+  handling (2.1.75+)
+- Async hook completion messages (e.g., "Async hook
+  UserPromptSubmit completed") are now suppressed by
+  default (2.1.75+). Use `--verbose` or `Ctrl+O` to
+  see them.
+- **Breaking change (2.1.75+)**: Removed deprecated
+  Windows managed settings fallback at
+  `C:\ProgramData\ClaudeCode\managed-settings.json`.
+  Organizations must use
+  `C:\Program Files\ClaudeCode\managed-settings.json`.
+- Fixed: LSP servers not registering when the LSP
+  Manager initialized before marketplace reconciliation
+  completed (2.1.76+)
+- `--plugin-dir` now accepts only one path per flag
+  invocation (2.1.76+). Use repeated `--plugin-dir`
+  for multiple directories. Previously accepted
+  colon-separated paths.
+- Fixed: git-subdir plugins at different subdirectories
+  of the same monorepo commit no longer collide in the
+  plugin cache (2.1.77+)
+- `claude plugin validate` now checks skill, agent, and
+  command frontmatter plus `hooks/hooks.json`, catching
+  YAML parse errors and schema violations (2.1.77+).
+  Previously only checked `plugin.json` structure.
+- Headless mode plugin installation now composes
+  correctly with `CLAUDE_CODE_PLUGIN_SEED_DIR` for
+  containerized environments (2.1.77+)
+- `${CLAUDE_PLUGIN_DATA}` variable for persistent plugin
+  state surviving updates (2.1.78+). `/plugin uninstall`
+  prompts before deletion; `--keep-data` preserves it.
+- `CLAUDE_CODE_PLUGIN_SEED_DIR` supports multiple
+  directories via platform path delimiter (2.1.79+)
+- `source: 'settings'` plugin marketplace source for
+  inline plugin entries in settings.json (2.1.80+)
+- `managed-settings.d/` drop-in directory alongside
+  `managed-settings.json` for independent policy
+  fragments (2.1.83+). Files merge alphabetically.
+- Plugin options (`manifest.userConfig`) with keychain
+  storage for sensitive values (2.1.83+). Prompted at
+  enable time. Available as `${user_config.KEY}`.
+- Plugins blocked by organization policy
+  (`blockedMarketplaces`, `strictKnownMarketplaces`)
+  hidden from marketplace views (2.1.85+)
 
 ## Auto-Update Configuration (2.0.70+)
 

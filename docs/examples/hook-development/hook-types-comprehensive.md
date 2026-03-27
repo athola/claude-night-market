@@ -57,11 +57,15 @@ fire correctly.
 ### Cron Scheduling Tools (2.1.71+)
 
 New built-in tools `CronCreate`, `CronList`,
-`CronDelete` for session-scoped scheduled tasks. These
-appear as tool names in `PreToolUse`/`PostToolUse`
+`CronDelete` for scheduled tasks. `CronCreate` accepts
+`cron`, `prompt`, `recurring` (default true), and
+`durable` (default false; true persists across
+restarts). These appear as tool names in
+`PreToolUse`/`PostToolUse`
 events. Sessions support up to 50 scheduled tasks with
-3-day auto-expiry. Disable with
-`CLAUDE_CODE_DISABLE_CRON=1`.
+7-day auto-expiry. Set `durable: true` to persist tasks
+across restarts via `.claude/scheduled_tasks.json`.
+Disable with `CLAUDE_CODE_DISABLE_CRON=1`.
 
 ### Bash Allowlist and Heredoc Fixes (2.1.71+)
 
@@ -70,6 +74,103 @@ Added `fmt`, `comm`, `cmp`, `numfmt`, `expr`, `test`,
 auto-approval allowlist. Heredoc commit messages in
 compound commands no longer trigger false-positive
 permission prompts.
+
+### ExitWorktree Tool (2.1.72+)
+
+New `ExitWorktree` tool leaves an `EnterWorktree`
+session. Actions: `"keep"` or `"remove"`. Appears in
+`PreToolUse`/`PostToolUse` events. Worktree isolation
+fixes: Task tool resume restores CWD, background task
+notifications include `worktreePath`/`worktreeBranch`.
+
+### Bash Allowlist Expansion (2.1.72+)
+
+Added `lsof`, `pgrep`, `tput`, `ss`, `fd`, `fdfind`.
+
+### Hooks Fixes (2.1.72+)
+
+- Skill hooks no longer fire twice when a hooks-enabled
+  skill is invoked (duplicate event fix)
+- `transcript_path` correct for resumed/forked sessions
+- Agent prompt not deleted from settings.json on writes
+- `PostToolUse` block reason no longer doubled
+- Async hooks receive stdin with `bash read -r`
+- CLAUDE.md HTML comments hidden from auto-injection
+  (visible via Read tool only)
+- Parallel tool calls: only Bash errors cascade (Read,
+  WebFetch, Glob failures no longer cancel siblings)
+
+### Hook Source Display (2.1.75+)
+
+Permission prompts now show hook source: `settings`,
+`plugin`, or `skill`.
+
+### Async Hook Messages Suppressed (2.1.75+)
+
+Async hook completion messages suppressed by default.
+Visible via `--verbose`, transcript mode, or `Ctrl+O`.
+
+### Hook `if` Field (2.1.85+)
+
+Permission rule syntax filter on tool events. Reduces
+process spawning. Example: `"if": "Bash(git *)"`.
+
+### StopFailure Hook (2.1.78+)
+
+Non-blockable. Matcher on error type.
+
+### TaskCreated Hook (2.1.84+)
+
+Blockable. No matcher. Task audit/policy enforcement.
+
+### CwdChanged/FileChanged Hooks (2.1.83+)
+
+Both non-blockable. CLAUDE_ENV_FILE access.
+
+### PreToolUse "allow" Bypass Fix (2.1.77+)
+
+Hook `"allow"` no longer bypasses `deny` rules.
+Managed deny > hook deny > permission deny > hook allow.
+
+### MCP Elicitation Hooks (2.1.76+)
+
+`Elicitation` (blockable): fires on MCP
+`elicitation/create`. `ElicitationResult` (blockable):
+fires after user responds. Both support
+`hookSpecificOutput` for auto-fill/override. Matcher
+filters on `mcp_server_name`.
+
+### PostCompact Hook (2.1.76+)
+
+Fires after compaction. Non-blockable. Matcher filters
+on `trigger` (`"manual"`/`"auto"`). Input includes
+`compact_summary`.
+
+### SessionEnd Hooks Timeout Fix (2.1.74+)
+
+SessionEnd hooks were killed after 1.5s on exit
+regardless of `hook.timeout`. Now configurable via
+`CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` env var.
+
+### New Hook Events (2.1.74+)
+
+New events: `CwdChanged`, `FileChanged`, `PostCompact`,
+`TaskCreated` (blockable), `StopFailure`, `Elicitation`
+(blockable), `ElicitationResult`.
+
+### SessionStart Resume Fix (2.1.73+)
+
+SessionStart hooks previously fired twice when resuming
+via `--resume` or `--continue`. Now they fire once. The
+`source` field distinguishes session types: `"startup"`,
+`"resume"`, `"clear"`, `"compact"`.
+
+### JSON-Output Hooks Fix (2.1.73+)
+
+JSON-output hooks no longer inject no-op system-reminder
+messages into model context on every turn. Hooks using
+JSON output format produce clean context without
+spurious injections.
 
 ### Security: Workspace Trust (2.1.51+)
 
