@@ -26,7 +26,17 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.linkedin.com/in/alexthola
+  https://docs.litellm.ai/blog/security-update-march-2026:
+    content_hash: sha256:2b1bf022625ba38f
+    stored_at: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
+    importance_score: 50
+    last_updated: '2026-03-27T12:42:39.703486+00:00'
+    title: LiteLLM Security Update Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.litellm.ai/blog/security-update-march-2026
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
   sha256:e048937b2b5db0ab: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
+  sha256:2b1bf022625ba38f: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md

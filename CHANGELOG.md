@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session-replay skill and command in scribe: converts
   Claude Code and Codex session JSONL files into
   GIF/MP4/WebM replays via VHS tape generation
+- Supply chain security in leyline: `supply-chain-advisory`
+  skill, `supply_chain_check` SessionStart hook, and
+  `make supply-chain-scan` target for detecting known
+  compromised package versions in lockfiles
+- Known-bad-versions blocklist (`known-bad-versions.json`)
+  with LiteLLM 1.82.7/1.82.8 credential stealer entry
 
 ### Fixed
 

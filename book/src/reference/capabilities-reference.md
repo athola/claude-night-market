@@ -137,6 +137,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
+| `supply-chain-advisory` | [leyline](../plugins/leyline.md) | Known-bad version detection, lockfile auditing, incident response |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
 | `summon` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
 | `synthesize` | [tome](../plugins/tome.md) | Research findings synthesis |

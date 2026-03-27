@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["hooks/memory-palace-index.yaml"]

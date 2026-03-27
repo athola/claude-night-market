@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "description": "Known compromised PyPI package versions. Used by supply-chain-advisory skill and SessionStart hook.",
+    "last_updated": "2026-03-27",
+    "format": "package_name -> list of { versions, date, description, indicators, source }"
+  },
+  "litellm": [
+    {
+      "versions": ["1.82.7", "1.82.8"],
+      "date": "2026-03-24",
+      "description": "Compromised maintainer credentials via Trivy supply chain attack. Credential stealer harvesting env vars, SSH keys, cloud credentials, k8s tokens, db passwords.",
+      "indicators": ["litellm_init.pth", "modified proxy_server.py"],
+      "source": "https://docs.litellm.ai/blog/security-update-march-2026",
+      "severity": "critical"
+    }
+  ]
+}

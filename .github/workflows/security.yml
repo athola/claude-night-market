@@ -141,6 +141,7 @@ jobs:
           bandit-report.json
           safety-report.json
           semgrep-report.json
+          osv-report.json
         retention-days: 30
 
     - name: Comment PR with security results

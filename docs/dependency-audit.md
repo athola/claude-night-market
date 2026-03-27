@@ -1,6 +1,6 @@
 # Plugin Dependency Audit
 
-Last updated: 2025-01-23
+Last updated: 2026-03-27
 
 This document tracks external dependencies across plugins,
 their fallback strategies, and documentation status.
@@ -135,6 +135,41 @@ Each plugin (attune, sanctum, spec-kit) has its own copy with:
 
 - [ ] Add dependency documentation to attune plugin template for new plugins
 - [ ] Consider adding a `make check-deps` target to validate fallbacks work
+
+## Supply Chain Incidents
+
+### Incident 1: LiteLLM PyPI Compromise (March 2026)
+
+**Date**: 2026-03-24 (10:39 UTC - 16:00 UTC)
+**Affected versions**: `1.82.7`, `1.82.8` (both removed from PyPI)
+**Attack vector**: Compromised maintainer PyPI credentials (linked to Trivy CI/CD supply chain attack)
+**Payload**: Credential stealer in `proxy_server.py` and `litellm_init.pth` — harvested environment variables, SSH keys, cloud provider credentials, Kubernetes tokens, and database passwords
+**Source**: https://docs.litellm.ai/blog/security-update-march-2026
+
+**Impact on our ecosystem**: None. Only `simple-resume` uses litellm, locked to `1.81.15`.
+Patched with version exclusions: `litellm>=1.0,<2.0,!=1.82.7,!=1.82.8`
+
+**Detection indicators**:
+- Presence of `litellm_init.pth` file in site-packages
+- Lockfile resolving to `1.82.7` or `1.82.8`
+
+**Lessons learned**:
+1. Lockfile hash pinning (uv.lock SHA256) would have caught a tampered reinstall
+2. Version exclusions (`!=`) are a lightweight defense for known-bad releases
+3. Safety/CVE databases lag behind zero-day supply chain attacks — need OSV scanning
+4. Daily CI scans are insufficient for attacks with <6 hour windows — SessionStart hooks provide per-session defense
+
+### Incident Response Checklist
+
+When a supply chain compromise is reported:
+
+1. **Scan all lockfiles** on the machine for affected versions
+2. **Search for malicious artifacts** (e.g., `.pth` files, unexpected scripts)
+3. **Check installed versions** in all `.venv` directories
+4. **Add version exclusions** to `pyproject.toml` for affected packages
+5. **Rotate credentials** if any environment was on a compromised version
+6. **Document the incident** in this file
+7. **Update the blocklist** in `plugins/leyline/skills/supply-chain-advisory/known-bad-versions.json`
 
 ## Guidelines for New Dependencies
 

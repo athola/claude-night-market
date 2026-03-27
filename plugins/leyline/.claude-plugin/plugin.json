@@ -24,6 +24,7 @@
     "./skills/service-registry",
     "./skills/stewardship",
     "./skills/storage-templates",
+    "./skills/supply-chain-advisory",
     "./skills/testing-quality-standards",
     "./skills/usage-logging",
     "./skills/utility"
@@ -36,7 +37,9 @@
     "cross-plugin",
     "quota",
     "logging",
-    "service-registry"
+    "service-registry",
+    "supply-chain",
+    "security"
   ],
   "author": {
     "name": "Alex Thola",
