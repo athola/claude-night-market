@@ -91,9 +91,9 @@ class TestDependencyManagerImplementation:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "expected" in deps
-        assert "sanctum" in deps["expected"]
-        assert "imbue" in deps["expected"]
+        assert hasattr(deps, "expected")
+        assert "sanctum" in deps.expected
+        assert "imbue" in deps.expected
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -117,8 +117,8 @@ class TestDependencyManagerImplementation:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "found" in deps
-        assert "sanctum" in deps["found"]
+        assert hasattr(deps, "found")
+        assert "sanctum" in deps.found
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -211,7 +211,7 @@ class TestDependencyManagerImplementation:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "issues" in deps
+        assert hasattr(deps, "issues")
         # Should handle error gracefully
 
     @pytest.mark.bdd
@@ -233,8 +233,8 @@ class TestDependencyManagerImplementation:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "expected" in deps
-        assert len(deps["expected"]) == 0
+        assert hasattr(deps, "expected")
+        assert len(deps.expected) == 0
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -355,8 +355,8 @@ class TestDependencyManagerImplementation:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "sanctum" in deps["expected"]
-        assert "imbue" in deps["expected"]
+        assert "sanctum" in deps.expected
+        assert "imbue" in deps.expected
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -447,8 +447,8 @@ class TestDependencyManagerEdgeCases:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "found" in deps
-        assert len(deps["found"]) == 0
+        assert hasattr(deps, "found")
+        assert len(deps.found) == 0
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -499,8 +499,8 @@ class TestDependencyManagerEdgeCases:
         deps = manager.scan_dependencies()
 
         # Assert
-        assert "sanctum" in deps["found"]
-        assert "imbue" in deps["found"]
+        assert "sanctum" in deps.found
+        assert "imbue" in deps.found
 
 
 if __name__ == "__main__":

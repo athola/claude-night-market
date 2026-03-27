@@ -42,6 +42,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-search` | [tome](../plugins/tome.md) | GitHub implementation search |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
+| `computer-control` | [phantom](../plugins/phantom.md) | Desktop automation via Claude's vision and action API |
 | `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
@@ -190,6 +191,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |
 | `/commit-msg` | sanctum | Generate commit message |
 | `/context-report` | abstract | Context optimization report |
+| `/control-desktop` | phantom | Run a computer use task on the desktop |
 | `/create-command` | abstract | Scaffold new command |
 | `/create-hook` | abstract | Scaffold new hook |
 | `/create-issue` | minister | Create GitHub issue with labels and references |
@@ -292,6 +294,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `context-optimizer` | conserve | Context optimization |
 | `continuation-agent` | conserve | Continue work from session state checkpoint |
 | `dependency-updater` | sanctum | Dependency version management |
+| `desktop-pilot` | phantom | Autonomous desktop control via Computer Use API |
 | `discourse-scanner` | tome | Community discourse scanning |
 | `doc-editor` | scribe | Interactive documentation editing |
 | `doc-verifier` | scribe | QA validation using proof-of-work methodology |

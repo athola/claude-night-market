@@ -28,6 +28,7 @@
 - [Domain Specialists](plugins/domain-specialists.md)
   - [archetypes](plugins/archetypes.md)
   - [pensive](plugins/pensive.md)
+  - [phantom](plugins/phantom.md)
   - [parseltongue](plugins/parseltongue.md)
   - [memory-palace](plugins/memory-palace.md)
   - [spec-kit](plugins/spec-kit.md)

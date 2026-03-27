@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.7.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.2-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-18-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-148-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-151-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -15,7 +15,7 @@ Night Market extends Claude Code with 18 plugins
 covering git workflows, code review, spec-driven
 development, architecture selection, autonomous agents,
 multi-LLM delegation, and multi-source research.
-148 skills, 136 slash commands, and 48 agents.
+151 skills, 138 slash commands, and 48 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -118,11 +118,11 @@ flowchart TB
 
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
-| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 11 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 17 | 3 |
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 19 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 18 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
-| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 11 | 4 |
+| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 12 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
@@ -133,7 +133,8 @@ flowchart TB
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
 | **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, PR review capture | 6 | 5 |
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
-| **scribe** | Domain | Documentation with AI slop detection, style learning, tech tutorials | 4 | 3 |
+| **phantom** | Domain | Computer use: screenshot capture, mouse/keyboard control, autonomous desktop agent | 1 | 1 |
+| **scribe** | Domain | Documentation with AI slop detection, style learning, session replay, tech tutorials | 7 | 5 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 | **tome** | Domain | Multi-source research: code archaeology, community discourse, academic literature, TRIZ analysis | 7 | 4 |
 
@@ -191,6 +192,11 @@ See the [Common Workflows Guide][workflows] for full details.
 ## What's New
 
 See the [Changelog](CHANGELOG.md) for the full history.
+
+**Unreleased** adds session-replay in scribe (converts
+Claude Code and Codex session JSONL into GIF/MP4/WebM
+replays via VHS), plus cleanup fixes in conserve and
+abstract agent definitions.
 
 **1.7.1** added the tome plugin for multi-source research
 (code archaeology, academic literature, TRIZ analysis),

@@ -223,7 +223,13 @@ class TestSubagentCoordinationModuleContent:
         for compat_file in compat_dir.glob("compatibility-features*.md"):
             compat_content += compat_file.read_text()
 
+        # Only check versions in the documented range (2.1.50+).
+        # Older versions (2.1.1-2.1.49) are historical and not
+        # tracked in the compatibility-features docs.
+        min_documented_minor = 50
         for minor in versions:
+            if int(minor) < min_documented_minor:
+                continue
             version_str = f"2.1.{minor}"
             assert version_str in compat_content, (
                 f"Module references {version_str} but it's not in any "

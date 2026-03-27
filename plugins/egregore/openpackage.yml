@@ -1,5 +1,5 @@
 name: egregore
-version: 1.7.1
+version: 1.7.2
 description: Autonomous agent orchestrator for development lifecycles - session spawning, quality gates, and crash recovery
 keywords:
 - orchestrator

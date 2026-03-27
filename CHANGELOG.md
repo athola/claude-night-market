@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-03-27
+
+### Added
+
+- Session-replay skill and command in scribe: converts
+  Claude Code and Codex session JSONL files into
+  GIF/MP4/WebM replays via VHS tape generation
+
+### Fixed
+
+- Removed dead `ConservationValidator` import and mock
+  fixture from conserve test conftest
+- Converted abstract `meta-architect` and `skill-auditor`
+  agent definitions from JSON to required markdown format
+- Closed unclosed command substitution in release CI
+  heredoc
+
 ## [1.7.1] - 2026-03-25
 
 ### Changed

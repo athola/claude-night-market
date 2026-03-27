@@ -17,6 +17,16 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://example.com/test
+  https://www.linkedin.com/in/alexthola:
+    content_hash: sha256:e048937b2b5db0ab
+    stored_at: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
+    importance_score: 50
+    last_updated: '2026-03-27T05:05:00.599248+00:00'
+    title: Alex Thola - Professional Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://www.linkedin.com/in/alexthola
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
+  sha256:e048937b2b5db0ab: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
