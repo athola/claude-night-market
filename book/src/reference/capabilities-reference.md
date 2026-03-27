@@ -122,6 +122,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
+| `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
@@ -232,6 +233,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/rules-eval` | abstract | Evaluate Claude Code rules for frontmatter, glob patterns, and content quality |
 | `/run-profiler` | parseltongue | Profile code execution |
 | `/rust-review` | pensive | Rust-specific review |
+| `/session-to-post` | scribe | Convert session into blog post or case study |
 | `/shell-review` | pensive | Shell script safety and portability review |
 | `/skill-history` | pensive | View recent skill executions with context |
 | `/skill-logs` | memory-palace | View skill execution logs |

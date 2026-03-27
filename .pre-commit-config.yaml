@@ -224,6 +224,14 @@ repos:
         pass_filenames: true
         stages: [pre-commit]
 
+      - id: capabilities-sync-check
+        name: Capabilities Sync Check
+        entry: bash scripts/capabilities-sync-check.sh
+        language: system
+        files: ^(plugins/.*(plugin\.json|openpackage\.yml|SKILL\.md|commands/.*\.md|agents/.*\.md)|book/src/reference/capabilities-reference\.md)$
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
