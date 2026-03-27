@@ -103,6 +103,90 @@ repos:
         files: ^plugins/memory-palace/
         pass_filenames: false
 
+      - id: validate-egregore-plugin
+        name: Validate Egregore Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/egregore
+        language: system
+        files: ^plugins/egregore/
+        pass_filenames: false
+
+      - id: validate-hookify-plugin
+        name: Validate Hookify Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/hookify
+        language: system
+        files: ^plugins/hookify/
+        pass_filenames: false
+
+      - id: validate-leyline-plugin
+        name: Validate Leyline Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/leyline
+        language: system
+        files: ^plugins/leyline/
+        pass_filenames: false
+
+      - id: validate-minister-plugin
+        name: Validate Minister Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/minister
+        language: system
+        files: ^plugins/minister/
+        pass_filenames: false
+
+      - id: validate-parseltongue-plugin
+        name: Validate Parseltongue Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/parseltongue
+        language: system
+        files: ^plugins/parseltongue/
+        pass_filenames: false
+
+      - id: validate-pensive-plugin
+        name: Validate Pensive Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/pensive
+        language: system
+        files: ^plugins/pensive/
+        pass_filenames: false
+
+      - id: validate-phantom-plugin
+        name: Validate Phantom Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/phantom
+        language: system
+        files: ^plugins/phantom/
+        pass_filenames: false
+
+      - id: validate-sanctum-plugin
+        name: Validate Sanctum Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/sanctum
+        language: system
+        files: ^plugins/sanctum/
+        pass_filenames: false
+
+      - id: validate-scribe-plugin
+        name: Validate Scribe Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/scribe
+        language: system
+        files: ^plugins/scribe/
+        pass_filenames: false
+
+      - id: validate-scry-plugin
+        name: Validate Scry Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/scry
+        language: system
+        files: ^plugins/scry/
+        pass_filenames: false
+
+      - id: validate-spec-kit-plugin
+        name: Validate Spec-Kit Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/spec-kit
+        language: system
+        files: ^plugins/spec-kit/
+        pass_filenames: false
+
+      - id: validate-tome-plugin
+        name: Validate Tome Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/tome
+        language: system
+        files: ^plugins/tome/
+        pass_filenames: false
+
       - id: validate-knowledge-corpus
         name: Validate Knowledge Corpus Frontmatter
         entry: python3 plugins/memory-palace/scripts/validate_knowledge_corpus.py
