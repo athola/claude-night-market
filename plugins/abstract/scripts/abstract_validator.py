@@ -18,7 +18,6 @@ from abstract.frontmatter import FrontmatterProcessor
 from abstract.utils import (
     extract_dependencies,
     find_skill_files,
-    parse_yaml_frontmatter,
 )
 
 
@@ -192,7 +191,10 @@ class AbstractValidator:
 
         for skill_file in self.skill_files:
             skill_name = skill_file.parent.name
-            frontmatter = parse_yaml_frontmatter(skill_file.read_text())
+            frontmatter = FrontmatterProcessor.parse(
+                skill_file.read_text(),
+                required_fields=[],
+            ).parsed
             dependencies = extract_dependencies(frontmatter)
             dep_graph[skill_name] = dependencies
 

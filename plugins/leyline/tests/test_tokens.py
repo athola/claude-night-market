@@ -38,7 +38,7 @@ class TestTokenEstimation:
         expected_text.write_text("notes")
         (repo_root / "src" / "binary.bin").write_text("bin")
 
-        found = {path.name for path in tokens._iter_source_files(repo_root)}
+        found = {path.name for path in tokens.iter_source_files(repo_root)}
 
         assert found == {"main.py", "notes.txt"}
 

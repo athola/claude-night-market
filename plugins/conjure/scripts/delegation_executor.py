@@ -18,6 +18,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.quota_tracker import DEFAULT_GEMINI_LIMITS, DEFAULT_QWEN_LIMITS
+
 try:
     from leyline.tokens import estimate_tokens  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover
@@ -98,22 +100,14 @@ class Delegator:
             command="gemini",
             auth_method="api_key",
             auth_env_var="GEMINI_API_KEY",
-            quota_limits={
-                "requests_per_minute": 60,
-                "requests_per_day": 1000,
-                "tokens_per_day": 1000000,
-            },
+            quota_limits=DEFAULT_GEMINI_LIMITS,
         ),
         "qwen": ServiceConfig(
             name="qwen",
             command="qwen",
             auth_method="cli",
             auth_env_var=None,
-            quota_limits={
-                "requests_per_minute": 120,
-                "requests_per_day": 2000,
-                "tokens_per_day": 2000000,
-            },
+            quota_limits=DEFAULT_QWEN_LIMITS,
         ),
     }
 

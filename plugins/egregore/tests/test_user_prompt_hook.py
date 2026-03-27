@@ -112,7 +112,13 @@ def test_silent_when_all_completed(tmp_path):
 
 
 def test_works_with_work_items_key(tmp_path):
-    """Hook works with legacy 'work_items' key."""
+    """Hook works with legacy 'work_items' key.
+
+    The 'work_items' key is still supported for backward compatibility.
+    _manifest_utils.get_items() reads 'work_items' first, then falls
+    back to 'items'. Keep this test as long as get_items() supports
+    both keys (see plugins/egregore/hooks/_manifest_utils.py).
+    """
     manifest = {
         "work_items": [
             {

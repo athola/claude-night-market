@@ -99,6 +99,7 @@ docs/superpowers/specs/
 plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/
 plugins/memory-palace/data/sessions/
+plugins/memory-palace/data/telemetry/
 plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
 

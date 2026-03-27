@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any
@@ -10,6 +11,9 @@ from typing import Any
 
 def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
+
+
+_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
 
 
 @dataclass
@@ -23,6 +27,14 @@ class Finding:
     relevance: float
     summary: str
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self.relevance = max(0.0, min(1.0, self.relevance))
+        if self.channel not in _VALID_CHANNELS:
+            warnings.warn(
+                f"Unknown channel: {self.channel!r}. Valid: {sorted(_VALID_CHANNELS)}",
+                stacklevel=2,
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -200,6 +212,30 @@ class Citation:
             year=d.get("year"),
             doi=d.get("doi"),
             extra=d.get("extra", {}),
+        )
+
+
+@dataclass
+class QueryLog:
+    """A record of a query attempted during research."""
+
+    channel: str
+    query: str
+    source: str
+    result_count: int = 0
+    succeeded: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> QueryLog:
+        return cls(
+            channel=d["channel"],
+            query=d["query"],
+            source=d["source"],
+            result_count=d.get("result_count", 0),
+            succeeded=d.get("succeeded", True),
         )
 
 

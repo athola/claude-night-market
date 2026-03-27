@@ -4,6 +4,8 @@ description: >-
   Merge, deduplicate, rank, and format research findings
   from multiple channels into a coherent report. Use after
   research agents return their results.
+version: 1.7.1
+alwaysApply: false
 category: synthesis
 tags:
   - merge
@@ -12,8 +14,17 @@ tags:
   - report
 estimated_tokens: 150
 ---
-
 # Finding Synthesis
+
+## When To Use
+
+- After research agents return results from multiple channels
+- Producing a final ranked report from raw findings
+
+## When NOT To Use
+
+- No research session is active (run `/tome:research` first)
+- Refining a single channel (use `/tome:dig` instead)
 
 Merge findings from all channels into a ranked report.
 

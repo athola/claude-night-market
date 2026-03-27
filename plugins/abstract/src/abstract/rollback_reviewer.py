@@ -122,8 +122,11 @@ The skill was improved automatically but showed regression during the
                 check=False,
             )
             if result.returncode == 0:
-                data = json.loads(result.stdout)
-                url = data.get("issue_url")
+                try:
+                    data = json.loads(result.stdout)
+                    url = data.get("issue_url")
+                except json.JSONDecodeError:
+                    url = None
                 return str(url) if url is not None else None
             sys.stderr.write(
                 f"rollback_reviewer: deferred_capture failed: {result.stderr.strip()}\n"
@@ -132,7 +135,6 @@ The skill was improved automatically but showed regression during the
         except (
             FileNotFoundError,
             subprocess.TimeoutExpired,
-            json.JSONDecodeError,
         ) as e:
             sys.stderr.write(f"rollback_reviewer: {e}\n")
             return None

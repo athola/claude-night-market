@@ -1,5 +1,5 @@
 name: leyline
-version: 1.7.0
+version: 1.7.1
 description: Infrastructure and pipeline building blocks for Claude Code plugins. Like ancient ley lines connecting sacred
   sites, leyline provides the foundational patterns that connect and power plugin ecosystems.
 keywords:
@@ -20,6 +20,7 @@ skills:
 - skills/content-sanitization
 - skills/damage-control
 - skills/deferred-capture
+- skills/document-conversion
 - skills/error-patterns
 - skills/evaluation-framework
 - skills/git-platform
@@ -33,6 +34,7 @@ skills:
 - skills/storage-templates
 - skills/testing-quality-standards
 - skills/usage-logging
+- skills/utility
 commands:
 - commands/reinstall-all-plugins.md
 - commands/update-all-plugins.md

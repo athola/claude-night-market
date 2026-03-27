@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from shared.skill_utils import parse_skill_name as _parse_skill_name
+
 
 def get_observability_dir() -> Path:
     """Get or create observability state directory."""
@@ -39,9 +41,7 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
         Tuple of (plugin_name, skill_name)
 
     """
-    from shared.skill_utils import parse_skill_name as _parse
-
-    return _parse(tool_input)
+    return _parse_skill_name(tool_input)
 
 
 def main() -> None:

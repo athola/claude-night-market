@@ -1,24 +1,22 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.6.7-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.1-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-18-orange)]()
-[![Skills](https://img.shields.io/badge/skills-142-teal)](book/src/reference/capabilities-reference.md)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
+[![Plugins](https://img.shields.io/badge/plugins-18-orange)](book/src/plugins/)
+[![Skills](https://img.shields.io/badge/skills-148-teal)](book/src/reference/capabilities-reference.md)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
 
-**Claude Code plugins for software engineering workflows.**
+**A plugin marketplace for Claude Code, Anthropic's
+agentic coding tool.**
 
-Night Market is a plugin marketplace for
-[Claude Code][claude-code], Anthropic's CLI coding agent.
-It extends Claude Code with domain-specific skills,
-slash commands, and autonomous agents for git workflows,
-code review, spec-driven development, and issue
-management.
-
-18 plugins providing 142 skills, 109 commands, and
-47 agents. Each plugin installs independently.
+Night Market extends Claude Code with 18 plugins
+covering git workflows, code review, spec-driven
+development, architecture selection, autonomous agents,
+multi-LLM delegation, and multi-source research.
+148 skills, 136 slash commands, and 48 agents.
+Each plugin installs independently.
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
@@ -194,11 +192,11 @@ See the [Common Workflows Guide][workflows] for full details.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
-**Next release** adds the tome plugin for multi-source
-research (code archaeology, academic literature, TRIZ
-analysis), 100% Makefile dogfood coverage across all
-18 plugins, and 20 newly registered API assets with
-6 cross-plugin dependency declarations.
+**1.7.1** added the tome plugin for multi-source research
+(code archaeology, academic literature, TRIZ analysis),
+100% Makefile dogfood coverage across all 18 plugins,
+and 20 newly registered API assets with 6 cross-plugin
+dependency declarations.
 
 **1.6.7** added a deferred-item capture system in sanctum
 (PostToolUse watcher + Stop hook that files GitHub issues

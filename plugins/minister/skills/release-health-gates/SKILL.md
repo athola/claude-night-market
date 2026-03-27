@@ -4,6 +4,8 @@ description: 'Standardizes release approvals with GitHub-aware checklists. Use w
   preparing releases, validating deployment gates, conducting release reviews, embedding
   release gate snippets in PRs. Do not use when weekly status updates - use github-initiative-pulse.
   DO NOT use when: code reviews - use pensive review skills.'
+version: 1.7.1
+alwaysApply: false
 category: governance
 tags:
 - release
@@ -32,7 +34,6 @@ modules:
 - modules/quality-signals.md
 - modules/deployment-readiness.md
 ---
-
 # Release Health Gates
 
 ## Purpose

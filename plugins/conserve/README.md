@@ -83,6 +83,9 @@ It identifies problematic live code that traditional bloat detection might miss.
 The `bloat-detector` skill uses three tiers of analysis,
 from heuristic-based checks to deep audits with full tooling.
 `clear-context` persists session state across context windows.
+`compression-strategy` analyzes context usage and recommends optimal
+compression strategies (clear + catchup, continuation agent, archive + summarize,
+or delegate to subagent).
 `response-compression` eliminates filler words, hedging language,
 and hype words, saving between 150 and 350 tokens per response.
 `decisive-action` uses a reversibility/ambiguity matrix to determine when to
@@ -128,6 +131,21 @@ and persist the session state path.
 Maintenance tasks clean backups older than 7 days
 and rotate continuation audit logs.
 Run `--init` after cloning and `--maintenance` periodically.
+
+### PostToolUse Hook
+
+Monitors tool output bloat for verbose tools (Bash, Read, Grep).
+When cumulative output exceeds 100KB (~25K tokens),
+it warns about context pressure.
+This helps identify when tool outputs are consuming excessive context.
+
+### PreCompact Hook
+
+Preserves critical context before compression operations (`/compact`
+or automatic threshold compression).
+Saves active file paths, key decisions, error patterns,
+and pending work items to `.claude/context-archive/`.
+This context can be recovered after compression.
 
 ### PermissionRequest Hook
 

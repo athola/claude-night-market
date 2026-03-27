@@ -14,6 +14,7 @@ Must fix before merge:
 - Breaking changes without migration
 - Missing core requirements
 - Test failures in new code
+- **Tests that pass with the fix reverted** (they protect nothing)
 
 ### In-Scope Issues
 Should address in this PR:
@@ -21,6 +22,8 @@ Should address in this PR:
 - Missing error handling specified in requirements
 - Performance issues affecting feature
 - Edge cases not covered
+- **Agent-generated code left uncurated** (redundant implementations, incomplete refactors, premature abstractions)
+- **Tests that only assert old behavior** without covering the new code path
 
 ### Suggestions (Author's Discretion)
 Nice improvements:
@@ -28,6 +31,8 @@ Nice improvements:
 - Minor optimizations
 - Additional test cases
 - Documentation improvements
+- **PR atomicity**: splitting a large multi-concern PR into focused pieces (75%+ defect detection for small PRs vs 30% for large)
+- **Self-review cleanup**: squashing fixup commits, removing debug statements
 
 ### Backlog Items
 Create GitHub issues (primary storage):
@@ -116,6 +121,38 @@ Create GitHub issues (primary storage):
 Address blocking issues B1-B2 and in-scope issue S1 before merge.
 Implementation looks promising once core requirements are complete.
 ```
+
+## PR Hygiene Checks
+
+In addition to scope and code quality, every review
+evaluates four hygiene principles. See
+`plugins/sanctum/skills/pr-review/modules/pr-hygiene.md`
+for detection heuristics and classification tables.
+
+| Principle | Phase | Typical Severity |
+|-----------|-------|-----------------|
+| Self-review before sending | Phase 1 | SUGGESTION |
+| One PR = one logical change | Phase 1 | SUGGESTION / IN-SCOPE |
+| Agent code needs curation | Phase 2.5 | IN-SCOPE |
+| Tests should test your code | Phase 2.5 | IN-SCOPE / BLOCKING |
+
+### The Revert Test (Test Quality)
+
+The gold standard: if someone reverts the fix, at least
+one test should fail. Tests that pass on revert are
+documentation, not regression protection. These are
+classified as BLOCKING when no other test covers the
+changed code path, or IN-SCOPE when coverage exists
+but is incomplete.
+
+### Agent Code Curation
+
+AI tools produce code fast, but the output needs review
+for: redundant implementations, unnecessary complexity,
+incomplete refactors, and scope drift. Formatting commits
+and mixed-concern refactors are telltale signs of
+iterative AI generation without a cleanup pass. These
+are classified as IN-SCOPE.
 
 ## Scope Mode Details
 

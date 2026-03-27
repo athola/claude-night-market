@@ -70,17 +70,59 @@ Between phases, the orchestrator performs lightweight transitions:
 
 - Verify project brief is actionable (has goals and constraints)
 - Pass brief path to specification skill
+- **Backlog triage**: Scan spec/brief for "Out of Scope"
+  section. Create a GitHub issue for each deferred item.
+  See below.
 
 ### specify → plan
 
 - Verify specification has testable requirements
 - Check if war-room review was completed (recommended for RED+ projects)
+- **Backlog triage**: If the specification skill did not
+  already create issues (check for issue numbers in the
+  Out of Scope section), create them now.
 
 ### plan → execute
 
 - Verify plan has concrete tasks with file paths
 - Classify tasks by risk tier (invoke `leyline:risk-classification`)
 - Generate risk summary for the mission state
+
+## Post-Phase Backlog Triage
+
+After the **brainstorm** and **specify** phases, scan
+the produced artifact for an "Out of Scope" section and
+create GitHub issues for each deferred item.
+
+**When to run**: After brainstorm and specify phases.
+Skip after plan and execute (no new scope decisions).
+
+**Algorithm**:
+1. Read the phase artifact (brief or spec)
+2. Find the "Out of Scope" heading
+3. Extract each bullet point as a deferred item
+4. For each item, check if it already has an issue
+   reference (e.g., `(#123)`)
+5. For items without references, create a GitHub issue:
+   ```bash
+   gh issue create \
+     --title "[Backlog] <project>: <item summary>" \
+     --body "## Context
+   Identified during <phase> phase.
+   Artifact: <artifact-path>
+
+   ## Description
+   <full item text from spec>" \
+     --label "feature,low-priority"
+   ```
+6. Update the artifact's Out of Scope section with
+   issue references: `- Item description (#NNN)`
+7. Report created issues at the user checkpoint
+
+**Skip conditions**:
+- `--no-auto-issues` flag
+- Item already has an issue reference
+- Fewer than 1 item in Out of Scope section
 
 ## User Checkpoints
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.7.0"
+version = "1.7.1"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -28,8 +28,8 @@ full = [
     "pdfplumber>=0.9",
 ]
 dev = [
-    "ruff>=0.14.13,<1.0",
-    "mypy>=1.11.0,<2.0",
+    "ruff>=0.14.13",
+    "mypy>=1.11.0",
     "types-PyYAML>=6.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",

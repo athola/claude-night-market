@@ -7,6 +7,8 @@ description: 'NEVER escalate without investigation first. This is the Iron Law. 
   - investigate root cause first. DO NOT use when: time pressure alone - urgency doesn''t
   change task complexity. DO NOT use when: "just to be safe" - assess actual complexity
   instead.'
+version: 1.7.1
+alwaysApply: false
 category: agent-workflow
 tags:
 - escalation

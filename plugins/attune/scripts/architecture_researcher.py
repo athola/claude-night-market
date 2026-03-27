@@ -2,6 +2,7 @@
 """Architecture research module (REFACTORED with YAML matrix)."""
 
 import argparse
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -165,8 +166,6 @@ class ArchitectureResearcher:
 
     def save_research_session(self, output_path: Path) -> None:
         """Save research session to JSON file."""
-        import json  # noqa: PLC0415
-
         session_data = {
             "context": {
                 "project_type": self.context.project_type,

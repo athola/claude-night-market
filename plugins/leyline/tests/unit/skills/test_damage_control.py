@@ -194,7 +194,7 @@ class TestDamageControlSections:
         Then a 'When to Use' section should exist.
         """
         content = SKILL_FILE.read_text()
-        assert "## When to Use" in content, "Missing required '## When to Use' section"
+        assert "## When To Use" in content, "Missing required '## When To Use' section"
 
     @pytest.mark.bdd
     def test_has_exit_criteria_section(self) -> None:

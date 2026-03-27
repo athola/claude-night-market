@@ -7,6 +7,8 @@ description: >-
   patterns. Consult when composing agent dispatch
   prompts, writing skill instructions, or dispatching
   parallel review agents.
+version: 1.7.1
+alwaysApply: false
 category: methodology
 tags:
   - prompt-engineering
@@ -24,7 +26,6 @@ dependencies:
 complexity: basic
 estimated_tokens: 300
 ---
-
 # Latent Space Engineering
 
 Shape agent behavior by framing instructions for

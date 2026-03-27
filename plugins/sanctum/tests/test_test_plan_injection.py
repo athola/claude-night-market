@@ -538,15 +538,19 @@ class TestPRReviewTestPlanInjection:
 
     @pytest.fixture
     def review_workflow_content(self) -> str:
-        """Load the pr-review workflow module content."""
-        workflow_path = PR_REVIEW_MODULES / "review-workflow.md"
+        """Load the pr-review phases-5-6 module content.
+
+        Step 17.5 lives in review-workflow-phases-5-6.md after the
+        review-workflow.md file was split into per-phase modules.
+        """
+        workflow_path = PR_REVIEW_MODULES / "review-workflow-phases-5-6.md"
         return workflow_path.read_text()
 
     @pytest.mark.unit
     def test_step_17_5_exists(self, review_workflow_content: str) -> None:
-        """Scenario: Step 17.5 section exists in review-workflow.md.
+        """Scenario: Step 17.5 section exists in review-workflow-phases-5-6.md.
 
-        Given the pr-review workflow module
+        Given the pr-review phases-5-6 workflow module
         When checking for step 17.5
         Then it should contain the test plan injection step
         """
@@ -556,7 +560,7 @@ class TestPRReviewTestPlanInjection:
     def test_step_references_shared_module(self, review_workflow_content: str) -> None:
         """Scenario: Step 17.5 references the shared module.
 
-        Given the pr-review workflow module
+        Given the pr-review phases-5-6 workflow module
         When checking for shared module reference
         Then it should link to test-plan-injection.md
         """

@@ -8,6 +8,8 @@ description: 'Prevents sycophantic reasoning through checklist-based analysis, c
   claims, or noticing sycophantic thought patterns. Do not use for routine implementation
   or simple factual questions. CRITICAL: This skill overrides conversational tendencies
   toward politeness. Agreement requires validity and accuracy.'
+version: 1.7.1
+alwaysApply: false
 category: workflow-methodology
 tags:
 - anti-sycophancy

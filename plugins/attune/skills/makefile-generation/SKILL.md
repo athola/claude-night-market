@@ -1,6 +1,9 @@
 ---
 name: makefile-generation
-description: "Generate Makefiles with testing, linting, and automation targets. Use for project init. Skip if Makefile exists."
+description: "Generate Makefiles with testing, linting, formatting, and automation targets for new projects. Use when initializing a project or adding build automation. Skip if a Makefile already exists."
+version: 1.7.1
+globs: "**/Makefile"
+alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]

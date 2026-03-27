@@ -68,6 +68,25 @@ python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 | `--skip-queue` | Skip knowledge queue check |
 | `--no-auto-issues` | Don't auto-create GitHub issues |
 
+## Prerequisites
+
+This command requires the sanctum plugin's Python scripts. Before running,
+verify the script exists:
+
+```bash
+# Check if running in night-market repo
+if [[ -f "plugins/sanctum/scripts/update_plugin_registrations.py" ]]; then
+  echo "Sanctum scripts available - command will work"
+else
+  echo "ERROR: This command only works in the claude-night-market repository"
+  echo "The update_plugin_registrations.py script is not available in this project."
+  exit 1
+fi
+```
+
+**For non-night-market projects**: This command is night-market-specific.
+Use `claude plugin update <plugin>@<marketplace>` to update individual plugins.
+
 ## Script Features
 
 - Smart filtering: Excludes module directories,

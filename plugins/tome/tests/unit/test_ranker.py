@@ -8,30 +8,15 @@ So that the top results in a report are the most credible sources
 
 from __future__ import annotations
 
+# Use the same dynamic year as the production ranker.
+from datetime import datetime, timezone
+
 import pytest
-from tome.models import Finding
 from tome.synthesis.ranker import compute_relevance_score, group_by_theme, rank_findings
 
-# Use a fixed "current year" so tests are stable over time.
-_THIS_YEAR = 2026
+from tests.factories import make_finding
 
-
-def _make_finding(
-    relevance: float,
-    source: str = "github",
-    channel: str = "code",
-    metadata: dict[str, object] | None = None,
-    url: str = "https://example.com/f",
-) -> Finding:
-    return Finding(
-        source=source,
-        channel=channel,
-        title="Test Finding",
-        url=url,
-        relevance=relevance,
-        summary="A summary.",
-        metadata=metadata or {},
-    )
+_THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
 
 
 class TestComputeRelevanceScore:
@@ -52,7 +37,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then the score equals the base relevance
         """
-        f = _make_finding(0.5, source="github", metadata={"stars": 500})
+        f = make_finding(0.5, source="github", metadata={"stars": 500})
         assert compute_relevance_score(f) == pytest.approx(0.5)
 
     @pytest.mark.unit
@@ -63,7 +48,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.6 (base + 0.1 bonus)
         """
-        f = _make_finding(0.5, source="github", metadata={"stars": 1001})
+        f = make_finding(0.5, source="github", metadata={"stars": 1001})
         assert compute_relevance_score(f) == pytest.approx(0.6)
 
     @pytest.mark.unit
@@ -74,7 +59,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.7 (base + 0.2 bonus)
         """
-        f = _make_finding(0.5, source="github", metadata={"stars": 5001})
+        f = make_finding(0.5, source="github", metadata={"stars": 5001})
         assert compute_relevance_score(f) == pytest.approx(0.7)
 
     @pytest.mark.unit
@@ -85,9 +70,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.6
         """
-        f = _make_finding(
-            0.5, source="hn", channel="discourse", metadata={"score": 200}
-        )
+        f = make_finding(0.5, source="hn", channel="discourse", metadata={"score": 200})
         assert compute_relevance_score(f) == pytest.approx(0.6)
 
     @pytest.mark.unit
@@ -98,9 +81,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.6
         """
-        f = _make_finding(
-            0.4, source="hn", channel="discourse", metadata={"score": 501}
-        )
+        f = make_finding(0.4, source="hn", channel="discourse", metadata={"score": 501})
         assert compute_relevance_score(f) == pytest.approx(0.6)
 
     @pytest.mark.unit
@@ -111,7 +92,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.7
         """
-        f = _make_finding(
+        f = make_finding(
             0.6, source="arxiv", channel="academic", metadata={"citations": 51}
         )
         assert compute_relevance_score(f) == pytest.approx(0.7)
@@ -124,7 +105,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.8
         """
-        f = _make_finding(
+        f = make_finding(
             0.6, source="arxiv", channel="academic", metadata={"citations": 201}
         )
         assert compute_relevance_score(f) == pytest.approx(0.8)
@@ -137,7 +118,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.55
         """
-        f = _make_finding(
+        f = make_finding(
             0.5, source="reddit", channel="discourse", metadata={"score": 100}
         )
         assert compute_relevance_score(f) == pytest.approx(0.55)
@@ -150,7 +131,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is 0.6
         """
-        f = _make_finding(
+        f = make_finding(
             0.5, source="reddit", channel="discourse", metadata={"score": 250}
         )
         assert compute_relevance_score(f) == pytest.approx(0.6)
@@ -163,7 +144,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score includes +0.05 recency bonus
         """
-        f = _make_finding(0.5, metadata={"year": _THIS_YEAR - 1})
+        f = make_finding(0.5, metadata={"year": _THIS_YEAR - 1})
         assert compute_relevance_score(f) == pytest.approx(0.55)
 
     @pytest.mark.unit
@@ -174,7 +155,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is just the base relevance
         """
-        f = _make_finding(0.5, metadata={"year": _THIS_YEAR - 3})
+        f = make_finding(0.5, metadata={"year": _THIS_YEAR - 3})
         assert compute_relevance_score(f) == pytest.approx(0.5)
 
     @pytest.mark.unit
@@ -185,7 +166,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score is exactly 1.0
         """
-        f = _make_finding(0.95, source="github", metadata={"stars": 5001})
+        f = make_finding(0.95, source="github", metadata={"stars": 5001})
         assert compute_relevance_score(f) == pytest.approx(1.0)
 
     @pytest.mark.unit
@@ -196,7 +177,7 @@ class TestComputeRelevanceScore:
         When compute_relevance_score is called
         Then score equals 0.65
         """
-        f = _make_finding(0.65)
+        f = make_finding(0.65)
         assert compute_relevance_score(f) == pytest.approx(0.65)
 
 
@@ -218,9 +199,9 @@ class TestRankFindings:
         Then they are returned in order 0.9, 0.6, 0.4
         """
         findings = [
-            _make_finding(0.4, url="https://example.com/a"),
-            _make_finding(0.9, url="https://example.com/b"),
-            _make_finding(0.6, url="https://example.com/c"),
+            make_finding(0.4, url="https://example.com/a"),
+            make_finding(0.9, url="https://example.com/b"),
+            make_finding(0.6, url="https://example.com/c"),
         ]
 
         result = rank_findings(findings)
@@ -246,7 +227,7 @@ class TestRankFindings:
         When rank_findings is called
         Then that finding is returned unchanged
         """
-        f = _make_finding(0.7)
+        f = make_finding(0.7)
         assert rank_findings([f]) == [f]
 
     @pytest.mark.unit
@@ -258,13 +239,13 @@ class TestRankFindings:
         When rank_findings is called
         Then the GitHub finding ranks first (0.5 + 0.2 = 0.7 > 0.65)
         """
-        high_authority = _make_finding(
+        high_authority = make_finding(
             0.5,
             source="github",
             metadata={"stars": 5001},
             url="https://github.com/popular",
         )
-        plain = _make_finding(0.65, url="https://example.com/plain")
+        plain = make_finding(0.65, url="https://example.com/plain")
 
         result = rank_findings([plain, high_authority])
 
@@ -288,14 +269,14 @@ class TestGroupByTheme:
         When group_by_theme is called
         Then each channel key maps to its finding
         """
-        code = _make_finding(0.8, channel="code", url="https://github.com/x")
-        discourse = _make_finding(
+        code = make_finding(0.8, channel="code", url="https://github.com/x")
+        discourse = make_finding(
             0.7,
             source="hn",
             channel="discourse",
             url="https://hn.com/x",
         )
-        academic = _make_finding(
+        academic = make_finding(
             0.9,
             source="arxiv",
             channel="academic",
@@ -317,8 +298,8 @@ class TestGroupByTheme:
         When group_by_theme is called
         Then the code group contains both
         """
-        f1 = _make_finding(0.8, channel="code", url="https://github.com/a")
-        f2 = _make_finding(0.6, channel="code", url="https://github.com/b")
+        f1 = make_finding(0.8, channel="code", url="https://github.com/a")
+        f2 = make_finding(0.6, channel="code", url="https://github.com/b")
 
         groups = group_by_theme([f1, f2])
 
@@ -342,7 +323,7 @@ class TestGroupByTheme:
         When compute_relevance_score is called
         Then score includes the +0.2 academic bonus
         """
-        f = _make_finding(
+        f = make_finding(
             0.6,
             source="semantic_scholar",
             channel="academic",

@@ -214,6 +214,15 @@ Detects dead code (0 references), stale files (6+ months unchanged),
 God classes (500+ lines), and documentation duplication (85%+ similar content).
 The `/bloat-scan` command uses this skill under the hood.
 
+### `conserve:compression-strategy`
+Context compression strategy recommendations.
+
+**Invocation**: `Skill(conserve:compression-strategy)`
+
+Analyzes current context usage and recommends optimal compression strategies:
+clear + catchup, continuation agent, archive + summarize, or delegate to subagent.
+Integrates with the PreCompact hook for automatic context preservation.
+
 ### `abstract:modular-skills` (includes optimization techniques)
 Modular skill architecture patterns.
 

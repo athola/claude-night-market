@@ -40,6 +40,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_learnings_stop.py",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

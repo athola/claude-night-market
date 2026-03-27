@@ -194,9 +194,12 @@ def run_post_learnings() -> None:
 
 
 def run_daily_pipeline() -> None:
-    """Main pipeline: check cadence → aggregate → promote → post.
+    """Main pipeline: check cadence → aggregate.
 
     Called on every UserPromptSubmit. Skips quickly if not due.
+    Network-heavy operations (auto_promote, post_learnings) are
+    handled by the Stop hook (post_learnings_stop.py) to avoid
+    exceeding the 2-second UserPromptSubmit timeout.
     """
     if not should_aggregate():
         return
@@ -207,8 +210,6 @@ def run_daily_pipeline() -> None:
     success = run_aggregation()
     if success:
         update_timestamp()
-        run_auto_promote()
-        run_post_learnings()
 
 
 def main() -> None:

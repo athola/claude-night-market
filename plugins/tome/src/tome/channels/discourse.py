@@ -12,7 +12,35 @@ import re
 from typing import Any
 from urllib.parse import quote_plus
 
+from tome.channels import deduplicate_queries
 from tome.models import Finding
+
+# ---------------------------------------------------------------------------
+# Query Expansion
+# ---------------------------------------------------------------------------
+
+
+def expand_discourse_queries(topic: str, max_variants: int = 4) -> list[str]:
+    """Generate diverse community search query variants.
+
+    Produces variants aimed at discussion forums and tech blogs.
+
+    Args:
+        topic: Free-text research topic.
+        max_variants: Maximum total queries to return (default 4).
+
+    Returns:
+        List of distinct query strings.
+    """
+    queries: list[str] = [
+        topic,
+        f"{topic} best practices",
+        f"{topic} experience production",
+        f"{topic} comparison alternatives",
+    ]
+
+    return deduplicate_queries(queries)[:max_variants]
+
 
 _LOBSTERS_BASE_RELEVANCE = 0.6
 _BLOG_BASE_RELEVANCE = 0.65

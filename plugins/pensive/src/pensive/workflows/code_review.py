@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import importlib
+import logging
 from pathlib import Path
 from typing import Any
 
+from pensive.exceptions import AnalysisError
 from pensive.utils.severity_mapper import count_by_severity
+
+logger = logging.getLogger(__name__)
 
 
 class CodeReviewWorkflow:
@@ -61,7 +65,9 @@ class CodeReviewWorkflow:
                 else:
                     self._skipped_skills.append(skill_name)
             except Exception as e:
-                self._errors.append(f"{skill_name}: {e}")
+                err = AnalysisError(f"{skill_name}: {e}")
+                logger.warning("Skill execution failed: %s", err)
+                self._errors.append(str(err))
                 self._skipped_skills.append(skill_name)
 
         # Generate summary and recommendations
@@ -105,8 +111,13 @@ class CodeReviewWorkflow:
                     results.append(result)
                 else:
                     results.append(None)
-            except Exception:
+            except Exception as e:
                 # Partial failure - record error and continue
+                logger.warning(
+                    "Skill %r failed during execute_skills: %s",
+                    skill_name,
+                    AnalysisError(str(e)),
+                )
                 results.append(None)
 
         return results

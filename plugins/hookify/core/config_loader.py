@@ -9,10 +9,13 @@ User rules override bundled rules with the same name.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import yaml
 
@@ -164,8 +167,7 @@ class ConfigLoader:
                 rule = self.load_rule(rule_file, source="bundled")
                 rules.append(rule)
             except Exception as e:
-                # Log error but continue loading other rules
-                print(f"Error loading bundled rule {rule_file}: {e}")
+                logger.warning("Error loading bundled rule %s: %s", rule_file, e)
 
         return rules
 
@@ -187,7 +189,7 @@ class ConfigLoader:
                 rule = self.load_rule(rule_file, source="user")
                 rules.append(rule)
             except Exception as e:
-                print(f"Error loading user rule {rule_file}: {e}")
+                logger.warning("Error loading user rule %s: %s", rule_file, e)
 
         return rules
 

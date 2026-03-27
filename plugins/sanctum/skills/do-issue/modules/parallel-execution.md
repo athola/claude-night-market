@@ -2,14 +2,14 @@
 
 Dispatch subagents for independent tasks concurrently.
 
-## CRITICAL: Plan Before Large Dispatch
+## Important: Plan Before Large Dispatch
 
-**When dispatching 4+ agents**, you MUST enter plan mode first:
+**When dispatching 4+ agents**, enter plan mode first:
 
 | Agent Count | Requirement |
 |-------------|-------------|
 | 1-3 agents | Dispatch directly (standard parallel) |
-| 4+ agents | **Enter plan mode → write strategy → get user approval → execute** |
+| 4+ agents | **Enter plan mode, write strategy, get user approval, execute** |
 
 ### Why This Threshold Exists
 
@@ -21,7 +21,7 @@ Large agent dispatches (4+ agents) create:
 
 ### Plan-Before-Dispatch Checklist
 
-Before launching 4+ agents, your plan MUST specify:
+Before launching 4+ agents, your plan should specify:
 
 1. **Agent roster**: Name, type (`general-purpose`/`Explore`/specialized), and model (`sonnet`/`haiku`/`opus`) for each
 2. **Scope per agent**: Exactly what each agent investigates (files, topics, questions)
@@ -60,7 +60,7 @@ This rule applies to ALL multi-agent dispatches, including:
 
 ## WARNING: Remote Control / Headless Limitations
 
-**Do NOT run parallel subagent dispatches via
+**Avoid running parallel subagent dispatches via
 `/remote-control` or headless SDK sessions.**
 
 The Task tool blocks the main thread while awaiting
@@ -79,15 +79,15 @@ of the `Esc` interrupt.
 See [troubleshooting.md](troubleshooting.md) for recovery
 steps if a subagent hangs.
 
-## CRITICAL: Execute Nonconflicting Tasks in Parallel
+## Execute Nonconflicting Tasks in Parallel
 
-**When you have multiple NONCONFLICTING tasks, invoke ALL Task tools in a SINGLE response.**
+**When you have multiple nonconflicting tasks, invoke all Task tools in a single response.**
 
-This is NOT optional - parallel execution is the default for nonconflicting tasks.
+Parallel execution is the default for nonconflicting tasks.
 
 ## Identify Nonconflicting Tasks
 
-Tasks can run in parallel ONLY when ALL conditions are met:
+Tasks can run in parallel only when all conditions are met:
 
 ✅ **Safe for parallel execution:**
 - Tasks modify **different files** (no overlap)
@@ -96,7 +96,7 @@ Tasks can run in parallel ONLY when ALL conditions are met:
 - Tasks have **satisfied dependencies** (no blocking)
 - Tasks don't depend on **each other's outputs**
 
-❌ **NOT safe for parallel execution:**
+❌ **Not safe for parallel execution:**
 - Tasks modify the **same file** or related files
 - Tasks share **configuration** or **global state**
 - Tasks have **sequential dependencies**
@@ -107,7 +107,7 @@ Tasks can run in parallel ONLY when ALL conditions are met:
 
 ## Analyze Task Conflicts BEFORE Dispatching
 
-**MANDATORY**: Perform conflict analysis before parallel execution:
+**Required**: Perform conflict analysis before parallel execution:
 
 ```markdown
 Analyzing tasks for parallel execution:
@@ -157,7 +157,7 @@ Tasks without `[R:TIER]` markers are treated as GREEN (backward compatible).
 
 **All subagents commit to the SAME branch.** The parent
 creates one shared branch before dispatch (Step 4.1) and
-all work lands there. Never create per-issue branches.
+all work lands there. Do not create per-issue branches.
 This produces one PR at completion.
 
 **CORRECT PATTERN** - Multiple Task tool invocations in ONE response:
@@ -264,12 +264,70 @@ If tmux is unavailable or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is not set, `--
 
 ## Worktree Isolation for Parallel Safety (Claude Code 2.1.49+)
 
-Subagents with `isolation: worktree` in their frontmatter run in a temporary git worktree, providing filesystem-level isolation without relying on conflict analysis alone.
+Subagents with `isolation: "worktree"` run in a temporary
+git worktree, providing filesystem-level isolation.
 
-- **Use case**: When parallel tasks touch files in the same directory or have uncertain conflict boundaries
-- **Benefit**: Each agent gets its own working copy — merge conflicts are resolved at worktree merge time, not during execution
-- **Auto-cleanup**: Empty worktrees are removed automatically; worktrees with commits are preserved for review
-- **Combine with conflict analysis**: Worktree isolation is a safety net, not a replacement for the conflict check above — still analyze dependencies before dispatching
+### When to Use Worktree Isolation
+
+| Scenario | Use Worktree? | Reason |
+|----------|--------------|--------|
+| Agents touch different files | No | No conflict possible |
+| Agents touch overlapping files | **Yes** | Prevents race conditions |
+| Agent does destructive ops (delete + recreate) | **Yes** | Failed agent won't corrupt main |
+| Research/read-only agents | No | No writes to conflict |
+
+### Worktree Behavior
+
+- Agents with worktree isolation get a separate checkout
+- Empty worktrees are auto-cleaned; worktrees with
+  changes return `worktreePath` and `worktreeBranch`
+- If `worktreePath` is NOT in the agent result, changes
+  either landed in the main workdir or were lost
+
+### Post-Dispatch Verification (MANDATORY)
+
+After ALL parallel agents complete, verify before
+proceeding:
+
+```markdown
+## Post-Dispatch Checklist
+
+1. [ ] Check `git worktree list` for remaining worktrees
+2. [ ] Check `git diff --stat` in main workdir for changes
+3. [ ] For each agent with worktree output:
+   - Verify worktree changes via `git diff` in worktree
+   - Merge or cherry-pick into main branch
+   - Remove worktree: `git worktree remove <path>`
+4. [ ] For agents that deleted + recreated files:
+   - Verify new files exist: `ls <expected-paths>`
+   - Verify imports work: `python -c "from X import Y"`
+   - If directory exists but is empty, restore original:
+     `git checkout HEAD -- <original-path>`
+5. [ ] Run affected tests before committing
+```
+
+### Never Mix Worktree and Direct Agents on Same Files
+
+When agents A (worktree) and B (direct) both modify
+`foo.py`, only one set of changes survives. Either:
+
+- Use worktree isolation for ALL agents in the batch, or
+- Use direct (no isolation) for ALL agents in the batch
+
+Mixing isolation modes on overlapping files causes
+silent data loss.
+
+### Agent Path Confusion
+
+Agents in worktrees or with `cd` in their prompts can
+write files to wrong paths. Common failure modes:
+
+- Creates `./foo/` instead of `./plugins/bar/foo/`
+- Deletes original but new directory is empty (agent
+  hit context limit mid-operation)
+
+Mitigation: include absolute paths in agent prompts
+and verify file existence after completion.
 
 ## Next Phase
 

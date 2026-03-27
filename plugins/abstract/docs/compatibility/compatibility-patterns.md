@@ -2,7 +2,7 @@
 
 Integration patterns for LSP, session forking, and tool restrictions.
 
-> **See Also**: [Reference](compatibility-reference.md) | [Features](compatibility-features.md) | [Issues](compatibility-issues.md)
+> **See Also**: [Features](compatibility-features.md)
 
 ## Session Forking Patterns (2.0.73+)
 

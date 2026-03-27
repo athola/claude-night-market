@@ -5,6 +5,8 @@ description: TDD-style testing methodology for skills using fresh subagent insta
   improvements, testing skill effectiveness, preventing priming bias, measuring skill
   impact on behavior. Do not use when implementing skills (use skill-authoring instead),
   creating hooks (use hook-authoring instead).
+version: 1.7.1
+alwaysApply: false
 category: testing
 tags:
 - testing
@@ -17,7 +19,6 @@ progressive_loading: true
 modules:
 - modules/testing-patterns.md
 ---
-
 # Subagent Testing - TDD for Skills
 
 Test skills with fresh subagent instances to prevent priming bias and validate effectiveness.

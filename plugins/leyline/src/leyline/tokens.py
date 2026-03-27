@@ -8,11 +8,16 @@ heuristic-based estimation.
 from __future__ import annotations
 
 import logging
-import os
-from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+from leyline.fs import (
+    FILE_OVERHEAD_TOKENS,
+    SKIP_DIRS,
+    SOURCE_EXTENSIONS,
+    iter_source_files,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,34 +56,17 @@ EXTENSION_TOKEN_RATIOS = {
 }
 DEFAULT_EXTENSION_TOKEN_RATIO = FILE_TOKEN_RATIOS["default"]
 
-# Overhead tokens per file (for file path and metadata)
-FILE_OVERHEAD_TOKENS = 6
-
-# Directories to skip when walking file trees
-SKIP_DIRS = {
-    "__pycache__",
-    "node_modules",
-    ".git",
-    "venv",
-    ".venv",
-    "dist",
-    "build",
-    ".pytest_cache",
-}
-
-# File extensions to include when walking directories
-SOURCE_EXTENSIONS = {
-    ".py",
-    ".js",
-    ".ts",
-    ".rs",
-    ".md",
-    ".txt",
-    ".json",
-    ".yaml",
-    ".yml",
-    ".toml",
-}
+# Re-export fs constants so existing importers of tokens.py keep working
+__all__ = [
+    "DEFAULT_EXTENSION_TOKEN_RATIO",
+    "EXTENSION_TOKEN_RATIOS",
+    "FILE_OVERHEAD_TOKENS",
+    "FILE_TOKEN_RATIOS",
+    "SKIP_DIRS",
+    "SOURCE_EXTENSIONS",
+    "estimate_file_tokens",
+    "estimate_tokens",
+]
 
 
 @lru_cache(maxsize=1)
@@ -147,26 +135,6 @@ def _encode_file_with_tiktoken(encoder: Any, path: Path) -> int:
     return len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
 
 
-def _iter_source_files(path: Path) -> Iterable[Path]:
-    """Iterate over source files in a directory, skipping common build artifacts.
-
-    Args:
-        path: Directory path to walk
-
-    Yields:
-        Path objects for each source file
-
-    """
-    for root, dirs, files in os.walk(path):
-        # Skip common build/cache directories
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-
-        for file in files:
-            file_path = Path(root) / file
-            if file_path.suffix.lower() in SOURCE_EXTENSIONS:
-                yield file_path
-
-
 def _estimate_with_encoder(encoder: Any, files: list[str], prompt: str) -> int:
     """Estimate tokens using tiktoken encoder.
 
@@ -189,7 +157,7 @@ def _estimate_with_encoder(encoder: Any, files: list[str], prompt: str) -> int:
             if path.is_file():
                 total_tokens += _encode_file_with_tiktoken(encoder, path)
             elif path.is_dir():
-                for file in _iter_source_files(path):
+                for file in iter_source_files(path):
                     total_tokens += _encode_file_with_tiktoken(encoder, file)
         except OSError as exc:  # pragma: no cover - filesystem edge case
             logger.debug("Could not access file %s: %s", file_path, exc)
@@ -219,7 +187,7 @@ def _estimate_with_heuristic(files: list[str], prompt: str) -> int:
             if path.is_file():
                 tokens += estimate_file_tokens(path)
             elif path.is_dir():
-                for file in _iter_source_files(path):
+                for file in iter_source_files(path):
                     tokens += estimate_file_tokens(file)
         except OSError as exc:
             logger.debug("Could not access file %s: %s", file_path, exc)

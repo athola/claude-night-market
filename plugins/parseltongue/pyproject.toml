@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.7.0"
+version = "1.7.1"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -30,17 +30,17 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-mock>=3.10.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-xdist>=3.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "pytest-asyncio>=0.23",
+    "pytest-xdist>=3.0",
     "pytest-benchmark>=4.0.0",
     "coverage>=7.0.0",
     "black>=26.1.0",
     "ruff>=0.14.13",
-    "mypy>=1.0.0",
-    "pre-commit>=3.0.0",
+    "mypy>=1.11.0",
+    "pre-commit>=4.0.0",
     "bandit>=1.7.0",
     "safety>=2.0.0",
 ]
@@ -63,7 +63,7 @@ parseltongue = "parseltongue.cli:main"
 # write_to = "parseltongue/_version.py"
 
 [tool.setuptools.packages.find]
-# where = ["src"]
+where = ["src"]
 include = ["parseltongue*"]
 
 [tool.pytest.ini_options]
@@ -86,13 +86,12 @@ markers = [
     "asyncio: Async-focused tests",
     "testing: Testing-focused tests",
     "packaging: Packaging-focused tests",
-    "language_detection: Language detection tests",
     "edge_case: Edge case and boundary condition tests",
 ]
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["parseltongue"]
+source = ["src/parseltongue"]
 omit = [
     "*/tests/*",
     "*/test_*",
@@ -174,21 +173,17 @@ unfixable = [
 "__init__.py" = [
     "F401",   # Unused import
 ]
-# Skill modules are single-class files with many analysis methods.
+# Analysis modules are single-class files with many analysis methods.
 # Split into packages if any file exceeds 1500 LOC.
-"parseltongue/skills/async_analysis.py" = [
+"src/parseltongue/analysis/async_analysis/__init__.py" = [
     "PLR0904", # Too many public methods - single analysis class
 ]
-"parseltongue/skills/pattern_matching.py" = [
+"src/parseltongue/analysis/pattern_matching/__init__.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class
 ]
-"parseltongue/skills/testing_guide.py" = [
+"src/parseltongue/analysis/testing_guide.py" = [
     "PLR0904", # Too many public methods - single guide class
 ]
-"parseltongue/skills/language_detection.py" = [
-    "PLR0904", # Too many public methods - single detection class
-]
-
 [tool.ruff.lint.pylint]
 max-public-methods = 20
 

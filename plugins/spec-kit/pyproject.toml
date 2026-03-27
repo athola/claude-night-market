@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.7.0"
+version = "1.7.1"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -34,18 +34,18 @@ dependencies = [
 dev = [
     # Development tools
     "black>=26.1.0",                    # Code formatting
-    "ruff>=0.14.13,<1.0.0",             # Linting and formatting
-    "mypy>=1.6.0,<2.0.0",               # Type checking
-    "pre-commit>=3.5.0,<4.0.0",         # Git hooks
+    "ruff>=0.14.13",                    # Linting and formatting
+    "mypy>=1.11.0",                     # Type checking
+    "pre-commit>=4.0.0",                # Git hooks
 
     # Testing
-    "pytest>=7.4.0,<8.0.0",
-    "pytest-cov>=4.1.0,<5.0.0",
-    "pytest-mock>=3.12.0,<4.0.0",
-    "pytest-asyncio>=0.21.0,<1.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "pytest-asyncio>=0.23",
 
     # Advanced testing
-    "pytest-xdist>=3.3.0,<4.0.0",       # Parallel testing
+    "pytest-xdist>=3.0",                # Parallel testing
     "pytest-benchmark>=4.0.0,<5.0.0",   # Performance testing
     "factory-boy>=3.3.0,<4.0.0",        # Test data generation
 
@@ -122,7 +122,7 @@ strict_equality = true
 
 # Pytest configuration
 [tool.pytest.ini_options]
-minversion = "7.0"
+minversion = "8.0"
 addopts = [
     "--strict-markers",
     "--strict-config",
@@ -176,10 +176,10 @@ skips = ["B101", "B601"]
 [dependency-groups]
 dev = [
     "black",
-    "mypy",
-    "ruff",
-    "pytest>=7.4.0,<8.0.0",
-    "pytest-cov>=4.1.0,<5.0.0",
-    "pytest-mock>=3.12.0,<4.0.0",
-    "pytest-asyncio>=0.21.0,<1.0.0",
+    "mypy>=1.11.0",
+    "ruff>=0.14.13",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "pytest-asyncio>=0.23",
 ]

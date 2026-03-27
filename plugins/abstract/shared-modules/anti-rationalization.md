@@ -19,9 +19,9 @@ When you catch yourself thinking any of these, STOP. You are rationalizing.
 
 ## The Iron Law
 
-**If a skill might apply, even 1% chance, you MUST check it.**
+**If a skill might apply, even 1% chance, always check it.**
 
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
+This is essential. You cannot rationalize your way out of this.
 
 ## Common Bypass Patterns
 

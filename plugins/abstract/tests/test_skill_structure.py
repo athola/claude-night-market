@@ -97,9 +97,15 @@ class TestSkillDescriptionBestPractices:
         Then at least one should contain trigger/usage information
 
         Note: Skills can specify triggers in:
-        - description field (legacy format)
-        - triggers field (new format)
-        - use_when field (new format)
+        - description field (still supported; predates dedicated fields)
+        - triggers field (introduced alongside Claude Code 2.1.0 skill
+          frontmatter expansion)
+        - use_when field (introduced alongside Claude Code 2.1.0 skill
+          frontmatter expansion)
+
+        Both old and new formats remain valid. Skills written before
+        the triggers/use_when fields existed embed trigger information
+        in their description. This test accepts either approach.
         """
         trigger_patterns = [
             r"use when",

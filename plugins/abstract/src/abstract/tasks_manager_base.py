@@ -194,28 +194,46 @@ def detect_ambiguity(
     task_services = set(
         re.findall(r"\b(\w+(?:service|manager|handler))\b", task_lower, re.I)
     )
+    conflict = _has_circular_dependency(task_lower, task_services, existing_tasks)
+    if conflict is not None:
+        return AmbiguityResult(
+            is_ambiguous=True,
+            ambiguity_type=AmbiguityType.CIRCULAR_DEPENDENCY,
+            message=conflict,
+        )
+
+    return AmbiguityResult(is_ambiguous=False)
+
+
+def _has_circular_dependency(
+    task_lower: str,
+    task_services: set[str],
+    existing_tasks: list[dict[str, Any]],
+) -> str | None:
+    """Check whether a task creates a circular dependency with existing tasks.
+
+    Args:
+        task_lower: Lowercased task description.
+        task_services: Service/manager/handler names extracted from the task.
+        existing_tasks: List of existing task dicts with a "description" key.
+
+    Returns:
+        Conflict description string if circular dependency found, None otherwise.
+
+    """
     for existing in existing_tasks:
         existing_desc = existing.get("description", "").lower()
-
         existing_services = set(
             re.findall(r"\b(\w+(?:service|manager|handler))\b", existing_desc, re.I)
         )
-
-        if task_services and existing_services:
-            for service in task_services:
-                if service.lower() in existing_desc and "uses" in task_lower:
-                    for other_service in existing_services:
-                        if (
-                            other_service.lower() in task_lower
-                            and "uses" in existing_desc
-                        ):
-                            return AmbiguityResult(
-                                is_ambiguous=True,
-                                ambiguity_type=AmbiguityType.CIRCULAR_DEPENDENCY,
-                                message="Potential circular dependency detected",
-                            )
-
-    return AmbiguityResult(is_ambiguous=False)
+        if not (task_services and existing_services):
+            continue
+        for service in task_services:
+            if service.lower() in existing_desc and "uses" in task_lower:
+                for other_service in existing_services:
+                    if other_service.lower() in task_lower and "uses" in existing_desc:
+                        return "Potential circular dependency detected"
+    return None
 
 
 class TasksManager:

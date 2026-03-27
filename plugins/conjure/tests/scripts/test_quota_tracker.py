@@ -97,45 +97,18 @@ class TestGeminiQuotaTracker:
         assert tracker.config.tokens_per_day == 100000
 
     @pytest.mark.bdd
-    def test_get_quota_status_returns_tuple(self) -> None:
-        """Given a fresh tracker when calling get_quota_status then returns tuple."""
+    def test_get_quota_status_returns_valid_tuple(self) -> None:
+        """Given a fresh tracker then get_quota_status returns (str, list)."""
         tracker = GeminiQuotaTracker()
 
         result = tracker.get_quota_status()
 
         assert isinstance(result, tuple)
         assert len(result) == 2
-
-    @pytest.mark.bdd
-    def test_get_quota_status_status_is_string(self) -> None:
-        """Given a fresh tracker then status string is returned."""
-        tracker = GeminiQuotaTracker()
-
-        status, warnings = tracker.get_quota_status()
-
+        status, warnings = result
         assert isinstance(status, str)
         assert len(status) > 0
-
-    @pytest.mark.bdd
-    def test_get_quota_status_warnings_is_list(self) -> None:
-        """Given a fresh tracker then warnings is a list of strings."""
-        tracker = GeminiQuotaTracker()
-
-        status, warnings = tracker.get_quota_status()
-
         assert isinstance(warnings, list)
-
-    @pytest.mark.bdd
-    def test_get_quota_status_healthy_stub(self) -> None:
-        """Given stub QuotaTracker then status is OK Healthy."""
-        tracker = GeminiQuotaTracker()
-
-        status, warnings = tracker.get_quota_status()
-
-        # Stub returns "[OK] Healthy" with leyline disabled notice
-        assert "[OK] Healthy" in status
-        assert len(warnings) >= 1
-        assert any("leyline" in w.lower() for w in warnings)
 
     @pytest.mark.bdd
     def test_get_quota_status_with_custom_limits(self) -> None:

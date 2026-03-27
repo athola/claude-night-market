@@ -1,0 +1,32 @@
+{
+  "name": "night-market",
+  "version": "1.7.1",
+  "description": "Claude Night Market skills for OpenClaw \u2014 142 curated skills for code review, testing, documentation, architecture, and developer workflows",
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "homepage": "https://github.com/athola/claude-night-market",
+  "repository": "https://github.com/athola/claude-night-market",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "testing",
+    "documentation",
+    "architecture",
+    "tdd",
+    "skills",
+    "developer-tools",
+    "night-market"
+  ],
+  "skills": [
+    "./skills"
+  ],
+  "config": {
+    "night-market.enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable/disable all night-market skills"
+    }
+  }
+}

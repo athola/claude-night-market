@@ -9,6 +9,8 @@ description: 'Feature review and prioritization with RICE/WSJF/Kano scoring. Cre
   Use when: reviewing features or suggesting new features
 
   DO NOT use when: evaluating single feature scope - use scope-guard.'
+version: 1.7.1
+alwaysApply: false
 category: workflow-methodology
 tags:
 - feature-review

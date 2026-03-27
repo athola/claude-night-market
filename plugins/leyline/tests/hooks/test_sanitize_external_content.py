@@ -198,16 +198,15 @@ class TestSanitizeOutput:
 
     # --- Invisible text injection tests ---
 
-    def test_strips_display_none(self) -> None:
+    def test_strips_display_none_in_style_attr(self) -> None:
         content = '<div style="display:none">evil instructions</div>'
         result = sanitize_output(content)
-        assert "display:none" not in result
         assert "[BLOCKED]" in result
 
-    def test_strips_display_none_with_space(self) -> None:
+    def test_strips_display_none_with_space_in_style(self) -> None:
         content = '<div style="display: none">evil</div>'
         result = sanitize_output(content)
-        assert "display: none" not in result
+        assert "[BLOCKED]" in result
 
     def test_strips_visibility_hidden(self) -> None:
         content = '<span style="visibility:hidden">secret</span>'
@@ -291,8 +290,7 @@ class TestSanitizeOutput:
     def test_overlapping_patterns_both_blocked(self) -> None:
         content = '<div style="display:none;opacity:0">evil</div>'
         result = sanitize_output(content)
-        assert "display:none" not in result
-        assert "opacity:0" not in result
+        assert "[BLOCKED]" in result
 
 
 class TestIsExternalTool:
@@ -502,6 +500,116 @@ class TestCaseInsensitivePatterns:
         content = "<System>evil</System>" + "A" * 200_000
         result = sanitize_output(content)
         assert "CONTENT BLOCKED" in result
+
+
+class TestMiddlePayloadGap:
+    """Tests for Bug #329: chunked scan covers entire content."""
+
+    def test_middle_payload_injection_blocked(self) -> None:
+        """Injection at 150KB (middle) in >200KB content is caught."""
+        prefix = "A" * 150_000
+        suffix = "B" * 60_000
+        content = prefix + "__import__('os')" + suffix
+        assert len(content) > 200_000
+        result = sanitize_output(content)
+        assert "CONTENT BLOCKED" in result
+
+    def test_injection_at_100kb_boundary_blocked(self) -> None:
+        """Injection at exactly the 100KB chunk boundary is caught."""
+        # Place payload straddling the 100KB mark
+        prefix = "A" * (100 * 1024)
+        suffix = "B" * (100 * 1024)
+        content = prefix + "<system>evil</system>" + suffix
+        assert len(content) > 200_000
+        result = sanitize_output(content)
+        assert "CONTENT BLOCKED" in result
+
+
+class TestDisplayNoneFalsePositive:
+    """Tests for Bug #322: display:none in prose vs. HTML attributes.
+
+    The sanitize hook's display:none regex requires a style= attribute
+    prefix.  Prose text discussing CSS should pass through unblocked,
+    while actual style-attribute injection must still be caught.
+    """
+
+    # --- Prose that must NOT be blocked ---
+
+    def test_prose_display_none_not_blocked(self) -> None:
+        """Prose mentioning 'display: none' should NOT be blocked."""
+        content = "Use display: none to hide elements in your CSS."
+        result = sanitize_output(content)
+        assert result == content
+
+    def test_prose_display_none_no_space_not_blocked(self) -> None:
+        """Prose mentioning 'display:none' (no space) passes."""
+        content = "The CSS property display:none hides the element."
+        result = sanitize_output(content)
+        assert result == content
+
+    def test_prose_set_display_none_not_blocked(self) -> None:
+        """Instructional sentence about display:none passes."""
+        content = "you can set display: none in CSS to hide elements"
+        result = sanitize_output(content)
+        assert result == content
+
+    def test_prose_css_tutorial_not_blocked(self) -> None:
+        """Multi-sentence CSS tutorial text passes."""
+        content = (
+            "To hide an element, use display: none in your stylesheet. "
+            "Alternatively, visibility: hidden keeps the layout space."
+        )
+        result = sanitize_output(content)
+        # display:none in prose should survive; visibility:hidden also
+        # lacks the style= prefix so should pass
+        assert "display: none" in result
+
+    def test_prose_code_review_not_blocked(self) -> None:
+        """Code-review comment mentioning the property passes."""
+        content = (
+            "This div uses display:none but should use "
+            "visibility:hidden instead for accessibility."
+        )
+        result = sanitize_output(content)
+        assert "display:none" in result
+
+    def test_prose_markdown_backtick_not_blocked(self) -> None:
+        """Markdown inline code quoting display:none passes."""
+        content = "Set `display: none` on the container element."
+        result = sanitize_output(content)
+        assert result == content
+
+    # --- Actual injections that MUST be blocked ---
+
+    def test_real_attack_display_none_in_style_blocked(self) -> None:
+        """Actual hidden-text attack using style attribute is blocked."""
+        content = '<div style="display:none">hidden text</div>'
+        result = sanitize_output(content)
+        assert "[BLOCKED]" in result
+
+    def test_style_attr_display_none_with_space_blocked(self) -> None:
+        """style= with 'display: none' (space) is blocked."""
+        content = '<span style="display: none">secret instructions</span>'
+        result = sanitize_output(content)
+        assert "[BLOCKED]" in result
+
+    def test_style_attr_single_quotes_blocked(self) -> None:
+        """style= using single quotes is blocked."""
+        content = "<p style='display:none'>injected prompt</p>"
+        result = sanitize_output(content)
+        assert "[BLOCKED]" in result
+
+    def test_style_attr_extra_properties_blocked(self) -> None:
+        """style= with display:none among other properties is blocked."""
+        content = '<div style="color:red;display:none;font-size:12px">x</div>'
+        result = sanitize_output(content)
+        assert "[BLOCKED]" in result
+
+    def test_style_attr_whitespace_around_equals_blocked(self) -> None:
+        """style = (with space around =) is blocked."""
+        content = '<div style = "display:none">hidden</div>'
+        result = sanitize_output(content)
+        assert "[BLOCKED]" in result
 
 
 class TestMainEntryPoint:

@@ -19,7 +19,6 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402
     DEFAULT_THRESHOLD,
     SemanticDeduplicator,
     _content_id,
-    _cosine_similarity_numpy,
     _hash_to_vector,
     _jaccard_similarity,
 )
@@ -394,7 +393,7 @@ class TestModuleLevelHelpers:
     """Feature: Module-level utility functions.
 
     As a developer
-    I want _hash_to_vector and _cosine_similarity_numpy to behave correctly
+    I want _hash_to_vector to behave correctly
     So that the deduplication math is reliable
     """
 
@@ -442,45 +441,6 @@ class TestModuleLevelHelpers:
         v1 = _hash_to_vector("Hello World", 32)
         v2 = _hash_to_vector("hello world", 32)
         assert v1 == v2
-
-    @pytest.mark.unit
-    def test_cosine_similarity_identical_vectors(self) -> None:
-        """Scenario: Identical vectors
-        Given two identical numpy vectors
-        When _cosine_similarity_numpy is called
-        Then the score is 1.0.
-        """
-        import numpy as np  # noqa: PLC0415
-
-        vec = np.array([1.0, 0.0, 0.0], dtype="float32")
-        assert abs(_cosine_similarity_numpy(vec, vec) - 1.0) < 1e-6
-
-    @pytest.mark.unit
-    def test_cosine_similarity_orthogonal_vectors(self) -> None:
-        """Scenario: Orthogonal vectors
-        Given two perpendicular numpy vectors
-        When _cosine_similarity_numpy is called
-        Then the score is 0.0.
-        """
-        import numpy as np  # noqa: PLC0415
-
-        a = np.array([1.0, 0.0, 0.0], dtype="float32")
-        b = np.array([0.0, 1.0, 0.0], dtype="float32")
-        assert abs(_cosine_similarity_numpy(a, b)) < 1e-6
-
-    @pytest.mark.unit
-    def test_cosine_similarity_zero_vector_returns_zero(self) -> None:
-        """Scenario: Zero vector edge case
-        Given one zero vector and one non-zero vector
-        When _cosine_similarity_numpy is called
-        Then the score is 0.0 (not NaN or error).
-        """
-        import numpy as np  # noqa: PLC0415
-
-        zero = np.array([0.0, 0.0, 0.0], dtype="float32")
-        nonzero = np.array([1.0, 0.0, 0.0], dtype="float32")
-        assert _cosine_similarity_numpy(zero, nonzero) == 0.0
-        assert _cosine_similarity_numpy(nonzero, zero) == 0.0
 
     @pytest.mark.unit
     def test_content_id_custom_length(self) -> None:

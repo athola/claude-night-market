@@ -33,6 +33,29 @@ Keep context pressure under 50% for quality responses.
 2. **Targeted reads** - based on initial findings
 3. **Grep tool** - ripgrep for text search (not bash grep)
 
+## Read Budget
+
+Hard caps on file reads before implementation.
+Exceeding these requires **explicit user approval**.
+
+| Task | Max Reads | Budget |
+|------|-----------|--------|
+| From spec | 8 files | ~10k tokens |
+| Bug fix | 5 files | ~5k tokens |
+| Refactor | 1 per changed file | ~8k tokens |
+| Exploration | 15 files | ~15k tokens |
+
+Free operations (don't count): `Glob`, `Grep` in
+`files_with_matches` mode, `Read` with <50 line slices.
+
+When budget is spent: **ask the user**, don't read more.
+Self-authorized overrides are prohibited.
+
+**User override phrases** (unlocks unlimited reads):
+"ultrathink", "explore deeply", "deep dive",
+"read more files", "read the whole module",
+"take your time and understand the full context".
+
 ## Retries & Self-Reflection
 
 If a command fails 3+ times:

@@ -5,6 +5,8 @@ description: >-
   tech blogs) for experience reports and opinions on a
   topic. Use when the user wants community perspectives
   on a technology or approach.
+version: 1.7.1
+alwaysApply: false
 category: research
 tags:
   - hackernews
@@ -14,8 +16,17 @@ tags:
   - discourse
 estimated_tokens: 200
 ---
-
 # Discourse Search
+
+## When To Use
+
+- Gathering community opinions on a technology or approach
+- Finding experience reports from HN, Reddit, or Lobsters
+
+## When NOT To Use
+
+- Academic research (use `/tome:papers`)
+- Code examples (use `/tome:code-search`)
 
 Scan community channels for discussions on a topic.
 

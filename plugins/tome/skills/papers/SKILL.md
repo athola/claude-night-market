@@ -5,6 +5,8 @@ description: >-
   and open-access discovery chains. Fetches and parses
   PDFs for key findings. Use when the user needs academic
   papers, citations, or formal research on a topic.
+version: 1.7.1
+alwaysApply: false
 category: research
 tags:
   - arxiv
@@ -12,10 +14,21 @@ tags:
   - academic
   - papers
   - pdf
-estimated_tokens: 200
+dependencies:
+  - leyline:document-conversion
+estimated_tokens: 350
 ---
-
 # Academic Papers Search
+
+## When To Use
+
+- Finding academic papers, citations, or formal research
+- Building literature reviews or citation chains
+
+## When NOT To Use
+
+- Community opinions (use `/tome:discourse`)
+- Code implementations (use `/tome:code-search`)
 
 Search arXiv, Semantic Scholar, and open-access sources.
 
@@ -30,10 +43,33 @@ Search arXiv, Semantic Scholar, and open-access sources.
 
 ## PDF Processing
 
-- Fetch via WebFetch
-- Read via Read tool (20 pages max per request)
-- Chunk longer papers with page ranges
-- Extract: abstract, key findings, methodology
+After acquiring a paper URL or local file path, convert
+the PDF to markdown for better extraction quality.
+
+### Conversion (prefer markitdown)
+
+Apply the `leyline:document-conversion` protocol:
+
+1. **Try markitdown first**: call the MCP `convert_to_markdown`
+   tool with the PDF URL or `file://` path. This produces
+   structured markdown preserving tables, equations, figures,
+   and section hierarchy.
+
+2. **Fall back to Read tool** if markitdown is unavailable:
+   - Read with `pages: "1-20"` for the first chunk
+   - Continue with `pages: "21-40"` for longer papers
+   - Continue in 20-page increments as needed
+   - Note: tables and figures will not extract as cleanly
+
+### Extraction Targets
+
+From the converted markdown, extract:
+
+- Abstract and key findings
+- Methodology and experimental setup
+- Results tables and figures
+- Citation information (authors, year, venue)
+- Key equations or formal definitions
 
 ## Fallback Guidance
 

@@ -13,7 +13,45 @@ import re
 from typing import Any
 from urllib.parse import quote, quote_plus
 
+from tome.channels import deduplicate_queries
 from tome.models import Finding
+
+# ---------------------------------------------------------------------------
+# Query Expansion
+# ---------------------------------------------------------------------------
+
+
+def expand_academic_queries(topic: str, max_variants: int = 5) -> list[str]:
+    """Generate multiple query reformulations for academic search.
+
+    Produces the original topic plus synonym, specificity, and temporal
+    variants so that arXiv and Semantic Scholar searches cover more ground.
+
+    Args:
+        topic: Free-text research topic.
+        max_variants: Maximum total queries to return (default 5).
+
+    Returns:
+        List of distinct query strings, original topic always first.
+    """
+    queries: list[str] = [topic]
+
+    # Broad variant: drop the first word if multi-word
+    words = topic.split()
+    if len(words) > 2:
+        queries.append(" ".join(words[1:]))
+
+    # Survey variant
+    queries.append(f"{topic} survey")
+
+    # Review variant
+    queries.append(f"{topic} review")
+
+    # Recent variant
+    queries.append(f"recent advances {topic}")
+
+    return deduplicate_queries(queries)[:max_variants]
+
 
 # ---------------------------------------------------------------------------
 # arXiv
@@ -157,6 +195,17 @@ def parse_arxiv_response(xml_text: str) -> list[Finding]:
 # Semantic Scholar
 # ---------------------------------------------------------------------------
 
+_CITATION_TIER_LANDMARK = 500
+_CITATION_TIER_HIGH = 100
+_CITATION_TIER_MODERATE = 50
+_CITATION_TIER_LOW = 10
+
+_RELEVANCE_LANDMARK = 0.9
+_RELEVANCE_HIGH = 0.8
+_RELEVANCE_MODERATE = 0.7
+_RELEVANCE_LOW = 0.6
+_RELEVANCE_MINIMAL = 0.5
+
 _SS_API_BASE = "https://api.semanticscholar.org/graph/v1/paper/search"
 _SS_FIELDS = (
     "title,abstract,year,citationCount,influentialCitationCount,"
@@ -180,15 +229,15 @@ def build_semantic_scholar_url(topic: str, limit: int = 10) -> str:
 
 def _citation_relevance(citations: int) -> float:
     """Map citation count to a relevance score on the configured tiers."""
-    if citations >= 500:
-        return 0.9
-    if citations >= 100:
-        return 0.8
-    if citations >= 50:
-        return 0.7
-    if citations >= 10:
-        return 0.6
-    return 0.5
+    if citations >= _CITATION_TIER_LANDMARK:
+        return _RELEVANCE_LANDMARK
+    if citations >= _CITATION_TIER_HIGH:
+        return _RELEVANCE_HIGH
+    if citations >= _CITATION_TIER_MODERATE:
+        return _RELEVANCE_MODERATE
+    if citations >= _CITATION_TIER_LOW:
+        return _RELEVANCE_LOW
+    return _RELEVANCE_MINIMAL
 
 
 def parse_semantic_scholar_response(data: dict[str, Any]) -> list[Finding]:
@@ -431,6 +480,115 @@ def estimate_page_chunks(total_pages: int, chunk_size: int = 20) -> list[str]:
         ranges.append(f"{start}-{end}")
         start = end + 1
     return ranges
+
+
+# ---------------------------------------------------------------------------
+# Citation Chaining (Semantic Scholar)
+# ---------------------------------------------------------------------------
+
+_SS_CHAIN_FIELDS = "title,year,citationCount,authors,externalIds"
+
+
+def build_citation_references_url(paper_id: str, limit: int = 10) -> str:
+    """Build Semantic Scholar URL for papers cited by *paper_id*.
+
+    Args:
+        paper_id: Semantic Scholar paper ID.
+        limit: Maximum references to return (default 10).
+
+    Returns:
+        URL string for the S2 references endpoint.
+    """
+    return (
+        f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}"
+        f"/references?fields={_SS_CHAIN_FIELDS}&limit={limit}"
+    )
+
+
+def build_citation_citations_url(paper_id: str, limit: int = 10) -> str:
+    """Build Semantic Scholar URL for papers that cite *paper_id*.
+
+    Args:
+        paper_id: Semantic Scholar paper ID.
+        limit: Maximum citing papers to return (default 10).
+
+    Returns:
+        URL string for the S2 citations endpoint.
+    """
+    return (
+        f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}"
+        f"/citations?fields={_SS_CHAIN_FIELDS}&limit={limit}"
+    )
+
+
+def parse_citation_chain_response(data: dict[str, Any]) -> list[Finding]:
+    """Parse a Semantic Scholar references or citations response.
+
+    Handles both ``/references`` (key: ``citedPaper``) and
+    ``/citations`` (key: ``citingPaper``) response shapes.
+
+    Args:
+        data: Parsed JSON from the S2 references or citations endpoint.
+
+    Returns:
+        List of Findings with ``source="semantic_scholar_chain"``.
+    """
+    findings: list[Finding] = []
+    items = data.get("data", [])
+    if not isinstance(items, list):
+        return findings
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        # References use "citedPaper", citations use "citingPaper"
+        paper = item.get("citedPaper") or item.get("citingPaper") or {}
+        if not isinstance(paper, dict):
+            continue
+
+        title: str = paper.get("title") or ""
+        if not title:
+            continue
+
+        paper_id: str = paper.get("paperId") or ""
+        year: int | None = paper.get("year")
+        citations: int = paper.get("citationCount") or 0
+
+        # URL: prefer arXiv if available
+        ext_ids = paper.get("externalIds") or {}
+        arxiv_id = ext_ids.get("ArXiv") if isinstance(ext_ids, dict) else None
+        if arxiv_id:
+            url = f"https://arxiv.org/abs/{arxiv_id}"
+        elif paper_id:
+            url = f"https://www.semanticscholar.org/paper/{paper_id}"
+        else:
+            url = ""
+
+        relevance = _citation_relevance(citations)
+
+        authors_raw = paper.get("authors") or []
+        authors: list[str] = [
+            a["name"] for a in authors_raw if isinstance(a, dict) and a.get("name")
+        ]
+
+        findings.append(
+            Finding(
+                source="semantic_scholar_chain",
+                channel="academic",
+                title=title,
+                url=url,
+                relevance=relevance,
+                summary=f"Cited paper ({year or 'unknown year'}, {citations} citations)",
+                metadata={
+                    "authors": authors,
+                    "year": year,
+                    "citations": citations,
+                    "paper_id": paper_id,
+                },
+            )
+        )
+
+    return findings
 
 
 def build_paper_summary_prompt(title: str, abstract: str) -> str:

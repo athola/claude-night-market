@@ -39,7 +39,7 @@ Use this command when you need to:
 | **3. Plan** | Generate fix strategies | Fixes are obvious |
 | **4. Fix** | Apply code changes | Just need validation |
 | **5. Validate** | Run tests, version checks, agent-verify manual test plan | Already validated |
-| **6. Complete** | **Reconcile ALL unworked items**, **reply to & resolve threads** (MANDATORY), create issues, post summary | Never - issue tracking & thread resolution enforced |
+| **6. Complete** | **Reconcile all unworked items**, **reply to & resolve threads** (required), create issues, post summary | Never - issue tracking & thread resolution enforced |
 
 **Detailed Steps**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
 
@@ -247,7 +247,7 @@ for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
 
 ## Mandatory Exit Gate
 
-**⛔ CRITICAL: The workflow is NOT complete until BOTH gates pass.**
+**The workflow is not complete until both gates pass.**
 
 ### Gate 1: Thread Resolution
 
@@ -280,12 +280,12 @@ fi
 
 ### Gate 2: Issue Tracking Verification (NEW)
 
-**Every review item must be either FIXED or have a GitHub ISSUE created.**
+**Every review item must be either fixed or have a GitHub issue created.**
 
 Before completing, verify the triage reconciliation:
 
 ```markdown
-## Issue Tracking Checklist (MANDATORY)
+## Issue Tracking Checklist (Required)
 
 For EACH item from triage (Step 2), confirm ONE of:
 - [ ] **Fixed**: Code change applied and committed
@@ -300,7 +300,7 @@ For EACH item from triage (Step 2), confirm ONE of:
 | D1 | Deferred | Issue #46 | gh issue view 46 |
 | I1 | Informational | Skipped | No action needed |
 
-**⛔ GATE 2 FAILS if any row has empty "Disposition" or "Evidence"**
+**Gate 2 fails if any row has empty "Disposition" or "Evidence".**
 ```
 
 **Automatic verification** (run after populating table):
@@ -323,7 +323,7 @@ The PR summary comment (Step 6.5) must include:
 - All created issues with issue numbers
 - Explicit "None" if no suggestions/deferred items
 
-**This gate is NOT optional.** If any gate fails:
+**This gate is required.** If any gate fails:
 1. Execute [Step 6: Complete](fix-pr-modules/steps/6-complete.md)
 2. Reply to each thread with fix description
 3. Resolve each thread via GraphQL

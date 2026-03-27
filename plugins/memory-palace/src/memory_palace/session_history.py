@@ -9,19 +9,85 @@ from __future__ import annotations
 
 import fnmatch
 import json
-import re
+import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-_SAFE_SESSION_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+try:
+    from leyline.session_store import (  # type: ignore[import-not-found]
+        SessionStore,
+        validate_session_id,
+    )
+except ImportError:  # pragma: no cover — standalone fallback
+    import re as _re
+
+    def validate_session_id(session_id: str) -> bool:  # type: ignore[misc]
+        """Fallback ID validator used when leyline is not installed."""
+        pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+        return (
+            bool(pattern.match(session_id))
+            and len(session_id) <= 128  # noqa: PLR2004
+            and ".." not in session_id
+        )
+
+    class SessionStore:  # type: ignore[no-redef]
+        """Minimal fallback base when leyline is absent."""
+
+        def __init__(self, sessions_dir: Path) -> None:  # noqa: D107
+            self.sessions_dir = sessions_dir
+            self.sessions_dir.mkdir(parents=True, exist_ok=True)
+
+        def _session_path(self, session_id: str) -> Path:
+            return self.sessions_dir / f"{session_id}.json"
+
+        def save(self, session_id: str, record: Any) -> Path:  # noqa: D102
+            if not validate_session_id(session_id):
+                raise ValueError(f"Invalid session ID: {session_id!r}")
+            path = self._session_path(session_id)
+            path.write_text(
+                json.dumps(self._serialize(record), indent=2), encoding="utf-8"
+            )
+            return path
+
+        def load(self, session_id: str) -> Any | None:  # noqa: D102
+            path = self._session_path(session_id)
+            if not path.exists():
+                return None
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                return self._deserialize(data)
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                print(f"Warning: corrupt session {session_id}: {e}", file=sys.stderr)
+                return None
+
+        def list_sessions(self) -> list[str]:  # noqa: D102
+            if not self.sessions_dir.exists():
+                return []
+            return sorted(
+                p.stem
+                for p in self.sessions_dir.glob("*.json")
+                if validate_session_id(p.stem)
+            )
+
+        def delete(self, session_id: str) -> bool:  # noqa: D102
+            path = self._session_path(session_id)
+            if path.exists():
+                path.unlink()
+                return True
+            return False
+
+        def _serialize(self, record: Any) -> dict:  # type: ignore[type-arg]
+            raise NotImplementedError
+
+        def _deserialize(self, data: dict) -> Any:  # type: ignore[type-arg]
+            raise NotImplementedError
 
 
-def _validate_session_id(session_id: str) -> bool:
-    """Check session_id is safe for use in file paths."""
-    return bool(_SAFE_SESSION_ID.match(session_id)) and ".." not in session_id
-
+# Backward-compatible alias so existing code and tests using the old private
+# name continue to work without modification.
+_validate_session_id = validate_session_id
 
 # Storage location within the plugin data directory
 SESSIONS_DIR = "sessions"
@@ -77,6 +143,16 @@ class SessionQuery:
     offset: int = 0
 
 
+class _SessionRecordStore(SessionStore):
+    """SessionStore subclass that serializes/deserializes SessionRecord objects."""
+
+    def _serialize(self, record: Any) -> Any:
+        return record.to_dict()
+
+    def _deserialize(self, data: Any) -> Any:
+        return SessionRecord.from_dict(data)
+
+
 class SessionHistoryManager:
     """Manage persistent session history records.
 
@@ -98,7 +174,7 @@ class SessionHistoryManager:
             data_dir = Path(__file__).resolve().parents[2] / "data"
         self.sessions_dir = data_dir / SESSIONS_DIR
         self.index_path = self.sessions_dir / SESSION_INDEX
-        self._ensure_dirs()
+        self._store = _SessionRecordStore(self.sessions_dir)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -143,12 +219,9 @@ class SessionHistoryManager:
             ValueError: If the session_id contains unsafe characters.
 
         """
-        if not _validate_session_id(record.session_id):
+        if not validate_session_id(record.session_id):
             raise ValueError(f"Invalid session_id: {record.session_id!r}")
-        session_file = self.sessions_dir / f"{record.session_id}.json"
-        session_file.write_text(
-            json.dumps(record.to_dict(), indent=2), encoding="utf-8"
-        )
+        session_file: Path = self._store.save(record.session_id, record)  # type: ignore[assignment]
 
         index = self._load_index()
         # Remove any stale entry for this session before appending
@@ -171,7 +244,7 @@ class SessionHistoryManager:
         self._save_index(index)
         return session_file
 
-    def get_session(self, session_id: str) -> SessionRecord | None:
+    def get_session(self, session_id: str) -> Any:
         """Retrieve a specific session record by ID.
 
         Args:
@@ -182,16 +255,12 @@ class SessionHistoryManager:
             if the ID is invalid.
 
         """
-        if not _validate_session_id(session_id):
+        if not validate_session_id(session_id):
             return None
-        session_file = self.sessions_dir / f"{session_id}.json"
-        if not session_file.exists():
+        result = self._store.load(session_id)
+        if result is None:
             return None
-        try:
-            data = json.loads(session_file.read_text(encoding="utf-8"))
-            return SessionRecord.from_dict(data)
-        except (json.JSONDecodeError, TypeError):
-            return None
+        return result
 
     def query_sessions(self, query: SessionQuery) -> list[SessionRecord]:
         """Search session history with flexible filters.
@@ -361,13 +430,11 @@ class SessionHistoryManager:
             not found or if the ID is invalid.
 
         """
-        if not _validate_session_id(session_id):
+        if not validate_session_id(session_id):
             return False
-        session_file = self.sessions_dir / f"{session_id}.json"
-        if not session_file.exists():
+        deleted = self._store.delete(session_id)
+        if not deleted:
             return False
-
-        session_file.unlink()
 
         index = self._load_index()
         index["sessions"] = [
@@ -399,11 +466,7 @@ class SessionHistoryManager:
         ]
 
         for sid in to_remove:
-            if not _validate_session_id(sid):
-                continue
-            session_file = self.sessions_dir / f"{sid}.json"
-            if session_file.exists():
-                session_file.unlink()
+            self._store.delete(sid)
 
         index["sessions"] = [
             s for s in index["sessions"] if s.get("session_id") not in to_remove

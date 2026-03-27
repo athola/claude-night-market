@@ -52,7 +52,7 @@ parseltongue/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── agents/
-│   ├── python-pro.md        # Python 3.12+ specialist
+│   ├── python-pro.md        # Python 3.9+ specialist
 │   ├── python-tester.md     # Pytest and TDD specialist
 │   ├── python-optimizer.md  # Performance tuning
 │   └── python-linter.md     # Linting enforcement

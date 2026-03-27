@@ -10,12 +10,20 @@ Run these sequentially for each affected plugin:
 
 ### 1. Registration Audit
 
+**Only available in night-market repo.** Check script exists first:
+
 ```bash
-python3 plugins/sanctum/scripts/update_plugin_registrations.py \
-  <plugin-name> --dry-run
+# Check if the script exists (night-market only)
+if [[ -f "plugins/sanctum/scripts/update_plugin_registrations.py" ]]; then
+  python3 plugins/sanctum/scripts/update_plugin_registrations.py \
+    <plugin-name> --dry-run
+else
+  echo "Registration audit skipped - not running in night-market"
+fi
 ```
 
-Report any missing or stale registrations.
+Report any missing or stale registrations. If skipped, note in the
+result table that registration audit is unavailable.
 
 ### 2. Test Gate
 

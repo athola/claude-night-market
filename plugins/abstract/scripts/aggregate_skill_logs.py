@@ -22,6 +22,23 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+# Optional Hyperagents modules (may not be installed)
+_src = Path(__file__).resolve().parent.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+try:
+    from abstract.improvement_memory import ImprovementMemory
+
+    _HAS_IMPROVEMENT_MEMORY = True
+except ImportError:
+    _HAS_IMPROVEMENT_MEMORY = False
+try:
+    from abstract.performance_tracker import PerformanceTracker
+
+    _HAS_PERFORMANCE_TRACKER = True
+except ImportError:
+    _HAS_PERFORMANCE_TRACKER = False
+
 # Analysis thresholds
 MIN_EXECUTIONS_FOR_FAILURE_ANALYSIS = 5
 HIGH_FAILURE_THRESHOLD_PERCENT = 70  # Success rate below this is concerning
@@ -111,14 +128,21 @@ def load_log_entries(
                             if not line.strip():
                                 continue
 
-                            entry = json.loads(line)
-
-                            # Filter by date
-                            entry_time = datetime.fromisoformat(entry["timestamp"])
-                            if entry_time >= cutoff:
-                                entries_by_skill[skill_key].append(entry)
-                except (json.JSONDecodeError, KeyError, ValueError) as e:
-                    print(f"Warning: Skipping malformed log entry in {log_file}: {e}")
+                            try:
+                                entry = json.loads(line)
+                                # Filter by date
+                                entry_time = datetime.fromisoformat(entry["timestamp"])
+                                if entry_time >= cutoff:
+                                    entries_by_skill[skill_key].append(entry)
+                            except (
+                                json.JSONDecodeError,
+                                KeyError,
+                                ValueError,
+                            ):
+                                # Skip individual bad entries, not the whole file
+                                continue
+                except OSError as e:
+                    print(f"Warning: Could not read {log_file}: {e}")
                     continue
 
     return dict(entries_by_skill)
@@ -497,6 +521,82 @@ def extract_pinned_section(content: str) -> str:
     return section
 
 
+def _format_hyperagents_section() -> list[str]:
+    """Format Hyperagents performance trends and meta-insights.
+
+    Best-effort: returns empty list if modules unavailable.
+    """
+    lines: list[str] = []
+    _max_trend_skills = 20
+
+    # Performance trends from PerformanceTracker
+    if _HAS_PERFORMANCE_TRACKER:
+        try:
+            tracker_file = (
+                Path.home() / ".claude" / "skills" / "performance_history.json"
+            )
+            if tracker_file.exists():
+                tracker = PerformanceTracker(tracker_file)
+                if tracker.history:
+                    lines.extend(["", "## Performance Trends (Hyperagents)", ""])
+                    seen: set[str] = set()
+                    for entry in tracker.history:
+                        ref = entry.get("skill_ref")
+                        if not ref or ref in seen:
+                            continue
+                        seen.add(ref)
+                        trend = tracker.get_improvement_trend(ref)
+                        if trend is not None:
+                            direction = "improving" if trend > 0 else "degrading"
+                            lines.append(
+                                f"- `{ref}`: {direction} (trend: {trend:+.3f})"
+                            )
+                        if len(seen) >= _max_trend_skills:
+                            break
+                    lines.append("")
+        except (OSError, KeyError) as e:
+            sys.stderr.write(
+                f"aggregate_skill_logs: PerformanceTracker section skipped: {e}\n"
+            )
+
+    # Meta-insights from ImprovementMemory
+    if _HAS_IMPROVEMENT_MEMORY:
+        try:
+            mem_file = Path.home() / ".claude" / "skills" / "improvement_memory.json"
+            if mem_file.exists():
+                mem = ImprovementMemory(mem_file)
+                effective = mem.get_effective_strategies()
+                failed = mem.get_failed_strategies()
+                if effective or failed:
+                    lines.extend(["## Meta-Insights (Hyperagents)", ""])
+                    total = len(effective) + len(failed)
+                    rate = len(effective) / total if total else 0
+                    lines.append(
+                        f"Improvement effectiveness: {rate:.0%}"
+                        f" ({len(effective)}/{total})"
+                    )
+                    lines.append("")
+                    if effective:
+                        best = effective[0]
+                        lines.append(
+                            f"Best strategy: {best.get('change_summary', 'N/A')}"
+                            f" (+{best.get('improvement', 0):.3f})"
+                        )
+                    if failed:
+                        worst = failed[0]
+                        lines.append(
+                            f"Avoid: {worst.get('change_summary', 'N/A')}"
+                            f" ({worst.get('improvement', 0):+.3f})"
+                        )
+                    lines.append("")
+        except (OSError, KeyError) as e:
+            sys.stderr.write(
+                f"aggregate_skill_logs: ImprovementMemory section skipped: {e}\n"
+            )
+
+    return lines
+
+
 def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") -> str:
     """Generate LEARNINGS.md content from aggregation result.
 
@@ -541,6 +641,9 @@ def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") 
 
     # Skill performance summary
     lines.extend(format_skill_summary(result.metrics_by_skill))
+
+    # Hyperagents: Include performance trends and meta-insights
+    lines.extend(_format_hyperagents_section())
 
     lines.append("")
     lines.append("---")

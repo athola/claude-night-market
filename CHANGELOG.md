@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-03-25
+
+### Changed
+
+- Skill frontmatter descriptions expanded across attune,
+  tome, leyline, egregore, pensive, and phantom plugins
+  for better Claude Code matching and discoverability
+- Added "When To Use" and "When NOT To Use" sections to
+  15 skills that lacked usage guidance (content-sanitization,
+  deferred-capture, markdown-formatting, stewardship,
+  quality-gate, computer-control, metacognitive-self-mod,
+  and all six tome research skills)
+- Normalized heading case from "When to Use" to
+  "When To Use" across damage-control, utility,
+  tiered-audit, and computer-control skills
+
+### Fixed
+
+- pytest `norecursedirs` added to root `pyproject.toml` to
+  prevent plugin conftest.py import conflicts when running
+  top-level tests
+- `scripts/fix_descriptions.py` now detects embedded
+  `Triggers:` patterns in skill descriptions alongside
+  existing custom description and truncated "DO NOT."
+  checks
+
 ## [1.7.0] - 2026-03-21
 
 ### Added

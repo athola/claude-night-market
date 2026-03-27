@@ -509,8 +509,8 @@ class TestMarginalValueFilterDecisions:
         assert plan.decision == IntegrationDecision.MERGE
         assert plan.confidence == 0.7
 
-    def test_decide_integration_low_value_skip(self, mock_filter) -> None:
-        """Low value content should result in SKIP."""
+    def test_decide_integration_no_delta_skip(self, mock_filter) -> None:
+        """Content with no meaningful delta should result in SKIP."""
         redundancy = RedundancyCheck(
             level=RedundancyLevel.PARTIAL_OVERLAP,
             overlap_score=0.5,
@@ -518,7 +518,7 @@ class TestMarginalValueFilterDecisions:
             reasons=["Partial overlap"],
         )
         delta = DeltaAnalysis(
-            delta_type=DeltaType.DIFFERENT_FRAMING,
+            delta_type=DeltaType.NONE,
             value_score=VALUE_NONE,
             novel_aspects=[],
             redundant_aspects=["Everything covered"],

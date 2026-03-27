@@ -12,6 +12,8 @@ from tome.models import (
     ResearchSession,
 )
 
+from tests.factories import make_finding  # noqa: F401 — re-export
+
 
 @pytest.fixture
 def tmp_session_dir(tmp_path: Path) -> Path:

@@ -544,6 +544,34 @@ class TestLoadLogEntries:
         result = load_log_entries(tmp_path, days_back=7)
         assert result == {}
 
+    @pytest.mark.unit
+    def test_malformed_entry_does_not_discard_valid_entries(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: One bad entry in a JSONL file does not drop the rest
+        Given a JSONL file with a malformed entry between two valid ones
+        When load_log_entries is called
+        Then the two valid entries are loaded and only the bad one is skipped
+        """
+        skill_dir = tmp_path / "testplugin" / "testskill"
+        skill_dir.mkdir(parents=True)
+
+        good_ts = datetime.now(timezone.utc).isoformat()
+        lines = [
+            json.dumps(
+                {"timestamp": good_ts, "outcome": "success", "duration_ms": 100}
+            ),
+            '{"timestamp": "not-a-date", "outcome": "success"}',
+            json.dumps(
+                {"timestamp": good_ts, "outcome": "failure", "duration_ms": 200}
+            ),
+        ]
+        (skill_dir / "2026-03-25.jsonl").write_text("\n".join(lines) + "\n")
+
+        result = load_log_entries(tmp_path, days_back=30)
+        assert "testplugin:testskill" in result
+        assert len(result["testplugin:testskill"]) == 2
+
 
 # ---------------------------------------------------------------------------
 # Tests: format_high_impact_issues

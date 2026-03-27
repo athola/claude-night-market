@@ -5,6 +5,8 @@ description: 'Uses subagents for parallel execution with code review gates betwe
   need fixing, tasks can be parallelized across subagents, quality gates needed between
   task batches. Do not use when single simple fix - just implement directly. DO NOT
   use when: issue needs clarification - comment first to clarify scope.'
+version: 1.7.1
+alwaysApply: false
 category: workflow-automation
 tags:
 - github

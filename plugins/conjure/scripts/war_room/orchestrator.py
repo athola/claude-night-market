@@ -306,53 +306,63 @@ class WarRoomOrchestrator:
                 output[key] = str(result)  # type: ignore[unreachable]
         return output
 
-    # --- Phase delegations (maintain original method signatures) ---
+    # --- Phase forwarders (thin wrappers kept for test patching compatibility) ---
 
     async def _phase_intel(
         self, session: WarRoomSession, context_files: list[str] | None
     ) -> None:
-        """Phase 1: Intelligence Gathering."""
+        """Forward to module-level phase_intel."""
         await phase_intel(self, session, context_files)
 
     async def _phase_assessment(self, session: WarRoomSession) -> None:
-        """Phase 2: Situation Assessment."""
+        """Forward to module-level phase_assessment."""
         await phase_assessment(self, session)
 
     async def _phase_coa_development(self, session: WarRoomSession) -> None:
-        """Phase 3: COA Development."""
+        """Forward to module-level phase_coa_development."""
         await phase_coa_development(self, session)
 
-    async def _should_escalate(self, session: WarRoomSession) -> bool:
-        """Check if should escalate to full council."""
-        return await should_escalate(session)
-
-    async def _escalate(
-        self, session: WarRoomSession, context_files: list[str] | None
-    ) -> None:
-        """Escalate to full council."""
-        await escalate(self, session, context_files)
-
     async def _phase_red_team(self, session: WarRoomSession) -> None:
-        """Phase 4: Red Team Challenge."""
+        """Forward to module-level phase_red_team."""
         await phase_red_team(self, session)
 
     async def _phase_voting(self, session: WarRoomSession) -> None:
-        """Phase 5: Voting."""
+        """Forward to module-level phase_voting."""
         await phase_voting(self, session)
+
+    async def _phase_premortem(self, session: WarRoomSession) -> None:
+        """Forward to module-level phase_premortem."""
+        await phase_premortem(self, session)
+
+    async def _phase_synthesis(self, session: WarRoomSession) -> None:
+        """Forward to module-level phase_synthesis."""
+        await phase_synthesis(self, session)
+
+    async def _should_escalate(self, session: WarRoomSession) -> bool:
+        """Forward to module-level should_escalate."""
+        return await should_escalate(session)
+
+    async def _escalate(
+        self, session: WarRoomSession, context_files: list[str] | None = None
+    ) -> None:
+        """Forward to module-level escalate."""
+        await escalate(self, session, context_files)
+
+    def _compute_convergence(self, session: WarRoomSession) -> float:
+        """Forward to module-level compute_convergence."""
+        return compute_convergence(session)
+
+    async def _delphi_revision_round(
+        self, session: WarRoomSession, round_number: int
+    ) -> None:
+        """Forward to module-level delphi_revision_round."""
+        await delphi_revision_round(self, session, round_number)
 
     def _compute_borda_scores(
         self, votes: dict[str, str], coa_labels: list[str]
     ) -> dict[str, int]:
-        """Compute Borda count scores from expert votes."""
+        """Forward to module-level compute_borda_scores."""
         return compute_borda_scores(votes, coa_labels)
-
-    async def _phase_premortem(self, session: WarRoomSession) -> None:
-        """Phase 6: Premortem Analysis."""
-        await phase_premortem(self, session)
-
-    async def _phase_synthesis(self, session: WarRoomSession) -> None:
-        """Phase 7: Supreme Commander Synthesis."""
-        await phase_synthesis(self, session)
 
     # --- Persistence delegations ---
 
@@ -400,16 +410,6 @@ class WarRoomOrchestrator:
         return await convene_delphi(
             self, problem, context_files, max_rounds, convergence_threshold
         )
-
-    async def _delphi_revision_round(
-        self, session: WarRoomSession, round_number: int
-    ) -> None:
-        """Execute a Delphi revision round."""
-        await delphi_revision_round(self, session, round_number)
-
-    def _compute_convergence(self, session: WarRoomSession) -> float:
-        """Compute expert convergence score."""
-        return compute_convergence(session)
 
     # --- Hook delegation ---
 

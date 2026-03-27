@@ -8,7 +8,7 @@ usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 
 Creates new skills through a structured workflow: **iron-law → brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
 
-**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create skill files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
+**Important**: This workflow enforces the Iron Law. You cannot create skill files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -25,11 +25,11 @@ Creates new skills through a structured workflow: **iron-law → brainstorm → 
 
 ## Workflow
 
-### Phase -1: Iron Law Interlock (BLOCKING)
+### Phase -1: Iron Law Interlock (Blocking)
 
-**This phase is MANDATORY and cannot be skipped.**
+**This phase is required and cannot be skipped.**
 
-Before ANY file creation, you MUST satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
+Before any file creation, satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
 
 #### Quick Reference
 
@@ -48,7 +48,7 @@ Before ANY file creation, you MUST satisfy the Iron Law interlock. See [iron-law
    ```
 5. **TodoWrite**: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`
 
-**ONLY AFTER completing Phase -1 may you proceed.**
+**Only after completing Phase -1 may you proceed.**
 
 ---
 

@@ -40,7 +40,7 @@ if __name__ == "__main__":
         skill_name = args.skill_path.parent.name
 
     suggester = ImprovementSuggester(
-        args.skill_path.parent if args.skill_path.is_file() else args.skill_path.parent,
+        args.skill_path.parent if args.skill_path.is_file() else args.skill_path,
     )
     output = format_result(
         suggester.generate_improvement_plan(skill_name),

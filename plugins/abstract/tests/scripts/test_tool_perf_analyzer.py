@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -79,6 +80,84 @@ class TestToolPerformanceAnalyzerExtended:
         report = analyzer.get_performance_report()
         assert "Tool Performance Report" in report
         assert "my-tool.py" in report
+
+    @pytest.mark.unit
+    def test_status_column_shows_ok_for_success(self, tmp_path: Path) -> None:
+        """Scenario: Successful tool shows 'OK' in report status column.
+        Given an executable tool that exits 0
+        When get_performance_report is called
+        Then the report row starts with '| OK'
+        """
+        tool_file = tmp_path / "good-tool.py"
+        tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n")
+        tool_file.chmod(0o755)
+
+        analyzer = ToolPerformanceAnalyzer(tmp_path)
+        report = analyzer.get_performance_report()
+        assert "| OK good-tool.py |" in report
+
+    @pytest.mark.unit
+    def test_status_column_shows_fail_for_failure(self, tmp_path: Path) -> None:
+        """Scenario: Failed tool shows 'FAIL' in report status column.
+        Given an executable tool that exits non-zero
+        When get_performance_report is called
+        Then the report row starts with '| FAIL'
+        """
+        tool_file = tmp_path / "bad-tool.py"
+        tool_file.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(1)\n")
+        tool_file.chmod(0o755)
+
+        analyzer = ToolPerformanceAnalyzer(tmp_path)
+        report = analyzer.get_performance_report()
+        assert "| FAIL bad-tool.py |" in report
+
+    @pytest.mark.unit
+    def test_status_column_shows_fail_timeout(self, tmp_path: Path) -> None:
+        """Scenario: Timed-out tool shows 'FAIL (timeout)' in report.
+        Given analyze_tools returns a result with timeout=True
+        When get_performance_report is called
+        Then status includes 'FAIL (timeout)'
+        """
+        synthetic = {
+            "total_tools": 1,
+            "tools": {
+                "slow-tool.py": {
+                    "execution_time": 5.0,
+                    "exit_code": -1,
+                    "output_length": 0,
+                    "success": False,
+                    "timeout": True,
+                },
+            },
+        }
+        analyzer = ToolPerformanceAnalyzer(tmp_path)
+        with patch.object(analyzer, "analyze_tools", return_value=synthetic):
+            report = analyzer.get_performance_report()
+        assert "| FAIL (timeout) slow-tool.py |" in report
+
+    @pytest.mark.unit
+    def test_status_column_shows_fail_error(self, tmp_path: Path) -> None:
+        """Scenario: Errored tool shows 'FAIL (error)' in report.
+        Given analyze_tools returns a result with error=True
+        When get_performance_report is called
+        Then status includes 'FAIL (error)'
+        """
+        synthetic = {
+            "total_tools": 1,
+            "tools": {
+                "broken-tool.py": {
+                    "execution_time": 0.0,
+                    "exit_code": -1,
+                    "output_length": 0,
+                    "success": False,
+                    "error": True,
+                },
+            },
+        }
+        analyzer = ToolPerformanceAnalyzer(tmp_path)
+        with patch.object(analyzer, "analyze_tools", return_value=synthetic):
+            report = analyzer.get_performance_report()
+        assert "| FAIL (error) broken-tool.py |" in report
 
     @pytest.mark.unit
     def test_analyze_tool_result_has_required_keys(self, tmp_path: Path) -> None:

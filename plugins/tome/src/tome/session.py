@@ -3,27 +3,107 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+
+try:
+    from leyline.session_store import (  # type: ignore[import-not-found]
+        SessionStore,
+        validate_session_id,
+    )
+except ImportError:  # pragma: no cover — standalone fallback
+    import re as _re
+
+    def validate_session_id(session_id: str) -> bool:  # type: ignore[misc]
+        """Fallback ID validator used when leyline is not installed."""
+        pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+        return (
+            bool(pattern.match(session_id))
+            and len(session_id) <= 128
+            and ".." not in session_id
+        )
+
+    class SessionStore:  # type: ignore[no-redef]
+        """Minimal fallback base when leyline is absent."""
+
+        def __init__(self, sessions_dir: Path) -> None:
+            self.sessions_dir = sessions_dir
+            self.sessions_dir.mkdir(parents=True, exist_ok=True)
+
+        def _session_path(self, session_id: str) -> Path:
+            return self.sessions_dir / f"{session_id}.json"
+
+        def save(self, session_id: str, record: Any) -> Path:
+            if not validate_session_id(session_id):
+                raise ValueError(f"Invalid session ID: {session_id!r}")
+            path = self._session_path(session_id)
+            path.write_text(
+                json.dumps(self._serialize(record), indent=2), encoding="utf-8"
+            )
+            return path
+
+        def load(self, session_id: str) -> Any | None:
+            path = self._session_path(session_id)
+            if not path.exists():
+                return None
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                return self._deserialize(data)
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                print(f"Warning: corrupt session {session_id}: {e}", file=sys.stderr)
+                return None
+
+        def list_sessions(self) -> list[str]:
+            if not self.sessions_dir.exists():
+                return []
+            return sorted(
+                p.stem
+                for p in self.sessions_dir.glob("*.json")
+                if validate_session_id(p.stem)
+            )
+
+        def delete(self, session_id: str) -> bool:
+            path = self._session_path(session_id)
+            if path.exists():
+                path.unlink()
+                return True
+            return False
+
+        def _serialize(self, record: Any) -> dict:  # type: ignore[type-arg]
+            raise NotImplementedError
+
+        def _deserialize(self, data: dict) -> Any:  # type: ignore[type-arg]
+            raise NotImplementedError
+
 
 from tome.models import ResearchSession, SessionSummary
+
+
+class _ResearchSessionStore(SessionStore):
+    """SessionStore subclass that serializes/deserializes ResearchSession."""
+
+    def _serialize(self, record: Any) -> Any:
+        return record.to_dict()
+
+    def _deserialize(self, data: Any) -> Any:
+        return ResearchSession.from_dict(data)
 
 
 class SessionManager:
     """Manages research session persistence under base_dir/.tome/sessions/."""
 
     def __init__(self, base_dir: Path) -> None:
-        self._sessions_dir = base_dir / ".tome" / "sessions"
-        self._sessions_dir.mkdir(parents=True, exist_ok=True)
-
-    _SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
+        sessions_dir = base_dir / ".tome" / "sessions"
+        self._sessions_dir = sessions_dir
+        self._store = _ResearchSessionStore(sessions_dir)
 
     def _path_for(self, session_id: str) -> Path:
-        if not self._SAFE_ID_RE.match(session_id):
+        """Return the file path for *session_id*, raising ValueError if invalid."""
+        if not validate_session_id(session_id):
             raise ValueError(f"Invalid session ID: {session_id!r}")
-        return self._sessions_dir / f"{session_id}.json"
+        return self._store._session_path(session_id)  # type: ignore[no-any-return]
 
     def create(
         self,
@@ -46,20 +126,20 @@ class SessionManager:
 
     def save(self, session: ResearchSession) -> Path:
         """Serialize session to JSON and write to disk; returns the file path."""
-        path = self._path_for(session.id)
-        path.write_text(json.dumps(session.to_dict(), indent=2), encoding="utf-8")
-        return path
+        return self._store.save(session.id, session)  # type: ignore[no-any-return]
 
     def load(self, session_id: str) -> ResearchSession:
         """Deserialize and return a session by ID.
 
         Raises FileNotFoundError if the session file does not exist.
         """
-        path = self._path_for(session_id)
-        if not path.exists():
+        # Validate eagerly so callers get ValueError on bad IDs (not FileNotFoundError)
+        if not validate_session_id(session_id):
+            raise ValueError(f"Invalid session ID: {session_id!r}")
+        result: ResearchSession | None = self._store.load(session_id)
+        if result is None:
             raise FileNotFoundError(f"Session not found: {session_id}")
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return ResearchSession.from_dict(data)
+        return result
 
     def load_latest(self) -> ResearchSession | None:
         """Return the most recently modified session, or None."""

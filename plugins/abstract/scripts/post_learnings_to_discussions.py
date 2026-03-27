@@ -551,7 +551,7 @@ def _load_and_validate_learnings(path: Path) -> LearningSummary | None:
     return summary
 
 
-def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: PLR0911
+def post_learnings(learnings_path: Path | None = None) -> str | None:
     """Main entry point: parse LEARNINGS.md and post to Discussions.
 
     Args:
@@ -561,13 +561,17 @@ def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: P
         Discussion URL if posted, None if skipped
 
     """
-    # Load config
+    result = _resolve_and_post(learnings_path)
+    return result
+
+
+def _resolve_and_post(learnings_path: Path | None) -> str | None:
+    """Resolve config, validate inputs, and post to Discussions."""
     config = DiscussionConfig.load()
     if not config.auto_post_learnings:
         print("Learnings posting disabled via config.", file=sys.stderr)
         return None
 
-    # Detect target repository
     repo = detect_target_repo()
     if repo is None:
         print(
@@ -577,7 +581,6 @@ def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: P
         return None
     owner, name = repo
 
-    # Resolve learnings category dynamically
     category_id = resolve_category_id(owner, name, "learnings")
     if category_id is None:
         print(
@@ -586,17 +589,24 @@ def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: P
         )
         return None
 
-    # Read and validate LEARNINGS.md
     path = learnings_path or get_learnings_path()
     summary = _load_and_validate_learnings(path)
     if summary is None:
         return None
 
-    # Generate title with date
+    return _post_if_new(summary, owner, name, category_id)
+
+
+def _post_if_new(
+    summary: LearningSummary,
+    owner: str,
+    name: str,
+    category_id: str,
+) -> str | None:
+    """Post a discussion if not already posted today."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")  # noqa: UP017
     title = f"[Learning] {today}"
 
-    # Check deduplication
     record = PostedRecord.load()
     if record.is_posted(title):
         print(
@@ -605,7 +615,6 @@ def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: P
         )
         return record.posted[title]
 
-    # Also check GitHub in case posted.json was lost
     existing_url = check_existing_discussion(title, owner, name)
     if existing_url:
         print(
@@ -616,14 +625,10 @@ def post_learnings(learnings_path: Path | None = None) -> str | None:  # noqa: P
         record.save()
         return existing_url
 
-    # Get repo node ID (cached)
     repo_id = get_repo_node_id(record, owner, name)
-
-    # Format and post
     body = format_discussion_body(summary)
     url = create_discussion(repo_id, category_id, title, body)
 
-    # Track posted discussion
     record.posted[title] = url
     record.save()
 

@@ -21,12 +21,12 @@ from abstract.cli_framework import (  # noqa: E402
     PathArgumentMixin,
     cli_main,
 )
+from abstract.frontmatter import FrontmatterProcessor  # noqa: E402
 from abstract.tokens import TokenAnalyzer  # noqa: E402
 from abstract.utils import (  # noqa: E402
     extract_dependencies,
     find_dependency_file,
     find_skill_files,
-    parse_yaml_frontmatter,
 )
 
 # Token usage thresholds
@@ -59,7 +59,9 @@ class TokenEstimator:
         analysis: dict[str, int] = TokenAnalyzer.analyze_content(content)
 
         # Parse frontmatter for dependencies
-        frontmatter_dict = parse_yaml_frontmatter(content)
+        frontmatter_dict = FrontmatterProcessor.parse(
+            content, required_fields=[]
+        ).parsed
         dependencies = extract_dependencies(frontmatter_dict)
 
         result: dict[str, Any] = {

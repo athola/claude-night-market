@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Initialize a new project with Attune."""
 
+from __future__ import annotations
+
 import argparse
+import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from project_detector import ProjectDetector  # type: ignore[import]
@@ -68,9 +72,6 @@ def copy_templates(
         List of created file paths
 
     """
-    import shutil  # noqa: PLC0415
-    from datetime import datetime  # noqa: PLC0415
-
     engine = TemplateEngine(variables)
     template_dir = templates_root / language
 
@@ -137,7 +138,224 @@ def copy_templates(
     return created_files
 
 
-def create_project_structure(  # noqa: PLR0915
+def _write_or_preview(
+    path: Path,
+    content: str,
+    dry_run: bool,
+) -> bool:
+    """Write a file or preview it in dry-run mode.
+
+    Args:
+        path: Destination file path
+        content: File content to write
+        dry_run: If True, print intent without writing
+
+    Returns:
+        True if the file was written (or would be in dry-run)
+
+    """
+    if dry_run:
+        print(f"[DRY RUN] Would create: {path}")
+        return True
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+    print(f"✓ Created: {path}")
+    return True
+
+
+def _create_python_structure(
+    project_path: Path,
+    module_name: str,
+    project_name: str,
+    dry_run: bool,
+) -> None:
+    """Create Python project directory structure.
+
+    Args:
+        project_path: Path to the project root
+        module_name: Python module name (snake_case)
+        project_name: Human-readable project name
+        dry_run: Preview changes without writing files
+
+    """
+    src_dir = project_path / "src" / module_name
+    if dry_run:
+        print(f"[DRY RUN] Would create directory: {src_dir}")
+    else:
+        src_dir.mkdir(parents=True, exist_ok=True)
+
+    init_file = src_dir / "__init__.py"
+    if not init_file.exists():
+        _write_or_preview(
+            init_file,
+            f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n',
+            dry_run,
+        )
+
+    tests_dir = project_path / "tests"
+    if dry_run:
+        print(f"[DRY RUN] Would create directory: {tests_dir}")
+    else:
+        tests_dir.mkdir(parents=True, exist_ok=True)
+
+    test_init = tests_dir / "__init__.py"
+    if not test_init.exists():
+        _write_or_preview(test_init, "", dry_run)
+
+    readme = project_path / "README.md"
+    if not readme.exists():
+        readme_content = f"""# {project_name}
+
+A new Python project.
+
+## Installation
+
+```bash
+uv sync
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+        _write_or_preview(readme, readme_content, dry_run)
+
+
+def _create_rust_structure(
+    project_path: Path,
+    project_name: str,
+    dry_run: bool,
+) -> None:
+    """Create Rust project directory structure.
+
+    Args:
+        project_path: Path to the project root
+        project_name: Human-readable project name
+        dry_run: Preview changes without writing files
+
+    """
+    src_dir = project_path / "src"
+    if dry_run:
+        print(f"[DRY RUN] Would create directory: {src_dir}")
+    else:
+        src_dir.mkdir(parents=True, exist_ok=True)
+
+    main_rs = src_dir / "main.rs"
+    if not main_rs.exists():
+        _write_or_preview(
+            main_rs,
+            'fn main() {\n    println!("Hello, world!");\n}\n',
+            dry_run,
+        )
+
+    lib_rs = src_dir / "lib.rs"
+    if not lib_rs.exists():
+        lib_content = f"""//! {project_name} library
+
+pub fn hello() -> String {{
+    "Hello from {project_name}!".to_string()
+}}
+
+#[cfg(test)]
+mod tests {{
+    use super::*;
+
+    #[test]
+    fn test_hello() {{
+        assert_eq!(hello(), "Hello from {project_name}!");
+    }}
+}}
+"""
+        _write_or_preview(lib_rs, lib_content, dry_run)
+
+    readme = project_path / "README.md"
+    if not readme.exists():
+        readme_content = f"""# {project_name}
+
+A new Rust project.
+
+## Build
+
+```bash
+cargo build
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+        _write_or_preview(readme, readme_content, dry_run)
+
+
+def _create_typescript_structure(
+    project_path: Path,
+    project_name: str,
+    dry_run: bool,
+) -> None:
+    """Create TypeScript project directory structure.
+
+    Args:
+        project_path: Path to the project root
+        project_name: Human-readable project name
+        dry_run: Preview changes without writing files
+
+    """
+    src_dir = project_path / "src"
+    if dry_run:
+        print(f"[DRY RUN] Would create directory: {src_dir}")
+    else:
+        src_dir.mkdir(parents=True, exist_ok=True)
+
+    index_ts = src_dir / "index.ts"
+    if not index_ts.exists():
+        index_content = (
+            'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n'
+        )
+        _write_or_preview(index_ts, index_content, dry_run)
+
+    app_tsx = src_dir / "App.tsx"
+    if not app_tsx.exists():
+        app_content = f"""import React from "react";
+
+function App() {{
+  return (
+    <div className="App">
+      <h1>Welcome to {project_name}</h1>
+    </div>
+  );
+}}
+
+export default App;
+"""
+        _write_or_preview(app_tsx, app_content, dry_run)
+
+    readme = project_path / "README.md"
+    if not readme.exists():
+        readme_content = f"""# {project_name}
+
+A new TypeScript/React project.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+        _write_or_preview(readme, readme_content, dry_run)
+
+
+def create_project_structure(
     project_path: Path,
     language: str,
     module_name: str,
@@ -155,197 +373,50 @@ def create_project_structure(  # noqa: PLR0915
 
     """
     if language == "python":
-        # Create src/module_name structure
-        src_dir = project_path / "src" / module_name
-        if dry_run:
-            print(f"[DRY RUN] Would create directory: {src_dir}")
-        else:
-            src_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create __init__.py
-        init_file = src_dir / "__init__.py"
-        if not init_file.exists():
-            if dry_run:
-                print(f"[DRY RUN] Would create: {init_file}")
-            else:
-                init_file.write_text(
-                    f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n'
-                )
-                print(f"✓ Created: {init_file}")
-
-        # Create tests directory
-        tests_dir = project_path / "tests"
-        if dry_run:
-            print(f"[DRY RUN] Would create directory: {tests_dir}")
-        else:
-            tests_dir.mkdir(parents=True, exist_ok=True)
-
-        test_init = tests_dir / "__init__.py"
-        if not test_init.exists():
-            if dry_run:
-                print(f"[DRY RUN] Would create: {test_init}")
-            else:
-                test_init.write_text("")
-                print(f"✓ Created: {test_init}")
-
-        # Create README.md if it doesn't exist
-        readme = project_path / "README.md"
-        if not readme.exists():
-            readme_content = f"""# {project_name}
-
-A new Python project.
-
-## Installation
-
-```bash
-uv sync
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-            if dry_run:
-                print(f"[DRY RUN] Would create: {readme}")
-            else:
-                readme.write_text(readme_content)
-                print(f"✓ Created: {readme}")
-
+        _create_python_structure(project_path, module_name, project_name, dry_run)
     elif language == "rust":
-        # Create src/main.rs
-        src_dir = project_path / "src"
-        if dry_run:
-            print(f"[DRY RUN] Would create directory: {src_dir}")
-        else:
-            src_dir.mkdir(parents=True, exist_ok=True)
-
-        main_rs = src_dir / "main.rs"
-        if not main_rs.exists():
-            if dry_run:
-                print(f"[DRY RUN] Would create: {main_rs}")
-            else:
-                main_rs.write_text('fn main() {\n    println!("Hello, world!");\n}\n')
-                print(f"✓ Created: {main_rs}")
-
-        # Create lib.rs for library
-        lib_rs = src_dir / "lib.rs"
-        if not lib_rs.exists():
-            lib_content = f"""//! {project_name} library
-
-pub fn hello() -> String {{
-    "Hello from {project_name}!".to_string()
-}}
-
-#[cfg(test)]
-mod tests {{
-    use super::*;
-
-    #[test]
-    fn test_hello() {{
-        assert_eq!(hello(), "Hello from {project_name}!");
-    }}
-}}
-"""
-            if dry_run:
-                print(f"[DRY RUN] Would create: {lib_rs}")
-            else:
-                lib_rs.write_text(lib_content)
-                print(f"✓ Created: {lib_rs}")
-
-        # Create README.md
-        readme = project_path / "README.md"
-        if not readme.exists():
-            readme_content = f"""# {project_name}
-
-A new Rust project.
-
-## Build
-
-```bash
-cargo build
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-            if dry_run:
-                print(f"[DRY RUN] Would create: {readme}")
-            else:
-                readme.write_text(readme_content)
-                print(f"✓ Created: {readme}")
-
+        _create_rust_structure(project_path, project_name, dry_run)
     elif language == "typescript":
-        # Create src/index.ts
-        src_dir = project_path / "src"
-        if dry_run:
-            print(f"[DRY RUN] Would create directory: {src_dir}")
-        else:
-            src_dir.mkdir(parents=True, exist_ok=True)
+        _create_typescript_structure(project_path, project_name, dry_run)
 
-        index_ts = src_dir / "index.ts"
-        if not index_ts.exists():
-            index_content = (
-                "export function hello(): string {\n"
-                '  return "Hello from TypeScript!";\n'
-                "}\n"
-            )
-            if dry_run:
-                print(f"[DRY RUN] Would create: {index_ts}")
-            else:
-                index_ts.write_text(index_content)
-                print(f"✓ Created: {index_ts}")
 
-        # Create src/App.tsx for React
-        app_tsx = src_dir / "App.tsx"
-        if not app_tsx.exists():
-            app_content = f"""import React from "react";
+def _run_post_init_git(
+    project_path: Path,
+    no_git: bool,
+    force: bool,
+    detector: ProjectDetector,
+) -> None:
+    """Initialize git repository if needed.
 
-function App() {{
-  return (
-    <div className="App">
-      <h1>Welcome to {project_name}</h1>
-    </div>
-  );
-}}
+    Args:
+        project_path: Path to project root
+        no_git: If True, skip git initialization
+        force: Force re-initialization if .git already exists
+        detector: Project detector instance
 
-export default App;
-"""
-            if dry_run:
-                print(f"[DRY RUN] Would create: {app_tsx}")
-            else:
-                app_tsx.write_text(app_content)
-                print(f"✓ Created: {app_tsx}")
+    """
+    if not no_git and not detector.check_git_initialized():
+        initialize_git(project_path, force=force)
 
-        # Create README.md
-        readme = project_path / "README.md"
-        if not readme.exists():
-            readme_content = f"""# {project_name}
 
-A new TypeScript/React project.
+def _print_summary(project_path: Path, created_files: list[str]) -> None:
+    """Print post-initialization summary to stdout.
 
-## Development
+    Args:
+        project_path: Path to the initialized project
+        created_files: Files created during initialization
 
-```bash
-npm install
-npm run dev
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-            if dry_run:
-                print(f"[DRY RUN] Would create: {readme}")
-            else:
-                readme.write_text(readme_content)
-                print(f"✓ Created: {readme}")
+    """
+    print(f"\n{'=' * 60}")
+    print("✓ Project initialized successfully!")
+    print(f"{'=' * 60}")
+    print(f"Created {len(created_files)} files")
+    print("\nNext steps:")
+    print(f"  1. cd {project_path}")
+    print("  2. make dev-setup     # Install dependencies and hooks")
+    print("  3. make test          # Run tests")
+    print("  4. make help          # See available commands")
+    print(f"{'=' * 60}\n")
 
 
 def main() -> None:
@@ -463,9 +534,7 @@ def main() -> None:
         description=args.description,
     )
 
-    # Initialize git if needed
-    if not args.no_git and not detector.check_git_initialized():
-        initialize_git(project_path, force=args.force)
+    _run_post_init_git(project_path, args.no_git, args.force, detector)
 
     # Find templates directory (relative to this script)
     script_dir = Path(__file__).parent
@@ -491,16 +560,7 @@ def main() -> None:
         dry_run=args.dry_run,
     )
 
-    print(f"\n{'=' * 60}")
-    print("✓ Project initialized successfully!")
-    print(f"{'=' * 60}")
-    print(f"Created {len(created_files)} files")
-    print("\nNext steps:")
-    print(f"  1. cd {project_path}")
-    print("  2. make dev-setup     # Install dependencies and hooks")
-    print("  3. make test          # Run tests")
-    print("  4. make help          # See available commands")
-    print(f"{'=' * 60}\n")
+    _print_summary(project_path, created_files)
 
 
 if __name__ == "__main__":
