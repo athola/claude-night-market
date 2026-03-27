@@ -16,24 +16,6 @@ from unittest.mock import Mock
 
 import pytest
 
-# Dynamic import: conservation_validator lives in the scripts directory
-# (not a standard Python package). Use importlib for consistency with
-# _load_context_warning_module() below.
-try:
-    _scripts_path = Path(__file__).resolve().parent.parent / "scripts"
-    _validator_path = _scripts_path / "conservation_validator.py"
-    _spec = importlib.util.spec_from_file_location(
-        "conservation_validator", _validator_path
-    )
-    if _spec is not None and _spec.loader is not None:
-        _module = importlib.util.module_from_spec(_spec)
-        _spec.loader.exec_module(_module)
-        ConservationValidator = getattr(_module, "ConservationValidator", None)
-    else:
-        ConservationValidator = None
-except (ImportError, FileNotFoundError):
-    ConservationValidator = None
-
 # Constants for PLR2004 magic values
 FIVE = 5
 
@@ -428,22 +410,6 @@ def mock_token_quota_tracker():
             return self.check_quota()
 
     return MockTokenQuotaTracker()
-
-
-@pytest.fixture
-def mock_conservation_validator(conservation_plugin_root):
-    """Create ConservationValidator instance with mocked dependencies."""
-    if ConservationValidator is not None:
-        # Initialize with real plugin root but mock file operations
-        return ConservationValidator(str(conservation_plugin_root))
-    else:
-        # If the module doesn't exist yet, create a mock
-        mock_validator = Mock()
-        mock_validator.plugin_root = str(conservation_plugin_root)
-        mock_validator.scan_conservation_workflows = Mock(return_value=[])
-        mock_validator.validate_conservation_workflows = Mock(return_value=[])
-        mock_validator.generate_report = Mock(return_value="Mock report")
-        return mock_validator
 
 
 # Test markers for pytest configuration
