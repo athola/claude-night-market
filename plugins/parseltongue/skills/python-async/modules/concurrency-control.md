@@ -50,9 +50,31 @@ class AsyncCounter:
             return self.value
 ```
 
+## Cost Awareness
+
+Python's GIL serializes CPU-bound threads, but
+contention costs still apply to asyncio locks:
+
+- **Uncontended lock**: Near-zero cost (no kernel
+  involvement, just a Python attribute check)
+- **Contended lock**: Coroutine suspension and
+  event-loop rescheduling (~microseconds)
+- **Semaphore with backpressure**: Bounded queue depth
+  prevents memory growth under burst load
+
+For CPU-bound parallelism, use `multiprocessing` or
+`concurrent.futures.ProcessPoolExecutor` to bypass
+the GIL entirely. With free-threaded Python (3.13t+),
+the native concurrency cost hierarchy applies: prefer
+per-thread state over shared atomics over contended
+locks.
+
 ## Usage Notes
 
-- Use semaphores for limiting concurrent operations (API calls, connections)
+- Use semaphores for limiting concurrent operations
+  (API calls, connections)
 - Use locks for protecting shared state
-- Always use context managers (`async with`) for proper cleanup
-- Choose appropriate limits based on resource constraints
+- Always use context managers (`async with`) for
+  proper cleanup
+- Choose appropriate limits based on resource
+  constraints
