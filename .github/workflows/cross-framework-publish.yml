@@ -128,6 +128,7 @@ jobs:
           claude plugin install athola/claude-night-market
           ```
           RELEASEEOF
+          )
 
           gh release create "v${VERSION}" \
             --title "v${VERSION}" \
