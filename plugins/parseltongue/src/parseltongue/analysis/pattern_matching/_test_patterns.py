@@ -43,7 +43,7 @@ class TestPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, _ = self._parse_code(code)
             if tree is None:
                 return {
                     "recognized_patterns": [],

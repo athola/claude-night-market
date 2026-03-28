@@ -49,6 +49,9 @@
     "./agents/workflow-improvement-validator-agent.md",
     "./agents/dependency-updater.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "git",
     "workspace",

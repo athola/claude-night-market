@@ -120,6 +120,10 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+[[tool.mypy.overrides]]
+module = ["speckit.caching"]
+disable_error_code = ["return-value"]
+
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "8.0"

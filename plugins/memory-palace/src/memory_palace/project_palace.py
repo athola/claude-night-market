@@ -114,7 +114,7 @@ PROJECT_PALACE_ROOMS = {
 class ReviewEntry:
     """Represents a single PR review knowledge entry."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         source_pr: str,
         title: str,
@@ -441,7 +441,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(  # noqa: PLR0913
+    def search_review_chamber(
         self,
         palace_id: str,
         query: str,
@@ -489,7 +489,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_text(  # noqa: PLR0913
+    def _search_review_chamber_text(
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
@@ -527,7 +527,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_semantic(  # noqa: PLR0913
+    def _search_review_chamber_semantic(
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
@@ -537,7 +537,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Embedding-based semantic search across review chamber rooms."""
-        from .corpus.embedding_index import EmbeddingIndex  # noqa: PLC0415
+        from .corpus.embedding_index import EmbeddingIndex
 
         # Build a temporary in-memory index for the review chamber entries
         embeddings_path = os.path.join(
@@ -704,7 +704,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
             json.dump(index, f, indent=2)
 
 
-def capture_pr_review_knowledge(  # noqa: PLR0913
+def capture_pr_review_knowledge(
     repo_name: str,
     pr_number: int,
     pr_title: str,

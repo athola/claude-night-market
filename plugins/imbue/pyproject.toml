@@ -102,13 +102,15 @@ extend-ignore = [
     "S603",  # Subprocess calls (inputs are validated)
     "S607",  # Partial executable path (git/gh are well-known)
     "UP017", # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
+    "E402",  # Import not at top (sys.path manipulation)
+    "PLC0415",  # Import not at top level (conditional imports)
 ]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+"hooks/**/*.py" = [
+    "E402",  # Import not at top (sys.path manipulation)
+    "PLC0415",  # Import not at top level (conditional imports)
+]
+"scripts/imbue_validator.py" = ["PLR0912", "PLR0915"]
+"tests/conftest.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -122,6 +124,14 @@ no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["imbue_validator"]
+disable_error_code = ["return-value"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

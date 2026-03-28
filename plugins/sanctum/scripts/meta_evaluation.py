@@ -23,12 +23,12 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 try:
     from sanctum.validators import parse_frontmatter as _parse_frontmatter_canonical
 except ImportError:
-    _parse_frontmatter_canonical = None  # type: ignore[assignment]
+    _parse_frontmatter_canonical = None
 
 # Evaluation thresholds (configurable)
 MIN_CODE_BLOCK_LINES = 3  # Skip language annotation check for blocks shorter than this
@@ -365,7 +365,7 @@ class MetaEvaluator:
     def check_module_references(
         self, skill_path: Path, frontmatter: dict[str, Any], skill_name: str
     ) -> bool:
-        """Check that modules listed in frontmatter exist and no orphaned module files."""
+        """Check module references in frontmatter and for orphaned module files."""
         modules_listed: list[str] = frontmatter.get("modules", []) or []
         passed = True
 
@@ -419,7 +419,8 @@ class MetaEvaluator:
 
     def check_code_examples(self, content: str, skill_name: str) -> bool:
         """Check that fenced code blocks have language annotations."""
-        # Match fenced code blocks: opening fence, optional language, newline, body, closing fence
+        # Match fenced code blocks: opening fence, optional language, newline, body,
+        # closing fence
         pattern = re.compile(r"^```(\w*)\n(.*?)^```", re.MULTILINE | re.DOTALL)
         passed = True
 
@@ -439,7 +440,8 @@ class MetaEvaluator:
                         "skill": skill_name,
                         "severity": "low",
                         "message": (
-                            f"Code block ({line_count} lines) missing language annotation"
+                            f"Code block ({line_count} lines) missing language"
+                            " annotation"
                         ),
                         "fix": (
                             "Add a language tag after the opening fence,"
@@ -480,7 +482,8 @@ class MetaEvaluator:
                         "severity": "medium",
                         "message": f"Broken internal link: {link_target}",
                         "fix": (
-                            f"Fix the link target or create the missing file: {path_part}"
+                            f"Fix the link target or create the missing file:"
+                            f" {path_part}"
                         ),
                     }
                 )

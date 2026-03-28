@@ -8,6 +8,9 @@ from pathlib import Path
 
 import yaml
 
+# Minimum number of query entries for adequate retrieval coverage
+MIN_QUERY_COUNT = 3
+
 # Required fields for knowledge corpus entries
 REQUIRED_FIELDS = {
     "title",
@@ -36,7 +39,7 @@ def extract_frontmatter(content: str) -> dict | None:
         frontmatter_str = content[3:end_idx].strip()
         result = yaml.safe_load(frontmatter_str)
         if isinstance(result, dict):
-            return result  # type: ignore[return-value]
+            return result
         return None
     except (ValueError, yaml.YAMLError):
         return None
@@ -79,7 +82,7 @@ def validate_entry(file_path: Path) -> list[str]:
         errors.append(f"{file_path}: 'queries' must be a list")
 
     # Warn if queries list is empty or too short
-    if isinstance(queries, list) and len(queries) < 3:  # noqa: PLR2004
+    if isinstance(queries, list) and len(queries) < MIN_QUERY_COUNT:
         errors.append(
             f"{file_path}: 'queries' should have at least 3 entries for good retrieval coverage"
         )

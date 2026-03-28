@@ -9,7 +9,7 @@ Tests core Merkle-DAG functionality:
 
 from __future__ import annotations
 
-from scripts.war_room_orchestrator import ExpertInfo, MerkleDAG
+from scripts.war_room import ExpertInfo, MerkleDAG
 
 
 class TestMerkleDAG:

@@ -139,7 +139,7 @@ class ImprovementMemory:
             "category": category,
             "insight": insight,
             "evidence": evidence or [],
-            "timestamp": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         skill_insights = self.insights.setdefault(skill_ref, [])
@@ -174,7 +174,7 @@ class ImprovementMemory:
             "after_score": outcome.after_score,
             "improvement": improvement,
             "hypothesis": outcome.hypothesis,
-            "timestamp": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "outcome_type": outcome_type,
         }
 

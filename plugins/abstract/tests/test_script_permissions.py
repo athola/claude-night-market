@@ -96,7 +96,7 @@ def fix_script_permissions(script_path: Path) -> None:
         script_path: Path to the script
 
     """
-    os.chmod(script_path, 0o755)  # noqa: S103
+    os.chmod(script_path, 0o755)
 
 
 class TestScriptPermissions:

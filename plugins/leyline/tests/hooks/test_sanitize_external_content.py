@@ -606,7 +606,7 @@ class TestDisplayNoneFalsePositive:
         assert "[BLOCKED]" in result
 
     def test_style_attr_whitespace_around_equals_blocked(self) -> None:
-        """style = (with space around =) is blocked."""
+        """Style = (with space around =) is blocked."""
         content = '<div style = "display:none">hidden</div>'
         result = sanitize_output(content)
         assert "[BLOCKED]" in result

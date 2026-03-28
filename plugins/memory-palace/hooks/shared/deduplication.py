@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 if TYPE_CHECKING:
     from typing import Any

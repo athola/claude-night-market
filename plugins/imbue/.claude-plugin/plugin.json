@@ -22,6 +22,9 @@
   "agents": [
     "./agents/review-analyst.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "workflow",
     "analysis",

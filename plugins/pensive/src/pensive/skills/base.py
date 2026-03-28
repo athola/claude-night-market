@@ -41,6 +41,15 @@ class AnalysisResult:
     info: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class PatternSearch:
+    """Configuration for a pattern detection scan."""
+
+    patterns: list[tuple[str, str]]
+    bug_type: str = ""
+    re_flags: int = 0
+
+
 class BaseReviewSkill:
     """Base class for all review skills with shared utilities."""
 
@@ -64,8 +73,8 @@ class BaseReviewSkill:
         filename: str,
         patterns: list[tuple[str, str]],
         content_parser: Any,
-        bug_type: str = "",
-        re_flags: int = 0,
+        *,
+        search: PatternSearch | None = None,
     ) -> list[dict[str, str]]:
         """Detect regex patterns in file content and return findings.
 
@@ -75,12 +84,14 @@ class BaseReviewSkill:
             patterns: List of (regex_pattern, issue_description) tuples.
             content_parser: Module or object with get_file_content and
                 find_line_number helpers.
-            bug_type: Bug category label placed in the "type" field.
-            re_flags: Flags forwarded to re.finditer.
+            search: Optional PatternSearch with bug_type and re_flags.
+                When omitted, bug_type defaults to "" and re_flags to 0.
 
         Returns:
             List of finding dicts with keys: type, location, issue, code.
         """
+        bug_type = search.bug_type if search else ""
+        re_flags = search.re_flags if search else 0
         code = content_parser.get_file_content(context, filename)
         if not code:
             return []

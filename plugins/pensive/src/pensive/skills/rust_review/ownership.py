@@ -33,7 +33,7 @@ class OwnershipMixin:
 
         move_pattern = re.compile(r"\blet\s+(\w+)\s*=\s*(\w+)\s*;")
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect use after move patterns
             for j in range(max(0, i - 10), i):
@@ -112,7 +112,7 @@ class OwnershipMixin:
         thread_safety_issues: list[dict[str, Any]] = []
         safe_patterns: list[dict[str, Any]] = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect RefCell usage (not thread-safe)
             if "RefCell" in line and "use std::cell::RefCell" not in line:
@@ -171,7 +171,7 @@ class OwnershipMixin:
         missing_awaits = []
         send_sync_issues = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         async_start_depth = -1
         brace_depth = 0
 

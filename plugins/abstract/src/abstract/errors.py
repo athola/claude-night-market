@@ -19,9 +19,9 @@ from typing import Any, TypeVar
 T = TypeVar("T")
 
 try:
-    import yaml  # type: ignore[import-untyped]
+    import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 class ErrorSeverity(Enum):

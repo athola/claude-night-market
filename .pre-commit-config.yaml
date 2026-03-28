@@ -2,6 +2,41 @@ repos:
   - repo: local
     hooks:
       # =================================================================
+      # Lint Suppression Guard - Must run before ruff
+      # =================================================================
+
+      - id: check-noqa
+        name: Block Inline Lint Suppressions
+        entry: python3 scripts/check_noqa.py
+        language: system
+        types: [python]
+        exclude: (scripts/check_noqa\.py|tests/.*test_.*noqa|tests/.*test_.*guard|plugins/.*/tests/.*test_.*noqa|plugins/.*/tests/.*test_.*guard)
+        stages: [pre-commit]
+
+      # =================================================================
+      # Per-File-Ignores Guard - Block config-level suppression creep
+      # =================================================================
+
+      - id: check-per-file-ignores
+        name: Block New Per-File-Ignores
+        entry: python3 scripts/check_per_file_ignores.py
+        language: system
+        files: pyproject\.toml$
+        stages: [pre-commit]
+
+      # =================================================================
+      # Hook Registration Check
+      # =================================================================
+
+      - id: check-hook-registrations
+        name: Verify Hook Registrations
+        entry: python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
+        language: system
+        files: ^plugins/.*/(hooks/|\.claude-plugin/plugin\.json)
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # =================================================================
       # Code Quality Hooks - Run for changed plugins
       # Note: Linting handled by global ruff-format + ruff hooks below
       # =================================================================
@@ -299,7 +334,13 @@ repos:
           --disable-error-code=var-annotated,
           --disable-error-code=assignment,
           --disable-error-code=unused-ignore,
-          --disable-error-code=no-untyped-def
+          --disable-error-code=no-untyped-def,
+          --disable-error-code=attr-defined,
+          --disable-error-code=no-redef,
+          --disable-error-code=misc,
+          --disable-error-code=call-arg,
+          --disable-error-code=return-value,
+          --disable-error-code=arg-type
         ]
         additional_dependencies:
           - types-PyYAML

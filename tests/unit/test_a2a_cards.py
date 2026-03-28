@@ -18,7 +18,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from a2a_cards import (  # noqa: E402
+from a2a_cards import (
     generate_agent_card,
     generate_all_cards,
     parse_agent_frontmatter,

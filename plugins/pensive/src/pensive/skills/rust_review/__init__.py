@@ -24,9 +24,9 @@ from .safety import SafetyMixin
 from .structure import StructureMixin
 
 __all__ = [
-    "RustReviewSkill",
-    "MIN_TEST_COVERAGE",
     "MAX_DEPENDENCIES",
+    "MIN_TEST_COVERAGE",
+    "RustReviewSkill",
 ]
 
 

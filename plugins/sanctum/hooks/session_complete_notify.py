@@ -200,7 +200,7 @@ def get_zellij_tab_name() -> str | None:
     """Get current Zellij tab name from layout dump."""
     try:
         result = subprocess.run(
-            ["zellij", "action", "dump-layout"],  # noqa: S603,S607
+            ["zellij", "action", "dump-layout"],
             capture_output=True,
             text=True,
             timeout=0.5,
@@ -220,7 +220,7 @@ def _get_tmux_session() -> str | None:
     """Get tmux session:window name."""
     try:
         result = subprocess.run(
-            ["tmux", "display-message", "-p", "#S:#W"],  # noqa: S603,S607
+            ["tmux", "display-message", "-p", "#S:#W"],
             capture_output=True,
             text=True,
             timeout=0.5,
@@ -270,7 +270,7 @@ def get_terminal_info() -> str:
 def notify_linux(title: str, message: str) -> bool:
     """Send notification on Linux using notify-send."""
     try:
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             [
                 "/usr/bin/notify-send",
                 "--app-name=Claude Code",
@@ -304,8 +304,8 @@ def notify_macos(title: str, message: str) -> bool:
         f'display notification "{safe_message}" with title "{safe_title}"{sound_suffix}'
     )
     try:
-        subprocess.run(  # noqa: S603
-            ["osascript", "-e", script],  # noqa: S607
+        subprocess.run(
+            ["osascript", "-e", script],
             check=True,
             timeout=1,
         )
@@ -387,7 +387,7 @@ def _try_burnt_toast(
 
     for ps_path in ps_paths:
         try:
-            subprocess.run(  # noqa: S603
+            subprocess.run(
                 [ps_path, "-NoProfile", "-Command", burnt_cmd],
                 check=True,
                 timeout=timeout,
@@ -408,8 +408,8 @@ def notify_windows(title: str, message: str) -> bool:
     ps_script = _build_toast_script(title, message)
 
     try:
-        subprocess.run(  # noqa: S603
-            ["powershell", "-NoProfile", "-Command", ps_script],  # noqa: S607
+        subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_script],
             check=True,
             timeout=2,
             capture_output=True,
@@ -442,7 +442,7 @@ def notify_wsl(title: str, message: str) -> bool:
 
     for ps_path in powershell_paths:
         try:
-            subprocess.run(  # noqa: S603
+            subprocess.run(
                 [ps_path, "-NoProfile", "-Command", ps_script],
                 check=True,
                 timeout=3,
@@ -489,7 +489,7 @@ def clear_notification_state(session_id: str | None = None) -> None:
             session_id = get_session_id()
         state = NotificationState.load(session_id)
         state.clear_input_flag()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(
             f"[session_complete_notify] clear_notification_state: {e}", file=sys.stderr
         )
@@ -508,13 +508,13 @@ def main() -> None:
     session_id = get_session_id()
     cwd = os.getcwd()
     try:
-        subprocess.Popen(  # noqa: S603
+        subprocess.Popen(
             [sys.executable, script_path, "--background", session_id, cwd],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True,  # Detach from parent
         )
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"[session_complete_notify] Popen failed: {e}", file=sys.stderr)
 
     # Exit immediately - notification runs in background
@@ -552,7 +552,7 @@ def run_notification(session_id: str, cwd: str) -> None:
             # Record successful notification
             state.record_notification(msg_hash)
 
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"[session_complete_notify] run_notification: {e}", file=sys.stderr)
 
 

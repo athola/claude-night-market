@@ -50,7 +50,9 @@ extend-ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "PLR2004",  # Magic values in test assertions are acceptable
+    "S311",     # Allow pseudo-random generators in tests
 ]
+"scripts/**/*.py" = ["E402", "PLC0415"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

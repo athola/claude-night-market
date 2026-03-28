@@ -70,7 +70,7 @@ def _derive_session_id(payload: dict) -> str:
 def _safe_float(value: object, default: float = 0.0) -> float:
     """Convert value to float, returning default on failure."""
     try:
-        return float(value)  # type: ignore[arg-type]
+        return float(value)
     except (TypeError, ValueError):
         return default
 
@@ -170,7 +170,7 @@ def main() -> None:
         record = _build_record(payload)
         mgr = SessionHistoryManager(data_dir=PLUGIN_ROOT / "data")
         mgr.record_session(record)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         # Non-critical: never block the session from ending
         logger.warning("session_lifecycle: Failed to record session: %s", exc)
 

@@ -73,7 +73,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         silent_returns = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             for pattern in self._SILENT_RETURN_PATTERNS:
                 if re.search(pattern, line):
@@ -105,7 +105,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         suggestions = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             for pattern in self._COLLECTION_TYPE_PATTERNS:
                 if re.search(pattern, line):
@@ -138,7 +138,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         risks = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             for pattern in self._SQL_INJECTION_PATTERNS:
                 if re.search(pattern, line):
@@ -171,7 +171,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         misuses = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         in_mod_tests = False
         brace_depth = 0
         for i, line in enumerate(lines):
@@ -217,7 +217,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         poor_messages = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             for pattern in self._ERROR_MESSAGE_PATTERNS:
                 if re.search(pattern, line):
@@ -251,7 +251,7 @@ class PatternsMixin:
         """
         content = context.get_file_content(file_path)
         found: dict[str, list[int]] = {}
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             for pattern in self._DUPLICATE_VALIDATOR_PATTERNS:
                 match = re.search(pattern, line)

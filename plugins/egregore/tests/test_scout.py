@@ -356,7 +356,7 @@ class TestRunScout:
         mock_fetch: MagicMock,
         mock_post: MagicMock,
     ) -> None:
-        """Given exemplars with contributing guides, when scouting, then returns techniques."""
+        """Given exemplars with contributing guides, then returns techniques."""
         mock_fetch.return_value = (
             "## Code Review\n\n"
             "- [ ] All tests must pass before merging\n"

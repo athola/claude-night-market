@@ -19,7 +19,7 @@ import re
 from typing import Any, ClassVar
 
 from ..utils import content_parser
-from .base import AnalysisResult, BaseReviewSkill
+from .base import AnalysisResult, BaseReviewSkill, PatternSearch
 
 
 class BugReviewSkill(BaseReviewSkill):
@@ -72,8 +72,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="null_pointer",
-            re_flags=re.MULTILINE,
+            search=PatternSearch(patterns, "null_pointer", re.MULTILINE),
         )
 
     def detect_race_conditions(
@@ -114,8 +113,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="race_condition",
-            re_flags=re.MULTILINE | re.DOTALL,
+            search=PatternSearch(patterns, "race_condition", re.MULTILINE | re.DOTALL),
         )
 
     def detect_memory_leaks(
@@ -162,8 +160,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="memory_leak",
-            re_flags=re.MULTILINE,
+            search=PatternSearch(patterns, "memory_leak", re.MULTILINE),
         )
 
     def detect_sql_injection(
@@ -208,8 +205,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="sql_injection",
-            re_flags=re.IGNORECASE,
+            search=PatternSearch(patterns, "sql_injection", re.IGNORECASE),
         )
 
     def detect_off_by_one_errors(
@@ -250,8 +246,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="off_by_one",
-            re_flags=re.MULTILINE,
+            search=PatternSearch(patterns, "off_by_one", re.MULTILINE),
         )
 
     def detect_integer_overflow(
@@ -334,8 +329,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="resource_leak",
-            re_flags=re.MULTILINE,
+            search=PatternSearch(patterns, "resource_leak", re.MULTILINE),
         )
 
     def detect_logical_errors(
@@ -377,8 +371,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="logical_error",
-            re_flags=re.MULTILINE | re.DOTALL,
+            search=PatternSearch(patterns, "logical_error", re.MULTILINE | re.DOTALL),
         )
 
     def detect_type_confusion(
@@ -419,8 +412,7 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="type_confusion",
-            re_flags=0,
+            search=PatternSearch(patterns, "type_confusion"),
         )
 
     def detect_timing_attacks(
@@ -464,8 +456,9 @@ class BugReviewSkill(BaseReviewSkill):
             filename,
             patterns,
             content_parser,
-            bug_type="timing_attack",
-            re_flags=re.IGNORECASE | re.MULTILINE,
+            search=PatternSearch(
+                patterns, "timing_attack", re.IGNORECASE | re.MULTILINE
+            ),
         )
 
     # ========================================================================

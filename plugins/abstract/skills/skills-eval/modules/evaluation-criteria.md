@@ -39,6 +39,27 @@ description:
   required: ["WHAT it does", "WHEN to use it"]
 ```
 
+**Official Frontmatter Fields** (per Claude Code docs):
+
+| Field | Type | Validation |
+|-------|------|------------|
+| `name` | string | Required, kebab-case, max 64 chars |
+| `description` | string | Recommended, front-load use case |
+| `disable-model-invocation` | boolean | `true` or `false` |
+| `user-invocable` | boolean | `true` or `false` |
+| `allowed-tools` | string | Comma-separated tool names |
+| `model` | string | Valid model name |
+| `effort` | string | `low`, `medium`, `high`, `max` |
+| `context` | string | Only `fork` supported |
+| `agent` | string | Subagent type (with `context: fork`) |
+| `argument-hint` | string | Shown in autocomplete |
+| `paths` | string/array | Glob patterns for activation |
+| `shell` | string | `bash` or `powershell` |
+| `hooks` | object | Hooks scoped to skill lifecycle |
+
+Extension fields (`version`, `category`, `tags`, etc.)
+are permitted but not validated.
+
 ### Content Quality (25 points)
 
 | Aspect | Max Points | Requirements |

@@ -306,7 +306,7 @@ def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
         for key, value in variables.items():
             cmd.extend(["-f", f"{key}={value}"])
 
-    result = subprocess.run(  # noqa: S603, S607  # nosec B603
+    result = subprocess.run(  # nosec B603
         cmd,
         capture_output=True,
         text=True,
@@ -344,8 +344,8 @@ def detect_target_repo() -> tuple[str, str] | None:
 
     # Auto-detect from current git remote
     try:
-        result = subprocess.run(  # noqa: S603  # nosec B603, B607
-            [  # noqa: S607
+        result = subprocess.run(  # nosec B603, B607
+            [
                 "gh",
                 "repo",
                 "view",
@@ -604,7 +604,7 @@ def _post_if_new(
     category_id: str,
 ) -> str | None:
     """Post a discussion if not already posted today."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")  # noqa: UP017
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     title = f"[Learning] {today}"
 
     record = PostedRecord.load()

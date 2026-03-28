@@ -16,33 +16,37 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from leyline.session_store import (  # type: ignore[import-not-found]
+    from leyline.session_store import (
         SessionStore,
         validate_session_id,
     )
 except ImportError:  # pragma: no cover — standalone fallback
     import re as _re
 
-    def validate_session_id(session_id: str) -> bool:  # type: ignore[misc]
+    _MAX_SESSION_ID_LEN = 128
+
+    def validate_session_id(session_id: str) -> bool:
         """Fallback ID validator used when leyline is not installed."""
         pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
         return (
             bool(pattern.match(session_id))
-            and len(session_id) <= 128  # noqa: PLR2004
+            and len(session_id) <= _MAX_SESSION_ID_LEN
             and ".." not in session_id
         )
 
-    class SessionStore:  # type: ignore[no-redef]
+    class SessionStore:
         """Minimal fallback base when leyline is absent."""
 
-        def __init__(self, sessions_dir: Path) -> None:  # noqa: D107
+        def __init__(self, sessions_dir: Path) -> None:
+            """Initialize with the directory for session storage."""
             self.sessions_dir = sessions_dir
             self.sessions_dir.mkdir(parents=True, exist_ok=True)
 
         def _session_path(self, session_id: str) -> Path:
             return self.sessions_dir / f"{session_id}.json"
 
-        def save(self, session_id: str, record: Any) -> Path:  # noqa: D102
+        def save(self, session_id: str, record: Any) -> Path:
+            """Persist a session record to disk."""
             if not validate_session_id(session_id):
                 raise ValueError(f"Invalid session ID: {session_id!r}")
             path = self._session_path(session_id)
@@ -51,7 +55,8 @@ except ImportError:  # pragma: no cover — standalone fallback
             )
             return path
 
-        def load(self, session_id: str) -> Any | None:  # noqa: D102
+        def load(self, session_id: str) -> Any | None:
+            """Load a session record from disk."""
             path = self._session_path(session_id)
             if not path.exists():
                 return None
@@ -62,7 +67,8 @@ except ImportError:  # pragma: no cover — standalone fallback
                 print(f"Warning: corrupt session {session_id}: {e}", file=sys.stderr)
                 return None
 
-        def list_sessions(self) -> list[str]:  # noqa: D102
+        def list_sessions(self) -> list[str]:
+            """Return sorted list of valid session IDs."""
             if not self.sessions_dir.exists():
                 return []
             return sorted(
@@ -71,17 +77,18 @@ except ImportError:  # pragma: no cover — standalone fallback
                 if validate_session_id(p.stem)
             )
 
-        def delete(self, session_id: str) -> bool:  # noqa: D102
+        def delete(self, session_id: str) -> bool:
+            """Remove a session file, returning True if it existed."""
             path = self._session_path(session_id)
             if path.exists():
                 path.unlink()
                 return True
             return False
 
-        def _serialize(self, record: Any) -> dict:  # type: ignore[type-arg]
+        def _serialize(self, record: Any) -> dict:
             raise NotImplementedError
 
-        def _deserialize(self, data: dict) -> Any:  # type: ignore[type-arg]
+        def _deserialize(self, data: dict) -> Any:
             raise NotImplementedError
 
 
@@ -125,7 +132,7 @@ class SessionRecord:
 
         Unknown keys are silently ignored for forward-compatibility.
         """
-        known = set(cls.__dataclass_fields__)  # type: ignore[attr-defined]
+        known = set(cls.__dataclass_fields__)
         return cls(**{k: v for k, v in data.items() if k in known})
 
 
@@ -221,7 +228,7 @@ class SessionHistoryManager:
         """
         if not validate_session_id(record.session_id):
             raise ValueError(f"Invalid session_id: {record.session_id!r}")
-        session_file: Path = self._store.save(record.session_id, record)  # type: ignore[assignment]
+        session_file: Path = self._store.save(record.session_id, record)
 
         index = self._load_index()
         # Remove any stale entry for this session before appending

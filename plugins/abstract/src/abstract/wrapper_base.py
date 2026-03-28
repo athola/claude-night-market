@@ -14,7 +14,7 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 from .errors import ErrorHandler, ErrorSeverity, ToolError
 
@@ -63,8 +63,8 @@ def _detect_breaking_changes(files: list[str]) -> list[dict[str, Any]]:
 
         # Get the HEAD version via git
         try:
-            cmd = ["git", "show", "HEAD:" + file_path]  # noqa: S607
-            result = subprocess.run(  # noqa: S603  # nosec B603
+            cmd = ["git", "show", "HEAD:" + file_path]
+            result = subprocess.run(  # nosec B603
                 cmd,
                 capture_output=True,
                 text=True,

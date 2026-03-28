@@ -16,7 +16,7 @@ try:
 except ImportError:
     # Hook tests run in a minimal Python 3.9 venv without pyyaml;
     # guard so conftest loads without the abstract package.
-    ImprovementQueue = None  # type: ignore[assignment, misc]
+    ImprovementQueue = None
 
 # ============================================================================
 # Original Fixtures (Backward Compatibility)

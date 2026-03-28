@@ -12,8 +12,8 @@ import pytest
 # Add hooks directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
-import tool_output_summarizer as summarizer  # noqa: E402
-from tool_output_summarizer import (  # noqa: E402
+import tool_output_summarizer as summarizer
+from tool_output_summarizer import (
     BLOAT_WARNING_THRESHOLD,
     assess_output_bloat,
     format_hook_output,

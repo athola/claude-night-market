@@ -8,6 +8,31 @@ from typing import Any
 __all__ = ["CargoBuildMixin"]
 
 
+def _iter_toml_sections(
+    lines: list[str],
+) -> list[tuple[str, str]]:
+    """Yield (line, section_name) pairs from TOML content.
+
+    Tracks which [section] each line belongs to, skipping
+    section headers themselves.
+    """
+    results: list[tuple[str, str]] = []
+    current_section = ""
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            if "[dependencies]" in line:
+                current_section = "dependencies"
+            elif "[features]" in line:
+                current_section = "features"
+            else:
+                current_section = ""
+            continue
+        if current_section and "=" in line and not stripped.startswith("#"):
+            results.append((line, current_section))
+    return results
+
+
 class CargoBuildMixin:
     """Mixin providing Cargo.toml, build configuration, and panic analysis."""
 
@@ -30,7 +55,7 @@ class CargoBuildMixin:
         unwrap_usage = []
         index_panics = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect explicit panic! calls
             if re.search(r"panic!\s*\(", line):
@@ -77,6 +102,54 @@ class CargoBuildMixin:
             "index_panics": index_panics,
         }
 
+    @staticmethod
+    def _check_dependency_line(
+        line: str,
+        dependencies: list[dict[str, str]],
+        version_issues: list[dict[str, str]],
+        security_concerns: list[dict[str, str]],
+    ) -> None:
+        """Process a single dependency line from [dependencies]."""
+        deps = re.match(r'(\w+)\s*=\s*"([^"]+)"', line.strip())
+        if deps:
+            name, version = deps.groups()
+            dependencies.append({"name": name, "version": version})
+            if not any(c in version for c in ["^", "~", ">", "<", "*"]):
+                version_issues.append(
+                    {
+                        "dependency": name,
+                        "issue": "Exact version - consider version ranges",
+                    }
+                )
+        if "tokio" in line and 'features = ["full"]' in line:
+            version_issues.append(
+                {
+                    "dependency": "tokio",
+                    "issue": "'full' features - consider selecting only needed",
+                }
+            )
+        if re.search(r'openssl.*"0\.', line):
+            security_concerns.append(
+                {
+                    "dependency": "openssl",
+                    "issue": "Older version - check security issues",
+                }
+            )
+
+    @staticmethod
+    def _check_feature_line(
+        line: str,
+        feature_analysis: list[dict[str, str]],
+    ) -> None:
+        """Process a single feature line from [features]."""
+        feature_match = re.match(r"(\w+)\s*=\s*\[(.*)\]", line.strip())
+        if feature_match:
+            name, features = feature_match.groups()
+            if not features.strip():
+                feature_analysis.append(
+                    {"feature": name, "issue": "Empty feature definition"}
+                )
+
     def analyze_dependencies(
         self,
         context: Any,
@@ -99,72 +172,20 @@ class CargoBuildMixin:
                 "feature_analysis": [],
             }
 
-        dependencies = []
-        version_issues = []
-        security_concerns = []
-        feature_analysis = []
+        dependencies: list[dict[str, str]] = []
+        version_issues: list[dict[str, str]] = []
+        security_concerns: list[dict[str, str]] = []
+        feature_analysis: list[dict[str, str]] = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
-        in_dependencies = False
-        in_features = False
+        lines = self._get_lines(content)
 
-        for _i, line in enumerate(lines):
-            if "[dependencies]" in line:
-                in_dependencies = True
-                in_features = False
-                continue
-            elif "[features]" in line:
-                in_features = True
-                in_dependencies = False
-                continue
-            elif line.startswith("[") and line.endswith("]"):
-                in_dependencies = False
-                in_features = False
-                continue
-
-            if in_dependencies and "=" in line and not line.strip().startswith("#"):
-                deps = re.match(r'(\w+)\s*=\s*"([^"]+)"', line.strip())
-                if deps:
-                    name, version = deps.groups()
-                    dependencies.append({"name": name, "version": version})
-
-                    if not any(c in version for c in ["^", "~", ">", "<", "*"]):
-                        version_issues.append(
-                            {
-                                "dependency": name,
-                                "issue": ("Exact version - consider version ranges"),
-                            }
-                        )
-
-                if "tokio" in line and 'features = ["full"]' in line:
-                    version_issues.append(
-                        {
-                            "dependency": "tokio",
-                            "issue": (
-                                "'full' features - consider selecting only needed"
-                            ),
-                        }
-                    )
-
-                if re.search(r'openssl.*"0\.', line):
-                    security_concerns.append(
-                        {
-                            "dependency": "openssl",
-                            "issue": "Older version - check security issues",
-                        }
-                    )
-
-            if in_features and "=" in line and not line.strip().startswith("#"):
-                feature_match = re.match(r"(\w+)\s*=\s*\[(.*)\]", line.strip())
-                if feature_match:
-                    name, features = feature_match.groups()
-                    if not features.strip():
-                        feature_analysis.append(
-                            {
-                                "feature": name,
-                                "issue": "Empty feature definition",
-                            }
-                        )
+        for line, section in _iter_toml_sections(lines):
+            if section == "dependencies":
+                self._check_dependency_line(
+                    line, dependencies, version_issues, security_concerns
+                )
+            elif section == "features":
+                self._check_feature_line(line, feature_analysis)
 
         return {
             "dependencies": dependencies,

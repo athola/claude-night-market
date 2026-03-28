@@ -250,8 +250,8 @@ class TestQuotaTracker:
 
         usage = tracker.get_current_usage()
 
-        assert usage.requests_this_minute == 2  # noqa: PLR2004
-        assert usage.tokens_this_minute == 80  # noqa: PLR2004
+        assert usage.requests_this_minute == 2
+        assert usage.tokens_this_minute == 80
 
     @pytest.mark.bdd
     def test_estimate_file_tokens_nonexistent_file(self, tmp_path: Path) -> None:
@@ -320,8 +320,8 @@ class TestQuotaTrackerStorage:
 
         tracker = QuotaTracker(service="existing-service", storage_dir=tmp_path)
 
-        assert tracker.usage.requests_this_minute == 5  # noqa: PLR2004
-        assert tracker.usage.requests_today == 10  # noqa: PLR2004
+        assert tracker.usage.requests_this_minute == 5
+        assert tracker.usage.requests_today == 10
 
 
 @pytest.mark.unit

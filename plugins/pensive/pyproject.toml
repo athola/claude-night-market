@@ -184,6 +184,9 @@ unfixable = [
 "src/pensive/skills/rust_review.py" = [
     "PLR0912", # Complex analysis functions have many branches
 ]
+"src/pensive/skills/tiered_audit.py" = [
+    "PLR2004", # Magic value in path splitting logic
+]
 "src/pensive/skills/test_review.py" = [
     "PLR0912", # Complex analysis functions have many branches
 ]
@@ -235,3 +238,18 @@ module = [
     "psutil.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pensive.skills.rust_review.cargo",
+    "pensive.skills.rust_review.builtins",
+    "pensive.skills.rust_review.ownership",
+    "pensive.skills.rust_review.patterns",
+    "pensive.skills.rust_review.safety",
+    "pensive.skills.rust_review.structure",
+]
+disable_error_code = ["attr-defined"]

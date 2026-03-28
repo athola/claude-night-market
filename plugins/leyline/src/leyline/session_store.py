@@ -9,13 +9,14 @@ from pathlib import Path
 from typing import Any
 
 _SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+_MAX_SESSION_ID_LENGTH = 128
 
 
 def validate_session_id(session_id: str) -> bool:
     """Check if session ID is safe for use as a filename."""
     return (
         bool(_SAFE_ID_RE.match(session_id))
-        and len(session_id) <= 128
+        and len(session_id) <= _MAX_SESSION_ID_LENGTH
         and ".." not in session_id
     )
 
@@ -77,8 +78,8 @@ class SessionStore:
             return True
         return False
 
-    def _serialize(self, record: Any) -> dict:  # type: ignore[type-arg]
+    def _serialize(self, record: Any) -> dict:
         raise NotImplementedError
 
-    def _deserialize(self, data: dict) -> Any:  # type: ignore[type-arg]
+    def _deserialize(self, data: dict) -> Any:
         raise NotImplementedError

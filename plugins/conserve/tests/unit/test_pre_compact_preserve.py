@@ -12,8 +12,8 @@ import pytest
 # Add hooks directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
-import pre_compact_preserve as preserve_module  # noqa: E402
-from pre_compact_preserve import (  # noqa: E402
+import pre_compact_preserve as preserve_module
+from pre_compact_preserve import (
     extract_decisions,
     extract_errors,
     extract_file_paths,

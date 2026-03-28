@@ -12,7 +12,7 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 # Singleton cache
 _config_cache: dict[str, Any] | None = None

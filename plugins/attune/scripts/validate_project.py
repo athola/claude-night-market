@@ -7,7 +7,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from project_detector import ProjectDetector  # type: ignore[import]
+from project_detector import ProjectDetector
 
 
 class ValidationResult:

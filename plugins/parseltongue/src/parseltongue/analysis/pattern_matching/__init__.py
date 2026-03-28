@@ -29,12 +29,11 @@ from ._improvements import ImprovementsMixin
 from ._test_patterns import TestPatternMixin
 
 __all__ = [
-    "PatternMatchingSkill",
-    # constants re-exported for any code that imports them directly
-    "MIN_OBSERVER_METHODS",
     "MIN_FACTORY_RETURN_CLASSES",
+    "MIN_OBSERVER_METHODS",
     "MIN_REPO_METHODS",
     "_OBSERVER_METHODS",
+    "PatternMatchingSkill",
 ]
 
 

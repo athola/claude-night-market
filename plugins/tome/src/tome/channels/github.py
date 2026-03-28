@@ -255,13 +255,13 @@ def parse_github_api_response(data: dict[str, Any], topic: str) -> list[Finding]
 def _parse_updated_at(value: str | None) -> datetime:
     """Parse ISO 8601 datetime string, returning epoch on failure."""
     if not value:
-        return datetime(1970, 1, 1, tzinfo=timezone.utc)  # noqa: UP017
+        return datetime(1970, 1, 1, tzinfo=timezone.utc)
     try:
         # GitHub uses Z suffix; fromisoformat requires +00:00 in Python 3.9
         normalised = value.replace("Z", "+00:00")
         return datetime.fromisoformat(normalised)
     except ValueError:
-        return datetime(1970, 1, 1, tzinfo=timezone.utc)  # noqa: UP017
+        return datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 def rank_github_findings(findings: list[Finding]) -> list[Finding]:
@@ -284,7 +284,7 @@ def rank_github_findings(findings: list[Finding]) -> list[Finding]:
         New list sorted descending by composite score. The input list
         is not mutated.
     """
-    now = datetime.now(tz=timezone.utc)  # noqa: UP017
+    now = datetime.now(tz=timezone.utc)
 
     def _score(f: Finding) -> float:
         updated_at = _parse_updated_at(f.metadata.get("updated_at"))

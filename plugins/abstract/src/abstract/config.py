@@ -13,7 +13,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 
 
 class Environment(Enum):
@@ -384,10 +384,10 @@ class AbstractConfig:
     def get_summary(self) -> str:
         """Get configuration summary."""
         # __post_init__ guarantees these are never None; assert for mypy
-        assert self.skill_validation is not None  # noqa: S101
-        assert self.skill_analyzer is not None  # noqa: S101
-        assert self.skills_eval is not None  # noqa: S101
-        assert self.context_optimizer is not None  # noqa: S101
+        assert self.skill_validation is not None
+        assert self.skill_analyzer is not None
+        assert self.skills_eval is not None
+        assert self.context_optimizer is not None
 
         # Get exception count safely
         exception_count = (

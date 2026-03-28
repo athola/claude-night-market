@@ -50,7 +50,7 @@ class TestSpecialistProfile:
             role="documenter",
             description="Writes docs",
             pipeline_steps=["update-docs", "prepare-pr"],
-            context_file="/tmp/ctx.md",  # noqa: S108
+            context_file="/tmp/ctx.md",
             items_processed=5,
             last_active="2025-01-01T00:00:00+00:00",
             performance_metrics={"steps": {}},
@@ -59,7 +59,7 @@ class TestSpecialistProfile:
         assert d["role"] == "documenter"
         assert d["description"] == "Writes docs"
         assert d["pipeline_steps"] == ["update-docs", "prepare-pr"]
-        assert d["context_file"] == "/tmp/ctx.md"  # noqa: S108
+        assert d["context_file"] == "/tmp/ctx.md"
         assert d["items_processed"] == 5
         assert d["last_active"] == "2025-01-01T00:00:00+00:00"
         assert d["performance_metrics"] == {"steps": {}}

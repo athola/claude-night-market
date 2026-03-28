@@ -13,8 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from scripts.war_room.experts import _COMMAND_RESOLVERS
-from scripts.war_room_orchestrator import (
+from scripts.war_room import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
@@ -22,6 +21,7 @@ from scripts.war_room_orchestrator import (
     get_expert_command,
     get_glm_command,
 )
+from scripts.war_room.experts import _COMMAND_RESOLVERS
 
 
 class TestExpertConfiguration:

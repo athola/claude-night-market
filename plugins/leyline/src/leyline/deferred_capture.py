@@ -16,7 +16,8 @@ import subprocess
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any
 
 
 @dataclass
@@ -46,9 +47,9 @@ def build_labels(source: str, extras: list[str]) -> list[str]:
     """Build deduped label list: deferred + source + extras."""
     seen: dict[str, None] = {}
     for label in ["deferred", source, *extras]:
-        label = label.strip()
-        if label:
-            seen[label] = None
+        stripped = label.strip()
+        if stripped:
+            seen[stripped] = None
     return list(seen.keys())
 
 
@@ -59,7 +60,7 @@ def get_session_id(explicit: str | None) -> str:
     env_id = os.environ.get("CLAUDE_SESSION_ID", "")
     if env_id:
         return env_id
-    return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
 
 
 def get_current_branch() -> str:
@@ -87,7 +88,7 @@ def build_body(
     captured_by: str,
 ) -> str:
     """Build the issue body from the leyline contract template."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     branch = get_current_branch()
     artifact = artifact_path if artifact_path else "N/A"
     return (
@@ -241,6 +242,67 @@ def parse_args(
     return parser.parse_args(argv)
 
 
+def _call_gh(fn: Any, *args: Any) -> tuple[Any | None, int]:
+    """Call a gh CLI wrapper, returning (result, exit_code).
+
+    Returns the function result on success, or prints a JSON
+    error and returns (None, 1) on CLI failure.
+    """
+    try:
+        return fn(*args), 0
+    except FileNotFoundError:
+        print(json.dumps({"status": "error", "message": "gh CLI not found"}))
+        return None, 1
+    except subprocess.TimeoutExpired:
+        print(json.dumps({"status": "error", "message": "gh CLI timed out"}))
+        return None, 1
+    except RuntimeError as exc:
+        print(json.dumps({"status": "error", "message": str(exc)}))
+        return None, 1
+
+
+def _publish_issue(
+    bare_title: str,
+    title: str,
+    body: str,
+    labels: list[str],
+) -> int:
+    """Find duplicates, then create the GitHub issue.
+
+    Returns 0 on success or duplicate, 1 on error.
+    """
+    dupe, rc = _call_gh(find_duplicate, bare_title)
+    if rc:
+        return rc
+
+    if dupe:
+        print(
+            json.dumps(
+                {
+                    "status": "duplicate",
+                    "existing_url": dupe.get("url", ""),
+                    "number": dupe.get("number"),
+                }
+            )
+        )
+        return 0
+
+    created, rc = _call_gh(create_issue, title, body, labels)
+    if rc or created is None:
+        return rc or 1
+
+    print(
+        json.dumps(
+            {
+                "status": "created",
+                "issue_url": created.get("url", ""),
+                "number": created.get("number"),
+            }
+        )
+    )
+    return 0
+
+
 def run_capture(
     config: PluginConfig,
     argv: list[str] | None = None,
@@ -291,48 +353,4 @@ def run_capture(
         color = config.label_colors.get(label, "#CCCCCC")
         ensure_label(label, color)
 
-    # Duplicate detection
-    try:
-        dupe = find_duplicate(bare_title)
-    except FileNotFoundError:
-        print(json.dumps({"status": "error", "message": "gh CLI not found"}))
-        return 1
-    except subprocess.TimeoutExpired:
-        print(json.dumps({"status": "error", "message": "gh CLI timed out"}))
-        return 1
-
-    if dupe:
-        print(
-            json.dumps(
-                {
-                    "status": "duplicate",
-                    "existing_url": dupe.get("url", ""),
-                    "number": dupe.get("number"),
-                }
-            )
-        )
-        return 0
-
-    # Create issue
-    try:
-        created = create_issue(title, body, labels)
-    except FileNotFoundError:
-        print(json.dumps({"status": "error", "message": "gh CLI not found"}))
-        return 1
-    except subprocess.TimeoutExpired:
-        print(json.dumps({"status": "error", "message": "gh CLI timed out"}))
-        return 1
-    except RuntimeError as exc:
-        print(json.dumps({"status": "error", "message": str(exc)}))
-        return 1
-
-    print(
-        json.dumps(
-            {
-                "status": "created",
-                "issue_url": created.get("url", ""),
-                "number": created.get("number"),
-            }
-        )
-    )
-    return 0
+    return _publish_issue(bare_title, title, body, labels)

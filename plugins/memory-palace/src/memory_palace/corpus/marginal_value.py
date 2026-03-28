@@ -36,8 +36,8 @@ from memory_palace.corpus.integration_policy import (
 from memory_palace.corpus.integration_policy import (
     explain_decision as _explain_decision_fn,
 )
-from memory_palace.corpus.keyword_index import KeywordIndexer  # noqa: F401
-from memory_palace.corpus.query_templates import QueryTemplateManager  # noqa: F401
+from memory_palace.corpus.keyword_index import KeywordIndexer
+from memory_palace.corpus.query_templates import QueryTemplateManager
 from memory_palace.corpus.usage_tracker import UsageSignal
 
 # Re-export everything so existing importers of marginal_value work unchanged.
@@ -58,6 +58,8 @@ __all__ = [
     "DeltaAnalysis",
     "IntegrationPlan",
     "MarginalValueFilter",
+    "KeywordIndexer",
+    "QueryTemplateManager",
 ]
 
 

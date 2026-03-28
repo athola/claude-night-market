@@ -6,9 +6,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from attune_init import copy_templates  # type: ignore[import-not-found]
-from project_detector import ProjectDetector  # type: ignore[import-not-found]
-from template_engine import get_default_variables  # type: ignore[import-not-found]
+from attune_init import copy_templates
+from project_detector import ProjectDetector
+from template_engine import get_default_variables
 
 
 class ProjectUpgrader:
@@ -277,7 +277,7 @@ class ProjectUpgrader:
         if self.language == "python":
             pyproject = self.project_path / "pyproject.toml"
             if pyproject.exists():
-                import re  # noqa: PLC0415
+                import re
 
                 content = pyproject.read_text()
 
@@ -299,18 +299,20 @@ class ProjectUpgrader:
                 )
                 author = author_match.group(1) if author_match else "Your Name"
 
-                return get_default_variables(  # type: ignore[no-any-return]
+                result: dict[str, str] = get_default_variables(
                     project_name=project_name,
                     language=self.language,
                     python_version=python_version,
                     author=author,
                 )
+                return result
 
         # Default fallback
-        return get_default_variables(  # type: ignore[no-any-return]
+        fallback: dict[str, str] = get_default_variables(
             project_name=self.project_path.name,
             language=self.language,
         )
+        return fallback
 
 
 def main() -> None:

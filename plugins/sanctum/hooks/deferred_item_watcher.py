@@ -235,7 +235,7 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:  # noqa: BLE001
+    except Exception:
         import traceback
 
         sys.stderr.write(f"deferred_item_watcher: {traceback.format_exc()}")

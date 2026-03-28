@@ -67,8 +67,8 @@ def _scan_uv_lock(lockfile: Path, blocklist: dict) -> list[dict]:
 def _scan_requirements(reqfile: Path, blocklist: dict) -> list[dict]:
     """Check a requirements.txt for known compromised pinned versions."""
     findings = []
-    for line in reqfile.read_text().splitlines():
-        line = line.strip()
+    for raw_line in reqfile.read_text().splitlines():
+        line = raw_line.strip()
         if "==" not in line or line.startswith("#"):
             continue
         name, version = line.split("==", 1)
@@ -93,6 +93,7 @@ def _scan_requirements(reqfile: Path, blocklist: dict) -> list[dict]:
 
 
 def main() -> None:
+    """Scan lockfiles for known-compromised package versions and emit warnings."""
     blocklist_path = _find_blocklist()
     if not blocklist_path:
         return
@@ -129,7 +130,8 @@ def main() -> None:
         if f["indicators"]:
             warnings.append(f"  Scan for: {', '.join(f['indicators'])}")
         warnings.append(
-            "  ACTION: Remove this version, rotate credentials if it was ever installed."
+            "  ACTION: Remove this version, rotate credentials if"
+            " it was ever installed."
         )
 
     result = {

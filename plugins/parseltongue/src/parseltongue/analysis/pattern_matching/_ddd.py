@@ -156,7 +156,7 @@ class DDDPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {"ddd_patterns": {}, **(err or {})}
 

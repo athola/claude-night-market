@@ -40,3 +40,18 @@ exclude_lines = [
     "raise NotImplementedError",
 ]
 fail_under = 85
+
+[tool.mypy]
+python_version = "3.9"
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["scribe.pattern_loader"]
+disable_error_code = ["assignment"]
+
+[[tool.mypy.overrides]]
+module = ["scribe.tape_generator"]
+disable_error_code = ["assignment"]

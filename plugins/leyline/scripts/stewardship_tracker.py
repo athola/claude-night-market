@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 def record_action(
@@ -23,7 +23,7 @@ def record_action(
     action_type: str,
     file_path: str,
     description: str,
-    virtue: Optional[str] = None,  # noqa: UP045
+    virtue: str | None = None,
 ) -> None:
     """Append a stewardship action to the JSONL tracking file.
 
@@ -46,7 +46,7 @@ def record_action(
         return
 
     entry: dict[str, Any] = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "plugin": plugin,
         "action_type": action_type,
         "file": file_path,
@@ -67,8 +67,8 @@ def record_action(
 
 def read_actions(
     base_dir: Path,
-    plugin: Optional[str] = None,  # noqa: UP045
-    virtue: Optional[str] = None,  # noqa: UP045
+    plugin: str | None = None,
+    virtue: str | None = None,
 ) -> list[dict[str, Any]]:
     """Read stewardship actions from the JSONL tracking file.
 

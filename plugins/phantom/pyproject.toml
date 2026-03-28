@@ -7,7 +7,6 @@ license = { text = "MIT" }
 authors = [{ name = "Alex Thola", email = "alex@thola.dev" }]
 dependencies = [
     "anthropic>=0.49.0",
-    "Pillow>=9.0.0",
 ]
 
 [project.optional-dependencies]

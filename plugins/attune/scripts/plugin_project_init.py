@@ -4,8 +4,8 @@
 import argparse
 from pathlib import Path
 
-from attune_init import copy_templates, initialize_git  # type: ignore[import]
-from template_engine import get_default_variables  # type: ignore[import]
+from attune_init import copy_templates, initialize_git
+from template_engine import get_default_variables
 
 
 def create_plugin_structure(project_path: Path, plugin_name: str) -> None:

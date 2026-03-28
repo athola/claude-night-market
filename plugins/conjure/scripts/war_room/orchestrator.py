@@ -303,7 +303,7 @@ class WarRoomOrchestrator:
             elif isinstance(result, str):
                 output[key] = result
             else:
-                output[key] = str(result)  # type: ignore[unreachable]
+                output[key] = str(result)
         return output
 
     # --- Phase forwarders (thin wrappers kept for test patching compatibility) ---

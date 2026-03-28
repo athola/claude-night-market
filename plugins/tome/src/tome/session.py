@@ -9,14 +9,14 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from leyline.session_store import (  # type: ignore[import-not-found]
+    from leyline.session_store import (
         SessionStore,
         validate_session_id,
     )
 except ImportError:  # pragma: no cover — standalone fallback
     import re as _re
 
-    def validate_session_id(session_id: str) -> bool:  # type: ignore[misc]
+    def validate_session_id(session_id: str) -> bool:
         """Fallback ID validator used when leyline is not installed."""
         pattern = _re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
         return (
@@ -25,7 +25,7 @@ except ImportError:  # pragma: no cover — standalone fallback
             and ".." not in session_id
         )
 
-    class SessionStore:  # type: ignore[no-redef]
+    class SessionStore:
         """Minimal fallback base when leyline is absent."""
 
         def __init__(self, sessions_dir: Path) -> None:
@@ -71,10 +71,10 @@ except ImportError:  # pragma: no cover — standalone fallback
                 return True
             return False
 
-        def _serialize(self, record: Any) -> dict:  # type: ignore[type-arg]
+        def _serialize(self, record: Any) -> dict:
             raise NotImplementedError
 
-        def _deserialize(self, data: dict) -> Any:  # type: ignore[type-arg]
+        def _deserialize(self, data: dict) -> Any:
             raise NotImplementedError
 
 
@@ -103,7 +103,7 @@ class SessionManager:
         """Return the file path for *session_id*, raising ValueError if invalid."""
         if not validate_session_id(session_id):
             raise ValueError(f"Invalid session ID: {session_id!r}")
-        return self._store._session_path(session_id)  # type: ignore[no-any-return]
+        return self._store._session_path(session_id)
 
     def create(
         self,
@@ -126,7 +126,7 @@ class SessionManager:
 
     def save(self, session: ResearchSession) -> Path:
         """Serialize session to JSON and write to disk; returns the file path."""
-        return self._store.save(session.id, session)  # type: ignore[no-any-return]
+        return self._store.save(session.id, session)
 
     def load(self, session_id: str) -> ResearchSession:
         """Deserialize and return a session by ID.

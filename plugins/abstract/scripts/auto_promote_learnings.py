@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from post_learnings_to_discussions import (  # type: ignore[import-not-found]
+from post_learnings_to_discussions import (
     PostedRecord,
     create_discussion,
     detect_target_repo,
@@ -185,7 +185,7 @@ def _parse_summary_table(content: str) -> dict[str, dict[str, Any]]:
     return metrics
 
 
-def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0912
+def parse_improvement_items(content: str) -> list[dict[str, Any]]:
     """Parse LEARNINGS.md into a list of promotable improvement items.
 
     Args:
@@ -311,7 +311,7 @@ def has_existing_issue(
     skill = item.get("skill", "")
     issue_type = item.get("type", "")
     search_query = f"[Auto-Improvement] {skill}: {issue_type} in:title"
-    cmd = [  # noqa: S607
+    cmd = [
         "gh",
         "issue",
         "list",
@@ -325,7 +325,7 @@ def has_existing_issue(
         "1",
     ]
     try:
-        result = subprocess.run(  # noqa: S603  # nosec B603
+        result = subprocess.run(  # nosec B603
             cmd,
             capture_output=True,
             text=True,
@@ -394,7 +394,7 @@ def promote_to_issue(
             "--label",
             "improvement:auto-promoted",
         ]
-        result = subprocess.run(  # noqa: S603, S607  # nosec B603
+        result = subprocess.run(  # nosec B603
             cmd,
             capture_output=True,
             text=True,

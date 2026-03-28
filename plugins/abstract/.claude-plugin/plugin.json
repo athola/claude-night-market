@@ -43,6 +43,9 @@
     "./agents/skill-evaluator.md",
     "./agents/skill-improver.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "meta-skills",
     "infrastructure",

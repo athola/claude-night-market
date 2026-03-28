@@ -35,7 +35,7 @@ class ResearchTelemetryEvent:
     notes: str | None = None
 
     @classmethod
-    def build(  # noqa: PLR0913 - telemetry events require rich fields
+    def build(
         cls,
         *,
         query_id: str,

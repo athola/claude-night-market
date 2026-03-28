@@ -10,8 +10,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from project_detector import ProjectDetector  # type: ignore[import]
-from template_engine import (  # type: ignore[import]
+from project_detector import ProjectDetector
+from template_engine import (
     TemplateEngine,
     get_default_variables,
 )
@@ -36,7 +36,7 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
 
     try:
         subprocess.run(
-            ["git", "init"],  # noqa: S607
+            ["git", "init"],
             cwd=project_path,
             check=True,
             capture_output=True,

@@ -82,7 +82,7 @@ def extract_urls(text: str) -> list[str]:
 
 
 def main() -> None:
-    """Main hook entry point."""
+    """Run the URL detector hook entry point."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError:

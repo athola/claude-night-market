@@ -23,7 +23,7 @@ REPO_URL = "git@github.com:athola/claude-night-market.wiki.git"
 
 
 def _run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=False)  # noqa: S603  # nosec: B603
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=False)  # nosec: B603
 
 
 def clone() -> bool:

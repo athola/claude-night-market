@@ -17,7 +17,7 @@ from typing import Any
 try:
     from sanctum.validators import parse_frontmatter as _parse_frontmatter_canonical
 except ImportError:
-    _parse_frontmatter_canonical = None  # type: ignore[assignment]
+    _parse_frontmatter_canonical = None
 
 # Import Phase 2-4 modules
 sys.path.insert(0, str(Path(__file__).parent))
@@ -216,7 +216,7 @@ class PluginAuditor:
 
         return references
 
-    def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:  # noqa: PLR0912
+    def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:
         """Scan disk for actual commands, skills, agents, hooks."""
         results: dict[str, list[str]] = {
             "commands": [],
@@ -434,6 +434,20 @@ class PluginAuditor:
                 discrepancies["missing"][category] = sorted(missing)
             if stale:
                 discrepancies["stale"][category] = sorted(stale)
+
+        # Check for hooks.json on disk not referenced in plugin.json.
+        # If hooks/hooks.json exists but the "hooks" field is absent or
+        # doesn't include "./hooks/hooks.json", report it as missing.
+        hooks_json_path = plugin_path / "hooks" / "hooks.json"
+        if hooks_json_path.exists():
+            hooks_field = in_json.get("hooks")
+            referenced = hooks_field == "./hooks/hooks.json" or (
+                isinstance(hooks_field, list) and "./hooks/hooks.json" in hooks_field
+            )
+            if not referenced:
+                hooks_missing = discrepancies["missing"].setdefault("hooks", [])
+                if "./hooks/hooks.json" not in hooks_missing:
+                    hooks_missing.append("./hooks/hooks.json")
 
         return discrepancies
 

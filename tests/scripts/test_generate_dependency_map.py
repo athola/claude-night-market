@@ -19,7 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Import script functions for unit testing
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
-from generate_dependency_map import (  # noqa: E402
+from generate_dependency_map import (
     find_plugins,
     generate_map,
     scan_makefile_deps,

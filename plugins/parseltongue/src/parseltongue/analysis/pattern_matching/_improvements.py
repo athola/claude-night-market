@@ -127,7 +127,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {
                     "consistency_analysis": consistency,
@@ -173,7 +173,7 @@ class ImprovementsMixin:
         """Detect singleton pattern variations."""
         tree = _tree
         if tree is None:
-            tree, _ = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, _ = self._parse_code(code)
             if tree is None:
                 return
 
@@ -310,7 +310,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {
                     "recognized_patterns": [],
@@ -358,7 +358,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {"documentation": docs, **(err or {})}
 
@@ -432,7 +432,7 @@ class ImprovementsMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {
                     "comparison": {

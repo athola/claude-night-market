@@ -66,7 +66,7 @@ class BuiltinsMixin:
         """
         content = context.get_file_content(file_path)
         issues: list[dict[str, Any]] = []
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
 
         for i, line in enumerate(lines):
             if any(re.search(pat, line) for pat in self._BUILTIN_EXCLUSION_PATTERNS):

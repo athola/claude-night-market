@@ -6,6 +6,7 @@ Type/Sleep/Enter commands and configurable timing.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
@@ -44,9 +45,6 @@ class TapeConfig:
 
 
 # --- String escaping ---
-
-
-import re
 
 
 def _sanitize_theme(theme: str) -> str:
