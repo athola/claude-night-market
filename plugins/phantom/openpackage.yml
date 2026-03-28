@@ -16,12 +16,6 @@ author:
   name: Alex Thola
   url: https://github.com/athola
 license: MIT
-dependencies:
-  leyline:
-    source: gh@athola/claude-night-market
-    path: plugins/leyline
-    skills:
-    - error-patterns
 skills:
 - skills/computer-control
 agents:

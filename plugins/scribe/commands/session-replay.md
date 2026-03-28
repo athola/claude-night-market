@@ -36,8 +36,8 @@ and WebM output formats. Auto-detects the session format
 
 1. Invoke `Skill(scribe:session-replay)` to run the full
    pipeline: parse session, generate tape, render GIF
-2. If no session path given, use the most recent session
-   in the current project directory
+2. If no session path given, list recent sessions from
+   `~/.claude/projects/` for the user to pick
 3. Show session date and first user message for confirmation
 4. Parse, generate tape, render via `Skill(scry:vhs-recording)`
 

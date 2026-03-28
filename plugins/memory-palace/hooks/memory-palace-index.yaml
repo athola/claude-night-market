@@ -17,15 +17,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://example.com/test
-  https://www.linkedin.com/in/alexthola:
-    content_hash: sha256:e048937b2b5db0ab
-    stored_at: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
-    importance_score: 50
-    last_updated: '2026-03-27T05:05:00.599248+00:00'
-    title: Alex Thola - Professional Summary
-    maturity: seedling
-    routing_type: pending
-    url: https://www.linkedin.com/in/alexthola
   https://docs.litellm.ai/blog/security-update-march-2026:
     content_hash: sha256:2b1bf022625ba38f
     stored_at: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
@@ -83,7 +74,6 @@ entries:
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
-  sha256:e048937b2b5db0ab: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
   sha256:2b1bf022625ba38f: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
   sha256:815dff2a452b7dcd: data/staging/webfetch-bevy-engine-readme-structure-2026-03-27_05-05-14.md
   sha256:808ac5a5e5f17e0a: data/staging/webfetch-trunk-readme-structure-2026-03-27_05-05-14.md

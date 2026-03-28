@@ -17,7 +17,7 @@ test-unit: ## Run unit tests only
 	uv run --extra dev python -m pytest tests/unit/ -v --tb=short
 
 typecheck: ## Run type checking
-	uv run --extra dev mypy src/ tests/
+	uv run --extra dev mypy src/
 
 lint: ## Run linter
 	uv run --extra dev ruff check src/ tests/

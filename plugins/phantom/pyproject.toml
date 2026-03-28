@@ -34,7 +34,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 ignore = ["UP017", "UP007"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 
