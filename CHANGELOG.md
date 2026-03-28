@@ -202,6 +202,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   compromised package versions in lockfiles
 - Known-bad-versions blocklist (`known-bad-versions.json`)
   with LiteLLM 1.82.7/1.82.8 credential stealer entry
+- Phantom plugin registered in marketplace.json and added
+  to api-overview.md, domain-specialists.md book page
 
 ### Fixed
 

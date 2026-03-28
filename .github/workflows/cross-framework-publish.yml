@@ -229,6 +229,7 @@ jobs:
           **Provenance:** MIT licensed, automated export with validation.
           Full plugin (agents, hooks, commands) available for Claude Code.
           PRBODYEOF
+          )
 
           gh pr create \
             --repo openclaw/clawhub \
@@ -306,6 +307,7 @@ jobs:
           -- curated skills for code review, testing, documentation, architecture,
           and git workflows. MIT licensed, published on ClawHub.
           AWESOMEEOF
+          )
 
           gh pr create \
             --repo "$TARGET_REPO" \

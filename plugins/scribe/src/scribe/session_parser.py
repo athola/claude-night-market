@@ -11,10 +11,13 @@ Supports auto-detection of session format from file content.
 from __future__ import annotations
 
 import json
+import logging
 import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # --- Data classes ---
 
@@ -83,7 +86,7 @@ def _preview_session(path: Path) -> tuple[str, int]:
     turn_count = 0
 
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             for i, line in enumerate(f):
                 if i >= _PREVIEW_MAX_LINES:
                     break
@@ -235,8 +238,24 @@ def _parse_turn_range(turns_str: str) -> tuple[int, int]:
     """Parse a turns spec like '3' or '1-5' into (start, end) inclusive."""
     if "-" in turns_str:
         parts = turns_str.split("-", 1)
-        return int(parts[0]), int(parts[1])
-    n = int(turns_str)
+        start_str, end_str = parts[0], parts[1]
+        try:
+            start, end = int(start_str), int(end_str)
+        except ValueError:
+            msg = (
+                f"Invalid turn range: expected integers, "
+                f"got '{start_str}' and/or '{end_str}'"
+            )
+            raise ValueError(msg) from None
+        if start > end:
+            msg = f"Invalid turn range: start ({start}) must not exceed end ({end})"
+            raise ValueError(msg)
+        return start, end
+    try:
+        n = int(turns_str)
+    except ValueError:
+        msg = f"Invalid turn range: expected integer, got '{turns_str}'"
+        raise ValueError(msg) from None
     return n, n
 
 
@@ -254,7 +273,7 @@ def detect_format(path: Path) -> str:
         "codex" or "claude".
     """
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -323,12 +342,16 @@ def parse_session(
 def _parse_claude_file(path: Path, cols: int, rows: int) -> list[Turn]:
     """Parse a Claude Code session JSONL file into raw turns."""
     all_turns: list[Turn] = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            record = json.loads(line)
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                logger.warning("Skipping malformed JSONL line: %s", line[:80])
+                continue
             record_type = record.get("type")
 
             if record_type not in ("user", "assistant"):
@@ -354,12 +377,16 @@ def _parse_claude_file(path: Path, cols: int, rows: int) -> list[Turn]:
 def _parse_codex_file(path: Path, cols: int, rows: int) -> list[Turn]:
     """Parse a Codex session JSONL file into raw turns."""
     all_turns: list[Turn] = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            record = json.loads(line)
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                logger.warning("Skipping malformed JSONL line: %s", line[:80])
+                continue
 
             if record.get("type") != "message":
                 continue

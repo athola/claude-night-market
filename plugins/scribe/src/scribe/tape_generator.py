@@ -40,6 +40,26 @@ class TapeConfig:
 # --- String escaping ---
 
 
+import re
+
+
+def _sanitize_theme(theme: str) -> str:
+    """Sanitize a VHS theme name to safe characters.
+
+    Allows alphanumeric, hyphens, underscores, and spaces
+    (VHS built-in themes like "Catppuccin Mocha" use spaces).
+    Raises ValueError if the theme name contains unsafe characters.
+    """
+    if not re.match(r"^[A-Za-z0-9 _-]+$", theme):
+        msg = (
+            f"Invalid theme name: '{theme}'. "
+            "Theme names may only contain alphanumeric characters, "
+            "hyphens, underscores, and spaces."
+        )
+        raise ValueError(msg)
+    return theme
+
+
 def escape_vhs(text: str) -> str:
     """Escape a string for VHS Type double-quoted syntax.
 
@@ -57,12 +77,22 @@ def escape_vhs(text: str) -> str:
 # --- Timing helpers ---
 
 
+_MIN_SPEED = 0.01
+
+
 def _scale_ms(base_ms: float, speed: float) -> int:
     """Scale a duration in ms by the speed multiplier.
 
     Speed 2.0 halves durations. Speed 0.5 doubles them.
+    Speed is clamped to a minimum of 0.01 to avoid
+    ZeroDivisionError.
     """
-    return max(1, round(base_ms / speed))
+    if speed <= 0:
+        raise ValueError(
+            f"Speed must be positive, got {speed}. "
+            f"Minimum allowed value is {_MIN_SPEED}."
+        )
+    return max(1, round(base_ms / max(speed, _MIN_SPEED)))
 
 
 # --- Tape generation ---
@@ -118,7 +148,7 @@ def generate_tape(turns: list[Turn], config: TapeConfig) -> str:
     lines.append(f"Set Width {config.width}")
     lines.append(f"Set Height {config.height}")
     lines.append(f"Set FontSize {config.font_size}")
-    lines.append(f'Set Theme "{config.theme}"')
+    lines.append(f'Set Theme "{_sanitize_theme(config.theme)}"')
     lines.append("")
 
     # Duration tracking
@@ -215,12 +245,34 @@ def _render_tool_use(lines: list[str], turn: ToolUse, config: TapeConfig) -> flo
     return type_ms + _scale_ms(50, config.speed)
 
 
+_TOOL_RESULT_MAX_LINES = 3
+
+
 def _render_tool_result(
     lines: list[str], turn: ToolResult, config: TapeConfig
 ) -> float:
-    """Render a tool result. Returns duration in ms."""
+    """Render a tool result. Returns duration in ms.
+
+    If the tool result content is short (up to 3 lines),
+    a summary is included in the tape output.
+    """
     type_ms = _scale_ms(100, config.speed)
+    elapsed = 0.0
+
     escaped = escape_vhs(f"  [result: {turn.tool_use_id}]")
     lines.append(f'Type@{type_ms}ms "{escaped}"')
     lines.append("Enter")
-    return type_ms + _scale_ms(50, config.speed)
+    elapsed += type_ms + _scale_ms(50, config.speed)
+
+    # Include short tool result content as a summary
+    if turn.content:
+        content_lines = turn.content.strip().splitlines()
+        if 0 < len(content_lines) <= _TOOL_RESULT_MAX_LINES:
+            for content_line in content_lines:
+                truncated = content_line[:120]
+                escaped_content = escape_vhs(f"    {truncated}")
+                lines.append(f'Type@{type_ms}ms "{escaped_content}"')
+                lines.append("Enter")
+                elapsed += type_ms + _scale_ms(50, config.speed)
+
+    return elapsed

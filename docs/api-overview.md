@@ -1,38 +1,39 @@
 # API Overview
 
-*Updated: 2026-03-20*
+*Updated: 2026-03-27*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
 
-Claude Night Market consists of 18 plugins that provide
+Claude Night Market consists of 19 plugins that provide
 CLI commands, Python packages, and skill-based APIs.
 These tools support a range of workflows, from code
 review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 109 CLI commands, 142 modular
-skills, 47 specialized agents, and 9 Python packages
+The ecosystem includes 138 CLI commands, 151 modular
+skills, 48 specialized agents, and 9 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.7.2 | 18 | 11 | 5 | Yes | abstract-skills |
+| abstract | 1.7.2 | 18 | 12 | 5 | Yes | abstract-skills |
 | archetypes | 1.7.2 | 0 | 14 | 0 | No | - |
 | attune | 1.7.2 | 10 | 13 | 2 | No | - |
 | conjure | 1.7.2 | 0 | 4 | 0 | No | - |
-| conserve | 1.7.2 | 4 | 11 | 5 | No | - |
+| conserve | 1.7.2 | 4 | 12 | 5 | No | - |
 | egregore | 1.7.2 | 5 | 4 | 2 | No | - |
 | hookify | 1.7.2 | 6 | 2 | 0 | No | - |
 | imbue | 1.7.2 | 3 | 10 | 1 | No | - |
-| leyline | 1.7.2 | 3 | 17 | 0 | Yes | - |
+| leyline | 1.7.2 | 3 | 20 | 0 | Yes | - |
 | memory-palace | 1.7.2 | 5 | 6 | 4 | Yes | - |
 | minister | 1.7.2 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.7.2 | 3 | 4 | 4 | No | parseltongue |
 | pensive | 1.7.2 | 12 | 12 | 4 | Yes | - |
+| phantom | 1.7.2 | 1 | 1 | 1 | No | - |
 | sanctum | 1.7.2 | 18 | 14 | 9 | Yes | - |
-| scribe | 1.7.2 | 3 | 4 | 3 | Yes | - |
+| scribe | 1.7.2 | 5 | 7 | 3 | Yes | - |
 | scry | 1.7.2 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.7.2 | 10 | 3 | 3 | Yes | - |
 | tome | 1.7.2 | 4 | 7 | 4 | Yes | tome |
@@ -120,6 +121,12 @@ and domains, such as `api-review`, `rust-review`, and
 NASA Power of 10 rules and `tiered-audit` for
 three-tier escalation analysis.
 
+### Phantom (v1.7.2)
+Computer use toolkit for driving desktop environments
+through Claude's vision and action API. Provides
+screenshot capture, mouse/keyboard control, and an
+autonomous agent loop via the `desktop-pilot` agent.
+
 ### Sanctum (v1.7.2)
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
@@ -130,12 +137,18 @@ and a Stop hook that sweeps the session ledger to file GitHub issues.
 ### Scribe (v1.7.2)
 Documentation quality enforcement.
 Commands include `doc-polish` (interactive editing),
-`doc-generate` (documentation generation), and `style-learn` (style profiling).
+`doc-generate` (documentation generation), `style-learn` (style profiling),
+`session-replay` (session GIF recording), and `session-to-post`
+(session blog post conversion).
 AI content detection and accuracy validation are handled by the `slop-hunter`
 and `doc-verifier` agents respectively.
 Skills detect AI-generated content markers (`slop-detector`),
 learn writing styles (`style-learner`),
-and generate human-quality documentation (`doc-generator`).
+generate human-quality documentation (`doc-generator`),
+convert sessions to blog posts (`session-to-post`),
+import external documents (`doc-importer`),
+write technical tutorials (`tech-tutorial`),
+and replay sessions as GIFs (`session-replay`).
 
 ### Scry (v1.7.2)
 Terminal and browser session recording.

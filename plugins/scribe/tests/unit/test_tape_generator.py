@@ -7,10 +7,11 @@ and duration management.
 from __future__ import annotations
 
 import pytest
-from scribe.session_parser import AssistantTurn, ToolUse, UserTurn
+from scribe.session_parser import AssistantTurn, ToolResult, ToolUse, UserTurn
 from scribe.tape_generator import (
     SUPPORTED_FORMATS,
     TapeConfig,
+    _sanitize_theme,
     escape_vhs,
     generate_tape,
 )
@@ -494,3 +495,118 @@ class TestOutputFormats:
         Then it contains gif, mp4, and webm
         """
         assert SUPPORTED_FORMATS == {"gif", "mp4", "webm"}
+
+
+class TestThemeSanitization:
+    """Feature: theme name validation prevents tape injection.
+
+    As a tape generator
+    I want to sanitize theme names
+    So that special characters cannot break the VHS tape
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_valid_theme_passes(self) -> None:
+        """Scenario: standard theme names are accepted."""
+        assert _sanitize_theme("Dracula") == "Dracula"
+        assert _sanitize_theme("Solarized Dark") == "Solarized Dark"
+        assert _sanitize_theme("my-theme_v2") == "my-theme_v2"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_theme_with_special_chars_raises(self) -> None:
+        """Scenario: theme with injection characters is rejected."""
+        with pytest.raises(ValueError, match="Invalid theme name"):
+            _sanitize_theme('Dracula"; Exec "evil')
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_theme_with_quotes_raises(self) -> None:
+        """Scenario: theme with double quotes is rejected."""
+        with pytest.raises(ValueError, match="Invalid theme name"):
+            _sanitize_theme('Theme"Name')
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_theme_in_tape_output(self) -> None:
+        """Scenario: valid theme appears correctly in Set directive."""
+        config = TapeConfig(output_path="out.gif", theme="Catppuccin Mocha")
+        tape = generate_tape([], config)
+        assert 'Set Theme "Catppuccin Mocha"' in tape
+
+
+class TestSpeedValidation:
+    """Feature: speed parameter validation prevents division by zero.
+
+    As a tape generator
+    I want to reject zero or negative speed
+    So that the timing model does not produce errors
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_zero_speed_raises(self) -> None:
+        """Scenario: speed=0.0 raises ValueError."""
+        turns = [UserTurn(text="hello")]
+        config = TapeConfig(output_path="out.gif", speed=0.0)
+        with pytest.raises(ValueError, match="Speed must be positive"):
+            generate_tape(turns, config)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_negative_speed_raises(self) -> None:
+        """Scenario: negative speed raises ValueError."""
+        turns = [UserTurn(text="hello")]
+        config = TapeConfig(output_path="out.gif", speed=-1.0)
+        with pytest.raises(ValueError, match="Speed must be positive"):
+            generate_tape(turns, config)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_small_positive_speed_works(self) -> None:
+        """Scenario: very small positive speed is accepted."""
+        turns = [UserTurn(text="hello")]
+        config = TapeConfig(output_path="out.gif", speed=0.01)
+        tape = generate_tape(turns, config)
+        assert "$ hello" in tape
+
+
+class TestToolResultContentRendering:
+    """Feature: short tool result content included in tape.
+
+    As a tape viewer
+    I want to see short tool result content
+    So that I get context about what tools returned
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_short_content_included(self) -> None:
+        """Scenario: tool result with 1-2 lines shows content."""
+        turns = [ToolResult(tool_use_id="abc", content="file exists")]
+        config = TapeConfig(output_path="out.gif")
+        tape = generate_tape(turns, config)
+        assert "file exists" in tape
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_long_content_omitted(self) -> None:
+        """Scenario: tool result with many lines omits content."""
+        long_content = "\n".join(f"line {i}" for i in range(10))
+        turns = [ToolResult(tool_use_id="abc", content=long_content)]
+        config = TapeConfig(output_path="out.gif")
+        tape = generate_tape(turns, config)
+        # The result ID marker should appear
+        assert "[result: abc]" in tape
+        # But the long content lines should not
+        assert "line 5" not in tape
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_content_no_extra_lines(self) -> None:
+        """Scenario: tool result with empty content shows only marker."""
+        turns = [ToolResult(tool_use_id="abc", content="")]
+        config = TapeConfig(output_path="out.gif")
+        tape = generate_tape(turns, config)
+        assert "[result: abc]" in tape

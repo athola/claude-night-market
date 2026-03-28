@@ -16,6 +16,7 @@ from scribe.session_parser import (
     ToolResult,
     ToolUse,
     UserTurn,
+    _parse_turn_range,
     parse_session,
 )
 
@@ -815,3 +816,141 @@ class TestTextTruncation:
         turns = parse_session(path, cols=30)
         lines = turns[0].text.split("\n")
         assert all(len(line) <= 30 for line in lines)
+
+
+class TestCorruptJSONLBody:
+    """Feature: graceful handling of corrupt JSONL body lines.
+
+    As a session parser
+    I want to skip malformed lines in the body
+    So that a single corrupt line does not crash the entire parse
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_corrupt_body_lines_skipped_claude(self, tmp_path: Path) -> None:
+        """Scenario: valid header with corrupt body lines (Claude format).
+
+        Given a JSONL file with a valid first record (Claude format)
+        And corrupt (non-JSON) lines interspersed in the body
+        When parsing the session
+        Then the corrupt lines are skipped
+        And valid records are still parsed into turns
+        """
+        valid_record_1 = json.dumps(_user_record("hello"))
+        corrupt_line = "this is not valid json {{{{"
+        valid_record_2 = json.dumps(
+            _assistant_record([{"type": "text", "text": "response"}])
+        )
+        valid_record_3 = json.dumps(_user_record("goodbye"))
+
+        content = "\n".join(
+            [
+                valid_record_1,
+                corrupt_line,
+                valid_record_2,
+                "another bad line !!!",
+                valid_record_3,
+            ]
+        )
+        path = tmp_path / "corrupt_body.jsonl"
+        path.write_text(content)
+
+        turns = parse_session(path, format="claude")
+        assert len(turns) == 3
+        assert isinstance(turns[0], UserTurn)
+        assert turns[0].text == "hello"
+        assert isinstance(turns[1], AssistantTurn)
+        assert isinstance(turns[2], UserTurn)
+        assert turns[2].text == "goodbye"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_corrupt_body_lines_skipped_codex(self, tmp_path: Path) -> None:
+        """Scenario: valid header with corrupt body lines (Codex format).
+
+        Given a JSONL file with a valid first record (Codex format)
+        And corrupt (non-JSON) lines interspersed in the body
+        When parsing the session
+        Then the corrupt lines are skipped
+        And valid records are still parsed into turns
+        """
+        codex_user = {"type": "message", "role": "user", "content": "hello"}
+        codex_asst = {
+            "type": "message",
+            "role": "assistant",
+            "content": "response",
+        }
+
+        content = "\n".join(
+            [
+                json.dumps(codex_user),
+                "{malformed json",
+                json.dumps(codex_asst),
+                "not json at all",
+            ]
+        )
+        path = tmp_path / "corrupt_codex.jsonl"
+        path.write_text(content)
+
+        turns = parse_session(path, format="codex")
+        assert len(turns) == 2
+        assert isinstance(turns[0], UserTurn)
+        assert isinstance(turns[1], AssistantTurn)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_all_corrupt_body_returns_empty(self, tmp_path: Path) -> None:
+        """Scenario: valid header but all body lines corrupt.
+
+        Given a JSONL file with a valid first record
+        And all subsequent lines are corrupt
+        When parsing the session
+        Then partial results are returned (just from the valid header)
+        """
+        valid_record = json.dumps(_user_record("only valid line"))
+        content = "\n".join(
+            [
+                valid_record,
+                "corrupt line 1",
+                "corrupt line 2",
+                "corrupt line 3",
+            ]
+        )
+        path = tmp_path / "mostly_corrupt.jsonl"
+        path.write_text(content)
+
+        turns = parse_session(path, format="claude")
+        assert len(turns) == 1
+        assert isinstance(turns[0], UserTurn)
+        assert turns[0].text == "only valid line"
+
+
+class TestTurnRangeValidation:
+    """Feature: turn range input validation.
+
+    As a session parser
+    I want clear error messages for invalid turn ranges
+    So that users can correct their input quickly
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_non_integer_raises_descriptive_error(self) -> None:
+        """Scenario: non-integer turn spec raises ValueError with message."""
+        with pytest.raises(ValueError, match="Invalid turn range"):
+            _parse_turn_range("abc")
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_non_integer_range_raises_descriptive_error(self) -> None:
+        """Scenario: non-integer range spec raises ValueError with message."""
+        with pytest.raises(ValueError, match="Invalid turn range"):
+            _parse_turn_range("a-b")
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_start_greater_than_end_raises(self) -> None:
+        """Scenario: start > end in range raises ValueError."""
+        with pytest.raises(ValueError, match="must not exceed end"):
+            _parse_turn_range("5-2")

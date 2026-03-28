@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-night-market",
   "version": "1.7.2",
-  "description": "18 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, multi-LLM delegation, and multi-source research",
+  "description": "19 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, multi-LLM delegation, and multi-source research",
   "license": "MIT",
   "repository": "https://github.com/athola/claude-night-market",
   "homepage": "https://github.com/athola/claude-night-market",
@@ -111,6 +111,13 @@
       "description": "Multi-discipline code review: architecture, bugs, APIs, security, tests, Makefiles, and NASA Power of 10 analysis",
       "version": "1.7.2",
       "keywords": ["code-review", "architecture-review", "bug-hunting", "security-review"]
+    },
+    {
+      "name": "phantom",
+      "source": "./plugins/phantom",
+      "description": "Computer use toolkit for driving desktop environments through Claude's vision and action API with screenshot capture, mouse/keyboard control, and an autonomous agent loop",
+      "version": "1.7.2",
+      "keywords": ["computer-use", "desktop", "automation", "screenshot", "mouse", "keyboard", "gui"]
     },
     {
       "name": "sanctum",

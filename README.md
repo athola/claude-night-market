@@ -193,7 +193,7 @@ See the [Common Workflows Guide][workflows] for full details.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
-**Unreleased** adds model_hint routing to skills for
+**1.7.2** adds model_hint routing to skills for
 cheaper/faster model selection in downstream tools,
 a Cursor lean export script for token-efficient skill
 loading, session-replay in scribe, and compatibility
