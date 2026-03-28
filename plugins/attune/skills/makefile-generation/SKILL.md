@@ -10,6 +10,7 @@ tools: [Read, Write, Bash]
 category: infrastructure
 tags: [makefile, automation, build-tools, development-workflow]
 complexity: low
+model_hint: fast
 estimated_tokens: 1200
 ---
 ## Table of Contents

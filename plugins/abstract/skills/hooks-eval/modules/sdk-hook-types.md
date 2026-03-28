@@ -95,9 +95,18 @@ these hooks, verify they were tested on 2.1.69+.
 Three new built-in tools: `CronCreate`, `CronList`,
 `CronDelete`. These appear as tool names in
 `PreToolUse` and `PostToolUse` hook events. The `/loop`
-command uses `CronCreate` internally. Evaluate whether
-hooks matching on tool names need to handle these new
-tools (e.g., quota tracking, audit logging).
+command uses `CronCreate` internally.
+
+`CronCreate` accepts: `cron` (5-field expression in
+local timezone), `prompt`, `recurring` (default true),
+and `durable` (default false; true persists to
+`.claude/scheduled_tasks.json` across restarts).
+Recurring tasks auto-expire after 7 days. Tasks fire
+only while the REPL is idle, with deterministic jitter.
+
+Evaluate whether hooks matching on tool names need to
+handle these new tools (e.g., quota tracking, audit
+logging, budget enforcement for durable tasks).
 
 ### Heredoc Permission Fix (2.1.71+)
 
@@ -106,6 +115,169 @@ messages no longer trigger false-positive permission
 prompts. `PermissionRequest` hooks should not expect
 to see these commands. The fix applies to the built-in
 allowlist pattern matching, not to hook behavior.
+
+### ExitWorktree Tool (2.1.72+)
+
+New `ExitWorktree` tool (actions: `"keep"`, `"remove"`)
+appears in `PreToolUse`/`PostToolUse` events. Evaluate
+whether hooks matching on tool names need to handle
+worktree exit (e.g., cleanup, state persistence).
+
+### Bash Allowlist Expansion (2.1.72+)
+
+Added `lsof`, `pgrep`, `tput`, `ss`, `fd`, `fdfind`
+to auto-approval. These no longer trigger
+`PermissionRequest` events.
+
+### Hooks Fixes (2.1.72+)
+
+When evaluating hooks, check for these fixed issues:
+
+- **Skill hook double-fire**: Hooks-enabled skills no
+  longer fire hooks twice per event. If a hook relied
+  on the duplicate behavior, it needs adjustment.
+- **transcript_path**: Now correct for resumed/forked
+  sessions. Hooks using this field for log correlation
+  get accurate paths.
+- **Agent prompt persistence**: Agent prompt is no
+  longer silently deleted from settings.json on every
+  settings write.
+- **PostToolUse block reason**: No longer displays
+  twice. Hooks that parsed doubled reasons need update.
+- **Async hooks stdin**: Now receive stdin with
+  `bash read -r`. Hooks using interactive input work.
+
+### CLAUDE.md Comment Visibility (2.1.72+)
+
+HTML comments (`<!-- ... -->`) in CLAUDE.md are hidden
+from auto-injection but visible via Read tool. Evaluate
+whether hooks relying on comment content in
+`InstructionsLoaded` events are affected.
+
+### Parallel Tool Call Cascade (2.1.72+)
+
+Failed `Read`/`WebFetch`/`Glob` no longer cancel
+sibling tool calls. Only `Bash` errors cascade.
+Evaluate whether `PostToolUseFailure` hooks need
+adjustment for the changed cascade behavior.
+
+### Hook Source Display (2.1.75+)
+
+Permission prompts for hooks now display the hook source:
+`settings`, `plugin`, or `skill`. Evaluate whether hooks
+under review that require confirmation benefit from
+clearer source attribution for user trust decisions.
+
+### Async Hook Messages Suppressed (2.1.75+)
+
+Async hook completion messages are suppressed by default.
+Visible via `--verbose`, transcript mode, or `Ctrl+O`.
+Evaluate whether hooks under review relied on visible
+completion messages for debugging or user feedback.
+Those hooks should document the `--verbose` requirement.
+
+### Hook Conditional `if` Field (2.1.85+)
+
+Hooks support `if` field (permission rule syntax, e.g.,
+`"Bash(git *)"`) on tool events only. Reduces process
+spawning by evaluating conditions in-process. Evaluate
+whether hooks under review can use `if` to narrow
+execution scope and reduce overhead.
+
+### PreToolUse AskUserQuestion Support (2.1.85+)
+
+PreToolUse hooks can match `AskUserQuestion` and return
+`updatedInput` with `permissionDecision: "allow"` to
+answer programmatically. Evaluate whether hooks under
+review target headless/CI scenarios requiring this.
+
+### StopFailure Hook (2.1.78+)
+
+Non-blockable. Matcher on error type (`rate_limit`,
+`authentication_failed`, etc.). Evaluate for logging
+and alerting.
+
+### TaskCreated Hook (2.1.84+)
+
+Blockable (exit code 2). No matcher. Evaluate for task
+audit or policy enforcement.
+
+### CwdChanged/FileChanged Hooks (2.1.83+)
+
+Both non-blockable. CwdChanged: no matcher. FileChanged:
+matcher on filename. Both have CLAUDE_ENV_FILE access.
+Evaluate for reactive environment hooks (direnv).
+
+### WorktreeCreate HTTP Support (2.1.84+)
+
+HTTP hooks can return worktree path via
+`hookSpecificOutput.worktreePath`. Evaluate for remote
+worktree creation services.
+
+### PreToolUse "allow" Bypass Fix (2.1.77+)
+
+PreToolUse hooks returning `"allow"` could bypass `deny`
+permission rules including managed settings. Fixed: hook
+allow decisions are now checked after deny rules.
+Precedence: managed deny > hook deny > permission deny >
+hook allow > permission allow. Evaluate whether hooks
+under review depend on `"allow"` overriding deny rules
+(this is no longer possible and was a security bug).
+
+### MCP Elicitation Hooks (2.1.76+)
+
+Two new events: `Elicitation` (blockable, fires on
+`elicitation/create` from MCP server) and
+`ElicitationResult` (blockable, fires after user
+responds before response reaches server). Both support
+`hookSpecificOutput` for auto-filling or overriding
+responses. Matcher filters on `mcp_server_name`.
+Evaluate whether hooks under review should intercept
+MCP elicitation for audit logging, policy enforcement,
+or response validation.
+
+### PostCompact Hook (2.1.76+)
+
+Fires after context compaction completes (manual or
+auto). Non-blockable. Input includes `trigger`
+(`"manual"`/`"auto"`) and `compact_summary`. Evaluate
+whether hooks under review should re-inject critical
+instructions post-compaction (PreCompact content gets
+summarized and loses fidelity; PostCompact content
+appears verbatim).
+
+### SessionEnd Hooks Timeout Fix (2.1.74+)
+
+SessionEnd hooks were killed after 1.5s regardless of
+`hook.timeout`. Now configurable via
+`CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS`. Evaluate
+whether hooks under review that use SessionEnd for
+cleanup or metrics need this timeout extended.
+
+### New Hook Events (2.1.74+)
+
+Documentation now includes: `CwdChanged`, `FileChanged`,
+`PostCompact`, `TaskCreated` (blockable), `StopFailure`,
+`Elicitation` (blockable), `ElicitationResult`. Evaluate
+whether hooks under review should handle these events
+for directory tracking, file watching, compaction
+response, or MCP elicitation interception.
+
+### SessionStart Resume Double-Fire Fix (2.1.73+)
+
+SessionStart hooks previously fired twice when resuming
+via `--resume` or `--continue`. Now they fire once.
+Evaluate whether hooks that perform one-time
+initialization in SessionStart need deduplication guards
+removed (they are no longer necessary on 2.1.73+).
+
+### JSON-Output Hooks Fix (2.1.73+)
+
+JSON-output hooks previously injected no-op
+system-reminder messages into model context on every
+turn. Fixed in 2.1.73. Evaluate whether hooks using
+JSON output format were affected by inflated token
+counts from spurious context injections.
 
 ### HTTP Hooks (2.1.63+)
 

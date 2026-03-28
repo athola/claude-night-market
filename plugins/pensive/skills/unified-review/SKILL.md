@@ -23,6 +23,7 @@ usage_patterns:
 - full-review
 - focused-review
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 400
 progressive_loading: true
 dependencies:

@@ -30,6 +30,7 @@ usage_patterns:
 - credential-verification
 - token-management
 complexity: beginner
+model_hint: fast
 estimated_tokens: 400
 progressive_loading: true
 modules:

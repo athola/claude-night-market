@@ -22,6 +22,7 @@ usage_patterns:
 - monolith-modernization
 - team-scaling
 complexity: medium
+model_hint: standard
 estimated_tokens: 700
 ---
 # The Modular Monolith Paradigm

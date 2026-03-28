@@ -1,6 +1,6 @@
 {
   "name": "leyline",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Infrastructure and pipeline building blocks for Claude Code plugins. Like ancient ley lines connecting sacred sites, leyline provides the foundational patterns that connect and power plugin ecosystems.",
   "commands": [
     "./commands/reinstall-all-plugins.md",
@@ -24,6 +24,7 @@
     "./skills/service-registry",
     "./skills/stewardship",
     "./skills/storage-templates",
+    "./skills/supply-chain-advisory",
     "./skills/testing-quality-standards",
     "./skills/usage-logging",
     "./skills/utility"
@@ -36,7 +37,9 @@
     "cross-plugin",
     "quota",
     "logging",
-    "service-registry"
+    "service-registry",
+    "supply-chain",
+    "security"
   ],
   "author": {
     "name": "Alex Thola",

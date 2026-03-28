@@ -26,6 +26,7 @@ modules:
 dependencies:
 - modular-skills
 estimated_tokens: 1500
+model_hint: standard
 ---
 # Skill Authoring Guide
 

@@ -21,6 +21,7 @@ dependencies:
   modules:
     - modules/pass-definitions.md
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 400
 ---
 # Dorodango Polishing Workflow

@@ -1,48 +1,48 @@
 ---
-description: Draft a Conventional Commit message for staged changes with slop detection.
+description: Draft a Conventional Commit message for staged changes.
+model_hint: fast
 ---
 
 # Draft a Conventional Commit Message
 
-To draft a commit message, load the required skills in order:
+Run these git commands to gather context, then draft the message.
 
-1. Run `Skill(sanctum:git-workspace-review)` to capture repository status and diffs, completing its `TodoWrite` items.
-2. Run `Skill(sanctum:commit-messages)` and create its `TodoWrite` items (type selection, drafting, slop validation, etc.).
+## Steps
 
-## Workflow
-- **FIRST: Validate code quality** with `make format && make lint` - fix all issues before proceeding
-- Use the skill checklist to gather evidence: `git status -sb`, `git diff --cached --stat`, and `git diff --cached`.
-- Determine the appropriate Conventional Commit type/scope and note any breaking changes.
-- Write the message to `{0|./commit_msg.txt}` (relative to cwd) using the required format:
-  ```
-  <type>(<scope>): <subject>
+1. **Gather context** (run in parallel):
+   - `git status -sb`
+   - `git diff --cached --stat`
+   - `git diff --cached`
+   - `git log --oneline -5`
 
-  <body>
+2. **If nothing is staged**, tell the user and stop.
 
-  <footer>
-  ```
-  (Scope and footer are optional; wrap body lines at 72 characters.)
-- After writing, preview the file so the user can copy and paste it.
+3. **Classify the change**: Pick a type from `feat`, `fix`, `docs`,
+   `refactor`, `test`, `chore`, `style`, `perf`, `ci`.
+   Pick an optional scope from the changed directory or module.
 
-## CRITICAL: Never Bypass Quality Gates
-**NEVER use `git commit --no-verify` or `-n`**. Pre-commit hooks exist to enforce code quality. If hooks fail, fix the issues - don't bypass them.
+4. **Draft the message** in this format:
+   ```
+   <type>(<scope>): <imperative summary, ≤50 chars>
 
-## Slop Validation (MANDATORY)
+   <body: what and why, wrapped at 72 chars>
 
-Before finalizing any commit message, validate it's slop-free:
+   <footer: BREAKING CHANGE or issue refs, if any>
+   ```
 
-**Quick Check** - Message must NOT contain:
-- `leverage`, `utilize`, `seamless`, `comprehensive`, `robust`, `facilitate`, `streamline`, `delve`, `multifaceted`, `pivotal`, `intricate`
-- Phrases like "it's worth noting", "at its core", "in essence"
+5. **Slop check** -- the message must NOT contain:
+   leverage, utilize, seamless, comprehensive, robust, facilitate,
+   streamline, delve, multifaceted, pivotal, intricate, optimize,
+   nuanced, furthermore, moreover, revolutionize, elevate, unlock,
+   "it's worth noting", "at its core", "in essence", "a testament to"
 
-**If slop detected**: Replace with plain alternatives (use → leverage, complete → comprehensive, etc.)
+   If found, replace with plain words (use, smooth, complete, solid,
+   enable, simplify, improve, explore, varied, key, detailed).
 
-## Manual Execution
-If a skill cannot be loaded, follow these steps:
-- **Run code quality checks FIRST**: `make format && make lint`
-- Fix any linting/formatting errors before proceeding
-- Manually run the Git preflight commands (`pwd`, `git status -sb`, `git diff --cached --stat`, `git diff --cached`) to gather context.
-- Follow the Conventional Commit format to choose a type/scope, draft the subject/body/footer, and write only the commit message to `{0|./commit_msg.txt}` (relative to cwd, NOT an absolute path).
-- **Validate for slop**: Scan the message for AI-generated markers before saving.
-- Preview the file contents when finished.
-- **NEVER commit with `--no-verify`** - always let pre-commit hooks run to validate quality.
+6. **Write** the message to `./commit_msg.txt` and preview it.
+
+## Rules
+
+- **NEVER** use `git commit --no-verify` or `-n`.
+- Write for humans. "fix auth bug" beats "streamline authentication
+  optimization."

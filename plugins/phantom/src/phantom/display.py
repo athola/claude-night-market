@@ -111,7 +111,7 @@ class DisplayToolkit:
             )
 
         try:
-            result = handler(action)
+            result: ActionResult = handler(action)
             # Brief pause to let UI settle after actions
             if action_type != "screenshot":
                 time.sleep(self.config.action_delay_ms / 1000)

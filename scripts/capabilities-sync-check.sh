@@ -2,7 +2,8 @@
 # capabilities-sync-check.sh - Verify capabilities docs match plugin registrations
 # Used by: make docs-sync-check
 # Exit non-zero if discrepancies found
-# Requires: bash 4+ (associative arrays), jq
+# Requires: jq
+# Compatible with bash 3.2+ (no associative arrays)
 
 set -euo pipefail
 
@@ -24,61 +25,65 @@ errors=0
 missing_entries=()
 extra_entries=()
 
-# Collect all registered capabilities from plugin.json files
-declare -A registered_skills
-declare -A registered_commands
-declare -A registered_agents
+# Use temp files instead of associative arrays (bash 3.2 compat)
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+
+reg_skills="$tmpdir/skills"
+reg_commands="$tmpdir/commands"
+reg_agents="$tmpdir/agents"
+: > "$reg_skills"
+: > "$reg_commands"
+: > "$reg_agents"
 
 for plugin_json in "$PLUGINS_DIR"/*/.claude-plugin/plugin.json; do
   [ -f "$plugin_json" ] || continue
   plugin_name=$(jq -r '.name' "$plugin_json")
 
-  # Skills: extract directory basename from paths like "./skills/foo-bar"
+  # Skills
   while IFS= read -r skill_path; do
     [ -z "$skill_path" ] && continue
     skill_name=$(basename "$skill_path")
-    registered_skills["$skill_name"]="$plugin_name"
+    echo "$skill_name	$plugin_name" >> "$reg_skills"
   done < <(jq -r '.skills[]? // empty' "$plugin_json")
 
-  # Commands: extract filename stem from paths like "./commands/foo-bar.md"
+  # Commands
   while IFS= read -r cmd_path; do
     [ -z "$cmd_path" ] && continue
     cmd_name=$(basename "$cmd_path" .md)
-    registered_commands["$cmd_name"]="$plugin_name"
+    echo "$cmd_name	$plugin_name" >> "$reg_commands"
   done < <(jq -r '.commands[]? // empty' "$plugin_json")
 
-  # Agents: extract filename stem from paths like "./agents/foo-bar.md"
+  # Agents
   while IFS= read -r agent_path; do
     [ -z "$agent_path" ] && continue
     agent_name=$(basename "$agent_path" .md)
-    registered_agents["$agent_name"]="$plugin_name"
+    echo "$agent_name	$plugin_name" >> "$reg_agents"
   done < <(jq -r '.agents[]? // empty' "$plugin_json")
 done
 
-# Extract documented entries from the capabilities reference markdown tables
-# Skills section: between "### All Skills" and the next "###"
-doc_skills=$(sed -n '/^### All Skills/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
-# Commands section: strip leading / and plugin: namespace prefix so
-# /tome:research -> research, /commit-msg -> commit-msg
-doc_commands=$(sed -n '/^### All Commands/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF" \
+# Extract documented entries from capabilities reference
+# Use awk instead of sed for BSD/GNU portability
+doc_skills=$(awk '/^### All Skills/{f=1;next} /^### /{f=0} f && /^\| `/{gsub(/^\| `|`.*$/,"",$0); print}' "$CAPS_REF")
+doc_commands=$(awk '/^### All Commands/{f=1;next} /^### /{f=0} f && /^\| `/{gsub(/^\| `|`.*$/,"",$0); print}' "$CAPS_REF" \
   | sed 's|^/||; s|^[a-z-]*:||')
-# Agents section
-doc_agents=$(sed -n '/^### All Agents/,/^### /{/^| `/{s/^| `\([^`]*\)`.*/\1/p}}' "$CAPS_REF")
+doc_agents=$(awk '/^### All Agents/{f=1;next} /^### /{f=0} f && /^\| `/{gsub(/^\| `|`.*$/,"",$0); print}' "$CAPS_REF")
 
 echo "=== Capabilities Sync Check ==="
 echo ""
 
 # Check skills
 echo "--- Skills ---"
-for skill in "${!registered_skills[@]}"; do
+while IFS=$'\t' read -r skill plugin; do
+  [ -z "$skill" ] && continue
   if ! echo "$doc_skills" | grep -qx "$skill"; then
-    missing_entries+=("SKILL: $skill (${registered_skills[$skill]}) - registered but NOT in docs")
+    missing_entries+=("SKILL: $skill ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi
-done
+done < "$reg_skills"
 while IFS= read -r doc_skill; do
   [ -z "$doc_skill" ] && continue
-  if [ -z "${registered_skills[$doc_skill]+x}" ]; then
+  if ! grep -q "^${doc_skill}	" "$reg_skills"; then
     extra_entries+=("SKILL: $doc_skill - in docs but NOT registered in any plugin.json")
     ((errors++)) || true
   fi
@@ -86,15 +91,16 @@ done <<< "$doc_skills"
 
 # Check commands
 echo "--- Commands ---"
-for cmd in "${!registered_commands[@]}"; do
+while IFS=$'\t' read -r cmd plugin; do
+  [ -z "$cmd" ] && continue
   if ! echo "$doc_commands" | grep -qx "$cmd"; then
-    missing_entries+=("COMMAND: $cmd (${registered_commands[$cmd]}) - registered but NOT in docs")
+    missing_entries+=("COMMAND: $cmd ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi
-done
+done < "$reg_commands"
 while IFS= read -r doc_cmd; do
   [ -z "$doc_cmd" ] && continue
-  if [ -z "${registered_commands[$doc_cmd]+x}" ]; then
+  if ! grep -q "^${doc_cmd}	" "$reg_commands"; then
     extra_entries+=("COMMAND: $doc_cmd - in docs but NOT registered in any plugin.json")
     ((errors++)) || true
   fi
@@ -102,15 +108,16 @@ done <<< "$doc_commands"
 
 # Check agents
 echo "--- Agents ---"
-for agent in "${!registered_agents[@]}"; do
+while IFS=$'\t' read -r agent plugin; do
+  [ -z "$agent" ] && continue
   if ! echo "$doc_agents" | grep -qx "$agent"; then
-    missing_entries+=("AGENT: $agent (${registered_agents[$agent]}) - registered but NOT in docs")
+    missing_entries+=("AGENT: $agent ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi
-done
+done < "$reg_agents"
 while IFS= read -r doc_agent; do
   [ -z "$doc_agent" ] && continue
-  if [ -z "${registered_agents[$doc_agent]+x}" ]; then
+  if ! grep -q "^${doc_agent}	" "$reg_agents"; then
     extra_entries+=("AGENT: $doc_agent - in docs but NOT registered in any plugin.json")
     ((errors++)) || true
   fi
@@ -135,9 +142,9 @@ if [ ${#extra_entries[@]} -gt 0 ]; then
 fi
 
 # Summary
-total_skills=${#registered_skills[@]}
-total_commands=${#registered_commands[@]}
-total_agents=${#registered_agents[@]}
+total_skills=$(wc -l < "$reg_skills" | tr -d ' ')
+total_commands=$(wc -l < "$reg_commands" | tr -d ' ')
+total_agents=$(wc -l < "$reg_agents" | tr -d ' ')
 echo "Summary: $total_skills skills, $total_commands commands, $total_agents agents registered"
 
 if [ "$errors" -gt 0 ]; then

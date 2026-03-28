@@ -29,6 +29,7 @@ modules:
 - remediation-types
 progressive_loading: true
 estimated_tokens: 400
+model_hint: standard
 ---
 ## Table of Contents
 

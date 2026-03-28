@@ -159,13 +159,15 @@ Understand the current state before doing anything else:
 - What pipeline stage and step is each active item on?
 - Is there a cooldown in effect from a prior rate limit?
 
-Then schedule a progress pulse (2.1.71+):
+Then schedule a progress pulse (2.1.71+, all providers
+2.1.73+):
 
 ```
 CronCreate(
-  cron_expression: "*/5 * * * *",
+  cron: "*/5 * * * *",
   prompt: "/egregore:status",
-  recurring: true
+  recurring: true,
+  durable: true
 )
 ```
 
@@ -281,7 +283,7 @@ When you encounter a rate limit error:
 
    ```
    CronCreate(
-     cron_expression: "<minute> <hour> * * *",
+     cron: "<minute> <hour> * * *",
      prompt: "Cooldown expired. Read .egregore/manifest.json and resume the pipeline from the current step. Invoke Skill(egregore:summon) to continue.",
      recurring: false
    )
@@ -293,7 +295,7 @@ When you encounter a rate limit error:
    context preserved.
 
 5. **Fallback: exit cleanly.** If `CronCreate` is
-   unavailable (pre-2.1.71) or the cooldown exceeds 3
+   unavailable (pre-2.1.71) or the cooldown exceeds 7
    days, exit with code 0. The watchdog will relaunch
    after the cooldown period expires.
 
@@ -431,9 +433,10 @@ work, it re-enters the loop:
 
 ```
 CronCreate(
-  cron_expression: "*/5 * * * *",
+  cron: "*/5 * * * *",
   prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon).",
-  recurring: true
+  recurring: true,
+  durable: true
 )
 ```
 

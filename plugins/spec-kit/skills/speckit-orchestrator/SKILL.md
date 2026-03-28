@@ -31,6 +31,7 @@ usage_patterns:
 - progress-tracking
 - skill-loading
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 1500
 ---
 ## Table of Contents

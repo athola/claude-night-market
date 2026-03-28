@@ -23,6 +23,7 @@ usage_patterns:
 - platform-development
 - extensibility-design
 complexity: high
+model_hint: deep
 estimated_tokens: 900
 ---
 # The Microkernel (Plugin) Architecture Paradigm

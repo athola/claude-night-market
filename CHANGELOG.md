@@ -7,6 +7,213 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Claude Code 2.1.78-2.1.85 compatibility: hook
+  conditional `if` field (2.1.85), MCP headersHelper
+  server env vars (2.1.85), PreToolUse AskUserQuestion
+  support (2.1.85), MCP OAuth RFC 9728 (2.1.85), org
+  plugin blocking (2.1.85), OTEL tool_parameters gated
+  (2.1.85), `/compact` context exceeded fix (2.1.85),
+  PowerShell tool preview (2.1.84), model capability
+  env vars (2.1.84), TaskCreated hook (2.1.84),
+  WorktreeCreate HTTP hooks (2.1.84), idle-return prompt
+  (2.1.84), MCP tool desc 2KB cap (2.1.84), YAML glob
+  paths for rules/skills (2.1.84), system-prompt caching
+  fix (2.1.84), managed-settings.d/ drop-in (2.1.83),
+  CwdChanged/FileChanged hooks (2.1.83), sandbox
+  failIfUnavailable (2.1.83), subprocess env scrub
+  (2.1.83), agent initialPrompt (2.1.83), plugin
+  userConfig (2.1.83), MEMORY.md 25KB limit (2.1.83),
+  TaskOutput deprecated (2.1.83), --bare flag (2.1.81),
+  --channels preview (2.1.80), rate_limits statusline
+  (2.1.80), effort frontmatter for skills (2.1.80),
+  source:settings plugins (2.1.80), --console auth
+  (2.1.79), StopFailure hook (2.1.78), CLAUDE_PLUGIN_DATA
+  (2.1.78), agent effort/maxTurns/disallowedTools (2.1.78)
+- Added hook `if` field, StopFailure, TaskCreated,
+  CwdChanged/FileChanged, WorktreeCreate HTTP, PreToolUse
+  AskUserQuestion to all 4 hook reference files
+- Updated abstract model-optimization-guide with
+  PowerShell tool, model capability env vars, effort
+  frontmatter, agent frontmatter fields, --bare flag
+- Updated conserve mecw-principles with /compact fix,
+  MCP tool cap, idle-return prompt, system-prompt caching,
+  MEMORY.md 25KB limit
+- Updated conjure agent-teams spawning-patterns with
+  --bare flag, agent initialPrompt, agent frontmatter
+  fields, worktree non-git fix
+- Updated conjure agent-teams health-monitoring (no new
+  entries for 2.1.78-2.1.85 beyond 2.1.77)
+- Updated egregore budget with rate_limits statusline
+- Updated leyline update-all-plugins with CLAUDE_PLUGIN_DATA,
+  multi-dir seed dir, source:settings, managed-settings.d/,
+  plugin userConfig, org plugin blocking
+- Updated compatibility-features index and recent file
+  with 2.1.78-2.1.85 feature timelines (8 versions)
+- Claude Code 2.1.77 compatibility: Opus 4.6 output
+  tokens default 64k (upper bound 128k), `allowRead`
+  sandbox setting, `/copy N`, PreToolUse "allow" bypass
+  deny fix (security), compound bash "Always Allow" fix,
+  auto-updater memory leak fix, `--resume` truncation
+  race fix, Write tool CRLF fix, progress message memory
+  growth fix, Agent `resume` parameter removed (use
+  SendMessage), SendMessage auto-resumes stopped agents,
+  `/fork` renamed to `/branch`, background bash 5GB
+  limit, `plugin validate` frontmatter checking,
+  macOS startup and `--resume` performance improvements,
+  30+ bug fixes
+- Updated abstract model-optimization-guide with output
+  token limits (64k default, 128k upper bound)
+- Updated conserve mecw-principles with progress message
+  memory fix and output token impact on compaction
+- Added PreToolUse "allow" bypass fix (2.1.77+) to all
+  4 hook reference files
+- Updated conjure agent-teams spawning-patterns with
+  Agent resume removal, stale worktree race fix
+- Updated conjure agent-teams health-monitoring with
+  SendMessage auto-resume, background bash 5GB limit,
+  teammate pane close fix
+- Updated leyline update-all-plugins with git-subdir
+  cache collision fix, plugin validate improvements,
+  headless plugin seed dir fix
+- Updated compatibility-features index and recent file
+  with full 2.1.77 feature timeline
+- Claude Code 2.1.76 compatibility: MCP elicitation
+  support (form fields and URL mode), Elicitation and
+  ElicitationResult hooks (blockable), PostCompact hook
+  (non-blockable), `-n`/`--name` CLI flag,
+  `worktree.sparsePaths` for monorepos, `/effort` slash
+  command, `feedbackSurveyRate` setting, deferred tools
+  schema fix (post-compaction), auto-compaction circuit
+  breaker (3 attempts), spurious "Context limit reached"
+  fix with `model:` frontmatter on 1M sessions, adaptive
+  thinking error fix for non-standard models, Bash `#`
+  permission fix, worktree startup performance, background
+  agent partial results preserved, model fallback always
+  visible, stale worktree cleanup, `--plugin-dir` single
+  path change, Remote Control fixes, 20+ additional bug
+  fixes
+- Added MCP Elicitation/ElicitationResult hooks and
+  PostCompact hook to all 4 hook reference files
+  (hook-types, sdk-hook-types, capabilities-hooks,
+  hook-types-comprehensive)
+- Updated abstract model-optimization-guide with `/effort`
+  command, model fallback visibility, adaptive thinking
+  fix, and context limit fix with `model:` frontmatter
+- Updated conserve mecw-principles with deferred tools
+  schema fix, auto-compaction circuit breaker, and
+  context limit fix on 1M sessions
+- Updated conjure agent-teams spawning-patterns with
+  `-n`/`--name`, `worktree.sparsePaths`, worktree startup
+  performance, stale worktree cleanup, `--plugin-dir`
+  single path change
+- Updated conjure agent-teams health-monitoring with
+  background agent partial results preservation
+- Updated leyline update-all-plugins with LSP registration
+  fix and `--plugin-dir` single path change
+- Updated compatibility-features index and recent file
+  with full 2.1.76 feature timeline
+- Claude Code 2.1.75 compatibility: 1M context window
+  default for Opus 4.6 on Max/Team/Enterprise plans,
+  `/color` command, session name on prompt bar, last-
+  modified timestamps on memory files, hook source
+  display in permission prompts, token estimation
+  over-counting fix (premature compaction), Bash `!`
+  pipe fix, managed-disabled plugins hidden, async hook
+  messages suppressed, macOS startup performance,
+  Windows managed settings path removal (breaking change)
+- Updated abstract model-optimization-guide with 1M
+  context default and `CLAUDE_CODE_DISABLE_1M_CONTEXT`
+  opt-out env var
+- Updated conserve mecw-principles with 1M context
+  default for Max/Team/Enterprise and token estimation
+  over-counting fix
+- Added hook source display (2.1.75+) and async hook
+  message suppression (2.1.75+) to all 4 hook reference
+  files (hook-types, sdk-hook-types, capabilities-hooks,
+  hook-types-comprehensive)
+- Updated conjure agent-teams spawning-patterns with
+  `/color` command and session name on prompt bar
+- Updated conjure agent-teams health-monitoring with
+  agent teams footer hint fix
+- Updated egregore summon budget module with token
+  estimation fix impact on orchestration sessions
+- Updated leyline update-all-plugins with managed-
+  disabled plugins fix, corrupted marketplace config
+  fix, and Windows managed settings breaking change
+- Updated compatibility-features index and recent file
+  with full 2.1.75 feature timeline
+- Claude Code 2.1.71 compatibility: corrected CronCreate
+  auto-expiry from 3 days to 7 days across all plugin
+  docs (hook-authoring, hooks-eval, capabilities-hooks,
+  hook-types-comprehensive, egregore orchestrator/summon)
+- Added `durable` parameter documentation for CronCreate
+  (persists tasks to `.claude/scheduled_tasks.json`
+  across restarts) in all hook reference files
+- Corrected CronCreate parameter name from
+  `cron_expression` to `cron` in egregore orchestrator
+  and summon skill/budget module
+- Expanded CronCreate schema details (jitter behavior,
+  REPL-idle firing, off-minute scheduling guidance) in
+  hook-authoring hook-types module
+- Updated compatibility-features index and recent file
+  with full 2.1.71 CronCreate schema and durable
+  persistence details
+- Claude Code 2.1.72 compatibility: ExitWorktree tool,
+  effort levels simplified (max removed), CLAUDE.md
+  HTML comments hidden, skill hook double-fire fix,
+  parallel tool call cascade fix, prompt cache 12x
+  savings, team agent model inheritance, 6 plugin
+  marketplace fixes, bash allowlist expansion (lsof,
+  pgrep, tput, ss, fd, fdfind), permission rule
+  matching fixes, /clear foreground-only behavior,
+  CLAUDE_CODE_DISABLE_CRON mid-session stop
+- Updated abstract escalation-governance and
+  model-optimization-guide with 3-level effort system
+- Added ExitWorktree tool docs to all 4 hook reference
+  files (hook-types, sdk-hook-types, capabilities-hooks,
+  hook-types-comprehensive)
+- Added 2.1.72 hooks fixes (double-fire, transcript_path,
+  agent prompt, PostToolUse block, async stdin, CLAUDE.md
+  comments, parallel cascade) to all 4 hook reference
+  files
+- Updated conserve clear-context with /clear
+  foreground-only behavior note
+- Updated conjure agent-teams health-monitoring with
+  team agent model inheritance
+- Updated conserve mecw-principles with prompt cache
+  12x fix
+- Updated leyline update-all-plugins with 6 marketplace
+  fixes (Azure DevOps URLs, Windows EEXIST, user-scope
+  installs, tilde expansion, clone diagnostics,
+  marketplace-only fields)
+
+## [1.7.2] - 2026-03-27
+
+### Added
+
+- Session-replay skill and command in scribe: converts
+  Claude Code and Codex session JSONL files into
+  GIF/MP4/WebM replays via VHS tape generation
+- Supply chain security in leyline: `supply-chain-advisory`
+  skill, `supply_chain_check` SessionStart hook, and
+  `make supply-chain-scan` target for detecting known
+  compromised package versions in lockfiles
+- Known-bad-versions blocklist (`known-bad-versions.json`)
+  with LiteLLM 1.82.7/1.82.8 credential stealer entry
+- Phantom plugin registered in marketplace.json and added
+  to api-overview.md, domain-specialists.md book page
+
+### Fixed
+
+- Removed dead `ConservationValidator` import and mock
+  fixture from conserve test conftest
+- Converted abstract `meta-architect` and `skill-auditor`
+  agent definitions from JSON to required markdown format
+- Closed unclosed command substitution in release CI
+  heredoc
+
 ## [1.7.1] - 2026-03-25
 
 ### Changed

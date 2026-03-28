@@ -41,6 +41,7 @@ usage_patterns:
 - implementation-planning
 - adr-creation
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 280
 ---
 ## Table of Contents

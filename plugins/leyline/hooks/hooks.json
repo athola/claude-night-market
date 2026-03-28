@@ -12,7 +12,17 @@
         ]
       },
       {
-        "_comment": "Order 2: Check if anthropics/claude-code is starred; prompt user if not",
+        "_comment": "Order 2: Warn if lockfiles contain known-compromised package versions",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/supply_chain_check.py",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "_comment": "Order 3: Check if anthropics/claude-code is starred",
         "hooks": [
           {
             "type": "command",
@@ -22,7 +32,7 @@
         ]
       },
       {
-        "_comment": "Order 3: Fetch recent discussions (depends on git platform detection above)",
+        "_comment": "Order 4: Fetch recent discussions (depends on git platform detection above)",
         "hooks": [
           {
             "type": "command",

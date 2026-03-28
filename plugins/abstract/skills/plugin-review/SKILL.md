@@ -22,6 +22,7 @@ tools:
 - skill_analyzer.py
 - generate_dependency_map.py
 progressive_loading: true
+model_hint: standard
 ---
 # Plugin Review
 

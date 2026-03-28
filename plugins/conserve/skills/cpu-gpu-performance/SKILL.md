@@ -12,6 +12,7 @@ dependencies:
   hub:
   - token-conservation
   modules: []
+model_hint: standard
 ---
 ## Table of Contents
 

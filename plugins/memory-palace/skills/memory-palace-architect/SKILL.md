@@ -24,6 +24,7 @@ usage_patterns:
 - domain-analysis
 - layout-creation
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 600
 ---
 ## Table of Contents

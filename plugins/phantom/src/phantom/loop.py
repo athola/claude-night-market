@@ -505,8 +505,10 @@ def _handle_text_editor(
 def _block_to_dict(block: Any) -> dict[str, Any]:
     """Convert an API response block to a serializable dict."""
     if hasattr(block, "model_dump"):
-        return block.model_dump()
+        result: dict[str, Any] = block.model_dump()
+        return result
     if hasattr(block, "to_dict"):
-        return block.to_dict()
+        result = block.to_dict()
+        return result
     # Fallback for simple types
     return {"type": getattr(block, "type", "unknown")}

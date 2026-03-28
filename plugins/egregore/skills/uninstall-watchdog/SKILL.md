@@ -8,6 +8,7 @@ alwaysApply: false
 category: setup
 tools:
   - Bash
+model_hint: standard
 ---
 # Uninstall Watchdog
 

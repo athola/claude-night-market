@@ -211,6 +211,86 @@ complete. Fixed in 2.1.71: the exit loop no longer
 blocks on teammate tasks. This unblocks CI/automation
 workflows that use `--print` with team configurations.
 
+## Team Agent Model Inheritance (2.1.72+)
+
+Team agents now inherit the leader's model. Previously,
+team agents used their own default model regardless of
+the leader's configuration. This ensures consistent
+model behavior across the team and eliminates the need
+to configure each team agent's model separately.
+
+## Subagent Model Downgrade Fix (2.1.73+)
+
+Subagents with `model: opus`/`sonnet`/`haiku` were
+silently downgraded to older model versions on Bedrock,
+Vertex, and Microsoft Foundry. For example, `model: opus`
+could resolve to Opus 4.1 instead of Opus 4.6 on these
+providers. Fixed in 2.1.73: model aliases now resolve to
+the current version on all providers, matching first-party
+API behavior.
+
+The default Opus model on these providers also changed
+from 4.1 to 4.6, so both explicit alias resolution and
+default behavior are now correct.
+
+## Agent Resume via SendMessage (2.1.77+)
+
+The Agent tool no longer accepts a `resume` parameter.
+Use `SendMessage({to: agentId})` to continue a stopped
+agent. SendMessage now auto-resumes stopped agents in the
+background instead of returning an error. This simplifies
+the recovery workflow: stopped agents no longer require
+re-spawning, and the lead agent can resume team members
+directly via SendMessage.
+
+## Background Bash 5GB Output Limit (2.1.77+)
+
+Background bash tasks are now killed if output exceeds
+5GB, preventing runaway processes from filling disk. This
+protects against infinite logging loops, verbose builds,
+or accidental `cat /dev/urandom` in background tasks
+within agent team workflows.
+
+## Teammate Pane Close Fix (2.1.77+)
+
+Fixed teammate panes not closing when the leader exits.
+Previously, tmux panes for team agents could persist
+after the leader session terminated, requiring manual
+cleanup.
+
+## Background Agent Partial Results Preserved (2.1.76+)
+
+Killing a background agent now preserves whatever partial
+results it had generated up to the point of termination.
+Results appear in the conversation context, allowing the
+main agent or the user to build on partial work instead
+of starting over. Combined with 2.1.71 background agent
+notification output file paths, partial results are
+recoverable after both interruption and compaction.
+
+This improves team resilience: if a team member agent is
+killed due to a stall or timeout, its partial work is
+not lost. The lead agent can incorporate partial results
+when reassigning the task.
+
+## Agent Teams Footer Hint Fix (2.1.75+)
+
+Fixed the footer hint in agent teams showing "down to
+expand" instead of the correct "shift + down to expand".
+Users were pressing the wrong key combination based on
+the incorrect hint. The footer now correctly indicates
+`shift + down-arrow` for expanding agent output panels.
+
+## Background Bash Process Cleanup (2.1.73+)
+
+Background bash processes spawned by subagents were not
+cleaned up when the agent exited, causing orphaned
+processes to accumulate in long sessions. Fixed in
+2.1.73: agent exit now properly terminates child bash
+processes. This is particularly relevant for agent team
+workflows where many subagents spawn bash commands
+during parallel execution.
+
 ## Integration with Damage Control
 
 When recovery actions fail, escalate through `leyline:damage-control`:

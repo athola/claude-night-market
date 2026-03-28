@@ -8,17 +8,17 @@ Recommendations for which Claude models to use for different plugin tasks.
 |-------|---------|---------|------|---------|
 | **Haiku** | Validation, formatting, lookup, counting | Fast | Low | 200K |
 | **Sonnet** | Moderate analysis, code generation, summaries | Medium | Medium | 200K |
-| **Opus 4.6** | Deep reasoning, architecture, creative tasks | Slow | High | 1M |
+| **Opus 4.6** | Deep reasoning, architecture, creative tasks | Slow | High | 1M (default on Max/Team/Enterprise 2.1.75+) |
 
 ### Opus 4.6 Capabilities (Claude Code 2.1.32+)
 
 Opus 4.6 introduces features that affect model selection strategy:
 
 - **Adaptive Thinking**: `thinking: {type: "adaptive"}` lets Claude decide when and how deeply to think
-- **Effort Controls**: 4 levels — `low`, `medium`, `high` (default), `max` — trade reasoning depth against speed/cost
-- **128K Max Output**: Significantly larger output window for complex generation tasks
+- **Effort Controls**: 3 levels — `low` ○, `medium` ◐, `high` ● — trade reasoning depth against speed/cost. `max` removed in 2.1.72. Set via `/effort` command (2.1.76+), `/model` menu, `--effort` CLI flag, or `CLAUDE_CODE_EFFORT_LEVEL` env var
+- **128K Max Output**: Opus 4.6 default 64k tokens (2.1.77+, was 32k), upper bound 128k for both Opus 4.6 and Sonnet 4.6. Override via `CLAUDE_CODE_MAX_OUTPUT_TOKENS`
 - **Server-Side Compaction**: Automatic context summarization on the API side, enabling effectively infinite conversations
-- **1M Context Window (Beta)**: Available for workloads requiring massive context
+- **1M Context Window (GA, 2.1.75+)**: Default for Opus 4.6 on Max/Team/Enterprise plans with no extra usage required. Opt out with `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`
 
 ### Effort Controls as an Alternative to Model Escalation
 
@@ -32,8 +32,9 @@ spot between speed and thoroughness for most tasks.
 | **Opus@low→@medium→@high** | Quality-sensitive workflows, complex orchestration | Higher per-token cost, but simpler single-model pipeline |
 | **Hybrid** | Mixed workloads | Haiku for deterministic tasks, Opus with effort controls for reasoning tasks |
 
-Change effort via `/model` or type **"ultrathink"** in
-your prompt to enable high effort for the next turn.
+Change effort via `/effort` (2.1.76+), `/model` menu,
+or type **"ultrathink"** in your prompt to enable high
+effort for the next turn.
 
 **Opus 4/4.1 removed (2.1.68+)**: No longer available
 on the first-party API. Users with these models pinned
@@ -45,6 +46,149 @@ to Sonnet 4.6. Agent `model` frontmatter referencing
 Sonnet resolves transparently. The `--model` flags for
 `claude-opus-4-0` and `claude-opus-4-1` now correctly
 resolve to Opus 4.6 instead of deprecated versions.
+
+**PowerShell tool (2.1.84+, Windows preview)**: Opt-in
+via `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`. Auto-detects
+`pwsh.exe` (7+) with fallback to `powershell.exe` (5.1).
+No sandboxing. Permission required.
+
+**Model capability env vars (2.1.84+)**: For third-party
+providers:
+`ANTHROPIC_DEFAULT_{OPUS,SONNET,HAIKU}_MODEL_SUPPORTED_CAPABILITIES`
+(comma-separated: `effort`, `max_effort`, `thinking`,
+`adaptive_thinking`, `interleaved_thinking`). Plus
+`_MODEL_NAME` and `_MODEL_DESCRIPTION` for `/model`
+picker. Only takes effect on Bedrock/Vertex/Foundry.
+
+**`effort` frontmatter for skills/commands (2.1.80+)**:
+The `effort` field in skill and command frontmatter
+overrides the session effort level when that skill is
+active. Options: `low`, `medium`, `high`, `max` (Opus
+4.6 only). Reverts to session level on completion. This
+provides skill-level effort routing alongside the
+existing `model_hint` pattern.
+
+**Agent frontmatter: `effort`, `maxTurns`,
+`disallowedTools` (2.1.78+)**: Plugin-shipped agents
+support effort level override, turn limits, and tool
+restrictions. Security: `hooks`, `mcpServers`, and
+`permissionMode` are NOT supported for plugin agents.
+
+**`--bare` flag for scripted use (2.1.81+)**: Skips
+hooks, LSP, plugins, skills, auto-memory, OAuth, and
+CLAUDE.md loading. Fastest startup for CI and Agent SDK
+workflows. Requires `ANTHROPIC_API_KEY`. Will become
+default for `-p` in a future release.
+
+**Output token limits increased (2.1.77+)**: Opus 4.6
+default max output raised to **64k tokens** (was 32k
+due to a code check for `opus-4-5` but not `opus-4-6`).
+Upper bound for both Opus 4.6 and Sonnet 4.6 raised to
+**128k tokens** (was 64k). Previously, with 32k output
+cap and 31,999 thinking tokens at high effort, only
+~769 tokens remained for actual code output. Now ~32k
+tokens available even at high thinking budgets. Override
+via `CLAUDE_CODE_MAX_OUTPUT_TOKENS`. Note: increasing
+this value reduces the effective context window available
+before auto-compaction triggers.
+
+**`/effort` slash command (2.1.76+)**: Direct effort
+control via `/effort low`, `/effort medium`,
+`/effort high`, `/effort auto`. Previously, effort was
+only adjustable via the `/model` menu, `--effort` CLI
+flag, or `CLAUDE_CODE_EFFORT_LEVEL` env var. Status
+indicator shows current level next to the spinner.
+
+**Model fallback notifications visible (2.1.76+)**:
+When Claude Code falls back from one model to another
+(e.g., Opus to Sonnet due to rate limits), the
+notification is now always visible instead of hidden
+behind verbose mode. Uses human-friendly model names
+(e.g., "Opus 4.6" instead of `claude-opus-4-6-20260301`).
+
+**Adaptive thinking non-standard model fix (2.1.76+)**:
+Non-standard model strings (Bedrock ARNs, Vertex names,
+gateway IDs) that don't match known adaptive-thinking-
+capable patterns now fall back to standard thinking mode
+instead of sending `thinking: {type: "adaptive"}` and
+getting rejected. Users can also use
+`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` as a
+workaround.
+
+**Context limit fix with `model:` frontmatter
+(2.1.76+)**: Skills with `model:` frontmatter (e.g.,
+`model: sonnet`) no longer trigger spurious "Context
+limit reached" errors on 1M sessions. The context limit
+check now uses the session's actual window size, not the
+frontmatter model's default (200K).
+
+**1M context default for Max/Team/Enterprise (2.1.75+)**:
+Opus 4.6 now defaults to a 1M token context window on
+Max, Team, and Enterprise plans with no extra usage or
+configuration required. Model aliases `opus[1m]` and
+`sonnet[1m]` remain available for explicit selection on
+other plans. Opt out with `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`
+to disable 1M context and remove 1M variants from the
+model picker. Media capacity expands to 600 images or
+PDF pages (was 100). Pricing unchanged: $5/$25 per
+million tokens for Opus 4.6, $3/$15 for Sonnet 4.6.
+
+**Full model IDs in agent frontmatter (2.1.74+)**:
+Agent definitions now accept full model IDs (e.g.,
+`claude-opus-4-6`, `claude-opus-4-5-20251101`) in the
+`model:` frontmatter field and `--agents` JSON config.
+Previously, only aliases (`opus`, `sonnet`, `haiku`)
+worked; full model IDs were silently ignored, falling
+back to the default. Agents now accept the same model
+values as `--model`: aliases, full IDs, and
+provider-specific strings (Bedrock ARNs, Vertex names,
+Foundry deployments).
+
+**Default Opus 4.6 on third-party providers (2.1.73+)**:
+Bedrock, Vertex, and Microsoft Foundry now default to
+Opus 4.6 (was Opus 4.1). Subagent model aliases
+(`model: opus`/`sonnet`/`haiku`) now resolve correctly
+on all providers; previously they were silently
+downgraded to older versions on Bedrock/Vertex/Foundry.
+
+### `modelOverrides` Setting (2.1.73+)
+
+Maps model picker entries to custom provider model IDs
+(Bedrock inference profile ARNs, Vertex version names,
+Foundry deployment names). Configure in settings.json:
+
+```json
+{
+  "modelOverrides": {
+    "claude-opus-4-6": "arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/opus-46-prod",
+    "claude-sonnet-4-6": "arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/sonnet-46-prod"
+  }
+}
+```
+
+When a user selects a model in `/model`, Claude Code
+sends the mapped provider ID. Versions without an
+override fall back to the built-in provider model ID
+or startup-discovered inference profiles.
+
+Use `modelOverrides` when your organization routes
+different model versions to specific inference profiles.
+Complements `ANTHROPIC_DEFAULT_OPUS_MODEL` and similar
+env vars, but supports multi-version routing in a single
+config.
+
+Enterprise admins can combine `modelOverrides` with
+`availableModels` (managed/policy settings) to both
+restrict model selection and route allowed models to
+specific provider endpoints.
+
+**Important**: pin model versions via
+`ANTHROPIC_DEFAULT_OPUS_MODEL`,
+`ANTHROPIC_DEFAULT_SONNET_MODEL`, and
+`ANTHROPIC_DEFAULT_HAIKU_MODEL` before deploying to
+users. Without pinning, a Claude Code update that
+changes the alias target can silently break users whose
+accounts don't have the new version enabled.
 
 The hybrid approach is recommended: use Haiku for Tier 1
 deterministic tasks, and Opus 4.6 with adaptive effort
@@ -59,7 +203,7 @@ Is the task deterministic (same input → same output)?
 └── NO ↓
 
 Does it require subjective judgment or nuanced reasoning?
-├── YES → Use Opus 4.6 (effort: high or max)
+├── YES → Use Opus 4.6 (effort: high)
 └── NO ↓
 
 Is it pattern matching with moderate complexity?

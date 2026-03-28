@@ -22,6 +22,7 @@ usage_patterns:
 - distributed-system-design
 - offline-first
 complexity: low
+model_hint: fast
 estimated_tokens: 600
 ---
 # The Client-Server and Peer-to-Peer Paradigms

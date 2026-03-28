@@ -18,6 +18,7 @@ Domain plugins offer:
 | [archetypes](archetypes.md) | Architecture | Paradigm selection |
 | [pensive](pensive.md) | Code Review | Multi-faceted reviews |
 | [parseltongue](parseltongue.md) | Python | Modern Python development |
+| [phantom](phantom.md) | Desktop | Computer use automation |
 | [memory-palace](memory-palace.md) | Knowledge | Spatial memory organization |
 | [spec-kit](spec-kit.md) | Specifications | Spec-driven development |
 | [minister](minister.md) | Releases | Initiative tracking |
@@ -45,6 +46,13 @@ Use when you need to:
 - Implement async patterns
 - Package projects with uv
 - Profile and optimize performance
+
+### phantom
+Use when you need to:
+- Drive desktop environments through vision and action
+- Automate GUI interactions with screenshot capture
+- Control mouse and keyboard programmatically
+- Run autonomous desktop agent loops
 
 ### memory-palace
 Use when you need to:
@@ -96,6 +104,7 @@ Most domain plugins depend on foundation layers:
 archetypes (standalone)
 pensive --> imbue, sanctum
 parseltongue (standalone)
+phantom (standalone)
 memory-palace (standalone)
 spec-kit --> imbue
 minister (standalone)
@@ -189,6 +198,9 @@ Install based on your needs:
 
 # Python development
 /plugin install parseltongue@claude-night-market
+
+# Desktop automation
+/plugin install phantom@claude-night-market
 
 # Knowledge management
 /plugin install memory-palace@claude-night-market

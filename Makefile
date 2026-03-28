@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check stargazer-analysis demo verify-deferred-capture
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check stargazer-analysis demo verify-deferred-capture supply-chain-scan
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -48,6 +48,7 @@ help: ## Show this help message
 	@echo "  status            Show status of all plugins"
 	@echo "  clean             Clean all plugin artifacts"
 	@echo "  validate-all      Validate all plugin structures"
+	@echo "  supply-chain-scan Scan lockfiles for compromised packages"
 	@echo "  plugin-check      Run demo/dogfood checks across all plugins"
 	@echo "  check-examples    Verify all plugins have proper examples"
 	@echo ""
@@ -109,6 +110,13 @@ clean: ## Clean all plugin artifacts
 		fi; \
 	done
 	@echo "Done."
+
+supply-chain-scan: ## Scan lockfiles for known compromised package versions and malicious artifacts
+	@echo "=== Supply Chain Scan ==="
+	@echo ""
+	@python3 scripts/supply_chain_scan.py
+	@echo ""
+	@echo "=== Supply Chain Scan Complete ==="
 
 validate-all: ## Validate all plugin structures
 	@echo "=== Validating Plugin Structures ==="

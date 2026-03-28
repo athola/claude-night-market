@@ -12,6 +12,7 @@ tags:
 - architecture
 tools: []
 complexity: low
+model_hint: fast
 estimated_tokens: 600
 ---
 ## Table of Contents

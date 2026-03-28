@@ -1,12 +1,13 @@
 {
   "name": "scribe",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
   "commands": [
     "./commands/doc-generate.md",
     "./commands/doc-polish.md",
     "./commands/style-learn.md",
-    "./commands/session-to-post.md"
+    "./commands/session-to-post.md",
+    "./commands/session-replay.md"
   ],
   "skills": [
     "./skills/slop-detector",
@@ -14,7 +15,8 @@
     "./skills/doc-generator",
     "./skills/doc-importer",
     "./skills/tech-tutorial",
-    "./skills/session-to-post"
+    "./skills/session-to-post",
+    "./skills/session-replay"
   ],
   "agents": [
     "./agents/doc-editor.md",

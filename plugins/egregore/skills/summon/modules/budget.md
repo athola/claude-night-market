@@ -73,14 +73,17 @@ When a rate limit is detected:
    channel (see `notify.py`) with the rate limit details and
    expected resume time.
 
-### In-Session Recovery (2.1.71+, preferred)
+### In-Session Recovery (2.1.71+, all providers 2.1.73+)
 
 Use `CronCreate` to schedule a one-shot resume at the
-cooldown expiry time:
+cooldown expiry time. As of 2.1.73, `/loop` and
+`CronCreate` are available on Bedrock, Vertex, Foundry,
+and with telemetry disabled (previously first-party API
+only).
 
 ```
 CronCreate(
-  cron_expression: "<min> <hour> * * *",
+  cron: "<min> <hour> * * *",
   prompt: "Cooldown expired. Read .egregore/manifest.json
     and resume the pipeline. Invoke
     Skill(egregore:summon) to continue.",
@@ -102,8 +105,9 @@ loop resumes with the full conversation context intact.
 
 ### Fallback: Exit and Watchdog
 
-If `CronCreate` is unavailable (pre-2.1.71), the cooldown
-exceeds 3 days (cron task auto-expiry), or the session
+If `CronCreate` is unavailable (pre-2.1.71, or
+pre-2.1.73 on Bedrock/Vertex/Foundry), the cooldown
+exceeds 7 days (cron task auto-expiry), or the session
 itself needs to exit for other reasons:
 
 5. **Exit cleanly**: exit with code 0. A non-zero exit
@@ -156,5 +160,29 @@ The orchestrator uses these heuristics:
 
 These estimates are for observability and alerting, not for
 hard enforcement.
+
+### `rate_limits` Statusline Field (2.1.80+)
+
+The statusline input now includes `rate_limits` with
+5-hour and 7-day rate limit usage (`used_percentage`,
+`resets_at`). The orchestrator can use this for more
+accurate rate limit detection than the heuristic
+estimates in the budget window, triggering cooldown
+before hitting hard limits.
+
+### Token Estimation Fix (2.1.75+)
+
+Claude Code fixed token estimation over-counting for
+`thinking` and `tool_use` blocks, which previously
+triggered premature context compaction. Sessions now
+use more of their available context window before
+compaction. This is especially relevant for egregore
+sessions using Opus 4.6 with extended thinking: the
+orchestrator can maintain longer conversation context
+before compaction interrupts the pipeline loop.
+
+Combined with the 1M context default for Max/Team/
+Enterprise (2.1.75+), egregore sessions benefit from
+significantly longer uninterrupted orchestration runs.
 Rate limit errors are the authoritative signal for budget
 exhaustion.

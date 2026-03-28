@@ -6,6 +6,7 @@ description: >-
   and compliance test.
 version: 1.7.1
 alwaysApply: false
+model_hint: standard
 ---
 # Deferred Capture Contract
 

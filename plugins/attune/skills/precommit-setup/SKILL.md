@@ -10,6 +10,7 @@ tools: [Read, Write, Bash]
 category: infrastructure
 tags: [pre-commit, quality-gates, linting, type-checking, testing]
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 1800
 ---
 ## Table of Contents

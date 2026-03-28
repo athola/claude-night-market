@@ -71,18 +71,46 @@ This command currently has no options. It updates all plugins from all marketpla
   older versions, a full restart is still required.
 - The command will continue updating even if some
   plugins fail
-- Plugin installation status is now accurate in
-  `/plugin` menu (2.1.70+). Previous versions could
-  show plugins as inaccurately installed or report
-  "not found in marketplace" on fresh startup.
-- `/plugin uninstall` (2.1.71+) now disables
-  project-scoped plugins in `.claude/settings.local.json`
-  instead of modifying `.claude/settings.json`, so
-  uninstalls don't affect teammates via version control
 - Updates are applied at the user scope by default
 - If updates fail with git timeout errors, set
   `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` (default: 120s,
   increased from 30s in 2.1.51)
+
+For a full log of Claude Code plugin system changes,
+see `plugins/abstract/docs/compatibility/`.
+- Fixed: LSP servers not registering when the LSP
+  Manager initialized before marketplace reconciliation
+  completed (2.1.76+)
+- `--plugin-dir` now accepts only one path per flag
+  invocation (2.1.76+). Use repeated `--plugin-dir`
+  for multiple directories. Previously accepted
+  colon-separated paths.
+- Fixed: git-subdir plugins at different subdirectories
+  of the same monorepo commit no longer collide in the
+  plugin cache (2.1.77+)
+- `claude plugin validate` now checks skill, agent, and
+  command frontmatter plus `hooks/hooks.json`, catching
+  YAML parse errors and schema violations (2.1.77+).
+  Previously only checked `plugin.json` structure.
+- Headless mode plugin installation now composes
+  correctly with `CLAUDE_CODE_PLUGIN_SEED_DIR` for
+  containerized environments (2.1.77+)
+- `${CLAUDE_PLUGIN_DATA}` variable for persistent plugin
+  state surviving updates (2.1.78+). `/plugin uninstall`
+  prompts before deletion; `--keep-data` preserves it.
+- `CLAUDE_CODE_PLUGIN_SEED_DIR` supports multiple
+  directories via platform path delimiter (2.1.79+)
+- `source: 'settings'` plugin marketplace source for
+  inline plugin entries in settings.json (2.1.80+)
+- `managed-settings.d/` drop-in directory alongside
+  `managed-settings.json` for independent policy
+  fragments (2.1.83+). Files merge alphabetically.
+- Plugin options (`manifest.userConfig`) with keychain
+  storage for sensitive values (2.1.83+). Prompted at
+  enable time. Available as `${user_config.KEY}`.
+- Plugins blocked by organization policy
+  (`blockedMarketplaces`, `strictKnownMarketplaces`)
+  hidden from marketplace views (2.1.85+)
 
 ## Auto-Update Configuration (2.0.70+)
 

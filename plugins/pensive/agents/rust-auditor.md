@@ -89,6 +89,10 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 - Data race prevention
 - Async blocking detection
 - Guard lifetime management
+- Concurrency cost classification (Levels 0-5)
+- False sharing detection (cache-line alignment)
+- Memory ordering audit (`SeqCst` overuse, weak orderings)
+- Contention hotspot identification
 
 ### FFI & Interop
 - C ABI compliance
@@ -109,7 +113,8 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 1. **Scope Analysis**: Identify audit boundaries
 2. **Safety Review**: Check ownership and lifetimes
 3. **Unsafe Audit**: Document all unsafe blocks
-4. **Concurrency Check**: Verify thread safety
+4. **Concurrency Check**: Verify thread safety and classify
+   synchronization points by cost tier (Levels 0-5)
 5. **Dependency Scan**: Run security checks
 6. **Evidence Collection**: Document findings
 

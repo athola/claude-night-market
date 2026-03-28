@@ -36,6 +36,7 @@ usage_patterns:
 - best-practices-research
 - template-customization
 complexity: advanced
+model_hint: deep
 estimated_tokens: 1800
 ---
 ## Table of Contents

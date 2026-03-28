@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-.PHONY: help install test lint format check docker-build docker-run clean
+.PHONY: help install test lint typecheck format check docker-build docker-run clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -15,6 +15,9 @@ test: ## Run all tests
 
 test-unit: ## Run unit tests only
 	uv run --extra dev python -m pytest tests/unit/ -v --tb=short
+
+typecheck: ## Run type checking
+	uv run --extra dev mypy src/ tests/
 
 lint: ## Run linter
 	uv run --extra dev ruff check src/ tests/

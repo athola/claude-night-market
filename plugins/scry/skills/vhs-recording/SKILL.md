@@ -16,6 +16,7 @@ tools:
 - Write
 - Bash
 complexity: medium
+model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:

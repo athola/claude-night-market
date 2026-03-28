@@ -25,6 +25,7 @@ usage_patterns:
   - git-history-review
   - targeted-review
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 600
 modules:
   - modules/escalation-criteria.md

@@ -31,6 +31,7 @@ modules:
 - modules/anti-patterns.md
 - modules/best-practices.md
 - modules/content-assertion-levels.md
+model_hint: standard
 ---
 # Testing Quality Standards
 

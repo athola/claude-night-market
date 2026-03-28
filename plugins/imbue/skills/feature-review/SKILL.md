@@ -31,6 +31,7 @@ usage_patterns:
 - suggestion-generation
 - github-integration
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 3500
 modules:
 - modules/scoring-framework.md

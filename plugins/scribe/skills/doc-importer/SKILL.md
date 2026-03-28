@@ -26,6 +26,7 @@ dependencies:
 - scribe:slop-detector
 - scribe:doc-generator
 complexity: basic
+model_hint: fast
 estimated_tokens: 400
 ---
 # Document Importer

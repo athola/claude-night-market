@@ -20,6 +20,7 @@ tools:
 - Grep
 - TodoWrite
 complexity: medium
+model_hint: standard
 estimated_tokens: 800
 dependencies:
 - sanctum:shared

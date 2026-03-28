@@ -35,6 +35,7 @@ authentication, storage, and testing patterns.
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
 | `deferred-capture` | Contract for unified deferred-item capture across plugins | Implementing or testing deferred-capture wrappers |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
+| `supply-chain-advisory` | Known-bad version detection, lockfile auditing, incident response | After supply chain advisories, dependency audits, or suspected compromise |
 
 ## Commands
 

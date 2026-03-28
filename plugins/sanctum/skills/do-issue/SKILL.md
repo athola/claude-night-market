@@ -32,6 +32,7 @@ usage_patterns:
 - parallel-execution
 - quality-gates
 complexity: advanced
+model_hint: deep
 estimated_tokens: 2500
 modules:
 - modules/issue-discovery.md

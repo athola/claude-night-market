@@ -8,6 +8,7 @@ model_preference: claude-sonnet-4
 category: workflow
 tags: [planning, architecture, task-breakdown, dependencies, estimation]
 complexity: intermediate
+model_hint: standard
 estimated_tokens: 2400
 ---
 ## Table of Contents
