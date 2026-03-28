@@ -193,29 +193,6 @@ See the [Common Workflows Guide][workflows] for full details.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
-**1.7.2** adds model_hint routing to skills for
-cheaper/faster model selection in downstream tools,
-a Cursor lean export script for token-efficient skill
-loading, session-replay in scribe, and compatibility
-entries for Claude Code 2.1.75 through 2.1.85.
-
-**1.7.1** added the tome plugin for multi-source research
-(code archaeology, academic literature, TRIZ analysis),
-100% Makefile dogfood coverage across all 19 plugins,
-and 20 newly registered API assets with 6 cross-plugin
-dependency declarations.
-
-**1.6.7** added a deferred-item capture system in sanctum
-(PostToolUse watcher + Stop hook that files GitHub issues
-for deferred work), invisible text injection detection in
-leyline, cheapest-capable model selection in conjure,
-and dorodango polishing workflows in attune.
-
-**1.6.6** added parallel worktree execution, agent
-specialization, and cross-item learning in egregore;
-tiered audit skill in pensive; output contracts for
-agent dispatch validation.
-
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for

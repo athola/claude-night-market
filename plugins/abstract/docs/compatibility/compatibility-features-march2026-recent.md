@@ -1049,179 +1049,6 @@ mode.
 - ✅ VS Code HTTP 400 fix for proxy/Bedrock/Vertex users
   with Claude 4.5 models
 
-### Claude Code 2.1.69 (March 2026)
-
-**New Features**:
-- ✅ **`${CLAUDE_SKILL_DIR}` Variable**: Skills can reference their own
-  directory using `${CLAUDE_SKILL_DIR}` in SKILL.md content, resolving
-  to the absolute path of the containing directory
-  - **Impact**: Enables portable path references for skills that ship
-    alongside scripts, data files, or modules. No more hardcoded
-    absolute paths.
-  - **Affected**: abstract:skill-authoring (updated with CLAUDE_SKILL_DIR
-    section and usage examples), leyline:supply-chain-advisory (adopted
-    for `known-bad-versions.json` path reference)
-  - **Action Required**: Done - skill-authoring and
-    supply-chain-advisory updated
-
-- ✅ **Skill Description Colon Fix**: Skill descriptions containing colons
-  (e.g., `"Triggers include: X, Y, Z"`) no longer fail to load. Skills
-  without a `description:` field now appear in the available skills list.
-  - **Impact**: Removes a frontmatter parsing limitation. Skills with
-    complex descriptions using colons work correctly.
-  - **Affected**: abstract:skill-authoring (updated troubleshooting section)
-  - **Action Required**: Done - skill-authoring SKILL.md updated
-
-- ✅ **Hook Event Fields: agent_id and agent_type**: All hook events now
-  include `agent_id` (for subagent sessions) and `agent_type` (for both
-  subagent and `--agent` sessions)
-  - **Impact**: Hooks can now distinguish which agent triggered them and
-    implement agent-specific logic. Previously only SessionStart had
-    `agent_type`.
-  - **Affected**: abstract:hook-authoring hook-types module (updated),
-    abstract:hooks-eval sdk-hook-types module (updated),
-    capabilities-hooks reference (updated),
-    hook-types-comprehensive example (updated)
-  - **Action Required**: Done - all 4 hook reference files updated
-
-- ✅ **Status Line worktree Field**: Status line hook commands gain a
-  `worktree` field with `name`, `path`, `branch`, and `originalRepoDir`
-  in worktree sessions
-  - **Impact**: Status line hooks can now display worktree-aware context
-  - **Affected**: abstract:hook-authoring hook-types module (updated in
-    agent_id/agent_type section)
-  - **Action Required**: Done - included in hook-types module update
-
-- ✅ **TeammateIdle/TaskCompleted: continue: false**: These hooks now
-  support returning `{"continue": false, "stopReason": "..."}` to stop
-  a teammate, matching Stop hook behavior
-  - **Impact**: Enables graceful teammate shutdown from hook logic
-    (budget-based, idle timeout, post-task shutdown)
-  - **Affected**: conjure:agent-teams health-monitoring module (updated),
-    abstract:hooks-eval sdk-hook-types module (updated),
-    capabilities-hooks reference (updated),
-    hook-types-comprehensive example (updated),
-    abstract:hook-authoring hook-types module (updated)
-  - **Action Required**: Done - all 5 files updated
-
-- ✅ **WorktreeCreate/WorktreeRemove Plugin Hook Fix**: Plugin-registered
-  WorktreeCreate and WorktreeRemove hooks were silently ignored before
-  2.1.69; they now fire correctly
-  - **Impact**: Plugins can now reliably use worktree lifecycle hooks.
-    Previously only user/project-level hooks worked.
-  - **Affected**: abstract:hook-authoring hook-types module (updated),
-    abstract:hooks-eval sdk-hook-types module (updated),
-    capabilities-hooks reference (updated),
-    hook-types-comprehensive example (updated)
-  - **Action Required**: Done - all 4 files updated with plugin fix note
-
-- ✅ **`/reload-plugins` Command**: Activates pending plugin changes
-  without restarting Claude Code
-  - **Impact**: Eliminates restart requirement for plugin development
-    and updates
-  - **Affected**: leyline:update-all-plugins command (updated Notes
-    section)
-  - **Action Required**: Done - update-all-plugins.md updated
-
-- ✅ **`includeGitInstructions` Setting**: New setting and
-  `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` env var to remove built-in
-  commit and PR workflow instructions
-  - **Impact**: Organizations using custom commit/PR workflows (like our
-    sanctum skills) can disable the built-in git instructions to reduce
-    context and avoid conflicts
-  - **Affected**: None - sanctum commit/PR skills already provide their
-    own instructions
-  - **Action Required**: None
-
-- ✅ **Sonnet 4.5 → 4.6 Migration**: Pro/Max/Team Premium users
-  automatically migrated from Sonnet 4.5 to Sonnet 4.6
-  - **Impact**: Model upgrade is transparent. Agent `model` frontmatter
-    referencing Sonnet resolves correctly. `--model claude-opus-4-0` and
-    `--model claude-opus-4-1` now resolve to Opus 4.6 instead of
-    deprecated versions.
-  - **Affected**: abstract model-optimization-guide (updated),
-    abstract:escalation-governance (updated)
-  - **Action Required**: Done - both files updated with Sonnet 4.6
-    migration note
-
-- ✅ **Plugin Source Type `git-subdir`**: Plugins can now point to
-  subdirectories within git repos
-  - **Impact**: Enables monorepo-style plugin hosting
-  - **Affected**: None - informational for plugin developers
-  - **Action Required**: None
-
-- ✅ **`pluginTrustMessage` Managed Setting**: Organizations can append
-  custom context to plugin trust warnings
-  - **Impact**: Enterprise governance improvement
-  - **Affected**: None
-  - **Action Required**: None
-
-- ✅ **Effort Level Display**: Active effort level shown in logo and
-  spinner (e.g., "with low effort")
-  - **Impact**: UX visibility improvement
-  - **Affected**: None
-  - **Action Required**: None
-
-**Bug Fixes**:
-- ✅ **Nested Skill Discovery Security Fix**: Fixed nested skill discovery
-  loading from gitignored directories like `node_modules`
-  - **Impact**: Security fix preventing unintended skill loading from
-    dependency directories
-  - **Affected**: None - our skills are not in gitignored directories
-  - **Action Required**: None
-
-- ✅ **Deprecated Model Resolution Fix**: `--model claude-opus-4-0` and
-  `--model claude-opus-4-1` now resolve to current Opus 4.6 instead of
-  deprecated versions
-  - **Impact**: Users with legacy model pins no longer get API errors
-  - **Affected**: abstract model-optimization-guide (noted in Sonnet
-    migration section)
-  - **Action Required**: Done - included in model migration note
-
-- ✅ **Hook Template Collision Fix**: Plugin hooks were silently
-  dropped when two plugins used the same `${CLAUDE_PLUGIN_ROOT}/...`
-  command template string. Now both fire correctly.
-  - **Impact**: Two collisions exist in our ecosystem:
-    (1) conserve + memory-palace both use
-    `${CLAUDE_PLUGIN_ROOT}/hooks/setup.sh` for Setup events;
-    (2) conserve + imbue both use
-    `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` for
-    SessionStart events. Before 2.1.69, one hook from each
-    pair was silently dropped. Both now run.
-  - **Affected**: conserve, memory-palace, imbue hooks
-  - **Action Required**: None needed on 2.1.69+. Users on
-    older versions may experience missing hook behavior.
-
-- ✅ **`InstructionsLoaded` Hook Event**: New hook event that fires
-  when CLAUDE.md or `.claude/rules/*.md` files load into context
-  - **Impact**: Enables plugins to react to instruction loading
-    (logging, validation, context-aware setup)
-  - **Affected**: None - no current use case, documented for
-    future adoption
-  - **Action Required**: None
-
-- ✅ **Plugin Stop/SessionEnd Hook Fix**: These hooks were not firing
-  after `/plugin` operations (install, uninstall, update)
-  - **Impact**: Lifecycle cleanup hooks now run reliably
-  - **Affected**: memory-palace (Stop hook for session_lifecycle.py),
-    egregore (Stop hook)
-  - **Action Required**: None - hooks now fire correctly
-
-- ✅ **`/clear` Session Cache Fix**: `/clear` now fully clears all
-  session caches, reducing memory retention
-  - **Impact**: conserve:clear-context workflow benefits; less stale
-    state after `/clear` invocations
-  - **Affected**: conserve clear-context skill
-  - **Action Required**: None - automatic improvement
-
-- ✅ **Concise Subagent Reports**: Multi-agent tasks produce more
-  concise final reports, reducing token usage
-  - **Impact**: All parallel agent dispatch workflows (do-issue,
-    execute-plan, dispatching-parallel-agents) benefit from
-    reduced token consumption on agent results
-  - **Affected**: All agent-dispatching skills
-  - **Action Required**: None - automatic improvement
-
 ### Claude Code 2.1.72 (March 2026)
 
 **New Features**:
@@ -1772,6 +1599,179 @@ mode.
 - ✅ Spark icon in activity bar listing all sessions
 - ✅ Full markdown plan view with comment support
 - ✅ Native MCP server management dialog via /mcp
+
+### Claude Code 2.1.69 (March 2026)
+
+**New Features**:
+- ✅ **`${CLAUDE_SKILL_DIR}` Variable**: Skills can reference their own
+  directory using `${CLAUDE_SKILL_DIR}` in SKILL.md content, resolving
+  to the absolute path of the containing directory
+  - **Impact**: Enables portable path references for skills that ship
+    alongside scripts, data files, or modules. No more hardcoded
+    absolute paths.
+  - **Affected**: abstract:skill-authoring (updated with CLAUDE_SKILL_DIR
+    section and usage examples), leyline:supply-chain-advisory (adopted
+    for `known-bad-versions.json` path reference)
+  - **Action Required**: Done - skill-authoring and
+    supply-chain-advisory updated
+
+- ✅ **Skill Description Colon Fix**: Skill descriptions containing colons
+  (e.g., `"Triggers include: X, Y, Z"`) no longer fail to load. Skills
+  without a `description:` field now appear in the available skills list.
+  - **Impact**: Removes a frontmatter parsing limitation. Skills with
+    complex descriptions using colons work correctly.
+  - **Affected**: abstract:skill-authoring (updated troubleshooting section)
+  - **Action Required**: Done - skill-authoring SKILL.md updated
+
+- ✅ **Hook Event Fields: agent_id and agent_type**: All hook events now
+  include `agent_id` (for subagent sessions) and `agent_type` (for both
+  subagent and `--agent` sessions)
+  - **Impact**: Hooks can now distinguish which agent triggered them and
+    implement agent-specific logic. Previously only SessionStart had
+    `agent_type`.
+  - **Affected**: abstract:hook-authoring hook-types module (updated),
+    abstract:hooks-eval sdk-hook-types module (updated),
+    capabilities-hooks reference (updated),
+    hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 hook reference files updated
+
+- ✅ **Status Line worktree Field**: Status line hook commands gain a
+  `worktree` field with `name`, `path`, `branch`, and `originalRepoDir`
+  in worktree sessions
+  - **Impact**: Status line hooks can now display worktree-aware context
+  - **Affected**: abstract:hook-authoring hook-types module (updated in
+    agent_id/agent_type section)
+  - **Action Required**: Done - included in hook-types module update
+
+- ✅ **TeammateIdle/TaskCompleted: continue: false**: These hooks now
+  support returning `{"continue": false, "stopReason": "..."}` to stop
+  a teammate, matching Stop hook behavior
+  - **Impact**: Enables graceful teammate shutdown from hook logic
+    (budget-based, idle timeout, post-task shutdown)
+  - **Affected**: conjure:agent-teams health-monitoring module (updated),
+    abstract:hooks-eval sdk-hook-types module (updated),
+    capabilities-hooks reference (updated),
+    hook-types-comprehensive example (updated),
+    abstract:hook-authoring hook-types module (updated)
+  - **Action Required**: Done - all 5 files updated
+
+- ✅ **WorktreeCreate/WorktreeRemove Plugin Hook Fix**: Plugin-registered
+  WorktreeCreate and WorktreeRemove hooks were silently ignored before
+  2.1.69; they now fire correctly
+  - **Impact**: Plugins can now reliably use worktree lifecycle hooks.
+    Previously only user/project-level hooks worked.
+  - **Affected**: abstract:hook-authoring hook-types module (updated),
+    abstract:hooks-eval sdk-hook-types module (updated),
+    capabilities-hooks reference (updated),
+    hook-types-comprehensive example (updated)
+  - **Action Required**: Done - all 4 files updated with plugin fix note
+
+- ✅ **`/reload-plugins` Command**: Activates pending plugin changes
+  without restarting Claude Code
+  - **Impact**: Eliminates restart requirement for plugin development
+    and updates
+  - **Affected**: leyline:update-all-plugins command (updated Notes
+    section)
+  - **Action Required**: Done - update-all-plugins.md updated
+
+- ✅ **`includeGitInstructions` Setting**: New setting and
+  `CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` env var to remove built-in
+  commit and PR workflow instructions
+  - **Impact**: Organizations using custom commit/PR workflows (like our
+    sanctum skills) can disable the built-in git instructions to reduce
+    context and avoid conflicts
+  - **Affected**: None - sanctum commit/PR skills already provide their
+    own instructions
+  - **Action Required**: None
+
+- ✅ **Sonnet 4.5 → 4.6 Migration**: Pro/Max/Team Premium users
+  automatically migrated from Sonnet 4.5 to Sonnet 4.6
+  - **Impact**: Model upgrade is transparent. Agent `model` frontmatter
+    referencing Sonnet resolves correctly. `--model claude-opus-4-0` and
+    `--model claude-opus-4-1` now resolve to Opus 4.6 instead of
+    deprecated versions.
+  - **Affected**: abstract model-optimization-guide (updated),
+    abstract:escalation-governance (updated)
+  - **Action Required**: Done - both files updated with Sonnet 4.6
+    migration note
+
+- ✅ **Plugin Source Type `git-subdir`**: Plugins can now point to
+  subdirectories within git repos
+  - **Impact**: Enables monorepo-style plugin hosting
+  - **Affected**: None - informational for plugin developers
+  - **Action Required**: None
+
+- ✅ **`pluginTrustMessage` Managed Setting**: Organizations can append
+  custom context to plugin trust warnings
+  - **Impact**: Enterprise governance improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+- ✅ **Effort Level Display**: Active effort level shown in logo and
+  spinner (e.g., "with low effort")
+  - **Impact**: UX visibility improvement
+  - **Affected**: None
+  - **Action Required**: None
+
+**Bug Fixes**:
+- ✅ **Nested Skill Discovery Security Fix**: Fixed nested skill discovery
+  loading from gitignored directories like `node_modules`
+  - **Impact**: Security fix preventing unintended skill loading from
+    dependency directories
+  - **Affected**: None - our skills are not in gitignored directories
+  - **Action Required**: None
+
+- ✅ **Deprecated Model Resolution Fix**: `--model claude-opus-4-0` and
+  `--model claude-opus-4-1` now resolve to current Opus 4.6 instead of
+  deprecated versions
+  - **Impact**: Users with legacy model pins no longer get API errors
+  - **Affected**: abstract model-optimization-guide (noted in Sonnet
+    migration section)
+  - **Action Required**: Done - included in model migration note
+
+- ✅ **Hook Template Collision Fix**: Plugin hooks were silently
+  dropped when two plugins used the same `${CLAUDE_PLUGIN_ROOT}/...`
+  command template string. Now both fire correctly.
+  - **Impact**: Two collisions exist in our ecosystem:
+    (1) conserve + memory-palace both use
+    `${CLAUDE_PLUGIN_ROOT}/hooks/setup.sh` for Setup events;
+    (2) conserve + imbue both use
+    `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` for
+    SessionStart events. Before 2.1.69, one hook from each
+    pair was silently dropped. Both now run.
+  - **Affected**: conserve, memory-palace, imbue hooks
+  - **Action Required**: None needed on 2.1.69+. Users on
+    older versions may experience missing hook behavior.
+
+- ✅ **`InstructionsLoaded` Hook Event**: New hook event that fires
+  when CLAUDE.md or `.claude/rules/*.md` files load into context
+  - **Impact**: Enables plugins to react to instruction loading
+    (logging, validation, context-aware setup)
+  - **Affected**: None - no current use case, documented for
+    future adoption
+  - **Action Required**: None
+
+- ✅ **Plugin Stop/SessionEnd Hook Fix**: These hooks were not firing
+  after `/plugin` operations (install, uninstall, update)
+  - **Impact**: Lifecycle cleanup hooks now run reliably
+  - **Affected**: memory-palace (Stop hook for session_lifecycle.py),
+    egregore (Stop hook)
+  - **Action Required**: None - hooks now fire correctly
+
+- ✅ **`/clear` Session Cache Fix**: `/clear` now fully clears all
+  session caches, reducing memory retention
+  - **Impact**: conserve:clear-context workflow benefits; less stale
+    state after `/clear` invocations
+  - **Affected**: conserve clear-context skill
+  - **Action Required**: None - automatic improvement
+
+- ✅ **Concise Subagent Reports**: Multi-agent tasks produce more
+  concise final reports, reducing token usage
+  - **Impact**: All parallel agent dispatch workflows (do-issue,
+    execute-plan, dispatching-parallel-agents) benefit from
+    reduced token consumption on agent results
+  - **Affected**: All agent-dispatching skills
+  - **Action Required**: None - automatic improvement
 
 ### Claude Code 2.1.68 (March 2026)
 

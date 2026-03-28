@@ -71,55 +71,13 @@ This command currently has no options. It updates all plugins from all marketpla
   older versions, a full restart is still required.
 - The command will continue updating even if some
   plugins fail
-- Plugin installation status is now accurate in
-  `/plugin` menu (2.1.70+). Previous versions could
-  show plugins as inaccurately installed or report
-  "not found in marketplace" on fresh startup.
-- `/plugin uninstall` (2.1.71+) now disables
-  project-scoped plugins in `.claude/settings.local.json`
-  instead of modifying `.claude/settings.json`, so
-  uninstalls don't affect teammates via version control
 - Updates are applied at the user scope by default
 - If updates fail with git timeout errors, set
   `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS` (default: 120s,
   increased from 30s in 2.1.51)
-- Marketplace git URLs without `.git` suffix now
-  supported (2.1.72+), enabling Azure DevOps and AWS
-  CodeCommit repos
-- Marketplace clone failures now show diagnostic info
-  even when git produces no stderr (2.1.72+)
-- Fixed: installation failing on Windows with EEXIST
-  error in OneDrive folders (2.1.72+)
-- Fixed: marketplace blocking user-scope installs when
-  a project-scope install exists (2.1.72+)
-- Fixed: `CLAUDE_CODE_PLUGIN_CACHE_DIR` creating literal
-  `~` directories instead of expanding home (2.1.72+)
-- Fixed: plugin.json with marketplace-only fields
-  failing to load (2.1.72+)
-- Fixed: marketplace update not syncing git submodules;
-  plugin sources in submodules no longer break after
-  update (2.1.74+)
-- Fixed: `/plugin install` failing inside the REPL for
-  marketplace plugins with local sources (2.1.74+)
-- `--plugin-dir` local dev copies now override installed
-  marketplace plugins with the same name (2.1.74+),
-  unless force-enabled by managed settings. Developers
-  no longer need to uninstall the marketplace version
-  before testing local copies.
-- Fixed: managed-disabled plugins (force-disabled by
-  organization) no longer appear in `/plugin` Installed
-  tab (2.1.75+). They are now hidden entirely.
-- Fixed: corrupted marketplace configuration path
-  handling (2.1.75+)
-- Async hook completion messages (e.g., "Async hook
-  UserPromptSubmit completed") are now suppressed by
-  default (2.1.75+). Use `--verbose` or `Ctrl+O` to
-  see them.
-- **Breaking change (2.1.75+)**: Removed deprecated
-  Windows managed settings fallback at
-  `C:\ProgramData\ClaudeCode\managed-settings.json`.
-  Organizations must use
-  `C:\Program Files\ClaudeCode\managed-settings.json`.
+
+For a full log of Claude Code plugin system changes,
+see `plugins/abstract/docs/compatibility/`.
 - Fixed: LSP servers not registering when the LSP
   Manager initialized before marketplace reconciliation
   completed (2.1.76+)
