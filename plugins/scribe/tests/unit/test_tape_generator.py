@@ -6,8 +6,16 @@ and duration management.
 
 from __future__ import annotations
 
+import re
+
 import pytest
-from scribe.session_parser import AssistantTurn, ToolResult, ToolUse, UserTurn
+from scribe.session_parser import (
+    AssistantTurn,
+    ThinkingTurn,
+    ToolResult,
+    ToolUse,
+    UserTurn,
+)
 from scribe.tape_generator import (
     SUPPORTED_FORMATS,
     TapeConfig,
@@ -610,3 +618,47 @@ class TestToolResultContentRendering:
         config = TapeConfig(output_path="out.gif")
         tape = generate_tape(turns, config)
         assert "[result: abc]" in tape
+
+
+class TestThinkingTurnRendering:
+    """Feature: thinking turns render with prefix and fast typing.
+
+    As a replay viewer
+    I want thinking content marked with [thinking] and typed quickly
+    So that I can distinguish internal reasoning from responses
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_prefix_present(self) -> None:
+        """Scenario: thinking turn has [thinking] prefix."""
+        turns = [ThinkingTurn(text="reasoning about X")]
+        config = TapeConfig(output_path="out.gif")
+        tape = generate_tape(turns, config)
+        assert "[thinking] reasoning about X" in tape
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_types_faster_than_assistant(self) -> None:
+        """Scenario: thinking uses faster typing speed than assistant."""
+        thinking_turns = [ThinkingTurn(text="fast")]
+        assistant_turns = [AssistantTurn(text="slow")]
+        config = TapeConfig(output_path="out.gif")
+
+        thinking_tape = generate_tape(thinking_turns, config)
+        assistant_tape = generate_tape(assistant_turns, config)
+
+        thinking_ms = re.findall(r"Type@(\d+)ms", thinking_tape)
+        assistant_ms = re.findall(r"Type@(\d+)ms", assistant_tape)
+
+        assert int(thinking_ms[0]) < int(assistant_ms[0])
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_multiline_continuation_indented(self) -> None:
+        """Scenario: multiline thinking indents continuation lines."""
+        turns = [ThinkingTurn(text="line one\nline two")]
+        config = TapeConfig(output_path="out.gif")
+        tape = generate_tape(turns, config)
+        assert "[thinking] line one" in tape
+        assert "           line two" in tape

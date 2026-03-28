@@ -22,7 +22,7 @@ and WebM output formats. Auto-detects the session format
 | Option | Description |
 |--------|-------------|
 | `--session-format` | Input session format: `claude`, `codex`, or auto-detect (default: auto) |
-| `--show` | Layers to include: `user`, `assistant`, `tools` (default: all) |
+| `--show` | Layers to include: `user`, `assistant`, `tools`, `thinking` (default: `user,assistant,tools`) |
 | `--turns` | Turn range: `1-5` or `3` (default: all) |
 | `--output` | Output file path (default: `session-replay.gif`) |
 | `--format` | Output format: `gif`, `mp4`, `webm` (default: from `--output` extension) |
@@ -52,6 +52,9 @@ and WebM output formats. Auto-detects the session format
 
 # Show only user and assistant turns, first 5 turns
 /session-replay --show user,assistant --turns 1-5
+
+# Include Claude's thinking in the replay
+/session-replay --show user,assistant,tools,thinking
 
 # Custom theme and faster playback
 /session-replay --theme "Solarized Dark" --speed 1.5

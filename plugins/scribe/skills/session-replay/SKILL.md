@@ -108,7 +108,7 @@ Apply filters based on user options:
 
 - `--turns` selects specific turn ranges (e.g. `1-5`)
 - `--show` controls which layers appear: `user`, `assistant`,
-  `tools`
+  `tools`, `thinking` (thinking is excluded by default)
 
 ### Step 2: Generate VHS Tape
 

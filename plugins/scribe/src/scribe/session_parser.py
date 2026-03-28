@@ -58,6 +58,13 @@ class ToolResult(Turn):
     content: str = ""
 
 
+@dataclass
+class ThinkingTurn(Turn):
+    """An extended-thinking block from Claude."""
+
+    text: str = ""
+
+
 # --- Session discovery ---
 
 
@@ -508,7 +515,11 @@ def _parse_assistant_content(content: Any, cols: int, rows: int) -> list[Turn]:
             summary = _collapse_tool(name, input_data)
             result.append(ToolUse(tool_name=name, summary=summary, input=input_data))
 
-        # Skip thinking blocks and any other types
+        elif block_type == "thinking":
+            thinking_text = block.get("thinking", "")
+            if thinking_text:
+                text = _wrap_and_truncate(thinking_text, cols, rows)
+                result.append(ThinkingTurn(text=text))
 
     return result
 
@@ -555,5 +566,7 @@ def _apply_layer_filter(all_turns: list[Turn], show_layers: set[str]) -> list[Tu
         elif isinstance(turn, AssistantTurn) and "assistant" in show_layers:
             result.append(turn)
         elif isinstance(turn, (ToolUse, ToolResult)) and "tools" in show_layers:
+            result.append(turn)
+        elif isinstance(turn, ThinkingTurn) and "thinking" in show_layers:
             result.append(turn)
     return result
