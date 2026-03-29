@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.7.2"
+version = "1.7.3"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -69,12 +69,16 @@ strict = true
 mypy_path = ["src", "scripts"]
 
 [[tool.mypy.overrides]]
-module = ["tiktoken"]
+module = ["tiktoken", "yaml"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["pytest"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.frontmatter"]
+disable_error_code = ["no-redef"]
 
 [[tool.mypy.overrides]]
 module = ["leyline.session_store", "leyline.scripts.verify_plugin", "verify_plugin"]

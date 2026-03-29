@@ -128,39 +128,7 @@ class KnowledgeOrchestrator:
         usage_score = usage_score_obj.normalized_score
 
         # Get decay score
-        last_validated: datetime | None
-        last_validated_str = entry.get("last_validated")
-        if last_validated_str:
-            try:
-                last_validated = datetime.fromisoformat(last_validated_str)
-            except ValueError:
-                logger.warning(
-                    "Invalid last_validated date format for entry %s: %r",
-                    entry_id,
-                    last_validated_str,
-                )
-                last_validated = datetime.now(timezone.utc)
-        else:
-            # Check decay model
-            last_validated = self.decay_model.get_validation_date(entry_id)
-            if last_validated is None:
-                # Use creation date or now
-                created_str = entry.get("created_at")
-                if created_str:
-                    try:
-                        last_validated = datetime.fromisoformat(created_str)
-                    except ValueError:
-                        logger.warning(
-                            "Invalid created_at date format for entry %s: %r",
-                            entry_id,
-                            created_str,
-                        )
-                        last_validated = datetime.now(timezone.utc)
-                else:
-                    last_validated = datetime.now(timezone.utc)
-
-        if last_validated is None:
-            last_validated = datetime.now(timezone.utc)
+        last_validated = self._resolve_validation_date(entry, entry_id)
 
         decay_state = self.decay_model.calculate_decay(
             entry_id, maturity, last_validated
@@ -194,6 +162,53 @@ class KnowledgeOrchestrator:
             status=status,
             recommendations=recommendations,
         )
+
+    def _resolve_validation_date(
+        self, entry: dict[str, Any], entry_id: str
+    ) -> datetime:
+        """Resolve the most recent validation date for an entry.
+
+        Checks ``last_validated`` in *entry*, then the decay model, then
+        ``created_at`` as a final fallback before ``datetime.now()``.
+
+        Args:
+            entry: Entry dictionary with optional date fields.
+            entry_id: Identifier used to query the decay model.
+
+        Returns:
+            A timezone-aware datetime representing the validation date.
+
+        """
+        # 1. Explicit last_validated on the entry
+        raw = entry.get("last_validated")
+        if raw:
+            try:
+                return datetime.fromisoformat(raw)
+            except (ValueError, TypeError):
+                logger.warning(
+                    "Invalid last_validated date format for entry %s: %r",
+                    entry_id,
+                    raw,
+                )
+
+        # 2. Decay model's recorded validation date
+        date = self.decay_model.get_validation_date(entry_id)
+        if date is not None:
+            return date
+
+        # 3. Fall back to created_at
+        raw = entry.get("created_at")
+        if raw:
+            try:
+                return datetime.fromisoformat(raw)
+            except (ValueError, TypeError):
+                logger.warning(
+                    "Invalid created_at date format for entry %s: %r",
+                    entry_id,
+                    raw,
+                )
+
+        return datetime.now(timezone.utc)
 
     def _generate_recommendations(
         self,

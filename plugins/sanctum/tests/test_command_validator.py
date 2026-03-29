@@ -80,6 +80,18 @@ This has no YAML frontmatter.
         assert not result.is_valid
         assert any("frontmatter" in error.lower() for error in result.errors)
 
+    def test_fails_on_invalid_yaml_frontmatter(self) -> None:
+        """Command with --- delimiters but invalid YAML inside fails."""
+        content = """---
+: :
+  - [
+---
+# Command
+"""
+        result = CommandValidator.parse_frontmatter(content)
+        assert not result.is_valid
+        assert any("invalid" in err.lower() for err in result.errors)
+
 
 class TestCommandContentValidation:
     """Tests for command body content validation."""

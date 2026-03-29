@@ -160,12 +160,10 @@ endif
 
 # GOVERNANCE
 update-changelog: ## Update CHANGELOG from git commits
-	@echo "Updating changelog from git commits..."
-	$(PYTHON) $(SCRIPTS_DIR)/update_changelog.py || echo "Changelog update completed with warnings"
+	@echo "Changelog updates managed via sanctum:update-version skill"
 
 check-changelog: ## Validate CHANGELOG format
-	@echo "Validating changelog format..."
-	$(PYTHON) $(SCRIPTS_DIR)/update_changelog.py --validate-only || echo "Changelog validation completed with warnings"
+	@echo "Changelog validation managed via sanctum:update-version skill"
 
 # UTILITIES
 dev-setup: ## Complete development environment setup

@@ -254,6 +254,9 @@ def _unparse_annotation(node: Any) -> str | None:
         return None
 
 
+# DEPRECATED: SuperpowerWrapper has no production consumers as of 2026-03.
+# Candidates for removal in next unbloat cycle.
+# See: code refinement report, finding A-5.
 class SuperpowerWrapper:
     """Wrapper that translates plugin command parameters to superpower parameters."""
 

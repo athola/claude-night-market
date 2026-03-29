@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.7.2"
+version = "1.7.3"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -96,7 +96,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = [
     "abstract.hooks.homeostatic_monitor",
-    "abstract.scripts.generate_trust_badges",
     "abstract.src.abstract.cli_framework",
     "abstract.src.abstract.wrapper_base",
     "abstract.src.abstract.errors",
@@ -104,10 +103,6 @@ module = [
     "abstract.tests.unit.test_wrapper_base",
 ]
 disable_error_code = ["return-value", "no-any-return", "arg-type", "assignment", "misc"]
-
-[[tool.mypy.overrides]]
-module = ["generate_trust_badges"]
-disable_error_code = ["no-any-return"]
 
 [[tool.mypy.overrides]]
 module = ["cli_framework"]

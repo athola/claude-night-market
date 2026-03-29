@@ -8,6 +8,29 @@ from pathlib import Path
 
 import yaml
 
+try:
+    from leyline.frontmatter import parse_frontmatter as extract_frontmatter
+except ImportError:
+
+    def extract_frontmatter(content: str) -> dict | None:
+        """Extract YAML frontmatter from markdown content.
+
+        Inline fallback used when leyline is not available.
+        """
+        if not content.startswith("---"):
+            return None
+
+        try:
+            end_idx = content.index("---", 3)
+            frontmatter_str = content[3:end_idx].strip()
+            result = yaml.safe_load(frontmatter_str)
+            if isinstance(result, dict):
+                return result
+            return None
+        except (ValueError, yaml.YAMLError):
+            return None
+
+
 # Minimum number of query entries for adequate retrieval coverage
 MIN_QUERY_COUNT = 3
 
@@ -26,23 +49,6 @@ VALID_MATURITY = {"seedling", "budding", "evergreen"}
 # Paths
 CORPUS_DIR = Path("plugins/memory-palace/docs/knowledge-corpus")
 EXCLUDED_FILES = {"README.md"}
-
-
-def extract_frontmatter(content: str) -> dict | None:
-    """Extract YAML frontmatter from markdown content."""
-    if not content.startswith("---"):
-        return None
-
-    try:
-        # Find the closing ---
-        end_idx = content.index("---", 3)
-        frontmatter_str = content[3:end_idx].strip()
-        result = yaml.safe_load(frontmatter_str)
-        if isinstance(result, dict):
-            return result
-        return None
-    except (ValueError, yaml.YAMLError):
-        return None
 
 
 def validate_entry(file_path: Path) -> list[str]:

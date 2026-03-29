@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import shutil
 from dataclasses import dataclass
@@ -99,7 +100,7 @@ class MemoryPalaceCLI:
             return False
 
         try:
-            with open(self.claude_config) as f:
+            with open(self.claude_config, encoding="utf-8") as f:
                 config = json.load(f)
 
             # Check if memory palace is enabled and permissions are set
@@ -128,7 +129,7 @@ class MemoryPalaceCLI:
 
         if self.claude_config.exists():
             try:
-                with open(self.claude_config) as f:
+                with open(self.claude_config, encoding="utf-8") as f:
                     config = json.load(f)
             except json.JSONDecodeError:
                 backup = self.claude_config.with_suffix(".json.bak")
@@ -159,7 +160,7 @@ class MemoryPalaceCLI:
         permissions["allow"] = allow_list
         config["permissions"] = permissions
 
-        with open(self.claude_config, "w") as f:
+        with open(self.claude_config, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
 
         # Create palace directory
@@ -182,7 +183,7 @@ class MemoryPalaceCLI:
             return
 
         try:
-            with open(self.claude_config) as f:
+            with open(self.claude_config, encoding="utf-8") as f:
                 config = json.load(f)
 
             # Remove memory palace permissions
@@ -195,7 +196,7 @@ class MemoryPalaceCLI:
             permissions["allow"] = allow_list
             config["permissions"] = permissions
 
-            with open(self.claude_config, "w") as f:
+            with open(self.claude_config, "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=2)
 
             self.print_success("Memory Palace plugin disabled!")
@@ -223,8 +224,15 @@ class MemoryPalaceCLI:
                 domains = stats.get("domains", {})
                 for domain, count in domains.items():
                     self.print_status(f"  {domain}: {count} palaces")
-            except Exception as e:
+            except (OSError, json.JSONDecodeError, ValueError) as e:
                 self.print_warning(f"Could not get palace statistics: {e}")
+            except Exception:
+                logging.getLogger(__name__).exception(
+                    "Unexpected error in show_status (palace stats)"
+                )
+                self.print_warning(
+                    "Could not get palace statistics: unexpected error (check logs)"
+                )
 
             garden_path = Path(
                 os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json"))
@@ -233,8 +241,15 @@ class MemoryPalaceCLI:
                 self.print_status(f"Digital Garden Metrics ({garden_path}):")
                 try:
                     compute_garden_metrics(garden_path)
-                except Exception as e:
+                except (OSError, json.JSONDecodeError, ValueError) as e:
                     self.print_warning(f"Could not compute garden metrics: {e}")
+                except Exception:
+                    logging.getLogger(__name__).exception(
+                        "Unexpected error in show_status (garden metrics)"
+                    )
+                    self.print_warning(
+                        "Could not compute garden metrics: unexpected error (check logs)"
+                    )
 
     def garden_metrics(
         self,
@@ -278,8 +293,11 @@ class MemoryPalaceCLI:
                     )
             else:
                 print(json.dumps(metrics, indent=2, default=str))
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Metrics failed: {e}")
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in garden_metrics")
+            self.print_error("Metrics failed: unexpected error (check logs)")
 
     def garden_tend(self, opts: TendingOptions, include_palaces: bool = False) -> None:
         """Report and optionally apply tending actions to a digital garden.
@@ -468,7 +486,7 @@ class MemoryPalaceCLI:
                 if skill_file.exists():
                     # Extract description from skill file
                     try:
-                        with open(skill_file) as f:
+                        with open(skill_file, encoding="utf-8") as f:
                             content = f.read()
 
                         # Extract description from YAML frontmatter
@@ -478,9 +496,17 @@ class MemoryPalaceCLI:
                                 self.print_status(f"  {skill_dir.name}: {desc}")
                                 break
 
-                    except Exception as e:
+                    except (OSError, json.JSONDecodeError, ValueError) as e:
                         self.print_warning(
                             f"Could not read skill {skill_dir.name}: {e}"
+                        )
+                    except Exception:
+                        logging.getLogger(__name__).exception(
+                            "Unexpected error in list_skills for %s",
+                            skill_dir.name,
+                        )
+                        self.print_warning(
+                            f"Could not read skill {skill_dir.name}: unexpected error (check logs)"
                         )
 
     def create_palace(self, name: str, domain: str, metaphor: str = "building") -> bool:
@@ -505,8 +531,12 @@ class MemoryPalaceCLI:
             manager = self._manager()
             manager.create_palace(name, domain, metaphor)
             return True
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to create palace: {e}")
+            return False
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in create_palace")
+            self.print_error("Failed to create palace: unexpected error (check logs)")
             return False
 
     def list_palaces(self) -> bool:
@@ -528,8 +558,12 @@ class MemoryPalaceCLI:
                     "No palaces found. Create one with: /palace create <name> <domain>"
                 )
             return True
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to list palaces: {e}")
+            return False
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in list_palaces")
+            self.print_error("Failed to list palaces: unexpected error (check logs)")
             return False
 
     def sync_queue(self, auto_create: bool = False, dry_run: bool = False) -> bool:
@@ -565,8 +599,9 @@ class MemoryPalaceCLI:
         except json.JSONDecodeError as e:
             self.print_error(f"Failed to sync queue: corrupt JSON: {e}")
             return False
-        except Exception as e:
-            self.print_error(f"Failed to sync queue: {e}")
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in sync_queue")
+            self.print_error("Failed to sync queue: unexpected error (check logs)")
             return False
 
     def prune_check(self, stale_days: int = 90) -> bool:
@@ -616,8 +651,12 @@ class MemoryPalaceCLI:
             print()
             print("Run '/palace prune --apply' to clean up (requires approval)")
             return True
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to check palaces: {e}")
+            return False
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in prune_check")
+            self.print_error("Failed to check palaces: unexpected error (check logs)")
             return False
 
     def prune_apply(self, actions: list[str]) -> bool:
@@ -634,8 +673,12 @@ class MemoryPalaceCLI:
             print(f"  Stale removed: {removed['stale']}")
             print(f"  Low quality removed: {removed['low_quality']}")
             return True
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to apply prune: {e}")
+            return False
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in prune_apply")
+            self.print_error("Failed to apply prune: unexpected error (check logs)")
             return False
 
     def search_palaces(self, query: str, search_type: str = "semantic") -> bool:
@@ -665,8 +708,9 @@ class MemoryPalaceCLI:
         except json.JSONDecodeError as e:
             self.print_error(f"Search failed: corrupt palace file: {e}")
             return False
-        except Exception as e:
-            self.print_error(f"Search failed: {e}")
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in search_palaces")
+            self.print_error("Search failed: unexpected error (check logs)")
             return False
 
     def install_skills(self) -> bool:
@@ -740,8 +784,9 @@ class MemoryPalaceCLI:
             self.print_error(f"Export failed: file not found: {e}")
         except json.JSONDecodeError as e:
             self.print_error(f"Export failed: corrupt palace file: {e}")
-        except Exception as e:
-            self.print_error(f"Export failed: {e}")
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in export_palaces")
+            self.print_error("Export failed: unexpected error (check logs)")
 
     def import_palaces(
         self,
@@ -758,8 +803,9 @@ class MemoryPalaceCLI:
             self.print_error(f"Import failed: file not found: {e}")
         except json.JSONDecodeError as e:
             self.print_error(f"Import failed: corrupt JSON in source: {e}")
-        except Exception as e:
-            self.print_error(f"Import failed: {e}")
+        except Exception:
+            logging.getLogger(__name__).exception("Unexpected error in import_palaces")
+            self.print_error("Import failed: unexpected error (check logs)")
 
 
 def build_parser() -> argparse.ArgumentParser:

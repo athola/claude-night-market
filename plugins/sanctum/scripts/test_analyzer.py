@@ -18,6 +18,8 @@ import json
 import shutil
 import subprocess
 from pathlib import Path
+
+_MIN_SPLIT_PARTS = 2
 from typing import Any
 
 
@@ -205,7 +207,7 @@ class TestAnalyzer:
                 if not line.strip():
                     continue
                 parts = line.split("\t", 1)
-                if len(parts) < 2:
+                if len(parts) < _MIN_SPLIT_PARTS:
                     continue
                 status, file_name = parts[0].strip(), parts[1].strip()
                 if not file_name.endswith(".py"):

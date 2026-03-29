@@ -104,6 +104,32 @@ Skill(leyline:testing-quality-standards)
 # - Fixture patterns
 ```
 
+## Modules
+
+### frontmatter
+
+Canonical YAML frontmatter parser shared across plugins.
+
+```python
+from leyline.frontmatter import parse_frontmatter
+
+content = """---
+name: my-skill
+category: testing
+---
+
+# My Skill
+"""
+meta = parse_frontmatter(content)
+# {'name': 'my-skill', 'category': 'testing'}
+```
+
+When PyYAML is installed, it uses `yaml.safe_load`. When unavailable,
+it falls back to a minimal key-value parser that handles simple `key: value`
+pairs (no nested structures). Returns `None` for content without frontmatter.
+
+Other plugins should import this instead of reimplementing frontmatter parsing.
+
 ## Pattern Categories
 
 ### Rate Limiting

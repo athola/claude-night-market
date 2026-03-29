@@ -259,6 +259,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         super().__init__(config_path, palaces_dir_override)
         self.project_palaces_dir = os.path.join(self.palaces_dir, "projects")
         os.makedirs(self.project_palaces_dir, exist_ok=True)
+        self._cached_embedding_index: Any = None
 
     def create_project_palace(
         self,
@@ -324,7 +325,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         # Save to project palaces directory
         palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
-        with open(palace_file, "w") as f:
+        with open(palace_file, "w", encoding="utf-8") as f:
             json.dump(project_palace, f, indent=2)
 
         self._update_project_index()
@@ -342,7 +343,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         """
         palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):
-            with open(palace_file) as f:
+            with open(palace_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
 
@@ -393,10 +394,13 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace["last_modified"] = datetime.now(timezone.utc).isoformat()
         palace_file = os.path.join(self.project_palaces_dir, f"{palace['id']}.json")
 
+        # Invalidate cached embedding index since palace data changed
+        self._cached_embedding_index = None
+
         # Create backup
         self.create_backup(palace["id"], self.project_palaces_dir)
 
-        with open(palace_file, "w") as f:
+        with open(palace_file, "w", encoding="utf-8") as f:
             json.dump(palace, f, indent=2)
 
         self._update_project_index()
@@ -539,11 +543,16 @@ class ProjectPalaceManager(MemoryPalaceManager):
         """Embedding-based semantic search across review chamber rooms."""
         from .corpus.embedding_index import EmbeddingIndex
 
-        # Build a temporary in-memory index for the review chamber entries
-        embeddings_path = os.path.join(
-            self.project_palaces_dir, f"{palace['id']}_embeddings.yaml"
-        )
-        index = EmbeddingIndex(embeddings_path, provider="hash")
+        # Cache the index to avoid rebuilding on every call
+        if self._cached_embedding_index is None:
+            embeddings_path = os.path.join(
+                self.project_palaces_dir, f"{palace['id']}_embeddings.yaml"
+            )
+            self._cached_embedding_index = EmbeddingIndex(
+                embeddings_path, provider="hash"
+            )
+
+        index = self._cached_embedding_index
 
         # Map entry IDs to their data and subroom for later retrieval
         entry_map: dict[str, tuple[str, dict[str, Any]]] = {}
@@ -700,7 +709,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
                 )
 
         index_file = os.path.join(self.project_palaces_dir, "project_index.json")
-        with open(index_file, "w") as f:
+        with open(index_file, "w", encoding="utf-8") as f:
             json.dump(index, f, indent=2)
 
 

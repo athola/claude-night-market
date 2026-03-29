@@ -20,6 +20,8 @@ from typing import Any
 
 from .utils import safe_json_load
 
+_SERVICE_RE = re.compile(r"\b(\w+(?:service|manager|handler))\b", re.I)
+
 
 @dataclass
 class TasksManagerConfig:
@@ -191,9 +193,7 @@ def detect_ambiguity(
     # Check for circular dependency risk
     existing_tasks = context.get("existing_tasks", [])
     task_lower = task_description.lower()
-    task_services = set(
-        re.findall(r"\b(\w+(?:service|manager|handler))\b", task_lower, re.I)
-    )
+    task_services = set(_SERVICE_RE.findall(task_lower))
     conflict = _has_circular_dependency(task_lower, task_services, existing_tasks)
     if conflict is not None:
         return AmbiguityResult(
@@ -221,18 +221,18 @@ def _has_circular_dependency(
         Conflict description string if circular dependency found, None otherwise.
 
     """
+    if not task_services or "uses" not in task_lower:
+        return None
     for existing in existing_tasks:
         existing_desc = existing.get("description", "").lower()
-        existing_services = set(
-            re.findall(r"\b(\w+(?:service|manager|handler))\b", existing_desc, re.I)
-        )
-        if not (task_services and existing_services):
+        if "uses" not in existing_desc:
             continue
-        for service in task_services:
-            if service.lower() in existing_desc and "uses" in task_lower:
-                for other_service in existing_services:
-                    if other_service.lower() in task_lower and "uses" in existing_desc:
-                        return "Potential circular dependency detected"
+        existing_services = set(_SERVICE_RE.findall(existing_desc))
+        # Circular = both tasks reference each other's services
+        task_svcs_lower = {s.lower() for s in task_services}
+        existing_svcs_lower = {s.lower() for s in existing_services}
+        if task_svcs_lower & existing_svcs_lower:
+            return "Potential circular dependency detected"
     return None
 
 

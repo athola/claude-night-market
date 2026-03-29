@@ -69,7 +69,7 @@ class PalaceRepository:
         }
 
         palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
-        with open(palace_file, "w") as f:
+        with open(palace_file, "w", encoding="utf-8") as f:
             json.dump(palace, f, indent=2)
 
         self.update_master_index()
@@ -88,7 +88,7 @@ class PalaceRepository:
         palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):
             try:
-                with open(palace_file) as f:
+                with open(palace_file, encoding="utf-8") as f:
                     palace_data: dict[str, Any] = json.load(f)
                     return palace_data
             except json.JSONDecodeError as e:
@@ -115,8 +115,14 @@ class PalaceRepository:
 
         self.create_backup(palace["id"])
 
-        with open(palace_file, "w") as f:
-            json.dump(palace, f, indent=2)
+        try:
+            with open(palace_file, "w", encoding="utf-8") as f:
+                json.dump(palace, f, indent=2)
+        except OSError as exc:
+            sys.stderr.write(
+                f"palace_repository: failed to write {palace_file}: {exc}\n"
+            )
+            raise
 
         self.update_master_index()
 
@@ -159,7 +165,10 @@ class PalaceRepository:
             timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_file = os.path.join(backup_dir, f"{palace_id}_{timestamp}.json")
 
-            with open(palace_file) as src, open(backup_file, "w") as dst:
+            with (
+                open(palace_file, encoding="utf-8") as src,
+                open(backup_file, "w", encoding="utf-8") as dst,
+            ):
                 dst.write(src.read())
 
     # ------------------------------------------------------------------
@@ -207,7 +216,7 @@ class PalaceRepository:
             except KeyError as e:
                 print(f"[WARN] Skipped malformed palace file: {e}")
 
-        with open(self.index_file, "w") as f:
+        with open(self.index_file, "w", encoding="utf-8") as f:
             json.dump(index, f, indent=2)
 
     def get_master_index(self) -> dict[str, Any]:
@@ -218,9 +227,13 @@ class PalaceRepository:
 
         """
         if os.path.exists(self.index_file):
-            with open(self.index_file) as f:
-                data: dict[str, Any] = json.load(f)
+            try:
+                with open(self.index_file, encoding="utf-8") as f:
+                    data: dict[str, Any] = json.load(f)
                 return data
+            except (json.JSONDecodeError, OSError) as exc:
+                sys.stderr.write(f"palace_repository: corrupt master index: {exc}\n")
+                # Fall through to return default
         return {
             "palaces": [],
             "global_stats": {
@@ -255,7 +268,7 @@ class PalaceRepository:
             if file_path.name in skip:
                 continue
             try:
-                with open(file_path) as f:
+                with open(file_path, encoding="utf-8") as f:
                     data = json.load(f)
                 results.append((file_path, data))
             except (json.JSONDecodeError, KeyError):

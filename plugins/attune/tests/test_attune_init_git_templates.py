@@ -298,6 +298,7 @@ class TestAttuneInitBehavior:
             cwd=project_dir,
             check=True,
             capture_output=True,
+            timeout=30,
         )
 
     def test_scenario_copy_and_render_templates(

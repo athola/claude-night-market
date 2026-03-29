@@ -7,9 +7,27 @@ This module provides reusable test fixtures following TDD/BDD principles:
 - Edge case fixtures for boundary testing
 """
 
+import sys
 from pathlib import Path
 
 import pytest
+
+# Make shared fixtures importable from plugins/conftest_shared.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from conftest_shared import (
+    register_standard_markers,
+    tag_items_by_keywords,
+    temp_skill_dir,
+    temp_skill_file,
+)
+
+__all__ = [
+    "register_standard_markers",
+    "tag_items_by_keywords",
+    "temp_skill_dir",
+    "temp_skill_file",
+]
 
 try:
     from abstract.improvement_queue import ImprovementQueue
@@ -61,22 +79,7 @@ Some content without proper structure.
 """
 
 
-@pytest.fixture
-def temp_skill_file(tmp_path, sample_skill_content):
-    """Create a temporary skill file."""
-    skill_dir = tmp_path / "test-skill"
-    skill_dir.mkdir()
-    skill_file = skill_dir / "SKILL.md"
-    skill_file.write_text(sample_skill_content)
-    return skill_file
-
-
-@pytest.fixture
-def temp_skill_dir(tmp_path):
-    """Create a temporary skill directory structure."""
-    skill_dir = tmp_path / "skills"
-    skill_dir.mkdir()
-    return skill_dir
+# temp_skill_file and temp_skill_dir are imported from conftest_shared
 
 
 # ============================================================================

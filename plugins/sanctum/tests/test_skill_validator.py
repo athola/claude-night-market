@@ -97,3 +97,93 @@ Always demo.
 
     assert result.is_valid is True
     assert result.skill_name == "demo-skill"
+
+
+class TestValidateReferences:
+    """Tests for SkillValidator.validate_references()."""
+
+    def test_returns_valid_for_well_formed_refs(self) -> None:
+        content = """---
+name: test-skill
+---
+
+Use Skill(other-plugin:my-skill) for that.
+Also see Skill(simple-skill).
+"""
+        result = SkillValidator.validate_references(content)
+        assert result.is_valid
+        assert len(result.warnings) == 0
+
+    def test_warns_on_malformed_skill_ref(self) -> None:
+        content = """---
+name: test-skill
+---
+
+Skill(bad ref with spaces)
+"""
+        result = SkillValidator.validate_references(content)
+        assert any("bad ref with spaces" in w for w in result.warnings)
+
+    def test_extracts_skill_name_from_frontmatter(self) -> None:
+        content = """---
+name: my-cool-skill
+---
+
+# Body
+"""
+        result = SkillValidator.validate_references(content)
+        assert result.skill_name == "my-cool-skill"
+
+    def test_no_frontmatter_returns_none_skill_name(self) -> None:
+        content = "No frontmatter here."
+        result = SkillValidator.validate_references(content)
+        assert result.skill_name is None
+        assert result.has_frontmatter is False
+
+
+class TestExtractSkillReferences:
+    """Tests for SkillValidator.extract_skill_references()."""
+
+    def test_extracts_skill_refs_from_content(self) -> None:
+        content = "Use Skill(foo:bar) and Skill(baz-qux)."
+        refs = SkillValidator.extract_skill_references(content)
+        assert "bar" in refs
+        assert "baz-qux" in refs
+
+    def test_includes_frontmatter_dependencies(self) -> None:
+        content = """---
+name: test-skill
+dependencies:
+  - plugin-a:skill-x
+  - plugin-b:skill-y
+---
+
+Body text.
+"""
+        refs = SkillValidator.extract_skill_references(content)
+        assert "plugin-a:skill-x" in refs
+        assert "plugin-b:skill-y" in refs
+
+
+class TestExtractDependencies:
+    """Tests for SkillValidator.extract_dependencies()."""
+
+    def test_extracts_deps_from_section(self) -> None:
+        content = """---
+name: test-skill
+---
+
+# Skill
+
+## Dependencies
+- plugin-a
+- plugin-b
+"""
+        deps = SkillValidator.extract_dependencies(content)
+        assert "plugin-a" in deps
+        assert "plugin-b" in deps
+
+    def test_returns_empty_when_no_deps_section(self) -> None:
+        content = "---\nname: test\n---\n# No deps"
+        deps = SkillValidator.extract_dependencies(content)
+        assert deps == []

@@ -12,7 +12,6 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from unittest.mock import Mock
 
 import pytest
 
@@ -21,7 +20,30 @@ _PLUGIN_ROOT = str(Path(__file__).resolve().parent.parent)
 if _PLUGIN_ROOT not in sys.path:
     sys.path.insert(0, _PLUGIN_ROOT)
 
+# Make shared fixtures importable from plugins/conftest_shared.py
+_PLUGINS_ROOT = str(Path(__file__).resolve().parents[2])
+if _PLUGINS_ROOT not in sys.path:
+    sys.path.insert(0, _PLUGINS_ROOT)
+
 from scripts.imbue_validator import ImbueValidator
+
+from conftest_shared import (
+    mock_claude_tools,
+    mock_todo_write,
+    register_standard_markers,
+    tag_items_by_keywords,
+    temp_skill_dir,
+    temp_skill_file,
+)
+
+__all__ = [
+    "mock_claude_tools",
+    "mock_todo_write",
+    "register_standard_markers",
+    "tag_items_by_keywords",
+    "temp_skill_dir",
+    "temp_skill_file",
+]
 
 
 @pytest.fixture
@@ -236,76 +258,8 @@ def sample_evidence_log():
     }
 
 
-@pytest.fixture
-def temp_skill_file(tmp_path, sample_skill_content):
-    """Create a temporary skill file."""
-    skill_dir = tmp_path / "test-skill"
-    skill_dir.mkdir()
-    skill_file = skill_dir / "SKILL.md"
-    skill_file.write_text(sample_skill_content)
-    return skill_file
-
-
-@pytest.fixture
-def temp_skill_dir(tmp_path):
-    """Create a temporary skill directory structure."""
-    skills_dir = tmp_path / "skills"
-    skills_dir.mkdir()
-
-    # Create multiple skill directories
-    for skill_name in [
-        "review-core",
-        "evidence-logging",
-        "diff-analysis",
-        "catchup",
-        "structured-output",
-    ]:
-        skill_dir = skills_dir / skill_name
-        skill_dir.mkdir()
-        skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(f"""---
-name: {skill_name}
-description: Test skill for {skill_name}
-category: review-patterns
----""")
-
-    return skills_dir
-
-
-@pytest.fixture
-def mock_todo_write():
-    """Mock TodoWrite tool for testing."""
-    mock = Mock()
-    mock.return_value = None
-    # Configure mock to track calls
-    return mock
-
-
-@pytest.fixture
-def mock_claude_tools():
-    """Mock Claude Code tools with spec constraints.
-
-    Each tool mock is constrained with a callable spec to prevent
-    attribute access on non-existent methods.
-    """
-    tools = {
-        "Read": Mock(spec=callable),
-        "Glob": Mock(spec=callable),
-        "Grep": Mock(spec=callable),
-        "Bash": Mock(spec=callable),
-        "Write": Mock(spec=callable),
-        "Edit": Mock(spec=callable),
-        "TodoWrite": Mock(spec=callable),
-        "AskUserQuestion": Mock(spec=callable),
-    }
-
-    # Configure default return values
-    tools["Read"].return_value = "Mock file content"
-    tools["Glob"].return_value = []
-    tools["Grep"].return_value = []
-    tools["Bash"].return_value = "Mock bash output"
-
-    return tools
+# temp_skill_file, temp_skill_dir, mock_todo_write, and mock_claude_tools
+# are imported from conftest_shared
 
 
 @pytest.fixture
@@ -454,34 +408,15 @@ def sample_review_report():
     }
 
 
-# Test markers for pytest configuration
+# Pytest hooks delegated to shared implementation
 def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
-    config.addinivalue_line("markers", "unit: Unit tests for individual components")
-    config.addinivalue_line(
-        "markers",
-        "integration: Integration tests for workflow orchestration",
-    )
-    config.addinivalue_line("markers", "performance: Performance and scalability tests")
-    config.addinivalue_line("markers", "slow: Tests that take longer to execute")
-    config.addinivalue_line("markers", "bdd: Behavior-driven development style tests")
+    register_standard_markers(config)
 
 
 def pytest_collection_modifyitems(config, items) -> None:
     """Add custom markers to items based on their content."""
-    for item in items:
-        # Add performance marker to performance tests
-        if "performance" in item.nodeid or any(
-            keyword in item.nodeid for keyword in ["performance", "scalability"]
-        ):
-            item.add_marker(pytest.mark.performance)
-
-        # Add bdd marker to BDD-style tests
-        if "bdd" in item.nodeid or any(
-            keyword in item.nodeid
-            for keyword in ["bdd", "behavior", "feature", "scenario"]
-        ):
-            item.add_marker(pytest.mark.bdd)
+    tag_items_by_keywords(items)
 
 
 # Helper functions for test data generation

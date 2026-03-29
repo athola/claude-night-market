@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import sys
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -67,8 +68,14 @@ class ProjectTracker:
     def _load_data(self) -> InitiativeTracker:
         """Load tracking data from file."""
         if self.data_file.exists():
-            with open(self.data_file, encoding="utf-8") as file:
-                data = json.load(file)
+            try:
+                with open(self.data_file, encoding="utf-8") as file:
+                    data = json.load(file)
+            except (json.JSONDecodeError, OSError) as exc:
+                logging.getLogger(__name__).warning(
+                    "minister: corrupt data file %s: %s", self.data_file, exc
+                )
+                return InitiativeTracker([], datetime.now(UTC).isoformat())
             tasks = [Task(**task) for task in data.get("tasks", [])]
             return InitiativeTracker(
                 tasks, data.get("last_updated", datetime.now(UTC).isoformat())

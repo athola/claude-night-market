@@ -344,9 +344,10 @@ def safe_file_write(file_path: Path, content: str, error_handler: ErrorHandler) 
             content,
             encoding="utf-8",
         )
-    except Exception:
+    except Exception as exc:
         error = error_handler.handle_file_error(file_path, "write")
         error_handler.exit_with_error(error)
+        raise SystemExit(error.exit_code) from exc
 
 
 def safe_yaml_load(

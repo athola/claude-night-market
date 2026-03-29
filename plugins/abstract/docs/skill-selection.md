@@ -79,6 +79,7 @@ skills-eval/
 - `improvement_suggester.py`: Generates actionable improvement recommendations
 - `compliance_checker.py`: Validates skills against standards
 - `tool_performance_analyzer.py`: Benchmarks tool execution and efficiency
+- `token_usage_tracker.py`: Tracks token usage across skill directories
 
 **Quality Metrics:**
 - Structure compliance (25%)
@@ -136,7 +137,7 @@ skills-eval/
 2. **Quality Assessment** (`skills-eval`)
    ```bash
    # Discover skills
-   python skills/skills-eval/scripts/skills_auditor.py --discover --path skills/
+   python scripts/skills_auditor.py --discover --path skills/
 
    # Generate improvements
    python skills/skills-eval/scripts/improvement_suggester.py --skill new-skill/SKILL.md

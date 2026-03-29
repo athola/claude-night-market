@@ -40,6 +40,7 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
             cwd=project_path,
             check=True,
             capture_output=True,
+            timeout=30,
         )
         print(f"✓ Git repository initialized: {git_dir}")
         return True

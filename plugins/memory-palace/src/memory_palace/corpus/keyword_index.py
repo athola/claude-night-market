@@ -122,7 +122,7 @@ class KeywordIndexer:
                     phrase_words = re.findall(r"\b[a-z]{3,}\b", phrase.lower())
                     keywords.update(phrase_words)
 
-        except Exception:
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
             # File read errors are expected in some tests; treat as no keywords.
             return []
 
@@ -234,13 +234,13 @@ class KeywordIndexer:
         """Save the index to disk as YAML."""
         self.index_dir.mkdir(parents=True, exist_ok=True)
 
-        with open(self.index_file, "w") as f:
+        with open(self.index_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(self.index, f, default_flow_style=False, sort_keys=False)
 
     def load_index(self) -> None:
         """Load the index from disk."""
         if self.index_file.exists():
-            with open(self.index_file) as f:
+            with open(self.index_file, encoding="utf-8") as f:
                 self.index = yaml.safe_load(f) or {
                     "entries": {},
                     "keywords": {},

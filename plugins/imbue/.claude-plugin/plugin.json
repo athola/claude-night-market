@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/catchup",
@@ -47,5 +47,6 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": ["leyline"]
 }

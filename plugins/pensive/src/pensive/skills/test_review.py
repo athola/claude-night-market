@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import re
 from typing import Any, ClassVar
 
@@ -15,8 +16,8 @@ MIN_MUTATION_SCORE = 0.7
 MIN_COVERAGE_PERCENT = 80
 MIN_MOCK_RATIO = 0.2
 MAX_AVG_TEST_DURATION = 2.0
-SLOW_TEST_THRESHOLD = 10.0
-VERY_SLOW_TEST_THRESHOLD = 5.0
+VERY_SLOW_TEST_THRESHOLD = 10.0  # tests > 10s are critical
+SLOW_TEST_THRESHOLD = 5.0  # tests 5-10s are high severity
 MIN_COMPLEX_ASSERTIONS = 3
 MIN_EDGE_CASES = 5
 MAX_ANTI_PATTERNS = 5
@@ -170,7 +171,7 @@ class TestReviewSkill(BaseReviewSkill):
         code_first_count = 0
         test_created = False
 
-        for _i, entry in enumerate(history):
+        for entry in history:
             is_test_file = "test" in entry["file"]
 
             if is_test_file and entry["action"] == "created":
@@ -282,66 +283,99 @@ class TestReviewSkill(BaseReviewSkill):
             "gherkin_features": gherkin_features,
         }
 
+    # ── Anti-pattern detection (public orchestrator + private checkers) ──
+
     def identify_test_anti_patterns(
         self, context: Any, file_path: str = ""
     ) -> list[dict[str, Any]]:
         """Identify common test anti-patterns."""
         content = context.get_file_content(file_path)
-        anti_patterns = []
+        anti_patterns: list[dict[str, Any]] = []
 
-        # External dependencies
-        if re.search(r"requests\.(get|post|put|delete)", content):
-            matches = re.finditer(r"requests\.(get|post|put|delete)", content)
-            for match in matches:
-                anti_patterns.append(
-                    {
-                        "type": "external_dependency",
-                        "message": "Test depends on external HTTP requests",
-                        "line": content[: match.start()].count("\n") + 1,
-                    }
-                )
+        anti_patterns.extend(self._check_external_dependencies(content))
+        anti_patterns.extend(self._check_shared_state(content))
+        anti_patterns.extend(self._check_magic_numbers(content))
+        anti_patterns.extend(self._check_slow_tests(content))
+        anti_patterns.extend(self._check_assertion_quality(content))
+        anti_patterns.extend(self._check_bare_excepts(content))
 
-        # Shared state (global variables)
-        global_vars = re.findall(r"^(\w+)\s*=\s*.+$", content, re.MULTILINE)
-        if global_vars:
-            for var in global_vars:
-                if var not in ["import", "from", "def", "class"]:
-                    anti_patterns.append(
-                        {
-                            "type": "shared_state",
-                            "message": f"Global '{var}' may cause state issues",
-                            "variable": var,
-                        }
-                    )
+        return anti_patterns
 
-        # Hardcoded values
-        magic_numbers = re.finditer(
+    @staticmethod
+    def _check_external_dependencies(content: str) -> list[dict[str, Any]]:
+        """Detect tests that make real HTTP requests."""
+        results: list[dict[str, Any]] = []
+        for match in re.finditer(r"requests\.(get|post|put|delete)", content):
+            results.append(
+                {
+                    "type": "external_dependency",
+                    "message": "Test depends on external HTTP requests",
+                    "line": content[: match.start()].count("\n") + 1,
+                }
+            )
+        return results
+
+    @staticmethod
+    def _check_shared_state(content: str) -> list[dict[str, Any]]:
+        """Detect module-level mutable assignments using AST."""
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            return []
+        results: list[dict[str, Any]] = []
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not target.id.startswith("_"):
+                        results.append(
+                            {
+                                "type": "shared_state",
+                                "message": (
+                                    f"Global '{target.id}' may cause state issues"
+                                ),
+                                "variable": target.id,
+                                "line": node.lineno,
+                            }
+                        )
+        return results
+
+    @staticmethod
+    def _check_magic_numbers(content: str) -> list[dict[str, Any]]:
+        """Detect hardcoded magic numbers in assertions."""
+        results: list[dict[str, Any]] = []
+        for match in re.finditer(
             r"assert\s+\w+\s*==\s*(\d+)\s*(?:#.*)?$", content, re.MULTILINE
-        )
-        for match in magic_numbers:
+        ):
             if not re.search(r"#.*(?:explain|why)", match.group(0)):
-                anti_patterns.append(
+                results.append(
                     {
                         "type": "hardcoded_values",
                         "message": "Magic number without explanation",
                         "value": match.group(1),
                     }
                 )
+        return results
 
-        # Slow tests (sleep/delays)
-        sleep_calls = re.finditer(r"time\.sleep\((\d+(?:\.\d+)?)\)", content)
-        for match in sleep_calls:
+    @staticmethod
+    def _check_slow_tests(content: str) -> list[dict[str, Any]]:
+        """Detect sleep calls that slow down tests."""
+        results: list[dict[str, Any]] = []
+        for match in re.finditer(r"time\.sleep\((\d+(?:\.\d+)?)\)", content):
             delay = float(match.group(1))
             if delay > 1.0:
-                anti_patterns.append(
+                results.append(
                     {
                         "type": "slow_test",
                         "message": f"Unnecessary delay of {delay}s found",
                         "duration": delay,
                     }
                 )
+        return results
 
-        # Tests without assertions
+    @staticmethod
+    def _check_assertion_quality(content: str) -> list[dict[str, Any]]:
+        """Detect tests without assertions and tests with too many assertions."""
+        results: list[dict[str, Any]] = []
         test_funcs = list(
             re.finditer(
                 r"def\s+(test_\w+)\s*\([^)]*\):(.*?)(?=\ndef|\Z)", content, re.DOTALL
@@ -351,37 +385,38 @@ class TestReviewSkill(BaseReviewSkill):
             func_name = match.group(1)
             func_body = match.group(2)
             if not re.search(r"\bassert\b|\.assert_", func_body):
-                anti_patterns.append(
+                results.append(
                     {
                         "type": "no_assertions",
                         "message": f"Test '{func_name}' has no assertions",
                         "function": func_name,
                     }
                 )
+            else:
+                assert_count = len(re.findall(r"\bassert\b", func_body))
+                if assert_count > MIN_EDGE_CASES:
+                    results.append(
+                        {
+                            "type": "multiple_concerns",
+                            "message": (
+                                f"Test has {assert_count} assertions - too many"
+                            ),
+                            "assertion_count": assert_count,
+                        }
+                    )
+        return results
 
-        # Multiple assertions testing different concerns
-        for match in test_funcs:
-            func_body = match.group(2)
-            assert_count = len(re.findall(r"\bassert\b", func_body))
-            if assert_count > MIN_EDGE_CASES:
-                anti_patterns.append(
-                    {
-                        "type": "multiple_concerns",
-                        "message": f"Test has {assert_count} assertions - too many",
-                        "assertion_count": assert_count,
-                    }
-                )
-
-        # Bare except clauses
+    @staticmethod
+    def _check_bare_excepts(content: str) -> list[dict[str, Any]]:
+        """Detect bare except clauses that swallow all exceptions."""
         if re.search(r"except\s*:", content):
-            anti_patterns.append(
+            return [
                 {
                     "type": "exception_swallowing",
                     "message": "Bare except clause catches all exceptions",
                 }
-            )
-
-        return anti_patterns
+            ]
+        return []
 
     def analyze_test_data_management(
         self, context: Any, file_path: str = ""
@@ -519,7 +554,7 @@ class TestReviewSkill(BaseReviewSkill):
         # Identify performance bottlenecks
         bottlenecks = []
         for test in slow_tests:
-            if test["duration"] > SLOW_TEST_THRESHOLD:
+            if test["duration"] > VERY_SLOW_TEST_THRESHOLD:
                 bottlenecks.append(
                     {
                         "test": test["name"],
@@ -527,7 +562,7 @@ class TestReviewSkill(BaseReviewSkill):
                         "severity": "critical",
                     }
                 )
-            elif test["duration"] > VERY_SLOW_TEST_THRESHOLD:
+            elif test["duration"] > SLOW_TEST_THRESHOLD:
                 bottlenecks.append(
                     {
                         "test": test["name"],

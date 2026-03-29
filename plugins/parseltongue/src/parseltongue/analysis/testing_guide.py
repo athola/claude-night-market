@@ -431,7 +431,7 @@ class TestingGuideSkill:
             if line.strip() and line.strip().startswith("-")
         ]
 
-        for _i, line in enumerate(lines):
+        for line in lines:
             requirement = line.lstrip("- ").strip()
             test_name = (
                 "test_"

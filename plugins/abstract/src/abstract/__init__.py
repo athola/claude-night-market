@@ -10,7 +10,7 @@ from .frontmatter import FrontmatterProcessor, FrontmatterResult
 from .tasks_manager_base import TasksManager, TasksManagerConfig
 from .tokens import TokenAnalyzer, estimate_text_tokens, estimate_tokens
 
-__version__ = "1.7.2"
+__version__ = "1.7.3"
 
 __all__ = [
     "AbstractCLI",

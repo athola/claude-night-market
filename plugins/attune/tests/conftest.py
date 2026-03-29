@@ -14,7 +14,13 @@ import pytest
 # Add the scripts directory to Python path for importing attune scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
+# Make shared fixtures importable from plugins/conftest_shared.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from conftest_shared import register_standard_markers, tag_items_by_keywords
 from validate_project import ValidationResult
+
+__all__ = ["register_standard_markers", "tag_items_by_keywords"]
 
 
 @pytest.fixture
@@ -258,34 +264,15 @@ def sample_missing_configs() -> list:
     ]
 
 
-# Test markers for pytest configuration
+# Pytest hooks delegated to shared implementation
 def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
-    config.addinivalue_line("markers", "unit: Unit tests for individual components")
-    config.addinivalue_line(
-        "markers", "integration: Integration tests for workflow orchestration"
-    )
-    config.addinivalue_line("markers", "performance: Performance and scalability tests")
-    config.addinivalue_line("markers", "slow: Tests that take longer to execute")
-    config.addinivalue_line("markers", "bdd: Behavior-driven development style tests")
+    register_standard_markers(config)
 
 
 def pytest_collection_modifyitems(config, items) -> None:
     """Add custom markers to items based on their content."""
-    for item in items:
-        # Add performance marker
-        if "performance" in item.nodeid or any(
-            keyword in item.nodeid
-            for keyword in ["performance", "scalability", "benchmark"]
-        ):
-            item.add_marker(pytest.mark.performance)
-
-        # Add bdd marker
-        if "bdd" in item.nodeid or any(
-            keyword in item.nodeid
-            for keyword in ["bdd", "behavior", "feature", "scenario"]
-        ):
-            item.add_marker(pytest.mark.bdd)
+    tag_items_by_keywords(items)
 
 
 # Helper functions for test data

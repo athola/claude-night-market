@@ -295,16 +295,27 @@ class TestComplianceCLI:
         assert result.success is True
 
     @pytest.mark.unit
-    def test_execute_returns_failure_on_exception(self, tmp_path):
-        """Given checker raises, execute returns failure CLIResult."""
+    def test_execute_returns_failure_on_expected_exception(self, tmp_path):
+        """Given checker raises OSError, execute returns failure CLIResult."""
         cli = ComplianceCLI()
         mock_checker = MagicMock()
-        mock_checker.check_compliance.side_effect = RuntimeError("boom")
+        mock_checker.check_compliance.side_effect = OSError("boom")
         with patch("abstract.cli.ComplianceChecker", return_value=mock_checker):
             args = argparse.Namespace(directory=tmp_path, rules_file=None, output=None)
             result = cli.execute(args)
         assert result.success is False
         assert "boom" in result.error
+
+    @pytest.mark.unit
+    def test_execute_propagates_unexpected_exception(self, tmp_path):
+        """Given checker raises RuntimeError, execute re-raises."""
+        cli = ComplianceCLI()
+        mock_checker = MagicMock()
+        mock_checker.check_compliance.side_effect = RuntimeError("boom")
+        with patch("abstract.cli.ComplianceChecker", return_value=mock_checker):
+            args = argparse.Namespace(directory=tmp_path, rules_file=None, output=None)
+            with pytest.raises(RuntimeError, match="boom"):
+                cli.execute(args)
 
 
 # ---------------------------------------------------------------------------
@@ -533,13 +544,24 @@ class TestTokenCLI:
         assert result.success is True
 
     @pytest.mark.unit
-    def test_execute_returns_failure_on_exception(self, tmp_path):
-        """Given tracker raises, execute returns failure CLIResult."""
+    def test_execute_returns_failure_on_expected_exception(self, tmp_path):
+        """Given tracker raises ValueError, execute returns failure CLIResult."""
         cli = TokenCLI()
         mock_tracker = MagicMock()
-        mock_tracker.analyze_all_skills.side_effect = RuntimeError("tracker error")
+        mock_tracker.analyze_all_skills.side_effect = ValueError("tracker error")
         with patch("abstract.cli.TokenUsageTracker", return_value=mock_tracker):
             args = argparse.Namespace(path=tmp_path, output=None, threshold=4000)
             result = cli.execute(args)
         assert result.success is False
         assert "tracker error" in result.error
+
+    @pytest.mark.unit
+    def test_execute_propagates_unexpected_exception(self, tmp_path):
+        """Given tracker raises RuntimeError, execute re-raises."""
+        cli = TokenCLI()
+        mock_tracker = MagicMock()
+        mock_tracker.analyze_all_skills.side_effect = RuntimeError("tracker error")
+        with patch("abstract.cli.TokenUsageTracker", return_value=mock_tracker):
+            args = argparse.Namespace(path=tmp_path, output=None, threshold=4000)
+            with pytest.raises(RuntimeError, match="tracker error"):
+                cli.execute(args)

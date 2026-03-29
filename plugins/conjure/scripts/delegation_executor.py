@@ -306,7 +306,18 @@ class Delegator:
                 duration=duration,
                 service=service_name,
             )
+        except FileNotFoundError as e:
+            duration = time.time() - start_time
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=f"Command not found: {e}",
+                exit_code=127,
+                duration=duration,
+                service=service_name,
+            )
         except Exception as e:
+            logger.exception("Unexpected error executing delegation")
             duration = time.time() - start_time
             return ExecutionResult(
                 success=False,
