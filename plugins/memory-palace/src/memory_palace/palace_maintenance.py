@@ -33,7 +33,7 @@ class PalaceMaintenance:
     # Queue ingestion
     # ------------------------------------------------------------------
 
-    def sync_from_queue(
+    def sync_from_queue(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
         self,
         queue_path: str,
         auto_create: bool = False,

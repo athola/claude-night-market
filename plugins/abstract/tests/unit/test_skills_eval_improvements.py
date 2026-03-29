@@ -356,7 +356,7 @@ class TestSuggestModularizationAllPaths:
 
     @pytest.mark.unit
     def test_many_code_blocks_gets_tool_suggestions(self, tmp_path: Path) -> None:
-        """Scenario: Skill with > CODE_BLOCKS_MODULARIZE code blocks gets tool suggestions."""
+        """Scenario: Skill with > CODE_BLOCKS_MODULARIZE gets tool suggestions."""
         _make_skill(
             tmp_path,
             "code-heavy",
@@ -372,7 +372,7 @@ class TestSuggestModularizationAllPaths:
     def test_small_skill_with_few_code_blocks_returns_positive(
         self, tmp_path: Path
     ) -> None:
-        """Scenario: Small skill with <= 3 code blocks returns 'no modularization needed'."""
+        """Scenario: Small skill <= 3 code blocks: 'no modularization needed'."""
         _make_skill(
             tmp_path,
             "tiny-skill",
@@ -423,27 +423,25 @@ class TestGenerateImprovementPlanTimeline:
         )
         suggester = ImprovementSuggester(tmp_path)
         # Patch to return exactly 4 suggestions total for the 1-week branch
-        from unittest.mock import patch as _patch
-
         with (
-            _patch.object(
+            patch.object(
                 suggester,
                 "analyze_skill",
                 return_value={"issues": [], "suggestions": ["s1", "s2"]},
             ),
-            _patch.object(
+            patch.object(
                 suggester,
                 "suggest_modularization",
                 return_value=["m1"],
             ),
-            _patch.object(
+            patch.object(
                 suggester,
                 "suggest_improved_structure",
                 return_value=["r1"],
             ),
         ):
             plan = suggester.generate_improvement_plan("medium-work-skill")
-        # 2 + 1 + 1 = 4 suggestions, which is > SUGGESTIONS_LOW(3) and <= SUGGESTIONS_MEDIUM(6)
+        # 4 suggestions: > SUGGESTIONS_LOW(3), <= SUGGESTIONS_MEDIUM(6)
         assert plan["estimated_timeline"] == "1 week"
 
 
@@ -527,7 +525,7 @@ class TestGenerateImprovementPlanPriority:
 
     @pytest.mark.unit
     def test_two_weeks_timeline_for_many_suggestions(self, tmp_path: Path) -> None:
-        """Scenario: More than SUGGESTIONS_MEDIUM suggestions gives '2 weeks' timeline."""
+        """Scenario: > SUGGESTIONS_MEDIUM suggestions gives '2 weeks'."""
         # Create a skill that generates many suggestions
         _make_skill(
             tmp_path,

@@ -49,7 +49,7 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
         return False
 
 
-def copy_templates(
+def copy_templates(  # noqa: PLR0913 - template copying needs language, path, variables, root, and behavioral flags
     language: str,
     project_path: Path,
     variables: dict,

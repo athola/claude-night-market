@@ -11,6 +11,8 @@ So that I can take immediate action before working with a compromised environmen
 from __future__ import annotations
 
 import importlib.util
+import inspect
+import json
 import sys
 from pathlib import Path
 
@@ -354,8 +356,6 @@ class TestMainIntegration:
         When main() runs
         Then JSON output with additionalContext is printed.
         """
-        import json
-
         # Set up blocklist
         skill_dir = tmp_path / "skills" / "supply-chain-advisory"
         skill_dir.mkdir(parents=True)
@@ -387,8 +387,6 @@ class TestMainIntegration:
         When main() runs
         Then no output is produced.
         """
-        import json
-
         skill_dir = tmp_path / "skills" / "supply-chain-advisory"
         skill_dir.mkdir(parents=True)
         (skill_dir / "known-bad-versions.json").write_text(json.dumps(SAMPLE_BLOCKLIST))
@@ -410,8 +408,6 @@ class TestMainIntegration:
         When inspected
         Then it wraps main() in try/except and exits 0.
         """
-        import inspect
-
         source = inspect.getsource(_mod)
         assert "except Exception" in source
         assert "sys.exit(0)" in source

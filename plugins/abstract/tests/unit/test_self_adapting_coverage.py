@@ -283,7 +283,7 @@ class TestHomeostaticMonitorSkipPath:
         # The hook calls sys.exit(0) on skip, so we catch SystemExit
         sys.path.insert(0, str(hook_path))
         try:
-            import homeostatic_monitor  # noqa: PLC0415
+            import homeostatic_monitor  # noqa: PLC0415 - dynamic import after sys.path.insert
 
             importlib.reload(homeostatic_monitor)
 

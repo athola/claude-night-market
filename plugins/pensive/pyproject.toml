@@ -167,42 +167,21 @@ unfixable = [
     "D103",    # Missing function docstrings in tests
     "S108",    # Allow hardcoded temp paths in tests
     "D205",    # Multiline docstring summary (Given/When/Then patterns)
-    "PLR0913", # Too many arguments in test helpers
 ]
 "__init__.py" = [
     "F401",   # Unused import
 ]
 "src/pensive/skills/makefile_review.py" = [
     "SIM102",  # Complex nested checks in analysis logic
-    "PLR0912", # Complex analysis functions have many branches
 ]
 "src/pensive/skills/architecture_review.py" = [
     "SIM102",  # Complex nested checks in analysis logic
-    "PLR0912", # Complex analysis functions have many branches
-    "PLC0415", # Deferred imports for lazy loading
-]
-"src/pensive/skills/rust_review.py" = [
-    "PLR0912", # Complex analysis functions have many branches
 ]
 "src/pensive/skills/tiered_audit.py" = [
     "PLR2004", # Magic value in path splitting logic
 ]
-"src/pensive/skills/test_review.py" = [
-    "PLR0912", # Complex analysis functions have many branches
-]
 "src/pensive/reporting/formatters.py" = [
-    "PLC0415", # Deferred import for json module
     "ARG002", # repo_path kept for API consistency
-]
-"src/pensive/skills/unified_review.py" = [
-    "PLR0912", # Complex language detection function has many branches
-    "PLC0415", # Deferred imports for async coordination
-]
-"src/pensive/workflows/code_review.py" = [
-    "PLC0415", # Deferred import for dynamic skill loading
-]
-"src/pensive/plugin/base.py" = [
-    "PLC0415", # Deferred imports for plugin base
 ]
 "src/pensive/analysis/repository_analyzer.py" = [
     "SIM102", # Complex conditional logic in analysis

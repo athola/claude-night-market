@@ -279,7 +279,7 @@ def validate_content_quality(content: str) -> dict[str, Any]:
     return {"score": max(0, score), "warnings": warnings, "token_count": token_count}
 
 
-def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:
+def evaluate_rules_directory(rules_dir: Path) -> dict[str, Any]:  # noqa: PLR0915 - evaluation collects many metrics in a single pass
     """Run a comprehensive evaluation of a rules directory.
 
     Args:

@@ -167,15 +167,10 @@ extend-ignore = [
     "F841",  # unused-variable (often placeholders in tests)
     "ARG001",  # unused-function-argument
     "ARG002",  # unused-method-argument
-    "PLC0415",  # Tests use dynamic/conditional imports
 ]
 "**/__init__.py" = ["F401"]  # Unused imports in __init__.py
-"**/hooks/*.py" = ["PLC0415", "BLE001"]  # Hooks use deferred imports, broad exceptions
-"**/hooks/shared/*.py" = ["PLC0415"]  # Hook shared modules use deferred imports
-"scripts/*.py" = ["E402", "PLC0415"]  # Root scripts with sys.path manipulation
-"**/scripts/*.py" = ["PLC0415"]  # Plugin scripts use conditional/lazy imports
-"plugins/leyline/src/leyline/quota_tracker.py" = ["PLC0415"]  # CLI entry point with lazy import
-"plugins/memory-palace/src/memory_palace/project_palace.py" = ["PLC0415"]  # Lazy import for optional dependency
+"**/hooks/*.py" = ["BLE001"]  # Hooks use broad exceptions for resilience
+"scripts/*.py" = ["E402"]  # Root scripts with sys.path manipulation
 
 [tool.mypy]
 python_version = "3.12"

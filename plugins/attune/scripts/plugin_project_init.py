@@ -111,7 +111,7 @@ MIT
     print(f"✓ Created: {readme}")
 
 
-def initialize_plugin_project(
+def initialize_plugin_project(  # noqa: PLR0915 - plugin scaffolding creates many directories and files in sequence
     project_path: Path,
     plugin_name: str,
     author: str = "Your Name",

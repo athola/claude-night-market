@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import stat
+import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
@@ -175,8 +176,6 @@ class TestMeasureToolPerformance:
         self, analyzer: ToolPerformanceAnalyzer
     ) -> None:
         """Scenario: Tool that times out returns timeout metrics."""
-        import subprocess
-
         with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("cmd", 5)):
             result = analyzer.measure_tool_performance("my-tool")
         assert result["timeout"] is True
@@ -474,7 +473,7 @@ class TestCompareBenchmarks:
     def test_compare_returns_all_keys(
         self, empty_analyzer: ToolPerformanceAnalyzer, baseline: dict
     ) -> None:
-        """Scenario: compare_benchmarks result has changes, improvements, regressions."""
+        """Scenario: compare_benchmarks has changes, improvements, regressions."""
         result = empty_analyzer.compare_benchmarks(baseline, baseline)
         assert "changes" in result
         assert "improvements" in result

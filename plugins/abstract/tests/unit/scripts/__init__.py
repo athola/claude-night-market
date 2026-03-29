@@ -1,1 +1,1 @@
-# Unit tests for abstract plugin scripts
+"""Unit tests for abstract plugin scripts."""

@@ -88,15 +88,10 @@ extend-ignore = [
     "S310",     # Allow URL open (validated with _validate_https_url)
     "S603",     # Allow subprocess calls (inputs are validated)
     "S607",     # Allow partial executable path (git/gh are well-known)
-    "E402",     # Import not at top (sys.path manipulation)
     "E501",     # Allow long lines in template strings
     "D107",     # Allow missing __init__ docstrings
     "D401",     # Allow non-imperative mood
-    "PLC0415",  # Allow conditional imports (avoid circular deps)
     "PLR0911",  # Allow many returns (decision trees)
-    "PLR0912",  # Allow many branches (decision trees)
-    "PLR0913",  # Allow many arguments (initialization functions)
-    "PLR0915",  # Allow many statements (initialization functions)
     "PLR2004",  # Allow magic values
 ]
 

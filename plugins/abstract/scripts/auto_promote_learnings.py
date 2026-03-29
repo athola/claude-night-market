@@ -185,7 +185,7 @@ def _parse_summary_table(content: str) -> dict[str, dict[str, Any]]:
     return metrics
 
 
-def parse_improvement_items(content: str) -> list[dict[str, Any]]:
+def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0912 - markdown parsing requires many conditional branches
     """Parse LEARNINGS.md into a list of promotable improvement items.
 
     Args:

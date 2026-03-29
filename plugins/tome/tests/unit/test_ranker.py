@@ -16,7 +16,7 @@ from tome.synthesis.ranker import compute_relevance_score, group_by_theme, rank_
 
 from tests.factories import make_finding
 
-_THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
+_THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 
 
 class TestComputeRelevanceScore:

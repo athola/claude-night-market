@@ -5,6 +5,7 @@ Optimized for speed with singleton caching and lazy loading.
 
 from __future__ import annotations
 
+import logging as _logging
 import os
 from pathlib import Path
 from typing import Any
@@ -120,7 +121,7 @@ def get_config() -> dict[str, Any]:
     Reloads only if file modification time changed.
     Falls back to defaults if file doesn't exist.
     """
-    global _config_cache, _config_mtime
+    global _config_cache, _config_mtime  # noqa: PLW0603 - module-level cache requires global for mtime-based invalidation
 
     config_path = _get_config_path()
 
@@ -172,8 +173,6 @@ def get_config() -> dict[str, Any]:
         return _config_cache
     except Exception as e:
         # Log config load failures so users know defaults are being used
-        import logging as _logging
-
         _logging.getLogger(__name__).warning(
             "memory-palace config: failed to load %s, using defaults: %s",
             config_path,

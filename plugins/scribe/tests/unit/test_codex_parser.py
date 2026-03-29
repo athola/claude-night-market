@@ -391,6 +391,33 @@ class TestFormatAutoDetection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_detect_format_skips_corrupt_first_line(self, tmp_path: Path) -> None:
+        """Scenario: format detection skips corrupt first line.
+
+        Given a JSONL file whose first line is invalid JSON
+        When detecting format
+        Then detection falls through to the next valid line
+        """
+        path = tmp_path / "corrupt_header.jsonl"
+        valid_record = json.dumps({"type": "message", "role": "user", "content": "hi"})
+        path.write_text(f"not json\n{valid_record}\n")
+        assert detect_format(path) == "codex"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detect_format_missing_file_defaults_to_claude(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: missing file defaults to claude format.
+
+        Given a path to a nonexistent file
+        When detecting format
+        Then the default 'claude' format is returned
+        """
+        assert detect_format(tmp_path / "nonexistent.jsonl") == "claude"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_codex_turn_range_filter(self, tmp_path: Path) -> None:
         """Scenario: turn range filtering works with Codex format."""
         records = [

@@ -1,6 +1,7 @@
 """Substitute variables in template files."""
 
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -54,7 +55,7 @@ class TemplateEngine:
         output_path.write_text(rendered)
 
 
-def get_default_variables(
+def get_default_variables(  # noqa: PLR0913 - template variables need all defaults
     project_name: str,
     language: str = "python",
     author: str = "Your Name",
@@ -91,8 +92,6 @@ def get_default_variables(
     python_short = python_version.replace(".", "")
 
     # Current year
-    from datetime import datetime
-
     current_year = datetime.now().year
 
     # Base variables (common to all languages)

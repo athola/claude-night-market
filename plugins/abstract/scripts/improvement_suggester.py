@@ -11,7 +11,7 @@ from cli_scaffold import create_parser, format_result, setup_src_path, write_out
 
 setup_src_path()
 
-from abstract.skills_eval import (
+from abstract.skills_eval import (  # noqa: E402 - import after setup_src_path() call
     ImprovementSuggester as CoreImprovementSuggester,
 )
 

@@ -11,6 +11,7 @@ for single-developer use. Verifies:
 
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -21,6 +22,7 @@ import pytest
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+import auto_promote_learnings
 
 # ---------------------------------------------------------------------------
 # Sample data
@@ -94,10 +96,7 @@ Skills with < 3.5/5.0 average rating from evaluations.
 @pytest.fixture()
 def promote_module(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Import auto_promote_learnings with paths redirected."""
-    if "auto_promote_learnings" in sys.modules:
-        del sys.modules["auto_promote_learnings"]
-
-    import auto_promote_learnings
+    importlib.reload(auto_promote_learnings)
 
     monkeypatch.setattr(
         auto_promote_learnings,

@@ -90,27 +90,17 @@ extend-ignore = [
     "D212",  # Multi-line docstring summary on first line (BDD style)
     "E501",  # Long test lines are acceptable
     "PLR2004",  # Magic values in tests
-    "PLR0915",  # Complex test flows
     "S108",  # Allow hardcoded temp paths in tests
     "S603",  # Subprocess usage in test fixtures
     "S607",  # Partial executable path in test fixtures
     "S608",  # SQL strings in test data
     "B007",  # Unused loop variables in tests
-    "PLW1510",  # subprocess.run without check (intentional in tests)
 ]
 "scripts/**/*.py" = [
     "S603",  # Subprocess calls (inputs are validated)
     "S607",  # Partial executable path (git/gh are well-known)
     "UP017", # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
-    "E402",  # Import not at top (sys.path manipulation)
-    "PLC0415",  # Import not at top level (conditional imports)
 ]
-"hooks/**/*.py" = [
-    "E402",  # Import not at top (sys.path manipulation)
-    "PLC0415",  # Import not at top level (conditional imports)
-]
-"scripts/imbue_validator.py" = ["PLR0912", "PLR0915"]
-"tests/conftest.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -25,7 +25,7 @@ def mock_repo() -> MagicMock:
     repo = MagicMock()
     repo.list_palaces.return_value = []
     repo.load_palace.return_value = None
-    repo.palaces_dir = "/tmp/palaces"  # noqa: S108
+    repo.palaces_dir = "/tmp/palaces"  # noqa: S108 - test fixture uses mock path
     return repo
 
 

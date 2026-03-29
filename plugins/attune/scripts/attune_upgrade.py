@@ -2,6 +2,7 @@
 """Upgrade existing project with missing configurations."""
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -109,7 +110,7 @@ class ProjectUpgrader:
 
         return outdated
 
-    def show_status(self, verbose: bool = False) -> None:
+    def show_status(self, verbose: bool = False) -> None:  # noqa: PLR0912 - status display checks many config components
         """Show upgrade status for the project.
 
         Args:
@@ -277,8 +278,6 @@ class ProjectUpgrader:
         if self.language == "python":
             pyproject = self.project_path / "pyproject.toml"
             if pyproject.exists():
-                import re
-
                 content = pyproject.read_text()
 
                 # Extract name

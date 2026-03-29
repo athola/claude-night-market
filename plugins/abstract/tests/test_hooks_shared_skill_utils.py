@@ -7,8 +7,7 @@ from hooks.shared.skill_utils import parse_skill_name
 
 
 class TestParseSkillName:
-    """
-    Feature: Skill name parsing with sanitization
+    """Feature: Skill name parsing with sanitization
 
     As a hook developer
     I want a single parse_skill_name utility
@@ -17,8 +16,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_parses_plugin_colon_skill_format(self):
-        """
-        Scenario: Standard plugin:skill reference
+        """Scenario: Standard plugin:skill reference
         Given a tool input with skill "abstract:auditor"
         When parse_skill_name is called
         Then it returns ("abstract", "auditor")
@@ -29,8 +27,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_parses_skill_only_format(self):
-        """
-        Scenario: Skill name without plugin prefix
+        """Scenario: Skill name without plugin prefix
         Given a tool input with skill "auditor"
         When parse_skill_name is called
         Then it returns ("unknown", "auditor")
@@ -41,8 +38,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_returns_unknown_for_missing_skill_key(self):
-        """
-        Scenario: Tool input missing skill key
+        """Scenario: Tool input missing skill key
         Given an empty tool input dict
         When parse_skill_name is called
         Then it returns ("unknown", "unknown")
@@ -53,8 +49,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_sanitizes_path_traversal_in_plugin(self):
-        """
-        Scenario: Path traversal attempt in plugin name
+        """Scenario: Path traversal attempt in plugin name
         Given a tool input with skill "../etc:passwd"
         When parse_skill_name is called
         Then the plugin is sanitized to "unknown"
@@ -65,8 +60,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_sanitizes_path_traversal_in_skill(self):
-        """
-        Scenario: Path traversal attempt in skill name
+        """Scenario: Path traversal attempt in skill name
         Given a tool input with skill "plugin:../../etc/passwd"
         When parse_skill_name is called
         Then the skill is sanitized to "unknown"
@@ -77,8 +71,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_strips_whitespace_from_components(self):
-        """
-        Scenario: Whitespace around plugin and skill names
+        """Scenario: Whitespace around plugin and skill names
         Given a tool input with skill " abstract : auditor "
         When parse_skill_name is called
         Then both components are stripped
@@ -89,8 +82,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_allows_hyphens_and_underscores(self):
-        """
-        Scenario: Skill names with hyphens and underscores
+        """Scenario: Skill names with hyphens and underscores
         Given a tool input with skill "my-plugin:skill_name"
         When parse_skill_name is called
         Then both components are accepted as-is
@@ -101,8 +93,7 @@ class TestParseSkillName:
 
     @pytest.mark.unit
     def test_rejects_empty_string_plugin(self):
-        """
-        Scenario: Empty plugin component
+        """Scenario: Empty plugin component
         Given a tool input with skill ":auditor"
         When parse_skill_name is called
         Then the plugin is sanitized to "unknown"

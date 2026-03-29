@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from leyline.frontmatter import parse_frontmatter
+import leyline.frontmatter as fm
+from leyline.frontmatter import _fallback_parse, parse_frontmatter
 
 
 class TestParseFrontmatter:
@@ -120,8 +121,6 @@ class TestFallbackParse:
         When _fallback_parse is called,
         Then it returns a dict of stripped key-value pairs.
         """
-        from leyline.frontmatter import _fallback_parse
-
         raw = "title: Hello\nauthor: Bob"
         result = _fallback_parse(raw)
         assert result == {"title": "Hello", "author": "Bob"}
@@ -132,8 +131,6 @@ class TestFallbackParse:
         When _fallback_parse is called,
         Then those lines are ignored.
         """
-        from leyline.frontmatter import _fallback_parse
-
         raw = "# comment\n  \nkey: val\n# another\nother: data"
         result = _fallback_parse(raw)
         assert result == {"key": "val", "other": "data"}
@@ -144,8 +141,6 @@ class TestFallbackParse:
         When _fallback_parse is called,
         Then those lines are skipped.
         """
-        from leyline.frontmatter import _fallback_parse
-
         raw = "key: val\nno colon here\nanother: one"
         result = _fallback_parse(raw)
         assert result == {"key": "val", "another": "one"}
@@ -156,8 +151,6 @@ class TestFallbackParse:
         When _fallback_parse is called,
         Then it returns an empty dict.
         """
-        from leyline.frontmatter import _fallback_parse
-
         assert _fallback_parse("") == {}
 
 
@@ -170,8 +163,6 @@ class TestParseWithoutYaml:
         When parse_frontmatter is called with valid frontmatter,
         Then it falls back to simple key-value parsing.
         """
-        import leyline.frontmatter as fm
-
         monkeypatch.setattr(fm, "_yaml", None)
         content = "---\ntitle: Hello\nauthor: World\n---\nBody"
         result = fm.parse_frontmatter(content)
@@ -183,8 +174,6 @@ class TestParseWithoutYaml:
         When parse_frontmatter is called,
         Then it returns an empty dict.
         """
-        import leyline.frontmatter as fm
-
         monkeypatch.setattr(fm, "_yaml", None)
         result = fm.parse_frontmatter("---\n---\nBody")
         assert result == {}

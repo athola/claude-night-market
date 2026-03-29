@@ -40,22 +40,17 @@ extend-ignore = [
     "D203",   # One blank line before class docstring
     "D213",   # Multi-line docstring summary should start at second line
     "D107",   # Missing docstring in __init__ (class docstring sufficient)
-    "PLR0913",  # Too many arguments
     "S603",   # subprocess untrusted input (acceptable for CLI tools)
     "S607",   # subprocess partial path (acceptable for CLI tools)
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "PLC0415", "D102", "D103", "D205", "D400", "D415", "I001"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "D205", "D400", "D415", "I001"]
 "tests/test_auto_star_repo.py" = ["D101", "D212", "E501"]
 "tests/test_manifest_consistency.py" = ["D101", "D212", "E501"]
-"hooks/**/*.py" = ["E402", "BLE001", "PLC0415", "PLR0912", "S110"]
-"scripts/**/*.py" = ["E402", "PLC0415", "UP045"]
-"src/leyline/quota_tracker.py" = ["PLC0415"]
-"tests/hooks/test_sanitize_external_content.py" = ["E402"]
-"tests/unit/src/test_fs.py" = ["E402"]
-"tests/unit/src/test_session_store.py" = ["E402"]
+"hooks/**/*.py" = ["BLE001", "S110"]
+"scripts/**/*.py" = ["UP045"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

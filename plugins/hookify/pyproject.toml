@@ -47,7 +47,7 @@ addopts = "-v --tb=short --cov=core --cov-report=term-missing --cov-fail-under=9
 
 [tool.coverage.run]
 source = ["core"]
-omit = ["scripts/*", "tests/*", "*/__pycache__/*"]
+omit = ["tests/*", "*/__pycache__/*"]
 
 [tool.coverage.report]
 exclude_lines = [

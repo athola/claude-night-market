@@ -1,11 +1,10 @@
 """Session parser for Claude Code and Codex JSONL files.
 
-Reads session JSONL from ~/.claude/projects/ (Claude Code)
-or ~/.codex/sessions/ (Codex), extracts turns, filters by
+Parses session JSONL files, extracts turns, filters by
 type, layer, and range, and collapses tool calls into
-readable summaries.
-
-Supports auto-detection of session format from file content.
+readable summaries.  Discovers Claude Code sessions from
+~/.claude/projects/ and supports Codex format via explicit
+path or auto-detection.
 """
 
 from __future__ import annotations
@@ -272,7 +271,7 @@ def _parse_turn_range(turns_str: str) -> tuple[int, int]:
 def _read_lines(path: Path) -> list[str]:
     """Read a JSONL file and return stripped non-empty lines."""
     lines: list[str] = []
-    with open(path, encoding="utf-8") as f:
+    with open(path, encoding="utf-8", errors="replace") as f:
         for line in f:
             stripped = line.strip()
             if stripped:
@@ -292,7 +291,7 @@ def _detect_format_from_lines(lines: list[str]) -> str:
             if "role" in record:
                 return "codex"
             return "claude"
-        except (json.JSONDecodeError, ValueError):
+        except json.JSONDecodeError:
             continue
     return "claude"
 
@@ -343,8 +342,15 @@ def parse_session(
 
     Returns:
         List of Turn objects in session order.
+
+    Raises:
+        OSError: If the session file cannot be read.
     """
-    lines = _read_lines(path)
+    try:
+        lines = _read_lines(path)
+    except OSError:
+        logger.warning("Cannot read session file %s", path)
+        raise
 
     if format is None:
         format = _detect_format_from_lines(lines)

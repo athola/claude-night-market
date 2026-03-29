@@ -29,6 +29,13 @@ except ImportError:
     _HAS_QUEUE = False
 
 try:
+    from abstract.improvement_memory import ImprovementMemory
+
+    _HAS_MEMORY = True
+except ImportError:
+    _HAS_MEMORY = False
+
+try:
     from abstract.performance_tracker import PerformanceTracker
 
     _HAS_TRACKER = True
@@ -65,7 +72,7 @@ def _build_output(
     return {"hookSpecificOutput": payload}
 
 
-def _needs_metacognition(claude_home: Path) -> bool:
+def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-criteria check with early returns for clarity
     """Check if metacognitive analysis is warranted.
 
     Triggers when:
@@ -79,7 +86,8 @@ def _needs_metacognition(claude_home: Path) -> bool:
     low_effectiveness = 0.5
     periodic_interval = 10
     try:
-        from abstract.improvement_memory import ImprovementMemory
+        if not _HAS_MEMORY:
+            return False
 
         mem_file = claude_home / "skills" / "improvement_memory.json"
         if not mem_file.exists():

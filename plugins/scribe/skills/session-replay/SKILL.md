@@ -6,7 +6,7 @@ description: Convert a Claude Code session JSONL file into an animated GIF
   for GIF rendering. Use when creating demos, tutorials, or PR evidence.
   Do not use for blog posts (use session-to-post) or documentation (use
   doc-generator).
-version: 1.7.2
+version: 1.7.3
 globs: "**/*.jsonl"
 alwaysApply: false
 category: artifact-generation

@@ -271,12 +271,12 @@ class TestAssistantMessageParsing:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_thinking_block_skipped(self, tmp_path: Path) -> None:
-        """Scenario: thinking blocks are skipped.
+    def test_empty_thinking_block_produces_no_turn(self, tmp_path: Path) -> None:
+        """Scenario: empty thinking block produces no turn.
 
-        Given an assistant record with a thinking block
-        When parsing the session
-        Then no turns are emitted for the thinking block
+        Given an assistant record with an empty thinking block
+        When parsing the session with default layers
+        Then no ThinkingTurn is emitted (empty text is skipped)
         """
         records = [
             _assistant_record(

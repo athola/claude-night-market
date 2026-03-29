@@ -4,12 +4,18 @@
 Scans staged Python files for ``# noqa``, ``# type: ignore``,
 ``# pylint: disable``, and other inline suppression comments.
 
+Suppressions with an explanation after `` - `` are allowed::
+
+    # noqa: PLR0912 - parsing logic requires many branches  (OK)
+    # noqa: E402  (BLOCKED - no explanation)
+    # noqa  (BLOCKED - bare noqa)
+
 Uses the same detection logic as the leyline PreToolUse hook
 (``plugins/leyline/hooks/noqa_guard.py``).
 
 Exit codes:
-    0 - no suppressions found
-    1 - suppressions detected (commit blocked)
+    0 - no suppressions found (or all justified)
+    1 - unjustified suppressions detected (commit blocked)
 """
 
 from __future__ import annotations
@@ -29,6 +35,23 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"//\s*nolint"), "//nolint"),
 ]
 
+# Matches: # noqa: CODE1, CODE2 - some explanation
+_JUSTIFIED_NOQA = re.compile(
+    r"#\s*noqa:\s*[A-Z][A-Z0-9]+(?:,\s*[A-Z][A-Z0-9]+)*\s+-\s+\S"
+)
+
+# Matches: # type: ignore[code] - some explanation
+_JUSTIFIED_TYPE_IGNORE = re.compile(r"#\s*type:\s*ignore\[[^\]]+\]\s+-\s+\S")
+
+
+def _is_justified(line: str, label: str) -> bool:
+    """Return True if the suppression includes a justification."""
+    if label == "# noqa":
+        return bool(_JUSTIFIED_NOQA.search(line))
+    if label == "# type: ignore":
+        return bool(_JUSTIFIED_TYPE_IGNORE.search(line))
+    return False
+
 
 def check_file(path: Path) -> list[str]:
     """Return suppression descriptions found in a file."""
@@ -40,6 +63,8 @@ def check_file(path: Path) -> list[str]:
     for i, line in enumerate(text.splitlines(), 1):
         for pattern, label in _PATTERNS:
             if pattern.search(line):
+                if _is_justified(line, label):
+                    break
                 stripped = line.strip()
                 hits.append(f"  {path}:{i} ({label}): {stripped[:80]}")
                 break
@@ -58,10 +83,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if all_hits:
         print(
-            "BLOCKED: inline lint suppression comments are not allowed.\n"
-            "Fix the issue directly, or add the rule to the project\n"
-            "config file (pyproject.toml per-file-ignores, .eslintrc,\n"
-            "Cargo.toml, etc.).\n"
+            "BLOCKED: unjustified inline lint suppressions found.\n"
+            "Either fix the issue directly, or add an explanation:\n"
+            "  # noqa: PLR0912 - parsing requires many branches\n"
         )
         print("Detected suppressions:")
         for hit in all_hits:

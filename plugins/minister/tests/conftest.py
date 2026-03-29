@@ -20,7 +20,7 @@ import pytest
 from minister.project_tracker import ProjectTracker, Task
 
 # Seed RNG for deterministic test data generation
-_test_rng = random.Random(42)  # noqa: S311
+_test_rng = random.Random(42)  # noqa: S311 - deterministic seed for test data
 
 if TYPE_CHECKING:
     from collections.abc import Generator

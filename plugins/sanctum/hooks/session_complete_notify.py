@@ -72,8 +72,6 @@ class NotificationState:
             with os.fdopen(fd, "w") as f:
                 f.write(json.dumps(asdict(self)))
         except OSError as exc:
-            import sys
-
             print(f"session_complete_notify: save failed: {exc}", file=sys.stderr)
 
     def clear_input_flag(self) -> None:

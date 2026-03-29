@@ -52,6 +52,7 @@ class TestFetchRecentDiscussionsGuards:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0, f"Hook failed: {result.stderr}"
         output = json.loads(result.stdout)
@@ -65,11 +66,14 @@ class TestFetchRecentDiscussionsGuards:
         When the hook runs
         Then it outputs empty context (Discussions are GitHub-only).
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://gitlab.com/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -78,6 +82,7 @@ class TestFetchRecentDiscussionsGuards:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
@@ -90,11 +95,14 @@ class TestFetchRecentDiscussionsGuards:
         When the hook runs
         Then it outputs empty context (Discussions are GitHub-only).
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://bitbucket.org/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -103,6 +111,7 @@ class TestFetchRecentDiscussionsGuards:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
@@ -131,6 +140,7 @@ class TestFetchRecentDiscussionsGuards:
             cwd=str(tmp_path),
             timeout=5,
             env=env,
+            check=False,
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
@@ -143,7 +153,9 @@ class TestFetchRecentDiscussionsGuards:
         When the hook runs
         Then it outputs empty context.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
 
         result = subprocess.run(
             ["bash", str(HOOK_SCRIPT)],
@@ -151,6 +163,7 @@ class TestFetchRecentDiscussionsGuards:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
@@ -173,6 +186,7 @@ class TestFetchRecentDiscussionsOutput:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         assert "hookSpecificOutput" in output
@@ -191,11 +205,14 @@ class TestFetchRecentDiscussionsOutput:
         Note: It may still return empty context if gh auth fails, but the
         remote URL parsing itself should succeed (not hit the 'not GitHub' guard).
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "git@github.com:owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -204,6 +221,7 @@ class TestFetchRecentDiscussionsOutput:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)

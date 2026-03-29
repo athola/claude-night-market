@@ -17,11 +17,19 @@ logger = logging.getLogger(__name__)
 # Set up imports before using abstract package
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from abstract.cli_framework import AbstractCLI, CLIResult, cli_main
-from abstract.config import AbstractConfig
-from abstract.frontmatter import FrontmatterProcessor
-from abstract.tokens import estimate_text_tokens
-from abstract.utils import (
+from abstract.cli_framework import (  # noqa: E402 - import after sys.path setup
+    AbstractCLI,
+    CLIResult,
+    cli_main,
+)
+from abstract.config import AbstractConfig  # noqa: E402 - import after sys.path setup
+from abstract.frontmatter import (  # noqa: E402 - import after sys.path setup
+    FrontmatterProcessor,
+)
+from abstract.tokens import (  # noqa: E402 - import after sys.path setup
+    estimate_text_tokens,
+)
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
     find_project_root,
     find_skill_files,
     load_config_with_defaults,

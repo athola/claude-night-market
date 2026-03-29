@@ -72,7 +72,7 @@ def get_url_key(url: str) -> str:
 
 def _load_index() -> dict[str, Any]:
     """Load index from disk with caching."""
-    global _index_cache, _index_mtime
+    global _index_cache, _index_mtime  # noqa: PLW0603 - module-level cache requires global for mtime-based invalidation
 
     index_path = _get_index_path()
 
@@ -155,7 +155,7 @@ def needs_update(
     return entry.get("content_hash") != content_hash
 
 
-def update_index(
+def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     content_hash: str,
     stored_at: str,
     importance_score: int,
@@ -180,7 +180,7 @@ def update_index(
     Note: This does write to disk - use sparingly.
 
     """
-    global _index_cache
+    global _index_cache  # noqa: PLW0603 - invalidate module-level cache after disk write
 
     index = _load_index()
     now = datetime.now(timezone.utc).isoformat()

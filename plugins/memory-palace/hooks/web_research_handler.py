@@ -21,6 +21,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from shared.config import get_config
 from shared.deduplication import (
@@ -58,8 +59,6 @@ def extract_title_from_content(content: str, url: str) -> str:
             return line[:100]
 
     # Fall back to URL-based title
-    from urllib.parse import urlparse
-
     parsed = urlparse(url)
     path_parts = [p for p in parsed.path.split("/") if p]
     if path_parts:
@@ -353,7 +352,7 @@ def _build_storage_reminder(tool_name: str) -> str:
     )
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive request routing
     """Run the web research handler hook entry point."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)

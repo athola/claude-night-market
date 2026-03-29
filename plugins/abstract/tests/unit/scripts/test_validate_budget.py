@@ -413,6 +413,7 @@ class TestPathArgument:
             ],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Should complete successfully (exit 0)
@@ -446,6 +447,7 @@ class TestPathArgument:
             capture_output=True,
             text=True,
             cwd=str(empty_cwd),  # Run from empty directory
+            check=False,
         )
 
         # Should still find skills from the --path location
@@ -471,6 +473,7 @@ class TestPathArgument:
             ],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         # Help should mention --path option with default

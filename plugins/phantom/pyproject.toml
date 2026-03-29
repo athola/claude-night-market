@@ -50,7 +50,6 @@ addopts = "-v --tb=short --cov=phantom --cov-report=term-missing --cov-fail-unde
 [tool.coverage.run]
 source = ["src/phantom"]
 omit = [
-    "scripts/*",
     "tests/*",
     "*/__pycache__/*",
     "src/phantom/__main__.py",

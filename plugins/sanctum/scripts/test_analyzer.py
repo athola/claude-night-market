@@ -18,9 +18,9 @@ import json
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Any
 
 _MIN_SPLIT_PARTS = 2
-from typing import Any
 
 
 class TestAnalyzer:

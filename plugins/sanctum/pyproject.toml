@@ -38,10 +38,10 @@ extend-ignore = ["E203", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "D", "PLR2004", "S108", "PLC0415", "S603", "S607", "E402"]
+"tests/**/*.py" = ["S101", "D", "PLR2004", "S108", "S603", "S607"]
 "tests/test_do_issue_module_docs.py" = ["S101", "D", "E501"]
-"hooks/**/*.py" = ["E402", "S603", "S607", "BLE001", "PLC0415", "PLW1510", "UP017"]
-"scripts/**/*.py" = ["E402", "S603", "S607", "PLC0415", "PLR0912", "PLR0913", "S112"]
+"hooks/**/*.py" = ["S603", "S607", "BLE001", "UP017"]
+"scripts/**/*.py" = ["S603", "S607", "S112"]
 
 [tool.pyright]
 pythonVersion = "3.9"

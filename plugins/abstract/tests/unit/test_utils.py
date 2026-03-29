@@ -15,6 +15,7 @@ from abstract.utils import (
     check_meta_skill_indicators,
     count_sections,
     extract_dependencies,
+    extract_frontmatter,
     find_dependency_file,
     find_project_root,
     find_skill_files,
@@ -24,7 +25,10 @@ from abstract.utils import (
     get_skill_name,
     load_config_with_defaults,
     load_skill_file,
+    parse_frontmatter_fields,
+    parse_yaml_frontmatter,
     safe_json_load,
+    validate_skill_frontmatter,
 )
 
 # ---------------------------------------------------------------------------
@@ -175,8 +179,6 @@ class TestExtractFrontmatter:
     @pytest.mark.unit
     def test_emits_deprecation_warning(self):
         """Calling extract_frontmatter emits DeprecationWarning."""
-        from abstract.utils import extract_frontmatter
-
         content = "---\nname: test\n---\n\n## Body\n"
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -186,8 +188,6 @@ class TestExtractFrontmatter:
     @pytest.mark.unit
     def test_returns_frontmatter_and_body(self):
         """Returns (frontmatter, body) tuple."""
-        from abstract.utils import extract_frontmatter
-
         content = "---\nname: test\n---\n\n## Body\n"
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
@@ -208,8 +208,6 @@ class TestParseFrontmatterFields:
     @pytest.mark.unit
     def test_emits_deprecation_warning(self):
         """Calling parse_frontmatter_fields emits DeprecationWarning."""
-        from abstract.utils import parse_frontmatter_fields
-
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             parse_frontmatter_fields("---\nname: test\n---")
@@ -218,8 +216,6 @@ class TestParseFrontmatterFields:
     @pytest.mark.unit
     def test_parses_simple_fields(self):
         """Parses key: value pairs from frontmatter."""
-        from abstract.utils import parse_frontmatter_fields
-
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             fields = parse_frontmatter_fields(
@@ -241,8 +237,6 @@ class TestValidateSkillFrontmatter:
     @pytest.mark.unit
     def test_valid_frontmatter_no_issues(self):
         """Content with all required fields returns no issues."""
-        from abstract.utils import validate_skill_frontmatter
-
         content = "---\nname: test\ndescription: A test skill\n---\n\n## Body\n"
         config = SkillValidationConfig()
 
@@ -256,8 +250,6 @@ class TestValidateSkillFrontmatter:
     @pytest.mark.unit
     def test_missing_required_field_is_error(self):
         """Content missing a required field returns ERROR issue."""
-        from abstract.utils import validate_skill_frontmatter
-
         content = "---\nname: test\n---\n\n## Body\n"
         config = SkillValidationConfig()
         # description is required but absent
@@ -272,8 +264,6 @@ class TestValidateSkillFrontmatter:
     @pytest.mark.unit
     def test_missing_frontmatter_returns_error(self):
         """Content without frontmatter delimiters returns ERROR."""
-        from abstract.utils import validate_skill_frontmatter
-
         content = "# No Frontmatter Here\n\nJust body.\n"
         config = SkillValidationConfig()
 
@@ -295,8 +285,6 @@ class TestParseYamlFrontmatter:
     @pytest.mark.unit
     def test_emits_deprecation_warning(self):
         """Calling parse_yaml_frontmatter emits DeprecationWarning."""
-        from abstract.utils import parse_yaml_frontmatter
-
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             parse_yaml_frontmatter("---\nname: test\n---\n")
@@ -305,8 +293,6 @@ class TestParseYamlFrontmatter:
     @pytest.mark.unit
     def test_returns_parsed_dict(self):
         """Returns dictionary of frontmatter fields."""
-        from abstract.utils import parse_yaml_frontmatter
-
         content = "---\nname: myskill\ncategory: testing\n---\n\n# Body\n"
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
@@ -317,8 +303,6 @@ class TestParseYamlFrontmatter:
     @pytest.mark.unit
     def test_returns_empty_dict_when_no_frontmatter(self):
         """Returns empty dict when no frontmatter is present."""
-        from abstract.utils import parse_yaml_frontmatter
-
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             result = parse_yaml_frontmatter("# No Frontmatter\n\nContent.")

@@ -2,6 +2,7 @@
 """Synchronize templates from reference projects."""
 
 import argparse
+import re
 from pathlib import Path
 from typing import Any
 
@@ -65,8 +66,6 @@ class TemplateSynchronizer:
         """
         if language == "python":
             # Replace specific project name with template variable
-            import re
-
             # Common project-specific replacements
             replacements = [
                 (r'name = "simple-resume"', 'name = "{{PROJECT_NAME}}"'),
@@ -91,8 +90,6 @@ class TemplateSynchronizer:
                 content = re.sub(pattern, replacement, content)
 
         elif language == "rust":
-            import re
-
             replacements = [
                 (r'name = "[\w-]+"', 'name = "{{PROJECT_NAME}}"'),
                 (r'edition = "\d+"', 'edition = "{{RUST_EDITION}}"'),

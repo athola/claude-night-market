@@ -382,7 +382,7 @@ architectural patterns
     return summary
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0915 - CLI entrypoint builds parser, validates args, and orchestrates multi-step init
     """Initialize project with architecture awareness."""
     parser = argparse.ArgumentParser(
         description="Initialize a project with architecture awareness"

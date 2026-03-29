@@ -35,7 +35,7 @@ class ResearchTelemetryEvent:
     notes: str | None = None
 
     @classmethod
-    def build(
+    def build(  # noqa: PLR0913 - telemetry events capture all research context fields
         cls,
         *,
         query_id: str,

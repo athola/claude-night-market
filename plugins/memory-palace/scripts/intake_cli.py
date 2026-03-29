@@ -35,6 +35,10 @@ _HOOKS_DIR = str(Path(__file__).resolve().parent.parent / "hooks")
 if _HOOKS_DIR not in sys.path:
     sys.path.insert(0, _HOOKS_DIR)
 
+from shared.text_utils import (  # noqa: E402 - import after sys.path setup
+    slugify as _slugify,
+)
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PLUGIN_ROOT.parents[1]
 PROMPT_TEMPLATE_DIR = PLUGIN_ROOT / "skills" / "knowledge-intake" / "prompts"
@@ -86,8 +90,6 @@ def slugify(value: str) -> str:
     Delegates to the shared implementation with a fallback default
     appropriate for intake entries.
     """
-    from shared.text_utils import slugify as _slugify
-
     return _slugify(value) or "intake-entry"
 
 
@@ -233,7 +235,7 @@ def write_prompt_pack(
     return prompt_path
 
 
-def append_curation_log(
+def append_curation_log(  # noqa: PLR0913 - log rows require all curation context fields
     log_path: Path,
     candidate: Candidate,
     decision: IntegrationDecision,
@@ -268,7 +270,7 @@ def append_curation_log(
         handle.write(row)
 
 
-def process_candidate(
+def process_candidate(  # noqa: PLR0913 - pipeline step needs all I/O paths and flags
     candidate_path: Path,
     corpus_dir: Path,
     index_dir: Path,

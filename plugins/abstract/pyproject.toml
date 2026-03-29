@@ -144,7 +144,6 @@ omit = [
     "tests/*",
     "*/tests/*",
     "*/__pycache__/*",
-    "scripts/*",
 ]
 
 [tool.coverage.report]

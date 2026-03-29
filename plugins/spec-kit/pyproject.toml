@@ -101,8 +101,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/*" = ["B011", "S101", "PLR2004", "D102", "D103", "S108", "D205"]
-"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
-"src/speckit/caching.py" = ["E402"]
+"scripts/**/*.py" = ["S603", "T201"]
 
 # MyPy configuration
 [tool.mypy]

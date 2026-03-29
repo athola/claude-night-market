@@ -13,6 +13,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 from dataclasses import dataclass, field
@@ -261,8 +262,6 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
-    import argparse
-
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")

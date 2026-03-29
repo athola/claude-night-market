@@ -119,7 +119,7 @@ def check_secrets(content: str) -> SafetyCheckResult | None:
     return None
 
 
-def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult | None:
+def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult | None:  # noqa: PLR0912 - checks many distinct bomb patterns sequentially
     """Check for various data bomb patterns."""
     safety = config.get("safety", {})
 

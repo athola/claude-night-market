@@ -114,7 +114,7 @@ PROJECT_PALACE_ROOMS = {
 class ReviewEntry:
     """Represents a single PR review knowledge entry."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913 - review entries have many structured metadata fields
         self,
         source_pr: str,
         title: str,
@@ -445,7 +445,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(
+    def search_review_chamber(  # noqa: PLR0913 - search needs all filter and sort parameters
         self,
         palace_id: str,
         query: str,
@@ -493,7 +493,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_text(
+    def _search_review_chamber_text(  # noqa: PLR0913 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
@@ -531,7 +531,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_semantic(
+    def _search_review_chamber_semantic(  # noqa: PLR0913 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
@@ -541,7 +541,9 @@ class ProjectPalaceManager(MemoryPalaceManager):
         sort_by: str | SortBy = SortBy.RECENCY,
     ) -> list[dict[str, Any]]:
         """Embedding-based semantic search across review chamber rooms."""
-        from .corpus.embedding_index import EmbeddingIndex
+        from .corpus.embedding_index import (  # noqa: PLC0415 - lazy import to avoid faiss dependency at module load
+            EmbeddingIndex,
+        )
 
         # Cache the index to avoid rebuilding on every call
         if self._cached_embedding_index is None:
@@ -713,7 +715,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
             json.dump(index, f, indent=2)
 
 
-def capture_pr_review_knowledge(
+def capture_pr_review_knowledge(  # noqa: PLR0913 - PR capture requires all review context fields
     repo_name: str,
     pr_number: int,
     pr_title: str,

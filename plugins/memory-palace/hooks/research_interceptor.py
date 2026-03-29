@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from shared import config as shared_config
@@ -121,8 +122,6 @@ except (ImportError, ModuleNotFoundError) as e:
     class ResearchTelemetryEvent:
         @staticmethod
         def build(*args: Any, **kwargs: Any) -> Any:
-            from types import SimpleNamespace
-
             return SimpleNamespace(**kwargs)
 
     class TelemetryLogger:
@@ -369,7 +368,7 @@ def _finalize_decision(
     return decision
 
 
-def make_decision(
+def make_decision(  # noqa: PLR0912, PLR0915 - complex decision logic with many criteria branches
     query: str,
     results: list[dict[str, Any]],
     mode: str,
@@ -523,7 +522,7 @@ def format_cached_entry_context(entry: dict[str, Any]) -> str:
     return "\n".join(parts)
 
 
-def emit_telemetry_event(
+def emit_telemetry_event(  # noqa: PLR0913 - telemetry events need all context fields
     logger: TelemetryLogger | None,
     *,
     query_id: str,
@@ -579,7 +578,7 @@ def emit_telemetry_event(
         return
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive request routing
     """Intercept research requests through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)

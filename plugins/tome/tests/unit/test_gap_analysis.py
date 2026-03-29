@@ -15,7 +15,7 @@ from tome.synthesis.quality import identify_gaps
 
 from tests.factories import make_finding
 
-_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
+_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 
 
 class TestIdentifyGaps:

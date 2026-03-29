@@ -172,13 +172,15 @@ class TestMainDispatch:
 
     def test_no_command_prints_help(self) -> None:
         """Given no arguments, main prints help."""
-        with patch("sys.argv", ["prog"]):
-            with patch("scripts.memory_palace_cli.build_parser") as mock_bp:
-                mock_parser = Mock()
-                mock_parser.parse_args.return_value = Mock(command=None)
-                mock_bp.return_value = mock_parser
-                main()
-                mock_parser.print_help.assert_called_once()
+        with (
+            patch("sys.argv", ["prog"]),
+            patch("scripts.memory_palace_cli.build_parser") as mock_bp,
+        ):
+            mock_parser = Mock()
+            mock_parser.parse_args.return_value = Mock(command=None)
+            mock_bp.return_value = mock_parser
+            main()
+            mock_parser.print_help.assert_called_once()
 
     @pytest.mark.parametrize(
         "command,method",
@@ -193,9 +195,11 @@ class TestMainDispatch:
     )
     def test_simple_command_dispatch(self, command: str, method: str) -> None:
         """Given a simple command, main calls the right CLI method."""
-        with patch("sys.argv", ["prog", command]):
-            with patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls:
-                mock_cli = Mock()
-                mock_cls.return_value = mock_cli
-                main()
-                getattr(mock_cli, method).assert_called_once()
+        with (
+            patch("sys.argv", ["prog", command]),
+            patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls,
+        ):
+            mock_cli = Mock()
+            mock_cls.return_value = mock_cli
+            main()
+            getattr(mock_cli, method).assert_called_once()

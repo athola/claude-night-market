@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -172,8 +173,6 @@ class TestAnalyzeSkillTokens:
     @pytest.mark.unit
     def test_read_error_returns_error_dict(self, skill_dir: Path) -> None:
         """Scenario: Exception during file read returns error dict with zeros."""
-        from unittest.mock import patch
-
         tracker = TokenUsageTracker(skill_dir)
         with patch("builtins.open", side_effect=OSError("permission denied")):
             result = tracker.analyze_skill_tokens("my-skill")
@@ -662,8 +661,6 @@ class TestTrackUsageCoverage:
     @pytest.mark.unit
     def test_read_error_raises_os_error(self, skill_dir: Path) -> None:
         """Scenario: File read error raises OSError."""
-        from unittest.mock import patch
-
         tracker = TokenUsageTracker(skill_dir)
         skill_file = skill_dir / "my-skill" / "SKILL.md"
         with patch("builtins.open", side_effect=OSError("no permission")):
@@ -728,8 +725,6 @@ class TestGetUsageStatisticsCoverage:
     @pytest.mark.unit
     def test_read_error_skill_skipped_gracefully(self, skill_dir: Path) -> None:
         """Scenario: Skills that error during track_usage are skipped."""
-        from unittest.mock import patch
-
         tracker = TokenUsageTracker(skill_dir)
         # Simulate track_usage raising OSError for one skill
         with patch.object(tracker, "track_usage", side_effect=OSError("bad")):
@@ -811,8 +806,6 @@ class TestOptimizeSuggestionsSingleSkill:
     @pytest.mark.unit
     def test_read_error_returns_error_message(self, skill_dir: Path) -> None:
         """Scenario: File read error returns error message."""
-        from unittest.mock import patch
-
         tracker = TokenUsageTracker(skill_dir)
         with patch("builtins.open", side_effect=OSError("denied")):
             suggestions = tracker.optimize_suggestions("my-skill")
