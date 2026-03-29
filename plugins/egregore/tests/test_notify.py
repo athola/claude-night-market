@@ -141,7 +141,7 @@ class TestBuildIssueBody:
     """Tests for build_issue_body."""
 
     def test_crash_event_contains_key_fields(self) -> None:
-        """Given a crash event with full context, when building body, then all fields appear."""
+        """Given a crash event with full context, then all fields appear."""
         body = build_issue_body(
             event=AlertEvent.CRASH,
             work_item_id="WI-42",
@@ -169,7 +169,7 @@ class TestBuildIssueBody:
         assert "All tasks finished successfully" in body
 
     def test_rate_limit_event(self) -> None:
-        """Given a rate-limit event, when building body, then includes stage and detail."""
+        """Given a rate-limit event, then includes stage and detail."""
         body = build_issue_body(
             event=AlertEvent.RATE_LIMIT,
             stage="deploy",
@@ -273,7 +273,7 @@ class TestSendWebhook:
 
     @patch("subprocess.run")
     def test_generic_format(self, mock_run: MagicMock) -> None:
-        """Given generic format, when sending webhook, then payload has event/detail/source."""
+        """Given generic format, then payload has event/detail/source."""
         mock_run.return_value = MagicMock(returncode=0)
         result = send_webhook(
             url="https://example.com/hook",
@@ -301,7 +301,7 @@ class TestSendWebhook:
     )
     @patch("subprocess.run")
     def test_chat_formats(self, mock_run: MagicMock, fmt: str, key: str) -> None:
-        """Given slack/discord format, when sending webhook, then uses correct payload key."""
+        """Given slack/discord format, then uses correct payload key."""
         mock_run.return_value = MagicMock(returncode=0)
         result = send_webhook(
             url="https://hooks.example.com",

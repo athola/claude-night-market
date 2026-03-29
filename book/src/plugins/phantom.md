@@ -67,9 +67,3 @@ keyboard, and screen reading. Follow these precautions:
 # Use the agent for multi-step workflows
 Agent(phantom:desktop-pilot)
 ```
-
-## Dependencies
-
-Phantom uses skills from other plugins:
-
-- **leyline:error-patterns**: Error handling and recovery

@@ -98,12 +98,14 @@ class ImbueValidator:
         and validate_review_workflows do not trigger redundant scans.
         """
         if hasattr(self, "_cached_scan_result"):
-            return self._cached_scan_result  # type: ignore[return-value]
+            return self._cached_scan_result
         result = self._scan_and_validate_impl()
         self._cached_scan_result: tuple[ImbueValidationResult, list[str]] = result
         return result
 
-    def _scan_and_validate_impl(self) -> tuple[ImbueValidationResult, list[str]]:
+    def _scan_and_validate_impl(
+        self,
+    ) -> tuple[ImbueValidationResult, list[str]]:
         """Run the actual scan and validation pass."""
         skills_found: set[str] = set()
         review_workflow_skills: set[str] = set()

@@ -181,7 +181,7 @@ class TestAnalyzer:
             # Get changed files with status in a single call
             git_executable = shutil.which("git") or "git"
             # git binary validated
-            result = subprocess.run(  # noqa: S603 # nosec
+            result = subprocess.run(
                 [git_executable, "diff", "--name-status", "HEAD~1"],
                 check=False,
                 capture_output=True,
@@ -244,7 +244,7 @@ class TestAnalyzer:
         return json.dumps(results, indent=2)
 
 
-def main() -> None:  # noqa: PLR0912
+def main() -> None:
     """CLI entry point.
 
     Returns (JSON when --output-json):

@@ -29,6 +29,9 @@
     "./skills/usage-logging",
     "./skills/utility"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "infrastructure",
     "pipeline",

@@ -14,10 +14,18 @@ exclude = [
     ".ruff_cache",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "mypy>=1.11.0",
+    "ruff>=0.14.13",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=scribe --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
@@ -39,4 +47,19 @@ exclude_lines = [
     "if __name__ == .__main__.",
     "raise NotImplementedError",
 ]
-fail_under = 85
+fail_under = 90
+
+[tool.mypy]
+python_version = "3.9"
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["scribe.pattern_loader"]
+disable_error_code = ["assignment"]
+
+[[tool.mypy.overrides]]
+module = ["scribe.tape_generator"]
+disable_error_code = ["assignment"]

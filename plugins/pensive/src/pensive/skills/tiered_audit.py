@@ -74,7 +74,7 @@ def _module_from_path(path: str) -> str:
         src/main.py -> src
     """
     parts = path.strip("/").split("/")
-    if len(parts) >= 2:  # noqa: PLR2004
+    if len(parts) >= 2:
         return "/".join(parts[:2])
     return parts[0] if parts else ""
 

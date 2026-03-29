@@ -205,7 +205,7 @@ class SkillValidator:
             self.result.add_error(f"YAML parsing failed: {e}")
             return None, body
 
-    def _validate_frontmatter(self, fm: dict) -> None:  # noqa: PLR0912
+    def _validate_frontmatter(self, fm: dict) -> None:
         """Validate YAML frontmatter fields."""
         # Required fields
         required = [

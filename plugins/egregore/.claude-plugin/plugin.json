@@ -19,6 +19,9 @@
     "./agents/orchestrator.md",
     "./agents/sentinel.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "egregore",
     "autonomous",

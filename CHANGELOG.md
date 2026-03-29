@@ -189,6 +189,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   installs, tilde expansion, clone diagnostics,
   marketplace-only fields)
 
+### Removed
+
+- Tier 3 unbloat: deleted 182 dead files (66K lines)
+  across 9 plugins (abstract, attune, conjure, conserve,
+  egregore, leyline, memory-palace, sanctum, tome) per
+  issues #345-#351
+
+### Fixed
+
+- Restored scripts referenced by pre-commit hooks and
+  skill definitions that were incorrectly flagged as dead
+  code during unbloat (validate_plugin.py,
+  abstract_validator.py, hook_validator.py, and others)
+- Replaced inline lint suppressions (type: ignore, noqa)
+  with proper fixes: `cast()` for type overrides,
+  `importlib.util.find_spec()` for import detection,
+  `__all__` re-exports for F401, constants for magic
+  values, per-file-ignores for structural patterns
+- Fixed script permissions: 0755 for files with shebangs,
+  removed executable bit from non-executable modules
+
 ## [1.7.2] - 2026-03-27
 
 ### Added

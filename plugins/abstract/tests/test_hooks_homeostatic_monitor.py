@@ -5,6 +5,7 @@ flags degrading skills in improvement-queue.json, and emits
 trigger events when threshold is reached.
 """
 
+import importlib.util
 import json
 import os
 import subprocess
@@ -13,11 +14,7 @@ from pathlib import Path
 
 import pytest
 
-_has_queue = True
-try:
-    import abstract.improvement_queue  # noqa: F401
-except ImportError:
-    _has_queue = False
+_has_queue = importlib.util.find_spec("abstract.improvement_queue") is not None
 
 
 def run_hook(hook_path: Path, env: dict[str, str]) -> dict[str, object]:

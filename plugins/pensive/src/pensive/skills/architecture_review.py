@@ -333,7 +333,9 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                         "type": "concrete_dependency",
                         "issue": f"Depends on concrete class {matched_text}",
                         "location": file_path,
-                        "suggestion": f"Inject {matched_text} through interface/protocol",
+                        "suggestion": (
+                            f"Inject {matched_text} through interface/protocol"
+                        ),
                     }
                 )
 

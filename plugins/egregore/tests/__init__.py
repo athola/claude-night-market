@@ -1,0 +1,1 @@
+"""Egregore plugin test suite."""

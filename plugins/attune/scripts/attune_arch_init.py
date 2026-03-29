@@ -10,22 +10,22 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from architecture_researcher import (  # type: ignore[import]
+    from architecture_researcher import (
         ArchitectureRecommendation,
     )
 
-from architecture_researcher import (  # type: ignore[import]
+from architecture_researcher import (
     ArchitectureResearcher,
     parse_project_context,
 )
-from attune_init import (  # type: ignore[import]
+from attune_init import (
     copy_templates,
     create_project_structure,
     get_default_variables,
     initialize_git,
 )
-from project_detector import ProjectDetector  # type: ignore[import]
-from template_customizer import TemplateCustomizer  # type: ignore[import]
+from project_detector import ProjectDetector
+from template_customizer import TemplateCustomizer
 
 
 def _select_from_menu(
@@ -382,7 +382,7 @@ architectural patterns
     return summary
 
 
-def main() -> None:  # noqa: PLR0915
+def main() -> None:
     """Initialize project with architecture awareness."""
     parser = argparse.ArgumentParser(
         description="Initialize a project with architecture awareness"

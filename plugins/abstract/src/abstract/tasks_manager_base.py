@@ -85,7 +85,7 @@ def get_claude_code_version() -> str | None:
     """Get the current Claude Code version, or None if not in Claude Code."""
     try:
         result = subprocess.run(  # nosec B603 B607
-            ["claude", "--version"],  # noqa: S607
+            ["claude", "--version"],
             capture_output=True,
             text=True,
             timeout=5,

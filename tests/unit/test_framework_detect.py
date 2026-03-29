@@ -18,7 +18,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from framework_detect import detect_framework  # noqa: E402
+from framework_detect import detect_framework
 
 
 class TestFrameworkDetection:

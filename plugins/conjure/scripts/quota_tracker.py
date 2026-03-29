@@ -6,8 +6,6 @@ exhaustion. Extends leyline's universal QuotaTracker with Gemini-specific
 token estimation and CLI command parsing.
 """
 
-# mypy: disable-error-code="no-redef"
-
 from __future__ import annotations
 
 import argparse
@@ -24,7 +22,7 @@ _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
 sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
-    from leyline.fs import (  # type: ignore[import-not-found]
+    from leyline.fs import (
         FILE_OVERHEAD_TOKENS,
         SKIP_DIRS,
         SOURCE_EXTENSIONS,
@@ -34,9 +32,9 @@ try:
     _HAS_LEYLINE_FS = True
 except ImportError:  # pragma: no cover
     _HAS_LEYLINE_FS = False
-    FILE_OVERHEAD_TOKENS = 6  # type: ignore[assignment]
+    FILE_OVERHEAD_TOKENS = 6
     SKIP_DIRS = frozenset(
-        {  # type: ignore[assignment]
+        {
             "__pycache__",
             "node_modules",
             ".git",
@@ -48,7 +46,7 @@ except ImportError:  # pragma: no cover
         }
     )
     SOURCE_EXTENSIONS = frozenset(
-        {  # type: ignore[assignment]
+        {
             ".py",
             ".js",
             ".ts",
@@ -62,7 +60,7 @@ except ImportError:  # pragma: no cover
         }
     )
 
-    def iter_source_files(  # type: ignore[misc]
+    def iter_source_files(
         root_dir: Any,
         extensions: Any = None,
         skip_dirs: Any = None,
@@ -79,14 +77,14 @@ except ImportError:  # pragma: no cover
 
 
 try:
-    from leyline import (  # type: ignore[import-not-found,no-redef]
+    from leyline import (
         QuotaConfig,
         QuotaTracker,
     )
 except ImportError:  # pragma: no cover
     # Define fallback classes when leyline is not available
     @dataclass(frozen=True)
-    class QuotaConfig:  # type: ignore[no-redef,misc]
+    class QuotaConfig:
         """Quota configuration (stub when leyline not available)."""
 
         requests_per_minute: int
@@ -94,7 +92,7 @@ except ImportError:  # pragma: no cover
         tokens_per_minute: int
         tokens_per_day: int
 
-    class QuotaTracker:  # noqa: D101  # type: ignore[no-redef]
+    class QuotaTracker:
         def __init__(
             self,
             service: str,
@@ -123,9 +121,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 try:
-    import tiktoken  # type: ignore[import-untyped]
+    import tiktoken
 except ImportError:
-    tiktoken = None  # type: ignore[assignment]
+    tiktoken = None
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -160,7 +158,7 @@ DEFAULT_QWEN_LIMITS: dict[str, int] = {
 }
 
 
-class GeminiQuotaTracker(QuotaTracker):  # type: ignore[misc]
+class GeminiQuotaTracker(QuotaTracker):
     """Track and manage Gemini CLI quota usage.
 
     Extends leyline's QuotaTracker with Gemini-specific features:

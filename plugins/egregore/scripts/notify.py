@@ -194,7 +194,7 @@ def create_github_alert(
         cmd.extend(["--label", ",".join(labels)])
 
     try:
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
@@ -272,7 +272,7 @@ def send_webhook(
     ]
 
     try:
-        result = subprocess.run(  # noqa: S603
+        result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,

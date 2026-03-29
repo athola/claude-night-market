@@ -33,7 +33,7 @@ class PalaceMaintenance:
     # Queue ingestion
     # ------------------------------------------------------------------
 
-    def sync_from_queue(  # noqa: PLR0912
+    def sync_from_queue(
         self,
         queue_path: str,
         auto_create: bool = False,

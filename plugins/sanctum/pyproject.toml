@@ -38,14 +38,10 @@ extend-ignore = ["E203", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "D"]
+"tests/**/*.py" = ["S101", "D", "PLR2004", "S108", "PLC0415", "S603", "S607", "E402"]
 "tests/test_do_issue_module_docs.py" = ["S101", "D", "E501"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+"hooks/**/*.py" = ["E402", "S603", "S607", "BLE001", "PLC0415", "PLW1510", "UP017"]
+"scripts/**/*.py" = ["E402", "S603", "S607", "PLC0415", "PLR0912", "PLR0913", "S112"]
 
 [tool.pyright]
 pythonVersion = "3.9"
@@ -62,6 +58,22 @@ no_implicit_optional = true
 explicit_package_bases = true
 mypy_path = ["src"]
 exclude = ['^\.venv', '^\.uv-cache']
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["update_plugin_registrations"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["meta_evaluation", "update_plugin_registrations", "sanctum.validators"]
+disable_error_code = ["assignment"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -101,3 +113,4 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+fail_under = 90

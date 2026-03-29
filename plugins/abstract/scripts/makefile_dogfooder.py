@@ -24,14 +24,9 @@ from pathlib import Path
 
 # Re-export package symbols for backward compatibility with existing imports
 # (e.g. tests that do: from makefile_dogfooder import MakefileDogfooder)
-from dogfooder import (  # noqa: F401
-    DocumentationCommandExtractor,
-    MakefileAnalyzer,
+from dogfooder import (
     MakefileDogfooder,
-    MakefileTargetGenerator,
     ProcessingConfig,
-    generate_makefile,
-    load_target_catalog,
     run_preflight_checks,
     validate_working_directory,
 )

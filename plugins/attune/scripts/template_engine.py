@@ -91,7 +91,7 @@ def get_default_variables(
     python_short = python_version.replace(".", "")
 
     # Current year
-    from datetime import datetime  # noqa: PLC0415
+    from datetime import datetime
 
     current_year = datetime.now().year
 

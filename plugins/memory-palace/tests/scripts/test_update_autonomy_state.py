@@ -25,7 +25,7 @@ def load_module():
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     sys.modules["update_autonomy_state"] = module
-    spec.loader.exec_module(module)  # type: ignore[attr-defined]
+    spec.loader.exec_module(module)
     return module
 
 

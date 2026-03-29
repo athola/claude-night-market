@@ -102,13 +102,15 @@ extend-ignore = [
     "S603",  # Subprocess calls (inputs are validated)
     "S607",  # Partial executable path (git/gh are well-known)
     "UP017", # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
+    "E402",  # Import not at top (sys.path manipulation)
+    "PLC0415",  # Import not at top level (conditional imports)
 ]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+"hooks/**/*.py" = [
+    "E402",  # Import not at top (sys.path manipulation)
+    "PLC0415",  # Import not at top level (conditional imports)
+]
+"scripts/imbue_validator.py" = ["PLR0912", "PLR0915"]
+"tests/conftest.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -122,6 +124,14 @@ no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["imbue_validator"]
+disable_error_code = ["return-value"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
@@ -141,7 +151,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
-    "--cov-fail-under=85",
+    "--cov-fail-under=90",
     "--no-cov-on-fail",
     "--tb=short",
     "--durations=10"
@@ -189,7 +199,7 @@ exclude_lines = [
 show_missing = true
 precision = 2
 skip_covered = false
-fail_under = 85
+fail_under = 90
 
 [tool.coverage.html]
 directory = "htmlcov"

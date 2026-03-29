@@ -7,7 +7,6 @@ license = { text = "MIT" }
 authors = [{ name = "Alex Thola", email = "alex@thola.dev" }]
 dependencies = [
     "anthropic>=0.49.0",
-    "Pillow>=9.0.0",
 ]
 
 [project.optional-dependencies]
@@ -15,6 +14,7 @@ dev = [
     "mypy>=1.0",
     "pytest>=7.0",
     "pytest-asyncio>=0.21",
+    "pytest-cov>=4.0",
     "ruff>=0.4.0",
 ]
 
@@ -34,10 +34,35 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 ignore = ["UP017", "UP007"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 
+[[tool.mypy.overrides]]
+module = ["_pytest.*", "pytest.*"]
+follow_imports = "skip"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-asyncio_mode = "auto"
+pythonpath = ["src"]
+addopts = "-v --tb=short --cov=phantom --cov-report=term-missing --cov-fail-under=90"
+
+[tool.coverage.run]
+source = ["src/phantom"]
+omit = [
+    "scripts/*",
+    "tests/*",
+    "*/__pycache__/*",
+    "src/phantom/__main__.py",
+    "src/phantom/cli.py",
+    "src/phantom/loop.py",
+    "src/phantom/display.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90

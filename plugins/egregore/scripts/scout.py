@@ -230,7 +230,7 @@ def classify_technique(description: str) -> str:
     if not scores:
         return "general"
 
-    return max(scores, key=scores.get)  # type: ignore[arg-type]
+    return max(scores, key=scores.get)
 
 
 def extract_techniques_from_guidelines(
@@ -316,7 +316,7 @@ def format_discussion_body(
 # ── GitHub Discussion posting ───────────────────────────
 
 
-_GH_CLI = "gh"  # noqa: S105
+_GH_CLI = "gh"
 
 
 def fetch_contributing_guide(
@@ -325,7 +325,7 @@ def fetch_contributing_guide(
 ) -> str | None:
     """Fetch CONTRIBUTING.md from a GitHub repo via gh api."""
     try:
-        result = subprocess.run(  # noqa: S603, S607
+        result = subprocess.run(
             [
                 _GH_CLI,
                 "api",
@@ -363,7 +363,7 @@ def post_discussion(
         f'{{ repository(owner: "{repo_owner}", name: "{repo_name}") {{ id }} }}'
     )
     try:
-        result = subprocess.run(  # noqa: S603, S607
+        result = subprocess.run(
             [_GH_CLI, "api", "graphql", "-f", f"query={repo_query}"],
             capture_output=True,
             text=True,
@@ -406,7 +406,7 @@ def post_discussion(
     )
 
     try:
-        result = subprocess.run(  # noqa: S603, S607
+        result = subprocess.run(
             [_GH_CLI, "api", "graphql", "-f", f"query={mutation}"],
             capture_output=True,
             text=True,

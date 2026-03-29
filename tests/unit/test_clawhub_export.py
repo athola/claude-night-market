@@ -20,7 +20,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from clawhub_export import (  # noqa: E402
+from clawhub_export import (
     _clean_description,
     discover_skills,
     export_all,

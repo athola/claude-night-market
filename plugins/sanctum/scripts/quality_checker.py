@@ -330,7 +330,7 @@ class TestQualityChecker:
                 tmp_path = tmp_file.name
 
             try:
-                result = subprocess.run(  # noqa: S603 safe: python_path from PATH, args fixed
+                result = subprocess.run(
                     [
                         python_path,
                         "-m",

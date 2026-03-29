@@ -10,13 +10,13 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from scripts.war_room import WarRoomOrchestrator
 from scripts.war_room.experts import (
     ExpertConfig,
     _haiku_fallback_notices,
     clear_availability_cache,
 )
 from scripts.war_room.models import WarRoomSession
-from scripts.war_room_orchestrator import WarRoomOrchestrator
 
 
 @pytest.fixture(autouse=True)

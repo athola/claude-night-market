@@ -27,7 +27,7 @@ import pytest
 @pytest.fixture()
 def hook_module(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Import the hook module with paths redirected to tmp_path."""
-    import sys  # noqa: PLC0415
+    import sys
 
     hook_path = Path(__file__).resolve().parent.parent.parent / "hooks"
     if str(hook_path) not in sys.path:
@@ -40,7 +40,7 @@ def hook_module(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     if "aggregate_learnings_daily" in sys.modules:
         del sys.modules["aggregate_learnings_daily"]
 
-    import aggregate_learnings_daily  # noqa: PLC0415
+    import aggregate_learnings_daily
 
     # Patch the home directory functions
     monkeypatch.setattr(
@@ -596,17 +596,17 @@ class TestWriteLearningsIntegration:
 
         # Build a minimal but real AggregationResult
         try:
-            from aggregate_skill_logs import (  # noqa: PLC0415
+            from aggregate_skill_logs import (
                 AggregationResult,
                 SkillLogSummary,
             )
         except ImportError:
-            import sys as _sys  # noqa: PLC0415
+            import sys as _sys
 
             scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
             if str(scripts_dir) not in _sys.path:
                 _sys.path.insert(0, str(scripts_dir))
-            from aggregate_skill_logs import (  # noqa: PLC0415
+            from aggregate_skill_logs import (
                 AggregationResult,
                 SkillLogSummary,
             )
@@ -674,17 +674,17 @@ class TestWriteLearningsIntegration:
         monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
 
         try:
-            from aggregate_skill_logs import (  # noqa: PLC0415
+            from aggregate_skill_logs import (
                 AggregationResult,
                 SkillLogSummary,
             )
         except ImportError:
-            import sys as _sys  # noqa: PLC0415
+            import sys as _sys
 
             scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
             if str(scripts_dir) not in _sys.path:
                 _sys.path.insert(0, str(scripts_dir))
-            from aggregate_skill_logs import (  # noqa: PLC0415
+            from aggregate_skill_logs import (
                 AggregationResult,
                 SkillLogSummary,
             )

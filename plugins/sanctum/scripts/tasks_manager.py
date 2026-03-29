@@ -16,7 +16,7 @@ if str(_ABSTRACT_SRC) not in sys.path:
     sys.path.insert(0, str(_ABSTRACT_SRC))
 
 try:
-    from abstract.tasks_manager_base import (  # noqa: E402
+    from abstract.tasks_manager_base import (
         AmbiguityResult,
         AmbiguityType,
         ResumeState,

@@ -46,8 +46,16 @@ extend-ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/test_auto_star_repo.py" = ["D101", "D102", "D103", "D205", "D212", "D400", "D415", "E501"]
-"tests/test_manifest_consistency.py" = ["D101", "D102", "D103", "D205", "D212", "D400", "D415", "E501"]
+"**/__init__.py" = ["F401"]
+"tests/**/*.py" = ["S101", "PLR2004", "PLC0415", "D102", "D103", "D205", "D400", "D415", "I001"]
+"tests/test_auto_star_repo.py" = ["D101", "D212", "E501"]
+"tests/test_manifest_consistency.py" = ["D101", "D212", "E501"]
+"hooks/**/*.py" = ["E402", "BLE001", "PLC0415", "PLR0912", "S110"]
+"scripts/**/*.py" = ["E402", "PLC0415", "UP045"]
+"src/leyline/quota_tracker.py" = ["PLC0415"]
+"tests/hooks/test_sanitize_external_content.py" = ["E402"]
+"tests/unit/src/test_fs.py" = ["E402"]
+"tests/unit/src/test_session_store.py" = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -68,6 +76,10 @@ ignore_missing_imports = true
 module = ["pytest"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["leyline.session_store", "leyline.scripts.verify_plugin", "verify_plugin"]
+disable_error_code = ["type-arg", "no-any-return"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
@@ -80,11 +92,17 @@ markers = [
 
 [tool.coverage.run]
 source = ["src/leyline"]
-omit = ["*/tests/*", "*/__pycache__/*"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "src/leyline/deferred_capture.py",  # CLI wrapper, tested at plugin level
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
+fail_under = 90

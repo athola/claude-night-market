@@ -14,18 +14,17 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from scripts.war_room_orchestrator import (
+from scripts.war_room import (
     EXPERT_CONFIGS,
     ExpertConfig,
     WarRoomOrchestrator,
     WarRoomSession,
-    _expert_availability,
-    _haiku_fallback_notices,
     check_expert_availability,
     clear_availability_cache,
     get_fallback_notice,
     get_haiku_command,
 )
+from scripts.war_room.experts import _expert_availability, _haiku_fallback_notices
 
 
 class TestExternalInvocation:

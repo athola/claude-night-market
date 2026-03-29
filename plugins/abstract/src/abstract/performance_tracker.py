@@ -100,7 +100,7 @@ class PerformanceTracker:
             "version": version,
             "score": score,
             "domain": domain,
-            "timestamp": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metadata": metadata or {},
         }
         self.history.append(entry)

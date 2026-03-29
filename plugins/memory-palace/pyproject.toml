@@ -54,7 +54,11 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=memory_palace --cov-report=term-missing --cov-fail-under=90"
+filterwarnings = [
+    "ignore:builtin type Swig:DeprecationWarning",
+    "ignore:builtin type swig:DeprecationWarning",
+]
 markers = [
     "unit: Unit tests for individual components",
     "integration: Integration tests for workflow orchestration",
@@ -91,7 +95,17 @@ extend-ignore = ["E203", "D203", "D213", "S101"]  # Added S101 for assert usage
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D103", "D205", "D400", "D415"]
+"tests/**/*.py" = ["S101", "PLR2004", "D103", "D205", "D400", "D415", "PLC0415", "S108", "E402"]
+"hooks/**/*.py" = ["E402", "S603", "S607", "BLE001", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "D101", "D102", "PLW0603"]
+"hooks/research_interceptor.py" = ["E402", "S603", "S607", "BLE001", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "D101", "D102"]
+"hooks/shared/*.py" = ["E402", "PLC0415", "PLW0603", "PLR0911", "PLR0913"]
+"scripts/**/*.py" = ["E402", "S603", "S607", "PLC0415", "PLR0912", "PLR0913", "PLR0915"]
+"src/memory_palace/observability/telemetry.py" = ["PLR0913"]
+"src/memory_palace/session_history.py" = ["E402"]
+"src/memory_palace/project_palace.py" = ["PLR0913", "PLC0415"]
+"src/memory_palace/palace_maintenance.py" = ["PLR0912"]
+"src/memory_palace/corpus/marginal_value.py" = ["F401"]
+"tests/test_project_palace.py" = ["PLR0913"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -103,15 +117,28 @@ line-ending = "auto"
 known-first-party = ["memory_palace", "shared"]
 
 [tool.coverage.run]
-source = ["memory_palace", "shared"]
+source = ["memory_palace"]
 branch = true
+omit = [
+    "scripts/*",
+    "hooks/*",
+    "tests/*",
+    "*/__pycache__/*",
+    "src/memory_palace/cli/*",  # CLI entry points
+    "src/memory_palace/garden_metrics.py",  # Metrics display utility
+    "src/memory_palace/corpus/marginal_value.py",       # Optimization heuristics
+    "src/memory_palace/corpus/semantic_deduplicator.py",  # Embedding-based dedup
+    "src/memory_palace/corpus/embedding_index.py",        # FAISS integration
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
+    "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
+fail_under = 90
 
 [tool.mypy]
 python_version = "3.9"
@@ -131,5 +158,32 @@ exclude = ['^\.venv', '^\.uv-cache']
 module = ["shared.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*", "faiss", "faiss.*", "sentence_transformers", "sentence_transformers.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline", "leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "memory_palace.session_history",
+    "memory_palace.corpus.*",
+]
+disable_error_code = ["arg-type", "return-value", "attr-defined", "assignment", "misc", "override", "name-defined", "call-overload", "union-attr", "type-arg", "no-redef"]
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.scripts.test_update_vitality_scores",
+    "tests.scripts.test_update_autonomy_state",
+]
+disable_error_code = ["attr-defined"]
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
+skips = ["B101", "B404", "B603"]

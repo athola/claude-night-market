@@ -10,6 +10,28 @@ from ._base import is_call_to, parse_code
 __all__ = ["analyze_error_handling", "analyze_timeouts"]
 
 
+def _extract_handler_info(
+    handler: ast.ExceptHandler,
+) -> tuple[str | None, bool]:
+    """Extract exception type name and graceful degradation from a handler.
+
+    Returns (type_name_or_None, has_return_statement).
+    """
+    type_name: str | None = None
+    if handler.type:
+        if isinstance(handler.type, ast.Name):
+            type_name = handler.type.id
+        elif isinstance(handler.type, ast.Attribute):
+            type_name = (
+                f"{handler.type.value.id}.{handler.type.attr}"
+                if isinstance(handler.type.value, ast.Name)
+                else handler.type.attr
+            )
+
+    has_return = any(isinstance(stmt, ast.Return) for stmt in handler.body)
+    return type_name, has_return
+
+
 async def analyze_error_handling(
     code: str, _tree: ast.Module | None = None
 ) -> dict[str, Any]:
@@ -53,19 +75,11 @@ async def analyze_error_handling(
                     )
 
                     for handler in child.handlers:
-                        if handler.type:
-                            if isinstance(handler.type, ast.Name):
-                                exception_types.append(handler.type.id)
-                            elif isinstance(handler.type, ast.Attribute):
-                                exception_types.append(
-                                    f"{handler.type.value.id}.{handler.type.attr}"
-                                    if isinstance(handler.type.value, ast.Name)
-                                    else handler.type.attr
-                                )
-
-                        for stmt in handler.body:
-                            if isinstance(stmt, ast.Return):
-                                graceful_degradation = True
+                        type_name, has_return = _extract_handler_info(handler)
+                        if type_name:
+                            exception_types.append(type_name)
+                        if has_return:
+                            graceful_degradation = True
 
             functions[function_name] = {
                 "has_error_handling": has_error_handling,

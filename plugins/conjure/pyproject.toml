@@ -109,12 +109,8 @@ leyline = { path = "../leyline" }
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**" = ["PLR2004"]      # Allow magic numbers in tests
 "test_*.py" = ["PLR2004"]     # Allow magic numbers in tests
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+"scripts/**/*.py" = ["E402", "S603", "S607", "PLC0415", "PLR0912", "PLR0913", "D101"]
+"scripts/quota_tracker.py" = ["E402", "S603", "S607", "PLC0415", "PLR0912", "PLR0913", "D101"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -137,6 +133,14 @@ ignore_missing_imports = true
 module = ["leyline", "leyline.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["war_room.orchestrator"]
+disable_error_code = ["unreachable"]
+
+[[tool.mypy.overrides]]
+module = ["scripts.quota_tracker"]
+disable_error_code = ["no-redef"]
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
@@ -146,6 +150,9 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 addopts = [
     "--strict-markers",
+    "--cov=scripts",
+    "--cov-report=term-missing",
+    "--cov-fail-under=90",
 ]
 markers = [
     "unit: Unit tests for individual components",
@@ -153,3 +160,27 @@ markers = [
     "slow: Slow running tests",
     "bdd: BDD-style behavior-driven tests",
 ]
+filterwarnings = [
+    "ignore::ResourceWarning",
+    "ignore::RuntimeWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::pytest.PytestUnknownMarkWarning",
+]
+
+[tool.coverage.run]
+source = ["scripts"]
+omit = [
+    "hooks/*",
+    "tests/*",
+    "*/__pycache__/*",
+    "scripts/delegation_executor.py",  # CLI entry point
+    "scripts/quota_tracker.py",        # CLI entry point
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90

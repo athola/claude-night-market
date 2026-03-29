@@ -14,21 +14,21 @@ import yaml
 logger = logging.getLogger(__name__)
 
 try:
-    import numpy as np  # type: ignore[import-not-found,import-untyped]
+    import numpy as np
 
     _HAS_NUMPY = True
 except Exception:  # pragma: no cover - optional dependency
-    np = None  # type: ignore[assignment]
+    np = None
     _HAS_NUMPY = False
 
 try:
-    from sentence_transformers import (  # type: ignore[import-not-found]
+    from sentence_transformers import (
         SentenceTransformer,
     )
 
     _HAS_ST = True
 except Exception:  # pragma: no cover - optional dependency
-    SentenceTransformer = None  # type: ignore[assignment]
+    SentenceTransformer = None
     _HAS_ST = False
 
 
@@ -141,7 +141,7 @@ class EmbeddingIndex:
     def vectorize(self, text: str) -> list[float]:
         """Vectorize text using the active provider."""
         if self.active_provider == "local" and self.model is not None:
-            vector = self.model.encode(text).tolist()  # type: ignore[assignment]
+            vector = self.model.encode(text).tolist()
             norm = math.sqrt(sum(v * v for v in vector)) or 1.0
             return [v / norm for v in vector]
         return _hash_vector(text)

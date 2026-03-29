@@ -83,7 +83,7 @@ def _query_workflow_runs(
         raise RuntimeError(msg)
 
     data = json.loads(result.stdout)
-    return data.get("workflow_runs", [])  # type: ignore[no-any-return]
+    return data.get("workflow_runs", [])
 
 
 def _runs_to_records(

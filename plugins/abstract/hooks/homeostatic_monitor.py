@@ -22,14 +22,14 @@ if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
 try:
-    from abstract.improvement_queue import ImprovementQueue  # noqa: E402
+    from abstract.improvement_queue import ImprovementQueue
 
     _HAS_QUEUE = True
 except ImportError:
     _HAS_QUEUE = False
 
 try:
-    from abstract.performance_tracker import PerformanceTracker  # noqa: E402
+    from abstract.performance_tracker import PerformanceTracker
 
     _HAS_TRACKER = True
 except ImportError:
@@ -39,7 +39,7 @@ STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
 
 
-def _get_improvement_trend(claude_home: Path, skill_ref: str) -> float | None:  # noqa: UP007
+def _get_improvement_trend(claude_home: Path, skill_ref: str) -> float | None:
     """Fetch improvement trend from PerformanceTracker (best-effort)."""
     if not _HAS_TRACKER:
         return None
@@ -79,7 +79,7 @@ def _needs_metacognition(claude_home: Path) -> bool:
     low_effectiveness = 0.5
     periodic_interval = 10
     try:
-        from abstract.improvement_memory import ImprovementMemory  # noqa: E402
+        from abstract.improvement_memory import ImprovementMemory
 
         mem_file = claude_home / "skills" / "improvement_memory.json"
         if not mem_file.exists():
@@ -125,7 +125,7 @@ def _flag_and_build_output(
 
     entry = queue.skills.get(skill_ref, {})
     if entry.get("status") in ("evaluating", "pending_rollback_review"):
-        return None  # type: ignore[return-value]  # caller handles None
+        return None  # caller handles None
 
     invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
     queue.flag_skill(skill_ref, gap, invocation_id)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-__all__ = ["parse_code", "is_call_to"]
+__all__ = ["is_call_to", "parse_code"]
 
 
 def parse_code(code: str) -> tuple[ast.Module | None, dict | None]:
@@ -27,13 +27,15 @@ def is_call_to(node: ast.Call, target: str) -> bool:
 
     """
     if isinstance(node.func, ast.Name):
-        return node.func.id == target or node.func.id == target.split(".")[-1]
+        return (
+            node.func.id == target or node.func.id == target.rsplit(".", maxsplit=1)[-1]
+        )
 
     if isinstance(node.func, ast.Attribute):
         if "." in target:
             module, func = target.rsplit(".", 1)
             if isinstance(node.func.value, ast.Name):
                 return node.func.value.id == module and node.func.attr == func
-        return node.func.attr == target.split(".")[-1]
+        return node.func.attr == target.rsplit(".", maxsplit=1)[-1]
 
     return False

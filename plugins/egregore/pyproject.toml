@@ -45,7 +45,9 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
     "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
     "D212", "S603", "S607", "PLW1510",
 ]
-"scripts/**/*.py" = ["S603", "S607", "PLR0911", "PLR0912", "PLR0915"]
+"scripts/**/*.py" = ["S603", "S607", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "E402", "PLC0415", "UP045", "S105"]
+"tests/test_session_start_hook.py" = ["E402"]
+"tests/test_stop_hook.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.9"
@@ -53,11 +55,36 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["conventions", "scout"]
+disable_error_code = ["assignment", "arg-type"]
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
+addopts = "-v --cov=scripts --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
 ]
+
+[tool.coverage.run]
+source = ["scripts"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90

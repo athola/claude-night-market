@@ -50,7 +50,9 @@ extend-ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "PLR2004",  # Magic values in test assertions are acceptable
+    "S311",     # Allow pseudo-random generators in tests
 ]
+"scripts/**/*.py" = ["E402", "PLC0415"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -74,6 +76,8 @@ omit = ["*/tests/*", "*/__pycache__/*"]
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
+    "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
+fail_under = 90

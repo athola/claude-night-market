@@ -32,14 +32,14 @@ if str(SRC_DIR) not in sys.path:
 # The hook degrades gracefully when the package is unavailable.
 _HAS_MEMORY_PALACE = False
 try:
-    from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
-    from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
-    from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
-    from memory_palace.lifecycle.autonomy_state import (  # noqa: E402
+    from memory_palace.corpus.cache_lookup import CacheLookup
+    from memory_palace.corpus.marginal_value import RedundancyLevel
+    from memory_palace.curation import DomainAlignment, IntakeFlagPayload
+    from memory_palace.lifecycle.autonomy_state import (
         AutonomyProfile,
         AutonomyStateStore,
     )
-    from memory_palace.observability.telemetry import (  # noqa: E402
+    from memory_palace.observability.telemetry import (
         ResearchTelemetryEvent,
         TelemetryLogger,
         resolve_telemetry_path,
@@ -52,24 +52,24 @@ except (ImportError, ModuleNotFoundError) as e:
     # Fallback stubs so names exist at module level for patching and
     # graceful degradation on system Python 3.9 without pyyaml.
     @dataclass
-    class DomainAlignment:  # type: ignore[no-redef]
-        configured_domains: list = field(default_factory=list)  # type: ignore[type-arg]
-        matched_domains: list = field(default_factory=list)  # type: ignore[type-arg]
+    class DomainAlignment:
+        configured_domains: list = field(default_factory=list)
+        matched_domains: list = field(default_factory=list)
 
         @property
         def is_aligned(self) -> bool:
             return bool(self.matched_domains)
 
     @dataclass
-    class IntakeFlagPayload:  # type: ignore[no-redef]
+    class IntakeFlagPayload:
         query: str = ""
         should_flag_for_intake: bool = False
         novelty_score: float = 0.0
         domain_alignment: Any = None
         delta_reasoning: str = ""
-        duplicate_entry_ids: list = field(default_factory=list)  # type: ignore[type-arg]
+        duplicate_entry_ids: list = field(default_factory=list)
 
-        def to_dict(self) -> dict:  # type: ignore[type-arg]
+        def to_dict(self) -> dict:
             return {
                 "query": self.query,
                 "should_flag_for_intake": self.should_flag_for_intake,
@@ -78,16 +78,16 @@ except (ImportError, ModuleNotFoundError) as e:
                 "duplicate_entry_ids": self.duplicate_entry_ids,
             }
 
-    class RedundancyLevel(Enum):  # type: ignore[no-redef]
+    class RedundancyLevel(Enum):
         EXACT_MATCH = "exact_match"
         HIGHLY_REDUNDANT = "redundant"
         PARTIAL_OVERLAP = "partial"
         NOVEL = "novel"
 
     @dataclass
-    class AutonomyProfile:  # type: ignore[no-redef]
+    class AutonomyProfile:
         global_level: int = 0
-        domain_controls: dict = field(default_factory=dict)  # type: ignore[type-arg]
+        domain_controls: dict = field(default_factory=dict)
 
         def effective_level_for(self, domains: Any = None) -> int:
             return self.global_level
@@ -101,16 +101,16 @@ except (ImportError, ModuleNotFoundError) as e:
         def should_auto_approve_all(self, domains: Any = None) -> bool:
             return self.effective_level_for(domains) >= 3
 
-    class CacheLookup:  # type: ignore[no-redef]
+    class CacheLookup:
         def __init__(self, *args: Any, **kwargs: Any) -> None:
-            pass
+            """Initialize no-op cache lookup stub."""
 
-        def search(self, *args: Any, **kwargs: Any) -> list:  # type: ignore[type-arg]
+        def search(self, *args: Any, **kwargs: Any) -> list:
             return []
 
-    class AutonomyStateStore:  # type: ignore[no-redef]
+    class AutonomyStateStore:
         def __init__(self, *args: Any, **kwargs: Any) -> None:
-            pass
+            """Initialize no-op autonomy state store stub."""
 
         def load_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
             return AutonomyProfile()
@@ -118,21 +118,22 @@ except (ImportError, ModuleNotFoundError) as e:
         def build_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
             return AutonomyProfile()
 
-    class ResearchTelemetryEvent:  # type: ignore[no-redef]
+    class ResearchTelemetryEvent:
         @staticmethod
         def build(*args: Any, **kwargs: Any) -> Any:
             from types import SimpleNamespace
 
             return SimpleNamespace(**kwargs)
 
-    class TelemetryLogger:  # type: ignore[no-redef]
+    class TelemetryLogger:
         def __init__(self, *args: Any, **kwargs: Any) -> None:
-            pass
+            """Initialize no-op telemetry logger stub."""
 
         def emit(self, *args: Any, **kwargs: Any) -> None:
             pass
 
-    def resolve_telemetry_path(*args: Any, **kwargs: Any) -> Path:  # type: ignore[misc]
+    def resolve_telemetry_path(*args: Any, **kwargs: Any) -> Path:
+        """Return a no-op path stub when leyline is absent."""
         return Path("/dev/null")
 
 

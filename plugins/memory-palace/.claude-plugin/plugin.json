@@ -23,6 +23,9 @@
     "./agents/garden-curator.md",
     "./agents/knowledge-librarian.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "memory-palace",
     "spatial-memory",

@@ -19,14 +19,14 @@ logger = logging.getLogger(__name__)
 # Set up imports before using abstract package
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from abstract.cli_framework import (  # noqa: E402
+from abstract.cli_framework import (
     AbstractCLI,
     CLIResult,
     PathArgumentMixin,
     cli_main,
 )
-from abstract.tokens import TokenAnalyzer, extract_code_blocks  # noqa: E402
-from abstract.utils import count_sections, find_skill_files  # noqa: E402
+from abstract.tokens import TokenAnalyzer, extract_code_blocks
+from abstract.utils import count_sections, find_skill_files
 
 # Constants for analysis thresholds
 MAX_THEMES = 3

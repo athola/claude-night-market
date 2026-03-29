@@ -29,10 +29,10 @@ for _d in _candidate_dirs:
         sys.path.insert(0, str(_d))
 
 try:
-    from auto_promote_learnings import (  # noqa: E402
+    from auto_promote_learnings import (
         run_auto_promote as _promote,
     )
-    from post_learnings_to_discussions import (  # noqa: E402
+    from post_learnings_to_discussions import (
         post_learnings as _post_learnings,
     )
 

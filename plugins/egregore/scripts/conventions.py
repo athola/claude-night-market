@@ -9,9 +9,9 @@ from pathlib import Path, PurePath
 from typing import Any
 
 try:
-    import yaml  # type: ignore[import-untyped]
+    import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 @dataclass

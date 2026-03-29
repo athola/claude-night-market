@@ -86,7 +86,7 @@ def slugify(value: str) -> str:
     Delegates to the shared implementation with a fallback default
     appropriate for intake entries.
     """
-    from shared.text_utils import slugify as _slugify  # noqa: PLC0415
+    from shared.text_utils import slugify as _slugify
 
     return _slugify(value) or "intake-entry"
 
@@ -233,7 +233,7 @@ def write_prompt_pack(
     return prompt_path
 
 
-def append_curation_log(  # noqa: PLR0913 - log needs explicit context fields
+def append_curation_log(
     log_path: Path,
     candidate: Candidate,
     decision: IntegrationDecision,
@@ -268,7 +268,7 @@ def append_curation_log(  # noqa: PLR0913 - log needs explicit context fields
         handle.write(row)
 
 
-def process_candidate(  # noqa: PLR0913 - CLI surface mirrors command options
+def process_candidate(
     candidate_path: Path,
     corpus_dir: Path,
     index_dir: Path,
@@ -277,7 +277,7 @@ def process_candidate(  # noqa: PLR0913 - CLI surface mirrors command options
     auto_accept: bool,
     dual_output: bool = False,
     prompt_pack: str | None = None,
-) -> dict[str, Any]:  # noqa: PLR0913 - CLI command surface requires these args
+) -> dict[str, Any]:
     """Process an intake candidate end-to-end and write outputs."""
     candidate = load_candidate(candidate_path)
     mv_filter = MarginalValueFilter(str(corpus_dir), str(index_dir))

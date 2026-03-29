@@ -7,7 +7,7 @@ from typing import Any
 
 from ._base import is_call_to, parse_code
 
-__all__ = ["analyze_resource_management", "analyze_performance"]
+__all__ = ["analyze_performance", "analyze_resource_management"]
 
 
 def _check_context_manager_methods(

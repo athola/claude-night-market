@@ -121,7 +121,7 @@ class Manifest:
         nums = []
         for item in self.work_items:
             parts = item.id.split("_")
-            if len(parts) == 2 and parts[1].isdigit():  # noqa: PLR2004
+            if len(parts) == 2 and parts[1].isdigit():
                 nums.append(int(parts[1]))
         max_num = max(nums) if nums else 0
         return f"wrk_{max_num + 1:03d}"

@@ -38,7 +38,7 @@ class TestFullQualityFlow:
                 import json  # C1 violation
                 return json.dumps({})
 
-            x = 1  # noqa: E501  # C4 violation
+            x = 1# C4 violation
         """)
         )
 
@@ -142,7 +142,7 @@ class TestFullQualityFlow:
         hook.write_text(
             textwrap.dedent("""\
             def run():
-                import yaml  # noqa: F401
+                import yaml
                 return yaml.safe_load("{}")
         """)
         )

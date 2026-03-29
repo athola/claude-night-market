@@ -12,12 +12,12 @@ import sys
 import textwrap
 from pathlib import Path
 
-import pytest  # noqa: I001
+import pytest
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from rules_validator import (  # noqa: E402
+from rules_validator import (
     evaluate_rules_directory,
     validate_content_quality,
     validate_frontmatter,

@@ -173,7 +173,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",
+                    "file_path": "/tmp/test.py",  # noqa: S108
                     "old_string": "x = 1",
                     "new_string": "x = 1  # noqa: E501",
                 }
@@ -198,7 +198,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",
+                    "file_path": "/tmp/test.py",  # noqa: S108
                     "old_string": "x = 1",
                     "new_string": 'x: int = "bad"  # type: ignore',
                 }
@@ -223,7 +223,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",
+                    "file_path": "/tmp/test.py",  # noqa: S108
                     "old_string": "x = 1",
                     "new_string": "x = 2",
                 }
@@ -248,7 +248,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Write",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",
+                    "file_path": "/tmp/test.py",  # noqa: S108
                     "content": "import os  # noqa: F401\nx = 1\n",
                 }
             ),

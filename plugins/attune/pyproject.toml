@@ -88,6 +88,7 @@ extend-ignore = [
     "S310",     # Allow URL open (validated with _validate_https_url)
     "S603",     # Allow subprocess calls (inputs are validated)
     "S607",     # Allow partial executable path (git/gh are well-known)
+    "E402",     # Import not at top (sys.path manipulation)
     "E501",     # Allow long lines in template strings
     "D107",     # Allow missing __init__ docstrings
     "D401",     # Allow non-imperative mood
@@ -98,12 +99,6 @@ extend-ignore = [
     "PLR0915",  # Allow many statements (initialization functions)
     "PLR2004",  # Allow magic values
 ]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.10"
@@ -121,6 +116,24 @@ exclude = ['^\.venv', '^\.uv-cache', '^__pycache__']
 [[tool.mypy.overrides]]
 module = ["yaml", "abstract", "abstract.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "architecture_researcher",
+    "attune_init",
+    "project_detector",
+    "template_customizer",
+    "template_engine",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["attune_upgrade"]
+disable_error_code = ["no-any-return"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
@@ -142,7 +155,7 @@ addopts = [
     # Reason: New scripts (architecture_researcher.py, attune_arch_init.py, template_customizer.py)
     # are excluded from coverage per tool.coverage.run.omit - they use external APIs and are
     # tested manually. TODO: Restore to 85% when integration test mocks are added (#TBD)
-    "--cov-fail-under=84",
+    "--cov-fail-under=90",
     "--no-cov-on-fail"
 ]
 markers = [
@@ -166,7 +179,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 84
+fail_under = 90
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

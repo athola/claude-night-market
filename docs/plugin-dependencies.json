@@ -1,28 +1,56 @@
 {
   "version": "1.0.0",
-  "generated": "2026-03-08",
+  "generated": "2026-03-28",
   "dependencies": {
     "abstract": {
       "dependents": [
-        "*"
+        "archetypes",
+        "attune",
+        "conjure",
+        "conserve",
+        "egregore",
+        "hookify",
+        "imbue",
+        "leyline",
+        "memory-palace",
+        "minister",
+        "parseltongue",
+        "pensive",
+        "sanctum",
+        "scribe",
+        "scry",
+        "spec-kit",
+        "tome"
       ],
-      "type": "build",
+      "type": "build+runtime",
       "reason": "Shared infrastructure"
     },
     "leyline": {
       "dependents": [
-        "conjure"
+        "abstract",
+        "attune",
+        "conjure",
+        "egregore",
+        "imbue",
+        "memory-palace",
+        "pensive",
+        "sanctum",
+        "tome"
       ],
-      "type": "build",
+      "type": "runtime",
       "reason": "Shared infrastructure"
     }
   },
   "reverse_index": {
+    "abstract": [
+      "leyline"
+    ],
     "archetypes": [
       "abstract"
     ],
     "attune": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "conjure": [
       "abstract",
@@ -32,19 +60,22 @@
       "abstract"
     ],
     "egregore": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "hookify": [
       "abstract"
     ],
     "imbue": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "leyline": [
       "abstract"
     ],
     "memory-palace": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "minister": [
       "abstract"
@@ -53,10 +84,12 @@
       "abstract"
     ],
     "pensive": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "sanctum": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "scribe": [
       "abstract"
@@ -66,6 +99,10 @@
     ],
     "spec-kit": [
       "abstract"
+    ],
+    "tome": [
+      "abstract",
+      "leyline"
     ]
   }
 }

@@ -115,7 +115,8 @@ class WorkspaceManager:
         """Load the task manifest from tasks.json."""
         if not self.tasks_file.exists():
             return []
-        return json.loads(self.tasks_file.read_text())  # type: ignore[no-any-return]
+        result: list[dict[str, str]] = json.loads(self.tasks_file.read_text())
+        return result
 
     def _save_tasks(self, tasks: list[dict[str, str]]) -> None:
         """Save the task manifest to tasks.json."""
@@ -136,7 +137,7 @@ class WorkspaceManager:
 
         """
         tasks = self.load_tasks()
-        now = datetime.now(tz=timezone.utc).isoformat()  # noqa: UP017
+        now = datetime.now(tz=timezone.utc).isoformat()
         tasks.append(
             {
                 "id": task_id,
@@ -163,9 +164,7 @@ class WorkspaceManager:
             if task["id"] == task_id:
                 task["status"] = status
                 if status == "done":
-                    task["completed_at"] = datetime.now(
-                        tz=timezone.utc  # noqa: UP017
-                    ).isoformat()
+                    task["completed_at"] = datetime.now(tz=timezone.utc).isoformat()
                 break
         self._save_tasks(tasks)
 
@@ -182,9 +181,7 @@ class WorkspaceManager:
             Path to the archive directory.
 
         """
-        timestamp = datetime.now(tz=timezone.utc).strftime(  # noqa: UP017
-            "%Y%m%d-%H%M%S"
-        )
+        timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%d-%H%M%S")
         archive_dir = self.path.parent / ".coordination-archive" / timestamp
         archive_dir.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(self.path), str(archive_dir))
@@ -198,7 +195,7 @@ class WorkspaceManager:
 
         """
         reason_file = self.path / "_failure_reason.md"
-        now = datetime.now(tz=timezone.utc).isoformat()  # noqa: UP017
+        now = datetime.now(tz=timezone.utc).isoformat()
         reason_file.write_text(
             f"# Workflow Failure\n\n**Date**: {now}\n\n**Reason**: {reason}\n"
         )

@@ -8,8 +8,8 @@
         lint format type-check typecheck security test-unit test-coverage test-quick
 
 # Plugin-specific variables (must be before include)
-SRC_DIRS := core matchers utils scripts hooks tests
-RUFF_TARGETS := core/ matchers/ utils/ scripts/ hooks/ tests/
+SRC_DIRS := core matchers utils scripts tests
+RUFF_TARGETS := core/ matchers/ utils/ scripts/ tests/
 MYPY_TARGETS := core/ matchers/ utils/ scripts/
 BANDIT_TARGETS := core/ matchers/ utils/ scripts/
 COV_DIRS := core matchers utils

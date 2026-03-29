@@ -18,7 +18,7 @@ import pytest
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from build_bridge import build_bridge  # noqa: E402
+from build_bridge import build_bridge
 
 
 @pytest.fixture()

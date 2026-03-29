@@ -165,10 +165,15 @@ extend-ignore = [
     "F841",  # unused-variable (often placeholders in tests)
     "ARG001",  # unused-function-argument
     "ARG002",  # unused-method-argument
+    "PLC0415",  # Tests use dynamic/conditional imports
 ]
 "**/__init__.py" = ["F401"]  # Unused imports in __init__.py
-"**/hooks/*.py" = ["PLC0415"]  # Hooks use deferred imports for optional deps
+"**/hooks/*.py" = ["PLC0415", "BLE001"]  # Hooks use deferred imports, broad exceptions
 "**/hooks/shared/*.py" = ["PLC0415"]  # Hook shared modules use deferred imports
+"scripts/*.py" = ["E402", "PLC0415"]  # Root scripts with sys.path manipulation
+"**/scripts/*.py" = ["PLC0415"]  # Plugin scripts use conditional/lazy imports
+"plugins/leyline/src/leyline/quota_tracker.py" = ["PLC0415"]  # CLI entry point with lazy import
+"plugins/memory-palace/src/memory_palace/project_palace.py" = ["PLC0415"]  # Lazy import for optional dependency
 
 [tool.mypy]
 python_version = "3.12"
@@ -189,6 +194,10 @@ explicit_package_bases = true
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["a2a_cards"]
+disable_error_code = ["no-any-return"]
 
 [tool.uv.workspace]
 # Allow uv to discover plugin and tool projects (minimal set for linting)

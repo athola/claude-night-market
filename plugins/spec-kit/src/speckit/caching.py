@@ -207,7 +207,7 @@ def cached(
 
             return result
 
-        return wrapper  # type: ignore[return-value]
+        return wrapper
 
     return decorator
 
