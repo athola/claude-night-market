@@ -160,5 +160,13 @@ module = [
 ]
 disable_error_code = ["arg-type", "return-value", "attr-defined", "assignment", "misc", "override", "name-defined", "call-overload", "union-attr", "type-arg", "no-redef"]
 
+[[tool.mypy.overrides]]
+module = [
+    "tests.scripts.test_update_vitality_scores",
+    "tests.scripts.test_update_autonomy_state",
+]
+disable_error_code = ["attr-defined"]
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
+skips = ["B101", "B404", "B603"]

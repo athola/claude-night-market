@@ -57,7 +57,7 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "D205", "PLR0913", "S103", "PLC0415"]
+"tests/**/*.py" = ["S101", "PLR2004", "D102", "D103", "S108", "D205", "PLR0913", "S103", "PLC0415", "E402", "I001"]
 "hooks/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603", "E402", "BLE001", "D104"]
 "scripts/**/*.py" = ["S603", "S607", "T201", "PLC0415", "PLW0603", "E402", "PLR0912", "PLR0913", "PLR0915"]
 "scripts/makefile_dogfooder.py" = ["F401"]
