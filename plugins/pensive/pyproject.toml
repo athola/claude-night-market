@@ -77,7 +77,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
-    "--cov-fail-under=85",
+    "--cov-fail-under=90",
     "--tb=short",
 ]
 testpaths = ["tests"]
@@ -120,7 +120,7 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
     "@overload",
 ]
-fail_under = 85
+fail_under = 90
 show_missing = true
 precision = 2
 

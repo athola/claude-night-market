@@ -43,7 +43,19 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=core --cov-report=term-missing --cov-fail-under=90"
+
+[tool.coverage.run]
+source = ["core"]
+omit = ["scripts/*", "tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90
 
 [dependency-groups]
 dev = [

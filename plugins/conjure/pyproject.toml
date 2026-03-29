@@ -150,6 +150,9 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 addopts = [
     "--strict-markers",
+    "--cov=scripts",
+    "--cov-report=term-missing",
+    "--cov-fail-under=90",
 ]
 markers = [
     "unit: Unit tests for individual components",
@@ -159,6 +162,25 @@ markers = [
 ]
 filterwarnings = [
     "ignore::ResourceWarning",
+    "ignore::RuntimeWarning",
     "ignore::pytest.PytestUnraisableExceptionWarning",
     "ignore::pytest.PytestUnknownMarkWarning",
 ]
+
+[tool.coverage.run]
+source = ["scripts"]
+omit = [
+    "hooks/*",
+    "tests/*",
+    "*/__pycache__/*",
+    "scripts/delegation_executor.py",  # CLI entry point
+    "scripts/quota_tracker.py",        # CLI entry point
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90

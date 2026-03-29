@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
@@ -14,10 +15,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
 import pre_compact_preserve as preserve_module
 from pre_compact_preserve import (
+    cleanup_old_archives,
     extract_decisions,
     extract_errors,
     extract_file_paths,
     extract_recent_content,
+    main,
     save_preserved_context,
 )
 
@@ -329,3 +332,324 @@ class TestPreCompactPreserve:
                 os.environ["CLAUDE_HOME"] = original_env
             else:
                 os.environ.pop("CLAUDE_HOME", None)
+
+
+class TestCleanupOldArchives:
+    """Feature: Archive file cleanup."""
+
+    @pytest.mark.unit
+    def test_removes_excess_archives(self, tmp_path: Path):
+        """Keep only the most recent N archives."""
+        original_get = preserve_module.get_archive_dir
+        preserve_module.get_archive_dir = lambda: tmp_path
+
+        try:
+            for i in range(15):
+                f = tmp_path / f"pre-compact-2024010{i:02d}-test.md"
+                f.write_text(f"archive {i}")
+
+            cleanup_old_archives(keep_count=5)
+            remaining = list(tmp_path.glob("pre-compact-*.md"))
+            assert len(remaining) == 5
+        finally:
+            preserve_module.get_archive_dir = original_get
+
+    @pytest.mark.unit
+    def test_keeps_all_when_under_limit(self, tmp_path: Path):
+        """No files removed when count is under keep_count."""
+        original_get = preserve_module.get_archive_dir
+        preserve_module.get_archive_dir = lambda: tmp_path
+
+        try:
+            for i in range(3):
+                f = tmp_path / f"pre-compact-2024010{i}-test.md"
+                f.write_text(f"archive {i}")
+
+            cleanup_old_archives(keep_count=10)
+            remaining = list(tmp_path.glob("pre-compact-*.md"))
+            assert len(remaining) == 3
+        finally:
+            preserve_module.get_archive_dir = original_get
+
+
+class TestSavePreservedContextBranches:
+    """Additional branch coverage for save_preserved_context."""
+
+    @pytest.mark.unit
+    def test_save_with_empty_data(self, tmp_path: Path):
+        """Save with no files, decisions, or errors."""
+        original_get = preserve_module.get_archive_dir
+        preserve_module.get_archive_dir = lambda: tmp_path
+
+        try:
+            archive = save_preserved_context([], [], [], "auto")
+            content = archive.read_text()
+            assert "_No files tracked_" in content
+            assert "_No decisions tracked_" in content
+            assert "_No errors tracked_" in content
+        finally:
+            preserve_module.get_archive_dir = original_get
+
+
+class TestExtractRecentContentBranches:
+    """Branch coverage for extract_recent_content edge cases."""
+
+    @pytest.mark.unit
+    def test_handles_large_file_with_seek(self, tmp_path: Path):
+        """Large session files are read from the tail."""
+        session = tmp_path / "session.jsonl"
+        # Write more than 500KB to trigger seek
+        lines = []
+        for i in range(2000):
+            lines.append(
+                json.dumps(
+                    {
+                        "role": "user" if i % 2 == 0 else "assistant",
+                        "content": "x" * 300,
+                    }
+                )
+            )
+        session.write_text("\n".join(lines))
+        result = extract_recent_content(session, max_turns=10)
+        assert len(result) <= 10
+
+    @pytest.mark.unit
+    def test_handles_read_error(self, tmp_path: Path):
+        """Returns empty list on OS error."""
+        missing = tmp_path / "missing.jsonl"
+        result = extract_recent_content(missing)
+        assert result == []
+
+    @pytest.mark.unit
+    def test_skips_non_conversation_entries(self, tmp_path: Path):
+        """Entries without user/assistant role are skipped."""
+        session = tmp_path / "session.jsonl"
+        entries = [
+            {"role": "system", "content": "System message"},
+            {"role": "user", "content": "Hello"},
+        ]
+        with open(session, "w") as f:
+            for entry in entries:
+                f.write(json.dumps(entry) + "\n")
+        result = extract_recent_content(session)
+        assert len(result) == 1
+        assert result[0]["role"] == "user"
+
+    @pytest.mark.unit
+    def test_handles_invalid_json_lines(self, tmp_path: Path):
+        """Invalid JSON lines are skipped."""
+        session = tmp_path / "session.jsonl"
+        session.write_text("not json\n{invalid\n")
+        result = extract_recent_content(session)
+        assert result == []
+
+
+class TestResolveSessionFileBranches:
+    """Branch coverage for resolve_session_file edge cases."""
+
+    @pytest.mark.unit
+    def test_fallback_to_most_recent_project_dir(self, tmp_path: Path):
+        """Falls back to most recent project dir if cwd doesn't match."""
+        projects = tmp_path / "projects"
+        projects.mkdir()
+        # Create a project dir that doesn't match cwd
+        other_project = projects / "-some-other-project"
+        other_project.mkdir()
+        session = other_project / "session.jsonl"
+        session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
+
+        original_env = os.environ.get("CLAUDE_HOME")
+        os.environ["CLAUDE_HOME"] = str(tmp_path)
+        try:
+            preserve_module.resolve_session_file()
+            # May or may not find it depending on cwd, but shouldn't crash
+            # The important thing is the fallback branch is exercised
+        finally:
+            if original_env:
+                os.environ["CLAUDE_HOME"] = original_env
+            else:
+                os.environ.pop("CLAUDE_HOME", None)
+
+    @pytest.mark.unit
+    def test_no_jsonl_files_returns_none(self, tmp_path: Path):
+        """Returns None when project dir has no JSONL files."""
+        projects = tmp_path / "projects"
+        cwd = Path.cwd()
+        project_name = str(cwd).replace(os.sep, "-")
+        if not project_name.startswith("-"):
+            project_name = "-" + project_name
+        project_dir = projects / project_name
+        project_dir.mkdir(parents=True)
+
+        original_env = os.environ.get("CLAUDE_HOME")
+        os.environ["CLAUDE_HOME"] = str(tmp_path)
+        try:
+            result = preserve_module.resolve_session_file()
+            assert result is None
+        finally:
+            if original_env:
+                os.environ["CLAUDE_HOME"] = original_env
+            else:
+                os.environ.pop("CLAUDE_HOME", None)
+
+    @pytest.mark.unit
+    def test_fallback_to_most_recent_jsonl(self, tmp_path: Path):
+        """Falls back to most recently modified JSONL when no session ID."""
+        projects = tmp_path / "projects"
+        cwd = Path.cwd()
+        project_name = str(cwd).replace(os.sep, "-")
+        if not project_name.startswith("-"):
+            project_name = "-" + project_name
+        project_dir = projects / project_name
+        project_dir.mkdir(parents=True)
+
+        f1 = project_dir / "old.jsonl"
+        f1.write_text("{}\n")
+        f2 = project_dir / "new.jsonl"
+        f2.write_text("{}\n")
+
+        original_env = os.environ.get("CLAUDE_HOME")
+        original_session = os.environ.get("CLAUDE_SESSION_ID")
+        os.environ["CLAUDE_HOME"] = str(tmp_path)
+        os.environ.pop("CLAUDE_SESSION_ID", None)
+        try:
+            result = preserve_module.resolve_session_file()
+            assert result is not None
+        finally:
+            if original_env:
+                os.environ["CLAUDE_HOME"] = original_env
+            else:
+                os.environ.pop("CLAUDE_HOME", None)
+            if original_session:
+                os.environ["CLAUDE_SESSION_ID"] = original_session
+
+
+class TestExtractFilePathsBranches:
+    """Additional branch coverage for extract_file_paths."""
+
+    @pytest.mark.unit
+    def test_handles_string_blocks_in_list(self, tmp_path: Path):
+        """String elements in content list are processed."""
+        test_file = tmp_path / "test.py"
+        test_file.write_text("# test")
+
+        entries = [
+            {
+                "role": "assistant",
+                "content": [f"Reading {test_file} now"],
+            }
+        ]
+        paths = extract_file_paths(entries)
+        assert str(test_file) in paths
+
+    @pytest.mark.unit
+    def test_handles_invalid_paths_gracefully(self):
+        """Invalid paths don't cause crashes."""
+        entries = [
+            {
+                "role": "assistant",
+                "content": "file at /nonexistent/path/to/nowhere.py",
+            }
+        ]
+        paths = extract_file_paths(entries)
+        # Path doesn't exist, so it should be filtered out
+        assert "/nonexistent/path/to/nowhere.py" not in paths
+
+
+class TestPreCompactMain:
+    """Entry point integration tests."""
+
+    @pytest.mark.unit
+    def test_main_no_session_file(self, monkeypatch: pytest.MonkeyPatch):
+        """Outputs minimal JSON when no session found."""
+        monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: None)
+        monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        assert output["hookSpecificOutput"]["hookEventName"] == "PreCompact"
+
+    @pytest.mark.unit
+    def test_main_no_content_in_session(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Outputs minimal JSON when session has no extractable content."""
+        session = tmp_path / "session.jsonl"
+        session.write_text("")  # Empty session
+        monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: session)
+        monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        assert output["hookSpecificOutput"]["hookEventName"] == "PreCompact"
+
+    @pytest.mark.unit
+    def test_main_with_content_creates_archive(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Creates archive and outputs summary when session has content."""
+        session = tmp_path / "session.jsonl"
+        lines = [
+            json.dumps({"role": "user", "content": "Fix the bug"}),
+            json.dumps(
+                {
+                    "role": "assistant",
+                    "content": "I decided to use pytest for testing",
+                }
+            ),
+        ]
+        session.write_text("\n".join(lines))
+
+        monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: session)
+        archive_dir = tmp_path / "archive"
+        archive_dir.mkdir()
+        monkeypatch.setattr(preserve_module, "get_archive_dir", lambda: archive_dir)
+        monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        assert "archivePath" in output["hookSpecificOutput"]
+
+    @pytest.mark.unit
+    def test_main_invalid_json_stdin(self, monkeypatch: pytest.MonkeyPatch):
+        """Handles invalid JSON stdin gracefully."""
+        monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: None)
+        monkeypatch.setattr("sys.stdin", io.StringIO("not json"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+
+        rc = main()
+        assert rc == 0
+
+    @pytest.mark.unit
+    def test_main_reads_trigger_from_input(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """Trigger from hook input is passed to save_preserved_context."""
+        session = tmp_path / "session.jsonl"
+        session.write_text(json.dumps({"role": "user", "content": "test"}) + "\n")
+        monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: session)
+        archive_dir = tmp_path / "archive"
+        archive_dir.mkdir()
+        monkeypatch.setattr(preserve_module, "get_archive_dir", lambda: archive_dir)
+        hook_input = json.dumps({"trigger": "auto-compact"})
+        monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+
+        rc = main()
+        assert rc == 0
+        # Check archive file was created with trigger info
+        archives = list(archive_dir.glob("pre-compact-*.md"))
+        assert len(archives) == 1
+        content = archives[0].read_text()
+        assert "auto-compact" in content

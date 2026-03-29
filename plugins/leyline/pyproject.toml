@@ -92,11 +92,17 @@ markers = [
 
 [tool.coverage.run]
 source = ["src/leyline"]
-omit = ["*/tests/*", "*/__pycache__/*"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "src/leyline/deferred_capture.py",  # CLI wrapper, tested at plugin level
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
+fail_under = 90

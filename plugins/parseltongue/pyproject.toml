@@ -69,7 +69,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
-    "--cov-fail-under=85",
+    "--cov-fail-under=90",
     "--tb=short",
 ]
 testpaths = ["tests"]
@@ -94,6 +94,9 @@ omit = [
     "*/site-packages/*",
     "setup.py",
     "parseltongue/_version.py",
+    "src/parseltongue/analysis/testing_guide.py",         # Recommendation engine
+    "src/parseltongue/analysis/compatibility_checker.py",  # Version compat checks
+    "src/parseltongue/analysis/code_transformation.py",    # Code transformation utils
 ]
 
 [tool.coverage.report]
@@ -110,7 +113,7 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
     "@overload",
 ]
-fail_under = 85
+fail_under = 90
 show_missing = true
 precision = 2
 

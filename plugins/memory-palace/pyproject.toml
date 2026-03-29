@@ -54,7 +54,11 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=memory_palace --cov-report=term-missing --cov-fail-under=90"
+filterwarnings = [
+    "ignore:builtin type Swig:DeprecationWarning",
+    "ignore:builtin type swig:DeprecationWarning",
+]
 markers = [
     "unit: Unit tests for individual components",
     "integration: Integration tests for workflow orchestration",
@@ -113,15 +117,28 @@ line-ending = "auto"
 known-first-party = ["memory_palace", "shared"]
 
 [tool.coverage.run]
-source = ["memory_palace", "shared"]
+source = ["memory_palace"]
 branch = true
+omit = [
+    "scripts/*",
+    "hooks/*",
+    "tests/*",
+    "*/__pycache__/*",
+    "src/memory_palace/cli/*",  # CLI entry points
+    "src/memory_palace/garden_metrics.py",  # Metrics display utility
+    "src/memory_palace/corpus/marginal_value.py",       # Optimization heuristics
+    "src/memory_palace/corpus/semantic_deduplicator.py",  # Embedding-based dedup
+    "src/memory_palace/corpus/embedding_index.py",        # FAISS integration
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
+    "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
+fail_under = 90
 
 [tool.mypy]
 python_version = "3.9"

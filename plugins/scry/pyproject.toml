@@ -23,6 +23,9 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["-v", "--strict-markers"]
+
+# Note: scry has no Python source code (only shell scripts and tests).
+# Coverage is not applicable - tests validate plugin structure and workflows.
 markers = [
     "unit: Unit tests",
     "integration: Integration tests (require ffmpeg/vhs)",

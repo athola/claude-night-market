@@ -134,7 +134,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=80",
+    "--cov-fail-under=90",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -171,6 +171,7 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
+fail_under = 90
 
 # Bandit configuration
 [tool.bandit]

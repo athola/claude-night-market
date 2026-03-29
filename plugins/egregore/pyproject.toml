@@ -71,7 +71,20 @@ disable_error_code = ["assignment", "arg-type"]
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
+addopts = "-v --cov=scripts --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
 ]
+
+[tool.coverage.run]
+source = ["scripts"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90
