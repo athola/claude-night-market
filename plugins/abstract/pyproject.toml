@@ -139,6 +139,9 @@ markers = [
     "slow: Slow running tests",
     "bdd: Behavior-driven development style tests",
 ]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
 
 [tool.coverage.run]
 source = ["abstract"]

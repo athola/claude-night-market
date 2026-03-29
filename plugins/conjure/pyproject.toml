@@ -157,3 +157,8 @@ markers = [
     "slow: Slow running tests",
     "bdd: BDD-style behavior-driven tests",
 ]
+filterwarnings = [
+    "ignore::ResourceWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::pytest.PytestUnknownMarkWarning",
+]
