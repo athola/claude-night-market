@@ -2,9 +2,7 @@
 name: supply-chain-advisory
 description: 'Supply chain security patterns for dependency management: known-bad version
   detection, incident response, lockfile auditing, and artifact scanning.
-
-
-  supply chain, dependency security, compromised packages, PyPI, lockfile audit'
+  Do not use for general CVE triage unrelated to dependency supply chain.'
 version: 1.7.2
 alwaysApply: false
 category: infrastructure
@@ -44,12 +42,18 @@ Supply chain attacks bypass traditional code review by compromising upstream
 dependencies. This skill provides patterns for detecting, preventing, and
 responding to compromised packages in Python ecosystems.
 
-## When to Use
+## When To Use
 
 - After a supply chain advisory is published
 - When auditing dependencies for a new or existing project
 - During incident response for a suspected compromise
 - When adding the SessionStart hook to a project
+
+## When NOT To Use
+
+- General CVE triage unrelated to dependency supply chain
+- Application-level vulnerability scanning (use a SAST tool)
+- License compliance audits (different concern)
 
 ## Known-Bad Versions Blocklist
 
