@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -109,7 +109,7 @@ class TestValidInput:
                 "permission_mode": "default",
             }
         )
-        fixed_dt = datetime(2026, 3, 8, 12, 30, 45, tzinfo=timezone.utc)
+        fixed_dt = datetime(2026, 3, 8, 12, 30, 45, tzinfo=UTC)
 
         mock_stdin = _make_stdin_mock(input_data)
         with patch("sys.stdin", mock_stdin):
@@ -124,7 +124,7 @@ class TestValidInput:
                     main()
 
         mock_stdin.read.assert_called_once()
-        mock_datetime.now.assert_called_once_with(timezone.utc)
+        mock_datetime.now.assert_called_once_with(UTC)
         assert "2026-03-08T12:30:45Z" in captured_stderr.getvalue()
 
     @pytest.mark.bdd

@@ -30,7 +30,7 @@ class StructureMixin:
         derive_macros = []
         problematic_patterns = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             if re.search(r"#\[derive\(", line):
                 derive_macros.append({"line": i + 1, "macros": line})
@@ -95,7 +95,7 @@ class StructureMixin:
         object_safety_issues: list[dict[str, Any]] = []
         missing_methods: list[str] = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         current_trait = None
         trait_methods: list[str] = []
 
@@ -175,7 +175,7 @@ class StructureMixin:
         bounded_generics = []
         unconstrained_usage = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         current_struct = None
 
         for i, line in enumerate(lines):

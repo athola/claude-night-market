@@ -13,10 +13,11 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from leyline.tokens import DEFAULT_EXTENSION_TOKEN_RATIO, EXTENSION_TOKEN_RATIOS
@@ -114,10 +115,8 @@ class QuotaTracker:
             self.usage.tokens_this_minute = 0
 
         # Reset daily counters if new day
-        last_date = datetime.fromtimestamp(
-            self.usage.last_request_time, tz=timezone.utc
-        ).date()
-        current_date = datetime.now(timezone.utc).date()
+        last_date = datetime.fromtimestamp(self.usage.last_request_time, tz=UTC).date()
+        current_date = datetime.now(UTC).date()
         if current_date > last_date:
             self.usage.requests_today = 0
             self.usage.tokens_today = 0
@@ -263,8 +262,6 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
-    import argparse  # noqa: PLC0415
-
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")

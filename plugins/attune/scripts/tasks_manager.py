@@ -16,7 +16,7 @@ if str(_ABSTRACT_SRC) not in sys.path:
     sys.path.insert(0, str(_ABSTRACT_SRC))
 
 try:
-    from abstract.tasks_manager_base import (  # type: ignore[import-not-found]  # noqa: E402
+    from abstract.tasks_manager_base import (
         AmbiguityResult,
         AmbiguityType,
         ResumeState,
@@ -27,11 +27,54 @@ try:
         get_claude_code_version,
         is_tasks_available,
     )
-except ImportError as e:
-    raise ImportError(
-        "attune requires the 'abstract' plugin to be installed. "
-        "Install it from: plugins/abstract"
-    ) from e
+except ImportError:
+    import sys
+
+    sys.stderr.write(
+        "Warning: abstract plugin not found. Task management features disabled.\n"
+    )
+
+    # Provide a stub that reports unavailability
+    class TasksManagerBase:
+        """Stub base when abstract plugin is unavailable."""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            """Initialize stub."""
+            raise RuntimeError("Task management requires the abstract plugin")
+
+    # Stubs so downstream references don't break at import time
+    class AmbiguityResult:
+        """Stub for AmbiguityResult."""
+
+    class AmbiguityType:
+        """Stub for AmbiguityType."""
+
+    class ResumeState:
+        """Stub for ResumeState."""
+
+    TasksManager = TasksManagerBase
+
+    class TasksManagerConfig:
+        """Stub for TasksManagerConfig."""
+
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            """Initialize stub."""
+
+    class TaskState:
+        """Stub for TaskState."""
+
+    def detect_ambiguity(*args: object, **kwargs: object) -> None:
+        """Stub for detect_ambiguity."""
+        return None
+
+    def get_claude_code_version(*args: object, **kwargs: object) -> str:
+        """Stub for get_claude_code_version."""
+        return "unknown"
+
+    def is_tasks_available(*args: object, **kwargs: object) -> bool:
+        """Stub for is_tasks_available."""
+        return False
+
 
 # Plugin-specific constants (preserved for backward compatibility)
 PLUGIN_NAME = "attune"

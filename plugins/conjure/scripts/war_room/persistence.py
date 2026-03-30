@@ -180,7 +180,7 @@ def archive_session(
     return None
 
 
-def list_sessions(  # noqa: PLR0912
+def list_sessions(  # noqa: PLR0912 - nested directory traversal with many entry types
     strategeion: Path, include_archived: bool = False
 ) -> list[dict[str, Any]]:
     """List all War Room sessions."""

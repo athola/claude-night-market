@@ -8,6 +8,7 @@ and token usage tracking through a single entry point.
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from pathlib import Path
 
@@ -56,8 +57,13 @@ class ComplianceCLI(AbstractCLI):
         try:
             results = checker.check_compliance()
             return CLIResult(success=True, data=results)
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError) as e:
             return CLIResult(success=False, error=str(e))
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Unexpected error in %s", type(self).__name__
+            )
+            raise
 
     def format_text(self, data: dict) -> str:
         """Format compliance results as text."""
@@ -120,8 +126,13 @@ class AuditCLI(AbstractCLI):
         try:
             results = auditor.audit_skills()
             return CLIResult(success=True, data=results)
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError) as e:
             return CLIResult(success=False, error=str(e))
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Unexpected error in %s", type(self).__name__
+            )
+            raise
 
     def format_text(self, data: dict) -> str:
         """Format audit results as text."""
@@ -188,8 +199,13 @@ class SuggestCLI(AbstractCLI):
                 result = suggester.analyze_skill(skill_name)
                 suggestions = [result] if result else []
             return CLIResult(success=True, data=suggestions)
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError) as e:
             return CLIResult(success=False, error=str(e))
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Unexpected error in %s", type(self).__name__
+            )
+            raise
 
     def format_text(self, data: list) -> str:
         """Format suggestions as text."""
@@ -247,8 +263,13 @@ class TokenCLI(AbstractCLI):
         try:
             results = tracker.analyze_all_skills()
             return CLIResult(success=True, data=results)
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError) as e:
             return CLIResult(success=False, error=str(e))
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Unexpected error in %s", type(self).__name__
+            )
+            raise
 
     def format_text(self, data: dict) -> str:
         """Format token analysis as text."""

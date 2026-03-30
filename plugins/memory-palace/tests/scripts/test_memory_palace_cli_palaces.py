@@ -106,7 +106,7 @@ class TestCreatePalace:
             result = cli.create_palace("Test", "testing")
 
         assert result is False
-        assert "disk full" in capsys.readouterr().out
+        assert "Failed to create palace" in capsys.readouterr().out
 
 
 class TestListPalaces:
@@ -523,7 +523,7 @@ class TestExportImportCLI:
         with patch.object(cli, "_manager", return_value=mock_manager):
             cli.export_palaces("/tmp/out.json")
 
-        assert "write err" in capsys.readouterr().out
+        assert "Export failed" in capsys.readouterr().out
 
     def test_import_delegates_to_manager(self) -> None:
         """Given a source, import delegates to manager."""
@@ -550,7 +550,7 @@ class TestExportImportCLI:
         with patch.object(cli, "_manager", return_value=mock_manager):
             cli.import_palaces("/tmp/in.json")
 
-        assert "read err" in capsys.readouterr().out
+        assert "Import failed" in capsys.readouterr().out
 
 
 class TestPalacesDir:

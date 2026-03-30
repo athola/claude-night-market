@@ -16,7 +16,7 @@ def _bootstrap_path() -> None:
 
 _bootstrap_path()
 
-from minister.project_tracker import (  # noqa: E402
+from minister.project_tracker import (
     run_cli,
 )
 

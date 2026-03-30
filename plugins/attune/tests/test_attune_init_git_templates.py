@@ -298,6 +298,7 @@ class TestAttuneInitBehavior:
             cwd=project_dir,
             check=True,
             capture_output=True,
+            timeout=30,
         )
 
     def test_scenario_copy_and_render_templates(
@@ -323,7 +324,7 @@ class TestAttuneInitBehavior:
         project_dir.mkdir()
 
         # When
-        created = copy_templates(  # noqa: F841
+        copy_templates(
             language="python",
             project_path=project_dir,
             variables=sample_template_variables,

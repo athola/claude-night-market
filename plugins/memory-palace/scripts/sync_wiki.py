@@ -13,7 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import subprocess  # nosec: B404
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,7 +23,7 @@ REPO_URL = "git@github.com:athola/claude-night-market.wiki.git"
 
 
 def _run(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=False)  # noqa: S603  # nosec: B603
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=False)
 
 
 def clone() -> bool:

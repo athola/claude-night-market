@@ -29,7 +29,7 @@ def main():
     source = input_data.get("source", "unknown")
     file_path = input_data.get("file_path", "unknown")
     permission_mode = input_data.get("permission_mode", "unknown")
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")  # noqa: UP017
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     print(
         f"[CONFIG_CHANGE_AUDIT] {timestamp} "

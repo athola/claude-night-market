@@ -40,7 +40,7 @@ class SafetyMixin:
         unsafe_block_pattern = r"unsafe\s*\{"
         unsafe_fn_pattern = r"unsafe\s+fn\s+(\w+)"
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             if re.search(unsafe_block_pattern, line):
                 unsafe_blocks.append(
@@ -84,7 +84,7 @@ class SafetyMixin:
         use_after_free = []
         lifetime_issues = []
 
-        lines = self._get_lines(content)  # type: ignore[attr-defined]
+        lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect raw pointer operations
             if re.search(r"\*\w+\.offset\(", line):

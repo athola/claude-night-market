@@ -28,9 +28,11 @@ HOOKS_DIR = PLUGIN_ROOT / "hooks"
 if str(HOOKS_DIR) not in sys.path:
     sys.path.insert(0, str(HOOKS_DIR))
 
-import session_lifecycle as lc  # noqa: E402 (import after sys.path manipulation)
+import session_lifecycle as lc  # noqa: E402 - import after sys.path setup
 
-from memory_palace.session_history import SessionHistoryManager  # noqa: E402
+from memory_palace.session_history import (  # noqa: E402 - import after sys.path setup
+    SessionHistoryManager,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -144,22 +146,27 @@ class TestSafeFloat:
 
     @pytest.mark.unit
     def test_converts_int(self) -> None:
+        """Verify integer input is converted to float."""
         assert lc._safe_float(42) == 42.0
 
     @pytest.mark.unit
     def test_converts_string_number(self) -> None:
+        """Verify numeric string input is converted to float."""
         assert lc._safe_float("3.14") == pytest.approx(3.14)
 
     @pytest.mark.unit
     def test_returns_default_for_none(self) -> None:
+        """Verify None input returns default value of 0.0."""
         assert lc._safe_float(None) == 0.0
 
     @pytest.mark.unit
     def test_returns_default_for_bad_string(self) -> None:
+        """Verify non-numeric string returns the specified default."""
         assert lc._safe_float("not-a-number", default=99.0) == 99.0
 
     @pytest.mark.unit
     def test_custom_default(self) -> None:
+        """Verify custom default is returned for None input."""
         assert lc._safe_float(None, default=7.5) == 7.5
 
 
@@ -427,7 +434,7 @@ class TestMainIntegration:
         """
 
         class _BrokenManager(SessionHistoryManager):
-            def record_session(self, record: object) -> object:  # type: ignore[override]
+            def record_session(self, record: object) -> object:  # type: ignore[override] - intentional signature mismatch for error path test
                 raise RuntimeError("disk full")
 
         def _broken(*_a: object, **_kw: object) -> _BrokenManager:

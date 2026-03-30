@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import logging
 import os
 import re
 import shutil
@@ -330,7 +331,7 @@ class TestQualityChecker:
                 tmp_path = tmp_file.name
 
             try:
-                result = subprocess.run(  # noqa: S603 safe: python_path from PATH, args fixed
+                result = subprocess.run(
                     [
                         python_path,
                         "-m",
@@ -596,6 +597,7 @@ def main() -> None:
             parser.print_help()
 
     except Exception as e:
+        logging.getLogger(__name__).exception("Unexpected error in quality_checker")
         output_error(f"Error checking quality: {e}", args)
 
 

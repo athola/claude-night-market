@@ -297,9 +297,11 @@ class TestMainIgnoresNonWebTools:
         """Given a Read tool payload, exit silently."""
         payload = {"tool_name": "Read", "tool_input": {"file_path": "/tmp/foo"}}
 
-        with patch("sys.stdin", _json_stdin(payload)):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+        with (
+            patch("sys.stdin", _json_stdin(payload)),
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
@@ -307,9 +309,11 @@ class TestMainIgnoresNonWebTools:
     @pytest.mark.unit
     def test_ignores_invalid_json(self, capsys: pytest.CaptureFixture[str]):
         """Given malformed JSON on stdin, exit cleanly."""
-        with patch("sys.stdin", StringIO("not json {")):
-            with pytest.raises(SystemExit) as exc_info:
-                web_research_handler.main()
+        with (
+            patch("sys.stdin", StringIO("not json {")),
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            web_research_handler.main()
 
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""

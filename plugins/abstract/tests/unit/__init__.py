@@ -1,1 +1,1 @@
-# Unit tests for abstract plugin
+"""Unit tests for abstract plugin."""

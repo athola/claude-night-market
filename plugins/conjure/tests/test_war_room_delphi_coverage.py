@@ -10,9 +10,9 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from scripts.war_room import WarRoomOrchestrator
 from scripts.war_room.delphi import compute_convergence, delphi_revision_round
 from scripts.war_room.models import ExpertInfo, WarRoomSession
-from scripts.war_room_orchestrator import WarRoomOrchestrator
 
 # -------------------------------------------------------------------
 # compute_convergence

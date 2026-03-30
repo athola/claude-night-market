@@ -21,6 +21,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from shared.config import get_config
 from shared.deduplication import (
@@ -46,8 +47,8 @@ def extract_title_from_content(content: str, url: str) -> str:
     """Extract a reasonable title from content or URL."""
     # Try to find a title-like line at the start
     lines = content.strip().split("\n")[:10]
-    for line in lines:
-        line = line.strip()
+    for raw_line in lines:
+        line = raw_line.strip()
         # Skip empty lines and common prefixes
         if not line or line.startswith("#") and len(line) < 5:
             continue
@@ -58,8 +59,6 @@ def extract_title_from_content(content: str, url: str) -> str:
             return line[:100]
 
     # Fall back to URL-based title
-    from urllib.parse import urlparse
-
     parsed = urlparse(url)
     path_parts = [p for p in parsed.path.split("/") if p]
     if path_parts:
@@ -353,8 +352,8 @@ def _build_storage_reminder(tool_name: str) -> str:
     )
 
 
-def main() -> None:
-    """Main hook entry point."""
+def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive request routing
+    """Run the web research handler hook entry point."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError as e:
@@ -425,7 +424,8 @@ def main() -> None:
                         f"  Stored to: {Path(stored_path).name}\n"
                         f"  Content length: {len(content):,} chars\n"
                         "  Status: pending_review\n"
-                        "  IMPORTANT: Do NOT delete without evaluation - run knowledge-intake to review",
+                        "  IMPORTANT: Do NOT delete without evaluation"
+                        " - run knowledge-intake to review",
                     )
                 else:
                     context_parts.append(
@@ -464,7 +464,8 @@ def main() -> None:
                         f"  Stored to: {Path(stored_path).name}\n"
                         f"  New sources: {len(new_urls)}, Known: {len(known_urls)}\n"
                         "  Status: pending_review\n"
-                        "  IMPORTANT: Do NOT delete without evaluation - run knowledge-intake to review",
+                        "  IMPORTANT: Do NOT delete without evaluation"
+                        " - run knowledge-intake to review",
                     )
                 else:
                     # Fallback to old behavior

@@ -82,8 +82,11 @@ def _query_workflow_runs(
         msg = result.stderr.strip() or "gh api call failed"
         raise RuntimeError(msg)
 
-    data = json.loads(result.stdout)
-    return data.get("workflow_runs", [])  # type: ignore[no-any-return]
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"gh api returned non-JSON: {result.stdout[:200]}") from exc
+    return data.get("workflow_runs", [])
 
 
 def _runs_to_records(

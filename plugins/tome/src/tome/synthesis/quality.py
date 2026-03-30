@@ -7,7 +7,7 @@ from typing import Any
 
 from tome.models import Finding
 
-_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
+_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 
 # A channel is "skewed" if it holds more than this fraction of findings
 _SKEW_THRESHOLD = 0.75

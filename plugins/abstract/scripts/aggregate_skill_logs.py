@@ -521,7 +521,7 @@ def extract_pinned_section(content: str) -> str:
     return section
 
 
-def _format_hyperagents_section() -> list[str]:
+def _format_hyperagents_section() -> list[str]:  # noqa: PLR0912 - report section requires many conditional formatting branches
     """Format Hyperagents performance trends and meta-insights.
 
     Best-effort: returns empty list if modules unavailable.

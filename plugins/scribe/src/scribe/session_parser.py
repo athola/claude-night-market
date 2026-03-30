@@ -1,11 +1,10 @@
 """Session parser for Claude Code and Codex JSONL files.
 
-Reads session JSONL from ~/.claude/projects/ (Claude Code)
-or ~/.codex/sessions/ (Codex), extracts turns, filters by
+Parses session JSONL files, extracts turns, filters by
 type, layer, and range, and collapses tool calls into
-readable summaries.
-
-Supports auto-detection of session format from file content.
+readable summaries.  Discovers Claude Code sessions from
+~/.claude/projects/ and supports Codex format via explicit
+path or auto-detection.
 """
 
 from __future__ import annotations
@@ -56,6 +55,13 @@ class ToolResult(Turn):
 
     tool_use_id: str = ""
     content: str = ""
+
+
+@dataclass
+class ThinkingTurn(Turn):
+    """An extended-thinking block from Claude."""
+
+    text: str = ""
 
 
 # --- Session discovery ---
@@ -262,6 +268,34 @@ def _parse_turn_range(turns_str: str) -> tuple[int, int]:
 # --- Format detection ---
 
 
+def _read_lines(path: Path) -> list[str]:
+    """Read a JSONL file and return stripped non-empty lines."""
+    lines: list[str] = []
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped:
+                lines.append(stripped)
+    return lines
+
+
+def _detect_format_from_lines(lines: list[str]) -> str:
+    """Detect session format from pre-loaded lines.
+
+    Codex records carry a "role" field at the top level;
+    Claude Code records do not.
+    """
+    for line in lines:
+        try:
+            record = json.loads(line)
+            if "role" in record:
+                return "codex"
+            return "claude"
+        except json.JSONDecodeError:
+            continue
+    return "claude"
+
+
 def detect_format(path: Path) -> str:
     """Detect session format from file content.
 
@@ -273,18 +307,9 @@ def detect_format(path: Path) -> str:
         "codex" or "claude".
     """
     try:
-        with open(path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                record = json.loads(line)
-                if "role" in record:
-                    return "codex"
-                return "claude"
-    except (OSError, json.JSONDecodeError):
-        pass
-    return "claude"
+        return _detect_format_from_lines(_read_lines(path))
+    except OSError:
+        return "claude"
 
 
 # --- Main parser ---
@@ -317,17 +342,26 @@ def parse_session(
 
     Returns:
         List of Turn objects in session order.
+
+    Raises:
+        OSError: If the session file cannot be read.
     """
+    try:
+        lines = _read_lines(path)
+    except OSError:
+        logger.warning("Cannot read session file %s", path)
+        raise
+
     if format is None:
-        format = detect_format(path)
+        format = _detect_format_from_lines(lines)
 
     show_layers = {s.strip() for s in show.split(",")}
 
-    # Phase 1: parse all turns from JSONL
+    # Phase 1: parse all turns from pre-loaded lines
     if format == "codex":
-        all_turns = _parse_codex_file(path, cols, rows)
+        all_turns = _parse_codex_lines(lines, cols, rows)
     else:
-        all_turns = _parse_claude_file(path, cols, rows)
+        all_turns = _parse_claude_lines(lines, cols, rows)
 
     # Phase 2: apply turn range filter
     if turns is not None:
@@ -339,34 +373,30 @@ def parse_session(
     return all_turns
 
 
-def _parse_claude_file(path: Path, cols: int, rows: int) -> list[Turn]:
-    """Parse a Claude Code session JSONL file into raw turns."""
+def _parse_claude_lines(lines: list[str], cols: int, rows: int) -> list[Turn]:
+    """Parse Claude Code session lines into raw turns."""
     all_turns: list[Turn] = []
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError:
-                logger.warning("Skipping malformed JSONL line: %s", line[:80])
-                continue
-            record_type = record.get("type")
+    for line in lines:
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            logger.warning("Skipping malformed JSONL line: %s", line[:80])
+            continue
+        record_type = record.get("type")
 
-            if record_type not in ("user", "assistant"):
-                continue
+        if record_type not in ("user", "assistant"):
+            continue
 
-            if record.get("isSidechain", False):
-                continue
+        if record.get("isSidechain", False):
+            continue
 
-            message = record.get("message", {})
-            content = message.get("content")
+        message = record.get("message", {})
+        content = message.get("content")
 
-            if record_type == "user":
-                all_turns.extend(_parse_user_content(content, cols, rows))
-            elif record_type == "assistant":
-                all_turns.extend(_parse_assistant_content(content, cols, rows))
+        if record_type == "user":
+            all_turns.extend(_parse_user_content(content, cols, rows))
+        elif record_type == "assistant":
+            all_turns.extend(_parse_assistant_content(content, cols, rows))
 
     return all_turns
 
@@ -374,41 +404,37 @@ def _parse_claude_file(path: Path, cols: int, rows: int) -> list[Turn]:
 # --- Codex parser ---
 
 
-def _parse_codex_file(path: Path, cols: int, rows: int) -> list[Turn]:
-    """Parse a Codex session JSONL file into raw turns."""
+def _parse_codex_lines(lines: list[str], cols: int, rows: int) -> list[Turn]:
+    """Parse Codex session lines into raw turns."""
     all_turns: list[Turn] = []
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError:
-                logger.warning("Skipping malformed JSONL line: %s", line[:80])
-                continue
+    for line in lines:
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            logger.warning("Skipping malformed JSONL line: %s", line[:80])
+            continue
 
-            if record.get("type") != "message":
-                continue
+        if record.get("type") != "message":
+            continue
 
-            role = record.get("role")
+        role = record.get("role")
 
-            if role == "user":
-                text = record.get("content", "")
-                if isinstance(text, str) and text:
-                    wrapped = _wrap_and_truncate(text, cols, rows)
-                    all_turns.append(UserTurn(text=wrapped))
+        if role == "user":
+            text = record.get("content", "")
+            if isinstance(text, str) and text:
+                wrapped = _wrap_and_truncate(text, cols, rows)
+                all_turns.append(UserTurn(text=wrapped))
 
-            elif role == "assistant":
-                all_turns.extend(_parse_codex_assistant(record, cols, rows))
+        elif role == "assistant":
+            all_turns.extend(_parse_codex_assistant(record, cols, rows))
 
-            elif role == "tool":
-                all_turns.append(
-                    ToolResult(
-                        tool_use_id=record.get("tool_call_id", ""),
-                        content=str(record.get("content", "")),
-                    )
+        elif role == "tool":
+            all_turns.append(
+                ToolResult(
+                    tool_use_id=record.get("tool_call_id", ""),
+                    content=str(record.get("content", "")),
                 )
+            )
 
     return all_turns
 
@@ -495,7 +521,11 @@ def _parse_assistant_content(content: Any, cols: int, rows: int) -> list[Turn]:
             summary = _collapse_tool(name, input_data)
             result.append(ToolUse(tool_name=name, summary=summary, input=input_data))
 
-        # Skip thinking blocks and any other types
+        elif block_type == "thinking":
+            thinking_text = block.get("thinking", "")
+            if thinking_text:
+                text = _wrap_and_truncate(thinking_text, cols, rows)
+                result.append(ThinkingTurn(text=text))
 
     return result
 
@@ -542,5 +572,7 @@ def _apply_layer_filter(all_turns: list[Turn], show_layers: set[str]) -> list[Tu
         elif isinstance(turn, AssistantTurn) and "assistant" in show_layers:
             result.append(turn)
         elif isinstance(turn, (ToolUse, ToolResult)) and "tools" in show_layers:
+            result.append(turn)
+        elif isinstance(turn, ThinkingTurn) and "thinking" in show_layers:
             result.append(turn)
     return result

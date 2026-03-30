@@ -9,8 +9,8 @@ from ._base import is_call_to, parse_code
 
 __all__ = [
     "analyze_async_functions",
-    "analyze_context_managers",
     "analyze_concurrency_patterns",
+    "analyze_context_managers",
 ]
 
 

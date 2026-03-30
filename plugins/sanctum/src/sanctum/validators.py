@@ -14,28 +14,33 @@ from typing import Any
 
 import yaml
 
+try:
+    from leyline.frontmatter import parse_frontmatter
+except ImportError:
 
-def parse_frontmatter(content: str) -> dict[str, Any] | None:
-    """Parse YAML frontmatter from markdown content."""
-    if not content.strip().startswith("---"):
-        return None
+    def parse_frontmatter(content: str) -> dict[str, Any] | None:
+        """Parse YAML frontmatter from markdown content.
 
-    # Find the closing ---
-    lines = content.split("\n")
-    end_index = None
-    for i, line in enumerate(lines[1:], start=1):
-        if line.strip() == "---":
-            end_index = i
-            break
+        Inline fallback used when leyline is not available.
+        """
+        if not content.strip().startswith("---"):
+            return None
 
-    if end_index is None:
-        return None
+        lines = content.split("\n")
+        end_index = None
+        for i, line in enumerate(lines[1:], start=1):
+            if line.strip() == "---":
+                end_index = i
+                break
 
-    frontmatter_text = "\n".join(lines[1:end_index])
-    try:
-        return yaml.safe_load(frontmatter_text) or {}
-    except yaml.YAMLError:
-        return None
+        if end_index is None:
+            return None
+
+        frontmatter_text = "\n".join(lines[1:end_index])
+        try:
+            return yaml.safe_load(frontmatter_text) or {}
+        except yaml.YAMLError:
+            return None
 
 
 @dataclass

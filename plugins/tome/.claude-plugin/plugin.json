@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Multi-source research plugin — code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
   "skills": [
     "./skills/research",
@@ -42,5 +42,6 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": ["leyline"]
 }

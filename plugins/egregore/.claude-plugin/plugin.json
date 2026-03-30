@@ -1,6 +1,6 @@
 {
   "name": "egregore",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Autonomous agent orchestrator for full development lifecycles with zero human input, session budget management, and crash recovery",
   "skills": [
     "./skills/summon",
@@ -19,6 +19,9 @@
     "./agents/orchestrator.md",
     "./agents/sentinel.md"
   ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
   "keywords": [
     "egregore",
     "autonomous",
@@ -35,5 +38,6 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": ["leyline"]
 }

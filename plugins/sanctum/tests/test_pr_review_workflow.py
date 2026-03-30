@@ -100,7 +100,8 @@ class TestVersionValidation:
         plugin_json_version = "1.3.6"
 
         assert plugin_json_version != pyproject_version, (
-            f"plugin.json ({plugin_json_version}) ≠ pyproject.toml ({pyproject_version})"
+            f"plugin.json ({plugin_json_version}) ≠ pyproject.toml"
+            f" ({pyproject_version})"
         )
 
     @pytest.mark.unit

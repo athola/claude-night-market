@@ -4,8 +4,8 @@
 import argparse
 from pathlib import Path
 
-from attune_init import copy_templates, initialize_git  # type: ignore[import]
-from template_engine import get_default_variables  # type: ignore[import]
+from attune_init import copy_templates, initialize_git
+from template_engine import get_default_variables
 
 
 def create_plugin_structure(project_path: Path, plugin_name: str) -> None:
@@ -111,7 +111,7 @@ MIT
     print(f"✓ Created: {readme}")
 
 
-def initialize_plugin_project(
+def initialize_plugin_project(  # noqa: PLR0915 - plugin scaffolding creates many directories and files in sequence
     project_path: Path,
     plugin_name: str,
     author: str = "Your Name",

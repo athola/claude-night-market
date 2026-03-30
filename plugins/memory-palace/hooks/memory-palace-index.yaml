@@ -17,15 +17,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://example.com/test
-  https://www.linkedin.com/in/alexthola:
-    content_hash: sha256:e048937b2b5db0ab
-    stored_at: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
-    importance_score: 50
-    last_updated: '2026-03-27T05:05:00.599248+00:00'
-    title: Alex Thola - Professional Summary
-    maturity: seedling
-    routing_type: pending
-    url: https://www.linkedin.com/in/alexthola
   https://docs.litellm.ai/blog/security-update-march-2026:
     content_hash: sha256:2b1bf022625ba38f
     stored_at: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
@@ -80,13 +71,52 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/yewstack/yew
+  https://code.claude.com/docs/en/claude_code_docs_map.md:
+    content_hash: sha256:2a32a99c05036139
+    stored_at: data/staging/webfetch-documentation-index-2026-03-28_18-47-47.md
+    importance_score: 50
+    last_updated: '2026-03-28T18:47:47.077898+00:00'
+    title: '> ## Documentation Index'
+    maturity: seedling
+    routing_type: pending
+    url: https://code.claude.com/docs/en/claude_code_docs_map.md
+  https://code.claude.com/docs/en/plugins-reference.md:
+    content_hash: sha256:99b2c2f260fdb92e
+    stored_at: data/staging/webfetch-documentation-index-2026-03-28_18-47-56.md
+    importance_score: 50
+    last_updated: '2026-03-28T18:47:56.526429+00:00'
+    title: '> ## Documentation Index'
+    maturity: seedling
+    routing_type: pending
+    url: https://code.claude.com/docs/en/plugins-reference.md
+  https://code.claude.com/docs/en/plugins.md:
+    content_hash: sha256:af997a33286650b9
+    stored_at: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
+    importance_score: 50
+    last_updated: '2026-03-28T18:47:57.171152+00:00'
+    title: '> ## Documentation Index'
+    maturity: seedling
+    routing_type: pending
+    url: https://code.claude.com/docs/en/plugins.md
+  https://code.claude.com/docs/en/skills.md:
+    content_hash: sha256:7da53dc23bf9551d
+    stored_at: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
+    importance_score: 50
+    last_updated: '2026-03-28T18:47:57.500199+00:00'
+    title: '> ## Documentation Index'
+    maturity: seedling
+    routing_type: pending
+    url: https://code.claude.com/docs/en/skills.md
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
-  sha256:e048937b2b5db0ab: data/staging/webfetch-alex-thola-professional-summary-2026-03-27_05-05-00.md
   sha256:2b1bf022625ba38f: data/staging/webfetch-litellm-security-update-summary-2026-03-27_12-42-39.md
   sha256:815dff2a452b7dcd: data/staging/webfetch-bevy-engine-readme-structure-2026-03-27_05-05-14.md
   sha256:808ac5a5e5f17e0a: data/staging/webfetch-trunk-readme-structure-2026-03-27_05-05-14.md
   sha256:8603db13d2b0f38e: data/staging/webfetch-fyrox-game-engine-readme-structure-2026-03-27_05-05-14.md
   sha256:2dac795e9fbd64fe: data/staging/webfetch-macroquad-readme-structure-2026-03-27_05-05-14.md
   sha256:4fb187d3cd5deb4b: data/staging/webfetch-yew-framework-readme-structure-2026-03-27_05-05-15.md
+  sha256:2a32a99c05036139: data/staging/webfetch-documentation-index-2026-03-28_18-47-47.md
+  sha256:99b2c2f260fdb92e: data/staging/webfetch-documentation-index-2026-03-28_18-47-56.md
+  sha256:af997a33286650b9: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
+  sha256:7da53dc23bf9551d: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md

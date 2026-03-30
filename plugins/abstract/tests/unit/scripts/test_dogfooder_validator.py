@@ -392,7 +392,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory() is called
         Then True is returned
         """
-
         original = os.getcwd()
         try:
             os.chdir(tmp_path)
@@ -408,7 +407,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory(plugin_name='ghost') is called
         Then False is returned
         """
-
         plugins = tmp_path / "plugins" / "ghost"
         plugins.mkdir(parents=True)
 
@@ -427,7 +425,6 @@ class TestValidateWorkingDirectory:
         When validate_working_directory(plugin_name='good') is called
         Then True is returned
         """
-
         plugin_dir = tmp_path / "plugins" / "good"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / "Makefile").write_text(".PHONY: help\nhelp:\n\t@echo help\n")

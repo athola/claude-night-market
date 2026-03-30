@@ -23,6 +23,17 @@ MIN_TARGETS_FOR_PARALLEL = 5  # Minimum targets to suggest parallelization
 MIN_RECIPE_LINES_FOR_LARGE_TARGET = 3  # Recipe lines threshold
 MIN_CP_OPERATIONS_FOR_WARNING = 3  # Sequential cp commands threshold
 
+# Modernization feature scoring weights
+_SCORE_PHONY = 1.5
+_SCORE_IMMEDIATE_ASSIGN = 1.0
+_SCORE_INCLUDE = 1.0
+_SCORE_SHELL_OVERRIDE = 0.5
+_SCORE_PATTERN_RULES = 1.0
+_SCORE_ORDER_PREREQS = 1.0
+_SCORE_PRECIOUS = 0.5
+_SCORE_CROSS_COMPILE = 1.5
+_SCORE_MK_INCLUDE = 1.0
+
 
 class MakefileReviewSkill(BaseReviewSkill):
     """Skill for reviewing makefiles and build system configurations."""
@@ -148,6 +159,22 @@ class MakefileReviewSkill(BaseReviewSkill):
             "variable_usage": variable_usage,
         }
 
+    @staticmethod
+    def _find_recipe_end(lines: list[str], start: int) -> int:
+        """Find the line index where a recipe block ends.
+
+        Args:
+            lines: All makefile lines
+            start: Line index of the target definition
+
+        Returns:
+            Index of the first line after the recipe block
+        """
+        idx = start + 1
+        while idx < len(lines) and lines[idx].startswith("\t"):
+            idx += 1
+        return idx
+
     def analyze_dependencies(self, context: Any) -> dict[str, Any]:
         """Analyze dependency management in makefile.
 
@@ -160,7 +187,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         content = self._get_makefile_content(context)
 
         # Find targets and their dependencies
-        target_deps = {}
+        target_deps: dict[str, list[str]] = {}
         target_pattern = re.compile(r"^([a-zA-Z0-9_\-\.]+)\s*:\s*(.*)$", re.MULTILINE)
         for match in target_pattern.finditer(content):
             target = match.group(1)
@@ -174,13 +201,11 @@ class MakefileReviewSkill(BaseReviewSkill):
                 if dep in target_deps and target in target_deps[dep]:
                     circular_dependencies.append(f"{target} <-> {dep}")
 
-        # Check for missing dependencies
-        missing_dependencies = []
-
-        # 1. Look for targets without automatic dependency tracking
+        # Single pass over lines: check missing dependencies and specific targets
+        missing_dependencies: list[str] = []
         lines = content.split("\n")
         for i, line in enumerate(lines):
-            # Check if target compiles source without listing dependencies
+            # Check if main target compiles without listing dependencies
             if re.match(r"^main:", line) and "main.c" not in line:
                 missing_dependencies.append(
                     f"Line {i + 1}: main target missing source dependencies"
@@ -188,30 +213,27 @@ class MakefileReviewSkill(BaseReviewSkill):
 
             # Check for .o targets that compile without listing all dependencies
             if re.match(r"^parser\.o:", line):
-                # Check next few lines for recipe
-                recipe_start = i + 1
-                while recipe_start < len(lines) and lines[recipe_start].startswith(
-                    "\t"
-                ):
-                    recipe_start += 1
-                target_block = "\n".join(lines[i:recipe_start])
-                # parser.o likely needs parser.h but it's not listed
+                recipe_end = self._find_recipe_end(lines, i)
+                target_block = "\n".join(lines[i:recipe_end])
                 if "parser.h" not in target_block and "parser.c" in target_block:
                     missing_dependencies.append(
                         f"Line {i + 1}: parser.o missing header dependencies"
                     )
 
-        # 2. Look for header dependencies missing
+        # Check for header dependencies missing (from parsed target_deps)
+        header_dependencies: list[str] = []
         for target, deps in target_deps.items():
             if target.endswith(".o"):
-                # Check if corresponding .h file should be a dependency
-                base_name = target[:-2]  # Remove .o
-                if f"{base_name}.c" in deps:
-                    # Should probably have .h too
-                    if not any(dep.endswith(".h") for dep in deps):
-                        missing_dependencies.append(
-                            f"{target}: missing header file dependencies"
-                        )
+                base_name = target[:-2]
+                has_header = any(
+                    dep.endswith(".h") or dep.endswith(".hpp") for dep in deps
+                )
+                if f"{base_name}.c" in deps and not has_header:
+                    missing_dependencies.append(
+                        f"{target}: missing header file dependencies"
+                    )
+                if not has_header and target != "%.o":
+                    header_dependencies.append(f"{target} missing header dependencies")
 
         # Check for automatic dependency generation
         automatic_dependencies = []
@@ -219,16 +241,6 @@ class MakefileReviewSkill(BaseReviewSkill):
             automatic_dependencies.append("Automatic dependency generation detected")
         if re.search(r"include.*\.d\)", content):
             automatic_dependencies.append("Dependency file inclusion detected")
-
-        # Check for header dependencies
-        header_dependencies = []
-        for target, deps in target_deps.items():
-            if target.endswith(".o"):
-                has_header = any(
-                    dep.endswith(".h") or dep.endswith(".hpp") for dep in deps
-                )
-                if not has_header and target != "%.o":  # Skip pattern rules
-                    header_dependencies.append(f"{target} missing header dependencies")
 
         return {
             "missing_dependencies": missing_dependencies[:10],
@@ -420,6 +432,79 @@ class MakefileReviewSkill(BaseReviewSkill):
             "insecure_downloads": insecure_downloads[:5],
         }
 
+    @staticmethod
+    def _find_undefined_variables(content: str) -> list[str]:
+        """Scan makefile for undefined, empty, and use-before-definition variables.
+
+        Single-pass analysis over file lines collecting definitions, usages,
+        and issues together.
+
+        Args:
+            content: Makefile content
+
+        Returns:
+            List of variable issue descriptions
+        """
+        builtin_vars = {"CC", "CFLAGS", "LDFLAGS", "MAKE", "MAKEFLAGS"}
+        lines = content.split("\n")
+        defined_vars: set[str] = set()
+        used_vars: set[str] = set()
+        var_definitions: dict[str, int] = {}
+        seen: set[str] = set()
+        results: list[str] = []
+        pending_use_before_def: set[str] = set()
+
+        var_def_re = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*[:?]?=")
+        var_use_re = re.compile(r"\$\(([A-Z_][A-Z0-9_]*)\)")
+        empty_critical_re = re.compile(r"^(CFLAGS|LDFLAGS|SOURCES)\s*=\s*$")
+        target_re = re.compile(r"^[a-zA-Z0-9_\-]+:\s*(.*)$")
+
+        for i, line in enumerate(lines):
+            var_def_match = var_def_re.match(line)
+            if var_def_match:
+                var_name = var_def_match.group(1)
+                defined_vars.add(var_name)
+                if var_name not in var_definitions:
+                    var_definitions[var_name] = i
+
+            if empty_critical_re.match(line):
+                crit_name = line.split("=")[0].strip()
+                entry = f"Line {i + 1}: Empty {crit_name}"
+                if entry not in seen:
+                    seen.add(entry)
+                    results.append(entry)
+
+            for var_match in var_use_re.finditer(line):
+                used_vars.add(var_match.group(1))
+
+            target_match = target_re.match(line)
+            if target_match:
+                deps_part = target_match.group(1)
+                for var_match in var_use_re.finditer(deps_part):
+                    dep_var = var_match.group(1)
+                    if dep_var in var_definitions and var_definitions[dep_var] > i:
+                        entry = f"{dep_var} (used before definition)"
+                        if entry not in seen:
+                            seen.add(entry)
+                            results.append(entry)
+                    elif dep_var not in var_definitions and dep_var not in builtin_vars:
+                        pending_use_before_def.add(dep_var)
+
+        for var in pending_use_before_def:
+            if var in defined_vars:
+                entry = f"{var} (used before definition)"
+                if entry not in seen:
+                    seen.add(entry)
+                    results.append(entry)
+
+        for var in used_vars:
+            if var not in defined_vars and var not in builtin_vars:
+                if var not in seen:
+                    seen.add(var)
+                    results.append(var)
+
+        return results
+
     def analyze_variables(self, context: Any) -> dict[str, Any]:
         """Analyze variable usage and management.
 
@@ -431,74 +516,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         """
         content = self._get_makefile_content(context)
 
-        # Find variable definitions
-        defined_vars = set()
-        var_def_pattern = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*[:?]?=", re.MULTILINE)
-        for match in var_def_pattern.finditer(content):
-            defined_vars.add(match.group(1))
-
-        # Find variable usages
-        used_vars = set()
-        var_use_pattern = re.compile(r"\$\(([A-Z_][A-Z0-9_]*)\)")
-        for match in var_use_pattern.finditer(content):
-            used_vars.add(match.group(1))
-
-        # Check for undefined variables
-        undefined_variables = []
-
-        # First pass: check for variables used but not defined
-        for var in used_vars:
-            if var not in defined_vars:
-                # Common built-in variables are OK
-                if var not in ["CC", "CFLAGS", "LDFLAGS", "MAKE", "MAKEFLAGS"]:
-                    if var not in undefined_variables:
-                        undefined_variables.append(var)
-
-        # Second pass: check for empty variable definitions
-        lines = content.split("\n")
-        for i, line in enumerate(lines):
-            if re.match(r"^(CFLAGS|LDFLAGS|SOURCES)\s*=\s*$", line):
-                var_name = line.split("=")[0].strip()
-                entry = f"Line {i + 1}: Empty {var_name}"
-                if entry not in undefined_variables:
-                    undefined_variables.append(entry)
-
-        # Third pass: check for use-before-definition
-        # First, collect all variable definitions and their line numbers
-        var_definitions = {}
-        for i, line in enumerate(lines):
-            var_def_match = re.match(r"^([A-Z_][A-Z0-9_]*)\s*[:?]?=", line)
-            if var_def_match:
-                var_name = var_def_match.group(1)
-                if var_name not in var_definitions:
-                    var_definitions[var_name] = i
-
-        # Then check for uses before definition
-        for i, line in enumerate(lines):
-            # Check target dependencies for variable usage
-            target_match = re.match(r"^[a-zA-Z0-9_\-]+:\s*(.*)$", line)
-            if target_match:
-                deps_part = target_match.group(1)
-                # Find variables used in dependencies
-                for var_match in re.finditer(r"\$\(([A-Z_][A-Z0-9_]*)\)", deps_part):
-                    var_name = var_match.group(1)
-                    # Check if variable is defined after this line (or not at all)
-                    if var_name in var_definitions:
-                        if var_definitions[var_name] > i:
-                            # Variable used before definition
-                            entry = f"{var_name} (used before definition)"
-                            if entry not in undefined_variables:
-                                undefined_variables.append(entry)
-                    elif var_name not in [
-                        "CC",
-                        "CFLAGS",
-                        "LDFLAGS",
-                        "MAKE",
-                        "MAKEFLAGS",
-                    ]:
-                        # Variable not defined at all (and not a built-in)
-                        if var_name not in undefined_variables:
-                            undefined_variables.append(var_name)
+        undefined_variables = self._find_undefined_variables(content)
 
         # Check for scoping issues (recursive variables)
         scoping_issues = []
@@ -626,23 +644,23 @@ class MakefileReviewSkill(BaseReviewSkill):
 
         # Modern features scoring
         if re.search(r"^\.PHONY:", content, re.MULTILINE):
-            score += 1.5
+            score += _SCORE_PHONY
         if re.search(r":=", content):  # Immediate assignment
-            score += 1.0
+            score += _SCORE_IMMEDIATE_ASSIGN
         if re.search(r"^include\s+", content, re.MULTILINE):
-            score += 1.0
+            score += _SCORE_INCLUDE
         if re.search(r"^SHELL\s*:=", content, re.MULTILINE):
-            score += 0.5
+            score += _SCORE_SHELL_OVERRIDE
         if re.search(r"%.o:\s*%.c", content):  # Pattern rules
-            score += 1.0
+            score += _SCORE_PATTERN_RULES
         if re.search(r"\|", content):  # Order-only prerequisites
-            score += 1.0
+            score += _SCORE_ORDER_PREREQS
         if re.search(r"^\.PRECIOUS:", content, re.MULTILINE):
-            score += 0.5
+            score += _SCORE_PRECIOUS
         if re.search(r"ifdef\s+(CROSS_COMPILE|OS)", content):
-            score += 1.5
+            score += _SCORE_CROSS_COMPILE
         if re.search(r"-include.*\.mk", content):
-            score += 1.0
+            score += _SCORE_MK_INCLUDE
 
         # Tool integration
         tool_integration = []

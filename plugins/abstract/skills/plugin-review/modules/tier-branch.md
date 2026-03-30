@@ -8,7 +8,21 @@ development.
 
 Run these sequentially for each affected plugin:
 
-### 1. Registration Audit
+### 1. Plugin Structure Validation
+
+Run the plugin validator to check plugin.json schema,
+skill/agent frontmatter, hook event types, and path
+references against the official Claude Code spec:
+
+```bash
+python3 plugins/abstract/scripts/validate_plugin.py \
+  plugins/<plugin>
+```
+
+If critical issues found, mark plugin as FAIL.
+Warnings are non-blocking at branch tier.
+
+### 2. Registration Audit
 
 **Only available in night-market repo.** Check script exists first:
 
@@ -25,7 +39,7 @@ fi
 Report any missing or stale registrations. If skipped, note in the
 result table that registration audit is unavailable.
 
-### 2. Test Gate
+### 3. Test Gate
 
 ```bash
 cd plugins/<plugin> && make test
@@ -34,7 +48,7 @@ cd plugins/<plugin> && make test
 Capture pass/fail and test count. If tests fail, mark
 plugin as FAIL.
 
-### 3. Lint Gate
+### 4. Lint Gate
 
 ```bash
 cd plugins/<plugin> && make lint
@@ -43,7 +57,7 @@ cd plugins/<plugin> && make lint
 Capture pass/fail. If lint fails, mark as WARNING (not
 blocking at branch tier).
 
-### 4. Typecheck Gate
+### 5. Typecheck Gate
 
 ```bash
 cd plugins/<plugin> && make typecheck
@@ -51,7 +65,7 @@ cd plugins/<plugin> && make typecheck
 
 Capture pass/fail. If typecheck fails, mark as WARNING.
 
-### 5. Diff Analysis
+### 6. Diff Analysis
 
 Run `git diff main -- plugins/<plugin>/` to identify:
 - New files (commands, skills, hooks, agents)

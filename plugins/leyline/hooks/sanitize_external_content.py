@@ -237,7 +237,7 @@ def main() -> None:
     try:
         result = process_hook(payload)
         print(json.dumps(result))
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         # Processing errors: allow with caution warning
         sys.stderr.write(f"[sanitize] Processing error: {e}\n")
         print(

@@ -14,7 +14,7 @@ _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
 sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
-    from leyline.deferred_capture import (  # type: ignore[import-not-found]  # noqa: E402
+    from leyline.deferred_capture import (
         PluginConfig,
         run_capture,
     )

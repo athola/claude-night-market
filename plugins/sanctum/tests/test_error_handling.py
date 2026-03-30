@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 import pytest
-from update_plugin_registrations import PluginAuditor  # type: ignore[import-not-found]
+from update_plugin_registrations import PluginAuditor
 
 
 class TestErrorHandling:

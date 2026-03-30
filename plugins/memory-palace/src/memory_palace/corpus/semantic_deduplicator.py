@@ -9,8 +9,8 @@ import hashlib
 import logging
 import math
 
-import faiss  # type: ignore[import-not-found,import-untyped]
-import numpy as np  # type: ignore[import-not-found,import-untyped]
+import faiss
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class SemanticDeduplicator:
 
         # FAISS flat index with inner-product search on L2-normalised vectors
         # (inner product on unit vectors == cosine similarity)
-        self._index: faiss.IndexFlatIP = faiss.IndexFlatIP(vector_dim)  # type: ignore[name-defined]
+        self._index: faiss.IndexFlatIP = faiss.IndexFlatIP(vector_dim)
         # Track which entry_id corresponds to each FAISS index position
         self._entry_ids: list[str] = []
 
@@ -124,9 +124,9 @@ class SemanticDeduplicator:
         if not self._use_faiss:
             logger.debug("add_vector called in fallback mode; use add_text instead")
             return
-        arr = np.array([vector], dtype="float32")  # type: ignore[call-overload]
+        arr = np.array([vector], dtype="float32")
         _l2_normalize_rows(arr)
-        self._index.add(arr)  # type: ignore[union-attr]
+        self._index.add(arr)
         self._entry_ids.append(entry_id)
 
     def add_text(self, text: str) -> None:
@@ -165,7 +165,7 @@ class SemanticDeduplicator:
         """Number of vectors in the internal FAISS index (0 in fallback mode)."""
         if not self._use_faiss:
             return 0
-        return int(self._index.ntotal)  # type: ignore[union-attr]
+        return int(self._index.ntotal)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -193,7 +193,7 @@ class SemanticDeduplicator:
                 content, existing_embeddings, query_vector=new_vector
             )
         else:
-            if self._index.ntotal == 0:  # type: ignore[union-attr]
+            if self._index.ntotal == 0:
                 return True
             best_id, best_score = self._query_index(content, new_vector)
 
@@ -256,9 +256,9 @@ class SemanticDeduplicator:
 
         """
         vec = query_vector or _hash_to_vector(content, self.vector_dim)
-        arr = np.array([vec], dtype="float32")  # type: ignore[call-overload]
+        arr = np.array([vec], dtype="float32")
         _l2_normalize_rows(arr)
-        distances, indices = self._index.search(arr, 1)  # type: ignore[union-attr]
+        distances, indices = self._index.search(arr, 1)
         idx = int(indices[0][0])
         score = float(distances[0][0])
         if idx < 0 or idx >= len(self._entry_ids):
@@ -296,10 +296,10 @@ def _hash_to_vector(text: str, dim: int) -> list[float]:
 _NORM_EPSILON = 1e-10
 
 
-def _l2_normalize_rows(arr: np.ndarray) -> None:  # type: ignore[type-arg]
+def _l2_normalize_rows(arr: np.ndarray) -> None:
     """In-place L2 normalisation of each row in a float32 numpy array."""
-    norms = np.linalg.norm(arr, axis=1, keepdims=True)  # type: ignore[union-attr]
-    norms = np.where(norms < _NORM_EPSILON, 1.0, norms)  # type: ignore[union-attr]
+    norms = np.linalg.norm(arr, axis=1, keepdims=True)
+    norms = np.where(norms < _NORM_EPSILON, 1.0, norms)
     arr /= norms
 
 
@@ -330,23 +330,21 @@ def _best_match_from_dict(
     dim = len(next(iter(embeddings.values())))
 
     raw_vec = query_vector or _hash_to_vector(content, dim)
-    query_vec = np.array(raw_vec, dtype="float32")  # type: ignore[call-overload]
-    norm_q = float(np.linalg.norm(query_vec))  # type: ignore[union-attr]
+    query_vec = np.array(raw_vec, dtype="float32")
+    norm_q = float(np.linalg.norm(query_vec))
     if norm_q > 0:
         query_vec /= norm_q
 
     # Stack all candidate vectors into a single (N, D) matrix.
-    matrix = np.array(  # type: ignore[call-overload]
-        [embeddings[eid] for eid in entry_ids], dtype="float32"
-    )
+    matrix = np.array([embeddings[eid] for eid in entry_ids], dtype="float32")
     # L2-normalise rows in-place.
-    norms = np.linalg.norm(matrix, axis=1, keepdims=True)  # type: ignore[union-attr]
-    norms = np.where(norms == 0, 1.0, norms)  # type: ignore[union-attr]
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1.0, norms)
     matrix /= norms
 
     # Vectorized dot product: shape (N,)
-    scores = np.dot(matrix, query_vec)  # type: ignore[union-attr]
-    best_idx = int(np.argmax(scores))  # type: ignore[union-attr]
+    scores = np.dot(matrix, query_vec)
+    best_idx = int(np.argmax(scores))
     best_score = float(scores[best_idx])
 
     return entry_ids[best_idx], max(best_score, 0.0)

@@ -14,7 +14,7 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 from .errors import ErrorHandler, ErrorSeverity, ToolError
 
@@ -63,8 +63,8 @@ def _detect_breaking_changes(files: list[str]) -> list[dict[str, Any]]:
 
         # Get the HEAD version via git
         try:
-            cmd = ["git", "show", "HEAD:" + file_path]  # noqa: S607
-            result = subprocess.run(  # noqa: S603  # nosec B603
+            cmd = ["git", "show", "HEAD:" + file_path]
+            result = subprocess.run(  # nosec B603
                 cmd,
                 capture_output=True,
                 text=True,
@@ -254,6 +254,9 @@ def _unparse_annotation(node: Any) -> str | None:
         return None
 
 
+# DEPRECATED: SuperpowerWrapper has no production consumers as of 2026-03.
+# Candidates for removal in next unbloat cycle.
+# See: code refinement report, finding A-5.
 class SuperpowerWrapper:
     """Wrapper that translates plugin command parameters to superpower parameters."""
 

@@ -9,13 +9,14 @@ So that the knowledge base stays dense and non-redundant
 
 from __future__ import annotations
 
+import math
 from unittest.mock import patch
 
 import pytest
 
 faiss = pytest.importorskip("faiss", reason="faiss-cpu not installed")
 
-from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402
+from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402 - import after pytest.importorskip guard
     DEFAULT_THRESHOLD,
     SemanticDeduplicator,
     _content_id,
@@ -30,8 +31,6 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402
 
 def _unit_vectors(n: int, dim: int = 4) -> list[list[float]]:
     """Return n simple unit vectors for testing (each different)."""
-    import math  # noqa: PLC0415
-
     vecs = []
     for i in range(n):
         angle = (i / max(n, 1)) * math.pi / 2  # spread across first quadrant
@@ -237,7 +236,6 @@ class TestSemanticDeduplicatorFaiss:
         vec_a = [1.0, 0.0, 0.0, 0.0]
         # low similarity vector: mostly orthogonal
         vec_b = [0.1, 0.99, 0.0, 0.0]
-        import math  # noqa: PLC0415
 
         norm = math.sqrt(sum(v * v for v in vec_b))
         vec_b = [v / norm for v in vec_b]
@@ -333,6 +331,7 @@ class TestSemanticDeduplicatorInternalIndex:
 
     @pytest.fixture
     def deduplicator(self) -> SemanticDeduplicator:
+        """Create a SemanticDeduplicator with test-friendly settings."""
         return SemanticDeduplicator(threshold=0.8, vector_dim=128)
 
     @pytest.mark.unit
@@ -414,8 +413,6 @@ class TestModuleLevelHelpers:
         When _hash_to_vector is called
         Then the result has L2 norm approximately 1.0.
         """
-        import math  # noqa: PLC0415
-
         vec = _hash_to_vector("normalize me", 128)
         norm = math.sqrt(sum(v * v for v in vec))
         assert abs(norm - 1.0) < 1e-6

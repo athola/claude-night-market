@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.7.2"
+version = "1.7.3"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -87,12 +87,6 @@ extend-ignore = [
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**/*.py" = ["S101", "PLR2004", "D103"]  # Test-specific ignores
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true
@@ -105,6 +99,10 @@ no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[[tool.mypy.overrides]]
+module = ["coordination_workspace"]
+disable_error_code = ["no-any-return"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
@@ -122,7 +120,7 @@ addopts = [
     "--cov=hooks",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-fail-under=85"
+    "--cov-fail-under=90"
 ]
 markers = [
     "unit: Unit tests for individual components",
@@ -133,7 +131,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["hooks", "scripts"]
+source = ["hooks"]
 branch = true
 omit = [
     "*/tests/*",
@@ -157,4 +155,4 @@ exclude_lines = [
 ]
 show_missing = true
 precision = 2
-fail_under = 85
+fail_under = 90

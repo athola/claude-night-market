@@ -20,7 +20,7 @@ import pytest
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from aggregate_skill_logs import (  # noqa: E402
+from aggregate_skill_logs import (
     AggregationResult,
     SkillLogSummary,
     aggregate_logs,
@@ -46,7 +46,7 @@ from aggregate_skill_logs import (
 # ---------------------------------------------------------------------------
 
 
-def _make_entry(  # noqa: PLR0913
+def _make_entry(  # noqa: PLR0913 - test factory with many optional fields for flexible fixture creation
     outcome: str = "success",
     duration_ms: int = 1000,
     rating: float | None = None,
@@ -72,7 +72,7 @@ def _make_entry(  # noqa: PLR0913
     return entry
 
 
-def _make_metrics(  # noqa: PLR0913
+def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary fields for flexible fixture creation
     skill: str = "myplugin:my-skill",
     total: int = 10,
     success: int = 8,
@@ -1069,7 +1069,8 @@ class TestAggregateSkillLogsMain:
         """
         learnings_path = tmp_path / "LEARNINGS.md"
         learnings_path.write_text(
-            "# Learnings\n\n## Pinned Learnings\n\nImportant note.\n\n## Other\n\nContent.\n"
+            "# Learnings\n\n## Pinned Learnings\n\n"
+            "Important note.\n\n## Other\n\nContent.\n"
         )
         mock_log_dir = Mock(return_value=tmp_path)
         mock_learnings = Mock(return_value=learnings_path)

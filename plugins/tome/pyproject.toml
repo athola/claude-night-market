@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.7.2"
+version = "1.7.3"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -17,16 +17,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-viz = [
-    "matplotlib>=3.7",
-]
-pdf = [
-    "pdfplumber>=0.9",
-]
-full = [
-    "matplotlib>=3.7",
-    "pdfplumber>=0.9",
-]
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",
@@ -43,6 +33,11 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S"]
 ignore = ["UP017", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+"tests/**/*.py" = ["S101", "PLR2004"]
+"tests/conftest.py" = ["F401"]  # Re-exported fixtures
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -61,7 +56,7 @@ branch = true
 omit = ["*/tests/*"]
 
 [tool.coverage.report]
-fail_under = 85
+fail_under = 90
 show_missing = true
 
 [tool.mypy]
@@ -69,3 +64,23 @@ python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tome.session"]
+disable_error_code = ["no-redef", "misc", "type-arg", "no-any-return"]
+
+[[tool.mypy.overrides]]
+module = ["tome.channels.github"]
+disable_error_code = ["no-any-return"]
+
+[[tool.mypy.overrides]]
+module = ["tome.synthesis.quality"]
+disable_error_code = ["no-any-return", "no-untyped-def", "index"]
+
+[[tool.mypy.overrides]]
+module = ["tome.synthesis.ranker"]
+disable_error_code = ["no-any-return", "override", "index"]

@@ -6,7 +6,7 @@ description: Convert a Claude Code session JSONL file into an animated GIF
   for GIF rendering. Use when creating demos, tutorials, or PR evidence.
   Do not use for blog posts (use session-to-post) or documentation (use
   doc-generator).
-version: 1.7.2
+version: 1.7.3
 globs: "**/*.jsonl"
 alwaysApply: false
 category: artifact-generation
@@ -108,7 +108,7 @@ Apply filters based on user options:
 
 - `--turns` selects specific turn ranges (e.g. `1-5`)
 - `--show` controls which layers appear: `user`, `assistant`,
-  `tools`
+  `tools`, `thinking` (thinking is excluded by default)
 
 ### Step 2: Generate VHS Tape
 

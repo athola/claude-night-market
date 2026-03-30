@@ -6,7 +6,9 @@ ADR compliance, and generates architecture quality reports.
 
 from __future__ import annotations
 
+import ast
 import re
+import textwrap
 from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
@@ -18,6 +20,20 @@ MIN_EVENT_COMPONENTS = 3  # Minimum event components for event-driven
 MIN_RESPONSIBILITIES_FOR_LOW_COHESION = 3  # Threshold for cohesion calculation
 MIN_VIOLATIONS_TO_REPORT = 2  # Minimum violations before flagging
 MIN_ADR_SECTIONS = 3  # Minimum ADR sections for completeness
+
+# Coupling score calculation
+COUPLING_DEPENDENCY_SCALE = 10.0
+COUPLING_VIOLATION_WEIGHT = 0.5
+
+# Cohesion score thresholds
+COHESION_SCORE_MEDIUM = 0.7
+COHESION_SCORE_HIGH = 0.9
+MIN_RESPONSIBILITIES_FOR_MEDIUM_COHESION = 2
+
+# SRP keyword detection
+_SRP_KEYWORDS = frozenset(
+    ["user", "email", "report", "backup", "send", "generate", "create"]
+)
 
 
 class ArchitectureReviewSkill(BaseReviewSkill):
@@ -153,9 +169,9 @@ class ArchitectureReviewSkill(BaseReviewSkill):
 
         # Calculate coupling score based on dependencies and violations
         if dependencies:
-            coupling_score = len(dependencies) / 10.0
+            coupling_score = len(dependencies) / COUPLING_DEPENDENCY_SCALE
             if violations:
-                coupling_score += len(violations) * 0.5
+                coupling_score += len(violations) * COUPLING_VIOLATION_WEIGHT
 
         return {
             "coupling_score": coupling_score,
@@ -203,10 +219,10 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         # Calculate cohesion score - lower score for more diverse responsibilities
         if len(responsibilities) >= MIN_RESPONSIBILITIES_FOR_LOW_COHESION:
             cohesion_score = 1.0 / len(responsibilities)
-        elif len(responsibilities) == MIN_SERVICES_FOR_MICROSERVICES:
-            cohesion_score = 0.7
+        elif len(responsibilities) >= MIN_RESPONSIBILITIES_FOR_MEDIUM_COHESION:
+            cohesion_score = COHESION_SCORE_MEDIUM
         else:
-            cohesion_score = 0.9
+            cohesion_score = COHESION_SCORE_HIGH
 
         return {
             "cohesion_score": cohesion_score,
@@ -333,7 +349,9 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                         "type": "concrete_dependency",
                         "issue": f"Depends on concrete class {matched_text}",
                         "location": file_path,
-                        "suggestion": f"Inject {matched_text} through interface/protocol",
+                        "suggestion": (
+                            f"Inject {matched_text} through interface/protocol"
+                        ),
                     }
                 )
 
@@ -376,36 +394,41 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         srp_violations = 0
         srp_issues = []
 
-        # Count methods in classes
-        class_method_pattern = r"class\s+(\w+).*?(?=class\s+\w+|$)"
-        method_pattern = r"def\s+(\w+)\s*\("
+        # Use AST to extract classes and their methods, fall back to regex
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            try:
+                tree = ast.parse(textwrap.dedent(content))
+            except SyntaxError:
+                tree = None
 
-        for class_match in re.finditer(class_method_pattern, content, re.DOTALL):
-            class_text = class_match.group(0)
-            methods = re.findall(method_pattern, class_text)
-            # Filter out __init__ and private methods for responsibility count
-            _public_methods = [m for m in methods if not m.startswith("_")]
-
-            # Check for diverse responsibilities
-            diverse_keywords = {
-                "user": 0,
-                "email": 0,
-                "report": 0,
-                "backup": 0,
-                "send": 0,
-                "generate": 0,
-                "create": 0,
+        if tree is not None:
+            class_methods_map = {
+                node.name: [
+                    n.name for n in ast.walk(node) if isinstance(n, ast.FunctionDef)
+                ]
+                for node in ast.walk(tree)
+                if isinstance(node, ast.ClassDef)
             }
+        else:
+            # Regex fallback for code that doesn't parse cleanly
+            class_pattern = r"class\s+(\w+).*?(?=class\s+\w+|$)"
+            method_pattern = r"def\s+(\w+)\s*\("
+            class_methods_map = {}
+            for class_match in re.finditer(class_pattern, content, re.DOTALL):
+                class_name = class_match.group(1)
+                class_text = class_match.group(0)
+                class_methods_map[class_name] = re.findall(method_pattern, class_text)
 
-            for method in methods:
-                for keyword in diverse_keywords:
-                    if keyword in method.lower():
-                        diverse_keywords[keyword] += 1
+        for _class_name, methods in class_methods_map.items():
+            # Set-based keyword scan for diverse responsibilities
+            method_names_lower = {m.lower() for m in methods}
+            found_keywords = {
+                kw for kw in _SRP_KEYWORDS if any(kw in m for m in method_names_lower)
+            }
+            responsibility_types = len(found_keywords)
 
-            # If class has more than 2 different responsibility types, flag it
-            responsibility_types = sum(
-                1 for count in diverse_keywords.values() if count > 0
-            )
             if responsibility_types >= MIN_RESPONSIBILITIES_FOR_LOW_COHESION:
                 srp_violations += 1
                 srp_issues.append("Class has multiple responsibilities")
@@ -545,6 +568,26 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             "flow_components": flow_components,
         }
 
+    def _get_any_content(self, context: Any) -> str:
+        """Fetch file content from context, trying all available files as fallback."""
+        try:
+            content = context.get_file_content("") or ""
+            if content:
+                return content
+        except (OSError, NotImplementedError):
+            pass
+        try:
+            for file_path in context.get_files():
+                try:
+                    content = context.get_file_content(file_path)
+                    if content:
+                        return str(content)
+                except OSError:
+                    continue
+        except (OSError, NotImplementedError):
+            pass
+        return ""
+
     def analyze_scalability_patterns(self, context: Any) -> dict[str, Any]:
         """Analyze scalability patterns and bottlenecks.
 
@@ -557,23 +600,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         bottlenecks = []
         scalability_score = 10.0  # Start with perfect score
 
-        # Try to get file content directly if available
-        content = ""
-        try:
-            content = context.get_file_content("") or ""
-        except (AttributeError, OSError, NotImplementedError):
-            try:
-                files = context.get_files()
-                if files:
-                    for file_path in files:
-                        try:
-                            content = context.get_file_content(file_path)
-                            if content:
-                                break
-                        except (AttributeError, OSError):
-                            continue
-            except (AttributeError, OSError):
-                pass
+        content = self._get_any_content(context)
 
         # Check for stateful singletons
         if "_instance" in content and "cls._instance" in content:
@@ -635,11 +662,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
         vulnerabilities = []
         security_score = 10.0  # Start with perfect score
 
-        # Try to get file content directly if available
-        try:
-            content = context.get_file_content("")
-        except Exception:
-            content = ""
+        content = self._get_any_content(context)
 
         # Check for missing authorization on sensitive operations
         sensitive_operations = ["def delete_all", "def delete_user", "def remove_all"]

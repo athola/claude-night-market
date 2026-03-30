@@ -23,6 +23,14 @@ from phantom.stuck import ScreenshotTracker, StuckPolicy
 logger = logging.getLogger(__name__)
 
 
+def _extract_screenshot_b64(tool_result: dict) -> str | None:
+    """Extract base64 screenshot data from a tool result."""
+    for item in tool_result.get("content", []):
+        if isinstance(item, dict) and item.get("type") == "image":
+            return item.get("source", {}).get("data") or None
+    return None
+
+
 # Model-to-tool-version mapping
 TOOL_VERSIONS = {
     "claude-opus-4-6": "20251124",
@@ -287,26 +295,21 @@ def run_loop(
 
                 # Stuck detection: check if screenshot changed
                 if block.name == "computer":
-                    content = tool_result.get("content")
-                    if isinstance(content, list):
-                        for item in content:
-                            if isinstance(item, dict) and item.get("type") == "image":
-                                b64 = item.get("source", {}).get("data", "")
-                                if b64:
-                                    is_stuck = screenshot_tracker.record(b64)
-                                    if is_stuck:
-                                        logger.warning(
-                                            "Stuck detected: %d consecutive "
-                                            "identical screenshots",
-                                            screenshot_tracker.stuck_count,
-                                        )
-                                    if stuck_policy.should_abort(
-                                        screenshot_tracker.stuck_count,
-                                    ):
-                                        result.stopped_reason = "stuck"
-                                        result.cost_summary = cost_tracker.summary()
-                                        result.messages = messages
-                                        return result
+                    b64 = _extract_screenshot_b64(tool_result)
+                    if b64:
+                        is_stuck = screenshot_tracker.record(b64)
+                        if is_stuck:
+                            logger.warning(
+                                "Stuck detected: %d consecutive identical screenshots",
+                                screenshot_tracker.stuck_count,
+                            )
+                        if stuck_policy.should_abort(
+                            screenshot_tracker.stuck_count,
+                        ):
+                            result.stopped_reason = "stuck"
+                            result.cost_summary = cost_tracker.summary()
+                            result.messages = messages
+                            return result
 
                 tool_results.append(tool_result)
             elif block.type == "text":

@@ -16,7 +16,7 @@ Features:
 from __future__ import annotations
 
 import json
-import subprocess  # nosec B404
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -126,7 +126,7 @@ def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
         for key, value in variables.items():
             cmd.extend(["-f", f"{key}={value}"])
 
-    result = subprocess.run(  # noqa: S603, S607  # nosec B603
+    result = subprocess.run(
         cmd,
         capture_output=True,
         text=True,
@@ -170,7 +170,7 @@ def fetch_learnings_discussions() -> list[DiscussionItem]:
         f'discussions(categoryId: "{LEARNINGS_CATEGORY_ID}", first: 20, '
         "orderBy: {field: CREATED_AT, direction: DESC}) { "
         "nodes { id title url body "
-        "reactions(content: FIRE) { totalCount } } } } }"  # noqa: UP031
+        "reactions(content: FIRE) { totalCount } } } } }"
     )
 
     try:

@@ -33,8 +33,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_yields_source_files_in_flat_directory(self, tmp_path: Path) -> None:
-        """
-        Scenario: Walking a flat directory returns matching files.
+        """Scenario: Walking a flat directory returns matching files.
         Given a directory with .py and .bin files
         When iter_source_files is called
         Then only the .py file is yielded.
@@ -48,8 +47,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_skips_default_skip_dirs(self, tmp_path: Path) -> None:
-        """
-        Scenario: Common build/cache directories are skipped.
+        """Scenario: Common build/cache directories are skipped.
         Given a project tree containing __pycache__, .git, node_modules
         When iter_source_files is called with defaults
         Then files inside those directories are not yielded.
@@ -69,8 +67,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_accepts_custom_extensions(self, tmp_path: Path) -> None:
-        """
-        Scenario: Caller can supply a custom extension set.
+        """Scenario: Caller can supply a custom extension set.
         Given a directory with .py, .go, and .rs files
         When iter_source_files is called with extensions={'.go'}
         Then only the .go file is yielded.
@@ -87,8 +84,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_accepts_custom_skip_dirs(self, tmp_path: Path) -> None:
-        """
-        Scenario: Caller can supply a custom skip-dirs set.
+        """Scenario: Caller can supply a custom skip-dirs set.
         Given a directory tree where 'vendor' should be skipped
         When iter_source_files is called with skip_dirs={'vendor'}
         Then files inside 'vendor' are not yielded.
@@ -106,8 +102,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_walks_nested_directories(self, tmp_path: Path) -> None:
-        """
-        Scenario: Recursion into nested directories works correctly.
+        """Scenario: Recursion into nested directories works correctly.
         Given a multi-level directory tree with .py files at each level
         When iter_source_files is called
         Then all .py files are yielded regardless of depth.
@@ -125,8 +120,7 @@ class TestIterSourceFiles:
 
     @pytest.mark.bdd
     def test_extension_matching_is_case_insensitive(self, tmp_path: Path) -> None:
-        """
-        Scenario: Extension matching ignores case.
+        """Scenario: Extension matching ignores case.
         Given files named app.PY and util.Py
         When iter_source_files is called
         Then both files are yielded because .PY/.Py match .py.

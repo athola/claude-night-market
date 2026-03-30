@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 import pytest
-from scripts.war_room_orchestrator import (
+from scripts.war_room import (
     ExpertInfo,
     MerkleDAG,
     WarRoomOrchestrator,

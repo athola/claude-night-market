@@ -467,6 +467,7 @@ class TestReviewEntryImportance:
     """Test importance scoring on ReviewEntry."""
 
     def test_default_importance_score(self) -> None:
+        """Non-decision entries default to importance 40."""
         entry = ReviewEntry(
             source_pr="#1 - Test",
             title="Test Entry",
@@ -476,6 +477,7 @@ class TestReviewEntryImportance:
         assert entry.importance_score == 40
 
     def test_decisions_get_boost(self) -> None:
+        """Decision entries get boosted importance of at least 70."""
         entry = ReviewEntry(
             source_pr="#1 - Arch",
             title="Use hexagonal",
@@ -485,6 +487,7 @@ class TestReviewEntryImportance:
         assert entry.importance_score >= 70
 
     def test_explicit_importance(self) -> None:
+        """Explicit importance_score overrides defaults."""
         entry = ReviewEntry(
             source_pr="#1 - Test",
             title="Test",
@@ -495,6 +498,7 @@ class TestReviewEntryImportance:
         assert entry.importance_score == 85
 
     def test_importance_in_serialization(self) -> None:
+        """Importance score survives to_dict/from_dict round-trip."""
         entry = ReviewEntry(
             source_pr="#1 - Test",
             title="Test",
@@ -509,6 +513,7 @@ class TestReviewEntryImportance:
         assert restored.importance_score == 85
 
     def test_importance_in_markdown(self) -> None:
+        """Importance score appears in markdown output."""
         entry = ReviewEntry(
             source_pr="#1 - Test",
             title="Test",
@@ -604,7 +609,7 @@ class TestSemanticSearchSortByImportance:
 
         # Mock _search_review_chamber_semantic to return results
         # in similarity order (low, high, mid) -- NOT importance order
-        def fake_semantic(
+        def fake_semantic(  # noqa: PLR0913 - matches _search_review_chamber_semantic signature
             self_inner, palace_arg, chamber, query, room_type, tags, sort_by
         ):
             # Return in similarity order (NOT importance order).
@@ -672,7 +677,7 @@ class TestSemanticSearchSortByImportance:
         manager.add_review_entry(palace["id"], high)
 
         # Return low-importance first (higher similarity score)
-        def fake_semantic(
+        def fake_semantic(  # noqa: PLR0913 - matches _search_review_chamber_semantic signature
             self_inner, palace_arg, chamber, query, room_type, tags, sort_by
         ):
             # Return in similarity order (low-importance first).

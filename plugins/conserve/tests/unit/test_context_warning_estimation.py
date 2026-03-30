@@ -23,6 +23,12 @@ ZERO = 0.0
 HUNDRED = 100
 
 
+@pytest.fixture(autouse=True)
+def _clear_claude_home(monkeypatch):
+    """Clear CLAUDE_HOME so tests use monkeypatched Path.home()."""
+    monkeypatch.delenv("CLAUDE_HOME", raising=False)
+
+
 class TestFallbackContextEstimation:
     """Feature: Fallback context estimation from session files.
 
@@ -76,6 +82,7 @@ class TestFallbackContextEstimation:
         monkeypatch.setenv("CLAUDE_SESSION_ID", "target-session-id")
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.delenv("CLAUDE_HOME", raising=False)
 
         # Patch Path.cwd and Path.home
         monkeypatch.setattr(

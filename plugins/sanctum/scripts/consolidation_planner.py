@@ -189,7 +189,7 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
         if not git_path:
             return []
 
-        result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
+        result = subprocess.run(
             [git_path, "status", "--porcelain"],
             cwd=repo_path,
             capture_output=True,

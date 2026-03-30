@@ -11,6 +11,39 @@ from ._constants import _OBSERVER_METHODS, MIN_OBSERVER_METHODS
 __all__ = ["GoFPatternMixin"]
 
 
+def _is_factory(node: ast.ClassDef, methods: set[str]) -> bool:
+    """Check if a class matches the Factory pattern."""
+    if "Factory" in node.name:
+        return True
+    has_static_create = (
+        any(
+            isinstance(dec, ast.Name) and dec.id == "staticmethod"
+            for item in node.body
+            if isinstance(item, ast.FunctionDef)
+            for dec in item.decorator_list
+        )
+        and "create" in "".join(methods).lower()
+    )
+    return has_static_create
+
+
+def _is_observer(node: ast.ClassDef, methods: set[str], bases: list[str]) -> bool:
+    """Check if a class matches the Observer pattern."""
+    observer_methods = methods & _OBSERVER_METHODS
+    return len(observer_methods) >= MIN_OBSERVER_METHODS or (
+        "Observer" in node.name and "ABC" in bases
+    )
+
+
+def _is_strategy(node: ast.ClassDef, bases: list[str], strategies: list[str]) -> bool:
+    """Check if a class matches the Strategy pattern."""
+    return (
+        ("ABC" in bases and "Strategy" in node.name)
+        or ("Payment" in node.name and "ABC" in bases)
+        or any(b in strategies or "Strategy" in b for b in bases)
+    )
+
+
 class GoFPatternMixin:
     """Recognise GoF design patterns and async programming patterns."""
 
@@ -36,7 +69,7 @@ class GoFPatternMixin:
 
         tree = _tree
         if tree is None:
-            tree, err = self._parse_code(code)  # type: ignore[attr-defined]
+            tree, err = self._parse_code(code)
             if tree is None:
                 return {"gof_patterns": gof_patterns, **(err or {})}
 
@@ -47,35 +80,13 @@ class GoFPatternMixin:
             methods = {
                 item.name for item in node.body if isinstance(item, ast.FunctionDef)
             }
-            bases = []
-            for b in node.bases:
-                if isinstance(b, ast.Name):
-                    bases.append(b.id)
+            bases = [b.id for b in node.bases if isinstance(b, ast.Name)]
 
-            # Factory: has create/static methods returning different types
-            if "Factory" in node.name or (
-                any(
-                    isinstance(dec, ast.Name) and dec.id == "staticmethod"
-                    for item in node.body
-                    if isinstance(item, ast.FunctionDef)
-                    for dec in item.decorator_list
-                )
-                and "create" in "".join(methods).lower()
-            ):
+            if _is_factory(node, methods):
                 factories.append(node.name)
-
-            # Observer: has subscribe/notify methods
-            observer_methods = methods & _OBSERVER_METHODS
-            if len(observer_methods) >= MIN_OBSERVER_METHODS or (
-                "Observer" in node.name and "ABC" in bases
-            ):
+            if _is_observer(node, methods, bases):
                 observers.append(node.name)
-
-            # Strategy: abstract class with single method
-            if (
-                ("ABC" in bases and "Strategy" in node.name)
-                or ("Payment" in node.name and "ABC" in bases)
-            ) or any(b in strategies or "Strategy" in b for b in bases):
+            if _is_strategy(node, bases, strategies):
                 strategies.append(node.name)
 
         if factories:

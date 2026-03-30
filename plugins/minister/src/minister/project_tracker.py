@@ -11,9 +11,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import sys
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -67,21 +68,27 @@ class ProjectTracker:
     def _load_data(self) -> InitiativeTracker:
         """Load tracking data from file."""
         if self.data_file.exists():
-            with open(self.data_file, encoding="utf-8") as file:
-                data = json.load(file)
+            try:
+                with open(self.data_file, encoding="utf-8") as file:
+                    data = json.load(file)
+            except (json.JSONDecodeError, OSError) as exc:
+                logging.getLogger(__name__).warning(
+                    "minister: corrupt data file %s: %s", self.data_file, exc
+                )
+                return InitiativeTracker([], datetime.now(UTC).isoformat())
             tasks = [Task(**task) for task in data.get("tasks", [])]
             return InitiativeTracker(
-                tasks, data.get("last_updated", datetime.now(timezone.utc).isoformat())
+                tasks, data.get("last_updated", datetime.now(UTC).isoformat())
             )
 
-        return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
+        return InitiativeTracker([], datetime.now(UTC).isoformat())
 
     def _save_data(self) -> None:
         """Save tracking data to file."""
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "tasks": [asdict(task) for task in self.data.tasks],
-            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "last_updated": datetime.now(UTC).isoformat(),
         }
         with open(self.data_file, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=2)
@@ -97,7 +104,7 @@ class ProjectTracker:
             if task.id == task_id:
                 for key, value in updates.items():
                     setattr(task, key, value)
-                task.updated_date = datetime.now(timezone.utc).isoformat()
+                task.updated_date = datetime.now(UTC).isoformat()
                 self._save_data()
                 return
 
@@ -194,8 +201,8 @@ class ProjectTracker:
         else:
             start_date = datetime.fromisoformat(earliest)
             if start_date.tzinfo is None:
-                start_date = start_date.replace(tzinfo=timezone.utc)
-            weeks_elapsed = max(1, (datetime.now(timezone.utc) - start_date).days / 7)
+                start_date = start_date.replace(tzinfo=UTC)
+            weeks_elapsed = max(1, (datetime.now(UTC) - start_date).days / 7)
         burn_rate = completed_effort / weeks_elapsed
 
         return {
@@ -336,6 +343,18 @@ def build_cli_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _collect_updates(args: argparse.Namespace) -> dict[str, Any]:
+    """Build the updates dict from CLI args for the update command."""
+    updates: dict[str, Any] = {}
+    if args.status:
+        updates["status"] = args.status
+    if args.completion is not None:
+        updates["completion_percent"] = args.completion
+    if args.github_issue is not None:
+        updates["github_issue"] = args.github_issue
+    return updates
+
+
 def run_cli(argv: list[str] | None = None) -> int:
     """Execute the CLI entry point."""
     parser = build_cli_parser()
@@ -360,8 +379,8 @@ def run_cli(argv: list[str] | None = None) -> int:
                 effort_hours=args.effort,
                 completion_percent=0,
                 due_date=args.due,
-                created_date=datetime.now(timezone.utc).isoformat(),
-                updated_date=datetime.now(timezone.utc).isoformat(),
+                created_date=datetime.now(UTC).isoformat(),
+                updated_date=datetime.now(UTC).isoformat(),
                 github_issue=args.github_issue,
             )
             tracker.add_task(task)
@@ -374,30 +393,22 @@ def run_cli(argv: list[str] | None = None) -> int:
             _output_result(add_result, args)
 
         elif args.command == "update":
-            updates: dict[str, Any] = {}
-            if args.status:
-                updates["status"] = args.status
-            if args.completion is not None:
-                updates["completion_percent"] = args.completion
-            if args.github_issue is not None:
-                updates["github_issue"] = args.github_issue
-
+            updates = _collect_updates(args)
             if updates:
                 tracker.update_task(args.id, updates)
-                update_result: dict[str, Any] = {
-                    "command": "update",
-                    "task_id": args.id,
-                    "updates": updates,
-                }
-                _output_result(update_result, args)
+                _output_result(
+                    {"command": "update", "task_id": args.id, "updates": updates},
+                    args,
+                )
             else:
-                # No updates is not an error - just a no-op
-                no_update_result: dict[str, Any] = {
-                    "command": "update",
-                    "task_id": args.id,
-                    "message": "No updates specified",
-                }
-                _output_result(no_update_result, args)
+                _output_result(
+                    {
+                        "command": "update",
+                        "task_id": args.id,
+                        "message": "No updates specified",
+                    },
+                    args,
+                )
 
         elif args.command == "status":
             report = tracker.get_status_report()

@@ -16,7 +16,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from hook_validator import (  # noqa: E402
+from hook_validator import (
     KNOWN_EVENTS,
     ValidationResult,
     _validate_event_hooks,

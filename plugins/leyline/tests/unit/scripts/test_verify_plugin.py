@@ -19,7 +19,7 @@ import pytest
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
-from verify_plugin import (  # noqa: I001
+from verify_plugin import (
     LevelScore,
     _choose_recommendation,
     _compute_level_scores,
@@ -29,7 +29,6 @@ from verify_plugin import (  # noqa: I001
     verify_plugin,
     verify_plugin_offline,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -114,8 +113,8 @@ class TestComputeLevelScores:
         scores = _compute_level_scores(records)
 
         assert scores["L1"].rate == 1.0
-        assert scores["L1"].total == 10  # noqa: PLR2004
-        assert scores["L1"].passed == 10  # noqa: PLR2004
+        assert scores["L1"].total == 10
+        assert scores["L1"].passed == 10
         assert scores["L2"].total == 0
         assert scores["L3"].total == 0
 
@@ -131,8 +130,8 @@ class TestComputeLevelScores:
         scores = _compute_level_scores(records)
 
         assert scores["L1"].rate == pytest.approx(0.8)
-        assert scores["L1"].total == 10  # noqa: PLR2004
-        assert scores["L1"].passed == 8  # noqa: PLR2004
+        assert scores["L1"].total == 10
+        assert scores["L1"].passed == 8
 
     @pytest.mark.unit
     def test_multiple_levels(self) -> None:
@@ -361,7 +360,7 @@ class TestVerifyPluginOffline:
         records = _make_records(l1_pass=50)
         result = verify_plugin_offline("big-plugin", records, level="L1")
 
-        assert len(result["assertion_history"]) <= 20  # noqa: PLR2004
+        assert len(result["assertion_history"]) <= 20
 
 
 # ---------------------------------------------------------------------------
@@ -501,7 +500,7 @@ class TestCLIParsing:
 
         assert args.plugin_name == "my-plugin"
         assert args.level == "L1"
-        assert args.min_score == 0.8  # noqa: PLR2004
+        assert args.min_score == 0.8
         assert args.json_output is False
 
     @pytest.mark.unit
@@ -528,7 +527,7 @@ class TestCLIParsing:
 
         assert args.plugin_name == "sanctum"
         assert args.level == "L3"
-        assert args.min_score == 0.9  # noqa: PLR2004
+        assert args.min_score == 0.9
         assert args.json_output is True
         assert args.repo == "custom/repo"
 
@@ -619,7 +618,7 @@ class TestCLIMain:
             }
             code = main(["broken"])
 
-        assert code == 2  # noqa: PLR2004
+        assert code == 2
 
     @pytest.mark.unit
     def test_json_output_flag(self, capsys: pytest.CaptureFixture[str]) -> None:

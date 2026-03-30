@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.7.2"
+version = "1.7.3"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -116,6 +116,7 @@ src = ["plugins", "tests"]
 known-first-party = [
     "abstract",
     "attune",
+    "conftest_shared",
     "conjure",
     "conserve",
     "imbue",
@@ -126,7 +127,8 @@ known-first-party = [
     "pensive",
     "sanctum",
     "scry",
-    "spec_kit"
+    "spec_kit",
+    "validate_project",
 ]
 
 [tool.ruff.lint]
@@ -167,8 +169,8 @@ extend-ignore = [
     "ARG002",  # unused-method-argument
 ]
 "**/__init__.py" = ["F401"]  # Unused imports in __init__.py
-"**/hooks/*.py" = ["PLC0415"]  # Hooks use deferred imports for optional deps
-"**/hooks/shared/*.py" = ["PLC0415"]  # Hook shared modules use deferred imports
+"**/hooks/*.py" = ["BLE001"]  # Hooks use broad exceptions for resilience
+"scripts/*.py" = ["E402"]  # Root scripts with sys.path manipulation
 
 [tool.mypy]
 python_version = "3.12"
@@ -189,6 +191,10 @@ explicit_package_bases = true
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["a2a_cards"]
+disable_error_code = ["no-any-return"]
 
 [tool.uv.workspace]
 # Allow uv to discover plugin and tool projects (minimal set for linting)

@@ -15,11 +15,8 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from scripts.war_room_orchestrator import (
-    WarRoomOrchestrator,
-    _expert_availability,
-    _haiku_fallback_notices,
-)
+from scripts.war_room import WarRoomOrchestrator
+from scripts.war_room.experts import _expert_availability, _haiku_fallback_notices
 
 # Phase method names that get mocked in convene tests
 _CONVENE_PHASES = (

@@ -15,7 +15,7 @@ from pathlib import Path
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from aggregate_skill_logs import (  # noqa: E402
+from aggregate_skill_logs import (
     AggregationResult,
     extract_pinned_section,
     generate_learnings_md,

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.7.2"
+version = "1.7.3"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
@@ -101,8 +101,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/*" = ["B011", "S101", "PLR2004", "D102", "D103", "S108", "D205"]
-"scripts/**/*.py" = ["S603", "T201", "PLC0415", "PLW0603"]
-"src/speckit/caching.py" = ["E402"]
+"scripts/**/*.py" = ["S603", "T201"]
 
 # MyPy configuration
 [tool.mypy]
@@ -120,6 +119,10 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+[[tool.mypy.overrides]]
+module = ["speckit.caching"]
+disable_error_code = ["return-value"]
+
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -130,7 +133,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=80",
+    "--cov-fail-under=90",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -167,6 +170,7 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
+fail_under = 90
 
 # Bandit configuration
 [tool.bandit]

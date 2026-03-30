@@ -119,7 +119,7 @@ def check_secrets(content: str) -> SafetyCheckResult | None:
     return None
 
 
-def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult | None:
+def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult | None:  # noqa: PLR0912 - checks many distinct bomb patterns sequentially
     """Check for various data bomb patterns."""
     safety = config.get("safety", {})
 
@@ -269,7 +269,7 @@ def is_safe_content(content: str | bytes, config: dict[str, Any]) -> SafetyCheck
 def _is_safe_content_impl(
     content: str | bytes, config: dict[str, Any]
 ) -> SafetyCheckResult:
-    """Internal implementation of safety checks."""
+    """Run all safety checks and return the first failure or a pass result."""
     # Convert bytes to string if needed
     if isinstance(content, bytes):
         try:

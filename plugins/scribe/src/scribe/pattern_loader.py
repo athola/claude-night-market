@@ -8,7 +8,7 @@ from typing import Any
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 # Default language
 DEFAULT_LANGUAGE = "en"

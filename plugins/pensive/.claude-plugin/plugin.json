@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/api-review.md",
@@ -57,5 +57,6 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": ["leyline"]
 }

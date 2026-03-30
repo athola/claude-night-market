@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from tome.models import Finding
 
 # Computed once at import time; stable for the lifetime of the process.
-_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017
+_CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 
 # ---------------------------------------------------------------------------
 # Cross-Channel Triangulation

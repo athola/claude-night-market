@@ -11,26 +11,16 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from conftest import _write_jsonl
 from scribe.session_parser import (
     AssistantTurn,
+    ThinkingTurn,
     ToolResult,
     ToolUse,
     UserTurn,
     _parse_turn_range,
     parse_session,
 )
-
-
-def _make_jsonl(records: list[dict[str, Any]]) -> str:
-    """Convert a list of dicts to a JSONL string."""
-    return "\n".join(json.dumps(r) for r in records)
-
-
-def _write_jsonl(tmp_path: Path, records: list[dict[str, Any]]) -> Path:
-    """Write records as JSONL to a temp file and return the path."""
-    p = tmp_path / "session.jsonl"
-    p.write_text(_make_jsonl(records))
-    return p
 
 
 def _user_record(content: str | list[Any]) -> dict[str, Any]:
@@ -281,12 +271,12 @@ class TestAssistantMessageParsing:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_thinking_block_skipped(self, tmp_path: Path) -> None:
-        """Scenario: thinking blocks are skipped.
+    def test_empty_thinking_block_produces_no_turn(self, tmp_path: Path) -> None:
+        """Scenario: empty thinking block produces no turn.
 
-        Given an assistant record with a thinking block
-        When parsing the session
-        Then no turns are emitted for the thinking block
+        Given an assistant record with an empty thinking block
+        When parsing the session with default layers
+        Then no ThinkingTurn is emitted (empty text is skipped)
         """
         records = [
             _assistant_record(
@@ -689,11 +679,12 @@ class TestLayerFilter:
 
     @pytest.fixture
     def session_path(self, tmp_path: Path) -> Path:
-        """Build a session with all turn types."""
+        """Build a session with all turn types including thinking."""
         records = [
             _user_record("hello"),
             _assistant_record(
                 [
+                    {"type": "thinking", "thinking": "let me reason"},
                     {"type": "text", "text": "let me check"},
                     {
                         "type": "tool_use",
@@ -740,9 +731,101 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_all_default(self, session_path: Path) -> None:
-        """Scenario: default show includes all layers."""
+        """Scenario: default show includes user/assistant/tools but not thinking."""
         turns = parse_session(session_path)
         assert len(turns) == 3
+        assert not any(isinstance(t, ThinkingTurn) for t in turns)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_show_thinking_opt_in(self, session_path: Path) -> None:
+        """Scenario: thinking layer is included only when requested."""
+        turns = parse_session(session_path, show="user,assistant,tools,thinking")
+        thinking_turns = [t for t in turns if isinstance(t, ThinkingTurn)]
+        assert len(thinking_turns) == 1
+        assert thinking_turns[0].text == "let me reason"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_show_thinking_only(self, session_path: Path) -> None:
+        """Scenario: show=thinking returns only thinking turns."""
+        turns = parse_session(session_path, show="thinking")
+        assert len(turns) == 1
+        assert all(isinstance(t, ThinkingTurn) for t in turns)
+
+
+class TestThinkingParsing:
+    """Feature: thinking blocks are parsed from assistant content.
+
+    As a session parser
+    I want to extract thinking content from assistant records
+    So that users can opt into seeing Claude's reasoning
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_block_parsed(self, tmp_path: Path) -> None:
+        """Scenario: thinking block produces a ThinkingTurn."""
+        records = [
+            _assistant_record(
+                [{"type": "thinking", "thinking": "reasoning about the problem"}]
+            ),
+        ]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path, show="thinking")
+        assert len(turns) == 1
+        assert isinstance(turns[0], ThinkingTurn)
+        assert turns[0].text == "reasoning about the problem"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_thinking_block_skipped(self, tmp_path: Path) -> None:
+        """Scenario: empty thinking block produces no turn."""
+        records = [
+            _assistant_record(
+                [
+                    {"type": "thinking", "thinking": ""},
+                    {"type": "text", "text": "hello"},
+                ]
+            ),
+        ]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path, show="thinking,assistant")
+        assert len(turns) == 1
+        assert isinstance(turns[0], AssistantTurn)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_with_signature_only_skipped(self, tmp_path: Path) -> None:
+        """Scenario: thinking block with no text but signature is skipped."""
+        records = [
+            _assistant_record(
+                [{"type": "thinking", "thinking": "", "signature": "abc123"}]
+            ),
+        ]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path, show="thinking")
+        assert len(turns) == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thinking_interleaved_with_text(self, tmp_path: Path) -> None:
+        """Scenario: thinking and text blocks maintain order."""
+        records = [
+            _assistant_record(
+                [
+                    {"type": "thinking", "thinking": "step 1"},
+                    {"type": "text", "text": "answer"},
+                    {"type": "thinking", "thinking": "step 2"},
+                ]
+            ),
+        ]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path, show="thinking,assistant")
+        assert len(turns) == 3
+        assert isinstance(turns[0], ThinkingTurn)
+        assert isinstance(turns[1], AssistantTurn)
+        assert isinstance(turns[2], ThinkingTurn)
 
 
 class TestTextTruncation:

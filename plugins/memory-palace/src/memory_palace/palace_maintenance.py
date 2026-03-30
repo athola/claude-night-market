@@ -33,7 +33,7 @@ class PalaceMaintenance:
     # Queue ingestion
     # ------------------------------------------------------------------
 
-    def sync_from_queue(  # noqa: PLR0912
+    def sync_from_queue(  # noqa: PLR0912 - queue ingestion handles many content types and edge cases
         self,
         queue_path: str,
         auto_create: bool = False,
@@ -70,7 +70,7 @@ class PalaceMaintenance:
                 palace_by_domain[domain] = palace
 
         entries_to_keep = []
-        with open(queue_path) as f:
+        with open(queue_path, encoding="utf-8") as f:
             for raw_line in f:
                 line = raw_line.strip()
                 if not line:
@@ -114,11 +114,11 @@ class PalaceMaintenance:
                     entries_to_keep.append(line)
 
         if not dry_run and entries_to_keep:
-            with open(queue_path, "w") as f:
+            with open(queue_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(entries_to_keep))
                 f.write("\n")
         elif not dry_run and not entries_to_keep:
-            with open(queue_path, "w") as f:
+            with open(queue_path, "w", encoding="utf-8") as f:
                 pass
 
         return results
@@ -301,7 +301,7 @@ class PalaceMaintenance:
 
         dest_path = Path(destination)
         dest_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(dest_path, "w") as f:
+        with open(dest_path, "w", encoding="utf-8") as f:
             json.dump(bundle, f, indent=2)
         return str(dest_path)
 
@@ -316,7 +316,7 @@ class PalaceMaintenance:
             Dictionary with counts of imported and skipped palaces.
 
         """
-        with open(source) as f:
+        with open(source, encoding="utf-8") as f:
             bundle = json.load(f)
 
         imported = 0
@@ -330,7 +330,7 @@ class PalaceMaintenance:
             if palace_file.exists():
                 self._repo.create_backup(palace["id"])
 
-            with open(palace_file, "w") as f_out:
+            with open(palace_file, "w", encoding="utf-8") as f_out:
                 json.dump(palace, f_out, indent=2)
             imported += 1
 

@@ -45,7 +45,7 @@ def parse_agent_frontmatter(content: str) -> dict[str, Any]:
         except ValueError:
             json_block = stripped
         try:
-            return json.loads(json_block)  # type: ignore[no-any-return]
+            return json.loads(json_block)
         except json.JSONDecodeError:
             pass
 

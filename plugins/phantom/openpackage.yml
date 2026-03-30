@@ -1,5 +1,5 @@
 name: phantom
-version: 1.7.2
+version: 1.7.3
 description: Computer use toolkit - drive desktop environments through Claude's
   vision and action API with screenshot capture, mouse/keyboard control,
   and an autonomous agent loop
@@ -16,12 +16,6 @@ author:
   name: Alex Thola
   url: https://github.com/athola
 license: MIT
-dependencies:
-  leyline:
-    source: gh@athola/claude-night-market
-    path: plugins/leyline
-    skills:
-    - error-patterns
 skills:
 - skills/computer-control
 agents:

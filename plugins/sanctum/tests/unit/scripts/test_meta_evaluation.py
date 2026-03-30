@@ -17,7 +17,7 @@ import pytest
 # (TestCheckModuleReferences, TestCheckCodeExamples, TestCheckCrossReferences).
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
-from meta_evaluation import MetaEvaluator  # noqa: E402
+from meta_evaluation import MetaEvaluator
 
 
 class TestMetaEvaluationScript:
@@ -75,7 +75,13 @@ class TestMetaEvaluationScript:
         cmd = [sys.executable, str(meta_eval_script), "--help"]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
 
         # Assert
         assert result.returncode == 0, f"Script failed: {result.stderr}"
@@ -127,7 +133,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
         output = result.stdout + result.stderr
 
         # Assert - zero issues required
@@ -161,7 +173,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
         output = result.stdout + result.stderr
 
         # Assert - zero issues required
@@ -195,7 +213,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
         output = result.stdout + result.stderr
 
         # Assert - zero issues required
@@ -228,7 +252,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
@@ -259,12 +289,18 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
         # Should check verification - script runs without crashing
-        # The actual verification detection is tested in unit tests for the script itself
+        # Actual verification detection tested in unit tests for the script
 
     @pytest.mark.bdd
     @pytest.mark.integration
@@ -287,7 +323,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
@@ -315,7 +357,13 @@ class TestMetaEvaluationFunctionality:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
@@ -366,7 +414,13 @@ class TestMetaEvaluationIntegration:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
@@ -399,7 +453,13 @@ class TestMetaEvaluationIntegration:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
         output = result.stdout + result.stderr
 
         # Assert - must have zero issues
@@ -429,7 +489,13 @@ class TestMetaEvaluationIntegration:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
 
         # Assert - exit code 0 or 1 is acceptable (1 = issues found)
         # This test verifies it doesn't crash
@@ -459,7 +525,13 @@ class TestMetaEvaluationIntegration:
         ]
 
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
 
         # Assert
         assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"

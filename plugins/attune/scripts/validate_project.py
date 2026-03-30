@@ -7,7 +7,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from project_detector import ProjectDetector  # type: ignore[import]
+from project_detector import ProjectDetector
 
 
 class ValidationResult:
@@ -64,7 +64,7 @@ class ProjectValidator:
                 )
             )
 
-    def validate_build_config(self, language: str) -> None:
+    def validate_build_config(self, language: str) -> None:  # noqa: PLR0912 - branches per language and config type
         """Validate build configuration files."""
         if language == "python":
             pyproject = self.project_path / "pyproject.toml"

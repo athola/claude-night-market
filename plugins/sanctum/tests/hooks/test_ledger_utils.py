@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from _ledger_utils import get_ledger_path
 
 
 class TestGetLedgerPath:
@@ -25,7 +26,6 @@ class TestGetLedgerPath:
         Then it returns a path under that directory
         """
         monkeypatch.setenv("CLAUDE_HOME", str(tmp_path))
-        from _ledger_utils import get_ledger_path
 
         result = get_ledger_path()
         assert result.parent == tmp_path
@@ -39,7 +39,6 @@ class TestGetLedgerPath:
         Then it falls back to ~/.claude/
         """
         monkeypatch.delenv("CLAUDE_HOME", raising=False)
-        from _ledger_utils import get_ledger_path
 
         result = get_ledger_path()
         assert result.name == "deferred-items-session.json"

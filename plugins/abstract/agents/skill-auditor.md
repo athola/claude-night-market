@@ -90,6 +90,7 @@ The auditor delegates to these scripts when available:
 - `plugins/abstract/scripts/tool_performance_analyzer.py`
 - `plugins/abstract/scripts/skill_analyzer.py`
 - `plugins/abstract/scripts/token_estimator.py`
+- `plugins/abstract/scripts/token_usage_tracker.py`
 
 ## Output Formats
 

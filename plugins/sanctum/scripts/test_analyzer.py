@@ -20,6 +20,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+_MIN_SPLIT_PARTS = 2
+
 
 class TestAnalyzer:
     """Analyzes codebases for test coverage and gaps."""
@@ -181,7 +183,7 @@ class TestAnalyzer:
             # Get changed files with status in a single call
             git_executable = shutil.which("git") or "git"
             # git binary validated
-            result = subprocess.run(  # noqa: S603 # nosec
+            result = subprocess.run(
                 [git_executable, "diff", "--name-status", "HEAD~1"],
                 check=False,
                 capture_output=True,
@@ -205,7 +207,7 @@ class TestAnalyzer:
                 if not line.strip():
                     continue
                 parts = line.split("\t", 1)
-                if len(parts) < 2:
+                if len(parts) < _MIN_SPLIT_PARTS:
                     continue
                 status, file_name = parts[0].strip(), parts[1].strip()
                 if not file_name.endswith(".py"):
@@ -244,7 +246,7 @@ class TestAnalyzer:
         return json.dumps(results, indent=2)
 
 
-def main() -> None:  # noqa: PLR0912
+def main() -> None:
     """CLI entry point.
 
     Returns (JSON when --output-json):

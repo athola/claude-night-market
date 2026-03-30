@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -235,7 +236,5 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:  # noqa: BLE001
-        import traceback
-
+    except Exception:
         sys.stderr.write(f"deferred_item_watcher: {traceback.format_exc()}")

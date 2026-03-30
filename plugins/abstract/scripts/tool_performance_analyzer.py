@@ -5,7 +5,7 @@ Uses core functionality from src/abstract/skills_eval.
 """
 
 import os
-import subprocess  # nosec: B404
+import subprocess  # nosec B404
 import time
 from pathlib import Path
 from typing import Any
@@ -40,7 +40,7 @@ class ToolPerformanceAnalyzer:
             try:
                 start_time = time.time()
                 # tool_path validated
-                result = subprocess.run(  # nosec
+                result = subprocess.run(  # nosec B603
                     [str(tool_path), "--help"],
                     check=False,
                     capture_output=True,

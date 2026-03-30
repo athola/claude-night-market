@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.7.2"
+version = "1.7.3"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -90,25 +90,17 @@ extend-ignore = [
     "D212",  # Multi-line docstring summary on first line (BDD style)
     "E501",  # Long test lines are acceptable
     "PLR2004",  # Magic values in tests
-    "PLR0915",  # Complex test flows
     "S108",  # Allow hardcoded temp paths in tests
     "S603",  # Subprocess usage in test fixtures
     "S607",  # Partial executable path in test fixtures
     "S608",  # SQL strings in test data
     "B007",  # Unused loop variables in tests
-    "PLW1510",  # subprocess.run without check (intentional in tests)
 ]
 "scripts/**/*.py" = [
     "S603",  # Subprocess calls (inputs are validated)
     "S607",  # Partial executable path (git/gh are well-known)
     "UP017", # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
 ]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.12"
@@ -122,6 +114,14 @@ no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["imbue_validator"]
+disable_error_code = ["return-value"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
@@ -141,7 +141,7 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
-    "--cov-fail-under=85",
+    "--cov-fail-under=90",
     "--no-cov-on-fail",
     "--tb=short",
     "--durations=10"
@@ -189,7 +189,7 @@ exclude_lines = [
 show_missing = true
 precision = 2
 skip_covered = false
-fail_under = 85
+fail_under = 90
 
 [tool.coverage.html]
 directory = "htmlcov"

@@ -21,7 +21,7 @@ from typing import Any
 from scripts.quota_tracker import DEFAULT_GEMINI_LIMITS, DEFAULT_QWEN_LIMITS
 
 try:
-    from leyline.tokens import estimate_tokens  # type: ignore[import-untyped]
+    from leyline.tokens import estimate_tokens
 except ImportError:  # pragma: no cover
 
     def estimate_tokens(files: list[str], prompt: str = "") -> int:
@@ -173,7 +173,7 @@ class Delegator:
         # Check command availability
         try:
             # CLI tool runs commands
-            subprocess.run(  # noqa: S603 # nosec B603
+            subprocess.run(  # nosec B603
                 [service.command, "--version"],
                 capture_output=True,
                 timeout=10,
@@ -193,7 +193,7 @@ class Delegator:
         elif service.auth_method == "cli":
             try:
                 # CLI auth check
-                result = subprocess.run(  # noqa: S603 # nosec B603
+                result = subprocess.run(  # nosec B603
                     [service.command, "auth", "status"],
                     check=False,
                     capture_output=True,
@@ -266,7 +266,7 @@ class Delegator:
         # Execute
         try:
             # CLI execution
-            result = subprocess.run(  # noqa: S603 # nosec B603
+            result = subprocess.run(  # nosec B603
                 command,
                 check=False,
                 capture_output=True,
@@ -306,7 +306,18 @@ class Delegator:
                 duration=duration,
                 service=service_name,
             )
+        except FileNotFoundError as e:
+            duration = time.time() - start_time
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=f"Command not found: {e}",
+                exit_code=127,
+                duration=duration,
+                service=service_name,
+            )
         except Exception as e:
+            logger.exception("Unexpected error executing delegation")
             duration = time.time() - start_time
             return ExecutionResult(
                 success=False,

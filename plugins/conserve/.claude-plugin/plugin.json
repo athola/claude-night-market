@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/agent-expenditure",
@@ -28,6 +28,9 @@
     "./agents/context-optimizer.md",
     "./agents/continuation-agent.md",
     "./agents/unbloat-remediator.md"
+  ],
+  "hooks": [
+    "./hooks/hooks.json"
   ],
   "keywords": [
     "conserve",

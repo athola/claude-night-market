@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -81,7 +81,7 @@ DEFAULT_SPECIALISTS: list[SpecialistProfile] = [
 def get_specialist_for_step(
     step: str,
     specialists: list[SpecialistProfile],
-) -> Optional[SpecialistProfile]:  # noqa: UP045
+) -> SpecialistProfile | None:
     """Find the specialist assigned to a pipeline step.
 
     Returns None if no specialist is mapped to the given step.
@@ -122,7 +122,7 @@ def save_specialist_context(
     context_path = context_dir / f"{specialist.role}.md"
     context_path.write_text(context)
     specialist.context_file = str(context_path)
-    specialist.last_active = datetime.now(timezone.utc).isoformat()  # noqa: UP017
+    specialist.last_active = datetime.now(timezone.utc).isoformat()
     return context_path
 
 
@@ -137,7 +137,7 @@ def record_specialist_metrics(
     Tracks per-step attempts, successes, and cumulative duration.
     """
     specialist.items_processed += 1
-    specialist.last_active = datetime.now(timezone.utc).isoformat()  # noqa: UP017
+    specialist.last_active = datetime.now(timezone.utc).isoformat()
     metrics = specialist.performance_metrics
     if "steps" not in metrics:
         metrics["steps"] = {}

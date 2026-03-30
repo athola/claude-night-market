@@ -221,7 +221,10 @@ class TestIndividualDimensions:
 
     @pytest.mark.unit
     def test_contributor_friendliness_reports_indicators(self, tmp_path: Path) -> None:
-        """Given a plugin with README containing stewardship and examples, reports all."""
+        """Given a plugin with README containing stewardship and examples, reports all.
+
+        Plugin has both stewardship section and code examples.
+        """
         plugin_dir = tmp_path / "plugins" / "test-plugin"
         plugin_dir.mkdir(parents=True)
         (plugin_dir / "README.md").write_text(

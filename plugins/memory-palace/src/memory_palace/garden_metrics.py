@@ -121,7 +121,10 @@ def summarize_tending_queue(queue_path: Path) -> dict[str, int]:
     """Summarize tending queue entries for telemetry."""
     if not queue_path.exists():
         return {"stale": 0, "probation_overdue": 0}
-    queue_data = json.loads(queue_path.read_text(encoding="utf-8"))
+    try:
+        queue_data = json.loads(queue_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"stale": 0, "probation_overdue": 0}
     return {
         "stale": len(queue_data.get("stale", [])),
         "probation_overdue": len(queue_data.get("probation_overdue", [])),

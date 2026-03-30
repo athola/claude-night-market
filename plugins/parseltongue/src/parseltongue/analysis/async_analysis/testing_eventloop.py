@@ -9,8 +9,8 @@ from typing import Any
 from ._base import is_call_to, parse_code
 
 __all__ = [
-    "analyze_testing_patterns",
     "analyze_event_loop_usage",
+    "analyze_testing_patterns",
     "validate_best_practices",
 ]
 

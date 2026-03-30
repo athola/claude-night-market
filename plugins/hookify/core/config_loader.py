@@ -15,9 +15,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 import yaml
+
+logger = logging.getLogger(__name__)
 
 VALID_EVENT_TYPES: frozenset[str] = frozenset({"bash", "file", "stop", "prompt", "all"})
 

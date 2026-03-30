@@ -21,11 +21,25 @@ Audit plugin.json files against actual disk contents and fix registration gaps.
 3. Reports discrepancies: missing registrations, stale entries
 4. Optionally fixes by updating plugin.json files with proper sorting
 
+### Phase 1b: Structure Validation (Doctor Check)
+
+Runs `validate_plugin.py` on each affected plugin to verify:
+- plugin.json schema matches official Claude Code spec
+- Skill frontmatter uses valid fields (`effort`, `context`, `shell`, etc.)
+- Agent frontmatter uses valid fields (`maxTurns`, `isolation`, etc.)
+- Hook event types are recognized (`PreToolUse`, `PostToolUse`, etc.)
+- All referenced paths exist on disk
+
+```bash
+python3 plugins/abstract/scripts/validate_plugin.py plugins/<plugin>
+```
+
 ### Phase 2: Plugin Quality Review
 
 Triggers `/plugin-review --tier branch` on affected plugins.
-Runs quick quality gates (test, lint, typecheck, registration)
-on changed plugins and side-effect checks on related plugins.
+Runs quick quality gates (test, lint, typecheck, registration,
+structure validation) on changed plugins and side-effect
+checks on related plugins.
 
 ### Phase 2-4 (On-Demand Modules)
 

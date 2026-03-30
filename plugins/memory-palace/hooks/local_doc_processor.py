@@ -8,6 +8,7 @@ knowledge-intake for new/updated local documentation.
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -20,13 +21,11 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many validation branches
     """Process local documents through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError as e:
-        import logging
-
         logging.warning("local_doc_processor: Failed to parse payload: %s", e)
         sys.exit(0)
 

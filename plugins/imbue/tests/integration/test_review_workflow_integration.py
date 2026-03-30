@@ -162,7 +162,7 @@ class TestReviewWorkflowIntegration:
             {
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
-                "output": (  # noqa: S608
+                "output": (
                     'src/auth.py:3: query = "SELECT * FROM users'
                     " WHERE username = 'test_user'"
                 ),
@@ -885,7 +885,7 @@ class TestErrorPropagation:
                     }
                 )
                 msg = "Git command failed"
-                raise Exception(msg)  # noqa: TRY002
+                raise RuntimeError(msg)
             return {"skill": skill_name, "status": "success"}
 
         mock_claude_tools["Skill"] = Mock(side_effect=mock_skill)

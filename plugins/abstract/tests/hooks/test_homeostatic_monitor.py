@@ -18,7 +18,7 @@ _HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
 if str(_HOOKS_DIR) not in sys.path:
     sys.path.insert(0, str(_HOOKS_DIR))
 
-from homeostatic_monitor import (  # noqa: E402
+from homeostatic_monitor import (  # noqa: E402 - import after sys.path setup
     calculate_stability_gap,
     get_claude_home,
     read_history,

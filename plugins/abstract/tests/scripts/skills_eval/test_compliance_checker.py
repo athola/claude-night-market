@@ -1,6 +1,7 @@
 """Tests for compliance checking functionality."""
 
 import json
+from typing import Any, cast
 
 import pytest
 
@@ -512,7 +513,7 @@ class TestCheckTriggerIsolation:
 
     def test_none_inputs_handled_gracefully(self) -> None:
         """Test that None inputs don't raise and return valid result."""
-        result = check_trigger_isolation(None, None)  # type: ignore[arg-type]
+        result = check_trigger_isolation(cast(Any, None), cast(Any, None))
 
         assert isinstance(result, TriggerIsolationResult)
         assert result.score >= 0
@@ -607,7 +608,7 @@ class TestDetectEnforcementLevel:
 
     def test_none_input_returns_none(self) -> None:
         """Test that None input returns 'none' without raising."""
-        assert detect_enforcement_level(None) == "none"  # type: ignore[arg-type]
+        assert detect_enforcement_level(cast(Any, None)) == "none"
 
     def test_empty_string_returns_none(self) -> None:
         """Test that empty string returns 'none'."""

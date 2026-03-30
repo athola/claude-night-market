@@ -10,14 +10,30 @@ Tests follow Given-When-Then pattern for:
 
 from __future__ import annotations
 
+import importlib
 import io
 import json
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+
+_hook_path = str(Path(__file__).resolve().parent.parent.parent / "hooks")
+if _hook_path not in sys.path:
+    sys.path.insert(0, _hook_path)
+
+_scripts_path = str(Path(__file__).resolve().parent.parent.parent / "scripts")
+if _scripts_path not in sys.path:
+    sys.path.insert(0, _scripts_path)
+
+import aggregate_learnings_daily  # noqa: E402 - import after sys.path setup
+from aggregate_skill_logs import (  # noqa: E402 - import after sys.path setup
+    AggregationResult,
+    SkillLogSummary,
+)
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -27,20 +43,11 @@ import pytest
 @pytest.fixture()
 def hook_module(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Import the hook module with paths redirected to tmp_path."""
-    import sys  # noqa: PLC0415
-
-    hook_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-    if str(hook_path) not in sys.path:
-        sys.path.insert(0, str(hook_path))
-
     # Redirect CLAUDE_HOME to tmp_path so timestamp files go there
     monkeypatch.setenv("CLAUDE_HOME", str(tmp_path))
 
     # Force reimport to pick up env changes
-    if "aggregate_learnings_daily" in sys.modules:
-        del sys.modules["aggregate_learnings_daily"]
-
-    import aggregate_learnings_daily  # noqa: PLC0415
+    importlib.reload(aggregate_learnings_daily)
 
     # Patch the home directory functions
     monkeypatch.setattr(
@@ -573,7 +580,6 @@ class TestWriteLearningsIntegration:
         Then: The output file contains both new content AND the
               preserved pinned learnings
         """
-
         learnings_file = tmp_path / "skills" / "LEARNINGS.md"
         learnings_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -595,22 +601,6 @@ class TestWriteLearningsIntegration:
         monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
 
         # Build a minimal but real AggregationResult
-        try:
-            from aggregate_skill_logs import (  # noqa: PLC0415
-                AggregationResult,
-                SkillLogSummary,
-            )
-        except ImportError:
-            import sys as _sys  # noqa: PLC0415
-
-            scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
-            if str(scripts_dir) not in _sys.path:
-                _sys.path.insert(0, str(scripts_dir))
-            from aggregate_skill_logs import (  # noqa: PLC0415
-                AggregationResult,
-                SkillLogSummary,
-            )
-
         metrics = SkillLogSummary(
             skill="abstract:test-skill",
             plugin="abstract",
@@ -668,26 +658,9 @@ class TestWriteLearningsIntegration:
         When: _write_learnings() is called
         Then: A new file is created with the aggregated content
         """
-
         learnings_file = tmp_path / "new_dir" / "LEARNINGS.md"
 
         monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
-
-        try:
-            from aggregate_skill_logs import (  # noqa: PLC0415
-                AggregationResult,
-                SkillLogSummary,
-            )
-        except ImportError:
-            import sys as _sys  # noqa: PLC0415
-
-            scripts_dir = Path(__file__).resolve().parent.parent.parent / "scripts"
-            if str(scripts_dir) not in _sys.path:
-                _sys.path.insert(0, str(scripts_dir))
-            from aggregate_skill_logs import (  # noqa: PLC0415
-                AggregationResult,
-                SkillLogSummary,
-            )
 
         metrics = SkillLogSummary(
             skill="leyline:fmt",

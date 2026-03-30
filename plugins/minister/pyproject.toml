@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.7.2"
+version = "1.7.3"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -50,6 +50,7 @@ extend-ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "PLR2004",  # Magic values in test assertions are acceptable
+    "S311",     # Allow pseudo-random generators in tests
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -74,6 +75,8 @@ omit = ["*/tests/*", "*/__pycache__/*"]
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
+    "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
+fail_under = 90

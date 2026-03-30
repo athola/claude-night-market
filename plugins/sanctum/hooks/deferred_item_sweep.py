@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 
 from _ledger_utils import get_ledger_path as _get_ledger_path
@@ -45,6 +46,7 @@ def call_capture_script(title: str, source: str) -> dict:
             capture_output=True,
             text=True,
             timeout=15,
+            check=False,
         )
         if result.returncode == 0:
             return json.loads(result.stdout)
@@ -131,7 +133,5 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:  # noqa: BLE001
-        import traceback
-
+    except Exception:
         sys.stderr.write(f"deferred_item_sweep: {traceback.format_exc()}")

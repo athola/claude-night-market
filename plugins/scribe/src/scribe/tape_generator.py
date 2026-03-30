@@ -6,6 +6,7 @@ Type/Sleep/Enter commands and configurable timing.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
@@ -13,7 +14,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from scribe.session_parser import Turn
 
-from scribe.session_parser import AssistantTurn, ToolResult, ToolUse, UserTurn
+from scribe.session_parser import (
+    AssistantTurn,
+    ThinkingTurn,
+    ToolResult,
+    ToolUse,
+    UserTurn,
+)
 
 # --- Constants ---
 
@@ -38,9 +45,6 @@ class TapeConfig:
 
 
 # --- String escaping ---
-
-
-import re
 
 
 def _sanitize_theme(theme: str) -> str:
@@ -198,6 +202,8 @@ def _render_turn(lines: list[str], turn: Turn, config: TapeConfig) -> float:
         return _render_tool_use(lines, turn, config)
     if isinstance(turn, ToolResult):
         return _render_tool_result(lines, turn, config)
+    if isinstance(turn, ThinkingTurn):
+        return _render_thinking_turn(lines, turn, config)
     return 0.0
 
 
@@ -274,5 +280,24 @@ def _render_tool_result(
                 lines.append(f'Type@{type_ms}ms "{escaped_content}"')
                 lines.append("Enter")
                 elapsed += type_ms + _scale_ms(50, config.speed)
+
+    return elapsed
+
+
+def _render_thinking_turn(
+    lines: list[str], turn: ThinkingTurn, config: TapeConfig
+) -> float:
+    """Render a thinking turn with [thinking] prefix at fast speed."""
+    type_ms = _scale_ms(5, config.speed)
+    elapsed = 0.0
+
+    text_lines = turn.text.split("\n")
+    for j, text_line in enumerate(text_lines):
+        prefix = "[thinking] " if j == 0 else "           "
+        escaped = escape_vhs(f"{prefix}{text_line}")
+        lines.append(f'Type@{type_ms}ms "{escaped}"')
+        lines.append("Enter")
+        char_count = len(f"{prefix}{text_line}")
+        elapsed += char_count * type_ms + _scale_ms(50, config.speed)
 
     return elapsed

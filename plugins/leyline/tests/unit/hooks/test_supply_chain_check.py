@@ -11,6 +11,8 @@ So that I can take immediate action before working with a compromised environmen
 from __future__ import annotations
 
 import importlib.util
+import inspect
+import json
 import sys
 from pathlib import Path
 
@@ -66,8 +68,7 @@ source = { registry = "https://pypi.org/simple" }
 
 
 class TestScanUvLock:
-    """
-    Feature: uv.lock scanning for compromised versions
+    """Feature: uv.lock scanning for compromised versions
 
     As a developer using uv for dependency management
     I want lockfiles checked against a blocklist
@@ -76,8 +77,7 @@ class TestScanUvLock:
 
     @pytest.mark.unit
     def test_detects_compromised_version(self, tmp_path: Path) -> None:
-        """
-        Scenario: lockfile contains a known-bad version
+        """Scenario: lockfile contains a known-bad version
         Given a uv.lock with litellm==1.82.7
         When scanned against the blocklist
         Then a finding is returned with severity and description.
@@ -92,8 +92,7 @@ class TestScanUvLock:
 
     @pytest.mark.unit
     def test_ignores_safe_version(self, tmp_path: Path) -> None:
-        """
-        Scenario: lockfile contains a safe version
+        """Scenario: lockfile contains a safe version
         Given a uv.lock with litellm==1.81.15
         When scanned against the blocklist
         Then no findings are returned.
@@ -105,8 +104,7 @@ class TestScanUvLock:
 
     @pytest.mark.unit
     def test_ignores_unrelated_packages(self, tmp_path: Path) -> None:
-        """
-        Scenario: lockfile has no packages in the blocklist
+        """Scenario: lockfile has no packages in the blocklist
         Given a uv.lock with only unrelated packages
         When scanned
         Then no findings are returned.
@@ -118,8 +116,7 @@ class TestScanUvLock:
 
     @pytest.mark.unit
     def test_detects_both_compromised_versions(self, tmp_path: Path) -> None:
-        """
-        Scenario: lockfile somehow references both bad versions
+        """Scenario: lockfile somehow references both bad versions
         Given a uv.lock with both 1.82.7 and 1.82.8
         When scanned
         Then two findings are returned.
@@ -142,8 +139,7 @@ source = { registry = "https://pypi.org/simple" }
 
     @pytest.mark.unit
     def test_empty_blocklist_returns_nothing(self, tmp_path: Path) -> None:
-        """
-        Scenario: blocklist is empty
+        """Scenario: blocklist is empty
         Given an empty blocklist
         When any lockfile is scanned
         Then no findings are returned.
@@ -155,8 +151,7 @@ source = { registry = "https://pypi.org/simple" }
 
 
 class TestScanRequirements:
-    """
-    Feature: requirements.txt scanning for compromised versions
+    """Feature: requirements.txt scanning for compromised versions
 
     As a developer using pip-style requirements
     I want pinned requirements checked against a blocklist
@@ -165,8 +160,7 @@ class TestScanRequirements:
 
     @pytest.mark.unit
     def test_detects_compromised_pinned_version(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirements.txt pins a compromised version
+        """Scenario: requirements.txt pins a compromised version
         Given requirements.txt with litellm==1.82.7
         When scanned
         Then a finding is returned.
@@ -179,8 +173,7 @@ class TestScanRequirements:
 
     @pytest.mark.unit
     def test_ignores_safe_pinned_version(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirements.txt pins a safe version
+        """Scenario: requirements.txt pins a safe version
         Given requirements.txt with litellm==1.81.15
         When scanned
         Then no findings are returned.
@@ -192,8 +185,7 @@ class TestScanRequirements:
 
     @pytest.mark.unit
     def test_handles_environment_markers(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirement line has environment markers
+        """Scenario: requirement line has environment markers
         Given litellm==1.82.7; python_version>="3.9"
         When scanned
         Then the version is still detected.
@@ -205,8 +197,7 @@ class TestScanRequirements:
 
     @pytest.mark.unit
     def test_skips_comments(self, tmp_path: Path) -> None:
-        """
-        Scenario: comment line mentions compromised version
+        """Scenario: comment line mentions compromised version
         Given a comment like # litellm==1.82.7
         When scanned
         Then it is not flagged.
@@ -218,8 +209,7 @@ class TestScanRequirements:
 
 
 class TestFindBlocklist:
-    """
-    Feature: Blocklist discovery
+    """Feature: Blocklist discovery
 
     As a hook
     I want to find the blocklist via CLAUDE_PLUGIN_ROOT or relative path
@@ -230,8 +220,7 @@ class TestFindBlocklist:
     def test_finds_blocklist_via_plugin_root(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: CLAUDE_PLUGIN_ROOT is set and blocklist exists
+        """Scenario: CLAUDE_PLUGIN_ROOT is set and blocklist exists
         Given CLAUDE_PLUGIN_ROOT points to a directory with the blocklist
         When _find_blocklist is called
         Then it returns the path.
@@ -249,8 +238,7 @@ class TestFindBlocklist:
     def test_returns_none_when_no_blocklist(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: No blocklist exists anywhere
+        """Scenario: No blocklist exists anywhere
         Given CLAUDE_PLUGIN_ROOT points to empty directory
         When _find_blocklist is called
         Then it returns None.
@@ -265,8 +253,7 @@ class TestFindBlocklist:
     def test_falls_back_to_relative_path(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """
-        Scenario: CLAUDE_PLUGIN_ROOT not set but relative path works
+        """Scenario: CLAUDE_PLUGIN_ROOT not set but relative path works
         Given no CLAUDE_PLUGIN_ROOT env var
         And blocklist exists relative to the hook file
         When _find_blocklist is called
@@ -287,8 +274,7 @@ class TestFindBlocklist:
 
 
 class TestScanRequirementsEdgeCases:
-    """
-    Feature: requirements.txt edge cases
+    """Feature: requirements.txt edge cases
 
     As a developer
     I want non-pinned and varied format lines handled correctly
@@ -297,8 +283,7 @@ class TestScanRequirementsEdgeCases:
 
     @pytest.mark.unit
     def test_ignores_unpinned_requirements(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirement uses >= instead of ==
+        """Scenario: requirement uses >= instead of ==
         Given requirements.txt with litellm>=1.82.7
         When scanned
         Then no findings are returned (only exact pins checked).
@@ -310,8 +295,7 @@ class TestScanRequirementsEdgeCases:
 
     @pytest.mark.unit
     def test_case_insensitive_package_matching(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirement has mixed-case package name
+        """Scenario: requirement has mixed-case package name
         Given requirements.txt with LiteLLM==1.82.7
         When scanned
         Then the finding is still detected via case-insensitive match.
@@ -323,8 +307,7 @@ class TestScanRequirementsEdgeCases:
 
     @pytest.mark.unit
     def test_empty_requirements_file(self, tmp_path: Path) -> None:
-        """
-        Scenario: requirements file is empty
+        """Scenario: requirements file is empty
         Given an empty requirements.txt
         When scanned
         Then no findings are returned.
@@ -336,8 +319,7 @@ class TestScanRequirementsEdgeCases:
 
 
 class TestMainIntegration:
-    """
-    Feature: Hook main() integration
+    """Feature: Hook main() integration
 
     As a session startup hook
     I want main() to output JSON warnings on findings
@@ -351,8 +333,7 @@ class TestMainIntegration:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        """
-        Scenario: No blocklist exists
+        """Scenario: No blocklist exists
         Given CLAUDE_PLUGIN_ROOT points to empty directory
         When main() runs
         Then no output is produced.
@@ -370,14 +351,11 @@ class TestMainIntegration:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        """
-        Scenario: Compromised version found in lockfile
+        """Scenario: Compromised version found in lockfile
         Given a blocklist with litellm 1.82.7 and a matching uv.lock
         When main() runs
         Then JSON output with additionalContext is printed.
         """
-        import json
-
         # Set up blocklist
         skill_dir = tmp_path / "skills" / "supply-chain-advisory"
         skill_dir.mkdir(parents=True)
@@ -404,14 +382,11 @@ class TestMainIntegration:
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        """
-        Scenario: Blocklist exists but no matches in lockfiles
+        """Scenario: Blocklist exists but no matches in lockfiles
         Given a blocklist and a clean uv.lock
         When main() runs
         Then no output is produced.
         """
-        import json
-
         skill_dir = tmp_path / "skills" / "supply-chain-advisory"
         skill_dir.mkdir(parents=True)
         (skill_dir / "known-bad-versions.json").write_text(json.dumps(SAMPLE_BLOCKLIST))
@@ -428,14 +403,11 @@ class TestMainIntegration:
 
     @pytest.mark.unit
     def test_never_crashes(self) -> None:
-        """
-        Scenario: Hook must never crash the session
+        """Scenario: Hook must never crash the session
         Given the hook source code
         When inspected
         Then it wraps main() in try/except and exits 0.
         """
-        import inspect
-
         source = inspect.getsource(_mod)
         assert "except Exception" in source
         assert "sys.exit(0)" in source

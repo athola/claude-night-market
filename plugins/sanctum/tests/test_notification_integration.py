@@ -91,7 +91,7 @@ class TestGetSessionId:
     def test_tmux_with_session(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """tmux env produces tmux_<session>_<window>_<project>."""
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
-        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")  # noqa: S108
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")
 
         with (
             patch(
@@ -114,7 +114,7 @@ class TestGetSessionId:
         """When _get_tmux_session() returns None, tmux branch is skipped
         and SSH_TTY is used instead."""
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
-        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")  # noqa: S108
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")
         monkeypatch.setenv("SSH_TTY", "/dev/pts/2")
         monkeypatch.delenv("TTY", raising=False)
 
@@ -339,7 +339,7 @@ class TestNotifyWSLContinuePaths:
         """CalledProcessError on path 1 continues to path 2, which succeeds."""
         call_count = 0
 
-        def side_effect(cmd, **kwargs):  # noqa: ANN001,ANN202
+        def side_effect(cmd, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
@@ -357,7 +357,7 @@ class TestNotifyWSLContinuePaths:
         """TimeoutExpired on path 1 continues to path 2, which succeeds."""
         call_count = 0
 
-        def side_effect(cmd, **kwargs):  # noqa: ANN001,ANN202
+        def side_effect(cmd, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
@@ -376,7 +376,7 @@ class TestNotifyWSLContinuePaths:
         BurntToast path succeeds and returns True."""
         call_count = 0
 
-        def side_effect(cmd, **kwargs):  # noqa: ANN001,ANN202
+        def side_effect(cmd, **kwargs):
             nonlocal call_count
             call_count += 1
             # First 3 calls (toast paths) raise CalledProcessError
@@ -399,7 +399,7 @@ class TestNotifyWSLContinuePaths:
         call_count = 0
         recorded_cmds: list[list[str]] = []
 
-        def side_effect(cmd, **kwargs):  # noqa: ANN001,ANN202
+        def side_effect(cmd, **kwargs):
             nonlocal call_count
             call_count += 1
             recorded_cmds.append(cmd)

@@ -590,7 +590,6 @@ class TestTasksManagerFileBasedExtended:
     @pytest.mark.unit
     def test_update_task_status_extra_kwargs(self, manager: TasksManager) -> None:
         """Scenario: update_task_status stores extra kwargs in state."""
-
         t1 = manager.ensure_task_exists("Task")
         manager.update_task_status(str(t1), "in_progress", note="working on it")
         state_data = json.loads(manager.fallback_state_file.read_text())
@@ -599,7 +598,6 @@ class TestTasksManagerFileBasedExtended:
     @pytest.mark.unit
     def test_update_complete_updates_metrics(self, manager: TasksManager) -> None:
         """Scenario: Completing a task updates the tasks_complete metric."""
-
         t1 = manager.ensure_task_exists("Task A")
         manager.ensure_task_exists("Task B")
         manager.update_task_status(str(t1), "complete")

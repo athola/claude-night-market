@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 __all__ = [
-    "MIN_OBSERVER_METHODS",
     "MIN_FACTORY_RETURN_CLASSES",
+    "MIN_OBSERVER_METHODS",
     "MIN_REPO_METHODS",
     "_OBSERVER_METHODS",
 ]

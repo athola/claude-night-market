@@ -449,6 +449,7 @@ class TestGetStaleEntriesWithImportance:
 
     @pytest.fixture
     def model(self) -> DecayModel:
+        """Create a default DecayModel for stale-entry tests."""
         return DecayModel()
 
     def test_excludes_constitutional_from_stale(self, model: DecayModel) -> None:

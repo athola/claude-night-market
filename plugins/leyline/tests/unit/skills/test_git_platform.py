@@ -44,6 +44,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         assert result.returncode == 0, f"Hook failed: {result.stderr}"
         output = json.loads(result.stdout)
@@ -64,6 +65,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         assert output["hookSpecificOutput"]["additionalContext"] == ""
@@ -76,11 +78,14 @@ class TestPlatformDetectionHook:
         Then platform is detected as github.
         """
         # Set up a git repo with a github remote
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://github.com/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -89,6 +94,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]
@@ -102,11 +108,14 @@ class TestPlatformDetectionHook:
         When the hook runs
         Then platform is detected as gitlab with correct MR terminology.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://gitlab.com/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -115,6 +124,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]
@@ -129,11 +139,14 @@ class TestPlatformDetectionHook:
         When the hook runs
         Then platform is detected as bitbucket.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://bitbucket.org/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
 
         result = subprocess.run(
@@ -142,6 +155,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]
@@ -154,7 +168,9 @@ class TestPlatformDetectionHook:
         When the hook runs
         Then platform is detected as github.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         (tmp_path / ".github").mkdir()
 
         result = subprocess.run(
@@ -163,6 +179,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]
@@ -175,7 +192,9 @@ class TestPlatformDetectionHook:
         When the hook runs
         Then platform is detected as gitlab.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         (tmp_path / ".gitlab-ci.yml").touch()
 
         result = subprocess.run(
@@ -184,6 +203,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]
@@ -203,6 +223,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=1,
+            check=False,
         )
         assert result.returncode == 0
 
@@ -213,11 +234,14 @@ class TestPlatformDetectionHook:
         When the hook runs
         Then ci system is reported as github-actions.
         """
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
         subprocess.run(
             ["git", "remote", "add", "origin", "https://github.com/owner/repo.git"],
             cwd=str(tmp_path),
             capture_output=True,
+            check=False,
         )
         (tmp_path / ".github" / "workflows").mkdir(parents=True)
 
@@ -227,6 +251,7 @@ class TestPlatformDetectionHook:
             text=True,
             cwd=str(tmp_path),
             timeout=5,
+            check=False,
         )
         output = json.loads(result.stdout)
         context = output["hookSpecificOutput"]["additionalContext"]

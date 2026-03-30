@@ -329,7 +329,7 @@ class TestCallCaptureScriptDirect:
         assert "timed out" in result["message"].lower() or "15" in result["message"]
 
     def test_malformed_json_output_handled_gracefully(self) -> None:
-        """When subprocess exits 0 but stdout is not valid JSON, error dict is returned."""
+        """When subprocess exits 0 but stdout is not valid JSON, error dict returned."""
         from deferred_item_sweep import call_capture_script
 
         mock_proc = MagicMock()

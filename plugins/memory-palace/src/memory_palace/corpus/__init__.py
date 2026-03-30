@@ -36,7 +36,7 @@ try:
     )
 except ImportError:
     DEFAULT_THRESHOLD = 0.85
-    SemanticDeduplicator = None  # type: ignore[assignment,misc]
+    SemanticDeduplicator = None
 
 from memory_palace.corpus.source_lineage import (
     FullLineage,
