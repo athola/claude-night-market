@@ -49,6 +49,7 @@ python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -71,3 +72,8 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 fail_under = 90
+
+[dependency-groups]
+dev = [
+    "types-pyyaml>=6.0.12.20250915",
+]
