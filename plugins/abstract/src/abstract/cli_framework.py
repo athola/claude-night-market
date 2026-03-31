@@ -15,15 +15,17 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Generic, TypeVar, cast
 
 from .base import AbstractScript
 from .config import AbstractConfig
 from .errors import ErrorHandler
 
+T = TypeVar("T")
+
 
 @dataclass
-class CLIResult[T]:
+class CLIResult(Generic[T]):  # noqa: UP046 - Generic[T] required for Python 3.9
     """Standard result wrapper for CLI operations."""
 
     success: bool

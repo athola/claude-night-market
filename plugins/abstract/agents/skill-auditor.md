@@ -92,6 +92,22 @@ The auditor delegates to these scripts when available:
 - `plugins/abstract/scripts/token_estimator.py`
 - `plugins/abstract/scripts/token_usage_tracker.py`
 
+## Error Handling
+
+Scripts must be run from within the `plugins/abstract`
+directory or with correct PYTHONPATH so that
+`src/abstract` is importable. If a script fails:
+
+1. Check the exit code and stderr output first.
+2. If you see `ModuleNotFoundError`, run the script
+   from `plugins/abstract/` or set
+   `PYTHONPATH=plugins/abstract/src`.
+3. If you see `SyntaxError`, verify Python >= 3.9.
+4. If a script fails, skip it and continue with the
+   remaining scripts. Report partial results rather
+   than failing the entire audit.
+5. Do not retry a failing script more than once.
+
 ## Output Formats
 
 - **markdown-report** -- human-readable audit with
