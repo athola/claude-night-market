@@ -1,0 +1,26 @@
+{
+  "name": "gauntlet",
+  "version": "1.0.0",
+  "description": "Codebase learning through knowledge extraction, challenges, and spaced repetition. Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.",
+  "skills": [
+    "./skills/extract",
+    "./skills/challenge",
+    "./skills/onboard",
+    "./skills/curate"
+  ],
+  "commands": [
+    "./commands/gauntlet.md",
+    "./commands/gauntlet-extract.md",
+    "./commands/gauntlet-progress.md",
+    "./commands/gauntlet-onboard.md",
+    "./commands/gauntlet-curate.md"
+  ],
+  "agents": [
+    "./agents/extractor.md"
+  ],
+  "hooks": ["./hooks/hooks.json"],
+  "dependencies": [],
+  "keywords": ["learning", "onboarding", "knowledge", "challenges", "spaced-repetition", "pre-commit", "codebase-fluency"],
+  "author": {"name": "Alex Thola", "url": "https://github.com/athola"},
+  "license": "MIT"
+}
