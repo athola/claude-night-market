@@ -346,25 +346,29 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
     return min(estimated_tokens / context_window_tokens, 0.95)
 
 
-def get_context_usage_from_env() -> float | None:
+def get_context_usage_from_env() -> tuple[float | None, bool]:
     """Attempt to get current context usage from environment.
 
     Returns:
-        Context usage as float 0-1, or None if unavailable.
+        Tuple of (context usage as float 0-1 or None, is_estimated flag).
+        When the value comes from CLAUDE_CONTEXT_USAGE env var, is_estimated
+        is False. When it comes from the JSONL fallback estimation,
+        is_estimated is True.
 
     """
     # Try to get from environment variable (set by Claude Code)
     usage_str = os.environ.get("CLAUDE_CONTEXT_USAGE")
     if usage_str:
         try:
-            return float(usage_str)
+            return float(usage_str), False
         except ValueError:
             logger.warning(
                 "Invalid CLAUDE_CONTEXT_USAGE value: %r (expected float)", usage_str
             )
 
     # Fallback: estimate from session file size
-    return estimate_context_from_session()
+    estimated = estimate_context_from_session()
+    return estimated, True
 
 
 def format_hook_output(alert: ContextAlert) -> dict[str, Any]:
@@ -409,11 +413,12 @@ def main() -> int:
         hook_input = {}
 
     # Get context usage - try environment first, then hook input
-    usage = get_context_usage_from_env()
+    usage, is_estimated = get_context_usage_from_env()
 
     if usage is None:
         # Try to extract from hook input if provided
         usage = hook_input.get("context_usage")
+        is_estimated = False  # hook input is treated as reliable
 
     if usage is None:
         # No context usage available, output empty response
@@ -427,6 +432,29 @@ def main() -> int:
         logger.warning("Invalid context usage value: %s", e)
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
         return 0
+
+    # When usage comes from JSONL estimation (not the reliable env var),
+    # cap severity at WARNING to avoid false EMERGENCY/CRITICAL alerts.
+    # The estimation heuristic over-counts because JSONL includes JSON
+    # structure, metadata, and tool outputs that inflate the char count.
+    if is_estimated and alert.severity in (
+        ContextSeverity.CRITICAL,
+        ContextSeverity.EMERGENCY,
+    ):
+        alert = ContextAlert(
+            severity=ContextSeverity.WARNING,
+            usage_percent=alert.usage_percent,
+            message=(
+                f"WARNING: Context estimated at {alert.usage_percent * 100:.1f}% "
+                "(from session file, may be inaccurate)"
+            ),
+            recommendations=[
+                "Context usage is estimated from session file size",
+                "Actual usage may be lower than reported",
+                "Monitor context growth rate",
+                "Invoke Skill(conserve:context-optimization) if needed",
+            ],
+        )
 
     # Only output for WARNING, CRITICAL, or EMERGENCY
     if alert.severity == ContextSeverity.OK:

@@ -56,9 +56,10 @@ class TestFallbackContextEstimation:
         """Scenario: CLAUDE_CONTEXT_USAGE takes precedence over estimation."""
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.75")
 
-        result = context_warning_full_module.get_context_usage_from_env()
+        usage, is_estimated = context_warning_full_module.get_context_usage_from_env()
 
-        assert result == 0.75
+        assert usage == 0.75
+        assert is_estimated is False
 
     @pytest.mark.bdd
     @pytest.mark.unit

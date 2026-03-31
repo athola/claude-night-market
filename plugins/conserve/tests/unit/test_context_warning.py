@@ -414,8 +414,9 @@ class TestGetContextUsageFromEnv:
     def test_reads_from_env_variable(self) -> None:
         """Verify Reads from env variable."""
         with patch.dict(os.environ, {"CLAUDE_CONTEXT_USAGE": "0.55"}):
-            result = get_context_usage_from_env()
-        assert result == 0.55
+            usage, is_estimated = get_context_usage_from_env()
+        assert usage == 0.55
+        assert is_estimated is False
 
     def test_returns_none_for_invalid_env_value(self) -> None:
         """Verify Returns none for invalid env value."""
@@ -426,8 +427,9 @@ class TestGetContextUsageFromEnv:
                 return_value=None,
             ),
         ):
-            result = get_context_usage_from_env()
-        assert result is None
+            usage, is_estimated = get_context_usage_from_env()
+        assert usage is None
+        assert is_estimated is True
 
     def test_falls_back_to_session_estimation(self) -> None:
         """Verify Falls back to session estimation."""
@@ -440,8 +442,9 @@ class TestGetContextUsageFromEnv:
                 return_value=0.35,
             ),
         ):
-            result = get_context_usage_from_env()
-        assert result == 0.35
+            usage, is_estimated = get_context_usage_from_env()
+        assert usage == 0.35
+        assert is_estimated is True
 
 
 class TestFormatHookOutput:
@@ -587,3 +590,116 @@ class TestMain:
         monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
         rc = main()
         assert rc == 0
+
+
+class TestEstimationSeverityCapping:
+    """Severity capping when usage comes from JSONL estimation fallback."""
+
+    def test_estimated_high_usage_capped_at_warning(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """When estimation returns 0.85, severity is WARNING not EMERGENCY."""
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr(
+            "context_warning.estimate_context_from_session",
+            lambda: 0.85,
+        )
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        ctx = output["hookSpecificOutput"].get("additionalContext", "")
+        assert "WARNING" in ctx
+        assert "EMERGENCY" not in ctx
+        warning = output["hookSpecificOutput"]["contextWarning"]
+        assert warning["severity"] == "warning"
+
+    def test_estimated_critical_usage_capped_at_warning(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """When estimation returns 0.55, severity is WARNING not CRITICAL."""
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr(
+            "context_warning.estimate_context_from_session",
+            lambda: 0.55,
+        )
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        warning = output["hookSpecificOutput"]["contextWarning"]
+        assert warning["severity"] == "warning"
+        ctx = output["hookSpecificOutput"].get("additionalContext", "")
+        assert "estimated" in ctx.lower()
+
+    def test_env_var_high_usage_still_emergency(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """When CLAUDE_CONTEXT_USAGE is 0.85, severity is EMERGENCY."""
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        assert "EMERGENCY" in ctx
+
+    def test_estimated_warning_level_not_capped(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """When estimation returns 0.45, severity stays WARNING (no capping needed)."""
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr(
+            "context_warning.estimate_context_from_session",
+            lambda: 0.45,
+        )
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        warning = output["hookSpecificOutput"]["contextWarning"]
+        assert warning["severity"] == "warning"
+
+    def test_estimated_ok_level_not_affected(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """When estimation returns 0.10, severity stays OK."""
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr(
+            "context_warning.estimate_context_from_session",
+            lambda: 0.10,
+        )
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        assert "contextWarning" not in output.get("hookSpecificOutput", {})
+
+    def test_capped_alert_mentions_estimated(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Capped alert message notes the value is estimated."""
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr(
+            "context_warning.estimate_context_from_session",
+            lambda: 0.90,
+        )
+        monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
+        captured: list[str] = []
+        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        rc = main()
+        assert rc == 0
+        output = json.loads(captured[0])
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        assert "estimated" in ctx.lower()
+        assert "may be inaccurate" in ctx.lower()
