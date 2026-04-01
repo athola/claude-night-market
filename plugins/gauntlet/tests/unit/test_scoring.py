@@ -217,3 +217,75 @@ class TestDependencyMapScoring:
         ch = _challenge("dependency_map", "a, b, c, d, e")
         # 1 out of 5 answer modules = 20% -- below 30% threshold
         assert evaluate_answer(ch, "a, x, y, z, w") == "fail"
+
+
+# ---------------------------------------------------------------------------
+# Feature: ML-enhanced open-ended scoring
+# ---------------------------------------------------------------------------
+
+
+class TestMLEnhancedScoring:
+    """
+    Feature: ML-blended scoring for open-ended challenges
+
+    As a gauntlet engine
+    I want to blend ML quality scores with word-overlap
+    So that answers demonstrating understanding score better
+    """
+
+    @pytest.mark.unit
+    def test_existing_exact_match_still_passes(self):
+        """
+        Scenario: Exact match still passes with ML active
+        Given an explain_why challenge
+        When the answer matches exactly
+        Then the result is still 'pass'
+        """
+        answer = "Access tokens expire after 15 minutes to limit exposure."
+        ch = _challenge("explain_why", answer)
+        assert evaluate_answer(ch, answer) == "pass"
+
+    @pytest.mark.unit
+    def test_existing_unrelated_still_fails(self):
+        """
+        Scenario: Unrelated answer still fails with ML active
+        Given an explain_why challenge about token expiry
+        When the answer is about databases
+        Then the result is still 'fail'
+        """
+        answer = "Access tokens expire after 15 minutes to limit exposure."
+        ch = _challenge("explain_why", answer)
+        assert evaluate_answer(ch, "The database uses PostgreSQL indexes.") == "fail"
+
+    @pytest.mark.unit
+    def test_existing_empty_still_fails(self):
+        """
+        Scenario: Empty answer still fails with ML active
+        Given any open-ended challenge
+        When the answer is empty
+        Then the result is still 'fail'
+        """
+        ch = _challenge("explain_why", "Tokens expire after 15 minutes.")
+        assert evaluate_answer(ch, "") == "fail"
+
+    @pytest.mark.unit
+    def test_multiple_choice_unchanged(self):
+        """
+        Scenario: Multiple choice scoring is not affected by ML
+        Given a multiple_choice challenge
+        When the correct letter is given
+        Then the result is still 'pass' (ML not involved)
+        """
+        ch = _challenge("multiple_choice", "B")
+        assert evaluate_answer(ch, "B") == "pass"
+
+    @pytest.mark.unit
+    def test_dependency_map_unchanged(self):
+        """
+        Scenario: Dependency map scoring is not affected by ML
+        Given a dependency_map challenge
+        When the correct modules are listed
+        Then the result is still 'pass' (ML not involved)
+        """
+        ch = _challenge("dependency_map", "moduleA, moduleB, moduleC")
+        assert evaluate_answer(ch, "moduleC, moduleA, moduleB") == "pass"

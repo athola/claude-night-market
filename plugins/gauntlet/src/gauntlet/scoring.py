@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 
+from gauntlet.ml import score_answer_quality
 from gauntlet.models import Challenge
 
 # ---------------------------------------------------------------------------
@@ -44,8 +45,9 @@ def evaluate_answer(challenge: Challenge, answer: str) -> str:
 
     - **multiple_choice**: exact letter match (case-insensitive).
     - **dependency_map**: set overlap.  >= 80% = pass, >= 30% = partial.
-    - **explain_why / trace / spot_bug / code_completion**: word overlap.
-      >= 0.5 = pass, >= 0.2 = partial.
+    - **explain_why / trace / spot_bug / code_completion**: blended
+      word-overlap + ML quality score.  >= 0.5 = pass, >= 0.2 = partial.
+      Falls back to word-overlap alone when ML is unavailable.
     """
     stripped = answer.strip()
 
@@ -69,9 +71,18 @@ def evaluate_answer(challenge: Challenge, answer: str) -> str:
     # Open-ended types: explain_why, trace, spot_bug, code_completion
     if not stripped:
         return "fail"
+
     ratio = _word_overlap_ratio(challenge.answer, stripped)
-    if ratio >= 0.5:
+
+    # ML quality refinement (graceful degradation)
+    ml_score = score_answer_quality(challenge, stripped)
+    if ml_score is not None:
+        combined = 0.4 * ratio + 0.6 * ml_score
+    else:
+        combined = ratio
+
+    if combined >= 0.5:
         return "pass"
-    if ratio >= 0.2:
+    if combined >= 0.2:
         return "partial"
     return "fail"
