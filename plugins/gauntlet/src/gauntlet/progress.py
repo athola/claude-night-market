@@ -8,7 +8,13 @@ import random
 import re
 from pathlib import Path
 
-from gauntlet.models import AnswerRecord, DeveloperProgress, KnowledgeEntry
+from gauntlet.models import (
+    AnswerRecord,
+    ChallengeResult,
+    ChallengeType,
+    DeveloperProgress,
+    KnowledgeEntry,
+)
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -63,10 +69,10 @@ class ProgressTracker:
         progress: DeveloperProgress,
         challenge_id: str,
         knowledge_entry_id: str,
-        challenge_type: str,
+        challenge_type: ChallengeType,
         category: str,
         difficulty: int,
-        result: str,
+        result: ChallengeResult,
     ) -> None:
         """Append a result to history, update streak, and auto-save."""
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()

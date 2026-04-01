@@ -43,7 +43,7 @@ def _word_list(text: str) -> list[str]:
     return _WORD_RE.findall(text.lower())
 
 
-def extract_answer_features(
+def extract_answer_features(  # noqa: PLR0912 - seven feature branches require sequential if/elif logic
     challenge: Challenge,
     answer: str,
 ) -> dict[str, float]:

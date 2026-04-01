@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from gauntlet.ml.features import extract_answer_features
 from gauntlet.ml.scorer import YamlScorer

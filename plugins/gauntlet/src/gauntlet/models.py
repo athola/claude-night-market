@@ -3,7 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
+
+ChallengeResult = Literal["pass", "partial", "fail"]
+ChallengeType = Literal[
+    "multiple_choice",
+    "explain_why",
+    "trace",
+    "spot_bug",
+    "dependency_map",
+    "code_completion",
+]
 
 
 @dataclass
@@ -15,12 +25,17 @@ class KnowledgeEntry:
     module: str
     concept: str
     detail: str
-    difficulty: int
+    difficulty: int  # 1-5
     extracted_at: str
     source: str
     related_files: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     consumers: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.difficulty <= 5:
+            msg = f"difficulty must be 1-5, got {self.difficulty}"
+            raise ValueError(msg)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary."""
@@ -61,15 +76,20 @@ class Challenge:
     """A single challenge question generated from a KnowledgeEntry."""
 
     id: str
-    type: str
+    type: ChallengeType
     knowledge_entry_id: str
-    difficulty: int
+    difficulty: int  # 1-5
     prompt: str
     context: str
     answer: str
     hints: list[str] = field(default_factory=list)
     scope_files: list[str] = field(default_factory=list)
     options: list[str] | None = None
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.difficulty <= 5:
+            msg = f"difficulty must be 1-5, got {self.difficulty}"
+            raise ValueError(msg)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary."""
@@ -86,6 +106,22 @@ class Challenge:
             "scope_files": self.scope_files,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Challenge:
+        """Deserialize from a dictionary."""
+        return cls(
+            id=data["id"],
+            type=data["type"],
+            knowledge_entry_id=data["knowledge_entry_id"],
+            difficulty=data["difficulty"],
+            prompt=data["prompt"],
+            context=data["context"],
+            answer=data["answer"],
+            hints=data.get("hints", []),
+            scope_files=data.get("scope_files", []),
+            options=data.get("options"),
+        )
+
 
 @dataclass
 class AnswerRecord:
@@ -93,10 +129,10 @@ class AnswerRecord:
 
     challenge_id: str
     knowledge_entry_id: str
-    challenge_type: str
+    challenge_type: ChallengeType
     category: str
-    difficulty: int
-    result: str
+    difficulty: int  # 1-5
+    result: ChallengeResult
     answered_at: str
 
     def score(self) -> float:
@@ -213,6 +249,11 @@ class OnboardingProgress:
         """Return True if the developer has completed all onboarding stages."""
         return self.graduated
 
+    def __post_init__(self) -> None:
+        if not 1 <= self.current_stage <= _MAX_STAGE:
+            msg = f"current_stage must be 1-{_MAX_STAGE}, got {self.current_stage}"
+            raise ValueError(msg)
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary."""
         return {
@@ -223,3 +264,17 @@ class OnboardingProgress:
             "entries_mastered": self.entries_mastered,
             "graduated": self.graduated,
         }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> OnboardingProgress:
+        """Deserialize from a dictionary."""
+        return cls(
+            developer_id=data["developer_id"],
+            current_stage=data.get("current_stage", 1),
+            stage_scores={int(k): v for k, v in data.get("stage_scores", {}).items()},
+            stage_challenge_count={
+                int(k): v for k, v in data.get("stage_challenge_count", {}).items()
+            },
+            entries_mastered=data.get("entries_mastered", []),
+            graduated=data.get("graduated", False),
+        )

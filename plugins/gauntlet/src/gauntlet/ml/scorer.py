@@ -32,6 +32,7 @@ class YamlScorer:
     """
 
     def __init__(self, model_path: str) -> None:
+        """Load model coefficients from the given YAML path."""
         self._weights: dict[str, float] = {}
         self._intercept: float = 0.0
         self._use_sigmoid: bool = True
