@@ -2,25 +2,49 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from gauntlet.ml.features import extract_answer_features
-from gauntlet.ml.scorer import YamlScorer
+from gauntlet.ml.scorer import OnnxSidecarScorer, YamlScorer
 
 if TYPE_CHECKING:
+    from gauntlet.ml.scorer import Scorer
     from gauntlet.models import Challenge
 
 _MODEL_PATH = str(Path(__file__).parent / "models" / "quality_v1.yaml")
 
-_scorer: YamlScorer | None = None
+_scorer: Scorer | None = None
 
 
-def _get_scorer() -> YamlScorer:
-    """Lazy-initialize the default scorer."""
+def _get_oracle_port_file() -> Path | None:
+    """Find the oracle daemon's port file if it exists."""
+    plugin_data = os.environ.get("CLAUDE_PLUGIN_DATA", "")
+    if plugin_data:
+        oracle_port = Path(plugin_data).parent / "oracle" / "daemon.port"
+        if oracle_port.exists():
+            return oracle_port
+    fallback = Path.home() / ".oracle-inference" / "daemon.port"
+    if fallback.exists():
+        return fallback
+    return None
+
+
+def _get_scorer() -> Scorer:
+    """Lazy-initialize the scorer. Tries oracle sidecar first."""
     global _scorer  # noqa: PLW0603 - module-level singleton for lazy init
-    if _scorer is None:
-        _scorer = YamlScorer(_MODEL_PATH)
+    if _scorer is not None:
+        return _scorer
+
+    port_file = _get_oracle_port_file()
+    if port_file is not None:
+        sidecar = OnnxSidecarScorer(port_file)
+        if sidecar.available():
+            _scorer = sidecar
+            return _scorer
+
+    _scorer = YamlScorer(_MODEL_PATH)
     return _scorer
 
 

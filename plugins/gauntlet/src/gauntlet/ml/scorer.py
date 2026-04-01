@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json as _json
 import math
+from pathlib import Path as _Path
 from typing import Protocol
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 import yaml
 
@@ -21,6 +25,11 @@ class Scorer(Protocol):
 
     def available(self) -> bool:
         """Return True if the scorer is ready for inference."""
+        ...
+
+    @property
+    def blend_weights(self) -> tuple[float, float]:
+        """Return (word_overlap_weight, ml_weight) blend weights."""
         ...
 
 
@@ -79,3 +88,74 @@ class YamlScorer:
     def blend_weights(self) -> tuple[float, float]:
         """Return (word_overlap_weight, ml_weight) tuple."""
         return self._blend
+
+
+class OnnxSidecarScorer:
+    """Delegates inference to the oracle daemon over HTTP."""
+
+    def __init__(
+        self,
+        port_file: _Path,
+        model: str = "quality_v1",
+        timeout: float = 2.0,
+    ) -> None:
+        self._port_file = port_file
+        self._model = model
+        self._timeout = timeout
+        self._base_url: str | None = None
+
+    def _resolve_url(self) -> str | None:
+        """Read port file and return base URL."""
+        if self._base_url is not None:
+            return self._base_url
+        try:
+            if not self._port_file.exists():
+                return None
+            port = int(self._port_file.read_text().strip())
+            self._base_url = f"http://127.0.0.1:{port}"
+            return self._base_url
+        except (OSError, ValueError):
+            return None
+
+    def available(self) -> bool:
+        """Check if the oracle daemon is running."""
+        base = self._resolve_url()
+        if base is None:
+            return False
+        try:
+            req = Request(f"{base}/health")
+            with urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - localhost only
+                data = _json.loads(resp.read())
+                return bool(data.get("status") == "ok")
+        except (URLError, OSError, _json.JSONDecodeError):
+            self._base_url = None
+            return False
+
+    def score(self, features: dict[str, float]) -> float:
+        """Send features to daemon and return score."""
+        base = self._resolve_url()
+        if base is None:
+            return 0.0
+        try:
+            body = _json.dumps(
+                {
+                    "model": self._model,
+                    "features": features,
+                }
+            ).encode()
+            req = Request(
+                f"{base}/infer",
+                data=body,
+                headers={"Content-Type": "application/json"},
+            )
+            with urlopen(req, timeout=self._timeout) as resp:  # noqa: S310 - localhost only
+                data = _json.loads(resp.read())
+                return float(data.get("score", 0.0))
+        except (URLError, OSError, _json.JSONDecodeError, ValueError):
+            self._base_url = None
+            return 0.0
+
+    @property
+    def blend_weights(self) -> tuple[float, float]:
+        """Return default blend weights."""
+        return (0.4, 0.6)
