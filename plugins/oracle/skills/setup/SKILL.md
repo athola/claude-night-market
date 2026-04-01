@@ -1,22 +1,35 @@
 ---
 name: setup
-description: >
-  Install and configure the oracle ONNX inference daemon,
-  including venv creation, model placement, and activation.
-model_hint: standard
+description: Provision the oracle inference daemon with Python 3.11+ and onnxruntime via uv
 ---
 
 # Oracle Setup
 
-Guides the user through installing and activating the oracle
-daemon for local ONNX model inference.
+Provision the ML inference environment.
+
+## What This Does
+
+1. Creates a Python 3.11+ virtual environment using uv
+2. Installs onnxruntime into the venv
+3. Verifies the installation
+
+## Prerequisites
+
+- uv must be installed
+- Internet connection for initial download
 
 ## Steps
 
-1. Check Python 3.11+ availability for the daemon venv.
-2. Create `plugins/oracle/.oracle-venv` with onnxruntime and
-   aiohttp installed.
-3. Verify or place ONNX model files under
-   `plugins/oracle/models/`.
-4. Write `plugins/oracle/.oracle-enabled` sentinel to opt in.
-5. Confirm the daemon responds on `http://localhost:18080`.
+1. Run provisioning:
+
+```bash
+cd plugins/oracle && uv run python -c "
+from oracle.provision import provision_venv, get_venv_path
+result = provision_venv(get_venv_path())
+print(result.message)
+"
+```
+
+2. Report result to the user.
+3. If successful, tell the user the daemon will start on next session.
+4. If failed, show the error and suggest checking uv and network.

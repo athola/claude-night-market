@@ -1,18 +1,12 @@
 ---
-description: Install and activate the oracle ONNX inference daemon
-model_hint: standard
+description: Provision the oracle ML inference daemon
 ---
 
 # Oracle Setup
 
-Invoke `Skill(oracle:setup)` to install the oracle daemon.
+Run `Skill(oracle:setup)` to provision the inference environment.
 
-This provisions a Python 3.11+ venv with onnxruntime and writes
-the `.oracle-enabled` opt-in sentinel so the daemon starts
-automatically on future sessions.
+Downloads Python 3.11+ and onnxruntime (~65MB total).
+The daemon starts automatically on your next session.
 
-## Arguments
-
-- No args: run full setup from scratch
-- `--check`: report current provisioning status without changes
-- `--reprovision`: tear down and rebuild the venv
+Arguments: none
