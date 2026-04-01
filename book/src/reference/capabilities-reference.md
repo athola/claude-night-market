@@ -129,6 +129,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
 | `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
+| `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
@@ -232,6 +233,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/merge-docs` | sanctum | Consolidate ephemeral docs |
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
+| `/oracle-setup` | oracle | Install and configure the oracle ONNX inference daemon |
 | `/palace` | memory-palace | Manage palaces |
 | `/plugin-review` | abstract | Tiered plugin quality review (branch/pr/release) |
 | `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
