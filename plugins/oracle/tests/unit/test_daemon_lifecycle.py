@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from daemon_lifecycle import _get_event, _get_sentinel, main
 
 
 class TestSentinelPath:
@@ -28,8 +29,6 @@ class TestSentinelPath:
         Then it returns data_dir / .oracle-enabled
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", "/tmp/oracle-data")
-        from daemon_lifecycle import _get_sentinel
-
         result = _get_sentinel()
         assert result == Path("/tmp/oracle-data") / ".oracle-enabled"
 
@@ -53,8 +52,6 @@ class TestEventParsing:
         """
         payload = json.dumps({"hook_event_name": "SessionStart"})
         with patch("sys.stdin", StringIO(payload)):
-            from daemon_lifecycle import _get_event
-
             assert _get_event() == "SessionStart"
 
     @pytest.mark.unit
@@ -67,8 +64,6 @@ class TestEventParsing:
         """
         payload = json.dumps({"hook_event_name": "Stop"})
         with patch("sys.stdin", StringIO(payload)):
-            from daemon_lifecycle import _get_event
-
             assert _get_event() == "Stop"
 
     @pytest.mark.unit
@@ -80,8 +75,6 @@ class TestEventParsing:
         Then it returns an empty string without raising
         """
         with patch("sys.stdin", StringIO("not json")):
-            from daemon_lifecycle import _get_event
-
             assert _get_event() == ""
 
 
@@ -107,10 +100,7 @@ class TestSessionStartBehavior:
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         payload = json.dumps({"hook_event_name": "SessionStart"})
         with patch("sys.stdin", StringIO(payload)):
-            import daemon_lifecycle
-
-            # Should complete without raising
-            daemon_lifecycle.main()
+            main()
 
     @pytest.mark.unit
     def test_no_op_when_not_provisioned(
@@ -126,9 +116,7 @@ class TestSessionStartBehavior:
         (tmp_path / ".oracle-enabled").touch()
         payload = json.dumps({"hook_event_name": "SessionStart"})
         with patch("sys.stdin", StringIO(payload)):
-            import daemon_lifecycle
-
-            daemon_lifecycle.main()
+            main()
 
 
 class TestStopBehavior:
@@ -141,9 +129,7 @@ class TestStopBehavior:
     """
 
     @pytest.mark.unit
-    def test_stop_exits_cleanly(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ):
+    def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         """
         Scenario: Stop event fires
         Given any daemon state
@@ -153,6 +139,4 @@ class TestStopBehavior:
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         payload = json.dumps({"hook_event_name": "Stop"})
         with patch("sys.stdin", StringIO(payload)):
-            import daemon_lifecycle
-
-            daemon_lifecycle.main()
+            main()

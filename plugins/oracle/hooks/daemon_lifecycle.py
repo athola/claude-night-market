@@ -15,7 +15,6 @@ is running.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -24,7 +23,11 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from oracle.provision import get_oracle_data_dir, get_venv_path, is_provisioned  # noqa: E402
+from oracle.provision import (  # noqa: E402 - sys.path must be extended before this import
+    get_oracle_data_dir,
+    get_venv_path,
+    is_provisioned,
+)
 
 
 def _get_sentinel() -> Path:
