@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 from gauntlet.models import Challenge
 from gauntlet.scoring import evaluate_answer
@@ -289,3 +291,16 @@ class TestMLEnhancedScoring:
         """
         ch = _challenge("dependency_map", "moduleA, moduleB, moduleC")
         assert evaluate_answer(ch, "moduleC, moduleA, moduleB") == "pass"
+
+    @pytest.mark.unit
+    def test_fallback_to_word_overlap_when_ml_unavailable(self):
+        """
+        Scenario: ML unavailable falls back to word-overlap scoring
+        Given an explain_why challenge
+        When ML scoring returns None
+        Then evaluate_answer still produces correct word-overlap result
+        """
+        answer = "Access tokens expire after 15 minutes to limit exposure."
+        ch = _challenge("explain_why", answer)
+        with patch("gauntlet.scoring.score_answer_quality", return_value=None):
+            assert evaluate_answer(ch, answer) == "pass"

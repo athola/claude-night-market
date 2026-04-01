@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from gauntlet.ml import score_answer_quality
+from gauntlet.ml import get_blend_weights, score_answer_quality
 from gauntlet.models import Challenge
 
 # ---------------------------------------------------------------------------
@@ -77,7 +77,8 @@ def evaluate_answer(challenge: Challenge, answer: str) -> str:
     # ML quality refinement (graceful degradation)
     ml_score = score_answer_quality(challenge, stripped)
     if ml_score is not None:
-        combined = 0.4 * ratio + 0.6 * ml_score
+        wo_weight, ml_weight = get_blend_weights()
+        combined = wo_weight * ratio + ml_weight * ml_score
     else:
         combined = ratio
 

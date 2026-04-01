@@ -24,6 +24,14 @@ def _get_scorer() -> YamlScorer:
     return _scorer
 
 
+def get_blend_weights() -> tuple[float, float]:
+    """Return (word_overlap_weight, ml_weight) from the active model."""
+    scorer = _get_scorer()
+    if not scorer.available():
+        return (1.0, 0.0)  # fallback: 100% word-overlap
+    return scorer.blend_weights
+
+
 def score_answer_quality(
     challenge: Challenge,
     answer: str,
