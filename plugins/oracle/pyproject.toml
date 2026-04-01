@@ -21,6 +21,7 @@ dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
     "pyyaml>=6.0",
+    "types-pyyaml>=6.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -38,7 +39,7 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
-    "D212", "S603", "S607", "PLW1510",
+    "D212", "S603", "S607", "PLW1510", "S310",
 ]
 "hooks/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]
 
