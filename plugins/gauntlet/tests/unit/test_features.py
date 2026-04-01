@@ -55,6 +55,12 @@ class TestFeatureExtraction:
 
     @pytest.mark.unit
     def test_all_features_are_floats(self):
+        """
+        Scenario: All feature values are numeric
+        Given a challenge and an answer
+        When extract_answer_features is called
+        Then every value in the result is a float
+        """
         ch = _challenge("explain_why", "Event sourcing stores all state changes.")
         features = extract_answer_features(ch, "Events capture state mutations.")
         for key, val in features.items():
@@ -69,12 +75,24 @@ class TestFeatureExtraction:
 
     @pytest.mark.unit
     def test_word_overlap_ratio_no_match(self):
+        """
+        Scenario: Completely unrelated answer gives 0.0 overlap
+        Given a challenge about token expiry
+        When the answer is about databases
+        Then word_overlap_ratio is 0.0
+        """
         ch = _challenge("explain_why", "Access tokens expire after 15 minutes.")
         features = extract_answer_features(ch, "PostgreSQL indexes speed up queries.")
         assert features["word_overlap_ratio"] == pytest.approx(0.0)
 
     @pytest.mark.unit
     def test_length_ratio_shorter_answer(self):
+        """
+        Scenario: Short answer produces length ratio less than 1.0
+        Given a long reference answer
+        When the candidate is much shorter
+        Then length_ratio is less than 1.0
+        """
         ch = _challenge(
             "explain_why",
             "Access tokens expire after 15 minutes to limit exposure window.",

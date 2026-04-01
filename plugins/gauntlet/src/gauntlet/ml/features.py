@@ -33,11 +33,13 @@ _NEGATION_WORDS = frozenset(
 )
 
 
-def _word_set(text: str) -> set:
+def _word_set(text: str) -> set[str]:
+    """Normalise text to a set of lowercase word tokens."""
     return set(_WORD_RE.findall(text.lower()))
 
 
-def _word_list(text: str) -> list:
+def _word_list(text: str) -> list[str]:
+    """Normalise text to a list of lowercase word tokens."""
     return _WORD_RE.findall(text.lower())
 
 
