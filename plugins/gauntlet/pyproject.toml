@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.0.0"
+version = "1.8.0"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -38,8 +38,8 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
-    "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
-    "D212", "S603", "S607", "PLW1510",
+    "S101", "S108", "PLR2004", "PLC0415", "D102", "D103", "D205", "D400",
+    "D415", "D212", "S603", "S607", "PLW1510",
 ]
 "scripts/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]
 "hooks/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]

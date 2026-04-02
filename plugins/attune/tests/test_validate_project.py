@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
 from validate_project import ProjectValidator, ValidationResult, main
 
 

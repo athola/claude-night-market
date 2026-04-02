@@ -50,8 +50,11 @@ class ProgressTracker:
         """Load existing progress from disk, or return a fresh record."""
         path = self._path_for(developer_id)
         if path.exists():
-            data = json.loads(path.read_text())
-            return DeveloperProgress.from_dict(data)
+            try:
+                data = json.loads(path.read_text())
+                return DeveloperProgress.from_dict(data)
+            except (json.JSONDecodeError, OSError, KeyError):
+                pass
         return DeveloperProgress(developer_id=developer_id)
 
     def save(self, progress: DeveloperProgress) -> None:

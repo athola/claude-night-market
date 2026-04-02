@@ -158,3 +158,38 @@ class TestYamlScorer:
         """
         scorer = YamlScorer("/nonexistent/model.yaml")
         assert scorer.score({"feat_a": 1.0}) == 0.0
+
+    @pytest.mark.unit
+    def test_not_available_when_yaml_is_not_a_dict(self, tmp_path: Path):
+        """
+        Scenario: YAML file parses but contains a list, not a mapping
+        Given a YAML file that is a top-level list
+        When YamlScorer is initialized
+        Then available() returns False (non-dict guard on line 58)
+        """
+        yaml_list = tmp_path / "list.yaml"
+        yaml_list.write_text("- item_one\n- item_two\n")
+        scorer = YamlScorer(str(yaml_list))
+        assert scorer.available() is False
+
+    @pytest.mark.unit
+    def test_blend_weights_default_when_both_zero(self, tmp_path: Path):
+        """
+        Scenario: Blend weights are both 0.0 in the model file
+        Given a model YAML with word_overlap_weight=0.0 and ml_weight=0.0
+        When YamlScorer is initialized
+        Then blend_weights falls back to (0.5, 0.5) to avoid zero division
+        """
+        content = (
+            "weights:\n"
+            "  feat_a: 1.0\n"
+            "intercept: 0.0\n"
+            "sigmoid: false\n"
+            "blend:\n"
+            "  word_overlap_weight: 0.0\n"
+            "  ml_weight: 0.0\n"
+        )
+        model_path = tmp_path / "zero_blend.yaml"
+        model_path.write_text(content)
+        scorer = YamlScorer(str(model_path))
+        assert scorer.blend_weights == (0.5, 0.5)

@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 from project_detector import ProjectDetector
 from template_engine import TemplateEngine, get_default_variables
+
 from validate_project import ProjectValidator
 
 

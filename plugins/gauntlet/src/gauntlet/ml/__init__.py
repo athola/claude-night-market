@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from gauntlet.ml.features import extract_answer_features
 from gauntlet.ml.scorer import OnnxSidecarScorer, YamlScorer
@@ -14,6 +15,8 @@ if TYPE_CHECKING:
     from gauntlet.models import Challenge
 
 _MODEL_PATH = str(Path(__file__).parent / "models" / "quality_v1.yaml")
+
+_log = logging.getLogger(__name__)
 
 _scorer: Scorer | None = None
 
@@ -41,10 +44,16 @@ def _get_scorer() -> Scorer:
     if port_file is not None:
         sidecar = OnnxSidecarScorer(port_file)
         if sidecar.available():
+            _log.info("Scoring backend: oracle sidecar via %s", port_file)
             _scorer = sidecar
             return _scorer
+        _log.info("Oracle port file found but sidecar unavailable, falling back")
 
     _scorer = YamlScorer(_MODEL_PATH)
+    if _scorer.available():
+        _log.info("Scoring backend: YAML model from %s", _MODEL_PATH)
+    else:
+        _log.warning("No scoring backend available, falling back to word-overlap")
     return _scorer
 
 

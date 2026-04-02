@@ -135,6 +135,11 @@ class AnswerRecord:
     result: ChallengeResult
     answered_at: str
 
+    def __post_init__(self) -> None:
+        if not 1 <= self.difficulty <= 5:
+            msg = f"difficulty must be 1-5, got {self.difficulty}"
+            raise ValueError(msg)
+
     def score(self) -> float:
         """Return a numeric score: pass=1.0, partial=0.5, fail=0.0."""
         if self.result == "pass":
@@ -239,7 +244,15 @@ class OnboardingProgress:
         return score >= 0.8 and count >= 10
 
     def advance(self) -> None:
-        """Move to the next stage, or graduate if already on the final stage."""
+        """Move to the next stage, or graduate if already on the final stage.
+
+        Raises ValueError if can_advance() precondition is not met.
+        """
+        if not self.can_advance():
+            msg = (
+                f"Cannot advance from stage {self.current_stage}: requirements not met"
+            )
+            raise ValueError(msg)
         if self.current_stage >= _MAX_STAGE:
             self.graduated = True
         else:

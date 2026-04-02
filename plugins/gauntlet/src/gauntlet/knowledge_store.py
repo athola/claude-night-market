@@ -38,7 +38,10 @@ class KnowledgeStore:
         entries: list[KnowledgeEntry] = []
 
         if self._knowledge_path.exists():
-            raw: Any = json.loads(self._knowledge_path.read_text())
+            try:
+                raw: Any = json.loads(self._knowledge_path.read_text())
+            except (json.JSONDecodeError, OSError):
+                raw = []
             for item in raw:
                 entries.append(KnowledgeEntry.from_dict(item))
 
@@ -108,7 +111,10 @@ class KnowledgeStore:
 
         entries: list[KnowledgeEntry] = []
         for yaml_path in sorted(self._annotations_dir.glob("*.yaml")):
-            data = yaml.safe_load(yaml_path.read_text())
+            try:
+                data = yaml.safe_load(yaml_path.read_text())
+            except (OSError, yaml.YAMLError):
+                continue
             if not data:
                 continue
 

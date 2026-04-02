@@ -89,7 +89,7 @@ current_date=$(date +%s)
 days_on_branch=$(( (current_date - merge_base_date) / 86400 ))
 
 # Optimize: use wc -l directly without intermediate pipe
-new_files=$(git diff "$base_branch" --name-only --diff-filter=A 2>/dev/null | wc -l)
+new_files=$(git diff "$base_branch" --name-only --diff-filter=A 2>/dev/null | wc -l | tr -d ' ') || new_files=0
 
 # Thresholds (configurable via environment)
 RED_LINES="${SCOPE_GUARD_RED_LINES:-2000}"

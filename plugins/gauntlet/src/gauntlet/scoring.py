@@ -2,21 +2,13 @@
 
 from __future__ import annotations
 
-import re
-
 from gauntlet.ml import get_blend_weights, score_answer_quality
+from gauntlet.ml.features import _word_set
 from gauntlet.models import Challenge
 
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
-
-_WORD_RE = re.compile(r"[a-z0-9]+")
-
-
-def _word_set(text: str) -> set[str]:
-    """Normalise *text* to a set of lowercase word tokens."""
-    return set(_WORD_RE.findall(text.lower()))
 
 
 def _word_overlap_ratio(reference: str, candidate: str) -> float:

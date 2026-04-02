@@ -5,7 +5,32 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.8.0] - 2026-04-01
+
+### Added
+
+- **oracle plugin** (v1.0.0): ONNX Runtime inference
+  daemon serving ML models over localhost HTTP.
+  Opt-in activation via `/oracle:setup`, isolated
+  Python 3.11+ venv managed by `uv`, SessionStart/Stop
+  lifecycle hooks. See ADR-0009.
+- **gauntlet ML scoring**: `score_answer_quality()` API
+  with pluggable Scorer protocol. YamlScorer (default)
+  uses heuristic YAML rules; OnnxSidecarScorer upgrades
+  automatically when oracle is running. Configurable
+  blend weights fall back gracefully when the sidecar
+  is unavailable.
+- **herald plugin** (v1.0.0): shared notification
+  library extracted from egregore. Provides GitHub
+  issue alerts and webhook support (Slack, Discord,
+  generic). Pure library plugin with no skills or
+  commands.
+- ADR-0009: Sidecar Service Discovery via Port Files.
+  Formalizes port-file discovery, PID tracking,
+  localhost binding, health endpoints, and opt-in
+  activation for sidecar daemons.
+- ADR-0001 updated with herald as an approved
+  cross-plugin dependency exception.
 
 ### Changed
 

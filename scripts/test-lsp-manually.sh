@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+# Clean up temp files on exit/interrupt
+_lsp_test_cleanup_files=""
+trap 'rm -f $_lsp_test_cleanup_files' EXIT
+
 echo "═══════════════════════════════════════════════"
 echo " Manual LSP Server Test"
 echo "═══════════════════════════════════════════════"
@@ -41,6 +45,7 @@ test_language_server() {
     # Create a temporary file for the test
     temp_input=$(mktemp)
     temp_output=$(mktemp)
+    _lsp_test_cleanup_files="$temp_input $temp_output"
 
     # LSP initialize request
     cat > "$temp_input" << 'EOF'

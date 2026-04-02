@@ -35,8 +35,11 @@ class _ModelRegistry:
         """Return sorted list of loaded model names."""
         return sorted(self._models.keys())
 
-    def infer(self, model_name: str, features: dict[str, float]) -> float:
-        """Run inference and return a score.
+    def infer(self, model_name: str, features: dict[str, float]) -> dict[str, Any]:
+        """Run inference and return score with metadata.
+
+        Returns a dict with ``score`` (float) and ``blend``
+        (word_overlap/ml weight pair parsed from the model YAML).
 
         Raises KeyError if model_name is unknown.
         """
@@ -50,9 +53,20 @@ class _ModelRegistry:
 
         if model.get("sigmoid", False):
             clamped = max(-500.0, min(500.0, linear))
-            return 1.0 / (1.0 + math.exp(-clamped))
+            score = 1.0 / (1.0 + math.exp(-clamped))
+        else:
+            score = linear
 
-        return linear
+        blend_cfg = model.get("blend", {})
+        wo = max(0.0, float(blend_cfg.get("word_overlap_weight", 0.5)))
+        ml = max(0.0, float(blend_cfg.get("ml_weight", 0.5)))
+        total = wo + ml
+        if total > 0:
+            wo, ml = wo / total, ml / total
+        else:
+            wo, ml = 0.5, 0.5
+
+        return {"score": score, "blend": {"word_overlap_weight": wo, "ml_weight": ml}}
 
 
 class _InferenceServer(HTTPServer):
@@ -125,12 +139,12 @@ class _InferenceHandler(BaseHTTPRequestHandler):
             return
 
         try:
-            score = self.server.registry.infer(model_name, features)
+            result = self.server.registry.infer(model_name, features)
         except KeyError:
             self._send_json(404, {"error": f"Unknown model: {model_name!r}"})
             return
 
-        self._send_json(200, {"score": score})
+        self._send_json(200, result)
 
 
 class InferenceDaemon:

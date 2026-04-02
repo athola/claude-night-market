@@ -1,6 +1,6 @@
 # API Overview
 
-*Updated: 2026-03-27*
+*Updated: 2026-04-01*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
@@ -18,29 +18,29 @@ with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.7.2 | 18 | 12 | 5 | Yes | abstract-skills |
-| archetypes | 1.7.2 | 0 | 14 | 0 | No | - |
-| attune | 1.7.2 | 10 | 13 | 2 | No | - |
-| conjure | 1.7.2 | 0 | 4 | 0 | No | - |
-| conserve | 1.7.2 | 4 | 12 | 5 | No | - |
-| egregore | 1.7.2 | 5 | 4 | 2 | No | - |
-| hookify | 1.7.2 | 6 | 2 | 0 | No | - |
-| imbue | 1.7.2 | 3 | 10 | 1 | No | - |
-| leyline | 1.7.2 | 3 | 20 | 0 | Yes | - |
-| memory-palace | 1.7.2 | 5 | 6 | 4 | Yes | - |
-| minister | 1.7.2 | 3 | 2 | 0 | Yes | - |
-| parseltongue | 1.7.2 | 3 | 4 | 4 | No | parseltongue |
-| pensive | 1.7.2 | 12 | 12 | 4 | Yes | - |
-| phantom | 1.7.2 | 1 | 1 | 1 | No | - |
-| sanctum | 1.7.2 | 18 | 14 | 9 | Yes | - |
-| scribe | 1.7.2 | 5 | 7 | 3 | Yes | - |
-| scry | 1.7.2 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.7.2 | 10 | 3 | 3 | Yes | - |
-| tome | 1.7.2 | 4 | 7 | 4 | Yes | tome |
+| abstract | 1.8.0 | 18 | 12 | 5 | Yes | abstract-skills |
+| archetypes | 1.8.0 | 0 | 14 | 0 | No | - |
+| attune | 1.8.0 | 10 | 13 | 2 | No | - |
+| conjure | 1.8.0 | 0 | 4 | 0 | No | - |
+| conserve | 1.8.0 | 4 | 12 | 5 | No | - |
+| egregore | 1.8.0 | 5 | 4 | 2 | No | - |
+| hookify | 1.8.0 | 6 | 2 | 0 | No | - |
+| imbue | 1.8.0 | 3 | 10 | 1 | No | - |
+| leyline | 1.8.0 | 3 | 20 | 0 | Yes | - |
+| memory-palace | 1.8.0 | 5 | 6 | 4 | Yes | - |
+| minister | 1.8.0 | 3 | 2 | 0 | Yes | - |
+| parseltongue | 1.8.0 | 3 | 4 | 4 | No | parseltongue |
+| pensive | 1.8.0 | 12 | 12 | 4 | Yes | - |
+| phantom | 1.8.0 | 1 | 1 | 1 | No | - |
+| sanctum | 1.8.0 | 18 | 14 | 9 | Yes | - |
+| scribe | 1.8.0 | 5 | 7 | 3 | Yes | - |
+| scry | 1.8.0 | 2 | 4 | 1 | No | - |
+| spec-kit | 1.8.0 | 10 | 3 | 3 | Yes | - |
+| tome | 1.8.0 | 4 | 7 | 4 | Yes | tome |
 
 ## Plugin Details
 
-### Abstract (v1.7.2)
+### Abstract (v1.8.0)
 Validation and analysis framework for the ecosystem.
 Includes commands for creating and validating skills, hooks,
 and plugins (`validate-plugin`, `create-skill`).
@@ -49,12 +49,12 @@ Skills focus on governance, authoring, and evaluation, including `skills-eval`,
 A daily learning aggregation hook generates LEARNINGS.md
 and promotes findings to GitHub Issues or Discussions based on severity.
 
-### Archetypes (v1.7.2)
+### Archetypes (v1.8.0)
 Reference library for architecture paradigms.
 Contains 14 skills covering patterns like hexagonal architecture,
 microservices, and event-driven design.
 
-### Attune (v1.7.2)
+### Attune (v1.8.0)
 Project initialization, architecture templates, and strategic decision-making.
 Commands include `arch-init`, `init`,
 `war-room` (multi-expert deliberation with optional agent teams execution for
@@ -62,34 +62,34 @@ Full Council and Delphi modes),
 and `mission` (unified lifecycle orchestrator with state detection
 and session recovery).
 
-### Conjure (v1.7.2)
+### Conjure (v1.8.0)
 Cross-model delegation and multi-agent coordination.
 Skills like `gemini-delegation`
 and `qwen-delegation` route tasks to specific models,
 while `agent-teams` coordinates parallel Claude Code agents through a
 filesystem-based protocol.
 
-### Conserve (v1.7.2)
+### Conserve (v1.8.0)
 Context window usage and resource management.
 Commands like `bloat-scan`
 and `optimize-context` help developers understand token consumption.
 Skills include `context-optimization`, `clear-context`,
 and `cpu-gpu-performance`.
 
-### Hookify (v1.7.2)
+### Hookify (v1.8.0)
 Behavioral rules engine with markdown-based configuration.
 Commands convert Python hooks to declarative rules (`from-hook`),
 manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
-### Imbue (v1.7.2)
+### Imbue (v1.8.0)
 Review workflows. Offers commands for catchups,
 reviews, and stewardship health checks
 (`catchup`, `structured-review`, `stewardship-health`).
 Skills include `proof-of-work`, `scope-guard`,
 `rigorous-reasoning`, and `latent-space-engineering`.
 
-### Leyline (v1.7.2)
+### Leyline (v1.8.0)
 Shared patterns and utilities library.
 Allows for bulk plugin updates via `reinstall-all-plugins`.
 Skills cover authentication,
@@ -98,22 +98,22 @@ testing standards, cross-platform git forge detection via `git-platform`,
 4-tier risk routing via `risk-classification`, stewardship principles,
 and a `deferred-capture` contract for unified deferred-item filing.
 
-### Memory-Palace (v1.7.2)
+### Memory-Palace (v1.8.0)
 Knowledge management organization.
 Commands like `garden` and `palace` help users navigate
 and structure information. Skills focus on knowledge intake and retrieval.
 
-### Minister (v1.7.2)
+### Minister (v1.8.0)
 GitHub issue management and initiative tracking.
 Commands include `create-issue`, `close-issue`, and `update-labels`.
 Skills provide release health gates and initiative pulse dashboards.
 
-### Parseltongue (v1.7.2)
+### Parseltongue (v1.8.0)
 Python development utilities. Includes tools for analyzing tests
 and profiling performance (`analyze-tests`, `run-profiler`).
 Skills support async programming and packaging.
 
-### Pensive (v1.7.2)
+### Pensive (v1.8.0)
 Code review and analysis framework.
 Provides specific review commands for various languages
 and domains, such as `api-review`, `rust-review`, and
@@ -121,20 +121,20 @@ and domains, such as `api-review`, `rust-review`, and
 NASA Power of 10 rules and `tiered-audit` for
 three-tier escalation analysis.
 
-### Phantom (v1.7.2)
+### Phantom (v1.8.0)
 Computer use toolkit for driving desktop environments
 through Claude's vision and action API. Provides
 screenshot capture, mouse/keyboard control, and an
 autonomous agent loop via the `desktop-pilot` agent.
 
-### Sanctum (v1.7.2)
+### Sanctum (v1.8.0)
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
 quality analysis. Commands include `fix-pr`, `merge-docs`,
 and `update-dependencies`. Hooks include a PostToolUse deferred-item watcher
 and a Stop hook that sweeps the session ledger to file GitHub issues.
 
-### Scribe (v1.7.2)
+### Scribe (v1.8.0)
 Documentation quality enforcement.
 Commands include `doc-polish` (interactive editing),
 `doc-generate` (documentation generation), `style-learn` (style profiling),
@@ -150,17 +150,17 @@ import external documents (`doc-importer`),
 write technical tutorials (`tech-tutorial`),
 and replay sessions as GIFs (`session-replay`).
 
-### Scry (v1.7.2)
+### Scry (v1.8.0)
 Terminal and browser session recording.
 Supports creating media assets with commands like `record-browser`
 and `record-terminal`.
 
-### Spec-Kit (v1.7.2)
+### Spec-Kit (v1.8.0)
 Specification-driven development.
 Offers a suite of commands for planning, specifying,
 and implementing features based on strict requirements.
 
-### Egregore (v1.7.2)
+### Egregore (v1.8.0)
 Autonomous agent orchestrator for development lifecycles.
 Commands include `summon` (spawn sessions), `dismiss`
 (terminate), `status` (check progress),
@@ -169,7 +169,7 @@ recovery). Skills cover session spawning with budget
 management (`summon`), pre-merge validation
 (`quality-gate`), and watchdog lifecycle management.
 
-### Tome (v1.7.2)
+### Tome (v1.8.0)
 Multi-source research plugin for code archaeology,
 community discourse, academic literature, and TRIZ
 cross-domain analysis.

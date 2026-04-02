@@ -174,11 +174,7 @@ def compute_convergence(session: WarRoomSession) -> float:
     variance = sum((s - mean_score) ** 2 for s in scores) / len(scores)
     std_dev = variance**0.5
 
-    # Normalize: higher score spread = higher convergence
-    # (clear winner indicates agreement)
-    max_possible_spread = mean_score  # Theoretical max
-    if max_possible_spread == 0:
-        return 0.0
-
-    convergence: float = min(1.0, std_dev / max_possible_spread)
+    # Coefficient of variation (CV = std_dev / mean). For Borda counts,
+    # high CV means one COA dominates, indicating expert agreement.
+    convergence: float = min(1.0, std_dev / mean_score)
     return convergence

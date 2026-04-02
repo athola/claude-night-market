@@ -76,7 +76,7 @@ echo ""
 echo "--- Skills ---"
 while IFS=$'\t' read -r skill plugin; do
   [ -z "$skill" ] && continue
-  if ! echo "$doc_skills" | grep -qx "$skill"; then
+  if ! echo "$doc_skills" | grep -Fqx "$skill"; then
     missing_entries+=("SKILL: $skill ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi
@@ -93,7 +93,7 @@ done <<< "$doc_skills"
 echo "--- Commands ---"
 while IFS=$'\t' read -r cmd plugin; do
   [ -z "$cmd" ] && continue
-  if ! echo "$doc_commands" | grep -qx "$cmd"; then
+  if ! echo "$doc_commands" | grep -Fqx "$cmd"; then
     missing_entries+=("COMMAND: $cmd ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi
@@ -110,7 +110,7 @@ done <<< "$doc_commands"
 echo "--- Agents ---"
 while IFS=$'\t' read -r agent plugin; do
   [ -z "$agent" ] && continue
-  if ! echo "$doc_agents" | grep -qx "$agent"; then
+  if ! echo "$doc_agents" | grep -Fqx "$agent"; then
     missing_entries+=("AGENT: $agent ($plugin) - registered but NOT in docs")
     ((errors++)) || true
   fi

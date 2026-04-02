@@ -70,6 +70,22 @@ The plugin stores all state under `.gauntlet/` in your project root:
 No configuration file is required. The pre-commit hook activates
 automatically when `.gauntlet/knowledge.json` exists.
 
+## ML Scoring
+
+Answer evaluation uses a pluggable `Scorer` protocol:
+
+- **YamlScorer** (default): heuristic scoring from YAML
+  rule files. No dependencies beyond the plugin itself.
+- **OnnxSidecarScorer**: calls the oracle daemon for ONNX
+  model inference. Activates automatically when oracle
+  is running (detected via port file).
+
+Selection is automatic. The sidecar scorer takes over
+when oracle's port file exists and its `/health` endpoint
+responds. Otherwise gauntlet falls back to YamlScorer.
+Blend weights between heuristic and model scores are
+configurable.
+
 ## CLI Scripts
 
 For scripted or CI use, four scripts are available under

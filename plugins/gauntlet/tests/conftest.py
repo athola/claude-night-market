@@ -1,8 +1,11 @@
+"""Shared fixtures for gauntlet tests."""
+
 from __future__ import annotations
 
 import json
 import textwrap
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -137,3 +140,30 @@ def sample_python_file(tmp_path: Path) -> Path:
     py_path = tmp_path / "discounts.py"
     py_path.write_text(content)
     return py_path
+
+
+def make_urlopen_response(body: bytes) -> MagicMock:
+    """Return a context-manager mock that yields a response reading *body*.
+
+    Eliminates the repeated ``__enter__``/``__exit__`` boilerplate in
+    sidecar scorer tests.  Usage::
+
+        with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
+            mock_urlopen.return_value = make_urlopen_response(b'{"status":"ok"}')
+            ...
+    """
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = body
+    mock_resp.__enter__ = lambda s: mock_resp
+    mock_resp.__exit__ = MagicMock(return_value=False)
+    return mock_resp
+
+
+@pytest.fixture()
+def mock_urlopen_response():
+    """Build context-manager urlopen mocks.
+
+    Return the ``make_urlopen_response`` helper so tests can call
+    ``mock_urlopen_response(body)`` inline.
+    """
+    return make_urlopen_response

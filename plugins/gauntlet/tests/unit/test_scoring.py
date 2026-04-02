@@ -293,6 +293,35 @@ class TestMLEnhancedScoring:
         assert evaluate_answer(ch, "moduleC, moduleA, moduleB") == "pass"
 
     @pytest.mark.unit
+    def test_blend_arithmetic_weights_applied_correctly(self):
+        """
+        Scenario: ML score and word-overlap are blended using model weights
+        Given an explain_why challenge with predictable word overlap
+        When ML returns a known score with known blend weights
+        Then the combined score reflects the weighted blend
+        """
+        # "alpha beta gamma delta" -> 4 reference words
+        # "alpha beta epsilon zeta" shares 2/4 = 0.5 overlap
+        ch = _challenge("explain_why", "alpha beta gamma delta")
+        response = "alpha beta epsilon zeta"
+
+        # High ML score with ML-heavy weights -> pass
+        with (
+            patch("gauntlet.scoring.score_answer_quality", return_value=1.0),
+            patch("gauntlet.scoring.get_blend_weights", return_value=(0.4, 0.6)),
+        ):
+            # combined = 0.4 * 0.5 + 0.6 * 1.0 = 0.8 >= 0.5 -> pass
+            assert evaluate_answer(ch, response) == "pass"
+
+        # Zero ML score with ML-heavy weights -> partial
+        with (
+            patch("gauntlet.scoring.score_answer_quality", return_value=0.0),
+            patch("gauntlet.scoring.get_blend_weights", return_value=(0.4, 0.6)),
+        ):
+            # combined = 0.4 * 0.5 + 0.6 * 0.0 = 0.2 >= 0.2 -> partial
+            assert evaluate_answer(ch, response) == "partial"
+
+    @pytest.mark.unit
     def test_fallback_to_word_overlap_when_ml_unavailable(self):
         """
         Scenario: ML unavailable falls back to word-overlap scoring

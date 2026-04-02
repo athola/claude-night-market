@@ -1,6 +1,6 @@
 {
   "name": "gauntlet",
-  "version": "1.0.0",
+  "version": "1.8.0",
   "description": "Codebase learning through knowledge extraction, challenges, and spaced repetition. Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.",
   "skills": [
     "./skills/extract",

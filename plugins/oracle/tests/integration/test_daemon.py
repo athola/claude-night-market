@@ -1,4 +1,4 @@
-"""Tests for oracle HTTP inference daemon."""
+"""Integration tests for oracle HTTP inference daemon."""
 
 from __future__ import annotations
 
@@ -40,6 +40,20 @@ intercept: 1.0
 sigmoid: false
 """
 
+ZERO_BLEND_MODEL_YAML = """\
+schema_version: 1
+model_type: logistic_regression
+features:
+  - feat_a
+weights:
+  feat_a: 1.0
+intercept: 0.0
+sigmoid: true
+blend:
+  word_overlap_weight: 0.0
+  ml_weight: 0.0
+"""
+
 
 @pytest.fixture
 def daemon_with_linear(tmp_path: Path):
@@ -59,7 +73,9 @@ def daemon_with_linear(tmp_path: Path):
     t = threading.Thread(target=d.serve_forever, daemon=True)
     t.start()
     deadline = time.monotonic() + 5.0
-    while not port_file.exists() and time.monotonic() < deadline:
+    while time.monotonic() < deadline:
+        if port_file.exists() and port_file.read_text().strip():
+            break
         time.sleep(0.05)
     yield d
     d.shutdown()
@@ -89,6 +105,32 @@ def daemon_no_port_file(tmp_path: Path):
 
 
 @pytest.fixture
+def daemon_with_zero_blend(tmp_path: Path):
+    """Start a daemon with a model whose blend weights both equal zero."""
+    models_dir = tmp_path / "models_zero_blend"
+    models_dir.mkdir()
+    (models_dir / "zeroblend.yaml").write_text(ZERO_BLEND_MODEL_YAML)
+
+    port_file = tmp_path / "oracle_zero_blend.port"
+    d = InferenceDaemon(
+        host="127.0.0.1",
+        port=0,
+        models_dir=models_dir,
+        port_file=port_file,
+    )
+    t = threading.Thread(target=d.serve_forever, daemon=True)
+    t.start()
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        if port_file.exists() and port_file.read_text().strip():
+            break
+        time.sleep(0.05)
+    yield d
+    d.shutdown()
+    t.join(timeout=5.0)
+
+
+@pytest.fixture
 def daemon_instance(tmp_path: Path):
     """
     Start an InferenceDaemon on a random port in a daemon thread.
@@ -111,9 +153,11 @@ def daemon_instance(tmp_path: Path):
     t = threading.Thread(target=d.serve_forever, daemon=True)
     t.start()
 
-    # Wait for port file to appear (up to 5 s)
+    # Wait for port file to be written with content (not just created)
     deadline = time.monotonic() + 5.0
-    while not port_file.exists() and time.monotonic() < deadline:
+    while time.monotonic() < deadline:
+        if port_file.exists() and port_file.read_text().strip():
+            break
         time.sleep(0.05)
 
     yield d
@@ -131,7 +175,7 @@ class TestHealthEndpoint:
     So that I can verify the daemon is ready before sending inference requests
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_health_returns_ok_and_model_list(self, daemon_instance: InferenceDaemon):
         """
         Scenario: Daemon is running with one model loaded
@@ -158,7 +202,7 @@ class TestInferEndpoint:
     So that I can obtain a probability score for a candidate
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_valid_infer_returns_score(self, daemon_instance: InferenceDaemon):
         """
         Scenario: Valid model name and feature dict supplied
@@ -185,8 +229,12 @@ class TestInferEndpoint:
         assert resp.status == 200
         assert "score" in body
         assert abs(body["score"] - expected) < 1e-9
+        # Blend weights from the model YAML (0.4 / 0.6)
+        assert "blend" in body
+        assert abs(body["blend"]["word_overlap_weight"] - 0.4) < 1e-9
+        assert abs(body["blend"]["ml_weight"] - 0.6) < 1e-9
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_unknown_model_returns_error(self, daemon_instance: InferenceDaemon):
         """
         Scenario: Caller requests a model that was never loaded
@@ -212,7 +260,7 @@ class TestInferEndpoint:
         body = json.loads(exc_info.value.read())
         assert "error" in body
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_empty_body_returns_error(self, daemon_instance: InferenceDaemon):
         """
         Scenario: POST /infer is called with an empty request body
@@ -245,7 +293,7 @@ class TestPortFile:
     So that I do not need a hardcoded port
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_port_file_contains_correct_port(
         self, daemon_instance: InferenceDaemon, tmp_path: Path
     ):
@@ -270,7 +318,7 @@ class TestLinearModel:
     So that I can use the daemon with regression models too
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_linear_model_returns_raw_score(self, daemon_with_linear: InferenceDaemon):
         """
         Scenario: Model has sigmoid=false
@@ -292,6 +340,10 @@ class TestLinearModel:
 
         assert resp.status == 200
         assert abs(body["score"] - 7.0) < 1e-9
+        # Linear model has no blend config, so defaults to 0.5/0.5
+        assert "blend" in body
+        assert abs(body["blend"]["word_overlap_weight"] - 0.5) < 1e-9
+        assert abs(body["blend"]["ml_weight"] - 0.5) < 1e-9
 
 
 class TestEdgeCasePaths:
@@ -303,7 +355,7 @@ class TestEdgeCasePaths:
     So that I can debug integration issues quickly
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_get_unknown_path_returns_404(self, daemon_instance: InferenceDaemon):
         """
         Scenario: GET request to an unknown path
@@ -316,7 +368,7 @@ class TestEdgeCasePaths:
             urllib.request.urlopen(f"http://127.0.0.1:{port}/unknown", timeout=5)  # nosec B310 - localhost-only test server
         assert exc_info.value.code == 404
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_post_to_unknown_path_returns_404(self, daemon_instance: InferenceDaemon):
         """
         Scenario: POST request to an unknown path
@@ -336,7 +388,7 @@ class TestEdgeCasePaths:
             urllib.request.urlopen(req, timeout=5)  # nosec B310 - localhost-only test server
         assert exc_info.value.code == 404
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_invalid_json_body_returns_400(self, daemon_instance: InferenceDaemon):
         """
         Scenario: POST /infer with malformed JSON
@@ -358,7 +410,7 @@ class TestEdgeCasePaths:
         body = json.loads(exc_info.value.read())
         assert "error" in body
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_missing_model_field_returns_400(self, daemon_instance: InferenceDaemon):
         """
         Scenario: POST /infer with JSON that omits the 'model' key
@@ -391,7 +443,7 @@ class TestNoPortFile:
     So that I can use it in environments where file I/O for discovery is not needed
     """
 
-    @pytest.mark.unit
+    @pytest.mark.integration
     def test_daemon_starts_without_port_file(
         self, daemon_no_port_file: InferenceDaemon
     ):
@@ -407,3 +459,41 @@ class TestNoPortFile:
             body = json.loads(resp.read())
         assert body["status"] == "ok"
         assert daemon_no_port_file.port_file is None
+
+
+class TestZeroBlendFallback:
+    """
+    Feature: Zero-sum blend weights fall back to 0.5/0.5
+
+    As a model author
+    I want the daemon to handle both blend weights being zero gracefully
+    So that division-by-zero is avoided and a sensible default is used
+    """
+
+    @pytest.mark.integration
+    def test_zero_blend_weights_normalize_to_default(
+        self, daemon_with_zero_blend: InferenceDaemon
+    ):
+        """
+        Scenario: Model specifies word_overlap_weight=0 and ml_weight=0
+        Given the 'zeroblend' model with both blend weights set to 0.0
+        When POST /infer is sent
+        Then the response blend weights are both 0.5
+        """
+        port = daemon_with_zero_blend.port
+        url = f"http://127.0.0.1:{port}/infer"
+        payload = json.dumps(
+            {"model": "zeroblend", "features": {"feat_a": 1.0}}
+        ).encode()
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            method="POST",
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:  # nosec B310
+            body = json.loads(resp.read())
+
+        assert resp.status == 200
+        assert abs(body["blend"]["word_overlap_weight"] - 0.5) < 1e-9
+        assert abs(body["blend"]["ml_weight"] - 0.5) < 1e-9

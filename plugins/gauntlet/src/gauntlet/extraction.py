@@ -58,7 +58,7 @@ def extract_from_file(file_path: Path) -> list[KnowledgeEntry]:
     try:
         source = file_path.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(file_path))
-    except SyntaxError:
+    except (SyntaxError, OSError, UnicodeDecodeError):
         return []
 
     module_name = file_path.stem

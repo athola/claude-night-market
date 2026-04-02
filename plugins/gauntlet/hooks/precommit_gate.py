@@ -7,6 +7,7 @@ allows the commit or denies it with a challenge prompt.
 from __future__ import annotations
 
 import datetime
+import hashlib
 import json
 import os
 import subprocess
@@ -129,9 +130,9 @@ def _get_staged_hash() -> str:
             text=True,
             check=True,
         )
-        return str(hash(result.stdout.strip()))
+        return hashlib.sha256(result.stdout.strip().encode()).hexdigest()[:12]
     except subprocess.CalledProcessError:
-        return "unknown"
+        return ""
 
 
 def _get_developer_id() -> str:
@@ -149,7 +150,24 @@ def _get_developer_id() -> str:
 
 
 def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
-    """Load config.json from the gauntlet directory."""
+    """Load config.yaml (preferred) or config.json from the gauntlet directory."""
+    try:
+        from yaml import (  # noqa: PLC0415 - conditional import, yaml is optional
+            YAMLError,
+            safe_load,
+        )
+    except ImportError:
+        pass
+    else:
+        yaml_path = gauntlet_dir / "config.yaml"
+        if yaml_path.exists():
+            try:
+                data = safe_load(yaml_path.read_text())
+                if isinstance(data, dict):
+                    return data
+            except (OSError, YAMLError):
+                pass
+
     config_path = gauntlet_dir / "config.json"
     if config_path.exists():
         try:
@@ -159,8 +177,8 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
     return {}
 
 
-def _get_staged_files() -> list[str]:
-    """Return a list of staged file paths."""
+def _get_staged_files() -> list[str] | None:
+    """Return a list of staged file paths, or None on git failure."""
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only"],
@@ -170,7 +188,7 @@ def _get_staged_files() -> list[str]:
         )
         return [f for f in result.stdout.strip().splitlines() if f]
     except subprocess.CalledProcessError:
-        return []
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -209,6 +227,14 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     # No valid token — generate a challenge.
     staged_files = _get_staged_files()
+    if staged_files is None:
+        if mode == "gate":
+            return {
+                "decision": "deny",
+                "reason": "Gauntlet: unable to read staged files (git failure).",
+            }
+        return None
+
     developer_id = _get_developer_id()
     challenge = generate_challenge_for_files(gauntlet_dir, staged_files, developer_id)
 

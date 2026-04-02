@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Egregore notification compatibility shim.
 
-This module re-exports the notification API from the herald plugin.
-The egregore plugin depends on herald for notification functionality.
+Re-exports the notification API from the herald plugin when
+available. When herald is not installed, provides stub
+implementations that log warnings and return safe defaults,
+following ADR-0001 (Plugin Dependency Isolation).
 
 All public names are preserved for backward compatibility:
 
@@ -15,9 +17,14 @@ All public names are preserved for backward compatibility:
 from __future__ import annotations
 
 import importlib.util
+import logging
 import sys
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
+
+_HERALD_AVAILABLE = False
 
 # Load herald's notify module from its known file path using
 # importlib.util.spec_from_file_location (safe, no exec).
@@ -25,32 +32,83 @@ _herald_notify_path = (
     Path(__file__).resolve().parent.parent.parent / "herald" / "scripts" / "notify.py"
 )
 
-_spec = importlib.util.spec_from_file_location(
-    "_herald_notify", str(_herald_notify_path)
-)
-if _spec is None or _spec.loader is None:
-    raise ImportError(
-        f"Cannot load herald notification module from {_herald_notify_path}. "
-        "Ensure the herald plugin is installed alongside egregore."
+try:
+    _spec = importlib.util.spec_from_file_location(
+        "_herald_notify", str(_herald_notify_path)
     )
+    if _spec is None or _spec.loader is None:
+        raise ImportError("spec_from_file_location returned None")
 
-_herald_mod = importlib.util.module_from_spec(_spec)
-# Register under a private name so it does not collide with this
-# module's own "notify" entry in sys.modules.
-sys.modules["_herald_notify"] = _herald_mod
-_spec.loader.exec_module(_herald_mod)
+    _herald_mod = importlib.util.module_from_spec(_spec)
+    sys.modules["_herald_notify"] = _herald_mod
+    _spec.loader.exec_module(_herald_mod)
+    _HERALD_AVAILABLE = True
+except (ImportError, OSError) as _exc:
+    logger.warning(
+        "Herald plugin not available (%s). Egregore notifications will be disabled.",
+        _exc,
+    )
+    _herald_mod = None  # type: ignore[assignment]  # None is valid sentinel for absent module
 
-# Re-export types and utilities directly from herald.
-# These are dynamically loaded so use Any for type annotations.
-AlertEvent: Any = _herald_mod.AlertEvent
-AlertContext: Any = _herald_mod.AlertContext
-WebhookURLError: Any = _herald_mod.WebhookURLError
-validate_webhook_url: Any = _herald_mod.validate_webhook_url
-create_github_alert: Any = _herald_mod.create_github_alert
 
-# Re-export build_issue_body and send_webhook with egregore defaults.
-_herald_build_issue_body = _herald_mod.build_issue_body
-_herald_send_webhook = _herald_mod.send_webhook
+# --- Herald-backed exports (when available) -------------------------
+
+if _HERALD_AVAILABLE and _herald_mod is not None:
+    AlertEvent: Any = _herald_mod.AlertEvent
+    AlertContext: Any = _herald_mod.AlertContext
+    WebhookURLError: Any = _herald_mod.WebhookURLError
+    validate_webhook_url: Any = _herald_mod.validate_webhook_url
+    create_github_alert: Any = _herald_mod.create_github_alert
+    _herald_build_issue_body = _herald_mod.build_issue_body
+    _herald_send_webhook = _herald_mod.send_webhook
+
+# --- Stub fallbacks (when herald is absent) -------------------------
+
+else:
+    import enum
+    from dataclasses import dataclass
+
+    class AlertEvent(enum.Enum):  # type: ignore[no-redef]  # conditional stub when herald absent
+        """Stub alert events when herald is absent."""
+
+        CRASH = "crash"
+        RATE_LIMIT = "rate_limit"
+        PIPELINE_FAILURE = "pipeline_failure"
+        COMPLETION = "completion"
+        WATCHDOG_RELAUNCH = "watchdog_relaunch"
+
+    @dataclass
+    class AlertContext:  # type: ignore[no-redef]  # conditional stub when herald absent
+        """Stub alert context when herald is absent."""
+
+        work_item_id: str = ""
+        work_item_ref: str = ""
+        stage: str = ""
+        step: str = ""
+        detail: str = ""
+
+    class WebhookURLError(ValueError):  # type: ignore[no-redef]  # conditional stub when herald absent
+        """Stub error when herald is absent."""
+
+    def validate_webhook_url(url: str) -> None:  # type: ignore[misc]  # conditional stub when herald absent
+        """No-op when herald is absent."""
+
+    def create_github_alert(  # type: ignore[misc]  # conditional stub when herald absent
+        title: str,
+        body: str,
+        labels: list[str] | None = None,
+    ) -> bool:
+        logger.warning("Cannot create alert: herald plugin not installed")
+        return False
+
+    def _herald_build_issue_body(**kwargs: Any) -> str:
+        return ""
+
+    def _herald_send_webhook(**kwargs: Any) -> bool:
+        return False
+
+
+# --- Egregore wrappers (source defaults to "egregore") --------------
 
 
 def build_issue_body(  # noqa: PLR0913 - matches herald's signature
@@ -67,6 +125,7 @@ def build_issue_body(  # noqa: PLR0913 - matches herald's signature
 
     Thin wrapper that defaults source to "egregore" for backward
     compatibility. Delegates to herald's build_issue_body().
+    Returns empty string when herald is absent.
     """
     return str(
         _herald_build_issue_body(
@@ -92,7 +151,7 @@ def send_webhook(
     """Send a webhook notification via curl.
 
     Thin wrapper that defaults source to "egregore" for backward
-    compatibility. Delegates to herald's send_webhook().
+    compatibility. Returns False when herald is absent.
     """
     return bool(
         _herald_send_webhook(
@@ -120,11 +179,7 @@ def alert(  # noqa: PLR0913 - matches herald's signature
 ) -> bool:
     """Send egregore alerts via GitHub issues and/or webhooks.
 
-    This wrapper reproduces the dispatch logic so that
-    ``@patch("notify.create_github_alert")`` and
-    ``@patch("notify.send_webhook")`` work correctly in tests.
-    The source parameter defaults to "egregore" for backward
-    compatibility.
+    Returns False when herald is absent.
     """
     if ctx is not None:
         work_item_id = ctx.work_item_id

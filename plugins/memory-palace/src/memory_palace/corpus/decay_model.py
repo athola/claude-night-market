@@ -194,11 +194,11 @@ class DecayModel:
             return math.pow(0.5, days / half_life)
 
         if curve == DecayCurve.LOGARITHMIC:
-            # Logarithmic: slower initial decay
-            # Uses modified formula for slower decay
+            # Logarithmic: fast initial decay that decelerates over time.
+            # Note: the half_life parameter is a scaling factor here, not
+            # a true half-life (decay factor at t=half_life is ~0.59, not 0.5).
             if days >= half_life * 4:
                 return 0.1  # Floor for very old entries
-            # Slower decay using log curve
             ratio = days / half_life
             return 1.0 / (1.0 + math.log1p(ratio))
 

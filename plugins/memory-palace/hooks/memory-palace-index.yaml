@@ -107,6 +107,15 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://code.claude.com/docs/en/skills.md
+  https://webai.mintlify.app/api-reference/oasis-ai:
+    content_hash: sha256:b5c706f7b99f5f0d
+    stored_at: data/staging/webfetch-persona-text-generation-in-oasishost-2026-04-01_19-53-32.md
+    importance_score: 50
+    last_updated: '2026-04-01T19:53:32.457901+00:00'
+    title: Persona Text Generation in OasisHost
+    maturity: seedling
+    routing_type: pending
+    url: https://webai.mintlify.app/api-reference/oasis-ai#personas
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -120,3 +129,4 @@ hashes:
   sha256:99b2c2f260fdb92e: data/staging/webfetch-documentation-index-2026-03-28_18-47-56.md
   sha256:af997a33286650b9: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
   sha256:7da53dc23bf9551d: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
+  sha256:b5c706f7b99f5f0d: data/staging/webfetch-persona-text-generation-in-oasishost-2026-04-01_19-53-32.md
