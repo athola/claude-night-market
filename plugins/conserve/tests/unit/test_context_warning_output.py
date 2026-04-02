@@ -99,8 +99,9 @@ class TestGetContextUsageFromEnv:
     ) -> None:
         """Scenario: Read usage from CLAUDE_CONTEXT_USAGE."""
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
-        usage = context_warning_full_module.get_context_usage_from_env()
+        usage, is_estimated = context_warning_full_module.get_context_usage_from_env()
         assert usage == 0.45
+        assert is_estimated is False
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -110,8 +111,9 @@ class TestGetContextUsageFromEnv:
         """Scenario: Returns None without environment variable and estimation disabled."""
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
-        usage = context_warning_full_module.get_context_usage_from_env()
+        usage, is_estimated = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
+        assert is_estimated is True
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -121,8 +123,9 @@ class TestGetContextUsageFromEnv:
         """Scenario: Handle invalid environment value gracefully."""
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "not-a-number")
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
-        usage = context_warning_full_module.get_context_usage_from_env()
+        usage, is_estimated = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
+        assert is_estimated is True
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -132,8 +135,9 @@ class TestGetContextUsageFromEnv:
         """Scenario: Handle empty environment value."""
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "")
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
-        usage = context_warning_full_module.get_context_usage_from_env()
+        usage, is_estimated = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
+        assert is_estimated is True
 
 
 class TestMainEntryPoint:

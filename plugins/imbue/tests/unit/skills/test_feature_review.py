@@ -712,3 +712,240 @@ class TestIntegration:
         # Assert
         assert len(limited) == max_backlog
         assert limited[0]["score"] > limited[-1]["score"]
+
+
+class TestResearchEnrichment:
+    """Feature: Research enrichment adjusts scores with external
+    evidence from the tome plugin.
+
+    As a product manager
+    I want scores grounded in external evidence
+    So that prioritization reflects real-world signals
+    """
+
+    FIBONACCI = [1, 2, 3, 5, 8, 13]
+
+    @pytest.fixture
+    def research_config(self):
+        """Default research enrichment configuration."""
+        return {
+            "evidence_threshold": 0.3,
+            "max_delta": 2,
+            "timeout_seconds": 120,
+            "channels": {
+                "code_search": True,
+                "discourse": True,
+                "papers": False,
+                "triz": False,
+            },
+        }
+
+    @pytest.fixture
+    def feature_with_initial_scores(self):
+        """Feature with initial scoring before research."""
+        return {
+            "name": "Auto-save drafts",
+            "value": {
+                "reach": 5,
+                "impact": 3,
+                "business_value": 3,
+                "time_criticality": 3,
+            },
+            "cost": {
+                "effort": 3,
+                "risk": 2,
+                "complexity": 3,
+            },
+            "confidence": 0.8,
+        }
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_delta_calculation(self, research_config) -> None:
+        """Scenario: Research delta adjusts scores correctly.
+
+        Given research findings with consensus and strength
+        When calculating the applied delta
+        Then delta equals consensus * strength * channel_weight.
+        """
+        # Arrange
+        findings_consensus = 1.5  # Positive direction
+        evidence_strength = 0.8  # Strong evidence
+        channel_weight = 0.8  # code-search channel
+
+        # Act
+        raw_delta = findings_consensus * evidence_strength * channel_weight
+
+        # Assert
+        assert abs(raw_delta - 0.96) < 0.01
+        assert raw_delta > research_config["evidence_threshold"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_evidence_threshold_discard(self, research_config) -> None:
+        """Scenario: Low-evidence deltas are discarded.
+
+        Given research findings below evidence threshold
+        When calculating the applied delta
+        Then delta should be discarded (set to 0).
+        """
+        # Arrange - weak evidence
+        findings_consensus = 1.0
+        evidence_strength = 0.2  # Below threshold
+        channel_weight = 0.8
+
+        # Act
+        raw_delta = findings_consensus * evidence_strength * channel_weight
+
+        # Assert
+        if abs(raw_delta) < research_config["evidence_threshold"]:
+            applied_delta = 0
+        else:
+            applied_delta = raw_delta
+
+        assert applied_delta == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_fibonacci_clamping(self) -> None:
+        """Scenario: Adjusted scores clamp to nearest Fibonacci.
+
+        Given a raw adjusted score
+        When clamping to the Fibonacci scale
+        Then result is the nearest valid Fibonacci number.
+        """
+        # Arrange
+        fib = self.FIBONACCI
+
+        # Act
+        def clamp_to_fibonacci(raw: float) -> int:
+            return min(fib, key=lambda f: abs(f - raw))
+
+        # Assert
+        assert clamp_to_fibonacci(2.8) == 3  # Closer to 3 than 2
+        assert clamp_to_fibonacci(4.5) == 5  # Closer to 5 than 3
+        assert clamp_to_fibonacci(1.0) == 1
+        assert clamp_to_fibonacci(12.9) == 13
+        assert clamp_to_fibonacci(6.8) == 8
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_max_delta_constraint(self) -> None:
+        """Scenario: Adjustments capped at max_delta Fibonacci steps.
+
+        Given a max_delta of 2 Fibonacci steps
+        When a raw delta would exceed max_delta
+        Then the result is capped at max_delta steps away.
+        """
+        # Arrange
+        fib = self.FIBONACCI
+        max_steps = 2
+
+        # Act
+        def max_delta_clamp(initial: int, target: int, max_s: int = max_steps) -> int:
+            initial_idx = fib.index(initial)
+            target_idx = fib.index(target)
+            if abs(target_idx - initial_idx) <= max_s:
+                return target
+            direction = 1 if target_idx > initial_idx else -1
+            return fib[initial_idx + direction * max_s]
+
+        # Assert - within bounds
+        assert max_delta_clamp(3, 8, 2) == 8  # 2 steps: OK
+        # Exceeds bounds: 3 -> 13 is 4 steps
+        assert max_delta_clamp(3, 13, 2) == 8  # Capped at 2 steps up
+        # Negative direction
+        assert max_delta_clamp(8, 2, 2) == 3  # Capped at 2 steps down
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_graceful_degradation(self, feature_with_initial_scores) -> None:
+        """Scenario: Scores unchanged when research unavailable.
+
+        Given the tome plugin is not installed
+        When research enrichment is attempted
+        Then initial scores should remain unchanged.
+        """
+        # Arrange
+        initial = feature_with_initial_scores
+        tome_available = False
+
+        # Act
+        if not tome_available:
+            adjusted = initial["value"].copy()
+        else:
+            adjusted = dict(initial["value"].items())  # Would apply deltas
+
+        # Assert - scores identical
+        assert adjusted == initial["value"]
+        assert adjusted["reach"] == 5
+        assert adjusted["impact"] == 3
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_channel_factor_mapping(self) -> None:
+        """Scenario: Research channels map to correct scoring
+        factors.
+
+        Given the channel-to-factor mapping table
+        When looking up a channel's primary factor
+        Then it should map to the correct scoring factor.
+        """
+        # Arrange
+        channel_mapping = {
+            "code_search": ("reach", "complexity"),
+            "discourse": ("impact", "business_value"),
+            "papers": ("impact", "risk"),
+            "triz": ("business_value", "impact"),
+        }
+
+        # Assert
+        assert channel_mapping["code_search"][0] == "reach"
+        assert channel_mapping["discourse"][0] == "impact"
+        assert channel_mapping["papers"][0] == "impact"
+        assert channel_mapping["triz"][0] == "business_value"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_adjusted_score_with_research(self) -> None:
+        """Scenario: Research enriches a feature's score.
+
+        Given a feature with initial scores and research findings
+        When applying research deltas
+        Then the adjusted score reflects external evidence.
+        """
+        # Arrange
+        initial_reach = 3
+        research_delta = 2  # Strong adoption signal
+        fib = self.FIBONACCI
+
+        # Act - apply delta and clamp
+        raw_adjusted = initial_reach + research_delta
+        adjusted = min(fib, key=lambda f: abs(f - raw_adjusted))
+
+        # Assert
+        assert adjusted == 5  # 3 + 2 = 5, exact Fibonacci match
+        assert adjusted > initial_reach  # Research increased score
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_research_does_not_reduce_below_minimum(
+        self,
+    ) -> None:
+        """Scenario: Research cannot reduce score below 1.
+
+        Given a feature with low initial score
+        When negative research delta is applied
+        Then adjusted score is at least 1 (minimum Fibonacci).
+        """
+        # Arrange
+        fib = self.FIBONACCI
+        initial = 2
+        negative_delta = -5
+
+        # Act
+        raw = initial + negative_delta  # -3
+        adjusted = max(min(fib, key=lambda f: abs(f - raw)), 1)
+
+        # Assert
+        assert adjusted == 1  # Floor is 1

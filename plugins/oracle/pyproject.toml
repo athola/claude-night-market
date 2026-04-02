@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "oracle"
+version = "1.8.0"
+description = "ONNX Runtime inference daemon for Claude Code plugins"
+authors = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.14.13",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.11.0",
+    "pyyaml>=6.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.14.13",
+    "types-pyyaml>=6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/oracle"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
+extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
+    "D212", "S603", "S607", "PLW1510", "S310",
+]
+"hooks/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src", "hooks"]
+addopts = "-v --cov=src/oracle --cov-report=term-missing --cov-fail-under=90"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]
+
+[tool.coverage.run]
+source = ["src/oracle"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 90

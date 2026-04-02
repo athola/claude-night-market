@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/agent-expenditure",

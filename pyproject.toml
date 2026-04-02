@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.7.3"
+version = "1.8.0"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -231,4 +231,5 @@ exclude_dirs = [
 # B603: subprocess_without_shell_equals_true - intentional for security
 # B607: start_process_with_partial_path - tools found via shutil.which
 # B608: hardcoded_sql_expressions - false positives on string formatting
-skips = ["B101", "B103", "B108", "B110", "B112", "B311", "B404", "B603", "B607", "B608"]
+# B310: urllib_urlopen - localhost-only HTTP calls (oracle daemon client)
+skips = ["B101", "B103", "B108", "B110", "B112", "B310", "B311", "B404", "B603", "B607", "B608"]

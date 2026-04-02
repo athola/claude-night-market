@@ -47,6 +47,18 @@ Consumers: attune, sanctum, spec-kit.
 The same rules as leyline apply: imports must be guarded with try/except
 ImportError and the consumer must degrade gracefully when abstract is absent.
 
+### Exception: herald (intentional)
+
+`herald` is a shared notification library extracted from egregore.
+It provides GitHub issue alerts and webhook support (Slack, Discord, generic)
+that any plugin may use for operational notifications.
+Consumer: egregore.
+The same rules as leyline and abstract apply: imports must be guarded
+with try/except (or equivalent dynamic loading) and the consumer must
+degrade gracefully when herald is absent.
+Herald declares no skills, commands, agents, or hooks in its plugin.json;
+it functions purely as a Python library plugin.
+
 ## Architecture
 
 ### Before (Shared Registry)

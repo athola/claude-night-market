@@ -4,6 +4,8 @@
 Uses core functionality from src/abstract/skills_eval.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
 

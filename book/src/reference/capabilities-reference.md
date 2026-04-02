@@ -36,6 +36,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
@@ -46,6 +47,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
+| `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
@@ -64,7 +66,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
-| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring |
+| `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
+| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
@@ -87,6 +90,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
+| `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
 | `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
@@ -125,6 +129,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
 | `session-to-post` | [scribe](../plugins/scribe.md) | Convert sessions into shareable blog posts or case studies |
+| `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
@@ -207,6 +212,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
+| `/gauntlet` | gauntlet | Run an ad-hoc challenge session (5 questions, random scope) |
+| `/gauntlet-curate` | gauntlet | Add or edit a knowledge annotation |
+| `/gauntlet-extract` | gauntlet | Rebuild the knowledge base from the current codebase |
+| `/gauntlet-onboard` | gauntlet | Start or resume a guided onboarding path |
+| `/gauntlet-progress` | gauntlet | Show challenge accuracy stats, weak areas, and streak |
 | `/git-catchup` | sanctum | Git repository catchup |
 | `/hookify` | hookify | Create behavioral rules to prevent unwanted actions |
 | `/hookify:configure` | hookify | Interactive rule enable/disable interface |
@@ -223,6 +233,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/merge-docs` | sanctum | Consolidate ephemeral docs |
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
+| `/oracle-setup` | oracle | Install and configure the oracle ONNX inference daemon |
 | `/palace` | memory-palace | Manage palaces |
 | `/plugin-review` | abstract | Tiered plugin quality review (branch/pr/release) |
 | `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
@@ -299,6 +310,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `discourse-scanner` | tome | Community discourse scanning |
 | `doc-editor` | scribe | Interactive documentation editing |
 | `doc-verifier` | scribe | QA validation using proof-of-work methodology |
+| `extractor` | gauntlet | Autonomous knowledge extraction agent for gauntlet knowledge base |
 | `garden-curator` | memory-palace | Digital garden maintenance |
 | `git-workspace-agent` | sanctum | Repository state analyzer |
 | `implementation-executor` | spec-kit | Task executor |

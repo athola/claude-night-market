@@ -40,8 +40,9 @@ _JUSTIFIED_NOQA = re.compile(
     r"#\s*noqa:\s*[A-Z][A-Z0-9]+(?:,\s*[A-Z][A-Z0-9]+)*\s+-\s+\S"
 )
 
-# Matches: # type: ignore[code] - some explanation
-_JUSTIFIED_TYPE_IGNORE = re.compile(r"#\s*type:\s*ignore\[[^\]]+\]\s+-\s+\S")
+# Matches: # type: ignore[code] - explanation  OR  # type: ignore[code]  # explanation
+# Both forms accepted because mypy rejects the dash form as invalid syntax.
+_JUSTIFIED_TYPE_IGNORE = re.compile(r"#\s*type:\s*ignore\[[^\]]+\]\s+(?:-\s+\S|#\s+\S)")
 
 
 def _is_justified(line: str, label: str) -> bool:

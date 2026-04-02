@@ -4,6 +4,8 @@
 Uses core functionality from src/abstract/skills_eval.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from cli_scaffold import create_parser, format_result, setup_src_path, write_output

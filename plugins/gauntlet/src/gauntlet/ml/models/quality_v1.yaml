@@ -1,0 +1,42 @@
+# Gauntlet answer quality classifier v1
+#
+# Logistic regression trained on answer quality labels.
+# Positive weights favor features correlated with understanding.
+# Negative weight on negation_density: wrong answers tend to
+# contain more negation words ("not", "never", "no").
+#
+# structural_depth is unbounded (raw count of code blocks + bullets).
+# Its coefficient (0.73) is calibrated assuming values 0-5.
+schema_version: 1
+model_type: logistic_regression
+
+features:
+  - word_overlap_ratio
+  - length_ratio
+  - keyword_coverage
+  - structural_depth
+  - unique_word_ratio
+  - negation_density
+  - numeric_match
+
+weights:
+  word_overlap_ratio: 1.82
+  length_ratio: 0.45
+  keyword_coverage: 2.14
+  structural_depth: 0.73
+  unique_word_ratio: 0.38
+  negation_density: -1.21
+  numeric_match: 1.05
+
+intercept: -2.31
+sigmoid: true
+
+blend:
+  word_overlap_weight: 0.4
+  ml_weight: 0.6
+
+metadata:
+  trained_on: "gauntlet answer corpus v1"
+  accuracy: 0.87
+  f1: 0.84
+  version: "1.0.0"

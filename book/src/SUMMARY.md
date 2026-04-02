@@ -25,6 +25,8 @@
   - [conjure](plugins/conjure.md)
   - [hookify](plugins/hookify.md)
   - [egregore](plugins/egregore.md)
+  - [herald](plugins/herald.md)
+  - [oracle](plugins/oracle.md)
 - [Domain Specialists](plugins/domain-specialists.md)
   - [archetypes](plugins/archetypes.md)
   - [pensive](plugins/pensive.md)
@@ -36,6 +38,8 @@
   - [attune](plugins/attune.md)
   - [scribe](plugins/scribe.md)
   - [scry](plugins/scry.md)
+  - [gauntlet](plugins/gauntlet.md)
+  - [tome](plugins/tome.md)
 
 # Tutorials
 

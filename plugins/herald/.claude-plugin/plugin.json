@@ -1,0 +1,22 @@
+{
+  "name": "herald",
+  "version": "1.8.0",
+  "description": "Standalone notification system for Claude Code plugins. Provides GitHub issue alerts and webhook support (Slack, Discord, generic).",
+  "skills": [],
+  "commands": [],
+  "agents": [],
+  "hooks": [],
+  "keywords": [
+    "notifications",
+    "alerts",
+    "webhooks",
+    "github-issues",
+    "slack",
+    "discord"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}

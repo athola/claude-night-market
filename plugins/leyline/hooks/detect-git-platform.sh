@@ -129,7 +129,11 @@ case "$platform" in
         ;;
 esac
 
-cat <<EOF
+if command -v jq >/dev/null 2>&1; then
+    jq -n --arg ctx "$context" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
+else
+    # Context is built from controlled strings only (no user input)
+    cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -137,5 +141,6 @@ cat <<EOF
   }
 }
 EOF
+fi
 
 exit 0

@@ -17,8 +17,12 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib  # Python 3.11+
+except ImportError:
+    tomllib = None
 
 
 def _get_per_file_ignores(toml_text: str) -> dict[str, list[str]]:

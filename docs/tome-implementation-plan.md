@@ -800,3 +800,41 @@ Tasks that can be worked on concurrently:
 | Phase 3 | TRIZ bridge findings appear for deep-domain topics |
 | Phase 4 | Domain-appropriate visualizations in reports |
 | Phase 5 | `/tome:export` output processable by memory-palace |
+
+## Phase 6: Feature Review Integration (v1.8.0)
+
+Integrates tome research into `imbue:feature-review` so
+that Reach, Impact, and Business Value scores can be
+adjusted with external evidence from code search,
+community discourse, papers, and TRIZ analysis.
+
+### Three-phase execution with six tasks
+
+**Phase A: Foundation (T001, T002, T003) -- parallel.**
+Create the `research-enrichment` module defining
+channel-to-factor mapping, score delta formulas, and
+graceful degradation.
+Update the configuration module and `.feature-review.yaml`
+with a new `research:` section.
+Add `tome` as an optional dependency in
+`plugins/imbue/.claude-plugin/plugin.json`.
+
+**Phase B: Skill Integration (T004, T005) -- depends on
+Phase A.**
+Insert Phase 4.5 (Research Enrichment) into the
+`feature-review` SKILL.md between tradeoff analysis and
+gap analysis, gated by the `--research` flag.
+Update `.feature-review.yaml` output sections and plugin
+categories to include research evidence.
+
+**Phase C: Tests (T006) -- depends on T001 and T004.**
+Add `TestResearchEnrichment` covering delta calculation,
+Fibonacci clamping, max delta constraint, evidence
+threshold discard, graceful degradation, and channel-to-
+factor mapping.
+
+### Execution order
+
+T001, T002, and T003 run in parallel.
+T004 depends on T001; T005 depends on T002.
+T006 depends on both T001 and T004.

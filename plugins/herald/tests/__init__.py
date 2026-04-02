@@ -1,0 +1,1 @@
+"""Herald plugin test suite."""

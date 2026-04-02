@@ -531,6 +531,54 @@ tradeoffs:
   scalability: 0.8           # Backend concern
 ```
 
+## Research Enrichment
+
+Configure external research via the tome plugin. When enabled,
+research findings adjust scoring factors with evidence-backed
+deltas.
+
+```yaml
+# ─────────────────────────────────────────────────────────────────
+# RESEARCH ENRICHMENT (requires tome plugin)
+# Use external research to adjust scoring factors
+# ─────────────────────────────────────────────────────────────────
+
+research:
+  enabled: true                # Enable research enrichment
+  channels:
+    code_search: true          # GitHub code search
+    discourse: true            # HN, Reddit, Lobsters
+    papers: true               # Academic papers (arXiv, Semantic Scholar)
+    triz: true                 # Cross-domain analogical reasoning
+  evidence_threshold: 0.3      # Minimum evidence to apply delta
+  max_delta: 2                 # Max Fibonacci steps adjustment
+  timeout_seconds: 120         # Research phase timeout
+```
+
+### Channel Configuration
+
+| Channel | Default | Speed | Best For |
+|---------|---------|-------|----------|
+| code_search | enabled | Fast | Measuring ecosystem adoption |
+| discourse | enabled | Medium | Gauging community demand |
+| papers | enabled | Slow | Academic validation |
+| triz | enabled | Slow | Cross-domain innovation |
+
+### Evidence Threshold
+
+Deltas below this confidence level are discarded:
+
+- `0.3` (default): Only well-supported adjustments apply
+- `0.5`: Require strong evidence before adjusting
+- `0.1`: Apply even weak signals (noisy, use cautiously)
+
+### Graceful Degradation
+
+When the tome plugin is not installed:
+- `--research` flag prints a warning
+- Feature-review proceeds with initial scores unchanged
+- No error or abort -- research is purely additive
+
 ## Advanced Patterns
 
 ### Per-Plugin Configuration (Monorepo)

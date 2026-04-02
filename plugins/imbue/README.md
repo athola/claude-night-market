@@ -112,6 +112,8 @@ and `Skill(imbue:structured-output)`.
 Commands include `/feature-review` for full inventory, scoring,
 and suggestions. Append `--inventory` to only discover features,
 or `--suggest` to include new feature suggestions.
+Use `--research` to enrich scores with external evidence from
+the tome plugin (code search, discourse, papers, TRIZ).
 Use `--create-issues` to automate GitHub issue creation for suggestions.
 
 ## Session Forking (Claude Code 2.0.73+)
