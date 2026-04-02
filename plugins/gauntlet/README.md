@@ -3,6 +3,19 @@
 Codebase learning through knowledge extraction, challenges, and
 spaced repetition.
 
+## Problem
+
+When developers rely on AI-assisted coding tools, they stop
+writing code directly and their codebase knowledge atrophies.
+Understanding of business logic, data flow, and architecture
+fades because the developer is no longer actively reasoning
+about the code.
+New developers face the same gap from the opposite direction:
+AI tools can short-circuit learning by providing answers
+without requiring understanding.
+The gauntlet reintegrates developers into the codebase through
+active recall and spaced repetition.
+
 ## Quick Start
 
 ```bash
@@ -70,21 +83,49 @@ The plugin stores all state under `.gauntlet/` in your project root:
 No configuration file is required. The pre-commit hook activates
 automatically when `.gauntlet/knowledge.json` exists.
 
+## Architecture
+
+The plugin uses a three-layer design:
+
+1. **Knowledge extraction** (foundation): AST analysis and AI
+   summarization walk the source tree and produce a queryable
+   knowledge base stored in `.gauntlet/knowledge.json`.
+   A curation layer lets developers add context that cannot
+   be inferred from code alone.
+2. **Challenge engine** (active recall): generates six exercise
+   types (multiple choice, code completion, trace, explain-why,
+   spot-the-bug, dependency map) from the knowledge base.
+   Adaptive weighting targets weak categories and unseen entries.
+3. **Integration points** (habit formation): a pre-commit hook
+   gates commits behind a challenge, slash commands run on-demand
+   sessions, skills support guided onboarding, and an agent query
+   API exposes the knowledge base to other plugins.
+
 ## ML Scoring
 
-Answer evaluation uses a pluggable `Scorer` protocol:
+Open-ended challenge scoring originally used word-overlap
+(`|intersection| / |reference|`), which fails when a correct
+answer uses synonyms or restructures the explanation.
+The `Scorer` protocol enables backend swapping so scoring
+can improve without changing consumer code.
 
-- **YamlScorer** (default): heuristic scoring from YAML
-  rule files. No dependencies beyond the plugin itself.
-- **OnnxSidecarScorer**: calls the oracle daemon for ONNX
-  model inference. Activates automatically when oracle
-  is running (detected via port file).
+**YamlScorer** (default, zero dependencies) loads logistic
+regression coefficients from a YAML file and performs a
+pure-Python dot product with sigmoid activation.
+It extracts 7 numeric features from each challenge-answer
+pair: word overlap ratio, length ratio, keyword coverage,
+structural depth, unique word ratio, negation density, and
+numeric match.
+The final score blends word-overlap (40%) with ML (60%)
+at configurable weights, falling back to word-overlap alone
+when the model file is missing or corrupt.
 
-Selection is automatic. The sidecar scorer takes over
-when oracle's port file exists and its `/health` endpoint
-responds. Otherwise gauntlet falls back to YamlScorer.
-Blend weights between heuristic and model scores are
-configurable.
+**OnnxSidecarScorer** calls the oracle daemon for ONNX
+model inference.
+It activates automatically when oracle's port file exists
+and its `/health` endpoint responds.
+Both scorers implement the same `Scorer` protocol, so
+consumer code never changes.
 
 ## CLI Scripts
 

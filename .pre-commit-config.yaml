@@ -37,6 +37,17 @@ repos:
         stages: [pre-commit]
 
       # =================================================================
+      # Duplicate Hooks Guard - Block auto-loaded hooks in manifests
+      # =================================================================
+
+      - id: check-plugin-hooks
+        name: Block Duplicate hooks/hooks.json
+        entry: python3 scripts/check_plugin_hooks.py
+        language: system
+        files: \.claude-plugin/plugin\.json$
+        stages: [pre-commit]
+
+      # =================================================================
       # Code Quality Hooks - Run for changed plugins
       # Note: Linting handled by global ruff-format + ruff hooks below
       # =================================================================

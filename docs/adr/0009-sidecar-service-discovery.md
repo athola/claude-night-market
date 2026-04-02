@@ -21,6 +21,30 @@ process would invent its own discovery mechanism, leading to
 inconsistent port management, lifecycle handling, and failure
 modes.
 
+## Research Background
+
+Five research channels informed this decision (full report in
+`docs/research/onnx-research-2026-03-31.md`).
+The ONNX Python API provides model construction, validation,
+and protobuf serialization through core modules like
+`onnx.helper` and `onnx.checker`.
+GitHub code search across nine repositories found that the
+sidecar process is the dominant inference isolation pattern,
+used by Copilot, Tabnine, and Continue.
+Community discourse identified silent failures as the top
+risk: 33% of ONNX converter failures produce semantically
+incorrect models rather than errors (ISSTA 2024).
+TRIZ cross-domain analysis resolved the contradiction between
+ML capability and deployment simplicity through a tiered
+architecture: Tier 0 (YAML coefficients, zero deps), Tier 1
+(rule-based heuristics), Tier 2 (sidecar ONNX daemon in an
+isolated venv), and Tier 3 (Claude API).
+The critical constraint driving the sidecar pattern is that
+onnxruntime requires Python 3.11+, while the system Python
+is 3.9.6.
+The sidecar isolates the inference runtime in its own venv,
+keeping host plugins on the system Python.
+
 ## Decision
 
 Plugins that run sidecar processes MUST follow this pattern:

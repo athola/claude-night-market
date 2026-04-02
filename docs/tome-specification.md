@@ -823,3 +823,57 @@ without manual editing.
 - **Open access**: Academic content freely available
   without subscription or payment
 - **DOI**: Digital Object Identifier, unique paper ID
+
+## Feature Review Enrichment (v1.8.0)
+
+### Purpose
+
+Integrate tome's multi-source research into
+`imbue:feature-review` so that scoring factors (Reach,
+Impact, Business Value) are grounded in external evidence
+rather than pure intuition.
+The `--research` flag activates an optional Phase 4.5
+between tradeoff analysis and gap analysis.
+
+### Channel-to-Factor Mapping
+
+| Channel | Primary Factor | Secondary Factor | Evidence Type |
+|---------|---------------|-----------------|---------------|
+| code-search | Reach | Complexity | Competitor count, star counts |
+| discourse | Impact | Business Value | Community sentiment, request volume |
+| papers | Impact | Risk | Academic validation, novelty |
+| triz | Business Value | Impact | Cross-domain analogies |
+
+### Score Adjustment Formula
+
+Research produces adjustment deltas, not replacements.
+The initial human assessment is always preserved.
+
+```
+adjusted = initial + research_delta * evidence_weight
+
+research_delta: -2 to +2
+evidence_weight: 0.0 to 1.0 (discard if < 0.3)
+```
+
+Adjusted scores clamp to the Fibonacci scale
+(1, 2, 3, 5, 8, 13).
+Maximum adjustment per factor: +/- 2 scale points.
+
+### Graceful Degradation
+
+When tome is not installed, `--research` prints a warning
+and feature-review proceeds with initial scores unchanged.
+No error, no abort.
+
+### Acceptance Criteria
+
+1. `--research` triggers Phase 4.5 between tradeoff
+   analysis and gap analysis
+2. Research findings produce score deltas weighted by
+   evidence confidence
+3. Adjusted scores clamp to the Fibonacci scale
+4. Graceful degradation when tome is unavailable
+5. Output includes an evidence summary when research runs
+6. Existing tests pass unchanged; new tests cover delta
+   calculation, clamping, degradation, and channel mapping

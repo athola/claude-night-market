@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from gauntlet.ml import get_blend_weights, score_answer_quality
 from gauntlet.ml.features import _word_set
-from gauntlet.models import Challenge
+from gauntlet.models import Challenge, ChallengeResult, ChallengeType
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -30,8 +30,8 @@ def _dep_set(text: str) -> set[str]:
 # ---------------------------------------------------------------------------
 
 
-def evaluate_answer(challenge: Challenge, answer: str) -> str:
-    """Return 'pass', 'partial', or 'fail' for *answer* against *challenge*.
+def evaluate_answer(challenge: Challenge, answer: str) -> ChallengeResult:
+    """Return a :class:`ChallengeResult` for *answer* against *challenge*.
 
     Scoring rules by challenge type:
 
@@ -43,26 +43,28 @@ def evaluate_answer(challenge: Challenge, answer: str) -> str:
     """
     stripped = answer.strip()
 
-    if challenge.type == "multiple_choice":
+    if challenge.type == ChallengeType.MULTIPLE_CHOICE:
         if not stripped:
-            return "fail"
-        return "pass" if stripped.upper() == challenge.answer.upper() else "fail"
+            return ChallengeResult.FAIL
+        if stripped.upper() == challenge.answer.upper():
+            return ChallengeResult.PASS
+        return ChallengeResult.FAIL
 
-    if challenge.type == "dependency_map":
+    if challenge.type == ChallengeType.DEPENDENCY_MAP:
         expected = _dep_set(challenge.answer)
         if not expected:
-            return "fail"
+            return ChallengeResult.FAIL
         given = _dep_set(stripped)
         overlap = len(expected & given) / len(expected)
         if overlap >= 0.8:
-            return "pass"
+            return ChallengeResult.PASS
         if overlap >= 0.3:
-            return "partial"
-        return "fail"
+            return ChallengeResult.PARTIAL
+        return ChallengeResult.FAIL
 
     # Open-ended types: explain_why, trace, spot_bug, code_completion
     if not stripped:
-        return "fail"
+        return ChallengeResult.FAIL
 
     ratio = _word_overlap_ratio(challenge.answer, stripped)
 
@@ -75,7 +77,7 @@ def evaluate_answer(challenge: Challenge, answer: str) -> str:
         combined = ratio
 
     if combined >= 0.5:
-        return "pass"
+        return ChallengeResult.PASS
     if combined >= 0.2:
-        return "partial"
-    return "fail"
+        return ChallengeResult.PARTIAL
+    return ChallengeResult.FAIL

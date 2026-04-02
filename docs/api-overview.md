@@ -5,15 +5,15 @@
 
 ## API Surface Summary
 
-Claude Night Market consists of 19 plugins that provide
+Claude Night Market consists of 21 plugins that provide
 CLI commands, Python packages, and skill-based APIs.
 These tools support a range of workflows, from code
 review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 138 CLI commands, 151 modular
-skills, 48 specialized agents, and 9 Python packages
+The ecosystem includes 144 CLI commands, 156 modular
+skills, 49 specialized agents, and 9 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
@@ -24,11 +24,13 @@ with public APIs. We also maintain 25 execution hooks.
 | conjure | 1.8.0 | 0 | 4 | 0 | No | - |
 | conserve | 1.8.0 | 4 | 12 | 5 | No | - |
 | egregore | 1.8.0 | 5 | 4 | 2 | No | - |
+| gauntlet | 1.8.0 | 5 | 4 | 1 | Yes | gauntlet |
 | hookify | 1.8.0 | 6 | 2 | 0 | No | - |
 | imbue | 1.8.0 | 3 | 10 | 1 | No | - |
 | leyline | 1.8.0 | 3 | 20 | 0 | Yes | - |
 | memory-palace | 1.8.0 | 5 | 6 | 4 | Yes | - |
 | minister | 1.8.0 | 3 | 2 | 0 | Yes | - |
+| oracle | 1.8.0 | 1 | 1 | 0 | No | - |
 | parseltongue | 1.8.0 | 3 | 4 | 4 | No | parseltongue |
 | pensive | 1.8.0 | 12 | 12 | 4 | Yes | - |
 | phantom | 1.8.0 | 1 | 1 | 1 | No | - |
@@ -76,6 +78,17 @@ and `optimize-context` help developers understand token consumption.
 Skills include `context-optimization`, `clear-context`,
 and `cpu-gpu-performance`.
 
+### Gauntlet (v1.8.0)
+Developer reintegration through active recall and spaced
+repetition. Extracts knowledge from codebases, generates
+six challenge types (multiple choice, explain why, trace,
+spot bug, dependency map, code completion), and gates
+pre-commit workflows. Commands include `challenge`,
+`onboard`, `progress`, `extract`, and `answer`. Includes
+ML-enhanced answer scoring via a config-as-model pattern
+(YAML coefficients, pure-Python dot product) with optional
+ONNX Runtime inference through the oracle sidecar.
+
 ### Hookify (v1.8.0)
 Behavioral rules engine with markdown-based configuration.
 Commands convert Python hooks to declarative rules (`from-hook`),
@@ -107,6 +120,16 @@ and structure information. Skills focus on knowledge intake and retrieval.
 GitHub issue management and initiative tracking.
 Commands include `create-issue`, `close-issue`, and `update-labels`.
 Skills provide release health gates and initiative pulse dashboards.
+
+### Oracle (v1.8.0)
+ONNX Runtime inference sidecar for the plugin ecosystem.
+Runs an HTTP daemon in an isolated Python 3.11+ venv
+provisioned by uv, serving model inference on localhost.
+Other plugins discover the daemon via a port file in
+`$CLAUDE_PLUGIN_DATA/oracle/`. Explicit opt-in activation:
+installing the plugin does nothing until the user runs
+`/oracle:setup`. Provides the `setup` command and a
+`sidecar-status` skill.
 
 ### Parseltongue (v1.8.0)
 Python development utilities. Includes tools for analyzing tests

@@ -6,7 +6,7 @@ import random
 import uuid
 from collections.abc import Callable
 
-from gauntlet.models import Challenge, DeveloperProgress, KnowledgeEntry
+from gauntlet.models import Challenge, ChallengeType, DeveloperProgress, KnowledgeEntry
 
 # ---------------------------------------------------------------------------
 # Generator type alias
@@ -52,7 +52,7 @@ def _generate_multiple_choice(entry: KnowledgeEntry) -> Challenge:
 
     return Challenge(
         id=_make_id(),
-        type="multiple_choice",
+        type=ChallengeType.MULTIPLE_CHOICE,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(
@@ -71,7 +71,7 @@ def _generate_explain_why(entry: KnowledgeEntry) -> Challenge:
     """Generate an explain-why challenge."""
     return Challenge(
         id=_make_id(),
-        type="explain_why",
+        type=ChallengeType.EXPLAIN_WHY,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(
@@ -88,7 +88,7 @@ def _generate_trace(entry: KnowledgeEntry) -> Challenge:
     """Generate a data-flow trace challenge."""
     return Challenge(
         id=_make_id(),
-        type="trace",
+        type=ChallengeType.TRACE,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(
@@ -106,7 +106,7 @@ def _generate_spot_bug(entry: KnowledgeEntry) -> Challenge:
     """Generate a spot-the-bug challenge."""
     return Challenge(
         id=_make_id(),
-        type="spot_bug",
+        type=ChallengeType.SPOT_BUG,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(
@@ -125,7 +125,7 @@ def _generate_dependency_map(entry: KnowledgeEntry) -> Challenge:
     answer = ", ".join(entry.related_files) if entry.related_files else entry.module
     return Challenge(
         id=_make_id(),
-        type="dependency_map",
+        type=ChallengeType.DEPENDENCY_MAP,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(
@@ -143,7 +143,7 @@ def _generate_code_completion(entry: KnowledgeEntry) -> Challenge:
     """Generate a code-completion challenge."""
     return Challenge(
         id=_make_id(),
-        type="code_completion",
+        type=ChallengeType.CODE_COMPLETION,
         knowledge_entry_id=entry.id,
         difficulty=entry.difficulty,
         prompt=(

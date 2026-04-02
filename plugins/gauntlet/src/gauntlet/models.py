@@ -3,17 +3,33 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from enum import Enum
+from typing import Any
 
-ChallengeResult = Literal["pass", "partial", "fail"]
-ChallengeType = Literal[
-    "multiple_choice",
-    "explain_why",
-    "trace",
-    "spot_bug",
-    "dependency_map",
-    "code_completion",
-]
+
+class ChallengeResult(str, Enum):
+    """Possible outcomes of evaluating a challenge answer."""
+
+    PASS = "pass"  # nosec B105
+    PARTIAL = "partial"
+    FAIL = "fail"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class ChallengeType(str, Enum):
+    """Fixed set of challenge exercise types."""
+
+    MULTIPLE_CHOICE = "multiple_choice"
+    EXPLAIN_WHY = "explain_why"
+    TRACE = "trace"
+    SPOT_BUG = "spot_bug"
+    DEPENDENCY_MAP = "dependency_map"
+    CODE_COMPLETION = "code_completion"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @dataclass
@@ -111,7 +127,7 @@ class Challenge:
         """Deserialize from a dictionary."""
         return cls(
             id=data["id"],
-            type=data["type"],
+            type=ChallengeType(data["type"]),
             knowledge_entry_id=data["knowledge_entry_id"],
             difficulty=data["difficulty"],
             prompt=data["prompt"],
@@ -166,10 +182,10 @@ class AnswerRecord:
         return cls(
             challenge_id=data["challenge_id"],
             knowledge_entry_id=data["knowledge_entry_id"],
-            challenge_type=data["challenge_type"],
+            challenge_type=ChallengeType(data["challenge_type"]),
             category=data["category"],
             difficulty=data["difficulty"],
-            result=data["result"],
+            result=ChallengeResult(data["result"]),
             answered_at=data["answered_at"],
         )
 

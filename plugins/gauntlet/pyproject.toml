@@ -22,6 +22,7 @@ dev = [
     "mypy>=1.11.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",
+    "types-pyyaml>=6.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -75,5 +76,9 @@ fail_under = 90
 
 [dependency-groups]
 dev = [
+    "mypy>=1.11.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.14.13",
     "types-pyyaml>=6.0.12.20250915",
 ]
