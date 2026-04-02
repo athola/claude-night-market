@@ -67,7 +67,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
-| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring |
+| `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |

@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-night-market",
   "version": "1.8.0",
-  "description": "19 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, multi-LLM delegation, and multi-source research",
+  "description": "22 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, resource optimization, memory systems, multi-LLM delegation, ML inference, knowledge challenges, and multi-source research",
   "license": "MIT",
   "repository": "https://github.com/athola/claude-night-market",
   "homepage": "https://github.com/athola/claude-night-market",
@@ -73,7 +73,7 @@
     {
       "name": "imbue",
       "source": "./plugins/imbue",
-      "description": "TDD enforcement, proof-of-work validation, scope guarding, and rigorous reasoning patterns for quality-gated development",
+      "description": "TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning, and research-enriched feature review with RICE/WSJF/Kano scoring",
       "version": "1.8.0",
       "keywords": ["tdd", "quality-gates", "proof-of-work", "scope-guard"]
     },
@@ -153,6 +153,27 @@
       "description": "Autonomous agent orchestrator: parallel worktree execution, agent specialization, cross-item learning, and crash recovery",
       "version": "1.8.0",
       "keywords": ["autonomous-agents", "orchestration", "parallel-execution", "worktrees"]
+    },
+    {
+      "name": "gauntlet",
+      "source": "./plugins/gauntlet",
+      "description": "Codebase learning through knowledge extraction, adaptive challenges, and spaced repetition for developer onboarding and fluency",
+      "version": "1.8.0",
+      "keywords": ["learning", "onboarding", "knowledge", "challenges", "spaced-repetition"]
+    },
+    {
+      "name": "herald",
+      "source": "./plugins/herald",
+      "description": "Standalone notification system: GitHub issue alerts and webhook support for Slack, Discord, and generic endpoints.",
+      "version": "1.8.0",
+      "keywords": ["notifications", "alerts", "webhooks", "github-issues", "slack", "discord"]
+    },
+    {
+      "name": "oracle",
+      "source": "./plugins/oracle",
+      "description": "ONNX Runtime inference daemon for ML-enhanced plugin capabilities with local model inference over HTTP and opt-in activation",
+      "version": "1.8.0",
+      "keywords": ["ml", "inference", "onnx", "scoring", "daemon"]
     },
     {
       "name": "tome",

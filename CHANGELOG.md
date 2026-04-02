@@ -25,6 +25,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   issue alerts and webhook support (Slack, Discord,
   generic). Pure library plugin with no skills or
   commands.
+- **tome integration in feature-review**: `--research`
+  flag triggers Phase 4.5 (Research Enrichment) which
+  dispatches tome's code-search, discourse, papers,
+  and TRIZ channel agents in parallel, synthesizes
+  findings, and adjusts scoring factors with
+  evidence-backed deltas clamped to the Fibonacci
+  scale. Tome is an optional dependency;
+  feature-review degrades gracefully when
+  tome is not installed. Adds 9 new tests covering
+  delta calculation, Fibonacci clamping, max-delta
+  constraint, evidence thresholds, graceful
+  degradation, and channel-factor mapping.
 - ADR-0009: Sidecar Service Discovery via Port Files.
   Formalizes port-file discovery, PID tracking,
   localhost binding, health endpoints, and opt-in
