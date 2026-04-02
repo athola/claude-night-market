@@ -48,5 +48,6 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": ["leyline"],
+  "optional_dependencies": ["tome"]
 }

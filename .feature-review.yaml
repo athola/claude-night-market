@@ -80,6 +80,22 @@ tradeoffs:
   api_surface: 1.3           # Breaking changes hurt ecosystem
 
 # ─────────────────────────────────────────────────────────────────
+# RESEARCH ENRICHMENT
+# Requires tome plugin. Adjusts scores with external evidence.
+# ─────────────────────────────────────────────────────────────────
+
+research:
+  enabled: true
+  channels:
+    code_search: true          # GitHub implementations
+    discourse: true            # HN/Reddit community signal
+    papers: true               # Academic validation and citation analysis
+    triz: true                 # Cross-domain analogical reasoning
+  evidence_threshold: 0.3      # Min evidence strength to apply delta
+  max_delta: 2                 # Max Fibonacci steps adjustment
+  timeout_seconds: 120         # Research phase timeout
+
+# ─────────────────────────────────────────────────────────────────
 # GITHUB INTEGRATION
 # Configured for claude-night-market repository
 # ─────────────────────────────────────────────────────────────────
@@ -224,6 +240,7 @@ output:
     - classification
     - scoring
     - tradeoffs
+    - research_evidence       # External research findings (with --research)
     - cross_plugin_analysis  # Special section for plugin interactions
     - suggestions
     - github_actions
@@ -274,6 +291,7 @@ plugins:
       - parseltongue       # Python expertise
       - conjure            # Model delegation
       - memory-palace      # Knowledge management
+      - tome               # Multi-source research
     utility:
       - leyline            # Plugin management
       - archetypes         # Prompt patterns
