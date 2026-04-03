@@ -1,14 +1,6 @@
 ---
 name: architecture-paradigm-serverless
-description: 'Serverless FaaS for event-driven workloads with minimal infrastructure
-  management.
-
-
-  serverless, FaaS, Lambda, event-driven, pay-per-use
-
-  Use when: workloads are event-driven with bursty traffic
-
-  DO NOT use when: long-running processes or stateful operations required.'
+description: 'Serverless FaaS for event-driven workloads with minimal infrastructure management. serverless, FaaS, Lambda, event-driven'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

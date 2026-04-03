@@ -165,7 +165,7 @@ This hook complements the `knowledge-intake` skill:
 ## Example Flow
 
 ```
-1. User: "/superpowers:brainstorm bloat detection research"
+1. User: "/superpowers:brainstorming bloat detection research"
 2. Claude: Performs 8 WebSearch calls, compiles findings
 3. [SessionEnd Hook Triggers]
 4. Hook: Detects research session, creates queue entry

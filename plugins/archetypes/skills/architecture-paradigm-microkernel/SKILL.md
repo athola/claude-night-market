@@ -1,9 +1,6 @@
 ---
 name: architecture-paradigm-microkernel
-description: 'Minimal core system with plugin-based feature extensibility for platform
-  development. Use when platforms/IDEs/marketplaces, core stability critical, plugin
-  isolation needed. Do not use when selecting paradigms (use architecture-paradigms
-  first), no extensibility needed.'
+description: 'Minimal core system with plugin-based feature extensibility for platform development. Use when platforms/IDEs/marketplaces, core stability critical, plugin isolation needed.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# skrills-or-fallback: Try skrills binary, fall back to Python script.
+#
+# Usage (as a wrapper):
+#   plugins/abstract/bin/skrills-or-fallback validate --skill-dir ./plugins
+#
+# Usage (sourced by other scripts):
+#   source plugins/abstract/bin/skrills-or-fallback
+#   if has_skrills; then run_skrills validate ...; else python3 fallback.py; fi
+#
+# Fallback order:
+#   1. bin/skrills in this plugin (shipped binary, v2.1.91+)
+#   2. skrills on PATH (user-installed)
+#   3. Exit with code 127 (caller handles Python fallback)
+#
+# Security: When SKRILLS_VERIFY_HASH is set, the binary's SHA-256 is
+# checked against the pinned hash before execution.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKRILLS_BIN=""
+
+# Pin expected hash (updated by Makefile target or CI)
+SKRILLS_EXPECTED_HASH="${SKRILLS_EXPECTED_HASH:-}"
+
+_find_skrills() {
+    # 1. Plugin-local binary
+    if [[ -x "${SCRIPT_DIR}/skrills" ]]; then
+        SKRILLS_BIN="${SCRIPT_DIR}/skrills"
+        return 0
+    fi
+    # 2. PATH lookup
+    if command -v skrills &>/dev/null; then
+        SKRILLS_BIN="$(command -v skrills)"
+        return 0
+    fi
+    return 1
+}
+
+_verify_hash() {
+    if [[ -z "${SKRILLS_EXPECTED_HASH}" || -z "${SKRILLS_VERIFY_HASH:-}" ]]; then
+        return 0  # Verification not requested
+    fi
+    local actual
+    actual="$(sha256sum "${SKRILLS_BIN}" | cut -d' ' -f1)"
+    if [[ "${actual}" != "${SKRILLS_EXPECTED_HASH}" ]]; then
+        echo "[skrills] Hash mismatch: expected ${SKRILLS_EXPECTED_HASH}, got ${actual}" >&2
+        echo "[skrills] Refusing to execute unverified binary" >&2
+        return 1
+    fi
+}
+
+has_skrills() {
+    _find_skrills
+}
+
+run_skrills() {
+    if ! _find_skrills; then
+        return 127
+    fi
+    if ! _verify_hash; then
+        return 1
+    fi
+    exec "${SKRILLS_BIN}" "$@"
+}
+
+# If invoked directly (not sourced), pass through to skrills
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    if _find_skrills && _verify_hash; then
+        exec "${SKRILLS_BIN}" "$@"
+    else
+        echo "[skrills-or-fallback] skrills not found. Install: cargo install skrills" >&2
+        exit 127
+    fi
+fi

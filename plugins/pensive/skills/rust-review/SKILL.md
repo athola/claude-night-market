@@ -1,9 +1,6 @@
 ---
 name: rust-review
-description: 'Use this skill for Rust-specific code audits. Use when reviewing Rust
-  code, auditing unsafe blocks, analyzing ownership patterns, scanning Cargo dependencies
-  for security. Do not use when general code review without Rust - use unified-review.
-  DO NOT use when: performance profiling - use parseltongue:python-performance pattern.'
+description: 'Use this skill for Rust-specific code audits. Use when reviewing Rust code, auditing unsafe blocks, analyzing ownership patterns, scanning Cargo dependencies for security.'
 version: 1.7.1
 globs: "**/*.rs"
 alwaysApply: false

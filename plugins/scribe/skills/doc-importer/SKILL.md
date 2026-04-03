@@ -1,17 +1,6 @@
 ---
 name: doc-importer
-description: >-
-  Import external documents (PDF, DOCX, PPTX, XLSX, HTML)
-  into markdown for editing by doc-generator. Converts the
-  source, preserves structure, and prepares for remediation.
-
-  document import, conversion, ingestion, external documents
-
-  Use when: user provides a document to convert and clean up
-
-  DO NOT use when: web articles (use WebFetch directly),
-  academic papers (use tome:papers), content already in
-  markdown (use scribe:doc-generator remediation mode)
+description: '>- Import external documents (PDF, DOCX, PPTX, XLSX, HTML) into markdown for editing by doc-generator. Converts the source, preserves structure, and prepares for remediation.'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

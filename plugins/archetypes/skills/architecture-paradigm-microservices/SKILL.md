@@ -1,12 +1,6 @@
 ---
 name: architecture-paradigm-microservices
-description: 'Consult this skill when designing or evolving microservices architectures.
-  Use when teams need high autonomy and independent releases, different capabilities
-  have distinct scaling needs, strong DevOps/SRE maturity exists, polyglot tech stacks
-  needed. Do not use when selecting from multiple paradigms - use architecture-paradigms
-  first. DO NOT use when: small team with low organizational complexity. DO NOT use
-  when: lack of DevOps maturity or limited platform engineering resources. DO NOT
-  use when: strong transactional consistency required across operations.'
+description: 'Consult this skill when designing or evolving microservices architectures. Use when teams need high autonomy and independent releases, different capabilities have distinct scaling needs, strong DevOps/SRE maturity exists, polyglot tech stacks needed.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

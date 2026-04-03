@@ -22,9 +22,7 @@
   "agents": [
     "./agents/review-analyst.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "workflow",
     "analysis",
@@ -49,6 +47,10 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"],
-  "optional_dependencies": ["tome"]
+  "dependencies": [
+    "leyline"
+  ],
+  "optional_dependencies": [
+    "tome"
+  ]
 }

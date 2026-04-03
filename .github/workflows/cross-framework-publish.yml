@@ -166,18 +166,31 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Fork and clone clawhub
+      - name: Validate PAT
+        env:
+          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::CLAWHUB_PAT secret is not set. Create a fine-grained PAT at https://github.com/settings/personal-access-tokens/new with Contents:Write and Pull-requests:Write scoped to your clawhub fork, then add it as a repository secret."
+            exit 1
+          fi
+          # Verify token works and capture owner for later steps
+          FORK_OWNER=$(gh api user --jq .login)
+          echo "FORK_OWNER=$FORK_OWNER" >> "$GITHUB_ENV"
+          echo "Authenticated as $FORK_OWNER"
+
+      - name: Clone clawhub fork
         if: inputs.dry_run != true
         env:
           GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
         run: |
-          gh repo fork openclaw/clawhub --clone --remote 2>/dev/null || {
-            gh repo clone "$(gh api user --jq .login)/clawhub" clawhub
-            cd clawhub
-            git remote add upstream https://github.com/openclaw/clawhub.git
-            git fetch upstream
-            git checkout -B main upstream/main
-          }
+          # Fork must be pre-created: gh repo fork openclaw/clawhub --clone=false
+          # This is a one-time manual step; see CONTRIBUTING.md
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/clawhub.git" clawhub
+          cd clawhub
+          git remote add upstream https://github.com/openclaw/clawhub.git
+          git fetch upstream
+          git checkout -B main upstream/main
 
       - name: Add night-market skills
         if: inputs.dry_run != true
@@ -252,7 +265,18 @@ jobs:
           - vincentkoc/awesome-openclaw
           - SamurAIGPT/awesome-openclaw
     steps:
-      - name: Fork and add entry
+      - name: Validate PAT and resolve fork owner
+        env:
+          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::CLAWHUB_PAT secret is not set."
+            exit 1
+          fi
+          FORK_OWNER=$(gh api user --jq .login)
+          echo "FORK_OWNER=$FORK_OWNER" >> "$GITHUB_ENV"
+
+      - name: Clone fork and add entry
         env:
           GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
           TARGET_REPO: ${{ matrix.repo }}
@@ -260,10 +284,8 @@ jobs:
           BRANCH="add-night-market-v${VERSION}"
           REPO_NAME=$(echo "$TARGET_REPO" | cut -d/ -f2)
 
-          gh repo fork "$TARGET_REPO" --clone --remote 2>/dev/null || {
-            LOGIN=$(gh api user --jq .login)
-            gh repo clone "${LOGIN}/${REPO_NAME}" "$REPO_NAME"
-          }
+          # Fork must be pre-created (one-time manual step)
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/${REPO_NAME}.git" "$REPO_NAME"
 
           cd "$REPO_NAME"
           git checkout -b "$BRANCH"

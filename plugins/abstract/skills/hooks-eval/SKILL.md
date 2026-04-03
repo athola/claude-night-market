@@ -1,11 +1,6 @@
 ---
 name: hooks-eval
-description: 'Use this skill BEFORE deploying hooks to production. Use when auditing
-  existing hooks for security vulnerabilities, benchmarking hook performance, implementing
-  hooks using Python SDK, understanding hook callback signatures, validating hooks
-  against compliance standards. Do not use when deciding hook placement - use hook-scope-guide
-  instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
-  DO NOT use when: validating plugin structure - use validate-plugin instead.'
+description: 'Use this skill BEFORE deploying hooks to production. Use when auditing existing hooks for security vulnerabilities, benchmarking hook performance, implementing hooks using Python SDK, understanding hook callback signatures'
 version: 1.7.1
 alwaysApply: false
 category: hook-management

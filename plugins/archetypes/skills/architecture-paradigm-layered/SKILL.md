@@ -1,12 +1,6 @@
 ---
 name: architecture-paradigm-layered
-description: 'Consult this skill when implementing layered patterns or enforcing layer
-  boundaries. Use when building traditional applications with clear boundaries, working
-  with moderate-sized teams, needing familiar and well-understood patterns, compliance
-  requirements demand clear separation. Do not use when selecting from multiple paradigms
-  - use architecture-paradigms first. DO NOT use when: high scalability needs independent
-  component scaling. DO NOT use when: teams need independent deployment cycles - use
-  microservices.'
+description: 'Consult this skill when implementing layered patterns or enforcing layer boundaries. Use when building traditional applications with clear boundaries, working with moderate-sized teams, needing familiar and well-understood patterns'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

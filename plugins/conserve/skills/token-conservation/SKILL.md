@@ -1,10 +1,6 @@
 ---
 name: token-conservation
-description: 'Use this skill at the START of every session. This is MANDATORY for
-  quota management. location: plugin token_budget: 300. Use when session starts (mandatory),
-  prompt sizes spike, tool calls increase, before long-running analyses or massive
-  context loads. Do not use when context-optimization already handles the scenario.
-  DO NOT use when: simple queries with minimal context.'
+description: 'Use this skill at the START of every session. This is MANDATORY for quota management. location: plugin token_budget: 300.'
 version: 1.7.1
 alwaysApply: true
 progressive_loading: true

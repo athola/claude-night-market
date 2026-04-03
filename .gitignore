@@ -70,6 +70,10 @@ package-lock.json
 # Build artifacts
 *.log
 
+# Plugin binaries (built from source, not committed)
+plugins/*/bin/skrills
+plugins/*/bin/.skrills-version
+
 # Generated reports and scans
 debt_scan_results.json
 .demo-palaces/

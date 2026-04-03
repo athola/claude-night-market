@@ -43,9 +43,7 @@
     "./agents/skill-evaluator.md",
     "./agents/skill-improver.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "meta-skills",
     "infrastructure",
@@ -70,5 +68,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

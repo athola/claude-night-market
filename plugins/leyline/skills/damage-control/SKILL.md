@@ -1,11 +1,6 @@
 ---
 name: damage-control
-description: >
-  Recovery protocols for agents encountering broken state: crash
-  recovery, context overflow, merge conflict resolution, and
-  state reconciliation. Provides triage decision trees and
-  step-by-step procedures to restore forward progress without
-  losing work.
+description: '> Recovery protocols for agents encountering broken state: crash recovery, context overflow, merge conflict resolution, and state reconciliation.'
 version: 1.7.1
 alwaysApply: false
 category: infrastructure

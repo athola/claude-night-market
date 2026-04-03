@@ -1,14 +1,6 @@
 ---
 name: feature-review
-description: 'Feature review and prioritization with RICE/WSJF/Kano scoring. Creates
-  GitHub issues for suggestions.
-
-
-  feature review, prioritization, RICE, WSJF, roadmap, backlog
-
-  Use when: reviewing features or suggesting new features
-
-  DO NOT use when: evaluating single feature scope - use scope-guard.'
+description: 'Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions. feature review, prioritization, RICE, WSJF, roadmap'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

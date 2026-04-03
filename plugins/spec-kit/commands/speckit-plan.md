@@ -1,5 +1,6 @@
 ---
 description: Execute implementation planning from spec to generate design artifacts.
+argument-hint: "Path to spec.md or feature name"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:writing-plans` for enhanced planning capabilities.

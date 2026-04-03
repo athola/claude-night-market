@@ -1,10 +1,6 @@
 ---
 name: methodology-curator
-description: Surfaces expert frameworks and proven methodologies before creating OR
-  evaluating skills, hooks, agents, or commands. Helps select approaches from domain
-  masters. Use when starting creation workflows, evaluating methodology gaps, or seeking
-  domain expertise. Do not use if you already have a specific methodology or are fixing
-  syntax/structural issues.
+description: 'Surfaces expert frameworks and proven methodologies before creating OR evaluating skills, hooks, agents, or commands. Helps select approaches from domain masters.'
 version: 1.7.1
 alwaysApply: false
 category: meta-skills

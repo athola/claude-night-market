@@ -1,10 +1,6 @@
 ---
 name: modular-skills
-description: Architect skills as modular blocks to control token usage and complexity.
-  Use when creating skills >150 lines, breaking down monolithic skills, or planning
-  new architecture. Do not use for evaluating existing skills (use skills-eval) or
-  writing human-facing prose (use writing-clearly-and-concisely). Check this skill
-  before starting any new skill development.
+description: 'Architect skills as modular blocks to control token usage and complexity. Use when creating skills >150 lines, breaking down monolithic skills, or planning new architecture.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-optimization

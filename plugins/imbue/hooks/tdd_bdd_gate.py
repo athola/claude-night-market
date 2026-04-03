@@ -223,9 +223,35 @@ def main():
     test_exists = test_path.exists()
     is_new = is_new_file(file_path)
 
+    # Detect headless (-p) mode via environment
+    is_headless = input_data.get("headless", False) or bool(
+        __import__("os").environ.get("CLAUDE_CODE_HEADLESS")
+    )
+
     # If creating new implementation without tests, inject reminder
     if is_new and not test_exists:
         reminder = format_tdd_bdd_reminder(file_path, impl_type, test_path)
+
+        if is_headless:
+            # In headless mode, defer so the operator can resume and decide
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "decision": "defer",
+                    "reason": (
+                        f"New {impl_type} '{Path(file_path).name}' has no tests. "
+                        f"Expected: {test_path}. "
+                        "Resume with --resume to write tests first or approve."
+                    ),
+                }
+            }
+            print(json.dumps(output))
+            print(
+                f"[TDD/BDD Gate] Deferred: {file_path} (headless, no tests)",
+                file=sys.stderr,
+            )
+            sys.exit(0)
+
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
@@ -239,7 +265,7 @@ def main():
             file=sys.stderr,
         )
         print(f"[TDD/BDD Gate] Expected test at: {test_path}", file=sys.stderr)
-        sys.exit(2)  # Continue but with warning
+        sys.exit(0)  # Allow with injected warning (exit 2 blocks since v2.1.90)
 
     # If modifying existing file, still remind about TDD
     if not test_exists:
@@ -251,7 +277,7 @@ def main():
             }
         }
         print(json.dumps(output))
-        sys.exit(2)
+        sys.exit(0)  # Allow with injected reminder (exit 2 blocks since v2.1.90)
 
     # Tests exist - allow operation
     sys.exit(0)

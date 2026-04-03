@@ -18,9 +18,20 @@
   "agents": [
     "./agents/extractor.md"
   ],
-  "hooks": ["./hooks/hooks.json"],
+  "hooks": [],
   "dependencies": [],
-  "keywords": ["learning", "onboarding", "knowledge", "challenges", "spaced-repetition", "pre-commit", "codebase-fluency"],
-  "author": {"name": "Alex Thola", "url": "https://github.com/athola"},
+  "keywords": [
+    "learning",
+    "onboarding",
+    "knowledge",
+    "challenges",
+    "spaced-repetition",
+    "pre-commit",
+    "codebase-fluency"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
   "license": "MIT"
 }

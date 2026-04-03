@@ -1,10 +1,6 @@
 ---
 name: context-optimization
-description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively.
-  Use when context usage approaches 50% of window, tasks need decomposition, complex
-  multi-step operations planned, context pressure is high. Do not use when simple
-  single-step tasks with low context usage. DO NOT use when: already using mcp-code-execution
-  for tool chains.'
+description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively. Use when context usage approaches 50% of window, tasks need decomposition, complex multi-step operations planned, context pressure is high.'
 version: 1.7.1
 alwaysApply: false
 category: conservation

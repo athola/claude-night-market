@@ -1,14 +1,6 @@
 ---
 name: workflow-improvement
-description: 'Retrospective workflow evaluation and improvement of skills, agents,
-  commands, and hooks.
-
-
-  workflow improvement, retrospective, workflow efficiency
-
-  Use when: workflow felt slow, confusing, or needs optimization
-
-  DO NOT use when: simple one-off fixes - use fix-pr or do-issue instead.'
+description: 'Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks. workflow improvement, retrospective, workflow efficiency Use when: workflow felt slow, confusing'
 version: 1.7.1
 alwaysApply: false
 category: workflow-ops

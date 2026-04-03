@@ -68,6 +68,17 @@
         ]
       }
     ],
+    "TaskCreated": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/task_created_tracker.py",
+            "timeout": 1
+          }
+        ]
+      }
+    ],
     "ConfigChange": [
       {
         "hooks": [

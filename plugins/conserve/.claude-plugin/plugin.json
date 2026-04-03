@@ -29,9 +29,7 @@
     "./agents/continuation-agent.md",
     "./agents/unbloat-remediator.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "conserve",
     "performance",

@@ -1,7 +1,7 @@
 {
   "name": "tome",
   "version": "1.8.0",
-  "description": "Multi-source research plugin — code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
+  "description": "Multi-source research plugin \u2014 code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
   "skills": [
     "./skills/research",
     "./skills/code-search",
@@ -23,9 +23,7 @@
     "./agents/literature-reviewer.md",
     "./agents/triz-analyst.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "research",
     "literature",
@@ -43,5 +41,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

@@ -1,11 +1,6 @@
 ---
 name: shared-patterns
-description: 'Reference these patterns to validate consistency across the ecosystem.
-  Use when creating new skills or hooks that need consistent patterns, implementing
-  validation logic, setting up error handling, creating test scaffolding, referencing
-  standard workflow structures. Do not use when pattern is specific to one skill only.
-  DO NOT use when: pattern is still evolving - wait for stability. DO NOT use when:
-  pattern is context-dependent requiring variations.'
+description: 'Reference these patterns to validate consistency across the ecosystem. Use when creating new skills or hooks that need consistent patterns, implementing validation logic, setting up error handling, creating test scaffolding'
 version: 1.7.1
 alwaysApply: false
 category: meta-infrastructure

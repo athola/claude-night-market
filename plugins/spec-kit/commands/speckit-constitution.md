@@ -1,5 +1,6 @@
 ---
 description: Create/update project constitution from principle inputs, syncing dependent templates
+argument-hint: "Principle or constraint to add"
 ---
 
 ## User Input

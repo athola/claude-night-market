@@ -1,10 +1,6 @@
 ---
 name: review-core
-description: 'Use this skill at the BEGINNING of any detailed review for consistent
-  structure. Use when starting any detailed review workflow, needing consistent structure
-  for capturing context and findings, ensuring comparable review outputs. Do not use
-  when quick catchup without formal review - use catchup. DO NOT use when: diff-focused
-  analysis - use diff-analysis.'
+description: 'Use this skill at the BEGINNING of any detailed review for consistent structure. Use when starting any detailed review workflow, needing consistent structure for capturing context and findings, ensuring comparable review outputs.'
 version: 1.7.1
 alwaysApply: false
 category: review-patterns

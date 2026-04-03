@@ -49,9 +49,7 @@
     "./agents/workflow-improvement-validator-agent.md",
     "./agents/dependency-updater.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "git",
     "workspace",
@@ -68,5 +66,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline", "abstract"]
+  "dependencies": [
+    "leyline",
+    "abstract"
+  ]
 }

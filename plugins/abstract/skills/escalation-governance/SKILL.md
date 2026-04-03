@@ -1,12 +1,6 @@
 ---
 name: escalation-governance
-description: 'NEVER escalate without investigation first. This is the Iron Law. Use
-  when evaluating whether to escalate models, facing genuine complexity requiring
-  deeper reasoning, novel patterns with no existing solutions, high-stakes decisions
-  requiring capability investment. Do not use when thrashing without investigation
-  - investigate root cause first. DO NOT use when: time pressure alone - urgency doesn''t
-  change task complexity. DO NOT use when: "just to be safe" - assess actual complexity
-  instead.'
+description: 'NEVER escalate without investigation first. This is the Iron Law. Use when evaluating whether to escalate models, facing genuine complexity requiring deeper reasoning, novel patterns with no existing solutions'
 version: 1.7.1
 alwaysApply: false
 category: agent-workflow

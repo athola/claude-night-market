@@ -1,9 +1,6 @@
 ---
 name: architecture-review
-description: 'Use this skill for architecture assessment and compliance. Use when
-  reviewing architecture decisions, auditing ADR compliance, analyzing coupling, validating
-  design principles. Do not use when selecting architecture paradigms - use archetypes
-  skills. DO NOT use when: API surface review - use api-review.'
+description: 'Use this skill for architecture assessment and compliance. Use when reviewing architecture decisions, auditing ADR compliance, analyzing coupling, validating design principles.'
 version: 1.7.1
 alwaysApply: false
 category: architecture

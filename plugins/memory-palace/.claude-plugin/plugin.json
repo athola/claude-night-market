@@ -23,9 +23,7 @@
     "./agents/garden-curator.md",
     "./agents/knowledge-librarian.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "memory-palace",
     "spatial-memory",
@@ -43,5 +41,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

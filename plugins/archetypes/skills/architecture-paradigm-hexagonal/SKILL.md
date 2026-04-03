@@ -1,9 +1,6 @@
 ---
 name: architecture-paradigm-hexagonal
-description: 'Decouple domain logic from infrastructure using Hexagonal (Ports & Adapters)
-  pattern. Use when business logic separation, infrastructure changes needed, testability
-  critical. Do not use when selecting paradigms (use architecture-paradigms first),
-  simple CRUD.'
+description: 'Decouple domain logic from infrastructure using Hexagonal (Ports & Adapters) pattern. Use when business logic separation, infrastructure changes needed, testability critical.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

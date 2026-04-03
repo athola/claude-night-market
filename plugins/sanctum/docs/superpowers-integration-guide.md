@@ -1,8 +1,8 @@
 # Sanctum × Superpowers Integration Guide
 
-**Date**: 2025-12-08
-**Version**: 1.0.0
-**Target**: Phase 2 Task 1 - Plugin Superpowers Linking Project
+**Date**: 2026-04-03
+**Version**: 1.1.0
+**Synced with**: superpowers v5.0.7
 
 ## Overview
 
@@ -263,8 +263,15 @@ python3 test-wrapper-integration.py
 ### Planned Features
 
 1. **Additional Superpowers Integration**
-   - `superpowers:systematic-debugging` for complex issue resolution (includes root-cause-tracing, defense-in-depth, condition-based-waiting)
-   - Enhanced security reviews via debugging techniques bundled in systematic-debugging
+   - `superpowers:dispatching-parallel-agents` for parallel
+     task execution in do-issue workflows
+   - `superpowers:using-git-worktrees` for isolated
+     implementation in feature branches
+   - `superpowers:finishing-a-development-branch` for branch
+     cleanup and merge strategy
+   - `superpowers:subagent-driven-development` for
+     autonomous task orchestration (mandatory on capable
+     harnesses since v5.0.0)
 
 2. **Advanced Workflow Automation**
    - CI/CD pipeline integration
@@ -283,15 +290,59 @@ The enhanced-command architecture supports easy extension:
 - Custom Sanctum integrations preserved
 - Additional workflow steps can be inserted
 
+## Upstream Changes (v5.0.x)
+
+Key superpowers changes affecting Sanctum integration:
+
+### Inline Self-Review (v5.0.6)
+
+Subagent review loops replaced with inline self-review
+checklists, reducing review overhead from ~25 minutes to
+~30 seconds. Sanctum's review workflows benefit from this
+pattern when delegating to superpowers skills.
+
+### Instruction Priority (v5.0.0)
+
+Superpowers now enforces an explicit priority hierarchy:
+
+1. User instructions (CLAUDE.md, direct requests)
+2. Superpowers skills
+3. Default system prompt
+
+Sanctum commands should respect this ordering when
+combining skill invocations.
+
+### SUBAGENT-STOP Gate
+
+Superpowers skills include `<SUBAGENT-STOP>` blocks that
+prevent subagents from activating full skill workflows.
+Sanctum's subagent dispatch patterns (do-issue, pr-review)
+should be aware of this when delegating work.
+
+### Context Isolation
+
+All superpowers delegation skills now scope subagent
+context explicitly. Sanctum's parallel execution patterns
+should follow the same principle.
+
+### Platform Expansion
+
+Superpowers now supports 6 platforms: Claude Code, Cursor,
+Codex, OpenCode, Gemini CLI, Copilot CLI. Sanctum's
+integration patterns remain Claude Code focused but may
+need multi-platform awareness in future.
+
 ## Troubleshooting
 
 ### Common Issues
 
 **Superpowers Plugin Not Found**:
 ```bash
-# Install from superpowers-marketplace
-claude plugin install superpowers-marketplace
-claude plugin install superpowers
+# Add superpowers marketplace
+/plugin marketplace add obra/superpowers
+
+# Install superpowers plugin
+/plugin install superpowers@superpowers-marketplace
 ```
 
 **GitHub API Limits**:
@@ -309,7 +360,7 @@ claude plugin install superpowers
 ### Documentation
 - [Wrapper Development Guide](../../abstract/docs/wrapper-development-guide.md)
 - [Sanctum Plugin Documentation](../README.md)
-- [Superpowers Documentation](https://github.com/superpowers-marketplace/docs)
+- [Superpowers Documentation](https://github.com/obra/superpowers)
 
 ### Support
 - Issues: Create in respective plugin repositories

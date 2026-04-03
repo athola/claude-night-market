@@ -1,10 +1,6 @@
 ---
 name: session-palace-builder
-description: 'Consult this skill for session-scoped temporary knowledge structures.
-  Use when working on complex multi-step projects, preserving context across interruptions,
-  tracking session-specific state. Do not use when permanent knowledge structures
-  needed - use memory-palace-architect. DO NOT use when: searching existing knowledge
-  - use knowledge-locator.'
+description: 'Consult this skill for session-scoped temporary knowledge structures. Use when working on complex multi-step projects, preserving context across interruptions, tracking session-specific state.'
 version: 1.7.1
 alwaysApply: false
 category: session-management

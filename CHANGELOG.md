@@ -5,6 +5,40 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **superpowers upstream sync** (v5.0.7): Updated
+  integration docs and dependency matrix to reflect
+  superpowers v3.4.1 to v5.0.7 evolution (20+ releases).
+  Key changes integrated:
+  - Added `dispatching-parallel-agents`,
+    `using-git-worktrees`, `finishing-a-development-branch`
+    to dependency matrix
+  - Documented skill consolidation (testing-anti-patterns,
+    root-cause-tracing, defense-in-depth,
+    condition-based-waiting merged into parent skills)
+  - Added inline self-review pattern and SUBAGENT-STOP
+    gate awareness to integration docs
+  - Fixed deprecated skill references across imbue,
+    memory-palace, conserve plugins
+  - Updated sanctum integration guide to v1.1.0
+- **spec-kit upstream sync** (v0.5.0): Updated spec-kit
+  plugin to align with upstream github/spec-kit changes
+  (34 releases since v0.0.90). Key changes:
+  - Renamed "Non-Functional Requirements" to "Success
+    Criteria" across commands and skill modules
+  - Added `argument-hint` frontmatter to all 10 spec-kit
+    commands for Claude Code skill format compliance
+  - Added Assumptions section to spec template structure
+  - Updated checklist dimensions terminology
+
+### References
+
+- [Superpowers v5.0.7](https://github.com/obra/superpowers/releases/tag/v5.0.7)
+- [Spec-Kit v0.5.0](https://github.com/github/spec-kit/releases/tag/v0.5.0)
+
 ## [1.8.0] - 2026-04-01
 
 ### Added

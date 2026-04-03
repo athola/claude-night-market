@@ -1,9 +1,6 @@
 ---
 name: test-review
-description: 'Use this skill for test suite evaluation and quality assessment. Use
-  when auditing test suites, analyzing coverage gaps, improving test quality, evaluating
-  TDD/BDD compliance. Do not use when writing new tests - use parseltongue:python-testing.
-  DO NOT use when: updating existing tests - use sanctum:test-updates.'
+description: 'Use this skill for test suite evaluation and quality assessment. Use when auditing test suites, analyzing coverage gaps, improving test quality, evaluating TDD/BDD compliance.'
 version: 1.7.1
 alwaysApply: false
 category: testing

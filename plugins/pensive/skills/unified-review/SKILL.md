@@ -1,10 +1,6 @@
 ---
 name: unified-review
-description: 'Use this skill when orchestrating multiple review types. Use when general
-  review needed without knowing which specific skill applies, full multi-domain review
-  desired, integrated reporting needed. Do not use when specific review type known
-  - use bug-review, test-review, etc. DO NOT use when: architecture-only focus - use
-  architecture-review.'
+description: 'Use this skill when orchestrating multiple review types. Use when general review needed without knowing which specific skill applies, full multi-domain review desired, integrated reporting needed.'
 version: 1.7.1
 alwaysApply: false
 category: orchestration

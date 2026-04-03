@@ -19,9 +19,7 @@
     "./agents/orchestrator.md",
     "./agents/sentinel.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "egregore",
     "autonomous",
@@ -39,5 +37,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline", "herald"]
+  "dependencies": [
+    "leyline"
+  ]
 }

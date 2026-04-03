@@ -9,11 +9,18 @@
     "./commands/oracle-setup.md"
   ],
   "agents": [],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "dependencies": [],
-  "keywords": ["ml", "inference", "onnx", "scoring", "daemon"],
-  "author": {"name": "Alex Thola", "url": "https://github.com/athola"},
+  "keywords": [
+    "ml",
+    "inference",
+    "onnx",
+    "scoring",
+    "daemon"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
   "license": "MIT"
 }

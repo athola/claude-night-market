@@ -1,11 +1,6 @@
 ---
 name: architecture-paradigm-pipeline
-description: 'Consult this skill when designing data pipelines or transformation workflows.
-  Use when data flows through fixed sequence of transformations, stages can be independently
-  developed and tested, parallel processing of stages is beneficial. Do not use when
-  selecting from multiple paradigms - use architecture-paradigms first. DO NOT use
-  when: data flow is not sequential or predictable. DO NOT use when: complex branching/merging
-  logic dominates.'
+description: 'Consult this skill when designing data pipelines or transformation workflows. Use when data flows through fixed sequence of transformations, stages can be independently developed and tested, parallel processing of stages is beneficial.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

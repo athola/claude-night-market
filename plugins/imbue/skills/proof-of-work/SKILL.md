@@ -1,11 +1,6 @@
 ---
 name: proof-of-work
-description: 'Enforces "prove before claim" discipline - validation, testing, and
-  evidence requirements before declaring work complete. Use when claiming work is
-  complete, recommending solutions, or finishing implementations, improvement validated,
-  workflow optimized, performance improved, or issue resolved. Do not use when asking
-  questions or for work clearly in-progress. MANDATORY: This skill is required before
-  any completion claim.'
+description: 'Enforces "prove before claim" discipline - validation, testing, and evidence requirements before declaring work complete.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

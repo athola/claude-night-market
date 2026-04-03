@@ -1,11 +1,6 @@
 ---
 name: session-replay
-description: Convert a Claude Code session JSONL file into an animated GIF
-  replay showing the conversation as typed terminal output. Parses turns,
-  collapses tool calls, generates a VHS tape file, and delegates to scry
-  for GIF rendering. Use when creating demos, tutorials, or PR evidence.
-  Do not use for blog posts (use session-to-post) or documentation (use
-  doc-generator).
+description: 'Convert a Claude Code session JSONL file into an animated GIF replay showing the conversation as typed terminal output. Parses turns, collapses tool calls, generates a VHS tape file, and delegates to scry for GIF rendering.'
 version: 1.7.3
 globs: "**/*.jsonl"
 alwaysApply: false
