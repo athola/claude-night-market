@@ -11,12 +11,12 @@
 **A plugin marketplace for Claude Code, Anthropic's
 agentic coding tool.**
 
-Night Market extends Claude Code with 22 plugins
+Night Market extends Claude Code with 23 plugins
 covering git workflows, code review, spec-driven
-development, architecture selection, autonomous agents,
-multi-LLM delegation, ML-enhanced scoring, and
-multi-source research.
-156 skills, 144 slash commands, and 49 agents.
+development, architecture selection, codebase
+visualization, autonomous agents, multi-LLM delegation,
+ML-enhanced scoring, and multi-source research.
+161 skills, 146 slash commands, and 50 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -66,7 +66,7 @@ for detailed setup options.
 
 ## Architecture
 
-22 plugins organized in four layers.
+23 plugins organized in four layers.
 Domain specialists depend on utility plugins,
 which depend on foundation plugins,
 which depend on the meta layer.
@@ -91,6 +91,7 @@ flowchart TB
         D9[scribe]:::domainClass
         D10[tome]:::domainClass
         D11[gauntlet]:::domainClass
+        D12[cartograph]:::domainClass
     end
 
     subgraph Utility["Utility Layer"]
@@ -144,6 +145,7 @@ flowchart TB
 | **scribe** | Domain | Documentation with AI slop detection, style learning, session replay, tech tutorials | 7 | 5 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 | **tome** | Domain | Multi-source research: code archaeology, community discourse, academic literature, TRIZ analysis | 7 | 4 |
+| **cartograph** | Domain | Codebase visualization: architecture, data flow, dependency, workflow, class diagrams via Mermaid | 5 | 1 |
 
 Full inventory:
 [Capabilities Reference](book/src/reference/capabilities-reference.md).

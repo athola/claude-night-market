@@ -98,7 +98,10 @@ def main() -> None:
     if not blocklist_path:
         return
 
-    blocklist = json.loads(blocklist_path.read_text())
+    try:
+        blocklist = json.loads(blocklist_path.read_text())
+    except (json.JSONDecodeError, ValueError):
+        return
     blocklist.pop("_meta", None)
     if not blocklist:
         return

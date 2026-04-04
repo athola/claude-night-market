@@ -181,24 +181,19 @@ def format_hook_output(assessment: dict[str, Any]) -> dict[str, Any]:
         Dictionary suitable for hook JSON output.
 
     """
-    output = {
+    kb_accumulated = assessment["bytes_accumulated"] / 1024
+    kb_threshold = assessment["threshold"] / 1024
+    return {
         "hookSpecificOutput": {
             "hookEventName": "PostToolUse",
-            "bloatAssessment": assessment,
+            "additionalContext": (
+                f"Tool output bloat: {kb_accumulated:.1f}KB accumulated "
+                f"(threshold: {kb_threshold:.1f}KB)\n"
+                f"Severity: {assessment['severity'].upper()}\n"
+                + "\n".join(f"- {rec}" for rec in assessment["recommendations"])
+            ),
         }
     }
-
-    if assessment["severity"] != "ok":
-        kb_accumulated = assessment["bytes_accumulated"] / 1024
-        kb_threshold = assessment["threshold"] / 1024
-        output["hookSpecificOutput"]["additionalContext"] = (
-            f"Tool output bloat: {kb_accumulated:.1f}KB accumulated "
-            f"(threshold: {kb_threshold:.1f}KB)\n"
-            f"Severity: {assessment['severity'].upper()}\n"
-            + "\n".join(f"- {rec}" for rec in assessment["recommendations"])
-        )
-
-    return output
 
 
 def main() -> int:
@@ -212,22 +207,18 @@ def main() -> int:
     # Only process Bash, Read, Grep tools (verbose output tools)
     tool_name = hook_input.get("tool_name", "")
     if tool_name not in ("Bash", "Read", "Grep"):
-        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse"}}))
         return 0
 
     # Find and assess session
     session_file = resolve_session_file()
     if not session_file:
         logger.debug("No session file found")
-        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse"}}))
         return 0
 
     assessment = assess_output_bloat(session_file)
 
     # Only output if warning or critical
-    if assessment["severity"] == "ok":
-        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse"}}))
-    else:
+    if assessment["severity"] != "ok":
         output = format_hook_output(assessment)
         print(json.dumps(output))
 

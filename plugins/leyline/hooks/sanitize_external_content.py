@@ -201,27 +201,29 @@ def process_hook(payload: dict[str, Any]) -> dict[str, Any]:
     tool_input = payload.get("tool_input", {})
 
     if not is_external_tool(tool_name, tool_input):
-        return {"decision": "ALLOW"}
+        return {}
 
     tool_output = payload.get("tool_output", "")
     if not tool_output:
-        return {"decision": "ALLOW"}
+        return {}
 
     sanitized = sanitize_output(tool_output)
 
     if sanitized != tool_output:
         sys.stderr.write(f"[sanitize] Modified output from {tool_name}\n")
         return {
-            "decision": "ALLOW",
-            "additionalContext": (
-                "--- SANITIZED EXTERNAL CONTENT "
-                f"[source: {tool_name}] ---\n"
-                f"{sanitized}\n"
-                "--- END SANITIZED CONTENT ---"
-            ),
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": (
+                    "--- SANITIZED EXTERNAL CONTENT "
+                    f"[source: {tool_name}] ---\n"
+                    f"{sanitized}\n"
+                    "--- END SANITIZED CONTENT ---"
+                ),
+            },
         }
 
-    return {"decision": "ALLOW"}
+    return {}
 
 
 def main() -> None:
@@ -231,7 +233,7 @@ def main() -> None:
     except (json.JSONDecodeError, OSError) as e:
         # Parse errors: allow content through (can't process)
         sys.stderr.write(f"[sanitize] Input parse error: {e}\n")
-        print(json.dumps({"decision": "ALLOW"}))
+        print(json.dumps({}))
         return
 
     try:
@@ -243,11 +245,13 @@ def main() -> None:
         print(
             json.dumps(
                 {
-                    "decision": "ALLOW",
-                    "additionalContext": (
-                        "[SANITIZE HOOK ERROR] Content could not be "
-                        "verified as safe. Treat with caution."
-                    ),
+                    "hookSpecificOutput": {
+                        "hookEventName": "PostToolUse",
+                        "additionalContext": (
+                            "[SANITIZE HOOK ERROR] Content could not be "
+                            "verified as safe. Treat with caution."
+                        ),
+                    },
                 }
             )
         )

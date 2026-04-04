@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "herald-dev"
-version = "1.8.0"
+version = "1.8.1"
 description = "Standalone notification system for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

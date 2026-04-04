@@ -28,6 +28,7 @@
   - [herald](plugins/herald.md)
   - [oracle](plugins/oracle.md)
 - [Domain Specialists](plugins/domain-specialists.md)
+  - [cartograph](plugins/cartograph.md)
   - [archetypes](plugins/archetypes.md)
   - [pensive](plugins/pensive.md)
   - [phantom](plugins/phantom.md)

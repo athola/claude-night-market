@@ -15,6 +15,7 @@ Domain plugins offer:
 
 | Plugin | Domain | Key Use Case |
 |--------|--------|--------------|
+| [cartograph](cartograph.md) | Visualization | Codebase diagrams via Mermaid |
 | [archetypes](archetypes.md) | Architecture | Paradigm selection |
 | [pensive](pensive.md) | Code Review | Multi-faceted reviews |
 | [parseltongue](parseltongue.md) | Python | Modern Python development |

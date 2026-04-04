@@ -97,7 +97,17 @@ def main() -> None:
         "Cargo.toml, etc.).\n\n"
         "Detected suppressions:\n" + "\n".join(hits)
     )
-    print(json.dumps({"decision": "block", "reason": msg}))
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "block",
+                    "permissionDecisionReason": msg,
+                }
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

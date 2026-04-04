@@ -11,6 +11,7 @@ Part of the improvement feedback loop (Issue #69).
 
 from __future__ import annotations
 
+import json
 import sys
 import traceback
 from pathlib import Path
@@ -56,11 +57,13 @@ def _learnings_have_content() -> bool:
 
 def main() -> None:
     """Stop-hook entry point: promote and post learnings."""
-    # Read and discard stdin (hook protocol)
+    # Read and discard stdin (hook protocol sends JSON payload)
     try:
-        sys.stdin.read()
-    except (OSError, EOFError):
-        pass  # Hook protocol: stdin may be empty or closed
+        raw = sys.stdin.read()
+        if raw.strip():
+            json.loads(raw)
+    except (json.JSONDecodeError, ValueError, OSError, EOFError):
+        pass  # Hook protocol: stdin may be empty, closed, or malformed
 
     if not _HAS_SCRIPTS or not _learnings_have_content():
         return

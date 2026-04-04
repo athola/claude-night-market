@@ -1,0 +1,34 @@
+{
+  "name": "cartograph",
+  "version": "1.8.1",
+  "description": "Codebase visualization — generates architecture, data flow, dependency, workflow, and class diagrams via Mermaid Chart MCP",
+  "commands": [
+    "./commands/visualize.md"
+  ],
+  "skills": [
+    "./skills/architecture-diagram",
+    "./skills/data-flow",
+    "./skills/dependency-graph",
+    "./skills/workflow-diagram",
+    "./skills/class-diagram"
+  ],
+  "agents": [
+    "./agents/codebase-explorer.md"
+  ],
+  "keywords": [
+    "visualization",
+    "diagram",
+    "mermaid",
+    "architecture",
+    "data-flow",
+    "dependency",
+    "workflow",
+    "class-diagram",
+    "codebase"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}

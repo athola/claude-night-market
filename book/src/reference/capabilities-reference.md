@@ -30,11 +30,13 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
+| `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
+| `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
@@ -49,9 +51,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
+| `data-flow` | [cartograph](../plugins/cartograph.md) | Data movement diagrams |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
+| `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
@@ -164,6 +168,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
+| `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
 | `workflow-monitor` | [imbue](../plugins/imbue.md) | Workflow execution monitoring and issue creation |
 | `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
@@ -291,6 +296,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/validate-hook` | abstract | Validate hook compliance |
 | `/validate-plugin` | abstract | Check plugin structure |
 | `/verify-plugin` | leyline | Verify plugin behavioral contract history via GitHub Attestations |
+| `/visualize` | cartograph | Generate codebase diagrams via Mermaid Chart MCP |
 
 ### All Agents (Alphabetical)
 
@@ -302,6 +308,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-refiner` | pensive | Code quality refinement orchestrator |
 | `code-reviewer` | pensive | Expert code review |
 | `code-searcher` | tome | GitHub code search |
+| `codebase-explorer` | cartograph | Codebase structure analysis for diagrams |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
 | `continuation-agent` | conserve | Continue work from session state checkpoint |

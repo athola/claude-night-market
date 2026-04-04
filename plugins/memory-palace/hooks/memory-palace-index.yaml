@@ -116,6 +116,33 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://webai.mintlify.app/api-reference/oasis-ai#personas
+  https://raw.githubusercontent.com/rixinhahaha/snip/main/readme.md:
+    content_hash: sha256:77741f50a8b4f364
+    stored_at: data/staging/webfetch-snip-ai-powered-visual-output-for-code-agents-2026-04-03_23-22-13.md
+    importance_score: 50
+    last_updated: '2026-04-03T23:22:13.982672+00:00'
+    title: 'Snip: AI-Powered Visual Output for Code Agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/rixinhahaha/snip/main/README.md
+  https://api.github.com/repos/rixinhahaha/snip:
+    content_hash: sha256:6ac62806fb4bd1c8
+    stored_at: data/staging/webfetch-repository-analysis-snip-2026-04-03_23-22-20.md
+    importance_score: 50
+    last_updated: '2026-04-03T23:22:20.436991+00:00'
+    title: 'Repository Analysis: snip'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/rixinhahaha/snip
+  https://github.com/rixinhahaha/snip:
+    content_hash: sha256:1e3488dabf595d8f
+    stored_at: data/staging/webfetch-snip-repository-structure-2026-04-03_23-46-07.md
+    importance_score: 50
+    last_updated: '2026-04-03T23:46:07.722759+00:00'
+    title: Snip Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/rixinhahaha/snip
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -130,3 +157,6 @@ hashes:
   sha256:af997a33286650b9: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
   sha256:7da53dc23bf9551d: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
   sha256:b5c706f7b99f5f0d: data/staging/webfetch-persona-text-generation-in-oasishost-2026-04-01_19-53-32.md
+  sha256:77741f50a8b4f364: data/staging/webfetch-snip-ai-powered-visual-output-for-code-agents-2026-04-03_23-22-13.md
+  sha256:6ac62806fb4bd1c8: data/staging/webfetch-repository-analysis-snip-2026-04-03_23-22-20.md
+  sha256:1e3488dabf595d8f: data/staging/webfetch-snip-repository-structure-2026-04-03_23-46-07.md

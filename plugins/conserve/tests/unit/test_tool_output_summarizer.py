@@ -416,16 +416,18 @@ class TestFormatHookOutputBranches:
     """Additional branch coverage for format_hook_output."""
 
     @pytest.mark.unit
-    def test_ok_severity_no_additional_context(self):
-        """OK severity has no additionalContext."""
+    def test_warning_severity_has_additional_context(self):
+        """Warning severity includes additionalContext."""
         assessment = {
-            "severity": "ok",
-            "bytes_accumulated": 100,
+            "severity": "warning",
+            "bytes_accumulated": 85000,
             "threshold": 100000,
-            "recommendations": [],
+            "recommendations": ["Monitor context growth"],
         }
         output = format_hook_output(assessment)
-        assert "additionalContext" not in output["hookSpecificOutput"]
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        assert "WARNING" in ctx
+        assert "KB" in ctx
 
     @pytest.mark.unit
     def test_critical_severity_has_additional_context(self):
@@ -447,7 +449,7 @@ class TestToolOutputSummarizerMain:
 
     @pytest.mark.unit
     def test_main_non_tracked_tool(self, monkeypatch: pytest.MonkeyPatch):
-        """Non-tracked tools output minimal JSON."""
+        """Non-tracked tools produce no output."""
         hook_input = json.dumps({"tool_name": "Write"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         captured: list[str] = []
@@ -455,12 +457,11 @@ class TestToolOutputSummarizerMain:
 
         rc = main()
         assert rc == 0
-        output = json.loads(captured[0])
-        assert output["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
+        assert len(captured) == 0
 
     @pytest.mark.unit
     def test_main_bash_tool_no_session(self, monkeypatch: pytest.MonkeyPatch):
-        """Bash tool with no session file outputs minimal JSON."""
+        """Bash tool with no session file produces no output."""
         hook_input = json.dumps({"tool_name": "Bash"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: None)
@@ -469,14 +470,13 @@ class TestToolOutputSummarizerMain:
 
         rc = main()
         assert rc == 0
-        output = json.loads(captured[0])
-        assert output["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
+        assert len(captured) == 0
 
     @pytest.mark.unit
     def test_main_bash_tool_ok_severity(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        """Bash tool with OK output size outputs minimal JSON."""
+        """Bash tool with OK output size produces no output."""
         session = tmp_path / "session.jsonl"
         session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
         hook_input = json.dumps({"tool_name": "Bash"})
@@ -487,14 +487,13 @@ class TestToolOutputSummarizerMain:
 
         rc = main()
         assert rc == 0
-        output = json.loads(captured[0])
-        assert output["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
+        assert len(captured) == 0
 
     @pytest.mark.unit
     def test_main_bash_tool_warning_severity(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        """Bash tool with bloated output outputs warning."""
+        """Bash tool with bloated output outputs warning with additionalContext."""
         session = tmp_path / "session.jsonl"
         large_content = "x" * (BLOAT_WARNING_THRESHOLD + 1000)
         entry = {
@@ -512,7 +511,7 @@ class TestToolOutputSummarizerMain:
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
-        assert "bloatAssessment" in output["hookSpecificOutput"]
+        assert "additionalContext" in output["hookSpecificOutput"]
 
     @pytest.mark.unit
     def test_main_invalid_json_stdin(self, monkeypatch: pytest.MonkeyPatch):

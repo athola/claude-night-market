@@ -1,5 +1,5 @@
 name: minister
-version: 1.8.0
+version: 1.8.1
 description: Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects
   into status dashboards
 keywords:

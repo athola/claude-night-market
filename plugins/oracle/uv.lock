@@ -515,7 +515,7 @@ wheels = [
 
 [[package]]
 name = "oracle"
-version = "1.8.0"
+version = "1.8.1"
 source = { editable = "." }
 
 [package.optional-dependencies]

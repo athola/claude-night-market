@@ -201,8 +201,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     Returns:
     - None to pass through (no decision).
-    - {"decision": "allow"} to allow the commit.
-    - {"decision": "deny", "reason": ...} to block in gate mode.
+    - hookSpecificOutput with permissionDecision "allow" to allow.
+    - hookSpecificOutput with permissionDecision "deny" to block.
     - {"additionalContext": ...} to nudge without blocking.
     """
     tool_input = hook_input.get("tool_input", {})
@@ -223,15 +223,25 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     staged_hash = _get_staged_hash()
     if check_pass_token(gauntlet_dir, staged_hash):
-        return {"decision": "allow"}
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "allow",
+            }
+        }
 
     # No valid token — generate a challenge.
     staged_files = _get_staged_files()
     if staged_files is None:
         if mode == "gate":
             return {
-                "decision": "deny",
-                "reason": "Gauntlet: unable to read staged files (git failure).",
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": (
+                        "Gauntlet: unable to read staged files (git failure)."
+                    ),
+                }
             }
         return None
 
@@ -261,8 +271,11 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     # Default: gate mode — deny.
     return {
-        "decision": "deny",
-        "reason": prompt_text,
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": prompt_text,
+        }
     }
 
 

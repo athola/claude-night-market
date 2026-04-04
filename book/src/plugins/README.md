@@ -31,6 +31,7 @@ graph TB
         minister[minister<br/>Release management]
         attune[attune<br/>Full-cycle development]
         scribe[scribe<br/>Documentation review]
+        cartograph[cartograph<br/>Codebase visualization]
     end
 
     abstract --> leyline
@@ -55,7 +56,7 @@ graph TB
 | **Meta** | Plugin infrastructure and evaluation | abstract |
 | **Foundation** | Core workflow methodologies | imbue, sanctum, leyline |
 | **Utility** | Resource optimization and delegation | conserve, conjure |
-| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune, scribe |
+| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune, scribe, cartograph |
 
 ## Dependency Rules
 

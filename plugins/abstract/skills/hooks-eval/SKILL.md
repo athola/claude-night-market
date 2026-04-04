@@ -113,9 +113,12 @@ async def my_hook(
 
 ```python
 return {
-    "decision": "block",           # Optional: block the action
-    "systemMessage": "...",        # Optional: add to transcript
-    "hookSpecificOutput": {...}    # Optional: hook-specific data
+    "hookSpecificOutput": {
+        "hookEventName": "PreToolUse",       # Match hook type
+        "permissionDecision": "deny",        # Optional: block action
+        "permissionDecisionReason": "...",   # Reason for denial
+        "additionalContext": "...",          # Optional: context added
+    }
 }
 ```
 **Verification:** Run the command with `--help` flag to verify availability.

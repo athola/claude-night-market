@@ -49,6 +49,46 @@ class TestCheckFile:
         assert check_file(f) == []
 
     @pytest.mark.unit
+    def test_ignores_patterns_in_string_literals(self, tmp_path: Path) -> None:
+        """Given a file with # noqa inside a string, When checked, Then no hits."""
+        f = tmp_path / "guard.py"
+        f.write_text(
+            'PATTERNS = [(re.compile(r"#\\s*noqa\\b"), "# noqa")]\n'
+            'label = "# type: ignore"\n'
+        )
+        assert check_file(f) == []
+
+    @pytest.mark.unit
+    def test_detects_actual_comment_not_string(self, tmp_path: Path) -> None:
+        """Given a real noqa comment next to a string, When checked, Then flagged."""
+        f = tmp_path / "mixed.py"
+        f.write_text('x = "hello"  # noqa: E501\n')
+        hits = check_file(f)
+        assert len(hits) == 1
+
+    @pytest.mark.unit
+    def test_ignores_patterns_in_docstrings(self, tmp_path: Path) -> None:
+        """Given a file with # noqa inside a docstring, When checked, Then no hits."""
+        f = tmp_path / "guard.py"
+        f.write_text(
+            '"""Module that references ``# noqa`` and ``# type: ignore``."""\nx = 1\n'
+        )
+        assert check_file(f) == []
+
+    @pytest.mark.unit
+    def test_ignores_multiline_docstring(self, tmp_path: Path) -> None:
+        """Given # noqa inside a multi-line docstring, When checked, Then no hits."""
+        f = tmp_path / "multiline.py"
+        f.write_text(
+            '"""Hook that detects:\n'
+            "- Python: # noqa, # type: ignore\n"
+            "- Rust: #[allow(...)]\n"
+            '"""\n'
+            "x = 1\n"
+        )
+        assert check_file(f) == []
+
+    @pytest.mark.unit
     def test_missing_file_passes(self, tmp_path: Path) -> None:
         """Given a nonexistent file, When checked, Then no hits."""
         f = tmp_path / "missing.py"
