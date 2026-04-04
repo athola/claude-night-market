@@ -13,11 +13,11 @@ from pathlib import Path
 # description_length + ~109 chars overhead (XML tags, name, location).
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
-DEFAULT_BUDGET = 15700  # Empirical budget for available_skills
+DEFAULT_BUDGET = 20000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
 OVERHEAD_PER_COMPONENT = 109  # XML tags, name, location per skill/cmd
 BUDGET_LIMIT = int(os.environ.get("SLASH_COMMAND_TOOL_CHAR_BUDGET", DEFAULT_BUDGET))
 WARN_THRESHOLD = int(BUDGET_LIMIT * 0.90)  # Warn at 90% usage
-DESCRIPTION_MAX = 130  # Max chars per description (optimal for 60+ skills)
+DESCRIPTION_MAX = 160  # Max chars per description
 VERBOSE_DISPLAY_LIMIT = 10  # Number of verbose items to display
 
 

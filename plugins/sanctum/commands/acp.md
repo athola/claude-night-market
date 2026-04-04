@@ -1,5 +1,5 @@
 ---
-description: Add all changes, commit with conventional message, and push to PR branch.
+description: Stage changes, generate conventional commit message, commit, and push to current branch. One-shot git add-commit-push.
 model_hint: fast
 ---
 

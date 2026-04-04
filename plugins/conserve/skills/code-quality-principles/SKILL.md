@@ -1,9 +1,8 @@
 ---
 name: code-quality-principles
-description: Provides KISS, YAGNI, and SOLID code quality principles for clean code,
+description: KISS, YAGNI, and SOLID code quality principles for clean code, reducing complexity and preventing over-engineering.
 version: 1.7.1
 alwaysApply: true
-  reducing complexity, preventing over-engineering, and improving maintainability.
 category: development
 tags:
 - design

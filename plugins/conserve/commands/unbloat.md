@@ -1,6 +1,6 @@
 ---
 name: unbloat
-description: Safe bloat remediation with user approval at each step
+description: Remove dead code, duplicate files, and unused dependencies with user approval at each step. Backs up before deleting.
 usage: /unbloat [--from-scan REPORT] [--auto-approve low] [--dry-run] [--focus code|docs|deps]
 ---
 

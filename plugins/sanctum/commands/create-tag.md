@@ -1,5 +1,5 @@
 ---
-description: Create git tags from merged PRs or version arguments
+description: Create git tags for releases from merged PRs or explicit version arguments. Triggers post-tag submission workflows.
 usage: /create-tag [version|PR-URL]...
 ---
 

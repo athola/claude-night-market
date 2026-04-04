@@ -1,6 +1,6 @@
 ---
 name: skills-eval
-description: Evaluate skills for quality, compliance, and improvements
+description: Audit skill quality, frontmatter compliance, token efficiency, and activation reliability. Recommends improvements.
 usage: /skills-eval [skill-name]
 ---
 

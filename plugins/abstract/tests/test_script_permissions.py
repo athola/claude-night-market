@@ -85,8 +85,8 @@ def check_script_permissions(script_path: Path) -> bool:
     mode = stat.S_IMODE(st.st_mode)
 
     # Check for 0755 permissions (owner: rwx, group: r-x, other: r-x)
-    expected_mode = 0o755
-    return mode == expected_mode
+    # Also accept 0775 for WSL/NTFS where group write bit cannot be cleared
+    return mode in (0o755, 0o775)
 
 
 def fix_script_permissions(script_path: Path) -> None:

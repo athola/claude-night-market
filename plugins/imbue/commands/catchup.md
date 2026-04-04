@@ -1,6 +1,6 @@
 ---
 name: catchup
-description: Quickly understand recent changes and extract actionable insights
+description: Context recovery after session breaks. Summarize recent git changes, extract key decisions, and identify pending work.
 usage: /catchup [baseline]
 ---
 

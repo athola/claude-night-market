@@ -286,13 +286,13 @@ class TestBudgetConstants:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_budget_limit_is_reasonable(self) -> None:
-        """Scenario: Budget limit reflects empirical ~16k CC limit.
+        """Scenario: Budget limit reflects 2% of 1M context window.
 
         Given the DEFAULT_BUDGET constant
-        Then it should be ~15,700 (empirically measured).
+        Then it should be 20,000 (2% of 1M context).
         """
         assert BUDGET_LIMIT > 0
-        assert DEFAULT_BUDGET == 15700
+        assert DEFAULT_BUDGET == 20000
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -308,13 +308,13 @@ class TestBudgetConstants:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_description_max_is_reasonable(self) -> None:
-        """Scenario: Per-description max is 130 chars.
+        """Scenario: Per-description max allows rich recognition cues.
 
         Given the DESCRIPTION_MAX constant
-        Then it should be 130 (optimal for 60+ skills).
+        Then it should be 160 (balanced for 1M context budget).
         """
         assert DESCRIPTION_MAX > 0
-        assert DESCRIPTION_MAX == 130
+        assert DESCRIPTION_MAX == 160
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -342,7 +342,7 @@ class TestMainFunctionIntegration:
     ) -> None:
         """Scenario: Exit code 0 when all descriptions under max.
 
-        Given a plugin structure with descriptions under 130 chars
+        Given a plugin structure with descriptions under 160 chars
         When running main()
         Then it should exit with code 0.
         """
@@ -362,7 +362,7 @@ class TestMainFunctionIntegration:
     ) -> None:
         """Scenario: Exit code 1 when descriptions exceed 130 chars.
 
-        Given a plugin structure with a verbose description (>130 chars)
+        Given a plugin structure with a verbose description (>160 chars)
         When running main()
         Then it should exit with code 1.
         """
@@ -381,7 +381,7 @@ class TestMainFunctionIntegration:
     ) -> None:
         """Scenario: Detect descriptions exceeding DESCRIPTION_MAX.
 
-        Given a plugin structure with a verbose description (>130 chars)
+        Given a plugin structure with a verbose description (>160 chars)
         When running main()
         Then it should report the verbose description in output.
         """

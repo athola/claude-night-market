@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: Address PR/MR review feedback using progressive workflow (GitHub/GitLab)
+description: Address PR/MR review feedback by reading comments, implementing fixes, and resolving threads. GitHub and GitLab support.
 usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
 extends: "superpowers:receiving-code-review"
 ---

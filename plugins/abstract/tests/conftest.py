@@ -184,7 +184,7 @@ def temp_plugin_structure(tmp_path):
 
     Given a temporary directory with:
     - test-plugin-a with 2 skills and 1 command
-    - test-plugin-b with 1 skill (verbose description > 130 chars)
+    - test-plugin-b with 1 skill (verbose description > 160 chars)
     """
     plugins_dir = tmp_path / "plugins"
 
@@ -236,7 +236,7 @@ Usage info.
     plugin_b = plugins_dir / "test-plugin-b"
     skill_b1 = plugin_b / "skills" / "verbose-skill"
     skill_b1.mkdir(parents=True)
-    # Create a description that exceeds 130 chars
+    # Create a description that exceeds 160 chars
     long_desc = "A" * 200
     (skill_b1 / "SKILL.md").write_text(f"""---
 name: verbose-skill
@@ -254,10 +254,10 @@ Content here.
 
 @pytest.fixture
 def compliant_plugin_structure(tmp_path):
-    """Create a plugin structure where all descriptions are <= 130 chars.
+    """Create a plugin structure where all descriptions are <= 160 chars.
 
     Given a temporary directory with:
-    - test-plugin with 3 skills and 1 command, all under 130 chars
+    - test-plugin with 3 skills and 1 command, all under 160 chars
     """
     plugins_dir = tmp_path / "plugins"
     plugin = plugins_dir / "test-plugin"

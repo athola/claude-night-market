@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: Create skills with brainstorming and TDD methodology
+description: Scaffold new Claude Code skills with brainstorming, TDD methodology, and proper frontmatter and module structure.
 usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 ---
 
