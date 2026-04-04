@@ -5,7 +5,8 @@ name: Python 3.9 Hook Compatibility (issue #204)
 # version required for system Python support).
 #
 # Plugins covered: abstract, memory-palace, sanctum, conserve,
-# imbue, leyline.
+# imbue, leyline, egregore, tome, gauntlet, cartograph, oracle,
+# pensive.
 #
 # Two gates per plugin:
 #   1. ruff UP007 — flags bare `X | Y` union annotations that
@@ -19,20 +20,32 @@ on:
     branches: [main, master]
     paths:
       - "plugins/abstract/hooks/**"
-      - "plugins/memory-palace/hooks/**"
-      - "plugins/sanctum/hooks/**"
+      - "plugins/cartograph/hooks/**"
       - "plugins/conserve/hooks/**"
+      - "plugins/egregore/hooks/**"
+      - "plugins/gauntlet/hooks/**"
       - "plugins/imbue/hooks/**"
       - "plugins/leyline/hooks/**"
+      - "plugins/memory-palace/hooks/**"
+      - "plugins/oracle/hooks/**"
+      - "plugins/pensive/hooks/**"
+      - "plugins/sanctum/hooks/**"
+      - "plugins/tome/hooks/**"
       - ".github/workflows/python39-compat.yml"
   pull_request:
     paths:
       - "plugins/abstract/hooks/**"
-      - "plugins/memory-palace/hooks/**"
-      - "plugins/sanctum/hooks/**"
+      - "plugins/cartograph/hooks/**"
       - "plugins/conserve/hooks/**"
+      - "plugins/egregore/hooks/**"
+      - "plugins/gauntlet/hooks/**"
       - "plugins/imbue/hooks/**"
       - "plugins/leyline/hooks/**"
+      - "plugins/memory-palace/hooks/**"
+      - "plugins/oracle/hooks/**"
+      - "plugins/pensive/hooks/**"
+      - "plugins/sanctum/hooks/**"
+      - "plugins/tome/hooks/**"
       - ".github/workflows/python39-compat.yml"
   workflow_dispatch:
 
@@ -73,11 +86,17 @@ jobs:
             --select UP007 \
             --target-version py39 \
             plugins/abstract/hooks/ \
-            plugins/memory-palace/hooks/ \
-            plugins/sanctum/hooks/ \
+            plugins/cartograph/hooks/ \
             plugins/conserve/hooks/ \
+            plugins/egregore/hooks/ \
+            plugins/gauntlet/hooks/ \
             plugins/imbue/hooks/ \
-            plugins/leyline/hooks/
+            plugins/leyline/hooks/ \
+            plugins/memory-palace/hooks/ \
+            plugins/oracle/hooks/ \
+            plugins/pensive/hooks/ \
+            plugins/sanctum/hooks/ \
+            plugins/tome/hooks/
 
   # ------------------------------------------------------------------ #
   # Gate 2: Runtime hook tests under Python 3.9                         #
@@ -93,15 +112,17 @@ jobs:
         include:
           - plugin: abstract
             hook_test_path: tests/hooks
-          - plugin: memory-palace
-            hook_test_path: tests/hooks
-          - plugin: sanctum
-            hook_test_path: tests/hooks
           - plugin: conserve
             hook_test_path: tests/unit/test_context_warning.py tests/unit/test_permission_request.py
+          - plugin: egregore
+            hook_test_path: tests/test_session_start_hook.py
           - plugin: imbue
             hook_test_path: tests/unit/hooks
           - plugin: leyline
+            hook_test_path: tests/hooks
+          - plugin: memory-palace
+            hook_test_path: tests/hooks
+          - plugin: sanctum
             hook_test_path: tests/hooks
 
     steps:

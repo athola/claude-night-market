@@ -26,7 +26,7 @@ jobs:
           TIER1="delve|tapestry|embark|beacon|spearheaded|multifaceted|pivotal|nuanced|meticulous|intricate|showcasing|leveraging|streamline|comprehensive"
           TIER2="moreover|furthermore|indeed|notably|subsequently|revolutionize|transform|unleash|elevate|crucial|vital|paramount"
 
-          for f in $(find docs/ -name '*.md' 2>/dev/null); do
+          for f in $(find docs/ book/src/ -name '*.md' 2>/dev/null); do
             WORDS=$(wc -w < "$f")
             [ "$WORDS" -eq 0 ] && continue
 
