@@ -357,11 +357,11 @@ class GraphStore:
                     visited.add(edge.source_qn)
                     queue.append((edge.source_qn, current_depth + 1))
 
-        result = []
+        result: list[GraphNode] = []
         for qn in visited:
-            node = self.get_node(qn)
-            if node:
-                result.append(node)
+            found = self.get_node(qn)
+            if found:
+                result.append(found)
         return result
 
     # ------------------------------------------------------------------

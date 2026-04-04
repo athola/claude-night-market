@@ -99,7 +99,7 @@ class TestGraphRiskContext:
             "untested_functions": ["app.py::handler"],
         }
         with patch(
-            "precommit_gate.gauntlet.blast_radius.analyze_changes",
+            "gauntlet.blast_radius.analyze_changes",
             return_value=mock_report,
         ):
             result = _graph_risk_context(gauntlet_dir)

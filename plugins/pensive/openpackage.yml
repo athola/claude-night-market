@@ -1,6 +1,6 @@
 name: pensive
 version: 1.8.1
-description: Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration
+description: Reflective code review toolkit with structured analysis, blast radius analysis, domain expertise, and intelligent review orchestration
 keywords:
 - review
 - code-quality
@@ -11,6 +11,7 @@ keywords:
 - api
 - bugs
 - audit
+- blast-radius
 - skill-review
 - metrics
 - stability-gap
@@ -30,6 +31,7 @@ dependencies:
 skills:
 - skills/api-review
 - skills/architecture-review
+- skills/blast-radius
 - skills/bug-review
 - skills/code-refinement
 - skills/makefile-review
@@ -54,6 +56,7 @@ commands:
 - commands/skill-review.md
 - commands/test-review.md
 agents:
+- agents/blast-radius-reviewer.md
 - agents/code-reviewer.md
 - agents/architecture-reviewer.md
 - agents/rust-auditor.md

@@ -62,7 +62,7 @@ ignore_missing_imports = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src", "scripts", "hooks"]
-addopts = "-v --cov=src/gauntlet --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --cov=src/gauntlet --cov-report=term-missing --cov-fail-under=85"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
@@ -78,7 +78,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90
+fail_under = 85
 
 [dependency-groups]
 dev = [

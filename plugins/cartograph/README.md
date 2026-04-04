@@ -1,8 +1,9 @@
 # cartograph
 
 Codebase visualization plugin for Claude Code.
-Generates architecture, data flow, and dependency diagrams
-rendered via the Mermaid Chart MCP server.
+Generates architecture, data flow, dependency, call chain,
+and community detection diagrams rendered via the Mermaid
+Chart MCP server.
 
 ## Usage
 
@@ -36,6 +37,8 @@ Pass a directory path to limit analysis
 | `dependency` | flowchart | Import/dependency graph |
 | `workflow` | flowchart | Process steps, pipelines, state machines |
 | `class` | classDiagram | Classes, inheritance, composition |
+| `call-chain` | flowchart | Execution paths from entry points |
+| `communities` | flowchart | Architectural clusters via community detection |
 
 ## Requirements
 

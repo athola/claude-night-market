@@ -128,7 +128,7 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
         return [], []
 
     try:
-        parser = get_parser(language)
+        parser = get_parser(language)  # type: ignore[arg-type]  # str from detect_language
         tree = parser.parse(source)
     except Exception:  # noqa: BLE001 - catch-all for parse errors in unknown grammars
         return [], []
