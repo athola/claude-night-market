@@ -504,6 +504,33 @@ Rejects commands containing shell chaining metacharacters
 matches a safe pattern, preventing auto-approval of
 payloads like `ls; rm -rf /`.
 
+### `permission_denied_logger.py`
+**Type**: PermissionDenied
+
+Logs auto-mode permission denials for observability.
+Tracks which tools and patterns trigger denials to
+inform permission tuning.
+
+### `pre_compact_preserve.py`
+**Type**: PreCompact
+
+Preserves critical context before compression.
+Saves active file paths, key decisions, error patterns,
+and pending work items to external files for recovery
+after compaction.
+
+### `tool_output_summarizer.py`
+**Type**: PostToolUse
+
+Monitors tool output sizes and warns about bloat.
+Helps maintain context efficiency by flagging
+oversized tool results.
+
+### `setup.sh`
+**Type**: Setup
+
+One-time environment initialization for conserve.
+
 ### `session-start.sh`
 **Type**: SessionStart
 
@@ -513,23 +540,32 @@ Session initialization with context optimization.
 
 ## Sanctum Hooks
 
+### `config_change_audit.py`
+**Type**: ConfigChange
+
+Audits configuration changes for safety and
+compliance.
+
+### `deferred_item_sweep.py`
+**Type**: Stop
+
+Sweeps the session ledger at session end and files
+deferred items as GitHub issues.
+
+### `deferred_item_watcher.py`
+**Type**: PostToolUse
+**Matcher**: `Skill`
+
+Detects deferred items in Skill output and writes
+them to the session ledger for later processing.
+
 ### `post_implementation_policy.py`
 **Type**: SessionStart
 
 Enforces documentation/test update requirements.
 
 ### `session_complete_notify.py`
-**Type**: Stop
-
-Sends completion notifications.
-
-### `verify_workflow_complete.py`
-**Type**: Stop
-
-Verifies workflow completion before session end.
-
-### `session_complete_notify.py`
-**Type**: Stop
+**Type**: Stop, UserPromptSubmit
 
 Cross-platform toast notifications when Claude awaits input.
 Supports Linux (notify-send), macOS (osascript), Windows (PowerShell), and WSL.
@@ -545,15 +581,40 @@ Checks for security anti-patterns in code changes.
 Injects security warnings as visible context when risky patterns detected.
 Context-aware: distinguishes actual code from documentation examples.
 
+### `task_created_tracker.py`
+**Type**: TaskCreated
+
+Tracks task creation for workflow completeness
+monitoring.
+
+### `verify_workflow_complete.py`
+**Type**: Stop
+
+Verifies workflow completion before session end.
+
 ---
 
 ## Abstract Hooks
 
-### `skill_execution_logger.py`
+### `aggregate_learnings_daily.py`
+**Type**: UserPromptSubmit
+
+Daily learning aggregation with 24-hour cadence.
+Creates severity-based GitHub issues from accumulated
+skill execution data.
+
+### `homeostatic_monitor.py`
 **Type**: PostToolUse
 **Matcher**: `Skill`
 
-Logs skill executions for metrics.
+Monitors skill stability gaps and queues degrading
+skills for improvement.
+
+### `post_learnings_stop.py`
+**Type**: Stop
+
+Posts accumulated learnings to GitHub Discussions on
+session stop for cross-session knowledge persistence.
 
 ### `pre_skill_execution.py`
 **Type**: PreToolUse
@@ -563,9 +624,20 @@ Logs skill executions for metrics.
 Tracks skill executions and injects skill context before execution.
 Creates state files for PostToolUse duration calculation.
 
+### `skill_execution_logger.py`
+**Type**: PostToolUse
+**Matcher**: `Skill`
+
+Logs skill executions for metrics.
+
 ---
 
 ## Leyline Hooks
+
+### `auto-star-repo.sh`
+**Type**: SessionStart
+
+Auto-stars the repository if not already starred.
 
 ### `detect-git-platform.sh`
 **Type**: SessionStart
@@ -584,6 +656,28 @@ Enables cross-session discovery of prior deliberations.
 Skips silently when `gh` CLI is unavailable, unauthenticated,
 or the repository lacks Discussions. Token budget: <600 tokens.
 
+### `noqa_guard.py`
+**Type**: PreToolUse
+**Matcher**: `Edit|Write`
+
+Blocks inline lint suppression directives (`# noqa`,
+`// eslint-disable`, `# type: ignore`) to prevent
+quality gate bypasses.
+
+### `sanitize_external_content.py`
+**Type**: PostToolUse
+**Matcher**: `WebFetch|WebSearch|ReadMcpResource`
+
+Sanitizes external content for prompt injection
+detection and mitigation.
+
+### `supply_chain_check.py`
+**Type**: SessionStart
+
+Warns when known-compromised package versions are
+found in lockfiles. Checks against a curated list of
+supply chain incidents.
+
 ---
 
 ## Imbue Hooks
@@ -593,10 +687,108 @@ or the repository lacks Discussions. Token budget: <600 tokens.
 
 Session initialization with scope metrics.
 
+### `tdd_bdd_gate.py`
+**Type**: PreToolUse
+**Matcher**: `Edit|Write`
+
+Iron Law enforcement at write-time. Blocks
+implementation code from being written without a
+failing test first.
+
 ### `user-prompt-submit.sh`
 **Type**: UserPromptSubmit
 
 Scope validation on user input.
+
+---
+
+## Egregore Hooks
+
+### `session_start_hook.py`
+**Type**: SessionStart
+
+Injects manifest context into new sessions for the
+autonomous orchestrator.
+
+### `stop_hook.py`
+**Type**: Stop
+
+Prevents early session exit while work items remain
+in the egregore manifest.
+
+### `user_prompt_hook.py`
+**Type**: UserPromptSubmit
+
+Resumes orchestration after user interrupts during
+autonomous processing.
+
+---
+
+## Tome Hooks
+
+### `pre_compact.py`
+**Type**: PreCompact
+
+Checkpoints the active research session before
+context compression to prevent data loss.
+
+### `session_start.py`
+**Type**: SessionStart
+
+Checks for active research sessions and restores
+context from prior research checkpoints.
+
+---
+
+## Gauntlet Hooks
+
+### `graph_auto_update.py`
+**Type**: PostToolUse
+**Matcher**: `Bash`
+
+Auto-updates the code knowledge graph after git
+commits to keep the graph current with codebase
+changes.
+
+### `precommit_gate.py`
+**Type**: PreToolUse
+**Matcher**: `Bash`
+
+Pre-commit quality gate that verifies gauntlet
+knowledge base consistency before commits.
+
+---
+
+## Cartograph Hooks
+
+### `graph_community_refresh.py`
+**Type**: PostToolUse
+
+Refreshes community detection results after graph
+builds to keep architectural cluster analysis
+current.
+
+---
+
+## Oracle Hooks
+
+### `daemon_lifecycle.py`
+**Type**: SessionStart, Stop
+
+Manages the oracle ONNX inference daemon lifecycle.
+Starts the daemon on session start and stops it on
+session end.
+
+---
+
+## Pensive Hooks
+
+### `pr_blast_radius.py`
+**Type**: PreToolUse
+
+Surfaces blast radius context when creating pull
+requests. Runs graph analysis to show affected
+components and risk scores.
 
 ---
 

@@ -369,18 +369,26 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `auto-star-repo.sh` | leyline | SessionStart | Auto-star the repo if not already starred |
 | `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
+| `daemon_lifecycle.py` | oracle | SessionStart, Stop | Oracle daemon lifecycle management |
 | `deferred_item_sweep.py` | sanctum | Stop | Sweep session ledger and file deferred items as GitHub issues |
 | `deferred_item_watcher.py` | sanctum | PostToolUse | Detect deferred items in Skill output and write to session ledger |
 | `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
 | `fetch-recent-discussions.sh` | leyline | SessionStart | Fetch recent GitHub Discussions |
+| `graph_auto_update.py` | gauntlet | PostToolUse | Auto-update code graph after git commits |
+| `graph_community_refresh.py` | cartograph | PostToolUse | Refresh community detection after graph builds |
 | `homeostatic_monitor.py` | abstract | PostToolUse | Stability gap monitoring, queues degrading skills for improvement |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
 | `noqa_guard.py` | leyline | PreToolUse | Block inline lint suppression directives |
+| `permission_denied_logger.py` | conserve | PermissionDenied | Log auto-mode permission denials for observability |
 | `permission_request.py` | conserve | PermissionRequest | Permission automation |
 | `post-evaluation.json` | abstract | Config | Quality scoring config |
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
+| `post_learnings_stop.py` | abstract | Stop | Post learnings to GitHub Discussions on session stop |
+| `pr_blast_radius.py` | pensive | PreToolUse | Surface blast radius context on PR creation |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `pre_compact.py` | tome | PreCompact | Checkpoint active research session |
+| `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
+| `precommit_gate.py` | gauntlet | PreToolUse | Pre-commit quality gate for gauntlet |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `sanitize_external_content.py` | leyline | PostToolUse | Sanitize external content for prompt injection |
@@ -388,13 +396,16 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `session_complete_notify.py` | sanctum | Stop, UserPromptSubmit | Cross-platform toast notifications and state management |
 | `session_lifecycle.py` | memory-palace | Stop | Session lifecycle management |
 | `session_start.py` | tome | SessionStart | Check for active research sessions |
+| `supply_chain_check.py` | leyline | SessionStart | Warn about known-compromised package versions in lockfiles |
 | `session_start_hook.py` | egregore | SessionStart | Inject manifest context into new sessions |
 | `session-start.sh` | conserve, imbue | SessionStart | Session initialization |
 | `setup.sh` | conserve | Setup | Environment initialization |
 | `setup.sh` | memory-palace | Setup | Palace directory initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
 | `stop_hook.py` | egregore | Stop | Prevent early exit while work items remain |
+| `task_created_tracker.py` | sanctum | TaskCreated | Track task creation for workflow completeness monitoring |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
+| `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
