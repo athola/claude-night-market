@@ -1,6 +1,6 @@
 ---
 name: modular-skills
-description: 'Architect skills as modular blocks to control token usage and complexity. Use when creating skills >150 lines, breaking down monolithic skills, or planning new architecture.'
+description: 'Design skills as modular blocks. Use for token budget control.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-optimization

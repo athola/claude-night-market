@@ -1,6 +1,6 @@
 ---
 name: tiered-audit
-description: '| Audit a codebase using a three-tier escalation model. Tier 1 analyzes git history (fast, bounded). Tier 2 deep-dives into flagged areas (sequential). Tier 3 reviews the full codebase (requires approval).'
+description: 'Three-tier codebase audit: git history, deep-dives, full review.'
 version: 1.7.1
 alwaysApply: false
 category: audit

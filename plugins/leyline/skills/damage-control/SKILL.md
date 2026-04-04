@@ -1,6 +1,6 @@
 ---
 name: damage-control
-description: '> Recovery protocols for agents encountering broken state: crash recovery, context overflow, merge conflict resolution, and state reconciliation.'
+description: 'Recovery protocols for crash, context overflow, and merge conflicts.'
 version: 1.7.1
 alwaysApply: false
 category: infrastructure

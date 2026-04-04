@@ -1,6 +1,6 @@
 ---
 name: stewardship
-description: '>- Consult this skill when working on any plugin to apply stewardship principles and virtues. Provides the five principles, five virtues (Care, Curiosity, Humility, Diligence, Foresight), layer-specific guidance'
+description: 'Stewardship virtues (Care, Curiosity, Humility, Diligence) for plugins.'
 version: 1.7.1
 alwaysApply: true
 category: cross-plugin-patterns

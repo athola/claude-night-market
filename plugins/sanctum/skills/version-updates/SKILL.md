@@ -1,6 +1,6 @@
 ---
 name: version-updates
-description: 'Use this skill for version management and release preparation. Use when bumping project versions, updating changelogs, preparing releases, coordinating version changes across files.'
+description: 'Bump versions, update changelogs, and coordinate version changes across files for releases'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

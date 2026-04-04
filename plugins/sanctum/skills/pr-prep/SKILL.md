@@ -1,6 +1,6 @@
 ---
 name: pr-prep
-description: 'Use this skill for PR preparation. Use when preparing PRs for submission, running quality gates, drafting PR descriptions and templates.'
+description: 'Prepare PRs with quality gates and description drafting.'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

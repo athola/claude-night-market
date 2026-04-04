@@ -1,6 +1,6 @@
 ---
 name: doc-importer
-description: '>- Import external documents (PDF, DOCX, PPTX, XLSX, HTML) into markdown for editing by doc-generator. Converts the source, preserves structure, and prepares for remediation.'
+description: 'Import PDF, DOCX, PPTX, XLSX, HTML into markdown.'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

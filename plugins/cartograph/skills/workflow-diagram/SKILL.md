@@ -1,6 +1,6 @@
 ---
 name: workflow-diagram
-description: "Generate workflow diagrams showing process steps, decision points, and state transitions. Use when visualizing CI/CD pipelines, development workflows, or multi-step processes."
+description: "Generate workflow diagrams showing process steps, decision points, and state transitions"
 ---
 
 # Workflow Diagram

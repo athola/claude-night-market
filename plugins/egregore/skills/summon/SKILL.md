@@ -1,6 +1,6 @@
 ---
 name: summon
-description: '> Autonomous orchestrator that manages full development lifecycles. Reads the egregore manifest, picks the next active work item, and invokes specialist skills for each pipeline step.'
+description: 'Autonomous orchestrator that processes work items from a manifest.'
 version: 1.7.1
 alwaysApply: false
 category: orchestration

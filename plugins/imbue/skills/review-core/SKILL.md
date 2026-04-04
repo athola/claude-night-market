@@ -1,6 +1,6 @@
 ---
 name: review-core
-description: 'Use this skill at the BEGINNING of any detailed review for consistent structure. Use when starting any detailed review workflow, needing consistent structure for capturing context and findings, ensuring comparable review outputs.'
+description: 'Scaffolding for consistent review structure and outputs.'
 version: 1.7.1
 alwaysApply: false
 category: review-patterns

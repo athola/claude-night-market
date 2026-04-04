@@ -1,6 +1,6 @@
 ---
 name: python-testing
-description: 'Consult this skill for Python testing implementation and patterns. Use when writing unit tests, setting up test suites, implementing TDD, configuring pytest, creating fixtures, async testing, writing integration tests, mocking dependencies'
+description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests'
 version: 1.7.1
 globs: "**/*.py"
 alwaysApply: false

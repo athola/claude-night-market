@@ -1,6 +1,6 @@
 ---
 name: scope-guard
-description: 'Use this skill BEFORE implementing any new feature. Important for scope control. Use when evaluating features during brainstorming, planning new functionality, branches approach size limits (1000/1500/2000 lines, 15/25/30 commits).'
+description: 'Pre-implementation scope control: evaluate feature necessity and enforce branch size limits'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

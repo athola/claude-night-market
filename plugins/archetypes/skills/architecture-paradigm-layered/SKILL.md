@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-layered
-description: 'Consult this skill when implementing layered patterns or enforcing layer boundaries. Use when building traditional applications with clear boundaries, working with moderate-sized teams, needing familiar and well-understood patterns'
+description: 'Layered (n-tier) architecture with enforced layer boundaries and separation of concerns.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

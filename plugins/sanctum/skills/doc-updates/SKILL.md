@@ -1,6 +1,6 @@
 ---
 name: doc-updates
-description: 'Use this skill for general documentation updates with built-in quality gates. Use when updating documentation after code changes, enforcing writing guidelines, maintaining ADRs.'
+description: 'Update documentation after code changes with quality gates.'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

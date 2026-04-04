@@ -1,6 +1,6 @@
 ---
 name: dependency-graph
-description: "Generate dependency graphs showing import relationships between modules or plugins. Use when analyzing coupling, finding circular dependencies, or understanding what depends on what."
+description: "Generate dependency graphs showing import relationships between modules or plugins"
 ---
 
 # Dependency Graph

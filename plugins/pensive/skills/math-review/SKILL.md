@@ -1,6 +1,6 @@
 ---
 name: math-review
-description: 'Use this skill for mathematical code verification. Use when reviewing math-heavy code, verifying algorithm correctness, checking numerical stability, aligning with mathematical standards.'
+description: 'Verify math-heavy code for algorithm correctness, numerical stability, and standards alignment'
 version: 1.7.1
 alwaysApply: false
 category: specialized

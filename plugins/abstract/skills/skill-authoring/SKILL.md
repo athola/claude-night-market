@@ -1,6 +1,6 @@
 ---
 name: skill-authoring
-description: 'Guide to effective Claude Code skill authoring using TDD methodology and persuasion principles. Use when creating new skills, improving compliance, or validating quality before deployment.'
+description: 'Guide to creating skills with TDD. Use for new skill development.'
 version: 1.7.1
 alwaysApply: false
 category: skill-development

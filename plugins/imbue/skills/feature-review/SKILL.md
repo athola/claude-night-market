@@ -1,6 +1,6 @@
 ---
 name: feature-review
-description: 'Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions. feature review, prioritization, RICE, WSJF, roadmap'
+description: 'Feature review and prioritization with RICE/WSJF/Kano scoring.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

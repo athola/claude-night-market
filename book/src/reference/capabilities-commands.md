@@ -485,6 +485,15 @@ FILE                       Output file for PR description (default: pr_descripti
 /prepare-pr --skip-updates --no-code-review    # Fastest (legacy behavior)
 ```
 
+### `/sanctum:acp`
+Add, commit, push. Stages all changes, generates a conventional
+commit message, commits, and pushes to the current branch.
+
+```bash
+# Usage
+/acp
+```
+
 ### `/sanctum:commit-msg`
 Generate commit message.
 

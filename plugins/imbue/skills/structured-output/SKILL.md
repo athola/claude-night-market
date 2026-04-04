@@ -1,6 +1,6 @@
 ---
 name: structured-output
-description: 'Consult this skill when formatting final review deliverables. Use when formatting final review outputs, ensuring consistent deliverable structure, making findings comparable across reviews.'
+description: 'Format final review deliverables with consistent structure for comparable findings across reviews'
 version: 1.7.1
 alwaysApply: false
 category: output-patterns

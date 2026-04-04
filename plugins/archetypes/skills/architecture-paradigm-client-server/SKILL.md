@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-client-server
-description: 'Consult this skill when designing client-server systems or API architectures. Use when traditional web/mobile applications with centralized services, clear separation between client and server responsibilities needed.'
+description: 'Client-server architecture for web/mobile apps with centralized services and API design.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

@@ -1,6 +1,6 @@
 ---
 name: data-flow
-description: "Generate data flow diagrams showing how data moves through a system. Use when tracing request paths, understanding API flows, or documenting data pipelines."
+description: "Generate data flow diagrams showing how data moves through a system"
 ---
 
 # Data Flow Diagram

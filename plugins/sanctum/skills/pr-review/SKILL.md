@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: 'Use this skill for scope-focused PR reviews. Use when reviewing PRs, validating against requirements, triaging findings to backlog, preventing overengineering.'
+description: 'Scope-focused PR review with requirements validation and backlog triage'
 version: 1.7.1
 alwaysApply: false
 category: review

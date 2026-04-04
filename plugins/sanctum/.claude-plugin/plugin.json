@@ -3,6 +3,7 @@
   "version": "1.8.1",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
+    "./commands/acp.md",
     "./commands/commit-msg.md",
     "./commands/create-tag.md",
     "./commands/do-issue.md",

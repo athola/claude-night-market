@@ -1,6 +1,6 @@
 ---
 name: methodology-curator
-description: 'Surfaces expert frameworks and proven methodologies before creating OR evaluating skills, hooks, agents, or commands. Helps select approaches from domain masters.'
+description: 'Surface expert frameworks. Use for creating or evaluating skills.'
 version: 1.7.1
 alwaysApply: false
 category: meta-skills

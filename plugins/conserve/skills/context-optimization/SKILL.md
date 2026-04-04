@@ -1,6 +1,6 @@
 ---
 name: context-optimization
-description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively. Use when context usage approaches 50% of window, tasks need decomposition, complex multi-step operations planned, context pressure is high.'
+description: 'Check and optimize context window usage with MECW principles.'
 version: 1.7.1
 alwaysApply: false
 category: conservation

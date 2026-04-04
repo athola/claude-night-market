@@ -1,6 +1,6 @@
 ---
 name: catchup
-description: 'Use this skill to quickly understand "what changed and what matters". Use when resuming work after absence, preparing handoff documentation, reviewing sprint progress, analyzing git history for context.'
+description: 'Summarize recent changes from git history for context recovery, handoffs, and sprint review'
 version: 1.7.1
 alwaysApply: false
 category: analysis-methods

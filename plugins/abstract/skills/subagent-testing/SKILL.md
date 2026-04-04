@@ -1,6 +1,6 @@
 ---
 name: subagent-testing
-description: 'TDD-style testing methodology for skills using fresh subagent instances to prevent priming bias and validate skill effectiveness.'
+description: 'Test skills with TDD using fresh subagents. Use for bias prevention.'
 version: 1.7.1
 alwaysApply: false
 category: testing

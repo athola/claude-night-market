@@ -1,6 +1,6 @@
 ---
 name: architecture-aware-init
-description: 'Architecture-aware project initialization combining online research with archetype selection. project initialization, new project, architecture decision, project setup, which architecture, choose architecture'
+description: "Architecture-aware project initialization combining online research with archetype selection."
 version: 1.7.1
 alwaysApply: false
 category: project-initialization

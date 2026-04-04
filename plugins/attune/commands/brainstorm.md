@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: "Guide project ideation through structured Socratic questioning to generate actionable project briefs with approach comparisons"
+description: "Socratic project ideation to generate briefs with approaches."
 ---
 
 # Attune Brainstorm Command

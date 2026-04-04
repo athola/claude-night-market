@@ -1,6 +1,6 @@
 ---
 name: rules-eval
-description: 'Evaluate and validate Claude Code rules in .claude/rules/ directories. Use when auditing rule file quality, validating frontmatter and glob patterns, or checking rules organization before deployment.'
+description: 'Validate Claude Code rules. Use for frontmatter and quality checks.'
 version: 1.7.1
 alwaysApply: false
 category: rule-management

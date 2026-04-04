@@ -1,6 +1,6 @@
 ---
 name: class-diagram
-description: "Generate class diagrams showing classes, interfaces, inheritance, and composition. Use when visualizing object-oriented structure, type hierarchies, or module APIs."
+description: "Generate class diagrams showing classes, interfaces, inheritance, and composition"
 ---
 
 # Class Diagram

@@ -1,6 +1,6 @@
 ---
 name: testing-quality-standards
-description: 'Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review and parseltongue:python-testing. testing standards, quality metrics, coverage thresholds, anti-patterns Use when: test quality evaluation, coverage thresholds'
+description: 'Cross-plugin testing quality metrics, coverage thresholds, and anti-patterns'
 version: 1.7.1
 globs: "**/test_*.py"
 alwaysApply: false

@@ -1,6 +1,6 @@
 ---
 name: hook-authoring
-description: 'Use this skill BEFORE writing any hook. Check even if unsure. Use when creating new hooks for tool validation, logging operations for audit, injecting context before prompts, enforcing project-specific workflows'
+description: 'Guide for creating hooks. Use for validation, logging, enforcement.'
 version: 1.7.1
 alwaysApply: false
 category: hook-development

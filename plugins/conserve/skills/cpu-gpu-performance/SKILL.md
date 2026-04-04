@@ -1,6 +1,6 @@
 ---
 name: cpu-gpu-performance
-description: 'Use this skill BEFORE resource-intensive operations. Establish baselines proactively. location: plugin token_budget: 400.'
+description: 'CPU/GPU performance baselines before resource-intensive operations.'
 version: 1.7.1
 alwaysApply: false
 progressive_loading: true

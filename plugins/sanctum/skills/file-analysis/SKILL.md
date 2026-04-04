@@ -1,6 +1,6 @@
 ---
 name: file-analysis
-description: 'Provides structural context for downstream review and refactoring workflows. Use when before architecture reviews to understand file organization, exploring unfamiliar codebases to map structure, estimating scope for refactoring or migration.'
+description: 'Map file structure and organization for downstream review and refactoring workflows'
 version: 1.7.1
 alwaysApply: false
 category: workspace-ops

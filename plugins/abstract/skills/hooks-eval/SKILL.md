@@ -1,6 +1,6 @@
 ---
 name: hooks-eval
-description: 'Use this skill BEFORE deploying hooks to production. Use when auditing existing hooks for security vulnerabilities, benchmarking hook performance, implementing hooks using Python SDK, understanding hook callback signatures'
+description: 'Evaluate hook security, performance, and SDK compliance. Use for audits.'
 version: 1.7.1
 alwaysApply: false
 category: hook-management

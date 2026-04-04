@@ -1,6 +1,6 @@
 ---
 name: python-performance
-description: 'Consult this skill for Python performance profiling and optimization. Use when debugging slow code, identifying bottlenecks, optimizing memory, benchmarking performance, production profiling.'
+description: 'Python performance profiling and optimization: bottleneck detection, memory tuning, benchmarking'
 version: 1.7.1
 globs: "**/*.py"
 alwaysApply: false

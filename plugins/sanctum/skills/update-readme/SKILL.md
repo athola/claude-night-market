@@ -1,6 +1,6 @@
 ---
 name: update-readme
-description: 'Run git-workspace-review first to capture repo context. Use when README requires structural refresh, adding features to documentation, aligning readme with exemplar standards, improving project presentation.'
+description: 'Refresh README structure and content using repo context from git-workspace-review'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

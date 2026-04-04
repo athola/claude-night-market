@@ -1,6 +1,6 @@
 ---
 name: plugin-review
-description: "Tiered plugin quality review with dependency-aware
+description: 'Review plugin quality with tiered checks. Use for PR and release.'
   scoping. Use when: reviewing plugin changes, preparing PRs,
   pre-release validation. Do not use when: single skill analysis
   (use /analyze-skill), creating new skills (use /create-skill)."

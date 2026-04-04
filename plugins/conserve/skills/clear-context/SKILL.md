@@ -1,6 +1,6 @@
 ---
 name: clear-context
-description: 'Automatic context management with graceful handoff to continuation subagent. Use when Context usage approaches 80% during long-running tasks. This skill enables automatic continuation without manual /clear.'
+description: 'Automatic context management with graceful handoff to a continuation subagent at 80% usage'
 version: 1.7.1
 alwaysApply: false
 category: conservation

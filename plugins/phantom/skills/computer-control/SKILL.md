@@ -1,6 +1,6 @@
 ---
 name: computer-control
-description: 'Guide Claude through computer use API integration - screenshot capture, mouse/keyboard control, agent loops, and sandboxed desktop automation.'
+description: 'Desktop automation via Claude computer use API and screenshots.'
 version: 1.0.0
 alwaysApply: false
 model_hint: standard

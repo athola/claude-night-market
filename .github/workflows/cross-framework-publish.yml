@@ -157,97 +157,52 @@ jobs:
       VERSION: ${{ needs.build-and-release.outputs.version }}
       SKILLS: ${{ needs.build-and-release.outputs.skill_count }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.12"
+          name: cross-framework-build
+          path: build-artifacts
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Validate PAT
-        env:
-          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+      - name: Validate build artifacts
         run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::CLAWHUB_PAT secret is not set. Create a fine-grained PAT at https://github.com/settings/personal-access-tokens/new with Contents:Write and Pull-requests:Write scoped to your clawhub fork, then add it as a repository secret."
+          if [ ! -f build-artifacts/clawhub/manifest.json ]; then
+            echo "::error::No clawhub manifest.json in build artifacts"
             exit 1
           fi
-          # Verify token works and capture owner for later steps
-          FORK_OWNER=$(gh api user --jq .login)
-          echo "FORK_OWNER=$FORK_OWNER" >> "$GITHUB_ENV"
-          echo "Authenticated as $FORK_OWNER"
 
-      - name: Clone clawhub fork
-        if: inputs.dry_run != true
-        env:
-          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+          EXPORTED=$(python3 -c "
+          import json
+          print(json.load(open('build-artifacts/clawhub/manifest.json'))['total_exported'])
+          ")
+
+          if [ "$EXPORTED" -eq 0 ]; then
+            echo "::error::No skills were exported"
+            exit 1
+          fi
+
+          echo "Validated $EXPORTED skills for ClawHub submission"
+
+      - name: Write submission instructions
         run: |
-          # Fork must be pre-created: gh repo fork openclaw/clawhub --clone=false
-          # This is a one-time manual step; see CONTRIBUTING.md
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/clawhub.git" clawhub
-          cd clawhub
-          git remote add upstream https://github.com/openclaw/clawhub.git
-          git fetch upstream
-          git checkout -B main upstream/main
+          cat >> "$GITHUB_STEP_SUMMARY" <<SUMMARYEOF
+          ## ClawHub Publish Ready
 
-      - name: Add night-market skills
-        if: inputs.dry_run != true
-        run: |
-          BRANCH="night-market-v${VERSION}"
+          **Version:** v${VERSION} | **Skills:** ${SKILLS}
 
-          cd clawhub
-          git checkout -b "$BRANCH"
+          Build artifacts validated. Submit the PR locally:
 
-          # Export top 20 skills directly into clawhub skills dir
-          cd ..
-          uv run python scripts/clawhub_export.py \
-            --output /tmp/clawhub-top --top 20
+          \`\`\`bash
+          ./scripts/clawhub-submit.sh v${VERSION}
+          \`\`\`
 
-          # Copy into fork's skills directory
-          mkdir -p clawhub/skills/athola
-          for skill_dir in /tmp/clawhub-top/nm-*/; do
-            skill_name=$(basename "$skill_dir")
-            cp -r "$skill_dir" "clawhub/skills/athola/$skill_name/"
-          done
+          Or with dry run first:
 
-      - name: Commit and open PR
-        if: inputs.dry_run != true
-        env:
-          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
-        run: |
-          BRANCH="night-market-v${VERSION}"
+          \`\`\`bash
+          ./scripts/clawhub-submit.sh v${VERSION} --dry-run
+          \`\`\`
 
-          cd clawhub
-          git add -A
-          git commit -m "$(cat <<COMMITEOF
-          feat: add night-market skills (v${VERSION})
-
-          Claude Night Market cross-framework export.
-          Source: https://github.com/athola/claude-night-market
-          COMMITEOF
-          )"
-
-          git push origin "$BRANCH"
-
-          PR_BODY=$(cat <<'PRBODYEOF'
-          ## Night Market Skills for OpenClaw
-
-          Top 20 curated skills from [Claude Night Market](https://github.com/athola/claude-night-market).
-
-          **Categories:** code review, testing, documentation, git workflow,
-          token conservation, architecture, skill development, project lifecycle.
-
-          **Provenance:** MIT licensed, automated export with validation.
-          Full plugin (agents, hooks, commands) available for Claude Code.
-          PRBODYEOF
-          )
-
-          gh pr create \
-            --repo openclaw/clawhub \
-            --title "Add night-market skills (v${VERSION})" \
-            --body "$PR_BODY"
+          Uses your existing \`gh auth\` session. No PAT or secrets needed.
+          SUMMARYEOF
 
   publish-awesome-lists:
     needs: build-and-release
@@ -258,80 +213,25 @@ jobs:
       VERSION: ${{ needs.build-and-release.outputs.version }}
       SKILLS: ${{ needs.build-and-release.outputs.skill_count }}
       AGENTS: ${{ needs.build-and-release.outputs.agent_count }}
-    strategy:
-      fail-fast: false
-      matrix:
-        repo:
-          - vincentkoc/awesome-openclaw
-          - SamurAIGPT/awesome-openclaw
     steps:
-      - name: Validate PAT and resolve fork owner
-        env:
-          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
+      - name: Write submission instructions
         run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::CLAWHUB_PAT secret is not set."
-            exit 1
-          fi
-          FORK_OWNER=$(gh api user --jq .login)
-          echo "FORK_OWNER=$FORK_OWNER" >> "$GITHUB_ENV"
+          cat >> "$GITHUB_STEP_SUMMARY" <<SUMMARYEOF
+          ## Awesome Lists Submission Ready
 
-      - name: Clone fork and add entry
-        env:
-          GH_TOKEN: ${{ secrets.CLAWHUB_PAT }}
-          TARGET_REPO: ${{ matrix.repo }}
-        run: |
-          BRANCH="add-night-market-v${VERSION}"
-          REPO_NAME=$(echo "$TARGET_REPO" | cut -d/ -f2)
+          **Version:** v${VERSION} | **Skills:** ${SKILLS} | **Agents:** ${AGENTS}
 
-          # Fork must be pre-created (one-time manual step)
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/${REPO_NAME}.git" "$REPO_NAME"
+          Submit PRs to awesome-openclaw lists locally:
 
-          cd "$REPO_NAME"
-          git checkout -b "$BRANCH"
+          \`\`\`bash
+          ./scripts/awesome-submit.sh v${VERSION}
+          \`\`\`
 
-          # Add entry if not already present
-          if ! grep -q "night-market" README.md; then
-            ENTRY="- [night-market](https://github.com/athola/claude-night-market) - ${SKILLS} curated skills for code review, testing, docs, and architecture."
+          Or dry run first:
 
-            # Try to add after Skills section header, fall back to end
-            if grep -q "## Skills" README.md; then
-              python3 -c "
-          content = open('README.md').read()
-          import re
-          # Find Skills section and add before next section
-          m = re.search(r'(## Skills[^\n]*\n(?:.*?\n)*?)(\n## |\Z)', content, re.DOTALL)
-          if m:
-              before = m.group(1).rstrip()
-              after = m.group(2)
-              content = content[:m.start()] + before + '\n$ENTRY\n' + after + content[m.end():]
-          else:
-              content += '\n$ENTRY\n'
-          open('README.md', 'w').write(content)
-          "
-            else
-              echo "" >> README.md
-              echo "$ENTRY" >> README.md
-            fi
-          fi
+          \`\`\`bash
+          ./scripts/awesome-submit.sh v${VERSION} --dry-run
+          \`\`\`
 
-          if git diff --quiet; then
-            echo "No changes needed for $TARGET_REPO"
-            exit 0
-          fi
-
-          git add README.md
-          git commit -m "Add night-market: ${SKILLS} skills for code review, testing, architecture"
-          git push origin "$BRANCH"
-
-          PR_BODY=$(cat <<'AWESOMEEOF'
-          Adds [Claude Night Market](https://github.com/athola/claude-night-market)
-          -- curated skills for code review, testing, documentation, architecture,
-          and git workflows. MIT licensed, published on ClawHub.
-          AWESOMEEOF
-          )
-
-          gh pr create \
-            --repo "$TARGET_REPO" \
-            --title "Add night-market skills" \
-            --body "$PR_BODY"
+          Targets: vincentkoc/awesome-openclaw, SamurAIGPT/awesome-openclaw
+          SUMMARYEOF

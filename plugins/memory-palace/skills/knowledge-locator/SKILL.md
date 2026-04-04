@@ -1,6 +1,6 @@
 ---
 name: knowledge-locator
-description: 'Consult this skill when searching or navigating stored knowledge. Use when searching for stored knowledge, cross-referencing concepts, discovering connections, retrieving from palaces, finding past PR decisions.'
+description: 'Search stored knowledge: cross-reference, retrieve, find decisions.'
 version: 1.7.1
 alwaysApply: false
 category: navigation

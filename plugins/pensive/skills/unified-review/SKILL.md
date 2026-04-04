@@ -1,6 +1,6 @@
 ---
 name: unified-review
-description: 'Use this skill when orchestrating multiple review types. Use when general review needed without knowing which specific skill applies, full multi-domain review desired, integrated reporting needed.'
+description: 'Orchestrate multiple review types into a single multi-domain review with integrated reporting'
 version: 1.7.1
 alwaysApply: false
 category: orchestration

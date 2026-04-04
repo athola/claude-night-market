@@ -1,6 +1,6 @@
 ---
 name: memory-palace-architect
-description: 'Consult this skill when designing permanent memory palace structures. Use when creating new memory palace structures, organizing complex domains, designing spatial layouts for knowledge retention.'
+description: 'Design memory palace structures with spatial layouts and domain org.'
 version: 1.7.1
 alwaysApply: false
 category: architecture

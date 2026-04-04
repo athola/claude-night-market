@@ -1,6 +1,6 @@
 ---
 name: token-conservation
-description: 'Use this skill at the START of every session. This is MANDATORY for quota management. location: plugin token_budget: 300.'
+description: 'Session-start token quota management and conservation rules.'
 version: 1.7.1
 alwaysApply: true
 progressive_loading: true

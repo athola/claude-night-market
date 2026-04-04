@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-microservices
-description: 'Consult this skill when designing or evolving microservices architectures. Use when teams need high autonomy and independent releases, different capabilities have distinct scaling needs, strong DevOps/SRE maturity exists, polyglot tech stacks needed.'
+description: 'Microservices patterns for independent deployment and scaling.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

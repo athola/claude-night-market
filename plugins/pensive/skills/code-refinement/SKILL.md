@@ -1,6 +1,6 @@
 ---
 name: code-refinement
-description: 'Analyze and improve living code quality: duplication, algorithmic efficiency, clean code principles, architectural fit, anti-slop patterns, and error handling robustness.'
+description: 'Improve code quality: duplication, efficiency, clean code, architectural fit, and error handling'
 version: 1.7.1
 alwaysApply: false
 category: code-quality

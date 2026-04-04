@@ -1,6 +1,6 @@
 ---
 name: document-conversion
-description: '>- Universal document-to-markdown conversion with tiered fallback. Wraps MCP markitdown when available, degrades to native Claude Code tools, then informs the user.'
+description: 'Document-to-markdown conversion with tiered fallback: MCP markitdown, native tools, or user notice'
 version: 1.7.1
 alwaysApply: false
 category: infrastructure

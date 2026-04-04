@@ -1,6 +1,6 @@
 ---
 name: bloat-detector
-description: 'Detect codebase bloat through progressive analysis: dead code, duplication, complexity, documentation bloat. Use when context usage high, quarterly maintenance, pre-release cleanup, before refactoring.'
+description: 'Detect codebase bloat via progressive analysis: dead code, duplication, complexity, and doc bloat'
 version: 1.7.1
 alwaysApply: false
 category: conservation

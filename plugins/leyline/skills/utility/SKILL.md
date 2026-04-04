@@ -1,6 +1,6 @@
 ---
 name: utility
-description: '>- Utility-guided action selection for agent orchestration. Scores candidate actions by balancing gain, step cost, uncertainty, and redundancy. Use when deciding whether to take another action, launch another agent, or stop.'
+description: 'Score agent actions by gain, cost, uncertainty, and redundancy.'
 version: 1.7.1
 alwaysApply: false
 category: infrastructure

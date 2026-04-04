@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: "Initialize project with complete development infrastructure including git, workflows, hooks, and Makefiles"
+description: "Initialize project with git, workflows, hooks, and Makefiles."
 usage: /attune:project-init [--lang python|rust|typescript] [--name NAME]
 ---
 

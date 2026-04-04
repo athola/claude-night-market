@@ -1,6 +1,6 @@
 ---
 name: war-room-checkpoint
-description: "Assess decision reversibility and risk at critical checkpoints to determine whether War Room escalation is warranted. Use when evaluating whether a decision needs multi-LLM deliberation. Skip for standalone or easily reversible decisions."
+description: "Assess decision reversibility and risk for War Room escalation."
 version: 1.7.1
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

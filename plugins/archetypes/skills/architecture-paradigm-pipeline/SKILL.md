@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-pipeline
-description: 'Consult this skill when designing data pipelines or transformation workflows. Use when data flows through fixed sequence of transformations, stages can be independently developed and tested, parallel processing of stages is beneficial.'
+description: 'Pipes-and-filters architecture for sequential data transformations.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

@@ -1,7 +1,7 @@
 ---
 name: prepare-pr
 aliases: [pr]
-description: Complete PR preparation - updates documentation, dogfooding, README, tests, then validates with code review
+description: Full PR prep with doc updates, tests, and code review validation.
 usage: /prepare-pr [--no-code-review] [--reviewer-scope strict|standard|lenient] [--skip-updates] [destination-file]
 extends: "superpowers:receiving-code-review"
 

@@ -1,6 +1,6 @@
 ---
 name: python-packaging
-description: 'Consult this skill for Python package creation and distribution. Use when creating Python packages, configuring pyproject.toml, setting up entry points, publishing to PyPI, CI/CD for packages.'
+description: 'Python package creation and distribution: pyproject.toml, entry points, PyPI publishing, CI/CD'
 version: 1.7.1
 globs: "**/*.py"
 alwaysApply: false

@@ -1,6 +1,6 @@
 ---
 name: tutorial-updates
-description: 'Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording. tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest Use when: regenerating tutorial GIFs'
+description: 'Generate tutorials from VHS tapes and Playwright specs with dual-tone markdown and GIF recording'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-service-based
-description: 'Coarse-grained service architecture for deployment independence without microservices complexity. service-based, SOA, coarse-grained services'
+description: 'Coarse-grained service architecture without microservices overhead.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

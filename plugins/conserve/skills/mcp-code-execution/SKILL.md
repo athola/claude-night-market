@@ -1,6 +1,6 @@
 ---
 name: mcp-code-execution
-description: 'Use this skill BEFORE building complex tool chains. Optimize proactively. location: plugin token_budget: 200. Use when >3 tools chained sequentially, large datasets (>10k rows), large files (>50KB), context usage >25%.'
+description: 'Optimize multi-tool chains via MCP for large datasets or files.'
 version: 1.7.1
 alwaysApply: false
 progressive_loading: true

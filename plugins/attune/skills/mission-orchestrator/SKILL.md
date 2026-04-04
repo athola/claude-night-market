@@ -1,6 +1,6 @@
 ---
 name: mission-orchestrator
-description: 'Unified lifecycle orchestrator for attune project development. Auto-detects project state, selects mission type, routes through phases via Skill() delegation, and manages session recovery.'
+description: "Lifecycle orchestrator that auto-detects state and routes phases."
 version: 1.7.1
 alwaysApply: false
 category: workflow-orchestration

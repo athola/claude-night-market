@@ -1,6 +1,6 @@
 ---
 name: proof-of-work
-description: 'Enforces "prove before claim" discipline - validation, testing, and evidence requirements before declaring work complete.'
+description: 'Require validation and evidence before declaring work complete.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

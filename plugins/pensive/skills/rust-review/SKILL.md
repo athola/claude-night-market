@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: 'Use this skill for Rust-specific code audits. Use when reviewing Rust code, auditing unsafe blocks, analyzing ownership patterns, scanning Cargo dependencies for security.'
+description: 'Rust code audit: unsafe blocks, ownership patterns, and Cargo dependency security scanning'
 version: 1.7.1
 globs: "**/*.rs"
 alwaysApply: false

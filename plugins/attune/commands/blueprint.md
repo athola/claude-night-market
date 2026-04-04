@@ -1,6 +1,6 @@
 ---
 name: blueprint
-description: "Generate implementation plan with architecture design and dependency-ordered tasks from specification"
+description: "Generate implementation plan with architecture and ordered tasks."
 usage: /attune:blueprint [--input FILE] [--component NAME]
 ---
 

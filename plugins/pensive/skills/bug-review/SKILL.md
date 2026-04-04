@@ -1,6 +1,6 @@
 ---
 name: bug-review
-description: 'Use this skill for systematic bug hunting with evidence trails. Use when deep bug hunting needed, documenting defects, verifying fixes, systematic debugging required.'
+description: 'Bug hunting with evidence trails: find defects, document them, and verify fixes'
 version: 1.7.1
 alwaysApply: false
 category: code-review

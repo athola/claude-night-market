@@ -1,6 +1,6 @@
 ---
 name: release-health-gates
-description: 'Standardizes release approvals with GitHub-aware checklists. Use when preparing releases, validating deployment gates, conducting release reviews, embedding release gate snippets in PRs.'
+description: 'Standardize release approvals with GitHub-aware checklists and deployment gate validation'
 version: 1.7.1
 alwaysApply: false
 category: governance

@@ -200,6 +200,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/catchup` | imbue | Quick context recovery |
 | `/check-async` | parseltongue | Async pattern validation |
 | `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |
+| `/acp` | sanctum | Add, commit, push to current branch |
 | `/commit-msg` | sanctum | Generate commit message |
 | `/context-report` | abstract | Context optimization report |
 | `/control-desktop` | phantom | Run a computer use task on the desktop |

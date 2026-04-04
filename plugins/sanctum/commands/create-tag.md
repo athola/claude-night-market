@@ -68,7 +68,19 @@ Tag message format:
 <PR title>
 ```
 
-### Step 5: Report Results
+### Step 5: Submit to ClawHub and Awesome Lists
+
+After the tag is pushed, run the submission scripts:
+
+```bash
+./scripts/clawhub-submit.sh <version>
+./scripts/awesome-submit.sh <version>
+```
+
+These fork target repos (if needed), sync them, and open PRs
+with exported skills. Uses the user's existing `gh auth` session.
+
+### Step 6: Report Results
 
 Display summary table:
 ```
@@ -78,7 +90,7 @@ Display summary table:
 | v1.3.0  | #52  | def5678 | OK     |
 ```
 
-Include links to created tags on GitHub.
+Include links to created tags on GitHub and the ClawHub PR.
 
 ## Examples
 

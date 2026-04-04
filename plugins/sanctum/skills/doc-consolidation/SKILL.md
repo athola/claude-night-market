@@ -1,6 +1,6 @@
 ---
 name: doc-consolidation
-description: 'Merges valuable content into permanent documentation, then deletes source files. Use when you have untracked *_REPORT.md or *_ANALYSIS.md files, git status shows markdown artifacts that shouldn''''t be committed'
+description: 'Merge report and analysis artifacts into permanent docs, then delete source files'
 version: 1.7.1
 globs: "**/*.md"
 alwaysApply: false

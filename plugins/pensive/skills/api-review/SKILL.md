@@ -1,6 +1,6 @@
 ---
 name: api-review
-description: 'Use this skill for API surface evaluation and design review. Use when reviewing API design, auditing consistency, governing documentation, researching API exemplars.'
+description: 'Evaluate API surface design, consistency, documentation, and exemplar alignment'
 version: 1.7.1
 alwaysApply: false
 category: code-review
