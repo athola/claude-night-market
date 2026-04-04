@@ -1,6 +1,6 @@
 ---
 name: modular-skills
-description: 'Design skills as modular blocks. Use for token budget control.'
+description: 'Build composable skill modules with hub-and-spoke loading. Use when: token budget is tight, complexity is high.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-optimization

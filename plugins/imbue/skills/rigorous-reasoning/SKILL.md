@@ -1,6 +1,6 @@
 ---
 name: rigorous-reasoning
-description: 'Anti-sycophancy checklist enforcing evidence-based conclusions.'
+description: 'Prevent sycophantic reasoning via checklist enforcing evidence-based conclusions and honest analysis.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

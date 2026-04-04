@@ -184,7 +184,7 @@ def temp_plugin_structure(tmp_path):
 
     Given a temporary directory with:
     - test-plugin-a with 2 skills and 1 command
-    - test-plugin-b with 1 skill (verbose description > 150 chars)
+    - test-plugin-b with 1 skill (verbose description > 130 chars)
     """
     plugins_dir = tmp_path / "plugins"
 
@@ -236,7 +236,7 @@ Usage info.
     plugin_b = plugins_dir / "test-plugin-b"
     skill_b1 = plugin_b / "skills" / "verbose-skill"
     skill_b1.mkdir(parents=True)
-    # Create a description that exceeds 150 chars
+    # Create a description that exceeds 130 chars
     long_desc = "A" * 200
     (skill_b1 / "SKILL.md").write_text(f"""---
 name: verbose-skill
@@ -247,6 +247,44 @@ category: testing
 # Verbose Skill
 
 Content here.
+""")
+
+    return tmp_path
+
+
+@pytest.fixture
+def compliant_plugin_structure(tmp_path):
+    """Create a plugin structure where all descriptions are <= 130 chars.
+
+    Given a temporary directory with:
+    - test-plugin with 3 skills and 1 command, all under 130 chars
+    """
+    plugins_dir = tmp_path / "plugins"
+    plugin = plugins_dir / "test-plugin"
+
+    for name, desc in [
+        ("skill-one", "Short skill description for testing"),
+        ("skill-two", "Another short description"),
+        ("skill-three", "Third skill with a brief desc"),
+    ]:
+        skill_dir = plugin / "skills" / name
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "SKILL.md").write_text(f"""---
+name: {name}
+description: {desc}
+---
+
+Content here.
+""")
+
+    cmds = plugin / "commands"
+    cmds.mkdir(parents=True)
+    (cmds / "test-cmd.md").write_text("""---
+name: test-cmd
+description: A command description
+---
+
+Usage info.
 """)
 
     return tmp_path

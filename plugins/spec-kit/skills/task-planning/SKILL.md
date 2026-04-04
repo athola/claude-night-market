@@ -1,6 +1,6 @@
 ---
 name: task-planning
-description: 'Generate dependency-ordered tasks from specs with parallelism.'
+description: 'Generate phased, dependency-ordered tasks from specifications with parallelization opportunities and tech-stack patterns.'
 version: 1.7.1
 alwaysApply: false
 category: planning

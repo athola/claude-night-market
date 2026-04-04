@@ -28,13 +28,15 @@
     "./skills/shell-review",
     "./skills/test-review",
     "./skills/tiered-audit",
-    "./skills/unified-review"
+    "./skills/unified-review",
+    "./skills/blast-radius"
   ],
   "agents": [
     "./agents/code-reviewer.md",
     "./agents/architecture-reviewer.md",
     "./agents/rust-auditor.md",
-    "./agents/code-refiner.md"
+    "./agents/code-refiner.md",
+    "./agents/blast-radius-reviewer.md"
   ],
   "keywords": [
     "review",
@@ -58,5 +60,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

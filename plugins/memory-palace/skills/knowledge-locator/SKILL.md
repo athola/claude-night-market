@@ -1,6 +1,6 @@
 ---
 name: knowledge-locator
-description: 'Search stored knowledge: cross-reference, retrieve, find decisions.'
+description: 'Search and navigate stored knowledge in memory palaces. Use for cross-referencing, context retrieval.'
 version: 1.7.1
 alwaysApply: false
 category: navigation

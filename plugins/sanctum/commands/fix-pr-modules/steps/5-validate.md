@@ -198,7 +198,7 @@ partially automated:
 | "Run X tests" | Execute the test command directly | `cd plugins/foo && uv run pytest tests/ -v` |
 | "Verify X works/fails when Y" | Simulate condition Y, run X, check output | Remove import, run target, check error msg |
 | "Check X is valid Y" | Run a validator or parser | `python3 -c "import yaml; yaml.safe_load(open('f.yml'))"` |
-| "Spot-check that all X references updated" | Grep for stale pattern | `grep -r 'old-pattern' --include='*.md'` |
+| "Spot-check that all X references updated" | Search for stale pattern | `rg 'old-pattern' --glob '*.md'` (or `grep -r --include='*.md'`) |
 | "Verify X was updated to Y" | Read file and assert content | Read file, check the specific line |
 | "Ensure X discovers both A and B" | Run discovery, check output contains both | Execute script, grep output for A and B |
 | "Update X" (imperative fix item) | Verify the fix was applied | `git diff origin/BASE -- path/to/file` |

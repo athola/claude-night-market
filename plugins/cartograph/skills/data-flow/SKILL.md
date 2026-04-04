@@ -1,6 +1,6 @@
 ---
 name: data-flow
-description: "Generate data flow diagrams showing how data moves through a system"
+description: "Generate Mermaid data flow diagrams showing how data moves between components. Use for tracing requests and API call chains."
 ---
 
 # Data Flow Diagram

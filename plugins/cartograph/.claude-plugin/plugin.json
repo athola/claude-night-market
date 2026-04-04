@@ -1,7 +1,7 @@
 {
   "name": "cartograph",
   "version": "1.8.1",
-  "description": "Codebase visualization — generates architecture, data flow, dependency, workflow, and class diagrams via Mermaid Chart MCP",
+  "description": "Codebase visualization \u2014 generates architecture, data flow, dependency, workflow, and class diagrams via Mermaid Chart MCP",
   "commands": [
     "./commands/visualize.md"
   ],
@@ -10,7 +10,9 @@
     "./skills/data-flow",
     "./skills/dependency-graph",
     "./skills/workflow-diagram",
-    "./skills/class-diagram"
+    "./skills/class-diagram",
+    "./skills/call-chain",
+    "./skills/code-communities"
   ],
   "agents": [
     "./agents/codebase-explorer.md"

@@ -288,4 +288,4 @@ When reviewing code, check:
 - [ ] No god classes (> 500 lines)
 - [ ] Dependencies are injected, not created (DIP)
 
-**Verification:** Run `wc -l <file>` to check line counts and `grep -c "class " <file>` to count classes per file.
+**Verification:** Run `wc -l <file>` to check line counts and `rg -c "class " <file>` (or `grep -c "class " <file>`) to count classes per file.

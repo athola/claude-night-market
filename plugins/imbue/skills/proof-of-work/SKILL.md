@@ -1,6 +1,6 @@
 ---
 name: proof-of-work
-description: 'Require validation and evidence before declaring work complete.'
+description: 'Enforce validation and evidence before declaring work complete. Use for acceptance criteria and done gates.'
 version: 1.7.1
 alwaysApply: false
 category: workflow-methodology

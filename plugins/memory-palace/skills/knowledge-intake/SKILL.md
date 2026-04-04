@@ -1,6 +1,6 @@
 ---
 name: knowledge-intake
-description: 'Ingest external resources into stored knowledge with evaluation.'
+description: 'Process external resources into stored knowledge with quality evaluation, curation routing, and application decisions.'
 version: 1.7.1
 alwaysApply: false
 category: governance

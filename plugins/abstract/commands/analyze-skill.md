@@ -1,6 +1,6 @@
 ---
 name: analyze-skill
-description: Analyze skill complexity and get modularization recommendations.
+description: Analyze skill file complexity metrics and generate modularization recommendations for splitting or progressive loading.
 usage: /analyze-skill [skill-path]
 ---
 

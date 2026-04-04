@@ -82,7 +82,7 @@ After documenting review threads, generate a detailed test plan that `/fix-pr` c
     **Requirement:** Users must be able to reset passwords
 
     **Verification Steps:**
-    1. [ ] Verify endpoint exists: `grep -r "password.*reset" routes/`
+    1. [ ] Verify endpoint exists: `rg "password.*reset" routes/` (or `grep -r`)
     2. [ ] Run: `pytest tests/test_auth.py -k "password_reset" -v`
     3. [ ] Manual check: Test password reset email flow
 

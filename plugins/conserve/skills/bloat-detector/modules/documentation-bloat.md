@@ -44,7 +44,7 @@ Hash each `##` section's normalized content. Duplicates = repeated sections.
 ```bash
 # Quick verbosity check
 wc -w file.md  # Total words
-grep -c '\.' file.md  # Approximate sentences
+rg -c '\.' file.md  # Approximate sentences (or grep -c)
 ```
 
 ### 3. Stale Documentation
@@ -57,12 +57,13 @@ grep -c '\.' file.md  # Approximate sentences
 
 ```bash
 # Find stale docs
-git log -1 --format="%ar" -- docs/*.md | grep -E "year|months"
+git log -1 --format="%ar" -- docs/*.md | rg -E "year|months"
+# fallback: grep -E "year|months"
 ```
 
 ### 4. Missing/Outdated References
 
-- Broken internal links: `grep -oP '\[.*?\]\((?!http).*?\)' *.md`
+- Broken internal links: `rg -oP '\[.*?\]\((?!http).*?\)' *.md` (or `grep -oP`)
 - References to deleted files
 - Outdated API examples
 

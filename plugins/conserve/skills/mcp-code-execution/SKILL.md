@@ -1,6 +1,6 @@
 ---
 name: mcp-code-execution
-description: 'Optimize multi-tool chains via MCP for large datasets or files.'
+description: 'Optimize multi-tool workflow chains via MCP server integration for processing large datasets, files, or complex pipelines.'
 version: 1.7.1
 alwaysApply: false
 progressive_loading: true

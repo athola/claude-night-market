@@ -1,6 +1,6 @@
 ---
 name: review-core
-description: 'Scaffolding for consistent review structure and outputs.'
+description: 'Reusable scaffolding for review workflows with context establishment, evidence capture, and structured output.'
 version: 1.7.1
 alwaysApply: false
 category: review-patterns

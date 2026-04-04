@@ -1,6 +1,6 @@
 ---
 name: shared-patterns
-description: 'Use for validation, error handling, and test scaffolding patterns.'
+description: 'Reference reusable patterns for validation, error handling, and test scaffolding. Use when: ensuring consistency across skills.'
 version: 1.7.1
 alwaysApply: false
 category: meta-infrastructure

@@ -33,7 +33,8 @@ Version numbers appear in documentation that the automated script does NOT updat
 **Scan for stale versions:**
 ```bash
 # Find docs referencing the OLD version (replace X.Y.Z)
-grep -r "X\.Y\.Z" docs/ book/ plugins/*/README.md --include="*.md"
+rg "X\.Y\.Z" docs/ book/ plugins/*/README.md --glob "*.md"
+# fallback: grep -r "X\.Y\.Z" docs/ book/ plugins/*/README.md --include="*.md"
 ```
 
 ### Phase 3: Verification

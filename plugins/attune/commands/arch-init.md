@@ -1,6 +1,6 @@
 ---
 name: arch-init
-description: "Initialize projects with architecture-aware templates and research."
+description: "Initialize projects with architecture-aware templates using paradigm research and selection guidance for the target domain."
 usage: /attune:arch-init [--name NAME] [--lang python|rust|typescript] [--arch PARADIGM]
 ---
 

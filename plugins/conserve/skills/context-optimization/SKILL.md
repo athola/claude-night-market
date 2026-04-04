@@ -1,6 +1,6 @@
 ---
 name: context-optimization
-description: 'Check and optimize context window usage with MECW principles.'
+description: 'Analyze and optimize context window usage with MECW principles, memory tiering, session routing, and subagent coordination.'
 version: 1.7.1
 alwaysApply: false
 category: conservation

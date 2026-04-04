@@ -1,6 +1,6 @@
 ---
 name: project-planning
-description: "Turn specs into dependency-ordered implementation plans."
+description: "Transform specifications into dependency-ordered implementation plans with phased tasks and parallel work identification."
 version: 1.7.1
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

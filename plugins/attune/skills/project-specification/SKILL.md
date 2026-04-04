@@ -1,6 +1,6 @@
 ---
 name: project-specification
-description: "Turn project briefs into testable specs with acceptance criteria."
+description: "Transform project briefs into testable specifications with user stories, acceptance criteria, and measurable outcomes."
 version: 1.7.1
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

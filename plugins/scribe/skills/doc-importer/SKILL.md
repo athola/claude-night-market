@@ -1,6 +1,6 @@
 ---
 name: doc-importer
-description: 'Import PDF, DOCX, PPTX, XLSX, HTML into markdown.'
+description: 'Import external documents (PDF, DOCX, PPTX, XLSX, HTML) into editable markdown for rewriting or project integration.'
 version: 1.7.1
 alwaysApply: false
 category: artifact-generation

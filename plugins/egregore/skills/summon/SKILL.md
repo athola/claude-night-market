@@ -1,6 +1,6 @@
 ---
 name: summon
-description: 'Autonomous orchestrator that processes work items from a manifest.'
+description: 'Autonomous orchestrator processing manifest work items through the development lifecycle with budget tracking.'
 version: 1.7.1
 alwaysApply: false
 category: orchestration

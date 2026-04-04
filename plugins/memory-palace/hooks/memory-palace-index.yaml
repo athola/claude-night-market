@@ -143,6 +143,285 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/rixinhahaha/snip
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/readme.md:
+    content_hash: sha256:63b96ae718112571
+    stored_at: data/staging/webfetch-code-review-graph-project-overview-2026-04-04_06-06-21.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:21.138621+00:00'
+    title: 'code-review-graph: Project Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/README.md
+  https://github.com/tirth8205/code-review-graph:
+    content_hash: sha256:b2e73337b2674a51
+    stored_at: data/staging/webfetch-code-review-graph-repository-structure-2026-04-04_06-06-31.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:31.500221+00:00'
+    title: code-review-graph Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/.mcp.json:
+    content_hash: sha256:dbc0c2d6cd080eac
+    stored_at: data/staging/webfetch-model-context-protocol-configuration-2026-04-04_06-06-37.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:37.374893+00:00'
+    title: Model Context Protocol Configuration
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/.mcp.json
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/pyproject.toml:
+    content_hash: sha256:1b30169588791bb1
+    stored_at: data/staging/webfetch-project-metadata-and-dependencies-2026-04-04_06-06-37.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:37.446660+00:00'
+    title: Project Metadata and Dependencies
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/pyproject.toml
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/__init__.py:
+    content_hash: sha256:04dec5d1244bb1d8
+    stored_at: data/staging/webfetch-based-on-the-provided-content-the-main-2026-04-04_06-06-39.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:39.861392+00:00'
+    title: 'Based on the provided content, the main information available is:'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/__init__.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/graph.py:
+    content_hash: sha256:b643794b74272832
+    stored_at: data/staging/webfetch-code-knowledge-graph-implementation-2026-04-04_06-06-51.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:51.457630+00:00'
+    title: Code Knowledge Graph Implementation
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/graph.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/parser.py:
+    content_hash: sha256:265969ca01c205f6
+    stored_at: data/staging/webfetch-how-claude-code-parses-using-tree-sitter-2026-04-04_06-06-52.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:06:52.081909+00:00'
+    title: How Claude Code Parses Using Tree-sitter
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/parser.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/claude.md:
+    content_hash: sha256:b82f812328ea59ca
+    stored_at: data/staging/webfetch-claude-specific-documentation-overview-2026-04-04_06-07-03.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:07:03.652160+00:00'
+    title: Claude-Specific Documentation Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/CLAUDE.md
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/architecture.md:
+    content_hash: sha256:087412d0c3ba5eeb
+    stored_at: data/staging/webfetch-system-architecture-overview-2026-04-04_06-07-04.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:07:04.685377+00:00'
+    title: System Architecture Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/architecture.md
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code-review-graph-vscode/package.json:
+    content_hash: sha256:13b9f0058cec6bc4
+    stored_at: data/staging/webfetch-code-review-graph-vs-code-extension-2026-04-04_06-07-14.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:07:14.960082+00:00'
+    title: Code Review Graph VS Code Extension
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code-review-graph-vscode/package.json
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/changelog.md:
+    content_hash: sha256:8a06542e7072bb16
+    stored_at: data/staging/webfetch-recent-major-features-and-improvements-2026-04-04_06-07-23.md
+    importance_score: 50
+    last_updated: '2026-04-04T06:07:23.578643+00:00'
+    title: Recent Major Features and Improvements
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/CHANGELOG.md
+  https://api.github.com/repos/tirth8205/code-review-graph/contents/code_review_graph:
+    content_hash: sha256:36398b956f2c1b03
+    stored_at: data/staging/webfetch-python-files-in-code-review-graph-directory-2026-04-04_13-32-03.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:03.412407+00:00'
+    title: Python Files in code_review_graph Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/tirth8205/code-review-graph/contents/code_review_graph
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/cli.py:
+    content_hash: sha256:0d85500c43d12c27
+    stored_at: data/staging/webfetch-cli-commands-for-code-review-graph-2026-04-04_13-32-10.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:10.655066+00:00'
+    title: CLI Commands for code-review-graph
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/cli.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/changes.py:
+    content_hash: sha256:281b5fc908b27085
+    stored_at: data/staging/webfetch-blast-radius-analysis-how-it-works-2026-04-04_13-32-19.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:19.517082+00:00'
+    title: 'Blast Radius Analysis: How It Works'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/changes.py
+  https://github.com/tirth8205/code-review-graph/blob/main/.mcp.json:
+    content_hash: sha256:fb71aba37bbdffef
+    stored_at: data/staging/webfetch-mcp-integration-for-code-review-graph-2026-04-04_13-32-20.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:20.549293+00:00'
+    title: MCP Integration for code-review-graph
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/.mcp.json
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/main.py:
+    content_hash: sha256:407fb9b4c03c62c9
+    stored_at: data/staging/webfetch-code-review-graph-mcp-entry-point-analysis-2026-04-04_13-32-21.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:21.286518+00:00'
+    title: Code Review Graph MCP Entry Point Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/main.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/registry.py:
+    content_hash: sha256:8964e415e033ab15
+    stored_at: data/staging/webfetch-registry-system-overview-2026-04-04_13-32-27.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:27.856754+00:00'
+    title: Registry System Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/registry.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/incremental.py:
+    content_hash: sha256:e02e77e10fa162b7
+    stored_at: data/staging/webfetch-incremental-update-strategy-2026-04-04_13-32-29.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:29.149816+00:00'
+    title: Incremental Update Strategy
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/incremental.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/search.py:
+    content_hash: sha256:b75a73f022515e30
+    stored_at: data/staging/webfetch-semantic-search-in-this-system-2026-04-04_13-32-29.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:29.702599+00:00'
+    title: Semantic Search in This System
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/search.py
+  https://github.com/tirth8205/code-review-graph/blob/main/claude.md:
+    content_hash: sha256:f1f437db550538c8
+    stored_at: data/staging/webfetch-claude-code-integration-details-2026-04-04_13-32-31.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:31.083970+00:00'
+    title: Claude Code Integration Details
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/CLAUDE.md
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/prompts.py:
+    content_hash: sha256:0cc034777b5f1c1a
+    stored_at: data/staging/webfetch-available-mcp-prompt-templates-2026-04-04_13-32-37.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:37.601911+00:00'
+    title: Available MCP Prompt Templates
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/prompts.py
+  https://github.com/tirth8205/code-review-graph/blob/main/docs:
+    content_hash: sha256:d0b00a6a16cd975b
+    stored_at: data/staging/webfetch-documentation-files-in-code-review-graph-2026-04-04_13-32-37.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:37.815910+00:00'
+    title: Documentation Files in code-review-graph
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/docs
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/visualization.py:
+    content_hash: sha256:2531d16a28e8de1e
+    stored_at: data/staging/webfetch-visualization-capabilities-and-rendering-2026-04-04_13-32-38.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:38.990655+00:00'
+    title: Visualization Capabilities and Rendering
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/visualization.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/features.md:
+    content_hash: sha256:228e85c6eac64afc
+    stored_at: data/staging/webfetch-code-review-graph-features-capabilities-2026-04-04_13-32-47.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:32:47.378086+00:00'
+    title: Code-Review-Graph Features & Capabilities
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/FEATURES.md
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/constants.py:
+    content_hash: sha256:d5421d9fae6b6ef0
+    stored_at: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-08.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:08.593851+00:00'
+    title: Complete File Contents
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/constants.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/flows.py:
+    content_hash: sha256:e8f391443e7190c6
+    stored_at: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-11.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:11.112707+00:00'
+    title: Complete File Contents
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/flows.py
+  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/communities.py:
+    content_hash: sha256:7b3e6375e3e818e0
+    stored_at: data/staging/webfetch-community-detection-module-for-code-knowledge-2026-04-04_13-43-11.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:11.128653+00:00'
+    title: Community Detection Module for Code Knowledge Graph
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/communities.py
+  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/communities.py:
+    content_hash: sha256:878cc7beb4107c6a
+    stored_at: data/staging/webfetch-community-detection-algorithms-and-cohesion-2026-04-04_13-43-31.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:31.057667+00:00'
+    title: Community Detection Algorithms and Cohesion Metrics
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/communities.py
+  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/graph.py:
+    content_hash: sha256:ce0889db0b28dd3b
+    stored_at: data/staging/webfetch-sqlite-knowledge-graph-storage-engine-source-code-2026-04-04_13-43-31.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:31.918357+00:00'
+    title: SQLite Knowledge Graph Storage Engine - Source Code Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/graph.py
+  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/search.py:
+    content_hash: sha256:c9175436743ea818
+    stored_at: data/staging/webfetch-hybrid-search-implementation-analysis-2026-04-04_13-43-32.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:32.036349+00:00'
+    title: Hybrid Search Implementation Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/search.py
+  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/flows.py:
+    content_hash: sha256:96c01ce29eabfc22
+    stored_at: data/staging/webfetch-code-review-graph-flow-tracing-criticality-2026-04-04_13-43-33.md
+    importance_score: 50
+    last_updated: '2026-04-04T13:43:33.703259+00:00'
+    title: 'Code Review Graph: Flow Tracing & Criticality Analysis'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/flows.py
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -160,3 +439,34 @@ hashes:
   sha256:77741f50a8b4f364: data/staging/webfetch-snip-ai-powered-visual-output-for-code-agents-2026-04-03_23-22-13.md
   sha256:6ac62806fb4bd1c8: data/staging/webfetch-repository-analysis-snip-2026-04-03_23-22-20.md
   sha256:1e3488dabf595d8f: data/staging/webfetch-snip-repository-structure-2026-04-03_23-46-07.md
+  sha256:63b96ae718112571: data/staging/webfetch-code-review-graph-project-overview-2026-04-04_06-06-21.md
+  sha256:b2e73337b2674a51: data/staging/webfetch-code-review-graph-repository-structure-2026-04-04_06-06-31.md
+  sha256:dbc0c2d6cd080eac: data/staging/webfetch-model-context-protocol-configuration-2026-04-04_06-06-37.md
+  sha256:1b30169588791bb1: data/staging/webfetch-project-metadata-and-dependencies-2026-04-04_06-06-37.md
+  sha256:04dec5d1244bb1d8: data/staging/webfetch-based-on-the-provided-content-the-main-2026-04-04_06-06-39.md
+  sha256:b643794b74272832: data/staging/webfetch-code-knowledge-graph-implementation-2026-04-04_06-06-51.md
+  sha256:265969ca01c205f6: data/staging/webfetch-how-claude-code-parses-using-tree-sitter-2026-04-04_06-06-52.md
+  sha256:b82f812328ea59ca: data/staging/webfetch-claude-specific-documentation-overview-2026-04-04_06-07-03.md
+  sha256:087412d0c3ba5eeb: data/staging/webfetch-system-architecture-overview-2026-04-04_06-07-04.md
+  sha256:13b9f0058cec6bc4: data/staging/webfetch-code-review-graph-vs-code-extension-2026-04-04_06-07-14.md
+  sha256:8a06542e7072bb16: data/staging/webfetch-recent-major-features-and-improvements-2026-04-04_06-07-23.md
+  sha256:36398b956f2c1b03: data/staging/webfetch-python-files-in-code-review-graph-directory-2026-04-04_13-32-03.md
+  sha256:0d85500c43d12c27: data/staging/webfetch-cli-commands-for-code-review-graph-2026-04-04_13-32-10.md
+  sha256:281b5fc908b27085: data/staging/webfetch-blast-radius-analysis-how-it-works-2026-04-04_13-32-19.md
+  sha256:fb71aba37bbdffef: data/staging/webfetch-mcp-integration-for-code-review-graph-2026-04-04_13-32-20.md
+  sha256:407fb9b4c03c62c9: data/staging/webfetch-code-review-graph-mcp-entry-point-analysis-2026-04-04_13-32-21.md
+  sha256:8964e415e033ab15: data/staging/webfetch-registry-system-overview-2026-04-04_13-32-27.md
+  sha256:e02e77e10fa162b7: data/staging/webfetch-incremental-update-strategy-2026-04-04_13-32-29.md
+  sha256:b75a73f022515e30: data/staging/webfetch-semantic-search-in-this-system-2026-04-04_13-32-29.md
+  sha256:f1f437db550538c8: data/staging/webfetch-claude-code-integration-details-2026-04-04_13-32-31.md
+  sha256:0cc034777b5f1c1a: data/staging/webfetch-available-mcp-prompt-templates-2026-04-04_13-32-37.md
+  sha256:d0b00a6a16cd975b: data/staging/webfetch-documentation-files-in-code-review-graph-2026-04-04_13-32-37.md
+  sha256:2531d16a28e8de1e: data/staging/webfetch-visualization-capabilities-and-rendering-2026-04-04_13-32-38.md
+  sha256:228e85c6eac64afc: data/staging/webfetch-code-review-graph-features-capabilities-2026-04-04_13-32-47.md
+  sha256:d5421d9fae6b6ef0: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-08.md
+  sha256:e8f391443e7190c6: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-11.md
+  sha256:7b3e6375e3e818e0: data/staging/webfetch-community-detection-module-for-code-knowledge-2026-04-04_13-43-11.md
+  sha256:878cc7beb4107c6a: data/staging/webfetch-community-detection-algorithms-and-cohesion-2026-04-04_13-43-31.md
+  sha256:ce0889db0b28dd3b: data/staging/webfetch-sqlite-knowledge-graph-storage-engine-source-code-2026-04-04_13-43-31.md
+  sha256:c9175436743ea818: data/staging/webfetch-hybrid-search-implementation-analysis-2026-04-04_13-43-32.md
+  sha256:96c01ce29eabfc22: data/staging/webfetch-code-review-graph-flow-tracing-criticality-2026-04-04_13-43-33.md

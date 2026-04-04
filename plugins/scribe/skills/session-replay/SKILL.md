@@ -1,6 +1,6 @@
 ---
 name: session-replay
-description: 'Convert a Claude Code session JSONL into an animated GIF replay.'
+description: 'Convert a Claude Code session JSONL file into an animated GIF replay showing the conversation as typed terminal output.'
 version: 1.7.3
 globs: "**/*.jsonl"
 alwaysApply: false

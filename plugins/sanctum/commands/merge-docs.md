@@ -85,10 +85,12 @@ Before merging, check if content is already covered in existing documentation:
 
 ```bash
 # Search for similar content in existing docs
-grep -r "key topic phrase" docs/ book/ plugins/*/README.md
+rg "key topic phrase" docs/ book/ plugins/*/README.md
+# fallback: grep -r "key topic phrase" docs/ book/ plugins/*/README.md
 
 # Check if a command/skill doc already covers the content
-ls plugins/*/commands/*.md plugins/*/skills/*/SKILL.md | xargs grep -l "topic"
+rg -l "topic" plugins/*/commands/*.md plugins/*/skills/*/SKILL.md
+# fallback: ls plugins/*/commands/*.md plugins/*/skills/*/SKILL.md | xargs grep -l "topic"
 ```
 
 **When to delete instead of merge:**

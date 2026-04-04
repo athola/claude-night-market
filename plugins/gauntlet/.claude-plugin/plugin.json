@@ -6,14 +6,17 @@
     "./skills/extract",
     "./skills/challenge",
     "./skills/onboard",
-    "./skills/curate"
+    "./skills/curate",
+    "./skills/graph-build",
+    "./skills/graph-search"
   ],
   "commands": [
     "./commands/gauntlet.md",
     "./commands/gauntlet-extract.md",
     "./commands/gauntlet-progress.md",
     "./commands/gauntlet-onboard.md",
-    "./commands/gauntlet-curate.md"
+    "./commands/gauntlet-curate.md",
+    "./commands/gauntlet-graph.md"
   ],
   "agents": [
     "./agents/extractor.md"
