@@ -25,10 +25,10 @@ As of Claude Code v2.1.32 (Feb 6, 2026), the skill description budget changed:
 - **Override**: `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable for
   custom limits
 - **Ecosystem validator**:
-  Set to 17,000 to provide growth headroom for future plugins
+  Set to 20,000 to match 1M context window (GA for Opus/Sonnet 4.6)
 
 For standard 200k-token context windows, 2% yields ~16,000 characters.
-Users with larger context windows get proportionally more budget automatically.
+With 1M context (GA since April 2026), the budget is ~20,000 characters.
 
 ### Sources
 
@@ -115,11 +115,11 @@ a two-pronged approach was applied:
 2. **9 attune skill descriptions condensed** using "Use for/Skip if" pattern
    (-745 chars)
 
-| Metric | Round 1-2 | Round 3 | Current |
+| Metric | Round 1-2 | Round 3 | Current (1M ctx) |
 |--------|-----------|---------|---------|
-| **Total Chars** | 14,798 | 16,711 → 15,966 | 15,966 |
-| **Validator Limit** | 15,000 | 17,000 | 17,000 |
-| **Headroom** | 202 chars | 1,034 chars | **6.1% buffer** |
+| **Total Chars** | 14,798 | 16,711 → 15,966 | ~20,918 |
+| **Validator Limit** | 15,000 | 17,000 | 20,000 |
+| **Per-desc Max** | 130 | 130 | 160 |
 
 ## Future Opportunities
 

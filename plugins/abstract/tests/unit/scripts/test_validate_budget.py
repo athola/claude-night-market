@@ -360,7 +360,7 @@ class TestMainFunctionIntegration:
     def test_main_fails_on_verbose_descriptions(
         self, temp_plugin_structure, monkeypatch
     ) -> None:
-        """Scenario: Exit code 1 when descriptions exceed 130 chars.
+        """Scenario: Exit code 1 when descriptions exceed 160 chars.
 
         Given a plugin structure with a verbose description (>160 chars)
         When running main()

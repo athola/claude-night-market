@@ -8,9 +8,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Claude Code has an undocumented ~16,000 character budget for skill
-# metadata in the available_skills section. Each skill costs
-# description_length + ~109 chars overhead (XML tags, name, location).
+# Claude Code budgets 2% of the context window for skill metadata in
+# the available_skills section. With 1M context this is ~20,000 chars.
+# Each skill costs description_length + ~109 chars overhead (XML tags,
+# name, location).
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
 DEFAULT_BUDGET = 20000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
@@ -133,7 +134,7 @@ def calculate_budget_status(
     total_chars = sum(c.desc_length for c in components)
     total_with_overhead = total_chars + len(components) * OVERHEAD_PER_COMPONENT
     verbose = [c for c in components if c.desc_length > DESCRIPTION_MAX]
-    # Estimate how many skills would be visible at ~130 char avg desc
+    # Estimate how many skills would be visible at ~160 char avg desc
     visible_estimate = BUDGET_LIMIT // (DESCRIPTION_MAX + OVERHEAD_PER_COMPONENT)
     failed = len(verbose) > 0  # Fail if any description exceeds max
     warn_only = not failed and total_with_overhead > WARN_THRESHOLD
@@ -197,7 +198,7 @@ def print_budget_report(
             "   See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1"
         )
         print("\nOptimization tips:")
-        print("   - Keep descriptions <= 130 chars (optimal for 60+ skills)")
+        print("   - Keep descriptions <= 160 chars (budget for 1M context)")
         print("   - Front-load trigger keywords in first 50 chars")
         print("   - Use template: [Verb] [domain]. Use when: [trigger1], [trigger2].")
         print("   - Move details to SKILL.md body -- descriptions are for discovery")

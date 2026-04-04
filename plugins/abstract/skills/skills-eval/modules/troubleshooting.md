@@ -16,7 +16,7 @@
 - More prevalent with large skill ecosystems (10+ skills)
 
 **Technical Limits**:
-- **Default budget**: As of Claude Code 2.0.70, skill and command descriptions are limited to approximately 15,000 characters (around 4,000 tokens)
+- **Default budget**: Skill description budget scales at 2% of context window (~20,000 chars for 1M context)
 - **No warning system**: There's currently no notification when you exceed this threshold
 - **Silent failure**: Skills beyond the budget are simply not included in Claude's system prompt
 
