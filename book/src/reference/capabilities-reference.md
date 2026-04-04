@@ -33,13 +33,16 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
+| `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
+| `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
+| `code-communities` | [cartograph](../plugins/cartograph.md) | Detect architectural clusters via community detection |
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `code-search` | [tome](../plugins/tome.md) | GitHub implementation search |
@@ -78,6 +81,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
+| `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
+| `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
@@ -221,6 +226,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/gauntlet` | gauntlet | Run an ad-hoc challenge session (5 questions, random scope) |
 | `/gauntlet-curate` | gauntlet | Add or edit a knowledge annotation |
 | `/gauntlet-extract` | gauntlet | Rebuild the knowledge base from the current codebase |
+| `/gauntlet-graph` | gauntlet | Build, search, and query the code knowledge graph |
 | `/gauntlet-onboard` | gauntlet | Start or resume a guided onboarding path |
 | `/gauntlet-progress` | gauntlet | Show challenge accuracy stats, weak areas, and streak |
 | `/git-catchup` | sanctum | Git repository catchup |
@@ -305,6 +311,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 |-------|--------|-------------|
 | `ai-hygiene-auditor` | conserve | Audit codebases for AI-generation warning signs |
 | `architecture-reviewer` | pensive | Principal-level architecture review |
+| `blast-radius-reviewer` | pensive | Graph-aware code review using blast radius analysis |
 | `bloat-auditor` | conserve | Orchestrates bloat detection scans |
 | `code-refiner` | pensive | Code quality refinement orchestrator |
 | `code-reviewer` | pensive | Expert code review |

@@ -1,0 +1,15 @@
+{
+  "description": "Post-tag submission targets for /create-tag. Repo-specific.",
+  "submissions": [
+    {
+      "name": "ClawHub",
+      "script": "scripts/clawhub-submit.sh",
+      "description": "Submit skills to openclaw/clawhub"
+    },
+    {
+      "name": "Awesome Lists",
+      "script": "scripts/awesome-submit.sh",
+      "description": "Submit to awesome-openclaw lists"
+    }
+  ]
+}

@@ -68,17 +68,50 @@ Tag message format:
 <PR title>
 ```
 
-### Step 5: Submit to ClawHub and Awesome Lists
+### Step 5: Run Post-Tag Submissions (Config-Driven)
 
-After the tag is pushed, run the submission scripts:
+After the tag is pushed, check for a `tag-submissions.json`
+file in the repository root. This file defines which external
+repos or scripts to run after tagging. If the file does not
+exist, skip this step entirely.
 
 ```bash
-./scripts/clawhub-submit.sh <version>
-./scripts/awesome-submit.sh <version>
+# Check for config
+if [ -f tag-submissions.json ]; then
+  # Parse and run each submission script
+  for script in $(python3 -c "
+import json
+for s in json.load(open('tag-submissions.json'))['submissions']:
+    print(s['script'])
+"); do
+    if [ -x "$script" ]; then
+      echo "Running: $script <version>"
+      ./"$script" <version>
+    else
+      echo "Warning: $script not found or not executable, skipping"
+    fi
+  done
+else
+  echo "No tag-submissions.json found, skipping post-tag submissions"
+fi
 ```
 
-These fork target repos (if needed), sync them, and open PRs
-with exported skills. Uses the user's existing `gh auth` session.
+**Config format** (`tag-submissions.json` in repo root):
+```json
+{
+  "submissions": [
+    {
+      "name": "ClawHub",
+      "script": "scripts/clawhub-submit.sh",
+      "description": "Submit skills to openclaw/clawhub"
+    }
+  ]
+}
+```
+
+Each entry's `script` path is relative to the repo root.
+Scripts receive the version tag as their first argument and
+use the user's existing `gh auth` session.
 
 ### Step 6: Report Results
 
