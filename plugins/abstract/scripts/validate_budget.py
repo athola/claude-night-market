@@ -9,12 +9,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Claude Code budgets 2% of the context window for skill metadata in
-# the available_skills section. With 1M context this is ~20,000 chars.
+# the available_skills section. With 1M context this is ~16,000 chars.
 # Each skill costs description_length + ~109 chars overhead (XML tags,
 # name, location).
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
-DEFAULT_BUDGET = 20000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
+DEFAULT_BUDGET = 16000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
 OVERHEAD_PER_COMPONENT = 109  # XML tags, name, location per skill/cmd
 BUDGET_LIMIT = int(os.environ.get("SLASH_COMMAND_TOOL_CHAR_BUDGET", DEFAULT_BUDGET))
 WARN_THRESHOLD = int(BUDGET_LIMIT * 0.90)  # Warn at 90% usage

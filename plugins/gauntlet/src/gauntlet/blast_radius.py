@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from gauntlet.graph import GraphStore
+from gauntlet.incremental import _validate_ref
 from gauntlet.models import EdgeKind, GraphNode
 
 _DEFAULT_WEIGHTS = {
@@ -69,16 +70,17 @@ SECURITY_KEYWORDS = frozenset(
 )
 
 _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
-_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$", re.MULTILINE)
+_FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
 
 
 def parse_git_diff_ranges(
     base_ref: str = "HEAD",
 ) -> dict[str, list[tuple[int, int]]]:
     """Parse git diff --unified=0 for changed line ranges per file."""
+    ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
-            ["git", "diff", "--unified=0", base_ref],
+            ["git", "diff", "--unified=0", ref],
             capture_output=True,
             text=True,
             timeout=10,
@@ -103,6 +105,8 @@ def parse_git_diff_ranges(
         if hunk_match and current_file:
             start = int(hunk_match.group(1))
             count = int(hunk_match.group(2) or "1")
+            if count == 0:
+                continue
             end = start + count - 1
             ranges[current_file].append((start, end))
 

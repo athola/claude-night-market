@@ -35,11 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **hooks-eval documentation**: Updated return value
   examples to show current `hookSpecificOutput` format.
-
-## [Unreleased]
-
-### Changed
-
 - **superpowers upstream sync** (v5.0.7): Updated
   integration docs and dependency matrix to reflect
   superpowers v3.4.1 to v5.0.7 evolution (20+ releases).

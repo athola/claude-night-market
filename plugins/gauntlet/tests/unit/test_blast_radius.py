@@ -62,7 +62,32 @@ class TestParseGitDiffRanges:
             )()
             result = parse_git_diff_ranges("HEAD")
         assert "app.py" in result
-        assert len(result["app.py"]) >= 1
+        assert len(result["app.py"]) == 1
+        assert result["app.py"][0] == (10, 14)
+
+    @pytest.mark.unit
+    def test_skips_deletion_only_hunks(self) -> None:
+        """
+        Scenario: Deletion-only hunks (count=0) are skipped
+        Given a diff with a pure deletion hunk
+        When I parse it
+        Then the deletion hunk is excluded from ranges
+        """
+        diff_output = (
+            "diff --git a/app.py b/app.py\n"
+            "--- a/app.py\n"
+            "+++ b/app.py\n"
+            "@@ -5,3 +5,0 @@ def foo():\n"
+            "-removed line 1\n"
+            "-removed line 2\n"
+            "-removed line 3\n"
+        )
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": diff_output}
+            )()
+            result = parse_git_diff_ranges("HEAD")
+        assert result.get("app.py", []) == []
 
     @pytest.mark.unit
     def test_returns_empty_on_failure(self) -> None:

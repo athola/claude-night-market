@@ -389,19 +389,19 @@ class TestGraphStoreFts5Search:
         assert "Function" not in kinds
 
     @pytest.mark.unit
-    def test_fts_fallback_on_empty_index(self, store: GraphStore) -> None:
+    def test_fts_fallback_on_broken_index(self, store: GraphStore) -> None:
         """
-        Scenario: Search falls back to LIKE when FTS5 has no results
-        Given nodes exist but FTS5 index is empty
+        Scenario: Search falls back to LIKE when FTS5 index is broken
+        Given nodes exist but the FTS5 table is dropped
         When I search
-        Then LIKE-based fallback finds results
+        Then LIKE-based fallback finds matching results
         """
         store.upsert_node(_make_node("app.py::calculate_total"))
-        # Don't rebuild FTS -- force fallback
+        # Drop FTS table to trigger OperationalError fallback
+        store._conn.execute("DROP TABLE IF EXISTS nodes_fts")
         results = store.search_fts("calculate_total")
-        # May or may not find via FTS, but should not crash
-        # The fallback should handle gracefully
-        assert isinstance(results, list)
+        assert len(results) == 1
+        assert results[0].qualified_name == "app.py::calculate_total"
 
 
 class TestGraphStoreMetadata:

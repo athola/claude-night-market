@@ -16,6 +16,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
 | `api-review` | [pensive](../plugins/pensive.md) | API surface evaluation |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
+| `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-paradigm-client-server` | [archetypes](../plugins/archetypes.md) | Client-server communication |
 | `architecture-paradigm-cqrs-es` | [archetypes](../plugins/archetypes.md) | CQRS and Event Sourcing |
 | `architecture-paradigm-event-driven` | [archetypes](../plugins/archetypes.md) | Asynchronous communication |
@@ -30,17 +31,16 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
-| `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
-| `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
 | `challenge` | [gauntlet](../plugins/gauntlet.md) | Adaptive difficulty challenge session for codebase knowledge testing |
+| `class-diagram` | [cartograph](../plugins/cartograph.md) | Class and interface diagrams |
 | `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
 | `code-communities` | [cartograph](../plugins/cartograph.md) | Detect architectural clusters via community detection |
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
@@ -63,12 +63,12 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
 | `discourse` | [tome](../plugins/tome.md) | Community discussion scanning |
+| `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `doc-consolidation` | [sanctum](../plugins/sanctum.md) | Document merging |
 | `doc-generator` | [scribe](../plugins/scribe.md) | Generate and remediate documentation |
 | `doc-importer` | [scribe](../plugins/scribe.md) | Import external documents to markdown |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
 | `document-conversion` | [leyline](../plugins/leyline.md) | Universal document-to-markdown conversion |
-| `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `dorodango` | [attune](../plugins/attune.md) | Iterative code polishing workflow |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
@@ -99,8 +99,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
-| `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
+| `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
 | `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
@@ -113,14 +113,14 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
+| `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |
 | `python-performance` | [parseltongue](../plugins/parseltongue.md) | Profiling and optimization |
 | `python-testing` | [parseltongue](../plugins/parseltongue.md) | Pytest/TDD workflows |
-| `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
-| `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
+| `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
@@ -151,9 +151,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
-| `supply-chain-advisory` | [leyline](../plugins/leyline.md) | Known-bad version detection, lockfile auditing, incident response |
 | `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
 | `summon` | [egregore](../plugins/egregore.md) | Spawn autonomous agent session with budget |
+| `supply-chain-advisory` | [leyline](../plugins/leyline.md) | Known-bad version detection, lockfile auditing, incident response |
 | `synthesize` | [tome](../plugins/tome.md) | Research findings synthesis |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `tech-tutorial` | [scribe](../plugins/scribe.md) | Plan, draft, and refine technical tutorials |
@@ -183,6 +183,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
+| `/acp` | sanctum | Add, commit, push to current branch |
 | `/aggregate-logs` | abstract | Generate LEARNINGS.md from skill execution logs |
 | `/ai-hygiene-audit` | conserve | Audit codebase for AI-generated code quality issues (vibe coding, Tab bloat, slop) |
 | `/analyze-skill` | abstract | Skill complexity analysis |
@@ -205,7 +206,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/catchup` | imbue | Quick context recovery |
 | `/check-async` | parseltongue | Async pattern validation |
 | `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |
-| `/acp` | sanctum | Add, commit, push to current branch |
 | `/commit-msg` | sanctum | Generate commit message |
 | `/context-report` | abstract | Context optimization report |
 | `/control-desktop` | phantom | Run a computer use task on the desktop |
@@ -248,8 +248,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/oracle-setup` | oracle | Install and configure the oracle ONNX inference daemon |
 | `/palace` | memory-palace | Manage palaces |
 | `/plugin-review` | abstract | Tiered plugin quality review (branch/pr/release) |
-| `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
 | `/pr-review` | sanctum | Enhanced PR review |
+| `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
 | `/promote-discussions` | abstract | Promote highly-voted community learnings from Discussions to Issues |
 | `/record-browser` | scry | Record browser session |
 | `/record-terminal` | scry | Create terminal recording |
@@ -350,7 +350,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `skill-auditor` | abstract | Skill quality audit |
 | `skill-evaluator` | abstract | Skill execution evaluator |
 | `skill-improver` | abstract | Implements skill improvements from observability |
-| `slop-hunter` | scribe | Comprehensive AI slop detection |
+| `slop-hunter` | scribe | Full-document AI slop detection |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |
 | `triz-analyst` | tome | TRIZ cross-domain analysis |
@@ -388,21 +388,21 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `pre_compact.py` | tome | PreCompact | Checkpoint active research session |
 | `pre_compact_preserve.py` | conserve | PreCompact | Preserve critical context before compression |
-| `precommit_gate.py` | gauntlet | PreToolUse | Pre-commit quality gate for gauntlet |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
+| `precommit_gate.py` | gauntlet | PreToolUse | Pre-commit quality gate for gauntlet |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `sanitize_external_content.py` | leyline | PostToolUse | Sanitize external content for prompt injection |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |
+| `session-start.sh` | conserve, imbue | SessionStart | Session initialization |
 | `session_complete_notify.py` | sanctum | Stop, UserPromptSubmit | Cross-platform toast notifications and state management |
 | `session_lifecycle.py` | memory-palace | Stop | Session lifecycle management |
 | `session_start.py` | tome | SessionStart | Check for active research sessions |
-| `supply_chain_check.py` | leyline | SessionStart | Warn about known-compromised package versions in lockfiles |
 | `session_start_hook.py` | egregore | SessionStart | Inject manifest context into new sessions |
-| `session-start.sh` | conserve, imbue | SessionStart | Session initialization |
 | `setup.sh` | conserve | Setup | Environment initialization |
 | `setup.sh` | memory-palace | Setup | Palace directory initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
 | `stop_hook.py` | egregore | Stop | Prevent early exit while work items remain |
+| `supply_chain_check.py` | leyline | SessionStart | Warn about known-compromised package versions in lockfiles |
 | `task_created_tracker.py` | sanctum | TaskCreated | Track task creation for workflow completeness monitoring |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |

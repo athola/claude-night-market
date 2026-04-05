@@ -102,7 +102,7 @@ def main() -> None:
             {
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
-                    "permissionDecision": "block",
+                    "permissionDecision": "deny",
                     "permissionDecisionReason": msg,
                 }
             }

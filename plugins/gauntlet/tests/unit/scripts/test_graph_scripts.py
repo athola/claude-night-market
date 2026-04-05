@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("tree_sitter")
+
 _SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "scripts"
 
 

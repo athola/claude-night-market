@@ -228,7 +228,10 @@ def _graph_staleness_warning(
         except (json.JSONDecodeError, OSError, TypeError, ValueError):
             pass
 
-    mtime = db_path.stat().st_mtime
+    try:
+        mtime = db_path.stat().st_mtime
+    except OSError:
+        return None
     age_hours = (time.time() - mtime) / 3600
 
     if age_hours <= threshold:

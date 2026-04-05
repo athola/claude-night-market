@@ -6,8 +6,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from gauntlet.graph import GraphStore
-from gauntlet.incremental import (
+
+pytest.importorskip("tree_sitter")
+
+from gauntlet.graph import GraphStore  # noqa: E402 - must follow importorskip
+from gauntlet.incremental import (  # noqa: E402 - must follow importorskip
     _validate_ref,
     collect_files,
     find_dependents,
@@ -15,7 +18,12 @@ from gauntlet.incremental import (
     get_changed_files,
     incremental_update,
 )
-from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+from gauntlet.models import (  # noqa: E402 - must follow importorskip
+    EdgeKind,
+    GraphEdge,
+    GraphNode,
+    NodeKind,
+)
 
 
 @pytest.fixture()

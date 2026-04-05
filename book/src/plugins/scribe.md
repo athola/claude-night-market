@@ -42,7 +42,7 @@ It integrates with sanctum's documentation workflows.
 | Agent | Description |
 |-------|-------------|
 | `doc-editor` | Interactive documentation editing |
-| `slop-hunter` | Comprehensive slop detection |
+| `slop-hunter` | Full-document slop detection |
 | `doc-verifier` | QA validation using proof-of-work methodology |
 
 ## Usage Examples
@@ -53,7 +53,7 @@ It integrates with sanctum's documentation workflows.
 # Scan using the slop-detector skill
 Skill(scribe:slop-detector)
 
-# Or use the slop-hunter agent for comprehensive detection
+# Or use the slop-hunter agent for thorough detection
 Agent(scribe:slop-hunter)
 ```
 
@@ -103,14 +103,15 @@ Scribe detects patterns that reveal AI-generated content:
 
 ### Tier 1 Words (Highest Confidence)
 
-Words that appear dramatically more often in AI text: delve, tapestry, realm,
-embark, beacon, multifaceted, nuanced, pivotal, meticulous, showcasing,
-leveraging, streamline, comprehensive.
+Words that appear far more often in AI text than human text.
+See `Skill(scribe:slop-detector)` for the full word list
+and scoring weights.
 
 ### Phrase Patterns
 
-Formulaic constructions like "In today's fast-paced world," "cannot be
-overstated," "navigate the complexities," and "treasure trove of."
+Formulaic constructions: vapid openers, empty emphasis,
+and attribution cliches. The detector scores these at 2-4
+points each.
 
 ### Structural Markers
 
@@ -129,52 +130,43 @@ Scribe enforces these principles:
 
 ## Vocabulary Substitutions
 
-| Instead of | Use |
-|------------|-----|
-| leverage | use |
-| utilize | use |
-| comprehensive | thorough |
-| robust | solid |
-| facilitate | help |
-| optimize | improve |
-| delve | explore |
-| embark | start |
+Scribe suggests plain replacements for flagged words.
+See `Skill(scribe:slop-detector)` for the full
+substitution table with context-aware alternatives.
 
 ## Examples
 
 These examples show slop remediation in practice.
 Each pair includes a score reduction from the detector.
 
-### Example 1: Vocabulary Slop
+### Example 1: Vocabulary Slop (8/10 to 1/10)
 
-**Before** (score: 8/10):
-> "This comprehensive solution leverages cutting-edge technology to delve into the multifaceted realm of documentation quality."
+A sentence with five Tier 1 words was reduced to plain
+language. The fix replaced jargon verbs with "uses" and
+"check," and removed unnecessary adjectives.
 
-**After** (score: 1/10):
-> "This solution uses modern tools to check documentation quality."
+**After**:
+> "This solution uses modern tools to check
+> documentation quality."
 
-Removed: comprehensive, leverages, delve, multifaceted, realm.
+### Example 2: Structural Patterns (7/10 to 1/10)
 
-### Example 2: Structural Patterns (Em Dash Overuse)
+Four em dashes in a single sentence were collapsed into
+one flowing statement using "and" and "to."
 
-**Before** (score: 7/10):
-> "The system—which processes requests—handles validation—ensuring data integrity—before returning results."
+**After**:
+> "The system processes requests and handles validation
+> to ensure data integrity before returning results."
 
-**After** (score: 1/10):
-> "The system processes requests and handles validation to ensure data integrity before returning results."
+### Example 3: Phrase Patterns (9/10 to 1/10)
 
-Four em dashes collapsed into a single flowing sentence.
+A vapid opener, a filler hedge, and an empty emphasis
+phrase were all removed. The rewrite states the tool's
+purpose directly.
 
-### Example 3: Phrase Patterns
-
-**Before** (score: 9/10):
-> "In today's fast-paced world, it's worth noting that this tool cannot be overstated as a testament to documentation quality."
-
-**After** (score: 1/10):
-> "This tool improves documentation quality by detecting and flagging AI-generated patterns."
-
-Removed: "In today's fast-paced world," opener,
-"it's worth noting that," and "cannot be overstated."
+**After**:
+> "This tool improves documentation quality by detecting
+> and flagging AI-generated patterns."
 
 ## Integration
 

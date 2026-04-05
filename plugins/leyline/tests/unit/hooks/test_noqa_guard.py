@@ -188,7 +188,7 @@ class TestHookIntegration:
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
-        assert output["hookSpecificOutput"]["permissionDecision"] == "block"
+        assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
 
     @pytest.mark.unit
     def test_blocks_edit_with_type_ignore(self) -> None:
@@ -213,7 +213,7 @@ class TestHookIntegration:
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
-        assert output["hookSpecificOutput"]["permissionDecision"] == "block"
+        assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
 
     @pytest.mark.unit
     def test_allows_clean_edit(self) -> None:
@@ -262,7 +262,7 @@ class TestHookIntegration:
         )
         assert result.returncode == 0
         output = json.loads(result.stdout)
-        assert output["hookSpecificOutput"]["permissionDecision"] == "block"
+        assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
 
     @pytest.mark.unit
     def test_ignores_non_edit_write_tools(self) -> None:

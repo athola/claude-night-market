@@ -289,10 +289,10 @@ class TestBudgetConstants:
         """Scenario: Budget limit reflects 2% of 1M context window.
 
         Given the DEFAULT_BUDGET constant
-        Then it should be 20,000 (2% of 1M context).
+        Then it should be 16,000 chars.
         """
         assert BUDGET_LIMIT > 0
-        assert DEFAULT_BUDGET == 20000
+        assert DEFAULT_BUDGET == 16000
 
     @pytest.mark.bdd
     @pytest.mark.unit

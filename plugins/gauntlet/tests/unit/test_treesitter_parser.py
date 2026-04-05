@@ -5,8 +5,14 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from gauntlet.models import EdgeKind, NodeKind
-from gauntlet.treesitter_parser import detect_language, parse_file
+
+pytest.importorskip("tree_sitter")
+
+from gauntlet.models import EdgeKind, NodeKind  # noqa: E402 - must follow importorskip
+from gauntlet.treesitter_parser import (  # noqa: E402 - must follow importorskip
+    detect_language,
+    parse_file,
+)
 
 
 @pytest.fixture()
