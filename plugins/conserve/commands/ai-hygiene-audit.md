@@ -94,7 +94,6 @@ python3 plugins/conserve/scripts/detect_duplicates.py . --format json --threshol
 - **Pass-through wrappers**: Functions that delegate without adding logic
 - **Docstring bloat**: Multi-line docstrings on trivial 2-3 line functions
 
-Inspired by [desloppify](https://github.com/peteromallet/desloppify).
 See the ai-hygiene-auditor agent for thresholds and false-positive exclusions.
 
 ### Dependency Verification

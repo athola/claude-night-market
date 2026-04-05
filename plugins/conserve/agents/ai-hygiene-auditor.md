@@ -225,9 +225,8 @@ def detect_documentation_slop(docs_path):
 
 ### Category 6: Code-Level AI Debt
 
-Inspired by [desloppify](https://github.com/peteromallet/desloppify)'s
-AI-generated debt dimension. Detects *live but low-value* code patterns
-that LLMs produce at high rates.
+Detects *live but low-value* code patterns that LLMs produce
+at high rates.
 
 ```python
 def detect_ai_code_debt(code_path):

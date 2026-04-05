@@ -284,8 +284,7 @@ HIGH_FREQ_SHIFT_WORDS = [
 
 ## False-Positive Exclusions
 
-Adapted from desloppify's "skip" pattern: always define what
-to detect AND what to ignore.
+Always define what to detect AND what to ignore.
 Flagging legitimate usage erodes trust in the detector.
 
 ### Word-Level Exclusions
