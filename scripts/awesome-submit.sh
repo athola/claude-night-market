@@ -109,11 +109,6 @@ for TARGET in "${TARGETS[@]}"; do
   git config user.name "$FORK_OWNER"
   git config user.email "${FORK_OWNER}@users.noreply.github.com"
 
-  # Clean up stale branch from previous failed runs
-  if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-    git push origin --delete "$BRANCH" 2>/dev/null || true
-  fi
-
   git checkout -b "$BRANCH"
 
   # Add entry if not already present in upstream
@@ -163,7 +158,21 @@ open('README.md', 'w').write(content)
     continue
   fi
 
-  git push origin "$BRANCH"
+  git push --force-with-lease origin "$BRANCH"
+
+  # Check if a PR already exists for this branch (e.g. from a prior failed run)
+  EXISTING_PR=$(gh pr list \
+    --repo "$TARGET" \
+    --head "${FORK_OWNER}:${BRANCH}" \
+    --state open \
+    --json number -q '.[0].number' 2>/dev/null || true)
+
+  if [ -n "$EXISTING_PR" ]; then
+    echo "PR #${EXISTING_PR} updated on $TARGET"
+    cd "$REPO_ROOT"
+    rm -rf "$WORKDIR"
+    continue
+  fi
 
   gh pr create \
     --repo "$TARGET" \
