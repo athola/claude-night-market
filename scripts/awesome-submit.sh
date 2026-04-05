@@ -103,6 +103,7 @@ for TARGET in "${TARGETS[@]}"; do
   # Add entry if not already present
   if grep -q "night-market" README.md; then
     echo "Already listed in $TARGET, skipping"
+    cd "$REPO_ROOT"
     rm -rf "$WORKDIR"
     continue
   fi
@@ -128,6 +129,7 @@ open('README.md', 'w').write(content)
 
   if git diff --quiet; then
     echo "No changes needed"
+    cd "$REPO_ROOT"
     rm -rf "$WORKDIR"
     continue
   fi
@@ -140,6 +142,7 @@ open('README.md', 'w').write(content)
 
   if [ "$DRY_RUN" = true ]; then
     echo "Dry run -- skipping push/PR for $TARGET"
+    cd "$REPO_ROOT"
     rm -rf "$WORKDIR"
     continue
   fi
@@ -167,6 +170,7 @@ PRBODYEOF
     echo "PR created on $TARGET"
   fi
 
+  cd "$REPO_ROOT"
   rm -rf "$WORKDIR"
 done
 
