@@ -8,9 +8,10 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from gauntlet.constants import SECURITY_KEYWORDS
 from gauntlet.graph import GraphStore
 from gauntlet.incremental import _validate_ref
-from gauntlet.models import EdgeKind, GraphNode
+from gauntlet.models import EdgeKind, GraphNode, NodeKind
 
 _DEFAULT_WEIGHTS = {
     "test_gap": 0.30,
@@ -44,30 +45,6 @@ def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
         pass
     return weights
 
-
-SECURITY_KEYWORDS = frozenset(
-    {
-        "auth",
-        "login",
-        "password",
-        "token",
-        "session",
-        "crypt",
-        "secret",
-        "credential",
-        "permission",
-        "sql",
-        "query",
-        "execute",
-        "sanitize",
-        "encrypt",
-        "decrypt",
-        "hash",
-        "sign",
-        "verify",
-        "admin",
-    }
-)
 
 _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
@@ -214,7 +191,7 @@ def analyze_changes(
     untested = [
         n
         for n in all_affected
-        if n.kind.value == "Function"
+        if n.kind == NodeKind.FUNCTION
         and not any(
             e.kind == EdgeKind.TESTED_BY
             for e in graph.get_edges_by_source(n.qualified_name)

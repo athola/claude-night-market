@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import subprocess
 import time
@@ -12,6 +13,8 @@ from typing import Any
 from gauntlet.graph import GraphStore
 from gauntlet.models import EdgeKind
 from gauntlet.treesitter_parser import detect_language, parse_file
+
+_log = logging.getLogger(__name__)
 
 _UNSAFE_REF_PATTERN = re.compile(r"[`$;|&]|\.\.|\@\{")
 
@@ -78,6 +81,10 @@ def get_changed_files(base_ref: str = "HEAD") -> list[str]:
             timeout=10,
         )
         if result.returncode != 0:
+            _log.info(
+                "git diff failed (rc=%d), falling back to staged files",
+                result.returncode,
+            )
             return _get_staged_files()
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
     except (subprocess.TimeoutExpired, FileNotFoundError):

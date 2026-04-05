@@ -53,9 +53,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         import gauntlet.blast_radius as _br
         import gauntlet.graph as _gg
 
-        graph = _gg.GraphStore(str(db_path))
-        report = _br.analyze_changes(graph, base_ref="HEAD")
-        graph.close()
+        with _gg.GraphStore(str(db_path)) as graph:
+            report = _br.analyze_changes(graph, base_ref="HEAD")
     except Exception:
         return None
 

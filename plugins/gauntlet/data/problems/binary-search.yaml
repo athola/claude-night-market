@@ -1,0 +1,273 @@
+category: "binary-search"
+
+problems:
+  - id: "binary-search-001"
+    title: "Binary Search"
+    difficulty: "easy"
+    prompt: |
+      Given a sorted array of distinct integers nums and an integer
+      target, return the index of target if it is found. If not, return
+      -1. You must write an algorithm with O(log n) runtime complexity.
+
+      Constraints:
+        - 1 <= nums.length <= 10^4
+        - -10^4 < nums[i], target < 10^4
+        - All integers in nums are unique
+        - nums is sorted in ascending order
+
+      Example 1:
+        Input: nums = [-1, 0, 3, 5, 9, 12], target = 9
+        Output: 4
+
+      Example 2:
+        Input: nums = [-1, 0, 3, 5, 9, 12], target = 2
+        Output: -1
+    hints:
+      - "Compare the target with the middle element of the current range."
+      - "Narrow the search to the left or right half based on the comparison."
+    solution_outline: |
+      Standard binary search: maintain left and right bounds. Compute
+      mid = (left + right) // 2. If nums[mid] == target, return mid.
+      If nums[mid] < target, search right half. Otherwise, search left
+      half. Return -1 if bounds cross.
+      Time: O(log n). Space: O(1).
+    tags: ["binary-search", "arrays"]
+    neetcode_id: "neetcode-028"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-002"
+    title: "Search a 2D Matrix"
+    difficulty: "medium"
+    prompt: |
+      You are given an m x n integer matrix with the following
+      properties:
+        - Each row is sorted in non-decreasing order.
+        - The first integer of each row is greater than the last
+          integer of the previous row.
+
+      Given an integer target, return true if target is in the matrix,
+      or false otherwise. You must solve it in O(log(m * n)) time.
+
+      Constraints:
+        - m == matrix.length
+        - n == matrix[i].length
+        - 1 <= m, n <= 100
+        - -10^4 <= matrix[i][j], target <= 10^4
+
+      Example:
+        Input: matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]],
+               target = 3
+        Output: true
+    hints:
+      - "The matrix, read row by row, forms one sorted sequence."
+      - "Treat it as a 1D sorted array and run binary search."
+      - "Convert a 1D index to 2D coordinates: row = idx // n, col = idx % n."
+    solution_outline: |
+      Treat the matrix as a virtual 1D sorted array of size m*n. Run
+      binary search on indices 0 to m*n-1. Convert each mid index to
+      row = mid // n and col = mid % n to access the matrix element.
+      Time: O(log(m * n)). Space: O(1).
+    tags: ["binary-search", "matrix"]
+    neetcode_id: "neetcode-029"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-003"
+    title: "Koko Eating Bananas"
+    difficulty: "medium"
+    prompt: |
+      Koko loves to eat bananas. There are n piles of bananas. The i-th
+      pile has piles[i] bananas. Guards will return in h hours.
+
+      Koko can decide her eating speed k (bananas per hour). Each hour,
+      she chooses a pile and eats k bananas from it. If the pile has
+      fewer than k bananas, she eats all of them and does not eat any
+      more during that hour.
+
+      Return the minimum integer k such that she can eat all bananas
+      within h hours.
+
+      Constraints:
+        - 1 <= piles.length <= 10^4
+        - piles.length <= h <= 10^9
+        - 1 <= piles[i] <= 10^9
+
+      Example 1:
+        Input: piles = [3, 6, 7, 11], h = 8
+        Output: 4
+
+      Example 2:
+        Input: piles = [30, 11, 23, 4, 20], h = 5
+        Output: 30
+    hints:
+      - "Binary search on the answer: the eating speed k."
+      - "For a given k, compute total hours needed: sum of ceil(piles[i] / k) for all piles."
+      - "Search range is 1 to max(piles)."
+    solution_outline: |
+      Binary search on k in range [1, max(piles)]. For each candidate
+      k, compute total hours as sum of ceil(piles[i] / k). If total
+      hours <= h, try a smaller k (search left). Otherwise search right.
+      Return the smallest valid k.
+      Time: O(n * log(max(piles))). Space: O(1).
+    tags: ["binary-search", "math"]
+    neetcode_id: "neetcode-030"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-004"
+    title: "Find Minimum in Rotated Sorted Array"
+    difficulty: "medium"
+    prompt: |
+      An array of length n sorted in ascending order is rotated between
+      1 and n times. For example, [0,1,2,4,5,6,7] might become
+      [4,5,6,7,0,1,2].
+
+      Given the sorted rotated array nums of unique elements, return the
+      minimum element. You must solve it in O(log n) time.
+
+      Constraints:
+        - n == nums.length
+        - 1 <= n <= 5000
+        - -5000 <= nums[i] <= 5000
+        - All values are unique
+        - nums was sorted and then rotated 1 to n times
+
+      Example 1:
+        Input: nums = [3, 4, 5, 1, 2]
+        Output: 1
+
+      Example 2:
+        Input: nums = [4, 5, 6, 7, 0, 1, 2]
+        Output: 0
+    hints:
+      - "The minimum is at the rotation point where the order breaks."
+      - "Compare the middle element with the rightmost element."
+      - "If nums[mid] > nums[right], the minimum is in the right half."
+    solution_outline: |
+      Binary search: compare nums[mid] with nums[right]. If nums[mid]
+      > nums[right], the rotation point (minimum) is in [mid+1, right].
+      Otherwise, it is in [left, mid]. Continue until left == right.
+      Time: O(log n). Space: O(1).
+    tags: ["binary-search", "arrays"]
+    neetcode_id: "neetcode-031"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-005"
+    title: "Search in Rotated Sorted Array"
+    difficulty: "medium"
+    prompt: |
+      An integer array nums sorted in ascending order (with distinct
+      values) is rotated at some pivot. Given the rotated array and an
+      integer target, return the index of target if it is in the array,
+      or -1 if it is not. You must achieve O(log n) runtime.
+
+      Constraints:
+        - 1 <= nums.length <= 5000
+        - -10^4 <= nums[i] <= 10^4
+        - All values are unique
+        - -10^4 <= target <= 10^4
+
+      Example 1:
+        Input: nums = [4, 5, 6, 7, 0, 1, 2], target = 0
+        Output: 4
+
+      Example 2:
+        Input: nums = [4, 5, 6, 7, 0, 1, 2], target = 3
+        Output: -1
+    hints:
+      - "At least one half of the array around mid is always sorted."
+      - "Determine which half is sorted by comparing nums[left] with nums[mid]."
+      - "Check if the target falls within the sorted half to decide which direction to search."
+    solution_outline: |
+      Binary search with a twist. If nums[left] <= nums[mid], the left
+      half is sorted: check if target is in [nums[left], nums[mid]). If
+      so, search left; otherwise search right. If the right half is
+      sorted, apply the mirror logic. This always eliminates half the
+      array.
+      Time: O(log n). Space: O(1).
+    tags: ["binary-search", "arrays"]
+    neetcode_id: "neetcode-032"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-006"
+    title: "Time Based Key-Value Store"
+    difficulty: "medium"
+    prompt: |
+      Design a time-based key-value data structure that can store
+      multiple values for the same key at different timestamps and
+      retrieve the value at a certain timestamp.
+
+      Implement the TimeMap class:
+        - TimeMap() initializes the object.
+        - void set(String key, String value, int timestamp) stores the
+          key with the value at the given timestamp.
+        - String get(String key, int timestamp) returns a value such
+          that set was called previously with timestamp_prev <=
+          timestamp. If there are multiple such values, return the one
+          with the largest timestamp_prev. If no values exist, return
+          the empty string "".
+
+      Constraints:
+        - 1 <= key.length, value.length <= 100
+        - 1 <= timestamp <= 10^7
+        - All timestamps for set are strictly increasing for a given key
+        - At most 2 * 10^5 calls to set and get
+
+      Example:
+        TimeMap tm = new TimeMap();
+        tm.set("foo", "bar", 1);
+        tm.set("foo", "bar2", 4);
+        tm.get("foo", 1);  // "bar"
+        tm.get("foo", 3);  // "bar"
+        tm.get("foo", 4);  // "bar2"
+        tm.get("foo", 5);  // "bar2"
+    hints:
+      - "For each key, store a sorted list of (timestamp, value) pairs."
+      - "Since timestamps for set are strictly increasing, the list is already sorted."
+      - "Use binary search to find the largest timestamp <= the query timestamp."
+    solution_outline: |
+      Use a hash map from key to a list of (timestamp, value) pairs.
+      Since set timestamps are strictly increasing, each list is sorted.
+      For get, binary search for the largest timestamp <= the queried
+      timestamp and return the corresponding value.
+      Time: O(log n) per get, O(1) per set. Space: O(n).
+    tags: ["binary-search", "hash-map", "design"]
+    neetcode_id: "neetcode-033"
+    challenge_type: "explain_why"
+
+  - id: "binary-search-007"
+    title: "Median of Two Sorted Arrays"
+    difficulty: "hard"
+    prompt: |
+      Given two sorted arrays nums1 and nums2 of size m and n
+      respectively, return the median of the two sorted arrays. The
+      overall runtime complexity must be O(log(min(m, n))).
+
+      Constraints:
+        - nums1.length == m
+        - nums2.length == n
+        - 0 <= m <= 1000
+        - 0 <= n <= 1000
+        - 1 <= m + n <= 2000
+        - -10^6 <= nums1[i], nums2[i] <= 10^6
+
+      Example 1:
+        Input: nums1 = [1, 3], nums2 = [2]
+        Output: 2.0
+
+      Example 2:
+        Input: nums1 = [1, 2], nums2 = [3, 4]
+        Output: 2.5
+    hints:
+      - "Binary search on the partition of the smaller array."
+      - "A valid partition ensures all elements on the left side are <= all elements on the right side."
+      - "Use the partition of one array to infer the partition of the other."
+    solution_outline: |
+      Binary search on the partition index of the shorter array. If
+      nums1 has m elements, try partition i in [0, m]. The corresponding
+      partition in nums2 is j = (m + n + 1) / 2 - i. A valid partition
+      has maxLeft1 <= minRight2 and maxLeft2 <= minRight1. The median
+      is derived from the max of the left sides and min of the right
+      sides.
+      Time: O(log(min(m, n))). Space: O(1).
+    tags: ["binary-search", "arrays", "divide-and-conquer"]
+    neetcode_id: "neetcode-034"
+    challenge_type: "multiple_choice"

@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 logger = logging.getLogger(__name__)
 
 # Threshold for warning about accumulated output (bytes)

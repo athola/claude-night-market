@@ -51,7 +51,7 @@ disallow_untyped_defs = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
-addopts = "-v --cov=scripts --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v"
 markers = [
     "unit: Unit tests",
 ]

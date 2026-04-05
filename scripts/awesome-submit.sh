@@ -86,6 +86,7 @@ for TARGET in "${TARGETS[@]}"; do
   gh repo sync "${FORK_OWNER}/${REPO_NAME}" --branch main 2>&1 || true
 
   WORKDIR=$(mktemp -d)
+  trap 'rm -rf "$WORKDIR"' EXIT
 
   gh repo clone "${FORK_OWNER}/${REPO_NAME}" "$WORKDIR/repo" -- --depth=10
   cd "$WORKDIR/repo"

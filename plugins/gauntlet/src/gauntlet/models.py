@@ -35,6 +35,7 @@ class EdgeKind(str, Enum):
     INHERITS = "INHERITS"
     CONTAINS = "CONTAINS"
     IMPLEMENTS = "IMPLEMENTS"
+    # Direction: implementation_node -> test_node
     TESTED_BY = "TESTED_BY"
 
     def __str__(self) -> str:
@@ -132,6 +133,12 @@ class GraphEdge:
     def __post_init__(self) -> None:
         self.source_qn = _sanitize_name(self.source_qn)
         self.target_qn = _sanitize_name(self.target_qn)
+        if not self.source_qn:
+            msg = "source_qn must not be empty"
+            raise ValueError(msg)
+        if not self.target_qn:
+            msg = "target_qn must not be empty"
+            raise ValueError(msg)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a dictionary."""
@@ -386,6 +393,74 @@ class DeveloperProgress:
             history=[AnswerRecord.from_dict(r) for r in data.get("history", [])],
             last_seen=data.get("last_seen", {}),
             streak=data.get("streak", 0),
+        )
+
+
+class Difficulty(str, Enum):
+    """Difficulty tier aligned with LeetCode/NeetCode ratings."""
+
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+    EXTRA_HARD = "extra_hard"
+
+    def __str__(self) -> str:
+        return self.value
+
+    def to_numeric(self) -> int:
+        """Map to 1-5 scale for Challenge compatibility."""
+        return {
+            Difficulty.EASY: 1,
+            Difficulty.MEDIUM: 2,
+            Difficulty.HARD: 4,
+            Difficulty.EXTRA_HARD: 5,
+        }[self]
+
+
+@dataclass
+class BankProblem:
+    """A standalone DSA or system design problem from the problem bank."""
+
+    id: str
+    title: str
+    category: str
+    difficulty: Difficulty
+    prompt: str
+    hints: list[str] = field(default_factory=list)
+    solution_outline: str = ""
+    tags: list[str] = field(default_factory=list)
+    neetcode_id: str = ""
+    challenge_type: str = "explain_why"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a JSON-compatible dictionary."""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "category": self.category,
+            "difficulty": str(self.difficulty),
+            "prompt": self.prompt,
+            "hints": self.hints,
+            "solution_outline": self.solution_outline,
+            "tags": self.tags,
+            "neetcode_id": self.neetcode_id,
+            "challenge_type": self.challenge_type,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> BankProblem:
+        """Deserialize from a dictionary."""
+        return cls(
+            id=data["id"],
+            title=data["title"],
+            category=data["category"],
+            difficulty=Difficulty(data["difficulty"]),
+            prompt=data["prompt"],
+            hints=data.get("hints", []),
+            solution_outline=data.get("solution_outline", ""),
+            tags=data.get("tags", []),
+            neetcode_id=data.get("neetcode_id", ""),
+            challenge_type=data.get("challenge_type", "explain_why"),
         )
 
 

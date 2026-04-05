@@ -1,0 +1,220 @@
+category: "sliding-window"
+
+problems:
+  - id: "sliding-window-001"
+    title: "Best Time to Buy and Sell Stock"
+    difficulty: "easy"
+    prompt: |
+      You are given an array prices where prices[i] is the price of a
+      given stock on the i-th day. You want to maximize your profit by
+      choosing a single day to buy and a single day to sell in the
+      future. Return the maximum profit you can achieve. If no profit is
+      possible, return 0.
+
+      Constraints:
+        - 1 <= prices.length <= 10^5
+        - 0 <= prices[i] <= 10^4
+
+      Example 1:
+        Input: prices = [7, 1, 5, 3, 6, 4]
+        Output: 5
+        Explanation: Buy on day 2 (price = 1), sell on day 5 (price = 6).
+
+      Example 2:
+        Input: prices = [7, 6, 4, 3, 1]
+        Output: 0
+    hints:
+      - "Track the minimum price seen so far as you scan left to right."
+      - "At each day, the best profit if selling today is current price minus the minimum so far."
+    solution_outline: |
+      Maintain a running minimum price. For each price, compute the
+      profit if selling at that price (price - minSoFar) and update the
+      global maximum profit. Update the minimum price if the current
+      price is lower.
+      Time: O(n). Space: O(1).
+    tags: ["sliding-window", "arrays", "greedy"]
+    neetcode_id: "neetcode-015"
+    challenge_type: "explain_why"
+
+  - id: "sliding-window-002"
+    title: "Longest Substring Without Repeating Characters"
+    difficulty: "medium"
+    prompt: |
+      Given a string s, find the length of the longest substring without
+      repeating characters.
+
+      Constraints:
+        - 0 <= s.length <= 5 * 10^4
+        - s consists of English letters, digits, symbols, and spaces
+
+      Example 1:
+        Input: s = "abcabcbb"
+        Output: 3
+        Explanation: The answer is "abc", with length 3.
+
+      Example 2:
+        Input: s = "bbbbb"
+        Output: 1
+
+      Example 3:
+        Input: s = "pwwkew"
+        Output: 3
+    hints:
+      - "Use a sliding window with two pointers."
+      - "Maintain a set of characters in the current window."
+      - "When a duplicate is found, shrink the window from the left until the duplicate is removed."
+    solution_outline: |
+      Use a sliding window with a hash set. Expand the right pointer.
+      If the character is already in the set, remove characters from
+      the left until the window is valid again. Track the maximum
+      window size throughout.
+      Time: O(n). Space: O(min(n, alphabet_size)).
+    tags: ["sliding-window", "hash-set", "string"]
+    neetcode_id: "neetcode-016"
+    challenge_type: "explain_why"
+
+  - id: "sliding-window-003"
+    title: "Longest Repeating Character Replacement"
+    difficulty: "medium"
+    prompt: |
+      You are given a string s and an integer k. You can choose any
+      character of the string and change it to any other uppercase
+      English letter. You can perform this operation at most k times.
+
+      Return the length of the longest substring containing the same
+      letter after performing at most k replacements.
+
+      Constraints:
+        - 1 <= s.length <= 10^5
+        - s consists of only uppercase English letters
+        - 0 <= k <= s.length
+
+      Example 1:
+        Input: s = "ABAB", k = 2
+        Output: 4
+        Explanation: Replace the two 'A's with 'B's or vice versa.
+
+      Example 2:
+        Input: s = "AABABBA", k = 1
+        Output: 4
+    hints:
+      - "Use a sliding window and track the count of each character within it."
+      - "The key insight: window is valid if windowLength - maxFreqInWindow <= k."
+      - "You do not need to decrease maxFreq when shrinking; it only matters when it increases."
+    solution_outline: |
+      Sliding window with a frequency map. Track maxFreq (the count of
+      the most frequent character in the window). If window size minus
+      maxFreq exceeds k, shrink from the left. The answer is the largest
+      valid window seen.
+      Time: O(n). Space: O(26) = O(1).
+    tags: ["sliding-window", "hash-map", "string"]
+    neetcode_id: "neetcode-017"
+    challenge_type: "explain_why"
+
+  - id: "sliding-window-004"
+    title: "Permutation in String"
+    difficulty: "medium"
+    prompt: |
+      Given two strings s1 and s2, return true if s2 contains a
+      permutation of s1, or false otherwise. In other words, return true
+      if one of s1's permutations is a substring of s2.
+
+      Constraints:
+        - 1 <= s1.length, s2.length <= 10^4
+        - s1 and s2 consist of lowercase English letters
+
+      Example 1:
+        Input: s1 = "ab", s2 = "eidbaooo"
+        Output: true
+        Explanation: s2 contains "ba" which is a permutation of "ab".
+
+      Example 2:
+        Input: s1 = "ab", s2 = "eidboaoo"
+        Output: false
+    hints:
+      - "A permutation of s1 has the same character frequencies as s1."
+      - "Use a fixed-size sliding window of length len(s1) over s2."
+      - "Track how many character frequencies match between the window and s1."
+    solution_outline: |
+      Use a sliding window of size len(s1) over s2. Maintain frequency
+      counts for both s1 and the window. Track the number of matching
+      character counts (out of 26). When all 26 match, return true.
+      Slide the window by adding the new right character and removing
+      the old left character.
+      Time: O(n). Space: O(1).
+    tags: ["sliding-window", "hash-map", "string"]
+    neetcode_id: "neetcode-018"
+    challenge_type: "explain_why"
+
+  - id: "sliding-window-005"
+    title: "Minimum Window Substring"
+    difficulty: "hard"
+    prompt: |
+      Given two strings s and t, return the minimum window substring of
+      s such that every character in t (including duplicates) is included
+      in the window. If no such substring exists, return the empty
+      string "".
+
+      Constraints:
+        - 1 <= s.length, t.length <= 10^5
+        - s and t consist of uppercase and lowercase English letters
+
+      Example 1:
+        Input: s = "ADOBECODEBANC", t = "ABC"
+        Output: "BANC"
+
+      Example 2:
+        Input: s = "a", t = "a"
+        Output: "a"
+
+      Example 3:
+        Input: s = "a", t = "aa"
+        Output: ""
+    hints:
+      - "Use a sliding window: expand right to include required characters, shrink left to minimize."
+      - "Track how many distinct characters have met their required count."
+      - "When all required characters are satisfied, try to shrink from the left."
+    solution_outline: |
+      Build a frequency map for t. Use two pointers to maintain a window
+      over s. Expand right, updating window counts. When all characters
+      in t are satisfied, contract from the left while still valid,
+      updating the minimum window. Use a "formed" counter tracking how
+      many unique characters meet their required count.
+      Time: O(s + t). Space: O(s + t).
+    tags: ["sliding-window", "hash-map", "string"]
+    neetcode_id: "neetcode-019"
+    challenge_type: "explain_why"
+
+  - id: "sliding-window-006"
+    title: "Sliding Window Maximum"
+    difficulty: "hard"
+    prompt: |
+      You are given an array of integers nums and a sliding window of
+      size k which moves from the very left to the very right. You can
+      only see the k numbers in the window. Each time the window moves
+      one position to the right, return the maximum value in the window.
+
+      Return an array of the max values for each window position.
+
+      Constraints:
+        - 1 <= nums.length <= 10^5
+        - -10^4 <= nums[i] <= 10^4
+        - 1 <= k <= nums.length
+
+      Example:
+        Input: nums = [1, 3, -1, -3, 5, 3, 6, 7], k = 3
+        Output: [3, 3, 5, 5, 6, 7]
+    hints:
+      - "A brute-force approach checks all k elements per window. Can you do better?"
+      - "Use a monotonic decreasing deque to track candidate maximums."
+      - "Remove elements from the front of the deque when they leave the window."
+    solution_outline: |
+      Maintain a deque storing indices in decreasing order of their
+      values. For each new element: remove indices outside the window
+      from the front, remove all indices from the back whose values are
+      smaller than the current element, then push the current index.
+      The front of the deque is always the window maximum.
+      Time: O(n). Space: O(k).
+    tags: ["sliding-window", "monotonic-deque", "arrays"]
+    neetcode_id: "neetcode-020"
+    challenge_type: "multiple_choice"

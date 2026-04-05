@@ -194,6 +194,17 @@ class TestComputeCriticality:
         assert score > 0.0
 
     @pytest.mark.unit
+    def test_empty_flow_nodes_returns_zero(self, store: GraphStore) -> None:
+        """
+        Scenario: Empty flow yields zero criticality
+        Given an empty list of flow nodes
+        When I compute criticality
+        Then the score is 0.0
+        """
+        score = compute_criticality([], store)
+        assert score == 0.0
+
+    @pytest.mark.unit
     def test_criticality_capped_at_one(self, store: GraphStore) -> None:
         """Score never exceeds 1.0."""
         nodes = []
