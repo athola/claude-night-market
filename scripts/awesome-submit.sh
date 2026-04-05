@@ -74,6 +74,22 @@ for TARGET in "${TARGETS[@]}"; do
   REPO_NAME=$(echo "$TARGET" | cut -d/ -f2)
   BRANCH="add-night-market-${VERSION}"
 
+  # Check for existing open PR from us before doing any work
+  EXISTING=$(gh pr list \
+    --repo "$TARGET" \
+    --author "$FORK_OWNER" \
+    --search "night-market" \
+    --state open \
+    --json number,url -q '.[0]' 2>/dev/null || true)
+
+  if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+    EXISTING_NUM=$(echo "$EXISTING" | python3 -c "import sys,json; print(json.load(sys.stdin)['number'])")
+    EXISTING_URL=$(echo "$EXISTING" | python3 -c "import sys,json; print(json.load(sys.stdin)['url'])")
+    echo "Open PR #${EXISTING_NUM} already exists: ${EXISTING_URL}"
+    echo "Skipping $TARGET"
+    continue
+  fi
+
   # Ensure fork exists
   gh repo fork "$TARGET" --clone=false 2>&1 || true
 
@@ -93,14 +109,14 @@ for TARGET in "${TARGETS[@]}"; do
   git config user.name "$FORK_OWNER"
   git config user.email "${FORK_OWNER}@users.noreply.github.com"
 
-  # Clean up stale branch
+  # Clean up stale branch from previous failed runs
   if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
     git push origin --delete "$BRANCH" 2>/dev/null || true
   fi
 
   git checkout -b "$BRANCH"
 
-  # Add entry if not already present
+  # Add entry if not already present in upstream
   if grep -q "night-market" README.md; then
     echo "Already listed in $TARGET, skipping"
     cd "$REPO_ROOT"
@@ -149,26 +165,17 @@ open('README.md', 'w').write(content)
 
   git push origin "$BRANCH"
 
-  EXISTING=$(gh pr list \
+  gh pr create \
     --repo "$TARGET" \
     --head "${FORK_OWNER}:${BRANCH}" \
-    --json number -q '.[0].number' 2>/dev/null || true)
-
-  if [ -n "$EXISTING" ]; then
-    echo "PR #${EXISTING} updated"
-  else
-    gh pr create \
-      --repo "$TARGET" \
-      --head "${FORK_OWNER}:${BRANCH}" \
-      --title "Add night-market skills" \
-      --body "$(cat <<'PRBODYEOF'
+    --title "Add night-market skills" \
+    --body "$(cat <<'PRBODYEOF'
 Adds [Claude Night Market](https://github.com/athola/claude-night-market)
 -- curated skills for code review, testing, documentation, architecture,
 and git workflows. MIT licensed, published on ClawHub.
 PRBODYEOF
-      )"
-    echo "PR created on $TARGET"
-  fi
+    )"
+  echo "PR created on $TARGET"
 
   cd "$REPO_ROOT"
   rm -rf "$WORKDIR"
