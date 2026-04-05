@@ -1,10 +1,6 @@
 ---
 name: structured-output
-description: 'Consult this skill when formatting final review deliverables. Use when
-  formatting final review outputs, ensuring consistent deliverable structure, making
-  findings comparable across reviews. Do not use when capturing evidence during analysis
-  - use proof-of-work. DO NOT use when: reviewing changes - use diff-analysis or
-  review-core first.'
+description: 'Format final review deliverables with consistent structure for comparable findings across reviews'
 version: 1.7.1
 alwaysApply: false
 category: output-patterns

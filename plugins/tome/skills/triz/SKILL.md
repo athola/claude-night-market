@@ -1,11 +1,6 @@
 ---
 name: triz
-description: >-
-  Apply TRIZ cross-domain analogical reasoning to find
-  solutions from adjacent fields. Dynamically scales depth
-  from light (1 field) to maximum (5 fields with full
-  contradiction analysis). Use when the user is stuck on a
-  problem or needs fresh perspectives from other domains.
+description: 'Apply TRIZ cross-domain analogical reasoning to find solutions from adjacent fields. Use when conventional approaches stall.'
 version: 1.7.1
 alwaysApply: false
 category: research

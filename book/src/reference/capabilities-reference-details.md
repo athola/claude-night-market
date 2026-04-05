@@ -33,7 +33,7 @@ with working examples.
 | [memory-palace](capabilities-commands-extended.md#memory-palace-plugin) | garden, navigate, palace | knowledge-intake, digital-garden | palace-architect, garden-curator |
 | [parseltongue](capabilities-commands-extended.md#parseltongue-plugin) | analyze-tests, run-profiler | python-async, python-packaging | python-pro, python-tester |
 | [pensive](capabilities-commands-extended.md#pensive-plugin) | full-review, code-review, architecture-review | bug-review, api-review | code-reviewer, architecture-reviewer |
-| [sanctum](capabilities-commands.md#sanctum-plugin) | prepare-pr, commit-msg, do-issue | pr-prep, commit-messages | commit-agent, pr-agent |
+| [sanctum](capabilities-commands.md#sanctum-plugin) | prepare-pr, commit-msg, acp, do-issue | pr-prep, commit-messages | commit-agent, pr-agent |
 | [scribe](capabilities-commands-extended.md#scribe-plugin) | doc-polish, doc-generate, style-learn | slop-detector, doc-generator | doc-editor, slop-hunter, doc-verifier |
 | [spec-kit](capabilities-commands-extended.md#spec-kit-plugin) | speckit-startup, speckit-implement | speckit-orchestrator | spec-analyzer |
 

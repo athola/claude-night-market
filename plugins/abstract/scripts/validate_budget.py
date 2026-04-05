@@ -2,18 +2,24 @@
 """Validate skill and command description budget for Claude Code system prompt."""
 
 import argparse
+import os
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Configuration
-BUDGET_LIMIT = (
-    17000  # Above CC 16k fallback; override via SLASH_COMMAND_TOOL_CHAR_BUDGET
-)
-WARN_THRESHOLD = 16500  # Warn at 97.1% usage
-DESCRIPTION_MAX = 150  # Max chars per description (recommendation)
-VERBOSE_DISPLAY_LIMIT = 5  # Number of verbose items to display
+# Claude Code budgets 2% of the context window for skill metadata in
+# the available_skills section. With 1M context this is ~16,000 chars.
+# Each skill costs description_length + ~109 chars overhead (XML tags,
+# name, location).
+# See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
+# and github.com/anthropics/claude-code #11045.
+DEFAULT_BUDGET = 16000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
+OVERHEAD_PER_COMPONENT = 109  # XML tags, name, location per skill/cmd
+BUDGET_LIMIT = int(os.environ.get("SLASH_COMMAND_TOOL_CHAR_BUDGET", DEFAULT_BUDGET))
+WARN_THRESHOLD = int(BUDGET_LIMIT * 0.90)  # Warn at 90% usage
+DESCRIPTION_MAX = 160  # Max chars per description
+VERBOSE_DISPLAY_LIMIT = 10  # Number of verbose items to display
 
 
 @dataclass
@@ -117,19 +123,31 @@ def collect_components(base: Path) -> list[Component]:
 
 def calculate_budget_status(
     components: list[Component],
-) -> tuple[int, int, bool, bool, list[Component]]:
+) -> tuple[int, int, int, int, bool, bool, list[Component]]:
     """Calculate budget totals and status.
 
     Returns:
-        Tuple of (total_chars, verbose_count, failed, warn_only, verbose_list)
+        Tuple of (total_chars, total_with_overhead, visible_estimate,
+                  verbose_count, failed, warn_only, verbose_list)
 
     """
     total_chars = sum(c.desc_length for c in components)
+    total_with_overhead = total_chars + len(components) * OVERHEAD_PER_COMPONENT
     verbose = [c for c in components if c.desc_length > DESCRIPTION_MAX]
-    failed = total_chars > BUDGET_LIMIT
-    warn_only = not failed and total_chars > WARN_THRESHOLD
+    # Estimate how many skills would be visible at ~160 char avg desc
+    visible_estimate = BUDGET_LIMIT // (DESCRIPTION_MAX + OVERHEAD_PER_COMPONENT)
+    failed = len(verbose) > 0  # Fail if any description exceeds max
+    warn_only = not failed and total_with_overhead > WARN_THRESHOLD
 
-    return total_chars, len(verbose), failed, warn_only, verbose
+    return (
+        total_chars,
+        total_with_overhead,
+        visible_estimate,
+        len(verbose),
+        failed,
+        warn_only,
+        verbose,
+    )
 
 
 def format_offenders_list(components: list[Component], limit: int = 10) -> str:
@@ -145,33 +163,50 @@ def format_offenders_list(components: list[Component], limit: int = 10) -> str:
 
 def print_budget_report(
     total_chars: int,
+    total_with_overhead: int,
+    visible_estimate: int,
     verbose_count: int,
     failed: bool,
     warn_only: bool,
     verbose: list[Component],
+    component_count: int,
 ) -> None:
     """Print full budget validation report."""
-    usage_pct = total_chars / BUDGET_LIMIT * 100
-    print(f"📊 Total description characters: {total_chars:,}")
-    print(f"   Budget limit: {BUDGET_LIMIT:,} ({usage_pct:.1f}% used)")
+    usage_pct = total_with_overhead / BUDGET_LIMIT * 100
+    overhead_total = component_count * OVERHEAD_PER_COMPONENT
+    print(f"Components: {component_count} ({overhead_total:,} chars overhead)")
+    print(f"Description chars: {total_chars:,}")
+    print(
+        f"Total with overhead: {total_with_overhead:,} / "
+        f"{BUDGET_LIMIT:,} ({usage_pct:.1f}% used)"
+    )
+    print(
+        f"Estimated visible at {DESCRIPTION_MAX} char avg: "
+        f"~{visible_estimate} of {component_count}"
+    )
 
     if failed:
-        print(f"\n❌ BUDGET EXCEEDED by {total_chars - BUDGET_LIMIT:,} characters!")
+        print(f"\n❌ BUDGET EXCEEDED by {total_with_overhead - BUDGET_LIMIT:,} chars!")
         print("\nTop offenders:")
         print(format_offenders_list(verbose))
-        print(f"\n⚠️  Descriptions must be under {BUDGET_LIMIT:,} characters.")
-        print("   See: docs/action-plan-budget-crisis.md for optimization guidelines")
-        print("\n💡 Optimization tips:")
-        print("   - Remove implementation details (move to skill body)")
-        print("   - Condense trigger lists to essential keywords")
-        print("   - Eliminate redundancy with tags/category")
-        print("   - Focus on discoverability, not explanations")
+        print(
+            f"\n⚠️  Total must be under "
+            f"{BUDGET_LIMIT:,} chars "
+            f"(with {OVERHEAD_PER_COMPONENT}/skill overhead)."
+        )
+        print(
+            "   See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1"
+        )
+        print("\nOptimization tips:")
+        print("   - Keep descriptions <= 160 chars (budget for 1M context)")
+        print("   - Front-load trigger keywords in first 50 chars")
+        print("   - Use template: [Verb] [domain]. Use when: [trigger1], [trigger2].")
+        print("   - Move details to SKILL.md body -- descriptions are for discovery")
 
     if warn_only:
         print("\n⚠️  WARNING: Approaching budget limit")
-        warn_pct = total_chars / BUDGET_LIMIT * 100
-        print(f"   Usage: {total_chars:,} / {BUDGET_LIMIT:,} ({warn_pct:.1f}%)")
-        print(f"   Recommended headroom: < {WARN_THRESHOLD:,} chars (96.7%)")
+        warn_pct = total_with_overhead / BUDGET_LIMIT * 100
+        print(f"   Usage: {total_with_overhead:,} / {BUDGET_LIMIT:,} ({warn_pct:.1f}%)")
 
     if verbose:
         print(
@@ -185,10 +220,9 @@ def print_budget_report(
             remaining = len(verbose) - VERBOSE_DISPLAY_LIMIT
             print(f"  ... and {remaining} more")
 
-    if not warn_only and not verbose:
-        print(
-            f"✅ Budget check passed! ({BUDGET_LIMIT - total_chars:,} chars headroom)"
-        )
+    if not failed and not warn_only and not verbose:
+        headroom = BUDGET_LIMIT - total_with_overhead
+        print(f"✅ Budget check passed! ({headroom:,} chars headroom)")
     elif not failed:
         print("\n✅ Budget check passed (with warnings)")
 
@@ -202,12 +236,27 @@ def main() -> None:
     components = collect_components(base)
 
     # Calculate budget status
-    total_chars, verbose_count, failed, warn_only, verbose = calculate_budget_status(
-        components
-    )
+    (
+        total_chars,
+        total_with_overhead,
+        visible_estimate,
+        verbose_count,
+        failed,
+        warn_only,
+        verbose,
+    ) = calculate_budget_status(components)
 
     # Print report and exit appropriately
-    print_budget_report(total_chars, verbose_count, failed, warn_only, verbose)
+    print_budget_report(
+        total_chars,
+        total_with_overhead,
+        visible_estimate,
+        verbose_count,
+        failed,
+        warn_only,
+        verbose,
+        len(components),
+    )
 
     sys.exit(1 if failed else 0)
 

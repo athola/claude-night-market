@@ -17,9 +17,9 @@ Official Claude Code specification analysis revealed:
 - **Only the `description` field** is used for skill/command/agent matching
 - All other frontmatter fields (`category`, `tags`, `complexity`,
   etc.) are custom metadata for our ecosystem only
-- Token budget: 15,000 chars total for all skill descriptions combined across
-  the entire plugin ecosystem
-- Attune target: < 3,000 chars (20% of ecosystem budget) for proportional
+- Token budget: 2% of context window (~20,000 chars for 1M context) for all
+  skill descriptions combined across the entire plugin ecosystem
+- Attune target: < 3,000 chars (15% of ecosystem budget) for proportional
   allocation
 
 ### Problem Statement
@@ -181,7 +181,7 @@ tags: [brainstorming, ideation, planning]
 **Approach**: Very long descriptions (400-500 chars) with all possible triggers
 
 **Rejected Because**:
-- Exceeds token budget quickly (15k chars for entire ecosystem)
+- Exceeds token budget quickly (~20k chars for entire ecosystem)
 - Diminishing returns beyond 200 chars
 - Harder to maintain and read
 - Phase 1 pilot showed 150-200 chars sufficient for complex skills

@@ -83,7 +83,7 @@ project-root/
 - Technology-agnostic metrics
 - User-facing goals
 
-## Non-Functional Requirements (Optional)
+## Success Criteria (Optional)
 - Performance expectations
 - Security considerations
 - Accessibility needs

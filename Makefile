@@ -150,6 +150,79 @@ docs-sync-check: ## Verify capabilities docs match plugin registrations
 stargazer-analysis: ## Analyze stargazer overlap for community targeting
 	@uv run python scripts/stargazer_overlap.py --limit 50
 
+# ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
+
+SKRILLS_REPO ?= $(HOME)/skrills
+SKRILLS_BIN := plugins/abstract/bin/skrills
+SKRILLS_VERSION_FILE := plugins/abstract/bin/.skrills-version
+
+.PHONY: skrills-build skrills-install skrills-verify skrills-clean
+
+skrills-build: ## Build skrills from source (requires Rust toolchain)
+	@if [ ! -d "$(SKRILLS_REPO)" ]; then \
+		echo "Error: skrills repo not found at $(SKRILLS_REPO)"; \
+		echo "Set SKRILLS_REPO=/path/to/skrills or clone it first"; \
+		exit 1; \
+	fi
+	@echo "Building skrills..."
+	@cargo build --manifest-path "$(SKRILLS_REPO)/Cargo.toml" --release -p skrills 2>&1 | tail -1
+	@cp "$(SKRILLS_REPO)/target/release/skrills" "$(SKRILLS_BIN)"
+	@chmod +x "$(SKRILLS_BIN)"
+	@$(SKRILLS_BIN) --version 2>/dev/null | head -1 > "$(SKRILLS_VERSION_FILE)" || true
+	@sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1 >> "$(SKRILLS_VERSION_FILE)"
+	@echo "Installed: $(SKRILLS_BIN) ($$(cat $(SKRILLS_VERSION_FILE) | head -1))"
+
+skrills-install: ## Copy pre-built skrills binary to plugin bin/
+	@if [ -x "$(SKRILLS_REPO)/target/release/skrills" ]; then \
+		cp "$(SKRILLS_REPO)/target/release/skrills" "$(SKRILLS_BIN)"; \
+		chmod +x "$(SKRILLS_BIN)"; \
+		echo "Installed: $(SKRILLS_BIN)"; \
+	elif command -v skrills >/dev/null 2>&1; then \
+		cp "$$(command -v skrills)" "$(SKRILLS_BIN)"; \
+		chmod +x "$(SKRILLS_BIN)"; \
+		echo "Installed from PATH: $(SKRILLS_BIN)"; \
+	else \
+		echo "No skrills binary found. Run 'make skrills-build' or 'cargo install skrills'"; \
+		exit 1; \
+	fi
+
+skrills-verify: ## Verify skrills binary hash against pinned version
+	@if [ ! -f "$(SKRILLS_VERSION_FILE)" ]; then \
+		echo "No version file. Run 'make skrills-build' first."; exit 1; \
+	fi
+	@expected=$$(tail -1 "$(SKRILLS_VERSION_FILE)"); \
+	actual=$$(sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1); \
+	if [ "$$expected" = "$$actual" ]; then \
+		echo "OK: hash matches ($$(head -1 $(SKRILLS_VERSION_FILE)))"; \
+	else \
+		echo "FAIL: hash mismatch (expected $$expected, got $$actual)"; exit 1; \
+	fi
+
+skrills-clean: ## Remove skrills binary from plugin bin/
+	@rm -f "$(SKRILLS_BIN)" "$(SKRILLS_VERSION_FILE)"
+	@echo "Cleaned: $(SKRILLS_BIN)"
+
+# Validation with skrills fallback to Python
+validate-skills: ## Validate skills (uses skrills if available, falls back to Python)
+	@if [ -x "$(SKRILLS_BIN)" ]; then \
+		$(SKRILLS_BIN) validate --skill-dir plugins --target claude; \
+	elif command -v skrills >/dev/null 2>&1; then \
+		skrills validate --skill-dir plugins --target claude; \
+	else \
+		echo "skrills not available, using Python fallback"; \
+		uv run python scripts/check_plugin_hooks.py; \
+	fi
+
+analyze-skills: ## Analyze skill token usage and dependencies (skrills or Python)
+	@if [ -x "$(SKRILLS_BIN)" ]; then \
+		$(SKRILLS_BIN) analyze --skill-dir plugins; \
+	elif command -v skrills >/dev/null 2>&1; then \
+		skrills analyze --skill-dir plugins; \
+	else \
+		echo "skrills not available, using Python fallback"; \
+		uv run python scripts/generate_dependency_map.py; \
+	fi
+
 # ---------- ClawHub / OpenClaw export ----------
 
 CLAWHUB_DIR := clawhub

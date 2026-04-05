@@ -10,6 +10,20 @@ if [ "${SCOPE_GUARD_DISABLE:-0}" = "1" ]; then
     exit 0
 fi
 
+# Read stdin (hook protocol sends JSON with prompt content)
+stdin_data=""
+if ! [ -t 0 ]; then
+    stdin_data=$(cat 2>/dev/null || true)
+fi
+
+# Skip scope-guard for maintenance/admin commands that don't add code
+# These commands manage infrastructure, not features
+MAINTENANCE_PATTERNS='reinstall-all-plugins|update-all-plugins|update-plugins|update-dependencies|update-version|create-tag|commit-msg|fix-workflow|fix-pr|close-issue|update-labels|verify-plugin|validate-plugin|plugin-review|bloat-scan|unbloat|ai-hygiene-audit|stewardship-health|skill-logs|status|list-skills|catchup|git-catchup|record-terminal|record-browser'
+if echo "$stdin_data" | grep -qiE "/(${MAINTENANCE_PATTERNS})" 2>/dev/null; then
+    echo '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ""}}'
+    exit 0
+fi
+
 # Portable number extraction (works without grep -P)
 extract_stat_number() {
     local stats="$1"

@@ -2,7 +2,12 @@
 
 ## Overview
 
-Integrates condition-based-waiting principles with context optimization to eliminate flaky context monitoring and resource management. Replaces arbitrary timeouts with condition polling for intelligent resource optimization.
+Integrates condition-based-waiting principles (bundled in
+systematic-debugging since superpowers v4.0.0) with context
+optimization to eliminate flaky context monitoring and
+resource management.
+Replaces arbitrary timeouts with condition polling for
+intelligent resource optimization.
 
 ## Core Philosophy
 

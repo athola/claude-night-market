@@ -1,9 +1,6 @@
 ---
 name: git-workspace-review
-description: 'Use this skill as foundation for git workflows. Use when verifying workspace
-  state before other git operations, checking staged changes, preflight checks before
-  commits or PRs. Do not use when full commit workflow - use commit-messages instead.
-  DO NOT use when: full PR preparation - use pr-prep.'
+description: 'Verify workspace state, staged changes, and preflight checks before commits or PRs'
 version: 1.7.1
 alwaysApply: false
 category: workspace-ops

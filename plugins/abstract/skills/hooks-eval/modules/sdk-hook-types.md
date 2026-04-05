@@ -612,16 +612,14 @@ return {
 }
 ```
 
-### Combined Response
+### Block with Reason
 
 ```python
 return {
-    "decision": "block",
-    "systemMessage": "Action blocked for safety",
     "hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": "deny",
-        "permissionDecisionReason": "Contains dangerous pattern"
+        "permissionDecisionReason": "Contains dangerous pattern",
     }
 }
 ```

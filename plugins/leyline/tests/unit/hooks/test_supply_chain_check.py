@@ -402,6 +402,27 @@ class TestMainIntegration:
         assert captured.out == ""
 
     @pytest.mark.unit
+    def test_graceful_on_malformed_blocklist(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """Scenario: Blocklist file contains invalid JSON
+        Given a blocklist file with corrupted JSON
+        When main() runs
+        Then no output is produced and hook does not crash.
+        """
+        skill_dir = tmp_path / "skills" / "supply-chain-advisory"
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "known-bad-versions.json").write_text("{not valid json!!!")
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_path))
+
+        _mod.main()
+        captured = capsys.readouterr()
+        assert captured.out == ""
+
+    @pytest.mark.unit
     def test_never_crashes(self) -> None:
         """Scenario: Hook must never crash the session
         Given the hook source code

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.8.0"
+version = "1.8.1"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -157,6 +157,7 @@ extend-ignore = [
     "E501",  # Line too long in tests
     "B011",  # Do not assert False
     "PLR2004",  # Magic values in tests
+    "PLC0415",  # Lazy imports in test helpers
     "S603",  # subprocess without shell=true
     "S607",  # Start process with partial path
     "S108",  # Hardcoded temp file
@@ -169,7 +170,7 @@ extend-ignore = [
     "ARG002",  # unused-method-argument
 ]
 "**/__init__.py" = ["F401"]  # Unused imports in __init__.py
-"**/hooks/*.py" = ["BLE001"]  # Hooks use broad exceptions for resilience
+"**/hooks/*.py" = ["BLE001", "PLC0415", "E402"]  # Hooks use broad exceptions and lazy imports for resilience
 "scripts/*.py" = ["E402"]  # Root scripts with sys.path manipulation
 
 [tool.mypy]

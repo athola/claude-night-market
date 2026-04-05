@@ -1,11 +1,6 @@
 ---
 name: python-testing
-description: 'Consult this skill for Python testing implementation and patterns. Use
-  when writing unit tests, setting up test suites, implementing TDD, configuring pytest,
-  creating fixtures, async testing, writing integration tests, mocking dependencies,
-  parameterizing tests, setting up CI/CD testing. Do not use when evaluating test
-  quality - use pensive:test-review instead. DO NOT use when: infrastructure test
-  config - use leyline:pytest-config.'
+description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests'
 version: 1.7.1
 globs: "**/*.py"
 alwaysApply: false

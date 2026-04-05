@@ -1,6 +1,6 @@
 ---
 name: update-tests
-description: Update tests using TDD/BDD with quality validation
+description: Review and update test coverage using TDD/BDD methodology with quality validation. Generates tests for changed code.
 usage: /update-tests [paths...]
 ---
 

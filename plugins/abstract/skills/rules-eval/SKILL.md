@@ -1,11 +1,7 @@
 ---
 name: rules-eval
-description: Evaluate and validate Claude Code rules in .claude/rules/ directories.
-  Use when auditing rule file quality, validating frontmatter and glob patterns, or
-  checking rules organization before deployment. Do not use when writing new rules
-  from scratch - use rule authoring guides instead. Do not use when evaluating skills
-  or hooks - use skills-eval or hooks-eval instead.
-version: 1.7.1
+description: 'Evaluate and validate Claude Code rules in .claude/rules/ directories. Use for frontmatter, glob patterns, and quality audits.'
+version: 1.8.1
 alwaysApply: false
 category: rule-management
 tags:

@@ -36,7 +36,7 @@
 
 ### Context Too Large
 - Use selective globbing: `src/**/*.py` instead of `src/**/*`
-- Pre-process: `grep -v "^\s*#" file.py` to remove comments
+- Pre-process: `rg -v "^\s*#" file.py` to remove comments (or `grep -v`)
 
 ### Region Issues
 - Some models available only in certain regions

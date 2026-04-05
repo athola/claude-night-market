@@ -1,5 +1,5 @@
 ---
-description: Sync plugin.json files with disk contents (commands, skills, agents, hooks)
+description: Audit and sync plugin.json registrations with actual disk contents. Detects missing or stale skills, commands, agents, hooks.
 usage: /update-plugins [plugin-name] [--dry-run] [--fix]
 ---
 
@@ -33,6 +33,26 @@ Runs `validate_plugin.py` on each affected plugin to verify:
 ```bash
 python3 plugins/abstract/scripts/validate_plugin.py plugins/<plugin>
 ```
+
+### Phase 1c: Modernization Audit
+
+Checks all hooks for outdated patterns against the Claude Code SDK spec.
+
+1. **Static check** (always): Runs `check_hook_modernization.py` to detect
+   invalid decision values, deprecated fields, and missing error handling
+2. **Tome research** (default, skip with `--skip-research`): Dispatches
+   `tome:code-search` to verify patterns against current community practices
+
+```bash
+# Static check only
+python3 scripts/check_hook_modernization.py
+
+# JSON output for programmatic use
+python3 scripts/check_hook_modernization.py --json
+```
+
+See `update-plugins/modules/phase1c-modernization.md` for pattern
+reference and fix instructions.
 
 ### Phase 2: Plugin Quality Review
 
@@ -78,6 +98,8 @@ python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 |------|---------|
 | `--dry-run` | Show discrepancies without fixing (default) |
 | `--fix` | Update plugin.json files |
+| `--skip-modernization` | Skip Phase 1c modernization audit |
+| `--skip-research` | Skip tome research (keep static check) |
 | `--skip-meta-eval` | Skip meta-evaluation check |
 | `--skip-queue` | Skip knowledge queue check |
 | `--no-auto-issues` | Don't auto-create GitHub issues |

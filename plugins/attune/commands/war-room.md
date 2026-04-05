@@ -1,6 +1,6 @@
 ---
 name: war-room
-description: "Convene multi-LLM expert panel to pressure-test strategic decisions and build consensus through deliberation"
+description: "Convene a multi-LLM expert panel to pressure-test strategic decisions with adversarial review and reversibility assessment."
 ---
 
 # War Room Command

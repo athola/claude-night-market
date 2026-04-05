@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.",
   "commands": [
     "./commands/garden.md",
@@ -23,9 +23,7 @@
     "./agents/garden-curator.md",
     "./agents/knowledge-librarian.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "memory-palace",
     "spatial-memory",
@@ -43,5 +41,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

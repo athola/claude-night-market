@@ -1,11 +1,6 @@
 ---
 name: summon
-description: >
-  Autonomous orchestrator that manages full development lifecycles.
-  Reads the egregore manifest, picks the next active work item,
-  and invokes specialist skills for each pipeline step. Handles
-  context overflow via continuation agents and token budget via
-  graceful shutdown.
+description: 'Autonomous orchestrator processing manifest work items through the development lifecycle with budget tracking.'
 version: 1.7.1
 alwaysApply: false
 category: orchestration

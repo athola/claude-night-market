@@ -1,7 +1,8 @@
 # Pensive
 
 Code review skills for Claude Code.
-Specialized reviewers cover Rust, APIs, tests, and architecture.
+Specialized reviewers cover Rust, APIs, tests, blast radius,
+and architecture.
 
 ## Installation
 
@@ -34,6 +35,7 @@ Or reference from the marketplace:
 | **shell-review** | Checks shell scripts for correctness, portability, and safety. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
+| **blast-radius** | Analyzes code change blast radius with risk scoring, affected nodes, and untested functions. |
 | **safety-critical-patterns** | NASA Power of 10 rules adapted for robust, verifiable code with context-appropriate rigor. |
 
 ### Commands
@@ -61,6 +63,7 @@ Or reference from the marketplace:
 | **code-reviewer** | General review agent with bug detection capabilities. |
 | **architecture-reviewer** | Agent specialized in architectural assessment. |
 | **rust-auditor** | Agent focused on Rust safety and security. |
+| **blast-radius-reviewer** | Agent for graph-aware code review using blast radius analysis. |
 | **code-refiner** | Agent for code quality refinement and refactoring plan generation. |
 
 ## Quick Start

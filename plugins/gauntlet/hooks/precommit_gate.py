@@ -24,6 +24,14 @@ from gauntlet.challenges import generate_challenge, select_challenge_type
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
 
+# Graph-aware analysis (optional -- degrade gracefully)
+try:
+    __import__("gauntlet.blast_radius")
+    __import__("gauntlet.graph")
+    _GRAPH_AVAILABLE = True
+except ImportError:
+    _GRAPH_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Pass-token helpers
 # ---------------------------------------------------------------------------
@@ -152,7 +160,7 @@ def _get_developer_id() -> str:
 def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
     """Load config.yaml (preferred) or config.json from the gauntlet directory."""
     try:
-        from yaml import (  # noqa: PLC0415 - conditional import, yaml is optional
+        from yaml import (
             YAMLError,
             safe_load,
         )
@@ -192,6 +200,98 @@ def _get_staged_files() -> list[str] | None:
 
 
 # ---------------------------------------------------------------------------
+# Graph-aware blast radius check
+# ---------------------------------------------------------------------------
+
+
+def _graph_staleness_warning(
+    gauntlet_dir: Path,
+    default_threshold_hours: float = 24.0,
+) -> str | None:
+    """Warn if graph.db is older than threshold.
+
+    Threshold is configurable via .gauntlet/config.json:
+    {"stale_threshold_hours": 12}
+    """
+    import time
+
+    db_path = gauntlet_dir / "graph.db"
+    if not db_path.exists():
+        return None
+
+    threshold = default_threshold_hours
+    config_path = gauntlet_dir / "config.json"
+    if config_path.exists():
+        try:
+            data = json.loads(config_path.read_text())
+            threshold = float(data.get("stale_threshold_hours", threshold))
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            pass
+
+    try:
+        mtime = db_path.stat().st_mtime
+    except OSError:
+        return None
+    age_hours = (time.time() - mtime) / 3600
+
+    if age_hours <= threshold:
+        return None
+
+    hours_display = int(age_hours)
+    return (
+        f"Graph is {hours_display}h old (threshold: {int(threshold)}h). "
+        f"Run `/gauntlet-graph build` to refresh."
+    )
+
+
+def _graph_risk_context(gauntlet_dir: Path) -> str | None:
+    """Run blast radius analysis and return context if high-risk changes found.
+
+    Returns a warning string for high-risk commits, or None if the graph
+    is unavailable or risk is low.
+    """
+    if not _GRAPH_AVAILABLE:
+        return None
+
+    db_path = gauntlet_dir / "graph.db"
+    if not db_path.exists():
+        return None
+
+    try:
+        from gauntlet.blast_radius import (
+            analyze_changes as _analyze,
+        )
+        from gauntlet.graph import (
+            GraphStore as _GS,
+        )
+
+        graph = _GS(str(db_path))
+        report = _analyze(graph, base_ref="HEAD")
+        graph.close()
+    except Exception:
+        return None
+
+    overall = report.get("overall_risk", "none")
+    if overall in ("none", "low"):
+        return None
+
+    # Build a concise warning
+    lines = [f"Graph blast radius: {overall} risk"]
+    priorities = report.get("review_priorities", [])[:5]
+    for node_dict in priorities:
+        qn = node_dict.get("qualified_name", "?")
+        short = qn.rsplit("::", 1)[-1] if "::" in qn else qn
+        risk = report.get("risk_scores", {}).get(qn, 0)
+        lines.append(f"  {risk:.2f} {short}")
+
+    untested = report.get("untested_functions", [])
+    if untested:
+        lines.append(f"  {len(untested)} untested function(s) affected")
+
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -201,8 +301,8 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     Returns:
     - None to pass through (no decision).
-    - {"decision": "allow"} to allow the commit.
-    - {"decision": "deny", "reason": ...} to block in gate mode.
+    - hookSpecificOutput with permissionDecision "allow" to allow.
+    - hookSpecificOutput with permissionDecision "deny" to block.
     - {"additionalContext": ...} to nudge without blocking.
     """
     tool_input = hook_input.get("tool_input", {})
@@ -223,15 +323,33 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     staged_hash = _get_staged_hash()
     if check_pass_token(gauntlet_dir, staged_hash):
-        return {"decision": "allow"}
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "allow",
+            }
+        }
+
+    # Graph-aware checks (non-blocking, adds context)
+    risk_context = _graph_risk_context(gauntlet_dir)
+    stale_warning = _graph_staleness_warning(gauntlet_dir)
+    if stale_warning:
+        risk_context = (
+            f"{risk_context}\n{stale_warning}" if risk_context else stale_warning
+        )
 
     # No valid token — generate a challenge.
     staged_files = _get_staged_files()
     if staged_files is None:
         if mode == "gate":
             return {
-                "decision": "deny",
-                "reason": "Gauntlet: unable to read staged files (git failure).",
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": (
+                        "Gauntlet: unable to read staged files (git failure)."
+                    ),
+                }
             }
         return None
 
@@ -239,7 +357,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     challenge = generate_challenge_for_files(gauntlet_dir, staged_files, developer_id)
 
     if challenge is None:
-        # No knowledge entries for staged files — let the commit through.
+        # No knowledge entries — still surface risk context if present.
+        if risk_context:
+            return {"additionalContext": risk_context}
         return None
 
     # Persist pending challenge so the skill can present it.
@@ -249,11 +369,13 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         json.dumps(challenge.to_dict(), indent=2)
     )
 
+    risk_section = f"\n\n{risk_context}" if risk_context else ""
     prompt_text = (
         f"Gauntlet challenge required before commit.\n\n"
         f"{challenge.prompt}\n\n"
         f"Answer via: gauntlet answer <your response>\n"
         f"Challenge ID: {challenge.id}"
+        f"{risk_section}"
     )
 
     if mode == "nudge":
@@ -261,8 +383,11 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     # Default: gate mode — deny.
     return {
-        "decision": "deny",
-        "reason": prompt_text,
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": prompt_text,
+        }
     }
 
 

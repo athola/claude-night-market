@@ -1,10 +1,6 @@
 ---
 name: test-updates
-description: 'Run git-workspace-review first to understand which tests need updates.
-  Use when updating existing tests, generating new tests for features, enhancing test
-  quality, ensuring detailed coverage, pre-commit validation. Do not use when auditing
-  test suites - use pensive:test-review. DO NOT use when: writing production code
-  - focus on implementation first.'
+description: 'Update, generate, and validate tests using git-workspace-review for change context'
 version: 1.7.1
 alwaysApply: false
 category: testing-automation

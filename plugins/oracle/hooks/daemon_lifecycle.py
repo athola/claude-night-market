@@ -85,23 +85,28 @@ def _start_daemon() -> None:
         if f.exists():
             f.unlink()
 
-    proc = subprocess.Popen(
-        [
-            python,
-            daemon_script,
-            "--host",
-            "127.0.0.1",
-            "--port",
-            "0",
-            "--models-dir",
-            str(models_dir),
-            "--port-file",
-            str(port_file),
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=open(str(data_dir / "daemon.log"), "a"),
-        start_new_session=True,
-    )
+    log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd passed to Popen, must outlive this scope
+    try:
+        proc = subprocess.Popen(
+            [
+                python,
+                daemon_script,
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "0",
+                "--models-dir",
+                str(models_dir),
+                "--port-file",
+                str(port_file),
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=log_fh,
+            start_new_session=True,
+        )
+    except OSError:
+        log_fh.close()
+        return
 
     pid_file.write_text(str(proc.pid))
 

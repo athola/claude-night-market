@@ -1,9 +1,8 @@
 ---
 name: code-quality-principles
-description: Provides KISS, YAGNI, and SOLID code quality principles for clean code,
+description: KISS, YAGNI, and SOLID code quality principles for clean code, reducing complexity and preventing over-engineering.
 version: 1.7.1
 alwaysApply: true
-  reducing complexity, preventing over-engineering, and improving maintainability.
 category: development
 tags:
 - design
@@ -288,4 +287,4 @@ When reviewing code, check:
 - [ ] No god classes (> 500 lines)
 - [ ] Dependencies are injected, not created (DIP)
 
-**Verification:** Run `wc -l <file>` to check line counts and `grep -c "class " <file>` to count classes per file.
+**Verification:** Run `wc -l <file>` to check line counts and `rg -c "class " <file>` (or `grep -c "class " <file>`) to count classes per file.

@@ -18,7 +18,9 @@ sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 
 from validate_budget import (
     BUDGET_LIMIT,
+    DEFAULT_BUDGET,
     DESCRIPTION_MAX,
+    OVERHEAD_PER_COMPONENT,
     WARN_THRESHOLD,
     Component,
     analyze_file,
@@ -284,13 +286,13 @@ class TestBudgetConstants:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_budget_limit_is_reasonable(self) -> None:
-        """Scenario: Budget limit is set to a reasonable value.
+        """Scenario: Budget limit reflects 2% of 1M context window.
 
-        Given the BUDGET_LIMIT constant
-        Then it should be a positive integer around 17000.
+        Given the DEFAULT_BUDGET constant
+        Then it should be 16,000 chars.
         """
         assert BUDGET_LIMIT > 0
-        assert BUDGET_LIMIT == 17000
+        assert DEFAULT_BUDGET == 16000
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -298,21 +300,31 @@ class TestBudgetConstants:
         """Scenario: Warning threshold is below budget limit.
 
         Given the WARN_THRESHOLD constant
-        Then it should be less than BUDGET_LIMIT.
+        Then it should be at 90% of BUDGET_LIMIT.
         """
         assert WARN_THRESHOLD < BUDGET_LIMIT
-        assert WARN_THRESHOLD == 16500
+        assert WARN_THRESHOLD == int(BUDGET_LIMIT * 0.90)
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_description_max_is_reasonable(self) -> None:
-        """Scenario: Per-description max is reasonable.
+        """Scenario: Per-description max allows rich recognition cues.
 
         Given the DESCRIPTION_MAX constant
-        Then it should be a reasonable per-component limit.
+        Then it should be 160 (balanced for 1M context budget).
         """
         assert DESCRIPTION_MAX > 0
-        assert DESCRIPTION_MAX == 150
+        assert DESCRIPTION_MAX == 160
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_overhead_per_component(self) -> None:
+        """Scenario: Overhead per component reflects XML tag cost.
+
+        Given the OVERHEAD_PER_COMPONENT constant
+        Then it should be ~109 chars (empirically measured).
+        """
+        assert OVERHEAD_PER_COMPONENT == 109
 
 
 class TestMainFunctionIntegration:
@@ -326,15 +338,15 @@ class TestMainFunctionIntegration:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_exits_zero_when_under_budget(
-        self, temp_plugin_structure, monkeypatch
+        self, compliant_plugin_structure, monkeypatch
     ) -> None:
-        """Scenario: Exit code 0 when under budget.
+        """Scenario: Exit code 0 when all descriptions under max.
 
-        Given a plugin structure with small descriptions
+        Given a plugin structure with descriptions under 160 chars
         When running main()
         Then it should exit with code 0.
         """
-        monkeypatch.chdir(temp_plugin_structure)
+        monkeypatch.chdir(compliant_plugin_structure)
         # Clear sys.argv to avoid pytest args being parsed by argparse
         monkeypatch.setattr("sys.argv", ["validate_budget.py"])
 
@@ -345,12 +357,31 @@ class TestMainFunctionIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
+    def test_main_fails_on_verbose_descriptions(
+        self, temp_plugin_structure, monkeypatch
+    ) -> None:
+        """Scenario: Exit code 1 when descriptions exceed 160 chars.
+
+        Given a plugin structure with a verbose description (>160 chars)
+        When running main()
+        Then it should exit with code 1.
+        """
+        monkeypatch.chdir(temp_plugin_structure)
+        monkeypatch.setattr("sys.argv", ["validate_budget.py"])
+
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 1
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
     def test_main_detects_verbose_descriptions(
         self, temp_plugin_structure, monkeypatch, capsys
     ) -> None:
         """Scenario: Detect descriptions exceeding DESCRIPTION_MAX.
 
-        Given a plugin structure with a verbose description (>150 chars)
+        Given a plugin structure with a verbose description (>160 chars)
         When running main()
         Then it should report the verbose description in output.
         """
@@ -397,7 +428,7 @@ class TestPathArgument:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_path_argument_accepted(self, temp_plugin_structure) -> None:
+    def test_path_argument_accepted(self, compliant_plugin_structure) -> None:
         """Scenario: --path argument is accepted.
 
         Given a valid plugin structure at a custom path
@@ -409,7 +440,7 @@ class TestPathArgument:
                 sys.executable,
                 str(Path(__file__).parents[3] / "scripts" / "validate_budget.py"),
                 "--path",
-                str(temp_plugin_structure),
+                str(compliant_plugin_structure),
             ],
             capture_output=True,
             text=True,
@@ -419,12 +450,12 @@ class TestPathArgument:
         # Should complete successfully (exit 0)
         assert result.returncode == 0
         # Should show budget info in output
-        assert "Total description characters" in result.stdout
+        assert "Description chars" in result.stdout
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_path_argument_uses_specified_directory(
-        self, temp_plugin_structure, tmp_path
+        self, compliant_plugin_structure, tmp_path
     ) -> None:
         """Scenario: --path uses specified directory, not cwd.
 
@@ -442,7 +473,7 @@ class TestPathArgument:
                 sys.executable,
                 str(Path(__file__).parents[3] / "scripts" / "validate_budget.py"),
                 "--path",
-                str(temp_plugin_structure),
+                str(compliant_plugin_structure),
             ],
             capture_output=True,
             text=True,
@@ -452,8 +483,8 @@ class TestPathArgument:
 
         # Should still find skills from the --path location
         assert result.returncode == 0
-        # Should have found some components (not 0 chars)
-        assert "Total description characters:" in result.stdout
+        # Should have found some components
+        assert "Description chars" in result.stdout
 
     @pytest.mark.bdd
     @pytest.mark.unit

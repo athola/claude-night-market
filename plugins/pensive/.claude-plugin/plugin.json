@@ -1,7 +1,7 @@
 {
   "name": "pensive",
-  "version": "1.8.0",
-  "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
+  "version": "1.8.1",
+  "description": "Reflective code review toolkit with structured analysis, blast radius analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/api-review.md",
     "./commands/architecture-review.md",
@@ -28,13 +28,15 @@
     "./skills/shell-review",
     "./skills/test-review",
     "./skills/tiered-audit",
-    "./skills/unified-review"
+    "./skills/unified-review",
+    "./skills/blast-radius"
   ],
   "agents": [
     "./agents/code-reviewer.md",
     "./agents/architecture-reviewer.md",
     "./agents/rust-auditor.md",
-    "./agents/code-refiner.md"
+    "./agents/code-refiner.md",
+    "./agents/blast-radius-reviewer.md"
   ],
   "keywords": [
     "review",
@@ -58,5 +60,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

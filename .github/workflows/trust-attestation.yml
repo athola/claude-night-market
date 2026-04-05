@@ -35,7 +35,7 @@ jobs:
               'passed': passed[0][1].split() if passed else [],
               'failed': failed[0][1].split() if failed else [],
               'skipped': skipped[0][1].split() if skipped else [],
-              'total_plugins': 17,
+              'total_plugins': 23,
               'commit': os.environ['COMMIT_SHA'],
           }
           json.dump(report, open('trust-report.json', 'w'), indent=2)

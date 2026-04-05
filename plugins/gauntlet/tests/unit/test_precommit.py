@@ -202,7 +202,8 @@ class TestMain:
                 result = main(hook_input)
 
         assert result is not None
-        assert result.get("decision") == "allow"
+        hso = result.get("hookSpecificOutput", {})
+        assert hso.get("permissionDecision") == "allow"
 
     @pytest.mark.unit
     def test_denies_with_no_token_gate_mode(self, sample_knowledge_base: Path) -> None:
@@ -228,7 +229,54 @@ class TestMain:
                         result = main(hook_input)
 
         assert result is not None
-        assert result.get("decision") == "deny"
+        hso = result.get("hookSpecificOutput", {})
+        assert hso.get("permissionDecision") == "deny"
+
+    @pytest.mark.unit
+    def test_passes_on_git_failure_nudge_mode(
+        self, sample_knowledge_base: Path
+    ) -> None:
+        """
+        Scenario: Git failure in nudge mode passes through
+        Given a .gauntlet dir in nudge mode
+        When _get_staged_files returns None (git failure)
+        Then it returns None (no opinion).
+        """
+        gauntlet_dir = sample_knowledge_base.parent
+        config = {"precommit": {"mode": "nudge"}}
+        (gauntlet_dir / "config.json").write_text(json.dumps(config))
+
+        hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
+        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
+            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
+                with patch("precommit_gate._get_staged_files", return_value=None):
+                    result = main(hook_input)
+
+        assert result is None
+
+    @pytest.mark.unit
+    def test_denies_on_git_failure_gate_mode(self, sample_knowledge_base: Path) -> None:
+        """
+        Scenario: Git failure in gate mode denies the commit
+        Given a .gauntlet dir in gate mode
+        When _get_staged_files returns None (git failure)
+        Then it returns hookSpecificOutput with permissionDecision "deny"
+        And the reason mentions git failure.
+        """
+        gauntlet_dir = sample_knowledge_base.parent
+        config = {"precommit": {"mode": "gate"}}
+        (gauntlet_dir / "config.json").write_text(json.dumps(config))
+
+        hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
+        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
+            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
+                with patch("precommit_gate._get_staged_files", return_value=None):
+                    result = main(hook_input)
+
+        assert result is not None
+        hso = result.get("hookSpecificOutput", {})
+        assert hso.get("permissionDecision") == "deny"
+        assert "git failure" in hso.get("permissionDecisionReason", "").lower()
 
     @pytest.mark.unit
     def test_nudge_mode_adds_context_instead_of_denying(
@@ -255,7 +303,7 @@ class TestMain:
                     ):
                         result = main(hook_input)
 
-        # nudge: returns additionalContext, never deny
+        # nudge: returns additionalContext without hookSpecificOutput deny
         assert result is not None
-        assert result.get("decision") != "deny"
+        assert "hookSpecificOutput" not in result
         assert "additionalContext" in result

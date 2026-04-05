@@ -1,6 +1,6 @@
 ---
 name: test-skill
-description: Test skills through RED/GREEN/REFACTOR TDD phases
+description: Test Claude Code skills using RED/GREEN/REFACTOR TDD phases in fresh subagents to prevent priming bias.
 usage: /test-skill [skill-path] [--phase red|green|refactor]
 extends: "superpowers:test-driven-development"
 ---

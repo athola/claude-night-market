@@ -427,13 +427,13 @@ class TestMainToolDispatch:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_write_tool_with_unsafe_content_exits_2(self) -> None:
-        """Given Write tool with eval(), exits with code 2."""
+    def test_write_tool_with_unsafe_content_warns(self) -> None:
+        """Given Write tool with eval(), exits 0 with injected warning."""
         content = f"result = {PATTERNS['eval_call']()}"
         code, stdout, stderr = run_hook_in_process(
             "Write", {"file_path": "app.py", "content": content}
         )
-        assert code == 2
+        assert code == 0  # warns instead of blocking since v2.1.90
         assert "dynamic_code_evaluation" in stderr
         output = json.loads(stdout)
         assert "SECURITY WARNING" in output["hookSpecificOutput"]["additionalContext"]
@@ -441,19 +441,19 @@ class TestMainToolDispatch:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_edit_tool_checks_new_string(self) -> None:
-        """Given Edit tool with unsafe new_string, exits with code 2."""
+        """Given Edit tool with unsafe new_string, exits 0 with warning."""
         pattern = PATTERNS["exec_call"]()
         code, _, stderr = run_hook_in_process(
             "Edit",
             {"file_path": "script.py", "old_string": "pass", "new_string": pattern},
         )
-        assert code == 2
+        assert code == 0  # warns instead of blocking since v2.1.90
         assert "dynamic_code_execution" in stderr
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_multi_edit_checks_combined_content(self) -> None:
-        """Given MultiEdit with unsafe pattern in one edit, exits with code 2."""
+        """Given MultiEdit with unsafe pattern in one edit, exits 0 with warning."""
         pattern = PATTERNS["eval_call"]()
         code, _, stderr = run_hook_in_process(
             "MultiEdit",
@@ -465,7 +465,7 @@ class TestMainToolDispatch:
                 ],
             },
         )
-        assert code == 2
+        assert code == 0  # warns instead of blocking since v2.1.90
         assert "dynamic_code_evaluation" in stderr
 
     @pytest.mark.bdd

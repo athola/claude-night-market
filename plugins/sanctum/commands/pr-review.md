@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: PR/MR review with scope validation and code analysis (GitHub/GitLab)
+description: Review pull requests with scope validation, code analysis, and line comments. Supports GitHub PRs and GitLab MRs.
 usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
 extends: "superpowers:receiving-code-review"
 ---

@@ -453,7 +453,7 @@ class TestMainEntryPoint:
         with pytest.raises(SystemExit) as exc_info:
             tdd_gate_module.main()
 
-        assert exc_info.value.code == 2
+        assert exc_info.value.code == 0  # warns instead of blocking since v2.1.90
         output = output_capture.getvalue()
         assert "additionalContext" in output
 
@@ -542,7 +542,7 @@ class TestMainEntryPoint:
         with pytest.raises(SystemExit) as exc_info:
             tdd_gate_module.main()
 
-        assert exc_info.value.code == 2
+        assert exc_info.value.code == 0  # warns instead of blocking since v2.1.90
         output = output_capture.getvalue()
         parsed = json.loads(output)
         context = parsed["hookSpecificOutput"]["additionalContext"]

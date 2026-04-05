@@ -1,10 +1,6 @@
 ---
 name: diff-analysis
-description: 'Use this skill for systematic change analysis with risk scoring. Use
-  when analyzing specific changesets, assessing risk of changes, preparing release
-  notes, categorizing changes by type and impact. Do not use when quick context catchup
-  - use catchup instead. DO NOT use when: full PR review - use review-core with pensive
-  skills.'
+description: 'Analyze changesets with risk scoring, categorization by type/impact, and release note preparation'
 version: 1.7.1
 alwaysApply: false
 category: analysis-methods

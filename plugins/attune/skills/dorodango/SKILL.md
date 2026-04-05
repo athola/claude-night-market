@@ -1,12 +1,6 @@
 ---
 name: dorodango
-description: >-
-  Iterative polishing workflow for implemented code.
-  Runs successive quality passes (correctness, clarity,
-  consistency, polish), each in an isolated subagent.
-  Tracks convergence state for resume across sessions.
-  Use after initial implementation to refine code
-  quality through focused, incremental passes.
+description: "Iteratively polish code through successive quality passes run in fresh subagents."
 version: 1.7.1
 alwaysApply: false
 category: workflow

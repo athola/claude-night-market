@@ -1,5 +1,5 @@
 ---
-description: Draft a Conventional Commit message for staged changes.
+description: Draft a Conventional Commit message for staged changes. Analyzes diffs, classifies change type, and formats scope/body.
 model_hint: fast
 ---
 

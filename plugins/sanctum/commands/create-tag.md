@@ -1,5 +1,5 @@
 ---
-description: Create git tags from merged PRs or version arguments
+description: Create git tags for releases from merged PRs or explicit version arguments. Triggers post-tag submission workflows.
 usage: /create-tag [version|PR-URL]...
 ---
 
@@ -68,7 +68,52 @@ Tag message format:
 <PR title>
 ```
 
-### Step 5: Report Results
+### Step 5: Run Post-Tag Submissions (Config-Driven)
+
+After the tag is pushed, check for a `tag-submissions.json`
+file in the repository root. This file defines which external
+repos or scripts to run after tagging. If the file does not
+exist, skip this step entirely.
+
+```bash
+# Check for config
+if [ -f tag-submissions.json ]; then
+  # Parse and run each submission script
+  for script in $(python3 -c "
+import json
+for s in json.load(open('tag-submissions.json'))['submissions']:
+    print(s['script'])
+"); do
+    if [ -x "$script" ]; then
+      echo "Running: $script <version>"
+      ./"$script" <version>
+    else
+      echo "Warning: $script not found or not executable, skipping"
+    fi
+  done
+else
+  echo "No tag-submissions.json found, skipping post-tag submissions"
+fi
+```
+
+**Config format** (`tag-submissions.json` in repo root):
+```json
+{
+  "submissions": [
+    {
+      "name": "ClawHub",
+      "script": "scripts/clawhub-submit.sh",
+      "description": "Submit skills to openclaw/clawhub"
+    }
+  ]
+}
+```
+
+Each entry's `script` path is relative to the repo root.
+Scripts receive the version tag as their first argument and
+use the user's existing `gh auth` session.
+
+### Step 6: Report Results
 
 Display summary table:
 ```
@@ -78,7 +123,7 @@ Display summary table:
 | v1.3.0  | #52  | def5678 | OK     |
 ```
 
-Include links to created tags on GitHub.
+Include links to created tags on GitHub and the ClawHub PR.
 
 ## Examples
 

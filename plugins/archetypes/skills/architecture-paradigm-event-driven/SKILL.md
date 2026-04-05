@@ -1,9 +1,6 @@
 ---
 name: architecture-paradigm-event-driven
-description: 'Asynchronous event-based communication to decouple producers/consumers
-  for scalability and resilience. Use when real-time workloads or multiple subsystems
-  react to same events. Do not use when selecting paradigms (use architecture-paradigms
-  first), simple request-response.'
+description: 'Apply event-driven async messaging to decouple producers and consumers. Use for real-time processing.'
 version: 1.7.1
 alwaysApply: false
 category: architectural-pattern

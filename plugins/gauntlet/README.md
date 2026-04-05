@@ -1,7 +1,7 @@
 # gauntlet
 
-Codebase learning through knowledge extraction, challenges, and
-spaced repetition.
+Codebase learning through knowledge extraction, code knowledge
+graph, challenges, and spaced repetition.
 
 ## Problem
 
@@ -35,15 +35,19 @@ active recall and spaced repetition.
    out functions and classes via AST analysis, and stores them in
    `.gauntlet/knowledge.json`.
 
-2. **Challenge**: the challenge engine picks an entry using adaptive
+2. **Graph**: Tree-sitter parses multi-language codebases to build
+   a SQLite knowledge graph with functions, classes, imports, and
+   call relationships. Supports incremental updates and FTS5 search.
+
+3. **Challenge**: the challenge engine picks an entry using adaptive
    weighting (weak categories and unseen entries get higher weight),
    generates a question, and evaluates your answer.
 
-3. **Progress**: every answer is recorded. Difficulty adapts. A
+4. **Progress**: every answer is recorded. Difficulty adapts. A
    streak of correct answers raises the target difficulty; wrong
    answers bring it back down.
 
-4. **Curate**: tribal knowledge that cannot be inferred from code
+5. **Curate**: tribal knowledge that cannot be inferred from code
    goes into `.gauntlet/annotations/*.yaml` and feeds future
    challenges.
 
@@ -56,6 +60,7 @@ active recall and spaced repetition.
 | `/gauntlet-progress` | Show accuracy stats and streak |
 | `/gauntlet-onboard` | Guided 5-stage onboarding path |
 | `/gauntlet-curate` | Add a knowledge annotation |
+| `/gauntlet-graph` | Build, search, and query the code knowledge graph |
 
 ## Challenge Types
 

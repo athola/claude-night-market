@@ -95,10 +95,10 @@ Examples:
 - "Are rollback requirements defined for migration failures? [Gap]"
 - "Are requirements specified for partial data loading? [Coverage, Exception Flow]"
 
-### 7. Non-Functional Requirements
+### 7. Success Criteria
 **Question**: Are quality attributes specified (performance, security, accessibility)?
 
-Pattern: "Are [NFR type] requirements quantified/specified?"
+Pattern: "Are [success criteria type] requirements quantified/specified?"
 
 Examples:
 - "Are performance requirements quantified with specific metrics? [Clarity]"
@@ -115,7 +115,7 @@ Each checklist item should follow this pattern:
 
 Components:
 - **Question format**: Asks about what's WRITTEN (or not written) in requirements
-- **Quality dimension**: [Completeness/Clarity/Consistency/Coverage/Measurability/Edge Case/NFR]
+- **Quality dimension**: [Completeness/Clarity/Consistency/Coverage/Measurability/Edge Case/Success Criteria]
 - **Reference**: [Spec §X.Y] for existing requirements, [Gap] for missing ones
 
 ## Traceability Requirements

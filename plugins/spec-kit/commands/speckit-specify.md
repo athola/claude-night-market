@@ -1,5 +1,6 @@
 ---
 description: Create or update the feature specification from a natural language feature description.
+argument-hint: "Feature description or requirements URL"
 ---
 
 ## User Input

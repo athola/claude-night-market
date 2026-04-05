@@ -48,7 +48,8 @@ Check tape file before execution:
 test -f tape-file.tape && echo "Found" || echo "Missing"
 
 # Check for Output directive
-grep -q "^Output" tape-file.tape && echo "Has output" || echo "No output directive"
+rg -q "^Output" tape-file.tape && echo "Has output" || echo "No output directive"
+# fallback: grep -q "^Output" tape-file.tape
 
 # Validate syntax (dry run)
 vhs validate tape-file.tape

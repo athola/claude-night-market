@@ -435,19 +435,10 @@ class PluginAuditor:
             if stale:
                 discrepancies["stale"][category] = sorted(stale)
 
-        # Check for hooks.json on disk not referenced in plugin.json.
-        # If hooks/hooks.json exists but the "hooks" field is absent or
-        # doesn't include "./hooks/hooks.json", report it as missing.
-        hooks_json_path = plugin_path / "hooks" / "hooks.json"
-        if hooks_json_path.exists():
-            hooks_field = in_json.get("hooks")
-            referenced = hooks_field == "./hooks/hooks.json" or (
-                isinstance(hooks_field, list) and "./hooks/hooks.json" in hooks_field
-            )
-            if not referenced:
-                hooks_missing = discrepancies["missing"].setdefault("hooks", [])
-                if "./hooks/hooks.json" not in hooks_missing:
-                    hooks_missing.append("./hooks/hooks.json")
+        # Claude Code auto-loads hooks/hooks.json if it exists, so
+        # plugins should NOT list it in plugin.json (causes duplicate
+        # registration). Only flag hook *scripts* that exist on disk
+        # but aren't referenced by any hooks.json file.
 
         return discrepancies
 

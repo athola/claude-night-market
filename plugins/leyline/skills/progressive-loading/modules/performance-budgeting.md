@@ -9,9 +9,9 @@ Optimize Claude Code plugin performance through token budgeting and context-awar
 | Context Window | Budget (2%) | Per-Skill Target | Max Skills |
 |---------------|-------------|-------------------|------------|
 | 200k tokens | ~16,000 chars | 300-500 chars | ~40 |
-| 1M tokens | ~80,000 chars | 300-500 chars | ~200 |
+| 1M tokens | ~20,000 chars | up to 160 chars | ~74 |
 
-The `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides the default. The ecosystem validator uses 17,000 to provide growth headroom.
+The `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides the default. The ecosystem validator uses 20,000 (matching 1M context GA).
 
 ### Per-Skill Targets
 

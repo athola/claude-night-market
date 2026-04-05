@@ -1,5 +1,6 @@
 ---
 description: Bootstrap spec-driven development workflow at the start of a session
+argument-hint: "Project name or feature branch"
 ---
 
 Initialize the Spec Driven Development workflow for this session:

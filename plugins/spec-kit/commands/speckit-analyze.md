@@ -1,5 +1,6 @@
 ---
 description: Cross-artifact consistency analysis across spec.md, plan.md, and tasks.md after task generation
+argument-hint: "Path to spec/plan/tasks artifacts"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:systematic-debugging` and `superpowers:verification-before-completion` for enhanced analysis capabilities.
@@ -43,7 +44,7 @@ Load only the minimal necessary context from each artifact:
 
 - Overview/Context
 - Functional Requirements
-- Non-Functional Requirements
+- Success Criteria (Non-Functional)
 - User Stories
 - Edge Cases (if present)
 
@@ -70,7 +71,10 @@ Load only the minimal necessary context from each artifact:
 
 Create internal representations (do not include raw artifacts in output):
 
-- **Requirements inventory**: Each functional + non-functional requirement with a stable key (derive slug based on imperative phrase; e.g., "User can upload file" → `user-can-upload-file`)
+- **Requirements inventory**: Each functional requirement and
+  success criterion with a stable key (derive slug based on
+  imperative phrase; e.g., "User can upload file" to
+  `user-can-upload-file`)
 - **User story/action inventory**: Discrete user actions with acceptance criteria
 - **Task coverage mapping**: Map each task to one or more requirements or stories (inference by keyword / explicit reference patterns like IDs or key phrases)
 - **Constitution rule set**: Extract principle names and MUST/SHOULD normative statements
@@ -119,7 +123,7 @@ Use this heuristic to prioritize findings:
 
 - **CRITICAL**: Violates constitution MUST, missing core spec artifact, or requirement with zero coverage that blocks baseline functionality
 - **HIGH**: Duplicate or conflicting requirement, ambiguous security/performance attribute, untestable acceptance criterion
-- **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case
+- **MEDIUM**: Terminology drift, missing success criteria task coverage, underspecified edge case
 - **LOW**: Style/wording improvements, minor redundancy not affecting execution order
 
 ### 6. Produce Compact Analysis Report

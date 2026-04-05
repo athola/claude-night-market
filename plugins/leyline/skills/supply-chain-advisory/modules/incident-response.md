@@ -7,8 +7,8 @@ When a supply chain compromise is reported:
 ### 1. Scope Assessment (5 minutes)
 
 - [ ] Identify affected package name and versions
-- [ ] Search all lockfiles on machine: `grep -r "package.*version" --include="uv.lock" ~`
-- [ ] Check installed versions: `find ~ -path "*/.venv/*/METADATA" -exec grep Version {} +`
+- [ ] Search all lockfiles on machine: `rg "package.*version" --glob "uv.lock" ~` (or `grep -r --include="uv.lock"`)
+- [ ] Check installed versions: `find ~ -path "*/.venv/*/METADATA" -exec rg Version {} +` (or `grep`)
 - [ ] Search for malicious artifacts: `find ~ -name "indicator_file" 2>/dev/null`
 
 ### 2. Containment (if affected)

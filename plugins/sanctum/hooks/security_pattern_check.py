@@ -221,7 +221,7 @@ def main():
         print(json.dumps(output))
         # Also log to stderr for observability
         print(f"[{rule_name}] {reminder}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(0)  # Allow with injected warning (exit 2 blocks since v2.1.90)
 
     sys.exit(0)
 

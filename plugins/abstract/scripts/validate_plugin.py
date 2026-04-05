@@ -213,6 +213,22 @@ class PluginValidator:
             return
 
         hooks_value = config["hooks"]
+
+        # Detect explicit hooks.json refs in the hooks array
+        # (hooks.json is auto-loaded and should not be listed in the array)
+        # Note: string format "hooks": "./hooks/hooks.json" is the legacy
+        # path reference which is valid and handled below.
+        if isinstance(hooks_value, list):
+            for ref in hooks_value:
+                if isinstance(ref, str):
+                    clean = ref.lstrip("./").rstrip("/")
+                    if clean == "hooks/hooks.json":
+                        self.issues["critical"].append(
+                            f"Duplicate hooks.json ref: '{ref}' is auto-loaded "
+                            "by Claude Code and must not be listed explicitly "
+                            "in plugin.json hooks array",
+                        )
+
         if not isinstance(hooks_value, str):
             return
 

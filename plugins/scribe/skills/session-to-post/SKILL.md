@@ -1,10 +1,6 @@
 ---
 name: session-to-post
-description: Convert a Claude Code session into a shareable blog post or case study
-  capturing what was built, decisions made, and outcomes achieved.
-  Use when finishing a session and wanting to share the process, or
-  when creating marketing content from real development work.
-  Do not use for API docs (use doc-generator) or tutorials (use tech-tutorial).
+description: 'Convert a Claude Code session into a shareable blog post or case study capturing decisions, process, and outcomes.'
 version: 1.7.1
 globs: "**/*.md"
 alwaysApply: false

@@ -2,6 +2,7 @@
 name: speckit-taskstoissues
 description: Convert tasks.md entries into GitHub Issues
 usage: /speckit-taskstoissues [feature-dir]
+argument-hint: "Path to tasks.md"
 ---
 
 # Speckit Tasks to Issues

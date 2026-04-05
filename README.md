@@ -11,12 +11,12 @@
 **A plugin marketplace for Claude Code, Anthropic's
 agentic coding tool.**
 
-Night Market extends Claude Code with 22 plugins
+Night Market extends Claude Code with 23 plugins
 covering git workflows, code review, spec-driven
-development, architecture selection, autonomous agents,
-multi-LLM delegation, ML-enhanced scoring, and
-multi-source research.
-156 skills, 144 slash commands, and 49 agents.
+development, architecture selection, codebase
+visualization, autonomous agents, multi-LLM delegation,
+ML-enhanced scoring, and multi-source research.
+161 skills, 146 slash commands, and 50 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -66,7 +66,7 @@ for detailed setup options.
 
 ## Architecture
 
-22 plugins organized in four layers.
+23 plugins organized in four layers.
 Domain specialists depend on utility plugins,
 which depend on foundation plugins,
 which depend on the meta layer.
@@ -91,6 +91,7 @@ flowchart TB
         D9[scribe]:::domainClass
         D10[tome]:::domainClass
         D11[gauntlet]:::domainClass
+        D12[cartograph]:::domainClass
     end
 
     subgraph Utility["Utility Layer"]
@@ -132,18 +133,19 @@ flowchart TB
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **herald** | Utility | Shared notification library: GitHub issue alerts, webhook support (Slack, Discord, generic) | 0 | 0 |
 | **oracle** | Utility | ONNX Runtime inference daemon for ML-enhanced plugin capabilities over localhost HTTP | 1 | 1 |
-| **pensive** | Domain | Code review, architecture review, bug hunting, Makefile audits, NASA Power of 10 | 12 | 12 |
+| **pensive** | Domain | Code review, architecture review, bug hunting, blast radius analysis, Makefile audits, NASA Power of 10 | 13 | 12 |
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room, dorodango polishing | 13 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
 | **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, PR review capture | 6 | 5 |
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
-| **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, and spaced repetition | 4 | 5 |
+| **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, code knowledge graph, and spaced repetition | 6 | 6 |
 | **phantom** | Domain | Computer use: screenshot capture, mouse/keyboard control, autonomous desktop agent | 1 | 1 |
 | **scribe** | Domain | Documentation with AI slop detection, style learning, session replay, tech tutorials | 7 | 5 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 | **tome** | Domain | Multi-source research: code archaeology, community discourse, academic literature, TRIZ analysis | 7 | 4 |
+| **cartograph** | Domain | Codebase visualization: architecture, data flow, dependency, call chains, community detection, class diagrams via Mermaid | 7 | 1 |
 
 Full inventory:
 [Capabilities Reference](book/src/reference/capabilities-reference.md).

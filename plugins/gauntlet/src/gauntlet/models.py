@@ -2,9 +2,157 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+
+# ---------------------------------------------------------------------------
+# Graph enums
+# ---------------------------------------------------------------------------
+
+_MAX_QUALIFIED_NAME_LEN = 255
+
+
+class NodeKind(str, Enum):
+    """Kinds of structural nodes in the code graph."""
+
+    FILE = "File"
+    CLASS = "Class"
+    FUNCTION = "Function"
+    TYPE = "Type"
+    TEST = "Test"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class EdgeKind(str, Enum):
+    """Relationship types between graph nodes."""
+
+    CALLS = "CALLS"
+    IMPORTS_FROM = "IMPORTS_FROM"
+    INHERITS = "INHERITS"
+    CONTAINS = "CONTAINS"
+    IMPLEMENTS = "IMPLEMENTS"
+    TESTED_BY = "TESTED_BY"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+# ---------------------------------------------------------------------------
+# Graph data models
+# ---------------------------------------------------------------------------
+
+
+def _sanitize_name(name: str) -> str:
+    """Strip control characters and enforce max length."""
+    cleaned = "".join(ch for ch in name if ord(ch) >= 0x20)
+    return cleaned[:_MAX_QUALIFIED_NAME_LEN]
+
+
+@dataclass
+class GraphNode:
+    """A structural code entity (file, class, function, type, test)."""
+
+    kind: NodeKind
+    qualified_name: str
+    file_path: str
+    line_start: int
+    line_end: int
+    language: str = ""
+    parent_name: str = ""
+    params: dict[str, str] = field(default_factory=dict)
+    return_type: str = ""
+    modifiers: list[str] = field(default_factory=list)
+    is_test: bool = False
+    file_hash: str = ""
+
+    def __post_init__(self) -> None:
+        self.qualified_name = _sanitize_name(self.qualified_name)
+        if self.line_start < 0 or self.line_end < self.line_start:
+            msg = f"invalid line range: {self.line_start}-{self.line_end}"
+            raise ValueError(msg)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
+        return {
+            "kind": str(self.kind),
+            "qualified_name": self.qualified_name,
+            "file_path": self.file_path,
+            "line_start": self.line_start,
+            "line_end": self.line_end,
+            "language": self.language,
+            "parent_name": self.parent_name,
+            "params": self.params,
+            "return_type": self.return_type,
+            "modifiers": self.modifiers,
+            "is_test": self.is_test,
+            "file_hash": self.file_hash,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> GraphNode:
+        """Deserialize from a dictionary."""
+        return cls(
+            kind=NodeKind(data["kind"]),
+            qualified_name=data["qualified_name"],
+            file_path=data["file_path"],
+            line_start=data["line_start"],
+            line_end=data["line_end"],
+            language=data.get("language", ""),
+            parent_name=data.get("parent_name", ""),
+            params=data.get("params", {}),
+            return_type=data.get("return_type", ""),
+            modifiers=data.get("modifiers", []),
+            is_test=data.get("is_test", False),
+            file_hash=data.get("file_hash", ""),
+        )
+
+    def params_json(self) -> str:
+        """Return params as JSON string for SQLite storage."""
+        return json.dumps(self.params) if self.params else ""
+
+    def modifiers_json(self) -> str:
+        """Return modifiers as JSON string for SQLite storage."""
+        return json.dumps(self.modifiers) if self.modifiers else ""
+
+
+@dataclass
+class GraphEdge:
+    """A relationship between two graph nodes."""
+
+    kind: EdgeKind
+    source_qn: str
+    target_qn: str
+    file_path: str = ""
+    line: int = 0
+
+    def __post_init__(self) -> None:
+        self.source_qn = _sanitize_name(self.source_qn)
+        self.target_qn = _sanitize_name(self.target_qn)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
+        return {
+            "kind": str(self.kind),
+            "source_qn": self.source_qn,
+            "target_qn": self.target_qn,
+            "file_path": self.file_path,
+            "line": self.line,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> GraphEdge:
+        """Deserialize from a dictionary."""
+        return cls(
+            kind=EdgeKind(data["kind"]),
+            source_qn=data["source_qn"],
+            target_qn=data["target_qn"],
+            file_path=data.get("file_path", ""),
+            line=data.get("line", 0),
+        )
 
 
 class ChallengeResult(str, Enum):
@@ -27,6 +175,8 @@ class ChallengeType(str, Enum):
     SPOT_BUG = "spot_bug"
     DEPENDENCY_MAP = "dependency_map"
     CODE_COMPLETION = "code_completion"
+    IMPACT_PREDICTION = "impact_prediction"
+    DEPENDENCY_TRACE = "dependency_trace"
 
     def __str__(self) -> str:
         return self.value

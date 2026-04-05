@@ -1,6 +1,6 @@
 ---
 name: refine-code
-description: Analyze and improve living code quality across 6 dimensions
+description: Analyze code quality across 6 dimensions (duplication, algorithms, clean code, architecture, errors, style) and apply fixes.
 usage: /refine-code [PATH] [--level 1|2|3] [--focus all|duplication|algorithms|clean-code|architecture] [--report FILE] [--apply]
 ---
 

@@ -1,5 +1,6 @@
 ---
 description: Generate a custom checklist for the current feature based on user requirements.
+argument-hint: "Feature name or path to spec"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:verification-before-completion` for enhanced checklist validation.
@@ -112,7 +113,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Acceptance Criteria Quality** (Are success criteria measurable?)
    - **Scenario Coverage** (Are all flows/cases addressed?)
    - **Edge Case Coverage** (Are boundary conditions defined?)
-   - **Non-Functional Requirements** (Performance, Security, Accessibility, etc. - are they specified?)
+   - **Success Criteria** (Performance, Security, Accessibility, etc. - are they specified?)
    - **Dependencies & Assumptions** (Are they documented and validated?)
    - **Ambiguities & Conflicts** (What needs clarification?)
 
@@ -166,7 +167,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - "Can 'balanced visual weight' be objectively verified? [Measurability, Spec §FR-2]"
 
    **Scenario Classification & Coverage** (Requirements Quality Focus):
-   - Check if requirements exist for: Primary, Alternate, Exception/Error, Recovery, Non-Functional scenarios
+   - Check if requirements exist for: Primary, Alternate, Exception/Error, Recovery, Success Criteria scenarios
    - For each scenario class, ask: "Are [scenario type] requirements complete, clear, and consistent?"
    - If scenario class missing: "Are [scenario type] requirements intentionally excluded or missing? [Gap]"
    - Include resilience/rollback when state mutation occurs: "Are rollback requirements defined for migration failures? [Gap]"

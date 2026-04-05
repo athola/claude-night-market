@@ -45,6 +45,28 @@ Every specification must include these four sections to be considered complete.
 **Success**: Checkout completion rate increases and customer support questions about orders decrease.
 ```
 
+### Assumptions
+
+**Purpose**: Document conditions taken as given that inform this
+specification.
+
+**What to Include**:
+- Conditions assumed true that, if proven false, would
+  invalidate parts of this specification
+- Scope boundaries accepted without verification
+- Environmental or organizational givens
+
+**Template**:
+```markdown
+## Assumptions
+
+Explicit assumptions that inform this specification.
+Document any conditions taken as given that, if proven
+false, would invalidate parts of this specification.
+
+- [List assumptions here]
+```
+
 ### 2. User Scenarios
 
 **Purpose**: Show how real users interact with the feature in context.
@@ -195,7 +217,7 @@ Every specification must include these four sections to be considered complete.
 
 Include these sections when they add value, not by default.
 
-### Non-Functional Requirements
+### Success Criteria
 
 **When to Include**:
 - Performance requirements beyond normal expectations
@@ -205,7 +227,7 @@ Include these sections when they add value, not by default.
 
 **Example**:
 ```markdown
-## Non-Functional Requirements
+## Success Criteria
 
 ### Performance
 - Response times under heavy load
@@ -274,7 +296,7 @@ Include these sections when they add value, not by default.
 
 ### When to Include Optional Sections
 
-**Include Non-Functional Requirements when**:
+**Include Success Criteria when**:
 - Performance is critical to user experience
 - Security/compliance is required
 - Scalability beyond normal is needed
@@ -303,7 +325,7 @@ Include these sections when they add value, not by default.
 - Are empty or speculative
 
 **Examples to Skip**:
-- NFRs: "Should be fast" (too vague)
+- Success Criteria: "Should be fast" (too vague)
 - Edge Cases: "Might have issues with large files" (not specific)
 - Dependencies: "Uses a database" (obvious)
 - Assumptions: "Users want good UX" (too generic)

@@ -1,10 +1,6 @@
 ---
 name: knowledge-locator
-description: 'Consult this skill when searching or navigating stored knowledge. Use
-  when searching for stored knowledge, cross-referencing concepts, discovering connections,
-  retrieving from palaces, finding past PR decisions. Do not use when creating new
-  palace structures - use memory-palace-architect. DO NOT use when: processing new
-  external resources - use knowledge-intake.'
+description: 'Search and navigate stored knowledge in memory palaces. Use for cross-referencing, context retrieval.'
 version: 1.7.1
 alwaysApply: false
 category: navigation

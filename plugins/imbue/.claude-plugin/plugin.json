@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/catchup",
@@ -22,9 +22,7 @@
   "agents": [
     "./agents/review-analyst.md"
   ],
-  "hooks": [
-    "./hooks/hooks.json"
-  ],
+  "hooks": [],
   "keywords": [
     "workflow",
     "analysis",
@@ -49,6 +47,10 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"],
-  "optional_dependencies": ["tome"]
+  "dependencies": [
+    "leyline"
+  ],
+  "optional_dependencies": [
+    "tome"
+  ]
 }

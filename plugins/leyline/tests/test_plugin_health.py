@@ -9,8 +9,10 @@ Feature: Plugin Health Measurement
 
 from __future__ import annotations
 
+import json
 import os
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -70,10 +72,41 @@ class TestImprovementVelocity:
         actions_dir = tmp_path / "stewardship"
         actions_dir.mkdir(parents=True)
         actions_file = actions_dir / "actions.jsonl"
+        now = datetime.now(timezone.utc)
+        t1 = (now - timedelta(days=5)).isoformat()
+        t2 = (now - timedelta(days=3)).isoformat()
+        t3 = (now - timedelta(days=1)).isoformat()
         actions_file.write_text(
-            '{"plugin":"sanctum","action_type":"fix","file":"x","description":"d","timestamp":"2026-03-01T00:00:00Z"}\n'
-            '{"plugin":"sanctum","action_type":"doc","file":"y","description":"d","timestamp":"2026-03-02T00:00:00Z"}\n'
-            '{"plugin":"imbue","action_type":"fix","file":"z","description":"d","timestamp":"2026-03-03T00:00:00Z"}\n'
+            json.dumps(
+                {
+                    "plugin": "sanctum",
+                    "action_type": "fix",
+                    "file": "x",
+                    "description": "d",
+                    "timestamp": t1,
+                }
+            )
+            + "\n"
+            + json.dumps(
+                {
+                    "plugin": "sanctum",
+                    "action_type": "doc",
+                    "file": "y",
+                    "description": "d",
+                    "timestamp": t2,
+                }
+            )
+            + "\n"
+            + json.dumps(
+                {
+                    "plugin": "imbue",
+                    "action_type": "fix",
+                    "file": "z",
+                    "description": "d",
+                    "timestamp": t3,
+                }
+            )
+            + "\n"
         )
 
         result = measure_improvement_velocity(actions_dir, "sanctum")
