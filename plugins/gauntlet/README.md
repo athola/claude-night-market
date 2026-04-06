@@ -97,11 +97,20 @@ The plugin uses a three-layer design:
    knowledge base stored in `.gauntlet/knowledge.json`.
    A curation layer lets developers add context that cannot
    be inferred from code alone.
-2. **Challenge engine** (active recall): generates six exercise
+2. **Code knowledge graph**: Tree-sitter parses multi-language
+   codebases to build a SQLite graph with functions, classes,
+   imports, and call relationships. Community detection groups
+   related nodes, and blast radius analysis scores change risk
+   using security keyword matching from `constants.py`.
+3. **Problem bank**: curated algorithm problems stored as YAML
+   in `data/problems/`. Categories cover arrays, graphs, trees,
+   dynamic programming, and more. Each problem has difficulty
+   and pattern metadata for targeted practice.
+4. **Challenge engine** (active recall): generates six exercise
    types (multiple choice, code completion, trace, explain-why,
    spot-the-bug, dependency map) from the knowledge base.
    Adaptive weighting targets weak categories and unseen entries.
-3. **Integration points** (habit formation): a pre-commit hook
+5. **Integration points** (habit formation): a pre-commit hook
    gates commits behind a challenge, slash commands run on-demand
    sessions, skills support guided onboarding, and an agent query
    API exposes the knowledge base to other plugins.
