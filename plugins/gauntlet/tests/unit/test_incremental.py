@@ -73,6 +73,28 @@ class TestValidateRef:
         with pytest.raises(ValueError, match="unsafe"):
             _validate_ref("HEAD@{0}")
 
+    @pytest.mark.unit
+    def test_rejects_pipe(self) -> None:
+        """
+        Scenario: Pipe character is rejected
+        Given a ref containing '|'
+        When I validate
+        Then a ValueError is raised
+        """
+        with pytest.raises(ValueError, match="unsafe"):
+            _validate_ref("HEAD|cat /etc/passwd")
+
+    @pytest.mark.unit
+    def test_rejects_ampersand(self) -> None:
+        """
+        Scenario: Ampersand character is rejected
+        Given a ref containing '&'
+        When I validate
+        Then a ValueError is raised
+        """
+        with pytest.raises(ValueError, match="unsafe"):
+            _validate_ref("HEAD&rm -rf /")
+
 
 class TestGetChangedFiles:
     """

@@ -29,9 +29,28 @@ Classify changes by their purpose and impact:
 - **Documentation**: Explanatory content, guides, or inline documentation changes
 - **Configuration**: Settings, environment variables, infrastructure, or build configuration changes
 
-## Git Diff-Filter Examples
+## Entity-Level Diff (Primary: sem)
 
-Use git's `--diff-filter` flag to isolate specific change types:
+When [sem](https://github.com/Ataraxy-Labs/sem) is
+available (see `leyline:sem-integration`), use
+entity-level diffs:
+
+```bash
+# Check sem availability
+if command -v sem &>/dev/null; then
+  sem diff --json <baseline>
+fi
+```
+
+This returns entities (functions, classes, methods)
+with `change_type` of added, modified, deleted, or
+renamed. Group by `change_type` to populate the
+structural categories above.
+
+## File-Level Diff (Fallback: git)
+
+When sem is unavailable, use git's `--diff-filter`
+flag to isolate change types at file level:
 
 ```bash
 git diff --name-only --diff-filter=A <baseline>  # Added files

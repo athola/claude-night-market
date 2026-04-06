@@ -13,7 +13,7 @@ from gauntlet.ml import (
     get_blend_weights,
     score_answer_quality,
 )
-from gauntlet.ml.scorer import OnnxSidecarScorer, YamlScorer
+from gauntlet.ml.scorer import SidecarScorer, YamlScorer
 from gauntlet.models import Challenge
 
 
@@ -214,9 +214,9 @@ class TestGetScorer:
         """
         Scenario: Oracle daemon is present and healthy
         Given _get_oracle_port_file returns a valid port file
-        And OnnxSidecarScorer.available() returns True
+        And SidecarScorer.available() returns True
         When _get_scorer() is called
-        Then it returns an OnnxSidecarScorer instance
+        Then it returns an SidecarScorer instance
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
@@ -224,9 +224,9 @@ class TestGetScorer:
         ml_mod._scorer = None
         try:
             with patch("gauntlet.ml._get_oracle_port_file", return_value=port_file):
-                with patch.object(OnnxSidecarScorer, "available", return_value=True):
+                with patch.object(SidecarScorer, "available", return_value=True):
                     scorer = _get_scorer()
-            assert isinstance(scorer, OnnxSidecarScorer)
+            assert isinstance(scorer, SidecarScorer)
         finally:
             ml_mod._scorer = None
 
@@ -235,7 +235,7 @@ class TestGetScorer:
         """
         Scenario: Oracle daemon is present but unhealthy
         Given _get_oracle_port_file returns a port file
-        But OnnxSidecarScorer.available() returns False
+        But SidecarScorer.available() returns False
         When _get_scorer() is called
         Then it falls back to YamlScorer
         """
@@ -245,7 +245,7 @@ class TestGetScorer:
         ml_mod._scorer = None
         try:
             with patch("gauntlet.ml._get_oracle_port_file", return_value=port_file):
-                with patch.object(OnnxSidecarScorer, "available", return_value=False):
+                with patch.object(SidecarScorer, "available", return_value=False):
                     scorer = _get_scorer()
             assert isinstance(scorer, YamlScorer)
         finally:

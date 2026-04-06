@@ -195,7 +195,7 @@ def main():
     try:
         raw_input = sys.stdin.read()
         input_data = json.loads(raw_input)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, OSError):
         sys.exit(0)
 
     tool_name = input_data.get("tool_name", "")

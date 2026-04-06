@@ -10,6 +10,7 @@ Feature: Standalone notification system
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 from unittest.mock import MagicMock, patch
 
@@ -181,6 +182,20 @@ class TestValidateWebhookUrl:
         with pytest.raises(WebhookURLError, match="no hostname"):
             validate_webhook_url("https:///path")
 
+    def test_rejects_unresolvable_hostname(self) -> None:
+        """Scenario: Unresolvable hostname is rejected (fail-closed).
+
+        Given a hostname that fails DNS resolution
+        When validating the URL
+        Then raises WebhookURLError for SSRF safety.
+        """
+        with patch(
+            "socket.getaddrinfo",
+            side_effect=socket.gaierror("Name resolution failed"),
+        ):
+            with pytest.raises(WebhookURLError, match="Cannot resolve"):
+                validate_webhook_url("https://evil-rebind.example.com/hook")
+
     def test_send_webhook_rejects_invalid_url(self) -> None:
         """Scenario: send_webhook rejects non-https URL.
 
@@ -244,14 +259,14 @@ class TestBuildIssueBody:
         When building the issue body
         Then all fields appear in the output.
         """
-        body = build_issue_body(
-            event=AlertEvent.CRASH,
+        ctx = AlertContext(
             work_item_id="WI-42",
             work_item_ref="feature/login",
             stage="build",
             step="compile",
             detail="Segfault in module X",
         )
+        body = build_issue_body(event=AlertEvent.CRASH, ctx=ctx)
         assert "crash" in body.lower()
         assert "WI-42" in body
         assert "feature/login" in body
@@ -266,11 +281,11 @@ class TestBuildIssueBody:
         When building the issue body
         Then both appear in the output.
         """
-        body = build_issue_body(
-            event=AlertEvent.COMPLETION,
+        ctx = AlertContext(
             work_item_id="WI-99",
             detail="All tasks finished successfully",
         )
+        body = build_issue_body(event=AlertEvent.COMPLETION, ctx=ctx)
         assert "completion" in body.lower()
         assert "WI-99" in body
         assert "All tasks finished successfully" in body
@@ -282,11 +297,8 @@ class TestBuildIssueBody:
         When building the issue body
         Then both appear in the output.
         """
-        body = build_issue_body(
-            event=AlertEvent.RATE_LIMIT,
-            stage="deploy",
-            detail="API quota exceeded",
-        )
+        ctx = AlertContext(stage="deploy", detail="API quota exceeded")
+        body = build_issue_body(event=AlertEvent.RATE_LIMIT, ctx=ctx)
         assert "rate_limit" in body.lower() or "rate limit" in body.lower()
         assert "deploy" in body
         assert "API quota exceeded" in body
@@ -319,7 +331,7 @@ class TestBuildIssueBody:
         When building the issue body
         Then a placeholder message appears.
         """
-        body = build_issue_body(event=AlertEvent.COMPLETION)
+        body = build_issue_body(event=AlertEvent.COMPLETION, ctx=AlertContext())
         assert "No additional detail provided" in body
 
     @pytest.mark.parametrize(
@@ -334,7 +346,7 @@ class TestBuildIssueBody:
         When building the issue body
         Then the event's string value appears in the output.
         """
-        body = build_issue_body(event=event)
+        body = build_issue_body(event=event, ctx=AlertContext())
         assert event.value in body
 
     def test_default_source_is_herald(self) -> None:
@@ -344,7 +356,7 @@ class TestBuildIssueBody:
         When building the issue body
         Then the heading uses 'Herald' as prefix.
         """
-        body = build_issue_body(event=AlertEvent.CRASH)
+        body = build_issue_body(event=AlertEvent.CRASH, ctx=AlertContext())
         assert "Herald Alert" in body
 
     def test_custom_source_label(self) -> None:
@@ -356,6 +368,7 @@ class TestBuildIssueBody:
         """
         body = build_issue_body(
             event=AlertEvent.CRASH,
+            ctx=AlertContext(),
             source="egregore",
         )
         assert "Egregore Alert" in body
@@ -490,7 +503,10 @@ class TestSendWebhook:
         ids=["slack-format", "discord-format"],
     )
     @patch("subprocess.run")
-    def test_chat_formats(self, mock_run: MagicMock, fmt: str, key: str) -> None:
+    @patch("notify.validate_webhook_url")
+    def test_chat_formats(
+        self, mock_validate: MagicMock, mock_run: MagicMock, fmt: str, key: str
+    ) -> None:
         """Scenario: Chat platform formats use correct payload key.
 
         Given a slack or discord webhook format
@@ -627,10 +643,11 @@ class TestAlert:
         When calling alert()
         Then a GitHub issue is created with herald labels.
         """
+        ctx = AlertContext(detail="System failure")
         result = alert(
             event=AlertEvent.CRASH,
             overseer_method="github-repo-owner",
-            detail="System failure",
+            ctx=ctx,
         )
         assert result is True
         mock_create.assert_called_once()
@@ -649,7 +666,7 @@ class TestAlert:
         """
         alert(
             event=AlertEvent.PIPELINE_FAILURE,
-            work_item_id="WI-55",
+            ctx=AlertContext(work_item_id="WI-55"),
         )
         title = mock_create.call_args[1]["title"]
         assert "WI-55" in title
@@ -669,7 +686,7 @@ class TestAlert:
             event=AlertEvent.RATE_LIMIT,
             webhook_url="https://hooks.slack.com/x",
             webhook_format="slack",
-            detail="Rate limited",
+            ctx=AlertContext(detail="Rate limited"),
         )
         assert result is True
         mock_wh.assert_called_once()

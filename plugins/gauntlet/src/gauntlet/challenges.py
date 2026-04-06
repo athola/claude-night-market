@@ -6,7 +6,14 @@ import random
 import uuid
 from collections.abc import Callable
 
-from gauntlet.models import Challenge, ChallengeType, DeveloperProgress, KnowledgeEntry
+from gauntlet.models import (
+    BankProblem,
+    Challenge,
+    ChallengeType,
+    DeveloperProgress,
+    KnowledgeEntry,
+)
+from gauntlet.problem_bank import bank_problem_to_challenge
 
 # ---------------------------------------------------------------------------
 # Generator type alias
@@ -198,3 +205,8 @@ def select_challenge_type(progress: DeveloperProgress) -> str:
 def generate_challenge(entry: KnowledgeEntry, challenge_type: str) -> Challenge:
     """Delegate to the registered generator for *challenge_type*."""
     return CHALLENGE_TYPES[challenge_type](entry)
+
+
+def generate_bank_challenge(problem: BankProblem) -> Challenge:
+    """Generate a challenge from a standalone bank problem."""
+    return bank_problem_to_challenge(problem)

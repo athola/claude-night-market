@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from gauntlet.communities import (
+    _leiden_communities,
     calculate_cohesion,
     detect_communities,
     get_architecture_overview,
@@ -178,6 +180,98 @@ class TestCalculateCohesion:
         """Empty edge list gives 0.0 cohesion."""
         cohesion = calculate_cohesion({"a"}, [])
         assert cohesion == 0.0
+
+
+class TestLeidenCommunities:
+    """
+    Feature: Leiden community detection
+
+    As a developer
+    I want communities detected via the Leiden algorithm
+    So that I get modularity-optimized clusters
+    """
+
+    @pytest.mark.unit
+    def test_leiden_path_with_mocked_igraph(self) -> None:
+        """
+        Scenario: Leiden algorithm produces communities from igraph
+        Given a mock igraph module with community_leiden support
+        When I call _leiden_communities
+        Then communities are returned from the partition
+        """
+        nodes = [
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name=f"m.py::fn{i}",
+                file_path="m.py",
+                line_start=i * 10,
+                line_end=i * 10 + 9,
+            )
+            for i in range(4)
+        ]
+        edges = [
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="m.py::fn0",
+                target_qn="m.py::fn1",
+            ),
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="m.py::fn2",
+                target_qn="m.py::fn3",
+            ),
+        ]
+
+        # Mock igraph: Graph returns object with community_leiden
+        mock_graph_instance = MagicMock()
+        # Partition: two groups
+        mock_graph_instance.community_leiden.return_value = [[0, 1], [2, 3]]
+
+        mock_ig = MagicMock()
+        mock_ig.Graph.return_value = mock_graph_instance
+
+        with patch.dict("sys.modules", {"igraph": mock_ig}):
+            communities = _leiden_communities(nodes, edges)
+
+        assert len(communities) == 2
+        assert len(communities[0]["node_qns"]) == 2
+        assert len(communities[1]["node_qns"]) == 2
+
+
+class TestLeidenFallback:
+    """
+    Feature: Fallback when Leiden algorithm fails
+
+    As a developer
+    I want community detection to fall back gracefully
+    So that non-ImportError exceptions are handled
+    """
+
+    @pytest.mark.unit
+    def test_valueerror_falls_back_to_file_based(
+        self, store: GraphStore, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """
+        Scenario: igraph raises ValueError during community detection
+        Given a graph with nodes in two files
+        And igraph raises ValueError on community_leiden
+        When I detect communities
+        Then file-based fallback is used and a warning is logged
+        """
+        _build_two_clusters(store)
+
+        with (
+            patch(
+                "gauntlet.communities._leiden_communities",
+                side_effect=ValueError("bad partition"),
+            ),
+            caplog.at_level("WARNING", logger="gauntlet.communities"),
+        ):
+            communities = detect_communities(store)
+
+        # Fallback produces file-based communities
+        assert len(communities) >= 2
+        assert any("bad partition" in r.message for r in caplog.records)
 
 
 class TestArchitectureOverview:

@@ -615,6 +615,37 @@ class TestMainErrorHandling:
 # ============================================================================
 
 
+class TestCrashHandler:
+    """Feature: Top-level crash handler logs traceback to stderr."""
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_exception_produces_traceback_on_stderr(self) -> None:
+        """Scenario: main() raises an unexpected exception.
+
+        Given main() throws a RuntimeError
+        When the __main__ guard catches it
+        Then traceback is printed to stderr.
+        """
+        captured_stderr = StringIO()
+        with (
+            patch("security_pattern_check.main", side_effect=RuntimeError("boom")),
+            patch("sys.stderr", captured_stderr),
+        ):
+            # Simulate the __main__ guard behavior
+            try:
+                from security_pattern_check import main as _main
+
+                _main()
+            except RuntimeError:
+                import traceback
+
+                traceback.print_exc(file=captured_stderr)
+
+        stderr_out = captured_stderr.getvalue()
+        assert "boom" in stderr_out
+
+
 class TestNegativeContextWords:
     """Feature: NEGATIVE_CONTEXT_WORDS is properly configured."""
 

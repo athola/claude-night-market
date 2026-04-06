@@ -1,0 +1,612 @@
+category: "system-design"
+
+problems:
+  - id: "system-design-001"
+    title: "URL Shortener"
+    difficulty: "hard"
+    prompt: |
+      Design a URL shortening service similar to TinyURL.
+
+      Requirements:
+      - Given a long URL, generate a short, unique alias.
+      - When users visit the short URL, redirect to the original.
+      - Links can optionally expire after a configurable TTL.
+
+      Scale:
+      - 100 million new URLs per day
+      - 10:1 read-to-write ratio (1 billion redirects per day)
+      - Service should be highly available with low latency (<100ms)
+      - Shortened URLs should be 7 characters or fewer
+
+      Example:
+      POST /shorten {"url": "https://example.com/very/long/path"}
+      -> {"short_url": "https://tiny.url/abc1234"}
+      GET /abc1234 -> 302 redirect to original URL
+    hints:
+      - "Consider base62 encoding of an auto-incrementing ID or a hash-based approach."
+      - "A cache layer (e.g., Redis) in front of the database handles the high read volume."
+      - "Think about how to handle hash collisions and ensure uniqueness at scale."
+    solution_outline: |
+      API: POST /shorten (long URL, optional TTL), GET /:shortCode
+      (302 redirect). Data model: table with shortCode (PK), longUrl,
+      createdAt, expiresAt. Generate shortCode via base62 encoding of a
+      distributed unique ID (Snowflake-style) or MD5/SHA256 truncated
+      with collision retry. Cache hot short-to-long mappings in Redis.
+      Database sharded by shortCode hash. Rate limit write API.
+      Availability via multiple app server replicas behind a load
+      balancer. Analytics can be handled asynchronously via a message
+      queue.
+    tags: ["hashing", "caching", "database-design", "load-balancing"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-002"
+    title: "Rate Limiter"
+    difficulty: "hard"
+    prompt: |
+      Design a distributed rate limiter that can be used as middleware
+      for an API gateway.
+
+      Requirements:
+      - Support multiple rate limiting rules (per user, per IP, per
+        endpoint, global).
+      - Configurable limits: e.g., 100 requests per minute per user.
+      - Return HTTP 429 with Retry-After header when limit is exceeded.
+      - Must work across multiple server instances.
+
+      Scale:
+      - 10 million active users
+      - 500,000 requests per second across the cluster
+      - Decisions must be made in under 5ms
+
+      Example: User makes 101st request within 1 minute and receives
+      429 Too Many Requests with Retry-After: 23.
+    hints:
+      - "Compare algorithms: token bucket, sliding window log, sliding window counter, fixed window counter."
+      - "Redis is commonly used as the shared state store. Consider atomicity with Lua scripts."
+      - "Think about what happens when Redis is unavailable: fail-open or fail-closed?"
+    solution_outline: |
+      Algorithm: token bucket (flexible, supports bursts) or sliding
+      window counter (memory-efficient). Shared state in Redis with
+      atomic operations (INCR + EXPIRE or Lua scripts). Rules stored
+      in a config service. Architecture: rate limiter middleware runs
+      in the API gateway. Each request checks Redis, decrements tokens,
+      and returns 429 if depleted. For resilience, use local in-memory
+      fallback if Redis is unreachable (fail-open with degraded
+      accuracy). Sync rules via pub/sub. Monitor with counters and
+      alerts on high rejection rates.
+    tags: ["rate-limiting", "redis", "distributed-systems", "middleware"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-003"
+    title: "Consistent Hashing"
+    difficulty: "hard"
+    prompt: |
+      Design a consistent hashing system for distributing data across
+      a dynamic set of servers.
+
+      Requirements:
+      - Distribute keys evenly across N servers.
+      - When a server is added or removed, minimize the number of keys
+        that need to be remapped.
+      - Support weighted nodes (some servers handle more load).
+      - Handle hotspot mitigation.
+
+      Scale:
+      - 1000 servers in the ring
+      - 1 billion keys distributed across the ring
+      - Server additions/removals happen several times per day
+
+      Example: Adding server S4 to a ring of S1, S2, S3 should only
+      redistribute keys from one neighbor, not rehash everything.
+    hints:
+      - "Virtual nodes (vnodes) help achieve more uniform distribution and support weighted nodes."
+      - "The hash ring maps both servers and keys to positions on a circular space. A key is assigned to the next server clockwise."
+      - "Consider the trade-off between the number of virtual nodes and lookup/rebalancing cost."
+    solution_outline: |
+      Hash ring with virtual nodes: each physical server maps to k
+      virtual positions on a circle (k proportional to weight). Keys
+      hash to a ring position and are assigned to the next virtual node
+      clockwise (binary search on sorted positions). Adding a server
+      only redistributes keys from adjacent ranges. Data rebalancing
+      uses background transfer with consistency checks. Hotspot
+      mitigation: increase vnodes for underloaded servers or add a
+      caching layer. Implementation uses a sorted array of ring
+      positions with O(log n) lookup.
+    tags: ["hashing", "distributed-systems", "load-balancing"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-004"
+    title: "Key-Value Store"
+    difficulty: "extra_hard"
+    prompt: |
+      Design a distributed key-value store (similar to DynamoDB or
+      etcd) that supports get and put operations.
+
+      Requirements:
+      - Support get(key) and put(key, value) operations.
+      - Tunable consistency: strong or eventual.
+      - High availability: the system remains operational during network
+        partitions.
+      - Data replication across multiple nodes.
+
+      Scale:
+      - 10 TB of data
+      - 100,000 operations per second
+      - 99.99% availability target
+      - Data replicated across 3 data centers
+
+      Example:
+      put("user:123", "{name: Alice}") -> OK
+      get("user:123") -> "{name: Alice}"
+    hints:
+      - "Consider the CAP theorem trade-offs: which two of consistency, availability, partition tolerance do you prioritize?"
+      - "Consistent hashing distributes keys. Replication copies data to N successor nodes on the ring."
+      - "Conflict resolution: vector clocks or last-writer-wins. Read repair and anti-entropy for consistency."
+    solution_outline: |
+      Architecture: consistent hashing ring with virtual nodes.
+      Replication factor N=3 (data copied to 3 successive nodes).
+      Quorum reads/writes: W + R > N for strong consistency (e.g.,
+      W=2, R=2) or W=1, R=1 for eventual. Conflict detection via
+      vector clocks; resolution via application-level merge or LWW.
+      Write path: coordinator hashes key, writes to N replicas, waits
+      for W acknowledgments. Read path: read from R replicas, reconcile
+      versions. Anti-entropy via Merkle trees. Gossip protocol for
+      failure detection. WAL and SSTables for storage engine.
+      Compaction for space reclamation.
+    tags: ["distributed-systems", "replication", "consistency", "hashing"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-005"
+    title: "Unique ID Generator"
+    difficulty: "hard"
+    prompt: |
+      Design a distributed system that generates unique, sortable IDs
+      at high throughput.
+
+      Requirements:
+      - IDs must be globally unique across all servers.
+      - IDs should be roughly time-ordered (sortable by creation time).
+      - 64-bit numeric IDs.
+      - Generation must be fast: no coordination between servers.
+
+      Scale:
+      - 10,000 IDs per second per server
+      - 1000 servers generating IDs concurrently
+      - IDs must be unique for at least 70 years
+
+      Example: Server A generates 738192847560001, Server B generates
+      738192847560002 at the same millisecond, both globally unique.
+    hints:
+      - "Twitter's Snowflake: 1 bit sign + 41 bits timestamp + 10 bits machine ID + 12 bits sequence."
+      - "Consider clock synchronization issues: what if a server's clock drifts backward?"
+      - "Compare with UUID, database auto-increment, and multi-master replication approaches."
+    solution_outline: |
+      Snowflake-style: 64-bit ID = 1 bit unused + 41 bits millisecond
+      timestamp (69 years) + 10 bits datacenter/machine ID (1024
+      machines) + 12 bits sequence (4096 per ms per machine). Each
+      server generates IDs independently using its machine ID and a
+      local sequence counter. On clock rollback, wait or refuse to
+      generate until the clock catches up. NTP for loose
+      synchronization. Machine IDs assigned via ZooKeeper or a config
+      service. Rough time ordering guaranteed by the timestamp prefix.
+    tags: ["distributed-systems", "id-generation", "clock-synchronization"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-006"
+    title: "News Feed / Timeline"
+    difficulty: "hard"
+    prompt: |
+      Design a social media news feed system (like Twitter's home
+      timeline or Facebook's News Feed).
+
+      Requirements:
+      - Users can publish posts visible to their followers.
+      - Users see a feed of recent posts from people they follow,
+        ordered by relevance or time.
+      - Feed updates in near real-time when followed users post.
+
+      Scale:
+      - 500 million users, average 200 follows per user
+      - 10 million new posts per day
+      - Feed retrieval: 10 billion requests per day
+      - Feed should load in under 500ms
+
+      Example: User follows 200 people. On opening the app, they see
+      a personalized feed of recent posts from those 200 accounts.
+    hints:
+      - "Fan-out on write: pre-compute feeds when a post is published. Fan-out on read: assemble feeds at read time."
+      - "Hybrid approach: fan-out on write for regular users, fan-out on read for celebrity accounts (high follower counts)."
+      - "Feed ranking can use a scoring function combining recency, engagement, and affinity."
+    solution_outline: |
+      Hybrid fan-out: when a normal user posts, push the post ID into
+      the feed cache (Redis sorted set by timestamp) of each follower.
+      For celebrity accounts (>100K followers), defer to pull model at
+      read time. Feed retrieval: fetch the pre-computed feed from cache,
+      merge in posts from followed celebrities, rank, and return the
+      top N. Post storage in a posts table (sharded by user ID). Media
+      on CDN. Feed cache per user in Redis with TTL. A ranking service
+      can re-order by engagement signals. Pub/sub or message queue
+      (Kafka) for fan-out workers.
+    tags: ["fan-out", "caching", "message-queue", "ranking"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-007"
+    title: "Chat System / Messaging"
+    difficulty: "hard"
+    prompt: |
+      Design a real-time chat system supporting one-on-one and group
+      messaging (similar to WhatsApp or Slack).
+
+      Requirements:
+      - One-on-one and group chats (up to 500 members).
+      - Messages delivered in order with at-least-once delivery.
+      - Offline message queuing: messages arrive when user reconnects.
+      - Read receipts and online presence indicators.
+
+      Scale:
+      - 100 million daily active users
+      - Average 50 messages sent per user per day
+      - 5 billion messages per day
+      - Message delivery latency < 500ms for online users
+
+      Example: User A sends "Hello" to User B. If B is online, they
+      see it within 500ms. If B is offline, they see it on next login.
+    hints:
+      - "WebSockets for persistent real-time connections. A chat server maintains a mapping of user ID to WebSocket connection."
+      - "A message queue (Kafka) decouples message ingestion from delivery and ensures durability."
+      - "For group messages, fan out to each member's message queue or channel."
+    solution_outline: |
+      Clients connect via WebSocket to chat servers. A connection
+      registry (Redis) maps user IDs to their chat server. Sending a
+      message: client sends via WebSocket, the chat server publishes to
+      a message queue (Kafka, partitioned by chat ID for ordering). A
+      delivery service consumes from the queue, looks up each
+      recipient's connection, and pushes via WebSocket. If a recipient
+      is offline, the message is stored in an undelivered queue
+      (database) and pushed on reconnect. Messages persisted to a
+      database (Cassandra, partitioned by chat ID + time). Group chat:
+      message replicated to each member's delivery path. Presence
+      service uses heartbeats with a short TTL in Redis. Read receipts
+      are lightweight status updates sent back through the same channel.
+    tags: ["websockets", "message-queue", "real-time", "presence"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-008"
+    title: "Notification System"
+    difficulty: "hard"
+    prompt: |
+      Design a notification system that supports push notifications,
+      SMS, and email across multiple platforms.
+
+      Requirements:
+      - Support iOS push, Android push, SMS, and email channels.
+      - Users configure notification preferences per channel.
+      - Rate limiting to prevent notification fatigue.
+      - Template-based notifications with personalization.
+
+      Scale:
+      - 100 million notifications per day
+      - Peak: 10,000 notifications per second
+      - Delivery within 30 seconds for push, 5 minutes for email
+      - 99.9% delivery rate
+
+      Example: User places an order. The system sends a push
+      notification immediately and a confirmation email within minutes.
+    hints:
+      - "Decouple notification creation from delivery using message queues with per-channel workers."
+      - "A preference service filters which channels to use for each user before dispatching."
+      - "Consider retry with exponential backoff for failed deliveries and dead-letter queues for persistent failures."
+    solution_outline: |
+      Architecture: notification service receives requests via API,
+      validates, applies user preferences and rate limits, then enqueues
+      per-channel messages (Kafka topics for push, SMS, email). Channel
+      workers consume from their queue and call third-party providers
+      (APNs, FCM, Twilio, SendGrid). Template engine renders
+      personalized content. Rate limiter (per user per channel) prevents
+      spam. Failed deliveries retry with exponential backoff; after max
+      retries, send to a dead-letter queue for manual review. Analytics
+      service tracks delivery, open, and click rates. User preference
+      store (database) consulted before dispatch.
+    tags: ["message-queue", "rate-limiting", "third-party-integration"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-009"
+    title: "Search Autocomplete"
+    difficulty: "hard"
+    prompt: |
+      Design a search autocomplete (typeahead) system that suggests
+      the top queries as a user types.
+
+      Requirements:
+      - Return the top 5 suggestions for a given prefix.
+      - Suggestions ranked by popularity (search frequency).
+      - Update suggestions based on new search data (not real-time,
+        daily or hourly refresh is acceptable).
+
+      Scale:
+      - 10 million daily active users
+      - Average 10 searches per user per day, 6 characters typed per
+        search (60 autocomplete requests per search)
+      - 600 million autocomplete queries per day (~7000 QPS)
+      - Response time < 100ms
+
+      Example: User types "din" and sees: ["dinner recipes",
+      "dinosaur", "dining near me", "diner", "dingo"].
+    hints:
+      - "A trie data structure is natural for prefix lookups. Each node stores the top-k suggestions for that prefix."
+      - "Pre-computing top-k per prefix node avoids traversing the entire subtree at query time."
+      - "Aggregate search logs offline (MapReduce), rebuild the trie periodically, and distribute to query servers."
+    solution_outline: |
+      Offline pipeline: aggregate search query logs (MapReduce or
+      Spark), compute frequency counts, build a trie where each node
+      caches the top-5 query strings for its prefix. Serialize and
+      distribute the trie to query servers. Query path: look up the
+      prefix in the in-memory trie, return cached top-5.
+      Trie updates: rebuild periodically (hourly/daily) from fresh
+      aggregated data and swap atomically. For very popular prefixes,
+      add a CDN or Redis cache layer. Filter out inappropriate
+      suggestions. Shard by first 1-2 characters if trie is too large
+      for one server.
+    tags: ["trie", "caching", "batch-processing", "ranking"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-010"
+    title: "Distributed Cache"
+    difficulty: "hard"
+    prompt: |
+      Design a distributed caching system (similar to Memcached or
+      Redis Cluster).
+
+      Requirements:
+      - Support get, set, and delete operations.
+      - Distribute data across multiple cache nodes.
+      - Handle node failures gracefully (no data loss for the cluster).
+      - Support eviction policies (LRU, TTL).
+
+      Scale:
+      - 1 TB of cached data
+      - 1 million operations per second
+      - Sub-millisecond latency for cache hits
+      - 50-100 cache nodes
+
+      Example:
+      set("product:123", data, ttl=3600) -> OK
+      get("product:123") -> data (cache hit) or null (cache miss)
+    hints:
+      - "Consistent hashing determines which node holds a given key, minimizing redistribution when nodes change."
+      - "For high availability, replicate each key to the next N nodes on the hash ring."
+      - "LRU eviction within each node: use a hash map plus a doubly linked list."
+    solution_outline: |
+      Clients use a consistent hashing library to route requests to the
+      correct cache node (no central router). Each node runs an
+      in-memory store with LRU eviction (hash map + doubly linked list)
+      and TTL expiration (lazy deletion + periodic sweep). Replication:
+      writes go to the primary node and are asynchronously replicated to
+      k-1 successors on the ring. On node failure, the next node in the
+      ring absorbs the key range. A gossip protocol or ZooKeeper detects
+      failures and updates the ring membership. Clients cache the ring
+      topology locally and refresh on membership changes. Hot keys can
+      be replicated to multiple nodes or handled by a local L1 cache on
+      the client.
+    tags: ["caching", "consistent-hashing", "replication", "lru"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-011"
+    title: "Web Crawler"
+    difficulty: "hard"
+    prompt: |
+      Design a web crawler that systematically downloads and indexes
+      web pages at scale.
+
+      Requirements:
+      - Crawl billions of web pages.
+      - Respect robots.txt and crawl rate limits per domain.
+      - Detect and avoid duplicate content.
+      - Prioritize important or frequently updated pages.
+
+      Scale:
+      - 1 billion pages per month (~400 pages per second)
+      - Average page size: 500 KB
+      - 500 TB of raw content per month
+      - Recrawl popular pages every few hours
+
+      Example: The crawler discovers a new page via a link, checks if
+      it has been seen before, downloads it, extracts links, and queues
+      newly discovered URLs.
+    hints:
+      - "A URL frontier (priority queue) manages which URLs to crawl next, respecting politeness (per-host rate limits)."
+      - "Use a Bloom filter or a URL-seen database to avoid recrawling duplicate URLs."
+      - "DNS resolution is a bottleneck at scale. Use a local DNS cache."
+    solution_outline: |
+      Architecture: seed URLs are added to the URL frontier (priority
+      queue). Worker threads dequeue URLs, resolve DNS (with local
+      cache), check robots.txt (cached per domain), download the page
+      via HTTP, parse HTML to extract links. New URLs are checked
+      against a URL-seen store (Bloom filter for fast checks, backed by
+      a database). Content deduplication via SimHash or MinHash on page
+      content. The frontier enforces politeness: per-domain queues with
+      rate limiting. Prioritization based on PageRank, freshness, or
+      domain authority. Downloaded pages are stored in a distributed
+      file system (HDFS/S3) and sent to an indexing pipeline. Multiple
+      crawler instances coordinate via the shared frontier and URL-seen
+      store.
+    tags: ["distributed-systems", "queue", "deduplication", "crawling"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-012"
+    title: "Proximity Service / Nearby Friends"
+    difficulty: "hard"
+    prompt: |
+      Design a proximity service that finds nearby points of interest
+      or friends within a given radius.
+
+      Requirements:
+      - Given a user's location (lat, lng) and a radius, return all
+        nearby entities (businesses, friends, etc.).
+      - Support real-time location updates for moving entities.
+      - Location search must be fast (<200ms).
+
+      Scale:
+      - 100 million places in the database
+      - 10 million active users updating location every 30 seconds
+      - 100,000 proximity queries per second
+      - Search radius: 1 km to 50 km
+
+      Example: User at (37.7749, -122.4194) with radius 5 km gets back
+      a list of nearby restaurants sorted by distance.
+    hints:
+      - "Geohashing converts 2D coordinates into 1D strings, enabling prefix-based spatial queries."
+      - "Alternatively, use a quadtree to recursively divide the map into cells. Search the user's cell and adjacent cells."
+      - "For real-time friend locations, a separate service with Redis pub/sub can push updates."
+    solution_outline: |
+      For static places: geohash indexing in a database. Each place
+      stores its geohash. To query, compute the geohash of the user's
+      location and neighboring geohash cells at the appropriate
+      precision, then query the database with a prefix match. Filter
+      results by exact distance. Index the geohash column for fast
+      lookups. For real-time friend locations: friends publish location
+      updates to a location service (Redis with geospatial commands or
+      a dedicated in-memory store). Query nearby friends using Redis
+      GEORADIUS. A caching layer handles hot queries. Quadtree is an
+      alternative for in-memory spatial indexing with dynamic
+      granularity.
+    tags: ["geohashing", "spatial-indexing", "real-time", "caching"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-013"
+    title: "Video Streaming Platform"
+    difficulty: "extra_hard"
+    prompt: |
+      Design a video streaming platform (similar to YouTube or
+      Netflix).
+
+      Requirements:
+      - Users upload videos that are transcoded into multiple
+        resolutions and formats.
+      - Viewers stream videos with adaptive bitrate based on their
+        network conditions.
+      - Support for video search, recommendations, and comments.
+
+      Scale:
+      - 1 billion daily active users
+      - 500 hours of video uploaded per minute
+      - 1 billion hours of video watched per day
+      - Videos stored in 360p, 720p, 1080p, and 4K
+      - 99.9% availability for streaming
+
+      Example: A creator uploads a 10-minute 4K video. Within an hour,
+      it is available to stream in all resolutions worldwide.
+    hints:
+      - "Video upload and transcoding are separate: upload to blob storage, then an async pipeline transcodes into multiple formats."
+      - "A CDN is essential for low-latency video delivery worldwide. Pre-populate CDN for popular content."
+      - "Adaptive bitrate streaming (HLS or DASH) lets the player switch quality based on bandwidth."
+    solution_outline: |
+      Upload flow: client uploads video to blob storage (S3). A message
+      is published to a transcoding queue. Transcoding workers (using
+      FFmpeg) produce multiple resolution/codec variants and generate
+      HLS/DASH manifests. Transcoded segments are stored in blob
+      storage and distributed to CDN edge nodes.
+      Streaming flow: client requests the manifest, then fetches
+      segments from the nearest CDN edge. The player uses adaptive
+      bitrate to switch resolutions based on bandwidth.
+      Metadata service: video metadata (title, description, thumbnails)
+      in a database (sharded by video ID). Search via Elasticsearch.
+      Recommendation engine based on collaborative filtering and watch
+      history. Comments stored separately. Pre-populate CDN for trending
+      content. Origin pull for long-tail videos.
+    tags: ["cdn", "transcoding", "blob-storage", "adaptive-streaming"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-014"
+    title: "Cloud Storage"
+    difficulty: "extra_hard"
+    prompt: |
+      Design a cloud file storage service (similar to Google Drive or
+      Dropbox).
+
+      Requirements:
+      - Users upload, download, and sync files across devices.
+      - File versioning: maintain revision history.
+      - Real-time sync: changes on one device appear on others within
+        seconds.
+      - Sharing and permissions (view, edit, owner).
+
+      Scale:
+      - 500 million users, 100 million daily active
+      - Average 200 files per user, average file size 500 KB
+      - 50 PB total storage
+      - 10 million file operations per hour
+      - Sync latency < 5 seconds for online devices
+
+      Example: User edits a document on their laptop. Within seconds,
+      the updated version appears on their phone and the web app.
+    hints:
+      - "Split files into chunks (e.g., 4 MB blocks). Only upload changed chunks to save bandwidth (delta sync)."
+      - "A metadata service tracks file hierarchy, versions, and chunk mappings. Blob storage holds the actual chunks."
+      - "Long polling or WebSockets notify clients of changes for real-time sync."
+    solution_outline: |
+      Architecture: client splits files into fixed-size chunks,
+      computes hashes. Only new or modified chunks are uploaded (delta
+      sync via content-defined chunking). Chunks stored in blob storage
+      (S3) with deduplication by hash. Metadata service (SQL database,
+      sharded by user) tracks: file tree, file versions, chunk lists
+      per version, sharing permissions. Upload flow: client computes
+      diff, uploads new chunks, then updates metadata atomically.
+      Sync: notification service (long polling or WebSocket) pushes
+      change events to connected clients. Clients fetch updated
+      metadata and download new chunks. Versioning: each save creates
+      a new metadata version pointing to the (possibly shared) chunk
+      list. Conflict resolution: last-writer-wins or prompt user to
+      merge. Sharing via ACL entries in metadata. CDN for read-heavy
+      shared files.
+    tags: ["blob-storage", "sync", "chunking", "versioning", "real-time"]
+    challenge_type: "explain_why"
+
+  - id: "system-design-015"
+    title: "Real-time Collaborative Editor"
+    difficulty: "extra_hard"
+    prompt: |
+      Design a real-time collaborative document editor (similar to
+      Google Docs) where multiple users edit the same document
+      simultaneously.
+
+      Requirements:
+      - Multiple users edit a document at the same time with changes
+        visible to all within 200ms.
+      - Conflict resolution: concurrent edits must converge to the
+        same document state on all clients.
+      - Cursor and selection presence: users see each other's cursors.
+      - Support undo/redo per user without affecting others' changes.
+
+      Scale:
+      - 50 million documents
+      - Up to 50 concurrent editors per document
+      - 10,000 active collaborative sessions at any time
+      - Character-level granularity for edits
+
+      Example: Users A and B both type at different positions in a
+      document. Both see each other's characters appear in real-time
+      with no conflicts.
+    hints:
+      - "Operational Transformation (OT) or Conflict-free Replicated Data Types (CRDTs) resolve concurrent edits."
+      - "A collaboration server per document session sequences operations and broadcasts transformed ops to all clients."
+      - "Consider how undo works: each user's undo reverses only their own operations, not others'."
+    solution_outline: |
+      Two main approaches: OT (used by Google Docs) or CRDT (used by
+      some newer editors). With OT: each client sends operations (insert
+      char at position, delete at position) to a server. The server
+      sequences operations with a global order, transforms concurrent
+      operations to preserve intent, and broadcasts the transformed ops
+      to all clients. Clients apply remote operations after transforming
+      against any pending local operations. With CRDT: each character
+      has a unique ID; inserts and deletes commute naturally, so no
+      central sequencer is needed, but storage overhead is higher.
+      Architecture: WebSocket connections to a collaboration service
+      (one session per document). Document state persisted periodically
+      (snapshots) to a database. Cursor positions are ephemeral state
+      broadcast via the same WebSocket channel. Undo: maintain a
+      per-user operation history and invert only that user's ops.
+      Presence service tracks active editors. For scale, shard sessions
+      across collaboration servers by document ID.
+    tags: ["crdt", "operational-transformation", "websockets", "real-time"]
+    challenge_type: "explain_why"

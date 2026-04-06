@@ -67,9 +67,9 @@ def validate_webhook_url(url: str) -> None:
         try:
             results = socket.getaddrinfo(hostname, None)
         except socket.gaierror:
-            # Cannot resolve -- allow through; the actual HTTP
-            # request will fail with a clear network error.
-            return
+            raise WebhookURLError(
+                f"Cannot resolve hostname {hostname!r} -- rejecting for SSRF safety"
+            ) from None
         for _family, _type, _proto, _canon, sockaddr in results:
             resolved = ipaddress.ip_address(sockaddr[0])
             if resolved.is_private or resolved.is_reserved or resolved.is_loopback:
@@ -108,37 +108,20 @@ class AlertContext:
 
 def build_issue_body(
     event: AlertEvent,
-    ctx: AlertContext | None = None,
-    work_item_id: str = "",
-    work_item_ref: str = "",
-    stage: str = "",
-    step: str = "",
-    detail: str = "",
+    ctx: AlertContext,
     source: str = "herald",
 ) -> str:
     """Build a markdown body for a GitHub issue alert.
 
     Args:
         event: The alert event type.
-        ctx: AlertContext with shared parameters. When provided,
-            individual keyword arguments are ignored.
-        work_item_id: Identifier for the work item (e.g. "WI-42").
-        work_item_ref: Reference for the work item (e.g. branch name).
-        stage: Pipeline stage where the event occurred.
-        step: Pipeline step where the event occurred.
-        detail: Human-readable description of what happened.
+        ctx: AlertContext with shared parameters.
         source: Label prefix for the alert (default "herald").
 
     Returns:
         Markdown-formatted issue body string.
 
     """
-    if ctx is not None:
-        work_item_id = ctx.work_item_id
-        work_item_ref = ctx.work_item_ref
-        stage = ctx.stage
-        step = ctx.step
-        detail = ctx.detail
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines: list[str] = [
         f"## {source.title()} Alert: {event.value}",
@@ -147,19 +130,19 @@ def build_issue_body(
         f"**Timestamp:** {timestamp}",
     ]
 
-    if work_item_id:
-        lines.append(f"**Work Item ID:** {work_item_id}")
-    if work_item_ref:
-        lines.append(f"**Work Item Ref:** {work_item_ref}")
-    if stage:
-        lines.append(f"**Stage:** {stage}")
-    if step:
-        lines.append(f"**Step:** {step}")
+    if ctx.work_item_id:
+        lines.append(f"**Work Item ID:** {ctx.work_item_id}")
+    if ctx.work_item_ref:
+        lines.append(f"**Work Item Ref:** {ctx.work_item_ref}")
+    if ctx.stage:
+        lines.append(f"**Stage:** {ctx.stage}")
+    if ctx.step:
+        lines.append(f"**Step:** {ctx.step}")
 
     lines.append("")
 
-    if detail:
-        lines.extend(["### Detail", "", detail])
+    if ctx.detail:
+        lines.extend(["### Detail", "", ctx.detail])
     else:
         lines.extend(["### Detail", "", "_No additional detail provided._"])
 
@@ -306,11 +289,6 @@ def alert(
     webhook_url: str | None = None,
     webhook_format: str = "generic",
     ctx: AlertContext | None = None,
-    work_item_id: str = "",
-    work_item_ref: str = "",
-    stage: str = "",
-    step: str = "",
-    detail: str = "",
     source: str = "herald",
 ) -> bool:
     """Send alerts via GitHub issues and/or webhooks.
@@ -325,42 +303,29 @@ def alert(
         webhook_url: Webhook URL for additional notification.
         webhook_format: Webhook payload format ("slack", "discord",
             or "generic").
-        ctx: AlertContext with shared parameters. When provided,
-            individual keyword arguments are ignored.
-        work_item_id: Identifier for the work item.
-        work_item_ref: Reference for the work item.
-        stage: Pipeline stage where the event occurred.
-        step: Pipeline step where the event occurred.
-        detail: Human-readable description of what happened.
+        ctx: AlertContext with shared parameters. Defaults to an
+            empty context when not provided.
         source: Label prefix for the alert (default "herald").
 
     Returns:
         True if at least one notification was sent successfully.
 
     """
-    if ctx is not None:
-        work_item_id = ctx.work_item_id
-        work_item_ref = ctx.work_item_ref
-        stage = ctx.stage
-        step = ctx.step
-        detail = ctx.detail
+    if ctx is None:
+        ctx = AlertContext()
 
     success = False
 
     body = build_issue_body(
         event=event,
-        work_item_id=work_item_id,
-        work_item_ref=work_item_ref,
-        stage=stage,
-        step=step,
-        detail=detail,
+        ctx=ctx,
         source=source,
     )
 
     if overseer_method == "github-repo-owner":
         title = f"[{source}] {event.value}"
-        if work_item_id:
-            title = f"[{source}] {event.value} - {work_item_id}"
+        if ctx.work_item_id:
+            title = f"[{source}] {event.value} - {ctx.work_item_id}"
         labels = [source, event.value]
         if create_github_alert(title=title, body=body, labels=labels):
             success = True
@@ -369,7 +334,7 @@ def alert(
         if send_webhook(
             url=webhook_url,
             event=event,
-            detail=detail,
+            detail=ctx.detail,
             webhook_format=webhook_format,
             source=source,
         ):

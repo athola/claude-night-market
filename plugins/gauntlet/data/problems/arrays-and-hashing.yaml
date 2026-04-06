@@ -1,0 +1,291 @@
+category: "arrays-and-hashing"
+
+problems:
+  - id: "arrays-001"
+    title: "Contains Duplicate"
+    difficulty: "easy"
+    prompt: |
+      Given an integer array nums, return true if any value appears at
+      least twice in the array, and return false if every element is
+      distinct.
+
+      Constraints:
+        - 1 <= nums.length <= 10^5
+        - -10^9 <= nums[i] <= 10^9
+
+      Example 1:
+        Input: nums = [1, 2, 3, 1]
+        Output: true
+
+      Example 2:
+        Input: nums = [1, 2, 3, 4]
+        Output: false
+    hints:
+      - "A brute-force approach compares every pair. Can you do better?"
+      - "What data structure lets you check membership in O(1) time?"
+    solution_outline: |
+      Insert each element into a hash set. Before inserting, check if
+      the element already exists in the set. If it does, return true.
+      Time: O(n). Space: O(n).
+    tags: ["hash-set", "arrays"]
+    neetcode_id: "neetcode-001"
+    challenge_type: "explain_why"
+
+  - id: "arrays-002"
+    title: "Valid Anagram"
+    difficulty: "easy"
+    prompt: |
+      Given two strings s and t, return true if t is an anagram of s,
+      and false otherwise. An anagram uses all the original letters
+      exactly once.
+
+      Constraints:
+        - 1 <= s.length, t.length <= 5 * 10^4
+        - s and t consist of lowercase English letters
+
+      Example 1:
+        Input: s = "anagram", t = "nagaram"
+        Output: true
+
+      Example 2:
+        Input: s = "rat", t = "car"
+        Output: false
+    hints:
+      - "What must be true about the character frequencies of two anagrams?"
+      - "Try counting characters with a hash map or fixed-size array."
+    solution_outline: |
+      Count character frequencies for both strings using a hash map or
+      an array of size 26. Compare the two frequency counts. If they
+      match, the strings are anagrams.
+      Time: O(n). Space: O(1) since the alphabet is fixed.
+    tags: ["hash-map", "string", "counting"]
+    neetcode_id: "neetcode-002"
+    challenge_type: "explain_why"
+
+  - id: "arrays-003"
+    title: "Two Sum"
+    difficulty: "easy"
+    prompt: |
+      Given an array of integers nums and an integer target, return the
+      indices of the two numbers that add up to target. You may assume
+      each input has exactly one solution, and you may not use the same
+      element twice. Return the answer in any order.
+
+      Constraints:
+        - 2 <= nums.length <= 10^4
+        - -10^9 <= nums[i] <= 10^9
+        - -10^9 <= target <= 10^9
+        - Exactly one valid answer exists
+
+      Example 1:
+        Input: nums = [2, 7, 11, 15], target = 9
+        Output: [0, 1]
+
+      Example 2:
+        Input: nums = [3, 2, 4], target = 6
+        Output: [1, 2]
+    hints:
+      - "For each number, what complementary value would you need?"
+      - "A hash map can store values you have already seen along with their indices."
+    solution_outline: |
+      Iterate through the array. For each element, compute complement =
+      target - nums[i]. Check if complement exists in a hash map. If yes,
+      return both indices. Otherwise, store nums[i] -> i in the map.
+      Time: O(n). Space: O(n).
+    tags: ["hash-map", "arrays"]
+    neetcode_id: "neetcode-003"
+    challenge_type: "explain_why"
+
+  - id: "arrays-004"
+    title: "Group Anagrams"
+    difficulty: "medium"
+    prompt: |
+      Given an array of strings strs, group the anagrams together. You
+      can return the answer in any order.
+
+      Constraints:
+        - 1 <= strs.length <= 10^4
+        - 0 <= strs[i].length <= 100
+        - strs[i] consists of lowercase English letters
+
+      Example:
+        Input: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+        Output: [["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]
+    hints:
+      - "Two strings are anagrams if they share the same sorted form."
+      - "Use a hash map where the key is a canonical form of each string."
+      - "Sorting each string works, but a character count tuple is faster."
+    solution_outline: |
+      For each string, compute a canonical key (either sorted string or
+      a tuple of character counts). Use a hash map from key to list of
+      strings. Return all values from the map.
+      Time: O(n * k) where k is the max string length. Space: O(n * k).
+    tags: ["hash-map", "string", "sorting"]
+    neetcode_id: "neetcode-004"
+    challenge_type: "explain_why"
+
+  - id: "arrays-005"
+    title: "Top K Frequent Elements"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums and an integer k, return the k most
+      frequent elements. You may return the answer in any order. It is
+      guaranteed that the answer is unique.
+
+      Constraints:
+        - 1 <= nums.length <= 10^5
+        - -10^4 <= nums[i] <= 10^4
+        - k is in the range [1, number of unique elements]
+
+      Example 1:
+        Input: nums = [1, 1, 1, 2, 2, 3], k = 2
+        Output: [1, 2]
+
+      Example 2:
+        Input: nums = [1], k = 1
+        Output: [1]
+    hints:
+      - "First count frequencies. Then how do you find the top k?"
+      - "A heap of size k or bucket sort by frequency both work."
+      - "Bucket sort gives O(n) time since frequencies are bounded by n."
+    solution_outline: |
+      Count frequencies with a hash map. Use bucket sort: create an
+      array of size n+1 where index i holds elements with frequency i.
+      Walk the buckets from right to left collecting k elements.
+      Time: O(n). Space: O(n).
+    tags: ["hash-map", "bucket-sort", "heap"]
+    neetcode_id: "neetcode-005"
+    challenge_type: "multiple_choice"
+
+  - id: "arrays-006"
+    title: "Encode and Decode Strings"
+    difficulty: "medium"
+    prompt: |
+      Design an algorithm to encode a list of strings to a single string
+      and decode it back to the original list. The encoded string is
+      transmitted over a network, so it must handle any characters
+      including delimiters.
+
+      Implement two functions:
+        encode(strs: List[str]) -> str
+        decode(s: str) -> List[str]
+
+      Constraints:
+        - 0 <= strs.length <= 200
+        - 0 <= strs[i].length <= 200
+        - strs[i] may contain any 256 valid ASCII characters
+
+      Example:
+        Input: ["hello", "world"]
+        Encoded: "5#hello5#world"
+        Decoded: ["hello", "world"]
+    hints:
+      - "You cannot use a simple delimiter since strings may contain any character."
+      - "What if you prefixed each string with its length?"
+      - "Use a length prefix followed by a special separator character."
+    solution_outline: |
+      Encode: for each string, prepend its length followed by a delimiter
+      character (e.g., "#"). Decode: read the length, skip the delimiter,
+      then extract that many characters.
+      Time: O(n) for both encode and decode. Space: O(n).
+    tags: ["string", "design"]
+    neetcode_id: "neetcode-006"
+    challenge_type: "explain_why"
+
+  - id: "arrays-007"
+    title: "Product of Array Except Self"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, return an array answer such that
+      answer[i] is equal to the product of all elements of nums except
+      nums[i]. You must solve it in O(n) time without using division.
+
+      Constraints:
+        - 2 <= nums.length <= 10^5
+        - -30 <= nums[i] <= 30
+        - The product of any prefix or suffix fits in a 32-bit integer
+
+      Example:
+        Input: nums = [1, 2, 3, 4]
+        Output: [24, 12, 8, 6]
+    hints:
+      - "For each index, the answer is the product of everything to its left times everything to its right."
+      - "Can you compute prefix products and suffix products separately?"
+      - "You can do it in one output array by making two passes."
+    solution_outline: |
+      First pass (left to right): build a running prefix product and
+      store it in the output array. Second pass (right to left): maintain
+      a running suffix product and multiply it into the output array.
+      Time: O(n). Space: O(1) extra (output array not counted).
+    tags: ["arrays", "prefix-product"]
+    neetcode_id: "neetcode-007"
+    challenge_type: "explain_why"
+
+  - id: "arrays-008"
+    title: "Valid Sudoku"
+    difficulty: "medium"
+    prompt: |
+      Determine if a 9x9 Sudoku board is valid. Only the filled cells
+      need to be validated according to these rules:
+        1. Each row must contain the digits 1-9 without repetition.
+        2. Each column must contain the digits 1-9 without repetition.
+        3. Each of the nine 3x3 sub-boxes must contain the digits 1-9
+           without repetition.
+
+      The board may be partially filled, where empty cells are
+      represented by '.'.
+
+      Constraints:
+        - board.length == 9
+        - board[i].length == 9
+        - board[i][j] is a digit '1'-'9' or '.'
+
+      Example:
+        Input: A valid partially filled Sudoku board
+        Output: true
+    hints:
+      - "You need to check three constraints: rows, columns, and boxes."
+      - "Use hash sets to track which digits have been seen."
+      - "Map each cell to its 3x3 box using (row // 3, col // 3)."
+    solution_outline: |
+      Use three collections of hash sets: one per row, one per column,
+      one per 3x3 box. Iterate through every cell. For each digit, check
+      if it already exists in the corresponding row, column, or box set.
+      Time: O(81) = O(1). Space: O(81) = O(1).
+    tags: ["hash-set", "matrix"]
+    neetcode_id: "neetcode-008"
+    challenge_type: "explain_why"
+
+  - id: "arrays-009"
+    title: "Longest Consecutive Sequence"
+    difficulty: "medium"
+    prompt: |
+      Given an unsorted array of integers nums, return the length of the
+      longest consecutive elements sequence. You must write an algorithm
+      that runs in O(n) time.
+
+      Constraints:
+        - 0 <= nums.length <= 10^5
+        - -10^9 <= nums[i] <= 10^9
+
+      Example 1:
+        Input: nums = [100, 4, 200, 1, 3, 2]
+        Output: 4
+        Explanation: The longest consecutive sequence is [1, 2, 3, 4].
+
+      Example 2:
+        Input: nums = [0, 3, 7, 2, 5, 8, 4, 6, 0, 1]
+        Output: 9
+    hints:
+      - "Sorting would give O(n log n). How can you do better?"
+      - "Put all numbers in a hash set. A sequence start is a number whose predecessor is not in the set."
+      - "From each sequence start, count consecutive elements."
+    solution_outline: |
+      Insert all numbers into a hash set. For each number n, check if
+      n-1 is in the set. If not, n is the start of a sequence. Count
+      forward (n+1, n+2, ...) while elements exist in the set. Track the
+      maximum length.
+      Time: O(n). Space: O(n).
+    tags: ["hash-set", "arrays"]
+    neetcode_id: "neetcode-009"
+    challenge_type: "explain_why"

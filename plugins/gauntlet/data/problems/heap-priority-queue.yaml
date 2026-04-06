@@ -1,0 +1,254 @@
+category: "heap-priority-queue"
+
+problems:
+  - id: "heap-priority-queue-001"
+    title: "Kth Largest Element in a Stream"
+    difficulty: "easy"
+    prompt: |
+      Design a class that finds the kth largest element in
+      a stream. It is the kth largest in sorted order, not
+      the kth distinct element.
+
+      - KthLargest(int k, int[] nums): Initialize with k
+        and the initial stream nums.
+      - int add(int val): Appends val to the stream and
+        returns the kth largest element.
+
+      Example:
+        KthLargest kl = new KthLargest(3, [4,5,8,2]);
+        kl.add(3);  // returns 4
+        kl.add(5);  // returns 5
+        kl.add(10); // returns 5
+        kl.add(9);  // returns 8
+        kl.add(4);  // returns 8
+
+      Constraints:
+        - 1 <= k <= 10^4
+        - 0 <= nums.length <= 10^4
+        - -10^4 <= val <= 10^4
+        - At most 10^4 calls to add
+    hints:
+      - "A min-heap of size k always has the kth largest element at the top."
+      - "If the heap exceeds size k, remove the smallest element."
+    solution_outline: |
+      Maintain a min-heap of size k. On add, push the new
+      value; if heap size > k, pop the minimum. The top of
+      the heap is the kth largest.
+      Time: O(log k) per add. Space: O(k).
+    tags: ["heap", "design", "stream"]
+    neetcode_id: "neetcode-061"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-002"
+    title: "Last Stone Weight"
+    difficulty: "easy"
+    prompt: |
+      You have a collection of stones, each with a positive
+      integer weight. Each turn, pick the two heaviest stones
+      and smash them. If they have equal weight, both are
+      destroyed. If they differ, the lighter one is destroyed
+      and the heavier one loses weight equal to the lighter.
+
+      Return the weight of the last remaining stone, or 0
+      if no stones remain.
+
+      Example:
+        Input: stones = [2,7,4,1,8,1]
+        Output: 1
+        Explanation: 8 and 7 smash to 1, then 4 and 2 smash
+        to 2, then 2 and 1 smash to 1, then 1 and 1 destroy
+        each other, leaving 1.
+
+      Constraints:
+        - 1 <= stones.length <= 30
+        - 1 <= stones[i] <= 1000
+    hints:
+      - "You need quick access to the two largest elements each turn."
+      - "A max-heap lets you extract the two largest in O(log n) each."
+    solution_outline: |
+      Use a max-heap. Repeatedly extract the two largest.
+      If they differ, push the difference back. Continue
+      until 0 or 1 stones remain.
+      Time: O(n log n), Space: O(n).
+    tags: ["heap", "simulation"]
+    neetcode_id: "neetcode-062"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-003"
+    title: "K Closest Points to Origin"
+    difficulty: "medium"
+    prompt: |
+      Given an array of points on the X-Y plane, return
+      the k closest points to the origin (0, 0). Distance
+      is Euclidean. You may return the answer in any order.
+
+      Example:
+        Input: points = [[1,3],[-2,2]], k = 1
+        Output: [[-2,2]]
+        Explanation: distance of (1,3) is sqrt(10),
+          distance of (-2,2) is sqrt(8).
+
+      Constraints:
+        - 1 <= k <= points.length <= 10^4
+        - -10^4 <= xi, yi <= 10^4
+    hints:
+      - "You do not need to compute sqrt; compare squared distances."
+      - "A max-heap of size k keeps the k closest points."
+      - "Quickselect can solve this in O(n) average time."
+    solution_outline: |
+      Use a max-heap of size k keyed by squared distance.
+      Push each point; if heap size > k, pop the farthest.
+      The remaining k points are the answer.
+      Time: O(n log k), Space: O(k).
+      Alternative: quickselect for O(n) average.
+    tags: ["heap", "sorting", "geometry"]
+    neetcode_id: "neetcode-063"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-004"
+    title: "Kth Largest Element in an Array"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums and an integer k, return
+      the kth largest element. Note that it is the kth
+      largest in sorted order, not the kth distinct element.
+      Solve without sorting the entire array.
+
+      Example 1:
+        Input: nums = [3,2,1,5,6,4], k = 2
+        Output: 5
+
+      Example 2:
+        Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
+        Output: 4
+
+      Constraints:
+        - 1 <= k <= nums.length <= 10^5
+        - -10^4 <= nums[i] <= 10^4
+    hints:
+      - "A min-heap of size k can solve this in O(n log k)."
+      - "Quickselect (partition-based) gives O(n) average time."
+      - "Randomizing the pivot avoids worst-case O(n^2) in quickselect."
+    solution_outline: |
+      Quickselect: partition around a random pivot. If the
+      pivot lands at index n-k, return it. Otherwise recurse
+      on the appropriate half.
+      Time: O(n) average, O(n^2) worst case.
+      Space: O(1) in-place.
+      Alternative: min-heap of size k for O(n log k).
+    tags: ["heap", "quickselect", "divide-and-conquer"]
+    neetcode_id: "neetcode-064"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-005"
+    title: "Task Scheduler"
+    difficulty: "medium"
+    prompt: |
+      Given a char array tasks representing CPU tasks
+      (A-Z) and an integer n representing the cooldown
+      between identical tasks, return the minimum number
+      of intervals the CPU needs to finish all tasks.
+      The CPU can be idle during cooldown.
+
+      Example:
+        Input: tasks = ["A","A","A","B","B","B"], n = 2
+        Output: 8
+        Explanation: A -> B -> idle -> A -> B -> idle -> A -> B
+
+      Constraints:
+        - 1 <= tasks.length <= 10^4
+        - tasks[i] is uppercase English letter
+        - 0 <= n <= 100
+    hints:
+      - "The most frequent task determines the minimum time."
+      - "Think of it as filling slots: (max_freq - 1) groups of (n + 1) slots, plus the count of tasks with max frequency."
+      - "The answer is max(len(tasks), (max_freq - 1) * (n + 1) + count_of_max_freq)."
+    solution_outline: |
+      Count task frequencies. Let max_freq be the highest
+      frequency and count_max be how many tasks share it.
+      Answer = max(len(tasks), (max_freq - 1) * (n + 1) + count_max).
+      Time: O(n), Space: O(1) (at most 26 letters).
+    tags: ["heap", "greedy", "math"]
+    neetcode_id: "neetcode-065"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-006"
+    title: "Design Twitter"
+    difficulty: "medium"
+    prompt: |
+      Design a simplified version of Twitter with these
+      operations:
+
+      - postTweet(userId, tweetId): Post a new tweet.
+      - getNewsFeed(userId): Retrieve the 10 most recent
+        tweet IDs in the user's news feed (own tweets plus
+        tweets from followed users). Return in recency order.
+      - follow(followerId, followeeId): Follower follows
+        followee.
+      - unfollow(followerId, followeeId): Follower unfollows
+        followee.
+
+      Example:
+        twitter.postTweet(1, 5);
+        twitter.getNewsFeed(1);        // [5]
+        twitter.follow(1, 2);
+        twitter.postTweet(2, 6);
+        twitter.getNewsFeed(1);        // [6, 5]
+        twitter.unfollow(1, 2);
+        twitter.getNewsFeed(1);        // [5]
+
+      Constraints:
+        - IDs are positive integers
+        - At most 3 * 10^4 calls total
+    hints:
+      - "Use a hashmap for user -> list of tweets (with timestamps) and user -> set of followees."
+      - "getNewsFeed merges k sorted lists; use a min-heap to merge efficiently."
+      - "Only need the 10 most recent, so stop early."
+    solution_outline: |
+      Store tweets per user with a global timestamp.
+      Store follow relationships in a hashmap of sets.
+      For getNewsFeed, use a max-heap to merge tweet lists
+      from the user and all followees, extracting the top 10.
+      Time: O(k log k) for feed where k is number of
+      followees. Space: O(users + tweets + follows).
+    tags: ["heap", "design", "hashmap"]
+    neetcode_id: "neetcode-066"
+    challenge_type: "explain_why"
+
+  - id: "heap-priority-queue-007"
+    title: "Find Median from Data Stream"
+    difficulty: "hard"
+    prompt: |
+      Design a data structure that supports adding integers
+      from a data stream and finding the median of all
+      elements added so far.
+
+      - addNum(int num): Add an integer from the stream.
+      - findMedian(): Return the median. If even count,
+        return the average of the two middle values.
+
+      Example:
+        addNum(1)
+        addNum(2)
+        findMedian() -> 1.5
+        addNum(3)
+        findMedian() -> 2.0
+
+      Constraints:
+        - -10^5 <= num <= 10^5
+        - At most 5 * 10^4 calls
+        - findMedian only called after at least one addNum
+    hints:
+      - "Split numbers into two halves: a max-heap for the lower half and a min-heap for the upper half."
+      - "Keep the heaps balanced (sizes differ by at most 1)."
+      - "The median is the top of the larger heap, or the average of both tops if equal size."
+    solution_outline: |
+      Maintain two heaps: max-heap (lower half) and min-heap
+      (upper half). On addNum, push to max-heap, then move
+      max-heap top to min-heap. If min-heap is larger,
+      move its top back. findMedian: if sizes equal,
+      average both tops; otherwise max-heap top.
+      Time: O(log n) add, O(1) findMedian. Space: O(n).
+    tags: ["heap", "design", "two-heaps"]
+    neetcode_id: "neetcode-067"
+    challenge_type: "explain_why"

@@ -39,6 +39,28 @@ git log --oneline ${BASE}...HEAD                    # Show commit history
 - Use `--name-only` for enumeration without content
 - Use `...` three-dot syntax to show changes on current branch since divergence
 
+## Semantic Delta Capture (sem)
+
+When sem is available (see `leyline:sem-integration`),
+enhance delta capture with entity-level diffs:
+
+```bash
+# Entity-level change summary across commits
+sem diff --json ${BASE}...HEAD
+
+# Track a specific entity's evolution
+sem log <entity-name>
+```
+
+**Key advantages over git diff --stat:**
+
+- Shows which functions/classes changed, not just files
+- Distinguishes additions from modifications from renames
+- `sem log` tracks an entity across renames
+
+When sem is unavailable, fall back to the git commands
+in the section above.
+
 ## Git-Specific Insights Extraction
 
 Targeted inspection commands:

@@ -1,0 +1,208 @@
+category: "math-and-geometry"
+
+problems:
+  - id: "math-001"
+    title: "Rotate Image"
+    difficulty: "medium"
+    prompt: |
+      Given an n x n 2D matrix representing an image, rotate it 90 degrees
+      clockwise in-place. Do not allocate another 2D matrix.
+
+      Constraints: 1 <= n <= 20, -1000 <= matrix[i][j] <= 1000
+
+      Example:
+      Input:  [[1,2,3],[4,5,6],[7,8,9]]
+      Output: [[7,4,1],[8,5,2],[9,6,3]]
+    hints:
+      - "Transpose the matrix (swap rows and columns), then reverse each row."
+      - "Alternatively, rotate layer by layer from the outside in, cycling four elements at a time."
+    solution_outline: |
+      Two-step approach: (1) transpose the matrix by swapping
+      matrix[i][j] with matrix[j][i] for i < j, then (2) reverse each
+      row. This produces a 90-degree clockwise rotation.
+      Time O(n^2), space O(1).
+    tags: ["matrix", "math", "in-place"]
+    neetcode_id: "neetcode-102"
+    challenge_type: "explain_why"
+
+  - id: "math-002"
+    title: "Spiral Matrix"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n matrix, return all elements in spiral order (right,
+      down, left, up, repeating inward).
+
+      Constraints: 1 <= m, n <= 10, -100 <= matrix[i][j] <= 100
+
+      Example:
+      Input:  [[1,2,3],[4,5,6],[7,8,9]]
+      Output: [1,2,3,6,9,8,7,4,5]
+    hints:
+      - "Maintain four boundaries: top, bottom, left, right. Shrink them as you traverse each edge."
+      - "After each direction traversal, check if the boundaries still form a valid region before continuing."
+    solution_outline: |
+      Layer-by-layer traversal using four boundaries. Traverse right along
+      the top row (increment top), down along the right column (decrement
+      right), left along the bottom row (decrement bottom), up along the
+      left column (increment left). Repeat until boundaries cross.
+      Time O(m*n), space O(1) excluding output.
+    tags: ["matrix", "simulation"]
+    neetcode_id: "neetcode-103"
+    challenge_type: "explain_why"
+
+  - id: "math-003"
+    title: "Set Matrix Zeroes"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n integer matrix, if an element is 0, set its entire
+      row and column to 0. Do it in-place.
+
+      Constraints: 1 <= m, n <= 200, -2^31 <= matrix[i][j] <= 2^31 - 1
+
+      Example:
+      Input:  [[1,1,1],[1,0,1],[1,1,1]]
+      Output: [[1,0,1],[0,0,0],[1,0,1]]
+    hints:
+      - "Use the first row and first column as markers for which rows and columns should be zeroed."
+      - "Handle the first row and first column separately with boolean flags."
+    solution_outline: |
+      Use the first row and first column as in-place markers. First, note
+      whether the first row or column themselves contain any zeros. Then
+      scan the rest of the matrix: if matrix[i][j] == 0, set
+      matrix[i][0] = 0 and matrix[0][j] = 0. Finally, zero out marked
+      rows and columns, handling the first row/column last.
+      Time O(m*n), space O(1).
+    tags: ["matrix", "in-place"]
+    neetcode_id: "neetcode-104"
+    challenge_type: "explain_why"
+
+  - id: "math-004"
+    title: "Happy Number"
+    difficulty: "easy"
+    prompt: |
+      A happy number is defined by repeatedly replacing the number with
+      the sum of the squares of its digits until it equals 1, or it loops
+      endlessly in a cycle. Return true if n is a happy number.
+
+      Constraints: 1 <= n <= 2^31 - 1
+
+      Example: n = 19 -> true
+      (1^2 + 9^2 = 82, 8^2 + 2^2 = 68, 6^2 + 8^2 = 100, 1^2 + 0 + 0 = 1)
+    hints:
+      - "Use a hash set to detect cycles."
+      - "Alternatively, use Floyd's cycle detection (slow/fast pointers) to detect loops without extra space."
+    solution_outline: |
+      Compute the digit-square sum repeatedly. Use a set to track seen
+      values; if a value repeats, return false. If it reaches 1, return
+      true. Floyd's tortoise-and-hare also works.
+      Time O(log n) per step with bounded cycle length, space O(1) with
+      Floyd's or O(log n) with a set.
+    tags: ["math", "hash-set", "cycle-detection"]
+    neetcode_id: "neetcode-105"
+    challenge_type: "explain_why"
+
+  - id: "math-005"
+    title: "Plus One"
+    difficulty: "easy"
+    prompt: |
+      Given a non-empty array of decimal digits representing a
+      non-negative integer, increment the integer by one and return the
+      resulting array. The most-significant digit is at the head of the
+      array, and each element contains a single digit.
+
+      Constraints: 1 <= digits.length <= 100, 0 <= digits[i] <= 9,
+      no leading zeros (except the number 0 itself)
+
+      Example: digits = [1, 2, 3] -> [1, 2, 4]
+      Example: digits = [9, 9] -> [1, 0, 0]
+    hints:
+      - "Start from the last digit and propagate the carry."
+      - "If carry remains after processing all digits, prepend a 1."
+    solution_outline: |
+      Iterate from the last digit. If digit < 9, increment it and return
+      immediately (no carry). If digit == 9, set it to 0 and continue.
+      If the loop completes with carry, prepend 1 to the array.
+      Time O(n), space O(1) in-place (or O(n) if a new leading digit is
+      needed).
+    tags: ["math", "array"]
+    neetcode_id: "neetcode-106"
+    challenge_type: "explain_why"
+
+  - id: "math-006"
+    title: "Pow(x, n)"
+    difficulty: "medium"
+    prompt: |
+      Implement pow(x, n), computing x raised to the power n.
+
+      Constraints: -100.0 < x < 100.0, -2^31 <= n <= 2^31 - 1,
+      either x != 0 or n > 0, the result fits in a 64-bit float.
+
+      Example: x = 2.0, n = 10 -> 1024.0
+      Example: x = 2.0, n = -2 -> 0.25
+    hints:
+      - "Use fast exponentiation (exponentiation by squaring) rather than multiplying n times."
+      - "Handle negative exponents by computing pow(1/x, -n). Watch for integer overflow when negating n."
+    solution_outline: |
+      Binary exponentiation: if n is even, pow(x, n) = pow(x*x, n/2);
+      if odd, multiply an extra x. Handle n < 0 by inverting x and
+      using -n (use long to avoid overflow at INT_MIN).
+      Time O(log n), space O(1) iteratively or O(log n) recursively.
+    tags: ["math", "recursion", "binary-exponentiation"]
+    neetcode_id: "neetcode-107"
+    challenge_type: "explain_why"
+
+  - id: "math-007"
+    title: "Multiply Strings"
+    difficulty: "medium"
+    prompt: |
+      Given two non-negative integers represented as strings num1 and
+      num2, return their product as a string. Do not use built-in
+      big-integer libraries or convert directly to integers.
+
+      Constraints: 1 <= num1.length, num2.length <= 200,
+      num1 and num2 consist of digits only, no leading zeros except "0".
+
+      Example: num1 = "123", num2 = "456" -> "56088"
+    hints:
+      - "The product of two numbers with m and n digits has at most m + n digits."
+      - "Multiply digit by digit: digit at position i in num1 times digit at position j in num2 contributes to position i + j + 1 in the result."
+    solution_outline: |
+      Create a result array of size m + n. For each pair of digits
+      (i from num1, j from num2), add their product to result[i+j+1]
+      and propagate the carry to result[i+j]. Convert the array to a
+      string, skipping leading zeros. Time O(m*n), space O(m+n).
+    tags: ["math", "string", "simulation"]
+    neetcode_id: "neetcode-108"
+    challenge_type: "explain_why"
+
+  - id: "math-008"
+    title: "Detect Squares"
+    difficulty: "medium"
+    prompt: |
+      Design a data structure that supports adding points on the X-Y
+      plane and counting the number of axis-aligned squares that can be
+      formed using a given query point as one corner.
+
+      Operations:
+      - add(point): adds a point [x, y].
+      - count(point): given a query point [x, y], count squares where
+        this point is one corner. Sides must be parallel to the axes and
+        have positive area.
+
+      Constraints: point.length == 2, 0 <= x, y <= 1000,
+      at most 5000 calls to add and count.
+
+      Example: After adding [3,10],[11,2],[3,2],[11,10], count([11,10])
+      returns 1 (the square with corners at all four points).
+    hints:
+      - "For a query point (qx, qy), iterate over all added points that share the same x-coordinate."
+      - "For each such point (qx, py), the side length is |qy - py|. Check if the two remaining corners exist."
+    solution_outline: |
+      Store point counts in a hash map keyed by (x, y). For count(qx, qy),
+      iterate over all points (qx, py) where py != qy. The side length
+      is d = |qy - py|. Check existence of (qx + d, qy), (qx + d, py)
+      and (qx - d, qy), (qx - d, py). Multiply counts to get the number
+      of squares. Time O(n) per count query, space O(n).
+    tags: ["math", "geometry", "hash-map", "design"]
+    neetcode_id: "neetcode-109"
+    challenge_type: "explain_why"

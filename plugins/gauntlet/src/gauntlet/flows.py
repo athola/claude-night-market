@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import deque
 
+from gauntlet.constants import SECURITY_KEYWORDS
 from gauntlet.graph import GraphStore
 from gauntlet.models import EdgeKind, GraphNode, NodeKind
 
@@ -23,30 +24,6 @@ _CONVENTIONAL_ENTRY_NAMES = {
 _ENTRY_PREFIXES = ("test_", "handle_", "on_", "do_")
 
 _MAX_FLOW_NODES = 1000
-
-SECURITY_KEYWORDS = frozenset(
-    {
-        "auth",
-        "login",
-        "password",
-        "token",
-        "session",
-        "crypt",
-        "secret",
-        "credential",
-        "permission",
-        "sql",
-        "query",
-        "execute",
-        "sanitize",
-        "encrypt",
-        "decrypt",
-        "hash",
-        "sign",
-        "verify",
-        "admin",
-    }
-)
 
 
 def detect_entry_points(graph: GraphStore) -> list[GraphNode]:
@@ -116,8 +93,7 @@ def trace_flows(
 
         while queue and len(flow_nodes) < _MAX_FLOW_NODES:
             current_qn, depth = queue.popleft()
-            if depth > actual_max_depth:
-                actual_max_depth = depth
+            actual_max_depth = max(actual_max_depth, depth)
             if depth >= max_depth:
                 continue
 

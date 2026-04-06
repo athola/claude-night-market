@@ -48,8 +48,20 @@ Tell the user: "Run `/gauntlet-graph build` first."
        --action impact --base-ref HEAD --depth 2
    ```
 
-   **Fallback (no gauntlet)**: Trace callers of changed
-   functions with rg (or grep):
+   **Fallback tier 1 (sem available, no gauntlet)**:
+   Use sem for cross-file dependency tracing:
+   ```bash
+   if command -v sem &>/dev/null; then
+     sem impact --json <changed-file>
+   fi
+   ```
+
+   This traces real function-level dependencies instead
+   of filename matching. See `leyline:sem-integration`
+   for detection patterns.
+
+   **Fallback tier 2 (no sem, no gauntlet)**: Trace
+   callers of changed functions with rg (or grep):
    ```bash
    # Prefer rg for speed; fall back to grep
    if command -v rg &>/dev/null; then

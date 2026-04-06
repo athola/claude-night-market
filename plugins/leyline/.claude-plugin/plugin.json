@@ -21,6 +21,7 @@
     "./skills/pytest-config",
     "./skills/quota-management",
     "./skills/risk-classification",
+    "./skills/sem-integration",
     "./skills/service-registry",
     "./skills/stewardship",
     "./skills/storage-templates",

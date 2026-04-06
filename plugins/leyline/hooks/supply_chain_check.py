@@ -147,6 +147,8 @@ if __name__ == "__main__":
     try:
         main()
     except Exception:
-        # Hook must never crash the session
-        pass
+        import traceback
+
+        print("supply_chain_check: unexpected error", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
     sys.exit(0)

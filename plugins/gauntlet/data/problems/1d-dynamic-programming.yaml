@@ -1,0 +1,277 @@
+category: "1d-dynamic-programming"
+
+problems:
+  - id: "1d-dp-001"
+    title: "Climbing Stairs"
+    difficulty: "easy"
+    prompt: |
+      You are climbing a staircase that has n steps. Each time you can
+      climb either 1 or 2 steps. Return the number of distinct ways you
+      can reach the top.
+
+      Constraints: 1 <= n <= 45
+
+      Example 1: n = 2 -> 2 (1+1 or 2)
+      Example 2: n = 3 -> 3 (1+1+1, 1+2, 2+1)
+    hints:
+      - "The number of ways to reach step i depends on the ways to reach steps i-1 and i-2."
+      - "This follows the Fibonacci recurrence: dp[i] = dp[i-1] + dp[i-2]."
+    solution_outline: |
+      Use bottom-up DP or recognize the Fibonacci pattern. Keep only the
+      previous two values to compute the next. Time O(n), space O(1).
+    tags: ["dynamic-programming", "fibonacci", "memoization"]
+    neetcode_id: "neetcode-070"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-002"
+    title: "Min Cost Climbing Stairs"
+    difficulty: "easy"
+    prompt: |
+      Given an integer array cost where cost[i] is the cost of the i-th
+      step, you can start from step 0 or step 1. Each time you can climb
+      1 or 2 steps. Return the minimum cost to reach the top (one step
+      past the last index).
+
+      Constraints: 2 <= cost.length <= 1000, 0 <= cost[i] <= 999
+
+      Example: cost = [10, 15, 20] -> 15
+      (Start at index 1, pay 15, jump 2 steps to the top.)
+    hints:
+      - "Define dp[i] as the minimum cost to reach step i."
+      - "dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2])."
+    solution_outline: |
+      Bottom-up DP tracking the minimum cost to reach each step. At each
+      step, choose the cheaper of arriving from one step back or two steps
+      back. Time O(n), space O(1) with two rolling variables.
+    tags: ["dynamic-programming", "fibonacci", "greedy"]
+    neetcode_id: "neetcode-071"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-003"
+    title: "House Robber"
+    difficulty: "medium"
+    prompt: |
+      You are a robber planning to rob houses along a street. Each house
+      has a certain amount of money. Adjacent houses have linked security
+      systems: if two adjacent houses are robbed the same night, the police
+      are alerted. Return the maximum amount you can rob without alerting
+      the police.
+
+      Constraints: 1 <= nums.length <= 100, 0 <= nums[i] <= 400
+
+      Example: nums = [2, 7, 9, 3, 1] -> 12 (rob houses 0, 2, 4)
+    hints:
+      - "At each house you decide: rob it (skip the previous) or skip it (keep the previous best)."
+      - "dp[i] = max(dp[i-1], dp[i-2] + nums[i])."
+    solution_outline: |
+      Bottom-up DP where dp[i] represents the max money robbing from
+      houses 0..i. Transition: dp[i] = max(dp[i-1], dp[i-2] + nums[i]).
+      Time O(n), space O(1) with two rolling variables.
+    tags: ["dynamic-programming", "decision-making"]
+    neetcode_id: "neetcode-073"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-004"
+    title: "House Robber II"
+    difficulty: "medium"
+    prompt: |
+      Houses are arranged in a circle (the first and last house are
+      adjacent). Each house has some money. You cannot rob two adjacent
+      houses. Return the maximum amount you can rob.
+
+      Constraints: 1 <= nums.length <= 100, 0 <= nums[i] <= 1000
+
+      Example: nums = [2, 3, 2] -> 3 (rob house 1 only; houses 0 and 2
+      are adjacent to each other)
+    hints:
+      - "If you rob house 0, you cannot rob house n-1, and vice versa."
+      - "Run House Robber on nums[0..n-2] and nums[1..n-1], then take the max."
+    solution_outline: |
+      Reduce the circular constraint by running two linear House Robber
+      passes: one excluding the last house, one excluding the first.
+      Return the maximum of both. Time O(n), space O(1).
+    tags: ["dynamic-programming", "circular-array"]
+    neetcode_id: "neetcode-074"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-005"
+    title: "Longest Palindromic Substring"
+    difficulty: "medium"
+    prompt: |
+      Given a string s, return the longest substring that reads the same
+      forward and backward.
+
+      Constraints: 1 <= s.length <= 1000, s consists of lowercase English
+      letters and digits.
+
+      Example: s = "babad" -> "bab" (or "aba")
+    hints:
+      - "A palindrome can be expanded from its center."
+      - "Try expanding around each character (odd-length) and each pair of adjacent characters (even-length)."
+    solution_outline: |
+      Expand around center: for each index, expand outward while characters
+      match. Check both odd-length and even-length palindromes. Track the
+      longest found. Time O(n^2), space O(1). Manacher's algorithm achieves
+      O(n) but is rarely expected in interviews.
+    tags: ["dynamic-programming", "string", "two-pointers"]
+    neetcode_id: "neetcode-075"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-006"
+    title: "Palindromic Substrings"
+    difficulty: "medium"
+    prompt: |
+      Given a string s, return the number of substrings that are
+      palindromes. A single character counts as a palindrome.
+
+      Constraints: 1 <= s.length <= 1000
+
+      Example: s = "abc" -> 3 ("a", "b", "c")
+      Example: s = "aaa" -> 6 ("a", "a", "a", "aa", "aa", "aaa")
+    hints:
+      - "Reuse the expand-around-center technique from Longest Palindromic Substring."
+      - "Count how many expansions succeed for each center rather than tracking the longest."
+    solution_outline: |
+      Expand around each possible center (2n-1 centers for odd and even
+      lengths). For each center, count valid expansions. Sum all counts.
+      Time O(n^2), space O(1).
+    tags: ["dynamic-programming", "string", "two-pointers"]
+    neetcode_id: "neetcode-076"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-007"
+    title: "Decode Ways"
+    difficulty: "medium"
+    prompt: |
+      A message containing letters A-Z is encoded where A=1, B=2, ...,
+      Z=26. Given a string s of digits, return the number of ways to
+      decode it. Leading zeros are invalid (e.g. "06" is not valid).
+
+      Constraints: 1 <= s.length <= 100, s contains only digits.
+
+      Example: s = "226" -> 3 ("BZ", "VF", "BBF")
+    hints:
+      - "At each position, decide if you decode one digit or two digits."
+      - "A single digit decode is valid if it is 1-9. A two-digit decode is valid if the value is 10-26."
+      - "dp[i] = (dp[i-1] if s[i] valid) + (dp[i-2] if s[i-1..i] valid)."
+    solution_outline: |
+      Bottom-up DP. At position i, add dp[i-1] if the single digit is
+      nonzero, and add dp[i-2] if the two-digit number is between 10 and
+      26. Time O(n), space O(1).
+    tags: ["dynamic-programming", "string"]
+    neetcode_id: "neetcode-077"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-008"
+    title: "Coin Change"
+    difficulty: "medium"
+    prompt: |
+      Given an array of coin denominations and a target amount, return the
+      fewest number of coins needed to make that amount. If it cannot be
+      made, return -1. You have an unlimited supply of each coin.
+
+      Constraints: 1 <= coins.length <= 12, 1 <= coins[i] <= 2^31 - 1,
+      0 <= amount <= 10^4
+
+      Example: coins = [1, 5, 10], amount = 12 -> 3 (10 + 1 + 1)
+    hints:
+      - "Define dp[a] as the minimum coins to make amount a."
+      - "For each coin c, dp[a] = min(dp[a], dp[a - c] + 1)."
+    solution_outline: |
+      Bottom-up DP: dp[0] = 0, dp[a] = infinity initially. For each
+      amount from 1 to target, try every coin and take the minimum.
+      Time O(amount * coins), space O(amount).
+    tags: ["dynamic-programming", "unbounded-knapsack"]
+    neetcode_id: "neetcode-078"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-009"
+    title: "Maximum Product Subarray"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, find the contiguous subarray with the
+      largest product and return that product.
+
+      Constraints: 1 <= nums.length <= 2 * 10^4,
+      -10 <= nums[i] <= 10
+
+      Example: nums = [2, 3, -2, 4] -> 6 (subarray [2, 3])
+    hints:
+      - "A negative number can turn a large negative product into a large positive one."
+      - "Track both the current maximum and current minimum product at each step."
+    solution_outline: |
+      Maintain running max_product and min_product. At each element,
+      compute new max and min from (num, num * prev_max, num * prev_min).
+      Update the global best. Time O(n), space O(1).
+    tags: ["dynamic-programming", "array"]
+    neetcode_id: "neetcode-079"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-010"
+    title: "Word Break"
+    difficulty: "medium"
+    prompt: |
+      Given a string s and a dictionary of words wordDict, return true if
+      s can be segmented into a space-separated sequence of one or more
+      dictionary words.
+
+      Constraints: 1 <= s.length <= 300, 1 <= wordDict.length <= 1000,
+      1 <= wordDict[i].length <= 20
+
+      Example: s = "leetcode", wordDict = ["leet", "code"] -> true
+    hints:
+      - "dp[i] = true means s[0..i-1] can be segmented."
+      - "For each position j < i, if dp[j] is true and s[j..i] is in the dictionary, set dp[i] = true."
+    solution_outline: |
+      Bottom-up DP: dp[0] = true. For each position i from 1 to n, check
+      all previous positions j where dp[j] is true and s[j..i] exists in
+      the word set. Time O(n^2 * k) where k is average word length for
+      substring comparison, space O(n).
+    tags: ["dynamic-programming", "string", "hash-set"]
+    neetcode_id: "neetcode-080"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-011"
+    title: "Longest Increasing Subsequence"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, return the length of the longest
+      strictly increasing subsequence.
+
+      Constraints: 1 <= nums.length <= 2500, -10^4 <= nums[i] <= 10^4
+
+      Example: nums = [10, 9, 2, 5, 3, 7, 101, 18] -> 4
+      (The LIS is [2, 3, 7, 101].)
+    hints:
+      - "A basic DP approach: dp[i] = length of LIS ending at index i."
+      - "For a faster solution, maintain a sorted array of tail elements and use binary search to place each new number."
+    solution_outline: |
+      O(n^2) DP: dp[i] = 1 + max(dp[j] for j < i if nums[j] < nums[i]).
+      O(n log n) patience sorting: maintain an array of smallest tail
+      elements for increasing subsequences of each length, use binary
+      search to update. Time O(n log n), space O(n).
+    tags: ["dynamic-programming", "binary-search"]
+    neetcode_id: "neetcode-081"
+    challenge_type: "explain_why"
+
+  - id: "1d-dp-012"
+    title: "Partition Equal Subset Sum"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, return true if you can partition the
+      array into two subsets with equal sum.
+
+      Constraints: 1 <= nums.length <= 200, 1 <= nums[i] <= 100
+
+      Example: nums = [1, 5, 11, 5] -> true (subsets [1, 5, 5] and [11])
+    hints:
+      - "If the total sum is odd, return false immediately."
+      - "This reduces to: can we find a subset that sums to total/2? That is the 0/1 knapsack problem."
+    solution_outline: |
+      Compute total sum; if odd, return false. Use a boolean DP set
+      tracking achievable sums. For each number, update the set in reverse
+      order to avoid reusing the same element. Check if total/2 is
+      reachable. Time O(n * sum/2), space O(sum/2).
+    tags: ["dynamic-programming", "knapsack", "subset-sum"]
+    neetcode_id: "neetcode-082"
+    challenge_type: "explain_why"

@@ -157,6 +157,33 @@ def do_everything():
     do_step_two()
 ```
 
+### Enum Enforcement
+
+When reviewing code, flag these anti-patterns:
+
+- **Literal type aliases for fixed value sets** with 3+ members:
+  `ChallengeType = Literal["a", "b", "c"]` should be an Enum
+- **String comparisons against known enum member values**:
+  `if x == "multiple_choice"` when a corresponding Enum type
+  exists should use `x == ChallengeType.MULTIPLE_CHOICE`
+- **Recommend modern enum patterns**:
+  - Python 3.9+: `class Status(str, Enum)` with `__str__` override
+  - Python 3.11+: `class Status(StrEnum)` (preferred when available)
+
+Example fix:
+```python
+# Bad: stringly-typed with Literal
+ChallengeType = Literal["multiple_choice", "explain_why", "trace"]
+if challenge.type == "multiple_choice": ...
+
+# Good: proper Enum with member matching
+class ChallengeType(str, Enum):
+    MULTIPLE_CHOICE = "multiple_choice"
+    EXPLAIN_WHY = "explain_why"
+    TRACE = "trace"
+if challenge.type == ChallengeType.MULTIPLE_CHOICE: ...
+```
+
 ## Workflow
 
 1. **Run ruff check** to identify errors:

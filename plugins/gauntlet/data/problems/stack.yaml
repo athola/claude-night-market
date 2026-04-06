@@ -1,0 +1,267 @@
+category: "stack"
+
+problems:
+  - id: "stack-001"
+    title: "Valid Parentheses"
+    difficulty: "easy"
+    prompt: |
+      Given a string s containing just the characters '(', ')', '{',
+      '}', '[' and ']', determine if the input string is valid.
+
+      A string is valid if:
+        1. Open brackets are closed by the same type of brackets.
+        2. Open brackets are closed in the correct order.
+        3. Every close bracket has a corresponding open bracket.
+
+      Constraints:
+        - 1 <= s.length <= 10^4
+        - s consists of parentheses only: '(){}[]'
+
+      Example 1:
+        Input: s = "()"
+        Output: true
+
+      Example 2:
+        Input: s = "()[]{}"
+        Output: true
+
+      Example 3:
+        Input: s = "(]"
+        Output: false
+    hints:
+      - "Use a stack to track opening brackets."
+      - "When you encounter a closing bracket, check if the top of the stack is the matching opener."
+    solution_outline: |
+      Push opening brackets onto a stack. For each closing bracket,
+      check if the stack is non-empty and the top matches. If not,
+      return false. At the end, the stack must be empty.
+      Time: O(n). Space: O(n).
+    tags: ["stack", "string"]
+    neetcode_id: "neetcode-021"
+    challenge_type: "explain_why"
+
+  - id: "stack-002"
+    title: "Min Stack"
+    difficulty: "medium"
+    prompt: |
+      Design a stack that supports push, pop, top, and retrieving the
+      minimum element, all in constant time.
+
+      Implement the MinStack class:
+        - MinStack() initializes the stack object.
+        - void push(int val) pushes val onto the stack.
+        - void pop() removes the element on the top of the stack.
+        - int top() gets the top element of the stack.
+        - int getMin() retrieves the minimum element in the stack.
+
+      Each function must run in O(1) time.
+
+      Constraints:
+        - -2^31 <= val <= 2^31 - 1
+        - pop, top, and getMin are always called on non-empty stacks
+        - At most 3 * 10^4 calls total
+
+      Example:
+        MinStack ms = new MinStack();
+        ms.push(-2); ms.push(0); ms.push(-3);
+        ms.getMin(); // returns -3
+        ms.pop();
+        ms.getMin(); // returns -2
+    hints:
+      - "How can you track the minimum as elements are pushed and popped?"
+      - "Store the current minimum alongside each element in the stack."
+      - "Each stack entry can be a pair: (value, currentMin)."
+    solution_outline: |
+      Use a single stack where each entry stores the value and the
+      minimum at the time of insertion. On push, the new minimum is
+      min(val, currentMin). On pop, the minimum automatically reverts
+      to the previous entry's stored minimum.
+      Time: O(1) per operation. Space: O(n).
+    tags: ["stack", "design"]
+    neetcode_id: "neetcode-022"
+    challenge_type: "explain_why"
+
+  - id: "stack-003"
+    title: "Evaluate Reverse Polish Notation"
+    difficulty: "medium"
+    prompt: |
+      You are given an array of strings tokens that represents an
+      arithmetic expression in Reverse Polish Notation (postfix).
+
+      Evaluate the expression and return the result as an integer.
+      Valid operators are +, -, *, and /. Division truncates toward
+      zero.
+
+      Constraints:
+        - 1 <= tokens.length <= 10^4
+        - Each token is an operator or an integer in [-200, 200]
+        - The expression is always valid and produces a single result
+
+      Example 1:
+        Input: tokens = ["2", "1", "+", "3", "*"]
+        Output: 9
+        Explanation: ((2 + 1) * 3) = 9
+
+      Example 2:
+        Input: tokens = ["4", "13", "5", "/", "+"]
+        Output: 6
+        Explanation: (4 + (13 / 5)) = 6
+    hints:
+      - "Process tokens left to right with a stack."
+      - "When you hit a number, push it. When you hit an operator, pop two operands."
+      - "Be careful with operand order: the first popped value is the right operand."
+    solution_outline: |
+      Iterate through tokens. Push numbers onto a stack. When an
+      operator is encountered, pop two values (b then a), compute
+      a op b, and push the result. The final stack element is the
+      answer. Division must truncate toward zero (use int() in Python).
+      Time: O(n). Space: O(n).
+    tags: ["stack", "math"]
+    neetcode_id: "neetcode-023"
+    challenge_type: "explain_why"
+
+  - id: "stack-004"
+    title: "Generate Parentheses"
+    difficulty: "medium"
+    prompt: |
+      Given n pairs of parentheses, write a function to generate all
+      combinations of well-formed parentheses.
+
+      Constraints:
+        - 1 <= n <= 8
+
+      Example 1:
+        Input: n = 3
+        Output: ["((()))", "(()())", "(())()", "()(())", "()()()"]
+
+      Example 2:
+        Input: n = 1
+        Output: ["()"]
+    hints:
+      - "Use backtracking. At each step, you can add '(' or ')'."
+      - "You can add '(' if the count of open parens used so far is less than n."
+      - "You can add ')' only if the count of close parens is less than the count of open parens."
+    solution_outline: |
+      Backtracking: maintain counts of open and close parentheses used.
+      Add '(' when openCount < n. Add ')' when closeCount < openCount.
+      When the string reaches length 2*n, add it to the results.
+      Time: O(4^n / sqrt(n)) (Catalan number). Space: O(n) for recursion.
+    tags: ["stack", "backtracking", "recursion"]
+    neetcode_id: "neetcode-024"
+    challenge_type: "explain_why"
+
+  - id: "stack-005"
+    title: "Daily Temperatures"
+    difficulty: "medium"
+    prompt: |
+      Given an array of integers temperatures representing the daily
+      temperatures, return an array answer such that answer[i] is the
+      number of days you have to wait after the i-th day to get a
+      warmer temperature. If there is no future day with a warmer
+      temperature, set answer[i] = 0.
+
+      Constraints:
+        - 1 <= temperatures.length <= 10^5
+        - 30 <= temperatures[i] <= 100
+
+      Example 1:
+        Input: temperatures = [73, 74, 75, 71, 69, 72, 76, 73]
+        Output: [1, 1, 4, 2, 1, 1, 0, 0]
+
+      Example 2:
+        Input: temperatures = [30, 40, 50, 60]
+        Output: [1, 1, 1, 0]
+    hints:
+      - "For each day, you need the next warmer day. Think about processing from right to left or using a stack."
+      - "A monotonic decreasing stack of indices lets you efficiently find the next greater element."
+      - "When you encounter a temperature warmer than the stack top, pop and record the distance."
+    solution_outline: |
+      Use a monotonic decreasing stack of indices. Iterate through
+      temperatures. For each index, while the stack is non-empty and
+      the current temperature exceeds the temperature at the stack's
+      top index, pop and set answer[popped] = current_index - popped.
+      Push the current index onto the stack.
+      Time: O(n). Space: O(n).
+    tags: ["stack", "monotonic-stack", "arrays"]
+    neetcode_id: "neetcode-025"
+    challenge_type: "explain_why"
+
+  - id: "stack-006"
+    title: "Car Fleet"
+    difficulty: "medium"
+    prompt: |
+      There are n cars going to the same destination along a one-lane
+      road. You are given two integer arrays position and speed, both
+      of length n, where position[i] is the position of the i-th car
+      and speed[i] is its speed (in miles per hour).
+
+      A car can never pass another car ahead of it, but it can catch up
+      and then drive at the same speed. A car fleet is one or more cars
+      driving at the same position and speed.
+
+      If a car catches up to a fleet right at the destination, it is
+      part of the fleet. Return the number of car fleets that will
+      arrive at the destination.
+
+      Constraints:
+        - n == position.length == speed.length
+        - 1 <= n <= 10^5
+        - 0 < target <= 10^6
+        - 0 <= position[i] < target
+        - 0 < speed[i] <= 10^6
+        - All positions are unique
+
+      Example:
+        Input: target = 12, position = [10, 8, 0, 5, 3],
+               speed = [2, 4, 1, 1, 3]
+        Output: 3
+    hints:
+      - "Compute the time each car needs to reach the target."
+      - "Sort cars by position in decreasing order (closest to target first)."
+      - "A car behind a slower car ahead will merge into its fleet."
+    solution_outline: |
+      Compute arrival time for each car: (target - position[i]) / speed[i].
+      Sort by position descending. Iterate through arrival times. If a
+      car's time is greater than the current fleet's time, it forms a
+      new fleet. Otherwise it merges into the fleet ahead.
+      Time: O(n log n). Space: O(n).
+    tags: ["stack", "sorting", "greedy"]
+    neetcode_id: "neetcode-026"
+    challenge_type: "explain_why"
+
+  - id: "stack-007"
+    title: "Largest Rectangle in Histogram"
+    difficulty: "hard"
+    prompt: |
+      Given an array of integers heights representing the histogram's
+      bar heights where the width of each bar is 1, return the area of
+      the largest rectangle in the histogram.
+
+      Constraints:
+        - 1 <= heights.length <= 10^5
+        - 0 <= heights[i] <= 10^4
+
+      Example 1:
+        Input: heights = [2, 1, 5, 6, 2, 3]
+        Output: 10
+        Explanation: The largest rectangle spans heights[2..3] with
+        height 5 and width 2.
+
+      Example 2:
+        Input: heights = [2, 4]
+        Output: 4
+    hints:
+      - "For each bar, how wide can a rectangle of that height extend?"
+      - "You need the nearest shorter bar on the left and right of each bar."
+      - "A monotonic increasing stack lets you find both boundaries efficiently."
+    solution_outline: |
+      Maintain a monotonic increasing stack of indices. For each bar,
+      while the stack top is taller, pop it: the popped bar's rectangle
+      extends from the new stack top (left boundary) to the current
+      index (right boundary). Compute its area. After processing all
+      bars, pop remaining elements using the array length as the right
+      boundary.
+      Time: O(n). Space: O(n).
+    tags: ["stack", "monotonic-stack", "arrays"]
+    neetcode_id: "neetcode-027"
+    challenge_type: "multiple_choice"

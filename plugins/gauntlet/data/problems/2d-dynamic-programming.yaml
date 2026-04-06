@@ -1,0 +1,122 @@
+category: "2d-dynamic-programming"
+
+problems:
+  - id: "2d-dp-001"
+    title: "Unique Paths"
+    difficulty: "medium"
+    prompt: |
+      A robot starts at the top-left corner of an m x n grid. It can only
+      move right or down at each step. Return the number of unique paths
+      to reach the bottom-right corner.
+
+      Constraints: 1 <= m, n <= 100
+
+      Example: m = 3, n = 7 -> 28
+    hints:
+      - "The number of paths to cell (i, j) depends on the cells directly above and to the left."
+      - "dp[i][j] = dp[i-1][j] + dp[i][j-1], with the first row and first column all set to 1."
+    solution_outline: |
+      Fill a 2D DP table where dp[i][j] = dp[i-1][j] + dp[i][j-1]. The
+      first row and first column are all 1 (only one way to reach them).
+      Can be optimized to a single row. Time O(m*n), space O(n).
+      Alternatively, use the combinatorial formula C(m+n-2, m-1).
+    tags: ["dynamic-programming", "grid", "combinatorics"]
+    neetcode_id: "neetcode-083"
+    challenge_type: "explain_why"
+
+  - id: "2d-dp-002"
+    title: "Longest Common Subsequence"
+    difficulty: "medium"
+    prompt: |
+      Given two strings text1 and text2, return the length of their
+      longest common subsequence. A subsequence is derived by deleting
+      some (or no) characters without changing the relative order.
+
+      Constraints: 1 <= text1.length, text2.length <= 1000
+
+      Example: text1 = "abcde", text2 = "ace" -> 3 (LCS is "ace")
+    hints:
+      - "Build a 2D table where dp[i][j] is the LCS length for text1[0..i-1] and text2[0..j-1]."
+      - "If text1[i-1] == text2[j-1], dp[i][j] = dp[i-1][j-1] + 1. Otherwise, dp[i][j] = max(dp[i-1][j], dp[i][j-1])."
+    solution_outline: |
+      Classic 2D DP. Build an (m+1) x (n+1) table. When characters match,
+      extend the diagonal value by 1. Otherwise take the max of the cell
+      above or to the left. Time O(m*n), space O(m*n), optimizable to
+      O(min(m, n)) with a rolling row.
+    tags: ["dynamic-programming", "string"]
+    neetcode_id: "neetcode-084"
+    challenge_type: "explain_why"
+
+  - id: "2d-dp-003"
+    title: "Best Time to Buy and Sell Stock with Cooldown"
+    difficulty: "medium"
+    prompt: |
+      Given an array prices where prices[i] is a stock price on day i,
+      find the maximum profit. You may complete as many transactions as
+      you like with the following restriction: after selling, you must
+      wait one day before buying again (cooldown of 1 day).
+
+      Constraints: 1 <= prices.length <= 5000, 0 <= prices[i] <= 1000
+
+      Example: prices = [1, 2, 3, 0, 2] -> 3
+      (Buy day 0, sell day 2, cooldown day 3, buy day 3, sell day 4.)
+    hints:
+      - "Model three states: holding stock, not holding (just sold), and cooldown."
+      - "Transition between states day by day: hold = max(hold, cooldown - price), sold = hold + price, cooldown = max(cooldown, sold)."
+    solution_outline: |
+      State machine DP with three states per day: held, sold, rest. On
+      each day, transition: held = max(prev_held, prev_rest - price),
+      sold = prev_held + price, rest = max(prev_rest, prev_sold). Answer
+      is max(sold, rest) on the last day. Time O(n), space O(1).
+    tags: ["dynamic-programming", "state-machine", "stock"]
+    neetcode_id: "neetcode-085"
+    challenge_type: "explain_why"
+
+  - id: "2d-dp-004"
+    title: "Target Sum"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums and a target, assign a + or - sign to
+      each element so that the sum equals target. Return the number of
+      different ways to achieve this.
+
+      Constraints: 1 <= nums.length <= 20, 0 <= nums[i] <= 1000,
+      0 <= sum(nums) <= 1000, -1000 <= target <= 1000
+
+      Example: nums = [1, 1, 1, 1, 1], target = 3 -> 5
+    hints:
+      - "This is equivalent to partitioning nums into two subsets P and N where sum(P) - sum(N) = target."
+      - "Rewrite as a subset sum problem: find subsets summing to (target + totalSum) / 2."
+    solution_outline: |
+      Transform into subset sum: need a subset summing to (target + total)
+      / 2. If (target + total) is odd or negative, return 0. Use 1D DP
+      counting the number of subsets with each possible sum, iterating
+      elements in reverse. Time O(n * sum), space O(sum).
+    tags: ["dynamic-programming", "knapsack", "subset-sum"]
+    neetcode_id: "neetcode-086"
+    challenge_type: "explain_why"
+
+  - id: "2d-dp-005"
+    title: "Interleaving String"
+    difficulty: "hard"
+    prompt: |
+      Given strings s1, s2, and s3, determine whether s3 is formed by
+      interleaving s1 and s2. An interleaving merges s1 and s2 into s3
+      such that the relative order of characters in each string is
+      preserved.
+
+      Constraints: 0 <= s1.length, s2.length <= 100,
+      0 <= s3.length <= 200
+
+      Example: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac" -> true
+    hints:
+      - "If len(s1) + len(s2) != len(s3), return false immediately."
+      - "Use a 2D boolean table dp[i][j] meaning s1[0..i-1] and s2[0..j-1] can interleave to form s3[0..i+j-1]."
+    solution_outline: |
+      Build dp[i][j] = true if s3[0..i+j-1] can be formed by interleaving
+      s1[0..i-1] and s2[0..j-1]. Transition: dp[i][j] is true if
+      (dp[i-1][j] and s1[i-1] == s3[i+j-1]) or (dp[i][j-1] and
+      s2[j-1] == s3[i+j-1]). Time O(m*n), space O(n) with rolling row.
+    tags: ["dynamic-programming", "string"]
+    neetcode_id: "neetcode-087"
+    challenge_type: "explain_why"

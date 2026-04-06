@@ -47,8 +47,24 @@ the sidecar is unavailable, it falls back to YamlScorer
 with no user intervention.
 
 See [oracle](oracle.md) for daemon setup and
-[ADR-0009](../../docs/adr/0009-sidecar-service-discovery.md)
+[ADR-0009](../../../docs/adr/0009-sidecar-service-discovery.md)
 for the discovery pattern.
+
+## Code Knowledge Graph
+
+The graph module builds a SQLite-backed knowledge graph using
+Tree-sitter parsing. `GraphStore` supports context manager
+usage for safe resource cleanup. Community detection groups
+related nodes, and blast radius analysis scores the risk of
+code changes using security keywords from `constants.py`.
+
+## Problem Bank
+
+Curated algorithm problems in `data/problems/*.yaml` cover
+arrays, graphs, trees, dynamic programming, and 15 other
+categories. Each entry includes difficulty level and pattern
+metadata. The challenge engine draws from this bank for
+targeted practice sessions.
 
 ## Agents
 
