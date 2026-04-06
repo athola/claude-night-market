@@ -110,6 +110,20 @@ The `performance-budgeting` module (consolidated from
 `abstract:performance-optimization` in v1.5.0) provides subagent workflow
 optimization patterns.
 
+### `leyline:sem-integration`
+Foundation patterns for sem (semantic diff CLI) integration.
+
+**Invocation**: `Skill(leyline:sem-integration)`
+
+Provides detection, install-on-first-use, and output normalization
+for integrating [sem](https://github.com/Ataraxy-Labs/sem)
+entity-level diffs into git workflows. Consumers include
+`imbue:diff-analysis`, `imbue:catchup`, `pensive:blast-radius`,
+`sanctum:git-workspace-review`, and `sanctum:commit-messages`.
+
+**Modules**: `detection` (CLI detection and install prompting),
+`fallback` (output normalization for git diff fallback path).
+
 ---
 
 ## Imbue Plugin
