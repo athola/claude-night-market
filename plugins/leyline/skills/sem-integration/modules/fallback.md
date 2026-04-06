@@ -12,7 +12,20 @@ standard git commands.
 
 ## Entity Schema
 
-Both sem and fallback paths produce entries with:
+sem produces raw output with these fields:
+
+```json
+{
+  "entityId": "module::Class.method",
+  "entityType": "function|class|method",
+  "entityName": "method",
+  "changeType": "added|modified|deleted|renamed",
+  "filePath": "path/to/file.py"
+}
+```
+
+The normalization layer maps these to a common schema
+used by consumer skills:
 
 ```json
 {
@@ -23,7 +36,8 @@ Both sem and fallback paths produce entries with:
 }
 ```
 
-sem populates `kind` with function/class/method.
+Mapping: `entityName` to `name`, `entityType` to `kind`,
+`changeType` to `change_type`, `filePath` to `file`.
 Fallback uses `file` as the kind since git diff
 operates at file level.
 

@@ -98,11 +98,11 @@ for skill_dir in "$REPO_ROOT/$SKILLS_DIR"/nm-*/; do
     continue
   fi
 
-  if npx clawhub skill publish "$skill_dir" \
+  if npx clawhub publish "$skill_dir" \
       --slug "$skill_name" \
       --version "$SEMVER" \
       --tags latest \
-      --changelog "Release $VERSION" 2>/dev/null; then
+      --changelog "Release $VERSION"; then
     echo "  Published: $skill_name"
     PUBLISHED=$((PUBLISHED + 1))
   else
@@ -118,7 +118,7 @@ if [ "$DRY_RUN" = true ]; then
   echo "[dry-run] Would publish package: athola/claude-night-market@$VERSION"
 else
   echo "Publishing package..."
-  if npx clawhub package publish "athola/claude-night-market@$VERSION" 2>/dev/null; then
+  if npx clawhub package publish "athola/claude-night-market@$VERSION"; then
     echo "Package published: athola/claude-night-market@$VERSION"
   else
     echo "Warning: Package publish failed (may require manual setup)"

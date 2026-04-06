@@ -237,8 +237,8 @@ TIER1_PATTERNS = [
 
 TIER1_NEW_PATTERNS = [
     r'\bunderscore[sd]?\b', r'\bbolster\b', r'\bfoster\b',
-    r'\billumicat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
-    r'\breimaginc[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
+    r'\billuminat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
+    r'\breimagin[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
     r'\bseamless(?:ly)?\b', r'\binvaluable\b', r'\bvibrant\b',
     r'\binterplay\b', r'\bfacet[s]?\b', r'\bendeavor[s]?\b',
     r'\baptly\b', r'\btirelessly\b', r'\bvividly\b',

@@ -371,9 +371,10 @@ class TestMainIntegration:
         _mod.main()
         captured = capsys.readouterr()
         result = json.loads(captured.out)
-        assert "additionalContext" in result
-        assert "SUPPLY CHAIN ALERT" in result["additionalContext"]
-        assert "litellm" in result["additionalContext"]
+        hook_output = result["hookSpecificOutput"]
+        assert hook_output["hookEventName"] == "SessionStart"
+        assert "SUPPLY CHAIN ALERT" in hook_output["additionalContext"]
+        assert "litellm" in hook_output["additionalContext"]
 
     @pytest.mark.unit
     def test_silent_when_no_findings(

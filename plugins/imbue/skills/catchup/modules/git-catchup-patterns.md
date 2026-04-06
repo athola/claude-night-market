@@ -46,7 +46,7 @@ enhance delta capture with entity-level diffs:
 
 ```bash
 # Entity-level change summary across commits
-sem diff --json ${BASE}...HEAD
+sem diff --format json ${BASE}...HEAD
 
 # Track a specific entity's evolution
 sem log <entity-name>

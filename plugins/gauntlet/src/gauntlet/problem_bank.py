@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ import yaml
 from gauntlet.models import BankProblem, Challenge, ChallengeType, Difficulty
 
 _DEFAULT_DATA_DIR = Path(__file__).parent.parent.parent / "data" / "problems"
+_log = logging.getLogger(__name__)
 
 
 def load_bank(data_dir: Path | None = None) -> list[BankProblem]:
@@ -20,15 +22,22 @@ def load_bank(data_dir: Path | None = None) -> list[BankProblem]:
     for yaml_file in sorted(directory.glob("*.yaml")):
         if yaml_file.name.startswith("_"):
             continue  # skip manifest and other meta files
-        with open(yaml_file) as f:  # noqa: S108 - reading from plugin data dir, not temp
-            data = yaml.safe_load(f)
+        try:
+            with open(yaml_file) as f:  # noqa: S108 - reading from plugin data dir, not temp
+                data = yaml.safe_load(f)
+        except yaml.YAMLError:
+            _log.warning("Skipping malformed YAML: %s", yaml_file.name)
+            continue
         if not data or "problems" not in data:
             continue
         for item in data["problems"]:
             # Inherit category from file-level metadata if not set per-problem
             if "category" not in item and "category" in data:
                 item["category"] = data["category"]
-            problems.append(BankProblem.from_dict(item))
+            try:
+                problems.append(BankProblem.from_dict(item))
+            except (KeyError, ValueError):
+                _log.warning("Skipping invalid problem in %s", yaml_file.name)
     return problems
 
 

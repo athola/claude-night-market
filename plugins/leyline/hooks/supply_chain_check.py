@@ -100,7 +100,11 @@ def main() -> None:
 
     try:
         blocklist = json.loads(blocklist_path.read_text())
-    except (json.JSONDecodeError, ValueError):
+    except (json.JSONDecodeError, ValueError) as exc:
+        print(
+            f"supply_chain_check: failed to parse blocklist {blocklist_path}: {exc}",
+            file=sys.stderr,
+        )
         return
     blocklist.pop("_meta", None)
     if not blocklist:
@@ -138,7 +142,10 @@ def main() -> None:
         )
 
     result = {
-        "additionalContext": "Supply Chain Warning: " + "\n".join(warnings),
+        "hookSpecificOutput": {
+            "hookEventName": "SessionStart",
+            "additionalContext": "Supply Chain Warning: " + "\n".join(warnings),
+        },
     }
     print(json.dumps(result))
 

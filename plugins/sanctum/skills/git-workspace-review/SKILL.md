@@ -83,7 +83,7 @@ files modified and identify hotspots with large insertion
 or deletion counts.
 
 When sem is available (see `leyline:sem-integration`),
-also run `sem diff --staged` to display an entity-level
+also run `sem diff --format plain --staged` to display an entity-level
 summary alongside the stat output. This shows which
 functions, classes, and methods changed rather than just
 line counts.

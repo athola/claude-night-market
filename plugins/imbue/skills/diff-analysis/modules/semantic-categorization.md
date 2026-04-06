@@ -38,7 +38,7 @@ entity-level diffs:
 ```bash
 # Check sem availability
 if command -v sem &>/dev/null; then
-  sem diff --json <baseline>
+  sem diff --format json <baseline>
 fi
 ```
 

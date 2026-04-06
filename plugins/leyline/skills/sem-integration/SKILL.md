@@ -4,7 +4,7 @@ description: >
   Foundation skill for sem (semantic diff CLI) integration.
   Provides detection, install-on-first-use, and output
   normalization patterns for consumer skills.
-version: 1.8.1
+version: 1.8.2
 alwaysApply: false
 category: infrastructure
 tags:
@@ -73,7 +73,7 @@ logic and platform-specific commands.
 Primary path (sem available):
 
 ```bash
-sem diff --json <baseline>
+sem diff --format json <baseline>
 ```
 
 Fallback path (sem unavailable):
