@@ -1,0 +1,839 @@
+{
+  "generator": "claude-night-market/clawhub-export",
+  "generated_at": "2026-04-05T18:24:36.121499+00:00",
+  "total_exported": 166,
+  "total_errors": 0,
+  "skills": [
+    {
+      "slug": "nm-abstract-escalation-governance",
+      "source": "abstract:escalation-governance",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-hook-authoring",
+      "source": "abstract:hook-authoring",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-hooks-eval",
+      "source": "abstract:hooks-eval",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-metacognitive-self-mod",
+      "source": "abstract:metacognitive-self-mod",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-methodology-curator",
+      "source": "abstract:methodology-curator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-modular-skills",
+      "source": "abstract:modular-skills",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-plugin-review",
+      "source": "abstract:plugin-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-rules-eval",
+      "source": "abstract:rules-eval",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-shared-patterns",
+      "source": "abstract:shared-patterns",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-skill-authoring",
+      "source": "abstract:skill-authoring",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-skills-eval",
+      "source": "abstract:skills-eval",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-abstract-subagent-testing",
+      "source": "abstract:subagent-testing",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-client-server",
+      "source": "archetypes:architecture-paradigm-client-server",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-cqrs-es",
+      "source": "archetypes:architecture-paradigm-cqrs-es",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-event-driven",
+      "source": "archetypes:architecture-paradigm-event-driven",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-functional-core",
+      "source": "archetypes:architecture-paradigm-functional-core",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-hexagonal",
+      "source": "archetypes:architecture-paradigm-hexagonal",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-layered",
+      "source": "archetypes:architecture-paradigm-layered",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-microkernel",
+      "source": "archetypes:architecture-paradigm-microkernel",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-microservices",
+      "source": "archetypes:architecture-paradigm-microservices",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-modular-monolith",
+      "source": "archetypes:architecture-paradigm-modular-monolith",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-pipeline",
+      "source": "archetypes:architecture-paradigm-pipeline",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-serverless",
+      "source": "archetypes:architecture-paradigm-serverless",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-service-based",
+      "source": "archetypes:architecture-paradigm-service-based",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigm-space-based",
+      "source": "archetypes:architecture-paradigm-space-based",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-archetypes-architecture-paradigms",
+      "source": "archetypes:architecture-paradigms",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-architecture-aware-init",
+      "source": "attune:architecture-aware-init",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-dorodango",
+      "source": "attune:dorodango",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-makefile-generation",
+      "source": "attune:makefile-generation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-mission-orchestrator",
+      "source": "attune:mission-orchestrator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-precommit-setup",
+      "source": "attune:precommit-setup",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-project-brainstorming",
+      "source": "attune:project-brainstorming",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-project-execution",
+      "source": "attune:project-execution",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-project-init",
+      "source": "attune:project-init",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-project-planning",
+      "source": "attune:project-planning",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-project-specification",
+      "source": "attune:project-specification",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-war-room",
+      "source": "attune:war-room",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-war-room-checkpoint",
+      "source": "attune:war-room-checkpoint",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-attune-workflow-setup",
+      "source": "attune:workflow-setup",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-architecture-diagram",
+      "source": "cartograph:architecture-diagram",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-call-chain",
+      "source": "cartograph:call-chain",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-class-diagram",
+      "source": "cartograph:class-diagram",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-code-communities",
+      "source": "cartograph:code-communities",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-data-flow",
+      "source": "cartograph:data-flow",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-dependency-graph",
+      "source": "cartograph:dependency-graph",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-cartograph-workflow-diagram",
+      "source": "cartograph:workflow-diagram",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conjure-agent-teams",
+      "source": "conjure:agent-teams",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conjure-delegation-core",
+      "source": "conjure:delegation-core",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conjure-gemini-delegation",
+      "source": "conjure:gemini-delegation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conjure-qwen-delegation",
+      "source": "conjure:qwen-delegation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-agent-expenditure",
+      "source": "conserve:agent-expenditure",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-bloat-detector",
+      "source": "conserve:bloat-detector",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-clear-context",
+      "source": "conserve:clear-context",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-code-quality-principles",
+      "source": "conserve:code-quality-principles",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-compression-strategy",
+      "source": "conserve:compression-strategy",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-context-optimization",
+      "source": "conserve:context-optimization",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-cpu-gpu-performance",
+      "source": "conserve:cpu-gpu-performance",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-decisive-action",
+      "source": "conserve:decisive-action",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-mcp-code-execution",
+      "source": "conserve:mcp-code-execution",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-response-compression",
+      "source": "conserve:response-compression",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-smart-sourcing",
+      "source": "conserve:smart-sourcing",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-conserve-token-conservation",
+      "source": "conserve:token-conservation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-egregore-install-watchdog",
+      "source": "egregore:install-watchdog",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-egregore-quality-gate",
+      "source": "egregore:quality-gate",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-egregore-summon",
+      "source": "egregore:summon",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-egregore-uninstall-watchdog",
+      "source": "egregore:uninstall-watchdog",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-challenge",
+      "source": "gauntlet:challenge",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-curate",
+      "source": "gauntlet:curate",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-extract",
+      "source": "gauntlet:extract",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-graph-build",
+      "source": "gauntlet:graph-build",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-graph-search",
+      "source": "gauntlet:graph-search",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-gauntlet-onboard",
+      "source": "gauntlet:onboard",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-hookify-rule-catalog",
+      "source": "hookify:rule-catalog",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-hookify-writing-rules",
+      "source": "hookify:writing-rules",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-catchup",
+      "source": "imbue:catchup",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-diff-analysis",
+      "source": "imbue:diff-analysis",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-feature-review",
+      "source": "imbue:feature-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-latent-space-engineering",
+      "source": "imbue:latent-space-engineering",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-proof-of-work",
+      "source": "imbue:proof-of-work",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-review-core",
+      "source": "imbue:review-core",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-rigorous-reasoning",
+      "source": "imbue:rigorous-reasoning",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-scope-guard",
+      "source": "imbue:scope-guard",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-structured-output",
+      "source": "imbue:structured-output",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-imbue-workflow-monitor",
+      "source": "imbue:workflow-monitor",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-authentication-patterns",
+      "source": "leyline:authentication-patterns",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-content-sanitization",
+      "source": "leyline:content-sanitization",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-damage-control",
+      "source": "leyline:damage-control",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-deferred-capture",
+      "source": "leyline:deferred-capture",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-document-conversion",
+      "source": "leyline:document-conversion",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-error-patterns",
+      "source": "leyline:error-patterns",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-evaluation-framework",
+      "source": "leyline:evaluation-framework",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-git-platform",
+      "source": "leyline:git-platform",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-markdown-formatting",
+      "source": "leyline:markdown-formatting",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-progressive-loading",
+      "source": "leyline:progressive-loading",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-pytest-config",
+      "source": "leyline:pytest-config",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-quota-management",
+      "source": "leyline:quota-management",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-risk-classification",
+      "source": "leyline:risk-classification",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-service-registry",
+      "source": "leyline:service-registry",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-stewardship",
+      "source": "leyline:stewardship",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-storage-templates",
+      "source": "leyline:storage-templates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-supply-chain-advisory",
+      "source": "leyline:supply-chain-advisory",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-testing-quality-standards",
+      "source": "leyline:testing-quality-standards",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-usage-logging",
+      "source": "leyline:usage-logging",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-leyline-utility",
+      "source": "leyline:utility",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-digital-garden-cultivator",
+      "source": "memory-palace:digital-garden-cultivator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-knowledge-intake",
+      "source": "memory-palace:knowledge-intake",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-knowledge-locator",
+      "source": "memory-palace:knowledge-locator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-memory-palace-architect",
+      "source": "memory-palace:memory-palace-architect",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-review-chamber",
+      "source": "memory-palace:review-chamber",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-memory-palace-session-palace-builder",
+      "source": "memory-palace:session-palace-builder",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-minister-github-initiative-pulse",
+      "source": "minister:github-initiative-pulse",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-minister-release-health-gates",
+      "source": "minister:release-health-gates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-oracle-setup",
+      "source": "oracle:setup",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-parseltongue-python-async",
+      "source": "parseltongue:python-async",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-parseltongue-python-packaging",
+      "source": "parseltongue:python-packaging",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-parseltongue-python-performance",
+      "source": "parseltongue:python-performance",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-parseltongue-python-testing",
+      "source": "parseltongue:python-testing",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-api-review",
+      "source": "pensive:api-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-architecture-review",
+      "source": "pensive:architecture-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-blast-radius",
+      "source": "pensive:blast-radius",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-bug-review",
+      "source": "pensive:bug-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-code-refinement",
+      "source": "pensive:code-refinement",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-makefile-review",
+      "source": "pensive:makefile-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-math-review",
+      "source": "pensive:math-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-rust-review",
+      "source": "pensive:rust-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-safety-critical-patterns",
+      "source": "pensive:safety-critical-patterns",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-shell-review",
+      "source": "pensive:shell-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-test-review",
+      "source": "pensive:test-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-tiered-audit",
+      "source": "pensive:tiered-audit",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-pensive-unified-review",
+      "source": "pensive:unified-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-phantom-computer-control",
+      "source": "phantom:computer-control",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-commit-messages",
+      "source": "sanctum:commit-messages",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-do-issue",
+      "source": "sanctum:do-issue",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-doc-consolidation",
+      "source": "sanctum:doc-consolidation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-doc-updates",
+      "source": "sanctum:doc-updates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-file-analysis",
+      "source": "sanctum:file-analysis",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-git-workspace-review",
+      "source": "sanctum:git-workspace-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-pr-prep",
+      "source": "sanctum:pr-prep",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-pr-review",
+      "source": "sanctum:pr-review",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-session-management",
+      "source": "sanctum:session-management",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-test-updates",
+      "source": "sanctum:test-updates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-tutorial-updates",
+      "source": "sanctum:tutorial-updates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-update-readme",
+      "source": "sanctum:update-readme",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-version-updates",
+      "source": "sanctum:version-updates",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-sanctum-workflow-improvement",
+      "source": "sanctum:workflow-improvement",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-doc-generator",
+      "source": "scribe:doc-generator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-doc-importer",
+      "source": "scribe:doc-importer",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-session-replay",
+      "source": "scribe:session-replay",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-session-to-post",
+      "source": "scribe:session-to-post",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-slop-detector",
+      "source": "scribe:slop-detector",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-style-learner",
+      "source": "scribe:style-learner",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scribe-tech-tutorial",
+      "source": "scribe:tech-tutorial",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scry-browser-recording",
+      "source": "scry:browser-recording",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scry-gif-generation",
+      "source": "scry:gif-generation",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scry-media-composition",
+      "source": "scry:media-composition",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-scry-vhs-recording",
+      "source": "scry:vhs-recording",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-spec-kit-spec-writing",
+      "source": "spec-kit:spec-writing",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-spec-kit-speckit-orchestrator",
+      "source": "spec-kit:speckit-orchestrator",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-spec-kit-task-planning",
+      "source": "spec-kit:task-planning",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-code-search",
+      "source": "tome:code-search",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-dig",
+      "source": "tome:dig",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-discourse",
+      "source": "tome:discourse",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-papers",
+      "source": "tome:papers",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-research",
+      "source": "tome:research",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-synthesize",
+      "source": "tome:synthesize",
+      "version": "1.8.1"
+    },
+    {
+      "slug": "nm-tome-triz",
+      "source": "tome:triz",
+      "version": "1.8.1"
+    }
+  ],
+  "errors": []
+}
