@@ -28,4 +28,4 @@ __all__ = [
     "capture_pr_review_knowledge",
     "compute_garden_metrics",
 ]
-__version__ = "1.8.1"
+__version__ = "1.8.2"
