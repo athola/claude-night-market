@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.8.1-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-166-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-167-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -124,7 +124,7 @@ flowchart TB
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 20 | 3 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 21 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 46 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
 | **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 12 | 4 |
