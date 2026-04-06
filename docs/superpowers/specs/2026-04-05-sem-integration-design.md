@@ -1,8 +1,8 @@
 # sem Integration: Semantic Diffs for Night Market Git Workflows
 
 **Date:** 2026-04-05
-**Status:** Draft
-**Branch:** feature/sem-integration (new branch from master)
+**Status:** Implemented
+**Branch:** fix/issues-359-377
 
 ## Problem
 
