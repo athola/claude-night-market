@@ -130,7 +130,15 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
     try:
         parser = get_parser(language)  # type: ignore[arg-type]  # str from detect_language
         tree = parser.parse(source)
-    except Exception:  # noqa: BLE001 - catch-all for parse errors in unknown grammars
+    except Exception as exc:  # noqa: BLE001 - catch-all for parse errors in unknown grammars
+        import logging
+
+        logging.getLogger(__name__).debug(
+            "tree-sitter parse failed for %s: %s: %s",
+            file_path,
+            type(exc).__name__,
+            exc,
+        )
         return [], []
 
     nodes: list[GraphNode] = []

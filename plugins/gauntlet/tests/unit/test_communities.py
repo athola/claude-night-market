@@ -273,6 +273,32 @@ class TestLeidenFallback:
         assert len(communities) >= 2
         assert any("bad partition" in r.message for r in caplog.records)
 
+    @pytest.mark.unit
+    def test_runtimeerror_falls_back_to_file_based(
+        self, store: GraphStore, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """
+        Scenario: igraph raises RuntimeError (InternalError) during community detection
+        Given a graph with nodes in two files
+        And igraph raises RuntimeError on community_leiden
+        When I detect communities
+        Then file-based fallback is used and a warning is logged
+        """
+        _build_two_clusters(store)
+
+        with (
+            patch(
+                "gauntlet.communities._leiden_communities",
+                side_effect=RuntimeError("igraph InternalError"),
+            ),
+            caplog.at_level("WARNING", logger="gauntlet.communities"),
+        ):
+            communities = detect_communities(store)
+
+        # Fallback produces file-based communities
+        assert len(communities) >= 2
+        assert any("igraph InternalError" in r.message for r in caplog.records)
+
 
 class TestArchitectureOverview:
     """

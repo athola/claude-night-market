@@ -36,6 +36,7 @@ class EdgeKind(str, Enum):
     CONTAINS = "CONTAINS"
     IMPLEMENTS = "IMPLEMENTS"
     # Direction: implementation_node -> test_node
+    # (source is the code being tested, target is the test function)
     TESTED_BY = "TESTED_BY"
 
     def __str__(self) -> str:
@@ -408,12 +409,12 @@ class Difficulty(str, Enum):
         return self.value
 
     def to_numeric(self) -> int:
-        """Map to 1-5 scale for Challenge compatibility."""
+        """Map to 1-4 scale for Challenge compatibility."""
         return {
             Difficulty.EASY: 1,
             Difficulty.MEDIUM: 2,
-            Difficulty.HARD: 4,
-            Difficulty.EXTRA_HARD: 5,
+            Difficulty.HARD: 3,
+            Difficulty.EXTRA_HARD: 4,
         }[self]
 
 

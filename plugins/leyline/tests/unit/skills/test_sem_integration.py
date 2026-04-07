@@ -57,6 +57,16 @@ class TestSkillFileExists:
     """
 
     @pytest.mark.unit
+    def test_skill_directory_exists(self) -> None:
+        """
+        Scenario: Skill directory is present on disk
+        Given the sem-integration skill
+        When the loader checks for the directory
+        Then it exists
+        """
+        assert SKILL_DIR.exists(), f"Skill directory not found: {SKILL_DIR}"
+
+    @pytest.mark.unit
     def test_skill_file_exists(self) -> None:
         """
         Scenario: SKILL.md is present in the skill directory
@@ -210,12 +220,14 @@ class TestSemDetection:
         with patch(
             "subprocess.run",
             return_value=subprocess.CompletedProcess(
-                args=["which", "sem"],
+                args=["command", "-v", "sem"],
                 returncode=0,
                 stdout="/usr/local/bin/sem\n",
             ),
         ):
-            result = subprocess.run(["which", "sem"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
 
@@ -233,12 +245,14 @@ class TestSemDetection:
         with patch(
             "subprocess.run",
             return_value=subprocess.CompletedProcess(
-                args=["which", "sem"],
+                args=["command", "-v", "sem"],
                 returncode=1,
                 stdout="",
             ),
         ):
-            result = subprocess.run(["which", "sem"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
 
@@ -249,12 +263,35 @@ class TestSemDetection:
         """
         Scenario: Detection result is cached
         Given the cache file already contains a result
-        When detection logic reads the cache
-        Then the cached value is returned without re-running which
+        When detection logic is invoked again
+        Then the cached value is returned without re-running command -v
         """
         cache = tmp_path / "sem-available"
-        cache.write_text("1")
-        assert cache.read_text() == "1"
+
+        # First call: populate cache via subprocess
+        with patch(
+            "subprocess.run",
+            return_value=subprocess.CompletedProcess(
+                args=["command", "-v", "sem"],
+                returncode=0,
+                stdout="/usr/local/bin/sem\n",
+            ),
+        ) as mock_run:
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
+            cache.write_text("1" if result.returncode == 0 else "0")
+            assert mock_run.call_count == 1
+
+        # Second call: read cache instead of invoking subprocess
+        with patch("subprocess.run") as mock_run:
+            if cache.exists():
+                cached = cache.read_text().strip()
+            else:
+                cached = None
+
+            assert cached == "1"
+            mock_run.assert_not_called()
 
 
 # ---------------------------------------------------------------------------

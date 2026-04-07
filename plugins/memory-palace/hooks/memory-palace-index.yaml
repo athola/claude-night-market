@@ -116,573 +116,663 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://webai.mintlify.app/api-reference/oasis-ai#personas
-  https://raw.githubusercontent.com/rixinhahaha/snip/main/readme.md:
-    content_hash: sha256:77741f50a8b4f364
-    stored_at: data/staging/webfetch-snip-ai-powered-visual-output-for-code-agents-2026-04-03_23-22-13.md
+  https://posthog.com:
+    content_hash: sha256:1ae95f5e68b3d731
+    stored_at: data/staging/webfetch-visual-design-system-analysis-2026-04-02_15-01-37.md
     importance_score: 50
-    last_updated: '2026-04-03T23:22:13.982672+00:00'
-    title: 'Snip: AI-Powered Visual Output for Code Agents'
+    last_updated: '2026-04-02T15:01:37.896847+00:00'
+    title: Visual Design System Analysis
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/rixinhahaha/snip/main/README.md
-  https://api.github.com/repos/rixinhahaha/snip:
-    content_hash: sha256:6ac62806fb4bd1c8
-    stored_at: data/staging/webfetch-repository-analysis-snip-2026-04-03_23-22-20.md
+    url: https://posthog.com/
+  https://hn.algolia.com/api/v1/search?query=cursor%20ide%20models%202026&tags=story&hitsperpage=10:
+    content_hash: sha256:e85e6f85973fd299
+    stored_at: data/staging/webfetch-stories-related-to-cursor-ide-models-2026-04-03_18-01-16.md
     importance_score: 50
-    last_updated: '2026-04-03T23:22:20.436991+00:00'
-    title: 'Repository Analysis: snip'
+    last_updated: '2026-04-03T18:01:16.161805+00:00'
+    title: Stories Related to Cursor IDE Models
     maturity: seedling
     routing_type: pending
-    url: https://api.github.com/repos/rixinhahaha/snip
-  https://github.com/rixinhahaha/snip:
-    content_hash: sha256:1e3488dabf595d8f
-    stored_at: data/staging/webfetch-snip-repository-structure-2026-04-03_23-46-07.md
+    url: https://hn.algolia.com/api/v1/search?query=Cursor%20IDE%20models%202026&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=cursor%20ai%20model%20selection&tags=story&hitsperpage=10:
+    content_hash: sha256:b32af29270399a43
+    stored_at: data/staging/webfetch-cursor-ai-model-selection-stories-summary-2026-04-03_18-01-17.md
     importance_score: 50
-    last_updated: '2026-04-03T23:46:07.722759+00:00'
-    title: Snip Repository Structure
+    last_updated: '2026-04-03T18:01:17.930787+00:00'
+    title: 'Cursor AI Model Selection: Stories Summary'
     maturity: seedling
     routing_type: pending
-    url: https://github.com/rixinhahaha/snip
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/readme.md:
-    content_hash: sha256:63b96ae718112571
-    stored_at: data/staging/webfetch-code-review-graph-project-overview-2026-04-04_06-06-21.md
+    url: https://hn.algolia.com/api/v1/search?query=Cursor%20AI%20model%20selection&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=claude%20code%20model%20selection%20opus%20sonnet%20haiku&tags=story&hitsperpage=10
+  : content_hash: sha256:c02889c074fdc20c
+    stored_at: data/staging/webfetch-claude-code-model-selection-stories-2026-04-03_18-01-18.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:21.138621+00:00'
-    title: 'code-review-graph: Project Overview'
+    last_updated: '2026-04-03T18:01:18.028988+00:00'
+    title: Claude Code Model Selection Stories
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/README.md
-  https://github.com/tirth8205/code-review-graph:
-    content_hash: sha256:b2e73337b2674a51
-    stored_at: data/staging/webfetch-code-review-graph-repository-structure-2026-04-04_06-06-31.md
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20model%20selection%20opus%20sonnet%20haiku&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%204%20opus%20sonnet%20haiku%20pricing%202026&tags=story&hitsperpage=10:
+    content_hash: sha256:0396fc3b50388620
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-03_18-01-19.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:31.500221+00:00'
-    title: code-review-graph Repository Structure
+    last_updated: '2026-04-03T18:01:19.544264+00:00'
+    title: Search Results Summary
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/.mcp.json:
-    content_hash: sha256:dbc0c2d6cd080eac
-    stored_at: data/staging/webfetch-model-context-protocol-configuration-2026-04-04_06-06-37.md
+    url: https://hn.algolia.com/api/v1/search?query=Claude%204%20opus%20sonnet%20haiku%20pricing%202026&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=ai+code+editor+model+selection+2025+2026&tags=story&hitsperpage=10:
+    content_hash: sha256:166f1ae8786b52da
+    stored_at: data/staging/webfetch-search-results-analysis-2026-04-03_18-01-29.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:37.374893+00:00'
-    title: Model Context Protocol Configuration
+    last_updated: '2026-04-03T18:01:29.442985+00:00'
+    title: Search Results Analysis
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/.mcp.json
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/pyproject.toml:
-    content_hash: sha256:1b30169588791bb1
-    stored_at: data/staging/webfetch-project-metadata-and-dependencies-2026-04-04_06-06-37.md
+    url: https://hn.algolia.com/api/v1/search?query=AI+code+editor+model+selection+2025+2026&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=windsurf+codeium+models&tags=story&hitsperpage=10:
+    content_hash: sha256:94c6ea4104e59e99
+    stored_at: data/staging/webfetch-windsurf-codeium-stories-2026-04-03_18-01-29.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:37.446660+00:00'
-    title: Project Metadata and Dependencies
+    last_updated: '2026-04-03T18:01:29.973901+00:00'
+    title: Windsurf/Codeium Stories
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/pyproject.toml
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/__init__.py:
-    content_hash: sha256:04dec5d1244bb1d8
-    stored_at: data/staging/webfetch-based-on-the-provided-content-the-main-2026-04-04_06-06-39.md
+    url: https://hn.algolia.com/api/v1/search?query=windsurf+codeium+models&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=github+copilot+models+2026&tags=story&hitsperpage=10:
+    content_hash: sha256:975ef5591bd8b722
+    stored_at: data/staging/webfetch-github-copilot-models-stories-2026-04-03_18-01-30.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:39.861392+00:00'
-    title: 'Based on the provided content, the main information available is:'
+    last_updated: '2026-04-03T18:01:30.993182+00:00'
+    title: GitHub Copilot Models Stories
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/__init__.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/graph.py:
-    content_hash: sha256:b643794b74272832
-    stored_at: data/staging/webfetch-code-knowledge-graph-implementation-2026-04-04_06-06-51.md
+    url: https://hn.algolia.com/api/v1/search?query=github+copilot+models+2026&tags=story&hitsPerPage=10
+  https://platform.claude.com/docs/en/about-claude/pricing:
+    content_hash: sha256:758d503d1746bcdd
+    stored_at: data/staging/webfetch-pricing-2026-04-03_18-01-33.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:51.457630+00:00'
-    title: Code Knowledge Graph Implementation
+    last_updated: '2026-04-03T18:01:33.257466+00:00'
+    title: Pricing
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/graph.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/parser.py:
-    content_hash: sha256:265969ca01c205f6
-    stored_at: data/staging/webfetch-how-claude-code-parses-using-tree-sitter-2026-04-04_06-06-52.md
+    url: https://platform.claude.com/docs/en/about-claude/pricing
+  https://code.claude.com/docs/en/model-config:
+    content_hash: sha256:bb25f4cfe12d5143
+    stored_at: data/staging/webfetch-documentation-index-2026-04-03_18-01-35.md
     importance_score: 50
-    last_updated: '2026-04-04T06:06:52.081909+00:00'
-    title: How Claude Code Parses Using Tree-sitter
+    last_updated: '2026-04-03T18:01:35.068246+00:00'
+    title: '> ## Documentation Index'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/parser.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/claude.md:
-    content_hash: sha256:b82f812328ea59ca
-    stored_at: data/staging/webfetch-claude-specific-documentation-overview-2026-04-04_06-07-03.md
+    url: https://code.claude.com/docs/en/model-config
+  https://forum.cursor.com/t/cursor-model-list-options/148873:
+    content_hash: sha256:ea337a7d2828e9fa
+    stored_at: data/staging/webfetch-cursor-model-list-options-discussion-2026-04-03_18-01-36.md
     importance_score: 50
-    last_updated: '2026-04-04T06:07:03.652160+00:00'
-    title: Claude-Specific Documentation Overview
+    last_updated: '2026-04-03T18:01:36.684719+00:00'
+    title: Cursor Model List Options Discussion
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/CLAUDE.md
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/architecture.md:
-    content_hash: sha256:087412d0c3ba5eeb
-    stored_at: data/staging/webfetch-system-architecture-overview-2026-04-04_06-07-04.md
+    url: https://forum.cursor.com/t/cursor-model-list-options/148873
+  https://forum.cursor.com/t/what-free-models-are-actually-available-on-cursor/146014:
+    content_hash: sha256:a8627e276c8e918f
+    stored_at: data/staging/webfetch-free-models-on-cursor-conflicting-information-2026-04-03_18-01-37.md
     importance_score: 50
-    last_updated: '2026-04-04T06:07:04.685377+00:00'
-    title: System Architecture Overview
+    last_updated: '2026-04-03T18:01:37.730508+00:00'
+    title: 'Free Models on Cursor: Conflicting Information'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/architecture.md
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code-review-graph-vscode/package.json:
-    content_hash: sha256:13b9f0058cec6bc4
-    stored_at: data/staging/webfetch-code-review-graph-vs-code-extension-2026-04-04_06-07-14.md
+    url: https://forum.cursor.com/t/what-free-models-are-actually-available-on-cursor/146014
+  https://dev.to/klement_gunndu/pick-the-right-claude-code-model-for-every-task-1p6a:
+    content_hash: sha256:cbd63ccce475cf7d
+    stored_at: data/staging/webfetch-claude-code-model-selection-guide-2026-04-03_18-01-41.md
     importance_score: 50
-    last_updated: '2026-04-04T06:07:14.960082+00:00'
-    title: Code Review Graph VS Code Extension
+    last_updated: '2026-04-03T18:01:41.947177+00:00'
+    title: Claude Code Model Selection Guide
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code-review-graph-vscode/package.json
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/changelog.md:
-    content_hash: sha256:8a06542e7072bb16
-    stored_at: data/staging/webfetch-recent-major-features-and-improvements-2026-04-04_06-07-23.md
+    url: https://dev.to/klement_gunndu/pick-the-right-claude-code-model-for-every-task-1p6a
+  https://github.com/lm-sys/routellm:
+    content_hash: sha256:80d9a41a5110f12b
+    stored_at: data/staging/webfetch-routellm-llm-routing-framework-2026-04-03_18-01-43.md
     importance_score: 50
-    last_updated: '2026-04-04T06:07:23.578643+00:00'
-    title: Recent Major Features and Improvements
+    last_updated: '2026-04-03T18:01:43.687095+00:00'
+    title: 'RouteLLM: LLM Routing Framework'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/CHANGELOG.md
-  https://api.github.com/repos/tirth8205/code-review-graph/contents/code_review_graph:
-    content_hash: sha256:36398b956f2c1b03
-    stored_at: data/staging/webfetch-python-files-in-code-review-graph-directory-2026-04-04_13-32-03.md
+    url: https://github.com/lm-sys/RouteLLM
+  https://github.com/nvidia-ai-blueprints/llm-router:
+    content_hash: sha256:f24a46a0b65c7f5b
+    stored_at: data/staging/webfetch-nvidia-llm-router-v2-overview-2026-04-03_18-01-44.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:03.412407+00:00'
-    title: Python Files in code_review_graph Directory
+    last_updated: '2026-04-03T18:01:44.295064+00:00'
+    title: NVIDIA LLM Router v2 - Overview
     maturity: seedling
     routing_type: pending
-    url: https://api.github.com/repos/tirth8205/code-review-graph/contents/code_review_graph
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/cli.py:
-    content_hash: sha256:0d85500c43d12c27
-    stored_at: data/staging/webfetch-cli-commands-for-code-review-graph-2026-04-04_13-32-10.md
+    url: https://github.com/NVIDIA-AI-Blueprints/llm-router
+  https://github.com/asirwad/smart-llm-router:
+    content_hash: sha256:ebe624a4b6d131f5
+    stored_at: data/staging/webfetch-smart-llm-router-readme-summary-2026-04-03_18-01-46.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:10.655066+00:00'
-    title: CLI Commands for code-review-graph
+    last_updated: '2026-04-03T18:01:46.158867+00:00'
+    title: Smart LLM Router - README Summary
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/cli.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/changes.py:
-    content_hash: sha256:281b5fc908b27085
-    stored_at: data/staging/webfetch-blast-radius-analysis-how-it-works-2026-04-04_13-32-19.md
+    url: https://github.com/Asirwad/smart-llm-router
+  https://github.com/microsoft/best-route-llm:
+    content_hash: sha256:be3d30a65625cb82
+    stored_at: data/staging/webfetch-best-route-adaptive-llm-routing-overview-2026-04-03_18-01-46.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:19.517082+00:00'
-    title: 'Blast Radius Analysis: How It Works'
+    last_updated: '2026-04-03T18:01:46.573233+00:00'
+    title: 'BEST-Route: Adaptive LLM Routing Overview'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/changes.py
-  https://github.com/tirth8205/code-review-graph/blob/main/.mcp.json:
-    content_hash: sha256:fb71aba37bbdffef
-    stored_at: data/staging/webfetch-mcp-integration-for-code-review-graph-2026-04-04_13-32-20.md
+    url: https://github.com/microsoft/best-route-llm
+  https://github.com/ulab-uiuc/llmrouter:
+    content_hash: sha256:98d3b56b74ba4148
+    stored_at: data/staging/webfetch-llmrouter-open-source-llm-routing-library-2026-04-03_18-01-47.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:20.549293+00:00'
-    title: MCP Integration for code-review-graph
+    last_updated: '2026-04-03T18:01:47.004772+00:00'
+    title: 'LLMRouter: Open-Source LLM Routing Library'
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/.mcp.json
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/main.py:
-    content_hash: sha256:407fb9b4c03c62c9
-    stored_at: data/staging/webfetch-code-review-graph-mcp-entry-point-analysis-2026-04-04_13-32-21.md
+    url: https://github.com/ulab-uiuc/LLMRouter
+  https://github.com/not-diamond/awesome-ai-model-routing:
+    content_hash: sha256:86784292cafc6a73
+    stored_at: data/staging/webfetch-ai-model-routing-tools-and-research-overview-2026-04-03_18-01-47.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:21.286518+00:00'
-    title: Code Review Graph MCP Entry Point Analysis
+    last_updated: '2026-04-03T18:01:47.836263+00:00'
+    title: 'AI Model Routing: Tools and Research Overview'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/main.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/registry.py:
-    content_hash: sha256:8964e415e033ab15
-    stored_at: data/staging/webfetch-registry-system-overview-2026-04-04_13-32-27.md
+    url: https://github.com/Not-Diamond/awesome-ai-model-routing
+  https://docs.github.com/en/copilot/reference/ai-models/supported-models:
+    content_hash: sha256:f0c77790c4d89a75
+    stored_at: data/staging/webfetch-github-copilot-supported-ai-models-2026-04-03_18-01-48.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:27.856754+00:00'
-    title: Registry System Overview
+    last_updated: '2026-04-03T18:01:48.327971+00:00'
+    title: GitHub Copilot Supported AI Models
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/registry.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/incremental.py:
-    content_hash: sha256:e02e77e10fa162b7
-    stored_at: data/staging/webfetch-incremental-update-strategy-2026-04-04_13-32-29.md
+    url: https://docs.github.com/en/copilot/reference/ai-models/supported-models
+  https://docs.windsurf.com/windsurf/models:
+    content_hash: sha256:4203f249d41f4c13
+    stored_at: data/staging/webfetch-complete-list-of-windsurf-ai-models-2026-04-03_18-01-49.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:29.149816+00:00'
-    title: Incremental Update Strategy
+    last_updated: '2026-04-03T18:01:49.624148+00:00'
+    title: Complete List of Windsurf AI Models
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/incremental.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/search.py:
-    content_hash: sha256:b75a73f022515e30
-    stored_at: data/staging/webfetch-semantic-search-in-this-system-2026-04-04_13-32-29.md
+    url: https://docs.windsurf.com/windsurf/models
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20opus%20sonnet%20haiku%20which%20model&tags=story&hitsperpage=10:
+    content_hash: sha256:7a9c0a27b0b7ca90
+    stored_at: data/staging/webfetch-based-on-the-provided-content-there-are-no-2026-04-03_18-01-51.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:29.702599+00:00'
-    title: Semantic Search in This System
+    last_updated: '2026-04-03T18:01:51.813126+00:00'
+    title: Based on the provided content, there are **no stories matching your criteria**.
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/search.py
-  https://github.com/tirth8205/code-review-graph/blob/main/claude.md:
-    content_hash: sha256:f1f437db550538c8
-    stored_at: data/staging/webfetch-claude-code-integration-details-2026-04-04_13-32-31.md
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20opus%20sonnet%20haiku%20which%20model&tags=story&hitsPerPage=10
+  https://forum.cursor.com/t/which-ai-model-in-cursor-ai-is-best-for-coding-tasks/132532:
+    content_hash: sha256:e9e5a14f2451c574
+    stored_at: data/staging/webfetch-ai-model-recommendations-for-coding-in-cursor-2026-04-03_18-01-53.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:31.083970+00:00'
-    title: Claude Code Integration Details
+    last_updated: '2026-04-03T18:01:53.854690+00:00'
+    title: AI Model Recommendations for Coding in Cursor
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/CLAUDE.md
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/prompts.py:
-    content_hash: sha256:0cc034777b5f1c1a
-    stored_at: data/staging/webfetch-available-mcp-prompt-templates-2026-04-04_13-32-37.md
+    url: https://forum.cursor.com/t/which-ai-model-in-cursor-ai-is-best-for-coding-tasks/132532
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20model%20pricing%20cost&tags=story&hitsperpage=10:
+    content_hash: sha256:a94a8196a5a7691e
+    stored_at: data/staging/webfetch-claude-code-pricing-cost-stories-5-points-2026-04-03_18-01-55.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:37.601911+00:00'
-    title: Available MCP Prompt Templates
+    last_updated: '2026-04-03T18:01:55.152877+00:00'
+    title: Claude Code Pricing & Cost Stories (5+ Points)
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/prompts.py
-  https://github.com/tirth8205/code-review-graph/blob/main/docs:
-    content_hash: sha256:d0b00a6a16cd975b
-    stored_at: data/staging/webfetch-documentation-files-in-code-review-graph-2026-04-04_13-32-37.md
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20model%20pricing%20cost&tags=story&hitsPerPage=10
+  https://cursorideguide.com/guides/cursor-model-comparison:
+    content_hash: sha256:547d4ad503d63e14
+    stored_at: data/staging/webfetch-complete-cursor-ai-model-comparison-2026-04-03_18-01-56.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:37.815910+00:00'
-    title: Documentation Files in code-review-graph
+    last_updated: '2026-04-03T18:01:56.940755+00:00'
+    title: Complete Cursor AI Model Comparison
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/docs
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/visualization.py:
-    content_hash: sha256:2531d16a28e8de1e
-    stored_at: data/staging/webfetch-visualization-capabilities-and-rendering-2026-04-04_13-32-38.md
+    url: https://cursorideguide.com/guides/cursor-model-comparison
+  https://github.com/promptengineer48/llm_selector:
+    content_hash: sha256:a819672af24d522a
+    stored_at: data/staging/webfetch-llm-selector-github-repository-2026-04-03_18-01-57.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:38.990655+00:00'
-    title: Visualization Capabilities and Rendering
+    last_updated: '2026-04-03T18:01:57.783842+00:00'
+    title: LLM_Selector GitHub Repository
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/visualization.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/features.md:
-    content_hash: sha256:228e85c6eac64afc
-    stored_at: data/staging/webfetch-code-review-graph-features-capabilities-2026-04-04_13-32-47.md
+    url: https://github.com/PromptEngineer48/LLM_Selector
+  https://github.com/monkwarrior08/model_router:
+    content_hash: sha256:00271a8527eaaf05
+    stored_at: data/staging/webfetch-model-router-ai-powered-task-routing-2026-04-03_18-01-58.md
     importance_score: 50
-    last_updated: '2026-04-04T13:32:47.378086+00:00'
-    title: Code-Review-Graph Features & Capabilities
+    last_updated: '2026-04-03T18:01:58.875641+00:00'
+    title: 'Model Router: AI-Powered Task Routing'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/docs/FEATURES.md
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/constants.py:
-    content_hash: sha256:d5421d9fae6b6ef0
-    stored_at: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-08.md
+    url: https://github.com/MonkWarrior08/Model_Router
+  https://www.faros.ai/blog/best-ai-model-for-coding-2026:
+    content_hash: sha256:c12123dd697bd65b
+    stored_at: data/staging/webfetch-ai-models-for-coding-in-2026-complete-comparison-2026-04-03_18-01-58.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:08.593851+00:00'
-    title: Complete File Contents
+    last_updated: '2026-04-03T18:01:58.941775+00:00'
+    title: 'AI Models for Coding in 2026: Complete Comparison'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/constants.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/flows.py:
-    content_hash: sha256:e8f391443e7190c6
-    stored_at: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-11.md
+    url: https://www.faros.ai/blog/best-ai-model-for-coding-2026
+  https://docs.cursor.com/models:
+    content_hash: sha256:46016fe2d47edd71
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-04-03_18-02-01.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:11.112707+00:00'
-    title: Complete File Contents
+    last_updated: '2026-04-03T18:02:01.859567+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/flows.py
-  https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/communities.py:
-    content_hash: sha256:7b3e6375e3e818e0
-    stored_at: data/staging/webfetch-community-detection-module-for-code-knowledge-2026-04-04_13-43-11.md
+    url: https://docs.cursor.com/models
+  https://github.com/anyscale/llm-router:
+    content_hash: sha256:154bffb5ba4050ef
+    stored_at: data/staging/webfetch-anyscale-llm-router-tutorial-overview-2026-04-03_18-02-03.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:11.128653+00:00'
-    title: Community Detection Module for Code Knowledge Graph
+    last_updated: '2026-04-03T18:02:03.223040+00:00'
+    title: Anyscale LLM Router Tutorial Overview
     maturity: seedling
     routing_type: pending
-    url: https://raw.githubusercontent.com/tirth8205/code-review-graph/main/code_review_graph/communities.py
-  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/communities.py:
-    content_hash: sha256:878cc7beb4107c6a
-    stored_at: data/staging/webfetch-community-detection-algorithms-and-cohesion-2026-04-04_13-43-31.md
+    url: https://github.com/anyscale/llm-router
+  https://zed.dev/docs/ai/models:
+    content_hash: sha256:92df9ad61046a63f
+    stored_at: data/staging/webfetch-complete-list-of-ai-models-available-in-zed-2026-04-03_18-02-08.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:31.057667+00:00'
-    title: Community Detection Algorithms and Cohesion Metrics
+    last_updated: '2026-04-03T18:02:08.763206+00:00'
+    title: Complete List of AI Models Available in Zed
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/communities.py
-  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/graph.py:
-    content_hash: sha256:ce0889db0b28dd3b
-    stored_at: data/staging/webfetch-sqlite-knowledge-graph-storage-engine-source-code-2026-04-04_13-43-31.md
+    url: https://zed.dev/docs/ai/models
+  https://docs.github.com/en/copilot/reference/ai-models/model-comparison:
+    content_hash: sha256:e93204542df632ef
+    stored_at: data/staging/webfetch-github-copilot-ai-model-comparison-summary-2026-04-03_18-02-08.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:31.918357+00:00'
-    title: SQLite Knowledge Graph Storage Engine - Source Code Analysis
+    last_updated: '2026-04-03T18:02:08.812227+00:00'
+    title: GitHub Copilot AI Model Comparison Summary
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/graph.py
-  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/search.py:
-    content_hash: sha256:c9175436743ea818
-    stored_at: data/staging/webfetch-hybrid-search-implementation-analysis-2026-04-04_13-43-32.md
+    url: https://docs.github.com/en/copilot/reference/ai-models/model-comparison
+  https://platform.claude.com/docs/en/about-claude/models/overview:
+    content_hash: sha256:6810d59c341b3aed
+    stored_at: data/staging/webfetch-models-overview-2026-04-03_18-02-10.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:32.036349+00:00'
-    title: Hybrid Search Implementation Analysis
+    last_updated: '2026-04-03T18:02:10.265547+00:00'
+    title: Models overview
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/search.py
-  https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/flows.py:
-    content_hash: sha256:96c01ce29eabfc22
-    stored_at: data/staging/webfetch-code-review-graph-flow-tracing-criticality-2026-04-04_13-43-33.md
+    url: https://platform.claude.com/docs/en/about-claude/models/overview
+  https://lobste.rs/s/s3y1vj/how_i_use_every_claude_code_feature:
+    content_hash: sha256:979c218e3a55f347
+    stored_at: data/staging/webfetch-claude-code-features-discussion-2026-04-03_18-02-10.md
     importance_score: 50
-    last_updated: '2026-04-04T13:43:33.703259+00:00'
-    title: 'Code Review Graph: Flow Tracing & Criticality Analysis'
+    last_updated: '2026-04-03T18:02:10.673704+00:00'
+    title: Claude Code Features Discussion
     maturity: seedling
     routing_type: pending
-    url: https://github.com/tirth8205/code-review-graph/blob/main/code_review_graph/flows.py
-  https://github.com/openclaw/clawhub:
-    content_hash: sha256:ac9278ecc10e9380
-    stored_at: data/staging/webfetch-clawhub-publishing-guide-2026-04-06_05-20-04.md
+    url: https://lobste.rs/s/s3y1vj/how_i_use_every_claude_code_feature
+  https://lobste.rs/s/iqyqm3/6_weeks_claude_code:
+    content_hash: sha256:42a831ad3677b1b2
+    stored_at: data/staging/webfetch-claude-code-discussion-summary-2026-04-03_18-02-12.md
     importance_score: 50
-    last_updated: '2026-04-06T05:20:04.639518+00:00'
-    title: ClawHub Publishing Guide
+    last_updated: '2026-04-03T18:02:12.019724+00:00'
+    title: Claude Code Discussion Summary
     maturity: seedling
     routing_type: pending
-    url: https://github.com/openclaw/clawhub
-  https://hn.algolia.com/api/v1/search?query=mermaid%20diagram%20styling%20readable&tags=story&hitsperpage=10:
-    content_hash: sha256:708a129e0f4bf0fa
-    stored_at: data/staging/webfetch-story-hits-2026-04-07_13-55-59.md
+    url: https://lobste.rs/s/iqyqm3/6_weeks_claude_code
+  https://dev.to/nedcodes/i-tested-whether-cursors-auto-mode-actually-picks-the-right-model-20ml:
+    content_hash: sha256:25db61fca33992d9
+    stored_at: data/staging/webfetch-cursor-auto-mode-testing-analysis-2026-04-03_18-02-13.md
     importance_score: 50
-    last_updated: '2026-04-07T13:55:59.231566+00:00'
-    title: Story Hits
+    last_updated: '2026-04-03T18:02:13.433001+00:00'
+    title: Cursor Auto Mode Testing Analysis
     maturity: seedling
     routing_type: pending
-    url: https://hn.algolia.com/api/v1/search?query=mermaid%20diagram%20styling%20readable&tags=story&hitsPerPage=10
-  https://hn.algolia.com/api/v1/search?query=mermaid%20chart%20complex%20graph%20layout&tags=story&hitsperpage=10:
-    content_hash: sha256:f8170b7b5d63f50f
-    stored_at: data/staging/webfetch-story-hits-extract-2026-04-07_13-56-00.md
+    url: https://dev.to/nedcodes/i-tested-whether-cursors-auto-mode-actually-picks-the-right-model-20ml
+  https://github.com/llmselector/llmselector:
+    content_hash: sha256:883ca18b8702b43c
+    stored_at: data/staging/webfetch-llmselector-llm-selection-framework-for-compound-2026-04-03_18-02-13.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:00.243332+00:00'
-    title: Story Hits Extract
+    last_updated: '2026-04-03T18:02:13.947589+00:00'
+    title: 'LLMSELECTOR: LLM Selection Framework for Compound AI Systems'
     maturity: seedling
     routing_type: pending
-    url: https://hn.algolia.com/api/v1/search?query=mermaid%20chart%20complex%20graph%20layout&tags=story&hitsPerPage=10
-  https://mermaid.js.org/syntax/block.html:
-    content_hash: sha256:5d1b69a21bb53656
-    stored_at: data/staging/webfetch-mermaid-block-diagram-syntax-guide-2026-04-07_13-56-15.md
+    url: https://github.com/LLMSELECTOR/LLMSELECTOR
+  https://forum.cursor.com/t/how-to-optimize-your-usage-the-best-ai-models-to-use-version-3-0/145657:
+    content_hash: sha256:b4925d5e839c3887
+    stored_at: data/staging/webfetch-cursor-model-optimization-guide-summary-2026-04-03_18-02-14.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:15.079716+00:00'
-    title: Mermaid Block Diagram Syntax Guide
+    last_updated: '2026-04-03T18:02:14.149203+00:00'
+    title: Cursor Model Optimization Guide Summary
     maturity: seedling
     routing_type: pending
-    url: https://mermaid.js.org/syntax/block.html
-  https://mermaid.js.org/config/theming.html:
-    content_hash: sha256:80751a993728248e
-    stored_at: data/staging/webfetch-mermaid-theming-and-styling-guide-2026-04-07_13-56-16.md
+    url: https://forum.cursor.com/t/how-to-optimize-your-usage-the-best-ai-models-to-use-version-3-0/145657
+  https://releasebot.io/updates/cursor:
+    content_hash: sha256:d665cf277911be2d
+    stored_at: data/staging/webfetch-cursor-release-notes-2026-summary-2026-04-03_18-02-16.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:16.310606+00:00'
-    title: Mermaid Theming and Styling Guide
+    last_updated: '2026-04-03T18:02:16.577506+00:00'
+    title: Cursor Release Notes - 2026 Summary
     maturity: seedling
     routing_type: pending
-    url: https://mermaid.js.org/config/theming.html
-  https://hn.algolia.com/api/v1/search?query=mermaid%20diagram&tags=story&hitsperpage=15:
-    content_hash: sha256:3cd4012701370092
-    stored_at: data/staging/webfetch-mermaid-diagram-stories-points-5-2026-04-07_13-56-19.md
+    url: https://releasebot.io/updates/cursor
+  https://claudelab.net/en/articles/claude-code/claude-code-model-selection-opusplan-strategy:
+    content_hash: sha256:ee1299dcc085568c
+    stored_at: data/staging/webfetch-claude-code-model-selection-strategy-complete-2026-04-03_18-02-16.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:19.672735+00:00'
-    title: Mermaid Diagram Stories (Points > 5)
+    last_updated: '2026-04-03T18:02:16.642038+00:00'
+    title: 'Claude Code Model Selection Strategy: Complete Guide'
     maturity: seedling
     routing_type: pending
-    url: https://hn.algolia.com/api/v1/search?query=mermaid%20diagram&tags=story&hitsPerPage=15
-  https://github.com/rudolfolah/mermaid-diagram-examples:
-    content_hash: sha256:5b0dcfa5d348a643
-    stored_at: data/staging/webfetch-mermaid-diagram-examples-repository-analysis-2026-04-07_13-56-25.md
+    url: https://claudelab.net/en/articles/claude-code/claude-code-model-selection-opusplan-strategy
+  https://www.benday.com/blog/copilot-billing-2026:
+    content_hash: sha256:559558d0d1b81228
+    stored_at: data/staging/webfetch-github-copilot-premium-request-multipliers-2026-04-03_18-02-23.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:25.712026+00:00'
-    title: Mermaid Diagram Examples Repository Analysis
+    last_updated: '2026-04-03T18:02:23.026838+00:00'
+    title: GitHub Copilot Premium Request Multipliers & Billing Guide
     maturity: seedling
     routing_type: pending
-    url: https://github.com/rudolfolah/mermaid-diagram-examples
-  https://github.com/lukilabs/beautiful-mermaid:
-    content_hash: sha256:e6012a35f7d65fd5
-    stored_at: data/staging/webfetch-beautiful-mermaid-readme-analysis-2026-04-07_13-56-26.md
+    url: https://www.benday.com/blog/copilot-billing-2026
+  https://frontendmasters.com/blog/choosing-the-right-model-in-cursor:
+    content_hash: sha256:4c4234b700ff17cf
+    stored_at: data/staging/webfetch-cursor-model-selection-guide-2026-04-03_18-02-24.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:26.179511+00:00'
-    title: Beautiful-Mermaid README Analysis
+    last_updated: '2026-04-03T18:02:24.131751+00:00'
+    title: Cursor Model Selection Guide
     maturity: seedling
     routing_type: pending
-    url: https://github.com/lukilabs/beautiful-mermaid
-  https://mermaid.js.org/syntax/flowchart.html:
-    content_hash: sha256:7941e2280e2c8769
-    stored_at: data/staging/webfetch-mermaid-flowchart-comprehensive-reference-2026-04-07_13-56-27.md
+    url: https://frontendmasters.com/blog/choosing-the-right-model-in-cursor/
+  https://github.com/aurelio-labs/semantic-router:
+    content_hash: sha256:af262925c56bea2f
+    stored_at: data/staging/webfetch-semantic-router-core-architecture-analysis-2026-04-03_18-02-26.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:27.589549+00:00'
-    title: Mermaid Flowchart Comprehensive Reference
+    last_updated: '2026-04-03T18:02:26.967397+00:00'
+    title: 'Semantic Router: Core Architecture Analysis'
     maturity: seedling
     routing_type: pending
-    url: https://mermaid.js.org/syntax/flowchart.html
-  https://github.com/joserprieto/ai-diagrams-toolkit:
-    content_hash: sha256:13225ee039978c28
-    stored_at: data/staging/webfetch-ai-diagrams-toolkit-mermaid-examples-extract-2026-04-07_13-56-28.md
+    url: https://github.com/aurelio-labs/semantic-router
+  https://lobste.rs/s/1gngny/how_i_write_code_using_cursor_review:
+    content_hash: sha256:c1d7244306126689
+    stored_at: data/staging/webfetch-model-discussion-summary-2026-04-03_18-02-34.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:28.354582+00:00'
-    title: AI Diagrams Toolkit - Mermaid Examples Extract
+    last_updated: '2026-04-03T18:02:34.465902+00:00'
+    title: Model Discussion Summary
     maturity: seedling
     routing_type: pending
-    url: https://github.com/joserprieto/ai-diagrams-toolkit
-  https://github.com/jakesteam/mermaid:
-    content_hash: sha256:9faf5912cf02cfa8
-    stored_at: data/staging/webfetch-jakesteam-mermaid-repository-analysis-2026-04-07_13-56-30.md
+    url: https://lobste.rs/s/1gngny/how_i_write_code_using_cursor_review
+  https://www.vantage.sh/blog/cursor-pricing-explained:
+    content_hash: sha256:f449bd19d79ac8e4
+    stored_at: data/staging/webfetch-cursor-pricing-breakdown-2026-04-03_18-02-38.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:30.239739+00:00'
-    title: JakeSteam/Mermaid Repository Analysis
+    last_updated: '2026-04-03T18:02:38.599762+00:00'
+    title: Cursor Pricing Breakdown
     maturity: seedling
     routing_type: pending
-    url: https://github.com/JakeSteam/Mermaid
-  https://gist.github.com/christophera/bffddfdf7b1502215e44cec9fb766dfd:
-    content_hash: sha256:4511c7817dc635ee
-    stored_at: data/staging/webfetch-mermaid-diagram-code-examples-from-gist-2026-04-07_13-56-31.md
+    url: https://www.vantage.sh/blog/cursor-pricing-explained
+  https://github.com/features/copilot/plans:
+    content_hash: sha256:e02f5e1f6fda2966
+    stored_at: data/staging/webfetch-github-copilot-pricing-tiers-2026-04-03_18-02-39.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:31.522684+00:00'
-    title: Mermaid Diagram Code Examples from Gist
+    last_updated: '2026-04-03T18:02:39.059984+00:00'
+    title: GitHub Copilot Pricing Tiers
     maturity: seedling
     routing_type: pending
-    url: https://gist.github.com/ChristopherA/bffddfdf7b1502215e44cec9fb766dfd
-  https://blog.korny.info/2025/03/14/mermaid-js-revisited:
-    content_hash: sha256:b18436b76cd50263
-    stored_at: data/staging/webfetch-mermaid-diagram-readability-tips-techniques-2026-04-07_13-56-33.md
+    url: https://github.com/features/copilot/plans
+  https://blog.logrocket.com/ai-dev-tool-power-rankings:
+    content_hash: sha256:a8b7160f43ad64c8
+    stored_at: data/staging/webfetch-ai-dev-tools-power-rankings-march-2026-2026-04-03_18-02-42.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:33.197899+00:00'
-    title: Mermaid Diagram Readability Tips & Techniques
+    last_updated: '2026-04-03T18:02:42.314787+00:00'
+    title: AI Dev Tools Power Rankings - March 2026
     maturity: seedling
     routing_type: pending
-    url: https://blog.korny.info/2025/03/14/mermaid-js-revisited
-  https://www.kallemarjokorpi.fi/blog/mastering-diagramming-as-code-essential-mermaid-flowchart-tips-and-tricks-2:
-    content_hash: sha256:cbd8c9462b9007e3
-    stored_at: data/staging/webfetch-mermaid-flowchart-tips-and-techniques-2026-04-07_13-56-33.md
+    url: https://blog.logrocket.com/ai-dev-tool-power-rankings/
+  https://lobste.rs/s/wj1kn0/tale_two_claudes:
+    content_hash: sha256:c32d469359be3779
+    stored_at: data/staging/webfetch-claude-model-comparisons-opus-vs-sonnet-2026-04-03_18-02-50.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:33.693959+00:00'
-    title: Mermaid Flowchart Tips and Techniques
+    last_updated: '2026-04-03T18:02:50.266137+00:00'
+    title: 'Claude Model Comparisons: Opus vs Sonnet'
     maturity: seedling
     routing_type: pending
-    url: https://www.kallemarjokorpi.fi/blog/mastering-diagramming-as-code-essential-mermaid-flowchart-tips-and-tricks-2/
-  https://stephenkernan.com/blog/how-to-style-mermaid-edge-labels:
-    content_hash: sha256:55204226b90daec7
-    stored_at: data/staging/webfetch-styling-mermaid-edge-labels-techniques-and-code-2026-04-07_13-56-35.md
+    url: https://lobste.rs/s/wj1kn0/tale_two_claudes
+  https://cursor.com/blog/composer-2:
+    content_hash: sha256:c983d84f4bd3f830
+    stored_at: data/staging/webfetch-composer-2-complete-details-2026-04-03_18-02-54.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:35.989427+00:00'
-    title: 'Styling Mermaid Edge Labels: Techniques and Code'
+    last_updated: '2026-04-03T18:02:54.406528+00:00'
+    title: 'Composer 2: Complete Details'
     maturity: seedling
     routing_type: pending
-    url: https://stephenkernan.com/blog/how-to-style-mermaid-edge-labels
-  https://lobste.rs/s/0dxhvv/mermaid_generation_diagram_flowchart:
-    content_hash: sha256:db30316bf3a5a451
-    stored_at: data/staging/webfetch-mermaid-diagram-tips-tool-comparisons-2026-04-07_13-56-45.md
+    url: https://cursor.com/blog/composer-2
+  https://www.tldl.io/resources/ai-coding-tools-2026:
+    content_hash: sha256:06b46faa68114cf8
+    stored_at: data/staging/webfetch-ai-coding-tools-benchmarks-pricing-recommendations-2026-04-03_18-02-57.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:45.261462+00:00'
-    title: Mermaid Diagram Tips & Tool Comparisons
+    last_updated: '2026-04-03T18:02:57.087470+00:00'
+    title: 'AI Coding Tools: Benchmarks, Pricing & Recommendations'
     maturity: seedling
     routing_type: pending
-    url: https://lobste.rs/s/0dxhvv/mermaid_generation_diagram_flowchart
-  https://news.ycombinator.com/item?id=31273777:
-    content_hash: sha256:762c3189a7b3d3fb
-    stored_at: data/staging/webfetch-mermaid-diagram-styling-and-best-practices-from-2026-04-07_13-56-51.md
+    url: https://www.tldl.io/resources/ai-coding-tools-2026
+  https://www.morphllm.com/claude-code-models:
+    content_hash: sha256:6917830ac7c206e9
+    stored_at: data/staging/webfetch-claude-code-models-comprehensive-comparison-guide-2026-04-03_18-02-57.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:51.535642+00:00'
-    title: Mermaid Diagram Styling and Best Practices from HN Discussion
+    last_updated: '2026-04-03T18:02:57.944992+00:00'
+    title: 'Claude Code Models: Comprehensive Comparison Guide'
     maturity: seedling
     routing_type: pending
-    url: https://news.ycombinator.com/item?id=31273777
-  https://github.com/oh-my-mermaid/oh-my-mermaid:
-    content_hash: sha256:e29818385b3f21d6
-    stored_at: data/staging/webfetch-oh-my-mermaid-repository-analysis-2026-04-07_13-56-55.md
+    url: https://www.morphllm.com/claude-code-models
+  https://guptadeepak.com/top-5-ai-coding-assistants-of-2026-cursor-copilot-windsurf-claude-code-and-tabnine-compared:
+    content_hash: sha256:77f379315ee3f3c1
+    stored_at: data/staging/webfetch-ai-coding-assistants-comparison-2026-2026-04-03_18-02-58.md
     importance_score: 50
-    last_updated: '2026-04-07T13:56:55.152750+00:00'
-    title: Oh-my-mermaid Repository Analysis
+    last_updated: '2026-04-03T18:02:58.853257+00:00'
+    title: AI Coding Assistants Comparison 2026
     maturity: seedling
     routing_type: pending
-    url: https://github.com/oh-my-mermaid/oh-my-mermaid
-  https://github.com/mermaid-js/mermaid/blob/develop/docs/syntax/flowchart.md:
-    content_hash: sha256:777d8d925a232592
-    stored_at: data/staging/webfetch-mermaid-flowchart-syntax-examples-2026-04-07_13-57-00.md
+    url: https://guptadeepak.com/top-5-ai-coding-assistants-of-2026-cursor-copilot-windsurf-claude-code-and-tabnine-compared/
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20opus%20cost%20sonnet&tags=story&hitsperpage=15:
+    content_hash: sha256:1bab7d91a8bd1600
+    stored_at: data/staging/webfetch-claude-code-cost-model-comparison-stories-2026-04-03_18-03-10.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:00.979630+00:00'
-    title: Mermaid Flowchart Syntax Examples
+    last_updated: '2026-04-03T18:03:10.028653+00:00'
+    title: Claude Code Cost & Model Comparison Stories
     maturity: seedling
     routing_type: pending
-    url: https://github.com/mermaid-js/mermaid/blob/develop/docs/syntax/flowchart.md
-  https://gist.github.com/gingergraham/66a1e586fe2addbc6375b1fba1d2818c:
-    content_hash: sha256:06c1bff4e3031925
-    stored_at: data/staging/webfetch-mermaid-diagram-examples-from-the-gist-2026-04-07_13-57-02.md
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20opus%20cost%20sonnet&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=routellm%20model%20routing&tags=story&hitsperpage=10:
+    content_hash: sha256:3368a78d2e309e33
+    stored_at: data/staging/webfetch-search-results-for-llm-routing-2026-04-03_18-16-16.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:02.875753+00:00'
-    title: Mermaid Diagram Examples from the Gist
+    last_updated: '2026-04-03T18:16:16.234961+00:00'
+    title: Search Results for LLM Routing
     maturity: seedling
     routing_type: pending
-    url: https://gist.github.com/GingerGraham/66a1e586fe2addbc6375b1fba1d2818c
-  https://news.ycombinator.com/item?id=46571980:
-    content_hash: sha256:15840b26c7d4f9ce
-    stored_at: data/staging/webfetch-mermaid-diagram-rendering-discussion-summary-2026-04-07_13-57-04.md
+    url: https://hn.algolia.com/api/v1/search?query=RouteLLM%20model%20routing&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20model%20selection%20cost%20optimization&tags=story&hitsperpage=10:
+    content_hash: sha256:79c38002df12eb01
+    stored_at: data/staging/webfetch-llm-cost-optimization-stories-2026-04-03_18-16-18.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:04.507766+00:00'
-    title: Mermaid Diagram Rendering Discussion Summary
+    last_updated: '2026-04-03T18:16:18.185744+00:00'
+    title: LLM Cost Optimization Stories
     maturity: seedling
     routing_type: pending
-    url: https://news.ycombinator.com/item?id=46571980
-  https://github.com/iurysza/module-graph:
-    content_hash: sha256:1f873478e123ba8f
-    stored_at: data/staging/webfetch-module-graph-plugin-mermaid-diagram-analysis-2026-04-07_13-57-07.md
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20model%20selection%20cost%20optimization&tags=story&hitsPerPage=10
+  https://docs.cursor.com/account/models:
+    content_hash: sha256:1eccdc2804b5dc01
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-04-03_18-16-20.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:07.170899+00:00'
-    title: Module Graph Plugin - Mermaid Diagram Analysis
+    last_updated: '2026-04-03T18:16:20.823548+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
     maturity: seedling
     routing_type: pending
-    url: https://github.com/iurysza/module-graph
-  https://jackliusr.github.io/posts/2024/08/mermaid-flow-with-subgraph-control:
-    content_hash: sha256:e9358a7e8cab12e6
-    stored_at: data/staging/webfetch-mermaid-subgraph-control-techniques-2026-04-07_13-57-19.md
+    url: https://docs.cursor.com/account/models
+  https://www.cursor.com/pricing:
+    content_hash: sha256:41f28ef197526ecc
+    stored_at: data/staging/webfetch-cursor-pricing-page-models-and-pricing-information-2026-04-03_18-16-27.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:19.942057+00:00'
-    title: Mermaid Subgraph Control Techniques
+    last_updated: '2026-04-03T18:16:27.494587+00:00'
+    title: Cursor Pricing Page - Models and Pricing Information
     maturity: seedling
     routing_type: pending
-    url: https://jackliusr.github.io/posts/2024/08/mermaid-flow-with-subgraph-control/
-  https://news.ycombinator.com/item?id=46804828:
-    content_hash: sha256:20a97277103c6439
-    stored_at: data/staging/webfetch-mermaid-diagram-aesthetics-and-rendering-2026-04-07_13-57-25.md
+    url: https://www.cursor.com/pricing
+  https://www.lmsys.org/blog/2024-07-01-routellm:
+    content_hash: sha256:3a127a0bf9ca9b3c
+    stored_at: data/staging/webfetch-routellm-technical-analysis-2026-04-03_18-16-39.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:25.378818+00:00'
-    title: Mermaid Diagram Aesthetics and Rendering Discussion
+    last_updated: '2026-04-03T18:16:39.930849+00:00'
+    title: 'RouteLLM: Technical Analysis'
     maturity: seedling
     routing_type: pending
-    url: https://news.ycombinator.com/item?id=46804828
-  https://github.com/mermaid-js/mermaid/blob/develop/readme.md?plain=1:
-    content_hash: sha256:5b7f6b49084090b9
-    stored_at: data/staging/webfetch-mermaid-diagram-syntax-examples-from-readme-2026-04-07_13-57-25.md
+    url: https://www.lmsys.org/blog/2024-07-01-routellm/
+  https://arxiv.org/html/2406.18665v1:
+    content_hash: sha256:34313b2346d784d0
+    stored_at: data/staging/webfetch-mathematical-formulas-from-routellm-paper-2026-04-03_18-16-41.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:25.968965+00:00'
-    title: Mermaid Diagram Syntax Examples from README
+    last_updated: '2026-04-03T18:16:41.468647+00:00'
+    title: Mathematical Formulas from RouteLLM Paper
     maturity: seedling
     routing_type: pending
-    url: https://github.com/mermaid-js/mermaid/blob/develop/README.md?plain=1
-  https://github.com/wassim249/fastapi-langgraph-agent-production-ready-template:
-    content_hash: sha256:b1960024b7285bb4
-    stored_at: data/staging/webfetch-mermaid-diagram-analysis-2026-04-07_13-57-26.md
+    url: https://arxiv.org/html/2406.18665v1
+  ? https://hn.algolia.com/api/v1/search?query=github%20copilot%20models%20windsurf%20claude%20code%20ai%20coding%20models%202026&tags=story&hitsperpage=10
+  : content_hash: sha256:b608477c01c708a3
+    stored_at: data/staging/webfetch-filtered-story-results-2026-04-03_18-16-49.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:26.717686+00:00'
-    title: Mermaid Diagram Analysis
+    last_updated: '2026-04-03T18:16:49.455697+00:00'
+    title: Filtered Story Results
     maturity: seedling
     routing_type: pending
-    url: https://github.com/wassim249/fastapi-langgraph-agent-production-ready-template
-  https://www.drawio.com/blog/mermaid-elk-layout:
-    content_hash: sha256:8e67d28596f291a2
-    stored_at: data/staging/webfetch-elk-layout-for-mermaid-diagrams-in-draw-io-2026-04-07_13-57-28.md
+    url: https://hn.algolia.com/api/v1/search?query=GitHub%20Copilot%20models%20Windsurf%20Claude%20Code%20AI%20coding%20models%202026&tags=story&hitsPerPage=10
+  https://www.lmsys.org/blog/2023-12-07-leaderboard:
+    content_hash: sha256:79f59dc0510977a1
+    stored_at: data/staging/webfetch-bradley-terry-model-formulas-from-chatbot-arena-2026-04-03_18-16-56.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:28.581379+00:00'
-    title: ELK Layout for Mermaid Diagrams in draw.io
+    last_updated: '2026-04-03T18:16:56.289140+00:00'
+    title: Bradley-Terry Model Formulas from Chatbot Arena
     maturity: seedling
     routing_type: pending
-    url: https://www.drawio.com/blog/mermaid-elk-layout
-  https://github.com/mermaid-js/mermaid:
-    content_hash: sha256:dc42b4d94a646154
-    stored_at: data/staging/webfetch-mermaid-repository-information-2026-04-07_13-57-35.md
+    url: https://www.lmsys.org/blog/2023-12-07-leaderboard/
+  https://arxiv.org/html/2509.12886v1:
+    content_hash: sha256:459073d4cdffd11d
+    stored_at: data/staging/webfetch-mathematical-formulas-for-llm-difficulty-2026-04-03_18-16-57.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:35.207344+00:00'
-    title: Mermaid Repository Information
+    last_updated: '2026-04-03T18:16:57.845750+00:00'
+    title: Mathematical Formulas for LLM Difficulty Estimation
     maturity: seedling
     routing_type: pending
-    url: https://github.com/mermaid-js/mermaid
-  https://github.com/daikimat/depermaid:
-    content_hash: sha256:abc0943c39ff2499
-    stored_at: data/staging/webfetch-depermaid-swift-package-dependency-visualization-2026-04-07_13-57-35.md
+    url: https://arxiv.org/html/2509.12886v1
+  https://docs.github.com/en/copilot/concepts/billing/copilot-requests:
+    content_hash: sha256:d88d145b95944f8a
+    stored_at: data/staging/webfetch-github-copilot-ai-models-complete-list-2026-04-03_18-17-02.md
     importance_score: 50
-    last_updated: '2026-04-07T13:57:35.488035+00:00'
-    title: 'Depermaid: Swift Package Dependency Visualization'
+    last_updated: '2026-04-03T18:17:02.967095+00:00'
+    title: GitHub Copilot AI Models - Complete List
     maturity: seedling
     routing_type: pending
-    url: https://github.com/daikimat/depermaid
+    url: https://docs.github.com/en/copilot/concepts/billing/copilot-requests
+  https://docs.github.com/en/billing/concepts/product-billing/github-copilot-premium-requests:
+    content_hash: sha256:007d2b19a6c0de9b
+    stored_at: data/staging/webfetch-premium-request-multiplier-information-2026-04-03_18-17-03.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:03.980850+00:00'
+    title: Premium Request Multiplier Information
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.github.com/en/billing/concepts/product-billing/github-copilot-premium-requests
+  https://hn.algolia.com/api/v1/search?query=copilot+windsurf+claude+code+model+comparison&tags=story&hitsperpage=10:
+    content_hash: sha256:757be70986f8bbc4
+    stored_at: data/staging/webfetch-search-results-2026-04-03_18-17-14.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:14.904881+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Copilot+Windsurf+Claude+Code+model+comparison&tags=story&hitsPerPage=10
+  https://hippocampus-garden.com/elo_vs_bt:
+    content_hash: sha256:6770d34ce6a32957
+    stored_at: data/staging/webfetch-the-content-consists-entirely-of-2026-04-03_18-17-19.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:19.808113+00:00'
+    title: 'The content consists entirely of:'
+    maturity: seedling
+    routing_type: pending
+    url: https://hippocampus-garden.com/elo_vs_bt/
+  https://hn.algolia.com/api/v1/search?query=ai+coding+assistant+models+2026+comparison&tags=story&hitsperpage=10:
+    content_hash: sha256:5c6f734c4ed096ae
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-04-03_18-17-22.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:22.440611+00:00'
+    title: Based on the web page content provided, there are **no stories to extract**.
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI+coding+assistant+models+2026+comparison&tags=story&hitsPerPage=10
+  https://docs.github.com/en/copilot/get-started/plans:
+    content_hash: sha256:e86a6ac7284ca35a
+    stored_at: data/staging/webfetch-github-copilot-model-availability-by-plan-2026-04-03_18-17-28.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:28.966161+00:00'
+    title: GitHub Copilot Model Availability by Plan
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.github.com/en/copilot/get-started/plans
+  https://localaimaster.com/models/best-ai-coding-models:
+    content_hash: sha256:967f0f2e81e694bc
+    stored_at: data/staging/webfetch-benchmark-scores-analysis-2026-04-03_18-17-31.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:31.892102+00:00'
+    title: Benchmark Scores Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://localaimaster.com/models/best-ai-coding-models
+  https://arxiv.org/pdf/2403.04132:
+    content_hash: sha256:d21ff30cf0a9392c
+    stored_at: data/staging/webfetch-mathematical-formulas-not-found-2026-04-03_18-17-34.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:34.452614+00:00'
+    title: Mathematical Formulas - Not Found
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/pdf/2403.04132
+  ? https://hn.algolia.com/api/v1/search?query=ai+coding+tools+models+copilot+cursor+windsurf+2025+2026&tags=story&hitsperpage=15
+  : content_hash: sha256:5cfc25e98cbef762
+    stored_at: data/staging/webfetch-stories-with-score-5-2026-04-03_18-17-38.md
+    importance_score: 50
+    last_updated: '2026-04-03T18:17:38.635636+00:00'
+    title: Stories with Score > 5
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI+coding+tools+models+Copilot+Cursor+Windsurf+2025+2026&tags=story&hitsPerPage=15
+  https://arxiv.org/abs/2406.18665:
+    content_hash: sha256:465650c5a5c3434f
+    stored_at: data/staging/webfetch-to-obtain-these-formulas-you-would-need-to-2026-04-03_21-28-25.md
+    importance_score: 50
+    last_updated: '2026-04-03T21:28:25.290305+00:00'
+    title: '**To obtain these formulas, you would need to:**'
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2406.18665
+  https://arxiv.org/html/2406.18665v4:
+    content_hash: sha256:2315870bdc1b738b
+    stored_at: data/staging/webfetch-mathematical-formulas-from-routellm-paper-2026-04-03_21-28-44.md
+    importance_score: 50
+    last_updated: '2026-04-03T21:28:44.394620+00:00'
+    title: Mathematical Formulas from RouteLLM Paper
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2406.18665v4
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -697,66 +787,76 @@ hashes:
   sha256:af997a33286650b9: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
   sha256:7da53dc23bf9551d: data/staging/webfetch-documentation-index-2026-03-28_18-47-57.md
   sha256:b5c706f7b99f5f0d: data/staging/webfetch-persona-text-generation-in-oasishost-2026-04-01_19-53-32.md
-  sha256:77741f50a8b4f364: data/staging/webfetch-snip-ai-powered-visual-output-for-code-agents-2026-04-03_23-22-13.md
-  sha256:6ac62806fb4bd1c8: data/staging/webfetch-repository-analysis-snip-2026-04-03_23-22-20.md
-  sha256:1e3488dabf595d8f: data/staging/webfetch-snip-repository-structure-2026-04-03_23-46-07.md
-  sha256:63b96ae718112571: data/staging/webfetch-code-review-graph-project-overview-2026-04-04_06-06-21.md
-  sha256:b2e73337b2674a51: data/staging/webfetch-code-review-graph-repository-structure-2026-04-04_06-06-31.md
-  sha256:dbc0c2d6cd080eac: data/staging/webfetch-model-context-protocol-configuration-2026-04-04_06-06-37.md
-  sha256:1b30169588791bb1: data/staging/webfetch-project-metadata-and-dependencies-2026-04-04_06-06-37.md
-  sha256:04dec5d1244bb1d8: data/staging/webfetch-based-on-the-provided-content-the-main-2026-04-04_06-06-39.md
-  sha256:b643794b74272832: data/staging/webfetch-code-knowledge-graph-implementation-2026-04-04_06-06-51.md
-  sha256:265969ca01c205f6: data/staging/webfetch-how-claude-code-parses-using-tree-sitter-2026-04-04_06-06-52.md
-  sha256:b82f812328ea59ca: data/staging/webfetch-claude-specific-documentation-overview-2026-04-04_06-07-03.md
-  sha256:087412d0c3ba5eeb: data/staging/webfetch-system-architecture-overview-2026-04-04_06-07-04.md
-  sha256:13b9f0058cec6bc4: data/staging/webfetch-code-review-graph-vs-code-extension-2026-04-04_06-07-14.md
-  sha256:8a06542e7072bb16: data/staging/webfetch-recent-major-features-and-improvements-2026-04-04_06-07-23.md
-  sha256:36398b956f2c1b03: data/staging/webfetch-python-files-in-code-review-graph-directory-2026-04-04_13-32-03.md
-  sha256:0d85500c43d12c27: data/staging/webfetch-cli-commands-for-code-review-graph-2026-04-04_13-32-10.md
-  sha256:281b5fc908b27085: data/staging/webfetch-blast-radius-analysis-how-it-works-2026-04-04_13-32-19.md
-  sha256:fb71aba37bbdffef: data/staging/webfetch-mcp-integration-for-code-review-graph-2026-04-04_13-32-20.md
-  sha256:407fb9b4c03c62c9: data/staging/webfetch-code-review-graph-mcp-entry-point-analysis-2026-04-04_13-32-21.md
-  sha256:8964e415e033ab15: data/staging/webfetch-registry-system-overview-2026-04-04_13-32-27.md
-  sha256:e02e77e10fa162b7: data/staging/webfetch-incremental-update-strategy-2026-04-04_13-32-29.md
-  sha256:b75a73f022515e30: data/staging/webfetch-semantic-search-in-this-system-2026-04-04_13-32-29.md
-  sha256:f1f437db550538c8: data/staging/webfetch-claude-code-integration-details-2026-04-04_13-32-31.md
-  sha256:0cc034777b5f1c1a: data/staging/webfetch-available-mcp-prompt-templates-2026-04-04_13-32-37.md
-  sha256:d0b00a6a16cd975b: data/staging/webfetch-documentation-files-in-code-review-graph-2026-04-04_13-32-37.md
-  sha256:2531d16a28e8de1e: data/staging/webfetch-visualization-capabilities-and-rendering-2026-04-04_13-32-38.md
-  sha256:228e85c6eac64afc: data/staging/webfetch-code-review-graph-features-capabilities-2026-04-04_13-32-47.md
-  sha256:d5421d9fae6b6ef0: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-08.md
-  sha256:e8f391443e7190c6: data/staging/webfetch-complete-file-contents-2026-04-04_13-43-11.md
-  sha256:7b3e6375e3e818e0: data/staging/webfetch-community-detection-module-for-code-knowledge-2026-04-04_13-43-11.md
-  sha256:878cc7beb4107c6a: data/staging/webfetch-community-detection-algorithms-and-cohesion-2026-04-04_13-43-31.md
-  sha256:ce0889db0b28dd3b: data/staging/webfetch-sqlite-knowledge-graph-storage-engine-source-code-2026-04-04_13-43-31.md
-  sha256:c9175436743ea818: data/staging/webfetch-hybrid-search-implementation-analysis-2026-04-04_13-43-32.md
-  sha256:96c01ce29eabfc22: data/staging/webfetch-code-review-graph-flow-tracing-criticality-2026-04-04_13-43-33.md
-  sha256:ac9278ecc10e9380: data/staging/webfetch-clawhub-publishing-guide-2026-04-06_05-20-04.md
-  sha256:708a129e0f4bf0fa: data/staging/webfetch-story-hits-2026-04-07_13-55-59.md
-  sha256:f8170b7b5d63f50f: data/staging/webfetch-story-hits-extract-2026-04-07_13-56-00.md
-  sha256:5d1b69a21bb53656: data/staging/webfetch-mermaid-block-diagram-syntax-guide-2026-04-07_13-56-15.md
-  sha256:80751a993728248e: data/staging/webfetch-mermaid-theming-and-styling-guide-2026-04-07_13-56-16.md
-  sha256:3cd4012701370092: data/staging/webfetch-mermaid-diagram-stories-points-5-2026-04-07_13-56-19.md
-  sha256:5b0dcfa5d348a643: data/staging/webfetch-mermaid-diagram-examples-repository-analysis-2026-04-07_13-56-25.md
-  sha256:e6012a35f7d65fd5: data/staging/webfetch-beautiful-mermaid-readme-analysis-2026-04-07_13-56-26.md
-  sha256:7941e2280e2c8769: data/staging/webfetch-mermaid-flowchart-comprehensive-reference-2026-04-07_13-56-27.md
-  sha256:13225ee039978c28: data/staging/webfetch-ai-diagrams-toolkit-mermaid-examples-extract-2026-04-07_13-56-28.md
-  sha256:9faf5912cf02cfa8: data/staging/webfetch-jakesteam-mermaid-repository-analysis-2026-04-07_13-56-30.md
-  sha256:4511c7817dc635ee: data/staging/webfetch-mermaid-diagram-code-examples-from-gist-2026-04-07_13-56-31.md
-  sha256:b18436b76cd50263: data/staging/webfetch-mermaid-diagram-readability-tips-techniques-2026-04-07_13-56-33.md
-  sha256:cbd8c9462b9007e3: data/staging/webfetch-mermaid-flowchart-tips-and-techniques-2026-04-07_13-56-33.md
-  sha256:55204226b90daec7: data/staging/webfetch-styling-mermaid-edge-labels-techniques-and-code-2026-04-07_13-56-35.md
-  sha256:db30316bf3a5a451: data/staging/webfetch-mermaid-diagram-tips-tool-comparisons-2026-04-07_13-56-45.md
-  sha256:762c3189a7b3d3fb: data/staging/webfetch-mermaid-diagram-styling-and-best-practices-from-2026-04-07_13-56-51.md
-  sha256:e29818385b3f21d6: data/staging/webfetch-oh-my-mermaid-repository-analysis-2026-04-07_13-56-55.md
-  sha256:777d8d925a232592: data/staging/webfetch-mermaid-flowchart-syntax-examples-2026-04-07_13-57-00.md
-  sha256:06c1bff4e3031925: data/staging/webfetch-mermaid-diagram-examples-from-the-gist-2026-04-07_13-57-02.md
-  sha256:15840b26c7d4f9ce: data/staging/webfetch-mermaid-diagram-rendering-discussion-summary-2026-04-07_13-57-04.md
-  sha256:1f873478e123ba8f: data/staging/webfetch-module-graph-plugin-mermaid-diagram-analysis-2026-04-07_13-57-07.md
-  sha256:e9358a7e8cab12e6: data/staging/webfetch-mermaid-subgraph-control-techniques-2026-04-07_13-57-19.md
-  sha256:20a97277103c6439: data/staging/webfetch-mermaid-diagram-aesthetics-and-rendering-2026-04-07_13-57-25.md
-  sha256:5b7f6b49084090b9: data/staging/webfetch-mermaid-diagram-syntax-examples-from-readme-2026-04-07_13-57-25.md
-  sha256:b1960024b7285bb4: data/staging/webfetch-mermaid-diagram-analysis-2026-04-07_13-57-26.md
-  sha256:8e67d28596f291a2: data/staging/webfetch-elk-layout-for-mermaid-diagrams-in-draw-io-2026-04-07_13-57-28.md
-  sha256:dc42b4d94a646154: data/staging/webfetch-mermaid-repository-information-2026-04-07_13-57-35.md
-  sha256:abc0943c39ff2499: data/staging/webfetch-depermaid-swift-package-dependency-visualization-2026-04-07_13-57-35.md
+  sha256:1ae95f5e68b3d731: data/staging/webfetch-visual-design-system-analysis-2026-04-02_15-01-37.md
+  sha256:e85e6f85973fd299: data/staging/webfetch-stories-related-to-cursor-ide-models-2026-04-03_18-01-16.md
+  sha256:b32af29270399a43: data/staging/webfetch-cursor-ai-model-selection-stories-summary-2026-04-03_18-01-17.md
+  sha256:c02889c074fdc20c: data/staging/webfetch-claude-code-model-selection-stories-2026-04-03_18-01-18.md
+  sha256:0396fc3b50388620: data/staging/webfetch-search-results-summary-2026-04-03_18-01-19.md
+  sha256:166f1ae8786b52da: data/staging/webfetch-search-results-analysis-2026-04-03_18-01-29.md
+  sha256:94c6ea4104e59e99: data/staging/webfetch-windsurf-codeium-stories-2026-04-03_18-01-29.md
+  sha256:975ef5591bd8b722: data/staging/webfetch-github-copilot-models-stories-2026-04-03_18-01-30.md
+  sha256:758d503d1746bcdd: data/staging/webfetch-pricing-2026-04-03_18-01-33.md
+  sha256:bb25f4cfe12d5143: data/staging/webfetch-documentation-index-2026-04-03_18-01-35.md
+  sha256:ea337a7d2828e9fa: data/staging/webfetch-cursor-model-list-options-discussion-2026-04-03_18-01-36.md
+  sha256:a8627e276c8e918f: data/staging/webfetch-free-models-on-cursor-conflicting-information-2026-04-03_18-01-37.md
+  sha256:cbd63ccce475cf7d: data/staging/webfetch-claude-code-model-selection-guide-2026-04-03_18-01-41.md
+  sha256:80d9a41a5110f12b: data/staging/webfetch-routellm-llm-routing-framework-2026-04-03_18-01-43.md
+  sha256:f24a46a0b65c7f5b: data/staging/webfetch-nvidia-llm-router-v2-overview-2026-04-03_18-01-44.md
+  sha256:ebe624a4b6d131f5: data/staging/webfetch-smart-llm-router-readme-summary-2026-04-03_18-01-46.md
+  sha256:be3d30a65625cb82: data/staging/webfetch-best-route-adaptive-llm-routing-overview-2026-04-03_18-01-46.md
+  sha256:98d3b56b74ba4148: data/staging/webfetch-llmrouter-open-source-llm-routing-library-2026-04-03_18-01-47.md
+  sha256:86784292cafc6a73: data/staging/webfetch-ai-model-routing-tools-and-research-overview-2026-04-03_18-01-47.md
+  sha256:f0c77790c4d89a75: data/staging/webfetch-github-copilot-supported-ai-models-2026-04-03_18-01-48.md
+  sha256:4203f249d41f4c13: data/staging/webfetch-complete-list-of-windsurf-ai-models-2026-04-03_18-01-49.md
+  sha256:7a9c0a27b0b7ca90: data/staging/webfetch-based-on-the-provided-content-there-are-no-2026-04-03_18-01-51.md
+  sha256:e9e5a14f2451c574: data/staging/webfetch-ai-model-recommendations-for-coding-in-cursor-2026-04-03_18-01-53.md
+  sha256:a94a8196a5a7691e: data/staging/webfetch-claude-code-pricing-cost-stories-5-points-2026-04-03_18-01-55.md
+  sha256:547d4ad503d63e14: data/staging/webfetch-complete-cursor-ai-model-comparison-2026-04-03_18-01-56.md
+  sha256:a819672af24d522a: data/staging/webfetch-llm-selector-github-repository-2026-04-03_18-01-57.md
+  sha256:00271a8527eaaf05: data/staging/webfetch-model-router-ai-powered-task-routing-2026-04-03_18-01-58.md
+  sha256:c12123dd697bd65b: data/staging/webfetch-ai-models-for-coding-in-2026-complete-comparison-2026-04-03_18-01-58.md
+  sha256:46016fe2d47edd71: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-04-03_18-02-01.md
+  sha256:154bffb5ba4050ef: data/staging/webfetch-anyscale-llm-router-tutorial-overview-2026-04-03_18-02-03.md
+  sha256:92df9ad61046a63f: data/staging/webfetch-complete-list-of-ai-models-available-in-zed-2026-04-03_18-02-08.md
+  sha256:e93204542df632ef: data/staging/webfetch-github-copilot-ai-model-comparison-summary-2026-04-03_18-02-08.md
+  sha256:6810d59c341b3aed: data/staging/webfetch-models-overview-2026-04-03_18-02-10.md
+  sha256:979c218e3a55f347: data/staging/webfetch-claude-code-features-discussion-2026-04-03_18-02-10.md
+  sha256:42a831ad3677b1b2: data/staging/webfetch-claude-code-discussion-summary-2026-04-03_18-02-12.md
+  sha256:25db61fca33992d9: data/staging/webfetch-cursor-auto-mode-testing-analysis-2026-04-03_18-02-13.md
+  sha256:883ca18b8702b43c: data/staging/webfetch-llmselector-llm-selection-framework-for-compound-2026-04-03_18-02-13.md
+  sha256:b4925d5e839c3887: data/staging/webfetch-cursor-model-optimization-guide-summary-2026-04-03_18-02-14.md
+  sha256:d665cf277911be2d: data/staging/webfetch-cursor-release-notes-2026-summary-2026-04-03_18-02-16.md
+  sha256:ee1299dcc085568c: data/staging/webfetch-claude-code-model-selection-strategy-complete-2026-04-03_18-02-16.md
+  sha256:559558d0d1b81228: data/staging/webfetch-github-copilot-premium-request-multipliers-2026-04-03_18-02-23.md
+  sha256:4c4234b700ff17cf: data/staging/webfetch-cursor-model-selection-guide-2026-04-03_18-02-24.md
+  sha256:af262925c56bea2f: data/staging/webfetch-semantic-router-core-architecture-analysis-2026-04-03_18-02-26.md
+  sha256:c1d7244306126689: data/staging/webfetch-model-discussion-summary-2026-04-03_18-02-34.md
+  sha256:f449bd19d79ac8e4: data/staging/webfetch-cursor-pricing-breakdown-2026-04-03_18-02-38.md
+  sha256:e02f5e1f6fda2966: data/staging/webfetch-github-copilot-pricing-tiers-2026-04-03_18-02-39.md
+  sha256:a8b7160f43ad64c8: data/staging/webfetch-ai-dev-tools-power-rankings-march-2026-2026-04-03_18-02-42.md
+  sha256:c32d469359be3779: data/staging/webfetch-claude-model-comparisons-opus-vs-sonnet-2026-04-03_18-02-50.md
+  sha256:c983d84f4bd3f830: data/staging/webfetch-composer-2-complete-details-2026-04-03_18-02-54.md
+  sha256:06b46faa68114cf8: data/staging/webfetch-ai-coding-tools-benchmarks-pricing-recommendations-2026-04-03_18-02-57.md
+  sha256:6917830ac7c206e9: data/staging/webfetch-claude-code-models-comprehensive-comparison-guide-2026-04-03_18-02-57.md
+  sha256:77f379315ee3f3c1: data/staging/webfetch-ai-coding-assistants-comparison-2026-2026-04-03_18-02-58.md
+  sha256:1bab7d91a8bd1600: data/staging/webfetch-claude-code-cost-model-comparison-stories-2026-04-03_18-03-10.md
+  sha256:3368a78d2e309e33: data/staging/webfetch-search-results-for-llm-routing-2026-04-03_18-16-16.md
+  sha256:79c38002df12eb01: data/staging/webfetch-llm-cost-optimization-stories-2026-04-03_18-16-18.md
+  sha256:1eccdc2804b5dc01: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-04-03_18-16-20.md
+  sha256:41f28ef197526ecc: data/staging/webfetch-cursor-pricing-page-models-and-pricing-information-2026-04-03_18-16-27.md
+  sha256:3a127a0bf9ca9b3c: data/staging/webfetch-routellm-technical-analysis-2026-04-03_18-16-39.md
+  sha256:34313b2346d784d0: data/staging/webfetch-mathematical-formulas-from-routellm-paper-2026-04-03_18-16-41.md
+  sha256:b608477c01c708a3: data/staging/webfetch-filtered-story-results-2026-04-03_18-16-49.md
+  sha256:79f59dc0510977a1: data/staging/webfetch-bradley-terry-model-formulas-from-chatbot-arena-2026-04-03_18-16-56.md
+  sha256:459073d4cdffd11d: data/staging/webfetch-mathematical-formulas-for-llm-difficulty-2026-04-03_18-16-57.md
+  sha256:d88d145b95944f8a: data/staging/webfetch-github-copilot-ai-models-complete-list-2026-04-03_18-17-02.md
+  sha256:007d2b19a6c0de9b: data/staging/webfetch-premium-request-multiplier-information-2026-04-03_18-17-03.md
+  sha256:757be70986f8bbc4: data/staging/webfetch-search-results-2026-04-03_18-17-14.md
+  sha256:6770d34ce6a32957: data/staging/webfetch-the-content-consists-entirely-of-2026-04-03_18-17-19.md
+  sha256:5c6f734c4ed096ae: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-04-03_18-17-22.md
+  sha256:e86a6ac7284ca35a: data/staging/webfetch-github-copilot-model-availability-by-plan-2026-04-03_18-17-28.md
+  sha256:967f0f2e81e694bc: data/staging/webfetch-benchmark-scores-analysis-2026-04-03_18-17-31.md
+  sha256:d21ff30cf0a9392c: data/staging/webfetch-mathematical-formulas-not-found-2026-04-03_18-17-34.md
+  sha256:5cfc25e98cbef762: data/staging/webfetch-stories-with-score-5-2026-04-03_18-17-38.md
+  sha256:465650c5a5c3434f: data/staging/webfetch-to-obtain-these-formulas-you-would-need-to-2026-04-03_21-28-25.md
+  sha256:2315870bdc1b738b: data/staging/webfetch-mathematical-formulas-from-routellm-paper-2026-04-03_21-28-44.md

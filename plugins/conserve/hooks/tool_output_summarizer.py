@@ -120,7 +120,7 @@ def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int
                                     elif isinstance(item, str):
                                         total_size += len(item)
     except (OSError, PermissionError) as e:
-        logger.debug("Could not read session file: %s", e)
+        logger.warning("Could not read session file: %s", e)
 
     return total_size
 
@@ -213,7 +213,7 @@ def main() -> int:
     # Find and assess session
     session_file = resolve_session_file()
     if not session_file:
-        logger.debug("No session file found")
+        logger.warning("No session file found")
         return 0
 
     assessment = assess_output_bloat(session_file)

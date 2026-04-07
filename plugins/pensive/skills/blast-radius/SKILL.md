@@ -66,11 +66,13 @@ Tell the user: "Run `/gauntlet-graph build` first."
    # Prefer rg for speed; fall back to grep
    if command -v rg &>/dev/null; then
      git diff --name-only HEAD | while read f; do
-       rg -l "$(basename $f .py)" --type py . 2>/dev/null
+       stem="${f%.*}"; stem="${stem##*/}"
+       rg -l "$stem" . 2>/dev/null
      done | sort -u
    else
      git diff --name-only HEAD | while read f; do
-       grep -rl "$(basename $f .py)" --include="*.py" . 2>/dev/null
+       stem="${f%.*}"; stem="${stem##*/}"
+       grep -rl "$stem" . 2>/dev/null
      done | sort -u
    fi
    ```

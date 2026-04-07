@@ -97,7 +97,14 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         nodes = report.get("nodes_created", 0)
         msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
         return {"additionalContext": msg}
-    except Exception:
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "graph_auto_update failed: %s: %s",
+            type(exc).__name__,
+            exc,
+        )
         return None
 
 

@@ -49,7 +49,7 @@ def detect_communities(
     # Try Leiden algorithm
     try:
         communities = _leiden_communities(nodes, all_edges)
-    except (ImportError, AttributeError, ValueError) as exc:
+    except (ImportError, AttributeError, ValueError, RuntimeError) as exc:
         _log.warning(
             "Leiden community detection failed (%s), using file-based fallback", exc
         )

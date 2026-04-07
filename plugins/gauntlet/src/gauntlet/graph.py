@@ -277,7 +277,13 @@ class GraphStore:
         nodes: list[GraphNode],
         edges: list[GraphEdge],
     ) -> None:
-        """Atomically replace all nodes/edges for a file."""
+        """Atomically replace all nodes/edges for a file.
+
+        Maintains the FTS index incrementally: stale entries are removed
+        before the node delete and new entries are inserted after the
+        batch insert.  If the FTS virtual table does not exist the
+        inserts are silently skipped.
+        """
         with self._conn:
             # Remove stale FTS entries before deleting nodes
             try:
@@ -291,7 +297,7 @@ class GraphStore:
             self._batch_insert_nodes(nodes)
             self._batch_insert_edges(edges)
             # Update FTS index incrementally for the new nodes
-            for node in nodes:
+            for i, node in enumerate(nodes):
                 try:
                     self._conn.execute(
                         "INSERT INTO nodes_fts"
@@ -305,7 +311,9 @@ class GraphStore:
                         ),
                     )
                 except sqlite3.OperationalError:
-                    break  # FTS unavailable, skip remaining
+                    if i == 0:
+                        break  # FTS table likely missing, skip all
+                    continue  # Individual entry failed, keep going
 
     def _batch_insert_nodes(self, nodes: list[GraphNode]) -> None:
         for i in range(0, len(nodes), _BATCH_SIZE):
