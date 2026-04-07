@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from gauntlet.models import (
     AnswerRecord,
     Challenge,
     DeveloperProgress,
+    EdgeKind,
+    GraphEdge,
     KnowledgeEntry,
     OnboardingProgress,
 )
@@ -344,3 +347,114 @@ class TestOnboardingProgress:
             "graduated",
         ):
             assert key in d
+
+
+# ---------------------------------------------------------------------------
+# GraphEdge validation (I10)
+# ---------------------------------------------------------------------------
+
+
+class TestGraphEdgeValidation:
+    """
+    Feature: GraphEdge name validation
+
+    As a graph builder
+    I want GraphEdge to reject empty qualified names
+    So that the graph never contains unresolvable edges
+    """
+
+    @pytest.mark.unit
+    def test_valid_edge_creation(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with valid names succeeds
+        Given valid source and target qualified names
+        When a GraphEdge is created
+        Then no exception is raised and fields are set correctly
+        """
+        edge = GraphEdge(
+            kind=EdgeKind.CALLS,
+            source_qn="app.py::main",
+            target_qn="app.py::helper",
+            file_path="app.py",
+        )
+        assert edge.source_qn == "app.py::main"
+        assert edge.target_qn == "app.py::helper"
+        assert edge.kind == EdgeKind.CALLS
+
+    @pytest.mark.unit
+    def test_empty_source_qn_raises(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with empty source_qn raises ValueError
+        Given an empty string for source_qn
+        When a GraphEdge is created
+        Then a ValueError is raised with a descriptive message
+        """
+        with pytest.raises(ValueError, match="source_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="",
+                target_qn="app.py::helper",
+            )
+
+    @pytest.mark.unit
+    def test_empty_target_qn_raises(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with empty target_qn raises ValueError
+        Given an empty string for target_qn
+        When a GraphEdge is created
+        Then a ValueError is raised with a descriptive message
+        """
+        with pytest.raises(ValueError, match="target_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="app.py::main",
+                target_qn="",
+            )
+
+    @pytest.mark.unit
+    def test_control_char_only_source_qn_raises(self) -> None:
+        """
+        Scenario: source_qn containing only control characters is sanitized to empty
+        Given a source_qn of control characters (stripped by _sanitize_name)
+        When a GraphEdge is created
+        Then a ValueError is raised because the sanitized name is empty
+        """
+        with pytest.raises(ValueError, match="source_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="\x00\x01\x0f",
+                target_qn="app.py::helper",
+            )
+
+    @pytest.mark.unit
+    def test_control_char_only_target_qn_raises(self) -> None:
+        """
+        Scenario: target_qn containing only control characters is sanitized to empty
+        Given a target_qn of control characters (stripped by _sanitize_name)
+        When a GraphEdge is created
+        Then a ValueError is raised because the sanitized name is empty
+        """
+        with pytest.raises(ValueError, match="target_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="app.py::main",
+                target_qn="\x00\x01\x0f",
+            )
+
+    @pytest.mark.unit
+    def test_whitespace_names_are_accepted(self) -> None:
+        """
+        Scenario: Whitespace-only names pass validation
+        Given source_qn and target_qn containing only spaces
+        When a GraphEdge is created
+        Then no error is raised because _sanitize_name preserves
+             printable characters (space is 0x20, above the control
+             character threshold)
+        """
+        edge = GraphEdge(
+            kind=EdgeKind.CALLS,
+            source_qn="   ",
+            target_qn="   ",
+        )
+        assert edge.source_qn == "   "
+        assert edge.target_qn == "   "

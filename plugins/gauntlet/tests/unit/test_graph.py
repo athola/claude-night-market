@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -530,3 +531,73 @@ class TestSanitizeFtsQuery:
     @pytest.mark.unit
     def test_empty_query(self) -> None:
         assert _sanitize_fts_query("") == ""
+
+
+class TestGraphStoreContextManager:
+    """
+    Feature: GraphStore context manager protocol
+
+    As a graph consumer
+    I want to use GraphStore with a ``with`` statement
+    So that the database connection is always released,
+    even when exceptions occur inside the block
+    """
+
+    @pytest.mark.unit
+    def test_context_manager_returns_store(self, db_path: Path) -> None:
+        """
+        Scenario: ``with GraphStore(path) as g`` yields the store
+        Given a fresh database path
+        When I enter a with block
+        Then the yielded object is a GraphStore and is usable
+        """
+        with GraphStore(db_path) as g:
+            assert isinstance(g, GraphStore)
+            g.upsert_node(_make_node())
+            assert g.node_count() == 1
+
+    @pytest.mark.unit
+    def test_exit_closes_connection(self, db_path: Path) -> None:
+        """
+        Scenario: Exiting the with block closes the connection
+        Given a GraphStore opened as a context manager
+        When the with block exits normally
+        Then the underlying SQLite connection is closed
+        """
+        with GraphStore(db_path) as g:
+            g.upsert_node(_make_node())
+
+        # After __exit__, any operation on the connection should fail
+        with pytest.raises(sqlite3.ProgrammingError):
+            g._conn.execute("SELECT 1")
+
+    @pytest.mark.unit
+    def test_connection_closed_on_exception(self, db_path: Path) -> None:
+        """
+        Scenario: Connection is closed even when an exception occurs
+        Given a GraphStore opened as a context manager
+        When an exception is raised inside the with block
+        Then the connection is still closed (no resource leak)
+        """
+        with pytest.raises(RuntimeError, match="boom"):
+            with GraphStore(db_path) as g:
+                g.upsert_node(_make_node())
+                raise RuntimeError("boom")
+
+        # Connection must be closed despite the exception
+        with pytest.raises(sqlite3.ProgrammingError):
+            g._conn.execute("SELECT 1")
+
+    @pytest.mark.unit
+    def test_operations_fail_after_exit(self, db_path: Path) -> None:
+        """
+        Scenario: Store operations raise after the context manager exits
+        Given a GraphStore that was used as a context manager
+        When I attempt to upsert a node after __exit__
+        Then a ProgrammingError is raised
+        """
+        with GraphStore(db_path) as g:
+            pass
+
+        with pytest.raises(sqlite3.ProgrammingError):
+            g.upsert_node(_make_node())

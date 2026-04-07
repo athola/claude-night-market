@@ -5,6 +5,19 @@ Feature: sem Integration Foundation Skill Validation
   I want the sem-integration skill to follow ecosystem conventions
   So that detection, fallback, and normalization patterns are
   consistently available to imbue, pensive, and sanctum plugins.
+
+Architecture note (I12):
+  These tests validate the behavior patterns described in the
+  sem-integration skill markdown, not importable Python functions.
+  Skills in the night-market ecosystem are markdown-based instruction
+  files, not Python modules, so there is no function to import and
+  call directly. Instead, the detection and fallback tests re-implement
+  the documented logic inline (mocking subprocess.run, building
+  normalized entity dicts) to verify that the *patterns* described in
+  the skill produce correct results. This is an intentional design
+  choice: the tests serve as executable specifications that prove the
+  documented algorithms are sound, even though runtime execution is
+  performed by the Claude Code agent following the skill instructions.
 """
 
 from __future__ import annotations
