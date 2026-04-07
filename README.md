@@ -66,57 +66,87 @@ for detailed setup options.
 
 ## Architecture
 
-23 plugins organized in four layers.
-Domain specialists depend on utility plugins,
-which depend on foundation plugins,
-which depend on the meta layer.
+23 internal plugins in four layers, plus external
+plugins from the superpowers-marketplace.
+Arrows show dependency direction (A --> B means
+A depends on B).
 
 ```mermaid
 flowchart TB
-    classDef domainClass fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
-    classDef utilityClass fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
-    classDef foundationClass fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
-    classDef metaClass fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
+    classDef domain fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
+    classDef utility fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
+    classDef foundation fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
+    classDef meta fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
+    classDef ext fill:#f5f5f5,stroke:#95a5a6,stroke-width:1px,stroke-dasharray: 5 5,color:#7f8c8d
+    classDef standalone fill:#fafafa,stroke:#bdc3c7,stroke-width:1px,color:#95a5a6
+
+    subgraph External["External · superpowers-marketplace"]
+        direction LR
+        SP[superpowers]:::ext
+        SPC[superpowers-chrome]:::ext
+        SPD[superpowers-dev]:::ext
+        SPL[superpowers-lab]:::ext
+    end
 
     subgraph Domain["Domain Specialists"]
-        direction LR
-        D1[archetypes]:::domainClass
-        D2[pensive]:::domainClass
-        D3[parseltongue]:::domainClass
-        D4[memory-palace]:::domainClass
-        D5[spec-kit]:::domainClass
-        D6[minister]:::domainClass
-        D7[attune]:::domainClass
-        D8[scry]:::domainClass
-        D9[scribe]:::domainClass
-        D10[tome]:::domainClass
-        D11[gauntlet]:::domainClass
-        D12[cartograph]:::domainClass
+        attune:::domain
+        pensive:::domain
+        scribe:::domain
+        spec-kit:::domain
+        memory-palace:::domain
+        minister:::domain
+        parseltongue:::domain
+        tome:::domain
+        gauntlet:::domain
+        phantom:::domain
+        archetypes:::domain
+        cartograph:::domain
+        scry:::domain
     end
 
     subgraph Utility["Utility Layer"]
-        direction LR
-        U1[conserve]:::utilityClass
-        U2[conjure]:::utilityClass
-        U3[hookify]:::utilityClass
-        U4[egregore]:::utilityClass
-        U5[herald]:::utilityClass
-        U6[oracle]:::utilityClass
+        conserve:::utility
+        conjure:::utility
+        hookify:::utility
+        egregore:::utility
+        herald:::utility
+        oracle:::utility
     end
 
     subgraph Foundation["Foundation Layer"]
-        direction LR
-        F1[imbue]:::foundationClass
-        F2[sanctum]:::foundationClass
-        F3[leyline]:::foundationClass
+        leyline:::foundation
+        imbue:::foundation
+        sanctum:::foundation
     end
 
     subgraph Meta["Meta Layer"]
-        direction LR
-        M1[abstract]:::metaClass
+        abstract:::meta
     end
 
-    Domain ==> Utility ==> Foundation ==> Meta
+    %% Domain --> Foundation
+    attune --> imbue & sanctum & leyline
+    pensive --> imbue & leyline
+    scribe --> leyline & pensive & scry
+    spec-kit --> imbue & sanctum
+    memory-palace --> leyline & sanctum
+    parseltongue --> leyline
+    minister --> leyline
+    tome --> leyline
+
+    %% Domain --> Domain
+    attune --> spec-kit
+
+    %% Utility --> Foundation
+    conserve --> leyline & imbue
+    conjure --> leyline
+    hookify --> leyline
+    egregore --> sanctum & conserve
+
+    %% Meta --> Foundation + Domain
+    abstract --> leyline & imbue & sanctum & pensive
+
+    %% External (dashed = complements, not hard dependency)
+    SP -.-> imbue & sanctum & attune
 ```
 
 ### Plugin Catalog
