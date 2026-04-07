@@ -81,13 +81,24 @@ def get_changed_files(base_ref: str = "HEAD") -> list[str]:
             timeout=10,
         )
         if result.returncode != 0:
-            _log.info(
-                "git diff failed (rc=%d), falling back to staged files",
+            _log.warning(
+                "git diff failed (rc=%d); falling back to staged files"
+                " -- incremental scope may differ from expected",
                 result.returncode,
             )
             return _get_staged_files()
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except subprocess.TimeoutExpired:
+        _log.warning(
+            "git diff timed out; returning empty changeset"
+            " -- full rebuild may be needed"
+        )
+        return []
+    except FileNotFoundError:
+        _log.warning(
+            "git not found on PATH; returning empty changeset"
+            " -- full rebuild may be needed"
+        )
         return []
 
 

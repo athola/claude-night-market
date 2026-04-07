@@ -111,14 +111,18 @@ class GraphStore:
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA foreign_keys=ON")
         self._conn.row_factory = sqlite3.Row
-        self._init_schema()
+        try:
+            self._init_schema()
+        except Exception:
+            self._conn.close()
+            raise
 
     def _init_schema(self) -> None:
         self._conn.executescript(_SCHEMA_SQL)
         try:
             self._conn.executescript(_FTS_CREATE_SQL)
-        except sqlite3.OperationalError:
-            _log.warning("FTS5 unavailable -- full-text search disabled")
+        except sqlite3.OperationalError as exc:
+            _log.warning("FTS5 unavailable -- full-text search disabled: %s", exc)
         self._conn.commit()
 
     def close(self) -> None:
