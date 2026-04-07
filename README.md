@@ -68,14 +68,12 @@ for detailed setup options.
 
 23 internal plugins in four layers, plus external
 plugins from the superpowers-marketplace.
-Domain plugins are grouped by function: development
-and review, knowledge and research, or operations
-and media. Arrows show dependency direction
-(A --> B means A depends on B). Dashed arrows
-mark optional complements.
+Arrows show dependency direction (A --> B means
+A depends on B). Dashed arrows mark optional
+complements.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'secondaryColor': '#f8f8f8', 'tertiaryColor': '#fafafa', 'lineColor': '#64748b', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '14px' }}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'lineColor': '#64748b', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '14px' }}}%%
 flowchart TB
     classDef domain fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af
     classDef utility fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
@@ -92,30 +90,22 @@ flowchart TB
     end
 
     subgraph Domain["Domain Specialists"]
-        direction LR
-        subgraph dev["Development & Review"]
-            attune:::domain
-            spec-kit:::domain
-            parseltongue:::domain
-            pensive:::domain
-            scribe:::domain
-        end
-        subgraph knowledge["Knowledge & Research"]
-            memory-palace:::domain
-            gauntlet:::domain
-            tome:::domain
-            archetypes:::domain
-            cartograph:::domain
-        end
-        subgraph ops["Operations & Media"]
-            minister:::domain
-            phantom:::domain
-            scry:::domain
-        end
+        attune:::domain
+        pensive:::domain
+        scribe:::domain
+        spec-kit:::domain
+        memory-palace:::domain
+        parseltongue:::domain
+        minister:::domain
+        tome:::domain
+        gauntlet:::domain
+        phantom:::domain
+        archetypes:::domain
+        cartograph:::domain
+        scry:::domain
     end
 
     subgraph Utility["Utility Layer"]
-        direction LR
         conserve:::utility
         conjure:::utility
         hookify:::utility
@@ -125,7 +115,6 @@ flowchart TB
     end
 
     subgraph Foundation["Foundation Layer"]
-        direction LR
         leyline:::foundation
         imbue:::foundation
         sanctum:::foundation
@@ -136,18 +125,11 @@ flowchart TB
     end
 
     %% Domain --> Foundation
-    attune --> leyline
-    attune --> imbue
-    attune --> sanctum
-    pensive --> leyline
-    pensive --> imbue
-    scribe --> leyline
-    scribe --> pensive
-    scribe --> scry
-    spec-kit --> imbue
-    spec-kit --> sanctum
-    memory-palace --> leyline
-    memory-palace --> sanctum
+    attune --> imbue & sanctum & leyline
+    pensive --> imbue & leyline
+    scribe --> leyline & pensive & scry
+    spec-kit --> imbue & sanctum
+    memory-palace --> leyline & sanctum
     parseltongue --> leyline
     minister --> leyline
     tome --> leyline
@@ -156,23 +138,16 @@ flowchart TB
     attune --> spec-kit
 
     %% Utility --> Foundation
-    conserve --> leyline
-    conserve --> imbue
+    conserve --> leyline & imbue
     conjure --> leyline
     hookify --> leyline
-    egregore --> sanctum
-    egregore --> conserve
+    egregore --> sanctum & conserve
 
     %% Meta --> Foundation + Domain
-    abstract --> leyline
-    abstract --> imbue
-    abstract --> sanctum
-    abstract --> pensive
+    abstract --> leyline & imbue & sanctum & pensive
 
     %% External (dashed = complements, not hard dependency)
-    SP -.-> imbue
-    SP -.-> sanctum
-    SP -.-> attune
+    SP -.-> imbue & sanctum & attune
 
     linkStyle default stroke:#94a3b8,stroke-width:1.5px
 ```
