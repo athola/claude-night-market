@@ -19,7 +19,7 @@ class Scorer(Protocol):
     """Inference backend contract.
 
     Phase 1: YamlScorer (pure Python dot product).
-    Phase 2: OnnxSidecarScorer (HTTP to localhost daemon).
+    Phase 2: SidecarScorer (HTTP to localhost daemon).
     """
 
     def score(self, features: dict[str, float]) -> float:
@@ -103,7 +103,7 @@ class YamlScorer:
         return self._blend
 
 
-class OnnxSidecarScorer:
+class SidecarScorer:
     """Delegates inference to the oracle daemon over HTTP.
 
     NOTE: This class intentionally duplicates HTTP logic found in

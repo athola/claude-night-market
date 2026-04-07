@@ -4,7 +4,7 @@
     {
       "name": "ClawHub",
       "script": "scripts/clawhub-submit.sh",
-      "description": "Submit skills to openclaw/clawhub"
+      "description": "Publish skills to ClawHub via clawhub CLI"
     },
     {
       "name": "Awesome Lists",

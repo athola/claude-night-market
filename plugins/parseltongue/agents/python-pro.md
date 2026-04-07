@@ -41,6 +41,10 @@ Expert Python development agent specializing in modern Python 3.9+ practices, pe
 - Dataclasses and `@dataclass(slots=True)`
 - Context managers and generators
 - Decorators and metaclasses
+- **Enum patterns**: prefer `str, Enum` for Python 3.9+ or
+  `StrEnum` for 3.11+. Flag `Literal` type aliases with 3+
+  fixed string members as candidates for enum conversion.
+  Flag bare string comparisons when enum types exist.
 
 ### Async Programming
 - asyncio event loop and coroutines

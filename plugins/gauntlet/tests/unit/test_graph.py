@@ -250,6 +250,32 @@ class TestGraphStoreAtomicFileStorage:
         assert store.get_node("b.py::keep") is not None
 
 
+class TestGraphStoreStoreFileEdgeCases:
+    """
+    Feature: store_file edge cases
+
+    As a graph builder
+    I want store_file to handle empty inputs gracefully
+    So that the graph remains consistent
+    """
+
+    @pytest.mark.unit
+    def test_store_file_with_empty_lists(self, store: GraphStore) -> None:
+        """
+        Scenario: store_file with no nodes and no edges
+        Given existing data for a file
+        When I call store_file with empty lists
+        Then existing data for that file is removed
+        """
+        store.upsert_node(_make_node("a.py::fn", file_path="a.py"))
+        store.upsert_edge(
+            _make_edge(source="a.py::fn", target="b.py::fn2", file_path="a.py")
+        )
+        store.store_file("a.py", [], [])
+        assert store.get_node("a.py::fn") is None
+        assert store.edge_count() == 0
+
+
 class TestGraphStoreBfsImpactRadius:
     """
     Feature: BFS impact radius
@@ -344,6 +370,48 @@ class TestGraphStoreBfsImpactRadius:
         assert "d.py::D" not in qns
 
 
+class TestGraphStoreBfsNodeCap:
+    """
+    Feature: BFS node cap enforcement
+
+    As a system operator
+    I want BFS to stop once _MAX_BFS_NODES is reached
+    So that large graphs don't cause unbounded memory usage
+    """
+
+    @pytest.mark.unit
+    def test_bfs_respects_max_nodes_cap(self, store: GraphStore) -> None:
+        """
+        Scenario: BFS halts when visited count reaches _MAX_BFS_NODES
+        Given a long chain longer than the cap (set temporarily to a small value)
+        When I compute impact radius with large depth
+        Then the result is smaller than the full chain
+        """
+        import gauntlet.graph as graph_mod
+
+        original_cap = graph_mod._MAX_BFS_NODES
+        graph_mod._MAX_BFS_NODES = 5
+        try:
+            # Create a chain: n0 -> n1 -> n2 -> ... -> n19
+            chain_len = 20
+            for i in range(chain_len):
+                store.upsert_node(_make_node(f"f{i}.py::fn{i}", file_path=f"f{i}.py"))
+            for i in range(chain_len - 1):
+                store.upsert_edge(
+                    _make_edge(
+                        source=f"f{i}.py::fn{i}",
+                        target=f"f{i + 1}.py::fn{i + 1}",
+                        file_path=f"f{i}.py",
+                    )
+                )
+            result = store.impact_radius(["f0.py"], depth=50)
+            # With cap=5, BFS stops expanding once visited reaches 5
+            # The chain has 20 nodes; result must be fewer
+            assert len(result) < chain_len
+        finally:
+            graph_mod._MAX_BFS_NODES = original_cap
+
+
 class TestGraphStoreFts5Search:
     """
     Feature: FTS5 full-text search
@@ -387,6 +455,22 @@ class TestGraphStoreFts5Search:
         results = store.search_fts("user", kind="Class")
         kinds = {str(r.kind) for r in results}
         assert "Function" not in kinds
+
+    @pytest.mark.unit
+    def test_fts_updated_by_store_file(self, store: GraphStore) -> None:
+        """
+        Scenario: FTS index reflects store_file changes without rebuild_fts
+        Given a node stored via store_file
+        When I search via FTS without calling rebuild_fts
+        Then the node is found
+        """
+        node = _make_node(
+            "svc.py::PaymentService", kind=NodeKind.CLASS, file_path="svc.py"
+        )
+        store.store_file("svc.py", [node], [])
+        results = store.search_fts("PaymentService")
+        assert len(results) >= 1
+        assert results[0].qualified_name == "svc.py::PaymentService"
 
     @pytest.mark.unit
     def test_fts_fallback_on_broken_index(self, store: GraphStore) -> None:

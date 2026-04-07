@@ -1,0 +1,164 @@
+category: "bit-manipulation"
+
+problems:
+  - id: "bit-001"
+    title: "Single Number"
+    difficulty: "easy"
+    prompt: |
+      Given a non-empty array of integers where every element appears
+      twice except for one, find that single element. Your solution must
+      run in linear time and use constant extra space.
+
+      Constraints: 1 <= nums.length <= 3 * 10^4,
+      -3 * 10^4 <= nums[i] <= 3 * 10^4
+
+      Example: nums = [2, 2, 1] -> 1
+      Example: nums = [4, 1, 2, 1, 2] -> 4
+    hints:
+      - "XOR of a number with itself is 0, and XOR of a number with 0 is the number itself."
+      - "XOR all elements together. Pairs cancel out, leaving the single number."
+    solution_outline: |
+      XOR all elements: a ^ a = 0 and a ^ 0 = a, so all pairs cancel
+      and the result is the unique element. Time O(n), space O(1).
+    tags: ["bit-manipulation", "xor"]
+    neetcode_id: "neetcode-110"
+    challenge_type: "explain_why"
+
+  - id: "bit-002"
+    title: "Number of 1 Bits"
+    difficulty: "easy"
+    prompt: |
+      Given a positive integer n, return the number of set bits (1s) in
+      its binary representation (also known as the Hamming weight).
+
+      Constraints: 1 <= n <= 2^31 - 1
+
+      Example: n = 11 (binary 1011) -> 3
+    hints:
+      - "n & (n - 1) clears the lowest set bit."
+      - "Count how many times you can clear the lowest set bit before n becomes 0."
+    solution_outline: |
+      Brian Kernighan's trick: repeatedly do n = n & (n - 1) to clear
+      the lowest set bit, counting iterations until n == 0. Each
+      iteration removes exactly one 1-bit. Time O(k) where k is the
+      number of set bits, space O(1).
+    tags: ["bit-manipulation", "math"]
+    neetcode_id: "neetcode-111"
+    challenge_type: "explain_why"
+
+  - id: "bit-003"
+    title: "Counting Bits"
+    difficulty: "easy"
+    prompt: |
+      Given an integer n, return an array ans of length n + 1 where
+      ans[i] is the number of 1 bits in the binary representation of i,
+      for every 0 <= i <= n.
+
+      Constraints: 0 <= n <= 10^5
+
+      Example: n = 5 -> [0, 1, 1, 2, 1, 2]
+    hints:
+      - "Use a DP relationship: the bit count of i relates to a smaller number you have already computed."
+      - "ans[i] = ans[i >> 1] + (i & 1). Shifting right removes the last bit; add 1 if the last bit was set."
+    solution_outline: |
+      DP approach: ans[i] = ans[i >> 1] + (i & 1). The number i with
+      its last bit removed (i >> 1) has already been computed. Just add
+      1 if the last bit is set. Time O(n), space O(n).
+    tags: ["bit-manipulation", "dynamic-programming"]
+    neetcode_id: "neetcode-112"
+    challenge_type: "explain_why"
+
+  - id: "bit-004"
+    title: "Reverse Bits"
+    difficulty: "easy"
+    prompt: |
+      Reverse the bits of a given 32-bit unsigned integer and return the
+      result as an unsigned integer.
+
+      Constraints: input is a 32-bit unsigned integer.
+
+      Example: n = 00000010100101000001111010011100 (43261596)
+      -> 00111001011110000010100101000000 (964176192)
+    hints:
+      - "Extract bits one by one from the right side of n and build the result from the left."
+      - "For each of 32 iterations: shift result left, OR with the lowest bit of n, then shift n right."
+    solution_outline: |
+      Iterate 32 times. Each step: shift result left by 1, OR with
+      (n & 1), then shift n right by 1. After 32 iterations the bits
+      are reversed. Time O(1) (fixed 32 iterations), space O(1).
+    tags: ["bit-manipulation", "binary"]
+    neetcode_id: "neetcode-113"
+    challenge_type: "explain_why"
+
+  - id: "bit-005"
+    title: "Missing Number"
+    difficulty: "easy"
+    prompt: |
+      Given an array nums containing n distinct numbers in the range
+      [0, n], return the one number in the range that is missing.
+
+      Constraints: n == nums.length, 1 <= n <= 10^4,
+      0 <= nums[i] <= n, all values are unique.
+
+      Example: nums = [3, 0, 1] -> 2
+    hints:
+      - "XOR all numbers 0 to n with all elements in the array. Pairs cancel, leaving the missing number."
+      - "Alternatively, compute n*(n+1)/2 minus the array sum."
+    solution_outline: |
+      XOR approach: XOR all indices 0..n with all array elements. Every
+      number except the missing one appears twice and cancels out.
+      Sum approach: missing = n*(n+1)/2 - sum(nums).
+      Both are Time O(n), space O(1).
+    tags: ["bit-manipulation", "math", "xor"]
+    neetcode_id: "neetcode-114"
+    challenge_type: "explain_why"
+
+  - id: "bit-006"
+    title: "Sum of Two Integers"
+    difficulty: "medium"
+    prompt: |
+      Given two integers a and b, return their sum without using the +
+      or - operator.
+
+      Constraints: -1000 <= a, b <= 1000
+
+      Example: a = 1, b = 2 -> 3
+      Example: a = 2, b = 3 -> 5
+    hints:
+      - "XOR gives the sum without carries. AND followed by left shift gives the carries."
+      - "Repeat: sum = a XOR b, carry = (a AND b) << 1. Set a = sum, b = carry until carry is 0."
+    solution_outline: |
+      Use bit manipulation to simulate addition. XOR computes the
+      sum-without-carry, AND-then-shift computes the carry. Iterate
+      until carry is zero. In languages without unsigned overflow (e.g.,
+      Python), mask to 32 bits. Time O(1) (at most 32 iterations),
+      space O(1).
+    tags: ["bit-manipulation", "binary-addition"]
+    neetcode_id: "neetcode-115"
+    challenge_type: "explain_why"
+
+  - id: "bit-007"
+    title: "Reverse Integer"
+    difficulty: "medium"
+    prompt: |
+      Given a signed 32-bit integer x, return x with its digits reversed.
+      If the reversed integer overflows the 32-bit signed range
+      [-2^31, 2^31 - 1], return 0.
+
+      Constraints: -2^31 <= x <= 2^31 - 1
+
+      Example: x = 123 -> 321
+      Example: x = -123 -> -321
+      Example: x = 120 -> 21
+    hints:
+      - "Extract digits from the right using modulo 10 and build the reversed number."
+      - "Before appending each digit, check if the result would overflow 32-bit bounds."
+    solution_outline: |
+      Repeatedly extract the last digit (x % 10) and append it to the
+      result (result = result * 10 + digit). Before each multiplication,
+      check for overflow: if result > INT_MAX/10 or result < INT_MIN/10,
+      return 0. Handle negative numbers naturally with modulo.
+      Time O(log x), space O(1).
+    tags: ["bit-manipulation", "math"]
+    neetcode_id: "neetcode-116"
+    challenge_type: "explain_why"

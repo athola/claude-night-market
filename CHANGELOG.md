@@ -5,6 +5,26 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] - 2026-04-05
+
+### Added
+
+- **leyline:sem-integration**: Foundation skill for
+  [sem](https://github.com/Ataraxy-Labs/sem) semantic
+  diff CLI. Provides detection, install-on-first-use,
+  and output normalization with graceful fallback to
+  git diff when sem is unavailable.
+- **imbue:diff-analysis**: Entity-level diffs via sem
+  as primary categorization path.
+- **imbue:catchup**: Semantic delta capture with sem
+  diff and sem log for entity history.
+- **pensive:blast-radius**: Three-tier impact analysis
+  (gauntlet graph, sem impact, rg/grep fallback).
+- **sanctum:git-workspace-review**: Entity-level summary
+  alongside git diff --stat when sem is available.
+- **sanctum:commit-messages**: Entity names from sem
+  for more precise commit subjects.
+
 ## [1.8.1] - 2026-04-03
 
 ### Added

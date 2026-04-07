@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from gauntlet.ml.features import extract_answer_features
-from gauntlet.ml.scorer import OnnxSidecarScorer, YamlScorer
+from gauntlet.ml.scorer import SidecarScorer, YamlScorer
 
 if TYPE_CHECKING:
     from gauntlet.ml.scorer import Scorer
@@ -42,7 +42,7 @@ def _get_scorer() -> Scorer:
 
     port_file = _get_oracle_port_file()
     if port_file is not None:
-        sidecar = OnnxSidecarScorer(port_file)
+        sidecar = SidecarScorer(port_file)
         if sidecar.available():
             _log.info("Scoring backend: oracle sidecar via %s", port_file)
             _scorer = sidecar

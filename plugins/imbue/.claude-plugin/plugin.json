@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/catchup",

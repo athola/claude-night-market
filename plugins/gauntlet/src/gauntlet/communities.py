@@ -2,21 +2,24 @@
 
 from __future__ import annotations
 
+import logging
 from collections import Counter, defaultdict
 from itertools import combinations
 from pathlib import Path
 
 from gauntlet.graph import GraphStore
-from gauntlet.models import GraphEdge, GraphNode, NodeKind
+from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+
+_log = logging.getLogger(__name__)
 
 # Edge weights by type for community detection
-_EDGE_WEIGHTS: dict[str, float] = {
-    "CALLS": 1.0,
-    "INHERITS": 0.8,
-    "IMPLEMENTS": 0.7,
-    "IMPORTS_FROM": 0.5,
-    "TESTED_BY": 0.4,
-    "CONTAINS": 0.3,
+_EDGE_WEIGHTS: dict[EdgeKind, float] = {
+    EdgeKind.CALLS: 1.0,
+    EdgeKind.INHERITS: 0.8,
+    EdgeKind.IMPLEMENTS: 0.7,
+    EdgeKind.IMPORTS_FROM: 0.5,
+    EdgeKind.TESTED_BY: 0.4,
+    EdgeKind.CONTAINS: 0.3,
 }
 
 _MAX_COMMUNITY_SIZE = 50
@@ -46,7 +49,10 @@ def detect_communities(
     # Try Leiden algorithm
     try:
         communities = _leiden_communities(nodes, all_edges)
-    except ImportError:
+    except (ImportError, AttributeError, ValueError) as exc:
+        _log.warning(
+            "Leiden community detection failed (%s), using file-based fallback", exc
+        )
         communities = _file_based_communities(nodes)
 
     # Subdivide large communities
@@ -86,7 +92,7 @@ def _leiden_communities(
         tgt_idx = qn_to_idx.get(edge.target_qn)
         if src_idx is not None and tgt_idx is not None and src_idx != tgt_idx:
             edge_list.append((src_idx, tgt_idx))
-            weights.append(_EDGE_WEIGHTS.get(str(edge.kind), 0.5))
+            weights.append(_EDGE_WEIGHTS.get(edge.kind, 0.5))
 
     if edge_list:
         g.add_edges(edge_list)

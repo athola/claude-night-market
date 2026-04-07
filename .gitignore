@@ -115,3 +115,4 @@ plugins/memory-palace/data/staging/webfetch-*.md
 plugins/memory-palace/data/staging/websearch-*.md
 plugins/memory-palace/data/staging/archive/
 **/*.claude/session-state.md
+clawhub/

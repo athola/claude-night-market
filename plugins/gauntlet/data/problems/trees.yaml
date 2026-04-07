@@ -1,0 +1,466 @@
+category: "trees"
+
+problems:
+  - id: "trees-001"
+    title: "Invert Binary Tree"
+    difficulty: "easy"
+    prompt: |
+      Given the root of a binary tree, invert the tree
+      (mirror it) and return its root.
+
+      Inverting means swapping every left child with its
+      corresponding right child at every node.
+
+      Example:
+        Input:     4
+                 /   \
+                2     7
+               / \   / \
+              1   3 6   9
+
+        Output:    4
+                 /   \
+                7     2
+               / \   / \
+              9   6 3   1
+
+      Constraints:
+        - Number of nodes: [0, 100]
+        - Node values: [-100, 100]
+    hints:
+      - "Think recursively: what does inverting a subtree mean?"
+      - "At each node, swap its left and right children, then recurse."
+    solution_outline: |
+      Recursively swap left and right children at each node.
+      Base case: if node is null, return null.
+      Time: O(n), Space: O(h) where h is tree height.
+    tags: ["tree", "recursion", "dfs"]
+    neetcode_id: "neetcode-031"
+    challenge_type: "explain_why"
+
+  - id: "trees-002"
+    title: "Maximum Depth of Binary Tree"
+    difficulty: "easy"
+    prompt: |
+      Given the root of a binary tree, return its maximum
+      depth. The maximum depth is the number of nodes along
+      the longest path from the root node down to the
+      farthest leaf node.
+
+      Example:
+        Input: root = [3,9,20,null,null,15,7]
+        Output: 3
+
+      Constraints:
+        - Number of nodes: [0, 10^4]
+        - Node values: [-100, 100]
+    hints:
+      - "The depth of a tree is 1 + the max depth of its subtrees."
+      - "Base case: an empty tree has depth 0."
+    solution_outline: |
+      DFS recursion: return 1 + max(depth(left), depth(right)).
+      Base case: null node returns 0.
+      Time: O(n), Space: O(h).
+    tags: ["tree", "recursion", "dfs"]
+    neetcode_id: "neetcode-030"
+    challenge_type: "explain_why"
+
+  - id: "trees-003"
+    title: "Diameter of Binary Tree"
+    difficulty: "easy"
+    prompt: |
+      Given the root of a binary tree, return the length
+      of the diameter. The diameter is the length of the
+      longest path between any two nodes in the tree. This
+      path may or may not pass through the root. The length
+      of a path is the number of edges between nodes.
+
+      Example:
+        Input: root = [1,2,3,4,5]
+        Output: 3
+        Explanation: path [4,2,1,3] or [5,2,1,3]
+
+      Constraints:
+        - Number of nodes: [1, 10^4]
+        - Node values: [-100, 100]
+    hints:
+      - "At each node, the path through it has length left_height + right_height."
+      - "Track the maximum diameter seen so far while computing heights."
+    solution_outline: |
+      DFS computing height at each node. At each node,
+      update a global max with left_height + right_height.
+      Return 1 + max(left_height, right_height) as the
+      height. Time: O(n), Space: O(h).
+    tags: ["tree", "dfs", "recursion"]
+    neetcode_id: "neetcode-032"
+    challenge_type: "explain_why"
+
+  - id: "trees-004"
+    title: "Balanced Binary Tree"
+    difficulty: "easy"
+    prompt: |
+      Given a binary tree, determine if it is height-balanced.
+      A height-balanced binary tree is one where the depth
+      of the two subtrees of every node never differs by
+      more than one.
+
+      Example 1:
+        Input: root = [3,9,20,null,null,15,7]
+        Output: true
+
+      Example 2:
+        Input: root = [1,2,2,3,3,null,null,4,4]
+        Output: false
+
+      Constraints:
+        - Number of nodes: [0, 5000]
+        - Node values: [-10^4, 10^4]
+    hints:
+      - "A brute force approach checks height at every node, giving O(n^2)."
+      - "You can do it in O(n) by returning -1 from the height function when a subtree is unbalanced."
+    solution_outline: |
+      Bottom-up DFS: compute height, returning -1 if any
+      subtree is unbalanced. At each node, if
+      abs(left_h - right_h) > 1 or either child returned -1,
+      return -1. Time: O(n), Space: O(h).
+    tags: ["tree", "dfs", "recursion"]
+    neetcode_id: "neetcode-033"
+    challenge_type: "explain_why"
+
+  - id: "trees-005"
+    title: "Same Tree"
+    difficulty: "easy"
+    prompt: |
+      Given the roots of two binary trees p and q, check
+      whether they are the same or not. Two trees are the
+      same if they are structurally identical and all
+      corresponding nodes have the same value.
+
+      Example 1:
+        Input: p = [1,2,3], q = [1,2,3]
+        Output: true
+
+      Example 2:
+        Input: p = [1,2], q = [1,null,2]
+        Output: false
+
+      Constraints:
+        - Number of nodes in each tree: [0, 100]
+        - Node values: [-10^4, 10^4]
+    hints:
+      - "Compare nodes in lockstep using recursion."
+      - "Two null nodes are equal. One null and one non-null are not."
+    solution_outline: |
+      Recursive comparison: both null -> true, one null -> false,
+      values differ -> false, else recurse on both children.
+      Time: O(n), Space: O(h).
+    tags: ["tree", "dfs", "recursion"]
+    neetcode_id: "neetcode-034"
+    challenge_type: "explain_why"
+
+  - id: "trees-006"
+    title: "Subtree of Another Tree"
+    difficulty: "easy"
+    prompt: |
+      Given the roots of two binary trees root and subRoot,
+      return true if there is a subtree of root with the
+      same structure and node values as subRoot.
+
+      A subtree consists of a node and all its descendants.
+
+      Example:
+        Input: root = [3,4,5,1,2], subRoot = [4,1,2]
+        Output: true
+
+      Constraints:
+        - Nodes in root: [1, 2000]
+        - Nodes in subRoot: [1, 1000]
+        - Node values: [-10^4, 10^4]
+    hints:
+      - "At each node in root, check if the subtree rooted there is identical to subRoot."
+      - "Reuse the 'Same Tree' check as a helper function."
+    solution_outline: |
+      For each node in root, run isSameTree(node, subRoot).
+      If any returns true, the answer is true.
+      Time: O(m * n) where m and n are tree sizes.
+      Space: O(h) for recursion stack.
+    tags: ["tree", "dfs", "recursion"]
+    neetcode_id: "neetcode-035"
+    challenge_type: "explain_why"
+
+  - id: "trees-007"
+    title: "Lowest Common Ancestor of a BST"
+    difficulty: "medium"
+    prompt: |
+      Given a binary search tree (BST) and two nodes p and q,
+      find their lowest common ancestor (LCA). The LCA is
+      the deepest node that is an ancestor of both p and q
+      (a node can be an ancestor of itself).
+
+      All node values are unique. Both p and q exist in the BST.
+
+      Example:
+        Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+        Output: 6
+
+      Constraints:
+        - Number of nodes: [2, 10^5]
+        - Node values: [-10^9, 10^9]
+    hints:
+      - "Use the BST property: left < root < right."
+      - "If both p and q are less than root, LCA is in the left subtree. If both are greater, it is in the right subtree."
+      - "If p and q are on different sides, the current node is the LCA."
+    solution_outline: |
+      Start at root. If both values < root, go left.
+      If both > root, go right. Otherwise current node
+      is the LCA. Time: O(h), Space: O(1) iterative
+      or O(h) recursive.
+    tags: ["tree", "bst", "recursion"]
+    neetcode_id: "neetcode-036"
+    challenge_type: "explain_why"
+
+  - id: "trees-008"
+    title: "Binary Tree Level Order Traversal"
+    difficulty: "medium"
+    prompt: |
+      Given the root of a binary tree, return the level
+      order traversal of its nodes' values (left to right,
+      level by level) as a list of lists.
+
+      Example:
+        Input: root = [3,9,20,null,null,15,7]
+        Output: [[3],[9,20],[15,7]]
+
+      Constraints:
+        - Number of nodes: [0, 2000]
+        - Node values: [-1000, 1000]
+    hints:
+      - "Use BFS with a queue."
+      - "Process all nodes at the current level before moving to the next by tracking queue size."
+    solution_outline: |
+      BFS using a queue. For each level, record the queue
+      size, dequeue that many nodes, and enqueue their
+      children. Collect values per level.
+      Time: O(n), Space: O(n).
+    tags: ["tree", "bfs", "queue"]
+    neetcode_id: "neetcode-037"
+    challenge_type: "explain_why"
+
+  - id: "trees-009"
+    title: "Binary Tree Right Side View"
+    difficulty: "medium"
+    prompt: |
+      Given the root of a binary tree, return the values
+      of the nodes you can see when looking at the tree
+      from the right side, ordered from top to bottom.
+
+      Example:
+        Input: root = [1,2,3,null,5,null,4]
+        Output: [1,3,4]
+
+      Constraints:
+        - Number of nodes: [0, 100]
+        - Node values: [-100, 100]
+    hints:
+      - "Level order traversal gives you all nodes per level."
+      - "The rightmost node at each level is the one visible from the right."
+    solution_outline: |
+      BFS level by level. The last node in each level is
+      the right side view node. Alternatively, DFS visiting
+      right child first and recording the first node seen
+      at each depth. Time: O(n), Space: O(n).
+    tags: ["tree", "bfs", "dfs"]
+    neetcode_id: "neetcode-038"
+    challenge_type: "explain_why"
+
+  - id: "trees-010"
+    title: "Count Good Nodes in Binary Tree"
+    difficulty: "medium"
+    prompt: |
+      Given a binary tree root, a node X is "good" if in
+      the path from root to X there are no nodes with a
+      value greater than X. Return the number of good nodes.
+
+      Example:
+        Input: root = [3,1,4,3,null,1,5]
+        Output: 4
+        Explanation: Root 3, node 3 (path 3->1->3),
+          node 4 (path 3->4), node 5 (path 3->4->5).
+
+      Constraints:
+        - Number of nodes: [1, 10^5]
+        - Node values: [-10^4, 10^4]
+    hints:
+      - "Pass the maximum value seen so far down the path."
+      - "A node is good if its value >= the running max."
+    solution_outline: |
+      DFS passing the maximum value seen along the path.
+      If current node's value >= max_so_far, increment
+      count and update max. Recurse on children.
+      Time: O(n), Space: O(h).
+    tags: ["tree", "dfs", "preorder"]
+    neetcode_id: "neetcode-039"
+    challenge_type: "explain_why"
+
+  - id: "trees-011"
+    title: "Validate Binary Search Tree"
+    difficulty: "medium"
+    prompt: |
+      Given the root of a binary tree, determine if it is
+      a valid BST. A valid BST has these properties:
+        - Left subtree contains only nodes with values
+          strictly less than the node's value.
+        - Right subtree contains only nodes with values
+          strictly greater than the node's value.
+        - Both subtrees must also be valid BSTs.
+
+      Example 1:
+        Input: root = [2,1,3]
+        Output: true
+
+      Example 2:
+        Input: root = [5,1,4,null,null,3,6]
+        Output: false (node 4 is in right subtree of 5
+        but 4 < 5 violates BST)
+
+      Constraints:
+        - Number of nodes: [1, 10^4]
+        - Node values: [-2^31, 2^31 - 1]
+    hints:
+      - "Checking only parent-child relationships is not enough."
+      - "Pass valid range (min, max) down the recursion."
+      - "An inorder traversal of a valid BST produces sorted values."
+    solution_outline: |
+      Recursive validation passing a valid range (lo, hi).
+      At each node, check lo < val < hi, then recurse with
+      updated bounds. Time: O(n), Space: O(h).
+    tags: ["tree", "bst", "dfs"]
+    neetcode_id: "neetcode-040"
+    challenge_type: "explain_why"
+
+  - id: "trees-012"
+    title: "Kth Smallest Element in a BST"
+    difficulty: "medium"
+    prompt: |
+      Given the root of a BST and an integer k, return
+      the kth smallest value (1-indexed) among all node
+      values in the tree.
+
+      Example:
+        Input: root = [3,1,4,null,2], k = 1
+        Output: 1
+
+      Constraints:
+        - Number of nodes: [1, 10^4]
+        - 1 <= k <= number of nodes
+        - Node values: [0, 10^4]
+    hints:
+      - "Inorder traversal of a BST visits nodes in sorted order."
+      - "You can stop early once you have visited k nodes."
+    solution_outline: |
+      Inorder traversal (iterative or recursive), decrement
+      k at each visit. When k reaches 0, return that node's
+      value. Time: O(h + k), Space: O(h).
+    tags: ["tree", "bst", "inorder"]
+    neetcode_id: "neetcode-041"
+    challenge_type: "explain_why"
+
+  - id: "trees-013"
+    title: "Construct Binary Tree from Preorder and Inorder Traversal"
+    difficulty: "medium"
+    prompt: |
+      Given two integer arrays preorder and inorder where
+      preorder is the preorder traversal and inorder is
+      the inorder traversal of the same binary tree,
+      construct and return the binary tree.
+
+      Example:
+        Input: preorder = [3,9,20,15,7],
+               inorder = [9,3,15,20,7]
+        Output: [3,9,20,null,null,15,7]
+
+      Constraints:
+        - 1 <= preorder.length <= 3000
+        - inorder.length == preorder.length
+        - All values are unique
+        - Values: [-3000, 3000]
+    hints:
+      - "The first element of preorder is always the root."
+      - "Find the root in inorder to determine left and right subtree sizes."
+      - "Use a hashmap for O(1) lookup in the inorder array."
+    solution_outline: |
+      First element of preorder is root. Find it in inorder
+      (use a hashmap). Elements left of it in inorder form
+      the left subtree, elements right form the right subtree.
+      Recurse on each half. Time: O(n), Space: O(n).
+    tags: ["tree", "recursion", "hashmap"]
+    neetcode_id: "neetcode-042"
+    challenge_type: "explain_why"
+
+  - id: "trees-014"
+    title: "Binary Tree Maximum Path Sum"
+    difficulty: "hard"
+    prompt: |
+      Given the root of a binary tree, return the maximum
+      path sum of any non-empty path. A path is a sequence
+      of nodes where each pair of adjacent nodes has an
+      edge connecting them. A node can only appear once in
+      the path. The path does not need to pass through the
+      root.
+
+      Example:
+        Input: root = [-10,9,20,null,null,15,7]
+        Output: 42
+        Explanation: path 15 -> 20 -> 7
+
+      Constraints:
+        - Number of nodes: [1, 3 * 10^4]
+        - Node values: [-1000, 1000]
+    hints:
+      - "At each node, consider the max path going through it as a turning point."
+      - "The path through a node is node.val + max(0, left_gain) + max(0, right_gain)."
+      - "Return only one side (the better one) to the parent, since the path cannot fork."
+    solution_outline: |
+      DFS returning the max gain from each subtree (clamped
+      to 0). At each node, update global max with
+      node.val + left_gain + right_gain. Return
+      node.val + max(left_gain, right_gain) to parent.
+      Time: O(n), Space: O(h).
+    tags: ["tree", "dfs", "dynamic-programming"]
+    neetcode_id: "neetcode-043"
+    challenge_type: "explain_why"
+
+  - id: "trees-015"
+    title: "Serialize and Deserialize Binary Tree"
+    difficulty: "hard"
+    prompt: |
+      Design an algorithm to serialize a binary tree to a
+      string and deserialize that string back to the original
+      tree structure.
+
+      Serialization is converting the tree to a string.
+      Deserialization is reconstructing the tree from the
+      string.
+
+      Example:
+        Input: root = [1,2,3,null,null,4,5]
+        Serialize: "1,2,null,null,3,4,null,null,5,null,null"
+        Deserialize back to original tree.
+
+      Constraints:
+        - Number of nodes: [0, 10^4]
+        - Node values: [-1000, 1000]
+    hints:
+      - "Preorder traversal with null markers is sufficient to reconstruct the tree."
+      - "Use a delimiter (comma) and a null marker (e.g., 'null' or '#')."
+      - "Deserialization consumes tokens from the serialized string using a queue or index."
+    solution_outline: |
+      Serialize: preorder DFS, appending values and "null"
+      for null nodes, comma-separated.
+      Deserialize: split by comma, use a queue/index,
+      recursively build: read token, if null return null,
+      else create node and recurse for left and right.
+      Time: O(n), Space: O(n).
+    tags: ["tree", "dfs", "design"]
+    neetcode_id: "neetcode-044"
+    challenge_type: "explain_why"

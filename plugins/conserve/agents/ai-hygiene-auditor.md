@@ -223,6 +223,129 @@ def detect_documentation_slop(docs_path):
     return findings
 ```
 
+### Category 6: Code-Level AI Debt
+
+Detects *live but low-value* code patterns that LLMs produce
+at high rates.
+
+```python
+def detect_ai_code_debt(code_path):
+    """Detect code-level AI generation signatures."""
+    findings = []
+
+    # --- Heuristic signals (file-level) ---
+
+    for src_file in glob("**/*.py"):
+        content = read(src_file)
+        lines = content.splitlines()
+        total = len(lines)
+        if total < 20:
+            continue
+
+        comment_lines = sum(1 for l in lines if l.strip().startswith('#'))
+        comment_ratio = comment_lines / total
+
+        funcs = [l for l in lines if l.strip().startswith('def ')]
+        func_count = max(len(funcs), 1)
+
+        log_calls = sum(
+            1 for l in lines
+            if any(p in l for p in [
+                'print(', 'logging.', 'logger.', 'console.log',
+                'console.warn', 'console.error',
+            ])
+        )
+        log_density = log_calls / func_count
+
+        guard_hits = sum(
+            1 for l in lines
+            if any(p in l for p in [
+                'is None', 'is not None', '== None', '!= None',
+                'if not ', 'try:', 'except Exception',
+                '=== null', '!== null', '=== undefined',
+            ])
+        )
+        guard_density = guard_hits / func_count
+
+        signals = []
+        if comment_ratio > 0.30:
+            signals.append(f'comment_ratio={comment_ratio:.0%}')
+        if log_density > 3.0:
+            signals.append(f'log_density={log_density:.1f}')
+        if guard_density > 2.0:
+            signals.append(f'guard_density={guard_density:.1f}')
+
+        if signals:
+            findings.append({
+                'type': 'ai_code_debt_signals',
+                'severity': 'MEDIUM',
+                'file': src_file,
+                'signals': signals,
+                'recommendation': 'Review for AI-generated boilerplate'
+            })
+
+    # --- Pattern-based detection (codebase-wide) ---
+
+    # Restating comments: comment that echoes the next line
+    # e.g. "# increment counter" above "counter += 1"
+    restating = bash("""
+        rg -n '^\s*#\s' --type py . |
+        head -100
+    """)
+    # Manual review needed: flag files with >30% comment ratio
+
+    # Docstring bloat on trivial functions (<= 3 lines body)
+    # Detected via the comment_ratio heuristic above
+
+    # Pass-through wrappers: functions that just call another
+    # function with the same args and no added logic
+    passthrough = bash("""
+        rg -l 'def \w+\(.*\).*:\s*$' --type py . |
+        head -20
+    """)
+    # Requires manual review of flagged files
+
+    # Generic naming in domain code
+    generic_names = bash("""
+        rg -n 'def (handle_data|process_item|do_operation|' \
+            'handle_request|process_data|manage_items|' \
+            'run_task|execute_action)\b' --type py . |
+        head -20
+    """)
+    if generic_names:
+        findings.append({
+            'type': 'generic_naming',
+            'severity': 'LOW',
+            'evidence': generic_names,
+            'recommendation': (
+                'Replace generic names with domain terms. '
+                '"handle_data" tells you nothing; '
+                '"reconcile_invoice" tells you everything.'
+            )
+        })
+
+    return findings
+```
+
+#### What to skip (false positives)
+
+Not all matches indicate AI debt. Skip these intentional patterns:
+
+- Comments explaining **why** (business rules, constraints, external deps)
+- Defensive checks at genuine API boundaries (user input, network, file I/O)
+- Generated code (protobuf, GraphQL codegen, ORM migrations, lock files)
+- Wrapper functions that add auth, logging, metrics, or caching
+- High comment ratios in teaching/tutorial code or configuration files
+- Log density in error handlers and middleware (logging is the job)
+
+#### Thresholds
+
+| Signal | Normal | Elevated | Strong AI indicator |
+|--------|--------|----------|---------------------|
+| Comment ratio | < 15% | 15-30% | > 30% |
+| Log density | < 1.0 | 1.0-3.0 | > 3.0 per function |
+| Guard density | < 1.0 | 1.0-2.0 | > 2.0 per function |
+
 ## Report Format
 
 ```yaml
@@ -239,6 +362,7 @@ CATEGORY SCORES:
   Dependencies: 95/100 (All verified)
   Test Quality: 45/100 (Happy path only in 12 files)
   Documentation: 80/100 (Minor slop detected)
+  Code AI Debt: 60/100 (8 files with elevated signals)
 
 HIGH PRIORITY FINDINGS:
 

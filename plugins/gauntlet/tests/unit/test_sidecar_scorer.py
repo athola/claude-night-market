@@ -1,4 +1,4 @@
-"""Tests for the OnnxSidecarScorer (oracle daemon client)."""
+"""Tests for SidecarScorer (oracle daemon client)."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ from unittest.mock import patch
 from urllib.error import URLError
 
 import pytest
-from gauntlet.ml.scorer import OnnxSidecarScorer
+from gauntlet.ml.scorer import SidecarScorer
 
 from tests.conftest import make_urlopen_response
 
 
-class TestOnnxSidecarScorer:
+class TestSidecarScorer:
     """
     Feature: Oracle sidecar scorer for gauntlet
 
@@ -29,7 +29,7 @@ class TestOnnxSidecarScorer:
         When available() is called
         Then it returns False
         """
-        scorer = OnnxSidecarScorer(tmp_path / "nonexistent.port")
+        scorer = SidecarScorer(tmp_path / "nonexistent.port")
         assert scorer.available() is False
 
     @pytest.mark.unit
@@ -40,7 +40,7 @@ class TestOnnxSidecarScorer:
         When score is called
         Then it returns 0.0
         """
-        scorer = OnnxSidecarScorer(tmp_path / "nonexistent.port")
+        scorer = SidecarScorer(tmp_path / "nonexistent.port")
         assert scorer.score({"feat_a": 1.0}) == 0.0
 
     @pytest.mark.unit
@@ -58,7 +58,7 @@ class TestOnnxSidecarScorer:
             mock_urlopen.return_value = make_urlopen_response(
                 b'{"status": "ok", "models": ["quality_v1"]}'
             )
-            scorer = OnnxSidecarScorer(port_file)
+            scorer = SidecarScorer(port_file)
             assert scorer.available() is True
 
     @pytest.mark.unit
@@ -74,7 +74,7 @@ class TestOnnxSidecarScorer:
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b'{"score": 0.87}')
-            scorer = OnnxSidecarScorer(port_file)
+            scorer = SidecarScorer(port_file)
             result = scorer.score({"feat_a": 1.0})
             assert result == pytest.approx(0.87)
 
@@ -86,7 +86,7 @@ class TestOnnxSidecarScorer:
         When blend_weights is accessed
         Then it returns the neutral default (0.5, 0.5)
         """
-        scorer = OnnxSidecarScorer(tmp_path / "nonexistent.port")
+        scorer = SidecarScorer(tmp_path / "nonexistent.port")
         assert scorer.blend_weights == (0.5, 0.5)
 
     # ------------------------------------------------------------------
@@ -104,7 +104,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("9000")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b'{"status": "ok"}')
@@ -137,7 +137,7 @@ class TestOnnxSidecarScorer:
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("not-a-port")
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
         assert scorer.available() is False
 
     @pytest.mark.unit
@@ -152,7 +152,7 @@ class TestOnnxSidecarScorer:
         """
         port_file = tmp_path / "daemon.port"
         port_file.write_text("garbage")
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
         assert scorer.score({"feat_a": 1.0}) == 0.0
 
     # ------------------------------------------------------------------
@@ -170,7 +170,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch(
             "gauntlet.ml.scorer.urlopen", side_effect=URLError("connection refused")
@@ -191,7 +191,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b"not json {{")
@@ -211,7 +211,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b'{"status": "degraded"}')
@@ -238,7 +238,7 @@ class TestOnnxSidecarScorer:
             b'{"score": 0.75, "blend": {"word_overlap_weight": 0.3, "ml_weight": 0.7}}'
         )
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(payload)
@@ -262,7 +262,7 @@ class TestOnnxSidecarScorer:
             b'{"score": 0.6, "blend": {"word_overlap_weight": 0.4, "ml_weight": 0.6}}'
         )
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(payload)
@@ -286,7 +286,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen", side_effect=URLError("timeout")):
             result = scorer.score({"feat_a": 1.0})
@@ -305,7 +305,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b"{{bad json}}")
@@ -325,7 +325,7 @@ class TestOnnxSidecarScorer:
         port_file = tmp_path / "daemon.port"
         port_file.write_text("12345")
 
-        scorer = OnnxSidecarScorer(port_file)
+        scorer = SidecarScorer(port_file)
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(

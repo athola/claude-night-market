@@ -237,8 +237,8 @@ TIER1_PATTERNS = [
 
 TIER1_NEW_PATTERNS = [
     r'\bunderscore[sd]?\b', r'\bbolster\b', r'\bfoster\b',
-    r'\billumicat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
-    r'\breimaginc[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
+    r'\billuminat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
+    r'\breimagin[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
     r'\bseamless(?:ly)?\b', r'\binvaluable\b', r'\bvibrant\b',
     r'\binterplay\b', r'\bfacet[s]?\b', r'\bendeavor[s]?\b',
     r'\baptly\b', r'\btirelessly\b', r'\bvividly\b',
@@ -282,17 +282,48 @@ HIGH_FREQ_SHIFT_WORDS = [
 ]
 ```
 
-## Contextual Adjustments
+## False-Positive Exclusions
 
-Not all usage is problematic:
+Always define what to detect AND what to ignore.
+Flagging legitimate usage erodes trust in the detector.
 
-| Word | Acceptable Context | Problematic Context |
-|------|-------------------|---------------------|
-| delve | Technical deep-dive | Generic exploration |
-| leverage | Physics/mechanics | Business jargon |
-| robust | Engineering specs | Marketing claims |
-| seamless | UX testing results | Feature descriptions |
-| journey | Actual travel | Metaphor abuse |
+### Word-Level Exclusions
+
+| Word | Skip When | Flag When |
+|------|-----------|-----------|
+| delve | Technical deep-dive, data analysis | Generic "delve into the topic" |
+| leverage | Physics, mechanics, finance (actual leverage) | Business jargon substitute for "use" |
+| robust | Engineering specs, statistical methods | Marketing claims, feature descriptions |
+| seamless | Measured UX testing results with data | Feature descriptions without evidence |
+| journey | Actual travel, user journey maps with data | Metaphor for any process or experience |
+| comprehensive | Describing verified 100% coverage | Filler adjective for any collection |
+| nuanced | Academic analysis with cited evidence | Flattery or vague praise |
+| foster | Childcare, horticulture, proper nouns | Generic "foster collaboration/innovation" |
+| landscape | Geography, actual visual design | "the AI landscape", "competitive landscape" |
+| ecosystem | Biology, verified platform with APIs | Vague reference to any group of things |
+| insights | Data analysis with specific findings | "provides valuable insights" (padding) |
+| dynamic | Physics, runtime behavior (code) | Filler adjective for any changing thing |
+
+### Phrase-Level Exclusions
+
+| Phrase | Skip When | Flag When |
+|--------|-----------|-----------|
+| "at its core" | Describing actual CPU/kernel internals | Filler for "basically" |
+| "it's worth noting" | Preceding a genuine caveat with evidence | Preceding obvious information |
+| "generally speaking" | Qualifying a statistical claim | Hedging an opinion |
+| "areas for improvement" | Formal performance review documents | Avoiding saying "problems" or "bugs" |
+
+### Structural Exclusions
+
+Do not flag these as slop even if they match patterns:
+
+- **Quoted text**: Content inside blockquotes or citation marks
+- **Code examples**: Technical terms inside backticks or code blocks
+- **Proper nouns**: Product names, titles, organizations
+- **Direct citations**: Attributed quotes from named sources
+- **Glossary definitions**: Defining a term that happens to be a slop word
+- **Changelogs**: Version history entries using standardized language
+- **Generated output**: Content explicitly marked as AI-generated for comparison
 
 ## Scoring Formula
 

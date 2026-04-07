@@ -1,0 +1,459 @@
+category: "graphs"
+
+problems:
+  - id: "graphs-001"
+    title: "Number of Islands"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n 2D grid of '1's (land) and '0's
+      (water), return the number of islands. An island is
+      surrounded by water and formed by connecting adjacent
+      lands horizontally or vertically. Assume all four
+      edges of the grid are surrounded by water.
+
+      Example:
+        Input:
+          grid = [["1","1","0","0","0"],
+                  ["1","1","0","0","0"],
+                  ["0","0","1","0","0"],
+                  ["0","0","0","1","1"]]
+        Output: 3
+
+      Constraints:
+        - m, n: [1, 300]
+        - grid[i][j] is '0' or '1'
+    hints:
+      - "Each island is a connected component of '1's."
+      - "Use DFS or BFS from each unvisited '1' and mark all connected '1's as visited."
+    solution_outline: |
+      Iterate through the grid. When a '1' is found, increment
+      the island count and run DFS/BFS to mark all connected
+      '1's as visited (set to '0' or use a visited set).
+      Time: O(m * n), Space: O(m * n) worst case for
+      recursion stack or visited set.
+    tags: ["graph", "dfs", "bfs", "matrix"]
+    neetcode_id: "neetcode-079"
+    challenge_type: "explain_why"
+
+  - id: "graphs-002"
+    title: "Clone Graph"
+    difficulty: "medium"
+    prompt: |
+      Given a reference to a node in a connected undirected
+      graph, return a deep copy (clone) of the graph. Each
+      node has a value and a list of neighbors.
+
+      The graph is represented using an adjacency list. The
+      node's value is the same as the node's index (1-indexed).
+
+      Example:
+        Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+        Output: [[2,4],[1,3],[2,4],[1,3]]
+        (A new graph with the same structure)
+
+      Constraints:
+        - Number of nodes: [0, 100]
+        - Node values: [1, 100], unique
+        - No self-loops or repeated edges
+    hints:
+      - "Use a hashmap from original node to cloned node."
+      - "BFS or DFS: when visiting a node, create its clone, then process neighbors."
+    solution_outline: |
+      DFS or BFS with a hashmap {original -> clone}. For
+      each node, create a clone if not already in the map.
+      For each neighbor, recursively clone it and add to
+      the current clone's neighbor list.
+      Time: O(V + E), Space: O(V).
+    tags: ["graph", "dfs", "bfs", "hashmap"]
+    neetcode_id: "neetcode-080"
+    challenge_type: "explain_why"
+
+  - id: "graphs-003"
+    title: "Max Area of Island"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n binary matrix grid, return the area
+      of the largest island. An island is a group of 1's
+      connected 4-directionally. If there is no island,
+      return 0.
+
+      Example:
+        Input:
+          grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],
+                  [0,0,0,0,0,0,0,1,1,1,0,0,0],
+                  [0,1,1,0,1,0,0,0,0,0,0,0,0],
+                  [0,1,0,0,1,1,0,0,1,0,1,0,0],
+                  [0,1,0,0,1,1,0,0,1,1,1,0,0],
+                  [0,0,0,0,0,0,0,0,0,0,1,0,0],
+                  [0,0,0,0,0,0,0,1,1,1,0,0,0],
+                  [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+        Output: 6
+
+      Constraints:
+        - m, n: [1, 50]
+        - grid[i][j] is 0 or 1
+    hints:
+      - "Similar to Number of Islands, but track the size of each island."
+      - "DFS/BFS from each unvisited '1', counting cells visited."
+    solution_outline: |
+      Iterate through cells. For each unvisited 1, run DFS
+      counting the area. Track the maximum area seen.
+      Time: O(m * n), Space: O(m * n).
+    tags: ["graph", "dfs", "matrix"]
+    neetcode_id: "neetcode-081"
+    challenge_type: "explain_why"
+
+  - id: "graphs-004"
+    title: "Pacific Atlantic Water Flow"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n matrix of heights, water can flow from
+      a cell to an adjacent cell (up/down/left/right) if
+      the adjacent cell's height is less than or equal to
+      the current cell's height. Water can flow to the
+      Pacific ocean from the top and left edges, and to
+      the Atlantic ocean from the bottom and right edges.
+
+      Return a list of cells where water can flow to both
+      oceans.
+
+      Example:
+        Input:
+          heights = [[1,2,2,3,5],
+                     [3,2,3,4,4],
+                     [2,4,5,3,1],
+                     [6,7,1,4,5],
+                     [5,1,1,2,4]]
+        Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+
+      Constraints:
+        - m, n: [1, 200]
+        - heights[i][j]: [0, 10^5]
+    hints:
+      - "Instead of flowing from each cell, think in reverse: which cells can reach each ocean?"
+      - "BFS/DFS from each ocean's border cells, flowing uphill (to cells with height >= current)."
+      - "The answer is the intersection of cells reachable from both oceans."
+    solution_outline: |
+      Run BFS/DFS from all Pacific border cells (top and
+      left edges), marking reachable cells. Do the same
+      from Atlantic border cells (bottom and right edges).
+      Return cells in both reachable sets.
+      Time: O(m * n), Space: O(m * n).
+    tags: ["graph", "dfs", "bfs", "matrix"]
+    neetcode_id: "neetcode-082"
+    challenge_type: "explain_why"
+
+  - id: "graphs-005"
+    title: "Surrounded Regions"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n board containing 'X' and 'O', capture
+      all regions that are 4-directionally surrounded by 'X'.
+      A region is captured by flipping all 'O's to 'X's.
+      An 'O' on the border (or connected to a border 'O')
+      cannot be captured.
+
+      Example:
+        Input:
+          [["X","X","X","X"],
+           ["X","O","O","X"],
+           ["X","X","O","X"],
+           ["X","O","X","X"]]
+        Output:
+          [["X","X","X","X"],
+           ["X","X","X","X"],
+           ["X","X","X","X"],
+           ["X","O","X","X"]]
+
+      Constraints:
+        - m, n: [1, 200]
+        - board[i][j] is 'X' or 'O'
+    hints:
+      - "Border-connected 'O's can never be captured."
+      - "Mark all border-connected 'O's first, then flip the rest."
+      - "DFS/BFS from each border 'O' to find all connected 'O's."
+    solution_outline: |
+      DFS/BFS from every 'O' on the border, marking those
+      cells as safe (e.g., 'S'). Then iterate through the
+      board: flip remaining 'O' to 'X', flip 'S' back to 'O'.
+      Time: O(m * n), Space: O(m * n).
+    tags: ["graph", "dfs", "bfs", "matrix"]
+    neetcode_id: "neetcode-083"
+    challenge_type: "explain_why"
+
+  - id: "graphs-006"
+    title: "Rotting Oranges"
+    difficulty: "medium"
+    prompt: |
+      In a grid, each cell can be empty (0), a fresh orange
+      (1), or a rotten orange (2). Every minute, a fresh
+      orange adjacent (4-directionally) to a rotten orange
+      becomes rotten. Return the minimum number of minutes
+      until no fresh orange remains. If impossible, return -1.
+
+      Example:
+        Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
+        Output: 4
+
+      Constraints:
+        - m, n: [1, 10]
+        - grid[i][j] is 0, 1, or 2
+    hints:
+      - "This is multi-source BFS: all rotten oranges spread simultaneously."
+      - "Start BFS with all initially rotten oranges in the queue."
+      - "Track the number of BFS levels (minutes) and remaining fresh oranges."
+    solution_outline: |
+      Multi-source BFS. Enqueue all rotten oranges. Process
+      level by level, rotting adjacent fresh oranges. Track
+      minutes and fresh count. If fresh count reaches 0,
+      return minutes. Otherwise return -1.
+      Time: O(m * n), Space: O(m * n).
+    tags: ["graph", "bfs", "matrix"]
+    neetcode_id: "neetcode-084"
+    challenge_type: "explain_why"
+
+  - id: "graphs-007"
+    title: "Walls and Gates"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n grid where:
+        - -1 represents a wall
+        - 0 represents a gate
+        - INF (2^31 - 1) represents an empty room
+
+      Fill each empty room with the distance to its nearest
+      gate. If a room cannot reach any gate, leave it as INF.
+
+      Example:
+        Input:
+          [[INF, -1,  0, INF],
+           [INF, INF, INF, -1],
+           [INF, -1, INF, -1],
+           [0,   -1, INF, INF]]
+        Output:
+          [[3, -1, 0,  1],
+           [2,  2, 1, -1],
+           [1, -1, 2, -1],
+           [0, -1, 3,  4]]
+
+      Constraints:
+        - m, n: [1, 250]
+        - grid[i][j] is -1, 0, or 2^31 - 1
+    hints:
+      - "Multi-source BFS from all gates simultaneously."
+      - "BFS naturally finds shortest distances level by level."
+    solution_outline: |
+      Multi-source BFS starting from all gate cells (value 0).
+      Process level by level. For each empty room reached,
+      update its distance (BFS level). Walls and already-
+      visited rooms are skipped.
+      Time: O(m * n), Space: O(m * n).
+    tags: ["graph", "bfs", "matrix"]
+    neetcode_id: "neetcode-085"
+    challenge_type: "explain_why"
+
+  - id: "graphs-008"
+    title: "Course Schedule"
+    difficulty: "medium"
+    prompt: |
+      There are numCourses courses labeled 0 to
+      numCourses - 1. You are given an array prerequisites
+      where prerequisites[i] = [ai, bi] means you must take
+      course bi before course ai. Return true if you can
+      finish all courses.
+
+      Example 1:
+        Input: numCourses = 2, prerequisites = [[1,0]]
+        Output: true
+
+      Example 2:
+        Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+        Output: false (cycle exists)
+
+      Constraints:
+        - 1 <= numCourses <= 2000
+        - 0 <= prerequisites.length <= 5000
+        - prerequisites[i].length == 2
+        - All pairs are unique
+    hints:
+      - "This is a cycle detection problem in a directed graph."
+      - "Use topological sort (Kahn's algorithm with in-degrees) or DFS with coloring."
+    solution_outline: |
+      Build adjacency list and compute in-degrees. Use
+      Kahn's algorithm: enqueue nodes with in-degree 0,
+      process each by decrementing neighbors' in-degrees.
+      If all nodes are processed, no cycle exists.
+      Time: O(V + E), Space: O(V + E).
+    tags: ["graph", "topological-sort", "bfs"]
+    neetcode_id: "neetcode-086"
+    challenge_type: "explain_why"
+
+  - id: "graphs-009"
+    title: "Course Schedule II"
+    difficulty: "medium"
+    prompt: |
+      There are numCourses courses labeled 0 to
+      numCourses - 1. Given prerequisites as in Course
+      Schedule, return a valid ordering to finish all
+      courses. If impossible, return an empty array.
+      If multiple valid orderings exist, return any.
+
+      Example:
+        Input: numCourses = 4,
+               prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+        Output: [0,2,1,3] or [0,1,2,3]
+
+      Constraints:
+        - 1 <= numCourses <= 2000
+        - 0 <= prerequisites.length <= 5000
+    hints:
+      - "This is topological sort: produce a linear ordering respecting all prerequisites."
+      - "Use Kahn's algorithm and record the order nodes are dequeued."
+    solution_outline: |
+      Kahn's algorithm: compute in-degrees, enqueue nodes
+      with in-degree 0. As each node is dequeued, add to
+      result and decrement neighbors' in-degrees. If result
+      length equals numCourses, return it; otherwise return
+      empty (cycle detected).
+      Time: O(V + E), Space: O(V + E).
+    tags: ["graph", "topological-sort", "bfs"]
+    neetcode_id: "neetcode-087"
+    challenge_type: "explain_why"
+
+  - id: "graphs-010"
+    title: "Redundant Connection"
+    difficulty: "medium"
+    prompt: |
+      Given a graph that started as a tree with n nodes
+      (1 to n) and had one extra edge added, find and
+      return that edge. The extra edge creates exactly one
+      cycle. If multiple answers exist, return the edge
+      that appears last in the input.
+
+      Example:
+        Input: edges = [[1,2],[1,3],[2,3]]
+        Output: [2,3]
+
+      Constraints:
+        - n: [3, 1000]
+        - edges.length == n
+        - edges[i] = [ui, vi], 1 <= ui, vi <= n
+        - No duplicate edges
+    hints:
+      - "A tree with n nodes has n-1 edges. The nth edge creates a cycle."
+      - "Union-Find: process edges one by one. The first edge connecting two already-connected nodes is redundant."
+    solution_outline: |
+      Union-Find with path compression and union by rank.
+      Process edges in order. For each edge, if both nodes
+      are already in the same component, this edge is
+      redundant. Return the last such edge found.
+      Time: O(n * alpha(n)) which is nearly O(n).
+      Space: O(n).
+    tags: ["graph", "union-find"]
+    neetcode_id: "neetcode-088"
+    challenge_type: "explain_why"
+
+  - id: "graphs-011"
+    title: "Number of Connected Components in Undirected Graph"
+    difficulty: "medium"
+    prompt: |
+      Given n nodes labeled 0 to n-1 and a list of
+      undirected edges, return the number of connected
+      components in the graph.
+
+      Example:
+        Input: n = 5, edges = [[0,1],[1,2],[3,4]]
+        Output: 2
+
+      Constraints:
+        - 1 <= n <= 2000
+        - 0 <= edges.length <= 5000
+        - edges[i] = [ui, vi]
+        - No duplicate edges
+    hints:
+      - "Use Union-Find or DFS/BFS to identify connected components."
+      - "With Union-Find, start with n components and decrement on each successful union."
+    solution_outline: |
+      Union-Find: initialize n components. For each edge,
+      union the two nodes. If they were in different
+      components, decrement the component count.
+      Time: O(E * alpha(n)), Space: O(n).
+      Alternative: DFS/BFS counting connected components.
+    tags: ["graph", "union-find", "dfs"]
+    neetcode_id: "neetcode-089"
+    challenge_type: "explain_why"
+
+  - id: "graphs-012"
+    title: "Graph Valid Tree"
+    difficulty: "medium"
+    prompt: |
+      Given n nodes labeled 0 to n-1 and a list of
+      undirected edges, determine if these edges form a
+      valid tree. A valid tree is connected and has no
+      cycles.
+
+      Example 1:
+        Input: n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]
+        Output: true
+
+      Example 2:
+        Input: n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]
+        Output: false
+
+      Constraints:
+        - 1 <= n <= 2000
+        - 0 <= edges.length <= 5000
+    hints:
+      - "A tree with n nodes has exactly n-1 edges."
+      - "Check two conditions: exactly n-1 edges AND the graph is connected (or no cycle via Union-Find)."
+    solution_outline: |
+      A valid tree has exactly n-1 edges and is connected.
+      Quick check: if edges != n-1, return false.
+      Then use Union-Find to verify no cycles: if any edge
+      connects two already-connected nodes, return false.
+      Time: O(E * alpha(n)), Space: O(n).
+    tags: ["graph", "union-find", "tree"]
+    neetcode_id: "neetcode-090"
+    challenge_type: "explain_why"
+
+  - id: "graphs-013"
+    title: "Word Ladder"
+    difficulty: "hard"
+    prompt: |
+      Given two words beginWord and endWord, and a word
+      list, find the length of the shortest transformation
+      sequence from beginWord to endWord where:
+        - Only one letter can change at a time.
+        - Each transformed word must be in the word list.
+
+      Return 0 if no transformation sequence exists.
+      Return the number of words in the sequence (including
+      begin and end).
+
+      Example:
+        Input: beginWord = "hit", endWord = "cog",
+               wordList = ["hot","dot","dog","lot","log","cog"]
+        Output: 5
+        Explanation: hit -> hot -> dot -> dog -> cog
+
+      Constraints:
+        - 1 <= beginWord.length <= 10
+        - endWord.length == beginWord.length
+        - 1 <= wordList.length <= 5000
+        - All words have the same length
+        - Words consist of lowercase English letters
+        - All words in wordList are unique
+    hints:
+      - "Model this as a graph where words differing by one letter are neighbors."
+      - "BFS from beginWord gives the shortest path."
+      - "Use wildcard patterns (e.g., h*t) to efficiently find neighbors."
+    solution_outline: |
+      Build adjacency using wildcard patterns: for each word,
+      generate patterns like *ot, h*t, ho* and map them to
+      words. BFS from beginWord, checking if endWord is
+      reached. Track visited words to avoid cycles.
+      Time: O(M^2 * N) where M is word length and N is
+      word list size. Space: O(M^2 * N).
+    tags: ["graph", "bfs", "string"]
+    neetcode_id: "neetcode-091"
+    challenge_type: "explain_why"

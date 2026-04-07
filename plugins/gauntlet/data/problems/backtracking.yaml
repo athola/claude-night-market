@@ -1,0 +1,163 @@
+category: "backtracking"
+
+problems:
+  - id: "backtracking-001"
+    title: "Subsets"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums of unique elements, return
+      all possible subsets (the power set). The solution
+      must not contain duplicate subsets. Return in any order.
+
+      Example:
+        Input: nums = [1,2,3]
+        Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+      Constraints:
+        - 1 <= nums.length <= 10
+        - -10 <= nums[i] <= 10
+        - All elements are unique
+    hints:
+      - "For each element, you can either include it or exclude it."
+      - "Use backtracking: at index i, branch into include/exclude, then move to i+1."
+    solution_outline: |
+      Backtracking: at each index, either include the current
+      element or skip it. When index reaches the end, add
+      the current subset to results.
+      Time: O(n * 2^n), Space: O(n) recursion depth.
+    tags: ["backtracking", "recursion", "bit-manipulation"]
+    neetcode_id: "neetcode-068"
+    challenge_type: "explain_why"
+
+  - id: "backtracking-002"
+    title: "Combination Sum"
+    difficulty: "medium"
+    prompt: |
+      Given an array of distinct integers candidates and a
+      target integer, return all unique combinations of
+      candidates that sum to target. The same number may
+      be chosen an unlimited number of times. Return
+      combinations in any order.
+
+      Example:
+        Input: candidates = [2,3,6,7], target = 7
+        Output: [[2,2,3],[7]]
+
+      Constraints:
+        - 1 <= candidates.length <= 30
+        - 2 <= candidates[i] <= 40
+        - All candidates are distinct
+        - 1 <= target <= 40
+    hints:
+      - "Sort candidates to enable early termination."
+      - "At each step, try including the current candidate (allowing repeats) or moving to the next."
+      - "Stop recursing when the remaining target < 0."
+    solution_outline: |
+      Backtracking with the current index and remaining
+      target. At each step, try each candidate from the
+      current index onward (to avoid duplicates). Subtract
+      from target and recurse. Allow reusing the same index.
+      Time: O(n^(T/M)) where T is target and M is min
+      candidate. Space: O(T/M) recursion depth.
+    tags: ["backtracking", "recursion", "combination"]
+    neetcode_id: "neetcode-069"
+    challenge_type: "explain_why"
+
+  - id: "backtracking-003"
+    title: "Permutations"
+    difficulty: "medium"
+    prompt: |
+      Given an array nums of distinct integers, return all
+      possible permutations in any order.
+
+      Example:
+        Input: nums = [1,2,3]
+        Output: [[1,2,3],[1,3,2],[2,1,3],
+                 [2,3,1],[3,1,2],[3,2,1]]
+
+      Constraints:
+        - 1 <= nums.length <= 6
+        - -10 <= nums[i] <= 10
+        - All integers are unique
+    hints:
+      - "At each position, try every unused element."
+      - "Use a visited set or swap-based approach to track which elements have been used."
+    solution_outline: |
+      Backtracking: maintain a current permutation and a
+      set of used indices. At each step, try each unused
+      element, add it, recurse, then remove it (backtrack).
+      Time: O(n * n!), Space: O(n) for recursion and
+      current permutation.
+    tags: ["backtracking", "recursion", "permutation"]
+    neetcode_id: "neetcode-070"
+    challenge_type: "explain_why"
+
+  - id: "backtracking-004"
+    title: "Word Search"
+    difficulty: "medium"
+    prompt: |
+      Given an m x n grid of characters and a string word,
+      return true if word can be found in the grid. The word
+      must be formed from sequentially adjacent cells
+      (horizontally or vertically). The same cell may not
+      be used more than once.
+
+      Example:
+        Input:
+          board = [["A","B","C","E"],
+                   ["S","F","C","S"],
+                   ["A","D","E","E"]]
+          word = "ABCCED"
+        Output: true
+
+      Constraints:
+        - m, n: [1, 6]
+        - word.length: [1, 15]
+        - Board and word consist of uppercase/lowercase
+          English letters
+    hints:
+      - "Start DFS from every cell that matches the first character."
+      - "Mark cells as visited during the current path to avoid reuse."
+      - "Backtrack by unmarking cells when returning."
+    solution_outline: |
+      For each cell matching word[0], run DFS. At each step,
+      mark the cell visited, try all four directions for the
+      next character. Backtrack by unmarking. Return true if
+      the entire word is matched.
+      Time: O(m * n * 4^L) where L is word length.
+      Space: O(L) recursion depth.
+    tags: ["backtracking", "matrix", "dfs"]
+    neetcode_id: "neetcode-074"
+    challenge_type: "explain_why"
+
+  - id: "backtracking-005"
+    title: "Letter Combinations of a Phone Number"
+    difficulty: "medium"
+    prompt: |
+      Given a string containing digits from 2-9, return all
+      possible letter combinations that the number could
+      represent on a phone keypad. Return in any order.
+
+      Mapping: 2=abc, 3=def, 4=ghi, 5=jkl, 6=mno,
+      7=pqrs, 8=tuv, 9=wxyz.
+
+      Example:
+        Input: digits = "23"
+        Output: ["ad","ae","af","bd","be","bf",
+                 "cd","ce","cf"]
+
+      Constraints:
+        - 0 <= digits.length <= 4
+        - digits[i] is in ['2', '9']
+    hints:
+      - "Map each digit to its letters, then generate all combinations."
+      - "Use backtracking: at digit index i, try each mapped letter and recurse to i+1."
+    solution_outline: |
+      Backtracking with a digit-to-letters map. At each
+      digit index, iterate through its mapped letters,
+      append one, recurse to the next digit, then backtrack.
+      Time: O(4^n) where n is number of digits (at most 4).
+      Space: O(n) recursion depth.
+    tags: ["backtracking", "recursion", "string"]
+    neetcode_id: "neetcode-076"
+    challenge_type: "explain_why"

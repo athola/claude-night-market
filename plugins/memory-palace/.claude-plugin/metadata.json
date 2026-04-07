@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "main": "skills",
   "skills": [
     "skills/memory-palace-architect",

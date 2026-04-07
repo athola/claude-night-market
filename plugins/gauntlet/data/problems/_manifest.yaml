@@ -1,0 +1,64 @@
+# Problem Bank Manifest
+# Tracks NeetCode 150 categories and problem counts.
+
+version: "1.0"
+source: "NeetCode 150 + System Design"
+
+categories:
+  - id: arrays-and-hashing
+    name: "Arrays & Hashing"
+    neetcode_count: 9
+  - id: two-pointers
+    name: "Two Pointers"
+    neetcode_count: 5
+  - id: sliding-window
+    name: "Sliding Window"
+    neetcode_count: 6
+  - id: stack
+    name: "Stack"
+    neetcode_count: 7
+  - id: binary-search
+    name: "Binary Search"
+    neetcode_count: 7
+  - id: linked-list
+    name: "Linked List"
+    neetcode_count: 11
+  - id: trees
+    name: "Trees"
+    neetcode_count: 15
+  - id: tries
+    name: "Tries"
+    neetcode_count: 3
+  - id: heap-priority-queue
+    name: "Heap / Priority Queue"
+    neetcode_count: 7
+  - id: backtracking
+    name: "Backtracking"
+    neetcode_count: 5
+  - id: graphs
+    name: "Graphs"
+    neetcode_count: 13
+  - id: advanced-graphs
+    name: "Advanced Graphs"
+    neetcode_count: 6
+  - id: 1d-dynamic-programming
+    name: "1-D Dynamic Programming"
+    neetcode_count: 12
+  - id: 2d-dynamic-programming
+    name: "2-D Dynamic Programming"
+    neetcode_count: 5
+  - id: greedy
+    name: "Greedy"
+    neetcode_count: 8
+  - id: intervals
+    name: "Intervals"
+    neetcode_count: 6
+  - id: math-and-geometry
+    name: "Math & Geometry"
+    neetcode_count: 8
+  - id: bit-manipulation
+    name: "Bit Manipulation"
+    neetcode_count: 7
+  - id: system-design
+    name: "System Design"
+    neetcode_count: 0

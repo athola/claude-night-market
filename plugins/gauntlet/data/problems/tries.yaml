@@ -1,0 +1,126 @@
+category: "tries"
+
+problems:
+  - id: "tries-001"
+    title: "Implement Trie (Prefix Tree)"
+    difficulty: "medium"
+    prompt: |
+      Implement a trie (prefix tree) with the following
+      operations:
+
+      - Trie(): Initializes the trie object.
+      - insert(word): Inserts the string word into the trie.
+      - search(word): Returns true if the string word is in
+        the trie (exact match).
+      - startsWith(prefix): Returns true if there is a
+        previously inserted string that has the given prefix.
+
+      Example:
+        Input:
+          ["Trie", "insert", "search", "search",
+           "startsWith", "insert", "search"]
+          [[], ["apple"], ["apple"], ["app"],
+           ["app"], ["app"], ["app"]]
+        Output:
+          [null, null, true, false, true, null, true]
+
+      Constraints:
+        - Words and prefixes consist of lowercase English letters.
+        - At most 3 * 10^4 calls total.
+        - Word and prefix length: [1, 2000]
+    hints:
+      - "Each trie node stores a map of children (one per character) and an end-of-word flag."
+      - "Insert traverses (creating nodes as needed) and marks the final node."
+      - "search and startsWith both traverse, but search also checks the end-of-word flag."
+    solution_outline: |
+      Trie node has children dict and is_end boolean.
+      Insert: walk/create nodes per character, mark end.
+      Search: walk nodes, return is_end at final node.
+      StartsWith: walk nodes, return true if traversal
+      completes. Time: O(L) per operation where L is
+      word length. Space: O(total characters inserted).
+    tags: ["trie", "design", "string"]
+    neetcode_id: "neetcode-058"
+    challenge_type: "explain_why"
+
+  - id: "tries-002"
+    title: "Design Add and Search Words Data Structure"
+    difficulty: "medium"
+    prompt: |
+      Design a data structure that supports adding new words
+      and searching for a pattern where '.' matches any
+      single character.
+
+      - addWord(word): Adds word to the data structure.
+      - search(word): Returns true if any added word matches.
+        A '.' matches any single letter.
+
+      Example:
+        addWord("bad")
+        addWord("dad")
+        addWord("mad")
+        search("pad") -> false
+        search("bad") -> true
+        search(".ad") -> true
+        search("b..") -> true
+
+      Constraints:
+        - Words consist of lowercase English letters.
+        - Search patterns consist of lowercase letters and '.'.
+        - Word length: [1, 25]
+        - At most 10^4 calls.
+    hints:
+      - "Use a trie for storage."
+      - "When you encounter '.', branch into all children and check each."
+      - "Use DFS/backtracking for the wildcard search."
+    solution_outline: |
+      Store words in a trie. addWord is standard trie insert.
+      search uses DFS: for each character, if '.', recurse
+      into all children; otherwise follow the specific child.
+      Time: O(L) for add, O(26^L) worst case for search
+      with many dots (practically much less).
+      Space: O(total characters).
+    tags: ["trie", "dfs", "design"]
+    neetcode_id: "neetcode-059"
+    challenge_type: "explain_why"
+
+  - id: "tries-003"
+    title: "Word Search II"
+    difficulty: "hard"
+    prompt: |
+      Given an m x n board of characters and a list of
+      strings words, return all words that can be formed
+      by sequentially adjacent cells (horizontally or
+      vertically). The same cell may not be used more than
+      once per word.
+
+      Example:
+        Input:
+          board = [["o","a","a","n"],
+                   ["e","t","a","e"],
+                   ["i","h","k","r"],
+                   ["i","f","l","v"]]
+          words = ["oath","pea","eat","rain"]
+        Output: ["eat","oath"]
+
+      Constraints:
+        - m, n: [1, 12]
+        - board[i][j] is a lowercase English letter
+        - words.length: [1, 3 * 10^4]
+        - words[i].length: [1, 10]
+        - All words are unique
+    hints:
+      - "Build a trie from the word list, then DFS from each cell."
+      - "At each cell, check if the current path matches a trie prefix to prune early."
+      - "Remove found words from the trie to avoid duplicates and speed up further searches."
+    solution_outline: |
+      Build a trie from all words. For each cell on the
+      board, run DFS following trie edges. When a trie node
+      marks end-of-word, add the word to results and remove
+      the marker. Prune branches with no remaining children.
+      Time: O(m * n * 4^L) where L is max word length,
+      but trie pruning makes this much faster in practice.
+      Space: O(total word characters).
+    tags: ["trie", "backtracking", "matrix"]
+    neetcode_id: "neetcode-060"
+    challenge_type: "explain_why"

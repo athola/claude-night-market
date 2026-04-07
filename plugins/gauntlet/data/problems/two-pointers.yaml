@@ -1,0 +1,172 @@
+category: "two-pointers"
+
+problems:
+  - id: "two-pointers-001"
+    title: "Valid Palindrome"
+    difficulty: "easy"
+    prompt: |
+      A phrase is a palindrome if, after converting all uppercase letters
+      to lowercase and removing all non-alphanumeric characters, it reads
+      the same forward and backward.
+
+      Given a string s, return true if it is a palindrome, or false
+      otherwise.
+
+      Constraints:
+        - 1 <= s.length <= 2 * 10^5
+        - s consists only of printable ASCII characters
+
+      Example 1:
+        Input: s = "A man, a plan, a canal: Panama"
+        Output: true
+        Explanation: "amanaplanacanalpanama" is a palindrome.
+
+      Example 2:
+        Input: s = "race a car"
+        Output: false
+    hints:
+      - "Use two pointers starting from opposite ends of the string."
+      - "Skip non-alphanumeric characters and compare in a case-insensitive way."
+    solution_outline: |
+      Place a left pointer at index 0 and a right pointer at the end.
+      Move each pointer inward, skipping non-alphanumeric characters.
+      At each step, compare the lowercase versions of the two characters.
+      If any pair differs, return false.
+      Time: O(n). Space: O(1).
+    tags: ["two-pointers", "string"]
+    neetcode_id: "neetcode-010"
+    challenge_type: "explain_why"
+
+  - id: "two-pointers-002"
+    title: "Two Sum II - Input Array Is Sorted"
+    difficulty: "medium"
+    prompt: |
+      Given a 1-indexed array of integers numbers that is already sorted
+      in non-decreasing order, find two numbers such that they add up to
+      a specific target number. Return the indices of the two numbers
+      (1-indexed) as an integer array [index1, index2].
+
+      You may not use the same element twice. There is exactly one
+      solution.
+
+      Constraints:
+        - 2 <= numbers.length <= 3 * 10^4
+        - -1000 <= numbers[i] <= 1000
+        - numbers is sorted in non-decreasing order
+        - -1000 <= target <= 1000
+
+      Example:
+        Input: numbers = [2, 7, 11, 15], target = 9
+        Output: [1, 2]
+    hints:
+      - "The array is sorted. Can you use that to avoid a hash map?"
+      - "If the sum of two pointed-at values is too large, which pointer should move?"
+    solution_outline: |
+      Use two pointers: left at start, right at end. If their sum equals
+      target, return the indices. If the sum is too small, increment left.
+      If too large, decrement right. The sorted property guarantees
+      convergence to the answer.
+      Time: O(n). Space: O(1).
+    tags: ["two-pointers", "arrays", "sorted-array"]
+    neetcode_id: "neetcode-011"
+    challenge_type: "explain_why"
+
+  - id: "two-pointers-003"
+    title: "3Sum"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, return all triplets [nums[i], nums[j],
+      nums[k]] such that i != j, i != k, j != k, and
+      nums[i] + nums[j] + nums[k] == 0.
+
+      The solution set must not contain duplicate triplets.
+
+      Constraints:
+        - 3 <= nums.length <= 3000
+        - -10^5 <= nums[i] <= 10^5
+
+      Example:
+        Input: nums = [-1, 0, 1, 2, -1, -4]
+        Output: [[-1, -1, 2], [-1, 0, 1]]
+    hints:
+      - "Sort the array first. Then for each element, solve a two-sum problem on the remaining portion."
+      - "Skip duplicate values to avoid duplicate triplets."
+      - "Use the two-pointer technique for the inner two-sum since the array is sorted."
+    solution_outline: |
+      Sort the array. For each index i, use two pointers (left = i+1,
+      right = end) to find pairs that sum to -nums[i]. Skip duplicate
+      values of nums[i], and also skip duplicates for left and right
+      pointers after finding a valid triplet.
+      Time: O(n^2). Space: O(1) extra (ignoring output).
+    tags: ["two-pointers", "sorting", "arrays"]
+    neetcode_id: "neetcode-012"
+    challenge_type: "explain_why"
+
+  - id: "two-pointers-004"
+    title: "Container With Most Water"
+    difficulty: "medium"
+    prompt: |
+      You are given an integer array height of length n. There are n
+      vertical lines drawn such that the two endpoints of the i-th line
+      are (i, 0) and (i, height[i]).
+
+      Find two lines that together with the x-axis form a container that
+      holds the most water. Return the maximum amount of water the
+      container can store. The container may not be tilted.
+
+      Constraints:
+        - n == height.length
+        - 2 <= n <= 10^5
+        - 0 <= height[i] <= 10^4
+
+      Example:
+        Input: height = [1, 8, 6, 2, 5, 4, 8, 3, 7]
+        Output: 49
+    hints:
+      - "Start with the widest container (leftmost and rightmost lines)."
+      - "Moving the taller line inward can never increase the area. Why?"
+      - "Always move the shorter line inward to potentially find a taller one."
+    solution_outline: |
+      Two pointers at both ends. Compute area = min(height[l], height[r])
+      * (r - l). Move the pointer pointing to the shorter line inward,
+      because moving the taller one can only decrease or maintain the
+      limiting height while also reducing width.
+      Time: O(n). Space: O(1).
+    tags: ["two-pointers", "greedy"]
+    neetcode_id: "neetcode-013"
+    challenge_type: "explain_why"
+
+  - id: "two-pointers-005"
+    title: "Trapping Rain Water"
+    difficulty: "hard"
+    prompt: |
+      Given n non-negative integers representing an elevation map where
+      the width of each bar is 1, compute how much water it can trap
+      after raining.
+
+      Constraints:
+        - n == height.length
+        - 1 <= n <= 2 * 10^4
+        - 0 <= height[i] <= 10^5
+
+      Example:
+        Input: height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]
+        Output: 6
+
+      Example 2:
+        Input: height = [4, 2, 0, 3, 2, 5]
+        Output: 9
+    hints:
+      - "Water above each bar depends on the tallest bar to its left and right."
+      - "Water at position i = min(maxLeft, maxRight) - height[i]."
+      - "You can compute this with two pointers moving inward, tracking running maxes from each side."
+    solution_outline: |
+      Use two pointers (left, right) and track maxLeft and maxRight.
+      Process the side with the smaller max: if maxLeft <= maxRight,
+      the water at left is determined by maxLeft. Add
+      maxLeft - height[left] to the result and advance left. Mirror
+      logic for the right side.
+      Time: O(n). Space: O(1).
+    tags: ["two-pointers", "arrays", "monotonic-stack"]
+    neetcode_id: "neetcode-014"
+    challenge_type: "explain_why"

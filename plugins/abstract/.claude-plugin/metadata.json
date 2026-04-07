@@ -1,6 +1,6 @@
 {
   "name": "abstract",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "main": "skills",
   "skills": [
     "skills/modular-skills",

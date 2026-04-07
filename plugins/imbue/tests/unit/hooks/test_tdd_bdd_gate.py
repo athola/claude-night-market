@@ -479,6 +479,31 @@ class TestMainEntryPoint:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_main_handles_stdin_oserror(
+        self,
+        tdd_gate_module,
+        monkeypatch,
+    ) -> None:
+        """Scenario: main() handles OSError on stdin read.
+
+        Given stdin raises OSError (e.g. broken pipe)
+        When running main
+        Then it should exit 0 without crashing.
+        """
+
+        class BrokenStdin:
+            def read(self):
+                raise OSError("broken pipe")
+
+        monkeypatch.setattr("sys.stdin", BrokenStdin())
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 0
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_main_ignores_non_implementation_files(
         self,
         tdd_gate_module,

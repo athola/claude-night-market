@@ -77,7 +77,16 @@ Run `make format && make lint` to validate code quality before committing. Fix a
 
 ## Step 4: Review Diff Statistics (`diff-stat`)
 
-Run `git diff --cached --stat` for staged changes (or `git diff --stat` for unstaged work). Note the number of files modified and identify hotspots with large insertion or deletion counts.
+Run `git diff --cached --stat` for staged changes (or
+`git diff --stat` for unstaged work). Note the number of
+files modified and identify hotspots with large insertion
+or deletion counts.
+
+When sem is available (see `leyline:sem-integration`),
+also run `sem diff --format plain --staged` to display an entity-level
+summary alongside the stat output. This shows which
+functions, classes, and methods changed rather than just
+line counts.
 
 ## Step 5: Review Detailed Diff (`diff-details`)
 

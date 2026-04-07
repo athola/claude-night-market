@@ -1,0 +1,197 @@
+category: "greedy"
+
+problems:
+  - id: "greedy-001"
+    title: "Maximum Subarray"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums, find the contiguous subarray with the
+      largest sum and return that sum.
+
+      Constraints: 1 <= nums.length <= 10^5, -10^4 <= nums[i] <= 10^4
+
+      Example: nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4] -> 6
+      (Subarray [4, -1, 2, 1] has the largest sum.)
+    hints:
+      - "At each position, decide: extend the current subarray or start fresh."
+      - "Kadane's algorithm: current_sum = max(nums[i], current_sum + nums[i])."
+    solution_outline: |
+      Kadane's algorithm: maintain a running sum. If the running sum drops
+      below the current element, reset to the current element. Track the
+      global maximum throughout. Time O(n), space O(1).
+    tags: ["greedy", "array", "kadane"]
+    neetcode_id: "neetcode-088"
+    challenge_type: "explain_why"
+
+  - id: "greedy-002"
+    title: "Jump Game"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums where nums[i] represents the maximum
+      jump length from position i, determine if you can reach the last
+      index starting from index 0.
+
+      Constraints: 1 <= nums.length <= 10^4, 0 <= nums[i] <= 10^5
+
+      Example: nums = [2, 3, 1, 1, 4] -> true
+      Example: nums = [3, 2, 1, 0, 4] -> false
+    hints:
+      - "Track the farthest index you can reach as you scan left to right."
+      - "If your current index ever exceeds the farthest reachable index, return false."
+    solution_outline: |
+      Greedy: maintain the farthest reachable index. Iterate through the
+      array; at each position update farthest = max(farthest, i + nums[i]).
+      If i > farthest at any point, return false. If farthest >= n-1,
+      return true. Time O(n), space O(1).
+    tags: ["greedy", "array"]
+    neetcode_id: "neetcode-089"
+    challenge_type: "explain_why"
+
+  - id: "greedy-003"
+    title: "Jump Game II"
+    difficulty: "medium"
+    prompt: |
+      Given an integer array nums where nums[i] is the maximum jump
+      length from position i, return the minimum number of jumps to reach
+      the last index. You can assume you can always reach the end.
+
+      Constraints: 1 <= nums.length <= 10^4, 0 <= nums[i] <= 1000
+
+      Example: nums = [2, 3, 1, 1, 4] -> 2
+      (Jump 1 step from index 0 to 1, then 3 steps to the end.)
+    hints:
+      - "Think of it as BFS levels: each jump defines a range of reachable indices."
+      - "Track the current level's end and the farthest you can reach from this level."
+    solution_outline: |
+      BFS-style greedy: track the end of the current jump range and the
+      farthest reachable index. When you reach the current range's end,
+      increment jumps and extend the range to the farthest seen.
+      Time O(n), space O(1).
+    tags: ["greedy", "array", "bfs"]
+    neetcode_id: "neetcode-090"
+    challenge_type: "explain_why"
+
+  - id: "greedy-004"
+    title: "Gas Station"
+    difficulty: "medium"
+    prompt: |
+      There are n gas stations along a circular route. Station i has
+      gas[i] fuel and it costs cost[i] to travel to the next station.
+      Starting with an empty tank, return the starting station index from
+      which you can complete the full circuit, or -1 if impossible.
+
+      Constraints: n == gas.length == cost.length, 1 <= n <= 10^5,
+      0 <= gas[i], cost[i] <= 10^4
+
+      Example: gas = [1, 2, 3, 4, 5], cost = [3, 4, 5, 1, 2] -> 3
+    hints:
+      - "If total gas >= total cost, a solution must exist."
+      - "If the tank goes negative starting from station s, the answer cannot be any station between s and the failure point."
+    solution_outline: |
+      Single pass: track total surplus and current tank. When tank goes
+      negative, reset the start to the next station and reset current
+      tank. If total surplus >= 0 at the end, the recorded start is the
+      answer. Time O(n), space O(1).
+    tags: ["greedy", "circular-array"]
+    neetcode_id: "neetcode-091"
+    challenge_type: "explain_why"
+
+  - id: "greedy-005"
+    title: "Hand of Straights"
+    difficulty: "medium"
+    prompt: |
+      Given an array of integers hand and a group size groupSize,
+      determine if you can rearrange the array into groups of consecutive
+      numbers, each of length groupSize.
+
+      Constraints: 1 <= hand.length <= 10^4, 1 <= hand[i] <= 10^9,
+      1 <= groupSize <= hand.length
+
+      Example: hand = [1, 2, 3, 6, 2, 3, 4, 7, 8], groupSize = 3 -> true
+      (Groups: [1,2,3], [2,3,4], [6,7,8])
+    hints:
+      - "Sort the array and greedily form groups starting from the smallest available card."
+      - "Use a frequency map. For each smallest remaining card, try to form a group of consecutive values."
+    solution_outline: |
+      Sort and use a counter/map. For each smallest available number,
+      attempt to build a group of groupSize consecutive numbers,
+      decrementing counts. If any number in the group has insufficient
+      count, return false. Time O(n log n), space O(n).
+    tags: ["greedy", "sorting", "hash-map"]
+    neetcode_id: "neetcode-092"
+    challenge_type: "explain_why"
+
+  - id: "greedy-006"
+    title: "Merge Triplets to Form Target Triplet"
+    difficulty: "medium"
+    prompt: |
+      Given a 2D array triplets where triplets[i] = [a, b, c] and a
+      target triplet target = [x, y, z], determine if you can select some
+      triplets and merge them (taking the element-wise maximum) to obtain
+      the target exactly.
+
+      Constraints: 1 <= triplets.length <= 10^5,
+      1 <= a, b, c, x, y, z <= 1000
+
+      Example: triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,5]
+      -> true (merge triplets 0 and 2: max(2,1)=2, max(5,7)=7, max(3,5)=5)
+    hints:
+      - "A triplet is usable only if none of its values exceed the corresponding target value."
+      - "Filter to usable triplets, then check if the union of their values can cover each target component."
+    solution_outline: |
+      Filter out any triplet with any component exceeding the target.
+      Among remaining triplets, check if for each of the three positions
+      there exists at least one triplet matching the target value at that
+      position. Time O(n), space O(1).
+    tags: ["greedy", "array"]
+    neetcode_id: "neetcode-093"
+    challenge_type: "explain_why"
+
+  - id: "greedy-007"
+    title: "Partition Labels"
+    difficulty: "medium"
+    prompt: |
+      Given a string s, partition it into as many parts as possible so
+      that each letter appears in at most one part. Return the sizes of
+      the parts.
+
+      Constraints: 1 <= s.length <= 500, s consists of lowercase English
+      letters.
+
+      Example: s = "ababcbacadefegdehijhklij"
+      -> [9, 7, 8]
+    hints:
+      - "For each character, record its last occurrence in the string."
+      - "Scan left to right, extending the current partition to include the last occurrence of every character seen so far."
+    solution_outline: |
+      First pass: record the last index of each character. Second pass:
+      maintain the end boundary of the current partition. For each
+      character, extend the boundary to its last occurrence. When the
+      current index reaches the boundary, close the partition and start
+      a new one. Time O(n), space O(1) (26-letter alphabet).
+    tags: ["greedy", "string", "two-pointers"]
+    neetcode_id: "neetcode-094"
+    challenge_type: "explain_why"
+
+  - id: "greedy-008"
+    title: "Valid Parenthesis String"
+    difficulty: "medium"
+    prompt: |
+      Given a string s containing '(', ')' and '*', determine if it can
+      be valid. '*' can be treated as '(', ')' or an empty string.
+
+      Constraints: 1 <= s.length <= 100
+
+      Example: s = "(*))" -> true (* acts as '(')
+    hints:
+      - "Track the range of possible open-parenthesis counts: a minimum and a maximum."
+      - "For '(' increment both; for ')' decrement both; for '*' decrement min and increment max."
+    solution_outline: |
+      Greedy range tracking: maintain lo (min possible open parens) and
+      hi (max possible open parens). For '(' increment both, for ')'
+      decrement both, for '*' decrement lo and increment hi. Clamp lo
+      to 0 (cannot go negative). If hi < 0 at any point, return false.
+      At the end, return lo == 0. Time O(n), space O(1).
+    tags: ["greedy", "string", "stack"]
+    neetcode_id: "neetcode-095"
+    challenge_type: "explain_why"

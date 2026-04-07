@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 from collections import deque
 from pathlib import Path
 from typing import Any
 
 from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
+
+_log = logging.getLogger(__name__)
 
 _BATCH_SIZE = 450
 _MAX_BFS_NODES = 10_000
@@ -115,12 +118,23 @@ class GraphStore:
         try:
             self._conn.executescript(_FTS_CREATE_SQL)
         except sqlite3.OperationalError:
-            pass
+            _log.warning("FTS5 unavailable -- full-text search disabled")
         self._conn.commit()
 
     def close(self) -> None:
         """Close the database connection."""
         self._conn.close()
+
+    def __enter__(self) -> GraphStore:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object,
+    ) -> None:
+        self.close()
 
     # ------------------------------------------------------------------
     # Node CRUD
@@ -265,10 +279,33 @@ class GraphStore:
     ) -> None:
         """Atomically replace all nodes/edges for a file."""
         with self._conn:
+            # Remove stale FTS entries before deleting nodes
+            try:
+                self._conn.execute(
+                    "DELETE FROM nodes_fts WHERE file_path = ?", (file_path,)
+                )
+            except sqlite3.OperationalError:
+                pass  # FTS unavailable
             self._conn.execute("DELETE FROM nodes WHERE file_path = ?", (file_path,))
             self._conn.execute("DELETE FROM edges WHERE file_path = ?", (file_path,))
             self._batch_insert_nodes(nodes)
             self._batch_insert_edges(edges)
+            # Update FTS index incrementally for the new nodes
+            for node in nodes:
+                try:
+                    self._conn.execute(
+                        "INSERT INTO nodes_fts"
+                        "(qualified_name, kind, file_path, language)"
+                        " VALUES (?, ?, ?, ?)",
+                        (
+                            node.qualified_name,
+                            str(node.kind),
+                            node.file_path,
+                            node.language,
+                        ),
+                    )
+                except sqlite3.OperationalError:
+                    break  # FTS unavailable, skip remaining
 
     def _batch_insert_nodes(self, nodes: list[GraphNode]) -> None:
         for i in range(0, len(nodes), _BATCH_SIZE):

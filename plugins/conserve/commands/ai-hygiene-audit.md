@@ -40,6 +40,7 @@ AI coding creates different problems than human coding:
 /ai-hygiene-audit --focus duplication  # Tab-completion bloat
 /ai-hygiene-audit --focus tests        # Happy-path-only detection
 /ai-hygiene-audit --focus docs         # Documentation slop
+/ai-hygiene-audit --focus code-debt    # Code-level AI debt signals
 
 # Generate report file
 /ai-hygiene-audit --report ai-hygiene-report.md
@@ -52,7 +53,7 @@ AI coding creates different problems than human coding:
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--focus <area>` | Limit to: `git`, `duplication`, `tests`, `docs`, `deps` | all |
+| `--focus <area>` | Limit to: `git`, `duplication`, `tests`, `docs`, `deps`, `code-debt` | all |
 | `--report <file>` | Save detailed report to file | stdout |
 | `--threshold <score>` | Fail if hygiene score below threshold | none |
 | `--json` | Output structured JSON for CI integration | false |
@@ -84,6 +85,16 @@ python3 plugins/conserve/scripts/detect_duplicates.py . --format json --threshol
 - **Hedge word density**: "worth noting", "arguably", "to some extent"
 - **Formulaic structure**: Generic patterns without depth
 - **Surface insights**: Describes WHAT without explaining WHY
+
+### Code-Level AI Debt
+- **Comment ratio**: >30% comment lines signals restating/narrating code
+- **Log density**: >3.0 log calls per function signals debug leftovers
+- **Guard density**: >2.0 null/undefined checks per function signals defensive overengineering
+- **Generic naming**: `handle_data`, `process_item` in domain code where specific terms exist
+- **Pass-through wrappers**: Functions that delegate without adding logic
+- **Docstring bloat**: Multi-line docstrings on trivial 2-3 line functions
+
+See the ai-hygiene-auditor agent for thresholds and false-positive exclusions.
 
 ### Dependency Verification
 - **Hallucinated packages**: Imports for non-existent modules
