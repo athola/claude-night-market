@@ -68,43 +68,54 @@ for detailed setup options.
 
 23 internal plugins in four layers, plus external
 plugins from the superpowers-marketplace.
-Arrows show dependency direction (A --> B means
-A depends on B).
+Domain plugins are grouped by function: development
+and review, knowledge and research, or operations
+and media. Arrows show dependency direction
+(A --> B means A depends on B). Dashed arrows
+mark optional complements.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'secondaryColor': '#f8f8f8', 'tertiaryColor': '#fafafa', 'lineColor': '#64748b', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '14px' }}}%%
 flowchart TB
-    classDef domain fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
-    classDef utility fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
-    classDef foundation fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
-    classDef meta fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
-    classDef ext fill:#f5f5f5,stroke:#95a5a6,stroke-width:1px,stroke-dasharray: 5 5,color:#7f8c8d
-    classDef standalone fill:#fafafa,stroke:#bdc3c7,stroke-width:1px,color:#95a5a6
+    classDef domain fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af
+    classDef utility fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
+    classDef foundation fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#5b21b6
+    classDef meta fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#166534
+    classDef ext fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 5,color:#64748b
 
     subgraph External["External · superpowers-marketplace"]
         direction LR
-        SP[superpowers]:::ext
-        SPC[superpowers-chrome]:::ext
-        SPD[superpowers-dev]:::ext
-        SPL[superpowers-lab]:::ext
+        SP["superpowers"]:::ext
+        SPC["superpowers-chrome"]:::ext
+        SPD["superpowers-dev"]:::ext
+        SPL["superpowers-lab"]:::ext
     end
 
     subgraph Domain["Domain Specialists"]
-        attune:::domain
-        pensive:::domain
-        scribe:::domain
-        spec-kit:::domain
-        memory-palace:::domain
-        minister:::domain
-        parseltongue:::domain
-        tome:::domain
-        gauntlet:::domain
-        phantom:::domain
-        archetypes:::domain
-        cartograph:::domain
-        scry:::domain
+        direction LR
+        subgraph dev["Development & Review"]
+            attune:::domain
+            spec-kit:::domain
+            parseltongue:::domain
+            pensive:::domain
+            scribe:::domain
+        end
+        subgraph knowledge["Knowledge & Research"]
+            memory-palace:::domain
+            gauntlet:::domain
+            tome:::domain
+            archetypes:::domain
+            cartograph:::domain
+        end
+        subgraph ops["Operations & Media"]
+            minister:::domain
+            phantom:::domain
+            scry:::domain
+        end
     end
 
     subgraph Utility["Utility Layer"]
+        direction LR
         conserve:::utility
         conjure:::utility
         hookify:::utility
@@ -114,6 +125,7 @@ flowchart TB
     end
 
     subgraph Foundation["Foundation Layer"]
+        direction LR
         leyline:::foundation
         imbue:::foundation
         sanctum:::foundation
@@ -124,11 +136,18 @@ flowchart TB
     end
 
     %% Domain --> Foundation
-    attune --> imbue & sanctum & leyline
-    pensive --> imbue & leyline
-    scribe --> leyline & pensive & scry
-    spec-kit --> imbue & sanctum
-    memory-palace --> leyline & sanctum
+    attune --> leyline
+    attune --> imbue
+    attune --> sanctum
+    pensive --> leyline
+    pensive --> imbue
+    scribe --> leyline
+    scribe --> pensive
+    scribe --> scry
+    spec-kit --> imbue
+    spec-kit --> sanctum
+    memory-palace --> leyline
+    memory-palace --> sanctum
     parseltongue --> leyline
     minister --> leyline
     tome --> leyline
@@ -137,16 +156,25 @@ flowchart TB
     attune --> spec-kit
 
     %% Utility --> Foundation
-    conserve --> leyline & imbue
+    conserve --> leyline
+    conserve --> imbue
     conjure --> leyline
     hookify --> leyline
-    egregore --> sanctum & conserve
+    egregore --> sanctum
+    egregore --> conserve
 
     %% Meta --> Foundation + Domain
-    abstract --> leyline & imbue & sanctum & pensive
+    abstract --> leyline
+    abstract --> imbue
+    abstract --> sanctum
+    abstract --> pensive
 
     %% External (dashed = complements, not hard dependency)
-    SP -.-> imbue & sanctum & attune
+    SP -.-> imbue
+    SP -.-> sanctum
+    SP -.-> attune
+
+    linkStyle default stroke:#94a3b8,stroke-width:1.5px
 ```
 
 ### Plugin Catalog
