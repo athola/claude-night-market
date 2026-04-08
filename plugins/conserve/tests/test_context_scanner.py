@@ -1069,3 +1069,70 @@ class TestBlastRadiusCLI:
         captured = capsys.readouterr()
 
         assert "via" in captured.out.lower() or "a.py" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# T003: Scan Caching with Fingerprint Invalidation
+# ---------------------------------------------------------------------------
+
+
+class TestScanCaching:
+    """Tests for scan result caching."""
+
+    def test_compute_fingerprint_stable(self, tmp_path):
+        """Same directory produces same fingerprint."""
+        (tmp_path / "a.py").write_text("x = 1\n")
+        fp1 = cs.compute_fingerprint(tmp_path)
+        fp2 = cs.compute_fingerprint(tmp_path)
+        assert fp1 == fp2
+
+    def test_fingerprint_changes_on_new_file(self, tmp_path):
+        """Adding a file changes the fingerprint."""
+        (tmp_path / "a.py").write_text("x = 1\n")
+        fp1 = cs.compute_fingerprint(tmp_path)
+        (tmp_path / "b.py").write_text("y = 2\n")
+        fp2 = cs.compute_fingerprint(tmp_path)
+        assert fp1 != fp2
+
+    def test_save_and_load_cache(self, tmp_path):
+        """Cache round-trips through save/load."""
+        (tmp_path / "a.py").write_text("x = 1\n")
+        result = cs.scan_directory(tmp_path)
+        cs.save_cache(tmp_path, result)
+
+        cache_file = tmp_path / ".codesight-cache.json"
+        assert cache_file.exists()
+
+        loaded = cs.load_cache(tmp_path)
+        assert loaded is not None
+        assert loaded.project_name == result.project_name
+        assert loaded.total_files == result.total_files
+
+    def test_load_cache_returns_none_when_missing(self, tmp_path):
+        """No cache file returns None."""
+        loaded = cs.load_cache(tmp_path)
+        assert loaded is None
+
+    def test_load_cache_returns_none_on_fingerprint_mismatch(self, tmp_path):
+        """Stale cache returns None."""
+        (tmp_path / "a.py").write_text("x = 1\n")
+        result = cs.scan_directory(tmp_path)
+        cs.save_cache(tmp_path, result)
+
+        # Change the project
+        (tmp_path / "b.py").write_text("y = 2\n")
+
+        loaded = cs.load_cache(tmp_path)
+        assert loaded is None
+
+    def test_no_cache_flag_skips_cache(self, tmp_path, capsys):
+        """--no-cache forces a fresh scan."""
+        (tmp_path / "a.py").write_text("x = 1\n")
+
+        # First scan creates cache
+        cs.main([str(tmp_path)])
+        assert (tmp_path / ".codesight-cache.json").exists()
+
+        # Second scan with --no-cache still works
+        exit_code = cs.main(["--no-cache", str(tmp_path)])
+        assert exit_code == 0
