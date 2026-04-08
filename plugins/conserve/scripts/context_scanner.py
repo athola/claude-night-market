@@ -313,6 +313,7 @@ class ScanResult:
     # New CodeSight-inspired fields
     import_graph: ImportGraph | None = None
     hot_files: list[str] = field(default_factory=list)
+    hot_file_counts: dict[str, int] = field(default_factory=dict)
     routes: list[RouteInfo] = field(default_factory=list)
     env_vars: list[EnvVarInfo] = field(default_factory=list)
     middleware: list[MiddlewareInfo] = field(default_factory=list)
@@ -467,6 +468,10 @@ def scan_directory(root: Path) -> ScanResult:
     # New CodeSight-inspired detectors
     result.import_graph = build_import_graph(root)
     result.hot_files = detect_hot_files(result.import_graph)
+    result.hot_file_counts = {
+        hf: len(result.import_graph.imported_by.get(hf, set()))
+        for hf in result.hot_files
+    }
     result.routes = detect_routes(root)
     result.env_vars = detect_env_vars(root)
     result.middleware = detect_middleware(root)
@@ -1277,6 +1282,7 @@ def _rebuild_scan_result(data: dict) -> ScanResult:
         ecosystems=ecosystems,
         config_files=sr.get("config_files", []),
         hot_files=hot_files,
+        hot_file_counts=sr.get("hot_file_counts", {}),
         routes=routes,
         env_vars=env_vars,
         middleware=middleware,
@@ -2019,7 +2025,10 @@ def render_markdown(
         lines.append("")
         graph = result.import_graph
         for hf in result.hot_files[:8]:
-            count = len(graph.imported_by[hf]) if graph else 0
+            if graph and hf in graph.imported_by:
+                count = len(graph.imported_by[hf])
+            else:
+                count = result.hot_file_counts.get(hf, 0)
             lines.append(f"  - {hf} ({count} importers)")
         if len(result.hot_files) > 8:
             lines.append(f"  ...{len(result.hot_files) - 8} more")
@@ -2131,6 +2140,7 @@ def render_json(result: ScanResult) -> str:
             {"method": r.method, "path": r.path, "file": r.file} for r in result.routes
         ],
         "hot_files": result.hot_files,
+        "hot_file_counts": result.hot_file_counts,
         "env_vars": [
             {"name": v.name, "file": v.file, "has_default": v.has_default}
             for v in result.env_vars
@@ -2244,7 +2254,10 @@ def render_section(result: ScanResult, section: str) -> str | None:
     elif section == "hot-files":
         graph = result.import_graph
         for hf in result.hot_files[:15]:
-            count = len(graph.imported_by.get(hf, set())) if graph else 0
+            if graph and hf in graph.imported_by:
+                count = len(graph.imported_by[hf])
+            else:
+                count = result.hot_file_counts.get(hf, 0)
             lines.append(f"  - {hf} ({count} importers)")
         if len(result.hot_files) > 15:
             lines.append(f"  ...{len(result.hot_files) - 15} more")
