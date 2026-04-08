@@ -15,6 +15,7 @@ from __future__ import annotations
 
 # ruff: noqa: PLR0912, PLR0915, PLR2004, C901
 import argparse
+import copy
 import hashlib
 import json
 import re
@@ -1072,13 +1073,12 @@ def build_import_graph(root: Path) -> ImportGraph:
     file_index: dict[str, str] = {}  # filename -> relative path
     source_files: list[Path] = []
 
-    for dirpath, dirs, files in _walk_limited(root, max_depth=8):
-        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
+    for dirpath, _dirs, files in _walk_limited(root, max_depth=8):
         for fname in files:
             fpath = Path(dirpath) / fname
             if fpath.suffix.lower() in _SOURCE_EXTS:
                 rel = str(fpath.relative_to(root))
-                file_index[fname] = rel
+                file_index.setdefault(fname, rel)
                 source_files.append(fpath)
 
     # Second pass: extract imports and resolve to project files
@@ -2107,6 +2107,13 @@ def _round_tokens(n: int) -> str:
     return f"{rounded:,}"
 
 
+def _copy_result(result: ScanResult) -> ScanResult:
+    """Shallow copy with directories list cloned to prevent mutation."""
+    clone = copy.copy(result)
+    clone.directories = list(result.directories)
+    return clone
+
+
 def render_json(result: ScanResult) -> str:
     """Render scan result as JSON."""
     data = {
@@ -2172,7 +2179,13 @@ def render_json(result: ScanResult) -> str:
             else 0,
             "total": result.token_estimate.total if result.token_estimate else 0,
         },
-        "estimated_tokens": len(render_markdown(result, include_timestamp=False)) // 4,
+        "estimated_tokens": len(
+            render_markdown(
+                _copy_result(result),
+                include_timestamp=False,
+            )
+        )
+        // 4,
     }
     return json.dumps(data, indent=2)
 
@@ -2383,7 +2396,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if result is None:
         result = scan_directory(root)
-        save_cache(root, result)
+        try:
+            save_cache(root, result)
+        except OSError:
+            pass  # read-only filesystem (CI, Docker) — scan result is still valid
 
     if args.section:
         section_out = render_section(result, args.section)

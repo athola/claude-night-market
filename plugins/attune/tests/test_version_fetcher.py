@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 from urllib.error import URLError
 
 import pytest
+
 from version_fetcher import (
     fetch_github_action_version,
     fetch_npm_latest_version,

@@ -213,7 +213,7 @@ def main() -> int:
     # Find and assess session
     session_file = resolve_session_file()
     if not session_file:
-        logger.warning("No session file found")
+        logger.debug("No session file found")
         return 0
 
     assessment = assess_output_bloat(session_file)

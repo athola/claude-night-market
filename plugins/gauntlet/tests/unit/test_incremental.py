@@ -522,6 +522,22 @@ class TestGetStagedFiles:
             result = _get_staged_files()
         assert result == []
 
+    @pytest.mark.unit
+    def test_nonzero_returncode_returns_empty(self) -> None:
+        """
+        Scenario: git diff --cached exits with non-zero code
+        Given subprocess returns returncode=128
+        When I call _get_staged_files
+        Then an empty list is returned.
+        """
+        mock_result = type("R", (), {"returncode": 128, "stdout": ""})()
+        with patch(
+            "gauntlet.incremental.subprocess.run",
+            return_value=mock_result,
+        ):
+            result = _get_staged_files()
+        assert result == []
+
 
 class TestCollectFilesEdgeCases:
     """

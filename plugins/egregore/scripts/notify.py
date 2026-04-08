@@ -127,15 +127,18 @@ def build_issue_body(  # noqa: PLR0913 - matches herald's signature
     compatibility. Delegates to herald's build_issue_body().
     Returns empty string when herald is absent.
     """
-    return str(
-        _herald_build_issue_body(
-            event=event,
-            ctx=ctx,
+    if ctx is None:
+        ctx = AlertContext(
             work_item_id=work_item_id,
             work_item_ref=work_item_ref,
             stage=stage,
             step=step,
             detail=detail,
+        )
+    return str(
+        _herald_build_issue_body(
+            event=event,
+            ctx=ctx,
             source=source,
         )
     )

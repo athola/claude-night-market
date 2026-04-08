@@ -8,6 +8,7 @@ Opt-in via .gauntlet/config.json: {"auto_update": true}
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 import time
@@ -98,8 +99,6 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         msg = f"Graph updated: {files} files, {nodes} nodes in {duration}s"
         return {"additionalContext": msg}
     except Exception as exc:
-        import logging
-
         logging.getLogger(__name__).warning(
             "graph_auto_update failed: %s: %s",
             type(exc).__name__,

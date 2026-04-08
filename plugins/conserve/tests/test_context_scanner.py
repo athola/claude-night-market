@@ -11,6 +11,7 @@ import subprocess
 import sys
 import textwrap
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -1136,6 +1137,70 @@ class TestScanCaching:
         # Second scan with --no-cache still works
         exit_code = cs.main(["--no-cache", str(tmp_path)])
         assert exit_code == 0
+
+    def test_save_cache_oserror_does_not_crash(self, tmp_path, capsys):
+        """
+        GIVEN a read-only filesystem
+        WHEN main() tries to save_cache and gets OSError
+        THEN the scan still completes successfully.
+        """
+        (tmp_path / "a.py").write_text("x = 1\n")
+        with patch.object(cs, "save_cache", side_effect=OSError("read-only")):
+            exit_code = cs.main(["--no-cache", str(tmp_path)])
+        assert exit_code == 0
+
+
+class TestCopyResult:
+    """Tests for _copy_result preventing mutation."""
+
+    def test_copy_result_does_not_share_directories_list(self, tmp_path):
+        """
+        GIVEN a ScanResult
+        WHEN _copy_result is called
+        THEN modifying the clone's directories does not affect the original.
+        """
+        (tmp_path / "a.py").write_text("x = 1\n")
+        result = cs.scan_directory(tmp_path)
+        original_dirs = list(result.directories)
+
+        clone = cs._copy_result(result)
+        clone.directories.append(("injected", 999))
+
+        assert result.directories == original_dirs
+
+    def test_render_json_does_not_mutate_result(self, tmp_path):
+        """
+        GIVEN a ScanResult
+        WHEN render_json is called
+        THEN the original result.directories is unchanged.
+        """
+        (tmp_path / "a.py").write_text("x = 1\n")
+        result = cs.scan_directory(tmp_path)
+        original_dir_count = len(result.directories)
+
+        cs.render_json(result)
+
+        assert len(result.directories) == original_dir_count
+
+
+class TestImportGraphDedup:
+    """Tests for file_index.setdefault deduplication in build_import_graph."""
+
+    def test_duplicate_filenames_keep_first_path(self, tmp_path):
+        """
+        GIVEN two files with the same basename in different directories
+        WHEN build_import_graph runs
+        THEN the graph builds without error (setdefault prevents overwrite).
+        """
+        sub_a = tmp_path / "a"
+        sub_b = tmp_path / "b"
+        sub_a.mkdir()
+        sub_b.mkdir()
+        (sub_a / "utils.py").write_text("import json\n")
+        (sub_b / "utils.py").write_text("import os\n")
+
+        graph = cs.build_import_graph(tmp_path)
+        assert isinstance(graph, cs.ImportGraph)
 
 
 class TestSchemaDetection:

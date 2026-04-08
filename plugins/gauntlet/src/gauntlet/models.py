@@ -199,7 +199,7 @@ class KnowledgeEntry:
     module: str
     concept: str
     detail: str
-    difficulty: int  # 1-5
+    difficulty: int  # 1-4
     extracted_at: str
     source: str
     related_files: list[str] = field(default_factory=list)
@@ -207,8 +207,8 @@ class KnowledgeEntry:
     consumers: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 5:
-            msg = f"difficulty must be 1-5, got {self.difficulty}"
+        if not 1 <= self.difficulty <= 4:
+            msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
     def to_dict(self) -> dict[str, Any]:
@@ -252,7 +252,7 @@ class Challenge:
     id: str
     type: ChallengeType
     knowledge_entry_id: str
-    difficulty: int  # 1-5
+    difficulty: int  # 1-4
     prompt: str
     context: str
     answer: str
@@ -261,8 +261,8 @@ class Challenge:
     options: list[str] | None = None
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 5:
-            msg = f"difficulty must be 1-5, got {self.difficulty}"
+        if not 1 <= self.difficulty <= 4:
+            msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
     def to_dict(self) -> dict[str, Any]:
@@ -305,13 +305,13 @@ class AnswerRecord:
     knowledge_entry_id: str
     challenge_type: ChallengeType
     category: str
-    difficulty: int  # 1-5
+    difficulty: int  # 1-4
     result: ChallengeResult
     answered_at: str
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 5:
-            msg = f"difficulty must be 1-5, got {self.difficulty}"
+        if not 1 <= self.difficulty <= 4:
+            msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
     def score(self) -> float:

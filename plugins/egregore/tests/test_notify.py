@@ -300,7 +300,10 @@ class TestSendWebhook:
         ids=["slack-format", "discord-format"],
     )
     @patch("subprocess.run")
-    def test_chat_formats(self, mock_run: MagicMock, fmt: str, key: str) -> None:
+    @patch("_herald_notify.validate_webhook_url")
+    def test_chat_formats(
+        self, _mock_validate: MagicMock, mock_run: MagicMock, fmt: str, key: str
+    ) -> None:
         """Given slack/discord format, then uses correct payload key."""
         mock_run.return_value = MagicMock(returncode=0)
         result = send_webhook(

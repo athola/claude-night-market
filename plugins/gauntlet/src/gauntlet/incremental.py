@@ -111,6 +111,8 @@ def _get_staged_files() -> list[str]:
             text=True,
             timeout=10,
         )
+        if result.returncode != 0:
+            return []
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return []

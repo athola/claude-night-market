@@ -90,7 +90,6 @@ python3 "$(find . -path '*/conserve/scripts/context_scanner.py' \
 
 - `--no-cache` to force a fresh scan
 - `--no-wiki` to skip wiki article generation
-- `--no-schema` to skip schema/model extraction
 
 ## Wiki Articles
 

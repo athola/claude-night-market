@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oracle"
-version = "1.8.2"
+version = "1.8.3"
 description = "ONNX Runtime inference daemon for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

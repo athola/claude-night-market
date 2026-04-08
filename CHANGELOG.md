@@ -5,6 +5,43 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.8.3] - 2026-04-08
+
+### Changed
+
+- **gauntlet models**: Narrowed difficulty range from
+  1-5 to 1-4 across KnowledgeEntry, Challenge, and
+  AnswerRecord. Aligns scoring with the four onboarding
+  stages.
+- **conserve context-map**: Removed `--no-schema` flag
+  (schema detection is now always included).
+- **pensive blast-radius**: Shell snippet skips dotfiles
+  and documents file-type filtering for reduced false
+  positives.
+
+### Fixed
+
+- **conserve context_scanner**: Prevented mutation of
+  ScanResult during JSON rendering via `_copy_result`.
+  Fixed duplicate filename collisions in import graph
+  with `setdefault`. Graceful handling of read-only
+  filesystems when saving cache.
+- **gauntlet incremental**: `_get_staged_files` returns
+  empty list on non-zero git exit code instead of
+  parsing empty output.
+- **gauntlet graph_auto_update**: Moved `logging` import
+  to module level instead of inside exception handler.
+- **sanctum security_pattern_check**: Early exit after
+  first highest-severity match avoids redundant pattern
+  evaluation. Broader exception tuple (TypeError,
+  AttributeError) in crash handler.
+- **leyline supply_chain_check**: Broader exception tuple
+  (TypeError, AttributeError) in crash handler.
+- **conserve tool_output_summarizer**: Downgraded
+  "no session file" log from warning to debug.
+
 ## [1.8.2] - 2026-04-05
 
 ### Added

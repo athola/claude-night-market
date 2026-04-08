@@ -67,15 +67,21 @@ Tell the user: "Run `/gauntlet-graph build` first."
    if command -v rg &>/dev/null; then
      git diff --name-only HEAD | while read f; do
        stem="${f%.*}"; stem="${stem##*/}"
+       [ -z "$stem" ] && continue  # skip dotfiles (.gitignore etc.)
        rg -l "$stem" . 2>/dev/null
      done | sort -u
    else
      git diff --name-only HEAD | while read f; do
        stem="${f%.*}"; stem="${stem##*/}"
+       [ -z "$stem" ] && continue  # skip dotfiles (.gitignore etc.)
        grep -rl "$stem" . 2>/dev/null
      done | sort -u
    fi
    ```
+
+   Note: this searches all file types. For Python-only
+   projects, add `--type py` to `rg` or `--include="*.py"`
+   to `grep` to reduce false positives.
 
 3. **Display results in priority order**:
 

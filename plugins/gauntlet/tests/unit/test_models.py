@@ -115,6 +115,33 @@ class TestKnowledgeEntry:
         assert entry.tags == []
         assert entry.consumers == []
 
+    def test_difficulty_upper_bound_is_4(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating a KnowledgeEntry
+        THEN it succeeds without error.
+        """
+        entry = _make_entry(difficulty=4)
+        assert entry.difficulty == 4
+
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating a KnowledgeEntry
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_entry(difficulty=5)
+
+    def test_difficulty_0_raises_value_error(self):
+        """
+        GIVEN difficulty=0 (below the 1-4 range)
+        WHEN creating a KnowledgeEntry
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_entry(difficulty=0)
+
 
 # ---------------------------------------------------------------------------
 # Challenge
@@ -182,6 +209,44 @@ class TestChallenge:
         ):
             assert key in d
 
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating a Challenge
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            Challenge(
+                id="ch-bad",
+                type="multiple_choice",
+                knowledge_entry_id="ke-001",
+                difficulty=5,
+                prompt="Q?",
+                context="ctx",
+                answer="A",
+                hints=[],
+                scope_files=[],
+            )
+
+    def test_difficulty_4_is_valid(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating a Challenge
+        THEN it succeeds.
+        """
+        ch = Challenge(
+            id="ch-max",
+            type="multiple_choice",
+            knowledge_entry_id="ke-001",
+            difficulty=4,
+            prompt="Q?",
+            context="ctx",
+            answer="A",
+            hints=[],
+            scope_files=[],
+        )
+        assert ch.difficulty == 4
+
 
 # ---------------------------------------------------------------------------
 # AnswerRecord
@@ -209,6 +274,24 @@ class TestAnswerRecord:
         assert restored.challenge_id == ar.challenge_id
         assert restored.result == ar.result
         assert restored.score() == 1.0
+
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating an AnswerRecord
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_answer("pass", difficulty=5)
+
+    def test_difficulty_4_is_valid(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating an AnswerRecord
+        THEN it succeeds.
+        """
+        ar = _make_answer("pass", difficulty=4)
+        assert ar.difficulty == 4
 
 
 # ---------------------------------------------------------------------------

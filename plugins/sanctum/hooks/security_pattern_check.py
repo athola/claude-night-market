@@ -187,6 +187,10 @@ def check_content(file_path: str, content: str) -> tuple:
             # stop checking further matches for this pattern
             break
 
+        # Already found highest-severity match; skip remaining patterns
+        if best_match[0] is not None:
+            break
+
     return best_match
 
 
@@ -245,7 +249,15 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (json.JSONDecodeError, OSError, KeyError, ValueError, RuntimeError):
+    except (
+        json.JSONDecodeError,
+        OSError,
+        KeyError,
+        TypeError,
+        AttributeError,
+        ValueError,
+        RuntimeError,
+    ):
         import traceback
 
         traceback.print_exc(file=sys.stderr)
