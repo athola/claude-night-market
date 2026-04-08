@@ -8,6 +8,7 @@
     "./skills/clear-context",
     "./skills/code-quality-principles",
     "./skills/compression-strategy",
+    "./skills/context-map",
     "./skills/context-optimization",
     "./skills/cpu-gpu-performance",
     "./skills/decisive-action",
