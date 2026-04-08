@@ -30,6 +30,7 @@ skills:
 - skills/smart-sourcing
 - skills/token-conservation
 - skills/agent-expenditure
+- skills/context-map
 commands:
 - commands/ai-hygiene-audit.md
 - commands/bloat-scan.md
