@@ -1204,3 +1204,75 @@ class TestSchemaDetection:
         )
         schemas = cs.detect_schemas(tmp_path)
         assert schemas == []
+
+
+class TestWikiGeneration:
+    """Tests for .codesight/ wiki article generation."""
+
+    def test_generates_index(self, tmp_path):
+        (tmp_path / "auth.py").write_text("import jwt\n")
+        (tmp_path / "models.py").write_text(
+            "class User(Base):\n    id = Column(Integer)\n"
+        )
+        result = cs.scan_directory(tmp_path)
+        cs.generate_wiki(tmp_path, result)
+
+        index = tmp_path / ".codesight" / "INDEX.md"
+        assert index.exists()
+        content = index.read_text()
+        assert "auth" in content.lower() or "database" in content.lower()
+
+    def test_generates_auth_article(self, tmp_path):
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "auth.py").write_text("import jwt\ndef login(): pass\n")
+        (src / "middleware.py").write_text("def verify_token(): pass\n")
+        result = cs.scan_directory(tmp_path)
+        cs.generate_wiki(tmp_path, result)
+
+        auth_article = tmp_path / ".codesight" / "auth.md"
+        assert auth_article.exists()
+        content = auth_article.read_text()
+        assert "auth.py" in content
+
+    def test_generates_api_article_from_routes(self, tmp_path):
+        (tmp_path / "routes.py").write_text(
+            "from fastapi import FastAPI\n"
+            "app = FastAPI()\n"
+            '@app.get("/users")\n'
+            "def get_users(): pass\n"
+        )
+        result = cs.scan_directory(tmp_path)
+        cs.generate_wiki(tmp_path, result)
+
+        api_article = tmp_path / ".codesight" / "api.md"
+        assert api_article.exists()
+        content = api_article.read_text()
+        assert "/users" in content
+
+    def test_skips_empty_topics(self, tmp_path):
+        (tmp_path / "utils.py").write_text("def helper(): pass\n")
+        result = cs.scan_directory(tmp_path)
+        cs.generate_wiki(tmp_path, result)
+
+        wiki_dir = tmp_path / ".codesight"
+        if wiki_dir.exists():
+            articles = [f.name for f in wiki_dir.iterdir() if f.name != "INDEX.md"]
+            assert len(articles) == 0
+
+    def test_no_wiki_flag(self, tmp_path, capsys):
+        (tmp_path / "auth.py").write_text("import jwt\n")
+        cs.main(["--no-wiki", str(tmp_path)])
+
+        wiki_dir = tmp_path / ".codesight"
+        assert not wiki_dir.exists()
+
+    def test_wiki_only_flag(self, tmp_path, capsys):
+        (tmp_path / "auth.py").write_text("import jwt\n")
+        exit_code = cs.main(["--wiki-only", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert (tmp_path / ".codesight").exists()
+        # wiki-only should not print the full context map
+        assert "## Structure" not in captured.out

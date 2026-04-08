@@ -291,6 +291,16 @@ class SchemaModel:
 
 
 @dataclass
+class WikiArticle:
+    """A generated wiki knowledge article."""
+
+    topic: str
+    title: str
+    files: list[str] = field(default_factory=list)
+    content: str = ""
+
+
+@dataclass
 class ScanResult:
     """Complete project scan result."""
 
@@ -1740,6 +1750,179 @@ def detect_schemas(root: Path) -> list[SchemaModel]:
 
 
 # ---------------------------------------------------------------------------
+# Wiki Knowledge Articles
+# ---------------------------------------------------------------------------
+
+_TOPIC_PATTERNS: list[tuple[str, str, list[str], list[str]]] = [
+    (
+        "auth",
+        "Authentication & Authorization",
+        ["auth", "login", "session", "permission", "jwt", "oauth", "token"],
+        ["jwt", "oauth", "passlib", "bcrypt", "flask_login", "authlib"],
+    ),
+    (
+        "database",
+        "Database & Models",
+        ["model", "schema", "migration", "orm", "database", "db"],
+        [
+            "sqlalchemy",
+            "django.db",
+            "prisma",
+            "sqlx",
+            "diesel",
+            "gorm",
+            "drizzle",
+            "mongoose",
+            "sequelize",
+            "typeorm",
+        ],
+    ),
+    (
+        "api",
+        "API Routes & Endpoints",
+        ["route", "endpoint", "handler", "controller", "view", "api"],
+        [],
+    ),
+    (
+        "config",
+        "Configuration & Environment",
+        ["config", "setting", "env", ".env"],
+        ["dotenv", "pydantic_settings", "decouple", "environ"],
+    ),
+    (
+        "testing",
+        "Testing",
+        ["test", "spec", "fixture", "conftest", "factory"],
+        ["pytest", "unittest", "jest", "vitest", "mocha"],
+    ),
+]
+
+
+def classify_topics(
+    result: ScanResult,
+) -> dict[str, list[str]]:
+    """Classify project files into topic clusters."""
+    topics: dict[str, list[str]] = defaultdict(list)
+
+    # Classify files by route presence
+    route_files = {r.file for r in result.routes}
+    for rf in route_files:
+        topics["api"].append(rf)
+
+    # Classify files by env var presence
+    env_files = {v.file for v in result.env_vars}
+    for ef in env_files:
+        if ef not in topics["config"]:
+            topics["config"].append(ef)
+
+    # Classify by middleware
+    for mw in result.middleware:
+        if mw.kind in ("auth", "session"):
+            topics["auth"].append(mw.file)
+        elif mw.kind == "logging":
+            topics["config"].append(mw.file)
+
+    # Classify schemas
+    for s in getattr(result, "schemas", []):
+        if s.file not in topics["database"]:
+            topics["database"].append(s.file)
+
+    # Classify hot files by path patterns
+    for hf in result.hot_files:
+        hf_lower = hf.lower()
+        for topic, _title, path_pats, _imp_pats in _TOPIC_PATTERNS:
+            if any(pat in hf_lower for pat in path_pats):
+                if hf not in topics[topic]:
+                    topics[topic].append(hf)
+
+    # Deduplicate and sort
+    for topic, files in topics.items():
+        topics[topic] = sorted(set(files))
+
+    # Remove empty topics
+    return {k: v for k, v in topics.items() if v}
+
+
+def _render_wiki_article(
+    topic: str, title: str, files: list[str], result: ScanResult
+) -> str:
+    """Render a single wiki article as markdown."""
+    lines = [f"# {title}", ""]
+
+    if topic == "api" and result.routes:
+        by_file: dict[str, list[RouteInfo]] = defaultdict(list)
+        for r in result.routes:
+            by_file[r.file].append(r)
+        for rfile, routes in sorted(by_file.items()):
+            lines.append(f"## {rfile}")
+            for r in routes:
+                lines.append(f"  {r.method:<7} {r.path}")
+            lines.append("")
+    elif topic == "database" and getattr(result, "schemas", []):
+        for s in result.schemas:
+            fields = f" ({s.field_count} fields)" if s.field_count else ""
+            lines.append(f"  - {s.name}: {s.file}{fields}")
+        lines.append("")
+
+    if topic == "config" and result.env_vars:
+        lines.append("## Environment Variables")
+        for v in result.env_vars[:20]:
+            default = " (has default)" if v.has_default else " (required)"
+            lines.append(f"  - {v.name}{default}")
+        if len(result.env_vars) > 20:
+            lines.append(f"  ...{len(result.env_vars) - 20} more")
+        lines.append("")
+
+    lines.append("## Related Files")
+    lines.append("")
+    for f in files[:20]:
+        lines.append(f"  - {f}")
+    if len(files) > 20:
+        lines.append(f"  ...{len(files) - 20} more")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def generate_wiki(root: Path, result: ScanResult) -> None:
+    """Generate .codesight/ wiki directory with per-topic articles."""
+    root = root.resolve()
+    topics = classify_topics(result)
+
+    if not topics:
+        return
+
+    wiki_dir = root / ".codesight"
+    wiki_dir.mkdir(exist_ok=True)
+
+    generated: list[tuple[str, str]] = []
+    for topic, files in sorted(topics.items()):
+        title = topic
+        for t_name, t_title, _pats, _imps in _TOPIC_PATTERNS:
+            if t_name == topic:
+                title = t_title
+                break
+        content = _render_wiki_article(topic, title, files, result)
+        article_path = wiki_dir / f"{topic}.md"
+        article_path.write_text(content)
+        generated.append((topic, title))
+
+    index_lines = [
+        f"# Context Wiki: {result.project_name}",
+        f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
+        "",
+        "## Topics",
+        "",
+    ]
+    for topic, title in generated:
+        count = len(topics[topic])
+        index_lines.append(f"  - [{title}]({topic}.md) ({count} files)")
+    index_lines.append("")
+
+    (wiki_dir / "INDEX.md").write_text("\n".join(index_lines))
+
+
+# ---------------------------------------------------------------------------
 # T006: Markdown and JSON Renderers
 # ---------------------------------------------------------------------------
 
@@ -2060,6 +2243,18 @@ def main(argv: list[str] | None = None) -> int:
         default=False,
         help="Force fresh scan, ignore cached results",
     )
+    parser.add_argument(
+        "--no-wiki",
+        action="store_true",
+        default=False,
+        help="Skip wiki article generation",
+    )
+    parser.add_argument(
+        "--wiki-only",
+        action="store_true",
+        default=False,
+        help="Generate wiki articles only, no stdout output",
+    )
 
     args = parser.parse_args(argv)
     root = Path(args.path).resolve()
@@ -2087,6 +2282,13 @@ def main(argv: list[str] | None = None) -> int:
     if result is None:
         result = scan_directory(root)
         save_cache(root, result)
+
+    # Wiki generation
+    if not args.no_wiki or args.wiki_only:
+        generate_wiki(root, result)
+
+    if args.wiki_only:
+        return 0
 
     # Adjust limits based on max-tokens target
     max_deps = max(4, min(12, args.max_tokens // 500))
