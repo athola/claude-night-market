@@ -14,7 +14,7 @@ def query_knowledge(
     categories: list[str] | None = None,
     tags: list[str] | None = None,
     min_difficulty: int = 1,
-    max_difficulty: int = 5,
+    max_difficulty: int = 4,
 ) -> list[KnowledgeEntry]:
     """Return knowledge entries matching the supplied filters.
 
@@ -38,7 +38,7 @@ def get_context_for_files(gauntlet_dir: Path, files: list[str]) -> str:
         ### {concept}
         **Module:** `{module}`
         **Category:** {category}
-        **Difficulty:** {difficulty}/5
+        **Difficulty:** {difficulty}/4
 
         {detail}
 
@@ -56,7 +56,7 @@ def get_context_for_files(gauntlet_dir: Path, files: list[str]) -> str:
         lines.append(f"### {entry.concept}")
         lines.append(f"**Module:** `{entry.module}`")
         lines.append(f"**Category:** {entry.category}")
-        lines.append(f"**Difficulty:** {entry.difficulty}/5")
+        lines.append(f"**Difficulty:** {entry.difficulty}/4")
         lines.append("")
         lines.append(entry.detail)
         if entry.related_files:

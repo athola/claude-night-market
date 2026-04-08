@@ -122,7 +122,7 @@ class TestGetContextForFiles:
         assert "**Module:**" in result
         assert "**Category:**" in result
         assert "**Difficulty:**" in result
-        assert "2/5" in result
+        assert "2/4" in result
 
 
 class TestValidateUnderstanding:

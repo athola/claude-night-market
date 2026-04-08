@@ -32,7 +32,7 @@ _DIFFICULTY_THRESHOLDS = [
     (60, 3),
     (100, 4),
 ]
-_MAX_DIFFICULTY = 5
+_MAX_DIFFICULTY = 4
 
 # ---------------------------------------------------------------------------
 # Branch node types that add complexity

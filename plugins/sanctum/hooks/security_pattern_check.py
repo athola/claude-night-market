@@ -146,14 +146,15 @@ def is_in_code_block(content: str, match_pos: int) -> bool:
 def check_content(file_path: str, content: str) -> tuple:
     """Scan content for security patterns.
 
-    Returns the highest-severity match (earliest in the pattern list).
-    All matches are logged to stderr for observability.
+    Returns the first (highest-severity) match. Patterns are ordered by
+    severity so the first hit is the most important. The match is logged
+    to stderr for observability.
     """
     path = Path(file_path)
     is_docs = is_documentation_file(file_path)
     patterns = _get_compiled_patterns()
 
-    # Collect all matches; patterns are ordered by severity (highest first)
+    # Find first match; patterns are ordered by severity (highest first)
     best_match = (None, None)
     for pattern_config in patterns:
         # Skip if pattern doesn't apply to this file type

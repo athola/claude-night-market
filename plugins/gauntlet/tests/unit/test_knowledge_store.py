@@ -332,11 +332,11 @@ class TestQuery:
         """
         Scenario: Filter by difficulty range
         Given a knowledge base with entries at difficulty 2, 3, and 2
-        When query(min_difficulty=3, max_difficulty=5) is called
+        When query(min_difficulty=3, max_difficulty=4) is called
         Then only the difficulty-3 entry is returned
         """
         store = KnowledgeStore(tmp_gauntlet_dir)
-        result = store.query(min_difficulty=3, max_difficulty=5)
+        result = store.query(min_difficulty=3, max_difficulty=4)
 
         assert len(result) == 1
         assert result[0].difficulty == 3

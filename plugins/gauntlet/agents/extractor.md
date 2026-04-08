@@ -31,7 +31,7 @@ Analyze a codebase and produce `.gauntlet/knowledge.json`.
 4. Cross-reference: link entries that share files in related_files
 5. Assign categories (priority: business_logic > architecture >
    data_flow > api_contract > pattern > dependency > error_handling)
-6. Validate: non-empty detail, valid difficulty (1-5), at least
+6. Validate: non-empty detail, valid difficulty (1-4), at least
    one tag
 7. Save to `.gauntlet/knowledge.json`
 

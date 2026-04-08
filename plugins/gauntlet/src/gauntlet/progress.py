@@ -140,6 +140,6 @@ class ProgressTracker:
     # ------------------------------------------------------------------
 
     def current_difficulty(self, progress: DeveloperProgress) -> int:
-        """Return adaptive difficulty: base 3, +1 per 3 consecutive correct, max 5."""
+        """Return adaptive difficulty: base 3, +1 per 3 consecutive correct, max 4."""
         bonus = progress.streak // 3
-        return min(5, 3 + bonus)
+        return min(4, 3 + bonus)

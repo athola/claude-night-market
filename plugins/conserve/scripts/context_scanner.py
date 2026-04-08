@@ -20,7 +20,7 @@ import hashlib
 import json
 import re
 import sys
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -997,32 +997,31 @@ def _resolve_import(
     Uses a filename index for fast lookup. Returns None for
     external/stdlib imports.
     """
-    # Skip stdlib and external packages
-    if raw_import.startswith(
-        (
-            "os",
-            "sys",
-            "re",
-            "json",
-            "typing",
-            "collections",
-            "pathlib",
-            "datetime",
-            "dataclasses",
-            "abc",
-            "functools",
-            "itertools",
-            "logging",
-            "unittest",
-            "io",
-            "math",
-            "hashlib",
-            "http",
-            "urllib",
-            "socket",
-            "subprocess",
-        )
-    ):
+    # Skip stdlib and external packages (match top-level module exactly)
+    _top = raw_import.split(".")[0]
+    if _top in {
+        "os",
+        "sys",
+        "re",
+        "json",
+        "typing",
+        "collections",
+        "pathlib",
+        "datetime",
+        "dataclasses",
+        "abc",
+        "functools",
+        "itertools",
+        "logging",
+        "unittest",
+        "io",
+        "math",
+        "hashlib",
+        "http",
+        "urllib",
+        "socket",
+        "subprocess",
+    }:
         return None
 
     # For relative imports (Python . prefix), resolve against source dir
@@ -1118,15 +1117,15 @@ def blast_radius(graph: ImportGraph, target: str) -> BlastResult:
     if target not in graph.imported_by:
         return result
 
-    # BFS
+    # BFS (deque for O(1) popleft)
     visited: set[str] = {target}
     # queue entries: (file, depth, via_file)
-    queue: list[tuple[str, int, str]] = [
+    queue: deque[tuple[str, int, str]] = deque(
         (dep, 1, target) for dep in sorted(graph.imported_by.get(target, set()))
-    ]
+    )
 
     while queue:
-        current, depth, via = queue.pop(0)
+        current, depth, via = queue.popleft()
         if current in visited:
             continue
         visited.add(current)
@@ -2108,10 +2107,8 @@ def _round_tokens(n: int) -> str:
 
 
 def _copy_result(result: ScanResult) -> ScanResult:
-    """Shallow copy with directories list cloned to prevent mutation."""
-    clone = copy.copy(result)
-    clone.directories = list(result.directories)
-    return clone
+    """Deep copy to prevent mutation of nested lists during rendering."""
+    return copy.deepcopy(result)
 
 
 def render_json(result: ScanResult) -> str:
@@ -2418,7 +2415,10 @@ def main(argv: list[str] | None = None) -> int:
 
     # Wiki generation
     if not args.no_wiki or args.wiki_only:
-        generate_wiki(root, result)
+        try:
+            generate_wiki(root, result)
+        except OSError as e:
+            print(f"Warning: wiki generation failed: {e}", file=sys.stderr)
 
     if args.wiki_only:
         return 0

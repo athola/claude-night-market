@@ -112,9 +112,14 @@ def _get_staged_files() -> list[str]:
             timeout=10,
         )
         if result.returncode != 0:
+            _log.warning(
+                "git diff --cached failed (rc=%d); staged fallback returning empty",
+                result.returncode,
+            )
             return []
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        _log.warning("staged file fallback failed: %s", exc)
         return []
 
 

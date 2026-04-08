@@ -327,14 +327,14 @@ class TestCurrentDifficulty:
         assert tracker.current_difficulty(progress) == 4
 
     @pytest.mark.unit
-    def test_difficulty_caps_at_five(self, tmp_gauntlet_dir: Path):
+    def test_difficulty_caps_at_four(self, tmp_gauntlet_dir: Path):
         """
         Scenario: Developer on a very long streak
         Given a developer with streak=30
         When current_difficulty is called
-        Then it returns 5 (max difficulty)
+        Then it returns 4 (max difficulty)
         """
         tracker = ProgressTracker(tmp_gauntlet_dir)
         progress = tracker.get_or_create("dev@example.com")
         progress.streak = 30
-        assert tracker.current_difficulty(progress) == 5
+        assert tracker.current_difficulty(progress) == 4

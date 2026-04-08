@@ -57,13 +57,13 @@ class TestExtractFromFile:
         Scenario: Difficulty is between 1 and 5
         Given any Python file
         When extract_from_file() is called
-        Then every entry has difficulty between 1 and 5 inclusive
+        Then every entry has difficulty between 1 and 4 inclusive
         """
         entries = extract_from_file(sample_python_file)
 
         assert len(entries) > 0
         for entry in entries:
-            assert 1 <= entry.difficulty <= 5
+            assert 1 <= entry.difficulty <= 4
 
     @pytest.mark.unit
     def test_nonexistent_file_returns_empty(self, tmp_path: Path):
