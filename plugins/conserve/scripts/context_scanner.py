@@ -1661,6 +1661,33 @@ def render_json(result: ScanResult) -> str:
     return json.dumps(data, indent=2)
 
 
+def render_blast_radius(result: BlastResult) -> str:
+    """Render blast radius result as markdown."""
+    lines = [
+        f"# Blast Radius: {result.target}",
+        f"Direct dependents: {len(result.direct)}"
+        f" | Transitive: {len(result.transitive)}",
+        "",
+    ]
+
+    if result.direct:
+        lines.append("## Direct (imported by)")
+        for f in result.direct:
+            lines.append(f"  {f}")
+        lines.append("")
+
+    if result.transitive:
+        lines.append("## Transitive (2nd+ degree)")
+        for f, via in result.transitive:
+            lines.append(f"  {f} (via {via})")
+        lines.append("")
+
+    if result.total_affected == 0:
+        lines.append("No dependents found.")
+
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------------------
 # T007: CLI Interface
 # ---------------------------------------------------------------------------
@@ -1697,6 +1724,13 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Write output to file instead of stdout",
     )
+    parser.add_argument(
+        "--blast",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Show blast radius for a specific file",
+    )
 
     args = parser.parse_args(argv)
     root = Path(args.path).resolve()
@@ -1704,6 +1738,17 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"Error: '{args.path}' is not a valid directory", file=sys.stderr)
         return 1
+
+    if args.blast:
+        graph = build_import_graph(root)
+        blast_file = args.blast
+        br = blast_radius(graph, blast_file)
+        output = render_blast_radius(br)
+        if args.output:
+            Path(args.output).write_text(output)
+        else:
+            print(output)
+        return 0
 
     result = scan_directory(root)
 

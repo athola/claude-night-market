@@ -1035,3 +1035,37 @@ class TestBlastRadius:
         result = cs.blast_radius(graph, "core.py")
 
         assert result.total_affected == len(result.direct) + len(result.transitive)
+
+
+class TestBlastRadiusCLI:
+    """Tests for --blast CLI flag and output rendering."""
+
+    def test_blast_flag_produces_output(self, tmp_path, capsys):
+        (tmp_path / "core.py").write_text("x = 1\n")
+        (tmp_path / "a.py").write_text("import core\n")
+
+        exit_code = cs.main(["--blast", "core.py", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "Blast Radius: core.py" in captured.out
+        assert "a.py" in captured.out
+
+    def test_blast_unknown_file_shows_no_dependents(self, tmp_path, capsys):
+        (tmp_path / "a.py").write_text("x = 1\n")
+
+        exit_code = cs.main(["--blast", "nope.py", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "Direct dependents: 0" in captured.out
+
+    def test_blast_shows_transitive_via(self, tmp_path, capsys):
+        (tmp_path / "core.py").write_text("x = 1\n")
+        (tmp_path / "a.py").write_text("import core\n")
+        (tmp_path / "b.py").write_text("import a\n")
+
+        exit_code = cs.main(["--blast", "core.py", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert "via" in captured.out.lower() or "a.py" in captured.out
