@@ -175,6 +175,7 @@ class TestGetSessionId:
         monkeypatch.delenv("TMUX", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("TTY", raising=False)
+        monkeypatch.delenv("GPG_TTY", raising=False)
         monkeypatch.setenv("TERM_PROGRAM", "WezTerm")
         monkeypatch.setenv("PPID", "12345")
 
@@ -193,6 +194,7 @@ class TestGetSessionId:
         monkeypatch.delenv("TMUX", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("TTY", raising=False)
+        monkeypatch.delenv("GPG_TTY", raising=False)
         monkeypatch.delenv("TERM_PROGRAM", raising=False)
         monkeypatch.setenv("PPID", "99")
 

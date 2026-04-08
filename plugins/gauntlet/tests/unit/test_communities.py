@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from gauntlet.communities import (
     _leiden_communities,
+    _subdivide_community,
     calculate_cohesion,
     detect_communities,
     get_architecture_overview,
@@ -123,9 +124,7 @@ class TestDetectCommunities:
 
     @pytest.mark.unit
     def test_communities_have_node_lists(self, store: GraphStore) -> None:
-        """
-        Scenario: Each community lists its member nodes
-        """
+        """Scenario: Each community lists its member nodes."""
         _build_two_clusters(store)
         communities = detect_communities(store)
         for comm in communities:
@@ -321,3 +320,181 @@ class TestArchitectureOverview:
         overview = get_architecture_overview(store)
         assert "communities" in overview
         assert "warnings" in overview
+
+
+class TestLanguageFilter:
+    """
+    Feature: Language-filtered community detection
+
+    As a developer
+    I want to detect communities for a specific language
+    So that I can isolate cross-language noise
+    """
+
+    @pytest.mark.unit
+    def test_filters_by_language(self, store: GraphStore) -> None:
+        """
+        Scenario: Only Python nodes are included
+        Given nodes with language='python' and language='javascript'
+        When I detect communities with language='python'
+        Then only Python nodes appear
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="app.py::main",
+                file_path="app.py",
+                line_start=1,
+                line_end=5,
+                language="python",
+            )
+        )
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="app.js::init",
+                file_path="app.js",
+                line_start=1,
+                line_end=5,
+                language="javascript",
+            )
+        )
+        communities = detect_communities(store, language="python")
+        all_qns = [qn for c in communities for qn in c["node_qns"]]
+        assert "app.py::main" in all_qns
+        assert "app.js::init" not in all_qns
+
+    @pytest.mark.unit
+    def test_empty_after_language_filter(self, store: GraphStore) -> None:
+        """
+        Scenario: No nodes match the language filter
+        Given only Python nodes exist
+        When I detect communities with language='rust'
+        Then an empty list is returned
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="lib.py::fn",
+                file_path="lib.py",
+                line_start=1,
+                line_end=5,
+                language="python",
+            )
+        )
+        communities = detect_communities(store, language="rust")
+        assert communities == []
+
+
+class TestEmptyGraph:
+    """
+    Feature: Community detection on degenerate graphs
+
+    As a developer
+    I want community detection to handle edge cases
+    So that it never crashes on empty or file-only graphs
+    """
+
+    @pytest.mark.unit
+    def test_only_file_nodes_returns_empty(self, store: GraphStore) -> None:
+        """
+        Scenario: Graph only has FILE-kind nodes
+        Given nodes are all NodeKind.FILE
+        When I detect communities
+        Then an empty list is returned (FILE nodes are filtered out)
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FILE,
+                qualified_name="src/app.py",
+                file_path="src/app.py",
+                line_start=0,
+                line_end=100,
+            )
+        )
+        communities = detect_communities(store)
+        assert communities == []
+
+
+class TestSubdivideCommunity:
+    """
+    Feature: Large community subdivision
+
+    As an architect
+    I want oversized communities split by file
+    So that each sub-community is manageable
+    """
+
+    @pytest.mark.unit
+    def test_splits_by_file(self, store: GraphStore) -> None:
+        """
+        Scenario: A community spans two files
+        Given a community with nodes from auth.py and db.py
+        When I subdivide it
+        Then two sub-communities are returned, one per file
+        """
+        for i in range(3):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"auth.py::fn{i}",
+                    file_path="auth.py",
+                    line_start=i * 10,
+                    line_end=i * 10 + 9,
+                )
+            )
+        for i in range(2):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"db.py::fn{i}",
+                    file_path="db.py",
+                    line_start=i * 10,
+                    line_end=i * 10 + 9,
+                )
+            )
+
+        community = {
+            "name": "big-cluster",
+            "node_qns": [
+                "auth.py::fn0",
+                "auth.py::fn1",
+                "auth.py::fn2",
+                "db.py::fn0",
+                "db.py::fn1",
+            ],
+        }
+        all_edges = list(store.get_all_edges())
+        result = _subdivide_community(community, all_edges, store)
+
+        assert len(result) == 2
+        names = {r["name"] for r in result}
+        assert "big-cluster/auth" in names
+        assert "big-cluster/db" in names
+
+    @pytest.mark.unit
+    def test_single_file_not_split(self, store: GraphStore) -> None:
+        """
+        Scenario: A community is all in one file
+        Given all nodes belong to the same file
+        When I subdivide it
+        Then the original community is returned unchanged
+        """
+        for i in range(3):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"single.py::fn{i}",
+                    file_path="single.py",
+                    line_start=i * 10,
+                    line_end=i * 10 + 9,
+                )
+            )
+
+        community = {
+            "name": "mono",
+            "node_qns": ["single.py::fn0", "single.py::fn1", "single.py::fn2"],
+        }
+        result = _subdivide_community(community, [], store)
+        assert len(result) == 1
+        assert result[0]["name"] == "mono"

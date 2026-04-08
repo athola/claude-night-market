@@ -624,6 +624,8 @@ class TestTerminalInfoDetection:
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
+        monkeypatch.delenv("TTY", raising=False)
+        monkeypatch.delenv("GPG_TTY", raising=False)
         monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")
         monkeypatch.setenv("TERM_PROGRAM", "Alacritty")
 
@@ -651,6 +653,8 @@ class TestTerminalInfoDetection:
         monkeypatch.delenv("TMUX", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
+        monkeypatch.delenv("TTY", raising=False)
+        monkeypatch.delenv("GPG_TTY", raising=False)
         monkeypatch.setenv("TERM_PROGRAM", "WezTerm")
 
         with patch(

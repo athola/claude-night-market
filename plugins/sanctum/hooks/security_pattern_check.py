@@ -178,7 +178,7 @@ def check_content(file_path: str, content: str) -> tuple:
             rule = pattern_config["ruleName"]
             reminder = pattern_config["reminder"]
             print(
-                "[security-check] matched: %s" % rule,
+                f"[security-check] matched: {rule}",
                 file=sys.stderr,
             )
             if best_match[0] is None:

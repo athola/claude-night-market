@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -131,8 +132,6 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
         parser = get_parser(language)  # type: ignore[arg-type]  # str from detect_language
         tree = parser.parse(source)
     except Exception as exc:  # noqa: BLE001 - catch-all for parse errors in unknown grammars
-        import logging
-
         logging.getLogger(__name__).debug(
             "tree-sitter parse failed for %s: %s: %s",
             file_path,
