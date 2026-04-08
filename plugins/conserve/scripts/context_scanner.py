@@ -281,6 +281,16 @@ class BlastResult:
 
 
 @dataclass
+class SchemaModel:
+    """A detected ORM model or schema definition."""
+
+    name: str
+    file: str
+    field_count: int = 0
+    framework: str = ""  # "SQLAlchemy" | "Django" | "Pydantic" | "Prisma"
+
+
+@dataclass
 class ScanResult:
     """Complete project scan result."""
 
@@ -296,6 +306,7 @@ class ScanResult:
     routes: list[RouteInfo] = field(default_factory=list)
     env_vars: list[EnvVarInfo] = field(default_factory=list)
     middleware: list[MiddlewareInfo] = field(default_factory=list)
+    schemas: list[SchemaModel] = field(default_factory=list)
     token_estimate: TokenEstimate | None = None
 
     @property
@@ -449,6 +460,7 @@ def scan_directory(root: Path) -> ScanResult:
     result.routes = detect_routes(root)
     result.env_vars = detect_env_vars(root)
     result.middleware = detect_middleware(root)
+    result.schemas = detect_schemas(root)
     result.token_estimate = estimate_token_savings(result)
 
     return result
@@ -1230,6 +1242,15 @@ def _rebuild_scan_result(data: dict) -> ScanResult:
         MiddlewareInfo(name=m["name"], kind=m["kind"], file=m["file"])
         for m in sr.get("middleware", [])
     ]
+    schemas = [
+        SchemaModel(
+            name=s["name"],
+            file=s["file"],
+            field_count=s.get("field_count", 0),
+            framework=s.get("framework", ""),
+        )
+        for s in sr.get("schemas", [])
+    ]
     te_data = sr.get("token_savings", {})
     token_estimate = TokenEstimate(
         route_tokens=te_data.get("route_tokens", 0),
@@ -1249,6 +1270,7 @@ def _rebuild_scan_result(data: dict) -> ScanResult:
         routes=routes,
         env_vars=env_vars,
         middleware=middleware,
+        schemas=schemas,
         token_estimate=token_estimate,
     )
 
@@ -1597,6 +1619,127 @@ def summarize_dependencies(deps: list[Dependency], max_items: int = 8) -> Trunca
 
 
 # ---------------------------------------------------------------------------
+# Schema/Model Extraction
+# ---------------------------------------------------------------------------
+
+_PYTHON_MODEL_BASES = {
+    "Base": "SQLAlchemy",
+    "db.Model": "SQLAlchemy",
+    "DeclarativeBase": "SQLAlchemy",
+    "models.Model": "Django",
+    "Model": "Django",
+    "BaseModel": "Pydantic",
+}
+
+_PYTHON_MODEL_RE = re.compile(
+    r"^class\s+(\w+)\s*\(\s*("
+    + "|".join(re.escape(b) for b in _PYTHON_MODEL_BASES)
+    + r")\s*\)\s*:",
+    re.MULTILINE,
+)
+
+_PRISMA_MODEL_RE = re.compile(r"^model\s+(\w+)\s*\{", re.MULTILINE)
+
+_PYTHON_FIELD_RE = re.compile(
+    r"^\s+(\w+)\s*[=:]\s*"
+    r"(Column|Field|models\.\w+Field|mapped_column"
+    r"|Mapped\[|Optional\[|str|int|float|bool|list\[)",
+    re.MULTILINE,
+)
+_PRISMA_FIELD_RE = re.compile(r"^\s+(\w+)\s+\w+", re.MULTILINE)
+
+
+def _count_fields_python(body: str) -> int:
+    """Count field definitions in a Python class body."""
+    return len(_PYTHON_FIELD_RE.findall(body))
+
+
+_PRISMA_FIELD_STRIPPED_RE = re.compile(r"^(\w+)\s+\w+")
+
+
+def _count_fields_prisma(body: str) -> int:
+    """Count field definitions in a Prisma model body."""
+    count = 0
+    for line in body.strip().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("//") or stripped.startswith("@@"):
+            continue
+        if _PRISMA_FIELD_STRIPPED_RE.match(stripped):
+            count += 1
+    return count
+
+
+def detect_schemas(root: Path) -> list[SchemaModel]:
+    """Detect ORM model and schema definitions in the project."""
+    root = root.resolve()
+    schemas: list[SchemaModel] = []
+
+    for dirpath, dirs, files in _walk_limited(root, max_depth=6):
+        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
+        for fname in files:
+            fpath = Path(dirpath) / fname
+            rel = str(fpath.relative_to(root))
+
+            if _is_test_file(fname, rel):
+                continue
+
+            if fpath.suffix == ".prisma":
+                try:
+                    content = fpath.read_text(errors="replace")
+                except OSError:
+                    continue
+                for match in _PRISMA_MODEL_RE.finditer(content):
+                    name = match.group(1)
+                    start = match.end()
+                    brace_depth = 1
+                    end = start
+                    while end < len(content) and brace_depth > 0:
+                        if content[end] == "{":
+                            brace_depth += 1
+                        elif content[end] == "}":
+                            brace_depth -= 1
+                        end += 1
+                    body = content[start : end - 1]
+                    schemas.append(
+                        SchemaModel(
+                            name=name,
+                            file=rel,
+                            field_count=_count_fields_prisma(body),
+                            framework="Prisma",
+                        )
+                    )
+
+            elif fpath.suffix in (".py", ".pyi"):
+                try:
+                    content = fpath.read_text(errors="replace")
+                except OSError:
+                    continue
+                for match in _PYTHON_MODEL_RE.finditer(content):
+                    name = match.group(1)
+                    base = match.group(2)
+                    framework = _PYTHON_MODEL_BASES.get(base, "Unknown")
+                    start = match.end()
+                    next_class = re.search(r"\n(?=class\s)", content[start:])
+                    if next_class:
+                        body = content[start : start + next_class.start()]
+                    else:
+                        body = content[start:]
+                    schemas.append(
+                        SchemaModel(
+                            name=name,
+                            file=rel,
+                            field_count=_count_fields_python(body),
+                            framework=framework,
+                        )
+                    )
+
+    # Drop abstract base classes with no fields (e.g. class Base(DeclarativeBase): pass)
+    schemas = [s for s in schemas if s.field_count > 0]
+    schemas.sort(key=lambda s: s.name)
+    return schemas
+
+
+# ---------------------------------------------------------------------------
 # T006: Markdown and JSON Renderers
 # ---------------------------------------------------------------------------
 
@@ -1718,6 +1861,18 @@ def render_markdown(
             lines.append(f"  - {mw.name} ({mw.file})")
         lines.append("")
 
+    # Schemas section
+    if result.schemas:
+        lines.append("## Models/Schemas")
+        lines.append("")
+        shown = result.schemas[:8]
+        for s in shown:
+            fields = f"({s.field_count} fields)" if s.field_count else ""
+            lines.append(f"  {s.name:<16} {s.file} {fields}")
+        if len(result.schemas) > 8:
+            lines.append(f"  ...{len(result.schemas) - 8} more")
+        lines.append("")
+
     # Config files
     if result.config_files:
         lines.append("## Configuration")
@@ -1799,6 +1954,15 @@ def render_json(result: ScanResult) -> str:
         ],
         "middleware": [
             {"name": m.name, "kind": m.kind, "file": m.file} for m in result.middleware
+        ],
+        "schemas": [
+            {
+                "name": s.name,
+                "file": s.file,
+                "field_count": s.field_count,
+                "framework": s.framework,
+            }
+            for s in result.schemas
         ],
         "token_savings": {
             "route_tokens": result.token_estimate.route_tokens

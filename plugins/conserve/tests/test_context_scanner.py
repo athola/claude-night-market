@@ -1136,3 +1136,71 @@ class TestScanCaching:
         # Second scan with --no-cache still works
         exit_code = cs.main(["--no-cache", str(tmp_path)])
         assert exit_code == 0
+
+
+class TestSchemaDetection:
+    """Tests for ORM model and schema extraction."""
+
+    def test_detects_sqlalchemy_model(self, tmp_path):
+        (tmp_path / "models.py").write_text(
+            "from sqlalchemy.orm import DeclarativeBase\n"
+            "class Base(DeclarativeBase): pass\n"
+            "class User(Base):\n"
+            "    __tablename__ = 'users'\n"
+            "    id = Column(Integer, primary_key=True)\n"
+            "    email = Column(String)\n"
+            "    name = Column(String)\n"
+        )
+        schemas = cs.detect_schemas(tmp_path)
+        assert len(schemas) == 1
+        assert schemas[0].name == "User"
+        assert schemas[0].field_count >= 2
+
+    def test_detects_django_model(self, tmp_path):
+        (tmp_path / "models.py").write_text(
+            "from django.db import models\n"
+            "class Post(models.Model):\n"
+            "    title = models.CharField(max_length=200)\n"
+            "    body = models.TextField()\n"
+            "    created = models.DateTimeField(auto_now_add=True)\n"
+        )
+        schemas = cs.detect_schemas(tmp_path)
+        assert len(schemas) == 1
+        assert schemas[0].name == "Post"
+        assert schemas[0].field_count >= 2
+
+    def test_detects_pydantic_model(self, tmp_path):
+        (tmp_path / "schemas.py").write_text(
+            "from pydantic import BaseModel\n"
+            "class UserCreate(BaseModel):\n"
+            "    email: str\n"
+            "    name: str\n"
+            "    password: str\n"
+        )
+        schemas = cs.detect_schemas(tmp_path)
+        assert len(schemas) == 1
+        assert schemas[0].name == "UserCreate"
+
+    def test_detects_prisma_model(self, tmp_path):
+        (tmp_path / "schema.prisma").write_text(
+            "model User {\n"
+            "  id    Int    @id @default(autoincrement())\n"
+            "  email String @unique\n"
+            "  name  String\n"
+            "}\n"
+        )
+        schemas = cs.detect_schemas(tmp_path)
+        assert len(schemas) == 1
+        assert schemas[0].name == "User"
+
+    def test_no_models_returns_empty(self, tmp_path):
+        (tmp_path / "utils.py").write_text("def helper(): pass\n")
+        schemas = cs.detect_schemas(tmp_path)
+        assert schemas == []
+
+    def test_skips_test_files(self, tmp_path):
+        (tmp_path / "test_models.py").write_text(
+            "class FakeUser(Base):\n    id = Column(Integer)\n"
+        )
+        schemas = cs.detect_schemas(tmp_path)
+        assert schemas == []
