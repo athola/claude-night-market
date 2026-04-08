@@ -1276,3 +1276,79 @@ class TestWikiGeneration:
         assert (tmp_path / ".codesight").exists()
         # wiki-only should not print the full context map
         assert "## Structure" not in captured.out
+
+
+class TestSectionQueries:
+    """Tests for --section flag to output individual sections."""
+
+    def test_section_routes(self, tmp_path, capsys):
+        (tmp_path / "app.py").write_text(
+            "from fastapi import FastAPI\n"
+            "app = FastAPI()\n"
+            '@app.get("/users")\n'
+            "def get_users(): pass\n"
+        )
+        exit_code = cs.main(["--section", "routes", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "/users" in captured.out
+        assert "## Structure" not in captured.out
+
+    def test_section_env(self, tmp_path, capsys):
+        (tmp_path / "config.py").write_text(
+            'DB_URL = os.environ.get("DATABASE_URL", "sqlite:///db")\n'
+        )
+        exit_code = cs.main(["--section", "env", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "DATABASE_URL" in captured.out
+
+    def test_section_structure(self, tmp_path, capsys):
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "main.py").write_text("x = 1\n")
+
+        exit_code = cs.main(["--section", "structure", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "src" in captured.out
+
+    def test_section_hot_files(self, tmp_path, capsys):
+        (tmp_path / "core.py").write_text("x = 1\n")
+        (tmp_path / "a.py").write_text("import core\n")
+        (tmp_path / "b.py").write_text("import core\n")
+        (tmp_path / "c.py").write_text("import core\n")
+
+        exit_code = cs.main(["--section", "hot-files", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "core.py" in captured.out
+
+    def test_section_invalid_name(self, tmp_path, capsys):
+        exit_code = cs.main(["--section", "bogus", str(tmp_path)])
+
+        assert exit_code == 1
+
+    def test_section_deps(self, tmp_path, capsys):
+        (tmp_path / "pyproject.toml").write_text(
+            '[project]\ndependencies = [\n    "fastapi>=0.100.0",\n]\n'
+        )
+        exit_code = cs.main(["--section", "deps", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "fastapi" in captured.out
+
+    def test_section_models(self, tmp_path, capsys):
+        (tmp_path / "models.py").write_text(
+            "class User(Base):\n    id = Column(Integer)\n    name = Column(String)\n"
+        )
+        exit_code = cs.main(["--section", "models", str(tmp_path)])
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        assert "User" in captured.out

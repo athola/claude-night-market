@@ -2194,6 +2194,88 @@ def render_blast_radius(result: BlastResult) -> str:
     return "\n".join(lines)
 
 
+_VALID_SECTIONS = {
+    "structure",
+    "deps",
+    "routes",
+    "hot-files",
+    "env",
+    "middleware",
+    "models",
+    "frameworks",
+}
+
+
+def render_section(result: ScanResult, section: str) -> str | None:
+    """Render a single section of the context map.
+
+    Returns None if the section name is invalid.
+    """
+    if section not in _VALID_SECTIONS:
+        return None
+
+    lines: list[str] = []
+
+    if section == "structure":
+        for d in result.directories[:12]:
+            lang = f" ({d.primary_language})" if d.primary_language else ""
+            lines.append(f"  {d.path:<20} {d.file_count} files{lang}")
+        if result.truncated_dirs:
+            lines.append(f"  ...{result.truncated_dirs} more directories")
+
+    elif section == "deps":
+        for eco in result.ecosystems:
+            pm = f" ({eco.package_manager})" if eco.package_manager else ""
+            lines.append(f"## {eco.name}{pm}")
+            for dep in eco.dependencies[:12]:
+                ver = f" {dep.version}" if dep.version else ""
+                lines.append(f"  - {dep.name}{ver}")
+            remaining = len(eco.dependencies) - 12
+            if remaining > 0:
+                lines.append(f"  ...{remaining} more")
+            lines.append("")
+
+    elif section == "routes":
+        for r in result.routes[:20]:
+            lines.append(f"  {r.method:<7} {r.path:<30} ({r.file})")
+        if len(result.routes) > 20:
+            lines.append(f"  ...{len(result.routes) - 20} more")
+
+    elif section == "hot-files":
+        graph = result.import_graph
+        for hf in result.hot_files[:15]:
+            count = len(graph.imported_by.get(hf, set())) if graph else 0
+            lines.append(f"  - {hf} ({count} importers)")
+        if len(result.hot_files) > 15:
+            lines.append(f"  ...{len(result.hot_files) - 15} more")
+
+    elif section == "env":
+        for v in result.env_vars[:20]:
+            default = " (has default)" if v.has_default else " (required)"
+            lines.append(f"  - {v.name}{default}")
+        if len(result.env_vars) > 20:
+            lines.append(f"  ...{len(result.env_vars) - 20} more")
+
+    elif section == "middleware":
+        for m in result.middleware:
+            lines.append(f"  - {m.name} [{m.kind}] ({m.file})")
+
+    elif section == "models":
+        schemas = getattr(result, "schemas", [])
+        for s in schemas[:12]:
+            fields = f" ({s.field_count} fields)" if s.field_count else ""
+            lines.append(f"  {s.name:<16} {s.file}{fields}")
+        if len(schemas) > 12:
+            lines.append(f"  ...{len(schemas) - 12} more")
+
+    elif section == "frameworks":
+        for fw in result.all_frameworks:
+            locs = ", ".join(fw.locations[:3])
+            lines.append(f"  - {fw.name} ({locs})")
+
+    return "\n".join(lines) if lines else "(empty)"
+
+
 # ---------------------------------------------------------------------------
 # T007: CLI Interface
 # ---------------------------------------------------------------------------
@@ -2255,6 +2337,13 @@ def main(argv: list[str] | None = None) -> int:
         default=False,
         help="Generate wiki articles only, no stdout output",
     )
+    parser.add_argument(
+        "--section",
+        type=str,
+        default=None,
+        metavar="NAME",
+        help=("Output a single section: " + ", ".join(sorted(_VALID_SECTIONS))),
+    )
 
     args = parser.parse_args(argv)
     root = Path(args.path).resolve()
@@ -2282,6 +2371,21 @@ def main(argv: list[str] | None = None) -> int:
     if result is None:
         result = scan_directory(root)
         save_cache(root, result)
+
+    if args.section:
+        section_out = render_section(result, args.section)
+        if section_out is None:
+            print(
+                f"Error: unknown section '{args.section}'. "
+                f"Valid: {', '.join(sorted(_VALID_SECTIONS))}",
+                file=sys.stderr,
+            )
+            return 1
+        if args.output:
+            Path(args.output).write_text(section_out)
+        else:
+            print(section_out)
+        return 0
 
     # Wiki generation
     if not args.no_wiki or args.wiki_only:
