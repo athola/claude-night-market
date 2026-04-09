@@ -47,7 +47,7 @@ class TestSkillStructure:
         assert "delegation-core" in content
 
         # Check for required sections (trigger logic now in frontmatter description)
-        assert "# Exit Criteria" in content
+        assert "# Overview" in content
 
     @pytest.mark.bdd
     def test_delegation_core_skill_structure(self) -> None:
@@ -310,7 +310,7 @@ class TestQwenDelegationSkill:
         # Should have similar structure to gemini-delegation (headers may be ## or #)
         assert "Overview" in content
         assert "Prerequisites" in content
-        assert "Delegation Flow" in content
+        assert "Quick Start" in content
 
     @pytest.mark.bdd
     def test_qwen_authentication_differences(self) -> None:

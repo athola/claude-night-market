@@ -1,6 +1,7 @@
 """Pytest configuration and shared fixtures for conjure tests."""
 
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -42,9 +43,10 @@ def sample_config_file(temp_config_dir: Path) -> Path:
 def sample_usage_log(temp_config_dir: Path) -> Path:
     """Create a sample usage log file."""
     usage_log = temp_config_dir / "usage.jsonl"
+    recent = (datetime.now() - timedelta(days=1)).isoformat()
     sample_entries = [
         {
-            "timestamp": "2026-03-01T10:00:00",
+            "timestamp": recent,
             "service": "gemini",
             "command": "gemini -p test prompt",
             "success": True,
@@ -54,7 +56,7 @@ def sample_usage_log(temp_config_dir: Path) -> Path:
             "error": None,
         },
         {
-            "timestamp": "2026-03-01T10:05:00",
+            "timestamp": recent,
             "service": "qwen",
             "command": "qwen -p another test",
             "success": False,

@@ -1,0 +1,40 @@
+name: gauntlet
+version: 1.8.2
+description: Codebase learning through knowledge extraction, code knowledge graph, challenges, and spaced repetition.
+  Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.
+keywords:
+- learning
+- onboarding
+- knowledge
+- challenges
+- spaced-repetition
+- pre-commit
+- codebase-fluency
+- knowledge-graph
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+dependencies:
+  oracle:
+    source: gh@athola/claude-night-market
+    path: plugins/oracle
+    optional: true
+    reason: ML scoring backend for adaptive challenge difficulty
+skills:
+- skills/extract
+- skills/challenge
+- skills/onboard
+- skills/curate
+- skills/graph-build
+- skills/graph-search
+hooks: hooks/hooks.json
+commands:
+- commands/gauntlet.md
+- commands/gauntlet-extract.md
+- commands/gauntlet-progress.md
+- commands/gauntlet-onboard.md
+- commands/gauntlet-curate.md
+- commands/gauntlet-graph.md
+agents:
+- agents/extractor.md

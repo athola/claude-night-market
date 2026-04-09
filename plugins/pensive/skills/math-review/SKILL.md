@@ -161,15 +161,3 @@ Approve / Approve with actions / Block
 ## Exit Criteria
 
 - Context synced, requirements mapped, derivations verified, stability assessed, evidence logged with citations
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag

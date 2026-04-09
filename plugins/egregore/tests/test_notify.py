@@ -7,12 +7,18 @@ import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
-from notify import (
+from config import (  # type: ignore[import-not-found]  # pytest pythonpath
+    AlertsConfig,
+    OverseerConfig,
+)
+from notify import (  # type: ignore[import-not-found]  # pytest pythonpath
     AlertContext,
     AlertEvent,
     WebhookURLError,
+    _is_event_enabled,
     alert,
     build_issue_body,
+    config_alert,
     create_github_alert,
     send_webhook,
     validate_webhook_url,
@@ -453,3 +459,166 @@ class TestAlert:
         )
         assert result is True
         mock_wh.assert_called_once()
+
+
+class TestIsEventEnabled:
+    """Tests for the _is_event_enabled helper."""
+
+    def test_all_defaults_enabled(self) -> None:
+        """Given default AlertsConfig, then all events are enabled."""
+        cfg = AlertsConfig()
+        for event in AlertEvent:
+            assert _is_event_enabled(cfg, event) is True
+
+    def test_crash_disabled(self) -> None:
+        """Given on_crash=False, then CRASH event is disabled."""
+        cfg = AlertsConfig(on_crash=False)
+        assert _is_event_enabled(cfg, AlertEvent.CRASH) is False
+
+    def test_rate_limit_disabled(self) -> None:
+        """Given on_rate_limit=False, then RATE_LIMIT event is disabled."""
+        cfg = AlertsConfig(on_rate_limit=False)
+        assert _is_event_enabled(cfg, AlertEvent.RATE_LIMIT) is False
+
+    def test_pipeline_failure_disabled(self) -> None:
+        """Given on_pipeline_failure=False, then PIPELINE_FAILURE is disabled."""
+        cfg = AlertsConfig(on_pipeline_failure=False)
+        assert _is_event_enabled(cfg, AlertEvent.PIPELINE_FAILURE) is False
+
+    def test_completion_disabled(self) -> None:
+        """Given on_completion=False, then COMPLETION event is disabled."""
+        cfg = AlertsConfig(on_completion=False)
+        assert _is_event_enabled(cfg, AlertEvent.COMPLETION) is False
+
+    def test_watchdog_relaunch_disabled(self) -> None:
+        """Given on_watchdog_relaunch=False, then WATCHDOG_RELAUNCH is disabled."""
+        cfg = AlertsConfig(on_watchdog_relaunch=False)
+        assert _is_event_enabled(cfg, AlertEvent.WATCHDOG_RELAUNCH) is False
+
+    def test_other_events_remain_enabled(self) -> None:
+        """Given one flag off, then other events are still enabled."""
+        cfg = AlertsConfig(on_crash=False)
+        assert _is_event_enabled(cfg, AlertEvent.COMPLETION) is True
+        assert _is_event_enabled(cfg, AlertEvent.RATE_LIMIT) is True
+
+    def test_unknown_event_allowed_through(self) -> None:
+        """Given an unknown event value, then it is allowed (fail-open)."""
+        cfg = AlertsConfig(on_crash=False)
+        # Simulate an event type not in the mapping
+        mock_event = MagicMock()
+        mock_event.value = "some_future_event"
+        assert _is_event_enabled(cfg, mock_event) is True
+
+
+class TestConfigAlert:
+    """Tests for config_alert dispatch with AlertsConfig gating."""
+
+    @patch("notify.alert", return_value=True)
+    def test_enabled_event_dispatches(self, mock_alert: MagicMock) -> None:
+        """Given on_crash=True, then config_alert dispatches the alert."""
+        alerts = AlertsConfig(on_crash=True)
+        overseer = OverseerConfig()
+        result = config_alert(
+            event=AlertEvent.CRASH,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+            detail="Process died",
+        )
+        assert result is True
+        mock_alert.assert_called_once()
+
+    @patch("notify.alert", return_value=True)
+    def test_disabled_event_suppressed(self, mock_alert: MagicMock) -> None:
+        """Given on_crash=False, then config_alert suppresses the alert."""
+        alerts = AlertsConfig(on_crash=False)
+        overseer = OverseerConfig()
+        result = config_alert(
+            event=AlertEvent.CRASH,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+            detail="Process died",
+        )
+        assert result is False
+        mock_alert.assert_not_called()
+
+    @patch("notify.alert", return_value=True)
+    def test_overseer_config_passed_through(self, mock_alert: MagicMock) -> None:
+        """Given custom overseer config, then method/url/format are forwarded."""
+        alerts = AlertsConfig()
+        overseer = OverseerConfig(
+            method="webhook-only",
+            webhook_url="https://hooks.slack.com/x",
+            webhook_format="slack",
+        )
+        config_alert(
+            event=AlertEvent.PIPELINE_FAILURE,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+            detail="Build broke",
+        )
+        call_kwargs = mock_alert.call_args[1]
+        assert call_kwargs["overseer_method"] == "webhook-only"
+        assert call_kwargs["webhook_url"] == "https://hooks.slack.com/x"
+        assert call_kwargs["webhook_format"] == "slack"
+
+    @patch("notify.alert", return_value=True)
+    def test_context_object_forwarded(self, mock_alert: MagicMock) -> None:
+        """Given an AlertContext, then config_alert passes it to alert()."""
+        alerts = AlertsConfig()
+        overseer = OverseerConfig()
+        ctx = AlertContext(
+            work_item_id="WI-88",
+            stage="ship",
+            detail="PR merged",
+        )
+        config_alert(
+            event=AlertEvent.COMPLETION,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+            ctx=ctx,
+        )
+        call_kwargs = mock_alert.call_args[1]
+        assert call_kwargs["ctx"] is ctx
+
+    @patch("notify.alert", return_value=True)
+    def test_kwargs_forwarded_without_ctx(self, mock_alert: MagicMock) -> None:
+        """Given individual kwargs (no ctx), then they are forwarded."""
+        alerts = AlertsConfig()
+        overseer = OverseerConfig()
+        config_alert(
+            event=AlertEvent.RATE_LIMIT,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+            work_item_id="WI-33",
+            stage="build",
+            detail="429 received",
+        )
+        call_kwargs = mock_alert.call_args[1]
+        assert call_kwargs["work_item_id"] == "WI-33"
+        assert call_kwargs["stage"] == "build"
+        assert call_kwargs["detail"] == "429 received"
+
+    @patch("notify.alert", return_value=False)
+    def test_returns_false_on_delivery_failure(self, mock_alert: MagicMock) -> None:
+        """Given alert() returns False, then config_alert returns False."""
+        alerts = AlertsConfig()
+        overseer = OverseerConfig()
+        result = config_alert(
+            event=AlertEvent.WATCHDOG_RELAUNCH,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+        )
+        assert result is False
+
+    @patch("notify.alert", return_value=True)
+    def test_source_defaults_to_egregore(self, mock_alert: MagicMock) -> None:
+        """Given no source override, then source is 'egregore'."""
+        alerts = AlertsConfig()
+        overseer = OverseerConfig()
+        config_alert(
+            event=AlertEvent.CRASH,
+            alerts_cfg=alerts,
+            overseer_cfg=overseer,
+        )
+        call_kwargs = mock_alert.call_args[1]
+        assert call_kwargs["source"] == "egregore"

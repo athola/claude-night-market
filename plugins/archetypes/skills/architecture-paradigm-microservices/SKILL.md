@@ -32,7 +32,6 @@ estimated_tokens: 900
 - [Key Deliverables](#key-deliverables)
 - [Technology Guidance](#technology-guidance)
 - [Risks & Mitigations](#risks-mitigations)
-- [Troubleshooting](#troubleshooting)
 
 # The Microservices Architecture Paradigm
 
@@ -95,15 +94,3 @@ estimated_tokens: 900
   - **Mitigation**: Maintaining data consistency across services is a primary challenge. Employ patterns like Sagas for orchestrating transactions, validate message-based communication is idempotent, and use reconciliation jobs to handle eventual consistency.
 - **Incorrect Service Granularity ("Over-splitting")**:
   - **Mitigation**: If services are too small, the communication overhead can outweigh the benefits of distribution. validate each service owns a meaningful and substantial piece of functionality. Monitor change coupling between services to identify candidates for merging.
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag

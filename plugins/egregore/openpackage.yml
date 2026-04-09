@@ -18,6 +18,10 @@ dependencies:
     path: plugins/leyline
     skills:
     - deferred-capture
+  herald:
+    source: gh@athola/claude-night-market
+    path: plugins/herald
+    optional: true
 skills:
 - skills/install-watchdog
 - skills/quality-gate

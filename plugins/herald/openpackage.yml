@@ -1,0 +1,20 @@
+name: herald
+version: 1.8.2
+# herald is a library plugin - it provides a Python notification API
+# (scripts/notify.py) consumed by other plugins, not a skill/hook/agent
+# plugin for direct user interaction.
+type: library
+description: Standalone notification system for Claude Code plugins. Provides GitHub issue alerts and
+  webhook support (Slack, Discord, generic).
+keywords:
+- notifications
+- alerts
+- webhooks
+- github-issues
+- slack
+- discord
+- library
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT

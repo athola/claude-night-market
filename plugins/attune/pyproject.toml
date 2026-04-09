@@ -46,6 +46,22 @@ line-length = 88
 target-version = "py310"
 exclude = [".venv", ".uv-cache", "__pycache__"]
 
+[tool.ruff.lint.isort]
+known-first-party = [
+    "architecture_researcher",
+    "attune_init",
+    "conftest_shared",
+    "plugin_project_init",
+    "project_detector",
+    "sync_templates",
+    "tasks_manager",
+    "template_customizer",
+    "template_engine",
+    "template_loader",
+    "validate_project",
+    "version_fetcher",
+]
+
 [tool.ruff.lint]
 select = [
   "E",   # pycodestyle errors
@@ -191,8 +207,15 @@ omit = [
     "*/site-packages/*",
     "scripts/architecture_researcher.py",
     "scripts/attune_arch_init.py",
-    "scripts/template_customizer.py",
+    "scripts/attune_init.py",
+    "scripts/attune_upgrade.py",
     "scripts/deferred_capture.py",
+    "scripts/plugin_project_init.py",
+    "scripts/sync_templates.py",
+    "scripts/tasks_manager.py",
+    "scripts/template_customizer.py",
+    "scripts/template_loader.py",
+    "scripts/version_fetcher.py",
 ]
 
 [tool.coverage.report]

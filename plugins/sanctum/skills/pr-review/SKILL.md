@@ -494,16 +494,3 @@ Apply `scribe:slop-detector` to PR body:
 ## Supporting Modules
 
 - [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
-
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
