@@ -890,6 +890,105 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.kallemarjokorpi.fi/blog/mastering-diagramming-as-code-essential-mermaid-flowchart-tips-and-tricks-2/
+  https://d2lang.com/tour/grid-diagrams:
+    content_hash: sha256:8940bae141ee5443
+    stored_at: data/staging/webfetch-d2-grid-diagrams-syntax-and-examples-2026-04-10_04-45-57.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:45:57.653406+00:00'
+    title: 'D2 Grid Diagrams: Syntax and Examples'
+    maturity: seedling
+    routing_type: pending
+    url: https://d2lang.com/tour/grid-diagrams/
+  https://alexwlchan.net/notes/2024/how-to-render-svgs-on-github:
+    content_hash: sha256:ddceab0bf061b5fb
+    stored_at: data/staging/webfetch-rendering-svgs-in-github-readmes-2026-04-10_04-46-02.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:02.275430+00:00'
+    title: Rendering SVGs in GitHub READMEs
+    maturity: seedling
+    routing_type: pending
+    url: https://alexwlchan.net/notes/2024/how-to-render-svgs-on-github/
+  https://blog.jread.com/posts/d2-is-a-great-language-for-architecture-diagrams:
+    content_hash: sha256:6cc65f6b7b2912e9
+    stored_at: data/staging/webfetch-d2-for-architecture-diagrams-key-strengths-2026-04-10_04-46-02.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:02.565620+00:00'
+    title: 'D2 for Architecture Diagrams: Key Strengths'
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.jread.com/posts/d2-is-a-great-language-for-architecture-diagrams/
+  https://dev.to/markhopson/help-architecture-diagrams-for-github-readme-md-1pl7:
+    content_hash: sha256:7f5b81fb2f384ff9
+    stored_at: data/staging/webfetch-architecture-diagrams-for-github-readme-files-2026-04-10_04-46-02.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:02.560372+00:00'
+    title: Architecture Diagrams for GitHub README Files
+    maturity: seedling
+    routing_type: pending
+    url: https://dev.to/markhopson/help-architecture-diagrams-for-github-readme-md-1pl7
+  https://driesvints.com/blog/investigating-dark-mode-for-svgs-in-github-readmes:
+    content_hash: sha256:acb8b33dcab67e40
+    stored_at: data/staging/webfetch-dark-mode-svg-support-in-github-readmes-2026-04-10_04-46-28.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:28.812351+00:00'
+    title: Dark Mode SVG Support in GitHub READMEs
+    maturity: seedling
+    routing_type: pending
+    url: https://driesvints.com/blog/investigating-dark-mode-for-svgs-in-github-readmes
+  https://text-to-diagram.com/?example=text:
+    content_hash: sha256:ebf60535db6e05f3
+    stored_at: data/staging/webfetch-text-to-diagram-tools-comparison-2026-04-10_04-46-31.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:31.918498+00:00'
+    title: Text-to-Diagram Tools Comparison
+    maturity: seedling
+    routing_type: pending
+    url: https://text-to-diagram.com/?example=text
+  https://entropicdrift.com/blog/mermaid-sonar-complexity-analyzer:
+    content_hash: sha256:4e62a38d1786fe8c
+    stored_at: data/staging/webfetch-mermaid-sonar-metrics-and-thresholds-2026-04-10_04-46-31.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:31.459958+00:00'
+    title: Mermaid-Sonar Metrics and Thresholds
+    maturity: seedling
+    routing_type: pending
+    url: https://entropicdrift.com/blog/mermaid-sonar-complexity-analyzer/
+  https://gist.github.com/privatenumber/0b3db759ca8c90103360603ff3d49893:
+    content_hash: sha256:505769edd7303aed
+    stored_at: data/staging/webfetch-light-dark-mode-images-in-github-readme-2026-04-10_04-46-42.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:42.923815+00:00'
+    title: Light/Dark Mode Images in GitHub README
+    maturity: seedling
+    routing_type: pending
+    url: https://gist.github.com/privatenumber/0b3db759ca8c90103360603ff3d49893
+  https://github.com/stefanjudis/github-light-dark-image-example:
+    content_hash: sha256:14c7c48b8d71189a
+    stored_at: data/staging/webfetch-github-light-dark-mode-image-switching-2026-04-10_04-46-57.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:46:57.062479+00:00'
+    title: GitHub Light/Dark Mode Image Switching
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/stefanjudis/github-light-dark-image-example
+  https://kubernetes.io/docs/contribute/style/diagram-guide:
+    content_hash: sha256:cc36b50917d6e64a
+    stored_at: data/staging/webfetch-kubernetes-diagram-guidelines-2026-04-10_04-47-12.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:47:12.546223+00:00'
+    title: Kubernetes Diagram Guidelines
+    maturity: seedling
+    routing_type: pending
+    url: https://kubernetes.io/docs/contribute/style/diagram-guide/
+  https://d2lang.com/tour/style:
+    content_hash: sha256:345d9b357c81998a
+    stored_at: data/staging/webfetch-d2-styling-syntax-guide-2026-04-10_04-50-16.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:50:16.660346+00:00'
+    title: D2 Styling Syntax Guide
+    maturity: seedling
+    routing_type: pending
+    url: https://d2lang.com/tour/style
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -990,3 +1089,14 @@ hashes:
   sha256:541c7df8551170ce: data/staging/webfetch-mermaid-js-in-2025-key-insights-2026-04-10_04-27-26.md
   sha256:674123a982ab111e: data/staging/webfetch-mermaid-version-used-by-github-markdown-2026-04-10_04-27-46.md
   sha256:d398e408095a9b22: data/staging/webfetch-mermaid-flowchart-tips-for-improved-readability-2026-04-10_04-27-50.md
+  sha256:8940bae141ee5443: data/staging/webfetch-d2-grid-diagrams-syntax-and-examples-2026-04-10_04-45-57.md
+  sha256:ddceab0bf061b5fb: data/staging/webfetch-rendering-svgs-in-github-readmes-2026-04-10_04-46-02.md
+  sha256:6cc65f6b7b2912e9: data/staging/webfetch-d2-for-architecture-diagrams-key-strengths-2026-04-10_04-46-02.md
+  sha256:7f5b81fb2f384ff9: data/staging/webfetch-architecture-diagrams-for-github-readme-files-2026-04-10_04-46-02.md
+  sha256:acb8b33dcab67e40: data/staging/webfetch-dark-mode-svg-support-in-github-readmes-2026-04-10_04-46-28.md
+  sha256:ebf60535db6e05f3: data/staging/webfetch-text-to-diagram-tools-comparison-2026-04-10_04-46-31.md
+  sha256:4e62a38d1786fe8c: data/staging/webfetch-mermaid-sonar-metrics-and-thresholds-2026-04-10_04-46-31.md
+  sha256:505769edd7303aed: data/staging/webfetch-light-dark-mode-images-in-github-readme-2026-04-10_04-46-42.md
+  sha256:14c7c48b8d71189a: data/staging/webfetch-github-light-dark-mode-image-switching-2026-04-10_04-46-57.md
+  sha256:cc36b50917d6e64a: data/staging/webfetch-kubernetes-diagram-guidelines-2026-04-10_04-47-12.md
+  sha256:345d9b357c81998a: data/staging/webfetch-d2-styling-syntax-guide-2026-04-10_04-50-16.md

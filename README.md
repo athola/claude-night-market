@@ -72,69 +72,12 @@ Arrows show dependency direction (A --> B means
 A depends on B). Dashed arrows mark optional
 complements.
 
-```mermaid
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#e2e8f0',
-    'lineColor': '#64748b',
-    'fontFamily': 'system-ui, sans-serif',
-    'fontSize': '14px'
-  },
-  'flowchart': {
-    'curve': 'basis',
-    'nodeSpacing': 20,
-    'rankSpacing': 40,
-    'diagramPadding': 8
-  }
-}}%%
-flowchart TB
-    classDef found fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#5b21b6
-    classDef domain fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af
-    classDef util fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
-    classDef meta fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#166534
-    classDef ext fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 5,color:#64748b
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+  <img alt="Plugin architecture: 5 layers (External, Meta, Domain, Utility, Foundation) with 22 plugins" src="assets/architecture-light.svg">
+</picture>
 
-    ext["superpowers ecosystem<br/>superpowers + chrome + lab + dev-tools"]:::ext
-    abstract:::meta
-
-    subgraph domain["Domain Specialists"]
-        QA["pensive + scribe<br/>scry + cartograph"]:::domain
-        WF["attune + spec-kit"]:::domain
-        KB["memory-palace<br/>gauntlet + tome"]:::domain
-        DT["parseltongue + minister<br/>phantom + archetypes"]:::domain
-    end
-
-    subgraph utility["Utility"]
-        conserve:::util
-        conjure:::util
-        hookify:::util
-        egregore:::util
-    end
-
-    imbue:::found
-    leyline:::found
-    sanctum:::found
-
-    ext -.-> imbue
-    ext -.-> sanctum
-    abstract --> leyline
-    abstract --> imbue
-    WF --> imbue
-    WF --> sanctum
-    WF --> leyline
-    QA --> imbue
-    QA --> leyline
-    KB --> leyline
-    KB --> sanctum
-    DT --> leyline
-    conserve --> leyline
-    conserve --> imbue
-    egregore --> sanctum
-    egregore --> conserve
-
-    linkStyle default stroke:#94a3b8,stroke-width:1.5px
-```
+<sub>Source: <a href="assets/architecture.d2">assets/architecture.d2</a> — regenerate with <code>d2 assets/architecture.d2 assets/architecture-light.svg</code></sub>
 
 ### Plugin Catalog
 
