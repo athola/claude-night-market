@@ -73,81 +73,65 @@ A depends on B). Dashed arrows mark optional
 complements.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'lineColor': '#64748b', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '14px' }}}%%
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#e2e8f0',
+    'lineColor': '#64748b',
+    'fontFamily': 'system-ui, sans-serif',
+    'fontSize': '14px'
+  },
+  'flowchart': {
+    'curve': 'basis',
+    'nodeSpacing': 20,
+    'rankSpacing': 40,
+    'diagramPadding': 8
+  }
+}}%%
 flowchart TB
+    classDef found fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#5b21b6
     classDef domain fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af
-    classDef utility fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
-    classDef foundation fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#5b21b6
+    classDef util fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
     classDef meta fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#166534
     classDef ext fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 5,color:#64748b
 
-    subgraph External["External · superpowers-marketplace"]
-        direction LR
-        SP["superpowers"]:::ext
-        SPC["superpowers-chrome"]:::ext
-        SPD["superpowers-dev"]:::ext
-        SPL["superpowers-lab"]:::ext
+    ext["superpowers ecosystem<br/>superpowers + chrome + lab + dev-tools"]:::ext
+    abstract:::meta
+
+    subgraph domain["Domain Specialists"]
+        QA["pensive + scribe<br/>scry + cartograph"]:::domain
+        WF["attune + spec-kit"]:::domain
+        KB["memory-palace<br/>gauntlet + tome"]:::domain
+        DT["parseltongue + minister<br/>phantom + archetypes"]:::domain
     end
 
-    subgraph Domain["Domain Specialists"]
-        attune:::domain
-        pensive:::domain
-        scribe:::domain
-        spec-kit:::domain
-        memory-palace:::domain
-        parseltongue:::domain
-        minister:::domain
-        tome:::domain
-        gauntlet:::domain
-        phantom:::domain
-        archetypes:::domain
-        cartograph:::domain
-        scry:::domain
+    subgraph utility["Utility"]
+        conserve:::util
+        conjure:::util
+        hookify:::util
+        egregore:::util
     end
 
-    subgraph Utility["Utility Layer"]
-        conserve:::utility
-        conjure:::utility
-        hookify:::utility
-        egregore:::utility
-        herald:::utility
-        oracle:::utility
-    end
+    imbue:::found
+    leyline:::found
+    sanctum:::found
 
-    subgraph Foundation["Foundation Layer"]
-        leyline:::foundation
-        imbue:::foundation
-        sanctum:::foundation
-    end
-
-    subgraph Meta["Meta Layer"]
-        abstract:::meta
-    end
-
-    %% Domain --> Foundation
-    attune --> imbue & sanctum & leyline
-    pensive --> imbue & leyline
-    scribe --> leyline & pensive & scry
-    spec-kit --> imbue & sanctum
-    memory-palace --> leyline & sanctum
-    parseltongue --> leyline
-    minister --> leyline
-    tome --> leyline
-
-    %% Domain --> Domain
-    attune --> spec-kit
-
-    %% Utility --> Foundation
-    conserve --> leyline & imbue
-    conjure --> leyline
-    hookify --> leyline
-    egregore --> sanctum & conserve
-
-    %% Meta --> Foundation + Domain
-    abstract --> leyline & imbue & sanctum & pensive
-
-    %% External (dashed = complements, not hard dependency)
-    SP -.-> imbue & sanctum & attune
+    ext -.-> imbue
+    ext -.-> sanctum
+    abstract --> leyline
+    abstract --> imbue
+    WF --> imbue
+    WF --> sanctum
+    WF --> leyline
+    QA --> imbue
+    QA --> leyline
+    KB --> leyline
+    KB --> sanctum
+    DT --> leyline
+    conserve --> leyline
+    conserve --> imbue
+    egregore --> sanctum
+    egregore --> conserve
 
     linkStyle default stroke:#94a3b8,stroke-width:1.5px
 ```

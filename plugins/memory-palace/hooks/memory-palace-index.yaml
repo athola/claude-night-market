@@ -773,6 +773,123 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://arxiv.org/html/2406.18665v4
+  https://mermaid.js.org/config/schema-docs/config-defs-flowchart-diagram-config.html:
+    content_hash: sha256:7f26344b90b7bd9f
+    stored_at: data/staging/webfetch-flowchart-diagram-configuration-options-2026-04-10_04-26-17.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:17.116921+00:00'
+    title: Flowchart Diagram Configuration Options
+    maturity: seedling
+    routing_type: pending
+    url: https://mermaid.js.org/config/schema-docs/config-defs-flowchart-diagram-config.html
+  https://mermaid.ai/open-source/config/layouts.html:
+    content_hash: sha256:59098ce484ea0970
+    stored_at: data/staging/webfetch-mermaid-layout-engines-configuration-guide-2026-04-10_04-26-18.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:18.662304+00:00'
+    title: 'Mermaid Layout Engines: Configuration Guide'
+    maturity: seedling
+    routing_type: pending
+    url: https://mermaid.ai/open-source/config/layouts.html
+  https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams:
+    content_hash: sha256:f0bcede52119aaa1
+    stored_at: data/staging/webfetch-github-s-mermaid-rendering-details-2026-04-10_04-26-19.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:19.662758+00:00'
+    title: GitHub's Mermaid Rendering Details
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams
+  https://mermaid.js.org/syntax/c4.html:
+    content_hash: sha256:4b8c25e666d71582
+    stored_at: data/staging/webfetch-c4-diagram-syntax-in-mermaid-2026-04-10_04-26-21.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:21.858695+00:00'
+    title: C4 Diagram Syntax in Mermaid
+    maturity: seedling
+    routing_type: pending
+    url: https://mermaid.js.org/syntax/c4.html
+  https://mermaid.ai/open-source/syntax/block.html:
+    content_hash: sha256:41d479046447f741
+    stored_at: data/staging/webfetch-block-diagram-syntax-in-mermaid-2026-04-10_04-26-54.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:54.465932+00:00'
+    title: Block Diagram Syntax in Mermaid
+    maturity: seedling
+    routing_type: pending
+    url: https://mermaid.ai/open-source/syntax/block.html
+  https://www.drawio.com/blog/mermaid-elk-layout:
+    content_hash: sha256:b7182eeedbe7862e
+    stored_at: data/staging/webfetch-elk-layout-engine-for-mermaid-2026-04-10_04-26-55.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:55.737434+00:00'
+    title: ELK Layout Engine for Mermaid
+    maturity: seedling
+    routing_type: pending
+    url: https://www.drawio.com/blog/mermaid-elk-layout
+  https://mermaid.ai/open-source/syntax/architecture.html:
+    content_hash: sha256:4a1608d85ad00d9f
+    stored_at: data/staging/webfetch-mermaid-architecture-diagram-syntax-v11-1-0-2026-04-10_04-26-56.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:56.463672+00:00'
+    title: Mermaid Architecture Diagram Syntax (v11.1.0+)
+    maturity: seedling
+    routing_type: pending
+    url: https://mermaid.ai/open-source/syntax/architecture.html
+  https://github.com/lukilabs/beautiful-mermaid:
+    content_hash: sha256:afd03ffcb10a42fc
+    stored_at: data/staging/webfetch-beautiful-mermaid-tool-overview-2026-04-10_04-26-59.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:26:59.973856+00:00'
+    title: 'beautiful-mermaid: Tool Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/lukilabs/beautiful-mermaid
+  https://github.com/orgs/community/discussions/138426:
+    content_hash: sha256:9c646c52144b7cb9
+    stored_at: data/staging/webfetch-github-mermaid-elk-renderer-support-status-2026-04-10_04-27-21.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:27:21.444320+00:00'
+    title: GitHub Mermaid ELK Renderer Support Status
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/orgs/community/discussions/138426
+  https://gist.github.com/christophera/bffddfdf7b1502215e44cec9fb766dfd:
+    content_hash: sha256:f1215f7a2c161e46
+    stored_at: data/staging/webfetch-mermaid-diagram-examples-from-github-gist-2026-04-10_04-27-23.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:27:23.677320+00:00'
+    title: Mermaid Diagram Examples from GitHub Gist
+    maturity: seedling
+    routing_type: pending
+    url: https://gist.github.com/ChristopherA/bffddfdf7b1502215e44cec9fb766dfd
+  https://blog.korny.info/2025/03/14/mermaid-js-revisited:
+    content_hash: sha256:541c7df8551170ce
+    stored_at: data/staging/webfetch-mermaid-js-in-2025-key-insights-2026-04-10_04-27-26.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:27:26.046363+00:00'
+    title: 'Mermaid.js in 2025: Key Insights'
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.korny.info/2025/03/14/mermaid-js-revisited
+  https://github.com/orgs/community/discussions/37498:
+    content_hash: sha256:674123a982ab111e
+    stored_at: data/staging/webfetch-mermaid-version-used-by-github-markdown-2026-04-10_04-27-46.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:27:46.436719+00:00'
+    title: Mermaid Version Used by GitHub Markdown
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/orgs/community/discussions/37498
+  https://www.kallemarjokorpi.fi/blog/mastering-diagramming-as-code-essential-mermaid-flowchart-tips-and-tricks-2:
+    content_hash: sha256:d398e408095a9b22
+    stored_at: data/staging/webfetch-mermaid-flowchart-tips-for-improved-readability-2026-04-10_04-27-50.md
+    importance_score: 50
+    last_updated: '2026-04-10T04:27:50.000746+00:00'
+    title: Mermaid Flowchart Tips for Improved Readability
+    maturity: seedling
+    routing_type: pending
+    url: https://www.kallemarjokorpi.fi/blog/mastering-diagramming-as-code-essential-mermaid-flowchart-tips-and-tricks-2/
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -860,3 +977,16 @@ hashes:
   sha256:5cfc25e98cbef762: data/staging/webfetch-stories-with-score-5-2026-04-03_18-17-38.md
   sha256:465650c5a5c3434f: data/staging/webfetch-to-obtain-these-formulas-you-would-need-to-2026-04-03_21-28-25.md
   sha256:2315870bdc1b738b: data/staging/webfetch-mathematical-formulas-from-routellm-paper-2026-04-03_21-28-44.md
+  sha256:7f26344b90b7bd9f: data/staging/webfetch-flowchart-diagram-configuration-options-2026-04-10_04-26-17.md
+  sha256:59098ce484ea0970: data/staging/webfetch-mermaid-layout-engines-configuration-guide-2026-04-10_04-26-18.md
+  sha256:f0bcede52119aaa1: data/staging/webfetch-github-s-mermaid-rendering-details-2026-04-10_04-26-19.md
+  sha256:4b8c25e666d71582: data/staging/webfetch-c4-diagram-syntax-in-mermaid-2026-04-10_04-26-21.md
+  sha256:41d479046447f741: data/staging/webfetch-block-diagram-syntax-in-mermaid-2026-04-10_04-26-54.md
+  sha256:b7182eeedbe7862e: data/staging/webfetch-elk-layout-engine-for-mermaid-2026-04-10_04-26-55.md
+  sha256:4a1608d85ad00d9f: data/staging/webfetch-mermaid-architecture-diagram-syntax-v11-1-0-2026-04-10_04-26-56.md
+  sha256:afd03ffcb10a42fc: data/staging/webfetch-beautiful-mermaid-tool-overview-2026-04-10_04-26-59.md
+  sha256:9c646c52144b7cb9: data/staging/webfetch-github-mermaid-elk-renderer-support-status-2026-04-10_04-27-21.md
+  sha256:f1215f7a2c161e46: data/staging/webfetch-mermaid-diagram-examples-from-github-gist-2026-04-10_04-27-23.md
+  sha256:541c7df8551170ce: data/staging/webfetch-mermaid-js-in-2025-key-insights-2026-04-10_04-27-26.md
+  sha256:674123a982ab111e: data/staging/webfetch-mermaid-version-used-by-github-markdown-2026-04-10_04-27-46.md
+  sha256:d398e408095a9b22: data/staging/webfetch-mermaid-flowchart-tips-for-improved-readability-2026-04-10_04-27-50.md
