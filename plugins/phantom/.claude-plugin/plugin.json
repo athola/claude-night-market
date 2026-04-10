@@ -1,6 +1,6 @@
 {
   "name": "phantom",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Computer use toolkit for driving desktop environments through Claude's vision and action API with screenshot capture, mouse/keyboard control, and an autonomous agent loop",
   "commands": [
     "./commands/control-desktop.md"

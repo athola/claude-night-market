@@ -1,6 +1,6 @@
 {
   "name": "egregore",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Autonomous agent orchestrator for full development lifecycles with zero human input, session budget management, and crash recovery",
   "skills": [
     "./skills/summon",

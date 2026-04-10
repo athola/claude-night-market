@@ -1,7 +1,7 @@
 ---
 name: proof-of-work
 description: 'Enforce validation and evidence before declaring work complete. Use for acceptance criteria and done gates.'
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: workflow-methodology
 tags:

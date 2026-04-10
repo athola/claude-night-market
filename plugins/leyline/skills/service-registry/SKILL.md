@@ -1,7 +1,7 @@
 ---
 name: service-registry
 description: Service registry patterns for managing external services, health checks, centralized configuration, and unified execution.
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: infrastructure
 tags:

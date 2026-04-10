@@ -691,7 +691,7 @@ wheels = [
 
 [[package]]
 name = "tome"
-version = "1.8.3"
+version = "1.8.4"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },

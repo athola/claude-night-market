@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.8.3"
+version = "1.8.4"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -45,22 +45,6 @@ packages = ["scripts"]
 line-length = 88
 target-version = "py310"
 exclude = [".venv", ".uv-cache", "__pycache__"]
-
-[tool.ruff.lint.isort]
-known-first-party = [
-    "architecture_researcher",
-    "attune_init",
-    "conftest_shared",
-    "plugin_project_init",
-    "project_detector",
-    "sync_templates",
-    "tasks_manager",
-    "template_customizer",
-    "template_engine",
-    "template_loader",
-    "validate_project",
-    "version_fetcher",
-]
 
 [tool.ruff.lint]
 select = [
