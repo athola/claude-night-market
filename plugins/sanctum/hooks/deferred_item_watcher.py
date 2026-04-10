@@ -236,5 +236,13 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
+    except (
+        json.JSONDecodeError,
+        OSError,
+        KeyError,
+        TypeError,
+        AttributeError,
+        ValueError,
+        RuntimeError,
+    ):
         sys.stderr.write(f"deferred_item_watcher: {traceback.format_exc()}")

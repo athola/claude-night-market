@@ -19,10 +19,10 @@ estimated_tokens: 250
 
 When sem is not detected, present installation options:
 
-**macOS (Homebrew, unverified formula):**
+**macOS (Homebrew, if formula available):**
 
 ```bash
-brew install sem-cli
+brew search sem-cli && brew install sem-cli
 ```
 
 **Linux (binary download):**
@@ -44,7 +44,7 @@ When sem is missing, say:
 > sem (semantic diff tool) can provide entity-level diffs
 > instead of line-level diffs. Install it?
 >
-> - `brew install sem-cli` (macOS, unverified formula)
+> - `brew install sem-cli` (macOS, verify formula exists first)
 > - `cargo install --locked sem-cli` (Rust toolchain)
 > - Linux binary: `mkdir -p ~/.local/bin && curl -fsSL
 >   https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu

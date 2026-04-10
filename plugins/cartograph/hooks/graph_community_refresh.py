@@ -79,6 +79,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         )
         return {"additionalContext": msg}
     except Exception:
+        sys.stderr.write("graph_community_refresh: community detection failed\n")
         return None
 
 
