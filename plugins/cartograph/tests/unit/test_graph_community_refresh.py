@@ -122,3 +122,28 @@ class TestCommunityRefreshHook:
             }
         )
         assert result is None
+
+    @pytest.mark.unit
+    def test_exception_returns_none_and_logs(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Scenario: Community detection raises an exception
+        Given graph_build.py succeeds but graph.db is missing
+        When community detection fails
+        Then None is returned and error is logged to stderr
+        """
+        with patch(
+            "graph_community_refresh._find_graph_db",
+            return_value=Path("/nonexistent/graph.db"),
+        ):
+            result = main(
+                {
+                    "tool_name": "Bash",
+                    "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                    "tool_result": {"exitCode": 0, "stdout": "{}"},
+                }
+            )
+        assert result is None
+        captured = capsys.readouterr()
+        assert "community detection failed" in captured.err
