@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 # Publish night-market skills to ClawHub via the clawhub CLI.
 #
+# Uses `clawhub sync` for bulk publishing: scans the export
+# directory, detects new/updated skills, and uploads them.
+#
 # Usage:
-#   ./scripts/clawhub-submit.sh v1.8.1
-#   ./scripts/clawhub-submit.sh v1.8.1 --dry-run
+#   ./scripts/clawhub-submit.sh v1.8.3
+#   ./scripts/clawhub-submit.sh v1.8.3 --dry-run
 #   ./scripts/clawhub-submit.sh              # uses version from plugin.json
+#
+# Note: ClawHub enforces a rate limit of 5 new skills/hour.
+# For initial publish of 100+ skills, the sync will partially
+# complete and can be re-run to continue where it left off.
 
 set -euo pipefail
 
@@ -34,30 +41,29 @@ print(json.load(open('$REPO_ROOT/plugins/abstract/.claude-plugin/plugin.json'))[
   echo "Auto-detected version: $VERSION"
 fi
 
-# Strip leading v for semver arg
-SEMVER="${VERSION#v}"
-
 # ---------- preflight ----------
 
-if ! command -v npx &>/dev/null; then
-  echo "Error: npx is required (Node.js 20+). Install from https://nodejs.org"
+# Find clawhub binary
+CLAWHUB=""
+if command -v clawhub &>/dev/null; then
+  CLAWHUB="clawhub"
+elif command -v npx &>/dev/null && npx clawhub --help &>/dev/null 2>&1; then
+  CLAWHUB="npx clawhub"
+else
+  echo "Error: clawhub CLI not found."
+  echo "Install: npm install -g clawhub"
+  echo "    or: curl -fsSL https://clawhub.dev/install.sh | sh"
   exit 1
-fi
-
-# Ensure clawhub CLI is available (npx will fetch if missing)
-if ! npx clawhub --help &>/dev/null 2>&1; then
-  echo "Installing clawhub CLI..."
-  npm install -g clawhub
 fi
 
 # Verify authentication
-if ! npx clawhub whoami &>/dev/null 2>&1; then
+if ! $CLAWHUB whoami &>/dev/null 2>&1; then
   echo "Error: Not authenticated with ClawHub."
-  echo "Run: npx clawhub login"
+  echo "Run: $CLAWHUB login"
   exit 1
 fi
 
-CLAWHUB_USER=$(npx clawhub whoami 2>/dev/null)
+CLAWHUB_USER=$($CLAWHUB whoami 2>/dev/null | grep -oP '(?<=✔ )\S+' || $CLAWHUB whoami 2>/dev/null)
 echo "Authenticated as: $CLAWHUB_USER"
 
 # ---------- build artifacts if needed ----------
@@ -80,45 +86,36 @@ if [ "$EXPORTED" -eq 0 ]; then
   exit 1
 fi
 
-# ---------- publish ----------
+# ---------- sync (bulk publish) ----------
 
-PUBLISHED=0
-SKIPPED=0
-FAILED=0
+SYNC_ARGS=(
+  --workdir "$REPO_ROOT/$SKILLS_DIR"
+  --dir .
+  --all
+  --tags latest
+  --changelog "Release $VERSION"
+  --concurrency 1
+)
 
-for skill_dir in "$REPO_ROOT/$SKILLS_DIR"/nm-*/; do
-  [ -d "$skill_dir" ] || continue
-  [ -f "$skill_dir/SKILL.md" ] || continue
+if [ "$DRY_RUN" = true ]; then
+  SYNC_ARGS+=(--dry-run)
+fi
 
-  skill_name=$(basename "$skill_dir")
+echo ""
+echo "Running: $CLAWHUB sync ${SYNC_ARGS[*]}"
+echo ""
 
-  if [ "$DRY_RUN" = true ]; then
-    echo "[dry-run] Would publish: $skill_name ($SEMVER)"
-    PUBLISHED=$((PUBLISHED + 1))
-    continue
-  fi
+$CLAWHUB sync "${SYNC_ARGS[@]}"
+SYNC_EXIT=$?
 
-  if npx clawhub publish "$skill_dir" \
-      --slug "$skill_name" \
-      --version "$SEMVER" \
-      --tags latest \
-      --changelog "Release $VERSION"; then
-    echo "  Published: $skill_name"
-    PUBLISHED=$((PUBLISHED + 1))
-  else
-    echo "  Failed: $skill_name"
-    FAILED=$((FAILED + 1))
-  fi
-done
-
-# ---------- publish package (whole plugin) ----------
+# ---------- publish package ----------
 
 echo ""
 if [ "$DRY_RUN" = true ]; then
   echo "[dry-run] Would publish package: athola/claude-night-market@$VERSION"
 else
   echo "Publishing package..."
-  if npx clawhub package publish "athola/claude-night-market@$VERSION"; then
+  if $CLAWHUB package publish "athola/claude-night-market@$VERSION" 2>/dev/null; then
     echo "Package published: athola/claude-night-market@$VERSION"
   else
     echo "Warning: Package publish failed (may require manual setup)"
@@ -129,17 +126,19 @@ fi
 
 echo ""
 echo "=== ClawHub Publish Summary ==="
-echo "Version:   $VERSION"
-echo "Published: $PUBLISHED"
-echo "Skipped:   $SKIPPED"
-echo "Failed:    $FAILED"
+echo "Version: $VERSION"
+echo "Skills:  $EXPORTED"
 
 if [ "$DRY_RUN" = true ]; then
-  echo ""
-  echo "Dry run -- nothing was published."
-  echo "Run without --dry-run to publish."
+  echo "Mode:    dry-run"
 fi
 
-if [ "$FAILED" -gt 0 ]; then
+if [ "$SYNC_EXIT" -ne 0 ]; then
+  echo "Status:  partial (rate limit or error)"
+  echo ""
+  echo "Re-run this script to continue publishing."
+  echo "clawhub sync only uploads new/updated skills."
   exit 1
+else
+  echo "Status:  complete"
 fi
