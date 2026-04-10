@@ -5,15 +5,15 @@
 
 ## API Surface Summary
 
-Claude Night Market consists of 21 plugins that provide
+Claude Night Market consists of 23 plugins that provide
 CLI commands, Python packages, and skill-based APIs.
 These tools support a range of workflows, from code
 review to knowledge management.
 
 ## API Inventory
 
-The ecosystem includes 144 CLI commands, 156 modular
-skills, 49 specialized agents, and 9 Python packages
+The ecosystem includes 122 CLI commands, 170 modular
+skills, 51 specialized agents, and 10 Python packages
 with public APIs. We also maintain 25 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
@@ -21,20 +21,22 @@ with public APIs. We also maintain 25 execution hooks.
 | abstract | 1.8.3 | 18 | 12 | 5 | Yes | abstract-skills |
 | archetypes | 1.8.3 | 0 | 14 | 0 | No | - |
 | attune | 1.8.3 | 10 | 13 | 2 | No | - |
+| cartograph | 1.8.3 | 1 | 7 | 1 | No | - |
 | conjure | 1.8.3 | 0 | 4 | 0 | No | - |
-| conserve | 1.8.3 | 4 | 12 | 5 | No | - |
+| conserve | 1.8.3 | 4 | 13 | 5 | No | - |
 | egregore | 1.8.3 | 5 | 4 | 2 | No | - |
-| gauntlet | 1.8.3 | 5 | 4 | 1 | Yes | gauntlet |
+| gauntlet | 1.8.3 | 6 | 6 | 1 | Yes | gauntlet |
+| herald | 1.8.3 | 0 | 0 | 0 | No | - |
 | hookify | 1.8.3 | 6 | 2 | 0 | No | - |
-| imbue | 1.8.3 | 3 | 10 | 1 | No | - |
-| leyline | 1.8.3 | 3 | 20 | 0 | Yes | - |
-| memory-palace | 1.8.3 | 5 | 6 | 4 | Yes | - |
+| imbue | 1.8.3 | 4 | 11 | 1 | No | - |
+| leyline | 1.8.3 | 3 | 21 | 0 | Yes | - |
+| memory-palace | 1.8.3 | 5 | 7 | 4 | Yes | - |
 | minister | 1.8.3 | 3 | 2 | 0 | Yes | - |
 | oracle | 1.8.3 | 1 | 1 | 0 | No | - |
 | parseltongue | 1.8.3 | 3 | 4 | 4 | No | parseltongue |
-| pensive | 1.8.3 | 12 | 12 | 4 | Yes | - |
+| pensive | 1.8.3 | 12 | 13 | 5 | Yes | - |
 | phantom | 1.8.3 | 1 | 1 | 1 | No | - |
-| sanctum | 1.8.3 | 18 | 14 | 9 | Yes | - |
+| sanctum | 1.8.3 | 19 | 14 | 9 | Yes | - |
 | scribe | 1.8.3 | 5 | 7 | 3 | Yes | - |
 | scry | 1.8.3 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.8.3 | 10 | 3 | 3 | Yes | - |
@@ -64,6 +66,13 @@ Full Council and Delphi modes),
 and `mission` (unified lifecycle orchestrator with state detection
 and session recovery).
 
+### Cartograph (v1.8.3)
+Codebase visualization through Mermaid Chart MCP.
+Seven diagram skills (architecture, data-flow,
+dependency-graph, workflow, class-diagram, call-chain,
+code-communities), one `/visualize` command, and a
+codebase-explorer agent.
+
 ### Conjure (v1.8.3)
 Cross-model delegation and multi-agent coordination.
 Skills like `gemini-delegation`
@@ -88,6 +97,11 @@ pre-commit workflows. Commands include `challenge`,
 ML-enhanced answer scoring via a config-as-model pattern
 (YAML coefficients, pure-Python dot product) with optional
 ONNX Runtime inference through the oracle sidecar.
+
+### Herald (v1.8.3)
+Standalone notification system for Claude Code plugins.
+Provides GitHub issue alerts and webhook support for
+Slack, Discord, and generic endpoints.
 
 ### Hookify (v1.8.3)
 Behavioral rules engine with markdown-based configuration.
