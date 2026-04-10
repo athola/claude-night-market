@@ -58,6 +58,13 @@ checks Iron Law compliance (tests must not be modified to match
 broken implementations), and runs a minimal-intervention analysis
 that weights fewer lines changed and subtraction-first approaches.
 
+Use `/justify` as part of code review workflows:
+run it after `/pr-review` to audit changes for additive bias,
+or after `/refine-code` to verify refinements are genuinely
+simpler rather than just different.
+The typical flow is: implement, then `proof-of-work` (did it work?),
+then `justify` (was it the right approach?).
+
 ## Feature Planning and Monitoring
 
 ### Feature Review

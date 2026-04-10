@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.3] - 2026-04-08
+
 ### Added
 
 - **imbue justify**: `/justify` command and skill that
@@ -14,8 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on line ratio, new files, test tampering, and new
   abstractions. Enforces Iron Law compliance and weights
   minimal-intervention approaches.
-
-## [1.8.3] - 2026-04-08
 
 ### Changed
 

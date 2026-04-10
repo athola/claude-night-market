@@ -29,8 +29,6 @@ The map pre-compiles structural knowledge that AI assistants
 would otherwise discover through expensive Read/Grep calls,
 saving thousands of tokens per session.
 
-Inspired by [CodeSight](https://github.com/Houseofmvps/codesight).
-
 ## When to Use
 
 - At the start of a session to understand project layout

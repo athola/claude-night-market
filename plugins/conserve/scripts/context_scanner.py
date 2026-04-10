@@ -3,7 +3,6 @@
 
 Pre-scans a codebase and generates a compressed context map that gives
 AI assistants a project overview without expensive exploratory reads.
-Inspired by CodeSight (github.com/Houseofmvps/codesight).
 
 Usage:
     python context_scanner.py [path] [--format md|json] [--max-tokens N]
@@ -311,7 +310,7 @@ class ScanResult:
     ecosystems: list[EcosystemResult] = field(default_factory=list)
     config_files: list[str] = field(default_factory=list)
     truncated_dirs: int = 0
-    # New CodeSight-inspired fields
+    # Extended analysis fields
     import_graph: ImportGraph | None = None
     hot_files: list[str] = field(default_factory=list)
     hot_file_counts: dict[str, int] = field(default_factory=dict)
@@ -466,7 +465,7 @@ def scan_directory(root: Path) -> ScanResult:
                 if ep.path not in existing_paths:
                     result.ecosystems[0].entry_points.append(ep)
 
-    # New CodeSight-inspired detectors
+    # Extended analysis detectors
     result.import_graph = build_import_graph(root)
     result.hot_files = detect_hot_files(result.import_graph)
     result.hot_file_counts = {
@@ -1586,7 +1585,7 @@ TOKENS_PER_FILE_SCANNED = 80
 def estimate_token_savings(result: ScanResult) -> TokenEstimate:
     """Estimate exploration tokens saved by the context map.
 
-    Based on CodeSight benchmarks: each route costs ~400 tokens
+    Estimated costs: each route costs ~400 tokens
     of manual discovery, each hot file ~150, each env var ~100,
     and each file scanned ~80 tokens of glob/grep overhead.
     """
