@@ -66,7 +66,7 @@ class KnowledgeStore:
         categories: list[str] | None = None,
         tags: list[str] | None = None,
         min_difficulty: int = 1,
-        max_difficulty: int = 5,
+        max_difficulty: int = 4,
     ) -> list[KnowledgeEntry]:
         """Return entries matching all supplied filters.
 

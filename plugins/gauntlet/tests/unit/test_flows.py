@@ -146,7 +146,7 @@ class TestTraceFlows:
         _add_chain(store, names)
         flows = trace_flows(store, max_depth=2)
         for flow in flows:
-            assert flow["node_count"] <= 3
+            assert flow["node_count"] == 3
 
     @pytest.mark.unit
     def test_flow_includes_file_count(self, store: GraphStore) -> None:

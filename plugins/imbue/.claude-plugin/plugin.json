@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/catchup",
@@ -12,10 +12,12 @@
     "./skills/rigorous-reasoning",
     "./skills/scope-guard",
     "./skills/structured-output",
-    "./skills/workflow-monitor"
+    "./skills/workflow-monitor",
+    "./skills/justify"
   ],
   "commands": [
     "./commands/catchup.md",
+    "./commands/justify.md",
     "./commands/stewardship-health.md",
     "./commands/structured-review.md"
   ],

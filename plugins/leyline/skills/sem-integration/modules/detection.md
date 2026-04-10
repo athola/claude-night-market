@@ -19,7 +19,7 @@ estimated_tokens: 250
 
 When sem is not detected, present installation options:
 
-**macOS (Homebrew):**
+**macOS (Homebrew, unverified formula):**
 
 ```bash
 brew install sem-cli
@@ -28,7 +28,7 @@ brew install sem-cli
 **Linux (binary download):**
 
 ```bash
-curl -fsSL https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu -o /usr/local/bin/sem && chmod +x /usr/local/bin/sem
+mkdir -p ~/.local/bin && curl -fsSL https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu -o ~/.local/bin/sem && chmod +x ~/.local/bin/sem
 ```
 
 **Rust toolchain available:**
@@ -44,8 +44,11 @@ When sem is missing, say:
 > sem (semantic diff tool) can provide entity-level diffs
 > instead of line-level diffs. Install it?
 >
-> - `brew install sem-cli` (macOS)
+> - `brew install sem-cli` (macOS, unverified formula)
 > - `cargo install --locked sem-cli` (Rust toolchain)
+> - Linux binary: `mkdir -p ~/.local/bin && curl -fsSL
+>   https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu
+>   -o ~/.local/bin/sem && chmod +x ~/.local/bin/sem`
 > - Or skip to use standard git diff
 
 If the user declines, write `0` to the cache and

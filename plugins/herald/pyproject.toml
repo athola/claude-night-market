@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "herald-dev"
-version = "1.8.2"
+version = "1.8.3"
 description = "Standalone notification system for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -51,7 +51,7 @@ disallow_untyped_defs = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
-addopts = "-v"
+addopts = "-v --cov=scripts --cov-report=term-missing --cov-fail-under=90"
 markers = [
     "unit: Unit tests",
 ]

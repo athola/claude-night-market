@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.8.2"
+version = "1.8.3"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -65,7 +65,7 @@ include = ["parseltongue*"]
 addopts = [
     "-v",
     "--strict-markers",
-    "--cov=parseltongue",
+    "--cov=src/parseltongue",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",

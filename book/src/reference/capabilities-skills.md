@@ -187,6 +187,27 @@ NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
 | "Should work" | TEST IT |
 | "Syntax valid" | FUNCTIONAL TEST |
 
+### `imbue:justify`
+Post-implementation audit for AI additive bias.
+
+**Invocation**: `Skill(imbue:justify)`
+
+Scores changes on five signals: line ratio,
+new files, test-logic tampering, new abstractions,
+and workaround patterns. Checks Iron Law compliance
+(tests must not be modified to match broken code)
+and runs minimal-intervention analysis that weights
+subtraction-first approaches.
+
+**Bias Score Zones**:
+
+| Score | Zone | Action |
+|-------|------|--------|
+| 0-0.5 | GREEN | Proceed |
+| 0.5-1.5 | YELLOW | Justify each signal |
+| 1.5-2.5 | RED | Rethink approach |
+| 2.5+ | STOP | Likely wrong approach |
+
 ### `imbue:catchup`
 Context recovery after session restart.
 

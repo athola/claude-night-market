@@ -129,8 +129,7 @@ class TestContentTestTemplatesModuleContent:
             / "skills"
             / "test-updates"
             / "modules"
-            / "generation"
-            / "content-test-templates.md"
+            / "test-generation.md"
         )
 
     @pytest.fixture
@@ -196,13 +195,20 @@ class TestContentTestTemplatesModuleContent:
             re.DOTALL | re.MULTILINE,
         )
         assert len(python_blocks) >= 3, "Module should contain templates for each level"
+        parsed = 0
         for i, block in enumerate(python_blocks):
+            # Skip placeholder templates (e.g. {function_name}) that
+            # are not meant to be valid Python as-is.
+            if re.search(r"\{[a-z_]+\}", block):
+                continue
             # Dedent class-body fragments so they parse standalone
             dedented = textwrap.dedent(block)
             try:
                 ast.parse(dedented)
+                parsed += 1
             except SyntaxError as exc:
                 pytest.fail(f"Python block #{i + 1} has invalid syntax: {exc}")
+        assert parsed >= 3, "At least 3 non-template blocks should parse"
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -134,6 +134,8 @@ class TestTerminalInfoDetection:
         monkeypatch.delenv("TMUX", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
+        monkeypatch.delenv("TTY", raising=False)
+        monkeypatch.delenv("GPG_TTY", raising=False)
         monkeypatch.setenv("TERM_PROGRAM", "iTerm.app")
 
         with patch(

@@ -431,7 +431,8 @@ class TestMainIntegration:
         Then it wraps main() in try/except and exits 0.
         """
         source = inspect.getsource(_mod)
-        assert "except Exception" in source
+        # Hook wraps main() in try/except with specific exception types
+        assert "except (json.JSONDecodeError" in source
         assert "sys.exit(0)" in source
 
     @pytest.mark.bdd

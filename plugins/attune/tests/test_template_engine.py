@@ -4,6 +4,7 @@ Following BDD principles with Given/When/Then structure.
 """
 
 import pytest
+
 from template_engine import TemplateEngine, get_default_variables
 
 

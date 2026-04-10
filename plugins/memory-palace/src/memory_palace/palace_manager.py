@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from memory_palace.knowledge_graph import KnowledgeGraph
 from memory_palace.palace_maintenance import PalaceMaintenance
 from memory_palace.palace_repository import PalaceRepository
 from memory_palace.palace_search import PalaceSearchEngine
@@ -63,6 +64,10 @@ class MemoryPalaceManager:
         self._repo = PalaceRepository(self.palaces_dir)
         self._search = PalaceSearchEngine(self._repo)
         self._maintenance = PalaceMaintenance(self._repo)
+
+        # Knowledge graph (SQLite-backed, lives alongside JSON palaces)
+        graph_path = os.path.join(self.palaces_dir, "knowledge_graph.db")
+        self._graph = KnowledgeGraph(graph_path)
 
     # ------------------------------------------------------------------
     # Config / directory helpers (kept on manager, not in sub-objects)
@@ -189,3 +194,12 @@ class MemoryPalaceManager:
     def import_state(self, source: str, keep_existing: bool = True) -> dict[str, int]:
         """Import palaces from a JSON file."""
         return self._maintenance.import_state(source, keep_existing)
+
+    # ------------------------------------------------------------------
+    # Knowledge Graph — direct access
+    # ------------------------------------------------------------------
+
+    @property
+    def graph(self) -> KnowledgeGraph:
+        """Access the knowledge graph."""
+        return self._graph

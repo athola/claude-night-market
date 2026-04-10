@@ -215,13 +215,16 @@ class TestSubagentCoordinationModuleContent:
         Checks both main and 2025 archive compatibility files.
         """
         versions = set(re.findall(r"2\.1\.(\d+)", module_content))
-        compat_dir = (
-            Path(__file__).parents[FOUR] / "abstract" / "docs" / "compatibility"
-        )
-        # Combine all compatibility docs content
+        abstract_docs = Path(__file__).parents[FOUR] / "abstract" / "docs"
+        compat_dir = abstract_docs / "compatibility"
+        archive_dir = abstract_docs / "archive"
+        # Combine all compatibility docs content (including archived files)
         compat_content = ""
         for compat_file in compat_dir.glob("compatibility-features*.md"):
             compat_content += compat_file.read_text()
+        if archive_dir.exists():
+            for compat_file in archive_dir.glob("compatibility-features*.md"):
+                compat_content += compat_file.read_text()
 
         # Only check versions in the documented range (2.1.50+).
         # Older versions (2.1.1-2.1.49) are historical and not

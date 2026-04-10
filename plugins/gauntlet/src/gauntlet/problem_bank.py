@@ -23,7 +23,7 @@ def load_bank(data_dir: Path | None = None) -> list[BankProblem]:
         if yaml_file.name.startswith("_"):
             continue  # skip manifest and other meta files
         try:
-            with open(yaml_file) as f:  # noqa: S108 - reading from plugin data dir, not temp
+            with open(yaml_file) as f:  # noqa: PTH123 - reading from plugin data dir
                 data = yaml.safe_load(f)
         except yaml.YAMLError:
             _log.warning("Skipping malformed YAML: %s", yaml_file.name)
@@ -87,5 +87,5 @@ def load_manifest(data_dir: Path | None = None) -> dict[str, Any]:
     manifest_path = directory / "_manifest.yaml"
     if not manifest_path.exists():
         return {}
-    with open(manifest_path) as f:  # noqa: S108 - reading from plugin data dir, not temp
+    with open(manifest_path) as f:  # noqa: PTH123 - reading from plugin data dir
         return yaml.safe_load(f) or {}

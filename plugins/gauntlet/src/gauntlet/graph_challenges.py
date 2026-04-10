@@ -99,7 +99,7 @@ def _impact_prediction(
     )[:8]
 
     # Difficulty scales with number of affected nodes
-    difficulty = min(max(1, len(affected_names) // 2), 5)
+    difficulty = min(max(1, len(affected_names) // 2), 4)
 
     answer = ", ".join(affected_names) if affected_names else "no downstream impact"
     direct_targets = [_bare_name(t) for t in call_targets[:3]]
@@ -137,7 +137,7 @@ def _dependency_trace(
     caller_names = sorted({_bare_name(c) for c in callers})[:5]
 
     # Difficulty scales with caller count
-    difficulty = min(max(1, len(caller_names)), 5)
+    difficulty = min(max(1, len(caller_names)), 4)
 
     answer = ", ".join(caller_names)
 

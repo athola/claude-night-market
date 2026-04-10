@@ -101,27 +101,13 @@ class MetaEvaluator:
                 print(f"[ERROR] Failed to read {skill_file}: {e}")
             return None
 
-    def check_toc_exists(self, content: str, skill_name: str) -> bool:
-        """Check if skill has Table of Contents."""
-        has_toc = (
-            "## Table of Contents" in content or "table of contents" in content.lower()
-        )
+    def check_toc_exists(self, _content: str, _skill_name: str) -> bool:
+        """Check if skill has Table of Contents.
 
-        if not has_toc:
-            # Check if content is long enough to warrant TOC
-            line_count = len(content.split("\n"))
-            if line_count > self.TOC_LINE_THRESHOLD:
-                self.issues.append(
-                    {
-                        "type": "missing_toc",
-                        "skill": skill_name,
-                        "severity": "medium",
-                        "message": f"Skill has {line_count} lines but no TOC",
-                        "fix": "Add Table of Contents after frontmatter for navigation",
-                    }
-                )
-                return False
-
+        Disabled: ToC sections were removed ecosystem-wide per the
+        2026-04-08 plugin audit. Skills loaded into model context
+        don't benefit from HTML anchor links.
+        """
         return True
 
     def check_verification_steps(self, content: str, skill_name: str) -> bool:

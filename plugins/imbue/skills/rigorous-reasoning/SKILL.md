@@ -124,6 +124,12 @@ When applying this skill, create these todos:
 
 **Combined use:** When claiming both technical completion AND making value judgments, apply both skills.
 
+Use `proof-of-work` to document:
+- Checklist results (harm found/not found)
+- Validity assessments
+- Sources for truth claims
+- Retraction triggers (substantive vs. social)
+
 ### With `scope-guard`
 
 | Skill | Function |
@@ -132,14 +138,6 @@ When applying this skill, create these todos:
 | `rigorous-reasoning` | Prevents agreeing to wrong things |
 
 **Combined use:** When evaluating feature proposals that involve contested claims about user needs.
-
-### With `proof-of-work`
-
-Use `proof-of-work` to document:
-- Checklist results (harm found/not found)
-- Validity assessments
-- Sources for truth claims
-- Retraction triggers (substantive vs. social)
 
 ## Module Reference
 
@@ -153,9 +151,8 @@ Use `proof-of-work` to document:
 
 ## Related Skills
 
-- `imbue:proof-of-work` - Technical validation (complements reasoning validation)
+- `imbue:proof-of-work` - Technical validation and evidence capture (complements reasoning validation)
 - `imbue:scope-guard` - Feature evaluation (often involves contested claims)
-- `imbue:proof-of-work` - How to capture and format evidence
 
 ## Exit Criteria
 

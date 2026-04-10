@@ -32,7 +32,6 @@ estimated_tokens: 800
 - [Activation Patterns](#activation-patterns)
 - [4-Step Methodology](#4-step-methodology)
 - [Exit Criteria](#exit-criteria)
-- [Troubleshooting](#troubleshooting)
 
 # Diff Analysis Methodology
 
@@ -100,15 +99,3 @@ Synthesize findings: theme, scope with counts, risk level, review focus, depende
 - All TodoWrite items completed with categorized changes and risk assessment
 - Downstream workflows have semantic understanding of the changeset
 - Summary ready for appropriate consumption (review, release notes, planning)
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag

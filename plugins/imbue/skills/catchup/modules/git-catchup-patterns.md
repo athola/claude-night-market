@@ -52,6 +52,12 @@ sem diff --format json ${BASE}...HEAD
 sem log <entity-name>
 ```
 
+> **Note:** sem may not support three-dot (`...`) range
+> syntax directly. If `sem diff` fails with a range,
+> resolve the merge base first:
+> `BASE=$(git merge-base main HEAD)` then pass
+> `sem diff --format json $BASE HEAD`.
+
 **Key advantages over git diff --stat:**
 
 - Shows which functions/classes changed, not just files
@@ -86,7 +92,7 @@ git log -p --follow -- path/to/file                 # File history with patches
 
 Then proceed with catchup-specific insight extraction and follow-up identification.
 
-**Sanctum provides the raw data; catchup extracts insights and actionable items.**
+**Sanctum provides the raw data; catchup extracts insights and concrete next steps.**
 
 ## Common Patterns
 

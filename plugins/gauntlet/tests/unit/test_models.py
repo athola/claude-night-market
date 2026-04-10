@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from gauntlet.models import (
     AnswerRecord,
     Challenge,
     DeveloperProgress,
+    EdgeKind,
+    GraphEdge,
     KnowledgeEntry,
     OnboardingProgress,
 )
@@ -112,6 +115,33 @@ class TestKnowledgeEntry:
         assert entry.tags == []
         assert entry.consumers == []
 
+    def test_difficulty_upper_bound_is_4(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating a KnowledgeEntry
+        THEN it succeeds without error.
+        """
+        entry = _make_entry(difficulty=4)
+        assert entry.difficulty == 4
+
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating a KnowledgeEntry
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_entry(difficulty=5)
+
+    def test_difficulty_0_raises_value_error(self):
+        """
+        GIVEN difficulty=0 (below the 1-4 range)
+        WHEN creating a KnowledgeEntry
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_entry(difficulty=0)
+
 
 # ---------------------------------------------------------------------------
 # Challenge
@@ -179,6 +209,44 @@ class TestChallenge:
         ):
             assert key in d
 
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating a Challenge
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            Challenge(
+                id="ch-bad",
+                type="multiple_choice",
+                knowledge_entry_id="ke-001",
+                difficulty=5,
+                prompt="Q?",
+                context="ctx",
+                answer="A",
+                hints=[],
+                scope_files=[],
+            )
+
+    def test_difficulty_4_is_valid(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating a Challenge
+        THEN it succeeds.
+        """
+        ch = Challenge(
+            id="ch-max",
+            type="multiple_choice",
+            knowledge_entry_id="ke-001",
+            difficulty=4,
+            prompt="Q?",
+            context="ctx",
+            answer="A",
+            hints=[],
+            scope_files=[],
+        )
+        assert ch.difficulty == 4
+
 
 # ---------------------------------------------------------------------------
 # AnswerRecord
@@ -206,6 +274,24 @@ class TestAnswerRecord:
         assert restored.challenge_id == ar.challenge_id
         assert restored.result == ar.result
         assert restored.score() == 1.0
+
+    def test_difficulty_5_raises_value_error(self):
+        """
+        GIVEN difficulty=5 (above the 1-4 range)
+        WHEN creating an AnswerRecord
+        THEN ValueError is raised.
+        """
+        with pytest.raises(ValueError, match="difficulty must be 1-4"):
+            _make_answer("pass", difficulty=5)
+
+    def test_difficulty_4_is_valid(self):
+        """
+        GIVEN difficulty=4 (the new maximum)
+        WHEN creating an AnswerRecord
+        THEN it succeeds.
+        """
+        ar = _make_answer("pass", difficulty=4)
+        assert ar.difficulty == 4
 
 
 # ---------------------------------------------------------------------------
@@ -344,3 +430,114 @@ class TestOnboardingProgress:
             "graduated",
         ):
             assert key in d
+
+
+# ---------------------------------------------------------------------------
+# GraphEdge validation (I10)
+# ---------------------------------------------------------------------------
+
+
+class TestGraphEdgeValidation:
+    """
+    Feature: GraphEdge name validation
+
+    As a graph builder
+    I want GraphEdge to reject empty qualified names
+    So that the graph never contains unresolvable edges
+    """
+
+    @pytest.mark.unit
+    def test_valid_edge_creation(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with valid names succeeds
+        Given valid source and target qualified names
+        When a GraphEdge is created
+        Then no exception is raised and fields are set correctly
+        """
+        edge = GraphEdge(
+            kind=EdgeKind.CALLS,
+            source_qn="app.py::main",
+            target_qn="app.py::helper",
+            file_path="app.py",
+        )
+        assert edge.source_qn == "app.py::main"
+        assert edge.target_qn == "app.py::helper"
+        assert edge.kind == EdgeKind.CALLS
+
+    @pytest.mark.unit
+    def test_empty_source_qn_raises(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with empty source_qn raises ValueError
+        Given an empty string for source_qn
+        When a GraphEdge is created
+        Then a ValueError is raised with a descriptive message
+        """
+        with pytest.raises(ValueError, match="source_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="",
+                target_qn="app.py::helper",
+            )
+
+    @pytest.mark.unit
+    def test_empty_target_qn_raises(self) -> None:
+        """
+        Scenario: Creating a GraphEdge with empty target_qn raises ValueError
+        Given an empty string for target_qn
+        When a GraphEdge is created
+        Then a ValueError is raised with a descriptive message
+        """
+        with pytest.raises(ValueError, match="target_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="app.py::main",
+                target_qn="",
+            )
+
+    @pytest.mark.unit
+    def test_control_char_only_source_qn_raises(self) -> None:
+        """
+        Scenario: source_qn containing only control characters is sanitized to empty
+        Given a source_qn of control characters (stripped by _sanitize_name)
+        When a GraphEdge is created
+        Then a ValueError is raised because the sanitized name is empty
+        """
+        with pytest.raises(ValueError, match="source_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="\x00\x01\x0f",
+                target_qn="app.py::helper",
+            )
+
+    @pytest.mark.unit
+    def test_control_char_only_target_qn_raises(self) -> None:
+        """
+        Scenario: target_qn containing only control characters is sanitized to empty
+        Given a target_qn of control characters (stripped by _sanitize_name)
+        When a GraphEdge is created
+        Then a ValueError is raised because the sanitized name is empty
+        """
+        with pytest.raises(ValueError, match="target_qn must not be empty"):
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="app.py::main",
+                target_qn="\x00\x01\x0f",
+            )
+
+    @pytest.mark.unit
+    def test_whitespace_names_are_accepted(self) -> None:
+        """
+        Scenario: Whitespace-only names pass validation
+        Given source_qn and target_qn containing only spaces
+        When a GraphEdge is created
+        Then no error is raised because _sanitize_name preserves
+             printable characters (space is 0x20, above the control
+             character threshold)
+        """
+        edge = GraphEdge(
+            kind=EdgeKind.CALLS,
+            source_qn="   ",
+            target_qn="   ",
+        )
+        assert edge.source_qn == "   "
+        assert edge.target_qn == "   "

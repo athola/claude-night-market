@@ -1,6 +1,6 @@
 [project]
 name = "phantom"
-version = "1.8.2"
+version = "1.8.3"
 description = "Computer use toolkit for Claude - screenshot capture, mouse/keyboard control, and agent loop"
 requires-python = ">=3.9"
 license = { text = "MIT" }

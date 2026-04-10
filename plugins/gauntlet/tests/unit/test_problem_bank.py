@@ -72,15 +72,15 @@ class TestDifficulty:
     @pytest.mark.unit
     def test_to_numeric_mapping(self):
         """
-        Scenario: Each difficulty maps to a 1-5 integer
+        Scenario: Each difficulty maps to a 1-4 integer
         Given all four difficulty tiers
         When to_numeric() is called
-        Then easy=1, medium=2, hard=4, extra_hard=5
+        Then easy=1, medium=2, hard=3, extra_hard=4
         """
         assert Difficulty.EASY.to_numeric() == 1
         assert Difficulty.MEDIUM.to_numeric() == 2
-        assert Difficulty.HARD.to_numeric() == 4
-        assert Difficulty.EXTRA_HARD.to_numeric() == 5
+        assert Difficulty.HARD.to_numeric() == 3
+        assert Difficulty.EXTRA_HARD.to_numeric() == 4
 
     @pytest.mark.unit
     def test_invalid_difficulty_raises(self):
@@ -465,10 +465,10 @@ class TestBankProblemToChallenge:
     @pytest.mark.unit
     def test_difficulty_maps_to_numeric(self):
         """
-        Scenario: Difficulty enum maps to 1-5 scale on Challenge
+        Scenario: Difficulty enum maps to 1-4 scale on Challenge
         Given a HARD BankProblem
         When converted to a Challenge
-        Then challenge.difficulty is 4
+        Then challenge.difficulty is 3
         """
         problem = BankProblem(
             id="merge-k",
@@ -479,7 +479,7 @@ class TestBankProblemToChallenge:
         )
         challenge = bank_problem_to_challenge(problem)
 
-        assert challenge.difficulty == 4
+        assert challenge.difficulty == 3
 
     @pytest.mark.unit
     def test_challenge_id_prefixed_with_bank(self):

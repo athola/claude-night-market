@@ -220,12 +220,12 @@ class TestHookOutputFormat:
     def test_hook_output_is_valid_json(self, hook_module) -> None:
         """Given: Hook produces output
         When: Output is parsed as JSON
-        Then: It contains the expected structure
+        Then: It uses the hookSpecificOutput schema
         """
-        # The hook should output empty/pass-through for UserPromptSubmit
         output = hook_module.format_hook_output()
         parsed = json.loads(output)
-        assert parsed.get("decision") == "ALLOW"
+        hook_output = parsed.get("hookSpecificOutput", {})
+        assert hook_output.get("hookEventName") == "UserPromptSubmit"
 
     def test_hook_always_allows_prompt(self, hook_module) -> None:
         """Given: Hook runs (regardless of aggregation state)
@@ -234,9 +234,10 @@ class TestHookOutputFormat:
         """
         output = hook_module.format_hook_output()
         parsed = json.loads(output)
-        # UserPromptSubmit hooks should not block
-        if "decision" in parsed:
-            assert parsed["decision"] == "ALLOW"
+        # UserPromptSubmit hooks use hookSpecificOutput, not decision
+        assert "hookSpecificOutput" in parsed
+        # Should not contain blocking decision keys
+        assert "decision" not in parsed
 
 
 # ---------------------------------------------------------------------------
@@ -485,7 +486,7 @@ class TestMainEntryPoint:
     ) -> None:
         """Given: Hook is invoked as UserPromptSubmit handler
         When: main() runs
-        Then: Reads stdin, runs pipeline, prints ALLOW JSON
+        Then: Reads stdin, runs pipeline, prints hookSpecificOutput JSON
         """
         monkeypatch.setattr("sys.stdin", io.StringIO('{"user_prompt": "test"}'))
         monkeypatch.setattr(hook_module, "run_daily_pipeline", MagicMock())
@@ -494,14 +495,14 @@ class TestMainEntryPoint:
 
         captured = capsys.readouterr()
         parsed = json.loads(captured.out.strip())
-        assert parsed["decision"] == "ALLOW"
+        assert "hookSpecificOutput" in parsed
 
-    def test_main_outputs_allow_even_on_pipeline_error(
+    def test_main_outputs_valid_json_even_on_pipeline_error(
         self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: The daily pipeline raises an exception
         When: main() runs
-        Then: Still prints ALLOW (never blocks the user)
+        Then: Still prints valid JSON (never blocks the user)
         """
         monkeypatch.setattr("sys.stdin", io.StringIO(""))
         monkeypatch.setattr(
@@ -514,14 +515,14 @@ class TestMainEntryPoint:
 
         captured = capsys.readouterr()
         parsed = json.loads(captured.out.strip())
-        assert parsed["decision"] == "ALLOW"
+        assert "hookSpecificOutput" in parsed
 
     def test_main_handles_stdin_read_error(
         self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: stdin.read() raises an error
         When: main() runs
-        Then: Still runs pipeline and outputs ALLOW
+        Then: Still runs pipeline and outputs valid JSON
         """
         mock_stdin = MagicMock()
         mock_stdin.read.side_effect = OSError("stdin broken")
@@ -532,7 +533,7 @@ class TestMainEntryPoint:
 
         captured = capsys.readouterr()
         parsed = json.loads(captured.out.strip())
-        assert parsed["decision"] == "ALLOW"
+        assert "hookSpecificOutput" in parsed
 
 
 # ---------------------------------------------------------------------------

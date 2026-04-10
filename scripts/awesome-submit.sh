@@ -102,7 +102,7 @@ for TARGET in "${TARGETS[@]}"; do
   gh repo sync "${FORK_OWNER}/${REPO_NAME}" --branch main 2>&1 || true
 
   WORKDIR=$(mktemp -d)
-  trap 'rm -rf "$WORKDIR"' EXIT
+  trap 'rm -rf "$WORKDIR"' EXIT INT TERM
 
   gh repo clone "${FORK_OWNER}/${REPO_NAME}" "$WORKDIR/repo" -- --depth=10
   cd "$WORKDIR/repo"
@@ -122,18 +122,19 @@ for TARGET in "${TARGETS[@]}"; do
 
   # Insert after ## Skills header, or append
   if grep -q "## Skills" README.md; then
-    python3 -c "
-import re
-content = open('README.md').read()
-m = re.search(r'(## Skills[^\n]*\n(?:.*?\n)*?)(\n## |\Z)', content, re.DOTALL)
+    ENTRY_LINE="$ENTRY" python3 <<'PYEOF'
+import os, re
+entry = os.environ["ENTRY_LINE"]
+content = open("README.md").read()
+m = re.search(r"(## Skills[^\n]*\n(?:.*?\n)*?)(\n## |\Z)", content, re.DOTALL)
 if m:
     before = m.group(1).rstrip()
     after = m.group(2)
-    content = content[:m.start()] + before + '\n$ENTRY\n' + after + content[m.end():]
+    content = content[:m.start()] + before + "\n" + entry + "\n" + after + content[m.end():]
 else:
-    content += '\n$ENTRY\n'
-open('README.md', 'w').write(content)
-"
+    content += "\n" + entry + "\n"
+open("README.md", "w").write(content)
+PYEOF
   else
     echo "" >> README.md
     echo "$ENTRY" >> README.md

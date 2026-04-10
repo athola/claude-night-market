@@ -6,6 +6,7 @@ Following BDD principles with Given/When/Then structure.
 from pathlib import Path
 
 import pytest
+
 from project_detector import ProjectDetector
 
 

@@ -50,6 +50,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
 | `computer-control` | [phantom](../plugins/phantom.md) | Desktop automation via Claude's vision and action API |
 | `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
+| `context-map` | [conserve](../plugins/conserve.md) | Pre-scan project structure to reduce exploration token waste |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
@@ -86,6 +87,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
+| `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
@@ -124,6 +126,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
+| `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
@@ -240,6 +243,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/hooks-eval` | abstract | Hook evaluation |
 | `/improve-skills` | abstract | Auto-improve skills from observability data |
 | `/install-watchdog` | egregore | Install crash-recovery watchdog |
+| `/justify` | imbue | Audit changes for additive bias |
 | `/make-dogfood` | abstract | Makefile enhancement |
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |

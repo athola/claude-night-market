@@ -14,14 +14,6 @@ complexity: low
 model_hint: fast
 estimated_tokens: 600
 ---
-## Table of Contents
-
-- [KISS (Keep It Simple, Stupid)](#kiss-keep-it-simple-stupid)
-- [YAGNI (You Aren't Gonna Need It)](#yagni-you-arent-gonna-need-it)
-- [SOLID Principles](#solid-principles)
-- [Quick Reference](#quick-reference)
-- [When Principles Conflict](#when-principles-conflict)
-- [Integration with Code Review](#integration-with-code-review)
 
 # Code Quality Principles
 

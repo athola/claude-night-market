@@ -1,0 +1,171 @@
+direction: down
+
+classes: {
+  found: {
+    style: {
+      fill: "#ede9fe"
+      stroke: "#8b5cf6"
+      stroke-width: 2
+      font-color: "#5b21b6"
+      bold: true
+    }
+  }
+  domain: {
+    style: {
+      fill: "#dbeafe"
+      stroke: "#3b82f6"
+      font-color: "#1e40af"
+    }
+  }
+  util: {
+    style: {
+      fill: "#fef9c3"
+      stroke: "#eab308"
+      font-color: "#854d0e"
+    }
+  }
+  meta: {
+    style: {
+      fill: "#dcfce7"
+      stroke: "#22c55e"
+      font-color: "#166534"
+    }
+  }
+  ext: {
+    style: {
+      fill: "#f1f5f9"
+      stroke: "#94a3b8"
+      stroke-dash: 5
+      font-color: "#64748b"
+    }
+  }
+}
+
+external: External {
+  style: {
+    fill: "#f8fafc"
+    stroke: "#cbd5e1"
+    stroke-dash: 5
+    font-color: "#475569"
+    bold: true
+  }
+  grid-columns: 4
+  grid-gap: 6
+  superpowers.class: ext
+  superpowers-chrome.class: ext
+  superpowers-lab.class: ext
+  superpowers-dev.class: ext
+}
+
+meta-layer: Meta {
+  style: {
+    fill: "#f0fdf4"
+    stroke: "#86efac"
+    font-color: "#166534"
+    bold: true
+  }
+  abstract.class: meta
+}
+
+domain: Domain Specialists {
+  style: {
+    fill: "#eff6ff"
+    stroke: "#93c5fd"
+    font-color: "#1e40af"
+    bold: true
+  }
+  grid-columns: 5
+  grid-gap: 6
+  attune.class: domain
+  pensive.class: domain
+  scribe.class: domain
+  spec-kit.class: domain
+  memory-palace.class: domain
+  parseltongue.class: domain
+  minister.class: domain
+  tome.class: domain
+  gauntlet.class: domain
+  phantom.class: domain
+  archetypes.class: domain
+  cartograph.class: domain
+  scry.class: domain
+}
+
+utility: Utility {
+  style: {
+    fill: "#fefce8"
+    stroke: "#fde047"
+    font-color: "#854d0e"
+    bold: true
+  }
+  grid-columns: 6
+  grid-gap: 6
+  conserve.class: util
+  conjure.class: util
+  hookify.class: util
+  egregore.class: util
+  herald.class: util
+  oracle.class: util
+}
+
+foundation: Foundation {
+  style: {
+    fill: "#f5f3ff"
+    stroke: "#c4b5fd"
+    font-color: "#5b21b6"
+    bold: true
+  }
+  grid-columns: 3
+  grid-gap: 10
+  leyline.class: found
+  imbue.class: found
+  sanctum.class: found
+}
+
+# Layer relationships
+external -> foundation: complements {
+  style: {
+    stroke: "#94a3b8"
+    stroke-dash: 5
+    font-size: 12
+    font-color: "#64748b"
+  }
+}
+meta-layer -> foundation: governs {
+  style: {
+    stroke: "#22c55e"
+    font-size: 12
+    font-color: "#166534"
+  }
+}
+meta-layer -> domain: audits {
+  style: {
+    stroke: "#22c55e"
+    stroke-dash: 3
+    font-size: 12
+    font-color: "#166534"
+  }
+}
+domain -> foundation: depends on {
+  style: {
+    stroke: "#3b82f6"
+    font-size: 12
+    font-color: "#1e40af"
+  }
+}
+utility -> foundation: uses {
+  style: {
+    stroke: "#eab308"
+    font-size: 12
+    font-color: "#854d0e"
+  }
+}
+
+# Key cross-cutting dependency: egregore orchestrates via sanctum+conserve
+utility.egregore -> foundation.sanctum: orchestrates {
+  style: {
+    stroke: "#eab308"
+    font-size: 11
+    font-color: "#854d0e"
+  }
+}

@@ -144,11 +144,18 @@ def is_in_code_block(content: str, match_pos: int) -> bool:
 
 
 def check_content(file_path: str, content: str) -> tuple:
-    """Scan content for security patterns."""
+    """Scan content for security patterns.
+
+    Returns the first (highest-severity) match. Patterns are ordered by
+    severity so the first hit is the most important. The match is logged
+    to stderr for observability.
+    """
     path = Path(file_path)
     is_docs = is_documentation_file(file_path)
     patterns = _get_compiled_patterns()
 
+    # Find first match; patterns are ordered by severity (highest first)
+    best_match = (None, None)
     for pattern_config in patterns:
         # Skip if pattern doesn't apply to this file type
         if not is_docs:
@@ -169,9 +176,23 @@ def check_content(file_path: str, content: str) -> tuple:
                 elif has_negative_context(content, match_pos):
                     continue
 
-            return pattern_config["ruleName"], pattern_config["reminder"]
+            rule = pattern_config["ruleName"]
+            reminder = pattern_config["reminder"]
+            print(
+                f"[security-check] matched: {rule}",
+                file=sys.stderr,
+            )
+            if best_match[0] is None:
+                best_match = (rule, reminder)
+            # First match in pattern order is highest severity;
+            # stop checking further matches for this pattern
+            break
 
-    return None, None
+        # Already found highest-severity match; skip remaining patterns
+        if best_match[0] is not None:
+            break
+
+    return best_match
 
 
 def main():
@@ -229,7 +250,15 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
+    except (
+        json.JSONDecodeError,
+        OSError,
+        KeyError,
+        TypeError,
+        AttributeError,
+        ValueError,
+        RuntimeError,
+    ):
         import traceback
 
         traceback.print_exc(file=sys.stderr)

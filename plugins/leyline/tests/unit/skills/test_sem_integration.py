@@ -5,6 +5,19 @@ Feature: sem Integration Foundation Skill Validation
   I want the sem-integration skill to follow ecosystem conventions
   So that detection, fallback, and normalization patterns are
   consistently available to imbue, pensive, and sanctum plugins.
+
+Architecture note (I12):
+  These tests validate the behavior patterns described in the
+  sem-integration skill markdown, not importable Python functions.
+  Skills in the night-market ecosystem are markdown-based instruction
+  files, not Python modules, so there is no function to import and
+  call directly. Instead, the detection and fallback tests re-implement
+  the documented logic inline (mocking subprocess.run, building
+  normalized entity dicts) to verify that the *patterns* described in
+  the skill produce correct results. This is an intentional design
+  choice: the tests serve as executable specifications that prove the
+  documented algorithms are sound, even though runtime execution is
+  performed by the Claude Code agent following the skill instructions.
 """
 
 from __future__ import annotations
@@ -55,6 +68,16 @@ class TestSkillFileExists:
     I want SKILL.md to exist with valid frontmatter
     So that the skill can be discovered and loaded.
     """
+
+    @pytest.mark.unit
+    def test_skill_directory_exists(self) -> None:
+        """
+        Scenario: Skill directory is present on disk
+        Given the sem-integration skill
+        When the loader checks for the directory
+        Then it exists
+        """
+        assert SKILL_DIR.exists(), f"Skill directory not found: {SKILL_DIR}"
 
     @pytest.mark.unit
     def test_skill_file_exists(self) -> None:
@@ -210,12 +233,14 @@ class TestSemDetection:
         with patch(
             "subprocess.run",
             return_value=subprocess.CompletedProcess(
-                args=["which", "sem"],
+                args=["command", "-v", "sem"],
                 returncode=0,
                 stdout="/usr/local/bin/sem\n",
             ),
         ):
-            result = subprocess.run(["which", "sem"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
 
@@ -233,12 +258,14 @@ class TestSemDetection:
         with patch(
             "subprocess.run",
             return_value=subprocess.CompletedProcess(
-                args=["which", "sem"],
+                args=["command", "-v", "sem"],
                 returncode=1,
                 stdout="",
             ),
         ):
-            result = subprocess.run(["which", "sem"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
 
@@ -249,12 +276,35 @@ class TestSemDetection:
         """
         Scenario: Detection result is cached
         Given the cache file already contains a result
-        When detection logic reads the cache
-        Then the cached value is returned without re-running which
+        When detection logic is invoked again
+        Then the cached value is returned without re-running command -v
         """
         cache = tmp_path / "sem-available"
-        cache.write_text("1")
-        assert cache.read_text() == "1"
+
+        # First call: populate cache via subprocess
+        with patch(
+            "subprocess.run",
+            return_value=subprocess.CompletedProcess(
+                args=["command", "-v", "sem"],
+                returncode=0,
+                stdout="/usr/local/bin/sem\n",
+            ),
+        ) as mock_run:
+            result = subprocess.run(
+                ["command", "-v", "sem"], capture_output=True, text=True
+            )
+            cache.write_text("1" if result.returncode == 0 else "0")
+            assert mock_run.call_count == 1
+
+        # Second call: read cache instead of invoking subprocess
+        with patch("subprocess.run") as mock_run:
+            if cache.exists():
+                cached = cache.read_text().strip()
+            else:
+                cached = None
+
+            assert cached == "1"
+            mock_run.assert_not_called()
 
 
 # ---------------------------------------------------------------------------

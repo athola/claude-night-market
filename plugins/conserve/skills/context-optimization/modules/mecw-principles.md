@@ -6,6 +6,49 @@ description: |
 category: conservation
 ---
 
+## Quick Reference
+
+### Basic Pressure Check
+
+```python
+from leyline import calculate_context_pressure
+
+pressure = calculate_context_pressure(
+    current_tokens=80000,
+    max_tokens=1000000
+)
+print(pressure)  # "MODERATE"
+```
+
+### Full Compliance Check
+
+```python
+from leyline import check_mecw_compliance
+
+result = check_mecw_compliance(
+    current_tokens=120000,
+    max_tokens=1000000
+)
+
+if not result['compliant']:
+    print(f"Overage: {result['overage']:,} tokens")
+    print(f"Action: {result['action']}")
+```
+
+### Continuous Monitoring
+
+```python
+from leyline import MECWMonitor
+
+monitor = MECWMonitor(max_context=1000000)
+monitor.track_usage(80000)
+status = monitor.get_status()
+
+if status.warnings:
+    for warning in status.warnings:
+        print(f"[WARN] {warning}")
+```
+
 # MECW Principles Module
 
 ## Overview

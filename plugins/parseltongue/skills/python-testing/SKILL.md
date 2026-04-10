@@ -67,10 +67,6 @@ Testing standards for pytest configuration, fixture management, and TDD implemen
   quality - use pensive:test-review instead
 - Infrastructure test
   config - use leyline:pytest-config
-- Evaluating test
-  quality - use pensive:test-review instead
-- Infrastructure test
-  config - use leyline:pytest-config
 
 ## Modules
 

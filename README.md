@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.8.2-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-167-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-168-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-167 skills, 148 slash commands, and 51 agents.
+168 skills, 148 slash commands, and 51 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -72,85 +72,12 @@ Arrows show dependency direction (A --> B means
 A depends on B). Dashed arrows mark optional
 complements.
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f0f0f0', 'lineColor': '#64748b', 'fontFamily': 'system-ui, sans-serif', 'fontSize': '14px' }}}%%
-flowchart TB
-    classDef domain fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af
-    classDef utility fill:#fef9c3,stroke:#eab308,stroke-width:1.5px,color:#854d0e
-    classDef foundation fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#5b21b6
-    classDef meta fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#166534
-    classDef ext fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 5,color:#64748b
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+  <img alt="Plugin architecture: 5 layers (External, Meta, Domain, Utility, Foundation) with 22 plugins" src="assets/architecture-light.svg">
+</picture>
 
-    subgraph External["External · superpowers-marketplace"]
-        direction LR
-        SP["superpowers"]:::ext
-        SPC["superpowers-chrome"]:::ext
-        SPD["superpowers-dev"]:::ext
-        SPL["superpowers-lab"]:::ext
-    end
-
-    subgraph Domain["Domain Specialists"]
-        attune:::domain
-        pensive:::domain
-        scribe:::domain
-        spec-kit:::domain
-        memory-palace:::domain
-        parseltongue:::domain
-        minister:::domain
-        tome:::domain
-        gauntlet:::domain
-        phantom:::domain
-        archetypes:::domain
-        cartograph:::domain
-        scry:::domain
-    end
-
-    subgraph Utility["Utility Layer"]
-        conserve:::utility
-        conjure:::utility
-        hookify:::utility
-        egregore:::utility
-        herald:::utility
-        oracle:::utility
-    end
-
-    subgraph Foundation["Foundation Layer"]
-        leyline:::foundation
-        imbue:::foundation
-        sanctum:::foundation
-    end
-
-    subgraph Meta["Meta Layer"]
-        abstract:::meta
-    end
-
-    %% Domain --> Foundation
-    attune --> imbue & sanctum & leyline
-    pensive --> imbue & leyline
-    scribe --> leyline & pensive & scry
-    spec-kit --> imbue & sanctum
-    memory-palace --> leyline & sanctum
-    parseltongue --> leyline
-    minister --> leyline
-    tome --> leyline
-
-    %% Domain --> Domain
-    attune --> spec-kit
-
-    %% Utility --> Foundation
-    conserve --> leyline & imbue
-    conjure --> leyline
-    hookify --> leyline
-    egregore --> sanctum & conserve
-
-    %% Meta --> Foundation + Domain
-    abstract --> leyline & imbue & sanctum & pensive
-
-    %% External (dashed = complements, not hard dependency)
-    SP -.-> imbue & sanctum & attune
-
-    linkStyle default stroke:#94a3b8,stroke-width:1.5px
-```
+<sub>Source: <a href="assets/architecture.d2">assets/architecture.d2</a> — regenerate with <code>d2 assets/architecture.d2 assets/architecture-light.svg</code></sub>
 
 ### Plugin Catalog
 
@@ -159,8 +86,8 @@ flowchart TB
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 21 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 46 |
-| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
-| **conserve** | Utility | Context optimization, bloat detection, CPU/GPU monitoring, token conservation | 12 | 4 |
+| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning | 11 | 4 |
+| **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |

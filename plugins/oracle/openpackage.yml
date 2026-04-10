@@ -1,0 +1,20 @@
+name: oracle
+version: 1.8.2
+description: ONNX Runtime inference daemon for ML-enhanced plugin capabilities. Provides local model
+  inference over HTTP with explicit opt-in activation.
+keywords:
+- ml
+- inference
+- onnx
+- scoring
+- daemon
+- lifecycle
+author:
+  name: Alex Thola
+  url: https://github.com/athola
+license: MIT
+skills:
+- skills/setup
+hooks: hooks/hooks.json
+commands:
+- commands/oracle-setup.md

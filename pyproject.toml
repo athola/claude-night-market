@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.8.2"
+version = "1.8.3"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -115,7 +115,11 @@ src = ["plugins", "tests"]
 [tool.ruff.lint.isort]
 known-first-party = [
     "abstract",
+    "architecture_researcher",
     "attune",
+    "attune_arch_init",
+    "attune_init",
+    "attune_upgrade",
     "conftest_shared",
     "conjure",
     "conserve",
@@ -125,10 +129,18 @@ known-first-party = [
     "minister",
     "parseltongue",
     "pensive",
+    "plugin_project_init",
+    "project_detector",
     "sanctum",
     "scry",
     "spec_kit",
+    "sync_templates",
+    "tasks_manager",
+    "template_customizer",
+    "template_engine",
+    "template_loader",
     "validate_project",
+    "version_fetcher",
 ]
 
 [tool.ruff.lint]

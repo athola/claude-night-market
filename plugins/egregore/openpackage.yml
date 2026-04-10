@@ -1,5 +1,5 @@
 name: egregore
-version: 1.8.2
+version: 1.8.3
 description: Autonomous agent orchestrator for development lifecycles - session spawning, quality gates, and crash recovery
 keywords:
 - orchestrator
@@ -18,6 +18,10 @@ dependencies:
     path: plugins/leyline
     skills:
     - deferred-capture
+  herald:
+    source: gh@athola/claude-night-market
+    path: plugins/herald
+    optional: true
 skills:
 - skills/install-watchdog
 - skills/quality-gate

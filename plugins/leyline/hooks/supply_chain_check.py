@@ -153,7 +153,15 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
+    except (
+        json.JSONDecodeError,
+        OSError,
+        KeyError,
+        TypeError,
+        AttributeError,
+        ValueError,
+        RuntimeError,
+    ):
         import traceback
 
         print("supply_chain_check: unexpected error", file=sys.stderr)

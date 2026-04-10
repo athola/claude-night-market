@@ -32,7 +32,6 @@ estimated_tokens: 1500
 6. [Step 3 – Capture Evidence](#step-3--capture-evidence-review-coreevidence-captured)
 7. [Step 4 – Structure Deliverables](#step-4--structure-deliverables-review-coredeliverables-structured)
 8. [Step 5 – Contingency Plan](#step-5--contingency-plan-review-corecontingencies-documented)
-9. [Troubleshooting](#troubleshooting)
 
 ## When To Use
 - Use this skill at the beginning of any detailed review workflow (e.g., for architecture, math, or an API).
@@ -89,15 +88,3 @@ estimated_tokens: 1500
 ## Exit Criteria
 - All TodoWrite items complete with concrete notes (commands run, files listed, evidence paths).
 - Domain-specific review can now assume consistent context/evidence/deliverable scaffolding and focus on specialized analysis.
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag

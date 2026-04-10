@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/agent-expenditure",
@@ -8,6 +8,7 @@
     "./skills/clear-context",
     "./skills/code-quality-principles",
     "./skills/compression-strategy",
+    "./skills/context-map",
     "./skills/context-optimization",
     "./skills/cpu-gpu-performance",
     "./skills/decisive-action",

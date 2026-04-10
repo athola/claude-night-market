@@ -632,15 +632,3 @@ Enter
 Sleep 2s
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
-## Troubleshooting
-
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag

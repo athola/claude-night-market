@@ -120,7 +120,7 @@ def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int
                                     elif isinstance(item, str):
                                         total_size += len(item)
     except (OSError, PermissionError) as e:
-        logger.debug("Could not read session file: %s", e)
+        logger.warning("Could not read session file: %s", e)
 
     return total_size
 

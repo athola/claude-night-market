@@ -418,6 +418,49 @@ class TestCheckContent:
 
 
 # ============================================================================
+# Early-exit optimization
+# ============================================================================
+
+
+class TestCheckContentEarlyExit:
+    """Feature: check_content stops after first severity match."""
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_highest_severity_when_multiple_patterns_present(self) -> None:
+        """
+        GIVEN content containing both eval() and pickle.load()
+        WHEN check_content is called
+        THEN only the highest-severity match (eval) is returned.
+        """
+        ev = PATTERNS["eval_call"]()
+        pkl = PATTERNS["pkl_load"]()
+        content = f"data = {pkl}\nresult = {ev}"
+        rule, _ = check_content("app.py", content)
+        assert rule == "dynamic_code_evaluation"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_does_not_log_lower_severity_patterns(self) -> None:
+        """
+        GIVEN content containing eval() and os.system()
+        WHEN check_content is called
+        THEN only one pattern match is logged to stderr (early exit).
+        """
+        ev = PATTERNS["eval_call"]()
+        os_sys = PATTERNS["os_system"]()
+        content = f"{os_sys}\n{ev}"
+        captured = StringIO()
+        with patch("sys.stderr", captured):
+            rule, _ = check_content("app.py", content)
+        assert rule == "dynamic_code_evaluation"
+        lines = [
+            ln for ln in captured.getvalue().splitlines() if "[security-check]" in ln
+        ]
+        assert len(lines) == 1
+
+
+# ============================================================================
 # main() — Tool Dispatch
 # ============================================================================
 
