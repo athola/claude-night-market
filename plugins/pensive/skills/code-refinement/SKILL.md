@@ -29,6 +29,7 @@ dependencies:
 - pensive:shared
 - pensive:safety-critical-patterns
 - imbue:proof-of-work
+- imbue:justify
 modules:
 - modules/duplication-analysis.md
 - modules/algorithm-efficiency.md
@@ -81,6 +82,7 @@ Analyze and improve living code quality across six dimensions.
 | 4 | Architectural Fit | `architectural-fit` | Paradigm mismatches, coupling violations, leaky abstractions |
 | 5 | Anti-Slop Patterns | `clean-code-checks` | Premature abstraction, enterprise cosplay, hollow patterns |
 | 6 | Error Handling | `clean-code-checks` | Bare excepts, swallowed errors, happy-path-only |
+| 7 | Additive Bias | `imbue:justify` | Workarounds over root fixes, test tampering, unnecessary additions |
 
 ## Plugin-Specific Patterns
 
@@ -158,6 +160,9 @@ find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
 ### Step 2: Dimensional Scan (`refine:scan-complete`)
 
 Load relevant modules and execute analysis per tier level.
+For dimension 7 (Additive Bias), run `Skill(imbue:justify)`
+to compute the bias score, check Iron Law compliance,
+and flag unnecessary additions or workarounds.
 
 ### Step 3: Prioritize (`refine:prioritized`)
 

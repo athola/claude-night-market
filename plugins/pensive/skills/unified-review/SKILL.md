@@ -34,6 +34,7 @@ orchestrates:
 - pensive:test-review
 - pensive:makefile-review
 - pensive:math-review
+- imbue:justify
 ---
 ## Table of Contents
 
@@ -106,6 +107,7 @@ Intelligently selects and executes appropriate review skills based on codebase a
 | Mathematical algorithms | math-review, bug-review | Numerical computation |
 | Architecture docs/ADRs | architecture-review, api-review | System design |
 | General code quality | bug-review, test-review | Default review |
+| Post-implementation audit | imbue:justify | High add/delete ratio, test changes, new abstractions |
 
 ## Workflow
 
