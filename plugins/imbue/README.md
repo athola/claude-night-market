@@ -50,6 +50,14 @@ hook, which checks for corresponding test files during write operations to
 implementation files. Completion claims must be backed by evidence of problem
 reproduction and verified fixes with actual test runs.
 
+### Change Justification
+`justify` audits completed changes for AI additive bias,
+where models default to adding code rather than fixing root causes.
+It scores changes on a line-ratio, new-file, and test-tampering scale,
+checks Iron Law compliance (tests must not be modified to match
+broken implementations), and runs a minimal-intervention analysis
+that weights fewer lines changed and subtraction-first approaches.
+
 ## Feature Planning and Monitoring
 
 ### Feature Review
@@ -83,6 +91,7 @@ imbue/
 ├── commands/
 │   ├── full-review.md       # Structured review command
 │   ├── catchup.md           # Quick catchup command
+│   ├── justify.md           # Change justification command
 │   └── feature-review.md    # Feature prioritization command
 └── skills/
     ├── review-core/        # Review workflow scaffolding
@@ -93,6 +102,7 @@ imbue/
     ├── rigorous-reasoning/ # Anti-sycophancy guardrails
     ├── feature-review/     # Feature prioritization framework
     ├── proof-of-work/      # Verification enforcement
+    ├── justify/            # Anti-additive-bias audit
     └── workflow-monitor/   # Execution monitoring and issue creation
 ```
 
@@ -106,6 +116,7 @@ and `Skill(imbue:rigorous-reasoning)` provide workflow guardrails.
 Feature planning uses `Skill(imbue:feature-review)`,
 while `Skill(imbue:proof-of-work)` handles verification.
 `Skill(imbue:workflow-monitor)` tracks execution,
+`Skill(imbue:justify)` audits changes for additive bias,
 and output patterns are managed via `Skill(imbue:proof-of-work)`
 and `Skill(imbue:structured-output)`.
 

@@ -87,6 +87,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
+| `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
@@ -242,6 +243,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/hooks-eval` | abstract | Hook evaluation |
 | `/improve-skills` | abstract | Auto-improve skills from observability data |
 | `/install-watchdog` | egregore | Install crash-recovery watchdog |
+| `/justify` | imbue | Audit changes for additive bias |
 | `/make-dogfood` | abstract | Makefile enhancement |
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |

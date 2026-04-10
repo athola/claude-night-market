@@ -403,6 +403,19 @@ See [bloat-scan](#conservebloat-scan).
 
 ## Imbue Plugin
 
+### `/imbue:justify`
+Audit changes for AI additive bias and Iron Law compliance.
+
+```bash
+# Usage
+/justify [--scope staged|branch|file] [path...]
+
+# Examples
+/justify                        # Audit all branch changes
+/justify --scope staged         # Only staged changes
+/justify src/auth.py            # Specific files
+```
+
 ### `/imbue:catchup`
 Quick context recovery after session restart.
 

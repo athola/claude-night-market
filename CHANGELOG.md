@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **imbue justify**: `/justify` command and skill that
+  audits changes for AI additive bias. Scores changes
+  on line ratio, new files, test tampering, and new
+  abstractions. Enforces Iron Law compliance and weights
+  minimal-intervention approaches.
+
 ## [1.8.3] - 2026-04-08
 
 ### Changed

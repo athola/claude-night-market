@@ -114,9 +114,17 @@ def update_timestamp() -> None:
 def format_hook_output() -> str:
     """Format the UserPromptSubmit hook response.
 
-    UserPromptSubmit hooks must never block the prompt.
+    UserPromptSubmit hooks use hookSpecificOutput schema, not
+    the PreToolUse decision schema.
     """
-    return json.dumps({"decision": "ALLOW"})
+    return json.dumps(
+        {
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": "",
+            }
+        }
+    )
 
 
 def _run_aggregate() -> Any:

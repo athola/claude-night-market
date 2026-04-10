@@ -159,7 +159,7 @@ flowchart TB
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 21 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 46 |
-| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning | 10 | 3 |
+| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning | 11 | 4 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
