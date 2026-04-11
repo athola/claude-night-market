@@ -1,13 +1,17 @@
 {
   "name": "scribe",
   "version": "1.8.4",
-  "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
+  "description": "Documentation review, cleanup, generation, voice extraction, and human-quality writing enforcement with AI slop detection and SICO-based voice profiling",
   "commands": [
     "./commands/doc-generate.md",
     "./commands/doc-polish.md",
     "./commands/style-learn.md",
     "./commands/session-to-post.md",
-    "./commands/session-replay.md"
+    "./commands/session-replay.md",
+    "./commands/voice-extract.md",
+    "./commands/voice-generate.md",
+    "./commands/voice-review.md",
+    "./commands/voice-learn.md"
   ],
   "skills": [
     "./skills/slop-detector",
@@ -16,12 +20,18 @@
     "./skills/doc-importer",
     "./skills/tech-tutorial",
     "./skills/session-to-post",
-    "./skills/session-replay"
+    "./skills/session-replay",
+    "./skills/voice-extract",
+    "./skills/voice-generate",
+    "./skills/voice-review",
+    "./skills/voice-learn"
   ],
   "agents": [
     "./agents/doc-editor.md",
     "./agents/slop-hunter.md",
-    "./agents/doc-verifier.md"
+    "./agents/doc-verifier.md",
+    "./agents/prose-reviewer.md",
+    "./agents/craft-reviewer.md"
   ],
   "keywords": [
     "documentation",
@@ -36,7 +46,13 @@
     "review",
     "verification",
     "qa",
-    "proof-of-work"
+    "proof-of-work",
+    "voice",
+    "voice-extraction",
+    "sico",
+    "style-transfer",
+    "registers",
+    "craft-review"
   ],
   "author": {
     "name": "Alex Thola",

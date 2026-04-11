@@ -175,6 +175,10 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `utility` | [leyline](../plugins/leyline.md) | Utility-guided action selection for orchestration |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
+| `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
+| `voice-generate` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
+| `voice-learn` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
+| `voice-review` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
 | `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
 | `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |
@@ -309,6 +313,10 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/validate-plugin` | abstract | Check plugin structure |
 | `/verify-plugin` | leyline | Verify plugin behavioral contract history via GitHub Attestations |
 | `/visualize` | cartograph | Generate codebase diagrams via Mermaid Chart MCP |
+| `/voice-extract` | scribe | Extract writing voice from samples |
+| `/voice-generate` | scribe | Generate text in trained voice |
+| `/voice-learn` | scribe | Learn from manual edits |
+| `/voice-review` | scribe | Review text against voice profile |
 
 ### All Agents (Alphabetical)
 
@@ -321,6 +329,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-refiner` | pensive | Code quality refinement orchestrator |
 | `code-reviewer` | pensive | Expert code review |
 | `code-searcher` | tome | GitHub code search |
+| `craft-reviewer` | scribe | Writing craft evaluation (naming, structure, anchoring) |
 | `codebase-explorer` | cartograph | Codebase structure analysis for diagrams |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
@@ -343,6 +352,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `palace-architect` | memory-palace | Palace design |
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
+| `prose-reviewer` | scribe | AI patterns, banned phrases, voice drift detection |
 | `project-architect` | attune | Guides full-cycle workflow (brainstorm to plan) |
 | `project-implementer` | attune | Executes implementation with TDD |
 | `python-linter` | parseltongue | Strict ruff linting without bypasses |

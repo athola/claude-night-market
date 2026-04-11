@@ -25,6 +25,10 @@ Or reference from the marketplace:
 | **style-learner** | Extract writing style from exemplar text |
 | **doc-generator** | Generate/remediate documentation |
 | **tech-tutorial** | Plan, draft, and refine technical tutorials |
+| **voice-extract** | SICO comparative extraction from writing samples |
+| **voice-generate** | Generate text in a learned writing voice |
+| **voice-review** | Dual-gate review (prose + craft) against voice profile |
+| **voice-learn** | Learning loop from manual edits to improve profile |
 
 ### Commands
 
@@ -34,6 +38,10 @@ Or reference from the marketplace:
 | `/style-learn` | Create style profile from examples |
 | `/doc-polish` | Clean up AI-generated content |
 | `/doc-generate` | Generate new documentation |
+| `/voice-extract` | Extract your writing voice from samples |
+| `/voice-generate` | Generate text in your trained voice |
+| `/voice-review` | Review text against your voice profile |
+| `/voice-learn` | Teach the system from your manual edits |
 | `Agent(scribe:doc-verifier)` | Validate documentation claims with proof-of-work (agent-only) |
 
 ### Agents
@@ -42,6 +50,8 @@ Or reference from the marketplace:
 |-------|-------------|
 | **doc-editor** | Interactive documentation editing. |
 | **slop-hunter** | Detection of AI-generated markers and tropes. |
+| **prose-reviewer** | AI pattern detection, banned phrases, voice drift. |
+| **craft-reviewer** | Naming, aphoristic destinations, structural devices. |
 | **doc-verifier** | QA validation using proof-of-work methodology. |
 
 ## Quick Start
@@ -75,6 +85,31 @@ Or reference from the marketplace:
 # Generate with learned style
 /doc-generate readme --style house-style
 ```
+
+### Voice Craft (SICO-based)
+
+Train the agent to write in your voice using comparative
+extraction from your own writing samples.
+
+```bash
+# Extract voice from a directory of writing samples
+/voice-extract myvoice --samples-dir ~/my-writing/
+
+# Generate text in your extracted voice
+/voice-generate myvoice
+
+# Review any text against your voice profile
+/voice-review draft.md --profile myvoice
+
+# After manual edits, teach the system what you changed
+/voice-learn final.md --profile myvoice
+```
+
+The extraction uses SICO Phase 1 (comparative feature analysis)
+to identify what makes YOUR writing distinctive compared to
+Claude's default output. Profiles are stored per-user at
+`~/.claude/voice-profiles/` with optional per-project overrides
+in `.voice/`.
 
 ### Verify Documentation
 

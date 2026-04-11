@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.8.4-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-170-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-174-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-170 skills, 122 slash commands, and 51 agents.
+174 skills, 126 slash commands, and 53 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -102,7 +102,7 @@ complements.
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
 | **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, code knowledge graph, and spaced repetition | 6 | 6 |
 | **phantom** | Domain | Computer use: screenshot capture, mouse/keyboard control, autonomous desktop agent | 1 | 1 |
-| **scribe** | Domain | Documentation with AI slop detection, style learning, session replay, tech tutorials | 7 | 5 |
+| **scribe** | Domain | Documentation, AI slop detection, SICO voice extraction, style transfer, session replay | 11 | 9 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
 | **tome** | Domain | Multi-source research: code archaeology, community discourse, academic literature, TRIZ analysis | 7 | 4 |
 | **cartograph** | Domain | Codebase visualization: architecture, data flow, dependency, call chains, community detection, class diagrams via Mermaid | 7 | 1 |
