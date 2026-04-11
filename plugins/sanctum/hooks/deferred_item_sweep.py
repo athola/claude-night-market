@@ -143,3 +143,5 @@ if __name__ == "__main__":
         RuntimeError,
     ):
         sys.stderr.write(f"deferred_item_sweep: {traceback.format_exc()}")
+    except Exception:
+        sys.stderr.write(f"deferred_item_sweep: unexpected: {traceback.format_exc()}")

@@ -246,3 +246,5 @@ if __name__ == "__main__":
         RuntimeError,
     ):
         sys.stderr.write(f"deferred_item_watcher: {traceback.format_exc()}")
+    except Exception:
+        sys.stderr.write(f"deferred_item_watcher: unexpected: {traceback.format_exc()}")

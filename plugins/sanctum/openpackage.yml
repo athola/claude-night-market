@@ -57,6 +57,7 @@ commands:
 - commands/update-plugins.md
 - commands/update-tests.md
 - commands/update-tutorial.md
+- commands/acp.md
 - commands/sync-capabilities.md
 - commands/update-version.md
 agents:

@@ -26,11 +26,14 @@ skills:
 - skills/doc-generator
 - skills/tech-tutorial
 - skills/session-to-post
+- skills/doc-importer
+- skills/session-replay
 commands:
 - commands/doc-generate.md
 - commands/doc-polish.md
 - commands/style-learn.md
 - commands/session-to-post.md
+- commands/session-replay.md
 agents:
 - agents/doc-editor.md
 - agents/slop-hunter.md
