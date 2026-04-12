@@ -1,0 +1,44 @@
+title: "[Insight] "
+labels: []
+body:
+  - type: dropdown
+    id: insight-type
+    attributes:
+      label: Insight Type
+      description: What kind of insight is this?
+      options:
+        - Trend
+        - Pattern
+        - Bug Alert
+        - Optimization
+        - Improvement
+        - PR Finding
+        - Health Check
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: Finding
+      description: What was observed?
+      placeholder: Describe the finding in 1-2 sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Supporting data, metrics, or code references.
+      placeholder: |
+        - Metric A: value
+        - Metric B: value
+    validations:
+      required: true
+  - type: textarea
+    id: recommended-action
+    attributes:
+      label: Recommended Action
+      description: What should be done about this finding?
+      placeholder: Describe the recommended fix or improvement.
+    validations:
+      required: true

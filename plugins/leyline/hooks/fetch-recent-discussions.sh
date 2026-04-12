@@ -115,32 +115,52 @@ if [ "$has_discussions" != "True" ]; then
     _emit_empty
 fi
 
-# Find the "decisions" category ID
-category_id=$(echo "$category_response" | python3 -c "
+# Find "decisions" and "insights"/"learnings" category IDs
+read -r category_id insights_category_id <<< "$(echo "$category_response" | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
     if data.get('errors'):
+        print(' ')
         sys.exit(0)
     cats = data.get('data', {}).get('repository', {}).get('discussionCategories', {}).get('nodes', [])
+    decisions_id = ''
+    insights_id = ''
     for c in cats:
-        if c.get('slug', '').lower() == 'decisions':
-            print(c['id'])
-            break
+        slug = c.get('slug', '').lower()
+        if slug == 'decisions':
+            decisions_id = c['id']
+        elif slug in ('insights', 'learnings'):
+            insights_id = c['id']
+    print(f'{decisions_id} {insights_id}')
 except Exception as exc:
     print(f'JSON parse error: {exc}', file=sys.stderr)
-" || echo "")
+    print(' ')
+" || echo " ")"
 
-if [ -z "$category_id" ]; then
+if [ -z "$category_id" ] && [ -z "$insights_category_id" ]; then
     _emit_empty
 fi
 
-# --- Fetch 10 most recent Decisions discussions ---
+# --- Helper: fetch and format discussions for a category ---
 
-discussions_response=$(gh api graphql -f query='
-query($owner: String!, $repo: String!, $categoryId: ID!) {
+_fetch_and_format() {
+    local cat_id="$1"
+    local heading="$2"
+    local count="${3:-5}"
+
+    if [ -z "$cat_id" ]; then
+        return
+    fi
+
+    local resp
+    local err_file
+    err_file=$(mktemp)
+
+    resp=$(gh api graphql -f query='
+query($owner: String!, $repo: String!, $categoryId: ID!, $count: Int!) {
   repository(owner: $owner, name: $repo) {
-    discussions(first: 10, categoryId: $categoryId, orderBy: {field: CREATED_AT, direction: DESC}) {
+    discussions(first: $count, categoryId: $categoryId, orderBy: {field: CREATED_AT, direction: DESC}) {
       nodes {
         number
         title
@@ -149,44 +169,58 @@ query($owner: String!, $repo: String!, $categoryId: ID!) {
       }
     }
   }
-}' -f owner="$owner" -f repo="$repo" -f categoryId="$category_id" 2>"$discussions_err" || echo "")
+}' -f owner="$owner" -f repo="$repo" -f categoryId="$cat_id" -F count="$count" 2>"$err_file" || echo "")
 
-if [ -z "$discussions_response" ]; then
-    err_msg=$(cat "$discussions_err" 2>/dev/null || true)
-    _emit_empty "GraphQL discussions query failed: ${err_msg:-unknown error}"
-fi
+    rm -f "$err_file"
 
-# --- Format summary ---
+    if [ -z "$resp" ]; then
+        return
+    fi
 
-summary=$(echo "$discussions_response" | python3 -c "
+    echo "$resp" | python3 -c "
 import sys, json
-
 try:
     data = json.load(sys.stdin)
     if data.get('errors'):
-        msgs = '; '.join(e.get('message', '?') for e in data['errors'])
-        print(f'GraphQL errors: {msgs}', file=sys.stderr)
         sys.exit(0)
     nodes = data.get('data', {}).get('repository', {}).get('discussions', {}).get('nodes', [])
     if not nodes:
         sys.exit(0)
-
-    lines = ['Recent Decisions (from GitHub Discussions):']
+    heading = '$heading'
+    lines = [heading]
     for d in nodes:
         num = d.get('number', '?')
         title = d.get('title', 'Untitled')
         date = d.get('createdAt', '')[:10]
         body = d.get('body', '')
-        # First 100 chars of body, single line
         snippet = body.replace('\n', ' ').replace('\r', '')[:100].strip()
         if len(body) > 100:
             snippet += '...'
         lines.append(f'  #{num} {title} ({date}) -- {snippet}')
-
     print('\n'.join(lines))
-except Exception as exc:
-    print(f'Format error: {exc}', file=sys.stderr)
-" || echo "")
+except Exception:
+    pass
+" || true
+}
+
+# --- Fetch recent Decisions and Insights ---
+
+summary=""
+
+decisions=$(_fetch_and_format "$category_id" "Recent Decisions (from GitHub Discussions):" 10)
+insights=$(_fetch_and_format "$insights_category_id" "Recent Insights (from GitHub Discussions):" 5)
+
+if [ -n "$decisions" ]; then
+    summary="$decisions"
+fi
+if [ -n "$insights" ]; then
+    if [ -n "$summary" ]; then
+        summary="$summary
+$insights"
+    else
+        summary="$insights"
+    fi
+fi
 
 if [ -z "$summary" ]; then
     _emit_empty

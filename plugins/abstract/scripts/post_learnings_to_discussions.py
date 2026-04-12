@@ -17,6 +17,7 @@ Features:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess  # nosec B404
@@ -603,7 +604,7 @@ def _post_if_new(
     name: str,
     category_id: str,
 ) -> str | None:
-    """Post a discussion if not already posted today."""
+    """Post a discussion if not already posted today AND content is new."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     title = f"[Learning] {today}"
 
@@ -625,11 +626,22 @@ def _post_if_new(
         record.save()
         return existing_url
 
-    repo_id = get_repo_node_id(record, owner, name)
+    # Content-hash dedup: skip if body is identical to last post
     body = format_discussion_body(summary)
+    content_hash = hashlib.sha256(body.encode()).hexdigest()[:12]
+
+    if record.posted.get("_last_content_hash") == content_hash:
+        print(
+            "Content identical to last post. Skipping.",
+            file=sys.stderr,
+        )
+        return None
+
+    repo_id = get_repo_node_id(record, owner, name)
     url = create_discussion(repo_id, category_id, title, body)
 
     record.posted[title] = url
+    record.posted["_last_content_hash"] = content_hash
     record.save()
 
     print(f"Posted learning summary: {url}")

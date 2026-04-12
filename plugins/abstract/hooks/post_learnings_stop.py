@@ -41,6 +41,16 @@ try:
 except ImportError:
     _HAS_SCRIPTS = False
 
+try:
+    from aggregate_skill_logs import aggregate_logs
+    from insight_analyzer import build_context, run_analysis
+    from insight_registry import InsightRegistry
+    from post_insights_to_discussions import post_findings
+
+    _HAS_INSIGHT_ENGINE = True
+except ImportError:
+    _HAS_INSIGHT_ENGINE = False
+
 
 def _learnings_have_content() -> bool:
     """Check whether LEARNINGS.md has skills worth posting."""
@@ -83,6 +93,51 @@ def main() -> None:
     except Exception:
         print(
             f"[post_learnings_stop] post-learnings: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
+
+    # Run insight engine lenses and post diverse findings
+    if _HAS_INSIGHT_ENGINE:
+        try:
+            _run_insight_lenses()
+        except Exception:
+            print(
+                f"[post_learnings_stop] insight-engine: {traceback.format_exc()}",
+                file=sys.stderr,
+            )
+
+
+def _run_insight_lenses() -> None:
+    """Run lightweight insight lenses and post findings."""
+    result = aggregate_logs(days_back=30)
+    registry = InsightRegistry()
+    previous_snapshot = registry.load_snapshot()
+
+    ctx = build_context(
+        metrics=result.metrics_by_skill,
+        trigger="stop",
+        previous_snapshot=previous_snapshot if previous_snapshot else None,
+    )
+
+    findings = run_analysis(ctx, weight_filter="lightweight")
+    if not findings:
+        return
+
+    posted = post_findings(findings, registry=registry)
+
+    # Save current metrics as snapshot for next delta comparison
+    snapshot = {
+        skill: {
+            "success_rate": m.success_rate,
+            "avg_duration_ms": m.avg_duration_ms,
+        }
+        for skill, m in result.metrics_by_skill.items()
+    }
+    registry.save_snapshot(snapshot)
+
+    if posted:
+        print(
+            f"[post_learnings_stop] posted {len(posted)} insight(s)",
             file=sys.stderr,
         )
 

@@ -262,6 +262,70 @@ class TestFormatDiscussionBody:
         assert "## Slow Execution" not in body
         assert "## Low-Rated Skills" not in body
 
+    @pytest.mark.unit
+    def test_content_hash_prevents_identical_repost(self) -> None:
+        """Scenario: Identical content produces same hash
+        Given two summaries with identical data
+        When I format them as discussion bodies
+        Then their content hashes are identical
+        """
+        import hashlib
+
+        summary1 = LearningSummary(
+            skills_analyzed=1,
+            total_executions=20,
+            high_impact_issues=[
+                {
+                    "skill": "x:y",
+                    "severity": "high",
+                    "metric": "40%",
+                    "type": "failure",
+                },
+            ],
+        )
+        summary2 = LearningSummary(
+            skills_analyzed=1,
+            total_executions=20,
+            high_impact_issues=[
+                {
+                    "skill": "x:y",
+                    "severity": "high",
+                    "metric": "40%",
+                    "type": "failure",
+                },
+            ],
+        )
+        body1 = format_discussion_body(summary1)
+        body2 = format_discussion_body(summary2)
+
+        hash1 = hashlib.sha256(body1.encode()).hexdigest()[:12]
+        hash2 = hashlib.sha256(body2.encode()).hexdigest()[:12]
+        assert hash1 == hash2, "Identical content should have same hash"
+
+    @pytest.mark.unit
+    def test_different_content_produces_different_hash(self) -> None:
+        """Scenario: Different content produces different hash
+        Given two summaries with different data
+        When I format them
+        Then their content hashes differ
+        """
+        import hashlib
+
+        summary1 = LearningSummary(
+            skills_analyzed=1,
+            total_executions=20,
+        )
+        summary2 = LearningSummary(
+            skills_analyzed=5,
+            total_executions=100,
+        )
+        body1 = format_discussion_body(summary1)
+        body2 = format_discussion_body(summary2)
+
+        hash1 = hashlib.sha256(body1.encode()).hexdigest()[:12]
+        hash2 = hashlib.sha256(body2.encode()).hexdigest()[:12]
+        assert hash1 != hash2, "Different content should have different hash"
+
 
 class TestDiscussionConfig:
     """Feature: Load opt-out configuration

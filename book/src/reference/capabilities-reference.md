@@ -365,6 +365,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `skill-auditor` | abstract | Skill quality audit |
 | `skill-evaluator` | abstract | Skill execution evaluator |
 | `skill-improver` | abstract | Implements skill improvements from observability |
+| `insight-engine` | abstract | Deep analysis for bugs, optimizations, and improvements |
 | `slop-hunter` | scribe | Full-document AI slop detection |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |

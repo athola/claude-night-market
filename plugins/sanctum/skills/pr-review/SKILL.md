@@ -33,6 +33,7 @@ modules:
 - modules/pr-hygiene.md
 - modules/version-validation.md
 - modules/pr-hygiene.md
+- modules/insight-generation.md
 dependencies:
 - leyline:git-platform
 - sanctum:shared

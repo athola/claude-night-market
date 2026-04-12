@@ -41,7 +41,8 @@
     "./agents/plugin-validator.md",
     "./agents/skill-auditor.md",
     "./agents/skill-evaluator.md",
-    "./agents/skill-improver.md"
+    "./agents/skill-improver.md",
+    "./agents/insight-engine.md"
   ],
   "hooks": [],
   "keywords": [

@@ -35,6 +35,7 @@ modules:
 - modules/algorithm-efficiency.md
 - modules/clean-code-checks.md
 - modules/architectural-fit.md
+- modules/insight-generation.md
 ---
 ## Table of Contents
 
