@@ -989,6 +989,664 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://d2lang.com/tour/style
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/readme.md:
+    content_hash: sha256:8c35a69965234c1f
+    stored_at: data/staging/webfetch-prose-craft-readme-summary-2026-04-11_03-29-29.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:29.664427+00:00'
+    title: Prose-Craft README Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/README.md
+  https://github.com/timsimpsonjr/prose-craft:
+    content_hash: sha256:3cad7914b38661a5
+    stored_at: data/staging/webfetch-prose-craft-project-overview-2026-04-11_03-29-31.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:31.248405+00:00'
+    title: 'Prose-Craft: Project Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/TimSimpsonJr/prose-craft
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents:
+    content_hash: sha256:8b566a3b1b450eb8
+    stored_at: data/staging/webfetch-root-folder-contents-of-prose-craft-repository-2026-04-11_03-29-36.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:36.088003+00:00'
+    title: Root Folder Contents of prose-craft Repository
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/skills:
+    content_hash: sha256:cbb97fe82df801a2
+    stored_at: data/staging/webfetch-prose-craft-skills-directories-2026-04-11_03-29-40.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:40.334092+00:00'
+    title: Prose-Craft Skills Directories
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/skills
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/agents:
+    content_hash: sha256:6bc4350e28ab1c3e
+    stored_at: data/staging/webfetch-agent-files-in-prose-craft-repository-2026-04-11_03-29-40.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:40.612737+00:00'
+    title: Agent Files in prose-craft Repository
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/agents
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/registers:
+    content_hash: sha256:3535fec726ac80df
+    stored_at: data/staging/webfetch-based-on-the-content-provided-here-s-what-i-can-2026-04-11_03-29-41.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:41.440234+00:00'
+    title: 'Based on the content provided, here''s what I can identify:'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/registers
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/.claude-plugin:
+    content_hash: sha256:5431ee61d3f16199
+    stored_at: data/staging/webfetch-plugin-configuration-files-2026-04-11_03-29-42.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:42.305203+00:00'
+    title: Plugin Configuration Files
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/.claude-plugin
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/.claude-plugin/plugin.json:
+    content_hash: sha256:39ac516bc1345752
+    stored_at: data/staging/webfetch-prose-craft-plugin-configuration-2026-04-11_03-29-44.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:44.431692+00:00'
+    title: Prose-Craft Plugin Configuration
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/.claude-plugin/plugin.json
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/registers/register-template.md:
+    content_hash: sha256:a0b3acd087f4ab73
+    stored_at: data/staging/webfetch-complete-register-template-structure-2026-04-11_03-29-46.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:46.903222+00:00'
+    title: Complete Register Template Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/registers/register-template.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/agents/craft-review.md:
+    content_hash: sha256:621e074c988ee04f
+    stored_at: data/staging/webfetch-craft-depth-review-agent-complete-structure-2026-04-11_03-29-48.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:48.205117+00:00'
+    title: "Craft Depth Review Agent \u2013 Complete Structure"
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/agents/craft-review.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/agents/prose-review.md:
+    content_hash: sha256:5c742d5c7d461ff0
+    stored_at: data/staging/webfetch-prose-review-agent-complete-structure-2026-04-11_03-29-51.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:51.168353+00:00'
+    title: 'Prose Review Agent: Complete Structure'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/agents/prose-review.md
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/skills/prose-craft:
+    content_hash: sha256:cc351d6b2758f811
+    stored_at: data/staging/webfetch-based-on-the-content-provided-i-can-only-identify-2026-04-11_03-29-55.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:55.438402+00:00'
+    title: 'Based on the content provided, I can only identify **one file** in the
+      prose-craft skill directory:'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/skills/prose-craft
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/skills/prose-craft-learn:
+    content_hash: sha256:b67ef032fbca0a62
+    stored_at: data/staging/webfetch-files-in-prose-craft-learn-skill-directory-2026-04-11_03-29-56.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:56.253475+00:00'
+    title: Files in prose-craft-learn Skill Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/skills/prose-craft-learn
+  https://api.github.com/repos/timsimpsonjr/prose-craft/contents/setup:
+    content_hash: sha256:b787e4a4668774b7
+    stored_at: data/staging/webfetch-files-in-the-setup-directory-2026-04-11_03-29-56.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:29:56.790098+00:00'
+    title: Files in the Setup Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/TimSimpsonJr/prose-craft/contents/setup
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/agents/learn-review.md:
+    content_hash: sha256:2d80ac674b4de51e
+    stored_at: data/staging/webfetch-learn-review-agent-prompt-2026-04-11_03-30-04.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:04.450613+00:00'
+    title: Learn Review Agent Prompt
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/agents/learn-review.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/setup/extraction-guide.md:
+    content_hash: sha256:26f86a6e2649c39d
+    stored_at: data/staging/webfetch-voice-extraction-guide-overview-2026-04-11_03-30-12.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:12.387324+00:00'
+    title: Voice Extraction Guide Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/setup/extraction-guide.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/skills/prose-craft/skill.md:
+    content_hash: sha256:cae71b2fee51b897
+    stored_at: data/staging/webfetch-prose-craft-skill-summary-2026-04-11_03-30-12.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:12.901879+00:00'
+    title: Prose Craft Skill Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/skills/prose-craft/SKILL.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/skills/prose-craft-learn/skill.md:
+    content_hash: sha256:832a0d805e35f22a
+    stored_at: data/staging/webfetch-prose-craft-learn-skill-2026-04-11_03-30-13.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:13.693838+00:00'
+    title: Prose Craft Learn Skill
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/skills/prose-craft-learn/SKILL.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/setup/pass-2-prompt.md:
+    content_hash: sha256:38c2612726b47fdf
+    stored_at: data/staging/webfetch-pass-2-pressure-test-prompt-structure-2026-04-11_03-30-16.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:16.536532+00:00'
+    title: 'Pass 2: Pressure Test Prompt Structure'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/setup/pass-2-prompt.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/setup/pass-1-prompt.md:
+    content_hash: sha256:9b78c286aea44891
+    stored_at: data/staging/webfetch-voice-feature-extraction-framework-2026-04-11_03-30-17.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:17.596211+00:00'
+    title: Voice Feature Extraction Framework
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/setup/pass-1-prompt.md
+  https://raw.githubusercontent.com/timsimpsonjr/prose-craft/main/setup/sample-collection.md:
+    content_hash: sha256:b689b2261ffc3738
+    stored_at: data/staging/webfetch-guidance-for-collecting-writing-samples-2026-04-11_03-30-18.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:30:18.418323+00:00'
+    title: Guidance for Collecting Writing Samples
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/TimSimpsonJr/prose-craft/main/setup/sample-collection.md
+  https://hn.algolia.com/api/v1/search?query=sico%20substitution%20in-context%20optimization&tags=story&hitsperpage=10:
+    content_hash: sha256:cba39cf6d89157c5
+    stored_at: data/staging/webfetch-search-results-for-sico-substitution-in-context-2026-04-11_03-33-14.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:14.247340+00:00'
+    title: Search Results for "SICO substitution in-context optimization"
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=SICO%20substitution%20in-context%20optimization&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20writing%20voice%20style%20transfer&tags=story&hitsperpage=10:
+    content_hash: sha256:e05aa815da9f9990
+    stored_at: data/staging/webfetch-story-extraction-results-2026-04-11_03-33-15.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:15.196742+00:00'
+    title: Story Extraction Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20writing%20voice%20style%20transfer&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20writing%20style%20voice%20prompt&tags=story&hitsperpage=10:
+    content_hash: sha256:4fb0329c9f66a34d
+    stored_at: data/staging/webfetch-stories-with-score-5-2026-04-11_03-33-27.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:27.210203+00:00'
+    title: Stories with Score > 5
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20writing%20style%20voice%20prompt&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=ai%20detection%20gptzero%20writing%20quality&tags=story&hitsperpage=10:
+    content_hash: sha256:51c34d748c6fcf95
+    stored_at: data/staging/webfetch-based-on-the-provided-content-there-are-no-2026-04-11_03-33-28.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:28.176436+00:00'
+    title: Based on the provided content, there are **no stories to report**.
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20detection%20GPTZero%20writing%20quality&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=authorship%20fingerprinting%20ai%20writing%20detection&tags=story&hitsperpage=10
+  : content_hash: sha256:907e2ee7cf654174
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-04-11_03-33-29.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:29.302887+00:00'
+    title: Based on the web page content provided, there are **no stories to report**.
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=authorship%20fingerprinting%20AI%20writing%20detection&tags=story&hitsPerPage=10
+  ? https://export.arxiv.org/api/query?search_query=all:substitution+in-context+optimization+sico&max_results=10&sortby=relevance
+  : content_hash: sha256:efd96c6e81f4124d
+    stored_at: data/staging/webfetch-arxiv-research-papers-summary-2026-04-11_03-33-33.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:33.445485+00:00'
+    title: ArXiv Research Papers Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:substitution+in-context+optimization+SICO&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:writing+voice+extraction+profiling+style&max_results=10&sortby=relevance
+  : content_hash: sha256:5f71fbc755b8705b
+    stored_at: data/staging/webfetch-arxiv-paper-extraction-2026-04-11_03-33-37.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:37.437943+00:00'
+    title: ArXiv Paper Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:writing+voice+extraction+profiling+style&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:authorship+style+transfer+large+language+models&max_results=10&sortby=relevance
+  : content_hash: sha256:7dd1044d06a56bd9
+    stored_at: data/staging/webfetch-extracted-paper-entries-2026-04-11_03-33-38.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:38.635298+00:00'
+    title: Extracted Paper Entries
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:authorship+style+transfer+large+language+models&max_results=10&sortBy=relevance
+  https://export.arxiv.org/api/query?search_query=id:2305.10847&max_results=1:
+    content_hash: sha256:2de4452727367bd8
+    stored_at: data/staging/webfetch-paper-extraction-2026-04-11_03-33-43.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:43.980038+00:00'
+    title: Paper Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=id:2305.10847&max_results=1
+  https://github.com/haowjy/creative-writing-skills:
+    content_hash: sha256:c00d1f74899bca5a
+    stored_at: data/staging/webfetch-creative-writing-skills-repository-analysis-2026-04-11_03-33-49.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:49.563535+00:00'
+    title: Creative Writing Skills Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/haowjy/creative-writing-skills
+  https://artificialcorner.com/p/voice:
+    content_hash: sha256:fa015f5eab484367
+    stored_at: data/staging/webfetch-how-to-make-claude-write-like-you-article-summary-2026-04-11_03-33-50.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:50.971958+00:00'
+    title: 'How to Make Claude Write Like You: Article Summary'
+    maturity: seedling
+    routing_type: pending
+    url: https://artificialcorner.com/p/voice
+  https://github.com/dome317/ai-social-engine:
+    content_hash: sha256:58ac9ddff9c0afed
+    stored_at: data/staging/webfetch-ai-social-engine-repository-analysis-2026-04-11_03-33-51.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:51.432850+00:00'
+    title: AI Social Engine - Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/dome317/ai-social-engine
+  https://github.com/colinlu50/evade-gpt-detector:
+    content_hash: sha256:d5289cd76728bb55
+    stored_at: data/staging/webfetch-evade-gpt-detector-repository-analysis-2026-04-11_03-33-51.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:51.630319+00:00'
+    title: Evade-GPT-Detector Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/colinlu50/evade-gpt-detector
+  https://markcarrigan.net/2025/04/13/the-eeriness-of-writing-with-claude-when-ai-mirrors-your-voice:
+    content_hash: sha256:b2c6a4171ac1394e
+    stored_at: data/staging/webfetch-mark-carrigan-on-claude-mirroring-his-voice-2026-04-11_03-33-52.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:33:52.745981+00:00'
+    title: Mark Carrigan on Claude Mirroring His Voice
+    maturity: seedling
+    routing_type: pending
+    url: https://markcarrigan.net/2025/04/13/the-eeriness-of-writing-with-claude-when-ai-mirrors-your-voice/
+  https://export.arxiv.org/api/query?search_query=all:text+style+transfer+gpt+llm+2024&max_results=10&sortby=relevance:
+    content_hash: sha256:b7ea508e982c33ca
+    stored_at: data/staging/webfetch-extracted-arxiv-paper-entries-2026-04-11_03-34-00.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:00.516901+00:00'
+    title: Extracted ArXiv Paper Entries
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:text+style+transfer+GPT+LLM+2024&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:in-context+learning+style+adaptation+llm&max_results=10&sortby=relevance
+  : content_hash: sha256:30d22232b905ba08
+    stored_at: data/staging/webfetch-arxiv-paper-extraction-2026-04-11_03-34-01.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:01.382179+00:00'
+    title: ArXiv Paper Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:in-context+learning+style+adaptation+LLM&max_results=10&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=gptzero%20ai%20detection%20false%20positive%20writing&tags=story&hitsperpage=10:
+    content_hash: sha256:11c0ef018feb1f1a
+    stored_at: data/staging/webfetch-story-analysis-results-2026-04-11_03-34-04.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:04.492967+00:00'
+    title: Story Analysis Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=GPTZero%20AI%20detection%20false%20positive%20writing&tags=story&hitsPerPage=10
+  https://github.com/viktorbezdek/definitive-llm-writing-style-guide:
+    content_hash: sha256:ab66faf6d86176fc
+    stored_at: data/staging/webfetch-github-repository-analysis-definitive-llm-writing-2026-04-11_03-34-05.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:05.645715+00:00'
+    title: 'GitHub Repository Analysis: Definitive LLM Writing Style Guide'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/viktorbezdek/definitive-llm-writing-style-guide
+  https://github.com/comp-int-hum/llm-style-transfer:
+    content_hash: sha256:1104a6eda6f04db4
+    stored_at: data/staging/webfetch-llm-style-transfer-repository-analysis-2026-04-11_03-34-05.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:05.900055+00:00'
+    title: LLM Style Transfer Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/comp-int-hum/llm-style-transfer
+  https://github.com/marian-kamenistak/linkedin-post-writing-skill:
+    content_hash: sha256:cf696f94e4d34ea8
+    stored_at: data/staging/webfetch-linkedin-post-writing-skill-repository-analysis-2026-04-11_03-34-07.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:07.064009+00:00'
+    title: LinkedIn Post Writing Skill - Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/marian-kamenistak/linkedin-post-writing-skill
+  https://github.com/blader/humanizer:
+    content_hash: sha256:9c1b602079bfdbc8
+    stored_at: data/staging/webfetch-humanizer-repository-analysis-2026-04-11_03-34-18.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:18.529728+00:00'
+    title: Humanizer Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/blader/humanizer
+  https://github.com/az9713/ai-co-writing-claude-skills:
+    content_hash: sha256:6a0d83b7c6cc274a
+    stored_at: data/staging/webfetch-ai-co-writing-system-repository-analysis-2026-04-11_03-34-19.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:19.233271+00:00'
+    title: AI Co-Writing System Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/az9713/ai-co-writing-claude-skills
+  https://github.com/lechmazur/writing_styles:
+    content_hash: sha256:74897964ea3a80fa
+    stored_at: data/staging/webfetch-writing-styles-repository-analysis-2026-04-11_03-34-20.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:20.908733+00:00'
+    title: Writing Styles Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/lechmazur/writing_styles
+  https://jamescosullivan.substack.com/p/gptzero-is-useless:
+    content_hash: sha256:305a271535703a21
+    stored_at: data/staging/webfetch-gptzero-s-fundamental-failures-a-critical-analysis-2026-04-11_03-34-26.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:26.759572+00:00'
+    title: 'GPTZero''s Fundamental Failures: A Critical Analysis'
+    maturity: seedling
+    routing_type: pending
+    url: https://jamescosullivan.substack.com/p/gptzero-is-useless
+  https://arxiv.org/html/2509.14543v1:
+    content_hash: sha256:5e7cf61a55c5c5cf
+    stored_at: data/staging/webfetch-llms-struggle-with-implicit-writing-style-2026-04-11_03-34-27.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:27.266810+00:00'
+    title: LLMs Struggle with Implicit Writing Style Imitation
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2509.14543v1
+  https://github.com/amirthavarshini-dhanavel/mimickmystyle_llm:
+    content_hash: sha256:c51327a4d1dbb6f7
+    stored_at: data/staging/webfetch-mimickmystyle-llm-repository-analysis-2026-04-11_03-34-36.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:36.345349+00:00'
+    title: MimickMyStyle_LLM Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/Amirthavarshini-Dhanavel/MimickMyStyle_LLM
+  https://news.ycombinator.com/item?id=45260322:
+    content_hash: sha256:7cf7a0581bbfdd16
+    stored_at: data/staging/webfetch-show-hn-n-gram-analysis-of-llm-writing-styles-2026-04-11_03-34-37.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:37.408255+00:00'
+    title: 'Show HN: N-gram Analysis of LLM Writing Styles'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=45260322
+  https://news.ycombinator.com/item?id=38382067:
+    content_hash: sha256:949dece91391747f
+    stored_at: data/staging/webfetch-hacker-news-discussion-writing-human-sounding-2026-04-11_03-34-38.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:38.556475+00:00'
+    title: 'Hacker News Discussion: Writing Human-Sounding Articles with Claude AI'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=38382067
+  https://scale.com/blog/using-llms-while-preserving-your-voice:
+    content_hash: sha256:d3f6ec983f1412e9
+    stored_at: data/staging/webfetch-using-llms-while-preserving-your-voice-key-2026-04-11_03-34-43.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:43.426781+00:00'
+    title: 'Using LLMs While Preserving Your Voice: Key Techniques and Insights'
+    maturity: seedling
+    routing_type: pending
+    url: https://scale.com/blog/using-llms-while-preserving-your-voice
+  https://github.com/jpotts18/stylometry:
+    content_hash: sha256:7ede48b880fd64f9
+    stored_at: data/staging/webfetch-stylometry-library-analysis-2026-04-11_03-34-44.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:44.324041+00:00'
+    title: Stylometry Library Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/jpotts18/stylometry
+  https://hn.algolia.com/api/v1/search?query=ai%20writing%20detection%20bypass%20human%20style&tags=story&hitsperpage=10:
+    content_hash: sha256:cf987d6a10fd7b04
+    stored_at: data/staging/webfetch-story-search-results-2026-04-11_03-34-56.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:56.548281+00:00'
+    title: Story Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20writing%20detection%20bypass%20human%20style&tags=story&hitsPerPage=10
+  https://github.com/fuzhenxin/style-transfer-in-text:
+    content_hash: sha256:c3b588e5705a8efe
+    stored_at: data/staging/webfetch-style-transfer-in-text-repository-analysis-2026-04-11_03-34-58.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:34:58.185491+00:00'
+    title: Style-Transfer-in-Text Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/fuzhenxin/Style-Transfer-in-Text
+  https://aiblewmymind.substack.com/p/claude-skills-ai-write-like-you:
+    content_hash: sha256:93b28cfc64ed5414
+    stored_at: data/staging/webfetch-claude-skills-for-writing-key-insights-2026-04-11_03-35-13.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:13.750914+00:00'
+    title: 'Claude Skills for Writing: Key Insights'
+    maturity: seedling
+    routing_type: pending
+    url: https://aiblewmymind.substack.com/p/claude-skills-ai-write-like-you
+  https://www.nbcnews.com/tech/tech-news/ai-changing-style-substance-human-writing-study-finds-rcna263789:
+    content_hash: sha256:8f578ea80849e4ed
+    stored_at: data/staging/webfetch-key-findings-ai-s-impact-on-human-writing-style-2026-04-11_03-35-15.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:15.356845+00:00'
+    title: 'Key Findings: AI''s Impact on Human Writing Style'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.nbcnews.com/tech/tech-news/ai-changing-style-substance-human-writing-study-finds-rcna263789
+  https://arxiv.org/abs/2509.14543:
+    content_hash: sha256:64f359ab389fea2e
+    stored_at: data/staging/webfetch-research-summary-llm-writing-style-imitation-study-2026-04-11_03-35-24.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:24.901607+00:00'
+    title: 'Research Summary: LLM Writing Style Imitation Study'
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2509.14543
+  https://arxiv.org/abs/2406.15586:
+    content_hash: sha256:658bf8bc5ba1dff3
+    stored_at: data/staging/webfetch-tinystyler-paper-summary-2026-04-11_03-35-26.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:26.118358+00:00'
+    title: TinyStyler Paper Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2406.15586
+  https://arxiv.org/abs/2410.12757:
+    content_hash: sha256:c21a83472b10c28f
+    stored_at: data/staging/webfetch-styledistance-paper-summary-2026-04-11_03-35-27.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:27.321105+00:00'
+    title: StyleDistance Paper Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2410.12757
+  https://arxiv.org/html/2305.10847v5:
+    content_hash: sha256:24dbad05292edefe
+    stored_at: data/staging/webfetch-sico-methodology-a-detailed-breakdown-2026-04-11_03-35-43.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:43.345866+00:00'
+    title: 'SICO Methodology: A Detailed Breakdown'
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2305.10847v5
+  https://arxiv.org/html/2509.14543:
+    content_hash: sha256:13b3d1b95ce3d1eb
+    stored_at: data/staging/webfetch-research-summary-llm-style-imitation-capabilities-2026-04-11_03-35-45.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:45.259833+00:00'
+    title: 'Research Summary: LLM Style Imitation Capabilities'
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2509.14543
+  https://arxiv.org/html/2410.00593v1:
+    content_hash: sha256:64cc185337279dca
+    stored_at: data/staging/webfetch-style-specific-neurons-for-steering-llms-in-text-2026-04-11_03-35-59.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:35:59.864357+00:00'
+    title: Style-Specific Neurons for Steering LLMs in Text Style Transfer
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2410.00593v1
+  https://arxiv.org/abs/2505.23815:
+    content_hash: sha256:83905351a388a4a4
+    stored_at: data/staging/webfetch-prose-llm-alignment-from-user-writing-samples-2026-04-11_03-36-23.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:36:23.977487+00:00'
+    title: 'PROSE: LLM Alignment from User Writing Samples'
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2505.23815
+  https://arxiv.org/html/2401.17390v1:
+    content_hash: sha256:505fc738fee63e8c
+    stored_at: data/staging/webfetch-customizing-language-model-responses-with-2026-04-11_03-36-41.md
+    importance_score: 50
+    last_updated: '2026-04-11T03:36:41.494650+00:00'
+    title: Customizing Language Model Responses with Contrastive In-Context Learning
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2401.17390v1
+  https://github.com/garrytan/gbrain:
+    content_hash: sha256:721d5a56532110de
+    stored_at: data/staging/webfetch-gbrain-technical-architecture-features-2026-04-11_04-01-42.md
+    importance_score: 50
+    last_updated: '2026-04-11T04:01:42.306814+00:00'
+    title: 'GBrain: Technical Architecture & Features'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/garrytan/gbrain
+  https://api.github.com/repos/garrytan/gbrain:
+    content_hash: sha256:bd49d71c292bd669
+    stored_at: data/staging/webfetch-gbrain-repository-overview-2026-04-11_14-35-57.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:35:57.544229+00:00'
+    title: gbrain Repository Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain
+  https://api.github.com/repos/garrytan/gbrain/contents:
+    content_hash: sha256:08eada785875a826
+    stored_at: data/staging/webfetch-gbrain-repository-structure-2026-04-11_14-36-02.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:02.967650+00:00'
+    title: GBrain Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain/contents
+  https://api.github.com/repos/garrytan/gbrain/contents/src:
+    content_hash: sha256:14dbe54b51f84d6d
+    stored_at: data/staging/webfetch-files-in-the-src-directory-2026-04-11_14-36-09.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:09.674162+00:00'
+    title: Files in the src Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain/contents/src
+  https://api.github.com/repos/garrytan/gbrain/contents/src/mcp:
+    content_hash: sha256:a145c22aea36e594
+    stored_at: data/staging/webfetch-mcp-related-files-2026-04-11_14-36-14.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:14.372193+00:00'
+    title: MCP Related Files
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain/contents/src/mcp
+  https://api.github.com/repos/garrytan/gbrain/contents/src/core:
+    content_hash: sha256:c5b2d4915ae85fc0
+    stored_at: data/staging/webfetch-files-in-the-core-directory-2026-04-11_14-36-14.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:14.634371+00:00'
+    title: Files in the Core Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain/contents/src/core
+  https://api.github.com/repos/garrytan/gbrain/contents/src/commands:
+    content_hash: sha256:17161ab2842df4a7
+    stored_at: data/staging/webfetch-available-command-files-2026-04-11_14-36-15.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:15.004695+00:00'
+    title: Available Command Files
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/garrytan/gbrain/contents/src/commands
+  https://github.com/garrytan/gbrain/releases:
+    content_hash: sha256:2659ac1163721da3
+    stored_at: data/staging/webfetch-release-history-for-garrytan-gbrain-2026-04-11_14-36-33.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:33.635819+00:00'
+    title: Release History for garrytan/gbrain
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/garrytan/gbrain/releases
+  https://github.com/garrytan/gbrain/issues:
+    content_hash: sha256:709ba7ee828c030c
+    stored_at: data/staging/webfetch-current-issues-and-feature-requests-for-gbrain-2026-04-11_14-36-34.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:34.474506+00:00'
+    title: Current Issues and Feature Requests for gbrain
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/garrytan/gbrain/issues
+  https://github.com/garrytan/gbrain/blob/master/docs/gbrain_skillpack.md:
+    content_hash: sha256:9ce0060beda2d79e
+    stored_at: data/staging/webfetch-gbrain-skills-and-capabilities-2026-04-11_14-36-36.md
+    importance_score: 50
+    last_updated: '2026-04-11T14:36:36.570289+00:00'
+    title: GBrain Skills and Capabilities
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/garrytan/gbrain/blob/master/docs/GBRAIN_SKILLPACK.md
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -1100,3 +1758,76 @@ hashes:
   sha256:14c7c48b8d71189a: data/staging/webfetch-github-light-dark-mode-image-switching-2026-04-10_04-46-57.md
   sha256:cc36b50917d6e64a: data/staging/webfetch-kubernetes-diagram-guidelines-2026-04-10_04-47-12.md
   sha256:345d9b357c81998a: data/staging/webfetch-d2-styling-syntax-guide-2026-04-10_04-50-16.md
+  sha256:8c35a69965234c1f: data/staging/webfetch-prose-craft-readme-summary-2026-04-11_03-29-29.md
+  sha256:3cad7914b38661a5: data/staging/webfetch-prose-craft-project-overview-2026-04-11_03-29-31.md
+  sha256:8b566a3b1b450eb8: data/staging/webfetch-root-folder-contents-of-prose-craft-repository-2026-04-11_03-29-36.md
+  sha256:cbb97fe82df801a2: data/staging/webfetch-prose-craft-skills-directories-2026-04-11_03-29-40.md
+  sha256:6bc4350e28ab1c3e: data/staging/webfetch-agent-files-in-prose-craft-repository-2026-04-11_03-29-40.md
+  sha256:3535fec726ac80df: data/staging/webfetch-based-on-the-content-provided-here-s-what-i-can-2026-04-11_03-29-41.md
+  sha256:5431ee61d3f16199: data/staging/webfetch-plugin-configuration-files-2026-04-11_03-29-42.md
+  sha256:39ac516bc1345752: data/staging/webfetch-prose-craft-plugin-configuration-2026-04-11_03-29-44.md
+  sha256:a0b3acd087f4ab73: data/staging/webfetch-complete-register-template-structure-2026-04-11_03-29-46.md
+  sha256:621e074c988ee04f: data/staging/webfetch-craft-depth-review-agent-complete-structure-2026-04-11_03-29-48.md
+  sha256:5c742d5c7d461ff0: data/staging/webfetch-prose-review-agent-complete-structure-2026-04-11_03-29-51.md
+  sha256:cc351d6b2758f811: data/staging/webfetch-based-on-the-content-provided-i-can-only-identify-2026-04-11_03-29-55.md
+  sha256:b67ef032fbca0a62: data/staging/webfetch-files-in-prose-craft-learn-skill-directory-2026-04-11_03-29-56.md
+  sha256:b787e4a4668774b7: data/staging/webfetch-files-in-the-setup-directory-2026-04-11_03-29-56.md
+  sha256:2d80ac674b4de51e: data/staging/webfetch-learn-review-agent-prompt-2026-04-11_03-30-04.md
+  sha256:26f86a6e2649c39d: data/staging/webfetch-voice-extraction-guide-overview-2026-04-11_03-30-12.md
+  sha256:cae71b2fee51b897: data/staging/webfetch-prose-craft-skill-summary-2026-04-11_03-30-12.md
+  sha256:832a0d805e35f22a: data/staging/webfetch-prose-craft-learn-skill-2026-04-11_03-30-13.md
+  sha256:38c2612726b47fdf: data/staging/webfetch-pass-2-pressure-test-prompt-structure-2026-04-11_03-30-16.md
+  sha256:9b78c286aea44891: data/staging/webfetch-voice-feature-extraction-framework-2026-04-11_03-30-17.md
+  sha256:b689b2261ffc3738: data/staging/webfetch-guidance-for-collecting-writing-samples-2026-04-11_03-30-18.md
+  sha256:cba39cf6d89157c5: data/staging/webfetch-search-results-for-sico-substitution-in-context-2026-04-11_03-33-14.md
+  sha256:e05aa815da9f9990: data/staging/webfetch-story-extraction-results-2026-04-11_03-33-15.md
+  sha256:4fb0329c9f66a34d: data/staging/webfetch-stories-with-score-5-2026-04-11_03-33-27.md
+  sha256:51c34d748c6fcf95: data/staging/webfetch-based-on-the-provided-content-there-are-no-2026-04-11_03-33-28.md
+  sha256:907e2ee7cf654174: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-04-11_03-33-29.md
+  sha256:efd96c6e81f4124d: data/staging/webfetch-arxiv-research-papers-summary-2026-04-11_03-33-33.md
+  sha256:5f71fbc755b8705b: data/staging/webfetch-arxiv-paper-extraction-2026-04-11_03-33-37.md
+  sha256:7dd1044d06a56bd9: data/staging/webfetch-extracted-paper-entries-2026-04-11_03-33-38.md
+  sha256:2de4452727367bd8: data/staging/webfetch-paper-extraction-2026-04-11_03-33-43.md
+  sha256:c00d1f74899bca5a: data/staging/webfetch-creative-writing-skills-repository-analysis-2026-04-11_03-33-49.md
+  sha256:fa015f5eab484367: data/staging/webfetch-how-to-make-claude-write-like-you-article-summary-2026-04-11_03-33-50.md
+  sha256:58ac9ddff9c0afed: data/staging/webfetch-ai-social-engine-repository-analysis-2026-04-11_03-33-51.md
+  sha256:d5289cd76728bb55: data/staging/webfetch-evade-gpt-detector-repository-analysis-2026-04-11_03-33-51.md
+  sha256:b2c6a4171ac1394e: data/staging/webfetch-mark-carrigan-on-claude-mirroring-his-voice-2026-04-11_03-33-52.md
+  sha256:b7ea508e982c33ca: data/staging/webfetch-extracted-arxiv-paper-entries-2026-04-11_03-34-00.md
+  sha256:30d22232b905ba08: data/staging/webfetch-arxiv-paper-extraction-2026-04-11_03-34-01.md
+  sha256:11c0ef018feb1f1a: data/staging/webfetch-story-analysis-results-2026-04-11_03-34-04.md
+  sha256:ab66faf6d86176fc: data/staging/webfetch-github-repository-analysis-definitive-llm-writing-2026-04-11_03-34-05.md
+  sha256:1104a6eda6f04db4: data/staging/webfetch-llm-style-transfer-repository-analysis-2026-04-11_03-34-05.md
+  sha256:cf696f94e4d34ea8: data/staging/webfetch-linkedin-post-writing-skill-repository-analysis-2026-04-11_03-34-07.md
+  sha256:9c1b602079bfdbc8: data/staging/webfetch-humanizer-repository-analysis-2026-04-11_03-34-18.md
+  sha256:6a0d83b7c6cc274a: data/staging/webfetch-ai-co-writing-system-repository-analysis-2026-04-11_03-34-19.md
+  sha256:74897964ea3a80fa: data/staging/webfetch-writing-styles-repository-analysis-2026-04-11_03-34-20.md
+  sha256:305a271535703a21: data/staging/webfetch-gptzero-s-fundamental-failures-a-critical-analysis-2026-04-11_03-34-26.md
+  sha256:5e7cf61a55c5c5cf: data/staging/webfetch-llms-struggle-with-implicit-writing-style-2026-04-11_03-34-27.md
+  sha256:c51327a4d1dbb6f7: data/staging/webfetch-mimickmystyle-llm-repository-analysis-2026-04-11_03-34-36.md
+  sha256:7cf7a0581bbfdd16: data/staging/webfetch-show-hn-n-gram-analysis-of-llm-writing-styles-2026-04-11_03-34-37.md
+  sha256:949dece91391747f: data/staging/webfetch-hacker-news-discussion-writing-human-sounding-2026-04-11_03-34-38.md
+  sha256:d3f6ec983f1412e9: data/staging/webfetch-using-llms-while-preserving-your-voice-key-2026-04-11_03-34-43.md
+  sha256:7ede48b880fd64f9: data/staging/webfetch-stylometry-library-analysis-2026-04-11_03-34-44.md
+  sha256:cf987d6a10fd7b04: data/staging/webfetch-story-search-results-2026-04-11_03-34-56.md
+  sha256:c3b588e5705a8efe: data/staging/webfetch-style-transfer-in-text-repository-analysis-2026-04-11_03-34-58.md
+  sha256:93b28cfc64ed5414: data/staging/webfetch-claude-skills-for-writing-key-insights-2026-04-11_03-35-13.md
+  sha256:8f578ea80849e4ed: data/staging/webfetch-key-findings-ai-s-impact-on-human-writing-style-2026-04-11_03-35-15.md
+  sha256:64f359ab389fea2e: data/staging/webfetch-research-summary-llm-writing-style-imitation-study-2026-04-11_03-35-24.md
+  sha256:658bf8bc5ba1dff3: data/staging/webfetch-tinystyler-paper-summary-2026-04-11_03-35-26.md
+  sha256:c21a83472b10c28f: data/staging/webfetch-styledistance-paper-summary-2026-04-11_03-35-27.md
+  sha256:24dbad05292edefe: data/staging/webfetch-sico-methodology-a-detailed-breakdown-2026-04-11_03-35-43.md
+  sha256:13b3d1b95ce3d1eb: data/staging/webfetch-research-summary-llm-style-imitation-capabilities-2026-04-11_03-35-45.md
+  sha256:64cc185337279dca: data/staging/webfetch-style-specific-neurons-for-steering-llms-in-text-2026-04-11_03-35-59.md
+  sha256:83905351a388a4a4: data/staging/webfetch-prose-llm-alignment-from-user-writing-samples-2026-04-11_03-36-23.md
+  sha256:505fc738fee63e8c: data/staging/webfetch-customizing-language-model-responses-with-2026-04-11_03-36-41.md
+  sha256:721d5a56532110de: data/staging/webfetch-gbrain-technical-architecture-features-2026-04-11_04-01-42.md
+  sha256:bd49d71c292bd669: data/staging/webfetch-gbrain-repository-overview-2026-04-11_14-35-57.md
+  sha256:08eada785875a826: data/staging/webfetch-gbrain-repository-structure-2026-04-11_14-36-02.md
+  sha256:14dbe54b51f84d6d: data/staging/webfetch-files-in-the-src-directory-2026-04-11_14-36-09.md
+  sha256:a145c22aea36e594: data/staging/webfetch-mcp-related-files-2026-04-11_14-36-14.md
+  sha256:c5b2d4915ae85fc0: data/staging/webfetch-files-in-the-core-directory-2026-04-11_14-36-14.md
+  sha256:17161ab2842df4a7: data/staging/webfetch-available-command-files-2026-04-11_14-36-15.md
+  sha256:2659ac1163721da3: data/staging/webfetch-release-history-for-garrytan-gbrain-2026-04-11_14-36-33.md
+  sha256:709ba7ee828c030c: data/staging/webfetch-current-issues-and-feature-requests-for-gbrain-2026-04-11_14-36-34.md
+  sha256:9ce0060beda2d79e: data/staging/webfetch-gbrain-skills-and-capabilities-2026-04-11_14-36-36.md
