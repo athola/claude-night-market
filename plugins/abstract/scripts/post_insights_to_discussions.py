@@ -136,7 +136,14 @@ def post_findings(
         registry = InsightRegistry()
 
     record = PostedRecord.load()
-    repo_id = get_repo_node_id(record, owner, name)
+    try:
+        repo_id = get_repo_node_id(record, owner, name)
+    except (RuntimeError, KeyError, TypeError) as e:
+        print(
+            f"Warning: Could not resolve repo ID: {e}",
+            file=sys.stderr,
+        )
+        return []
 
     posted_urls: list[str] = []
 
@@ -154,7 +161,7 @@ def post_findings(
             registry.record_posted(finding, url)
             posted_urls.append(url)
             print(f"Posted insight: {url}")
-        except RuntimeError as e:
+        except (RuntimeError, KeyError, TypeError) as e:
             print(
                 f"Warning: Could not post insight: {e}",
                 file=sys.stderr,

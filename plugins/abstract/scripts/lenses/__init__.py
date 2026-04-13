@@ -82,6 +82,7 @@ def run_lenses(
             if result:
                 findings.extend(result)
         except Exception as exc:
-            sys.stderr.write(f"[lenses] {lens['meta']['name']} failed: {exc}\n")
+            name = lens.get("module", "unknown")
+            sys.stderr.write(f"[lenses] {name} failed: {exc}\n")
             continue
     return findings

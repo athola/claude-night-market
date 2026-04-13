@@ -68,7 +68,7 @@ def build_context(
         if tracker_file.exists():
             try:
                 performance_history = PerformanceTracker(tracker_file)
-            except (OSError, KeyError):
+            except (OSError, KeyError, ValueError, TypeError):
                 pass
 
     if _HAS_IMPROVEMENT_MEMORY:
@@ -76,7 +76,7 @@ def build_context(
         if mem_file.exists():
             try:
                 improvement_memory = ImprovementMemory(mem_file)
-            except (OSError, KeyError):
+            except (OSError, KeyError, ValueError, TypeError):
                 pass
 
     return AnalysisContext(

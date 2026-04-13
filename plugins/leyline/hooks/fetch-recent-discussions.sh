@@ -177,8 +177,8 @@ query($owner: String!, $repo: String!, $categoryId: ID!, $count: Int!) {
         return
     fi
 
-    echo "$resp" | python3 -c "
-import sys, json
+    HEADING="$heading" echo "$resp" | python3 -c "
+import os, sys, json
 try:
     data = json.load(sys.stdin)
     if data.get('errors'):
@@ -186,7 +186,7 @@ try:
     nodes = data.get('data', {}).get('repository', {}).get('discussions', {}).get('nodes', [])
     if not nodes:
         sys.exit(0)
-    heading = '$heading'
+    heading = os.environ.get('HEADING', 'Discussions:')
     lines = [heading]
     for d in nodes:
         num = d.get('number', '?')

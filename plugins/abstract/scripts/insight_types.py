@@ -40,8 +40,11 @@ class Finding:
         """Generate a discussion title from this finding."""
         prefix = INSIGHT_TYPES.get(self.type, f"[{self.type}]")
         if self.skill:
-            return f"{prefix} {self.skill}: {self.summary}"
-        return f"{prefix} {self.summary}"
+            raw = f"{prefix} {self.skill}: {self.summary}"
+        else:
+            raw = f"{prefix} {self.summary}"
+        # GitHub titles are capped at 255 characters
+        return raw[:255]
 
 
 @dataclass

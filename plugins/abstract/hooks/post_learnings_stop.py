@@ -13,8 +13,12 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 import traceback
 from pathlib import Path
+
+_START = time.monotonic()
+_BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
 
 # ------------------------------------------------------------------
 # Path setup — same pattern as aggregate_learnings_daily.py
@@ -96,8 +100,9 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    # Run insight engine lenses and post diverse findings
-    if _HAS_INSIGHT_ENGINE:
+    # Run insight engine lenses if budget remains
+    remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+    if _HAS_INSIGHT_ENGINE and remaining > 2.0:
         try:
             _run_insight_lenses()
         except Exception:
@@ -105,6 +110,12 @@ def main() -> None:
                 f"[post_learnings_stop] insight-engine: {traceback.format_exc()}",
                 file=sys.stderr,
             )
+    elif _HAS_INSIGHT_ENGINE:
+        print(
+            f"[post_learnings_stop] skipping insight lenses "
+            f"({remaining:.1f}s remaining)",
+            file=sys.stderr,
+        )
 
 
 def _run_insight_lenses() -> None:
