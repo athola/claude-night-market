@@ -1,7 +1,7 @@
 ---
 name: test-updates
 description: 'Update, generate, and validate tests using git-workspace-review for change context'
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: testing-automation
 tags:

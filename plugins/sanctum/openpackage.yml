@@ -1,5 +1,5 @@
 name: sanctum
-version: 1.8.3
+version: 1.8.4
 description: Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates,
   and version management
 keywords:
@@ -57,6 +57,7 @@ commands:
 - commands/update-plugins.md
 - commands/update-tests.md
 - commands/update-tutorial.md
+- commands/acp.md
 - commands/sync-capabilities.md
 - commands/update-version.md
 agents:

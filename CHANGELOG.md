@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.4] - 2026-04-10
+
+### Fixed
+
+- **sanctum hooks**: Replaced broad `except Exception:` in
+  `deferred_item_sweep` and `deferred_item_watcher` __main__
+  guards with specific exception tuples.
+- **cartograph hook**: Added stderr logging to silent
+  `except Exception` in `graph_community_refresh`.
+- **leyline sem-integration**: Clarified unverified brew
+  formula in detection docs. Fixed fallback regex to match
+  `async def` functions.
+
+### Added
+
+- **gauntlet tests**: Entry-type filtering and flow sorting
+  tests in `test_flows.py`.
+- **cartograph tests**: Exception path test for community
+  refresh hook.
+
 ## [1.8.3] - 2026-04-08
 
 ### Added

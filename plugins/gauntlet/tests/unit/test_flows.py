@@ -109,6 +109,37 @@ class TestDetectEntryPoints:
         qns = {n.qualified_name for n in entries}
         assert "app.py::main" in qns
 
+    @pytest.mark.unit
+    def test_file_and_class_nodes_excluded(self, store: GraphStore) -> None:
+        """
+        Scenario: FILE and CLASS nodes are not entry points
+        Given a FILE node and a CLASS node
+        When I detect entry points
+        Then neither appears in the result
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FILE,
+                qualified_name="app.py",
+                file_path="app.py",
+                line_start=0,
+                line_end=100,
+            )
+        )
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.CLASS,
+                qualified_name="app.py::MyClass",
+                file_path="app.py",
+                line_start=10,
+                line_end=50,
+            )
+        )
+        entries = detect_entry_points(store)
+        kinds = {n.kind for n in entries}
+        assert NodeKind.FILE not in kinds
+        assert NodeKind.CLASS not in kinds
+
 
 class TestTraceFlows:
     """
@@ -220,3 +251,76 @@ class TestComputeCriticality:
             nodes.append(n)
         score = compute_criticality(nodes, store)
         assert score <= 1.0
+
+
+class TestFlowSorting:
+    """
+    Feature: Flows sorted by criticality
+
+    As a reviewer
+    I want flows sorted highest-criticality first
+    So that the most important paths appear at the top
+    """
+
+    @pytest.mark.unit
+    def test_flows_sorted_by_criticality_descending(self, store: GraphStore) -> None:
+        """
+        Scenario: Multiple flows are returned in descending order
+        Given two independent chains with different file spans
+        When I trace flows
+        Then the first flow has equal or higher criticality
+        """
+        # Chain spanning 1 file (low criticality)
+        for name in ["a.py::fn1", "a.py::fn2"]:
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=name,
+                    file_path="a.py",
+                    line_start=0,
+                    line_end=10,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="a.py::fn1",
+                target_qn="a.py::fn2",
+            )
+        )
+
+        # Chain spanning 3 files (higher criticality)
+        for name, fp in [
+            ("x.py::start", "x.py"),
+            ("y.py::middle", "y.py"),
+            ("z.py::end", "z.py"),
+        ]:
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=name,
+                    file_path=fp,
+                    line_start=0,
+                    line_end=10,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="x.py::start",
+                target_qn="y.py::middle",
+            )
+        )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS,
+                source_qn="y.py::middle",
+                target_qn="z.py::end",
+            )
+        )
+
+        flows = trace_flows(store, max_depth=15)
+        assert len(flows) >= 2
+        # Flows should be sorted by criticality descending
+        for i in range(len(flows) - 1):
+            assert flows[i]["criticality"] >= flows[i + 1]["criticality"]

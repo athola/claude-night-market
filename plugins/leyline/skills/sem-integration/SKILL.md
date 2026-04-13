@@ -4,7 +4,7 @@ description: >
   Foundation skill for sem (semantic diff CLI) integration.
   Provides detection, install-on-first-use, and output
   normalization patterns for consumer skills.
-version: 1.8.2
+version: 1.8.4
 alwaysApply: false
 category: infrastructure
 tags:

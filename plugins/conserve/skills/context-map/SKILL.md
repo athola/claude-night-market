@@ -5,7 +5,7 @@ description: >-
   token waste from codebase exploration. Pre-scans
   structure, detects frameworks, routes, imports,
   env vars, and estimates token savings.
-version: 1.9.0
+version: 1.8.4
 category: optimization
 tags:
   - context

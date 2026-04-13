@@ -66,6 +66,80 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 | `post-evaluation.json` | Config | Quality scoring and improvement tracking |
 | `pre-skill-load.json` | Config | Pre-load validation for dependencies |
 
+## Insight Engine
+
+The insight engine transforms raw skill execution metrics
+into diverse findings posted to GitHub Discussions. Four
+trigger points feed a pluggable lens architecture through a
+deduplication registry.
+
+### Architecture
+
+```
+Stop Hook (lightweight) ──┐
+Scheduled agent (deep) ───┤
+/pr-review ───────────────┤
+/code-refinement ─────────┘
+        │
+        v
+  insight_analyzer.py
+  (loads lenses, runs analysis)
+        │
+        v
+  InsightRegistry
+  (content-hash dedup, 30-day expiry)
+        │
+        v
+  post_insights_to_discussions.py
+  (posts to "Insights" category)
+```
+
+### Lenses
+
+Four built-in lightweight lenses run on every Stop hook:
+
+| Lens | What it detects |
+|------|-----------------|
+| TrendLens | Degradation or improvement over time |
+| PatternLens | Shared failure modes across skills |
+| HealthLens | Unused skills, orphaned hooks, config drift |
+| DeltaLens | Changes since the last posted snapshot |
+
+LLM-augmented lenses (BugLens, OptimizationLens,
+ImprovementLens) run in the scheduled agent only.
+
+Custom lenses drop into `scripts/lenses/` and auto-discover
+via the `LENS_META` + `analyze()` convention.
+
+### Deduplication
+
+Findings pass through four layers before posting:
+
+1. **Content hash**: deterministic SHA-256 from type, skill,
+   and summary prevents re-posting identical findings.
+2. **Snapshot diff**: DeltaLens compares current metrics to
+   the last snapshot and only surfaces changes.
+3. **Staleness expiry**: hashes expire after 30 days so
+   persistent problems resurface with fresh data.
+4. **Semantic dedup**: Jaccard similarity against existing
+   Discussions links related findings or skips near-duplicates.
+
+### Insight Types
+
+| Type | Prefix | Source |
+|------|--------|--------|
+| Trend | `[Trend]` | Script |
+| Pattern | `[Pattern]` | Script |
+| Bug Alert | `[Bug Alert]` | Agent |
+| Optimization | `[Optimization]` | Agent |
+| Improvement | `[Improvement]` | Agent |
+| PR Finding | `[PR Finding]` | PR review |
+| Health Check | `[Health Check]` | Script |
+
+See ADR 0007 for the GitHub Discussions integration
+design and the palace bridge for cross-plugin knowledge
+flow.
+
 ## Self-Adapting System
 
 A closed-loop system that monitors skill health and auto-triggers improvements:

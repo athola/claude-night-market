@@ -1,7 +1,7 @@
 ---
 name: bug-review
 description: 'Bug hunting with evidence trails: find defects, document them, and verify fixes'
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: code-review
 tags:

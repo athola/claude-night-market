@@ -5,7 +5,7 @@ description: 'Workflow orchestrator for Spec Driven Development. Coordinates ski
 
 
   speckit workflow, spec driven development, speckit commands.'
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: workflow-orchestration
 tags:

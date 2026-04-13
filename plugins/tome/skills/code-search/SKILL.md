@@ -5,7 +5,7 @@ description: >-
   Use when the user wants to find code examples, libraries,
   or implementation patterns. Standalone or as part of a
   full research session.
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: research
 tags:

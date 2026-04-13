@@ -78,7 +78,11 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             f" ({', '.join(names)})"
         )
         return {"additionalContext": msg}
-    except Exception:
+    except Exception as exc:
+        sys.stderr.write(
+            f"graph_community_refresh: community detection failed: "
+            f"{type(exc).__name__}: {exc}\n"
+        )
         return None
 
 
@@ -88,6 +92,11 @@ if __name__ == "__main__":
     except (json.JSONDecodeError, OSError):
         hook_input = {}
 
-    output = main(hook_input)
+    try:
+        output = main(hook_input)
+    except Exception as exc:
+        sys.stderr.write(f"graph_community_refresh: {exc}\n")
+        output = None
+
     if output is not None:
         print(json.dumps(output))

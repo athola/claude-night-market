@@ -1,7 +1,7 @@
 ---
 name: architecture-aware-init
 description: "Architecture-aware project initialization combining online research with archetype selection."
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: project-initialization
 tags:

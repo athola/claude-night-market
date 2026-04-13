@@ -1,5 +1,5 @@
 name: imbue
-version: 1.8.3
+version: 1.8.4
 description: Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns
 keywords:
 - workflow
@@ -39,8 +39,10 @@ skills:
 - skills/structured-output
 - skills/workflow-monitor
 - skills/latent-space-engineering
+- skills/justify
 commands:
 - commands/catchup.md
+- commands/justify.md
 - commands/stewardship-health.md
 - commands/structured-review.md
 agents:

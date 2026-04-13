@@ -1,7 +1,7 @@
 ---
 name: war-room-checkpoint
 description: "Assess decision reversibility and risk at critical checkpoints to determine whether full War Room escalation is warranted."
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

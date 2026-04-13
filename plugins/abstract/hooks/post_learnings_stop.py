@@ -13,8 +13,12 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 import traceback
 from pathlib import Path
+
+_START = time.monotonic()
+_BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
 
 # ------------------------------------------------------------------
 # Path setup — same pattern as aggregate_learnings_daily.py
@@ -40,6 +44,23 @@ try:
     _HAS_SCRIPTS = True
 except ImportError:
     _HAS_SCRIPTS = False
+
+try:
+    from aggregate_skill_logs import aggregate_logs
+    from insight_analyzer import build_context, run_analysis
+    from insight_registry import InsightRegistry
+    from post_insights_to_discussions import post_findings
+
+    _HAS_INSIGHT_ENGINE = True
+except ImportError:
+    _HAS_INSIGHT_ENGINE = False
+
+try:
+    from insight_palace_bridge import ingest_findings as _ingest_to_palace
+
+    _HAS_PALACE_BRIDGE = True
+except ImportError:
+    _HAS_PALACE_BRIDGE = False
 
 
 def _learnings_have_content() -> bool:
@@ -83,6 +104,69 @@ def main() -> None:
     except Exception:
         print(
             f"[post_learnings_stop] post-learnings: {traceback.format_exc()}",
+            file=sys.stderr,
+        )
+
+    # Run insight engine lenses if budget remains
+    remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+    if _HAS_INSIGHT_ENGINE and remaining > 2.0:
+        try:
+            _run_insight_lenses()
+        except Exception:
+            print(
+                f"[post_learnings_stop] insight-engine: {traceback.format_exc()}",
+                file=sys.stderr,
+            )
+    elif _HAS_INSIGHT_ENGINE:
+        print(
+            f"[post_learnings_stop] skipping insight lenses "
+            f"({remaining:.1f}s remaining)",
+            file=sys.stderr,
+        )
+
+
+def _run_insight_lenses() -> None:
+    """Run lightweight insight lenses and post findings."""
+    result = aggregate_logs(days_back=30)
+    registry = InsightRegistry()
+    previous_snapshot = registry.load_snapshot()
+
+    ctx = build_context(
+        metrics=result.metrics_by_skill,
+        trigger="stop",
+        previous_snapshot=previous_snapshot if previous_snapshot else None,
+    )
+
+    findings = run_analysis(ctx, weight_filter="lightweight")
+    if not findings:
+        return
+
+    posted = post_findings(findings, registry=registry)
+
+    # Ingest findings into memory palace if available
+    if _HAS_PALACE_BRIDGE:
+        remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+        try:
+            _ingest_to_palace(findings, budget_remaining=remaining)
+        except Exception:
+            print(
+                f"[post_learnings_stop] palace-bridge: {traceback.format_exc()}",
+                file=sys.stderr,
+            )
+
+    # Save current metrics as snapshot for next delta comparison
+    snapshot = {
+        skill: {
+            "success_rate": m.success_rate,
+            "avg_duration_ms": m.avg_duration_ms,
+        }
+        for skill, m in result.metrics_by_skill.items()
+    }
+    registry.save_snapshot(snapshot)
+
+    if posted:
+        print(
+            f"[post_learnings_stop] posted {len(posted)} insight(s)",
             file=sys.stderr,
         )
 

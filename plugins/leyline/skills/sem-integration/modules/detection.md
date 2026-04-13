@@ -17,24 +17,28 @@ estimated_tokens: 250
 
 ## Install-on-First-Use
 
-When sem is not detected, present installation options:
+When sem is not detected, present installation options
+in priority order:
 
-**macOS (Homebrew, unverified formula):**
+**Rust toolchain (preferred, works on all platforms):**
 
 ```bash
-brew install sem-cli
+cargo install --locked sem-cli
 ```
+
+**macOS (Homebrew, if formula exists):**
+
+```bash
+brew search sem-cli && brew install sem-cli
+```
+
+Note: the Homebrew formula may not exist. If `brew search`
+returns no results, fall back to `cargo install` above.
 
 **Linux (binary download):**
 
 ```bash
 mkdir -p ~/.local/bin && curl -fsSL https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu -o ~/.local/bin/sem && chmod +x ~/.local/bin/sem
-```
-
-**Rust toolchain available:**
-
-```bash
-cargo install --locked sem-cli
 ```
 
 ## Prompt Template
@@ -44,8 +48,8 @@ When sem is missing, say:
 > sem (semantic diff tool) can provide entity-level diffs
 > instead of line-level diffs. Install it?
 >
-> - `brew install sem-cli` (macOS, unverified formula)
-> - `cargo install --locked sem-cli` (Rust toolchain)
+> - `cargo install --locked sem-cli` (any platform with Rust)
+> - `brew install sem-cli` (macOS, if formula available)
 > - Linux binary: `mkdir -p ~/.local/bin && curl -fsSL
 >   https://github.com/Ataraxy-Labs/sem/releases/latest/download/sem-x86_64-unknown-linux-gnu
 >   -o ~/.local/bin/sem && chmod +x ~/.local/bin/sem`

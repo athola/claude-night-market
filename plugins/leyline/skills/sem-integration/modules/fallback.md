@@ -57,13 +57,14 @@ For richer fallback (optional), parse diff hunks for
 function/class definitions:
 
 ```bash
-# Extract added functions from diff
-git diff <baseline> | grep '^+def \|^+class ' | \
+# Extract added functions from diff (includes async def)
+git diff <baseline> | grep -E '^\+(async )?def |^\+class ' | \
   sed 's/^+//' | sed 's/(.*//'
 ```
 
 This gives function-level granularity without sem,
-though it misses renames and cross-file dependencies.
+though it misses renames, decorated definitions, and
+cross-file dependencies.
 
 ## Impact Fallback
 

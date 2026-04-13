@@ -1,7 +1,7 @@
 ---
 name: structured-output
 description: 'Format final review deliverables with consistent structure for comparable findings across reviews'
-version: 1.7.1
+version: 1.8.4
 alwaysApply: false
 category: output-patterns
 tags:
