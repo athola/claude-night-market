@@ -55,6 +55,13 @@ try:
 except ImportError:
     _HAS_INSIGHT_ENGINE = False
 
+try:
+    from insight_palace_bridge import ingest_findings as _ingest_to_palace
+
+    _HAS_PALACE_BRIDGE = True
+except ImportError:
+    _HAS_PALACE_BRIDGE = False
+
 
 def _learnings_have_content() -> bool:
     """Check whether LEARNINGS.md has skills worth posting."""
@@ -135,6 +142,17 @@ def _run_insight_lenses() -> None:
         return
 
     posted = post_findings(findings, registry=registry)
+
+    # Ingest findings into memory palace if available
+    if _HAS_PALACE_BRIDGE:
+        remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
+        try:
+            _ingest_to_palace(findings, budget_remaining=remaining)
+        except Exception:
+            print(
+                f"[post_learnings_stop] palace-bridge: {traceback.format_exc()}",
+                file=sys.stderr,
+            )
 
     # Save current metrics as snapshot for next delta comparison
     snapshot = {

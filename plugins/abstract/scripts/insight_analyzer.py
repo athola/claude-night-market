@@ -35,6 +35,13 @@ try:
 except ImportError:
     _HAS_PERFORMANCE_TRACKER = False
 
+try:
+    from insight_palace_bridge import query_palace_insights
+
+    _HAS_PALACE_BRIDGE = True
+except ImportError:
+    _HAS_PALACE_BRIDGE = False
+
 
 def build_context(
     metrics: dict[str, Any],
@@ -79,6 +86,13 @@ def build_context(
             except (OSError, KeyError, ValueError, TypeError):
                 pass
 
+    palace_insights: list[dict[str, Any]] = []
+    if _HAS_PALACE_BRIDGE:
+        try:
+            palace_insights = query_palace_insights()
+        except Exception:  # noqa: S110 - graceful fallback for optional dependency
+            palace_insights = []
+
     return AnalysisContext(
         metrics=metrics,
         previous_snapshot=previous_snapshot,
@@ -87,6 +101,7 @@ def build_context(
         code_paths=code_paths or [],
         pr_diff=pr_diff,
         trigger=trigger,
+        palace_insights=palace_insights,
     )
 
 

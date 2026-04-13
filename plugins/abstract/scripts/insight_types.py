@@ -58,6 +58,7 @@ class AnalysisContext:
     code_paths: list[Path] = field(default_factory=list)
     pr_diff: str | None = None
     trigger: str = "stop"
+    palace_insights: list[dict[str, Any]] = field(default_factory=list)
 
 
 def finding_hash(finding: Finding) -> str:
