@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-174 skills, 126 slash commands, and 53 agents.
+174 skills, 126 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
