@@ -44,6 +44,8 @@ EXPECTED_CONSUMING_SKILLS = [
     "sanctum:pr-review",
     "pensive:code-refinement",
     "conserve:unbloat",
+    "attune:mission-orchestrator",
+    "imbue:justify",
 ]
 
 

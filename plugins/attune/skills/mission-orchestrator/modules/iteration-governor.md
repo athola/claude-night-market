@@ -25,7 +25,7 @@ upstream in the specification.
 | 1 | Normal | "Round 1/3" in review header |
 | 2 | Warning | "Round 2/3 -- next round is final" |
 | 3 | Final | "Final round (3/3)" |
-| 3 exhausted | Forced decision | Escalation options |
+| After 3 | Blocked | Escalation options presented |
 
 ## War Room Feedback Counts
 
@@ -81,6 +81,9 @@ module for the schema.
 
 ```
 function check_iteration(current_round):
+    # Called BEFORE round starts. current_round is
+    # incremented after each completed round, so
+    # current_round == 4 means 3 rounds completed.
     if current_round > 3:
         present_escalation_options()
         return BLOCKED

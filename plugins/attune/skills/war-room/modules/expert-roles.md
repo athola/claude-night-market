@@ -127,6 +127,7 @@ For quick decisions with lower complexity:
 LIGHTWEIGHT_PANEL = [
     "supreme_commander",
     "chief_strategist",
+    "prosecution_counsel",
     "red_team",
 ]
 ```
@@ -140,6 +141,7 @@ FULL_COUNCIL = [
     "supreme_commander",
     "chief_strategist",
     "intelligence_officer",
+    "prosecution_counsel",
     "field_tactician",
     "scout",
     "red_team",

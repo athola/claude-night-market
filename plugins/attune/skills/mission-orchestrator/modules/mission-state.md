@@ -63,8 +63,7 @@ estimated_tokens: 200
       "decision": "continue",
       "timestamp": "2026-02-07T22:48:00Z"
     }
-  ]
-  ,
+  ],
   "plan_review": {
     "current_round": 2,
     "max_rounds": 3,
@@ -107,7 +106,7 @@ estimated_tokens: 200
 | `plan_review` | object | Interactive review loop state |
 | `plan_review.current_round` | int | Current review round (1-3) |
 | `plan_review.max_rounds` | int | Maximum rounds (default 3) |
-| `plan_review.status` | string | `in_review`, `approved`, `rejected`, `war_room_pending` |
+| `plan_review.status` | string | `in_review`, `approved`, `war_room_pending` |
 | `plan_review.versions` | array | Per-version metadata |
 | `plan_review.war_room_verdict` | string or null | `approved`, `concerns`, `rejected` |
 | `plan_review.bias_findings_count` | int | Number of additive bias findings |

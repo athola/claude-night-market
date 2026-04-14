@@ -121,9 +121,11 @@ It invokes the full interactive review loop from
    - APPROVE: classify tasks by risk tier, generate
      risk summary, proceed to execute
    - CONCERNS/REJECT: convert war-room feedback to
-     revision context, increment round, go to step 4
-   - If round 3 exhausted: present escalation options
-     (approve as-is / abort / restart from spec)
+     revision context, increment round, go to step 1
+     (the governor check at step 2 enforces the cap)
+   - If iteration governor returns BLOCKED: present
+     escalation options (approve as-is / abort /
+     restart from spec)
 
 9. **Risk classification**: after war-room approval,
    invoke `leyline:risk-classification` on all tasks

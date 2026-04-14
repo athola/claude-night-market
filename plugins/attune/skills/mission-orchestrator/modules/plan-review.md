@@ -12,6 +12,7 @@ dependencies:
 - modules/feedback-collector.md
 - modules/context-injector.md
 - modules/iteration-governor.md
+- modules/mission-state.md
 - leyline:additive-bias-defense
 estimated_tokens: 400
 ---
