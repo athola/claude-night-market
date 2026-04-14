@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -213,19 +213,7 @@ class KnowledgeEntry:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary."""
-        return {
-            "id": self.id,
-            "category": self.category,
-            "module": self.module,
-            "concept": self.concept,
-            "detail": self.detail,
-            "related_files": self.related_files,
-            "difficulty": self.difficulty,
-            "tags": self.tags,
-            "extracted_at": self.extracted_at,
-            "source": self.source,
-            "consumers": self.consumers,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> KnowledgeEntry:
@@ -511,14 +499,7 @@ class OnboardingProgress:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-compatible dictionary."""
-        return {
-            "developer_id": self.developer_id,
-            "current_stage": self.current_stage,
-            "stage_scores": self.stage_scores,
-            "stage_challenge_count": self.stage_challenge_count,
-            "entries_mastered": self.entries_mastered,
-            "graduated": self.graduated,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> OnboardingProgress:

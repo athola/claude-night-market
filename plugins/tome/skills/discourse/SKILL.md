@@ -5,7 +5,7 @@ description: >-
   tech blogs) for experience reports and opinions on a
   topic. Use when the user wants community perspectives
   on a technology or approach.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: research
 tags:

@@ -1,4 +1,8 @@
-"""SQLite-backed code knowledge graph with BFS traversal and FTS5 search."""
+"""SQLite-backed code knowledge graph with BFS traversal and FTS5 search.
+
+Inherits connection management, WAL mode, FTS5 fallback, and context
+manager protocol from ``leyline.sqlite_graph_base.SqliteGraphBase``.
+"""
 
 from __future__ import annotations
 
@@ -6,14 +10,65 @@ import json
 import logging
 import sqlite3
 from collections import deque
-from pathlib import Path
 from typing import Any
 
 from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
 
+try:
+    from leyline.sqlite_graph_base import SqliteGraphBase
+except ImportError:  # pragma: no cover -- standalone fallback
+    # Minimal inline base when leyline is not installed.
+    import sqlite3 as _sqlite3
+    from pathlib import Path as _Path
+
+    class SqliteGraphBase:  # type: ignore[no-redef]  # fallback when leyline not installed
+        """Minimal fallback for connection management."""
+
+        _schema_sql: str = ""
+        _fts_create_sql: str = ""
+        _batch_size: int = 450
+
+        def __init__(self, db_path: str | _Path) -> None:
+            self._db_path = str(db_path)
+            self._conn: _sqlite3.Connection = _sqlite3.connect(self._db_path)
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._conn.execute("PRAGMA foreign_keys=ON")
+            self._conn.row_factory = _sqlite3.Row
+            self._has_fts: bool = False
+            try:
+                self._init_schema()
+            except Exception:
+                self._conn.close()
+                raise
+
+        def _init_schema(self) -> None:
+            self._conn.executescript(self._schema_sql)
+            if self._fts_create_sql:
+                try:
+                    self._conn.executescript(self._fts_create_sql)
+                    self._has_fts = True
+                except _sqlite3.OperationalError as exc:
+                    _log.warning("FTS5 unavailable: %s", exc)
+            self._conn.commit()
+
+        def close(self) -> None:
+            self._conn.close()
+
+        def __enter__(self) -> SqliteGraphBase:  # type: ignore[override]  # simpler signature for fallback
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            self.close()
+
+        def table_names(self) -> list[str]:
+            rows = self._conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+            return [r["name"] for r in rows]
+
+
 _log = logging.getLogger(__name__)
 
-_BATCH_SIZE = 450
 _MAX_BFS_NODES = 10_000
 
 # ---------------------------------------------------------------------------
@@ -102,43 +157,11 @@ CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
 """
 
 
-class GraphStore:
+class GraphStore(SqliteGraphBase):
     """Persistent code knowledge graph backed by SQLite."""
 
-    def __init__(self, db_path: str | Path) -> None:
-        self._db_path = str(db_path)
-        self._conn = sqlite3.connect(self._db_path)
-        self._conn.execute("PRAGMA journal_mode=WAL")
-        self._conn.execute("PRAGMA foreign_keys=ON")
-        self._conn.row_factory = sqlite3.Row
-        try:
-            self._init_schema()
-        except Exception:
-            self._conn.close()
-            raise
-
-    def _init_schema(self) -> None:
-        self._conn.executescript(_SCHEMA_SQL)
-        try:
-            self._conn.executescript(_FTS_CREATE_SQL)
-        except sqlite3.OperationalError as exc:
-            _log.warning("FTS5 unavailable -- full-text search disabled: %s", exc)
-        self._conn.commit()
-
-    def close(self) -> None:
-        """Close the database connection."""
-        self._conn.close()
-
-    def __enter__(self) -> GraphStore:
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: object,
-    ) -> None:
-        self.close()
+    _schema_sql = _SCHEMA_SQL
+    _fts_create_sql = _FTS_CREATE_SQL
 
     # ------------------------------------------------------------------
     # Node CRUD
@@ -211,7 +234,7 @@ class GraphStore:
         """Delete all nodes for a file. Returns count deleted."""
         cur = self._conn.execute("DELETE FROM nodes WHERE file_path = ?", (file_path,))
         self._conn.commit()
-        return cur.rowcount
+        return int(cur.rowcount)
 
     # ------------------------------------------------------------------
     # Edge CRUD
@@ -269,7 +292,7 @@ class GraphStore:
         """Delete all edges originating from a file."""
         cur = self._conn.execute("DELETE FROM edges WHERE file_path = ?", (file_path,))
         self._conn.commit()
-        return cur.rowcount
+        return int(cur.rowcount)
 
     # ------------------------------------------------------------------
     # Atomic file storage
@@ -320,8 +343,8 @@ class GraphStore:
                     continue  # Individual entry failed, keep going
 
     def _batch_insert_nodes(self, nodes: list[GraphNode]) -> None:
-        for i in range(0, len(nodes), _BATCH_SIZE):
-            batch = nodes[i : i + _BATCH_SIZE]
+        for i in range(0, len(nodes), self._batch_size):
+            batch = nodes[i : i + self._batch_size]
             self._conn.executemany(
                 """INSERT OR REPLACE INTO nodes
                    (kind, qualified_name, file_path, line_start, line_end,
@@ -348,8 +371,8 @@ class GraphStore:
             )
 
     def _batch_insert_edges(self, edges: list[GraphEdge]) -> None:
-        for i in range(0, len(edges), _BATCH_SIZE):
-            batch = edges[i : i + _BATCH_SIZE]
+        for i in range(0, len(edges), self._batch_size):
+            batch = edges[i : i + self._batch_size]
             self._conn.executemany(
                 """INSERT INTO edges
                    (kind, source_qn, target_qn, file_path, line)
@@ -429,8 +452,8 @@ class GraphStore:
             "SELECT qualified_name, kind, file_path, language FROM nodes"
         ).fetchall()
 
-        for i in range(0, len(rows), _BATCH_SIZE):
-            batch = rows[i : i + _BATCH_SIZE]
+        for i in range(0, len(rows), self._batch_size):
+            batch = rows[i : i + self._batch_size]
             self._conn.executemany(
                 "INSERT INTO nodes_fts (qualified_name, kind, file_path, language) "
                 "VALUES (?, ?, ?, ?)",

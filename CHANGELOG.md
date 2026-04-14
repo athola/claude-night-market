@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-04-14
+
+### Added
+
+- **attune interactive plan review**: Review loop between
+  planning and execution phases. Users approve, request
+  revisions, or reject plans before implementation begins.
+  Includes feedback collection, plan versioning with diffs,
+  context injection for revision prompts, and a 3-round
+  iteration governor to prevent unbounded revision cycles.
+- **attune war-room**: Prosecution Counsel role that
+  stress-tests proposals by probing failure modes, hidden
+  costs, and unstated assumptions.
+- **leyline additive-bias-defense**: Cross-cutting contract
+  that inverts the burden of proof for code additions.
+  Every proposed addition must justify its presence against
+  scrutiny questions.
+
+### Changed
+
+- **abstract skills-eval**: Consolidated evaluation modules.
+  Removed multi-metric-evaluation-methodology, quality-metrics,
+  and skill-authoring-best-practices in favor of streamlined
+  evaluation-criteria and authoring-checklist modules.
+- **conserve context_scanner**: Refactored monolith script
+  into a package with separate modules for detection,
+  ecosystems, caching, rendering, import graph analysis,
+  and CLI. Public API preserved via `__init__.py` re-exports.
+- **imbue/leyline/abstract skill modules**: Token optimization
+  pass reducing module sizes across red-flags, interactive-auth,
+  configuration, and sdk-hook-types modules.
+
+### Fixed
+
+- **sanctum validators**: Restored defensive `try/except
+  ImportError` fallback for leyline frontmatter parser.
+  Direct import broke tests in environments without leyline
+  installed.
+- **leyline test_sqlite_graph_base**: Replaced blind
+  `pytest.raises(Exception)` with specific exception types
+  (`sqlite3.ProgrammingError`, `sqlite3.OperationalError`).
+
 ## [1.8.4] - 2026-04-10
 
 ### Fixed

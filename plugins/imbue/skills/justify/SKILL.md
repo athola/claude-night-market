@@ -6,7 +6,7 @@ description: >-
   additive bias, test-logic tampering, and unnecessary
   complexity. Use after completing work, before committing
   or creating PRs.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: workflow-methodology
 tags:

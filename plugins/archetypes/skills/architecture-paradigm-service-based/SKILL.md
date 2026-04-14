@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-service-based
 description: 'Design coarse-grained service architecture for deployment independence without microservices complexity and overhead.'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: architectural-pattern
 tags:

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "egregore-dev"
-version = "1.8.4"
+version = "1.9.0"
 description = "Autonomous agent orchestrator plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -16,7 +16,7 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",

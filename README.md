@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.8.4-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-174-teal)](book/src/reference/capabilities-reference.md)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-174 skills, 126 slash commands, and 54 agents.
+175 skills, 126 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -74,7 +74,7 @@ complements.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
-  <img alt="Plugin architecture: 5 layers (External, Meta, Domain, Utility, Foundation) with 22 plugins" src="assets/architecture-light.svg">
+  <img alt="Plugin architecture: 5 layers (External, Meta, Domain, Utility, Foundation) with 23 plugins" src="assets/architecture-light.svg">
 </picture>
 
 <sub>Source: <a href="assets/architecture.d2">assets/architecture.d2</a> — regenerate with <code>d2 assets/architecture.d2 assets/architecture-light.svg</code></sub>

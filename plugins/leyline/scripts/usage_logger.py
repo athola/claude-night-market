@@ -15,11 +15,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
+
+_log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -76,7 +79,9 @@ class UsageLogger:
                 if time.time() - session.get("last_activity", 0) < self.SESSION_TIMEOUT:
                     return session["session_id"]
             except (json.JSONDecodeError, KeyError):
-                pass
+                _log.warning(
+                    "Session file unreadable, resetting: %s", self.session_file
+                )
 
         # Create new session
         session_id = f"session_{int(time.time())}"
@@ -100,7 +105,10 @@ class UsageLogger:
                 session["last_activity"] = time.time()
                 self.session_file.write_text(json.dumps(session))
             except (json.JSONDecodeError, KeyError):
-                pass
+                _log.warning(
+                    "Session file corrupt during activity update: %s",
+                    self.session_file,
+                )
 
     def log_usage(
         self,

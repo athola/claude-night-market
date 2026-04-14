@@ -1,7 +1,7 @@
 ---
 name: architecture-review
 description: 'Assess architecture decisions, ADR compliance, coupling analysis, and design principles'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: architecture
 tags:

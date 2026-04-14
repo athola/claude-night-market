@@ -5,7 +5,7 @@ description: >-
   documentation. Consult this skill when generating, editing,
   or reviewing markdown prose. Defines hybrid line wrapping,
   heading style, list spacing, and link conventions.
-version: 1.8.4
+version: 1.9.0
 globs: "**/*.md"
 alwaysApply: false
 category: cross-plugin-patterns

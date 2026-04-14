@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: 'Scope-focused PR review with requirements validation and backlog triage'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: review
 tags:

@@ -4,7 +4,7 @@ description: Dispatch parallel prose and craft review agents on generated
   text. Merges results into unified advisory tables. Auto-fixes hard
   failures and presents soft findings for user decision. Use after
   voice-generate or on any text that should match a voice profile.
-version: 1.8.4
+version: 1.9.0
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

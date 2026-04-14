@@ -1,7 +1,7 @@
 ---
 name: vhs-recording
 description: Generate terminal recordings using VHS tape files, produces GIF outputs.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: media-generation
 tags:

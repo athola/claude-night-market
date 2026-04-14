@@ -5,7 +5,7 @@ description: >
   Runs convention checks and invokes review skills
   for each quality step. Supports self-review (pre-PR)
   and PR-review (other agents' PRs) modes.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: orchestration
 tags:

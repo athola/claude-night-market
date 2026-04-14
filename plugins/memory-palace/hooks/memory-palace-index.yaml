@@ -1647,6 +1647,451 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/garrytan/gbrain/blob/master/docs/GBRAIN_SKILLPACK.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/readme.md:
+    content_hash: sha256:7c1ce76053af9ea1
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:28.695631+00:00'
+    title: 'Plannotator: Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/README.md
+  https://github.com/backnotprop/plannotator:
+    content_hash: sha256:53e1492ab9200a42
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:28.994591+00:00'
+    title: Plannotator Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator
+  https://api.github.com/repos/backnotprop/plannotator:
+    content_hash: sha256:adde05a712161e0d
+    stored_at: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-23-35.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:35.215429+00:00'
+    title: Plannotator Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator
+  https://api.github.com/repos/backnotprop/plannotator/contents:
+    content_hash: sha256:ff1df3735251229c
+    stored_at: data/staging/webfetch-main-files-and-directories-in-the-repository-2026-04-13_23-23-40.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:40.782575+00:00'
+    title: Main Files and Directories in the Repository
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/package.json:
+    content_hash: sha256:b85107ea9729f070
+    stored_at: data/staging/webfetch-plannotator-project-overview-2026-04-13_23-23-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:41.597432+00:00'
+    title: Plannotator Project Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/package.json
+  https://api.github.com/repos/backnotprop/plannotator/contents/packages:
+    content_hash: sha256:e59a1e417bc96bc9
+    stored_at: data/staging/webfetch-based-on-the-repository-structure-the-project-2026-04-13_23-23-45.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:45.936060+00:00'
+    title: 'Based on the repository structure, the project includes six packages:'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/packages
+  https://api.github.com/repos/backnotprop/plannotator/contents/apps:
+    content_hash: sha256:67883c3a48d63b0e
+    stored_at: data/staging/webfetch-applications-in-the-apps-directory-2026-04-13_23-23-46.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:46.566557+00:00'
+    title: Applications in the apps directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/apps
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/agents.md:
+    content_hash: sha256:8a0da545d60e5192
+    stored_at: data/staging/webfetch-plannotator-s-agent-integration-architecture-2026-04-13_23-23-53.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:53.095418+00:00'
+    title: Plannotator's Agent Integration Architecture
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/AGENTS.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/contributing.md:
+    content_hash: sha256:ae574b0792afa767
+    stored_at: data/staging/webfetch-architecture-and-organization-2026-04-13_23-23-58.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:58.795231+00:00'
+    title: Architecture and Organization
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/CONTRIBUTING.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/readme.md:
+    content_hash: sha256:3f1c559c297ae3bb
+    stored_at: data/staging/webfetch-hook-application-overview-2026-04-13_23-23-59.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:59.414423+00:00'
+    title: Hook Application Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/README.md
+  https://github.com/backnotprop/plannotator/tree/main/packages:
+    content_hash: sha256:5aa466c1f82b9bf7
+    stored_at: data/staging/webfetch-plannotator-packages-2026-04-13_23-24-07.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:07.818589+00:00'
+    title: Plannotator Packages
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages
+  https://github.com/backnotprop/plannotator/tree/main/apps:
+    content_hash: sha256:4847a079750c3dd4
+    stored_at: data/staging/webfetch-based-on-the-github-repository-structure-shown-2026-04-13_23-24-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:08.470886+00:00'
+    title: Based on the GitHub repository structure shown, the plannotator project
+      contains several distinct ap
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/apps
+  https://github.com/backnotprop/plannotator/blob/main/readme.md:
+    content_hash: sha256:292d964faeb5430f
+    stored_at: data/staging/webfetch-plannotator-readme-summary-2026-04-13_23-24-11.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:11.222101+00:00'
+    title: Plannotator README Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/README.md
+  https://github.com/backnotprop/plannotator/blob/main/packages/shared:
+    content_hash: sha256:25f8b2fb66578f6f
+    stored_at: data/staging/webfetch-shared-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.048413+00:00'
+    title: Shared
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/shared
+  https://github.com/backnotprop/plannotator/blob/main/packages/editor:
+    content_hash: sha256:9f4a00e3f943e09e
+    stored_at: data/staging/webfetch-editor-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.302677+00:00'
+    title: Editor
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/editor
+  https://github.com/backnotprop/plannotator/blob/main/packages/review-editor:
+    content_hash: sha256:9d49a667e8e00d4e
+    stored_at: data/staging/webfetch-review-editor-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.595713+00:00'
+    title: Review Editor
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/review-editor
+  https://api.github.com/repos/backnotprop/plannotator/git/trees/main?recursive=1:
+    content_hash: sha256:ca420e55269de57e
+    stored_at: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-24-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:28.472194+00:00'
+    title: Plannotator Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/git/trees/main?recursive=1
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/claude.md:
+    content_hash: sha256:e212789b15238015
+    stored_at: data/staging/webfetch-could-you-please-share-the-full-text-of-the-2026-04-13_23-24-34.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:34.248168+00:00'
+    title: Could you please share the full text of the document you're referencing?
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/CLAUDE.md
+  https://github.com/backnotprop/plannotator/blob/main/apps/marketing/src/content/docs:
+    content_hash: sha256:9ac5cfaec43b455c
+    stored_at: data/staging/webfetch-to-find-information-about-those-specific-topics-2026-04-13_23-24-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:41.198528+00:00'
+    title: To find information about those specific topics, you would need to navigate
+      into the individual docu
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/marketing/src/content/docs
+  ? https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/installation.md
+  : content_hash: sha256:5ac5b0b23802ef90
+    stored_at: data/staging/webfetch-installing-and-configuring-plannotator-2026-04-13_23-24-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:41.547817+00:00'
+    title: Installing and Configuring Plannotator
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/installation.md
+  ? https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/quickstart.md
+  : content_hash: sha256:9b6690f7d34a569e
+    stored_at: data/staging/webfetch-plannotator-quickstart-workflow-2026-04-13_23-24-46.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:46.765755+00:00'
+    title: Plannotator Quickstart Workflow
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/quickstart.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/commands/annotate.md:
+    content_hash: sha256:95f8d867a7ce2771
+    stored_at: data/staging/webfetch-how-the-annotate-command-works-2026-04-13_23-24-49.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:49.039875+00:00'
+    title: How the Annotate Command Works
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/commands/annotate.md
+  https://github.com/backnotprop/plannotator/blob/main/packages:
+    content_hash: sha256:bcf804f4c5e4e5f7
+    stored_at: data/staging/webfetch-plannotator-package-structure-2026-04-13_23-24-55.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:55.995778+00:00'
+    title: Plannotator Package Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages
+  https://github.com/backnotprop/plannotator/discussions:
+    content_hash: sha256:d88e7b558beb36c3
+    stored_at: data/staging/webfetch-based-on-the-discussions-page-provided-there-are-2026-04-13_23-25-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:08.069657+00:00'
+    title: Based on the discussions page provided, there are no discussions that explicitly
+      explain how plannot
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/discussions
+  https://github.com/backnotprop/plannotator/wiki:
+    content_hash: sha256:134bb84ea0e45ef8
+    stored_at: data/staging/webfetch-architecture-and-technical-details-2026-04-13_23-25-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:08.370147+00:00'
+    title: Architecture and Technical Details
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/wiki
+  https://plannotator.ai:
+    content_hash: sha256:27811d440a21a57c
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-25-09.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:09.182002+00:00'
+    title: Plannotator Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://plannotator.ai
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/packages/shared/package.json:
+    content_hash: sha256:9d6daa685dbc66bd
+    stored_at: data/staging/webfetch-plannotator-shared-package-overview-2026-04-14_01-25-04.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:04.695380+00:00'
+    title: '@plannotator/shared Package Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/packages/shared/package.json
+  https://github.com/backnotprop/plannotator/tree/main/packages/shared:
+    content_hash: sha256:8f469db09f608482
+    stored_at: data/staging/webfetch-plannotator-shared-package-structure-2026-04-14_01-25-05.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:05.684500+00:00'
+    title: Plannotator Shared Package Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/shared
+  https://github.com/backnotprop/plannotator/search?q=export+interface+plan:
+    content_hash: sha256:d8dc0e784cee664d
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-14_01-25-41.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:41.506188+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/search?q=export+interface+Plan
+  https://github.com/backnotprop/plannotator/search?q=annotation:
+    content_hash: sha256:4d2c397fabde4b52
+    stored_at: data/staging/webfetch-github-search-results-analysis-2026-04-14_01-25-41.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:41.886393+00:00'
+    title: GitHub Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/search?q=Annotation
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook:
+    content_hash: sha256:f8c34426141fca1d
+    stored_at: data/staging/webfetch-plannotator-claude-code-plugin-hook-app-structure-2026-04-14_01-25-59.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:59.095654+00:00'
+    title: Plannotator Claude Code Plugin - Hook App Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook
+  https://github.com/backnotprop/plannotator/blob/main/apps/review:
+    content_hash: sha256:769bed814ed84c41
+    stored_at: data/staging/webfetch-plannotator-review-app-directory-2026-04-14_01-26-00.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:00.647828+00:00'
+    title: Plannotator Review App Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/review
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/commands:
+    content_hash: sha256:d945d5de19fcec3c
+    stored_at: data/staging/webfetch-summary-2026-04-14_01-26-04.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:04.500496+00:00'
+    title: Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/commands
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-review.md:
+    content_hash: sha256:48941b10b9b72cd8
+    stored_at: data/staging/webfetch-code-review-task-2026-04-14_01-26-08.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:08.879697+00:00'
+    title: Code Review Task
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-review.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-annotate.md:
+    content_hash: sha256:e8cb3b0809cca5af
+    stored_at: data/staging/webfetch-i-appreciate-you-sharing-this-content-but-i-2026-04-14_01-26-10.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:10.231844+00:00'
+    title: I appreciate you sharing this content, but I notice the actual annotation
+      feedback and comments appe
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-annotate.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-last.md:
+    content_hash: sha256:1f74a2f851596c22
+    stored_at: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-04-14_01-26-10.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:10.971518+00:00'
+    title: 'To help you effectively, I would need:'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-last.md
+  https://api.github.com/repos/backnotprop/plannotator/contents/.claude-plugin:
+    content_hash: sha256:47415e4e5b9ffc62
+    stored_at: data/staging/webfetch-claude-plugin-configuration-2026-04-14_01-26-16.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:16.461626+00:00'
+    title: Claude Plugin Configuration
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/.claude-plugin
+  https://github.com/backnotprop/plannotator/blob/main/packages/review-editor/package.json:
+    content_hash: sha256:9a88b3d89cdec290
+    stored_at: data/staging/webfetch-review-editor-package-analysis-2026-04-14_01-26-17.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:17.412300+00:00'
+    title: Review Editor Package Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/review-editor/package.json
+  https://api.github.com/repos/backnotprop/plannotator/readme:
+    content_hash: sha256:04ca56ac2af94ef7
+    stored_at: data/staging/webfetch-plannotator-repository-overview-2026-04-14_01-26-19.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:19.367211+00:00'
+    title: Plannotator Repository Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/readme
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/.claude-plugin/marketplace.json:
+    content_hash: sha256:fd5826e93652f6a4
+    stored_at: data/staging/webfetch-plannotator-plugin-overview-2026-04-14_01-26-23.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:23.930345+00:00'
+    title: Plannotator Plugin Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/.claude-plugin/marketplace.json
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/hooks:
+    content_hash: sha256:7f8c57f52794baf0
+    stored_at: data/staging/webfetch-hook-app-directory-overview-2026-04-14_01-26-26.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:26.746996+00:00'
+    title: Hook App Directory Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/hooks
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/hooks/hooks.json:
+    content_hash: sha256:c079be4eb5f36aef
+    stored_at: data/staging/webfetch-hook-configuration-overview-2026-04-14_01-26-28.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:28.770915+00:00'
+    title: Hook Configuration Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/hooks/hooks.json
+  https://github.com/backnotprop/plannotator/tree/main/packages/ai:
+    content_hash: sha256:7e14443f099b3626
+    stored_at: data/staging/webfetch-ai-package-structure-in-plannotator-2026-04-14_01-26-30.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:30.543451+00:00'
+    title: AI Package Structure in Plannotator
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/ai
+  https://github.com/backnotprop/plannotator/tree/main/apps/paste-service:
+    content_hash: sha256:31c0c37873692232
+    stored_at: data/staging/webfetch-paste-service-overview-2026-04-14_01-26-37.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:37.475422+00:00'
+    title: Paste Service Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/apps/paste-service
+  https://github.com/backnotprop/plannotator/tree/main/packages/server:
+    content_hash: sha256:58fed8a108084c9f
+    stored_at: data/staging/webfetch-plannotator-server-package-overview-2026-04-14_01-26-37.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:37.844727+00:00'
+    title: Plannotator Server Package Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/server
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/index.tsx:
+    content_hash: sha256:754fe9f913606817
+    stored_at: data/staging/webfetch-react-app-structure-analysis-2026-04-14_01-26-44.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:44.732244+00:00'
+    title: React App Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/index.tsx
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/server:
+    content_hash: sha256:8cf266ace6ef2434
+    stored_at: data/staging/webfetch-plannotator-hook-server-2026-04-14_01-26-56.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:56.082287+00:00'
+    title: Plannotator Hook Server
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/server
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/review/index.tsx:
+    content_hash: sha256:1db38b05123ec7f9
+    stored_at: data/staging/webfetch-review-app-entry-point-2026-04-14_01-26-59.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:59.029605+00:00'
+    title: Review App Entry Point
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/review/index.tsx
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/server/index.ts:
+    content_hash: sha256:8bae78aff4b721c0
+    stored_at: data/staging/webfetch-plannotator-cli-eight-operating-modes-2026-04-14_01-27-03.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:27:03.472442+00:00'
+    title: 'Plannotator CLI: Eight Operating Modes'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/server/index.ts
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -1831,3 +2276,52 @@ hashes:
   sha256:2659ac1163721da3: data/staging/webfetch-release-history-for-garrytan-gbrain-2026-04-11_14-36-33.md
   sha256:709ba7ee828c030c: data/staging/webfetch-current-issues-and-feature-requests-for-gbrain-2026-04-11_14-36-34.md
   sha256:9ce0060beda2d79e: data/staging/webfetch-gbrain-skills-and-capabilities-2026-04-11_14-36-36.md
+  sha256:7c1ce76053af9ea1: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+  sha256:53e1492ab9200a42: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+  sha256:adde05a712161e0d: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-23-35.md
+  sha256:ff1df3735251229c: data/staging/webfetch-main-files-and-directories-in-the-repository-2026-04-13_23-23-40.md
+  sha256:b85107ea9729f070: data/staging/webfetch-plannotator-project-overview-2026-04-13_23-23-41.md
+  sha256:e59a1e417bc96bc9: data/staging/webfetch-based-on-the-repository-structure-the-project-2026-04-13_23-23-45.md
+  sha256:67883c3a48d63b0e: data/staging/webfetch-applications-in-the-apps-directory-2026-04-13_23-23-46.md
+  sha256:8a0da545d60e5192: data/staging/webfetch-plannotator-s-agent-integration-architecture-2026-04-13_23-23-53.md
+  sha256:ae574b0792afa767: data/staging/webfetch-architecture-and-organization-2026-04-13_23-23-58.md
+  sha256:3f1c559c297ae3bb: data/staging/webfetch-hook-application-overview-2026-04-13_23-23-59.md
+  sha256:5aa466c1f82b9bf7: data/staging/webfetch-plannotator-packages-2026-04-13_23-24-07.md
+  sha256:4847a079750c3dd4: data/staging/webfetch-based-on-the-github-repository-structure-shown-2026-04-13_23-24-08.md
+  sha256:292d964faeb5430f: data/staging/webfetch-plannotator-readme-summary-2026-04-13_23-24-11.md
+  sha256:25f8b2fb66578f6f: data/staging/webfetch-shared-2026-04-13_23-24-16.md
+  sha256:9f4a00e3f943e09e: data/staging/webfetch-editor-2026-04-13_23-24-16.md
+  sha256:9d49a667e8e00d4e: data/staging/webfetch-review-editor-2026-04-13_23-24-16.md
+  sha256:ca420e55269de57e: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-24-28.md
+  sha256:e212789b15238015: data/staging/webfetch-could-you-please-share-the-full-text-of-the-2026-04-13_23-24-34.md
+  sha256:9ac5cfaec43b455c: data/staging/webfetch-to-find-information-about-those-specific-topics-2026-04-13_23-24-41.md
+  sha256:5ac5b0b23802ef90: data/staging/webfetch-installing-and-configuring-plannotator-2026-04-13_23-24-41.md
+  sha256:9b6690f7d34a569e: data/staging/webfetch-plannotator-quickstart-workflow-2026-04-13_23-24-46.md
+  sha256:95f8d867a7ce2771: data/staging/webfetch-how-the-annotate-command-works-2026-04-13_23-24-49.md
+  sha256:bcf804f4c5e4e5f7: data/staging/webfetch-plannotator-package-structure-2026-04-13_23-24-55.md
+  sha256:d88e7b558beb36c3: data/staging/webfetch-based-on-the-discussions-page-provided-there-are-2026-04-13_23-25-08.md
+  sha256:134bb84ea0e45ef8: data/staging/webfetch-architecture-and-technical-details-2026-04-13_23-25-08.md
+  sha256:27811d440a21a57c: data/staging/webfetch-plannotator-overview-2026-04-13_23-25-09.md
+  sha256:9d6daa685dbc66bd: data/staging/webfetch-plannotator-shared-package-overview-2026-04-14_01-25-04.md
+  sha256:8f469db09f608482: data/staging/webfetch-plannotator-shared-package-structure-2026-04-14_01-25-05.md
+  sha256:d8dc0e784cee664d: data/staging/webfetch-search-results-summary-2026-04-14_01-25-41.md
+  sha256:4d2c397fabde4b52: data/staging/webfetch-github-search-results-analysis-2026-04-14_01-25-41.md
+  sha256:f8c34426141fca1d: data/staging/webfetch-plannotator-claude-code-plugin-hook-app-structure-2026-04-14_01-25-59.md
+  sha256:769bed814ed84c41: data/staging/webfetch-plannotator-review-app-directory-2026-04-14_01-26-00.md
+  sha256:d945d5de19fcec3c: data/staging/webfetch-summary-2026-04-14_01-26-04.md
+  sha256:48941b10b9b72cd8: data/staging/webfetch-code-review-task-2026-04-14_01-26-08.md
+  sha256:e8cb3b0809cca5af: data/staging/webfetch-i-appreciate-you-sharing-this-content-but-i-2026-04-14_01-26-10.md
+  sha256:1f74a2f851596c22: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-04-14_01-26-10.md
+  sha256:47415e4e5b9ffc62: data/staging/webfetch-claude-plugin-configuration-2026-04-14_01-26-16.md
+  sha256:9a88b3d89cdec290: data/staging/webfetch-review-editor-package-analysis-2026-04-14_01-26-17.md
+  sha256:04ca56ac2af94ef7: data/staging/webfetch-plannotator-repository-overview-2026-04-14_01-26-19.md
+  sha256:fd5826e93652f6a4: data/staging/webfetch-plannotator-plugin-overview-2026-04-14_01-26-23.md
+  sha256:7f8c57f52794baf0: data/staging/webfetch-hook-app-directory-overview-2026-04-14_01-26-26.md
+  sha256:c079be4eb5f36aef: data/staging/webfetch-hook-configuration-overview-2026-04-14_01-26-28.md
+  sha256:7e14443f099b3626: data/staging/webfetch-ai-package-structure-in-plannotator-2026-04-14_01-26-30.md
+  sha256:31c0c37873692232: data/staging/webfetch-paste-service-overview-2026-04-14_01-26-37.md
+  sha256:58fed8a108084c9f: data/staging/webfetch-plannotator-server-package-overview-2026-04-14_01-26-37.md
+  sha256:754fe9f913606817: data/staging/webfetch-react-app-structure-analysis-2026-04-14_01-26-44.md
+  sha256:8cf266ace6ef2434: data/staging/webfetch-plannotator-hook-server-2026-04-14_01-26-56.md
+  sha256:1db38b05123ec7f9: data/staging/webfetch-review-app-entry-point-2026-04-14_01-26-59.md
+  sha256:8bae78aff4b721c0: data/staging/webfetch-plannotator-cli-eight-operating-modes-2026-04-14_01-27-03.md

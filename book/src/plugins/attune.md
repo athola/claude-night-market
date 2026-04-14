@@ -100,7 +100,7 @@ graph LR
 | `project-init` | Interactive project initialization |
 | `project-execution` | Systematic implementation |
 | `makefile-generation` | Generate language-specific Makefiles |
-| `mission-orchestrator` | Unified brainstorm-specify-plan-execute lifecycle orchestrator |
+| `mission-orchestrator` | Lifecycle orchestrator with interactive plan review before execution |
 | `workflow-setup` | Configure CI/CD pipelines |
 | `precommit-setup` | Set up code quality hooks |
 
@@ -118,6 +118,22 @@ Attune combines capabilities from:
 - **spec-kit**: Specification-driven development
 - **abstract**: Plugin and skill authoring for plugin projects
 
+## Interactive Plan Review
+
+When transitioning from planning to execution, the mission
+orchestrator presents the generated plan for user review.
+The review loop supports three verdicts:
+
+- **approve**: Accept the plan and proceed to execution.
+- **revise**: Provide feedback; the planner regenerates
+  with your revision context injected.
+- **reject**: Abandon the plan and return to an earlier phase.
+
+Plan revisions are versioned with diffs between iterations.
+An iteration governor caps revisions at 3 rounds to prevent
+unbounded cycles. If the cap is reached, the user chooses
+between approving the current version or rejecting outright.
+
 ## War Room Integration
 
 The war room is a mandatory phase after brainstorming.
@@ -131,8 +147,13 @@ Reversibility Score (RS):
 | Full Council | 0.61-0.80 | 15-30 min | 7-expert deliberation |
 | Delphi | > 0.80 | 30-60 min | Iterative consensus for critical decisions |
 
-The `war-room-checkpoint` skill can also trigger additional deliberation during
-planning or execution when high-stakes decisions arise.
+The war room includes a Prosecution Counsel role that
+stress-tests proposals by probing failure modes, hidden
+costs, and unstated assumptions before the panel votes.
+
+The `war-room-checkpoint` skill can also trigger additional
+deliberation during planning or execution when high-stakes
+decisions arise.
 
 ### Discussion Publishing
 
