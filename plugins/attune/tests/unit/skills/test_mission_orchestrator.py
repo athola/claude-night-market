@@ -28,6 +28,11 @@ EXPECTED_MODULES = [
     "state-detection.md",
     "phase-routing.md",
     "mission-state.md",
+    "plan-review.md",
+    "plan-versioner.md",
+    "feedback-collector.md",
+    "context-injector.md",
+    "iteration-governor.md",
 ]
 
 REQUIRED_SECTIONS = [
@@ -322,4 +327,142 @@ class TestMissionOrchestratorPluginRegistration:
         skill_paths = config.get("skills", [])
         assert any("mission-orchestrator" in s for s in skill_paths), (
             "mission-orchestrator not registered in plugin.json skills array"
+        )
+
+
+class TestInteractivePlanReview:
+    """
+    Feature: Interactive plan review modules
+
+    As a mission user
+    I want the plan-to-execute transition to include interactive review
+    So that plans are scrutinized before execution begins
+    """
+
+    @pytest.mark.bdd
+    def test_plan_review_module_references_war_room(self) -> None:
+        """Scenario: Plan review requires mandatory war-room gate
+        Given the plan-review.md module
+        When reading content
+        Then it should reference the war-room as a mandatory gate
+        """
+        content = (MODULES_DIR / "plan-review.md").read_text()
+        assert "war" in content.lower() and "room" in content.lower(), (
+            "plan-review.md must reference the war-room gate"
+        )
+        assert "mandatory" in content.lower(), (
+            "plan-review.md must describe the war-room gate as mandatory"
+        )
+
+    @pytest.mark.bdd
+    def test_plan_review_module_references_bias_defense(self) -> None:
+        """Scenario: Plan review integrates additive bias scanning
+        Given the plan-review.md module
+        When reading content
+        Then it should reference additive-bias-defense
+        """
+        content = (MODULES_DIR / "plan-review.md").read_text()
+        assert "additive-bias-defense" in content, (
+            "plan-review.md must reference leyline:additive-bias-defense"
+        )
+
+    @pytest.mark.bdd
+    def test_feedback_collector_defines_verdict_types(self) -> None:
+        """Scenario: Feedback collector defines all three verdict types
+        Given the feedback-collector.md module
+        When reading content
+        Then approve, revise, and reject verdicts should be documented
+        """
+        content = (MODULES_DIR / "feedback-collector.md").read_text()
+        for verdict in ["approve", "revise", "reject"]:
+            assert verdict in content.lower(), (
+                f"feedback-collector.md must document '{verdict}' verdict"
+            )
+
+    @pytest.mark.bdd
+    def test_iteration_governor_enforces_cap(self) -> None:
+        """Scenario: Iteration governor enforces 3-round cap
+        Given the iteration-governor.md module
+        When reading content
+        Then it should document a maximum of 3 rounds
+        """
+        content = (MODULES_DIR / "iteration-governor.md").read_text()
+        assert "3" in content, "iteration-governor.md must reference the 3-round cap"
+        assert "escalat" in content.lower(), (
+            "iteration-governor.md must document escalation behavior"
+        )
+
+    @pytest.mark.bdd
+    def test_context_injector_never_modifies_plan(self) -> None:
+        """Scenario: Context injector is read-only on plans
+        Given the context-injector.md module
+        When reading content
+        Then it should state it never modifies the plan directly
+        """
+        content = (MODULES_DIR / "context-injector.md").read_text()
+        assert "never" in content.lower() and "modif" in content.lower(), (
+            "context-injector.md must state it never modifies the plan"
+        )
+
+    @pytest.mark.bdd
+    def test_plan_versioner_uses_attune_directory(self) -> None:
+        """Scenario: Plan versioner stores versions in .attune/
+        Given the plan-versioner.md module
+        When reading content
+        Then it should reference the .attune/plan-history/ path
+        """
+        content = (MODULES_DIR / "plan-versioner.md").read_text()
+        assert ".attune/plan-history/" in content, (
+            "plan-versioner.md must reference .attune/plan-history/"
+        )
+
+    @pytest.mark.bdd
+    def test_phase_routing_references_review_loop(self) -> None:
+        """Scenario: Phase routing wires in the interactive review loop
+        Given the phase-routing.md module
+        When reading content
+        Then the plan-to-execute transition should reference the review loop
+        """
+        content = (MODULES_DIR / "phase-routing.md").read_text()
+        assert "interactive review loop" in content.lower(), (
+            "phase-routing.md must reference 'Interactive Review Loop'"
+        )
+
+    @pytest.mark.bdd
+    def test_mission_state_includes_plan_review_schema(self) -> None:
+        """Scenario: Mission state defines plan_review object
+        Given the mission-state.md module
+        When reading content
+        Then it should define the plan_review state schema
+        """
+        content = (MODULES_DIR / "mission-state.md").read_text()
+        assert "plan_review" in content, (
+            "mission-state.md must define the plan_review schema"
+        )
+
+    @pytest.mark.bdd
+    def test_orchestrator_skill_declares_version_1_9(self) -> None:
+        """Scenario: Orchestrator skill version is 1.9.0
+        Given the mission-orchestrator SKILL.md
+        When parsing frontmatter
+        Then version should be 1.9.0
+        """
+        content = SKILL_FILE.read_text()
+        fm = _parse_frontmatter(content)
+        assert fm.get("version") == "1.9.0", (
+            f"Expected version='1.9.0', got {fm.get('version')!r}"
+        )
+
+    @pytest.mark.bdd
+    def test_orchestrator_depends_on_bias_defense(self) -> None:
+        """Scenario: Orchestrator declares additive-bias-defense dependency
+        Given the mission-orchestrator SKILL.md
+        When parsing frontmatter dependencies
+        Then leyline:additive-bias-defense should be listed
+        """
+        content = SKILL_FILE.read_text()
+        fm = _parse_frontmatter(content)
+        deps = fm.get("dependencies", [])
+        assert "leyline:additive-bias-defense" in deps, (
+            "mission-orchestrator must depend on leyline:additive-bias-defense"
         )
