@@ -8,6 +8,7 @@
     "./commands/verify-plugin.md"
   ],
   "skills": [
+    "./skills/additive-bias-defense",
     "./skills/authentication-patterns",
     "./skills/content-sanitization",
     "./skills/damage-control",

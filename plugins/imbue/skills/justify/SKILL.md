@@ -17,6 +17,7 @@ tags:
 - iron-law
 dependencies:
 - imbue:proof-of-work
+- leyline:additive-bias-defense
 tools:
 - Bash
 - Read
@@ -271,3 +272,43 @@ Creating a helper/utility/base class for one use case.
 Adding backward-compatibility code instead of
 updating callers.
 **Fix**: Update callers directly. Delete dead paths.
+
+## Scrutiny Questions (from leyline:additive-bias-defense)
+
+Before justifying any change, apply these questions.
+If the answer to questions 4 and 5 is not concrete
+evidence, the change is unjustified.
+
+1. **Priority alignment**: Is this a deviation from the
+   current priority?
+2. **Criticality**: Is it critical to implement at this
+   juncture?
+3. **Simplicity**: Does a simpler or more elegant
+   solution exist?
+4. **Evidence**: What evidence proves this is needed
+   (not assumed)?
+5. **Consequence**: What breaks if we do not add this?
+
+## Burden of Proof Inversion
+
+The default stance is: **this addition should not
+exist.** The change must prove its necessity, not the
+reviewer must prove it unnecessary.
+
+When generating the Justification Report (Step 5), add
+a `Burden of Proof` section:
+
+| Change | Scrutiny Q4 Answer | Scrutiny Q5 Answer | Verdict |
+|--------|--------------------|--------------------|---------|
+| file.py | [evidence] | [consequence] | justified/needs_evidence/unjustified |
+
+Changes with `unjustified` verdict MUST be removed or
+reworked before the report passes.
+
+## The Wise Counsel
+
+> Is what you are doing a deviation of your priority?
+> Is it critical to implement at this juncture?
+> Rely less on AI and initial lines of thinking.
+> Challenge yourself to be better, to think of a more
+> elegant implementation or a simpler solution.

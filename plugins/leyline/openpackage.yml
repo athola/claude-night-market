@@ -18,6 +18,7 @@ author:
   url: https://github.com/athola
 license: MIT
 skills:
+- skills/additive-bias-defense
 - skills/authentication-patterns
 - skills/content-sanitization
 - skills/damage-control

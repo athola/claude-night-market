@@ -13,6 +13,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | Skill | Plugin | Description |
 |-------|--------|-------------|
 | `agent-expenditure` | [conserve](../plugins/conserve.md) | Per-agent token usage tracking |
+| `additive-bias-defense` | [leyline](../plugins/leyline.md) | Scrutiny questions to challenge unnecessary additions |
 | `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
 | `api-review` | [pensive](../plugins/pensive.md) | API surface evaluation |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
