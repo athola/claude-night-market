@@ -84,7 +84,7 @@ complements.
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 12 | 18 |
-| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts | 21 | 3 |
+| **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts, additive-bias defense | 22 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 19 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning | 11 | 4 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
@@ -94,7 +94,7 @@ complements.
 | **herald** | Utility | Shared notification library: GitHub issue alerts, webhook support (Slack, Discord, generic) | 0 | 0 |
 | **oracle** | Utility | ONNX Runtime inference daemon for ML-enhanced plugin capabilities over localhost HTTP | 1 | 1 |
 | **pensive** | Domain | Code review, architecture review, bug hunting, blast radius analysis, Makefile audits, NASA Power of 10 | 13 | 12 |
-| **attune** | Domain | Project lifecycle: brainstorm, specify, plan, initialize, execute, war-room, dorodango polishing | 13 | 10 |
+| **attune** | Domain | Project lifecycle: brainstorm, specify, plan, interactive plan review, initialize, execute, war-room, dorodango polishing | 13 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
