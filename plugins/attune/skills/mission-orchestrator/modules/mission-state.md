@@ -64,6 +64,30 @@ estimated_tokens: 200
       "timestamp": "2026-02-07T22:48:00Z"
     }
   ]
+  ,
+  "plan_review": {
+    "current_round": 2,
+    "max_rounds": 3,
+    "status": "in_review",
+    "versions": [
+      {
+        "version": 1,
+        "created_at": "2026-04-13T14:00:00Z",
+        "path": ".attune/plan-history/plan-v1.md",
+        "feedback_path": ".attune/plan-history/feedback/round-1.json",
+        "overall_verdict": "revision_requested"
+      },
+      {
+        "version": 2,
+        "created_at": "2026-04-13T14:30:00Z",
+        "path": ".attune/plan-history/plan-v2.md",
+        "feedback_path": null,
+        "overall_verdict": null
+      }
+    ],
+    "war_room_verdict": null,
+    "bias_findings_count": 3
+  }
 }
 ```
 
@@ -80,6 +104,13 @@ estimated_tokens: 200
 | `risk_summary` | object | Count of tasks per risk tier |
 | `errors` | array | Errors encountered during execution |
 | `user_decisions` | array | User checkpoint decisions |
+| `plan_review` | object | Interactive review loop state |
+| `plan_review.current_round` | int | Current review round (1-3) |
+| `plan_review.max_rounds` | int | Maximum rounds (default 3) |
+| `plan_review.status` | string | `in_review`, `approved`, `rejected`, `war_room_pending` |
+| `plan_review.versions` | array | Per-version metadata |
+| `plan_review.war_room_verdict` | string or null | `approved`, `concerns`, `rejected` |
+| `plan_review.bias_findings_count` | int | Number of additive bias findings |
 
 ## Persistence
 
@@ -159,3 +190,16 @@ Resuming Mission: mission-20260207-220000
 - `paused → in_progress`: Via `--resume`
 - `failed → in_progress`: Via `--resume --force` (resets failed phase)
 - `aborted`: Terminal state (start new mission to retry)
+
+### Plan Review Status Transitions
+
+```
+plan_review.status:
+    pending --> in_review (first section presented)
+    in_review --> approved (all sections approved)
+    in_review --> revision_requested (any section rejected/revised)
+    approved --> war_room_pending (war room invoked)
+    war_room_pending --> approved (war room approves)
+    war_room_pending --> revision_requested (war room rejects)
+    revision_requested --> in_review (next round starts)
+```
