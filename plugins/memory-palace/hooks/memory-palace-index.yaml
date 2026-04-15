@@ -2092,6 +2092,421 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/server/index.ts
+  ? https://hn.algolia.com/api/v1/search?query=constraint-driven%20ai%20agent%20design%20restrictions&tags=story&hitsperpage=10
+  : content_hash: sha256:e6ba08dbcd1145ca
+    stored_at: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-47.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:47.764704+00:00'
+    title: Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=constraint-driven%20AI%20agent%20design%20restrictions&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20agent%20try%20harder%20chain%20of%20thought%20self%20reflection&tags=story&hitsperpage=10
+  : content_hash: sha256:671a80421c755f4a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-48.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:48.983757+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20agent%20try%20harder%20chain%20of%20thought%20self%20reflection&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20constraints%20improve%20performance%20agent&tags=story&hitsperpage=10:
+    content_hash: sha256:bf9db8b7ebd8b074
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-50.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:50.580061+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20constraints%20improve%20performance%20agent&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=self-improving%20ai%20agent%20architecture%20learning%20execution%20history&tags=story&hitsperpage=10
+  : content_hash: sha256:2a193676759b90dc
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-17-52.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:52.673994+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=self-improving%20AI%20agent%20architecture%20learning%20execution%20history&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=constraint%20restriction%20pattern%20ai%20agent%20quality%20vow&tags=story&hitsperpage=10
+  : content_hash: sha256:a82f918ff3f888b6
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-17-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:55.238015+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=constraint%20restriction%20pattern%20AI%20agent%20quality%20vow&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=meta-learning%20agent%20workflow%20llm%20strategy&tags=story&hitsperpage=10:
+    content_hash: sha256:a98a8d8954d98330
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:55.662961+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=meta-learning%20agent%20workflow%20LLM%20strategy&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=claude%20agent%20autonomy%20risk%20reward%20capability&tags=story&hitsperpage=10
+  : content_hash: sha256:c4de83b38413f170
+    stored_at: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-56.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:56.497243+00:00'
+    title: Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20agent%20autonomy%20risk%20reward%20capability&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=specialized%20ai%20agents%20better%20than%20general&tags=story&hitsperpage=10:
+    content_hash: sha256:27f8e04739a1c75c
+    stored_at: data/staging/webfetch-story-data-extract-2026-04-15_03-18-04.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:04.753947+00:00'
+    title: Story Data Extract
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=specialized%20AI%20agents%20better%20than%20general&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20extended%20thinking%20iterative%20refinement%20coding&tags=story&hitsperpage=10
+  : content_hash: sha256:425a1e12686cb806
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-05.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:05.524163+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20extended%20thinking%20iterative%20refinement%20coding&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20constraints%20rules%20prompt&tags=story&hitsperpage=10:
+    content_hash: sha256:b1b6343fc6bbc87c
+    stored_at: data/staging/webfetch-story-data-extraction-2026-04-15_03-18-06.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:06.782495+00:00'
+    title: Story Data Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20constraints%20rules%20prompt&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=ai%20agent%20self-improving%20learns%20from%20mistakes&tags=story&hitsperpage=10
+  : content_hash: sha256:7ed1f3bcecccb81a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-07.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:07.654890+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20agent%20self-improving%20learns%20from%20mistakes&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20agent%20try%20harder%20better%20results%20claude&tags=story&hitsperpage=10
+  : content_hash: sha256:60c4b91b337473b5
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-11.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:11.670384+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20agent%20try%20harder%20better%20results%20Claude&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=progressive%20autonomy%20ai%20agent%20trust%20levels&tags=story&hitsperpage=10:
+    content_hash: sha256:dc3a5666ee662b72
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-12.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:12.113634+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=progressive%20autonomy%20AI%20agent%20trust%20levels&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20claude.md%20rules%20constraints&tags=story&hitsperpage=10
+  : content_hash: sha256:e09b0d35b8058c1e
+    stored_at: data/staging/webfetch-stories-extracted-2026-04-15_03-18-12.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:12.855635+00:00'
+    title: Stories Extracted
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20agent%20CLAUDE.md%20rules%20constraints&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=ai%20coding%20agent%20constraints%20improve%20quality&tags=story&hitsperpage=10:
+    content_hash: sha256:cc584cefcb8d80a9
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-28.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:28.033566+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20coding%20agent%20constraints%20improve%20quality&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=reflexion%20llm%20agent%20self-reflection&tags=story&hitsperpage=10:
+    content_hash: sha256:d1bfacd68bb633ea
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-26.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:26.497277+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=reflexion%20LLM%20agent%20self-reflection&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=agent%20memory%20learning%20past%20mistakes%20llm&tags=story&hitsperpage=10:
+    content_hash: sha256:d0f225fb0c2a269e
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-27.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:27.761905+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=agent%20memory%20learning%20past%20mistakes%20LLM&tags=story&hitsPerPage=10
+  https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents:
+    content_hash: sha256:53bd9bf6d8957771
+    stored_at: data/staging/webfetch-context-engineering-constraints-as-features-for-2026-04-15_03-18-28.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:28.814076+00:00'
+    title: 'Context Engineering: Constraints as Features for AI Agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+  https://lobste.rs/s/ykwb2z/ai_agent_coding_skeptic_tries_ai_agent:
+    content_hash: sha256:03b9d7ca40ec71e2
+    stored_at: data/staging/webfetch-ai-agent-coding-article-summary-2026-04-15_03-18-29.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:29.889677+00:00'
+    title: AI Agent Coding Article Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/ykwb2z/ai_agent_coding_skeptic_tries_ai_agent
+  https://lobste.rs/s/rqus2y/can_agentic_coding_raise_quality_bar:
+    content_hash: sha256:9851bc12beab79f3
+    stored_at: data/staging/webfetch-analysis-of-can-agentic-coding-raise-the-quality-2026-04-15_03-18-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:30.402457+00:00'
+    title: Analysis of "Can Agentic Coding Raise the Quality Bar?"
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/rqus2y/can_agentic_coding_raise_quality_bar
+  https://github.com/nirdiamant/genai_agents:
+    content_hash: sha256:459781db798d4ba4
+    stored_at: data/staging/webfetch-genai-agents-repository-analysis-2026-04-15_03-18-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:30.773433+00:00'
+    title: GenAI_Agents Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/NirDiamant/GenAI_Agents
+  https://lobste.rs/s/gvlmu1/beyond_agentic_coding:
+    content_hash: sha256:a958c545b124c693
+    stored_at: data/staging/webfetch-beyond-agentic-coding-discussion-summary-2026-04-15_03-18-31.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:31.272059+00:00'
+    title: 'Beyond Agentic Coding: Discussion Summary'
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/gvlmu1/beyond_agentic_coding
+  https://github.com/langchain-ai/langgraph-reflection:
+    content_hash: sha256:9ffe1d51f19cf2f9
+    stored_at: data/staging/webfetch-langgraph-reflection-repository-analysis-2026-04-15_03-18-33.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:33.330373+00:00'
+    title: LangGraph-Reflection Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/langchain-ai/langgraph-reflection
+  https://github.com/microsoft/trace:
+    content_hash: sha256:507407edab98319f
+    stored_at: data/staging/webfetch-trace-end-to-end-generative-optimization-for-ai-2026-04-15_03-18-33.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:33.895256+00:00'
+    title: 'Trace: End-to-End Generative Optimization for AI Agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/microsoft/Trace
+  https://github.com/matthewrenze/self-reflection:
+    content_hash: sha256:811a46cf980026a6
+    stored_at: data/staging/webfetch-self-reflection-in-llm-agents-repository-analysis-2026-04-15_03-18-34.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:34.296137+00:00'
+    title: Self-Reflection in LLM Agents - Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/matthewrenze/self-reflection
+  https://github.com/netresearch/claude-coach-plugin:
+    content_hash: sha256:6bc3c513a6123b25
+    stored_at: data/staging/webfetch-claude-coach-plugin-analysis-2026-04-15_03-18-36.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:36.281079+00:00'
+    title: Claude Coach Plugin Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/netresearch/claude-coach-plugin
+  https://github.com/miles990/self-evolving-agent:
+    content_hash: sha256:82a141045f3b1acb
+    stored_at: data/staging/webfetch-self-evolving-agent-analysis-2026-04-15_03-18-37.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:37.816562+00:00'
+    title: Self-Evolving Agent Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/miles990/self-evolving-agent
+  https://github.com/swe-agent/swe-agent:
+    content_hash: sha256:b81dc657aa3070de
+    stored_at: data/staging/webfetch-swe-agent-repository-analysis-2026-04-15_03-18-48.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:48.772016+00:00'
+    title: SWE-agent Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/SWE-agent/SWE-agent
+  https://github.com/microsoft/autogen:
+    content_hash: sha256:accfecc74409eb31
+    stored_at: data/staging/webfetch-autogen-repository-analysis-2026-04-15_03-18-49.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:49.359800+00:00'
+    title: AutoGen Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/microsoft/autogen
+  https://news.ycombinator.com/item?id=47505670:
+    content_hash: sha256:25fccf7d3729a417
+    stored_at: data/staging/webfetch-hyperagents-self-referential-self-improving-agents-2026-04-15_03-18-49.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:49.663061+00:00'
+    title: 'HyperAgents: Self-referential self-improving agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47505670
+  https://github.com/cohere-ai/self-reflection-planning-paper:
+    content_hash: sha256:8c3d5cd6555182ed
+    stored_at: data/staging/webfetch-repository-analysis-self-reflection-planning-paper-2026-04-15_03-18-51.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:51.975393+00:00'
+    title: 'Repository Analysis: Self-Reflection Planning Paper'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/cohere-ai/self-reflection-planning-paper
+  https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team/self-improving-agent:
+    content_hash: sha256:254ea186cc1b0821
+    stored_at: data/staging/webfetch-self-improving-agent-architecture-workflow-2026-04-15_03-18-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:55.253111+00:00'
+    title: 'Self-Improving Agent: Architecture & Workflow'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team/self-improving-agent
+  https://news.ycombinator.com/item?id=47466513:
+    content_hash: sha256:40455a14a0ea32b2
+    stored_at: data/staging/webfetch-ai-sdlc-scaffold-discussion-summary-2026-04-15_03-19-00.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:00.166136+00:00'
+    title: AI SDLC Scaffold Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47466513
+  https://dev.to/shuicici/claude-codes-feb-mar-2026-updates-quietly-broke-complex-engineering-heres-the-technical-5b4h:
+    content_hash: sha256:6156e8e58abdae89
+    stored_at: data/staging/webfetch-claude-code-quality-analysis-constraints-effort-2026-04-15_03-19-06.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:06.888391+00:00'
+    title: 'Claude Code Quality Analysis: Constraints, Effort Levels, and Performance'
+    maturity: seedling
+    routing_type: pending
+    url: https://dev.to/shuicici/claude-codes-feb-mar-2026-updates-quietly-broke-complex-engineering-heres-the-technical-5b4h
+  ? https://medium.com/@davidroliver/claude-code-ai-agents-three-levels-of-recursive-self-improvement-the-auto-moc-system-2eb7b8c3d305
+  : content_hash: sha256:196a3b5099416a0e
+    stored_at: data/staging/webfetch-three-levels-of-recursive-self-improvement-in-ai-2026-04-15_03-19-07.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:07.288702+00:00'
+    title: Three Levels of Recursive Self-Improvement in AI Agents
+    maturity: seedling
+    routing_type: pending
+    url: https://medium.com/@davidroliver/claude-code-ai-agents-three-levels-of-recursive-self-improvement-the-auto-moc-system-2eb7b8c3d305
+  https://www.anthropic.com/research/measuring-agent-autonomy:
+    content_hash: sha256:1476fcbcebfeb989
+    stored_at: data/staging/webfetch-ai-agent-autonomy-framework-key-findings-2026-04-15_03-19-11.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:11.888256+00:00'
+    title: 'AI Agent Autonomy Framework: Key Findings'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/research/measuring-agent-autonomy
+  https://github.com/noahshinn/reflexion:
+    content_hash: sha256:420cbb827234fecd
+    stored_at: data/staging/webfetch-reflexion-repository-analysis-2026-04-15_03-19-14.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:14.046193+00:00'
+    title: Reflexion Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/noahshinn/reflexion
+  https://arxiv.org/abs/2509.14744:
+    content_hash: sha256:833192586c630ef4
+    stored_at: data/staging/webfetch-key-findings-on-agentic-coding-manifests-2026-04-15_03-19-17.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:17.095503+00:00'
+    title: Key Findings on Agentic Coding Manifests
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2509.14744
+  https://ctlabs.ai/blog/self-organizing-agents-on-reddit-what-builders-are-learning-in-2026:
+    content_hash: sha256:ed70001c29cbfaf0
+    stored_at: data/staging/webfetch-key-findings-what-reddit-builders-learned-about-2026-04-15_03-19-17.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:17.714312+00:00'
+    title: 'Key Findings: What Reddit Builders Learned About Self-Organizing Agents
+      in 2026'
+    maturity: seedling
+    routing_type: pending
+    url: https://ctlabs.ai/blog/self-organizing-agents-on-reddit-what-builders-are-learning-in-2026
+  https://www.anthropic.com/research/long-running-claude:
+    content_hash: sha256:6f0409b23414c016
+    stored_at: data/staging/webfetch-long-running-claude-agents-for-scientific-2026-04-15_03-19-18.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:18.537481+00:00'
+    title: 'Long-Running Claude Agents for Scientific Computing: Key Findings'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/research/long-running-Claude
+  https://hn.algolia.com/api/v1/search?query=agentic%20coding%20rules%20constraints%20claude.md&tags=story&hitsperpage=10:
+    content_hash: sha256:0dc2b37d3884b55a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-19-26.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:26.938595+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=agentic%20coding%20rules%20constraints%20CLAUDE.md&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=multi%20agent%20orchestration%20specialized%20workflow&tags=story&hitsperpage=10
+  : content_hash: sha256:b0a57f07bea5c7bf
+    stored_at: data/staging/webfetch-story-extraction-results-2026-04-15_03-19-25.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:25.453509+00:00'
+    title: Story Extraction Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=multi%20agent%20orchestration%20specialized%20workflow&tags=story&hitsPerPage=10
+  https://www.langchain.com/state-of-agent-engineering:
+    content_hash: sha256:02c9b1e7d84bfa7c
+    stored_at: data/staging/webfetch-key-findings-on-agent-effectiveness-2026-04-15_03-19-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:30.955021+00:00'
+    title: Key Findings on Agent Effectiveness
+    maturity: seedling
+    routing_type: pending
+    url: https://www.langchain.com/state-of-agent-engineering
+  https://sankalp.bearblog.dev/my-experience-with-claude-code-20-and-how-to-get-better-at-using-coding-agents:
+    content_hash: sha256:7ba339eb85c11fc8
+    stored_at: data/staging/webfetch-key-strategies-for-better-claude-code-results-2026-04-15_03-19-34.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:34.676584+00:00'
+    title: Key Strategies for Better Claude Code Results
+    maturity: seedling
+    routing_type: pending
+    url: https://sankalp.bearblog.dev/my-experience-with-claude-code-20-and-how-to-get-better-at-using-coding-agents/
+  https://news.ycombinator.com/item?id=47073947:
+    content_hash: sha256:bf40362dfb3ba9f5
+    stored_at: data/staging/webfetch-article-summary-2026-04-15_03-19-45.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:45.478537+00:00'
+    title: Article Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47073947
+  https://news.ycombinator.com/item?id=44623207:
+    content_hash: sha256:73e9be39a2dddbe3
+    stored_at: data/staging/webfetch-autonomous-agents-in-production-hn-discussion-2026-04-15_03-19-53.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:53.035945+00:00'
+    title: 'Autonomous Agents in Production: HN Discussion Summary'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=44623207
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -2325,3 +2740,49 @@ hashes:
   sha256:8cf266ace6ef2434: data/staging/webfetch-plannotator-hook-server-2026-04-14_01-26-56.md
   sha256:1db38b05123ec7f9: data/staging/webfetch-review-app-entry-point-2026-04-14_01-26-59.md
   sha256:8bae78aff4b721c0: data/staging/webfetch-plannotator-cli-eight-operating-modes-2026-04-14_01-27-03.md
+  sha256:e6ba08dbcd1145ca: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-47.md
+  sha256:671a80421c755f4a: data/staging/webfetch-search-results-summary-2026-04-15_03-17-48.md
+  sha256:bf9db8b7ebd8b074: data/staging/webfetch-search-results-summary-2026-04-15_03-17-50.md
+  sha256:2a193676759b90dc: data/staging/webfetch-search-results-2026-04-15_03-17-52.md
+  sha256:a82f918ff3f888b6: data/staging/webfetch-search-results-2026-04-15_03-17-55.md
+  sha256:a98a8d8954d98330: data/staging/webfetch-search-results-summary-2026-04-15_03-17-55.md
+  sha256:c4de83b38413f170: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-56.md
+  sha256:27f8e04739a1c75c: data/staging/webfetch-story-data-extract-2026-04-15_03-18-04.md
+  sha256:425a1e12686cb806: data/staging/webfetch-search-results-summary-2026-04-15_03-18-05.md
+  sha256:b1b6343fc6bbc87c: data/staging/webfetch-story-data-extraction-2026-04-15_03-18-06.md
+  sha256:7ed1f3bcecccb81a: data/staging/webfetch-search-results-summary-2026-04-15_03-18-07.md
+  sha256:60c4b91b337473b5: data/staging/webfetch-search-results-2026-04-15_03-18-11.md
+  sha256:dc3a5666ee662b72: data/staging/webfetch-search-results-summary-2026-04-15_03-18-12.md
+  sha256:e09b0d35b8058c1e: data/staging/webfetch-stories-extracted-2026-04-15_03-18-12.md
+  sha256:cc584cefcb8d80a9: data/staging/webfetch-search-results-summary-2026-04-15_03-18-28.md
+  sha256:d1bfacd68bb633ea: data/staging/webfetch-search-results-2026-04-15_03-18-26.md
+  sha256:d0f225fb0c2a269e: data/staging/webfetch-search-results-2026-04-15_03-18-27.md
+  sha256:53bd9bf6d8957771: data/staging/webfetch-context-engineering-constraints-as-features-for-2026-04-15_03-18-28.md
+  sha256:03b9d7ca40ec71e2: data/staging/webfetch-ai-agent-coding-article-summary-2026-04-15_03-18-29.md
+  sha256:9851bc12beab79f3: data/staging/webfetch-analysis-of-can-agentic-coding-raise-the-quality-2026-04-15_03-18-30.md
+  sha256:459781db798d4ba4: data/staging/webfetch-genai-agents-repository-analysis-2026-04-15_03-18-30.md
+  sha256:a958c545b124c693: data/staging/webfetch-beyond-agentic-coding-discussion-summary-2026-04-15_03-18-31.md
+  sha256:9ffe1d51f19cf2f9: data/staging/webfetch-langgraph-reflection-repository-analysis-2026-04-15_03-18-33.md
+  sha256:507407edab98319f: data/staging/webfetch-trace-end-to-end-generative-optimization-for-ai-2026-04-15_03-18-33.md
+  sha256:811a46cf980026a6: data/staging/webfetch-self-reflection-in-llm-agents-repository-analysis-2026-04-15_03-18-34.md
+  sha256:6bc3c513a6123b25: data/staging/webfetch-claude-coach-plugin-analysis-2026-04-15_03-18-36.md
+  sha256:82a141045f3b1acb: data/staging/webfetch-self-evolving-agent-analysis-2026-04-15_03-18-37.md
+  sha256:b81dc657aa3070de: data/staging/webfetch-swe-agent-repository-analysis-2026-04-15_03-18-48.md
+  sha256:accfecc74409eb31: data/staging/webfetch-autogen-repository-analysis-2026-04-15_03-18-49.md
+  sha256:25fccf7d3729a417: data/staging/webfetch-hyperagents-self-referential-self-improving-agents-2026-04-15_03-18-49.md
+  sha256:8c3d5cd6555182ed: data/staging/webfetch-repository-analysis-self-reflection-planning-paper-2026-04-15_03-18-51.md
+  sha256:254ea186cc1b0821: data/staging/webfetch-self-improving-agent-architecture-workflow-2026-04-15_03-18-55.md
+  sha256:40455a14a0ea32b2: data/staging/webfetch-ai-sdlc-scaffold-discussion-summary-2026-04-15_03-19-00.md
+  sha256:6156e8e58abdae89: data/staging/webfetch-claude-code-quality-analysis-constraints-effort-2026-04-15_03-19-06.md
+  sha256:196a3b5099416a0e: data/staging/webfetch-three-levels-of-recursive-self-improvement-in-ai-2026-04-15_03-19-07.md
+  sha256:1476fcbcebfeb989: data/staging/webfetch-ai-agent-autonomy-framework-key-findings-2026-04-15_03-19-11.md
+  sha256:420cbb827234fecd: data/staging/webfetch-reflexion-repository-analysis-2026-04-15_03-19-14.md
+  sha256:833192586c630ef4: data/staging/webfetch-key-findings-on-agentic-coding-manifests-2026-04-15_03-19-17.md
+  sha256:ed70001c29cbfaf0: data/staging/webfetch-key-findings-what-reddit-builders-learned-about-2026-04-15_03-19-17.md
+  sha256:6f0409b23414c016: data/staging/webfetch-long-running-claude-agents-for-scientific-2026-04-15_03-19-18.md
+  sha256:0dc2b37d3884b55a: data/staging/webfetch-search-results-summary-2026-04-15_03-19-26.md
+  sha256:b0a57f07bea5c7bf: data/staging/webfetch-story-extraction-results-2026-04-15_03-19-25.md
+  sha256:02c9b1e7d84bfa7c: data/staging/webfetch-key-findings-on-agent-effectiveness-2026-04-15_03-19-30.md
+  sha256:7ba339eb85c11fc8: data/staging/webfetch-key-strategies-for-better-claude-code-results-2026-04-15_03-19-34.md
+  sha256:bf40362dfb3ba9f5: data/staging/webfetch-article-summary-2026-04-15_03-19-45.md
+  sha256:73e9be39a2dddbe3: data/staging/webfetch-autonomous-agents-in-production-hn-discussion-2026-04-15_03-19-53.md

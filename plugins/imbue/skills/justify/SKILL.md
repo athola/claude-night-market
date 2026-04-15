@@ -165,6 +165,68 @@ For each changed file, answer:
    Could removing code fix the problem instead of
    adding code?
 
+### Step 4.5: Invariant Impact Analysis
+
+Changes can be minimal and still catastrophically wrong
+if they silently revise a load-bearing design decision.
+For each changed file, check whether it touches a design
+invariant:
+
+**What counts as an invariant:**
+
+- Architectural patterns (module boundaries, layer
+  separation, data flow direction)
+- Data structure choices (why a map vs list, why
+  normalized vs denormalized)
+- API contracts (public interfaces, protocol formats)
+- Error handling strategies (fail-fast vs recovery)
+- Concurrency models (single-threaded assumption,
+  actor model, shared-nothing)
+
+**Detection heuristic:**
+
+```bash
+# Check for structural changes (new modules, moved
+# boundaries, changed interfaces)
+git diff "$base" --name-only | rg "(interface|abstract|base|core|types|schema|model)" \
+  || git diff "$base" --name-only | grep -E "(interface|abstract|base|core|types|schema|model)"
+
+# Check for pattern-breaking changes
+git diff "$base" -U5 | rg "(TODO.*refactor|HACK|WORKAROUND|XXX)" \
+  || git diff "$base" -U5 | grep -E "(TODO.*refactor|HACK|WORKAROUND|XXX)"
+```
+
+**When an invariant conflict is detected:**
+
+Do NOT silently pick a resolution. Present the three
+options to the human:
+
+| Option | Description | When Right |
+|--------|-------------|------------|
+| **Preserve** | Don't add the feature; the invariant pays dividends | Invariant simplifies many things; feature is marginal |
+| **Layer** | Add feature inelegantly on top | Feature is needed; invariant is still valuable; imperfection is acceptable |
+| **Revise** | Change the invariant itself | Genuine new learning invalidates the original decision |
+
+**Add to Justification Report:**
+
+```markdown
+### Invariant Impact: NONE / DETECTED
+
+[If DETECTED:]
+- **Invariant**: [name the design decision]
+- **Conflict**: [what change clashes with it]
+- **Option chosen**: Preserve / Layer / Revise
+- **Justification**: [why this option, not the others]
+- **Human reviewed**: YES / NO — if NO, flag as
+  requiring review before merge
+```
+
+**Compounding risk warning:** Bad invariant decisions
+accumulate. If this branch has multiple invariant
+revisions, flag the entire branch for architectural
+review. Each silent invariant change multiplies the
+probability of an unsalvageable codebase.
+
 ### Step 5: Generate Justification Report
 
 Output a structured report:
@@ -272,6 +334,16 @@ Creating a helper/utility/base class for one use case.
 Adding backward-compatibility code instead of
 updating callers.
 **Fix**: Update callers directly. Delete dead paths.
+
+### 6. Silent Invariant Revision
+Changing an architectural pattern, data structure
+choice, or API contract without acknowledging
+that a design invariant is being revised.
+**Fix**: Name the invariant. Present the 3 options
+(preserve, layer, revise) to a human. Do not make
+the judgment call yourself — models default to the
+"average" of training data, and wrong invariant
+decisions compound into unsalvageable codebases.
 
 ## Scrutiny Questions (from leyline:additive-bias-defense)
 

@@ -83,3 +83,73 @@ class TestContentAssertionQualityModuleContent:
         """Given this module implements the leyline taxonomy
         Then it must reference the canonical definition."""
         assert "content-assertion-levels" in module_content
+
+
+class TestInvariantEncodingContent:
+    """Feature: Test review checks invariant-encoding test quality.
+
+    As a test reviewer
+    I want the skill to detect when invariant-encoding tests are
+    weakened or removed
+    So that design decisions are not silently eroded
+
+    This test class itself encodes the invariant that all review
+    skills must present the three-option framework. If this test
+    breaks, present the 3 options to a human before removing it.
+    """
+
+    @pytest.fixture
+    def skill_path(self) -> Path:
+        return Path(__file__).parents[2] / "skills" / "test-review" / "SKILL.md"
+
+    @pytest.fixture
+    def skill_content(self, skill_path: Path) -> str:
+        return skill_path.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_defines_invariant_encoding_concept(self, skill_content: str) -> None:
+        """Given the test-review skill
+        Then it must define what invariant-encoding tests are."""
+        assert "Invariant-Encoding Tests" in skill_content
+        assert "load-bearing" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_checks_for_invariant_erosion(self, skill_content: str) -> None:
+        """Given the test-review skill
+        Then it must check for invariant erosion patterns."""
+        assert "invariant erosion" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_lists_red_flag_patterns(self, skill_content: str) -> None:
+        """Given the test-review skill
+        Then it must list red flag patterns for invariant tests."""
+        assert "pytest.mark.skip" in skill_content
+        assert "Assertion changed" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_presents_three_options(self, skill_content: str) -> None:
+        """Given the test-review skill detects invariant erosion
+        Then it must present preserve/layer/revise options."""
+        assert "Preserve" in skill_content
+        assert "Layer" in skill_content
+        assert "Revise" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_flags_invariant_erosion_as_blocking(
+        self, skill_content: str
+    ) -> None:
+        """Given invariant erosion is detected
+        Then it must be flagged as BLOCKING."""
+        assert "BLOCKING" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_has_invariant_todowrite_item(self, skill_content: str) -> None:
+        """Given the test-review workflow tracks invariant checks
+        Then a TodoWrite item for invariant preservation must exist."""
+        assert "test-review:invariant-preservation" in skill_content

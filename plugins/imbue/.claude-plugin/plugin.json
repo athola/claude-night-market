@@ -13,7 +13,8 @@
     "./skills/scope-guard",
     "./skills/structured-output",
     "./skills/workflow-monitor",
-    "./skills/justify"
+    "./skills/justify",
+    "./skills/vow-enforcement"
   ],
   "commands": [
     "./commands/catchup.md",

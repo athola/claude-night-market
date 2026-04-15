@@ -21,6 +21,8 @@ dependencies:
 - leyline:damage-control
 - leyline:additive-bias-defense
 - imbue:justify
+- imbue:vow-enforcement
+- abstract:friction-detector
 tools:
 - Bash
 - Read
@@ -31,6 +33,9 @@ provides:
   - state-detection
   - phase-routing
   - session-recovery
+  - reflexion-buffer
+  - trust-tier
+  - adaptive-constraints
 usage_patterns:
 - full-cycle-development
 - mission-resume
@@ -49,6 +54,9 @@ modules:
 - modules/feedback-collector.md
 - modules/context-injector.md
 - modules/iteration-governor.md
+- modules/reflexion-buffer.md
+- modules/trust-tier.md
+- modules/adaptive-constraints.md
 references:
 - references/mission-charter.md
 - references/progress-report.md

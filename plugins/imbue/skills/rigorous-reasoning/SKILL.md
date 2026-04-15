@@ -73,6 +73,48 @@ These principles override default conversational tendencies:
 | "AI suggested this pattern" | Machine authority | Did AI understand your problem? |
 | "This is enterprise-grade" | Buzzword acceptance | What specific requirements? |
 
+### Invariant Judgment Patterns
+
+**These patterns indicate you're silently breaking a design invariant:**
+
+When a change conflicts with an existing design decision
+(architecture, data structure, API contract, module boundary),
+there are exactly three options:
+
+1. **Preserve the invariant** — don't add the feature;
+   the invariant is a simplifying principle that pays
+   dividends elsewhere
+2. **Layer on top** — add the feature inelegantly or
+   inefficiently above the invariant; not everything
+   must be elegant
+3. **Revise the invariant** — new learning justifies a
+   fundamentally different approach
+
+Usually only one is right. One is very wrong with
+compounding consequences. Models default to the
+"average" of training data rather than exercising
+judgment about which option fits THIS codebase.
+
+| Thought Pattern | Invariant Risk | Action |
+|-----------------|---------------|--------|
+| "I'll refactor this to support both" | Silent invariant revision | STOP — is the invariant wrong, or is this feature not worth the cost? |
+| "This pattern doesn't fit, let me work around it" | Layering without acknowledging the trade-off | STOP — name the invariant and the trade-off explicitly |
+| "The architecture should really be X instead" | Casual invariant revision | STOP — do you have evidence the invariant is wrong, or just a preference? |
+| "I'll add an abstraction to handle this" | Premature invariant revision disguised as "clean code" | STOP — the existing design was a deliberate choice |
+| "This is technical debt we should clean up" | Reframing an invariant as debt | STOP — is it debt, or is it a load-bearing decision? |
+
+**Recovery Protocol for Invariant Conflicts:**
+
+1. STOP making the judgment call
+2. Name the invariant being affected
+3. Name the conflict (what feature/change clashes)
+4. Present all three options with trade-offs
+5. Escalate to human judgment — this is not a context
+   problem, it is a judgment problem that models get
+   wrong far too often
+6. If no human is available, default to Option 1
+   (preserve the invariant) as the safest choice
+
 **Recovery Protocol for Cargo Cult Reasoning:**
 1. STOP accepting the framing
 2. Apply First Principles: What is the ACTUAL requirement?

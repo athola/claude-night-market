@@ -164,7 +164,7 @@ class TestAuditPerformance:
         plugin_dir = tmp_path / "bench-plugin"
 
         start = time.monotonic()
-        auditor.check_meta_evaluation("bench-plugin", plugin_dir)
+        auditor.check_meta_evaluation(plugin_dir)
         duration = time.monotonic() - start
 
         assert duration < 0.1, f"Phase 3 took {duration:.3f}s (expected <0.1s)"
@@ -207,7 +207,7 @@ class TestAuditPerformance:
         start = time.monotonic()
         auditor.audit_plugin("bench-plugin")
         auditor.analyze_skill_performance("bench-plugin")
-        auditor.check_meta_evaluation("bench-plugin", plugin_dir)
+        auditor.check_meta_evaluation(plugin_dir)
         duration = time.monotonic() - start
 
         assert duration < 0.5, f"Full pipeline took {duration:.3f}s (expected <0.5s)"

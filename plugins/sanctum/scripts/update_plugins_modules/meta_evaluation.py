@@ -28,15 +28,10 @@ class MetaEvaluator:
         "inspect",
     ]
 
-    def __init__(self, min_toc_length: int = 2000):
-        """Initialize evaluator with minimum length for TOC requirement."""
-        self.min_toc_length = min_toc_length
-
-    def check_plugin(self, plugin_name: str, plugin_path: Path) -> dict[str, Any]:
+    def check_plugin(self, plugin_path: Path) -> dict[str, Any]:
         """Check meta-evaluation quality for a plugin's skills.
 
         Args:
-            plugin_name: Name of the plugin
             plugin_path: Path to the plugin directory
 
         Returns:
@@ -88,10 +83,9 @@ class MetaEvaluator:
             "missing_tests": [],
         }
 
-        # Check for Table of Contents in long skills
-        has_toc = bool(re.search(r"^## Table of Contents", content, re.MULTILINE))
-        if not has_toc and len(content) > self.min_toc_length:
-            issues["missing_toc"].append(skill_name)
+        # ToC check disabled: ToC sections were removed ecosystem-wide
+        # per the 2026-04-08 plugin audit.  Skills loaded into model
+        # context don't benefit from HTML anchor links.
 
         # Check for verification steps
         has_verification = bool(

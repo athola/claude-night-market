@@ -78,6 +78,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
+| `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
@@ -180,6 +181,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `voice-generate` | [scribe](../plugins/scribe.md) | Generate text in learned writing voice |
 | `voice-learn` | [scribe](../plugins/scribe.md) | Learning loop from manual edits |
 | `voice-review` | [scribe](../plugins/scribe.md) | Dual-gate review against voice profile |
+| `vow-enforcement` | [imbue](../plugins/imbue.md) | Three-layer constraint enforcement with soft vows, hard vows, and external validators |
 | `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
 | `workflow-diagram` | [cartograph](../plugins/cartograph.md) | Process and state transition diagrams |

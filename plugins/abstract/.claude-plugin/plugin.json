@@ -34,7 +34,8 @@
     "./skills/shared-patterns",
     "./skills/skill-authoring",
     "./skills/skills-eval",
-    "./skills/subagent-testing"
+    "./skills/subagent-testing",
+    "./skills/friction-detector"
   ],
   "agents": [
     "./agents/meta-architect.md",

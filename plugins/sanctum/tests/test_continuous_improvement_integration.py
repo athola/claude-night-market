@@ -147,13 +147,13 @@ class TestPhase3MetaEvaluation:
     def test_check_meta_evaluation_returns_dict(self, minimal_plugin_dir):
         """Phase 3 meta-evaluation returns a dict."""
         auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
+        result = auditor.check_meta_evaluation(minimal_plugin_dir)
         assert isinstance(result, dict)
 
     def test_check_meta_evaluation_has_expected_keys(self, minimal_plugin_dir):
         """Phase 3 result contains all required check categories."""
         auditor = PluginAuditor(minimal_plugin_dir.parent, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
+        result = auditor.check_meta_evaluation(minimal_plugin_dir)
         assert "missing_toc" in result
         assert "missing_verification" in result
         assert "missing_tests" in result
@@ -178,7 +178,7 @@ class TestPhase3MetaEvaluation:
         )
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        result = auditor.check_meta_evaluation(plugin_dir)
         assert isinstance(result, dict)
 
     def test_meta_evaluation_skips_non_eval_skills(self, tmp_path):
@@ -195,7 +195,7 @@ class TestPhase3MetaEvaluation:
         )
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        result = auditor.check_meta_evaluation(plugin_dir)
         # Non-eval skills should produce no issues
         assert result["missing_toc"] == []
         assert result["missing_verification"] == []
@@ -218,12 +218,12 @@ class TestPhase3MetaEvaluation:
         (review_skill / "SKILL.md").write_text(skill_content)
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        result = auditor.check_meta_evaluation(plugin_dir)
         assert "code-review" in result["missing_verification"]
         assert "code-review" in result["missing_tests"]
 
-    def test_meta_evaluation_flags_missing_toc_for_long_skills(self, tmp_path):
-        """Phase 3 flags long eval skills missing a Table of Contents."""
+    def test_meta_evaluation_skips_toc_check_for_long_skills(self, tmp_path):
+        """Phase 3 no longer flags missing TOC (disabled per 2026-04-08 audit)."""
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
         skills_dir = plugin_dir / "skills"
@@ -240,8 +240,8 @@ class TestPhase3MetaEvaluation:
         (audit_skill / "SKILL.md").write_text(long_content)
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
-        assert "audit-tool" in result["missing_toc"]
+        result = auditor.check_meta_evaluation(plugin_dir)
+        assert "audit-tool" not in result["missing_toc"]
 
     def test_meta_evaluation_passes_clean_eval_skill(self, tmp_path):
         """Phase 3 produces no issues for well-structured eval skills."""
@@ -258,7 +258,7 @@ class TestPhase3MetaEvaluation:
         )
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
-        result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        result = auditor.check_meta_evaluation(plugin_dir)
         assert "lint-check" not in result["missing_toc"]
         assert "lint-check" not in result["missing_verification"]
         assert "lint-check" not in result["missing_tests"]
@@ -308,7 +308,7 @@ class TestEndToEndWorkflow:
         assert "low_success_rate" in perf_result
 
         # Phase 3: Meta evaluation
-        meta_result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        meta_result = auditor.check_meta_evaluation(plugin_dir)
         assert isinstance(meta_result, dict)
         assert "missing_toc" in meta_result
         assert "missing_verification" in meta_result
@@ -350,7 +350,7 @@ class TestEndToEndWorkflow:
         assert isinstance(perf_result, dict)
 
         # Phase 3 should find issues with the eval skill
-        meta_result = auditor.check_meta_evaluation("test-plugin", plugin_dir)
+        meta_result = auditor.check_meta_evaluation(plugin_dir)
         assert "code-review" in meta_result["missing_verification"]
 
     def test_pipeline_phases_are_independent(self, minimal_plugin_dir):
@@ -362,5 +362,5 @@ class TestEndToEndWorkflow:
         assert isinstance(perf_result, dict)
 
         # Phase 3 without Phase 1 or 2
-        meta_result = auditor.check_meta_evaluation("test-plugin", minimal_plugin_dir)
+        meta_result = auditor.check_meta_evaluation(minimal_plugin_dir)
         assert isinstance(meta_result, dict)

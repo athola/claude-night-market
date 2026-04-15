@@ -33,6 +33,9 @@ EXPECTED_MODULES = [
     "feedback-collector.md",
     "context-injector.md",
     "iteration-governor.md",
+    "reflexion-buffer.md",
+    "trust-tier.md",
+    "adaptive-constraints.md",
 ]
 
 REQUIRED_SECTIONS = [

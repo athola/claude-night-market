@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **invariant-judgment framework**: Cross-cutting detection
+  and escalation for design invariant conflicts across 6
+  skills in 4 plugins (imbue, pensive, sanctum). When a
+  change conflicts with an existing invariant (architecture
+  pattern, data structure choice, API contract), the agent
+  surfaces three options (preserve, layer, revise) and
+  escalates to human judgment rather than silently resolving.
+  Includes invariant-encoding test guidance and 30 content
+  assertion tests protecting the framework itself.
+- **abstract friction-detector**: Detects friction signals
+  during execution and graduates recurring patterns into
+  declarative rules for session retrospectives and learning
+  pipeline automation.
+- **imbue vow-enforcement**: Three-layer constraint
+  enforcement (soft vows, hard vows, Nen Court external
+  validators) that classifies constraints by reliability
+  and graduates them when violation rates climb.
+- **attune mission-orchestrator modules**: Added
+  adaptive-constraints, reflexion-buffer, and trust-tier
+  modules for dynamic constraint adjustment and execution
+  feedback loops.
+- **egregore model-routing module**: Model selection
+  routing for the summon skill.
+
 ## [1.9.0] - 2026-04-14
 
 ### Added
