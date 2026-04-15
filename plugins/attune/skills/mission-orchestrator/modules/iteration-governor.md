@@ -45,7 +45,7 @@ When round 3 is exhausted (user or war room still not
 satisfied), present these options:
 
 ```
-Round 3 exhausted. The plan has been revised 3 times.
+Round 3 exhausted. 3 review rounds completed.
 
 Options:
   [A] Approve current version as-is

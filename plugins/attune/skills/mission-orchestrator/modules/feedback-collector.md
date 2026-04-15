@@ -96,11 +96,17 @@ Written to `.attune/plan-history/feedback/round-N.json`:
 ## Overall Verdict Logic
 
 ```
-if all sections have verdict "approve":
+if len(sections) > 0 and all sections have verdict "approve":
     overall = "approved"
+elif len(sections) == 0:
+    overall = "error: no sections parsed"
 else:
     overall = "revision_requested"
 ```
+
+An empty sections array MUST NOT resolve to "approved."
+If the plan parser produces zero sections, report the
+error rather than silently approving an unreviewed plan.
 
 ## Writing the Feedback File
 
