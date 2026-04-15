@@ -2507,6 +2507,33 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://news.ycombinator.com/item?id=44623207
+  https://github.github.com/gh-stack:
+    content_hash: sha256:59640b80b58c371e
+    stored_at: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:31.114542+00:00'
+    title: 'GitHub Stacked PRs: Comprehensive Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.github.com/gh-stack/
+  https://github.com/jj-vcs/jj:
+    content_hash: sha256:336f570a6161fc72
+    stored_at: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:51.598241+00:00'
+    title: 'Jujutsu (jj): Key Features for Stacked Changes'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/jj-vcs/jj
+  https://www.graphite.com/docs/evaluating-tools:
+    content_hash: sha256:d1cbf7d1a2af6ca6
+    stored_at: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:59.844726+00:00'
+    title: Stacked Diff Tools Comparison
+    maturity: seedling
+    routing_type: pending
+    url: https://www.graphite.com/docs/evaluating-tools
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -2786,3 +2813,6 @@ hashes:
   sha256:7ba339eb85c11fc8: data/staging/webfetch-key-strategies-for-better-claude-code-results-2026-04-15_03-19-34.md
   sha256:bf40362dfb3ba9f5: data/staging/webfetch-article-summary-2026-04-15_03-19-45.md
   sha256:73e9be39a2dddbe3: data/staging/webfetch-autonomous-agents-in-production-hn-discussion-2026-04-15_03-19-53.md
+  sha256:59640b80b58c371e: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
+  sha256:336f570a6161fc72: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
+  sha256:d1cbf7d1a2af6ca6: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md
