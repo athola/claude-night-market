@@ -226,3 +226,84 @@ class TestContentTestTemplatesModuleContent:
         assert "Given" in module_content
         assert "When" in module_content
         assert "Then" in module_content
+
+
+class TestInvariantEncodingPhaseContent:
+    """Feature: Test-updates skill includes invariant-encoding guidance.
+
+    As a test author generating or updating tests
+    I want guidance on writing invariant-encoding tests
+    So that design decisions are protected by test failures
+
+    This test class encodes the invariant that test-generation
+    workflows must include invariant-aware phases.
+    """
+
+    @pytest.fixture
+    def skill_path(self) -> Path:
+        return Path(__file__).parents[3] / "skills" / "test-updates" / "SKILL.md"
+
+    @pytest.fixture
+    def skill_content(self, skill_path: Path) -> str:
+        return skill_path.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_has_invariant_encoding_philosophy(self, skill_content: str) -> None:
+        """Given the test-updates core philosophy
+        Then it must list invariant-encoding as a principle."""
+        assert "Invariant-Encoding" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_has_invariant_encoding_phase(self, skill_content: str) -> None:
+        """Given the test-updates workflow phases
+        Then Phase 2.5 must cover invariant-encoding tests."""
+        assert "Phase 2.5" in skill_content
+        assert "Invariant-Encoding Tests" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_defines_what_to_encode(self, skill_content: str) -> None:
+        """Given the invariant-encoding phase
+        Then it must define categories of invariants to encode."""
+        assert "Module boundary" in skill_content
+        assert "Data flow direction" in skill_content
+        assert "API contract" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_includes_concrete_example(self, skill_content: str) -> None:
+        """Given developers need actionable guidance
+        Then the invariant-encoding phase must include a code example."""
+        assert "def test_plugins_never_import" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_warns_about_compounding(self, skill_content: str) -> None:
+        """Given bad invariant decisions compound
+        Then the skill must warn about compounding risk."""
+        assert "compound" in skill_content.lower()
+        assert "unsalvageable" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_requires_human_review_for_invariant_test_changes(
+        self, skill_content: str
+    ) -> None:
+        """Given invariant-encoding tests should not be silently changed
+        Then the skill must require human review."""
+        assert "human" in skill_content.lower()
+        assert "three options" in skill_content.lower() or (
+            "preserve" in skill_content.lower() and "revise" in skill_content.lower()
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_has_invariant_quality_check(self, skill_content: str) -> None:
+        """Given the quality assurance section
+        Then it must include invariant verification."""
+        assert "Invariant" in skill_content
+        assert "design-decision" in skill_content.lower() or (
+            "design" in skill_content.lower() and "decision" in skill_content.lower()
+        )

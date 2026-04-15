@@ -466,6 +466,91 @@ class TestSessionStartHookIntegration:
         )
 
 
+class TestInvariantJudgmentPatterns:
+    """Feature: Rigorous reasoning prevents silent invariant revision.
+
+    As an agent making design decisions
+    I want red flags for invariant-breaking thought patterns
+    So that I escalate judgment calls instead of silently resolving them
+    """
+
+    @pytest.fixture
+    def skill_content(self) -> str:
+        """Load the rigorous-reasoning skill content."""
+        path = Path(__file__).parents[3] / "skills" / "rigorous-reasoning" / "SKILL.md"
+        return path.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_has_invariant_judgment_section(self, skill_content: str) -> None:
+        """Scenario: Skill includes invariant judgment patterns.
+
+        Given the rigorous-reasoning skill
+        When reading the red flag monitoring
+        Then invariant judgment patterns should be documented
+        """
+        assert "Invariant Judgment" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_lists_three_invariant_options(self, skill_content: str) -> None:
+        """Scenario: Skill presents the three-option framework.
+
+        Given the rigorous-reasoning skill
+        When reviewing invariant conflict handling
+        Then preserve, layer, and revise options should be listed
+        """
+        assert "Preserve the invariant" in skill_content
+        assert "Layer on top" in skill_content
+        assert "Revise the invariant" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_has_invariant_recovery_protocol(self, skill_content: str) -> None:
+        """Scenario: Skill defines recovery for invariant conflicts.
+
+        Given the rigorous-reasoning skill
+        When an invariant conflict is detected
+        Then a recovery protocol should escalate to human judgment
+        """
+        assert "Recovery Protocol for Invariant Conflicts" in skill_content
+        assert "human judgment" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_identifies_judgment_not_context_problem(self, skill_content: str) -> None:
+        """Scenario: Skill identifies this as a judgment problem.
+
+        Given the rigorous-reasoning skill
+        When discussing invariant conflicts
+        Then it should state this is a judgment problem, not context
+        """
+        assert "judgment problem" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_defaults_to_preserve_when_no_human(self, skill_content: str) -> None:
+        """Scenario: Skill defaults to preserving invariant.
+
+        Given the rigorous-reasoning skill
+        When no human is available for judgment
+        Then default to Option 1 (preserve the invariant)
+        """
+        assert "default to Option 1" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_flags_refactoring_as_invariant_risk(self, skill_content: str) -> None:
+        """Scenario: Skill flags refactoring patterns as invariant risk.
+
+        Given the rigorous-reasoning skill
+        When an agent thinks 'I'll refactor this to support both'
+        Then it should be flagged as a potential silent invariant revision
+        """
+        assert "refactor" in skill_content.lower()
+        assert "Silent invariant revision" in skill_content
+
+
 class TestAllModulesExist:
     """Feature: All rigorous-reasoning modules exist.
 

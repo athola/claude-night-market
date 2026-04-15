@@ -15,6 +15,7 @@ from typing import TypedDict
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from abstract.frontmatter import FrontmatterProcessor
+from abstract.report_formatter import format_validator_report
 from abstract.utils import (
     extract_dependencies,
     find_skill_files,
@@ -306,23 +307,17 @@ class AbstractValidator:
         result = self.scan_infrastructure()
         issues = self.validate_patterns()
 
-        report = ["Abstract Plugin Infrastructure Report", "=" * 50]
-        report.append(f"\nPlugin Root: {self.plugin_root}")
-        report.append(f"Skill Files: {len(self.skill_files)}")
-
-        report.append(
-            f"\nInfrastructure Provided: {sorted(result['infrastructure_provided'])}",
+        return format_validator_report(
+            title="Abstract Plugin Infrastructure Report",
+            plugin_root=self.plugin_root,
+            skill_file_count=len(self.skill_files),
+            metadata=[
+                ("Infrastructure Provided", sorted(result["infrastructure_provided"])),
+                ("Skills with Patterns", sorted(result["skills_with_patterns"])),
+            ],
+            issues=issues,
+            success_message="All meta-skill patterns validated successfully!",
         )
-        report.append(f"Skills with Patterns: {sorted(result['skills_with_patterns'])}")
-
-        if issues:
-            report.append(f"\nIssues Found ({len(issues)}):")
-            for i, issue in enumerate(issues, 1):
-                report.append(f"  {i}. {issue}")
-        else:
-            report.append("\nAll meta-skill patterns validated successfully!")
-
-        return "\n".join(report)
 
     def fix_patterns(self, dry_run: bool = True) -> list[str]:
         """Fix common meta-skill issues.

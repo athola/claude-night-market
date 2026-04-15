@@ -119,7 +119,14 @@ def _stop_daemon() -> None:
     try:
         pid = int(pid_file.read_text().strip())
         os.kill(pid, signal.SIGTERM)
-    except (OSError, ValueError):
+    except ValueError:
+        # Corrupt PID file — log and continue cleanup
+        import logging
+
+        logging.getLogger(__name__).debug(
+            "PID file corrupt, skipping SIGTERM: %s", pid_file
+        )
+    except OSError:
         pass
 
     for f in (pid_file, port_file):

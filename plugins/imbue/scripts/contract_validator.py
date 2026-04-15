@@ -10,7 +10,7 @@ for failed validations.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -47,13 +47,7 @@ class OutputContract:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
-        return {
-            "required_sections": self.required_sections,
-            "min_evidence_count": self.min_evidence_count,
-            "expected_artifacts": self.expected_artifacts,
-            "retry_budget": self.retry_budget,
-            "strictness": self.strictness,
-        }
+        return asdict(self)
 
 
 @dataclass

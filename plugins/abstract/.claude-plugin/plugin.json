@@ -1,6 +1,6 @@
 {
   "name": "abstract",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design patterns, and evaluation frameworks",
   "commands": [
     "./commands/aggregate-logs.md",
@@ -34,7 +34,8 @@
     "./skills/shared-patterns",
     "./skills/skill-authoring",
     "./skills/skills-eval",
-    "./skills/subagent-testing"
+    "./skills/subagent-testing",
+    "./skills/friction-detector"
   ],
   "agents": [
     "./agents/meta-architect.md",

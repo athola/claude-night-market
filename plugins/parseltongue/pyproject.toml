@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.8.4"
+version = "1.9.0"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",

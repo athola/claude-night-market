@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -27,15 +27,7 @@ class SpecialistProfile:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {
-            "role": self.role,
-            "description": self.description,
-            "pipeline_steps": list(self.pipeline_steps),
-            "context_file": self.context_file,
-            "items_processed": self.items_processed,
-            "last_active": self.last_active,
-            "performance_metrics": dict(self.performance_metrics),
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> SpecialistProfile:

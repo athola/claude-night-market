@@ -1,7 +1,7 @@
 ---
 name: test-review
 description: 'Evaluate test suites for coverage gaps, quality issues, and TDD/BDD compliance'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: testing
 tags:
@@ -87,8 +87,9 @@ Evaluate and improve test suites with TDD/BDD rigor.
 1. `test-review:languages-detected`
 2. `test-review:coverage-inventoried`
 3. `test-review:scenario-quality`
-4. `test-review:gap-remediation`
-5. `test-review:evidence-logged`
+4. `test-review:invariant-preservation`
+5. `test-review:gap-remediation`
+6. `test-review:evidence-logged`
 
 ## Progressive Loading
 
@@ -151,6 +152,62 @@ Record executed commands, outputs, and recommendations.
 - [ ] Specific assertions with context
 - [ ] No flaky tests (dead waits, order dependencies)
 - [ ] Reusable fixtures/factories
+- [ ] Invariant-encoding tests intact (see below)
+
+### Invariant-Encoding Tests
+
+Tests do not just verify behavior — they encode design
+invariants. A test that asserts "module A never imports
+from module B" encodes a layer boundary. A test that
+asserts "this function is pure" encodes a concurrency
+model. These tests are load-bearing in ways that
+coverage metrics cannot capture.
+
+**During review, check:**
+
+1. **Were invariant-encoding tests removed or weakened?**
+   A test that enforced an architectural boundary,
+   data structure constraint, or API contract should
+   not be deleted without naming the invariant being
+   abandoned and escalating to human judgment.
+
+2. **Were test expectations changed to match a broken
+   implementation?** If an assertion value changed, ask:
+   did the *requirement* change, or did the agent change
+   the test to make its code pass? The latter is the
+   single most dangerous form of test tampering.
+
+3. **Are new invariants encoded as tests?** When a design
+   decision is made (choice of data structure, module
+   boundary, error strategy), there should be at least
+   one test whose failure would signal that the
+   invariant was violated.
+
+**Red flag patterns:**
+
+| Pattern | Risk |
+|---------|------|
+| `@pytest.mark.skip` added to a passing test | Invariant being silently dropped |
+| Assertion changed from specific to broad | Constraint being relaxed |
+| Test renamed to describe new behavior | Old invariant erased from history |
+| Test deleted "because it tested old code" | Invariant removed without replacement |
+
+**When invariant erosion is detected:**
+
+Do NOT approve. Flag as a BLOCKING quality issue and
+present the three options to the human:
+
+1. **Preserve**: Revert the test change, fix the
+   implementation to satisfy the invariant
+2. **Layer**: Keep the invariant test, add the new
+   behavior alongside it (accepting inelegance)
+3. **Revise**: The invariant is genuinely wrong — remove
+   the old test AND write a new test encoding the
+   replacement invariant
+
+This is a judgment call that models get wrong far too
+often. Default to option 1 (preserve) when no human is
+available.
 
 ## Output Format
 

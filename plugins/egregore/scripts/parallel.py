@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 
 
@@ -17,12 +17,7 @@ class WorktreeAssignment:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {
-            "item_id": self.item_id,
-            "worktree_path": self.worktree_path,
-            "branch": self.branch,
-            "status": self.status,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> WorktreeAssignment:

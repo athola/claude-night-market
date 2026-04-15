@@ -5,7 +5,7 @@ description: >-
   token waste from codebase exploration. Pre-scans
   structure, detects frameworks, routes, imports,
   env vars, and estimates token savings.
-version: 1.8.4
+version: 1.9.0
 category: optimization
 tags:
   - context
@@ -58,9 +58,10 @@ saving thousands of tokens per session.
 1. Run the scanner on the project root:
 
 ```bash
-python3 "$(find . -path '*/conserve/scripts/context_scanner.py' \
+PYTHONPATH="$(find . -path '*/conserve/scripts' -type d \
   -print -quit 2>/dev/null || \
-  echo 'plugins/conserve/scripts/context_scanner.py')" .
+  echo 'plugins/conserve/scripts')" \
+  python3 -m context_scanner .
 ```
 
 2. Present the output to the user as the project overview.

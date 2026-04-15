@@ -1,7 +1,7 @@
 ---
 name: test-updates
 description: 'Update, generate, and validate tests using git-workspace-review for change context'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: testing-automation
 tags:
@@ -75,6 +75,7 @@ detailed test management system that applies TDD/BDD principles to maintain, gen
 
 - **RED-GREEN-REFACTOR**: Strict adherence to TDD cycle
 - **Behavior-First**: BDD patterns that describe what code should do
+- **Invariant-Encoding**: Tests guard design decisions, not just behavior
 - **Meta Dogfooding**: The skill's own tests demonstrate the principles it teaches
 - **Quality Gates**: detailed validation before considering tests complete
 
@@ -225,6 +226,63 @@ See `modules/test-discovery.md` for detection patterns.
 1. Choose appropriate BDD style (see `modules/bdd-patterns.md`)
 2. Plan test structure
 3. Define quality criteria
+4. Identify design invariants to encode as tests
+
+### Phase 2.5: Invariant-Encoding Tests
+
+Before writing behavioral tests, identify the design
+invariants that the code relies on and write tests
+that would break if those invariants were violated.
+
+**What to encode:**
+
+- Module boundary constraints (A never imports from B)
+- Data flow direction (events flow publisher-to-subscriber,
+  never the reverse)
+- API contract shapes (public interfaces don't change
+  without versioning)
+- Data structure choices (if a map was chosen over a list,
+  test the properties that justify that choice)
+- Error handling strategies (fail-fast boundaries, recovery
+  zones)
+
+**Example:**
+
+```python
+def test_plugins_never_import_from_other_plugins():
+    """Encode the invariant: plugins are independent modules.
+
+    If this test breaks, someone is coupling plugins
+    directly. Present the 3 options to a human:
+    1. Preserve: revert the import, keep plugins independent
+    2. Layer: add a shared interface in leyline instead
+    3. Revise: merge the plugins (requires ADR)
+    """
+    for plugin_dir in plugin_dirs:
+        imports = extract_imports(plugin_dir)
+        for imp in imports:
+            assert not imp.startswith("plugins."), (
+                f"{plugin_dir} imports {imp} — "
+                f"violates plugin independence invariant"
+            )
+```
+
+**Why this matters:** Tests that encode invariants are
+load-bearing. When an agent later encounters a feature
+that clashes with the invariant, the test failure forces
+a conscious decision rather than a silent drift. Without
+these tests, bad invariant decisions compound until the
+codebase is unsalvageable.
+
+**When updating existing tests:**
+
+If an invariant-encoding test needs to change, do NOT
+silently update the assertion. Flag it for human review
+with the three options: preserve the invariant, layer
+on top, or revise the invariant. This is a judgment
+call that requires human wisdom — models default to
+the "average" of training data and get these wrong far
+too often.
 
 ### Phase 3: Implementation
 1. Write failing tests (RED) - see `modules/tdd-workflow.md`
@@ -246,6 +304,7 @@ The skill applies multiple quality checks:
 - **Static**: Linting, type checking, pattern validation
 - **Dynamic**: Test execution in sandboxed environments
 - **Metrics**: Coverage, mutation score, complexity analysis
+- **Invariant**: Verify design-decision tests are not weakened
 - **Review**: Structured checklists for peer validation
 
 ## Examples

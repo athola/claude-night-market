@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "claude-night-market",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "23 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, codebase visualization, resource optimization, memory systems, multi-LLM delegation, ML inference, knowledge challenges, and multi-source research",
   "license": "MIT",
   "repository": "https://github.com/athola/claude-night-market",
@@ -32,161 +32,161 @@
       "name": "abstract",
       "source": "./plugins/abstract",
       "description": "Skill authoring, hook development, evaluation frameworks, and escalation governance for the Claude Code plugin ecosystem",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["meta", "skill-authoring", "hooks", "evaluation"]
     },
     {
       "name": "attune",
       "source": "./plugins/attune",
       "description": "Full-cycle project development: brainstorm, specify, plan, initialize, execute, and polish with war-room deliberation for strategic decisions",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["project-lifecycle", "brainstorming", "planning", "scaffolding"]
     },
     {
       "name": "archetypes",
       "source": "./plugins/archetypes",
       "description": "Architecture paradigm selection and implementation planning: 14 paradigms from functional-core to hexagonal to microservices",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["architecture", "design-patterns", "hexagonal", "cqrs", "microservices"]
     },
     {
       "name": "cartograph",
       "source": "./plugins/cartograph",
       "description": "Codebase visualization: architecture, data flow, dependency, call chains, community detection, and class diagrams via Mermaid Chart MCP",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["visualization", "diagram", "mermaid", "architecture", "data-flow", "call-chain", "community-detection"]
     },
     {
       "name": "conjure",
       "source": "./plugins/conjure",
       "description": "Delegate tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection while retaining strategic oversight",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["llm-delegation", "multi-model", "gemini", "qwen"]
     },
     {
       "name": "conserve",
       "source": "./plugins/conserve",
       "description": "Context optimization, bloat detection, CPU/GPU monitoring, and token conservation for efficient Claude Code sessions",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["optimization", "performance", "bloat-detection", "token-conservation"]
     },
     {
       "name": "hookify",
       "source": "./plugins/hookify",
       "description": "Behavioral rules engine: create safety hooks through markdown configuration with pattern matching and zero-code rule authoring",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["hooks", "safety", "behavioral-rules", "configuration"]
     },
     {
       "name": "imbue",
       "source": "./plugins/imbue",
       "description": "TDD enforcement, proof-of-work validation, scope guarding, rigorous reasoning, and research-enriched feature review with RICE/WSJF/Kano scoring",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["tdd", "quality-gates", "proof-of-work", "scope-guard"]
     },
     {
       "name": "leyline",
       "source": "./plugins/leyline",
       "description": "Foundation infrastructure: auth flows, quota management, error patterns, markdown formatting, trust verification, and injection detection",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["infrastructure", "auth", "security", "injection-detection", "quota"]
     },
     {
       "name": "memory-palace",
       "source": "./plugins/memory-palace",
       "description": "Spatial knowledge organization with memory palace techniques: build, navigate, and maintain virtual memory structures with PR review capture",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["memory", "knowledge-management", "spatial-organization", "recall"]
     },
     {
       "name": "minister",
       "source": "./plugins/minister",
       "description": "GitHub issue management, label taxonomy, and initiative tracking: turns repositories, issues, and projects into status dashboards",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["project-management", "github-issues", "tracking", "dashboards"]
     },
     {
       "name": "parseltongue",
       "source": "./plugins/parseltongue",
       "description": "Python development suite: testing, performance optimization, async patterns, and packaging guidance",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["python", "testing", "async", "packaging", "performance"]
     },
     {
       "name": "pensive",
       "source": "./plugins/pensive",
       "description": "Multi-discipline code review: architecture, bugs, APIs, blast radius analysis, security, tests, Makefiles, and NASA Power of 10 analysis",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["code-review", "architecture-review", "bug-hunting", "blast-radius", "security-review"]
     },
     {
       "name": "phantom",
       "source": "./plugins/phantom",
       "description": "Computer use toolkit for driving desktop environments through Claude's vision and action API with screenshot capture, mouse/keyboard control, and an autonomous agent loop",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["computer-use", "desktop", "automation", "screenshot", "mouse", "keyboard", "gui"]
     },
     {
       "name": "sanctum",
       "source": "./plugins/sanctum",
       "description": "Git workflows: commit messages, PR preparation, documentation updates, version management, sessions, and deferred-item capture",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["git", "commits", "pull-requests", "version-management"]
     },
     {
       "name": "scribe",
       "source": "./plugins/scribe",
       "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["documentation", "slop-detection", "writing", "style"]
     },
     {
       "name": "scry",
       "source": "./plugins/scry",
       "description": "Media generation: terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["media", "recordings", "vhs", "playwright", "gif"]
     },
     {
       "name": "spec-kit",
       "source": "./plugins/spec-kit",
       "description": "Specification-driven development: structured specs, implementation planning, and task orchestration for systematic feature delivery",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["specifications", "planning", "task-orchestration", "feature-delivery"]
     },
     {
       "name": "egregore",
       "source": "./plugins/egregore",
       "description": "Autonomous agent orchestrator: parallel worktree execution, agent specialization, cross-item learning, and crash recovery",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["autonomous-agents", "orchestration", "parallel-execution", "worktrees"]
     },
     {
       "name": "gauntlet",
       "source": "./plugins/gauntlet",
       "description": "Codebase learning through knowledge extraction, code knowledge graph, adaptive challenges, and spaced repetition for developer onboarding and fluency",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["learning", "onboarding", "knowledge", "challenges", "spaced-repetition", "code-graph"]
     },
     {
       "name": "herald",
       "source": "./plugins/herald",
       "description": "Standalone notification system: GitHub issue alerts and webhook support for Slack, Discord, and generic endpoints.",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["notifications", "alerts", "webhooks", "github-issues", "slack", "discord"]
     },
     {
       "name": "oracle",
       "source": "./plugins/oracle",
       "description": "ONNX Runtime inference daemon for ML-enhanced plugin capabilities with local model inference over HTTP and opt-in activation",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["ml", "inference", "onnx", "scoring", "daemon"]
     },
     {
       "name": "tome",
       "source": "./plugins/tome",
       "description": "Multi-source research: code archaeology, community discourse (HN, Reddit), academic literature (arXiv, Semantic Scholar), and TRIZ cross-domain analysis",
-      "version": "1.8.4",
+      "version": "1.9.0",
       "keywords": ["research", "code-archaeology", "academic", "triz", "literature-review"]
     }
   ]

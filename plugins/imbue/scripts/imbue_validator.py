@@ -9,6 +9,20 @@ import sys
 from pathlib import Path
 from typing import TypedDict
 
+# Add abstract src to path for shared utilities
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "abstract" / "src"))
+
+try:
+    from abstract.report_formatter import (  # type: ignore[import-not-found]  # cross-plugin import via sys.path
+        format_validator_report,
+    )
+except ImportError:
+
+    def format_validator_report(results: dict, plugin_name: str = "") -> str:  # type: ignore[misc]  # redefinition needed for import fallback
+        """Fallback when abstract plugin is not available."""
+        return str(results)
+
+
 # Configure logging for the validator
 logger = logging.getLogger(__name__)
 
@@ -237,25 +251,20 @@ class ImbueValidator:
         result, validation_issues = self.scan_and_validate()
         issues = list(dict.fromkeys(result["issues"] + validation_issues))
 
-        report = ["Imbue Plugin Review Workflow Report", "=" * 50]
-        report.append(f"\nPlugin Root: {self.plugin_root}")
-        report.append(f"Skill Files: {len(self.skill_files)}")
-
-        report.append(
-            f"\nReview Workflow Skills: {sorted(result['review_workflow_skills'])}",
+        return format_validator_report(  # type: ignore[no-any-return]  # cross-plugin import typed as Any
+            title="Imbue Plugin Review Workflow Report",
+            plugin_root=self.plugin_root,
+            skill_file_count=len(self.skill_files),
+            metadata=[
+                ("Review Workflow Skills", sorted(result["review_workflow_skills"])),
+                (
+                    "Evidence Logging Patterns",
+                    sorted(result["evidence_logging_patterns"]),
+                ),
+            ],
+            issues=issues,
+            success_message="All review workflow skills validated successfully!",
         )
-        report.append(
-            f"Evidence Logging Patterns: {sorted(result['evidence_logging_patterns'])}",
-        )
-
-        if issues:
-            report.append(f"\nIssues Found ({len(issues)}):")
-            for i, issue in enumerate(issues, 1):
-                report.append(f"  {i}. {issue}")
-        else:
-            report.append("\nAll review workflow skills validated successfully!")
-
-        return "\n".join(report)
 
 
 def main() -> None:

@@ -1,13 +1,13 @@
 [project]
 name = "hookify"
-version = "1.8.4"
+version = "1.9.0"
 description = "Hook generation and pattern matching utilities for Claude Code"
 requires-python = ">=3.10"
 dependencies = [
     "PyYAML>=6.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
@@ -56,10 +56,3 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 fail_under = 90
-
-[dependency-groups]
-dev = [
-    "mypy>=1.11.0",
-    "pytest>=9.0.2",
-    "types-PyYAML>=6.0",
-]

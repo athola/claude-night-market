@@ -1,9 +1,9 @@
 """SQLite-backed knowledge graph with temporal triples and synapse mechanics.
 
 Stores entities, residencies, triples (with validity windows), synapses
-(with strength/decay), journeys, and waypoints. Follows the same patterns
-as gauntlet's GraphStore: WAL mode, FTS5 with graceful fallback, batch
-inserts, and context manager protocol.
+(with strength/decay), journeys, and waypoints.  Inherits connection
+management, WAL mode, FTS5 fallback, and context manager protocol from
+``leyline.sqlite_graph_base.SqliteGraphBase``.
 """
 
 from __future__ import annotations
@@ -14,9 +14,65 @@ import sqlite3
 from datetime import datetime, timezone
 from typing import Any
 
-_log = logging.getLogger(__name__)
+try:
+    from leyline.sqlite_graph_base import SqliteGraphBase
+except ImportError:  # pragma: no cover -- standalone fallback
+    # Minimal inline base when leyline is not installed.
+    import sqlite3 as _sqlite3
+    from pathlib import Path as _Path
 
-_BATCH_SIZE = 450
+    class SqliteGraphBase:  # type: ignore[no-redef]  # fallback when leyline not installed
+        """Minimal fallback for connection management."""
+
+        _schema_sql: str = ""
+        _fts_create_sql: str = ""
+        _batch_size: int = 450
+
+        def __init__(self, db_path: str | _Path) -> None:
+            """Open a SQLite connection with WAL mode and foreign keys."""
+            self._db_path = str(db_path)
+            self._conn: _sqlite3.Connection = _sqlite3.connect(self._db_path)
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._conn.execute("PRAGMA foreign_keys=ON")
+            self._conn.row_factory = _sqlite3.Row
+            self._has_fts: bool = False
+            try:
+                self._init_schema()
+            except Exception:
+                self._conn.close()
+                raise
+
+        def _init_schema(self) -> None:
+            self._conn.executescript(self._schema_sql)
+            if self._fts_create_sql:
+                try:
+                    self._conn.executescript(self._fts_create_sql)
+                    self._has_fts = True
+                except _sqlite3.OperationalError as exc:
+                    _log.warning("FTS5 unavailable: %s", exc)
+            self._conn.commit()
+
+        def close(self) -> None:
+            """Close the database connection."""
+            self._conn.close()
+
+        def __enter__(self) -> SqliteGraphBase:  # type: ignore[override]  # simpler signature for fallback
+            """Enter context manager."""
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            """Exit context manager and close connection."""
+            self.close()
+
+        def table_names(self) -> list[str]:
+            """Return names of all tables in the database."""
+            rows = self._conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+            return [r["name"] for r in rows]
+
+
+_log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Schema DDL
@@ -134,59 +190,11 @@ DELETE FROM entities_fts WHERE entity_id = ?;
 """
 
 
-class KnowledgeGraph:
+class KnowledgeGraph(SqliteGraphBase):
     """Persistent knowledge graph backed by SQLite."""
 
-    def __init__(self, db_path: str) -> None:
-        """Initialize knowledge graph with SQLite database at db_path."""
-        self._db_path = db_path
-        self._conn = sqlite3.connect(db_path)
-        self._conn.execute("PRAGMA journal_mode=WAL")
-        self._conn.execute("PRAGMA foreign_keys=ON")
-        self._conn.row_factory = sqlite3.Row
-        self._has_fts = False
-        try:
-            self._init_schema()
-        except Exception:
-            self._conn.close()
-            raise
-
-    def _init_schema(self) -> None:
-        self._conn.executescript(_SCHEMA_SQL)
-        try:
-            self._conn.executescript(_FTS_CREATE_SQL)
-            self._has_fts = True
-        except sqlite3.OperationalError as exc:
-            _log.warning("FTS5 unavailable: %s", exc)
-        self._conn.commit()
-
-    def close(self) -> None:
-        """Close the database connection."""
-        self._conn.close()
-
-    def __enter__(self) -> KnowledgeGraph:
-        """Enter context manager."""
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: object,
-    ) -> None:
-        """Exit context manager and close connection."""
-        self.close()
-
-    # ------------------------------------------------------------------
-    # Introspection
-    # ------------------------------------------------------------------
-
-    def table_names(self) -> list[str]:
-        """Return all table names in the database."""
-        rows = self._conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
-        return [r["name"] for r in rows]
+    _schema_sql = _SCHEMA_SQL
+    _fts_create_sql = _FTS_CREATE_SQL
 
     # ------------------------------------------------------------------
     # Entity CRUD
@@ -249,8 +257,8 @@ class KnowledgeGraph:
     def bulk_upsert_entities(self, entities: list[dict[str, Any]]) -> None:
         """Batch-insert entities for performance."""
         now = self._now()
-        for i in range(0, len(entities), _BATCH_SIZE):
-            batch = entities[i : i + _BATCH_SIZE]
+        for i in range(0, len(entities), self._batch_size):
+            batch = entities[i : i + self._batch_size]
             for e in batch:
                 meta_json = json.dumps(e.get("metadata", {}))
                 self._conn.execute(

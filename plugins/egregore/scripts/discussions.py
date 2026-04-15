@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -30,14 +30,7 @@ class DiscussionsConfig:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {
-            "enabled": self.enabled,
-            "publish_discoveries": self.publish_discoveries,
-            "publish_insights": self.publish_insights,
-            "publish_contention": self.publish_contention,
-            "publish_retrospectives": self.publish_retrospectives,
-            "max_per_work_item": self.max_per_work_item,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DiscussionsConfig:
@@ -110,7 +103,7 @@ class PublishTracker:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {"counts": dict(self.counts)}
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PublishTracker:

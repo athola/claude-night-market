@@ -8,38 +8,24 @@ estimated_tokens: 800
 
 ## Overview
 
-Provides interactive authentication flows for external services with automatic token caching, session management, and multi-service support. Designed to be sourced by workflows requiring external API access.
+Provides interactive authentication flows for external
+services with automatic token caching, session management,
+and multi-service support.
 
-## Philosophy
+**Authenticate Once, Use Everywhere**: Tokens are cached
+locally and validated efficiently, minimizing interactive
+prompts while maintaining security.
 
-**Authenticate Once, Use Everywhere**: Tokens are cached locally and validated efficiently, minimizing interactive prompts while maintaining security.
-
-**User-Friendly Defaults**: Interactive prompts guide users through authentication with clear instructions and recovery options.
-
-**CI/CD Compatible**: Automatically detects non-interactive environments and falls back to environment variables.
-
-## Features
-
-- ✅ **Interactive OAuth flows** for supported services
-- ✅ **Token caching** with configurable TTL (default: 5 minutes)
-- ✅ **Session persistence** across workflow runs
-- ✅ **Multi-service support** (GitHub, GitLab, AWS, GCP, and more)
-- ✅ **CI/CD detection** with automatic fallback
-- ✅ **Retry logic** with exponential backoff
-- ✅ **Graceful degradation** when auth is optional
+**CI/CD Compatible**: Automatically detects non-interactive
+environments and falls back to environment variables.
 
 ## Quick Start
 
 ```bash
-# Source this script in your workflow
 source plugins/leyline/scripts/interactive_auth.sh
 
-# Ensure authentication before using service
 ensure_auth github || exit 1
-
-# Use service APIs with confidence
 gh pr view 123
-gh api repos/owner/repo/issues
 ```
 
 ## Configuration
@@ -49,27 +35,18 @@ gh api repos/owner/repo/issues
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `AUTH_CACHE_DIR` | Token cache directory | `~/.cache/claude-auth` |
-| `AUTH_CACHE_TTL` | Cache TTL in seconds | `300` (5 minutes) |
-| `AUTH_SESSION_TTL` | Session persistence TTL | `86400` (24 hours) |
+| `AUTH_CACHE_TTL` | Cache TTL in seconds | `300` (5 min) |
+| `AUTH_SESSION_TTL` | Session persistence TTL | `86400` (24 hr) |
 | `AUTH_INTERACTIVE` | Force interactive mode | `auto` (detect) |
 | `AUTH_MAX_ATTEMPTS` | Max authentication attempts | `3` |
 
-### Service-Specific Configuration
+### Service-Specific Variables
 
 ```bash
-# GitHub
-export GITHUB_TOKEN="..."  # Personal access token (fallback)
-
-# GitLab
-export GITLAB_TOKEN="..."  # Personal access token
-
-# AWS
-export AWS_ACCESS_KEY_ID="..."
+export GITHUB_TOKEN="..."               # GitHub fallback
+export GITLAB_TOKEN="..."               # GitLab
+export AWS_ACCESS_KEY_ID="..."          # AWS
 export AWS_SECRET_ACCESS_KEY="..."
-export AWS_SESSION_TOKEN="..."  # For temporary credentials
-
-# Google Cloud
-export GOOGLE_CREDENTIALS="path/to/credentials.json"
 export GOOGLE_APPLICATION_CREDENTIALS="path/to/credentials.json"
 ```
 
@@ -77,501 +54,158 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/credentials.json"
 
 ### `ensure_auth <service>`
 
-Ensure authentication for a service, prompting if necessary.
+Ensure authentication for a service, prompting if
+necessary. Returns 0 on success, 1 on failure.
 
-**Usage:**
 ```bash
 ensure_auth github || exit 1
 ensure_auth gitlab || exit 1
 ensure_auth aws || exit 1
 ```
 
-**Supported Services:**
-- `github` - GitHub CLI (gh)
-- `gitlab` - GitLab CLI (glab)
-- `aws` - AWS CLI
-- `gcloud` - Google Cloud CLI
-- `azure` - Azure CLI
-
-**Returns:**
-- `0` - Authentication successful
-- `1` - Authentication failed
-
-**Example:**
-```bash
-if ! ensure_auth github; then
-  echo "GitHub authentication required but failed"
-  exit 1
-fi
-
-# Continue with authenticated operations
-gh pr list
-```
+**Supported services:** `github` (gh), `gitlab` (glab),
+`aws`, `gcloud`, `azure`
 
 ### `check_auth_status <service>`
 
-Check if service is authenticated (non-interactive).
+Non-interactive check. Returns 0 if authenticated, 1
+otherwise.
 
-**Usage:**
 ```bash
 if check_auth_status github; then
   echo "GitHub is authenticated"
-else
-  echo "GitHub authentication needed"
 fi
 ```
 
-**Returns:**
-- `0` - Authenticated
-- `1` - Not authenticated
-
 ### `invalidate_auth_cache <service>`
 
-Invalidate cached authentication status.
+Force re-authentication next time.
 
-**Usage:**
 ```bash
-# Force re-authentication next time
 invalidate_auth_cache github
 ensure_auth github  # Will prompt again
 ```
 
 ### `clear_all_auth_cache`
 
-Clear all cached authentication data.
-
-**Usage:**
-```bash
-# Clear all auth caches
-clear_all_auth_cache
-```
+Clear all cached authentication data across all services.
 
 ## Token Caching
 
-### Cache Storage
-
-Tokens and authentication status are cached in:
+Cache structure:
 
 ```
 ~/.cache/claude-auth/
 ├── github/
-│   ├── auth_status.json      # Current auth status
-│   ├── last_verified.txt     # Timestamp of last check
-│   └── token_cache.json      # Cached token info (optional)
+│   ├── auth_status.json
+│   ├── last_verified.txt
+│   └── token_cache.json
 ├── gitlab/
-│   └── ...
-└── config.json               # Global configuration
+└── config.json
 ```
 
-### Cache Validation
-
-Cached credentials are validated based on:
+Cache validation uses three mechanisms:
 
 1. **Time-based expiration** (default: 5 minutes)
 2. **Session persistence** (default: 24 hours)
 3. **Manual invalidation** (via `invalidate_auth_cache`)
 
-**Example:**
-```bash
-# First call: Checks auth, caches result
-ensure_auth github
+Within the cache TTL, `ensure_auth` returns immediately
+without contacting the service. After TTL expiry, it
+re-validates with the service. After session TTL expiry,
+full re-authentication is required.
 
-# Within 5 minutes: Uses cached result (fast)
-ensure_auth github
+## Authentication Flows
 
-# After 5 minutes: Re-validates with service (still cached if valid)
-ensure_auth github
+### GitHub
 
-# Force re-check: Invalidate cache first
-invalidate_auth_cache github
-ensure_auth github  # Re-checks immediately
-```
+`ensure_auth github` checks `gh auth status` first,
+then cache, then prompts:
 
-## Session Management
+1. Browser OAuth (recommended)
+2. Personal Access Token
+3. Cancel workflow
 
-### Session Tracking
+### AWS
 
-Sessions track authentication state across multiple workflow runs:
+`ensure_auth aws` checks `aws sts get-caller-identity`
+first, then prompts:
 
-```bash
-# First workflow run
-ensure_auth github  # Stores session in ~/.cache/claude-auth/github/session.json
+1. AWS Access Keys
+2. SSO Session
+3. Web Identity (OIDC)
+4. Cancel workflow
 
-# Second workflow run (within 24 hours)
-ensure_auth github  # Uses session, skips auth check
+### Other Services
 
-# Session expired
-ensure_auth github  # Re-authenticates
-```
-
-### Session Lifecycle
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Workflow 1: ensure_auth github                             │
-│  └─> Authenticate (OAuth)                                    │
-│  └─> Store session: ~/.cache/claude-auth/github/session.json│
-│  └─> Cache expires: 5 minutes                                │
-│  └─> Session expires: 24 hours                               │
-├─────────────────────────────────────────────────────────────┤
-│  Workflow 2 (5 min later): ensure_auth github               │
-│  └─> Load session (valid)                                    │
-│  └─> Validate token (lightweight check)                      │
-│  └─> Skip prompt                                             │
-├─────────────────────────────────────────────────────────────┤
-│  Workflow 3 (26 hours later): ensure_auth github            │
-│  └─> Session expired                                         │
-│  └─> Re-authenticate                                          │
-│  └─> Store new session                                        │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Interactive Authentication Flow
-
-### GitHub Authentication
-
-```bash
-ensure_auth github
-```
-
-**Flow:**
-```bash
-# 1. Check if already authenticated
-if gh auth status &>/dev/null; then
-  echo "✓ GitHub authenticated"
-  return 0
-fi
-
-# 2. Check cache
-if check_cache github; then
-  echo "✓ Using cached GitHub credentials"
-  return 0
-fi
-
-# 3. Prompt for authentication
-cat << 'PROMPT'
-🔐 GitHub Authentication Required
-
-This workflow needs GitHub API access to continue.
-
-How would you like to authenticate?
-  1. Browser (OAuth) - Recommended
-  2. Personal Access Token
-  3. Cancel workflow
-
-Choose [1-3]:
-PROMPT
-
-read -r choice
-
-case "$choice" in
-  1)
-    # Browser OAuth flow
-    gh auth login
-    ;;
-  2)
-    # Token-based auth
-    echo "Enter your GitHub personal access token:"
-    read -rs token
-    echo "$token" | gh auth login --with-token
-    ;;
-  3)
-    return 1
-    ;;
-esac
-
-# 4. Verify authentication
-if gh auth status &>/dev/null; then
-  store_session github
-  echo "✓ GitHub authentication successful"
-  return 0
-else
-  echo "❌ GitHub authentication failed"
-  return 1
-fi
-```
-
-### GitLab Authentication
-
-```bash
-ensure_auth gitlab
-```
-
-**Similar flow to GitHub, using `glab auth login`**
-
-### AWS Authentication
-
-```bash
-ensure_auth aws
-```
-
-**Flow:**
-```bash
-# Check AWS credentials
-if aws sts get-caller-identity &>/dev/null; then
-  echo "✓ AWS authenticated"
-  return 0
-fi
-
-# Prompt for authentication
-cat << 'PROMPT'
-🔐 AWS Authentication Required
-
-How would you like to authenticate?
-  1. AWS Access Keys (long-lived credentials)
-  2. SSO Session (organization SSO)
-  3. Web Identity (OIDC)
-  4. Cancel workflow
-
-Choose [1-4]:
-PROMPT
-
-read -r choice
-
-case "$choice" in
-  1)
-    echo "Enter AWS Access Key ID:"
-    read -rs AWS_ACCESS_KEY_ID
-    echo "Enter AWS Secret Access Key:"
-    read -rs AWS_SECRET_ACCESS_KEY
-    export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-    ;;
-  2)
-    aws sso login
-    ;;
-  3)
-    aws webidentity-token-file role-arn
-    ;;
-  4)
-    return 1
-    ;;
-esac
-```
+GitLab uses `glab auth login`, GCP uses
+`gcloud auth login`, Azure uses `az login`. All follow
+the same check-cache-prompt pattern.
 
 ## CI/CD Compatibility
 
-### Automatic Detection
+The module auto-detects non-interactive environments
+(`$CI`, `$GITHUB_ACTIONS`, or non-terminal stdin) and
+falls back to environment variables.
 
-The module automatically detects non-interactive environments:
-
-```bash
-# In CI/CD: Check environment variables
-if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]] || [[ ! -t 0 ]]; then
-  # Non-interactive mode: Use environment variables
-  if [[ -n "$GITHUB_TOKEN" ]]; then
-    echo "$GITHUB_TOKEN" | gh auth login --with-token
-  else
-    echo "ERROR: GITHUB_TOKEN required in CI/CD"
-    exit 1
-  fi
-else
-  # Interactive mode: Prompt user
-  prompt_auth_login github
-fi
-```
-
-### CI/CD Example
-
-```bash
+```yaml
 # .github/workflows/pr-review.yml
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - name: Configure Git
-        run: git config --global user.name "CI Bot"
       - name: Run PR review
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AUTH_INTERACTIVE: false  # Force non-interactive
-        run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
-          ensure_auth github || exit 1
-          /pr-review ${{ github.event.pull_request.number }}
-```
-
-## Multi-Service Support
-
-### Authenticated Multiple Services
-
-```bash
-# Authenticate multiple services in sequence
-ensure_auth github || exit 1
-ensure_auth gitlab || exit 1
-ensure_auth aws || exit 1
-
-# Use all services
-gh pr list
-glab issue list
-aws s3 ls
-```
-
-### Service Configuration
-
-Each service has its own configuration:
-
-```bash
-# GitHub
-ensure_auth github
-# Uses: gh auth status
-# Cache: ~/.cache/claude-auth/github/
-
-# GitLab
-ensure_auth gitlab
-# Uses: glab auth status
-# Cache: ~/.cache/claude-auth/gitlab/
-
-# AWS
-ensure_auth aws
-# Uses: aws sts get-caller-identity
-# Cache: ~/.cache/claude-auth/aws/
-```
-
-## Error Handling
-
-### Retry Logic
-
-Failed authentications are retried with exponential backoff:
-
-```bash
-MAX_ATTEMPTS=3
-ATTEMPT=1
-
-while [[ $ATTEMPT -le $MAX_ATTEMPTS ]]; do
-  if ensure_auth github; then
-    break
-  fi
-
-  ATTEMPT=$((ATTEMPT + 1))
-
-  if [[ $ATTEMPT -le $MAX_ATTEMPTS ]]; then
-    WAIT=$((2 ** ATTEMPT))  # 2, 4, 8 seconds
-    echo "Retrying in ${WAIT}s... (attempt $ATTEMPT/$MAX_ATTEMPTS)"
-    sleep $WAIT
-  fi
-done
-```
-
-### Error Diagnostics
-
-Common authentication failures and solutions:
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `gh: command not found` | GitHub CLI not installed | Install via `brew install gh` or equivalent |
-| `gh auth status: failed` | Not authenticated | Run `gh auth login` or set `GITHUB_TOKEN` |
-| `Token expired` | Cached token expired | Re-authenticate with `ensure_auth github` |
-| `Invalid credentials` | Wrong token/keys | Verify credentials in service dashboard |
-
-## Advanced Usage
-
-### Custom Cache Configuration
-
-```bash
-# Extend cache lifetime to 1 hour
-export AUTH_CACHE_TTL=3600
-ensure_auth github
-
-# Disable caching entirely
-export AUTH_CACHE_TTL=0
-ensure_auth github
-```
-
-### Custom Cache Directory
-
-```bash
-# Use custom cache location
-export AUTH_CACHE_DIR="$HOME/.my-auth-cache"
-ensure_auth github
-```
-
-### Session Persistence
-
-```bash
-# Extend session to 7 days
-export AUTH_SESSION_TTL=604800
-ensure_auth github
-```
-
-### Force Interactive Mode
-
-```bash
-# Force interactive prompts (even in CI)
-export AUTH_INTERACTIVE=true
-ensure_auth github
-```
-
-### Force Non-Interactive Mode
-
-```bash
-# Disable prompts (fail if not authenticated)
-export AUTH_INTERACTIVE=false
-ensure_auth github || exit 1
-```
-
-## Integration Examples
-
-### Example 1: PR Review Workflow
-
-```bash
-#!/usr/bin/env bash
-# /pr-review command
-
-source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
-
-# Ensure GitHub authentication
-if ! ensure_auth github; then
-  echo "❌ GitHub authentication required for PR review"
-  exit 1
-fi
-
-# Continue with workflow
-PR_NUMBER="$1"
-gh pr view "$PR_NUMBER"
-gh api repos/owner/repo/pulls/$PR_NUMBER/comments
-```
-
-### Example 2: Multi-Repository Operations
-
-```bash
-#!/usr/bin/env bash
-# Sync issue labels across repos
-
-source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
-
-ensure_auth github || exit 1
-
-for repo in repo1 repo2 repo3; do
-  gh label sync --repo owner/$repo
-done
-```
-
-### Example 3: CI/CD Pipeline
-
-```yaml
-# .github/workflows/issue-sync.yml
-name: Sync Issues
-
-on:
-  schedule:
-    - cron: '0 * * * *'
-
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Sync issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false
         run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
+          source plugins/leyline/scripts/interactive_auth.sh
           ensure_auth github || exit 1
-          ./scripts/sync-issues.sh
+          /pr-review ${{ github.event.pull_request.number }}
 ```
+
+## Error Handling
+
+Failed authentications retry with exponential backoff
+(2, 4, 8 seconds) up to `AUTH_MAX_ATTEMPTS`.
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `gh: command not found` | CLI not installed | Install via package manager |
+| `gh auth status: failed` | Not authenticated | Run `gh auth login` or set `GITHUB_TOKEN` |
+| `Token expired` | Cached token expired | Re-authenticate via `ensure_auth` |
+| `Invalid credentials` | Wrong token/keys | Verify in service dashboard |
+
+## Troubleshooting
+
+**Auth not working after changing credentials:**
+```bash
+clear_all_auth_cache
+ensure_auth github
+```
+
+**Keeps asking for authentication:**
+```bash
+export AUTH_SESSION_TTL=604800  # Extend to 7 days
+ensure_auth github
+```
+
+**Fails in CI with "not a terminal":**
+```bash
+export AUTH_INTERACTIVE=false
+export GITHUB_TOKEN="..."
+ensure_auth github
+```
+
+## Security Considerations
+
+1. **Token storage**: Managed by service CLIs, not this
+   module (e.g., `~/.config/gh/hosts.yml`)
+2. **Cache permissions**: Directory restricted to `0700`
+3. **No token logging**: Tokens are never logged or echoed
+4. **Session expiration**: Limits credential lifetime
+5. **CI/CD best practice**: Use short-lived tokens
 
 ## Exit Criteria
 
@@ -579,56 +213,3 @@ jobs:
 - Session is cached for future use
 - Workflow can proceed with API access
 - CI/CD environments use environment variables
-
-## Troubleshooting
-
-### Cache Issues
-
-**Problem:** Auth not working after changing credentials
-
-**Solution:**
-```bash
-clear_all_auth_cache
-ensure_auth github
-```
-
-### Session Issues
-
-**Problem:** Keeps asking for authentication
-
-**Solution:**
-```bash
-# Check session file
-cat ~/.cache/claude-auth/github/session.json
-
-# Extend session TTL
-export AUTH_SESSION_TTL=604800  # 7 days
-ensure_auth github
-```
-
-### CI/CD Issues
-
-**Problem:** Fails in CI with "not a terminal"
-
-**Solution:**
-```bash
-# Force non-interactive mode
-export AUTH_INTERACTIVE=false
-export GITHUB_TOKEN="..."  # Set token
-ensure_auth github
-```
-
-## Security Considerations
-
-1. **Token Storage**: Tokens are stored by service CLIs (not by this module)
-   - GitHub: `~/.config/gh/hosts.yml`
-   - GitLab: `~/.config/glab/config.yml`
-   - AWS: `~/.aws/credentials`
-
-2. **Cache Permissions**: Cache directory has restricted permissions (`0700`)
-
-3. **No Token Logging**: Tokens are never logged or echoed
-
-4. **Session Expiration**: Sessions expire to limit credential lifetime
-
-5. **CI/CD Best Practice**: Use short-lived tokens in CI/CD environments
