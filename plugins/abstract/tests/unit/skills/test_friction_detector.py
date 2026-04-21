@@ -3,8 +3,6 @@
 Validates that the friction-detector skill defines signal types,
 graduation tiers, detection workflow, anti-noise rules, and
 integration points for the friction-to-learning pipeline.
-
-Following TDD/BDD principles per the Iron Law.
 """
 
 from pathlib import Path

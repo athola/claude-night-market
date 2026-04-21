@@ -14,6 +14,7 @@ subprocess.  The stop path sends SIGTERM if the daemon is running.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import signal
 import subprocess
@@ -120,9 +121,6 @@ def _stop_daemon() -> None:
         pid = int(pid_file.read_text().strip())
         os.kill(pid, signal.SIGTERM)
     except ValueError:
-        # Corrupt PID file — log and continue cleanup
-        import logging
-
         logging.getLogger(__name__).debug(
             "PID file corrupt, skipping SIGTERM: %s", pid_file
         )

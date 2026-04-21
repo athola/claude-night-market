@@ -1,7 +1,5 @@
 """Route, environment variable, middleware, and schema detection."""
 
-# ruff: noqa: PLR0912, PLR0915, PLR2004, C901
-
 from __future__ import annotations
 
 import re
@@ -80,7 +78,7 @@ def _is_test_file(fname: str, rel_path: str) -> bool:
     )
 
 
-def detect_routes(root: Path) -> list[RouteInfo]:
+def detect_routes(root: Path) -> list[RouteInfo]:  # noqa: PLR0912, C901 - one branch per framework (FastAPI/Flask/Express)
     """Detect API routes from framework-specific patterns."""
     root = root.resolve()
     routes: list[RouteInfo] = []
@@ -166,7 +164,7 @@ _JS_PROCESS_ENV_RE = re.compile(
 _DOTENV_LINE_RE = re.compile(r"^([A-Z][A-Z0-9_]+)\s*=", re.MULTILINE)
 
 
-def detect_env_vars(root: Path) -> list[EnvVarInfo]:
+def detect_env_vars(root: Path) -> list[EnvVarInfo]:  # noqa: PLR0912, C901 - branches per language and file type
     """Detect environment variable references across the project."""
     root = root.resolve()
     found: dict[str, EnvVarInfo] = {}  # name -> info (dedup)
@@ -372,7 +370,7 @@ def _count_fields_prisma(body: str) -> int:
     return count
 
 
-def detect_schemas(root: Path) -> list[SchemaModel]:
+def detect_schemas(root: Path) -> list[SchemaModel]:  # noqa: PLR0912, C901 - one branch per ORM framework (SQLAlchemy/Django/Pydantic/Prisma)
     """Detect ORM model and schema definitions in the project."""
     root = root.resolve()
     schemas: list[SchemaModel] = []

@@ -1,7 +1,5 @@
 """Language and framework ecosystem detection functions."""
 
-# ruff: noqa: PLR0912, PLR0915, PLR2004, C901
-
 from __future__ import annotations
 
 import json
@@ -34,16 +32,18 @@ from .models import (
 )
 
 # ---------------------------------------------------------------------------
-# Shared helpers
+# Constants
 # ---------------------------------------------------------------------------
 
+_MAX_WALK_DEPTH = 8
+_MIN_MODULE_PARTS = 2
 
 # ---------------------------------------------------------------------------
 # T001: File Tree Walker
 # ---------------------------------------------------------------------------
 
 
-def scan_directory(root: Path) -> ScanResult:
+def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates data across many subsystems in one pass
     """Walk a project directory and collect structure metadata."""
     root = root.resolve()
     project_name = root.name
@@ -78,7 +78,7 @@ def scan_directory(root: Path) -> ScanResult:
 
     def _walk(path: Path, depth: int, top_dir: str | None) -> None:
         nonlocal total_files
-        if depth > 8:
+        if depth > _MAX_WALK_DEPTH:
             return
         try:
             entries = sorted(path.iterdir(), key=lambda e: e.name)
@@ -181,7 +181,7 @@ def scan_directory(root: Path) -> ScanResult:
 # ---------------------------------------------------------------------------
 
 
-def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]]:
+def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]]:  # noqa: PLR0912, PLR0915 - handles many pyproject.toml format variants
     """Extract dependencies from pyproject.toml text."""
     runtime_deps: list[Dependency] = []
     dev_deps: list[Dependency] = []
@@ -371,7 +371,7 @@ def detect_python(root: Path) -> EcosystemResult | None:
 # ---------------------------------------------------------------------------
 
 
-def detect_node(root: Path) -> EcosystemResult | None:
+def detect_node(root: Path) -> EcosystemResult | None:  # noqa: PLR0912 - branches per framework and entry-point detection pattern
     """Detect Node.js ecosystem from package.json."""
     pkg_json = root / "package.json"
     if not pkg_json.exists():
@@ -495,7 +495,7 @@ def detect_go(root: Path) -> EcosystemResult | None:
             continue
         if in_require and stripped and not stripped.startswith("//"):
             parts = stripped.split()
-            if len(parts) >= 2:
+            if len(parts) >= _MIN_MODULE_PARTS:
                 mod_path = parts[0]
                 version = parts[1]
                 # Use last segment as display name

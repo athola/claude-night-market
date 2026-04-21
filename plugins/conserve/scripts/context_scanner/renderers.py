@@ -13,6 +13,7 @@ from .models import (
     Dependency,
     RouteInfo,
     ScanResult,
+    Section,
     TruncatedList,
 )
 
@@ -525,16 +526,7 @@ def render_blast_radius(result: BlastResult) -> str:
     return "\n".join(lines)
 
 
-_VALID_SECTIONS = {
-    "structure",
-    "deps",
-    "routes",
-    "hot-files",
-    "env",
-    "middleware",
-    "models",
-    "frameworks",
-}
+_VALID_SECTIONS = set(Section)
 
 
 def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR0912 - one branch per section type is the clearest structure
@@ -547,14 +539,14 @@ def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR
 
     lines: list[str] = []
 
-    if section == "structure":
+    if section == Section.STRUCTURE:
         for d in result.directories[:_MAX_DISPLAY_SECTION_ITEMS]:
             lang = f" ({d.primary_language})" if d.primary_language else ""
             lines.append(f"  {d.path:<20} {d.file_count} files{lang}")
         if result.truncated_dirs:
             lines.append(f"  ...{result.truncated_dirs} more directories")
 
-    elif section == "deps":
+    elif section == Section.DEPS:
         for eco in result.ecosystems:
             pm = f" ({eco.package_manager})" if eco.package_manager else ""
             lines.append(f"## {eco.name}{pm}")
@@ -566,14 +558,14 @@ def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR
                 lines.append(f"  ...{remaining} more")
             lines.append("")
 
-    elif section == "routes":
+    elif section == Section.ROUTES:
         for r in result.routes[:_MAX_DISPLAY_SECTION_ROUTES]:
             lines.append(f"  {r.method:<7} {r.path:<30} ({r.file})")
         if len(result.routes) > _MAX_DISPLAY_SECTION_ROUTES:
             extra = len(result.routes) - _MAX_DISPLAY_SECTION_ROUTES
             lines.append(f"  ...{extra} more")
 
-    elif section == "hot-files":
+    elif section == Section.HOT_FILES:
         graph = result.import_graph
         for hf in result.hot_files[:_MAX_DISPLAY_SECTION_HOT_FILES]:
             if graph and hf in graph.imported_by:
@@ -585,18 +577,18 @@ def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR
             extra = len(result.hot_files) - _MAX_DISPLAY_SECTION_HOT_FILES
             lines.append(f"  ...{extra} more")
 
-    elif section == "env":
+    elif section == Section.ENV:
         for v in result.env_vars[:_MAX_DISPLAY_FILES]:
             default = " (has default)" if v.has_default else " (required)"
             lines.append(f"  - {v.name}{default}")
         if len(result.env_vars) > _MAX_DISPLAY_FILES:
             lines.append(f"  ...{len(result.env_vars) - _MAX_DISPLAY_FILES} more")
 
-    elif section == "middleware":
+    elif section == Section.MIDDLEWARE:
         for m in result.middleware:
             lines.append(f"  - {m.name} [{m.kind}] ({m.file})")
 
-    elif section == "models":
+    elif section == Section.MODELS:
         schemas = getattr(result, "schemas", [])
         for s in schemas[:_MAX_DISPLAY_SECTION_ITEMS]:
             fields = f" ({s.field_count} fields)" if s.field_count else ""
@@ -604,7 +596,7 @@ def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR
         if len(schemas) > _MAX_DISPLAY_SECTION_ITEMS:
             lines.append(f"  ...{len(schemas) - _MAX_DISPLAY_SECTION_ITEMS} more")
 
-    elif section == "frameworks":
+    elif section == Section.FRAMEWORKS:
         for fw in result.all_frameworks:
             locs = ", ".join(fw.locations[:3])
             lines.append(f"  - {fw.name} ({locs})")

@@ -5,7 +5,22 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
+
+
+class Section(str, Enum):
+    """Valid section identifiers for render_section()."""
+
+    STRUCTURE = "structure"
+    DEPS = "deps"
+    ROUTES = "routes"
+    HOT_FILES = "hot-files"
+    ENV = "env"
+    MIDDLEWARE = "middleware"
+    MODELS = "models"
+    FRAMEWORKS = "frameworks"
+
 
 # ---------------------------------------------------------------------------
 # Constants

@@ -5,7 +5,7 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.0] - 2026-04-14
 
 ### Added
 
@@ -32,11 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   feedback loops.
 - **egregore model-routing module**: Model selection
   routing for the summon skill.
-
-## [1.9.0] - 2026-04-14
-
-### Added
-
 - **attune interactive plan review**: Review loop between
   planning and execution phases. Users approve, request
   revisions, or reject plans before implementation begins.

@@ -69,6 +69,7 @@ from .models import (
     RouteInfo,
     ScanResult,
     SchemaModel,
+    Section,
     TokenEstimate,
     TruncatedList,
     WikiArticle,
@@ -91,6 +92,7 @@ from .renderers import (
 
 __all__ = [
     # Models
+    "Section",
     "BlastResult",
     "Dependency",
     "DirectoryInfo",
