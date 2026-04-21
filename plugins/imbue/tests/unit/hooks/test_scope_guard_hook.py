@@ -38,6 +38,7 @@ def run_hook(stdin_data: str = "", env_overrides: dict | None = None) -> dict:
         text=True,
         timeout=10,
         env=env,
+        check=False,
     )
     assert result.returncode == 0, f"Hook failed: {result.stderr}"
     if not result.stdout.strip():

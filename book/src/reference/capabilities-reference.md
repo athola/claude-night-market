@@ -427,6 +427,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
+| `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
+| `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |

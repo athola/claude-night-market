@@ -21,6 +21,36 @@
             "timeout": 2
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_ai_attribution.py",
+            "timeout": 2
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_emoji_commits.py",
+            "timeout": 2
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Grep|Glob|Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads.py",
+            "timeout": 2
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
