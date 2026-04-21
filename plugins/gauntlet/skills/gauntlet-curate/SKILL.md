@@ -34,7 +34,7 @@ bank current. It is also available directly as `/gauntlet-curate`.
    python scripts/curate_problems.py data/problems/ --output /tmp/gauntlet-curate-report.md
    ```
 
-3. **Identify gaps** — categories whose actual count falls below
+3. **Identify gaps**: categories whose actual count falls below
    the `neetcode_count` in the manifest.
    The script sorts gaps largest-first so the worst shortfalls
    appear at the top.
@@ -92,7 +92,7 @@ Optional fields default to empty values.
 ## Safety Constraints
 
 - Never modify files under `data/problems/` directly.
-- Never run with a `--write` or `--fix` flag — the script
+- Never run with a `--write` or `--fix` flag: the script
   intentionally has none.
 - All output is a proposal report for human approval.
 - Existing hand-curated problems are never touched.
