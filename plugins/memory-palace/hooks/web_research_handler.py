@@ -61,9 +61,6 @@ def _try_register_graph_entity(
     Runs silently if the graph DB or package is unavailable.
     """
     try:
-        from memory_palace.graph_analyzer import (
-            PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
-        )
         from memory_palace.knowledge_graph import (
             KnowledgeGraph,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
         )
@@ -76,12 +73,19 @@ def _try_register_graph_entity(
                 entity_type=entity_type,
                 name=name,
             )
-            analyzer = PalaceGraphAnalyzer(graph)
-            suggestions = analyzer.predict_links(top_n=5)
-            if suggestions:
-                sys.stderr.write(
-                    f"web_research_handler: link predictions: {suggestions[:3]}\n"
+            try:
+                from memory_palace.graph_analyzer import (
+                    PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
                 )
+
+                analyzer = PalaceGraphAnalyzer(graph)
+                suggestions = analyzer.predict_links(top_n=5)
+                if suggestions:
+                    sys.stderr.write(
+                        f"web_research_handler: link predictions: {suggestions[:3]}\n"
+                    )
+            except Exception:  # noqa: BLE001 - link prediction is optional; entity write already succeeded
+                pass
         finally:
             graph.close()
     except Exception as exc:  # noqa: BLE001 - hooks must never crash; log and continue
