@@ -26,6 +26,7 @@ skills:
 - skills/challenge
 - skills/onboard
 - skills/curate
+- skills/gauntlet-curate
 - skills/graph-build
 - skills/graph-search
 hooks: hooks/hooks.json
