@@ -37,6 +37,64 @@ except (ImportError, ModuleNotFoundError) as _import_err:
         _import_err,
     )
 
+# ---------------------------------------------------------------------------
+# Graph wiring helpers (Issue #393) — never raise
+# ---------------------------------------------------------------------------
+
+_CROSS_PALACE_TOOLS = {"WebFetch", "WebSearch", "Read", "Edit"}
+
+
+def _try_record_journey_completion(
+    palaces_dir: Path,
+    session_id: str,
+    tools_used: list,
+) -> None:
+    """Record journey completion and run link prediction. Never raises.
+
+    Detects cross-palace navigation by checking whether the session used
+    web-intake or read tools, then records a journey via JourneyTracker
+    and runs predict_links once.
+    """
+    try:
+        from memory_palace.graph_analyzer import (
+            PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+        )
+        from memory_palace.journey_tracker import (
+            JourneyTracker,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+        )
+        from memory_palace.knowledge_graph import (
+            KnowledgeGraph,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+        )
+
+        db_path = palaces_dir / "knowledge_graph.db"
+        if not db_path.exists():
+            return
+
+        used_set = set(tools_used or [])
+        if not used_set.intersection(_CROSS_PALACE_TOOLS):
+            return  # No cross-palace navigation detected
+
+        graph = KnowledgeGraph(str(db_path))
+        try:
+            tracker = JourneyTracker(graph)
+            journey_id = tracker.start_journey(
+                entity_id=f"session_{session_id[:16]}",
+                trigger="session_stop",
+            )
+            tracker.complete_journey(journey_id, outcome="completed")
+
+            analyzer = PalaceGraphAnalyzer(graph)
+            suggestions = analyzer.predict_links(top_n=5)
+            if suggestions:
+                sys.stderr.write(
+                    f"session_lifecycle: link predictions: {suggestions[:3]}\n"
+                )
+        finally:
+            graph.close()
+    except Exception as exc:  # noqa: BLE001 - hooks must never crash; log and continue
+        logger.debug("session_lifecycle: graph wiring skipped: %s", exc)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -173,6 +231,13 @@ def main() -> None:
     except Exception as exc:
         # Non-critical: never block the session from ending
         logger.warning("session_lifecycle: Failed to record session: %s", exc)
+
+    # Graph wiring: record journey completion if cross-palace navigation occurred
+    _try_record_journey_completion(
+        palaces_dir=PLUGIN_ROOT / "data" / "palaces",
+        session_id=str(payload.get("session_id", "")),
+        tools_used=list(payload.get("tools_used") or []),
+    )
 
     sys.exit(0)
 
