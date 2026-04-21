@@ -79,6 +79,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
+| `gauntlet-curate` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |

@@ -3,12 +3,13 @@
   "version": "1.9.1",
   "description": "Codebase learning through knowledge extraction, code knowledge graph, challenges, and spaced repetition. Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.",
   "skills": [
-    "./skills/extract",
     "./skills/challenge",
-    "./skills/onboard",
     "./skills/curate",
+    "./skills/extract",
+    "./skills/gauntlet-curate",
     "./skills/graph-build",
-    "./skills/graph-search"
+    "./skills/graph-search",
+    "./skills/onboard"
   ],
   "commands": [
     "./commands/gauntlet.md",

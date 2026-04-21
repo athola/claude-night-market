@@ -5,7 +5,7 @@ description: >
   Surveys data/problems/*.yaml for coverage by category, identifies
   gaps against the NeetCode manifest counts, and produces a human-review
   report with YAML-schema-valid proposals. Never overwrites curated files.
-version: 1.9.0
+version: 1.9.1
 model_hint: standard
 ---
 
