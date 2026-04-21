@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-layered
 description: 'Layered (n-tier) architecture with enforced layer boundaries and separation of concerns.'
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: architectural-pattern
 tags:

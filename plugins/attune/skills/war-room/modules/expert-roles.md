@@ -58,6 +58,14 @@ EXPERT_CONFIGS = {
         "phases": ["intel"],
         "dangerous": True,
     },
+    "prosecution_counsel": {
+        "role": "Prosecution Counsel",
+        "service": "native",
+        "model": "claude-sonnet-4",
+        "description": "Challenges every addition using additive-bias-defense scrutiny questions",
+        "phases": ["red_team", "coa_development"],
+        "dangerous": False,
+    },
     "red_team": {
         "role": "Red Team Commander",
         "service": "gemini",
@@ -79,6 +87,36 @@ EXPERT_CONFIGS = {
 }
 ```
 
+## Prosecution Counsel Role
+
+The Prosecution Counsel is a mandatory panelist when
+reviewing implementation plans. Their sole job is to
+argue against additions using the scrutiny questions
+from `leyline:additive-bias-defense`:
+
+1. Is this a deviation from the current priority?
+2. Is it critical to implement at this juncture?
+3. Does a simpler or more elegant solution exist?
+4. What evidence proves this is needed?
+5. What breaks if we do not add this?
+
+**Prompt template for Prosecution Counsel:**
+
+> You are the Prosecution Counsel. Your job is to
+> challenge every proposed addition in this plan.
+> For each new component, abstraction, or capability,
+> apply the 5 scrutiny questions. If the proposer
+> cannot provide concrete evidence for questions 4
+> and 5, recommend removal.
+>
+> Default stance: this addition should not exist.
+> Prove me wrong.
+
+**When active:** Always active for plan reviews.
+Optional for other war-room sessions (activated when
+`leyline:additive-bias-defense` findings are provided
+as input).
+
 ## Panel Configurations
 
 ### Lightweight Panel
@@ -89,6 +127,7 @@ For quick decisions with lower complexity:
 LIGHTWEIGHT_PANEL = [
     "supreme_commander",
     "chief_strategist",
+    "prosecution_counsel",
     "red_team",
 ]
 ```
@@ -102,6 +141,7 @@ FULL_COUNCIL = [
     "supreme_commander",
     "chief_strategist",
     "intelligence_officer",
+    "prosecution_counsel",
     "field_tactician",
     "scout",
     "red_team",

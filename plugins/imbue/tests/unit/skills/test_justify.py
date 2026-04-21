@@ -210,3 +210,81 @@ class TestMinimalInterventionAnalysis:
         """
         assert "Subtraction" in skill_content
         assert "removing" in skill_content.lower()
+
+
+class TestInvariantImpactAnalysis:
+    """Feature: Justify detects silent invariant revision.
+
+    As a developer auditing AI-generated changes
+    I want the skill to detect invariant conflicts
+    So that design decisions are not silently revised
+    """
+
+    @pytest.fixture
+    def skill_content(self) -> str:
+        """Load the skill content."""
+        path = Path(__file__).parents[3] / "skills" / "justify" / "SKILL.md"
+        return path.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_defines_invariant_impact_step(self, skill_content: str) -> None:
+        """Scenario: Skill includes invariant impact analysis step.
+
+        Given the justify skill audit protocol
+        When reviewing the steps
+        Then an invariant impact analysis step should exist
+        """
+        assert "Invariant Impact Analysis" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_lists_three_invariant_options(self, skill_content: str) -> None:
+        """Scenario: Skill presents the three-option framework.
+
+        Given the justify skill
+        When reviewing invariant conflict handling
+        Then preserve, layer, and revise options should be listed
+        """
+        assert "Preserve" in skill_content
+        assert "Layer" in skill_content
+        assert "Revise" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_flags_silent_invariant_revision_antipattern(
+        self, skill_content: str
+    ) -> None:
+        """Scenario: Skill flags silent invariant revision as anti-pattern.
+
+        Given the justify skill anti-patterns section
+        When reviewing for invariant-related patterns
+        Then Silent Invariant Revision should be flagged
+        """
+        assert "Silent Invariant Revision" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_warns_about_compounding_risk(self, skill_content: str) -> None:
+        """Scenario: Skill warns that bad invariant decisions compound.
+
+        Given the justify skill
+        When reviewing the invariant impact section
+        Then a compounding risk warning should be present
+        """
+        assert "compound" in skill_content.lower()
+        assert "unsalvageable" in skill_content.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_requires_human_review_for_invariant_changes(
+        self, skill_content: str
+    ) -> None:
+        """Scenario: Skill requires human review for invariant changes.
+
+        Given the justify skill invariant impact section
+        When an invariant conflict is detected
+        Then human review should be flagged as required
+        """
+        assert "Human reviewed" in skill_content or "human" in skill_content.lower()
+        assert "judgment" in skill_content.lower()

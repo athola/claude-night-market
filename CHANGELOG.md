@@ -5,7 +5,70 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.0] - 2026-04-14
+
+### Added
+
+- **invariant-judgment framework**: Cross-cutting detection
+  and escalation for design invariant conflicts across 6
+  skills in 4 plugins (imbue, pensive, sanctum). When a
+  change conflicts with an existing invariant (architecture
+  pattern, data structure choice, API contract), the agent
+  surfaces three options (preserve, layer, revise) and
+  escalates to human judgment rather than silently resolving.
+  Includes invariant-encoding test guidance and 30 content
+  assertion tests protecting the framework itself.
+- **abstract friction-detector**: Detects friction signals
+  during execution and graduates recurring patterns into
+  declarative rules for session retrospectives and learning
+  pipeline automation.
+- **imbue vow-enforcement**: Three-layer constraint
+  enforcement (soft vows, hard vows, Nen Court external
+  validators) that classifies constraints by reliability
+  and graduates them when violation rates climb.
+- **attune mission-orchestrator modules**: Added
+  adaptive-constraints, reflexion-buffer, and trust-tier
+  modules for dynamic constraint adjustment and execution
+  feedback loops.
+- **egregore model-routing module**: Model selection
+  routing for the summon skill.
+- **attune interactive plan review**: Review loop between
+  planning and execution phases. Users approve, request
+  revisions, or reject plans before implementation begins.
+  Includes feedback collection, plan versioning with diffs,
+  context injection for revision prompts, and a 3-round
+  iteration governor to prevent unbounded revision cycles.
+- **attune war-room**: Prosecution Counsel role that
+  stress-tests proposals by probing failure modes, hidden
+  costs, and unstated assumptions.
+- **leyline additive-bias-defense**: Cross-cutting contract
+  that inverts the burden of proof for code additions.
+  Every proposed addition must justify its presence against
+  scrutiny questions.
+
+### Changed
+
+- **abstract skills-eval**: Consolidated evaluation modules.
+  Removed multi-metric-evaluation-methodology, quality-metrics,
+  and skill-authoring-best-practices in favor of streamlined
+  evaluation-criteria and authoring-checklist modules.
+- **conserve context_scanner**: Refactored monolith script
+  into a package with separate modules for detection,
+  ecosystems, caching, rendering, import graph analysis,
+  and CLI. Public API preserved via `__init__.py` re-exports.
+- **imbue/leyline/abstract skill modules**: Token optimization
+  pass reducing module sizes across red-flags, interactive-auth,
+  configuration, and sdk-hook-types modules.
+
+### Fixed
+
+- **sanctum validators**: Restored defensive `try/except
+  ImportError` fallback for leyline frontmatter parser.
+  Direct import broke tests in environments without leyline
+  installed.
+- **leyline test_sqlite_graph_base**: Replaced blind
+  `pytest.raises(Exception)` with specific exception types
+  (`sqlite3.ProgrammingError`, `sqlite3.OperationalError`).
 
 ## [1.8.4] - 2026-04-10
 

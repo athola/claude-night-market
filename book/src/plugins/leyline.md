@@ -37,6 +37,8 @@ authentication, storage, and testing patterns.
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 | `supply-chain-advisory` | Known-bad version detection, lockfile auditing, incident response | After supply chain advisories, dependency audits, or suspected compromise |
 | `sem-integration` | sem CLI detection, install-on-first-use, fallback patterns | Skills consuming git diff output that benefit from entity-level diffs |
+| `additive-bias-defense` | Scrutiny questions challenging unnecessary additions | Reviewing proposals that add new code, files, or abstractions |
+| `utility` | Expected-gain scoring for candidate agent actions | Guiding action selection in agentic workflows |
 
 ## Commands
 

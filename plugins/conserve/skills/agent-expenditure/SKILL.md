@@ -5,7 +5,7 @@ description: >-
   dispatch workflows. Consult after running parallel agents to evaluate
   whether expenditure was proportional to value. Cross-references the
   plan-before-large-dispatch rule.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: resource-optimization
 tags:

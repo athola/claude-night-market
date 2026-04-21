@@ -333,6 +333,90 @@ class TestPhase6ReportFormat:
         assert "**Why**:" in suggestion_section
 
 
+class TestInvariantConflictDetection:
+    """Feature: PR review detects invariant conflicts.
+
+    As a PR reviewer
+    I want the review to surface invariant conflicts
+    So that design decisions are not silently overridden
+    """
+
+    @pytest.fixture()
+    def skill_content(self) -> str:
+        """Load the SKILL.md content."""
+        return SKILL_FILE.read_text()
+
+    @pytest.mark.unit
+    def test_has_invariant_detection_phase(self, skill_content: str) -> None:
+        """Scenario: PR review has invariant conflict detection phase.
+
+        Given the pr-review SKILL.md
+        When reading the workflow phases
+        Then Phase 4.6 should cover invariant conflict detection
+        """
+        assert "Invariant Conflict Detection" in skill_content
+
+    @pytest.mark.unit
+    def test_defines_invariant_finding_category(self, skill_content: str) -> None:
+        """Scenario: PR review defines INVARIANT as a finding category.
+
+        Given the pr-review SKILL.md
+        When reading finding categories
+        Then INVARIANT should be a defined category
+        """
+        assert "**INVARIANT**" in skill_content
+
+    @pytest.mark.unit
+    def test_invariant_findings_are_blocking(self, skill_content: str) -> None:
+        """Scenario: Invariant findings are always blocking.
+
+        Given the pr-review SKILL.md
+        When an invariant conflict is detected
+        Then it should be classified as BLOCKING
+        """
+        # Find the invariant section and check it says BLOCKING
+        phase46_start = skill_content.find("Phase 4.6")
+        assert phase46_start != -1
+        phase46_section = skill_content[phase46_start:]
+        phase5_start = phase46_section.find("### Phase 5")
+        if phase5_start != -1:
+            phase46_section = phase46_section[:phase5_start]
+        assert "BLOCKING" in phase46_section
+
+    @pytest.mark.unit
+    def test_presents_three_option_analysis(self, skill_content: str) -> None:
+        """Scenario: PR review presents the three-option framework.
+
+        Given the pr-review SKILL.md
+        When an invariant conflict is detected
+        Then preserve, layer, and revise options should be presented
+        """
+        assert "Option A" in skill_content or "Preserve" in skill_content
+        assert "Option B" in skill_content or "Layer" in skill_content
+        assert "Option C" in skill_content or "Revise" in skill_content
+
+    @pytest.mark.unit
+    def test_warns_about_compounding_decisions(self, skill_content: str) -> None:
+        """Scenario: PR review warns about compounding bad decisions.
+
+        Given the pr-review SKILL.md
+        When discussing invariant conflicts
+        Then it should warn that bad decisions compound
+        """
+        assert "compound" in skill_content.lower()
+        assert "unsalvageable" in skill_content.lower()
+
+    @pytest.mark.unit
+    def test_identifies_judgment_not_context_problem(self, skill_content: str) -> None:
+        """Scenario: PR review identifies this as a judgment problem.
+
+        Given the pr-review SKILL.md
+        When discussing invariant conflict resolution
+        Then it should state this is a judgment problem, not context
+        """
+        assert "judgment problem" in skill_content.lower()
+
+
 class TestOutputFormatTemplates:
     """Feature: Pensive output templates include educational fields
 

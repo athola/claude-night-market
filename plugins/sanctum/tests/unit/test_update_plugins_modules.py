@@ -161,13 +161,13 @@ class TestMetaEvaluator:
         assert not evaluator._is_eval_skill("helper")
 
     @pytest.mark.unit
-    def test_detects_missing_toc_in_long_skills(self, temp_plugin_dir):
+    def test_toc_check_disabled(self, temp_plugin_dir):
         """
-        Scenario: Detecting missing TOC in long skills
+        Scenario: TOC check is disabled ecosystem-wide
 
         Given an evaluation skill > 2000 chars without TOC
         When meta-evaluation is run
-        Then it should be flagged as missing TOC
+        Then it should NOT be flagged (TOC removed per 2026-04-08 audit)
         """
         # Arrange
         skill_dir = temp_plugin_dir / "skills" / "long-review"
@@ -180,10 +180,10 @@ class TestMetaEvaluator:
         evaluator = MetaEvaluator()
 
         # Act
-        result = evaluator.check_plugin("test", temp_plugin_dir)
+        result = evaluator.check_plugin(temp_plugin_dir)
 
         # Assert
-        assert "long-review" in result["missing_toc"]
+        assert "long-review" not in result["missing_toc"]
 
     @pytest.mark.unit
     def test_allows_short_skills_without_toc(self, temp_plugin_dir):
@@ -205,7 +205,7 @@ class TestMetaEvaluator:
         evaluator = MetaEvaluator()
 
         # Act
-        result = evaluator.check_plugin("test", temp_plugin_dir)
+        result = evaluator.check_plugin(temp_plugin_dir)
 
         # Assert
         assert "quick-check" not in result["missing_toc"]
@@ -230,7 +230,7 @@ class TestMetaEvaluator:
         evaluator = MetaEvaluator()
 
         # Act
-        result = evaluator.check_plugin("test", temp_plugin_dir)
+        result = evaluator.check_plugin(temp_plugin_dir)
 
         # Assert
         # check-quality should be in missing_verification since it has no verification keywords

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import os
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -43,15 +43,7 @@ class PerformanceMetrics:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize metrics to a dictionary."""
-        return {
-            "auto_approvals": self.auto_approvals,
-            "flagged_requests": self.flagged_requests,
-            "blocked_requests": self.blocked_requests,
-            "promotions": self.promotions,
-            "demotions": self.demotions,
-            "last_decision": self.last_decision,
-            "last_domains": self.last_domains,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any] | None) -> PerformanceMetrics:
@@ -80,12 +72,7 @@ class DomainControl:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize domain control to a dictionary."""
-        return {
-            "level": self.level,
-            "locked": self.locked,
-            "reason": self.reason,
-            "updated_at": self.updated_at,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any] | None) -> DomainControl | None:

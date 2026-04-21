@@ -1647,6 +1647,893 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/garrytan/gbrain/blob/master/docs/GBRAIN_SKILLPACK.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/readme.md:
+    content_hash: sha256:7c1ce76053af9ea1
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:28.695631+00:00'
+    title: 'Plannotator: Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/README.md
+  https://github.com/backnotprop/plannotator:
+    content_hash: sha256:53e1492ab9200a42
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:28.994591+00:00'
+    title: Plannotator Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator
+  https://api.github.com/repos/backnotprop/plannotator:
+    content_hash: sha256:adde05a712161e0d
+    stored_at: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-23-35.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:35.215429+00:00'
+    title: Plannotator Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator
+  https://api.github.com/repos/backnotprop/plannotator/contents:
+    content_hash: sha256:ff1df3735251229c
+    stored_at: data/staging/webfetch-main-files-and-directories-in-the-repository-2026-04-13_23-23-40.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:40.782575+00:00'
+    title: Main Files and Directories in the Repository
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/package.json:
+    content_hash: sha256:b85107ea9729f070
+    stored_at: data/staging/webfetch-plannotator-project-overview-2026-04-13_23-23-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:41.597432+00:00'
+    title: Plannotator Project Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/package.json
+  https://api.github.com/repos/backnotprop/plannotator/contents/packages:
+    content_hash: sha256:e59a1e417bc96bc9
+    stored_at: data/staging/webfetch-based-on-the-repository-structure-the-project-2026-04-13_23-23-45.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:45.936060+00:00'
+    title: 'Based on the repository structure, the project includes six packages:'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/packages
+  https://api.github.com/repos/backnotprop/plannotator/contents/apps:
+    content_hash: sha256:67883c3a48d63b0e
+    stored_at: data/staging/webfetch-applications-in-the-apps-directory-2026-04-13_23-23-46.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:46.566557+00:00'
+    title: Applications in the apps directory
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/apps
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/agents.md:
+    content_hash: sha256:8a0da545d60e5192
+    stored_at: data/staging/webfetch-plannotator-s-agent-integration-architecture-2026-04-13_23-23-53.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:53.095418+00:00'
+    title: Plannotator's Agent Integration Architecture
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/AGENTS.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/contributing.md:
+    content_hash: sha256:ae574b0792afa767
+    stored_at: data/staging/webfetch-architecture-and-organization-2026-04-13_23-23-58.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:58.795231+00:00'
+    title: Architecture and Organization
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/CONTRIBUTING.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/readme.md:
+    content_hash: sha256:3f1c559c297ae3bb
+    stored_at: data/staging/webfetch-hook-application-overview-2026-04-13_23-23-59.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:23:59.414423+00:00'
+    title: Hook Application Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/README.md
+  https://github.com/backnotprop/plannotator/tree/main/packages:
+    content_hash: sha256:5aa466c1f82b9bf7
+    stored_at: data/staging/webfetch-plannotator-packages-2026-04-13_23-24-07.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:07.818589+00:00'
+    title: Plannotator Packages
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages
+  https://github.com/backnotprop/plannotator/tree/main/apps:
+    content_hash: sha256:4847a079750c3dd4
+    stored_at: data/staging/webfetch-based-on-the-github-repository-structure-shown-2026-04-13_23-24-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:08.470886+00:00'
+    title: Based on the GitHub repository structure shown, the plannotator project
+      contains several distinct ap
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/apps
+  https://github.com/backnotprop/plannotator/blob/main/readme.md:
+    content_hash: sha256:292d964faeb5430f
+    stored_at: data/staging/webfetch-plannotator-readme-summary-2026-04-13_23-24-11.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:11.222101+00:00'
+    title: Plannotator README Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/README.md
+  https://github.com/backnotprop/plannotator/blob/main/packages/shared:
+    content_hash: sha256:25f8b2fb66578f6f
+    stored_at: data/staging/webfetch-shared-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.048413+00:00'
+    title: Shared
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/shared
+  https://github.com/backnotprop/plannotator/blob/main/packages/editor:
+    content_hash: sha256:9f4a00e3f943e09e
+    stored_at: data/staging/webfetch-editor-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.302677+00:00'
+    title: Editor
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/editor
+  https://github.com/backnotprop/plannotator/blob/main/packages/review-editor:
+    content_hash: sha256:9d49a667e8e00d4e
+    stored_at: data/staging/webfetch-review-editor-2026-04-13_23-24-16.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:16.595713+00:00'
+    title: Review Editor
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/review-editor
+  https://api.github.com/repos/backnotprop/plannotator/git/trees/main?recursive=1:
+    content_hash: sha256:ca420e55269de57e
+    stored_at: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-24-28.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:28.472194+00:00'
+    title: Plannotator Repository Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/git/trees/main?recursive=1
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/claude.md:
+    content_hash: sha256:e212789b15238015
+    stored_at: data/staging/webfetch-could-you-please-share-the-full-text-of-the-2026-04-13_23-24-34.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:34.248168+00:00'
+    title: Could you please share the full text of the document you're referencing?
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/CLAUDE.md
+  https://github.com/backnotprop/plannotator/blob/main/apps/marketing/src/content/docs:
+    content_hash: sha256:9ac5cfaec43b455c
+    stored_at: data/staging/webfetch-to-find-information-about-those-specific-topics-2026-04-13_23-24-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:41.198528+00:00'
+    title: To find information about those specific topics, you would need to navigate
+      into the individual docu
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/marketing/src/content/docs
+  ? https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/installation.md
+  : content_hash: sha256:5ac5b0b23802ef90
+    stored_at: data/staging/webfetch-installing-and-configuring-plannotator-2026-04-13_23-24-41.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:41.547817+00:00'
+    title: Installing and Configuring Plannotator
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/installation.md
+  ? https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/quickstart.md
+  : content_hash: sha256:9b6690f7d34a569e
+    stored_at: data/staging/webfetch-plannotator-quickstart-workflow-2026-04-13_23-24-46.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:46.765755+00:00'
+    title: Plannotator Quickstart Workflow
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/getting-started/quickstart.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/commands/annotate.md:
+    content_hash: sha256:95f8d867a7ce2771
+    stored_at: data/staging/webfetch-how-the-annotate-command-works-2026-04-13_23-24-49.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:49.039875+00:00'
+    title: How the Annotate Command Works
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/marketing/src/content/docs/commands/annotate.md
+  https://github.com/backnotprop/plannotator/blob/main/packages:
+    content_hash: sha256:bcf804f4c5e4e5f7
+    stored_at: data/staging/webfetch-plannotator-package-structure-2026-04-13_23-24-55.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:24:55.995778+00:00'
+    title: Plannotator Package Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages
+  https://github.com/backnotprop/plannotator/discussions:
+    content_hash: sha256:d88e7b558beb36c3
+    stored_at: data/staging/webfetch-based-on-the-discussions-page-provided-there-are-2026-04-13_23-25-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:08.069657+00:00'
+    title: Based on the discussions page provided, there are no discussions that explicitly
+      explain how plannot
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/discussions
+  https://github.com/backnotprop/plannotator/wiki:
+    content_hash: sha256:134bb84ea0e45ef8
+    stored_at: data/staging/webfetch-architecture-and-technical-details-2026-04-13_23-25-08.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:08.370147+00:00'
+    title: Architecture and Technical Details
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/wiki
+  https://plannotator.ai:
+    content_hash: sha256:27811d440a21a57c
+    stored_at: data/staging/webfetch-plannotator-overview-2026-04-13_23-25-09.md
+    importance_score: 50
+    last_updated: '2026-04-13T23:25:09.182002+00:00'
+    title: Plannotator Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://plannotator.ai
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/packages/shared/package.json:
+    content_hash: sha256:9d6daa685dbc66bd
+    stored_at: data/staging/webfetch-plannotator-shared-package-overview-2026-04-14_01-25-04.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:04.695380+00:00'
+    title: '@plannotator/shared Package Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/packages/shared/package.json
+  https://github.com/backnotprop/plannotator/tree/main/packages/shared:
+    content_hash: sha256:8f469db09f608482
+    stored_at: data/staging/webfetch-plannotator-shared-package-structure-2026-04-14_01-25-05.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:05.684500+00:00'
+    title: Plannotator Shared Package Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/shared
+  https://github.com/backnotprop/plannotator/search?q=export+interface+plan:
+    content_hash: sha256:d8dc0e784cee664d
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-14_01-25-41.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:41.506188+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/search?q=export+interface+Plan
+  https://github.com/backnotprop/plannotator/search?q=annotation:
+    content_hash: sha256:4d2c397fabde4b52
+    stored_at: data/staging/webfetch-github-search-results-analysis-2026-04-14_01-25-41.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:41.886393+00:00'
+    title: GitHub Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/search?q=Annotation
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook:
+    content_hash: sha256:f8c34426141fca1d
+    stored_at: data/staging/webfetch-plannotator-claude-code-plugin-hook-app-structure-2026-04-14_01-25-59.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:25:59.095654+00:00'
+    title: Plannotator Claude Code Plugin - Hook App Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook
+  https://github.com/backnotprop/plannotator/blob/main/apps/review:
+    content_hash: sha256:769bed814ed84c41
+    stored_at: data/staging/webfetch-plannotator-review-app-directory-2026-04-14_01-26-00.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:00.647828+00:00'
+    title: Plannotator Review App Directory
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/review
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/commands:
+    content_hash: sha256:d945d5de19fcec3c
+    stored_at: data/staging/webfetch-summary-2026-04-14_01-26-04.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:04.500496+00:00'
+    title: Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/commands
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-review.md:
+    content_hash: sha256:48941b10b9b72cd8
+    stored_at: data/staging/webfetch-code-review-task-2026-04-14_01-26-08.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:08.879697+00:00'
+    title: Code Review Task
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-review.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-annotate.md:
+    content_hash: sha256:e8cb3b0809cca5af
+    stored_at: data/staging/webfetch-i-appreciate-you-sharing-this-content-but-i-2026-04-14_01-26-10.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:10.231844+00:00'
+    title: I appreciate you sharing this content, but I notice the actual annotation
+      feedback and comments appe
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-annotate.md
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-last.md:
+    content_hash: sha256:1f74a2f851596c22
+    stored_at: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-04-14_01-26-10.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:10.971518+00:00'
+    title: 'To help you effectively, I would need:'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/commands/plannotator-last.md
+  https://api.github.com/repos/backnotprop/plannotator/contents/.claude-plugin:
+    content_hash: sha256:47415e4e5b9ffc62
+    stored_at: data/staging/webfetch-claude-plugin-configuration-2026-04-14_01-26-16.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:16.461626+00:00'
+    title: Claude Plugin Configuration
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/contents/.claude-plugin
+  https://github.com/backnotprop/plannotator/blob/main/packages/review-editor/package.json:
+    content_hash: sha256:9a88b3d89cdec290
+    stored_at: data/staging/webfetch-review-editor-package-analysis-2026-04-14_01-26-17.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:17.412300+00:00'
+    title: Review Editor Package Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/packages/review-editor/package.json
+  https://api.github.com/repos/backnotprop/plannotator/readme:
+    content_hash: sha256:04ca56ac2af94ef7
+    stored_at: data/staging/webfetch-plannotator-repository-overview-2026-04-14_01-26-19.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:19.367211+00:00'
+    title: Plannotator Repository Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://api.github.com/repos/backnotprop/plannotator/readme
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/.claude-plugin/marketplace.json:
+    content_hash: sha256:fd5826e93652f6a4
+    stored_at: data/staging/webfetch-plannotator-plugin-overview-2026-04-14_01-26-23.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:23.930345+00:00'
+    title: Plannotator Plugin Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/.claude-plugin/marketplace.json
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/hooks:
+    content_hash: sha256:7f8c57f52794baf0
+    stored_at: data/staging/webfetch-hook-app-directory-overview-2026-04-14_01-26-26.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:26.746996+00:00'
+    title: Hook App Directory Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/hooks
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/hooks/hooks.json:
+    content_hash: sha256:c079be4eb5f36aef
+    stored_at: data/staging/webfetch-hook-configuration-overview-2026-04-14_01-26-28.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:28.770915+00:00'
+    title: Hook Configuration Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/hooks/hooks.json
+  https://github.com/backnotprop/plannotator/tree/main/packages/ai:
+    content_hash: sha256:7e14443f099b3626
+    stored_at: data/staging/webfetch-ai-package-structure-in-plannotator-2026-04-14_01-26-30.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:30.543451+00:00'
+    title: AI Package Structure in Plannotator
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/ai
+  https://github.com/backnotprop/plannotator/tree/main/apps/paste-service:
+    content_hash: sha256:31c0c37873692232
+    stored_at: data/staging/webfetch-paste-service-overview-2026-04-14_01-26-37.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:37.475422+00:00'
+    title: Paste Service Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/apps/paste-service
+  https://github.com/backnotprop/plannotator/tree/main/packages/server:
+    content_hash: sha256:58fed8a108084c9f
+    stored_at: data/staging/webfetch-plannotator-server-package-overview-2026-04-14_01-26-37.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:37.844727+00:00'
+    title: Plannotator Server Package Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/tree/main/packages/server
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/index.tsx:
+    content_hash: sha256:754fe9f913606817
+    stored_at: data/staging/webfetch-react-app-structure-analysis-2026-04-14_01-26-44.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:44.732244+00:00'
+    title: React App Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/index.tsx
+  https://github.com/backnotprop/plannotator/blob/main/apps/hook/server:
+    content_hash: sha256:8cf266ace6ef2434
+    stored_at: data/staging/webfetch-plannotator-hook-server-2026-04-14_01-26-56.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:56.082287+00:00'
+    title: Plannotator Hook Server
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/backnotprop/plannotator/blob/main/apps/hook/server
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/review/index.tsx:
+    content_hash: sha256:1db38b05123ec7f9
+    stored_at: data/staging/webfetch-review-app-entry-point-2026-04-14_01-26-59.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:26:59.029605+00:00'
+    title: Review App Entry Point
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/review/index.tsx
+  https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/server/index.ts:
+    content_hash: sha256:8bae78aff4b721c0
+    stored_at: data/staging/webfetch-plannotator-cli-eight-operating-modes-2026-04-14_01-27-03.md
+    importance_score: 50
+    last_updated: '2026-04-14T01:27:03.472442+00:00'
+    title: 'Plannotator CLI: Eight Operating Modes'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/backnotprop/plannotator/main/apps/hook/server/index.ts
+  ? https://hn.algolia.com/api/v1/search?query=constraint-driven%20ai%20agent%20design%20restrictions&tags=story&hitsperpage=10
+  : content_hash: sha256:e6ba08dbcd1145ca
+    stored_at: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-47.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:47.764704+00:00'
+    title: Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=constraint-driven%20AI%20agent%20design%20restrictions&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20agent%20try%20harder%20chain%20of%20thought%20self%20reflection&tags=story&hitsperpage=10
+  : content_hash: sha256:671a80421c755f4a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-48.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:48.983757+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20agent%20try%20harder%20chain%20of%20thought%20self%20reflection&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20constraints%20improve%20performance%20agent&tags=story&hitsperpage=10:
+    content_hash: sha256:bf9db8b7ebd8b074
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-50.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:50.580061+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20constraints%20improve%20performance%20agent&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=self-improving%20ai%20agent%20architecture%20learning%20execution%20history&tags=story&hitsperpage=10
+  : content_hash: sha256:2a193676759b90dc
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-17-52.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:52.673994+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=self-improving%20AI%20agent%20architecture%20learning%20execution%20history&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=constraint%20restriction%20pattern%20ai%20agent%20quality%20vow&tags=story&hitsperpage=10
+  : content_hash: sha256:a82f918ff3f888b6
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-17-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:55.238015+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=constraint%20restriction%20pattern%20AI%20agent%20quality%20vow&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=meta-learning%20agent%20workflow%20llm%20strategy&tags=story&hitsperpage=10:
+    content_hash: sha256:a98a8d8954d98330
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-17-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:55.662961+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=meta-learning%20agent%20workflow%20LLM%20strategy&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=claude%20agent%20autonomy%20risk%20reward%20capability&tags=story&hitsperpage=10
+  : content_hash: sha256:c4de83b38413f170
+    stored_at: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-56.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:17:56.497243+00:00'
+    title: Search Results Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20agent%20autonomy%20risk%20reward%20capability&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=specialized%20ai%20agents%20better%20than%20general&tags=story&hitsperpage=10:
+    content_hash: sha256:27f8e04739a1c75c
+    stored_at: data/staging/webfetch-story-data-extract-2026-04-15_03-18-04.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:04.753947+00:00'
+    title: Story Data Extract
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=specialized%20AI%20agents%20better%20than%20general&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20extended%20thinking%20iterative%20refinement%20coding&tags=story&hitsperpage=10
+  : content_hash: sha256:425a1e12686cb806
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-05.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:05.524163+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20extended%20thinking%20iterative%20refinement%20coding&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20constraints%20rules%20prompt&tags=story&hitsperpage=10:
+    content_hash: sha256:b1b6343fc6bbc87c
+    stored_at: data/staging/webfetch-story-data-extraction-2026-04-15_03-18-06.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:06.782495+00:00'
+    title: Story Data Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20constraints%20rules%20prompt&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=ai%20agent%20self-improving%20learns%20from%20mistakes&tags=story&hitsperpage=10
+  : content_hash: sha256:7ed1f3bcecccb81a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-07.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:07.654890+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20agent%20self-improving%20learns%20from%20mistakes&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=llm%20agent%20try%20harder%20better%20results%20claude&tags=story&hitsperpage=10
+  : content_hash: sha256:60c4b91b337473b5
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-11.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:11.670384+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20agent%20try%20harder%20better%20results%20Claude&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=progressive%20autonomy%20ai%20agent%20trust%20levels&tags=story&hitsperpage=10:
+    content_hash: sha256:dc3a5666ee662b72
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-12.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:12.113634+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=progressive%20autonomy%20AI%20agent%20trust%20levels&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=claude%20code%20agent%20claude.md%20rules%20constraints&tags=story&hitsperpage=10
+  : content_hash: sha256:e09b0d35b8058c1e
+    stored_at: data/staging/webfetch-stories-extracted-2026-04-15_03-18-12.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:12.855635+00:00'
+    title: Stories Extracted
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20agent%20CLAUDE.md%20rules%20constraints&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=ai%20coding%20agent%20constraints%20improve%20quality&tags=story&hitsperpage=10:
+    content_hash: sha256:cc584cefcb8d80a9
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-18-28.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:28.033566+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20coding%20agent%20constraints%20improve%20quality&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=reflexion%20llm%20agent%20self-reflection&tags=story&hitsperpage=10:
+    content_hash: sha256:d1bfacd68bb633ea
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-26.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:26.497277+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=reflexion%20LLM%20agent%20self-reflection&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=agent%20memory%20learning%20past%20mistakes%20llm&tags=story&hitsperpage=10:
+    content_hash: sha256:d0f225fb0c2a269e
+    stored_at: data/staging/webfetch-search-results-2026-04-15_03-18-27.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:27.761905+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=agent%20memory%20learning%20past%20mistakes%20LLM&tags=story&hitsPerPage=10
+  https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents:
+    content_hash: sha256:53bd9bf6d8957771
+    stored_at: data/staging/webfetch-context-engineering-constraints-as-features-for-2026-04-15_03-18-28.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:28.814076+00:00'
+    title: 'Context Engineering: Constraints as Features for AI Agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+  https://lobste.rs/s/ykwb2z/ai_agent_coding_skeptic_tries_ai_agent:
+    content_hash: sha256:03b9d7ca40ec71e2
+    stored_at: data/staging/webfetch-ai-agent-coding-article-summary-2026-04-15_03-18-29.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:29.889677+00:00'
+    title: AI Agent Coding Article Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/ykwb2z/ai_agent_coding_skeptic_tries_ai_agent
+  https://lobste.rs/s/rqus2y/can_agentic_coding_raise_quality_bar:
+    content_hash: sha256:9851bc12beab79f3
+    stored_at: data/staging/webfetch-analysis-of-can-agentic-coding-raise-the-quality-2026-04-15_03-18-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:30.402457+00:00'
+    title: Analysis of "Can Agentic Coding Raise the Quality Bar?"
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/rqus2y/can_agentic_coding_raise_quality_bar
+  https://github.com/nirdiamant/genai_agents:
+    content_hash: sha256:459781db798d4ba4
+    stored_at: data/staging/webfetch-genai-agents-repository-analysis-2026-04-15_03-18-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:30.773433+00:00'
+    title: GenAI_Agents Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/NirDiamant/GenAI_Agents
+  https://lobste.rs/s/gvlmu1/beyond_agentic_coding:
+    content_hash: sha256:a958c545b124c693
+    stored_at: data/staging/webfetch-beyond-agentic-coding-discussion-summary-2026-04-15_03-18-31.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:31.272059+00:00'
+    title: 'Beyond Agentic Coding: Discussion Summary'
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/gvlmu1/beyond_agentic_coding
+  https://github.com/langchain-ai/langgraph-reflection:
+    content_hash: sha256:9ffe1d51f19cf2f9
+    stored_at: data/staging/webfetch-langgraph-reflection-repository-analysis-2026-04-15_03-18-33.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:33.330373+00:00'
+    title: LangGraph-Reflection Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/langchain-ai/langgraph-reflection
+  https://github.com/microsoft/trace:
+    content_hash: sha256:507407edab98319f
+    stored_at: data/staging/webfetch-trace-end-to-end-generative-optimization-for-ai-2026-04-15_03-18-33.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:33.895256+00:00'
+    title: 'Trace: End-to-End Generative Optimization for AI Agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/microsoft/Trace
+  https://github.com/matthewrenze/self-reflection:
+    content_hash: sha256:811a46cf980026a6
+    stored_at: data/staging/webfetch-self-reflection-in-llm-agents-repository-analysis-2026-04-15_03-18-34.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:34.296137+00:00'
+    title: Self-Reflection in LLM Agents - Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/matthewrenze/self-reflection
+  https://github.com/netresearch/claude-coach-plugin:
+    content_hash: sha256:6bc3c513a6123b25
+    stored_at: data/staging/webfetch-claude-coach-plugin-analysis-2026-04-15_03-18-36.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:36.281079+00:00'
+    title: Claude Coach Plugin Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/netresearch/claude-coach-plugin
+  https://github.com/miles990/self-evolving-agent:
+    content_hash: sha256:82a141045f3b1acb
+    stored_at: data/staging/webfetch-self-evolving-agent-analysis-2026-04-15_03-18-37.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:37.816562+00:00'
+    title: Self-Evolving Agent Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/miles990/self-evolving-agent
+  https://github.com/swe-agent/swe-agent:
+    content_hash: sha256:b81dc657aa3070de
+    stored_at: data/staging/webfetch-swe-agent-repository-analysis-2026-04-15_03-18-48.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:48.772016+00:00'
+    title: SWE-agent Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/SWE-agent/SWE-agent
+  https://github.com/microsoft/autogen:
+    content_hash: sha256:accfecc74409eb31
+    stored_at: data/staging/webfetch-autogen-repository-analysis-2026-04-15_03-18-49.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:49.359800+00:00'
+    title: AutoGen Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/microsoft/autogen
+  https://news.ycombinator.com/item?id=47505670:
+    content_hash: sha256:25fccf7d3729a417
+    stored_at: data/staging/webfetch-hyperagents-self-referential-self-improving-agents-2026-04-15_03-18-49.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:49.663061+00:00'
+    title: 'HyperAgents: Self-referential self-improving agents'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47505670
+  https://github.com/cohere-ai/self-reflection-planning-paper:
+    content_hash: sha256:8c3d5cd6555182ed
+    stored_at: data/staging/webfetch-repository-analysis-self-reflection-planning-paper-2026-04-15_03-18-51.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:51.975393+00:00'
+    title: 'Repository Analysis: Self-Reflection Planning Paper'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/cohere-ai/self-reflection-planning-paper
+  https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team/self-improving-agent:
+    content_hash: sha256:254ea186cc1b0821
+    stored_at: data/staging/webfetch-self-improving-agent-architecture-workflow-2026-04-15_03-18-55.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:18:55.253111+00:00'
+    title: 'Self-Improving Agent: Architecture & Workflow'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team/self-improving-agent
+  https://news.ycombinator.com/item?id=47466513:
+    content_hash: sha256:40455a14a0ea32b2
+    stored_at: data/staging/webfetch-ai-sdlc-scaffold-discussion-summary-2026-04-15_03-19-00.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:00.166136+00:00'
+    title: AI SDLC Scaffold Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47466513
+  https://dev.to/shuicici/claude-codes-feb-mar-2026-updates-quietly-broke-complex-engineering-heres-the-technical-5b4h:
+    content_hash: sha256:6156e8e58abdae89
+    stored_at: data/staging/webfetch-claude-code-quality-analysis-constraints-effort-2026-04-15_03-19-06.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:06.888391+00:00'
+    title: 'Claude Code Quality Analysis: Constraints, Effort Levels, and Performance'
+    maturity: seedling
+    routing_type: pending
+    url: https://dev.to/shuicici/claude-codes-feb-mar-2026-updates-quietly-broke-complex-engineering-heres-the-technical-5b4h
+  ? https://medium.com/@davidroliver/claude-code-ai-agents-three-levels-of-recursive-self-improvement-the-auto-moc-system-2eb7b8c3d305
+  : content_hash: sha256:196a3b5099416a0e
+    stored_at: data/staging/webfetch-three-levels-of-recursive-self-improvement-in-ai-2026-04-15_03-19-07.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:07.288702+00:00'
+    title: Three Levels of Recursive Self-Improvement in AI Agents
+    maturity: seedling
+    routing_type: pending
+    url: https://medium.com/@davidroliver/claude-code-ai-agents-three-levels-of-recursive-self-improvement-the-auto-moc-system-2eb7b8c3d305
+  https://www.anthropic.com/research/measuring-agent-autonomy:
+    content_hash: sha256:1476fcbcebfeb989
+    stored_at: data/staging/webfetch-ai-agent-autonomy-framework-key-findings-2026-04-15_03-19-11.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:11.888256+00:00'
+    title: 'AI Agent Autonomy Framework: Key Findings'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/research/measuring-agent-autonomy
+  https://github.com/noahshinn/reflexion:
+    content_hash: sha256:420cbb827234fecd
+    stored_at: data/staging/webfetch-reflexion-repository-analysis-2026-04-15_03-19-14.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:14.046193+00:00'
+    title: Reflexion Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/noahshinn/reflexion
+  https://arxiv.org/abs/2509.14744:
+    content_hash: sha256:833192586c630ef4
+    stored_at: data/staging/webfetch-key-findings-on-agentic-coding-manifests-2026-04-15_03-19-17.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:17.095503+00:00'
+    title: Key Findings on Agentic Coding Manifests
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2509.14744
+  https://ctlabs.ai/blog/self-organizing-agents-on-reddit-what-builders-are-learning-in-2026:
+    content_hash: sha256:ed70001c29cbfaf0
+    stored_at: data/staging/webfetch-key-findings-what-reddit-builders-learned-about-2026-04-15_03-19-17.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:17.714312+00:00'
+    title: 'Key Findings: What Reddit Builders Learned About Self-Organizing Agents
+      in 2026'
+    maturity: seedling
+    routing_type: pending
+    url: https://ctlabs.ai/blog/self-organizing-agents-on-reddit-what-builders-are-learning-in-2026
+  https://www.anthropic.com/research/long-running-claude:
+    content_hash: sha256:6f0409b23414c016
+    stored_at: data/staging/webfetch-long-running-claude-agents-for-scientific-2026-04-15_03-19-18.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:18.537481+00:00'
+    title: 'Long-Running Claude Agents for Scientific Computing: Key Findings'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.anthropic.com/research/long-running-Claude
+  https://hn.algolia.com/api/v1/search?query=agentic%20coding%20rules%20constraints%20claude.md&tags=story&hitsperpage=10:
+    content_hash: sha256:0dc2b37d3884b55a
+    stored_at: data/staging/webfetch-search-results-summary-2026-04-15_03-19-26.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:26.938595+00:00'
+    title: Search Results Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=agentic%20coding%20rules%20constraints%20CLAUDE.md&tags=story&hitsPerPage=10
+  ? https://hn.algolia.com/api/v1/search?query=multi%20agent%20orchestration%20specialized%20workflow&tags=story&hitsperpage=10
+  : content_hash: sha256:b0a57f07bea5c7bf
+    stored_at: data/staging/webfetch-story-extraction-results-2026-04-15_03-19-25.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:25.453509+00:00'
+    title: Story Extraction Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=multi%20agent%20orchestration%20specialized%20workflow&tags=story&hitsPerPage=10
+  https://www.langchain.com/state-of-agent-engineering:
+    content_hash: sha256:02c9b1e7d84bfa7c
+    stored_at: data/staging/webfetch-key-findings-on-agent-effectiveness-2026-04-15_03-19-30.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:30.955021+00:00'
+    title: Key Findings on Agent Effectiveness
+    maturity: seedling
+    routing_type: pending
+    url: https://www.langchain.com/state-of-agent-engineering
+  https://sankalp.bearblog.dev/my-experience-with-claude-code-20-and-how-to-get-better-at-using-coding-agents:
+    content_hash: sha256:7ba339eb85c11fc8
+    stored_at: data/staging/webfetch-key-strategies-for-better-claude-code-results-2026-04-15_03-19-34.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:34.676584+00:00'
+    title: Key Strategies for Better Claude Code Results
+    maturity: seedling
+    routing_type: pending
+    url: https://sankalp.bearblog.dev/my-experience-with-claude-code-20-and-how-to-get-better-at-using-coding-agents/
+  https://news.ycombinator.com/item?id=47073947:
+    content_hash: sha256:bf40362dfb3ba9f5
+    stored_at: data/staging/webfetch-article-summary-2026-04-15_03-19-45.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:45.478537+00:00'
+    title: Article Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47073947
+  https://news.ycombinator.com/item?id=44623207:
+    content_hash: sha256:73e9be39a2dddbe3
+    stored_at: data/staging/webfetch-autonomous-agents-in-production-hn-discussion-2026-04-15_03-19-53.md
+    importance_score: 50
+    last_updated: '2026-04-15T03:19:53.035945+00:00'
+    title: 'Autonomous Agents in Production: HN Discussion Summary'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=44623207
+  https://github.github.com/gh-stack:
+    content_hash: sha256:59640b80b58c371e
+    stored_at: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:31.114542+00:00'
+    title: 'GitHub Stacked PRs: Comprehensive Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.github.com/gh-stack/
+  https://github.com/jj-vcs/jj:
+    content_hash: sha256:336f570a6161fc72
+    stored_at: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:51.598241+00:00'
+    title: 'Jujutsu (jj): Key Features for Stacked Changes'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/jj-vcs/jj
+  https://www.graphite.com/docs/evaluating-tools:
+    content_hash: sha256:d1cbf7d1a2af6ca6
+    stored_at: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md
+    importance_score: 50
+    last_updated: '2026-04-15T04:25:59.844726+00:00'
+    title: Stacked Diff Tools Comparison
+    maturity: seedling
+    routing_type: pending
+    url: https://www.graphite.com/docs/evaluating-tools
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -1831,3 +2718,101 @@ hashes:
   sha256:2659ac1163721da3: data/staging/webfetch-release-history-for-garrytan-gbrain-2026-04-11_14-36-33.md
   sha256:709ba7ee828c030c: data/staging/webfetch-current-issues-and-feature-requests-for-gbrain-2026-04-11_14-36-34.md
   sha256:9ce0060beda2d79e: data/staging/webfetch-gbrain-skills-and-capabilities-2026-04-11_14-36-36.md
+  sha256:7c1ce76053af9ea1: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+  sha256:53e1492ab9200a42: data/staging/webfetch-plannotator-overview-2026-04-13_23-23-28.md
+  sha256:adde05a712161e0d: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-23-35.md
+  sha256:ff1df3735251229c: data/staging/webfetch-main-files-and-directories-in-the-repository-2026-04-13_23-23-40.md
+  sha256:b85107ea9729f070: data/staging/webfetch-plannotator-project-overview-2026-04-13_23-23-41.md
+  sha256:e59a1e417bc96bc9: data/staging/webfetch-based-on-the-repository-structure-the-project-2026-04-13_23-23-45.md
+  sha256:67883c3a48d63b0e: data/staging/webfetch-applications-in-the-apps-directory-2026-04-13_23-23-46.md
+  sha256:8a0da545d60e5192: data/staging/webfetch-plannotator-s-agent-integration-architecture-2026-04-13_23-23-53.md
+  sha256:ae574b0792afa767: data/staging/webfetch-architecture-and-organization-2026-04-13_23-23-58.md
+  sha256:3f1c559c297ae3bb: data/staging/webfetch-hook-application-overview-2026-04-13_23-23-59.md
+  sha256:5aa466c1f82b9bf7: data/staging/webfetch-plannotator-packages-2026-04-13_23-24-07.md
+  sha256:4847a079750c3dd4: data/staging/webfetch-based-on-the-github-repository-structure-shown-2026-04-13_23-24-08.md
+  sha256:292d964faeb5430f: data/staging/webfetch-plannotator-readme-summary-2026-04-13_23-24-11.md
+  sha256:25f8b2fb66578f6f: data/staging/webfetch-shared-2026-04-13_23-24-16.md
+  sha256:9f4a00e3f943e09e: data/staging/webfetch-editor-2026-04-13_23-24-16.md
+  sha256:9d49a667e8e00d4e: data/staging/webfetch-review-editor-2026-04-13_23-24-16.md
+  sha256:ca420e55269de57e: data/staging/webfetch-plannotator-repository-structure-2026-04-13_23-24-28.md
+  sha256:e212789b15238015: data/staging/webfetch-could-you-please-share-the-full-text-of-the-2026-04-13_23-24-34.md
+  sha256:9ac5cfaec43b455c: data/staging/webfetch-to-find-information-about-those-specific-topics-2026-04-13_23-24-41.md
+  sha256:5ac5b0b23802ef90: data/staging/webfetch-installing-and-configuring-plannotator-2026-04-13_23-24-41.md
+  sha256:9b6690f7d34a569e: data/staging/webfetch-plannotator-quickstart-workflow-2026-04-13_23-24-46.md
+  sha256:95f8d867a7ce2771: data/staging/webfetch-how-the-annotate-command-works-2026-04-13_23-24-49.md
+  sha256:bcf804f4c5e4e5f7: data/staging/webfetch-plannotator-package-structure-2026-04-13_23-24-55.md
+  sha256:d88e7b558beb36c3: data/staging/webfetch-based-on-the-discussions-page-provided-there-are-2026-04-13_23-25-08.md
+  sha256:134bb84ea0e45ef8: data/staging/webfetch-architecture-and-technical-details-2026-04-13_23-25-08.md
+  sha256:27811d440a21a57c: data/staging/webfetch-plannotator-overview-2026-04-13_23-25-09.md
+  sha256:9d6daa685dbc66bd: data/staging/webfetch-plannotator-shared-package-overview-2026-04-14_01-25-04.md
+  sha256:8f469db09f608482: data/staging/webfetch-plannotator-shared-package-structure-2026-04-14_01-25-05.md
+  sha256:d8dc0e784cee664d: data/staging/webfetch-search-results-summary-2026-04-14_01-25-41.md
+  sha256:4d2c397fabde4b52: data/staging/webfetch-github-search-results-analysis-2026-04-14_01-25-41.md
+  sha256:f8c34426141fca1d: data/staging/webfetch-plannotator-claude-code-plugin-hook-app-structure-2026-04-14_01-25-59.md
+  sha256:769bed814ed84c41: data/staging/webfetch-plannotator-review-app-directory-2026-04-14_01-26-00.md
+  sha256:d945d5de19fcec3c: data/staging/webfetch-summary-2026-04-14_01-26-04.md
+  sha256:48941b10b9b72cd8: data/staging/webfetch-code-review-task-2026-04-14_01-26-08.md
+  sha256:e8cb3b0809cca5af: data/staging/webfetch-i-appreciate-you-sharing-this-content-but-i-2026-04-14_01-26-10.md
+  sha256:1f74a2f851596c22: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-04-14_01-26-10.md
+  sha256:47415e4e5b9ffc62: data/staging/webfetch-claude-plugin-configuration-2026-04-14_01-26-16.md
+  sha256:9a88b3d89cdec290: data/staging/webfetch-review-editor-package-analysis-2026-04-14_01-26-17.md
+  sha256:04ca56ac2af94ef7: data/staging/webfetch-plannotator-repository-overview-2026-04-14_01-26-19.md
+  sha256:fd5826e93652f6a4: data/staging/webfetch-plannotator-plugin-overview-2026-04-14_01-26-23.md
+  sha256:7f8c57f52794baf0: data/staging/webfetch-hook-app-directory-overview-2026-04-14_01-26-26.md
+  sha256:c079be4eb5f36aef: data/staging/webfetch-hook-configuration-overview-2026-04-14_01-26-28.md
+  sha256:7e14443f099b3626: data/staging/webfetch-ai-package-structure-in-plannotator-2026-04-14_01-26-30.md
+  sha256:31c0c37873692232: data/staging/webfetch-paste-service-overview-2026-04-14_01-26-37.md
+  sha256:58fed8a108084c9f: data/staging/webfetch-plannotator-server-package-overview-2026-04-14_01-26-37.md
+  sha256:754fe9f913606817: data/staging/webfetch-react-app-structure-analysis-2026-04-14_01-26-44.md
+  sha256:8cf266ace6ef2434: data/staging/webfetch-plannotator-hook-server-2026-04-14_01-26-56.md
+  sha256:1db38b05123ec7f9: data/staging/webfetch-review-app-entry-point-2026-04-14_01-26-59.md
+  sha256:8bae78aff4b721c0: data/staging/webfetch-plannotator-cli-eight-operating-modes-2026-04-14_01-27-03.md
+  sha256:e6ba08dbcd1145ca: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-47.md
+  sha256:671a80421c755f4a: data/staging/webfetch-search-results-summary-2026-04-15_03-17-48.md
+  sha256:bf9db8b7ebd8b074: data/staging/webfetch-search-results-summary-2026-04-15_03-17-50.md
+  sha256:2a193676759b90dc: data/staging/webfetch-search-results-2026-04-15_03-17-52.md
+  sha256:a82f918ff3f888b6: data/staging/webfetch-search-results-2026-04-15_03-17-55.md
+  sha256:a98a8d8954d98330: data/staging/webfetch-search-results-summary-2026-04-15_03-17-55.md
+  sha256:c4de83b38413f170: data/staging/webfetch-search-results-analysis-2026-04-15_03-17-56.md
+  sha256:27f8e04739a1c75c: data/staging/webfetch-story-data-extract-2026-04-15_03-18-04.md
+  sha256:425a1e12686cb806: data/staging/webfetch-search-results-summary-2026-04-15_03-18-05.md
+  sha256:b1b6343fc6bbc87c: data/staging/webfetch-story-data-extraction-2026-04-15_03-18-06.md
+  sha256:7ed1f3bcecccb81a: data/staging/webfetch-search-results-summary-2026-04-15_03-18-07.md
+  sha256:60c4b91b337473b5: data/staging/webfetch-search-results-2026-04-15_03-18-11.md
+  sha256:dc3a5666ee662b72: data/staging/webfetch-search-results-summary-2026-04-15_03-18-12.md
+  sha256:e09b0d35b8058c1e: data/staging/webfetch-stories-extracted-2026-04-15_03-18-12.md
+  sha256:cc584cefcb8d80a9: data/staging/webfetch-search-results-summary-2026-04-15_03-18-28.md
+  sha256:d1bfacd68bb633ea: data/staging/webfetch-search-results-2026-04-15_03-18-26.md
+  sha256:d0f225fb0c2a269e: data/staging/webfetch-search-results-2026-04-15_03-18-27.md
+  sha256:53bd9bf6d8957771: data/staging/webfetch-context-engineering-constraints-as-features-for-2026-04-15_03-18-28.md
+  sha256:03b9d7ca40ec71e2: data/staging/webfetch-ai-agent-coding-article-summary-2026-04-15_03-18-29.md
+  sha256:9851bc12beab79f3: data/staging/webfetch-analysis-of-can-agentic-coding-raise-the-quality-2026-04-15_03-18-30.md
+  sha256:459781db798d4ba4: data/staging/webfetch-genai-agents-repository-analysis-2026-04-15_03-18-30.md
+  sha256:a958c545b124c693: data/staging/webfetch-beyond-agentic-coding-discussion-summary-2026-04-15_03-18-31.md
+  sha256:9ffe1d51f19cf2f9: data/staging/webfetch-langgraph-reflection-repository-analysis-2026-04-15_03-18-33.md
+  sha256:507407edab98319f: data/staging/webfetch-trace-end-to-end-generative-optimization-for-ai-2026-04-15_03-18-33.md
+  sha256:811a46cf980026a6: data/staging/webfetch-self-reflection-in-llm-agents-repository-analysis-2026-04-15_03-18-34.md
+  sha256:6bc3c513a6123b25: data/staging/webfetch-claude-coach-plugin-analysis-2026-04-15_03-18-36.md
+  sha256:82a141045f3b1acb: data/staging/webfetch-self-evolving-agent-analysis-2026-04-15_03-18-37.md
+  sha256:b81dc657aa3070de: data/staging/webfetch-swe-agent-repository-analysis-2026-04-15_03-18-48.md
+  sha256:accfecc74409eb31: data/staging/webfetch-autogen-repository-analysis-2026-04-15_03-18-49.md
+  sha256:25fccf7d3729a417: data/staging/webfetch-hyperagents-self-referential-self-improving-agents-2026-04-15_03-18-49.md
+  sha256:8c3d5cd6555182ed: data/staging/webfetch-repository-analysis-self-reflection-planning-paper-2026-04-15_03-18-51.md
+  sha256:254ea186cc1b0821: data/staging/webfetch-self-improving-agent-architecture-workflow-2026-04-15_03-18-55.md
+  sha256:40455a14a0ea32b2: data/staging/webfetch-ai-sdlc-scaffold-discussion-summary-2026-04-15_03-19-00.md
+  sha256:6156e8e58abdae89: data/staging/webfetch-claude-code-quality-analysis-constraints-effort-2026-04-15_03-19-06.md
+  sha256:196a3b5099416a0e: data/staging/webfetch-three-levels-of-recursive-self-improvement-in-ai-2026-04-15_03-19-07.md
+  sha256:1476fcbcebfeb989: data/staging/webfetch-ai-agent-autonomy-framework-key-findings-2026-04-15_03-19-11.md
+  sha256:420cbb827234fecd: data/staging/webfetch-reflexion-repository-analysis-2026-04-15_03-19-14.md
+  sha256:833192586c630ef4: data/staging/webfetch-key-findings-on-agentic-coding-manifests-2026-04-15_03-19-17.md
+  sha256:ed70001c29cbfaf0: data/staging/webfetch-key-findings-what-reddit-builders-learned-about-2026-04-15_03-19-17.md
+  sha256:6f0409b23414c016: data/staging/webfetch-long-running-claude-agents-for-scientific-2026-04-15_03-19-18.md
+  sha256:0dc2b37d3884b55a: data/staging/webfetch-search-results-summary-2026-04-15_03-19-26.md
+  sha256:b0a57f07bea5c7bf: data/staging/webfetch-story-extraction-results-2026-04-15_03-19-25.md
+  sha256:02c9b1e7d84bfa7c: data/staging/webfetch-key-findings-on-agent-effectiveness-2026-04-15_03-19-30.md
+  sha256:7ba339eb85c11fc8: data/staging/webfetch-key-strategies-for-better-claude-code-results-2026-04-15_03-19-34.md
+  sha256:bf40362dfb3ba9f5: data/staging/webfetch-article-summary-2026-04-15_03-19-45.md
+  sha256:73e9be39a2dddbe3: data/staging/webfetch-autonomous-agents-in-production-hn-discussion-2026-04-15_03-19-53.md
+  sha256:59640b80b58c371e: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
+  sha256:336f570a6161fc72: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
+  sha256:d1cbf7d1a2af6ca6: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md

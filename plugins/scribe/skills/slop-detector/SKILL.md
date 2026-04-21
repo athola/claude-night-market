@@ -1,7 +1,7 @@
 ---
 name: slop-detector
 description: Detect and flag AI-generated content markers in documentation and prose.
-version: 1.8.4
+version: 1.9.0
 globs: "**/*.md"
 alwaysApply: false
   Use when reviewing documentation for AI markers, cleaning up LLM-generated content,

@@ -82,11 +82,58 @@ Between phases, the orchestrator performs lightweight transitions:
   already create issues (check for issue numbers in the
   Out of Scope section), create them now.
 
-### plan → execute
+### plan → execute (Interactive Review Loop)
 
-- Verify plan has concrete tasks with file paths
-- Classify tasks by risk tier (invoke `leyline:risk-classification`)
-- Generate risk summary for the mission state
+This transition is no longer a simple checkpoint.
+It invokes the full interactive review loop from
+`modules/plan-review.md`.
+
+**Transition protocol:**
+
+1. **Version the plan**: invoke plan-versioner to copy
+   `docs/implementation-plan.md` to
+   `.attune/plan-history/plan-v1.md`
+
+2. **Check iteration governor**: verify round count
+   (should be 1 for first pass)
+
+3. **Scan for additive bias**: apply
+   `leyline:additive-bias-defense` scrutiny questions
+   to each plan section
+
+4. **Present for review**: invoke plan-review to show
+   sections one at a time with verdicts
+
+5. **Collect feedback**: if any section is
+   revise/reject, invoke feedback-collector
+
+6. **Inject context and re-plan**: if revision needed,
+   invoke context-injector, then re-invoke
+   `Skill(attune:project-planning)` with revision
+   context. Increment round. Go to step 1.
+
+7. **Mandatory war-room gate**: when all sections
+   approved, invoke `Skill(attune:war-room)` with
+   full context including bias findings and the
+   Prosecution Counsel role active
+
+8. **War room verdict**:
+   - APPROVE: classify tasks by risk tier, generate
+     risk summary, proceed to execute
+   - CONCERNS/REJECT: convert war-room feedback to
+     revision context, increment round, go to step 1
+     (the governor check at step 2 enforces the cap)
+   - If iteration governor returns BLOCKED: present
+     escalation options (approve as-is / abort /
+     restart from spec)
+
+9. **Risk classification**: after war-room approval,
+   invoke `leyline:risk-classification` on all tasks
+   and generate risk summary for mission state
+
+**This replaces the previous 3-line transition.**
+The old behavior (verify + classify + summarize) is
+now step 9 after the review loop completes.
 
 ## Post-Phase Backlog Triage
 
@@ -150,6 +197,17 @@ Phase Complete: specify
 ### Auto Mode
 
 With `--auto` flag, checkpoints are skipped and phases proceed automatically. The orchestrator logs checkpoint data but does not pause.
+
+### Plan Review Checkpoint (replaces standard checkpoint for plan → execute)
+
+The plan-to-execute transition uses the interactive
+review loop instead of the standard checkpoint. The
+user checkpoint is embedded in the section-by-section
+review process (see `modules/plan-review.md`).
+
+The standard checkpoint format (Continue/Pause/Abort/
+Re-run) is NOT shown for plan → execute. It is still
+used for all other phase transitions.
 
 ## Error Handling
 

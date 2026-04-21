@@ -725,11 +725,9 @@ class PluginAuditor:
         """Phase 2: Analyze skill execution metrics for performance issues."""
         return self.performance_analyzer.analyze_plugin(plugin_name)
 
-    def check_meta_evaluation(
-        self, plugin_name: str, plugin_path: Path
-    ) -> dict[str, Any]:
+    def check_meta_evaluation(self, plugin_path: Path) -> dict[str, Any]:
         """Phase 3: Validate recursive quality of evaluation-related skills."""
-        return self.meta_evaluator.check_plugin(plugin_name, plugin_path)
+        return self.meta_evaluator.check_plugin(plugin_path)
 
     def check_knowledge_queue(self) -> list[dict[str, Any]]:
         """Phase 4: Scan memory-palace queue for pending research items."""
@@ -809,7 +807,7 @@ class PluginAuditor:
                 performance_report[plugin_name] = perf_data
 
             plugin_path = self.plugins_root / plugin_name
-            meta_issues = self.check_meta_evaluation(plugin_name, plugin_path)
+            meta_issues = self.check_meta_evaluation(plugin_path)
             if any(meta_issues.values()):
                 meta_eval_report[plugin_name] = meta_issues
 

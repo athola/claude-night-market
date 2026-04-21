@@ -4,14 +4,16 @@ Detailed scoring rubric and quality gates for skill evaluation.
 
 ## Mathematical Foundation
 
-This evaluation framework follows Multi-Criteria Decision Analysis (MCDA) best practices:
+This evaluation framework follows Multi-Criteria Decision Analysis
+(MCDA) best practices:
 
-- **Normalization**: Vector normalization for scale invariance ([full methodology](multi-metric-evaluation-methodology.md))
+- **Normalization**: Vector normalization for scale invariance
 - **Weighting**: AHP-derived weights with expert validation
 - **Aggregation**: Weighted sum with Pareto analysis for trade-offs
 - **Validation**: Sensitivity analysis on all weights
 
-**Documentation**: See [Multi-Metric Evaluation Methodology](multi-metric-evaluation-methodology.md) for complete mathematical foundation.
+Core metrics are weighted as: compliance (30%), effectiveness (30%),
+maintainability (20%), performance (20%).
 
 ## Scoring System (100 points total)
 
@@ -186,6 +188,32 @@ async def test_async_operation():
 | Reference materials | 2 | Complete API references |
 | Time-sensitivity | 1 | No date-dependent instructions |
 
+### Degrees of Freedom Alignment (bonus, up to 5 points)
+
+| Aspect | Max Points | Requirements |
+|--------|------------|--------------|
+| Task-specificity match | 2 | Freedom level matches task fragility |
+| Workflow structure | 2 | Complex tasks have trackable checklists |
+| Feedback loops | 1 | Validation steps before proceeding |
+
+### Persuasion Effectiveness (bonus, up to 5 points)
+
+| Aspect | Max Points | Requirements |
+|--------|------------|--------------|
+| Authority usage | 2 | Imperative language for critical rules |
+| Commitment patterns | 1 | Explicit declarations required |
+| Social proof | 1 | Universal norms documented |
+| Model calibration | 1 | Language appropriate for target models |
+
+### Anti-Rationalization Coverage (bonus, up to 5 points)
+
+| Aspect | Max Points | Requirements |
+|--------|------------|--------------|
+| Loophole closures | 2 | Specific exceptions listed |
+| Rationalization table | 1 | Common excuses with counters |
+| Red flags list | 1 | Self-checking triggers documented |
+| Foundational principles | 1 | "Spirit vs letter" addressed early |
+
 ## Quality Levels
 
 | Score | Level | Description |
@@ -226,8 +254,6 @@ sensitivity_analysis:
 
   critical_threshold: 0.8  # Spearman correlation < 0.8 = sensitive
 ```
-
-See [Sensitivity Analysis](multi-metric-evaluation-methodology.md#sensitivity-analysis) for implementation details.
 
 ### Gate Behaviors
 

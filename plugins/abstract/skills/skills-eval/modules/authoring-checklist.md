@@ -75,3 +75,16 @@ Quick-reference validation checklist for skill authors.
 - [ ] Validated structure passes
 - [ ] No narrative storytelling
 - [ ] Supporting files justified
+
+## Common Mistakes
+
+Avoid these anti-patterns when authoring skills:
+
+| Do NOT | Do Instead |
+|--------|------------|
+| Mix multiple concerns in one skill | Single responsibility per skill |
+| Use vague language ("usually", "try to") | Explicit, mandatory language |
+| Embed large code blocks inline | Reference external tools/scripts |
+| Skip testing before deployment | Test with subagents across models |
+| Keep core skill over 300 lines | Extract complexity to modules/tools |
+| Skip trigger activation testing | Validate with `/skills-eval` |

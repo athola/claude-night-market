@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "herald-dev"
-version = "1.8.4"
+version = "1.9.0"
 description = "Standalone notification system for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -14,7 +14,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",

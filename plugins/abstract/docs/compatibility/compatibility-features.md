@@ -9,8 +9,8 @@ release period.
 
 | Period | Versions | File |
 |--------|----------|------|
-| March 2026 (Recent) | 2.1.63 – 2.1.85 | [March 2026 Recent](../archive/compatibility-features-march2026-recent.md) |
-| March 2026 (Early) | 2.1.50 – 2.1.62 | [March 2026 Early](../archive/compatibility-features-march2026-early.md) |
+| March 2026 (Recent) | 2.1.63 – 2.1.85 | [March 2026 Recent](compatibility-features-march2026-recent.md) |
+| March 2026 (Early) | 2.1.50 – 2.1.62 | [March 2026 Early](compatibility-features-march2026-early.md) |
 
 ## Plugin-Specific Compatibility
 

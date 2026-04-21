@@ -4,7 +4,7 @@ description: >-
   Merge, deduplicate, rank, and format research findings
   from multiple channels into a coherent report. Use after
   research agents return their results.
-version: 1.8.4
+version: 1.9.0
 alwaysApply: false
 category: synthesis
 tags:

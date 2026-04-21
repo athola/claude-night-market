@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -19,12 +19,7 @@ class RepoConfig:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {
-            "name": self.name,
-            "path": self.path,
-            "default_branch": self.default_branch,
-            "labels": list(self.labels),
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> RepoConfig:
@@ -46,13 +41,7 @@ class CrossRepoDependency:
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        return {
-            "source_item_id": self.source_item_id,
-            "source_repo": self.source_repo,
-            "target_item_id": self.target_item_id,
-            "target_repo": self.target_repo,
-            "dependency_type": self.dependency_type,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CrossRepoDependency:

@@ -7,6 +7,7 @@ unexpected input scenarios.
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -230,6 +231,10 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    @pytest.mark.skipif(
+        not importlib.util.find_spec("requests"),
+        reason="requests not installed",
+    )
     def test_network_timeout_scenarios(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange

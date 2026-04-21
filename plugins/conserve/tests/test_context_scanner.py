@@ -539,11 +539,14 @@ class TestRenderers:
 class TestCLI:
     """Tests for the CLI interface."""
 
+    _env = {**__import__("os").environ, "PYTHONPATH": str(SCRIPTS_DIR)}
+
     def test_default_scans_given_path(self, tmp_project: Path) -> None:
         result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "context_scanner.py"), str(tmp_project)],
+            [sys.executable, "-m", "context_scanner", str(tmp_project)],
             capture_output=True,
             text=True,
+            env=self._env,
         )
         assert result.returncode == 0
         assert "# Context Map:" in result.stdout
@@ -552,13 +555,15 @@ class TestCLI:
         result = subprocess.run(
             [
                 sys.executable,
-                str(SCRIPTS_DIR / "context_scanner.py"),
+                "-m",
+                "context_scanner",
                 str(tmp_project),
                 "--format",
                 "json",
             ],
             capture_output=True,
             text=True,
+            env=self._env,
         )
         assert result.returncode == 0
         parsed = json.loads(result.stdout)
@@ -568,11 +573,13 @@ class TestCLI:
         result = subprocess.run(
             [
                 sys.executable,
-                str(SCRIPTS_DIR / "context_scanner.py"),
+                "-m",
+                "context_scanner",
                 "/nonexistent/path",
             ],
             capture_output=True,
             text=True,
+            env=self._env,
         )
         assert result.returncode == 1
 
@@ -581,13 +588,15 @@ class TestCLI:
         result = subprocess.run(
             [
                 sys.executable,
-                str(SCRIPTS_DIR / "context_scanner.py"),
+                "-m",
+                "context_scanner",
                 str(tmp_project),
                 "--output",
                 str(outfile),
             ],
             capture_output=True,
             text=True,
+            env=self._env,
         )
         assert result.returncode == 0
         assert outfile.exists()
@@ -597,13 +606,15 @@ class TestCLI:
         result = subprocess.run(
             [
                 sys.executable,
-                str(SCRIPTS_DIR / "context_scanner.py"),
+                "-m",
+                "context_scanner",
                 str(tmp_project),
                 "--max-tokens",
                 "2000",
             ],
             capture_output=True,
             text=True,
+            env=self._env,
         )
         assert result.returncode == 0
         # Output should be within token budget

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.8.4"
+version = "1.9.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -24,26 +24,6 @@ dependencies = [
     "psutil>=5.8.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "pytest-mock>=3.0",
-    "pytest-asyncio>=0.23",
-    "pytest-xdist>=3.0",
-    "coverage>=7.0.0",
-    "black>=26.1.0",
-    "ruff>=0.14.13",
-    "mypy>=1.11.0",
-    "pre-commit>=4.0.0",
-    "types-PyYAML>=6.0.0",
-]
-docs = [
-    "mkdocs>=1.5.0",
-    "mkdocs-material>=9.0.0",
-    "mkdocstrings[python]>=0.22.0",
-]
-
 [project.urls]
 Homepage = "https://github.com/anthropics/pensive"
 Documentation = "https://pensive.readthedocs.io/"
@@ -60,6 +40,7 @@ dev = [
     "coverage>=7.0.0",
     "ruff>=0.14.13",
     "mypy>=1.11.0",
+    "pre-commit>=4.0.0",
     "types-PyYAML>=6.0.0",
 ]
 
