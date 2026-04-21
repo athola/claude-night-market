@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""Vow: Bounded discovery reads (Hard layer -- warn only).
+"""Vow: Bounded discovery reads (warn-only vow).
 
 PreToolUse hook that tracks consecutive Read/Grep/Glob calls in a
 session-scoped counter file.  When the counter exceeds the budget
 (default 15) a warning is emitted.  When a Write/Edit/MultiEdit tool
 fires the counter is reset (implementation phase started).
 
-Session ID is taken from the stdin JSON `session_id` field, with
-CLAUDE_SESSION_ID env var as a fallback, and a fixed filename as the
-last resort.
+Unlike the sibling ``vow_no_ai_attribution`` and ``vow_no_emoji_commits``
+hooks, this one is **always warn-only** and does not consult
+``VOW_SHADOW_MODE``: bounded-reads is advisory signal, not a hard
+enforcement vow.  The other two vows can be promoted to blocking via
+``VOW_SHADOW_MODE=0``; this one cannot, by design.
+
+Session ID is taken from the stdin JSON ``session_id`` field, with
+``CLAUDE_SESSION_ID`` env var as a fallback, and a fixed filename as
+the last resort.
 """
 
 from __future__ import annotations
@@ -41,9 +47,25 @@ def _read_counter(path: Path) -> int:
 
 
 def _write_counter(path: Path, count: int) -> None:
-    """Write *count* to the counter file at *path*, ignoring errors."""
+    """Write *count* to the counter file at *path* with 0o600 perms.
+
+    Uses ``os.open`` + ``O_CREAT | O_WRONLY | O_TRUNC`` with mode 0o600 so
+    the counter is never world-readable on shared systems (the filename
+    embeds the session id). ``os.chmod`` is called after open to tighten
+    permissions even when the file pre-existed with looser modes.
+    """
     try:
-        path.write_text(json.dumps({"count": count}))
+        fd = os.open(
+            str(path),
+            os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+            0o600,
+        )
+        try:
+            os.fchmod(fd, 0o600)
+        except OSError:
+            pass
+        with os.fdopen(fd, "w") as fh:
+            fh.write(json.dumps({"count": count}))
     except Exception:  # noqa: S110 - write failures are non-fatal; hook must not crash the agent
         pass
 

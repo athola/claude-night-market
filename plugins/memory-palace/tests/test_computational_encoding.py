@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -210,3 +211,51 @@ class TestMigrateSensoryToComputational:
         if "enc_e1" in enc:
             assert isinstance(enc["enc_e1"], dict)
             assert "centrality" in enc["enc_e1"]
+
+    def test_atomic_write_preserves_original_on_replace_failure(
+        self,
+        tmp_path: Path,
+        sample_palace_with_sensory: dict[str, Any],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """If the final rename step fails, the original palace file must
+        remain intact (no half-written or truncated JSON).
+
+        Scenario: atomic write guarantee
+        Given a palace JSON with sensory_encoding
+        And os.replace is monkeypatched to raise OSError during migration
+        When migrate_sensory_to_computational is called
+        Then the original file is still readable and parseable
+        And its content is the pre-migration content
+        """
+        import memory_palace.migration as migration_mod
+
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        original_text = json.dumps(sample_palace_with_sensory, indent=2)
+        target = palaces_dir / "enc_test.json"
+        target.write_text(original_text)
+
+        def _boom(src: str | os.PathLike[str], dst: str | os.PathLike[str]) -> None:
+            raise OSError("simulated rename failure")
+
+        monkeypatch.setattr(migration_mod.os, "replace", _boom)
+
+        # Must not crash the caller
+        migrate_sensory_to_computational(palaces_dir)
+
+        # Original file still present, still valid JSON, still has sensory_encoding
+        assert target.exists(), "original palace file was deleted"
+        loaded = json.loads(target.read_text())
+        assert "sensory_encoding" in loaded, (
+            "original sensory_encoding was lost despite rename failure"
+        )
+        assert loaded["id"] == "enc_test"
+
+        # No orphaned temp file should remain in the palaces dir
+        leftover = [
+            p
+            for p in palaces_dir.iterdir()
+            if p.name != "enc_test.json" and p.suffix != ".json"
+        ]
+        assert leftover == [], f"atomic write left orphan temp files: {leftover}"

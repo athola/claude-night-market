@@ -118,12 +118,22 @@ class TestHasAiAttribution:
             "git commit -m 'fix: correct off-by-one error'",
             "git commit -m 'feat: add user authentication'",
             "git commit -m 'chore: update dependencies'",
+            "git commit -m 'chore: add anthropic>=0.40 to deps'",
+            "git commit -m 'chore: update anthropic-sdk to 1.2.0'",
+            "git commit -m 'feat: wire anthropic client into batch runner'",
         ],
-        ids=["bugfix", "feature", "chore"],
+        ids=[
+            "bugfix",
+            "feature",
+            "chore",
+            "anthropic-dep-bump",
+            "anthropic-sdk-bump",
+            "anthropic-package-reference",
+        ],
     )
     def test_clean_message_not_flagged(self, hook_module, command):
         """
-        Scenario: Allow clean commit messages
+        Scenario: Allow clean commit messages (including anthropic package refs)
         Given a commit command without AI attribution
         When _has_ai_attribution is called
         Then it returns False

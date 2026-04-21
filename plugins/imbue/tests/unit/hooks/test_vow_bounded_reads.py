@@ -127,6 +127,41 @@ class TestReadWriteCounter:
         count = hook_module._read_counter(path)
         assert count == 0
 
+    @pytest.mark.unit
+    def test_write_counter_uses_restrictive_permissions(self, hook_module, tmp_path):
+        """
+        Scenario: Counter file is not world-readable on shared systems
+        Given a fresh write of the counter
+        When the file is inspected
+        Then its mode is 0o600 (owner read/write only)
+        """
+        import stat
+
+        path = tmp_path / "vow_read_counter_perms.json"
+        hook_module._write_counter(path, 3)
+        assert path.exists()
+        mode = stat.S_IMODE(path.stat().st_mode)
+        assert mode == 0o600, f"expected 0o600, got {oct(mode)}"
+
+    @pytest.mark.unit
+    def test_write_counter_restricts_perms_on_existing_file(
+        self, hook_module, tmp_path
+    ):
+        """
+        Scenario: Overwriting an existing counter retains 0o600 perms
+        Given a pre-existing counter file with permissive perms
+        When _write_counter is called again
+        Then the resulting file is still 0o600
+        """
+        import stat
+
+        path = tmp_path / "vow_read_counter_rewrite.json"
+        path.write_text('{"count": 1}')
+        path.chmod(0o644)
+        hook_module._write_counter(path, 2)
+        mode = stat.S_IMODE(path.stat().st_mode)
+        assert mode == 0o600, f"expected 0o600 after rewrite, got {oct(mode)}"
+
 
 class TestIsReadTool:
     """Feature: Classify tools as read or write operations.
