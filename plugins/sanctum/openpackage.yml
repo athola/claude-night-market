@@ -39,6 +39,9 @@ skills:
 - skills/tutorial-updates
 - skills/update-readme
 - skills/version-updates
+- skills/stack-create
+- skills/stack-push
+- skills/stack-rebase
 - skills/workflow-improvement
 commands:
 - commands/commit-msg.md

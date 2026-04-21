@@ -26,6 +26,9 @@
   "skills": [
     "./skills/commit-messages",
     "./skills/do-issue",
+    "./skills/stack-create",
+    "./skills/stack-push",
+    "./skills/stack-rebase",
     "./skills/doc-consolidation",
     "./skills/doc-updates",
     "./skills/file-analysis",
