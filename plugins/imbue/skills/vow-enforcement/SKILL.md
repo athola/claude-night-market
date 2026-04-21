@@ -123,10 +123,10 @@ Current classification of existing constraints:
 | No `--no-verify` | Hard | Hard | Already hook-enforceable |
 | Scope-guard worthiness scoring | Soft | Soft | Requires judgment, not binary |
 | Proof-of-work evidence | Soft | Nen Court | Should verify evidence exists |
-| Bounded discovery reads | Soft | Hard | Could count tool calls in hook |
-| No AI attribution in commits | Soft | Hard | Pattern match on commit message |
+| Bounded discovery reads | Hard | Hard | Hook counts Read/Grep/Glob calls per session |
+| No AI attribution in commits | Hard | Hard | Hook pattern-matches git commit command |
 | Markdown line wrapping at 80 chars | Soft | Nen Court | Lint-checkable post-write |
-| No emojis in commits | Soft | Hard | Pattern match on commit message |
+| No emojis in commits | Hard | Hard | Hook pattern-matches git commit command |
 
 ## Vow Graduation Criteria
 
