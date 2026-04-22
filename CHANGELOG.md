@@ -5,6 +5,21 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **imbue bounded-reads hook split**: `vow_bounded_reads.py` now matches
+  only Read, Grep, and Glob calls.
+  A new companion script `vow_bounded_reads_reset.py` handles Write, Edit,
+  and MultiEdit — it resets the per-session counter with no budget logic,
+  eliminating a Python startup cost on every write during implementation.
+- **imbue bounded-reads blocking support**: `vow_bounded_reads.py` now
+  respects `VOW_SHADOW_MODE`, matching the pattern of
+  `vow_no_ai_attribution.py` and `vow_no_emoji_commits.py`.
+  Default (shadow mode on) continues to warn only;
+  set `VOW_SHADOW_MODE=0` to block when the read budget is exceeded.
+
 ## [1.9.1] - 2026-04-20
 
 ### Added
