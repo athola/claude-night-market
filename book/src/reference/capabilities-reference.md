@@ -155,6 +155,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |
 | `stack-create` | [sanctum](../plugins/sanctum.md) | Initialize a branch stack from a multi-step plan |
+| `stack-mode` | [sanctum](../plugins/sanctum.md) | Shared stack detection and multi-PR iteration contract for `/pr-review --stack` and `/fix-pr --stack` |
 | `stack-push` | [sanctum](../plugins/sanctum.md) | Push stack branches and open or update dependent PRs |
 | `stack-rebase` | [sanctum](../plugins/sanctum.md) | Cascading rebase after a base PR merges |
 | `stewardship` | [leyline](../plugins/leyline.md) | Cross-cutting stewardship principles with layer-specific guidance |

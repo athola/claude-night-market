@@ -1,7 +1,7 @@
 ---
 name: fix-pr
 description: Address PR/MR review feedback by reading comments, implementing fixes, and resolving threads. GitHub and GitLab support.
-usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
+usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -24,10 +24,13 @@ Use this command when you need to:
 ## Quick Reference
 
 ```bash
-/fix-pr                    # Full workflow
-/fix-pr --from triage      # Skip analysis, start at triage
-/fix-pr --to plan          # Stop after planning (dry run)
-/fix-pr --scope minor      # Auto-skip steps for minor fixes
+/fix-pr                        # Full workflow
+/fix-pr --from triage          # Skip analysis, start at triage
+/fix-pr --to plan              # Stop after planning (dry run)
+/fix-pr --scope minor          # Auto-skip steps for minor fixes
+/fix-pr --stack                # Fix every PR in the stack in one run
+/fix-pr --stack --base main    # Override the stack base branch
+/fix-pr --no-stack             # Force single-PR mode
 ```
 
 ## Workflow Steps Overview
@@ -119,6 +122,62 @@ The workflow auto-detects scope and suggests step-skipping:
 # Force minor workflow (skip to fix)
 /fix-pr --scope minor
 ```
+
+### Stack Mode (Multi-PR Fix)
+
+When the target PR is part of a stack of dependent PRs
+rooted at a common base branch, `/fix-pr` can apply the
+fix workflow to every PR in the stack in one invocation.
+Each PR still passes its own Gate 1 (thread resolution)
+and Gate 2 (issue tracking); the root PR additionally
+receives a consolidated stack-level summary.
+
+```bash
+# Explicit: fix every PR in the stack containing PR 123
+/fix-pr 123 --stack
+
+# Override the base branch (default: master)
+/fix-pr 123 --stack --base main
+
+# Force single-PR mode even if a stack is detected
+/fix-pr 123 --no-stack
+```
+
+**Behavior**:
+
+1. Before Step 1 (Analyze), `/fix-pr` loads
+   `Skill(sanctum:stack-mode)` to resolve stack
+   membership. Detection uses three strategies: branch
+   naming (`stack/<feat>/<slice>`), the `## Stack`
+   summary comment posted by `stack-push`, and a
+   base-chain walk via `gh pr view --json baseRefName`.
+2. Without `--stack` but with a detected stack of size
+   >= 2, the command prompts before iterating. Default
+   is single-PR mode.
+3. With `--stack`, Steps 1-6 run once per PR in
+   base-to-tip order. Scope detection is per-PR, so
+   one stack can mix minor and major scopes across
+   its members.
+4. Both mandatory exit gates (thread resolution and
+   issue tracking) run per-PR, unchanged.
+5. After successful iteration, a single stack summary
+   comment lands on the root PR listing each PR, its
+   fix status, and a link to its per-PR Gate 2
+   reconciliation comment.
+6. If any PR fails its gates, iteration halts.
+   Downstream PRs are left untouched because their
+   review context may now be stale.
+
+**Commit strategy interaction**: with
+`--commit-strategy single` (the default), each PR gets
+one commit. With `--commit-strategy separate`, each
+fix within a PR gets its own commit. Neither crosses
+PR boundaries: per-PR branch isolation is preserved.
+
+**Stack-mode contract**: see `Skill(sanctum:stack-mode)`
+for the shared detection, iteration, and summary
+format used by both `/fix-pr --stack` and
+`/pr-review --stack`.
 
 ## Quick Start
 
@@ -214,6 +273,7 @@ This command integrates with:
 - **test suite**: Runs verification after fixes
 - **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
 - **Agent Teams** (2.1.32+): Optional parallel fix execution for major scope PRs
+- **sanctum:stack-mode**: Multi-PR stack iteration contract (used by `--stack`)
 
 ### Claude Code Tasks Integration
 
@@ -334,6 +394,8 @@ The PR summary comment (Step 6.5) must include:
 ## See Also
 
 - `/pr` - Create pull request
-- `/pr-review` - Review pull request
+- `/pr-review` - Review pull request (also supports `--stack`)
 - `/update-tests` - Update test suite
+- `Skill(sanctum:stack-mode)` - Shared multi-PR stack iteration contract
+- `Skill(sanctum:stack-create)` / `stack-push` / `stack-rebase` - Stack lifecycle primitives
 - **Attune Workflow**: `plugins/attune/commands/attune.md`

@@ -27,6 +27,7 @@
     "./skills/commit-messages",
     "./skills/do-issue",
     "./skills/stack-create",
+    "./skills/stack-mode",
     "./skills/stack-push",
     "./skills/stack-rebase",
     "./skills/doc-consolidation",

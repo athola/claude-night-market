@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Review pull requests with scope validation, code analysis, and line comments. Supports GitHub PRs and GitLab MRs.
-usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
+usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -94,6 +94,52 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 # Skip version consistency check
 /pr-review --skip-version-check
 ```
+
+### Stack Mode (Multi-PR Review)
+
+When the target PR is part of a stack of dependent PRs
+rooted at a common base branch, `/pr-review` can review
+the entire stack in one invocation. Each PR still gets
+its own review comment, test plan, and PR description
+update; the root PR additionally receives a consolidated
+stack-level summary.
+
+```bash
+# Explicit: review the whole stack containing PR 123
+/pr-review 123 --stack
+
+# Override the base branch (default: master)
+/pr-review 123 --stack --base main
+
+# Force single-PR mode even if a stack is detected
+/pr-review 123 --no-stack
+```
+
+**Behavior**:
+
+1. Before running its main workflow, `/pr-review` loads
+   `Skill(sanctum:stack-mode)` to resolve the stack.
+   Detection uses three strategies: branch-name convention
+   (`stack/<feat>/<slice>`), the `## Stack` summary
+   comment posted by `stack-push`, and a base-chain walk.
+2. Without `--stack` but with a detected stack of size
+   >= 2, the command prompts before iterating. Default
+   is single-PR mode.
+3. With `--stack`, the main review workflow runs once
+   per PR in base-to-tip order. Per-PR outputs (review
+   comment, test plan, description update) remain
+   mandatory and unchanged.
+4. After successful iteration, one stack summary comment
+   is posted on the root PR listing each PR, its status,
+   and a link to its per-PR review comment.
+5. If any PR fails its mandatory outputs, iteration
+   halts. Downstream PRs are left untouched because
+   their review context may now be stale.
+
+**Stack-mode contract**: see `Skill(sanctum:stack-mode)`
+for the shared detection, iteration, and summary
+format used by both `/pr-review --stack` and
+`/fix-pr --stack`.
 
 ## Workflow Summary
 
@@ -293,6 +339,7 @@ This command integrates with:
 - **imbue:scope-guard**: Scope worthiness evaluation
 - **backlog system**: Issue creation and tracking
 - **Agent Teams** (2.1.32+): Optional parallel review for large PRs
+- **sanctum:stack-mode**: Multi-PR stack iteration contract (used by `--stack`)
 
 ### Code Quality Analysis (MANDATORY - NON-NEGOTIABLE)
 
@@ -318,9 +365,11 @@ Code quality findings are classified as:
 
 ## See Also
 
-- `/fix-pr` - Address PR review feedback
+- `/fix-pr` - Address PR review feedback (also supports `--stack`)
 - `/pr` - Create pull request
 - `/update-tests` - Update test suite
 - `/slop-scan` - Direct AI slop detection (scribe plugin)
 - `/doc-polish` - Interactive documentation cleanup (scribe plugin)
+- `Skill(sanctum:stack-mode)` - Shared multi-PR stack iteration contract
+- `Skill(sanctum:stack-create)` / `stack-push` / `stack-rebase` - Stack lifecycle primitives
 - **Superpowers**: `superpowers:receiving-code-review`

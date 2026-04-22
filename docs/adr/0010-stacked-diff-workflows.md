@@ -39,6 +39,7 @@ one monolithic PR or a collection of unrelated PRs.
 | No dependency chains in worktrees | egregore parallel dispatch |
 | No cascading rebase support | all PR workflows |
 | Flat PR review (no stack context) | `/pr-review` |
+| Flat PR fix (no stack context) | `/fix-pr` |
 | Coarse do-issue parallelism | `do-issue` task planning |
 
 ### Tools Evaluated
@@ -136,8 +137,21 @@ fi
 | 2 | `stack-push` skill: push all branches, open/update dependent PRs |
 | 3 | `stack-rebase` skill: cascading rebase after base PR merges |
 | 4 | Update `do-issue` task-planning module with stack awareness |
-| 5 | Update `/pr-review` to surface stack context |
+| 5 | `stack-mode` skill + `--stack` flag for `/pr-review` and `/fix-pr`: review and fix every PR in a stack (rooted at a common base branch) in one invocation |
 | 6 | Add gh-stack layer when GA |
+
+**Phase 5 contract** (`stack-mode` skill):
+
+- Shared detection, iteration, and summary contract used
+  by both commands so behavior stays symmetric.
+- Three detection strategies: branch-name convention,
+  `## Stack` summary comment, and base-chain walk.
+- Iterates base-to-tip; per-PR gates (thread resolution,
+  issue tracking) are preserved unchanged.
+- Posts one consolidated summary on the root PR in
+  addition to the per-PR outputs.
+- Halts on first per-PR failure and leaves descendants
+  untouched because their context may have shifted.
 
 ## Consequences
 
@@ -176,8 +190,11 @@ fi
 - ADR-0001: Plugin Dependency Isolation
 - Issue #405: Investigate stacked diff workflows
 - `plugins/sanctum/skills/stack-create/SKILL.md`
+- `plugins/sanctum/skills/stack-mode/SKILL.md`
 - `plugins/sanctum/skills/stack-push/SKILL.md`
 - `plugins/sanctum/skills/stack-rebase/SKILL.md`
+- `plugins/sanctum/commands/pr-review.md` (`--stack`)
+- `plugins/sanctum/commands/fix-pr.md` (`--stack`)
 - [git --update-refs docs](https://git-scm.com/docs/git-rebase#Documentation/git-rebase.txt---update-refs)
 - [jj book](https://martinvonz.github.io/jj/latest/)
 - [gh-stack announcement](https://github.blog/changelog/2024-04-25-github-stacks-public-beta/)
