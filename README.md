@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.9.1-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-177-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-182-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-177 skills, 126 slash commands, and 54 agents.
+182 skills, 126 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -159,6 +159,15 @@ See the [Common Workflows Guide][workflows] for full details.
 | Refine code | `/refine-code` | Duplication, algorithm, and clean code analysis |
 
 ## What's New
+
+**imbue 1.9.2 (unreleased):** `vow_bounded_reads.py` now matches only
+Read/Grep/Glob calls.
+A new `vow_bounded_reads_reset.py` companion handles Write/Edit/MultiEdit,
+resetting the per-session counter with no budget logic and eliminating a
+Python startup cost on every write.
+Set `VOW_SHADOW_MODE=0` to switch the hook from warn-only to blocking,
+matching the pattern already used by `vow_no_ai_attribution` and
+`vow_no_emoji_commits`.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
