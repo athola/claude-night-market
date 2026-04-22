@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.9.0"
+version = "1.9.1"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -13,6 +13,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "anthropic>=0.40",
     "pyyaml>=6.0",
     "tree-sitter>=0.23,<1",
     "tree-sitter-language-pack>=0.3,<1",

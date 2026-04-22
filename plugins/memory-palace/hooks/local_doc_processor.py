@@ -20,6 +20,56 @@ from shared.safety_checks import is_safe_content
 if TYPE_CHECKING:
     from typing import Any
 
+# ---------------------------------------------------------------------------
+# src/ on sys.path so memory_palace.* imports work in hook context
+# ---------------------------------------------------------------------------
+_PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+_SRC_DIR = str(_PLUGIN_ROOT / "src")
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
+
+def _try_register_graph_entity(
+    palaces_dir: Path,
+    entity_id: str,
+    name: str,
+    entity_type: str,
+) -> None:
+    """Create a graph entity and run link prediction. Never raises.
+
+    Runs silently if the graph DB or package is unavailable.
+    """
+    try:
+        from memory_palace.knowledge_graph import (
+            KnowledgeGraph,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+        )
+
+        db_path = palaces_dir / "knowledge_graph.db"
+        graph = KnowledgeGraph(str(db_path))
+        try:
+            graph.upsert_entity(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                name=name,
+            )
+            try:
+                from memory_palace.graph_analyzer import (
+                    PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+                )
+
+                analyzer = PalaceGraphAnalyzer(graph)
+                suggestions = analyzer.predict_links(top_n=5)
+                if suggestions:
+                    sys.stderr.write(
+                        f"local_doc_processor: link predictions: {suggestions[:3]}\n"
+                    )
+            except Exception:  # noqa: BLE001 - link prediction is optional; entity write already succeeded
+                pass
+        finally:
+            graph.close()
+    except Exception as exc:  # noqa: BLE001 - hooks must never crash; log and continue
+        sys.stderr.write(f"local_doc_processor: graph wiring skipped: {exc}\n")
+
 
 def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many validation branches
     """Process local documents through the hook."""
@@ -106,6 +156,16 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many valid
             "valuable reference material."
         )
         context_parts.append(msg)
+
+        # Register in knowledge graph (non-blocking)
+        palaces_dir = _PLUGIN_ROOT / "data" / "palaces"
+        entity_id = "doc_" + content_hash[:16]
+        _try_register_graph_entity(
+            palaces_dir=palaces_dir,
+            entity_id=entity_id,
+            name=str(rel_path),
+            entity_type="local_doc",
+        )
 
     # Output response
     if context_parts:

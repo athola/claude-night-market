@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.9.0"
+version = "1.9.1"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

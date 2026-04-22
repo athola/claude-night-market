@@ -1,6 +1,6 @@
 {
   "name": "cartograph",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Codebase visualization \u2014 generates architecture, data flow, dependency, call chain, community detection, and class diagrams via Mermaid Chart MCP",
   "commands": [
     "./commands/visualize.md"

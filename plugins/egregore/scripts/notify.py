@@ -20,9 +20,11 @@ function without checking config itself.
 
 from __future__ import annotations
 
+import enum
 import importlib.util
 import logging
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -72,8 +74,6 @@ if _HERALD_AVAILABLE and _herald_mod is not None:
 # --- Stub fallbacks (when herald is absent) -------------------------
 
 else:
-    import enum
-    from dataclasses import dataclass
 
     class AlertEvent(enum.Enum):  # type: ignore[no-redef]  # conditional stub when herald absent
         """Stub alert events when herald is absent."""

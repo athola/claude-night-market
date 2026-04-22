@@ -1,5 +1,5 @@
 name: sanctum
-version: 1.9.0
+version: 1.9.1
 description: Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates,
   and version management
 keywords:
@@ -39,6 +39,10 @@ skills:
 - skills/tutorial-updates
 - skills/update-readme
 - skills/version-updates
+- skills/stack-create
+- skills/stack-mode
+- skills/stack-push
+- skills/stack-rebase
 - skills/workflow-improvement
 commands:
 - commands/commit-msg.md

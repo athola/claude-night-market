@@ -12,6 +12,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -213,8 +214,6 @@ def _graph_staleness_warning(
     Threshold is configurable via .gauntlet/config.json:
     {"stale_threshold_hours": 12}
     """
-    import time
-
     db_path = gauntlet_dir / "graph.db"
     if not db_path.exists():
         return None

@@ -42,6 +42,55 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
 QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
+# ---------------------------------------------------------------------------
+# src/ on sys.path so memory_palace.* imports work in hook context
+# ---------------------------------------------------------------------------
+_SRC_DIR = str(PLUGIN_ROOT / "src")
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
+
+def _try_register_graph_entity(
+    palaces_dir: Path,
+    entity_id: str,
+    name: str,
+    entity_type: str,
+) -> None:
+    """Create a graph entity and run link prediction. Never raises.
+
+    Runs silently if the graph DB or package is unavailable.
+    """
+    try:
+        from memory_palace.knowledge_graph import (
+            KnowledgeGraph,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+        )
+
+        db_path = palaces_dir / "knowledge_graph.db"
+        graph = KnowledgeGraph(str(db_path))
+        try:
+            graph.upsert_entity(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                name=name,
+            )
+            try:
+                from memory_palace.graph_analyzer import (
+                    PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
+                )
+
+                analyzer = PalaceGraphAnalyzer(graph)
+                suggestions = analyzer.predict_links(top_n=5)
+                if suggestions:
+                    sys.stderr.write(
+                        f"web_research_handler: link predictions: {suggestions[:3]}\n"
+                    )
+            except Exception:  # noqa: BLE001 - link prediction is optional; entity write already succeeded
+                pass
+        finally:
+            graph.close()
+    except Exception as exc:  # noqa: BLE001 - hooks must never crash; log and continue
+        sys.stderr.write(f"web_research_handler: graph wiring skipped: {exc}\n")
+
 
 def extract_title_from_content(content: str, url: str) -> str:
     """Extract a reasonable title from content or URL."""
@@ -492,6 +541,24 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive 
                     f"\nMemory Palace: {len(known_urls)} result(s) already stored. "
                     "Check existing knowledge before re-fetching.",
                 )
+
+    # Register in knowledge graph after successful storage (non-blocking)
+    if stored_path:
+        palaces_dir = PLUGIN_ROOT / "data" / "palaces"
+        if tool_name == "WebFetch":
+            entity_id = (
+                "web_" + (url or "unknown").replace("://", "_").replace("/", "_")[:40]
+            )
+            entity_name = extract_title_from_content(content or "", url or "")
+        else:
+            entity_id = "websearch_" + slugify(query or "")[:40]
+            entity_name = f"WebSearch: {query}"
+        _try_register_graph_entity(
+            palaces_dir=palaces_dir,
+            entity_id=entity_id,
+            name=entity_name,
+            entity_type="web_resource",
+        )
 
     # Add storage reminder if no auto-capture happened and intake not already pending
     if not stored_path and not intake_already_pending and not context_parts:

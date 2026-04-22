@@ -10,6 +10,53 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# ---------------------------------------------------------------------------
+# Computational encoding helpers (Issue #394)
+# ---------------------------------------------------------------------------
+
+_DEFAULT_TEMPORAL_VALIDITY: dict[str, Any] = {"valid_from": None, "valid_to": None}
+
+
+def _default_computational_entry() -> dict[str, Any]:
+    """Return a default computational encoding entry for one entity."""
+    return {
+        "centrality": 0.0,
+        "in_degree": 0,
+        "out_degree": 0,
+        "cluster_id": -1,
+        "staleness": 0.0,
+        "access_count": 0,
+        "temporal_validity": dict(_DEFAULT_TEMPORAL_VALIDITY),
+    }
+
+
+def _build_computational_encoding(
+    palace: dict[str, Any],
+) -> dict[str, Any]:
+    """Build computational_encoding keyed by entity ID.
+
+    Populates defaults for every entity in ``associations``.
+    Graph-derived metrics (centrality, cluster_id) remain at
+    defaults unless a graph DB is available; callers that have
+    access to PalaceGraphAnalyzer can enrich them separately.
+    """
+    associations: dict[str, Any] = palace.get("associations") or {}
+    encoding: dict[str, Any] = {}
+    for entity_id in associations:
+        encoding[entity_id] = _default_computational_entry()
+    return encoding
+
+
+def _build_on_disk_palace(palace: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of *palace* prepared for disk serialization.
+
+    Replaces ``sensory_encoding`` with ``computational_encoding``.
+    The caller's dict is not mutated.
+    """
+    on_disk = {k: v for k, v in palace.items() if k != "sensory_encoding"}
+    on_disk["computational_encoding"] = _build_computational_encoding(palace)
+    return on_disk
+
 
 class PalaceRepository:
     """Manage palace files on disk: create, load, save, delete, and index."""
@@ -106,6 +153,10 @@ class PalaceRepository:
     def save_palace(self, palace: dict[str, Any]) -> None:
         """Persist a palace to disk, creating a backup first.
 
+        Replaces ``sensory_encoding`` with ``computational_encoding``
+        in the persisted data. The in-memory dict is not mutated —
+        a shallow copy is written so callers preserve the original.
+
         Args:
             palace: The palace to save.
 
@@ -115,9 +166,12 @@ class PalaceRepository:
 
         self.create_backup(palace["id"])
 
+        # Build the on-disk representation with computational encoding
+        on_disk = _build_on_disk_palace(palace)
+
         try:
             with open(palace_file, "w", encoding="utf-8") as f:
-                json.dump(palace, f, indent=2)
+                json.dump(on_disk, f, indent=2)
         except OSError as exc:
             sys.stderr.write(
                 f"palace_repository: failed to write {palace_file}: {exc}\n"

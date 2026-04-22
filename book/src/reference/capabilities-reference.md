@@ -79,6 +79,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `friction-detector` | [abstract](../plugins/abstract.md) | Detect friction signals and graduate recurring patterns into rules |
+| `gauntlet-curate` | [gauntlet](../plugins/gauntlet.md) | Research and refresh the problem bank; surveys coverage gaps and proposes YAML-valid entries |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
@@ -153,6 +154,10 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `smart-sourcing` | [conserve](../plugins/conserve.md) | Balance accuracy with token efficiency |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |
+| `stack-create` | [sanctum](../plugins/sanctum.md) | Initialize a branch stack from a multi-step plan |
+| `stack-mode` | [sanctum](../plugins/sanctum.md) | Shared stack detection and multi-PR iteration contract for `/pr-review --stack` and `/fix-pr --stack` |
+| `stack-push` | [sanctum](../plugins/sanctum.md) | Push stack branches and open or update dependent PRs |
+| `stack-rebase` | [sanctum](../plugins/sanctum.md) | Cascading rebase after a base PR merges |
 | `stewardship` | [leyline](../plugins/leyline.md) | Cross-cutting stewardship principles with layer-specific guidance |
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
@@ -427,6 +432,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
+| `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
+| `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |

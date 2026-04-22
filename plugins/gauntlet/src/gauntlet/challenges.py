@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import dataclasses
+import logging
 import random
 import uuid
 from collections.abc import Callable
+
+import anthropic
+from anthropic.types import TextBlock
 
 from gauntlet.models import (
     BankProblem,
@@ -14,6 +19,19 @@ from gauntlet.models import (
     KnowledgeEntry,
 )
 from gauntlet.problem_bank import bank_problem_to_challenge
+
+_log = logging.getLogger(__name__)
+
+_VARIATION_MODEL = "claude-haiku-4-5-20251001"
+_VARIATION_MIN_LENGTH = 20
+
+_VARIATION_PROMPT = (
+    "Given this coding problem as a template:\n\n"
+    "{problem}\n\n"
+    "Generate a unique variation that preserves the core concept and "
+    "difficulty but changes variable names, values, and framing. "
+    "Return only the problem statement."
+)
 
 # ---------------------------------------------------------------------------
 # Generator type alias
@@ -207,6 +225,70 @@ def generate_challenge(entry: KnowledgeEntry, challenge_type: str) -> Challenge:
     return CHALLENGE_TYPES[challenge_type](entry)
 
 
+def _is_valid_variation(text: str) -> bool:
+    """Return True when *text* looks like a valid problem statement.
+
+    A variation is valid when it is non-empty, at least 20 characters long,
+    and contains either a question mark or an imperative verb that indicates
+    a coding task.
+    """
+    stripped = text.strip()
+    if len(stripped) < _VARIATION_MIN_LENGTH:
+        return False
+    imperative_verbs = ("return", "write", "implement", "given", "find", "design")
+    lower = stripped.lower()
+    return "?" in stripped or any(v in lower for v in imperative_verbs)
+
+
+def _generate_problem_variation(problem: BankProblem) -> BankProblem:
+    """Return a new BankProblem with a Claude-generated prompt variation.
+
+    Uses the seed problem as a template and asks Claude to produce a unique
+    variation that preserves the core concept and difficulty while changing
+    variable names, values, and framing.  Falls back to the original problem
+    on any error (network error, API error, validation failure).
+    """
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model=_VARIATION_MODEL,
+            max_tokens=1024,
+            messages=[
+                {
+                    "role": "user",
+                    "content": _VARIATION_PROMPT.format(problem=problem.prompt),
+                }
+            ],
+        )
+        first_block = message.content[0]
+        if not isinstance(first_block, TextBlock):
+            _log.warning(
+                "Unexpected content type for problem %s; using original",
+                problem.id,
+            )
+            return problem
+        varied_prompt: str = first_block.text
+        if not _is_valid_variation(varied_prompt):
+            _log.warning(
+                "Variation for problem %s failed validation; using original",
+                problem.id,
+            )
+            return problem
+        return dataclasses.replace(problem, prompt=varied_prompt.strip())
+    except Exception:
+        _log.warning(
+            "Failed to generate variation for problem %s; using original",
+            problem.id,
+            exc_info=True,
+        )
+        return problem
+
+
 def generate_bank_challenge(problem: BankProblem) -> Challenge:
-    """Generate a challenge from a standalone bank problem."""
-    return bank_problem_to_challenge(problem)
+    """Generate a challenge from a standalone bank problem.
+
+    Produces a unique variation of the seed problem via Claude so that
+    users cannot memorise the original YAML answers.  Falls back to the
+    verbatim YAML problem when the Claude call fails.
+    """
+    return bank_problem_to_challenge(_generate_problem_variation(problem))

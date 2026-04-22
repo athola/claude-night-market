@@ -74,6 +74,9 @@ Iron Law enforced through proof-of-work validation.
 | `session-start.sh` | SessionStart | Initializes scope-guard, Iron Law, and learning mode |
 | `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
 | `tdd_bdd_gate.py` | PreToolUse | Enforces Iron Law at write-time |
+| `vow_bounded_reads.py` | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
+| `vow_no_ai_attribution.py` | PreToolUse | Blocks AI attribution strings in git commit messages |
+| `vow_no_emoji_commits.py` | PreToolUse | Blocks emoji characters in git commit messages |
 | `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation |
 | `proof-enforcement.md` | Design | Iron Law TDD compliance enforcement |
 

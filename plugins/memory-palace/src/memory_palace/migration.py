@@ -3,11 +3,18 @@
 Reads palace JSON files and creates entities, residencies, and
 synapses in the graph. Migration is idempotent: running it twice
 produces the same result via upsert semantics.
+
+Also provides ``migrate_sensory_to_computational`` for bulk
+conversion of palace JSON files from sensory_encoding to
+computational_encoding (Issue #394).
 """
 
 from __future__ import annotations
 
+import contextlib
 import json
+import os
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -143,3 +150,97 @@ class PalaceMigrator:
             total.synapses += report.synapses
 
         return total
+
+
+# ---------------------------------------------------------------------------
+# Sensory to computational encoding migration (Issue #394)
+# ---------------------------------------------------------------------------
+
+_SKIP_FILES = {"master_index.json", "session_index.json"}
+
+
+def _default_comp_entry() -> dict[str, Any]:
+    """Return a default computational encoding entry for one entity."""
+    return {
+        "centrality": 0.0,
+        "in_degree": 0,
+        "out_degree": 0,
+        "cluster_id": -1,
+        "staleness": 0.0,
+        "access_count": 0,
+        "temporal_validity": {"valid_from": None, "valid_to": None},
+    }
+
+
+def migrate_sensory_to_computational(palaces_dir: Path) -> None:
+    """Bulk-convert palace JSON files from sensory to computational encoding.
+
+    For each palace JSON in *palaces_dir*:
+    - Remove ``sensory_encoding`` key.
+    - Add ``computational_encoding`` keyed by entity ID (from associations).
+    - Write the updated file back.
+    - Idempotent: already-converted files are re-converted safely.
+
+    Args:
+        palaces_dir: Path to the directory containing palace JSON files.
+
+    """
+    for palace_file in sorted(palaces_dir.iterdir()):
+        if palace_file.suffix != ".json":
+            continue
+        if palace_file.name in _SKIP_FILES:
+            continue
+
+        try:
+            data: dict[str, Any] = json.loads(palace_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+
+        if "id" not in data:
+            continue
+
+        # Remove sensory encoding (if present)
+        data.pop("sensory_encoding", None)
+        # Remove stale computational encoding (will rebuild fresh)
+        data.pop("computational_encoding", None)
+
+        # Build fresh computational encoding from associations
+        associations: dict[str, Any] = data.get("associations") or {}
+        comp_enc: dict[str, Any] = {}
+        for entity_id in associations:
+            comp_enc[entity_id] = _default_comp_entry()
+
+        data["computational_encoding"] = comp_enc
+
+        _atomic_write_json(palace_file, data)
+
+
+def _atomic_write_json(target: Path, data: dict[str, Any]) -> None:
+    """Write ``data`` to ``target`` atomically via a sibling tempfile.
+
+    Writes JSON to a NamedTemporaryFile in the same directory as
+    ``target`` (so ``os.replace`` is an atomic rename on POSIX), then
+    swaps it into place.  If any step fails the temp file is cleaned up
+    and the original ``target`` remains untouched.
+    """
+    tmp_path: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=str(target.parent),
+            prefix=target.name + ".",
+            suffix=".tmp",
+            delete=False,
+        ) as tmp:
+            tmp_path = tmp.name
+            json.dump(data, tmp, indent=2)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+        os.replace(tmp_path, str(target))
+        tmp_path = None
+    except OSError:
+        # Leave the original file untouched; clean up the orphan tempfile.
+        if tmp_path is not None:
+            with contextlib.suppress(OSError):
+                os.unlink(tmp_path)
