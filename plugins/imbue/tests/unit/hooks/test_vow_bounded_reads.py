@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import stat
 import sys
 from io import StringIO
 from pathlib import Path
@@ -135,8 +136,6 @@ class TestReadWriteCounter:
         When the file is inspected
         Then its mode is 0o600 (owner read/write only)
         """
-        import stat
-
         path = tmp_path / "vow_read_counter_perms.json"
         hook_module._write_counter(path, 3)
         assert path.exists()
@@ -153,8 +152,6 @@ class TestReadWriteCounter:
         When _write_counter is called again
         Then the resulting file is still 0o600
         """
-        import stat
-
         path = tmp_path / "vow_read_counter_rewrite.json"
         path.write_text('{"count": 1}')
         path.chmod(0o644)
@@ -164,12 +161,11 @@ class TestReadWriteCounter:
 
 
 class TestIsReadTool:
-    """Feature: Classify tools as read or write operations.
+    """Feature: Classify tools as discovery reads.
 
     As the hook
     I want to know which tools increment the read counter
-    And which tools reset it (write operations)
-    So that the counter resets when implementation begins.
+    So that only Read/Grep/Glob contribute to the discovery budget.
     """
 
     @pytest.mark.unit
@@ -194,28 +190,6 @@ class TestIsReadTool:
         Then it returns True only for Read/Grep/Glob
         """
         assert hook_module._is_read_tool(tool_name) == expected
-
-    @pytest.mark.unit
-    @pytest.mark.parametrize(
-        "tool_name,expected",
-        [
-            ("Write", True),
-            ("Edit", True),
-            ("MultiEdit", True),
-            ("Read", False),
-            ("Grep", False),
-            ("Bash", False),
-        ],
-        ids=["Write", "Edit", "MultiEdit", "Read", "Grep", "Bash"],
-    )
-    def test_write_tool_classification(self, hook_module, tool_name, expected):
-        """
-        Scenario: Correctly classify write tools (counter-reset triggers)
-        Given a tool name
-        When _is_write_tool is called
-        Then it returns True only for Write/Edit/MultiEdit
-        """
-        assert hook_module._is_write_tool(tool_name) == expected
 
 
 class TestMainHook:
@@ -272,34 +246,6 @@ class TestMainHook:
             "15" in hook_out["permissionDecisionReason"]
             or "16" in hook_out["permissionDecisionReason"]
         )
-
-    @pytest.mark.unit
-    def test_write_tool_resets_counter(self, hook_module, capsys, tmp_path):
-        """
-        Scenario: Write tool resets the read counter to zero
-        Given a session with 12 reads counted
-        When main() is called with a Write tool
-        Then the counter file is reset to 0
-        And no warning is emitted
-        """
-        counter_path = tmp_path / "vow_read_counter_test-session3.json"
-        hook_module._write_counter(counter_path, 12)
-
-        stdin_data = json.dumps(
-            {
-                "tool_name": "Write",
-                "session_id": "test-session3",
-                "tool_input": {"file_path": "/tmp/out.py"},
-            }
-        )
-        with patch.object(hook_module, "_counter_path", return_value=counter_path):
-            with patch("sys.stdin", StringIO(stdin_data)):
-                with pytest.raises(SystemExit) as exc:
-                    hook_module.main()
-        assert exc.value.code == 0
-        captured = capsys.readouterr()
-        assert captured.out.strip() == ""
-        assert hook_module._read_counter(counter_path) == 0
 
     @pytest.mark.unit
     def test_non_tracked_tool_exits_silently(self, hook_module, capsys, tmp_path):
@@ -440,3 +386,94 @@ class TestGetSessionId:
                 hook_module._get_session_id({"session_id": "from-stdin"})
                 == "from-stdin"
             )
+
+
+class TestShadowMode:
+    """Feature: Shadow mode controls warn vs. block when budget exceeded.
+
+    As the Night Market vow enforcement system
+    I want bounded-reads to warn by default and block when configured
+    So that the vow can graduate from advisory to Hard enforcement
+    without a disruptive cutover.
+    """
+
+    @pytest.mark.unit
+    def test_shadow_mode_on_by_default(self, hook_module):
+        """
+        Scenario: Shadow mode is active when VOW_SHADOW_MODE is unset
+        Given VOW_SHADOW_MODE is not in the environment
+        When _shadow_mode() is called
+        Then it returns True (warn-only)
+        """
+        env = {
+            k: v for k, v in __import__("os").environ.items() if k != "VOW_SHADOW_MODE"
+        }
+        with patch.dict("os.environ", env, clear=True):
+            assert hook_module._shadow_mode() is True
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", ["1", "true", "yes", "TRUE"])
+    def test_shadow_mode_on_for_truthy_values(self, hook_module, value):
+        """
+        Scenario: Shadow mode stays on for truthy env var values
+        Given VOW_SHADOW_MODE=<truthy>
+        When _shadow_mode() is called
+        Then it returns True
+        """
+        with patch.dict("os.environ", {"VOW_SHADOW_MODE": value}):
+            assert hook_module._shadow_mode() is True
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", ["0", "false", "no"])
+    def test_shadow_mode_off_for_falsy_values(self, hook_module, value):
+        """
+        Scenario: Shadow mode turns off for falsy env var values
+        Given VOW_SHADOW_MODE=<falsy>
+        When _shadow_mode() is called
+        Then it returns False (blocking enabled)
+        """
+        with patch.dict("os.environ", {"VOW_SHADOW_MODE": value}):
+            assert hook_module._shadow_mode() is False
+
+    @pytest.mark.unit
+    def test_warn_decision_in_shadow_mode(self, hook_module, capsys, tmp_path):
+        """
+        Scenario: Budget exceeded in shadow mode emits warn decision
+        Given VOW_SHADOW_MODE=1 (default)
+        And a session with 15 reads already counted
+        When main() fires a Read call
+        Then the output JSON has permissionDecision=warn
+        """
+        counter_path = tmp_path / "vow_read_counter_shadow-warn.json"
+        hook_module._write_counter(counter_path, 15)
+        stdin_data = _make_input(tool_name="Read", session_id="shadow-warn")
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.dict("os.environ", {"VOW_SHADOW_MODE": "1"}):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        hook_out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        assert hook_out["permissionDecision"] == "warn"
+        assert "Shadow mode" in hook_out["permissionDecisionReason"]
+
+    @pytest.mark.unit
+    def test_block_decision_when_shadow_mode_off(self, hook_module, capsys, tmp_path):
+        """
+        Scenario: Budget exceeded with VOW_SHADOW_MODE=0 emits block decision
+        Given VOW_SHADOW_MODE=0
+        And a session with 15 reads already counted
+        When main() fires a Read call
+        Then the output JSON has permissionDecision=block
+        """
+        counter_path = tmp_path / "vow_read_counter_shadow-block.json"
+        hook_module._write_counter(counter_path, 15)
+        stdin_data = _make_input(tool_name="Read", session_id="shadow-block")
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        hook_out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        assert hook_out["permissionDecision"] == "block"

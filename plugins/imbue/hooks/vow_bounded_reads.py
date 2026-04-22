@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""Vow: Bounded discovery reads (warn-only vow).
+"""Vow: Bounded discovery reads (Hard vow, shadow mode by default).
 
-PreToolUse hook that tracks consecutive Read/Grep/Glob calls in a
-session-scoped counter file.  When the counter exceeds the budget
-(default 15) a warning is emitted.  When a Write/Edit/MultiEdit tool
-fires the counter is reset (implementation phase started).
+PreToolUse hook triggered on Read/Grep/Glob.  Tracks consecutive
+discovery reads in a session-scoped counter file.  When the counter
+exceeds the budget (default 15) a warning is emitted in shadow mode
+or the tool call is blocked when VOW_SHADOW_MODE=0.
 
-Unlike the sibling ``vow_no_ai_attribution`` and ``vow_no_emoji_commits``
-hooks, this one is **always warn-only** and does not consult
-``VOW_SHADOW_MODE``: bounded-reads is advisory signal, not a hard
-enforcement vow.  The other two vows can be promoted to blocking via
-``VOW_SHADOW_MODE=0``; this one cannot, by design.
+Counter resets are handled by the companion script
+``vow_bounded_reads_reset.py`` which fires on Write/Edit/MultiEdit.
 
 Session ID is taken from the stdin JSON ``session_id`` field, with
 ``CLAUDE_SESSION_ID`` env var as a fallback, and a fixed filename as
@@ -25,7 +22,6 @@ import sys
 from pathlib import Path
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
-_WRITE_TOOLS = frozenset({"Write", "Edit", "MultiEdit"})
 _BUDGET = 15
 
 
@@ -75,9 +71,13 @@ def _is_read_tool(tool_name: str) -> bool:
     return tool_name in _READ_TOOLS
 
 
-def _is_write_tool(tool_name: str) -> bool:
-    """Return True if *tool_name* signals the start of implementation."""
-    return tool_name in _WRITE_TOOLS
+def _shadow_mode() -> bool:
+    """Return True when shadow (warn-only) mode is active.
+
+    Shadow mode is the default.  Set VOW_SHADOW_MODE=0 to enable blocking.
+    """
+    val = os.environ.get("VOW_SHADOW_MODE", "1")
+    return val.strip() not in ("0", "false", "no")
 
 
 def _get_session_id(data: dict) -> str:
@@ -104,10 +104,6 @@ def main() -> None:
         session_id = _get_session_id(data)
         counter_file = _counter_path(session_id)
 
-        if _is_write_tool(tool_name):
-            _write_counter(counter_file, 0)
-            sys.exit(0)
-
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
@@ -116,21 +112,29 @@ def main() -> None:
         _write_counter(counter_file, new_count)
 
         if new_count > _BUDGET:
+            shadow = _shadow_mode()
+            decision = "warn" if shadow else "block"
             reason = (
                 f"Bounded discovery vow: {new_count} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
                 "Consider starting implementation."
+                + (
+                    " Shadow mode active — will block once VOW_SHADOW_MODE=0."
+                    if shadow
+                    else ""
+                )
             )
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
-                    "permissionDecision": "warn",
+                    "permissionDecision": decision,
                     "permissionDecisionReason": reason,
                 }
             }
             print(json.dumps(output))
             print(
-                f"[vow-bounded-reads] WARN: {new_count} reads (budget {_BUDGET})",
+                f"[vow-bounded-reads] {decision.upper()}: "
+                f"{new_count} reads (budget {_BUDGET})",
                 file=sys.stderr,
             )
 
