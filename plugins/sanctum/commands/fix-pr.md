@@ -1,7 +1,7 @@
 ---
 name: fix-pr
 description: Address PR/MR review feedback by reading comments, implementing fixes, and resolving threads. GitHub and GitLab support.
-usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--stack] [--no-stack] [--base <branch>]
+usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--no-insights] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -267,13 +267,30 @@ Agent teams is **on by default** for major scope PRs (6+ comments). Teammates pa
 ## Integration
 
 This command integrates with:
-- **attune workflow**: Follows analyze → triage → plan → fix → validate pattern
+- **attune workflow**: Follows analyze to triage to plan to fix to validate pattern
 - **gh CLI**: Fetches PR data, resolves threads, updates issues
 - **git**: Commits changes, pushes updates
 - **test suite**: Runs verification after fixes
 - **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
 - **Agent Teams** (2.1.32+): Optional parallel fix execution for major scope PRs
 - **sanctum:stack-mode**: Multi-PR stack iteration contract (used by `--stack`)
+- **abstract:post_review_insights**: Posts fix findings to Discussions after validate
+
+### Discussion Insights (after validate)
+
+After the validate step succeeds, write a fix summary to
+`reviews/pr-<NNN>-fix.md` (the same format /pr-review uses) and run:
+
+```bash
+python3 plugins/abstract/scripts/post_review_insights.py \
+  reviews/pr-<NNN>-fix.md --pr <NNN>
+```
+
+Each fix becomes a `[PR Finding]` Insight discussion with the
+"recently iterated" body. The InsightRegistry deduplicates against
+the original /pr-review post by content hash, so the discussion is
+updated rather than duplicated when the same finding is touched
+twice. Skip with `--no-insights` for trivial fixes.
 
 ### Claude Code Tasks Integration
 
