@@ -61,12 +61,15 @@ willpower alone.
 blocks, with `VOW_SHADOW_MODE=0`) when more than 15 consecutive discovery
 reads occur without an intervening write.
 `vow_bounded_reads_reset.py` fires on Write, Edit, and MultiEdit calls and
-resets the counter with minimal overhead — no budget logic, just a counter
+resets the counter with minimal overhead: no budget logic, just a counter
 truncation.
 
-All four hooks default to shadow mode (warn, not block) via the
-`VOW_SHADOW_MODE` environment variable.
-Set `VOW_SHADOW_MODE=0` to switch to full blocking.
+The three enforcement hooks (`vow_no_emoji_commits.py`,
+`vow_no_ai_attribution.py`, `vow_bounded_reads.py`) default to shadow mode
+(warn, not block) via `VOW_SHADOW_MODE`.
+Set `VOW_SHADOW_MODE=0` to switch to blocking.
+`vow_bounded_reads_reset.py` is unconditional: it always resets the counter
+when a write tool fires.
 
 ### Change Justification
 `justify` audits completed changes for AI additive bias,

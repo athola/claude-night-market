@@ -12,6 +12,14 @@ Counter resets are handled by the companion script
 Session ID is taken from the stdin JSON ``session_id`` field, with
 ``CLAUDE_SESSION_ID`` env var as a fallback, and a fixed filename as
 the last resort.
+
+Note: the read-modify-write on the counter file is not protected by a
+file lock.  Parallel Read calls (Claude Code 2.1.72+ dispatches them
+concurrently) can each read the same count and both write count+1,
+losing one increment.  The resulting under-count means the effective
+budget is slightly higher than configured.  This is accepted:
+the vow is an advisory signal, not a hard enforcement gate, so exact
+counting is not required.
 """
 
 from __future__ import annotations
@@ -30,7 +38,7 @@ def _counter_path(session_id: str) -> Path:
     safe_id = (
         session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
     )
-    return Path(f"/tmp/vow_read_counter_{safe_id}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
+    return Path(f"/tmp/vow_read_counter_{safe_id[:200]}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
 
 
 def _read_counter(path: Path) -> int:
@@ -38,7 +46,10 @@ def _read_counter(path: Path) -> int:
     try:
         data = json.loads(path.read_text())
         return int(data.get("count", 0))
-    except Exception:  # hook must not crash on corrupt/missing counter file
+    except FileNotFoundError:
+        return 0
+    except Exception as exc:  # hook must not crash on corrupt counter file
+        print(f"[vow-bounded-reads] WARN: counter read failed: {exc}", file=sys.stderr)
         return 0
 
 
@@ -60,10 +71,17 @@ def _write_counter(path: Path, count: int) -> None:
             os.fchmod(fd, 0o600)
         except OSError:
             pass
-        with os.fdopen(fd, "w") as fh:
-            fh.write(json.dumps({"count": count}))
-    except Exception:  # noqa: S110 - write failures are non-fatal; hook must not crash the agent
-        pass
+        try:
+            with os.fdopen(fd, "w") as fh:
+                fh.write(json.dumps({"count": count}))
+        except Exception:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            raise
+    except Exception as exc:  # noqa: S110 - write failures are non-fatal; hook must not crash the agent
+        print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
 
 
 def _is_read_tool(tool_name: str) -> bool:

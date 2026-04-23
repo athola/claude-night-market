@@ -424,7 +424,7 @@ class TestShadowMode:
             assert hook_module._shadow_mode() is True
 
     @pytest.mark.unit
-    @pytest.mark.parametrize("value", ["0", "false", "no"])
+    @pytest.mark.parametrize("value", ["0", "false", "no", " 0"])
     def test_shadow_mode_off_for_falsy_values(self, hook_module, value):
         """
         Scenario: Shadow mode turns off for falsy env var values
@@ -453,9 +453,11 @@ class TestShadowMode:
                     with pytest.raises(SystemExit) as exc:
                         hook_module.main()
         assert exc.value.code == 0
-        hook_out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        captured = capsys.readouterr()
+        hook_out = json.loads(captured.out)["hookSpecificOutput"]
         assert hook_out["permissionDecision"] == "warn"
         assert "Shadow mode" in hook_out["permissionDecisionReason"]
+        assert "[vow-bounded-reads] WARN" in captured.err
 
     @pytest.mark.unit
     def test_block_decision_when_shadow_mode_off(self, hook_module, capsys, tmp_path):
@@ -475,5 +477,112 @@ class TestShadowMode:
                     with pytest.raises(SystemExit) as exc:
                         hook_module.main()
         assert exc.value.code == 0
-        hook_out = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        captured = capsys.readouterr()
+        hook_out = json.loads(captured.out)["hookSpecificOutput"]
         assert hook_out["permissionDecision"] == "block"
+        assert "[vow-bounded-reads] BLOCK" in captured.err
+
+
+class TestBudgetBoundary:
+    """Feature: Budget boundary is checked with strict greater-than.
+
+    As the hook
+    I want reads at exactly the budget to pass silently
+    So that count=15 is the last allowed read, not the first blocked one.
+    """
+
+    @pytest.mark.unit
+    def test_read_at_exact_budget_does_not_warn(self, hook_module, capsys, tmp_path):
+        """
+        Scenario: Read at exactly budget (count goes 14→15) passes silently
+        Given a session with 14 reads already counted
+        When main() fires a Read tool
+        Then no warning is emitted (budget is 15, check is > not >=)
+        """
+        counter_path = tmp_path / "vow_read_counter_boundary.json"
+        hook_module._write_counter(counter_path, 14)
+        stdin_data = _make_input(tool_name="Read", session_id="boundary")
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        captured = capsys.readouterr()
+        assert captured.out.strip() == ""
+        assert hook_module._read_counter(counter_path) == 15
+
+    @pytest.mark.unit
+    def test_write_failure_exits_cleanly(self, hook_module, capsys):
+        """
+        Scenario: Counter write failure exits 0 without crashing the hook
+        Given os.open raises PermissionError (sandbox deny or /tmp full)
+        When main() fires a Read tool call
+        Then exit code is 0 and stdout is empty (hook must not crash the agent)
+        """
+        stdin_data = _make_input(tool_name="Read", session_id="perm-error")
+        with patch("os.open", side_effect=PermissionError("no space")):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit) as exc:
+                    hook_module.main()
+        assert exc.value.code == 0
+        assert capsys.readouterr().out.strip() == ""
+
+
+class TestIntegration:
+    """Integration: read-reset-read cycle correctly restarts the counter.
+
+    As the Night Market vow enforcement system
+    I want reads after a reset to start at 1
+    So that counter path divergence between the two scripts is caught early.
+    """
+
+    @pytest.fixture
+    def reset_module(self):
+        """Import vow_bounded_reads_reset via importlib."""
+        hooks_path = Path(__file__).resolve().parents[3] / "hooks"
+        module_path = hooks_path / "vow_bounded_reads_reset.py"
+        spec = importlib.util.spec_from_file_location(
+            "vow_bounded_reads_reset", module_path
+        )
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["vow_bounded_reads_reset"] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    @pytest.mark.unit
+    def test_read_reset_read_cycle_restarts_cleanly(
+        self, hook_module, reset_module, capsys, tmp_path
+    ):
+        """
+        Scenario: Counter restarts from 1 after a reset
+        Given both scripts use the same counter path formula
+        When 15 reads are counted, then a reset fires, then a new read fires
+        Then the count is 1 and no warning is emitted
+        """
+        session_id = "integration-cycle"
+        counter_path = tmp_path / hook_module._counter_path(session_id).name
+
+        # Phase 1: pre-load counter to budget
+        hook_module._write_counter(counter_path, 15)
+        assert hook_module._read_counter(counter_path) == 15
+
+        # Phase 2: reset fires on a Write call
+        stdin_reset = json.dumps({"tool_name": "Write", "session_id": session_id})
+        with patch.object(reset_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_reset)):
+                with pytest.raises(SystemExit):
+                    reset_module.main()
+        assert hook_module._read_counter(counter_path) == 0
+
+        # Phase 3: next Read starts fresh at 1 — no warning even with blocking on
+        stdin_read = _make_input(tool_name="Read", session_id=session_id)
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
+                with patch("sys.stdin", StringIO(stdin_read)):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        captured = capsys.readouterr()
+        assert captured.out.strip() == ""
+        assert hook_module._read_counter(counter_path) == 1

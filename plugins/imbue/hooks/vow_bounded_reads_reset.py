@@ -17,14 +17,18 @@ import sys
 from pathlib import Path
 
 
+# Duplicated from vow_bounded_reads.py — a shared import would pay the
+# same startup cost this script is designed to avoid.
 def _counter_path(session_id: str) -> Path:
     """Return the path to the session-scoped counter file."""
     safe_id = (
         session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
     )
-    return Path(f"/tmp/vow_read_counter_{safe_id}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
+    return Path(f"/tmp/vow_read_counter_{safe_id[:200]}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
 
 
+# Duplicated from vow_bounded_reads.py — a shared import would pay the
+# same startup cost this script is designed to avoid.
 def _get_session_id(data: dict) -> str:
     """Extract session ID from stdin data, env var, or fall back to 'default'."""
     sid = data.get("session_id", "")
@@ -58,10 +62,20 @@ def main() -> None:
                 os.fchmod(fd, 0o600)
             except OSError:
                 pass
-            with os.fdopen(fd, "w") as fh:
-                fh.write('{"count": 0}')
-        except Exception:  # noqa: S110 - write failures are non-fatal
-            pass
+            try:
+                with os.fdopen(fd, "w") as fh:
+                    fh.write('{"count": 0}')
+            except Exception:
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
+                raise
+        except Exception as exc:  # noqa: S110 - write failures are non-fatal
+            print(
+                f"[vow-bounded-reads] WARN: counter write failed: {exc}",
+                file=sys.stderr,
+            )
 
         sys.exit(0)
 
