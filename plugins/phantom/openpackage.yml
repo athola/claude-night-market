@@ -1,5 +1,5 @@
 name: phantom
-version: 1.9.1
+version: 1.9.2
 description: Computer use toolkit - drive desktop environments through Claude's
   vision and action API with screenshot capture, mouse/keyboard control,
   and an autonomous agent loop
