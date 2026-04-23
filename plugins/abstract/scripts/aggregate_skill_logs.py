@@ -93,14 +93,41 @@ def get_learnings_path() -> Path:
     return claude_home / "skills" / "LEARNINGS.md"
 
 
+# Session-id prefixes used by tests, dogfood runs, and other synthetic
+# harnesses. Production session ids are UUID-shaped, so a startswith
+# match on these prefixes is a reliable filter without false positives.
+_SYNTHETIC_SESSION_PREFIXES: tuple[str, ...] = (
+    "test-",
+    "dogfood-",
+    "fixture-",
+)
+
+
+def _is_synthetic_session(entry: dict[str, Any]) -> bool:
+    """Return True if a log entry is from a synthetic harness.
+
+    Filters out test runs and dogfood data so production aggregation
+    reflects real usage. Missing or empty session_id is treated as
+    real (we never want to silently drop unfamiliar production
+    formats).
+    """
+    session_id = entry.get("context", {}).get("session_id", "")
+    if not session_id:
+        return False
+    return any(session_id.startswith(p) for p in _SYNTHETIC_SESSION_PREFIXES)
+
+
 def load_log_entries(
-    log_dir: Path, days_back: int = 30
+    log_dir: Path, days_back: int = 30, *, include_synthetic: bool = False
 ) -> dict[str, list[dict[str, Any]]]:
     """Load all log entries from the last N days.
 
     Args:
         log_dir: Base log directory
         days_back: Number of days to look back
+        include_synthetic: If True, keep entries from synthetic harnesses
+            (test-session, dogfood-*). Default False so production
+            aggregation stays clean.
 
     Returns:
         Dict mapping skill name to list of log entries
@@ -132,8 +159,13 @@ def load_log_entries(
                                 entry = json.loads(line)
                                 # Filter by date
                                 entry_time = datetime.fromisoformat(entry["timestamp"])
-                                if entry_time >= cutoff:
-                                    entries_by_skill[skill_key].append(entry)
+                                if entry_time < cutoff:
+                                    continue
+                                if not include_synthetic and _is_synthetic_session(
+                                    entry
+                                ):
+                                    continue
+                                entries_by_skill[skill_key].append(entry)
                             except (
                                 json.JSONDecodeError,
                                 KeyError,

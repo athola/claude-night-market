@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 from aggregate_skill_logs import (
     AggregationResult,
     SkillLogSummary,
+    _is_synthetic_session,
     aggregate_logs,
     calculate_skill_metrics,
     detect_high_impact_issues,
@@ -1137,3 +1138,100 @@ class TestAggregateSkillLogsMain:
         with pytest.raises(SystemExit) as exc_info:
             aggregate_main()
         assert exc_info.value.code == 1
+
+
+# ---------------------------------------------------------------------------
+# Synthetic session filter (issue #69 enrichment)
+# ---------------------------------------------------------------------------
+
+
+class TestIsSyntheticSession:
+    """Predicate that flags log entries from synthetic harnesses."""
+
+    @pytest.mark.unit
+    def test_test_session_prefix_is_synthetic(self) -> None:
+        entry = {"context": {"session_id": "test-session"}}
+        assert _is_synthetic_session(entry) is True
+
+    @pytest.mark.unit
+    def test_test_dashed_id_is_synthetic(self) -> None:
+        entry = {"context": {"session_id": "test-uuid-1234"}}
+        assert _is_synthetic_session(entry) is True
+
+    @pytest.mark.unit
+    def test_dogfood_prefix_is_synthetic(self) -> None:
+        entry = {"context": {"session_id": "dogfood-2026-04"}}
+        assert _is_synthetic_session(entry) is True
+
+    @pytest.mark.unit
+    def test_real_session_is_not_synthetic(self) -> None:
+        entry = {"context": {"session_id": "8a4f9c01-7e2b-4d3a-9b1e"}}
+        assert _is_synthetic_session(entry) is False
+
+    @pytest.mark.unit
+    def test_missing_context_is_not_synthetic(self) -> None:
+        # Real production logs may omit the context block entirely.
+        # Filter must err on the side of including unknown entries.
+        assert _is_synthetic_session({}) is False
+
+    @pytest.mark.unit
+    def test_empty_session_id_is_not_synthetic(self) -> None:
+        entry = {"context": {"session_id": ""}}
+        assert _is_synthetic_session(entry) is False
+
+    @pytest.mark.unit
+    def test_partial_match_inside_real_id_is_not_synthetic(self) -> None:
+        # Substring match would false-positive on real UUIDs that
+        # happen to contain "test" anywhere. Anchor at start.
+        entry = {"context": {"session_id": "fast-est-uuid"}}
+        assert _is_synthetic_session(entry) is False
+
+
+class TestLoadLogEntriesFiltersSynthetic:
+    """End-to-end: load_log_entries drops synthetic entries by default."""
+
+    @pytest.mark.unit
+    def test_default_excludes_synthetic_sessions(self, tmp_path: Path) -> None:
+        log_dir = tmp_path / "logs"
+        skill_dir = log_dir / "abstract" / "skill-auditor"
+        skill_dir.mkdir(parents=True)
+        log_file = skill_dir / "2026-04-23.jsonl"
+
+        synthetic = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "skill": "abstract:skill-auditor",
+            "outcome": "failure",
+            "context": {"session_id": "test-session"},
+        }
+        real = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "skill": "abstract:skill-auditor",
+            "outcome": "success",
+            "context": {"session_id": "8a4f9c01-real-uuid"},
+        }
+        log_file.write_text(json.dumps(synthetic) + "\n" + json.dumps(real) + "\n")
+
+        result = load_log_entries(log_dir, days_back=7)
+        entries = result.get("abstract:skill-auditor", [])
+        assert len(entries) == 1
+        assert entries[0]["context"]["session_id"] == "8a4f9c01-real-uuid"
+
+    @pytest.mark.unit
+    def test_include_synthetic_flag_keeps_them(self, tmp_path: Path) -> None:
+        # Tests and CI need to opt back in. Otherwise the existing
+        # test corpus would become invisible to aggregation.
+        log_dir = tmp_path / "logs"
+        skill_dir = log_dir / "abstract" / "skill-auditor"
+        skill_dir.mkdir(parents=True)
+        log_file = skill_dir / "2026-04-23.jsonl"
+
+        synthetic = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "skill": "abstract:skill-auditor",
+            "outcome": "failure",
+            "context": {"session_id": "test-session"},
+        }
+        log_file.write_text(json.dumps(synthetic) + "\n")
+
+        result = load_log_entries(log_dir, days_back=7, include_synthetic=True)
+        assert len(result.get("abstract:skill-auditor", [])) == 1
