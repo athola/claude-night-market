@@ -7,14 +7,27 @@ per-session read counter file back to zero.
 Intentionally minimal: reads only the session ID from stdin, then
 writes ``{"count": 0}`` to the counter file.  No JSON parsing of
 tool output, no pattern checks, no budget logic.
+
+Concurrency: acquires the same ``fcntl.flock(LOCK_EX)`` as the
+companion increment script so a Read in flight cannot clobber the
+reset.  See issue #418.
 """
 
 from __future__ import annotations
 
-import json
+import json  # noqa: F401 - kept for forward compatibility with payload parsing
 import os
 import sys
 from pathlib import Path
+
+# fcntl is POSIX-only; degrade to unlocked truncate on Windows.
+try:
+    import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
+
+    _HAS_FCNTL = True
+except ImportError:  # pragma: no cover - exercised only on non-POSIX
+    _fcntl = None  # type: ignore[assignment]  # intentional None sentinel; guarded by _HAS_FCNTL at call sites
+    _HAS_FCNTL = False
 
 
 # Duplicated from vow_bounded_reads.py — a shared import would pay the
@@ -40,6 +53,57 @@ def _get_session_id(data: dict) -> str:
     return "default"
 
 
+def _atomic_reset(path: Path) -> None:
+    """Atomically zero the counter file at *path*.
+
+    Acquires the same exclusive POSIX file lock as the increment hook
+    so a Read in flight cannot clobber the reset.  Falls back to
+    unlocked truncate on systems without ``fcntl``.
+
+    Never raises -- write errors are logged to stderr only so the
+    hook cannot crash the agent.
+    """
+    fd = -1
+    try:
+        # O_RDWR (not O_TRUNC) so the lock is acquired BEFORE any
+        # destructive operation; truncation happens after the lock.
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            os.fchmod(fd, 0o600)
+        except OSError:
+            pass
+        if _HAS_FCNTL and _fcntl is not None:
+            try:
+                _fcntl.flock(fd, _fcntl.LOCK_EX)
+            except OSError:
+                pass
+        try:
+            os.lseek(fd, 0, os.SEEK_SET)
+            os.ftruncate(fd, 0)
+            os.write(fd, b'{"count": 0}')
+        except OSError as exc:
+            print(
+                f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
+                file=sys.stderr,
+            )
+    except Exception as exc:  # noqa: BLE001 - hook must not crash agent
+        print(
+            f"[vow-bounded-reads] WARN: counter reset failed: {exc}",
+            file=sys.stderr,
+        )
+    finally:
+        if fd >= 0:
+            if _HAS_FCNTL and _fcntl is not None:
+                try:
+                    _fcntl.flock(fd, _fcntl.LOCK_UN)
+                except OSError:
+                    pass
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+
 def main() -> None:
     """Entry point for the PreToolUse hook."""
     try:
@@ -51,32 +115,7 @@ def main() -> None:
     try:
         session_id = _get_session_id(data)
         counter_file = _counter_path(session_id)
-
-        try:
-            fd = os.open(
-                str(counter_file),
-                os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
-                0o600,
-            )
-            try:
-                os.fchmod(fd, 0o600)
-            except OSError:
-                pass
-            try:
-                with os.fdopen(fd, "w") as fh:
-                    fh.write('{"count": 0}')
-            except Exception:
-                try:
-                    os.close(fd)
-                except OSError:
-                    pass
-                raise
-        except Exception as exc:  # noqa: S110 - write failures are non-fatal
-            print(
-                f"[vow-bounded-reads] WARN: counter write failed: {exc}",
-                file=sys.stderr,
-            )
-
+        _atomic_reset(counter_file)
         sys.exit(0)
 
     except Exception:  # hook must not crash the agent under any circumstance

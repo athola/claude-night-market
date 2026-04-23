@@ -586,3 +586,223 @@ class TestIntegration:
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
         assert hook_module._read_counter(counter_path) == 1
+
+
+class TestAtomicIncrement:
+    """Feature: Counter increments are parallel-safe (issue #418).
+
+    As the Night Market vow enforcement system
+    I want concurrent Read tool calls to never lose increments
+    So that the budget reflects the true number of discovery reads
+    even when Claude Code dispatches reads in parallel (2.1.72+).
+    """
+
+    @pytest.mark.unit
+    def test_atomic_increment_returns_sequential_values(self, hook_module, tmp_path):
+        """
+        Scenario: Sequential calls return strictly increasing counts
+        Given a fresh counter
+        When _atomic_increment is called three times in serial
+        Then it returns 1, 2, 3 and the persisted count is 3
+        """
+        path = tmp_path / "vow_read_counter_seq.json"
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._atomic_increment(path) == 2
+        assert hook_module._atomic_increment(path) == 3
+        assert hook_module._read_counter(path) == 3
+
+    @pytest.mark.unit
+    def test_atomic_increment_initial_call_creates_file(self, hook_module, tmp_path):
+        """
+        Scenario: Counter file is created on first increment
+        Given no counter file exists
+        When _atomic_increment is called
+        Then the file is created with 0o600 perms and count=1
+        """
+        path = tmp_path / "vow_read_counter_create.json"
+        assert not path.exists()
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        assert path.exists()
+        mode = stat.S_IMODE(path.stat().st_mode)
+        assert mode == 0o600, f"expected 0o600, got {oct(mode)}"
+
+    @pytest.mark.unit
+    def test_atomic_increment_no_lost_updates_under_concurrency(
+        self, hook_module, tmp_path
+    ):
+        """
+        Scenario: Concurrent increments from many threads sum correctly
+        Given 50 threads each calling _atomic_increment once
+        When all threads complete
+        Then the persisted count equals 50 (no lost updates)
+
+        Without file locking, the read-modify-write race loses
+        increments and the final count drops below 50. With the
+        fix, the lock serializes each RMW so every increment
+        survives.
+        """
+        import threading
+
+        path = tmp_path / "vow_read_counter_parallel.json"
+        n_threads = 50
+        results: list[int] = []
+        results_lock = threading.Lock()
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()  # release all threads at once to maximize contention
+            value = hook_module._atomic_increment(path)
+            with results_lock:
+                results.append(value)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Final persisted count must equal the number of increments.
+        assert hook_module._read_counter(path) == n_threads, (
+            f"lost updates: expected {n_threads} increments, "
+            f"got {hook_module._read_counter(path)}"
+        )
+        # Returned values must form the set 1..n_threads (no duplicates,
+        # no skipped values).
+        assert sorted(results) == list(range(1, n_threads + 1))
+
+    @pytest.mark.unit
+    def test_atomic_increment_falls_back_when_fcntl_missing(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: Atomic increment still works when fcntl is unavailable
+        Given the runtime has no working fcntl module (e.g. Windows)
+        When _atomic_increment is called
+        Then it still increments correctly, just without OS-level locking
+        """
+        path = tmp_path / "vow_read_counter_nofcntl.json"
+        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._atomic_increment(path) == 2
+        assert hook_module._read_counter(path) == 2
+
+    @pytest.mark.unit
+    def test_atomic_increment_survives_corrupt_file(self, hook_module, tmp_path):
+        """
+        Scenario: Corrupt counter file is treated as zero, then incremented to 1
+        Given a counter file containing garbage
+        When _atomic_increment is called
+        Then it returns 1 (resets state safely) without raising
+        """
+        path = tmp_path / "vow_read_counter_corrupt.json"
+        path.write_text("not valid json at all")
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._read_counter(path) == 1
+
+    @pytest.mark.unit
+    def test_main_uses_atomic_increment(self, hook_module, capsys, tmp_path):
+        """
+        Scenario: Hook main() drives the counter via _atomic_increment
+        Given a fresh counter and a Read tool call
+        When main() runs
+        Then the counter advances from 0 to 1 atomically (no separate
+        read/write call sequence on the file)
+
+        This guards against regression where main() reverts to the
+        non-atomic _read_counter + _write_counter pair.
+        """
+        counter_path = tmp_path / "vow_read_counter_main-atomic.json"
+        call_count = {"n": 0}
+        original = hook_module._atomic_increment
+
+        def tracking(path):
+            call_count["n"] += 1
+            return original(path)
+
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.object(hook_module, "_atomic_increment", side_effect=tracking):
+                with patch("sys.stdin", StringIO(_make_input())):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        assert call_count["n"] == 1, "main() must call _atomic_increment exactly once"
+        assert hook_module._read_counter(counter_path) == 1
+
+
+class TestAtomicReset:
+    """Feature: Counter reset is parallel-safe.
+
+    As the Night Market vow enforcement system
+    I want the reset hook to coordinate with concurrent reads
+    So that a Read in flight cannot clobber a Write-triggered reset.
+    """
+
+    @pytest.fixture
+    def reset_module(self):
+        """Import vow_bounded_reads_reset via importlib."""
+        hooks_path = Path(__file__).resolve().parents[3] / "hooks"
+        module_path = hooks_path / "vow_bounded_reads_reset.py"
+        spec = importlib.util.spec_from_file_location(
+            "vow_bounded_reads_reset", module_path
+        )
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["vow_bounded_reads_reset"] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    @pytest.mark.unit
+    def test_atomic_reset_zeros_counter(self, reset_module, hook_module, tmp_path):
+        """
+        Scenario: _atomic_reset truncates the counter to zero
+        Given a counter file with count=42
+        When _atomic_reset is called
+        Then the persisted count is 0 and perms are 0o600
+        """
+        path = tmp_path / "vow_read_counter_reset.json"
+        hook_module._write_counter(path, 42)
+        reset_module._atomic_reset(path)
+        assert hook_module._read_counter(path) == 0
+        mode = stat.S_IMODE(path.stat().st_mode)
+        assert mode == 0o600, f"expected 0o600, got {oct(mode)}"
+
+    @pytest.mark.unit
+    def test_atomic_reset_concurrent_with_increment(
+        self, reset_module, hook_module, tmp_path
+    ):
+        """
+        Scenario: Reset interleaved with increments produces consistent state
+        Given a counter being incremented concurrently
+        When a reset fires mid-stream
+        Then the final state is either a low count (post-reset increments
+        only) or matches the number of increments that completed before
+        the reset — but the file is never corrupt and never negative.
+        """
+        import threading
+
+        path = tmp_path / "vow_read_counter_reset-race.json"
+        n_increments = 30
+        barrier = threading.Barrier(n_increments + 1)
+
+        def incrementer():
+            barrier.wait()
+            hook_module._atomic_increment(path)
+
+        def resetter():
+            barrier.wait()
+            reset_module._atomic_reset(path)
+
+        threads = [threading.Thread(target=incrementer) for _ in range(n_increments)]
+        threads.append(threading.Thread(target=resetter))
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Final count must be a non-negative integer ≤ n_increments.
+        # Crucially the file must be parseable (not corrupt).
+        final = hook_module._read_counter(path)
+        assert 0 <= final <= n_increments, (
+            f"final count {final} outside [0, {n_increments}] — "
+            "indicates corruption or lost write"
+        )

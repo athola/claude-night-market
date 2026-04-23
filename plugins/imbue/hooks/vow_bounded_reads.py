@@ -13,13 +13,12 @@ Session ID is taken from the stdin JSON ``session_id`` field, with
 ``CLAUDE_SESSION_ID`` env var as a fallback, and a fixed filename as
 the last resort.
 
-Note: the read-modify-write on the counter file is not protected by a
-file lock.  Parallel Read calls (Claude Code 2.1.72+ dispatches them
-concurrently) can each read the same count and both write count+1,
-losing one increment.  The resulting under-count means the effective
-budget is slightly higher than configured.  This is accepted:
-the vow is an advisory signal, not a hard enforcement gate, so exact
-counting is not required.
+Concurrency: read-modify-write on the counter file is serialised with
+``fcntl.flock(LOCK_EX)`` so parallel Read calls (Claude Code 2.1.72+
+dispatches them concurrently) cannot lose increments.  On platforms
+without ``fcntl`` (Windows) the hook degrades gracefully to unlocked
+RMW; the resulting small race window is acceptable because the vow
+remains an advisory signal there.
 """
 
 from __future__ import annotations
@@ -28,6 +27,17 @@ import json
 import os
 import sys
 from pathlib import Path
+
+# fcntl is POSIX-only.  On Windows we fall back to unlocked RMW; the
+# small race window is acceptable for an advisory vow on non-POSIX
+# hosts.  See issue #418.
+try:
+    import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
+
+    _HAS_FCNTL = True
+except ImportError:  # pragma: no cover - exercised only on non-POSIX
+    _fcntl = None  # type: ignore[assignment]  # intentional None sentinel; guarded by _HAS_FCNTL at call sites
+    _HAS_FCNTL = False
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
@@ -84,6 +94,70 @@ def _write_counter(path: Path, count: int) -> None:
         print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
 
 
+def _atomic_increment(path: Path) -> int:
+    """Atomically read-modify-write the counter at *path*.
+
+    Returns the new (post-increment) count.  Uses an exclusive POSIX
+    file lock around the RMW so concurrent hook invocations cannot
+    lose increments.  On systems without ``fcntl`` (Windows) the lock
+    is skipped and the hook degrades to unlocked RMW.
+
+    Returns 0 on any failure -- the hook must never crash the agent.
+    """
+    fd = -1
+    try:
+        # O_RDWR|O_CREAT (no O_TRUNC) so we can read the current value
+        # before overwriting it.  Mode 0o600 mirrors _write_counter.
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            os.fchmod(fd, 0o600)
+        except OSError:
+            pass
+        if _HAS_FCNTL and _fcntl is not None:
+            try:
+                _fcntl.flock(fd, _fcntl.LOCK_EX)
+            except OSError:
+                pass  # lock unavailable; fall through to unlocked RMW
+        try:
+            os.lseek(fd, 0, os.SEEK_SET)
+            raw = os.read(fd, 4096)
+        except OSError:
+            raw = b""
+        try:
+            current = int(json.loads(raw or b"{}").get("count", 0))
+        except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
+            current = 0
+        new_count = current + 1
+        try:
+            os.lseek(fd, 0, os.SEEK_SET)
+            os.ftruncate(fd, 0)
+            os.write(fd, json.dumps({"count": new_count}).encode("utf-8"))
+        except OSError as exc:
+            print(
+                f"[vow-bounded-reads] WARN: counter write failed: {exc}",
+                file=sys.stderr,
+            )
+            return 0
+        return new_count
+    except Exception as exc:  # noqa: BLE001 - hook must not crash agent
+        print(
+            f"[vow-bounded-reads] WARN: counter increment failed: {exc}",
+            file=sys.stderr,
+        )
+        return 0
+    finally:
+        if fd >= 0:
+            if _HAS_FCNTL and _fcntl is not None:
+                try:
+                    _fcntl.flock(fd, _fcntl.LOCK_UN)
+                except OSError:
+                    pass
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+
 def _is_read_tool(tool_name: str) -> bool:
     """Return True if *tool_name* is a discovery read tool."""
     return tool_name in _READ_TOOLS
@@ -125,9 +199,7 @@ def main() -> None:
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
-        current = _read_counter(counter_file)
-        new_count = current + 1
-        _write_counter(counter_file, new_count)
+        new_count = _atomic_increment(counter_file)
 
         if new_count > _BUDGET:
             shadow = _shadow_mode()
