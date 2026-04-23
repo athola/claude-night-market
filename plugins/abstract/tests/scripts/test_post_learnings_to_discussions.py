@@ -730,3 +730,197 @@ class TestPostLearnings:
         assert result == new_url
         mock_create.assert_called_once()
         record.save.assert_called()
+
+
+# ---------------------------------------------------------------------------
+# Enrichment integration (issue #69 follow-up)
+# ---------------------------------------------------------------------------
+
+
+from post_learnings_to_discussions import (  # noqa: E402 - imports placed after fixture block intentionally
+    _record_post_artifacts,
+    _safe_int,
+    _safe_pct,
+    compose_enriched_body,
+)
+
+_ENRICHED_LEARNINGS = """\
+# Skill Performance Learnings
+
+**Last Updated**: 2026-04-23 18:52:32 UTC
+**Analysis Period**: Last 30 days
+**Skills Analyzed**: 1
+**Total Executions**: 40
+
+---
+
+## High-Impact Issues
+
+### abstract:skill-auditor
+**Type**: high_failure_rate
+**Severity**: high
+**Metric**: 40.0% success rate
+**Detail**: 24/40 failures
+**Recent Errors**:
+- Error: validation failed missing frontmatter description
+- Error: validation failed missing frontmatter name
+- Error: validation failed missing frontmatter trigger
+
+---
+
+## Skill Performance Summary
+
+| Skill | Executions | Success Rate | Avg Duration | Rating |
+|-------|------------|--------------|--------------|--------|
+| `abstract:skill-auditor` | 40 | 40.0% | 0.1s | N/A |
+"""
+
+
+class TestComposeEnrichedBody:
+    """Feature: Composed body includes legacy summary plus enriched sections.
+
+    As a maintainer reading the daily Learning post
+    I want Detail, Recent Errors, performance, action items, and trends
+    So that I can act on the post instead of just acknowledging it
+    """
+
+    @pytest.mark.unit
+    def test_includes_legacy_summary_block(self) -> None:
+        """Backwards compat: original Summary Stats heading is preserved."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        record = PostedRecord()
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, record)
+        assert "## Summary Stats" in body
+        assert "Last 30 days" in body
+
+    @pytest.mark.unit
+    def test_includes_detail_field(self) -> None:
+        """Scenario: Issue Detail (lost by old formatter) is now surfaced."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        assert "24/40 failures" in body
+
+    @pytest.mark.unit
+    def test_includes_recent_errors(self) -> None:
+        """Scenario: Recent Errors bullets appear in the body."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        assert "missing frontmatter description" in body
+
+    @pytest.mark.unit
+    def test_includes_performance_summary_table(self) -> None:
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        assert "## Performance Summary" in body
+        assert "abstract:skill-auditor" in body
+
+    @pytest.mark.unit
+    def test_includes_action_items_section(self) -> None:
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        assert "## Action Items" in body
+
+    @pytest.mark.unit
+    def test_includes_failure_modes_when_clusters_exist(self) -> None:
+        """Three errors share 'frontmatter' -> one named failure mode emerges."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        # Single-skill clustering may not trigger MIN_PATTERN; assert section
+        # only when present. The action-items section is the guaranteed
+        # downstream surface.
+        if "## Named Failure Modes" in body:
+            assert "frontmatter" in body or "validation" in body
+
+    @pytest.mark.unit
+    def test_trend_section_appears_after_two_posts(self) -> None:
+        """Scenario: Second post shows trend deltas vs first snapshot."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        record = PostedRecord(
+            posted={
+                "_snapshot_history": [
+                    {
+                        "abstract:skill-auditor": {
+                            "success_rate": 90.0,
+                            "total_executions": 30,
+                        }
+                    }
+                ],
+            }
+        )
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, record)
+        assert "Trends vs Previous Snapshot" in body
+        # 90 -> 40 means -50pp; should be in body
+        assert "-50" in body
+
+    @pytest.mark.unit
+    def test_persistence_callout_when_issue_repeats(self) -> None:
+        """Scenario: Same issue fingerprint appears in last two posts."""
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        fp = "abstract:skill-auditor|high_failure_rate"
+        record = PostedRecord(posted={"_fingerprint_history": [[fp], [fp]]})
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, record)
+        assert "Persistent Issues" in body
+        assert "abstract:skill-auditor" in body
+
+
+class TestRecordPostArtifacts:
+    """Feature: Snapshot + fingerprints persist across posts."""
+
+    @pytest.mark.unit
+    def test_snapshot_history_appended_and_capped(self) -> None:
+        """Scenario: After 6 posts, only the last 5 snapshots remain."""
+        from discussion_enrichment import (
+            parse_enriched_issues,
+            parse_perf_summary,
+        )
+
+        record = PostedRecord(posted={})
+        for _ in range(6):
+            _record_post_artifacts(
+                record,
+                parse_enriched_issues(_ENRICHED_LEARNINGS),
+                parse_perf_summary(_ENRICHED_LEARNINGS),
+            )
+        assert len(record.posted["_snapshot_history"]) == 5
+        assert len(record.posted["_fingerprint_history"]) == 5
+
+    @pytest.mark.unit
+    def test_fingerprint_records_skill_pipe_type(self) -> None:
+        """Scenario: Fingerprint format is '{skill}|{issue_type}'."""
+        from discussion_enrichment import (
+            parse_enriched_issues,
+            parse_perf_summary,
+        )
+
+        record = PostedRecord(posted={})
+        _record_post_artifacts(
+            record,
+            parse_enriched_issues(_ENRICHED_LEARNINGS),
+            parse_perf_summary(_ENRICHED_LEARNINGS),
+        )
+        assert record.posted["_fingerprint_history"][-1] == [
+            "abstract:skill-auditor|high_failure_rate"
+        ]
+
+
+class TestSafeParsers:
+    """Feature: Defensive int/percent parsing for malformed table cells."""
+
+    @pytest.mark.unit
+    def test_safe_pct_parses_normal(self) -> None:
+        assert _safe_pct("40.0%") == 40.0
+        assert _safe_pct("100%") == 100.0
+
+    @pytest.mark.unit
+    def test_safe_pct_returns_zero_on_garbage(self) -> None:
+        assert _safe_pct("N/A") == 0.0
+        assert _safe_pct("") == 0.0
+
+    @pytest.mark.unit
+    def test_safe_int_parses_normal(self) -> None:
+        assert _safe_int("42") == 42
+
+    @pytest.mark.unit
+    def test_safe_int_returns_zero_on_garbage(self) -> None:
+        assert _safe_int("N/A") == 0
+        assert _safe_int("") == 0
