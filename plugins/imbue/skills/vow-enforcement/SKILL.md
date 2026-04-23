@@ -119,14 +119,41 @@ Current classification of existing constraints:
 
 | Constraint | Current Layer | Target Layer | Notes |
 |------------|--------------|--------------|-------|
-| Iron Law (no impl without failing test) | Soft | Nen Court | Requires analysis of commit order |
+| Iron Law (no impl without failing test) | Nen Court | Nen Court | `validators/iron_law.py` audits commit order (#406) |
 | No `--no-verify` | Hard | Hard | Already hook-enforceable |
 | Scope-guard worthiness scoring | Soft | Soft | Requires judgment, not binary |
-| Proof-of-work evidence | Soft | Nen Court | Should verify evidence exists |
-| Bounded discovery reads | Hard | Hard | Hook counts Read/Grep/Glob calls per session |
+| Proof-of-work evidence | Nen Court | Nen Court | `validators/proof_of_work.py` checks `[Ex]` refs and status (#406) |
+| Bounded discovery reads | Hard | Hard | `vow_bounded_reads.py` with `fcntl.flock` for parallel safety (#418) |
 | No AI attribution in commits | Hard | Hard | Hook pattern-matches git commit command |
-| Markdown line wrapping at 80 chars | Soft | Nen Court | Lint-checkable post-write |
+| Markdown line wrapping at 80 chars | Nen Court | Nen Court | `validators/markdown_wrap.py` flags >80-char prose lines (#406) |
 | No emojis in commits | Hard | Hard | Hook pattern-matches git commit command |
+
+### Validator Invocation
+
+The three Nen Court validators are standalone scripts under
+`plugins/imbue/validators/`.  Each reads JSON on stdin and writes a
+verdict JSON on stdout, using exit codes 0 (pass), 1 (violation), and
+2 (inconclusive).  Examples:
+
+```bash
+# Markdown wrap audit on a list of files
+echo '{"files": ["README.md", "docs/guide.md"]}' \
+  | python plugins/imbue/validators/markdown_wrap.py
+
+# Iron Law audit on an explicit commit log
+echo '{"commits": [
+  {"sha": "abc", "ts": 100, "files": ["tests/test_x.py"]},
+  {"sha": "def", "ts": 200, "files": ["src/x.py"]}
+]}' | python plugins/imbue/validators/iron_law.py
+
+# Proof-of-work audit on agent output
+echo '{"text": "Tested foo [E1] [E2] [E3]. Status: PASS.", "min_evidence": 3}' \
+  | python plugins/imbue/validators/proof_of_work.py
+```
+
+Mission orchestrator integration: dispatch the appropriate validator
+at each phase boundary (see Nen Court Protocol below) and treat exit
+code 1 as a blocking gate, exit code 2 as advisory.
 
 ## Vow Graduation Criteria
 
