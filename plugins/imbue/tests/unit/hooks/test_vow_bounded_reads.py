@@ -637,10 +637,12 @@ class TestAtomicIncrement:
         When all threads complete
         Then the persisted count equals 50 (no lost updates)
 
-        Without file locking, the read-modify-write race loses
-        increments and the final count drops below 50. With the
-        fix, the lock serializes each RMW so every increment
-        survives.
+        Note: this smoke test alone cannot prove flock is doing any
+        work, because CPython's GIL serializes the RMW faster than
+        threads can race. The deterministic-race tests below
+        (`..._prevents_lost_updates_under_injected_race` and the
+        paired `..._loses_updates_without_flock_under_injected_race`)
+        are what actually gate the flock fix.
         """
         import threading
 
@@ -670,6 +672,123 @@ class TestAtomicIncrement:
         # Returned values must form the set 1..n_threads (no duplicates,
         # no skipped values).
         assert sorted(results) == list(range(1, n_threads + 1))
+
+    @pytest.mark.unit
+    def test_atomic_increment_prevents_lost_updates_under_injected_race(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: With flock, injected sleep inside the RMW does not lose updates
+        Given `os.read` is patched to sleep 5ms after reading
+          And 20 threads are released simultaneously to increment
+          And `_HAS_FCNTL=True` (flock active)
+        When all threads complete
+        Then the persisted count equals 20 and every return value is unique
+
+        The injected sleep is what makes this test meaningful. Without
+        injection, the GIL serializes the RMW in under a millisecond
+        and the unflocked path also passes (review finding B2). With
+        the 5ms sleep between `os.read` and `os.write`, the race
+        window is large enough that lost updates WOULD occur if flock
+        were absent -- which the paired negative-control test below
+        demonstrates.
+        """
+        import os as _os
+        import threading
+        import time
+
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("requires fcntl (POSIX-only)")
+
+        path = tmp_path / "vow_read_counter_flocked_race.json"
+        n_threads = 20
+        real_read = _os.read
+
+        def slow_read(fd, size):
+            data = real_read(fd, size)
+            time.sleep(0.005)  # widen RMW window past GIL serialization
+            return data
+
+        monkeypatch.setattr(hook_module.os, "read", slow_read)
+
+        results: list[int] = []
+        results_lock = threading.Lock()
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            value = hook_module._atomic_increment(path)
+            with results_lock:
+                results.append(value)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert hook_module._read_counter(path) == n_threads, (
+            f"flock failed to prevent lost updates under injected race: "
+            f"final={hook_module._read_counter(path)} expected={n_threads}"
+        )
+        assert sorted(results) == list(range(1, n_threads + 1)), (
+            f"duplicate or skipped return values: {sorted(results)}"
+        )
+
+    @pytest.mark.unit
+    def test_atomic_increment_loses_updates_without_flock_under_injected_race(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: Without flock, injected sleep produces lost updates (negative control)
+        Given `os.read` is patched to sleep 5ms after reading
+          And 20 threads are released simultaneously to increment
+          And `_HAS_FCNTL=False` (flock disabled)
+        When all threads complete
+        Then the persisted count is strictly less than 20
+
+        This is the paired negative control for the positive test
+        above: it proves the injected race is real and the positive
+        test is actually exercising flock. If this test ever passes
+        with `final == n_threads`, the race injection has become
+        ineffective and both tests must be revisited (review finding
+        B2's core concern).
+        """
+        import os as _os
+        import threading
+        import time
+
+        path = tmp_path / "vow_read_counter_unflocked_race.json"
+        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+
+        n_threads = 20
+        real_read = _os.read
+
+        def slow_read(fd, size):
+            data = real_read(fd, size)
+            time.sleep(0.005)
+            return data
+
+        monkeypatch.setattr(hook_module.os, "read", slow_read)
+
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            hook_module._atomic_increment(path)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        final = hook_module._read_counter(path)
+        assert final < n_threads, (
+            f"negative control failed: final={final} equals n_threads={n_threads} "
+            "-- injected race is not effective, so the paired positive test "
+            "cannot distinguish flock from no-flock (review B2)"
+        )
 
     @pytest.mark.unit
     def test_atomic_increment_falls_back_when_fcntl_missing(
@@ -799,10 +918,30 @@ class TestAtomicReset:
         for t in threads:
             t.join()
 
-        # Final count must be a non-negative integer ≤ n_increments.
-        # Crucially the file must be parseable (not corrupt).
-        final = hook_module._read_counter(path)
-        assert 0 <= final <= n_increments, (
-            f"final count {final} outside [0, {n_increments}] — "
-            "indicates corruption or lost write"
+        # Strict integrity check (review B3): the raw bytes on disk
+        # must parse as a single valid JSON object with a non-negative
+        # integer `count` field. Going through `_read_counter` alone
+        # is not sufficient because that helper returns 0 on parse
+        # errors, which would make any corruption silently satisfy a
+        # range assertion.
+        raw_bytes = path.read_bytes()
+        assert raw_bytes, "counter file is empty after reset+increment race"
+        try:
+            parsed = json.loads(raw_bytes)
+        except json.JSONDecodeError as exc:
+            pytest.fail(
+                f"counter file is corrupt after reset+increment race: "
+                f"{exc}; raw bytes = {raw_bytes!r}"
+            )
+        assert isinstance(parsed, dict), (
+            f"counter file parsed to non-dict {type(parsed).__name__}: {parsed!r}"
+        )
+        assert "count" in parsed, f"counter file missing 'count' key: {parsed!r}"
+        count_value = parsed["count"]
+        assert isinstance(count_value, int), (
+            f"'count' is {type(count_value).__name__}, not int: {count_value!r}"
+        )
+        assert 0 <= count_value <= n_increments, (
+            f"count {count_value} outside [0, {n_increments}] -- "
+            "indicates lost write or interleaved update"
         )
