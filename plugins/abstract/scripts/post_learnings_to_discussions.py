@@ -661,9 +661,12 @@ def _footer_block() -> str:
 
 
 def _safe_pct(value: str) -> float:
-    """Parse '40.0%' -> 40.0; tolerate junk."""
+    """Parse '40.0%' -> 40.0; tolerate outer whitespace and missing %."""
     try:
-        return float(value.rstrip("%").strip())
+        # Strip whitespace FIRST so the % is at the end for rstrip.
+        # Previously `.rstrip("%").strip()` silently returned 0.0 on
+        # "  40.0%  " because % was not the trailing character.
+        return float(value.strip().rstrip("%"))
     except (ValueError, AttributeError):
         return 0.0
 

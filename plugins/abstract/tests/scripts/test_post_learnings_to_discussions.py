@@ -924,3 +924,42 @@ class TestSafeParsers:
     def test_safe_int_returns_zero_on_garbage(self) -> None:
         assert _safe_int("N/A") == 0
         assert _safe_int("") == 0
+
+
+# ---------------------------------------------------------------------------
+# Edge cases for _safe_pct and _safe_int (Phase 2.5)
+# ---------------------------------------------------------------------------
+
+
+class TestSafeParserEdgeCases:
+    """Feature: Defensive numeric parsing against real-world LEARNINGS.md."""
+
+    @pytest.mark.unit
+    def test_safe_pct_handles_negative(self) -> None:
+        """Scenario: negative percent (e.g., rate regression display)"""
+        assert _safe_pct("-12.5%") == -12.5
+
+    @pytest.mark.unit
+    def test_safe_pct_handles_bare_number(self) -> None:
+        """Scenario: table cell with no % sign (upstream formatter changed)"""
+        assert _safe_pct("42.5") == 42.5
+
+    @pytest.mark.unit
+    def test_safe_pct_handles_whitespace(self) -> None:
+        """Scenario: ragged table cell"""
+        assert _safe_pct("  40.0%  ") == 40.0
+
+    @pytest.mark.unit
+    def test_safe_int_handles_whitespace(self) -> None:
+        """Scenario: table cell with padding"""
+        assert _safe_int("  42  ") == 42
+
+    @pytest.mark.unit
+    def test_safe_int_rejects_float(self) -> None:
+        """Scenario: '42.5' should NOT silently coerce to 42.
+
+        The perf-summary column is executions (int). A float there
+        means the upstream formatter changed; we'd rather return 0
+        and display nothing than misrepresent counts.
+        """
+        assert _safe_int("42.5") == 0

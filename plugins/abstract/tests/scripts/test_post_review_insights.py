@@ -192,3 +192,130 @@ class TestMain:
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code != 0
+
+
+# ---------------------------------------------------------------------------
+# Invariant-encoding tests (Phase 2.5 per test-updates skill)
+# ---------------------------------------------------------------------------
+
+
+class TestSeverityContractInvariant:
+    """Invariant: severity mapping is a design decision.
+
+    Blockers MUST map to "high" severity so they rank first in
+    discussion lists and trigger any severity-gated downstream
+    automation. Non-blocking rows MUST map to "medium" — never "low"
+    (too easily ignored) and never "high" (false urgency).
+
+    If this test breaks, someone is changing the severity contract.
+    Present the 3 options before updating the assertion:
+    1. Preserve: revert the change, blockers stay high
+    2. Layer: add a severity override parameter, keep default
+    3. Revise: document the new severity strategy in an ADR
+    """
+
+    @pytest.mark.unit
+    def test_every_blocker_becomes_high(self) -> None:
+        """All blockers, regardless of count or content, get severity=high."""
+        from post_review_insights import (
+            Finding,  # noqa: PLC0415 - local import to colocate with test
+        )
+
+        markdown = (
+            "**Verdict:** Request changes\n\n"
+            "## Blocking findings\n\n"
+            "### B1 - one\n\nbody 1\n\n"
+            "### B2 - two\n\nbody 2\n\n"
+            "### B3 - three\n\nbody 3\n"
+        )
+        summary = parse_review_markdown(markdown)
+        findings: list[Finding] = review_to_findings(summary, pr_number=1)
+        blockers = [f for f in findings if f.summary.startswith("B")]
+        assert len(blockers) == 3
+        assert all(f.severity == "high" for f in blockers), (
+            "INVARIANT VIOLATION: not all blockers are severity=high. "
+            "See test docstring for the 3-option decision before changing."
+        )
+
+    @pytest.mark.unit
+    def test_every_non_blocking_becomes_medium(self) -> None:
+        """All non-blocking rows get severity=medium — never low or high."""
+        markdown = (
+            "**Verdict:** Approve\n\n"
+            "## Non-blocking findings\n\n"
+            "| ID | Source | Where | Concern |\n"
+            "|----|--------|-------|---------|\n"
+            "| NB1 | docs | a.py:1 | typo |\n"
+            "| NB2 | perf | b.py:2 | slow |\n"
+        )
+        summary = parse_review_markdown(markdown)
+        findings = review_to_findings(summary, pr_number=1)
+        non_blockers = [f for f in findings if f.summary.startswith("NB")]
+        assert len(non_blockers) == 2
+        assert all(f.severity == "medium" for f in non_blockers), (
+            "INVARIANT VIOLATION: non-blocking must be medium. "
+            "low rank would hide them; high rank would inflate urgency."
+        )
+
+
+class TestExtractPrNumber:
+    """Feature: Extract PR number from the standard review heading."""
+
+    @pytest.mark.unit
+    def test_extracts_from_standard_heading(self) -> None:
+        """Scenario: '# PR Review: #417 - title' -> 417"""
+        from post_review_insights import extract_pr_number
+
+        assert extract_pr_number("# PR Review: #417 - some title\n") == 417
+
+    @pytest.mark.unit
+    def test_missing_heading_returns_none(self) -> None:
+        """Scenario: no heading at all"""
+        from post_review_insights import extract_pr_number
+
+        assert extract_pr_number("no pr heading here\n") is None
+
+    @pytest.mark.unit
+    def test_different_heading_format_returns_none(self) -> None:
+        """Scenario: '# Review of PR 417' (non-standard) -> None.
+
+        The parser is deliberately strict about the heading format
+        because downstream Findings embed this PR number in their
+        evidence. A false match (e.g., pulling '417' from arbitrary
+        prose) would corrupt the evidence link.
+        """
+        from post_review_insights import extract_pr_number
+
+        assert extract_pr_number("# Review of PR 417\n") is None
+
+
+class TestReviewWithOnlyOneKind:
+    """Edge case: reviews in the wild aren't always balanced."""
+
+    @pytest.mark.unit
+    def test_review_with_only_blockers_no_table(self) -> None:
+        """Approved-with-caveats pattern: blockers but nothing to note."""
+        markdown = (
+            "**Verdict:** Request changes\n\n"
+            "## Blocking findings\n\n"
+            "### B1 - x\n\nbody\n\n"
+        )
+        summary = parse_review_markdown(markdown)
+        findings = review_to_findings(summary, pr_number=1)
+        assert len(findings) == 1
+        assert findings[0].severity == "high"
+
+    @pytest.mark.unit
+    def test_review_with_only_non_blocking(self) -> None:
+        """Clean-approve-with-suggestions pattern: no blockers, NB table only."""
+        markdown = (
+            "**Verdict:** Approve\n\n"
+            "## Non-blocking findings\n\n"
+            "| ID | Source | Where | Concern |\n"
+            "|----|--------|-------|---------|\n"
+            "| NB1 | docs | a.py:1 | typo |\n"
+        )
+        summary = parse_review_markdown(markdown)
+        findings = review_to_findings(summary, pr_number=1)
+        assert len(findings) == 1
+        assert findings[0].severity == "medium"

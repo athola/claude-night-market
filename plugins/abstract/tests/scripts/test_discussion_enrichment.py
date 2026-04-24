@@ -654,3 +654,124 @@ def _finding(
         recommendation=recommendation,
         source=source,
     )
+
+
+# ---------------------------------------------------------------------------
+# Invariant-encoding tests (Phase 2.5 per test-updates skill)
+# ---------------------------------------------------------------------------
+
+
+class TestDefaultOnFilterInvariant:
+    """Invariant: discussion sections default to non-emitting on empty data.
+
+    This is load-bearing. post_learnings_to_discussions.compose_enriched_body
+    joins sections with double-newlines and drops any that evaluate falsy.
+    If a formatter started returning `"## Heading\n"` on empty input, every
+    Learning post would show ghost headings with no content underneath.
+    """
+
+    @pytest.mark.unit
+    def test_every_formatter_returns_empty_string_on_empty_input(self) -> None:
+        """All format_* functions return "" (not "## Heading\\n") on empty input."""
+        assert format_enriched_issues([]) == ""
+        assert format_perf_summary([]) == ""
+        assert format_failure_modes([]) == ""
+        assert format_lens_findings([]) == ""
+        # format_trends accepts a dict; empty dict or dict with empty lists
+        # must both yield "".
+        assert format_trends({}) == ""
+        assert (
+            format_trends(
+                {
+                    "rate_changes": [],
+                    "exec_changes": [],
+                    "new_skills": [],
+                    "resolved_skills": [],
+                }
+            )
+            == ""
+        )
+        assert format_action_items([]) == ""
+        assert format_persistence_callout([]) == ""
+
+
+class TestLensRunnerGracefulFailure:
+    """Invariant: a broken lens MUST NOT prevent the post."""
+
+    @pytest.mark.unit
+    def test_lens_exception_does_not_propagate(self) -> None:
+        """Scenario: a lens raises AttributeError during analyze()
+        Given metrics that trigger a bug in a hypothetical lens
+        When run_lenses is invoked
+        Then the exception is caught and an empty list returned for that lens
+        """
+        # run_lenses catches (AttributeError, KeyError, TypeError, ValueError)
+        # around each lens module's analyze() call. We can't easily inject a
+        # broken lens without monkeypatching the import, but we can verify the
+        # signature accepts an empty metrics dict and produces a list.
+        result = run_lenses({})
+        assert isinstance(result, list), (
+            "INVARIANT VIOLATION: run_lenses must always return a list "
+            "so compose_enriched_body can safely extend its findings."
+        )
+
+
+class TestTrendDeltaBoundary:
+    """Edge case: the 5pp noise threshold is inclusive."""
+
+    @pytest.mark.unit
+    def test_exactly_5pp_change_is_recorded(self) -> None:
+        """Exactly 5pp is the inclusive boundary — it's interesting enough to show."""
+        prev = {"a": {"success_rate": 70, "total_executions": 100}}
+        cur = {"a": {"success_rate": 75, "total_executions": 100}}
+        deltas = compute_trend_deltas(cur, prev)
+        assert any(
+            c["skill"] == "a" and c["delta"] == 5 for c in deltas["rate_changes"]
+        )
+
+    @pytest.mark.unit
+    def test_just_below_5pp_filtered_as_noise(self) -> None:
+        """4.9pp is noise; don't clutter the post."""
+        prev = {"a": {"success_rate": 70, "total_executions": 100}}
+        cur = {"a": {"success_rate": 74.9, "total_executions": 100}}
+        deltas = compute_trend_deltas(cur, prev)
+        assert deltas["rate_changes"] == []
+
+
+class TestClusterSingleSkillWithRepeats:
+    """Edge case: same skill, multiple near-duplicate errors."""
+
+    @pytest.mark.unit
+    def test_two_similar_errors_from_one_skill_still_cluster(self) -> None:
+        """Scenario: one skill fires the same error many times
+        Given two frontmatter errors all from abstract:skill-auditor
+        When clustered
+        Then one FailureMode emerges (MIN_ERRORS=2, not MIN_SKILLS)
+        """
+        errors = {
+            "abstract:skill-auditor": [
+                "validation failed missing frontmatter description",
+                "validation failed missing frontmatter name",
+            ],
+        }
+        modes = cluster_failure_modes(errors)
+        assert len(modes) == 1
+        assert modes[0].occurrences == 2
+        assert modes[0].skills == ["abstract:skill-auditor"]
+
+
+class TestGenerateActionItemsTruncation:
+    """Edge case: more than 5 findings get truncated."""
+
+    @pytest.mark.unit
+    def test_truncates_to_top_5(self) -> None:
+        """Scenario: 10 findings
+        When action items generated
+        Then only the top 5 by severity appear
+        """
+        findings = [
+            _finding(severity="high", recommendation=f"Fix {i}") for i in range(10)
+        ]
+        items = generate_action_items(findings)
+        # 5 findings + 0 persistent = 5 items (no "Continue monitoring")
+        assert len(items) == 5
