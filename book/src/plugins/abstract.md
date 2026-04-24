@@ -76,23 +76,32 @@ deduplication registry.
 ### Architecture
 
 ```
-Stop Hook (lightweight) ──┐
-Scheduled agent (deep) ───┤
-/pr-review ───────────────┤
-/code-refinement ─────────┘
-        │
-        v
-  insight_analyzer.py
-  (loads lenses, runs analysis)
-        │
-        v
-  InsightRegistry
-  (content-hash dedup, 30-day expiry)
-        │
-        v
-  post_insights_to_discussions.py
-  (posts to "Insights" category)
+Stop Hook (lightweight) ──┐         /pr-review ──┐
+Scheduled agent (deep) ───┤         /fix-pr ─────┤
+/code-refinement ─────────┘                      │
+        │                                        │
+        v                                        v
+  insight_analyzer.py              post_review_insights.py
+  (loads lenses,                   (parses review markdown,
+   runs analysis)                   already-curated findings)
+        │                                        │
+        └────────────┬───────────────────────────┘
+                     v
+              InsightRegistry
+              (content-hash dedup, 30-day expiry)
+                     │
+                     v
+            post_insights_to_discussions.py
+            (posts to "Insights" category)
 ```
+
+Two paths converge at the registry. The lens-driven path
+(hooks and scheduled agents) runs analysis to produce
+findings from raw metrics. The direct path (review
+commands) skips analysis because the review markdown
+already contains curated findings; `post_review_insights.py`
+just parses blockers and non-blocking notes and forwards
+them to the registry.
 
 ### Lenses
 
@@ -135,6 +144,17 @@ Findings pass through four layers before posting:
 | Improvement | `[Improvement]` | Agent |
 | PR Finding | `[PR Finding]` | PR review |
 | Health Check | `[Health Check]` | Script |
+
+### Learning Post Enrichment
+
+Phase 6a `[Learning]` posts (a separate path from the
+Insight pipeline above) are enriched by
+`discussion_enrichment.py`, which runs the same analysis
+lenses against `LEARNINGS.md` to embed recommendations
+into the discussion body and clusters error logs into
+named failure modes. This surfaces actionable patterns
+inline rather than leaving readers to interpret raw
+metrics.
 
 See ADR 0007 for the GitHub Discussions integration
 design and the palace bridge for cross-plugin knowledge

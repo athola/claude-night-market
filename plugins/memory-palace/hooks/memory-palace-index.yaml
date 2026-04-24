@@ -2534,6 +2534,24 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.graphite.com/docs/evaluating-tools
+  https://realpython.com/readme-python-project:
+    content_hash: sha256:507cab18e78d00bd
+    stored_at: data/staging/webfetch-recommended-readme-section-order-for-python-2026-04-24_03-33-09.md
+    importance_score: 50
+    last_updated: '2026-04-24T03:33:09.632748+00:00'
+    title: Recommended README Section Order for Python Projects
+    maturity: seedling
+    routing_type: pending
+    url: https://realpython.com/readme-python-project/
+  https://github.com/anthropics/claude-plugins-official:
+    content_hash: sha256:ae546ac3d6d12dce
+    stored_at: data/staging/webfetch-claude-code-plugins-directory-readme-structure-2026-04-24_03-33-12.md
+    importance_score: 50
+    last_updated: '2026-04-24T03:33:12.120812+00:00'
+    title: Claude Code Plugins Directory - README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/anthropics/claude-plugins-official
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -2816,3 +2834,5 @@ hashes:
   sha256:59640b80b58c371e: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
   sha256:336f570a6161fc72: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
   sha256:d1cbf7d1a2af6ca6: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md
+  sha256:507cab18e78d00bd: data/staging/webfetch-recommended-readme-section-order-for-python-2026-04-24_03-33-09.md
+  sha256:ae546ac3d6d12dce: data/staging/webfetch-claude-code-plugins-directory-readme-structure-2026-04-24_03-33-12.md

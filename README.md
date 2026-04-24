@@ -23,6 +23,17 @@ Each plugin installs independently.
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
 </p>
 
+## Contents
+
+- [Quick Start](#quick-start)
+- [Architecture](#architecture) (plugin catalog, layer model)
+- [Common Workflows](#common-workflows)
+- [Requirements](#requirements)
+- [What's New](#whats-new)
+- [Plugin Development](#plugin-development)
+- [Documentation](#documentation)
+- [Stewardship](#stewardship) · [Contributing](#contributing) · [License](#license)
+
 ## Quick Start
 
 Requires **Claude Code 2.1.16+** and **Python 3.9+** for hooks.
@@ -49,6 +60,12 @@ After installation, run `claude --init` for one-time setup.
 
 > **Note:** If the `Skill` tool is unavailable, read skill files directly
 > at `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
+
+> **Trust & safety:** plugins run inside your Claude Code session and can
+> read or edit your repo. Night Market ships with TDD gates (`imbue`),
+> destructive-command blockers (`conserve`), and additive-bias audits on
+> every change, but you should still review any plugin before installing it.
+> See [STEWARDSHIP.md](STEWARDSHIP.md) for the maintenance contract.
 
 ### opkg (OpenPackage)
 
@@ -158,19 +175,6 @@ See the [Common Workflows Guide][workflows] for full details.
 | Strategic decisions | `/attune:war-room` | Expert routing with reversibility scoring |
 | Refine code | `/refine-code` | Duplication, algorithm, and clean code analysis |
 
-## What's New
-
-**imbue 1.9.2 (unreleased):** `vow_bounded_reads.py` now matches only
-Read/Grep/Glob calls.
-A new `vow_bounded_reads_reset.py` companion handles Write/Edit/MultiEdit,
-resetting the per-session counter with no budget logic and eliminating a
-Python startup cost on every write.
-Set `VOW_SHADOW_MODE=0` to switch the hook from warn-only to blocking,
-matching the pattern already used by `vow_no_ai_attribution` and
-`vow_no_emoji_commits`.
-
-See the [Changelog](CHANGELOG.md) for the full history.
-
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
@@ -179,6 +183,18 @@ See the [Changelog](CHANGELOG.md) for the full history.
   target 3.10+ via virtual environments, but all hook code must be
   3.9-compatible. See the [Plugin Development Guide][dev-guide]
   for compatibility rules.
+
+## What's New
+
+**1.9.2:** the `imbue` vow hooks split read-budget
+accounting from write-reset accounting so write-heavy sessions no longer
+pay a Python startup tax on every `Write`/`Edit`. Set `VOW_SHADOW_MODE=0`
+to turn the bounded-reads vow from warn-only into a hard block. The
+`abstract` plugin now posts PR review findings to GitHub Discussions as
+Insights and filters synthetic sessions out of its Phase 6a learning
+summaries.
+
+See the [Changelog](CHANGELOG.md) for the full history.
 
 ## Plugin Development
 
