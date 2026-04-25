@@ -98,6 +98,67 @@ description: A description with "quotes" and 'apostrophes' and: colons
         assert '"quotes"' in result
         assert "'apostrophes'" in result
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_extracts_folded_block_scalar(self) -> None:
+        """Scenario: Extract YAML folded block scalar (>) descriptions.
+
+        Given a skill with `description: >` followed by indented lines
+        When extracting the description
+        Then lines should be joined with single spaces
+        (the original parser only handled `|` literal blocks; folded
+        blocks were silently ignored, causing 5 false-positive flags).
+        """
+        content = """---
+name: test
+description: >
+  This is a folded
+  block scalar that
+  spans multiple lines.
+version: 1.0
+---
+"""
+        result = extract_description(content)
+        assert result == "This is a folded block scalar that spans multiple lines."
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_extracts_folded_strip_block_scalar(self) -> None:
+        """Scenario: Extract YAML folded-strip block scalar (>-).
+
+        Given a skill with `description: >-` (strips trailing newline)
+        When extracting the description
+        Then lines should be joined with single spaces, no trailing newline.
+        """
+        content = """---
+description: >-
+  Three-layer constraint enforcement: soft vows, hard vows,
+  and Nen Court external validators.
+---
+"""
+        result = extract_description(content)
+        assert result == (
+            "Three-layer constraint enforcement: soft vows, "
+            "hard vows, and Nen Court external validators."
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_strips_quotes_from_single_line_description(self) -> None:
+        """Scenario: Single-line descriptions can be quoted.
+
+        Given a skill with `description: 'quoted text'`
+        When extracting the description
+        Then the surrounding quotes should be stripped.
+        """
+        single_quoted = "---\ndescription: 'Single quoted text.'\n---\n"
+        double_quoted = '---\ndescription: "Double quoted text."\n---\n'
+        bare = "---\ndescription: Bare text.\n---\n"
+
+        assert extract_description(single_quoted) == "Single quoted text."
+        assert extract_description(double_quoted) == "Double quoted text."
+        assert extract_description(bare) == "Bare text."
+
 
 class TestAnalyzeFile:
     """Feature: Analyze skill or command file for budget metrics.

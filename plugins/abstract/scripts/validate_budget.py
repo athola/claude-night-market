@@ -36,19 +36,49 @@ class Component:
 
 
 def extract_description(content: str) -> str:
-    """Extract description field from YAML frontmatter."""
-    # Match multi-line description field
-    match = re.search(r"^description:\s*\|?\s*\n((?:  .+\n)*)", content, re.MULTILINE)
-    if match:
-        desc = match.group(1)
-        # Remove leading spaces from each line
-        lines = [line.lstrip() for line in desc.split("\n")]
-        return "\n".join(lines).strip()
+    """Extract description field from YAML frontmatter.
 
-    # Try single-line description
+    Handles three YAML scalar styles:
+
+    - Single-line: ``description: text`` (with or without quotes)
+    - Literal block: ``description: |`` followed by indented lines
+      (newlines preserved)
+    - Folded block: ``description: >`` or ``description: >-`` followed
+      by indented lines (newlines collapsed to spaces)
+
+    Folded-block detection was missing from the original parser, which
+    caused 5 SKILL.md files using ``description: >`` to be flagged
+    as "malformed" by length-budget tooling. Audit doc 2026-04-25
+    captures the false-positive set.
+    """
+    # Match block-scalar styles (literal `|` or folded `>`, optional `-`)
+    block_match = re.search(
+        r"^description:\s*([|>])(-?)\s*\n((?:  .+\n)*)", content, re.MULTILINE
+    )
+    if block_match:
+        indicator = block_match.group(1)
+        body = block_match.group(3)
+        # Strip the 2-space leading indent from each line
+        lines = [
+            line[2:] if line.startswith("  ") else line.lstrip()
+            for line in body.split("\n")
+        ]
+        joined = (
+            "\n".join(lines).strip() if indicator == "|" else " ".join(lines).strip()
+        )
+        # Collapse multiple internal spaces from folded joins
+        return re.sub(r"\s+", " ", joined).strip() if indicator == ">" else joined
+
+    # Single-line description (with or without surrounding quotes)
     match = re.search(r"^description:\s*(.+)$", content, re.MULTILINE)
     if match:
-        return match.group(1).strip()
+        text = match.group(1).strip()
+        # Strip surrounding single or double quotes if present
+        if (text.startswith("'") and text.endswith("'")) or (
+            text.startswith('"') and text.endswith('"')
+        ):
+            text = text[1:-1]
+        return text
 
     return ""
 
