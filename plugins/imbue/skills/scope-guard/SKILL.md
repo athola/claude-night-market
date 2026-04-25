@@ -264,6 +264,7 @@ When evaluating a feature, create these todos:
 - `superpowers:writing-plans` - Planning workflow this validates
 - `imbue:review-core` - Review methodology pattern
 - `imbue:karpathy-principles` - Compact four-principle synthesis covering scope, simplicity, surgical edits, and verifiable goals
+- See `docs/quality-gates.md#skill-level-quality-gate-composition` for the full gate-skill federation graph
 
 ## Module Reference
 

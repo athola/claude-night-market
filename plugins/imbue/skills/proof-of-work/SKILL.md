@@ -135,6 +135,7 @@ Before sending a completion message, confirm that you have run the recommended c
 ## Related Skills
 
 - `imbue:karpathy-principles` - The "Goal-Driven Execution" principle wraps the Iron Law in a four-principle synthesis useful as a pre-flight gate
+- See `docs/quality-gates.md#skill-level-quality-gate-composition` for the full gate-skill federation graph
 
 ## Exit Criteria
 

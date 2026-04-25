@@ -221,6 +221,9 @@ iterate.
   RED-GREEN-REFACTOR
 - `Skill(superpowers:brainstorming)` - generate
   options before committing
+- See `docs/quality-gates.md#skill-level-quality-gate-composition`
+  for the full gate-skill federation graph (this skill
+  is the synthesis hub)
 
 ## Required TodoWrite Items
 

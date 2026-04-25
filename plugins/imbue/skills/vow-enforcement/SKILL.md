@@ -267,3 +267,14 @@ the user provides an explicit override.
   working
 - Exploratory work where constraints would slow
   learning
+
+## Related Skills
+
+- `imbue:karpathy-principles` - the discursive layer
+  this skill governs (vow-enforcement decides which
+  principles graduate from skills to hooks)
+- `imbue:scope-guard`, `imbue:proof-of-work`,
+  `leyline:additive-bias-defense` - example soft vows
+  that vow-enforcement classifies and may promote
+- See `docs/quality-gates.md#skill-level-quality-gate-composition`
+  for the federation this skill governs

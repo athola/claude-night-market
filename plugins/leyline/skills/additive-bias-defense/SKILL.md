@@ -104,6 +104,7 @@ Review-oriented skills MUST consult this contract by:
 ## Related Skills
 
 - `imbue:karpathy-principles` - "Simplicity First" and "Surgical Changes" principles invoke this contract from a higher-level four-principle synthesis
+- See `docs/quality-gates.md#skill-level-quality-gate-composition` for the full gate-skill federation graph
 
 ## The Subtraction Principle
 

@@ -384,3 +384,16 @@ reworked before the report passes.
 > Rely less on AI and initial lines of thinking.
 > Challenge yourself to be better, to think of a more
 > elegant implementation or a simpler solution.
+
+## Related Skills
+
+- `imbue:karpathy-principles` - "Surgical Changes" and
+  "Goal-Driven Execution" principles invoke this audit
+  from a higher-level synthesis
+- `leyline:additive-bias-defense` - the contract this
+  audit enforces in detail
+- `imbue:proof-of-work` - the validation layer this
+  audit complements (proof-of-work asks "did it work?",
+  justify asks "did it need to exist?")
+- See `docs/quality-gates.md#skill-level-quality-gate-composition`
+  for the full gate-skill federation graph

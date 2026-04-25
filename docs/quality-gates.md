@@ -7,6 +7,7 @@ Market ecosystem.
 
 - [Overview](#overview)
 - [The Three Layers](#the-three-layers)
+- [Skill-Level Quality Gate Composition](#skill-level-quality-gate-composition)
 - [Pre-Commit Hooks](#pre-commit-hooks)
 - [Manual Quality Scripts](#manual-quality-scripts)
 - [Configuration Files](#configuration-files)
@@ -45,6 +46,131 @@ This keeps feedback loops tight during focused development.
 We verify plugin structure, skill frontmatter, context optimization,
 and security using tools like Bandit.
 This ensures structural integrity and security compliance.
+
+## Skill-Level Quality Gate Composition
+
+Layers 1-3 above run in CI and pre-commit hooks. A complementary
+set of **skill-level gates** runs inside Claude Code sessions and
+governs the *reasoning* layer: when to refuse a task, when to
+demand evidence, when to reject sycophantic agreement.
+
+These skills do not enforce a strict pipeline. They form a
+**federation with phase affinity**: each one is at home in a
+specific stage of the work, but several can fire at once if the
+situation warrants.
+
+### The Gate Federation
+
+```mermaid
+flowchart LR
+    subgraph PRE [Pre-implementation]
+        SG[scope-guard]
+        KP[karpathy-principles]
+        ABD[additive-bias-defense]
+    end
+    subgraph DURING [During implementation]
+        RR[rigorous-reasoning]
+        CQP[code-quality-principles]
+    end
+    subgraph POST [Post-implementation]
+        POW[proof-of-work]
+        JU[justify]
+    end
+    subgraph META [Meta-constraint]
+        VE[vow-enforcement]
+    end
+
+    KP --> SG
+    KP --> ABD
+    KP --> POW
+    SG --> ABD
+    ABD <--> JU
+    POW <--> JU
+    RR -.cross-cutting.-> PRE
+    RR -.cross-cutting.-> POST
+    VE -.governs.-> PRE
+    VE -.governs.-> DURING
+    VE -.governs.-> POST
+```
+
+### Phase Affinities
+
+**Pre-implementation** (before code is written)
+
+- `imbue:scope-guard` -- worthiness scoring, branch-size
+  budgets, defer nice-to-haves. The first question.
+- `imbue:karpathy-principles` -- four-principle gate (think
+  first, simplicity, surgical edits, verifiable goals).
+  Synthesis hub; routes into the others.
+- `leyline:additive-bias-defense` -- inverts burden of proof
+  for additions. Cross-cutting contract that reviews consult.
+
+**During implementation** (cross-cutting)
+
+- `imbue:rigorous-reasoning` -- anti-sycophancy checklist for
+  contested claims, conflicts, and reasoning quality.
+- `conserve:code-quality-principles` -- KISS, YAGNI, SOLID
+  applied as living-code review heuristics.
+
+**Post-implementation** (validation and audit)
+
+- `imbue:proof-of-work` -- evidence and acceptance gates with
+  `[E1]`/`[E2]` citations. The "is it actually done?" gate.
+- `imbue:justify` -- minimal-intervention audit; every change
+  must justify itself against a "do nothing" baseline.
+
+**Meta-constraint** (governs all phases)
+
+- `imbue:vow-enforcement` -- three-layer constraint
+  classifier (soft vows in skills, hard vows in hooks,
+  governance vows in policy). Sits above the federation.
+
+### Composition Patterns
+
+**Linear sequence** (typical greenfield work):
+
+```
+karpathy-principles -> scope-guard -> [implement]
+  -> proof-of-work -> justify
+```
+
+**Cross-cutting parallel** (during contested work):
+
+```
+[any phase above] + rigorous-reasoning (whenever sycophancy
+  signals or contested claims appear)
+```
+
+**Hub-and-spoke entry** (using karpathy-principles as router):
+
+`imbue:karpathy-principles` references 18 outbound skills --
+the highest count in the marketplace. It is the de-facto
+entry point for the federation: invoking it pulls in the
+relevant gates for the work at hand without forcing a
+particular sequence.
+
+### When to Use Which
+
+| Symptom                                | Skill                              |
+|----------------------------------------|------------------------------------|
+| About to add a feature or abstraction  | `scope-guard`                      |
+| Starting LLM-assisted implementation   | `karpathy-principles`              |
+| Reviewing a proposed code addition     | `additive-bias-defense`            |
+| Finding yourself agreeing too quickly  | `rigorous-reasoning`               |
+| About to claim "should work"           | `proof-of-work`                    |
+| Pre-PR audit of a completed branch     | `justify`                          |
+| Need to encode a hard policy           | `vow-enforcement`                  |
+| Refactoring or living-code reviews     | `code-quality-principles`          |
+
+### Why These Are Skills, Not Hooks
+
+Layers 1-3 (pre-commit hooks, CI checks) are **mechanical**:
+they run regardless of intent and cannot be reasoned with. The
+gate skills are **discursive**: they intervene by being read
+into context and shaping the model's reasoning, not by
+blocking actions outright. The two layers are complementary --
+hooks catch what skills miss, and skills catch what hooks
+cannot articulate.
 
 ## Pre-Commit Hooks
 

@@ -284,3 +284,4 @@ When reviewing code, check:
 ## Related Skills
 
 - `imbue:karpathy-principles` - The "Simplicity First" principle wraps KISS, YAGNI, and SOLID into a four-principle synthesis derived from Karpathy's observations on LLM coding pitfalls
+- See `docs/quality-gates.md#skill-level-quality-gate-composition` for the full gate-skill federation graph
