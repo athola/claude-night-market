@@ -1,10 +1,6 @@
 ---
 name: vow-enforcement
-description: >-
-  Three-layer constraint enforcement: soft vows (skill
-  instructions), hard vows (hooks/settings), and Nen Court
-  (external validator agents). Classifies constraints by
-  reliability and graduates them when violation rates climb.
+description: 'Three-layer constraint enforcement (soft vows / hard vows / Nen Court). Use when classifying or graduating constraints by reliability.'
 version: 1.9.0
 alwaysApply: false
 category: workflow-methodology

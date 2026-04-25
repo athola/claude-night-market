@@ -1,10 +1,6 @@
 ---
 name: gauntlet-curate
-description: >
-  Research and refresh the problem bank during /update-plugins.
-  Surveys data/problems/*.yaml for coverage by category, identifies
-  gaps against the NeetCode manifest counts, and produces a human-review
-  report with YAML-schema-valid proposals. Never overwrites curated files.
+description: 'Research and refresh the problem bank during /update-plugins. Use when surveying data/problems/*.yaml for category coverage gaps.'
 version: 1.9.2
 model_hint: standard
 ---
