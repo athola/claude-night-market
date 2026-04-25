@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.2-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-177-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-182-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,12 +16,23 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-177 skills, 126 slash commands, and 54 agents.
+182 skills, 126 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
 </p>
+
+## Contents
+
+- [Quick Start](#quick-start)
+- [Architecture](#architecture) (plugin catalog, layer model)
+- [Common Workflows](#common-workflows)
+- [Requirements](#requirements)
+- [What's New](#whats-new)
+- [Plugin Development](#plugin-development)
+- [Documentation](#documentation)
+- [Stewardship](#stewardship) · [Contributing](#contributing) · [License](#license)
 
 ## Quick Start
 
@@ -49,6 +60,12 @@ After installation, run `claude --init` for one-time setup.
 
 > **Note:** If the `Skill` tool is unavailable, read skill files directly
 > at `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
+
+> **Trust & safety:** plugins run inside your Claude Code session and can
+> read or edit your repo. Night Market ships with TDD gates (`imbue`),
+> destructive-command blockers (`conserve`), and additive-bias audits on
+> every change, but you should still review any plugin before installing it.
+> See [STEWARDSHIP.md](STEWARDSHIP.md) for the maintenance contract.
 
 ### opkg (OpenPackage)
 
@@ -158,10 +175,6 @@ See the [Common Workflows Guide][workflows] for full details.
 | Strategic decisions | `/attune:war-room` | Expert routing with reversibility scoring |
 | Refine code | `/refine-code` | Duplication, algorithm, and clean code analysis |
 
-## What's New
-
-See the [Changelog](CHANGELOG.md) for the full history.
-
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
@@ -170,6 +183,18 @@ See the [Changelog](CHANGELOG.md) for the full history.
   target 3.10+ via virtual environments, but all hook code must be
   3.9-compatible. See the [Plugin Development Guide][dev-guide]
   for compatibility rules.
+
+## What's New
+
+**1.9.2:** the `imbue` vow hooks split read-budget
+accounting from write-reset accounting so write-heavy sessions no longer
+pay a Python startup tax on every `Write`/`Edit`. Set `VOW_SHADOW_MODE=0`
+to turn the bounded-reads vow from warn-only into a hard block. The
+`abstract` plugin now posts PR review findings to GitHub Discussions as
+Insights and filters synthetic sessions out of its Phase 6a learning
+summaries.
+
+See the [Changelog](CHANGELOG.md) for the full history.
 
 ## Plugin Development
 

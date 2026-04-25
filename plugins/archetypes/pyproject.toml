@@ -1,6 +1,6 @@
 [project]
 name = "archetypes"
-version = "1.9.1"
+version = "1.9.2"
 description = "Architecture paradigm selection and implementation planning for software systems"
 requires-python = ">=3.9"
 dependencies = []

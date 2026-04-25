@@ -1,3 +1,3 @@
 """Scribe plugin - documentation review and AI slop detection."""
 
-__version__ = "1.9.1"
+__version__ = "1.9.2"

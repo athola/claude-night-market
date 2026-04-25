@@ -5,6 +5,67 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.9.2] - 2026-04-23
+
+### Added
+
+- **abstract review insight publishing**:
+  `post_review_insights.py` parses `/pr-review` and
+  `/fix-pr` review markdown and posts each blocker as a
+  high-severity `[PR Finding]` Insight discussion (medium
+  severity for non-blocking findings). Uses the existing
+  InsightRegistry for content-hash dedup with 30-day
+  staleness, so re-running on the same review is
+  idempotent.
+- **abstract discussion enrichment**:
+  `discussion_enrichment.py` enriches Phase 6a
+  `[Learning]` posts with lens analysis, trend deltas, and
+  named failure-mode clusters by running the existing
+  analysis lenses against `LEARNINGS.md` and embedding the
+  results in the discussion body. Prior Learning posts
+  surfaced raw metrics without the corresponding
+  recommendations; this closes that loop.
+- **sanctum review insights wiring**: `/pr-review` and
+  `/fix-pr` now post their findings to GitHub Discussions
+  via `post_review_insights.py` after the review/validate
+  step succeeds. Default behavior; opt out with
+  `--no-insights` for trivial reviews (typo fixes,
+  version bumps).
+
+### Changed
+
+- **imbue bounded-reads hook split**: `vow_bounded_reads.py` now matches
+  only Read, Grep, and Glob calls.
+  A new companion script `vow_bounded_reads_reset.py` handles Write, Edit,
+  and MultiEdit: it resets the per-session counter with no budget logic,
+  eliminating a Python startup cost on every write during implementation.
+- **imbue bounded-reads blocking support**: `vow_bounded_reads.py` now
+  respects `VOW_SHADOW_MODE`, matching the pattern of
+  `vow_no_ai_attribution.py` and `vow_no_emoji_commits.py`.
+  Default (shadow mode on) continues to warn only;
+  set `VOW_SHADOW_MODE=0` to block when the read budget is exceeded.
+
+### Fixed
+
+- **abstract synthetic session filter**:
+  `aggregate_skill_logs.py` now filters out synthetic
+  test sessions when aggregating skill logs, preventing
+  fixture data from contaminating Learning post metrics.
+- **abstract `_safe_pct` whitespace handling**: order-
+  sensitive `.rstrip("%").strip()` returned `0.0` for
+  percentage strings with surrounding whitespace
+  (`"  40.0%  "`). Swapped to `.strip().rstrip("%")` so
+  outer whitespace is removed first. Surfaced by the
+  invariant-encoding test pass.
+- **imbue vow hook executable bits**: added executable
+  permissions to `vow_bounded_reads.py`,
+  `vow_bounded_reads_reset.py`,
+  `vow_no_ai_attribution.py`, and
+  `vow_no_emoji_commits.py` so PreToolUse hooks invoke
+  correctly on systems where umask strips `+x`.
+
 ## [1.9.1] - 2026-04-20
 
 ### Added

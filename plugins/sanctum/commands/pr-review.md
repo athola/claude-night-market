@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Review pull requests with scope validation, code analysis, and line comments. Supports GitHub PRs and GitLab MRs.
-usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
+usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--no-insights] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -91,6 +91,9 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 # Skip automatic issue creation for out-of-scope items (issues are created by default)
 /pr-review --no-auto-issues
 
+# Skip posting review findings as Insights to Discussions (insights posted by default)
+/pr-review --no-insights
+
 # Skip version consistency check
 /pr-review --skip-version-check
 ```
@@ -152,9 +155,32 @@ format used by both `/pr-review --stack` and
 7. **GitHub Review** - Post review comments to PR (MANDATORY; or write to local file with `--local`)
 8. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
 9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
+10. **Discussion Insights** - Post review findings as Insights to GitHub Discussions (DEFAULT; opt-out with `--no-insights`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
+
+### Discussion Insights (Step 10)
+
+After the review comment, test plan, and PR description are posted,
+write the full review markdown to `reviews/pr-<NNN>-review.md` (the
+same path used by `--local`) and run:
+
+```bash
+python3 plugins/abstract/scripts/post_review_insights.py \
+  reviews/pr-<NNN>-review.md --pr <NNN>
+```
+
+Each blocker becomes a high-severity `[PR Finding]` discussion, each
+non-blocking row a medium-severity one. The InsightRegistry deduplicates
+by `{type|skill|summary}` content hash with 30-day staleness, so
+re-running on the same review is idempotent. The user observed that
+cron-driven Phase 6a Learning posts were the only auto-post path,
+leaving recent iterative review work invisible to the collective
+intelligence layer; this step closes that loop.
+
+Skip with `--no-insights` for trivial reviews where the findings
+aren't worth posting (e.g., typo fixes, version bumps).
 
 ### PR Description Update (CRITICAL)
 

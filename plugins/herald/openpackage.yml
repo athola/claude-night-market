@@ -1,5 +1,5 @@
 name: herald
-version: 1.9.1
+version: 1.9.2
 # herald is a library plugin - it provides a Python notification API
 # (scripts/notify.py) consumed by other plugins, not a skill/hook/agent
 # plugin for direct user interaction.

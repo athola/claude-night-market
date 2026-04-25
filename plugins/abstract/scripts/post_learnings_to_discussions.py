@@ -27,6 +27,26 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Local script-directory module; co-located in plugins/abstract/scripts/.
+# sys.path is set in production by the entry-point caller; for direct
+# imports during testing the test files prepend the scripts dir.
+from discussion_enrichment import (
+    cluster_failure_modes,
+    compute_trend_deltas,
+    errors_by_skill_from_issues,
+    format_action_items,
+    format_enriched_issues,
+    format_failure_modes,
+    format_lens_findings,
+    format_perf_summary,
+    format_persistence_callout,
+    format_trends,
+    generate_action_items,
+    parse_enriched_issues,
+    parse_perf_summary,
+    track_issue_persistence,
+)
+
 
 def get_config_dir() -> Path:
     """Get the discussions config directory."""
@@ -72,7 +92,10 @@ class DiscussionConfig:
 class PostedRecord:
     """Tracks posted discussions to avoid duplicates."""
 
-    posted: dict[str, str] = field(default_factory=dict)  # title -> discussion_url
+    # Mostly title -> discussion_url, but also stores internal keys like
+    # _last_content_hash, _snapshot_history (list[dict]), and
+    # _fingerprint_history (list[list[str]]).
+    posted: dict[str, Any] = field(default_factory=dict)
     repo_node_id: str = ""
 
     @classmethod
@@ -530,8 +553,14 @@ def create_discussion(
     return str(response["data"]["createDiscussion"]["discussion"]["url"])
 
 
-def _load_and_validate_learnings(path: Path) -> LearningSummary | None:
-    """Load LEARNINGS.md, validate it has content worth posting."""
+def _load_and_validate_learnings(
+    path: Path,
+) -> tuple[LearningSummary, str] | None:
+    """Load LEARNINGS.md, validate it has content worth posting.
+
+    Returns (summary, raw_content) so the enrichment composer can
+    parse fields the legacy LearningSummary does not retain.
+    """
     if not path.exists():
         print(
             f"Warning: {path} not found. Run aggregate-logs first.",
@@ -549,7 +578,131 @@ def _load_and_validate_learnings(path: Path) -> LearningSummary | None:
         print("No learnings to post (empty analysis).", file=sys.stderr)
         return None
 
-    return summary
+    return (summary, content)
+
+
+def compose_enriched_body(
+    summary: LearningSummary,
+    content: str,
+    record: PostedRecord,
+) -> str:
+    """Build the full discussion body with enrichment sections.
+
+    Layers (in order):
+    1. Original summary (legacy format_discussion_body output)
+    2. Enriched issues with Detail + Recent Errors
+    3. Performance summary table
+    4. Named failure modes (clustered errors)
+    5. Insights & Recommendations (lens-driven)
+    6. Trends vs previous snapshot
+    7. Persistent issues callout
+    8. Action items
+    """
+    enriched_issues = parse_enriched_issues(content)
+    perf_rows = parse_perf_summary(content)
+    failure_modes = cluster_failure_modes(errors_by_skill_from_issues(enriched_issues))
+
+    # Lens findings: skip if metrics_by_skill not available; we don't
+    # rebuild the SkillLogSummary objects from LEARNINGS.md alone.
+    findings: list = []
+
+    # Trend deltas: compare against last snapshot stored in PostedRecord.
+    snapshot_history = record.posted.get("_snapshot_history", [])
+    last_snapshot = snapshot_history[-1] if snapshot_history else None
+    current_snapshot = {
+        row["skill"]: {
+            "success_rate": _safe_pct(row.get("success_rate", "0%")),
+            "total_executions": _safe_int(row.get("executions", "0")),
+        }
+        for row in perf_rows
+    }
+    deltas = compute_trend_deltas(current_snapshot, last_snapshot)
+
+    # Persistence: compare current issue fingerprints against history.
+    fingerprint_history = record.posted.get("_fingerprint_history", [])
+    persistent = track_issue_persistence(
+        enriched_issues, fingerprint_history, threshold=3
+    )
+
+    items = generate_action_items(findings, persistent)
+
+    sections = [
+        _legacy_summary_block(summary),
+        format_enriched_issues(enriched_issues),
+        format_perf_summary(perf_rows),
+        format_failure_modes(failure_modes),
+        format_lens_findings(findings),
+        format_trends(deltas),
+        format_persistence_callout(persistent),
+        format_action_items(items),
+        _footer_block(),
+    ]
+    return "\n\n".join(s for s in sections if s).rstrip() + "\n"
+
+
+def _legacy_summary_block(summary: LearningSummary) -> str:
+    """Original Summary Stats block, kept for continuity at top of post."""
+    lines = ["## Summary Stats", ""]
+    lines.append(f"- **Analysis Period**: {summary.analysis_period}")
+    lines.append(f"- **Skills Analyzed**: {summary.skills_analyzed}")
+    lines.append(f"- **Total Executions**: {summary.total_executions}")
+    lines.append(f"- **Last Updated**: {summary.last_updated}")
+    return "\n".join(lines)
+
+
+def _footer_block() -> str:
+    return (
+        "---\n"
+        "*Auto-posted by Phase 6a Collective Intelligence Loop "
+        "(Issue #69)*\n\n"
+        "React with \U0001f525 if you've experienced similar issues. "
+        "Items with 3+ reactions will be promoted to Issues."
+    )
+
+
+def _safe_pct(value: str) -> float:
+    """Parse '40.0%' -> 40.0; tolerate outer whitespace and missing %."""
+    try:
+        # Strip whitespace FIRST so the % is at the end for rstrip.
+        # Previously `.rstrip("%").strip()` silently returned 0.0 on
+        # "  40.0%  " because % was not the trailing character.
+        return float(value.strip().rstrip("%"))
+    except (ValueError, AttributeError):
+        return 0.0
+
+
+def _safe_int(value: str) -> int:
+    try:
+        return int(str(value).strip())
+    except (ValueError, AttributeError):
+        return 0
+
+
+def _record_post_artifacts(
+    record: PostedRecord,
+    enriched_issues: list,
+    perf_rows: list[dict[str, str]],
+) -> None:
+    """Append snapshot + fingerprints to PostedRecord for next post.
+
+    Capped at the last 5 entries to bound posted.json growth.
+    """
+    snapshot = {
+        row["skill"]: {
+            "success_rate": _safe_pct(row.get("success_rate", "0%")),
+            "total_executions": _safe_int(row.get("executions", "0")),
+        }
+        for row in perf_rows
+    }
+    fingerprints = [f"{issue.skill}|{issue.issue_type}" for issue in enriched_issues]
+
+    history = record.posted.get("_snapshot_history", [])
+    history.append(snapshot)
+    record.posted["_snapshot_history"] = history[-5:]
+
+    fp_history = record.posted.get("_fingerprint_history", [])
+    fp_history.append(fingerprints)
+    record.posted["_fingerprint_history"] = fp_history[-5:]
 
 
 def post_learnings(learnings_path: Path | None = None) -> str | None:
@@ -591,15 +744,17 @@ def _resolve_and_post(learnings_path: Path | None) -> str | None:
         return None
 
     path = learnings_path or get_learnings_path()
-    summary = _load_and_validate_learnings(path)
-    if summary is None:
+    loaded = _load_and_validate_learnings(path)
+    if loaded is None:
         return None
+    summary, content = loaded
 
-    return _post_if_new(summary, owner, name, category_id)
+    return _post_if_new(summary, content, owner, name, category_id)
 
 
 def _post_if_new(
     summary: LearningSummary,
+    content: str,
     owner: str,
     name: str,
     category_id: str,
@@ -614,7 +769,8 @@ def _post_if_new(
             f"Already posted for today ({title}). Skipping.",
             file=sys.stderr,
         )
-        return record.posted[title]
+        cached = record.posted[title]
+        return cached if isinstance(cached, str) else None
 
     existing_url = check_existing_discussion(title, owner, name)
     if existing_url:
@@ -626,8 +782,8 @@ def _post_if_new(
         record.save()
         return existing_url
 
-    # Content-hash dedup: skip if body is identical to last post
-    body = format_discussion_body(summary)
+    # Build enriched body using snapshot/fingerprint history from record.
+    body = compose_enriched_body(summary, content, record)
     content_hash = hashlib.sha256(body.encode()).hexdigest()[:12]
 
     if record.posted.get("_last_content_hash") == content_hash:
@@ -642,9 +798,14 @@ def _post_if_new(
 
     record.posted[title] = url
     record.posted["_last_content_hash"] = content_hash
+    _record_post_artifacts(
+        record,
+        parse_enriched_issues(content),
+        parse_perf_summary(content),
+    )
     record.save()
 
-    print(f"Posted learning summary: {url}")
+    print(f"Posted enriched learning summary: {url}")
     return url
 
 

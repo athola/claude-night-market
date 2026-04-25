@@ -43,12 +43,22 @@
         ]
       },
       {
-        "matcher": "Read|Grep|Glob|Write|Edit|MultiEdit",
+        "matcher": "Read|Grep|Glob",
         "hooks": [
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads.py",
             "timeout": 2
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads_reset.py",
+            "timeout": 1
           }
         ]
       }

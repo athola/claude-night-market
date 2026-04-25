@@ -2534,6 +2534,60 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.graphite.com/docs/evaluating-tools
+  https://realpython.com/readme-python-project:
+    content_hash: sha256:507cab18e78d00bd
+    stored_at: data/staging/webfetch-recommended-readme-section-order-for-python-2026-04-24_03-33-09.md
+    importance_score: 50
+    last_updated: '2026-04-24T03:33:09.632748+00:00'
+    title: Recommended README Section Order for Python Projects
+    maturity: seedling
+    routing_type: pending
+    url: https://realpython.com/readme-python-project/
+  https://github.com/anthropics/claude-plugins-official:
+    content_hash: sha256:ae546ac3d6d12dce
+    stored_at: data/staging/webfetch-claude-code-plugins-directory-readme-structure-2026-04-24_03-33-12.md
+    importance_score: 50
+    last_updated: '2026-04-24T03:33:12.120812+00:00'
+    title: Claude Code Plugins Directory - README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/anthropics/claude-plugins-official
+  https://github.com/tokio-rs/axum/blob/main/readme.md:
+    content_hash: sha256:0b5999e88a86db50
+    stored_at: data/staging/webfetch-readme-md-2026-04-24_16-23-49.md
+    importance_score: 50
+    last_updated: '2026-04-24T16:23:49.991792+00:00'
+    title: Readme.Md
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tokio-rs/axum/blob/main/README.md
+  https://github.com/leptos-rs/leptos/blob/main/readme.md:
+    content_hash: sha256:2bce44469660d1a6
+    stored_at: data/staging/webfetch-leptos-readme-structure-analysis-2026-04-24_16-23-52.md
+    importance_score: 50
+    last_updated: '2026-04-24T16:23:52.668162+00:00'
+    title: Leptos README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/leptos-rs/leptos/blob/main/README.md
+  https://raw.githubusercontent.com/tokio-rs/axum/main/axum/readme.md:
+    content_hash: sha256:7f920f5626b121d3
+    stored_at: data/staging/webfetch-axum-documentation-structure-analysis-2026-04-24_16-24-03.md
+    importance_score: 50
+    last_updated: '2026-04-24T16:24:03.027557+00:00'
+    title: Axum Documentation Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/tokio-rs/axum/main/axum/README.md
+  https://raw.githubusercontent.com/surrealdb/surrealdb/main/readme.md:
+    content_hash: sha256:268fad933bf4a778
+    stored_at: data/staging/webfetch-surrealdb-readme-structure-analysis-2026-04-24_16-24-04.md
+    importance_score: 50
+    last_updated: '2026-04-24T16:24:04.565389+00:00'
+    title: SurrealDB README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/surrealdb/surrealdb/main/README.md
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -2816,3 +2870,9 @@ hashes:
   sha256:59640b80b58c371e: data/staging/webfetch-github-stacked-prs-comprehensive-overview-2026-04-15_04-25-31.md
   sha256:336f570a6161fc72: data/staging/webfetch-jujutsu-jj-key-features-for-stacked-changes-2026-04-15_04-25-51.md
   sha256:d1cbf7d1a2af6ca6: data/staging/webfetch-stacked-diff-tools-comparison-2026-04-15_04-25-59.md
+  sha256:507cab18e78d00bd: data/staging/webfetch-recommended-readme-section-order-for-python-2026-04-24_03-33-09.md
+  sha256:ae546ac3d6d12dce: data/staging/webfetch-claude-code-plugins-directory-readme-structure-2026-04-24_03-33-12.md
+  sha256:0b5999e88a86db50: data/staging/webfetch-readme-md-2026-04-24_16-23-49.md
+  sha256:2bce44469660d1a6: data/staging/webfetch-leptos-readme-structure-analysis-2026-04-24_16-23-52.md
+  sha256:7f920f5626b121d3: data/staging/webfetch-axum-documentation-structure-analysis-2026-04-24_16-24-03.md
+  sha256:268fad933bf4a778: data/staging/webfetch-surrealdb-readme-structure-analysis-2026-04-24_16-24-04.md
