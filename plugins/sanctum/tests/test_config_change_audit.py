@@ -283,3 +283,148 @@ class TestErrorHandling:
         mock_stdin.read.assert_called_once()
         assert exc_info.value.code == 0
         assert "not a JSON object" in captured_stderr.getvalue()
+
+
+class TestPreToolUseSettingsAudit:
+    """Migrated path: audit settings-file edits via PreToolUse.
+
+    The legacy ConfigChange event is not emitted by current Claude
+    Code (v2.1.89+), so the hook also accepts a PreToolUse payload
+    for Edit/Write/MultiEdit when the target file is a settings.json
+    family path inside a ``.claude/`` directory. Source is inferred
+    from the path so the audit line matches the legacy format."""
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_audits_project_settings_edit(self) -> None:
+        """Given a PreToolUse Edit on <project>/.claude/settings.json,
+        log an audit line with source=project_settings."""
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-1",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Edit",
+                "tool_input": {
+                    "file_path": "/repo/.claude/settings.json",
+                    "old_string": "x",
+                    "new_string": "y",
+                },
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with patch("sys.stdin", mock_stdin):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+
+        mock_stdin.read.assert_called_once()
+        assert exc_info.value.code == 0
+        out = captured_stderr.getvalue()
+        assert "[CONFIG_CHANGE_AUDIT]" in out
+        assert "session=sess-pre-1" in out
+        assert "source=project_settings" in out
+        assert "file=/repo/.claude/settings.json" in out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_audits_local_settings_edit(self) -> None:
+        """Given Write on .claude/settings.local.json, source=local_settings."""
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-2",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Write",
+                "tool_input": {
+                    "file_path": "/repo/.claude/settings.local.json",
+                    "content": "{}",
+                },
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with patch("sys.stdin", mock_stdin):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit):
+                    main()
+
+        out = captured_stderr.getvalue()
+        assert "source=local_settings" in out
+        assert "file=/repo/.claude/settings.local.json" in out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_audits_user_settings_edit(self) -> None:
+        """Given Edit on ~/.claude/settings.json, source=user_settings."""
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-3",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "MultiEdit",
+                "tool_input": {
+                    "file_path": "/home/alice/.claude/settings.json",
+                    "edits": [],
+                },
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch.dict("os.environ", {"HOME": "/home/alice"}),
+        ):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit):
+                    main()
+
+        out = captured_stderr.getvalue()
+        assert "source=user_settings" in out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skips_non_settings_edit(self) -> None:
+        """Given a PreToolUse Edit on a non-settings file, no audit line."""
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-4",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Edit",
+                "tool_input": {
+                    "file_path": "/repo/src/app.py",
+                    "old_string": "a",
+                    "new_string": "b",
+                },
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with patch("sys.stdin", mock_stdin):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+
+        assert exc_info.value.code == 0
+        # No audit emission for unrelated edits.
+        assert "[CONFIG_CHANGE_AUDIT]" not in captured_stderr.getvalue()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skips_non_edit_pretooluse(self) -> None:
+        """Given a PreToolUse for Bash, no audit line."""
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-5",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "ls"},
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with patch("sys.stdin", mock_stdin):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
+
+        assert exc_info.value.code == 0
+        assert "[CONFIG_CHANGE_AUDIT]" not in captured_stderr.getvalue()
