@@ -8,15 +8,7 @@ tags:
   - research
   - synthesis
   - multi-source
-tools:
-  - Agent
-  - Read
-  - Write
-  - Bash
-  - WebSearch
-  - WebFetch
-  - Glob
-  - Grep
+tools: []
 estimated_tokens: 600
 progressive_loading: true
 orchestrates:

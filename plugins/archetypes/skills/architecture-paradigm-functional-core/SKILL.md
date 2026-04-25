@@ -12,10 +12,7 @@ tags:
 - business-logic
 - side-effects
 dependencies: []
-tools:
-- boundary-validator
-- core-test-generator
-- shell-adapter-generator
+tools: []
 usage_patterns:
 - paradigm-implementation
 - refactoring-guidance

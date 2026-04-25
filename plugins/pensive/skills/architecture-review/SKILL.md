@@ -11,10 +11,7 @@ tags:
 - coupling
 - patterns
 - principles
-tools:
-- adr-auditor
-- coupling-analyzer
-- principle-checker
+tools: []
 usage_patterns:
 - architecture-assessment
 - adr-audit

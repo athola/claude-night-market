@@ -14,8 +14,7 @@ tags:
 - sessions
 - analytics
 dependencies: []
-tools:
-- usage-logger
+tools: []
 provides:
   infrastructure:
   - usage-logging

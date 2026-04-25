@@ -23,10 +23,7 @@ dependencies:
 - imbue:justify
 - imbue:vow-enforcement
 - abstract:friction-detector
-tools:
-- Bash
-- Read
-- Write
+tools: []
 provides:
   workflow:
   - mission-lifecycle

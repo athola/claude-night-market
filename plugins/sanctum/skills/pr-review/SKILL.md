@@ -13,9 +13,7 @@ tags:
 - code-quality
 - knowledge-capture
 - cross-platform
-tools:
-- gh / glab (platform-detected)
-- pensive:unified-review
+tools: []
 usage_patterns:
 - scope-validation
 - backlog-triage

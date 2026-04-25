@@ -19,9 +19,7 @@ dependencies:
 - superpowers:test-driven-development
 - superpowers:requesting-code-review
 - superpowers:finishing-a-development-branch
-tools:
-- gh (GitHub CLI) / glab (GitLab CLI)
-- Task (subagent dispatch)
+tools: []
 usage_patterns:
 - issue-discovery
 - task-planning

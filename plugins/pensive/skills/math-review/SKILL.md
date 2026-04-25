@@ -11,10 +11,7 @@ tags:
 - stability
 - verification
 - scientific
-tools:
-- derivation-checker
-- stability-analyzer
-- reference-finder
+tools: []
 usage_patterns:
 - algorithm-review
 - numerical-analysis

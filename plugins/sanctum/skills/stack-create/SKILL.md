@@ -11,9 +11,7 @@ tags:
 - pr
 - branches
 - planning
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 800

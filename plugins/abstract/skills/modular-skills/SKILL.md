@@ -13,10 +13,7 @@ tags:
 - skill-design
 - token-optimization
 dependencies: []
-tools:
-- skill-analyzer
-- token-estimator
-- module_validator
+tools: []
 usage_patterns:
 - skill-design
 - architecture-review

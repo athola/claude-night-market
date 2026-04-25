@@ -12,9 +12,7 @@ tags:
 - concurrency
 - await
 - coroutines
-tools:
-- async-analyzer
-- concurrency-checker
+tools: []
 usage_patterns:
 - async-api-development
 - concurrent-io

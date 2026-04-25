@@ -18,10 +18,7 @@ dependencies:
 - imbue:proof-of-work
 - imbue:scope-guard
 - imbue:justify
-tools:
-- Bash
-- Read
-- Grep
+tools: []
 usage_patterns:
 - constraint-classification
 - vow-graduation

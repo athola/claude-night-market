@@ -11,10 +11,7 @@ tags:
 - team-autonomy
 - scalability
 dependencies: []
-tools:
-- service-boundary-analyzer
-- api-contract-generator
-- resilience-patterns
+tools: []
 usage_patterns:
 - paradigm-implementation
 - distributed-system-design

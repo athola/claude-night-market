@@ -14,9 +14,7 @@ tags:
   - exploration
   - import-graph
   - routes
-tools:
-  - Bash
-  - Read
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 300

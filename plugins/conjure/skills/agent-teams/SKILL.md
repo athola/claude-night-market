@@ -18,10 +18,7 @@ dependencies:
 - delegation-core
 - leyline:damage-control
 - leyline:risk-classification
-tools:
-- Bash
-- Read
-- Write
+tools: []
 usage_patterns:
 - team-orchestration
 - parallel-implementation

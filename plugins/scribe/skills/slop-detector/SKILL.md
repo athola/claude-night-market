@@ -12,10 +12,7 @@ tags:
 - cleanup
 - documentation
 - quality
-tools:
-- Read
-- Grep
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: fast
 estimated_tokens: 4200

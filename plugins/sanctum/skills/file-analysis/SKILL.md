@@ -10,11 +10,7 @@ tags:
 - analysis
 - codebase
 - exploration
-tools:
-- Bash
-- Glob
-- Grep
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 800

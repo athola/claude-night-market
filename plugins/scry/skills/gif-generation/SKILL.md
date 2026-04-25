@@ -11,8 +11,7 @@ tags:
 - video
 - conversion
 - optimization
-tools:
-- Bash
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 400

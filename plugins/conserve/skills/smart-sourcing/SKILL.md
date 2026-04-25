@@ -16,8 +16,7 @@ tags:
 - citations
 - accuracy
 - efficiency
-tools:
-- WebSearch
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 400

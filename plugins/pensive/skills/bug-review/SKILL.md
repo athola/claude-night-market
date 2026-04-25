@@ -11,10 +11,7 @@ tags:
 - code-quality
 - fixes
 - verification
-tools:
-- defect-tracker
-- fix-generator
-- verification-runner
+tools: []
 usage_patterns:
 - bug-hunting
 - defect-documentation

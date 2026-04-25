@@ -14,10 +14,7 @@ tags:
 - scripting
 - ci
 - hooks
-tools:
-- Read
-- Grep
-- Bash
+tools: []
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 200

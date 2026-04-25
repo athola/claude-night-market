@@ -20,15 +20,7 @@ dependencies:
   - sanctum:pr-review
   - sanctum:commit-messages
   - conserve:clear-context
-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
-  - Task
-  - Skill
+tools: []
 progressive_loading: true
 modules:
   - modules/pipeline.md

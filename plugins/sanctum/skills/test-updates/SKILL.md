@@ -15,10 +15,7 @@ dependencies:
 - test-driven-development
 - git-workspace-review
 - file-analysis
-tools:
-- test_analyzer
-- test_generator
-- quality_checker
+tools: []
 usage_patterns:
 - test-maintenance
 - test-generation

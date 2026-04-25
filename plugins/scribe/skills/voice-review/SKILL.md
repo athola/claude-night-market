@@ -14,11 +14,7 @@ tags:
 - prose
 - craft
 - quality
-tools:
-- Read
-- Write
-- Agent
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1600

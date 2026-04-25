@@ -10,13 +10,7 @@ tags:
 - exemplars
 - research
 - structure
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- WebSearch
-- TodoWrite
+tools: []
 complexity: high
 model_hint: deep
 estimated_tokens: 1200

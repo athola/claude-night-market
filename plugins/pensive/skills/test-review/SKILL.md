@@ -11,10 +11,7 @@ tags:
 - coverage
 - quality
 - fixtures
-tools:
-- coverage-analyzer
-- scenario-evaluator
-- gap-finder
+tools: []
 usage_patterns:
 - test-audit
 - coverage-analysis

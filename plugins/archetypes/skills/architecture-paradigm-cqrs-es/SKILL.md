@@ -12,10 +12,7 @@ tags:
 - audit-trail
 - scalability
 dependencies: []
-tools:
-- event-store
-- message-broker
-- projection-builder
+tools: []
 usage_patterns:
 - paradigm-implementation
 - distributed-system-design

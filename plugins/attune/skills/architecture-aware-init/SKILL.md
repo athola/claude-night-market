@@ -12,8 +12,7 @@ tags:
 - best-practices
 dependencies:
 - archetypes:architecture-paradigms
-tools:
-- WebSearch
+tools: []
 usage_patterns:
 - new-project-setup
 - architecture-selection

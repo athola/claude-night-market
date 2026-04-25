@@ -13,9 +13,7 @@ tags:
 - review
 - fix-pr
 - iteration
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1100

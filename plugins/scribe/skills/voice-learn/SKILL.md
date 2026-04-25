@@ -13,13 +13,7 @@ tags:
 - improvement
 - feedback
 - iteration
-tools:
-- Read
-- Write
-- Bash
-- Glob
-- Agent
-- TodoWrite
+tools: []
 complexity: high
 model_hint: opus
 estimated_tokens: 2000

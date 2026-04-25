@@ -11,10 +11,7 @@ tags:
 - NASA
 - robustness
 - verification
-tools:
-- Read
-- Grep
-- Glob
+tools: []
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 600

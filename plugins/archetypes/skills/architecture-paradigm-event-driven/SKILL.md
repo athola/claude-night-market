@@ -12,10 +12,7 @@ tags:
 - scalability
 - resilience
 dependencies: []
-tools:
-- message-broker
-- event-stream-processor
-- distributed-tracing
+tools: []
 usage_patterns:
 - paradigm-implementation
 - real-time-processing

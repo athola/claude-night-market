@@ -10,12 +10,7 @@ tags:
 - changelog
 - semver
 - bump
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 700

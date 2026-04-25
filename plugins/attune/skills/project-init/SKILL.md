@@ -8,11 +8,7 @@ description: 'Interactive project initialization with git setup, workflows, hook
 version: 1.9.0
 alwaysApply: false
 model: claude-sonnet-4
-tools:
-- Read
-- Write
-- Bash
-- Glob
+tools: []
 modules:
 - ./modules/language-detection.md
 - ./modules/metadata-collection.md

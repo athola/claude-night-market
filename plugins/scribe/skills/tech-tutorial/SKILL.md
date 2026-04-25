@@ -14,12 +14,7 @@ tags:
 - code-examples
 - developer-docs
 - getting-started
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 2800

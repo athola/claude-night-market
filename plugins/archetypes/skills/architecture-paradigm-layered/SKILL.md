@@ -11,10 +11,7 @@ tags:
 - separation-of-concerns
 - monolith
 dependencies: []
-tools:
-- dependency-validator
-- layer-enforcer
-- architecture-compliance-checker
+tools: []
 usage_patterns:
 - paradigm-implementation
 - legacy-system-modernization

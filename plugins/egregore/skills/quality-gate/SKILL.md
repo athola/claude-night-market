@@ -13,11 +13,7 @@ tags:
   - quality
   - review
   - conventions
-tools:
-  - Bash
-  - Read
-  - Grep
-  - Skill
+tools: []
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 300

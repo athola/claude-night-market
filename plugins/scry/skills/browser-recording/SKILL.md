@@ -12,10 +12,7 @@ tags:
 - video
 - web
 - tutorial
-tools:
-- Read
-- Write
-- Bash
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 500

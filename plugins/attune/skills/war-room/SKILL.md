@@ -22,10 +22,7 @@ dependencies:
   - conjure:delegation-core
   - memory-palace:strategeion
   - leyline:git-platform
-tools:
-  - Bash
-  - Read
-  - Write
+tools: []
 ---
 ## Overview
 

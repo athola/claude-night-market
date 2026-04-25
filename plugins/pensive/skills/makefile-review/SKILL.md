@@ -11,10 +11,7 @@ tags:
 - make
 - portability
 - automation
-tools:
-- dependency-mapper
-- dedup-finder
-- portability-checker
+tools: []
 usage_patterns:
 - makefile-audit
 - build-optimization

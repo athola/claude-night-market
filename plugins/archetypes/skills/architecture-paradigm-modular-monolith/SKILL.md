@@ -13,10 +13,7 @@ tags:
 - internal-boundaries
 - team-autonomy
 dependencies: []
-tools:
-- dependency-analyzer
-- module-boundary-enforcer
-- refactoring-planner
+tools: []
 usage_patterns:
 - paradigm-implementation
 - monolith-modernization

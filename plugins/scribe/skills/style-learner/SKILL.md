@@ -17,10 +17,7 @@ tags:
 - exemplar
 - learning
 - consistency
-tools:
-- Read
-- Write
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1800

@@ -12,10 +12,7 @@ tags:
 - in-memory
 - stateful
 dependencies: []
-tools:
-- data-grid-platform
-- replication-manager
-- load-tester
+tools: []
 usage_patterns:
 - paradigm-implementation
 - high-traffic-workloads

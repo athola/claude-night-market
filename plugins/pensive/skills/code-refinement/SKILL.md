@@ -11,11 +11,7 @@ tags:
 - duplication
 - anti-slop
 - craft
-tools:
-- Read
-- Grep
-- Glob
-- Bash
+tools: []
 usage_patterns:
 - code-quality-improvement
 - duplication-reduction

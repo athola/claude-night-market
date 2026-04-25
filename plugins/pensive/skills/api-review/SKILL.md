@@ -10,10 +10,7 @@ tags:
 - consistency
 - documentation
 - versioning
-tools:
-- surface-analyzer
-- exemplar-finder
-- consistency-checker
+tools: []
 usage_patterns:
 - api-design-review
 - consistency-audit

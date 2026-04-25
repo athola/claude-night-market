@@ -6,8 +6,7 @@ description: >
 version: 1.9.0
 alwaysApply: false
 category: setup
-tools:
-  - Bash
+tools: []
 model_hint: standard
 ---
 # Uninstall Watchdog

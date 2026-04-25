@@ -10,8 +10,7 @@ tags:
 - resume
 - checkpoint
 - debugging
-tools:
-- Bash
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 400

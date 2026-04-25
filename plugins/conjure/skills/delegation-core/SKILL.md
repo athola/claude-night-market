@@ -19,8 +19,7 @@ dependencies:
 - leyline:service-registry
 - leyline:error-patterns
 - leyline:authentication-patterns
-tools:
-- delegation-executor
+tools: []
 usage_patterns:
 - task-assessment
 - delegation-planning

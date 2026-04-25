@@ -11,10 +11,7 @@ tags:
 - event-driven
 - cost-optimization
 dependencies: []
-tools:
-- cloud-sdk
-- serverless-framework
-- IaC-tools
+tools: []
 usage_patterns:
 - paradigm-implementation
 - event-driven-architectures

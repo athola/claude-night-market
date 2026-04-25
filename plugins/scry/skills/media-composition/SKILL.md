@@ -12,8 +12,7 @@ tags:
 - combine
 - stitch
 - tutorial
-tools:
-- Bash
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 450

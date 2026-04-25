@@ -10,10 +10,7 @@ tags:
 - code-quality
 - analysis
 - multi-domain
-tools:
-- skill-selector
-- context-analyzer
-- report-integrator
+tools: []
 usage_patterns:
 - auto-detect-review
 - full-review

@@ -12,11 +12,7 @@ tags:
 - agents
 - skills
 - hooks
-tools:
-- Read
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 900

@@ -12,12 +12,7 @@ tags:
 - writing
 - consolidation
 - debloat
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1200

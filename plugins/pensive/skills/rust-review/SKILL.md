@@ -12,10 +12,7 @@ tags:
 - unsafe
 - traits
 - cargo
-tools:
-- borrow-checker-analyzer
-- unsafe-auditor
-- dependency-scanner
+tools: []
 usage_patterns:
 - rust-audit
 - unsafe-review

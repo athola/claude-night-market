@@ -31,10 +31,7 @@ dependencies:
 - architecture-paradigm-pipeline
 - architecture-paradigm-serverless
 - architecture-paradigm-client-server
-tools:
-- paradigm-selector
-- implementation-planner
-- compatibility-checker
+tools: []
 usage_patterns:
 - paradigm-selection
 - architecture-review

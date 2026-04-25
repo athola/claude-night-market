@@ -18,11 +18,7 @@ tags:
 dependencies:
 - imbue:proof-of-work
 - leyline:additive-bias-defense
-tools:
-- Bash
-- Read
-- Grep
-- Glob
+tools: []
 usage_patterns:
 - post-implementation-review
 - pre-commit-audit

@@ -10,9 +10,7 @@ tags:
 - git
 - commit
 - conventional-commits
-tools:
-- Bash
-- Write
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 350
