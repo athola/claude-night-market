@@ -132,6 +132,10 @@ Before sending a completion message, confirm that you have run the recommended c
 - [TodoWrite naming patterns](modules/todowrite-patterns.md) - naming conventions and safe deletion rules for imbue TodoWrite items
 - [Evidence logging](modules/evidence-logging.md) - structured evidence capture, audit trails, and reproducibility patterns
 
+## Related Skills
+
+- `imbue:karpathy-principles` - The "Goal-Driven Execution" principle wraps the Iron Law in a four-principle synthesis useful as a pre-flight gate
+
 ## Exit Criteria
 
 Complete all progress tracking items. Create an evidence log with reproducible proofs. Define and validate acceptance criteria, and document any identified blockers.

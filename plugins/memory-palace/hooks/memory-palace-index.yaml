@@ -2588,6 +2588,186 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://raw.githubusercontent.com/surrealdb/surrealdb/main/README.md
+  https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/claude.md:
+    content_hash: sha256:35a0f66a6531e61b
+    stored_at: data/staging/webfetch-claude-md-2026-04-25_17-30-43.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:30:43.461472+00:00'
+    title: CLAUDE.md
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md
+  https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/readme.md:
+    content_hash: sha256:646ed774797ea182
+    stored_at: data/staging/webfetch-what-i-can-do-instead-2026-04-25_17-30-45.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:30:45.656351+00:00'
+    title: '**What I can do instead:**'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/README.md
+  https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/examples.md:
+    content_hash: sha256:44070619bd6cc521
+    stored_at: data/staging/webfetch-examples-2026-04-25_17-31-12.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:31:12.948959+00:00'
+    title: Examples
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/EXAMPLES.md
+  https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/.claude-plugin/plugin.json:
+    content_hash: sha256:7f3a81f436da5426
+    stored_at: data/staging/webfetch-name-andrej-karpathy-skills-2026-04-25_17-32-00.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:00.734397+00:00'
+    title: '"name": "andrej-karpathy-skills",'
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/.claude-plugin/plugin.json
+  https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/skills/karpathy-guidelines/skill.md:
+    content_hash: sha256:bf40070eab5daebc
+    stored_at: data/staging/webfetch-karpathy-guidelines-complete-skill-document-2026-04-25_17-32-01.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:01.578650+00:00'
+    title: Karpathy Guidelines - Complete Skill Document
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/skills/karpathy-guidelines/SKILL.md
+  https://hn.algolia.com/api/v1/search?query=karpathy%20software%203.0&tags=story&hitsperpage=10:
+    content_hash: sha256:9c4aaafa35799128
+    stored_at: data/staging/webfetch-top-stories-on-karpathy-s-software-3-0-2026-04-25_17-32-15.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:15.673302+00:00'
+    title: Top Stories on Karpathy's Software 3.0
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=karpathy%20software%203.0&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=karpathy%20llm%20coding%20pitfalls&tags=story&hitsperpage=10:
+    content_hash: sha256:e11ae3812f5c1a1f
+    stored_at: data/staging/webfetch-search-results-2026-04-25_17-32-17.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:17.924457+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=karpathy%20LLM%20coding%20pitfalls&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=karpathy%20nanochat&tags=story&hitsperpage=10:
+    content_hash: sha256:c7c535696e5c9a50
+    stored_at: data/staging/webfetch-top-stories-about-karpathy-nanochat-2026-04-25_17-32-19.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:19.044943+00:00'
+    title: Top Stories About Karpathy NanoChat
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=karpathy%20nanochat&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/items/45569350:
+    content_hash: sha256:0521f27a0739dfa9
+    stored_at: data/staging/webfetch-top-comment-themes-on-nanochat-2026-04-25_17-32-29.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:29.830229+00:00'
+    title: Top Comment Themes on Nanochat
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/items/45569350
+  https://nmn.gl/blog/dangers-vibe-coding:
+    content_hash: sha256:965791a747cfb1bd
+    stored_at: data/staging/webfetch-main-argument-2026-04-25_17-32-30.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:30.875606+00:00'
+    title: Main Argument
+    maturity: seedling
+    routing_type: pending
+    url: https://nmn.gl/blog/dangers-vibe-coding
+  https://github.com/aider-ai/conventions:
+    content_hash: sha256:2448dba5f14d9211
+    stored_at: data/staging/webfetch-aider-conventions-repository-analysis-2026-04-25_17-32-43.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:43.829336+00:00'
+    title: Aider Conventions Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/Aider-AI/conventions
+  https://github.com/therealseandonahoe/agents-md:
+    content_hash: sha256:c0f666189ec30856
+    stored_at: data/staging/webfetch-agents-md-repository-analysis-2026-04-25_17-32-44.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:44.521226+00:00'
+    title: agents-md Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/TheRealSeanDonahoe/agents-md
+  https://github.com/yzhao062/agent-style:
+    content_hash: sha256:0fd54bbb055563e5
+    stored_at: data/staging/webfetch-agent-style-21-writing-rules-analysis-2026-04-25_17-32-46.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:46.368958+00:00'
+    title: 'Agent-Style: 21 Writing Rules Analysis'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/yzhao062/agent-style
+  https://karpathy.bearblog.dev/year-in-review-2025:
+    content_hash: sha256:5efe9c291342c043
+    stored_at: data/staging/webfetch-karpathy-s-2025-llm-year-in-review-coding-related-2026-04-25_17-32-50.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:50.415165+00:00'
+    title: 'Karpathy''s 2025 LLM Year in Review: Coding-Related Observations'
+    maturity: seedling
+    routing_type: pending
+    url: https://karpathy.bearblog.dev/year-in-review-2025/
+  https://news.ycombinator.com/item?id=44311509:
+    content_hash: sha256:78ff42d253024e5b
+    stored_at: data/staging/webfetch-practitioner-reactions-to-karpathy-s-software-3-0-2026-04-25_17-32-52.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:52.054404+00:00'
+    title: Practitioner Reactions to Karpathy's Software 3.0 Talk
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=44311509
+  https://github.com/patrickjs/awesome-cursorrules:
+    content_hash: sha256:7629a84e8a6a7daf
+    stored_at: data/staging/webfetch-meta-agent-behavior-rules-in-awesome-cursorrules-2026-04-25_17-32-58.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:32:58.271313+00:00'
+    title: Meta/Agent Behavior Rules in awesome-cursorrules
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/PatrickJS/awesome-cursorrules
+  https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/skill.md:
+    content_hash: sha256:7e56d33cd9aac736
+    stored_at: data/staging/webfetch-karpathy-guidelines-summary-2026-04-25_17-33-02.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:33:02.009403+00:00'
+    title: Karpathy Guidelines Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md
+  https://gist.github.com/0xdevalias/f40bc5a6f84c4c5ad862e314894b2fa6:
+    content_hash: sha256:7634cc3854425234
+    stored_at: data/staging/webfetch-novel-agent-rule-frameworks-beyond-standard-2026-04-25_17-33-03.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:33:03.583235+00:00'
+    title: Novel Agent Rule Frameworks Beyond Standard Templates
+    maturity: seedling
+    routing_type: pending
+    url: https://gist.github.com/0xdevalias/f40bc5a6f84c4c5ad862e314894b2fa6
+  https://simonwillison.net/2025/mar/19/vibe-coding:
+    content_hash: sha256:7a981c702840c969
+    stored_at: data/staging/webfetch-simon-willison-on-vibe-coding-2026-04-25_17-33-06.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:33:06.176478+00:00'
+    title: Simon Willison on Vibe Coding
+    maturity: seedling
+    routing_type: pending
+    url: https://simonwillison.net/2025/Mar/19/vibe-coding/
+  https://byteiota.com/karpathy-claude-md-ai-coding-pitfalls-accuracy-2:
+    content_hash: sha256:cecf0591140cad50
+    stored_at: data/staging/webfetch-karpathy-quotes-on-llm-coding-pitfalls-2026-04-25_17-33-16.md
+    importance_score: 50
+    last_updated: '2026-04-25T17:33:16.794236+00:00'
+    title: Karpathy Quotes on LLM Coding Pitfalls
+    maturity: seedling
+    routing_type: pending
+    url: https://byteiota.com/karpathy-claude-md-ai-coding-pitfalls-accuracy-2/
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -2876,3 +3056,23 @@ hashes:
   sha256:2bce44469660d1a6: data/staging/webfetch-leptos-readme-structure-analysis-2026-04-24_16-23-52.md
   sha256:7f920f5626b121d3: data/staging/webfetch-axum-documentation-structure-analysis-2026-04-24_16-24-03.md
   sha256:268fad933bf4a778: data/staging/webfetch-surrealdb-readme-structure-analysis-2026-04-24_16-24-04.md
+  sha256:35a0f66a6531e61b: data/staging/webfetch-claude-md-2026-04-25_17-30-43.md
+  sha256:646ed774797ea182: data/staging/webfetch-what-i-can-do-instead-2026-04-25_17-30-45.md
+  sha256:44070619bd6cc521: data/staging/webfetch-examples-2026-04-25_17-31-12.md
+  sha256:7f3a81f436da5426: data/staging/webfetch-name-andrej-karpathy-skills-2026-04-25_17-32-00.md
+  sha256:bf40070eab5daebc: data/staging/webfetch-karpathy-guidelines-complete-skill-document-2026-04-25_17-32-01.md
+  sha256:9c4aaafa35799128: data/staging/webfetch-top-stories-on-karpathy-s-software-3-0-2026-04-25_17-32-15.md
+  sha256:e11ae3812f5c1a1f: data/staging/webfetch-search-results-2026-04-25_17-32-17.md
+  sha256:c7c535696e5c9a50: data/staging/webfetch-top-stories-about-karpathy-nanochat-2026-04-25_17-32-19.md
+  sha256:0521f27a0739dfa9: data/staging/webfetch-top-comment-themes-on-nanochat-2026-04-25_17-32-29.md
+  sha256:965791a747cfb1bd: data/staging/webfetch-main-argument-2026-04-25_17-32-30.md
+  sha256:2448dba5f14d9211: data/staging/webfetch-aider-conventions-repository-analysis-2026-04-25_17-32-43.md
+  sha256:c0f666189ec30856: data/staging/webfetch-agents-md-repository-analysis-2026-04-25_17-32-44.md
+  sha256:0fd54bbb055563e5: data/staging/webfetch-agent-style-21-writing-rules-analysis-2026-04-25_17-32-46.md
+  sha256:5efe9c291342c043: data/staging/webfetch-karpathy-s-2025-llm-year-in-review-coding-related-2026-04-25_17-32-50.md
+  sha256:78ff42d253024e5b: data/staging/webfetch-practitioner-reactions-to-karpathy-s-software-3-0-2026-04-25_17-32-52.md
+  sha256:7629a84e8a6a7daf: data/staging/webfetch-meta-agent-behavior-rules-in-awesome-cursorrules-2026-04-25_17-32-58.md
+  sha256:7e56d33cd9aac736: data/staging/webfetch-karpathy-guidelines-summary-2026-04-25_17-33-02.md
+  sha256:7634cc3854425234: data/staging/webfetch-novel-agent-rule-frameworks-beyond-standard-2026-04-25_17-33-03.md
+  sha256:7a981c702840c969: data/staging/webfetch-simon-willison-on-vibe-coding-2026-04-25_17-33-06.md
+  sha256:cecf0591140cad50: data/staging/webfetch-karpathy-quotes-on-llm-coding-pitfalls-2026-04-25_17-33-16.md

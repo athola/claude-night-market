@@ -180,6 +180,28 @@ See `modules/plan-review.md` for the full protocol.
 - **context-injector.md**: Revision prompt construction
 - **iteration-governor.md**: Round tracking and escalation
 
+## User Directive Overrides
+
+The orchestrator parses the user's command-args and
+free-text at mission start for natural-language trust
+signals. Phrases like "ignore scope guard", "ultrathink",
+"don't keep asking", and "be autonomous" are recognized
+as directive overrides that adjust the constraint
+profile without requiring an explicit
+`--constraints=` flag.
+
+Directive overrides win over mission-type defaults but
+never bypass the Safety Floor (pre-commit hooks,
+proof-of-work evidence, destructive-operation
+confirmation, external-facing actions). When a directive
+is detected, the orchestrator acknowledges it once at
+mission start and stops asking for the corresponding
+checkpoints. Repeated approval-seeking after a directive
+override is itself a workflow bug.
+
+See `modules/adaptive-constraints.md` "User Directive
+Override" section for the parsing table.
+
 ## Mission Charter
 
 Define mission boundaries using the structured template from

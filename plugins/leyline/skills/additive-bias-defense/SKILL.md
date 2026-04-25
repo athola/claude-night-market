@@ -103,6 +103,10 @@ Review-oriented skills MUST consult this contract by:
 | `attune:mission-orchestrator` | Plan sections scanned before user review |
 | `imbue:justify` | Scrutiny questions extend audit protocol |
 
+## Related Skills
+
+- `imbue:karpathy-principles` - "Simplicity First" and "Surgical Changes" principles invoke this contract from a higher-level four-principle synthesis
+
 ## The Subtraction Principle
 
 > Rely less on AI and initial lines of thinking.

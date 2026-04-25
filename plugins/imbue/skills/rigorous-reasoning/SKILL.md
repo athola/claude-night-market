@@ -195,6 +195,7 @@ Use `proof-of-work` to document:
 
 - `imbue:proof-of-work` - Technical validation and evidence capture (complements reasoning validation)
 - `imbue:scope-guard` - Feature evaluation (often involves contested claims)
+- `imbue:karpathy-principles` - The "Think Before Coding" principle covers the same hidden-assumption guard at a higher abstraction
 
 ## Exit Criteria
 

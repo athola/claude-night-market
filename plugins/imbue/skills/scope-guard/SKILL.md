@@ -263,6 +263,7 @@ When evaluating a feature, create these todos:
 - `superpowers:brainstorming` - Ideation workflow this guards
 - `superpowers:writing-plans` - Planning workflow this validates
 - `imbue:review-core` - Review methodology pattern
+- `imbue:karpathy-principles` - Compact four-principle synthesis covering scope, simplicity, surgical edits, and verifiable goals
 
 ## Module Reference
 
