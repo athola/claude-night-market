@@ -5,6 +5,14 @@ orchestration loops.
 Two modes are available: advisory (default, no setup required) and
 prescriptive (opt-in, frontmatter-controlled).
 
+> **Why prescriptive stays opt-in.** Per
+> [docs/inclusive-defaults.md][inc] (TRUE-exception
+> category 9), advisory IS the inclusive default —
+> prescriptive mode requires per-skill consent because
+> it changes orchestration behavior, not just analysis.
+
+[inc]: ../../../../../docs/inclusive-defaults.md
+
 ## Advisory Mode
 
 Advisory mode requires no frontmatter changes.

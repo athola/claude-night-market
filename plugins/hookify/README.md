@@ -52,9 +52,28 @@ claude install ./plugins/hookify
 | Command | Description |
 |---------|-------------|
 | `/hookify:from-hook` | Convert Python SDK hooks to declarative hookify rules |
-| `/hookify:install` | Install a rule from the catalog or a custom file |
+| `/hookify:install` | Install a rule, category, or bundle (e.g. `--bundle safe-defaults`) |
 | `/hookify:list` | List installed and available rules |
 | `/hookify:configure` | Configure rule settings |
+
+### Bundles
+
+Per the [inclusive-defaults policy](../../docs/inclusive-defaults.md),
+hookify ships a curated `safe-defaults` bundle of warn-only rules. Block-action
+rules are intentionally excluded so a default-on bundle install cannot interrupt
+legitimate commands.
+
+```bash
+python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults
+```
+
+Contents (all `action: warn`):
+
+- `documentation:require-slop-scan-for-docs`
+- `git:warn-large-commits`, `git:warn-risky-git`
+- `performance:warn-large-file-ops`
+- `python:warn-print-statements`
+- `workflow:plan-before-large-dispatch`
 
 ## Scripts
 

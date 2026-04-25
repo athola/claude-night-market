@@ -23,6 +23,15 @@ daemon only when that sentinel is present.
 
 Oracle is a marketplace-installable plugin with explicit
 opt-in activation.
+
+> **Why opt-in?** Per [docs/inclusive-defaults.md][inc],
+> oracle's install footprint is heavy: a separate
+> Python 3.11+ venv, ~50MB of onnxruntime, and a
+> background HTTP daemon. Defaulting any of that to ON
+> on `/plugin install oracle` would surprise users with
+> a long setup they did not ask for.
+
+[inc]: ../../docs/inclusive-defaults.md
 Installing the plugin does nothing until the user runs
 `/oracle:setup`, which provisions a Python 3.11+ venv via
 `uv` and installs `onnxruntime` into it.

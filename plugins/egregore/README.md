@@ -105,6 +105,13 @@ for approval):
 **Tier 2 (opt-in):** Webhooks to Slack, Discord, ntfy.sh,
 or any URL.
 
+> **Why opt-in?** Per [docs/inclusive-defaults.md][inc],
+> webhooks send session data to external services using
+> user-supplied URLs. There is no reasonable default URL,
+> so flipping is impossible — not just unwise.
+
+[inc]: ../../docs/inclusive-defaults.md
+
 ## Configuration
 
 Stored in `.egregore/config.json`:
@@ -134,6 +141,12 @@ Stored in `.egregore/config.json`:
   }
 }
 ```
+
+> **Why `auto_merge: false`?** Per [docs/inclusive-defaults.md][inc],
+> merging a PR without human review is irreversible-ish
+> (revert PR is messy and visible in history). Egregore is
+> already opt-in at `/egregore:summon`; `auto_merge`
+> gates the no-human-loop transition specifically.
 
 ## vs Ralph Wiggum
 

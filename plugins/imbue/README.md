@@ -71,6 +71,17 @@ Set `VOW_SHADOW_MODE=0` to switch to blocking.
 `vow_bounded_reads_reset.py` is unconditional: it always resets the counter
 when a write tool fires.
 
+> **Why is shadow mode the default rather than blocking?**
+> Per [docs/inclusive-defaults.md][inc] (TRUE-exception
+> category 8), the inclusive default for soft constraints
+> is warn — defaulting to block would interrupt
+> legitimate workflows on first install. Shadow-default
+> means every user gets the warnings without disruption;
+> blocking is the deliberate opt-in for users who want
+> hard enforcement.
+
+[inc]: ../../docs/inclusive-defaults.md
+
 ### Change Justification
 `justify` audits completed changes for AI additive bias,
 where models default to adding code rather than fixing root causes.

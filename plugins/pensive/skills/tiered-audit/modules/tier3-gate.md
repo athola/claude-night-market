@@ -11,6 +11,14 @@ category: audit
 Tier 3 is the most expensive audit tier.
 It MUST NOT run without explicit user approval.
 
+> **Why this stays opt-in.** Per
+> [docs/inclusive-defaults.md][inc] (TRUE-exception
+> category 7), Tier 1 (git history) is the inclusive
+> default. Full-codebase scans burn compute and tokens
+> at a rate that requires explicit user authorization.
+
+[inc]: ../../../../../docs/inclusive-defaults.md
+
 ## Gate Protocol
 
 When Tier 2 findings indicate Tier 3 is warranted:
