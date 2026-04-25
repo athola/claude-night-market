@@ -1,6 +1,6 @@
 ---
 name: karpathy-principles
-description: 'Four-principle pre-implementation gate for LLM coding pitfalls: think first, simplicity, surgical edits, verifiable goals. Entry to deeper-dive skills.'
+description: 'Four-principle pre-implementation gate: think first, simplicity, surgical edits, verifiable goals. Use when starting LLM-assisted coding work.'
 version: 1.9.4
 alwaysApply: false
 category: discipline
@@ -97,6 +97,13 @@ for ambiguity drilldown.
 
 **Minimum code that solves the problem. Nothing
 speculative.**
+
+> They really like to overcomplicate code and APIs,
+> bloat abstractions.
+>
+> -- Andrej Karpathy, on the same agentic-coding thread
+
+
 
 - No features beyond what was asked
 - No abstractions for single-use code

@@ -1,6 +1,6 @@
 ---
 name: git-workspace-review
-description: 'Verify workspace state, staged changes, and preflight checks before commits or PRs'
+description: 'Verify workspace state and staged changes. Use before commits, PRs, or reviews. Read-only preflight that downstream workflows depend on.'
 version: 1.9.0
 alwaysApply: false
 category: workspace-ops

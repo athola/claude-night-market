@@ -1,6 +1,6 @@
 ---
 name: war-room
-description: "Convene a multi-LLM expert panel to pressure-test high-stakes decisions and build consensus through structured deliberation."
+description: "Multi-LLM expert panel for high-stakes decisions. Use when facing hard-to-reverse choices that need adversarial review and structured deliberation."
 version: 1.9.0
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

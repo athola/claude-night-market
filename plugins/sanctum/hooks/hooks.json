@@ -30,6 +30,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/security_pattern_check.py",
             "timeout": 2
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py",
+            "timeout": 2
           }
         ]
       }
@@ -41,6 +46,11 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py",
+            "timeout": 1
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/brainstorm_session_warn.py",
             "timeout": 1
           }
         ]
