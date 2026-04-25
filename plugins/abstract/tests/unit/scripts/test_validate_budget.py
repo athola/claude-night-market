@@ -286,13 +286,17 @@ class TestBudgetConstants:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_budget_limit_is_reasonable(self) -> None:
-        """Scenario: Budget limit reflects 2% of 1M context window.
+        """Scenario: Budget limit accommodates the marketplace size.
 
         Given the DEFAULT_BUDGET constant
-        Then it should be 16,000 chars.
+        Then it should be large enough to fit 310+ components
+        (overhead alone is 310 * 109 = 33,790 chars).
         """
         assert BUDGET_LIMIT > 0
-        assert DEFAULT_BUDGET == 16000
+        # 60K chars accommodates ~310 components with overhead.
+        # Set lower (e.g., 16K) and the per-component overhead alone
+        # exceeds the budget.
+        assert DEFAULT_BUDGET == 60000
 
     @pytest.mark.bdd
     @pytest.mark.unit
