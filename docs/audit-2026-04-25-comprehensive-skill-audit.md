@@ -330,10 +330,122 @@ Final state of this session:
 - All plugin tests: PASS (attune, imbue, leyline, sanctum,
   scribe).
 
+## Follow-up Session 2026-04-25 (Late)
+
+A second pass that afternoon continued the audit using the
+new capabilities surfaced in the morning session. Plan
+file: `~/.claude/plans/unified-dancing-minsky.md`. Branch
+remained RED (scope-guard waived).
+
+### What closed
+
+- **Phase A (mechanical)**: 7 commits.
+  - `dfc6757f` -- sanctum hooks (`brainstorm_session_warn`
+    and `config_change_audit` Edit/Write event handler)
+    landed with 23 unit tests; sanctum suite stays at
+    96.39% coverage.
+  - `27d7d2f6` -- `tools:` frontmatter normalized to
+    `tools: []` across 96 SKILL.md files; the three skills
+    with test-enforced real tool entries (plugin-review,
+    gemini-delegation, qwen-delegation) kept their
+    meaningful entries; one stale assertion removed from
+    `test_plugin_review.py`. Two over-budget descriptions
+    trimmed (memory-palace/review-chamber 224->140;
+    imbue/feature-review 211->145).
+- **Phase B (high-leverage)**: 3 commits.
+  - `b8654b77` -- `attune:precommit-setup` modularized
+    from 678 LOC to 233 LOC + 5 modules (504 LOC total).
+    Hub-and-spoke pattern matching `architecture-aware-
+    init`. Closes the only remaining oversized monolith.
+  - `c7128fd7` -- `attune:mission-orchestrator` documents
+    progressive module loading by mission type. Quickfix
+    runs are now ~60% lighter (~4,100 tokens vs ~10,100
+    when all 12 modules loaded).
+  - `559682fa` -- `Use when...` trigger pattern added to
+    4 post-audit skills (sanctum:stack-mode,
+    gauntlet:gauntlet-curate, imbue:vow-enforcement,
+    oracle:setup). Marketplace explicit-trigger count
+    rises from 22 to 26.
+- **Phase C (composability docs)**: 3 commits.
+  - `ec153524` -- `docs/skill-taxonomy.md` formalizes
+    three roles (entrypoint / library / hook-target) and
+    re-classifies 10 of the 85 previously-flagged
+    "orphans"; finds 8 of 10 are correctly populated
+    libraries with non-Skill() entry paths. The
+    "orphan" finding has high false-positive rate.
+  - `b4eaf050` -- `docs/quality-gate-orchestration.md`
+    proposes `egregore:quality-gate` as the canonical
+    gate orchestrator and gives `imbue:vow-enforcement`
+    a Skill() entry path without removing the hook
+    layer.
+  - `0da2d509` -- two disposition records under
+    `docs/decisions/`: one for `pensive:unified-review`
+    (1 caller despite being a hub; recommends Option C
+    promote-with-usage); one for `imbue:proof-of-work`
+    hook/skill circularity (proposes proof-citation +
+    proof-enforcement split, defers the migration).
+
+### Numbers, before / after
+
+| Metric | Audit start | Morning end | Follow-up end |
+|--------|-------------|-------------|---------------|
+| Explicit-trigger skills | 15 | 22 | 26 |
+| Multi-line `tools:` blocks | ~140 | ~140 | 4 (all real) |
+| Single-line `tools: []` | ~45 | ~45 | 105 |
+| Modularized hubs | 60% | 60.5% | 61% |
+| Oversized monoliths (>500 LOC, no modules) | 2 | 1 | 0 |
+| Description-budget violations | 2 | 2 | 0 |
+
+### Findings recorded for follow-up missions
+
+These are not actionable on this branch but the analysis
+is complete; the next person to pick them up starts with
+the work already done:
+
+- **`pensive:unified-review` disposition** -- 1 caller;
+  prefer Option C (promote with usage campaign), then
+  Option B (absorb into sanctum:pr-review) once
+  observable. See `docs/decisions/2026-04-25-unified-
+  review-disposition.md`.
+- **`imbue:proof-of-work` layering** -- split into
+  `proof-citation` (skill) + `proof-enforcement` (hook
+  target); 13 callers + hook. See
+  `docs/decisions/2026-04-25-proof-of-work-layering.md`.
+- **Trigger campaign for the remaining 157 skills**
+  (185 - 26 - 2 reserved for non-discoverable). Mechanical;
+  ideal as a single batch run.
+- **Audit-tool false-positive rate** -- the orphan
+  detector ignores `dependencies:` and `modules:`
+  entry paths; tag with `role:` per
+  `docs/skill-taxonomy.md` proposal.
+- **`validate_budget.py` default budget** -- 16,000
+  chars is unrealistic for a 310-component marketplace
+  (overhead alone is 33,790 chars). The
+  `failed`-on-per-description-overrun behaviour is the
+  real gate; total-budget warning is informational.
+  Worth raising `DEFAULT_BUDGET` or splitting per-plugin
+  in a follow-up.
+
+### Verification
+
+- All 7 follow-up commits passed `make lint` + `make test`
+  for affected plugins.
+- Pre-commit hooks all green except the total-budget
+  warning (informational only; per-description budget
+  passes).
+- 0 plugin registration drift across 24 plugins.
+- Type-check passed for all 17 typecheckable plugins.
+
 ## References
 
-- Plan file: `~/.claude/plans/bubbly-pondering-mist.md`
+- Morning plan: `~/.claude/plans/bubbly-pondering-mist.md`
+- Follow-up plan: `~/.claude/plans/unified-dancing-minsky.md`
 - Mission state: `.attune/mission-state.json`
-- Composition graph: `docs/quality-gates.md#skill-level-quality-gate-composition`
+- Composition graph:
+  `docs/quality-gates.md#skill-level-quality-gate-composition`
+- Quality-gate orchestration:
+  `docs/quality-gate-orchestration.md`
+- Skill role taxonomy: `docs/skill-taxonomy.md`
+- Disposition records: `docs/decisions/2026-04-25-*.md`
 - Backlog of deferred items:
   `docs/backlog/queue.md#skill-audit-2026-04-25`
