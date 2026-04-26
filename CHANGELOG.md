@@ -7,6 +7,113 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **pensive performance-review detector hardening**:
+  iteratively suppressed false-positive classes that surfaced
+  during dogfooding. T2 (`x in <Name>` membership): string-literal
+  LHS, dict/set/string RHS Names tracked module-wide, string-
+  returning methods (`.lower`, `.upper`, `.strip`, `.read`, etc.),
+  `str`/`bytes`-annotated function params, `.split()`/`.splitlines()`
+  iter vars, comprehension generators, Name-to-Name assignment
+  propagation. S1 (`.append()` in nested loops): suppresses when
+  the target Name is initialized to an empty list in the same
+  function (Assign + List, AnnAssign + List, `list()` call). Net
+  result on pensive's own source: 98 to 10 total findings
+  (-90 percent), HIGH 64 to 2 (-97 percent), MEDIUM 32 to 6
+  (-81 percent), zero regressions in 376/376 pensive tests.
+  Iron Law followed for every classifier extension: failing
+  test first, minimum implementation, all-green verification
+  (23 BDD-style tests covering each detector and each
+  suppression class).
+- **pensive `common_phony` list to frozenset**:
+  `plugins/pensive/src/pensive/skills/makefile_review.py` was a
+  7-element list scanned inside the per-target loop. Converted
+  to `frozenset` for O(1) membership.
+- **pensive `unified_review.detect_languages` repo-file scan**:
+  `plugins/pensive/src/pensive/skills/unified_review.py` built
+  a `set(files)` once outside the per-language loop so the
+  per-config-file membership probe is O(1) regardless of
+  repository size.
+- **pensive `makefile_review` regex hoist**:
+  `plugins/pensive/src/pensive/skills/makefile_review.py` had
+  `re.compile(...)` inside the per-makefile loop. Hoisted above
+  the loop so the static pattern compiles once.
+- **pensive `repository_analyzer` materialization removal**:
+  `plugins/pensive/src/pensive/analysis/repository_analyzer.py`
+  used `len(list(repo_path.rglob(...)))` in two places. Replaced
+  with `sum(1 for _ in repo_path.rglob(...))` so the iterator
+  is consumed without an intermediate list allocation.
+
+### Added
+
+- **pensive performance-review skill + command**: new
+  `/performance-review` slash command and matching skill detect
+  time- and space-complexity hotspots via Python AST. Six
+  time-complexity detectors (T1 nested loops over the same
+  iterable; T2 list `in` lookup in a loop; T3 `re.compile()`
+  in a loop; T4 string `+=` accumulator; T5 unmemoized
+  recursion; T6 list comprehension passed to a reducer) and
+  three space-complexity detectors (S1 unbounded `.append()`
+  in nested loops; S2 list-wrapping a generator inside a
+  reducer; S3 per-iteration `.copy()` / `dict()` / `list()`).
+  Tier 2 (`gauntlet.treesitter_parser`) and Tier 3
+  (`gauntlet.graph.GraphStore`) extend coverage to non-Python
+  languages and transitive call-chain severity upgrades when
+  gauntlet is installed; sentinel-pattern fallback keeps Tier
+  1 working when gauntlet is missing. Implementation lives at
+  `plugins/pensive/src/pensive/skills/performance_review.py`
+  with 15 BDD-style tests at
+  `plugins/pensive/tests/skills/test_performance_review.py`.
+  `make demo-performance-review` dogfoods on pensive's own
+  source (98 real findings on first run). Full pensive suite:
+  368 passed.
+- **gauntlet Makefile demo + test targets**: 12 new
+  per-command targets (`demo-gauntlet`, `demo-gauntlet-extract`,
+  `demo-gauntlet-curate`, `demo-gauntlet-graph`,
+  `demo-gauntlet-progress`, `demo-gauntlet-onboard`,
+  plus `demo-all`, and matching `test-*` targets). Demos
+  are LIVE (e.g. `demo-gauntlet-extract` runs
+  `scripts/extractor.py src/gauntlet` and prints real
+  knowledge entries dogfooded from gauntlet's own source).
+  Per-command test targets use `--no-cov` since they
+  exercise a slice rather than the full plugin surface;
+  use `make test` for the 85% coverage gate.
+  `makefile_dogfooder.py` coverage: 0% → 85%.
+
+### Fixed
+
+- **sanctum brainstorm SessionStart hook permission**:
+  `plugins/sanctum/hooks/brainstorm_session_warn.py` was
+  committed with mode 100644 and registered as a direct
+  `"type": "command"` hook in `hooks.json`. Without the
+  exec bit the kernel returned `EACCES` on every
+  SessionStart. Restored mode to 100755 via
+  `git update-index --chmod=+x` to match the six sibling
+  hooks in the same file.
+- **gauntlet precommit_gate Bash PreToolUse traceback**:
+  the hook imported `gauntlet.challenges` at module
+  scope, which transitively imports `anthropic`. Claude
+  Code invokes the hook via system `python3` (no
+  `anthropic`), so every `Bash` PreToolUse raised
+  `ModuleNotFoundError` before the hook's own
+  early-return for non-`git commit` commands. Moved
+  `from gauntlet.challenges import ...` inside
+  `generate_challenge_for_files()` with
+  `try/except ImportError: return None` for graceful
+  degradation. All 15 unit tests in
+  `tests/unit/test_precommit.py` still pass.
+- **gauntlet challenges module-scope anthropic import**:
+  closed the same import trap at the source.
+  `plugins/gauntlet/src/gauntlet/challenges.py` now
+  imports `anthropic` and `TextBlock` lazily inside
+  `_generate_problem_variation()` so any caller (not
+  just the precommit hook) can import
+  `gauntlet.challenges` from a Python interpreter
+  lacking `anthropic`. The pre-existing
+  `except Exception` already catches `ImportError` and
+  falls back to the verbatim YAML problem.
+
 ## [1.9.3] - 2026-04-25
 
 ### Added

@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.2-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.3-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-182-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-184-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-182 skills, 126 slash commands, and 54 agents.
+184 skills, 154 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -185,6 +185,17 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**1.9.3:** the project codifies an inclusive-defaults policy
+(`docs/inclusive-defaults.md`): features default ON with `--no-X`
+opt-outs unless they fall into one of nine TRUE-exception
+categories (heavy install, irreversible state, OS-level state,
+etc.). Hookify ships a `safe-defaults` bundle of six warn-only
+rules (slop scan, large commits, risky git, large file ops,
+print statements, plan-before-large-dispatch); install with
+`python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
+`spec-kit` `speckit-tasks` now generates test tasks by default
+to align with the iron-law TDD posture; opt out via `--no-tdd`.
 
 **1.9.2:** the `imbue` vow hooks split read-budget
 accounting from write-reset accounting so write-heavy sessions no longer
