@@ -23,6 +23,7 @@ usage_patterns:
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 2800
+role: hook-target
 ---
 
 > Rules that depend on willpower fail under pressure.

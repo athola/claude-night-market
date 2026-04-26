@@ -150,6 +150,6 @@ things become true:
   enforces this template under the Iron Law.
 - `Skill(superpowers:test-driven-development)` is the
   RED-GREEN-REFACTOR loop this template feeds.
-- `Skill(spec-kit:speckit-clarify)` helps when the
+- `/spec-kit:speckit-clarify` command helps when the
   reformulation surfaces an ambiguity that needs the
   user's input first.

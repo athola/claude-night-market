@@ -1,10 +1,6 @@
 ---
 name: context-map
-description: >-
-  Generate a compressed project context map to reduce
-  token waste from codebase exploration. Pre-scans
-  structure, detects frameworks, routes, imports,
-  env vars, and estimates token savings.
+description: 'Generate a compressed project context map to reduce token waste from codebase exploration. Use before sessions involving heavy file reads.'
 version: 1.9.0
 category: optimization
 tags:

@@ -29,6 +29,7 @@ modules:
 - modules/retry-protocol.md
 - modules/todowrite-patterns.md
 - modules/validation-protocols.md
+role: library
 ---
 > Claims without evidence fail the people who depend on
 > your work. Proof-of-work is humility in practice:

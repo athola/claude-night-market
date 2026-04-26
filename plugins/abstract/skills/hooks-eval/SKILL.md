@@ -31,6 +31,7 @@ modules:
 - modules/evaluation-criteria.md
 - modules/sdk-hook-types.md
 model_hint: standard
+role: entrypoint
 ---
 ## Table of Contents
 

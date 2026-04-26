@@ -1,6 +1,6 @@
 ---
 name: safety-critical-patterns
-description: 'NASA Power of 10 rules adapted for writing robust, verifiable code with context-appropriate rigor'
+description: 'NASA Power of 10 rules adapted for robust, verifiable code. Use when writing safety-critical or hardware-adjacent logic.'
 version: 1.9.0
 alwaysApply: false
 category: code-quality

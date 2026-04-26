@@ -37,6 +37,7 @@ modules:
 - modules/merge-conflict-resolution.md
 - modules/state-reconciliation.md
 - modules/risk-assessment-checklist.md
+role: library
 ---
 ## Table of Contents
 

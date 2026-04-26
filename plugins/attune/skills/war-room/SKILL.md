@@ -23,6 +23,7 @@ dependencies:
   - memory-palace:strategeion
   - leyline:git-platform
 tools: []
+role: entrypoint
 ---
 ## Overview
 

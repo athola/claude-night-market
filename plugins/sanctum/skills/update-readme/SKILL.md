@@ -1,6 +1,6 @@
 ---
 name: update-readme
-description: 'Refresh README structure and content using repo context from git-workspace-review'
+description: 'Refresh README structure and content using repo context. Use after major features land or when README drifts from current capability.'
 version: 1.9.0
 alwaysApply: false
 category: artifact-generation

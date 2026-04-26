@@ -33,6 +33,7 @@
     "./skills/rules-eval",
     "./skills/shared-patterns",
     "./skills/skill-authoring",
+    "./skills/skill-graph-audit",
     "./skills/skills-eval",
     "./skills/subagent-testing",
     "./skills/friction-detector"

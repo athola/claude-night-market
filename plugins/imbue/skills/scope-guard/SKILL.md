@@ -26,6 +26,7 @@ modules:
 - modules/anti-overengineering.md
 - modules/branch-management.md
 - modules/baseline-scenarios.md
+role: library
 ---
 > Building more than what is needed takes choices away
 > from those who work here next. Scope-guard is humility

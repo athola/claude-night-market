@@ -30,6 +30,7 @@ modules:
 - i18n-patterns
 dependencies:
 - scribe:shared
+role: library
 ---
 # AI Slop Detection
 

@@ -57,6 +57,7 @@ modules:
 references:
 - references/mission-charter.md
 - references/progress-report.md
+role: entrypoint
 ---
 ## Table of Contents
 

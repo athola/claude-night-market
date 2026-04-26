@@ -21,6 +21,7 @@ model_hint: fast
 estimated_tokens: 700
 progressive_loading: true
 module_strategy: context-based
+role: entrypoint
 ---
 ## Table of Contents
 

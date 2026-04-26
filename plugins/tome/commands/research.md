@@ -1,10 +1,6 @@
 ---
 name: research
-description: >-
-  Run a multi-source research session on a topic. Searches
-  GitHub, HN, Lobsters, Reddit, arXiv, Semantic Scholar,
-  and applies TRIZ cross-domain analysis. Produces a
-  domain-appropriate report.
+description: 'Run a multi-source research session searching GitHub, HN, Lobsters, Reddit, arXiv, and Semantic Scholar. Use for multi-channel topic surveys.'
 usage: >-
   /tome:research "<topic>" [--format report|brief|transcript]
   [--resume] [--list] [--domain <override>]

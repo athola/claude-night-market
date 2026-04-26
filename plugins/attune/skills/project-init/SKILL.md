@@ -14,6 +14,7 @@ modules:
 - ./modules/metadata-collection.md
 - ./modules/template-rendering.md
 model_hint: standard
+role: entrypoint
 ---
 ## Table of Contents
 

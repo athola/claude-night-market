@@ -1,6 +1,6 @@
 ---
 name: api-review
-description: 'Evaluate API surface design, consistency, documentation, and exemplar alignment'
+description: 'Evaluate API surface design, consistency, and exemplar alignment. Use when reviewing public APIs or designing new endpoints.'
 version: 1.9.0
 alwaysApply: false
 category: code-review

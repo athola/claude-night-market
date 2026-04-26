@@ -1,10 +1,6 @@
 ---
 name: code-search
-description: >-
-  Search GitHub for existing implementations of a topic.
-  Use when the user wants to find code examples, libraries,
-  or implementation patterns. Standalone or as part of a
-  full research session.
+description: 'Search GitHub for existing implementations. Use when looking for code examples, libraries, or implementation patterns on a topic.'
 version: 1.9.0
 alwaysApply: false
 category: research

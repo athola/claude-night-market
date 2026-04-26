@@ -15,6 +15,7 @@ dependencies:
   modules:
     - modules/spec-review-loop.md
     - modules/deferred-capture.md
+role: library
 ---
 ## When To Use
 

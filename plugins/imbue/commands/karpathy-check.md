@@ -1,11 +1,6 @@
 ---
 name: karpathy-check
-description: >-
-  Pre-flight gate that walks the four Karpathy
-  principles before implementation: think before coding,
-  simplicity first, surgical changes, goal-driven
-  execution. Surfaces hidden assumptions, premature
-  abstractions, scope drift, and vague success criteria.
+description: 'Pre-flight gate walking four Karpathy principles (think first, simplicity, surgical edits, goal-driven). Use before implementation.'
 usage: /karpathy-check [task description]
 ---
 

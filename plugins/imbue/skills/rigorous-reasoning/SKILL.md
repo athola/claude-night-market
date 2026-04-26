@@ -14,6 +14,7 @@ dependencies:
 - imbue:proof-of-work
 tools: []
 model_hint: deep
+role: library
 ---
 ## Table of Contents
 

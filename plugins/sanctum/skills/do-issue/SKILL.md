@@ -1,6 +1,6 @@
 ---
 name: do-issue
-description: 'Parallel subagent execution with code review gates between task batches for issue resolution'
+description: 'Parallel subagent execution with review gates between task batches. Use when resolving GitHub/GitLab issues that need multiple steps.'
 version: 1.9.0
 alwaysApply: false
 category: workflow-automation

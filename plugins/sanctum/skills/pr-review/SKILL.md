@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: 'Scope-focused PR review with requirements validation and backlog triage'
+description: 'Scope-focused PR review with requirements validation and backlog triage. Use when reviewing pull requests with a clear scope contract.'
 version: 1.9.0
 alwaysApply: false
 category: review
@@ -43,6 +43,7 @@ dependencies:
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
+role: entrypoint
 ---
 ## Table of Contents
 

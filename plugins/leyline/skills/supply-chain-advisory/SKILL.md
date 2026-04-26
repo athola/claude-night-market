@@ -34,6 +34,7 @@ progressive_loading: true
 modules:
 - modules/scanning-patterns.md
 - modules/incident-response.md
+role: hook-target
 ---
 
 ## Overview

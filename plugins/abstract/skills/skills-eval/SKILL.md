@@ -65,6 +65,7 @@ modules:
 - modules/pressure-testing.md
 - modules/trigger-isolation-analysis.md
 - modules/troubleshooting.md
+role: entrypoint
 ---
 # Skills Evaluation and Improvement
 

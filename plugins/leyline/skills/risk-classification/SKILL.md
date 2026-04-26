@@ -35,6 +35,7 @@ modules:
 - modules/heuristic-classifier.md
 - modules/verification-gates.md
 - modules/readiness-levels.md
+role: library
 ---
 ## Table of Contents
 

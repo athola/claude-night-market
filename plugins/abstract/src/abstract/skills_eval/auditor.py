@@ -73,8 +73,16 @@ class SkillsAuditor:
             },
             "required_fields": ["name", "description"],
             "recommended_fields": ["category", "tags", "dependencies"],
-            "required_sections": ["Overview", "Quick Start"],
-            "recommended_sections": ["Examples", "Resources", "Troubleshooting"],
+            # Modern marketplace convention: H1 + free-form intro paragraph
+            # is acceptable. Overview and Quick Start are still recommended
+            # but no longer scored as required. See docs/skill-taxonomy.md.
+            "required_sections": [],
+            "recommended_sections": [
+                "Overview",
+                "Quick Start",
+                "When To Use",
+                "Examples",
+            ],
             "token_optimal": 1500,
             "token_acceptable": 2500,
             "structure_indicators": ["## Overview", "## Quick Start", "## Examples"],

@@ -1,11 +1,6 @@
 ---
 name: justify
-description: >-
-  Post-implementation audit that justifies every change
-  against a minimal-intervention standard. Detects AI
-  additive bias, test-logic tampering, and unnecessary
-  complexity. Use after completing work, before committing
-  or creating PRs.
+description: 'Post-implementation audit against minimal-intervention standard. Detects additive bias and test tampering. Use after work, before commit or PR.'
 version: 1.9.0
 alwaysApply: false
 category: workflow-methodology
@@ -26,6 +21,7 @@ usage_patterns:
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 2800
+role: entrypoint
 ---
 
 > The simplest change that fixes the problem is the

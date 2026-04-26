@@ -449,3 +449,136 @@ the work already done:
 - Disposition records: `docs/decisions/2026-04-25-*.md`
 - Backlog of deferred items:
   `docs/backlog/queue.md#skill-audit-2026-04-25`
+
+## Follow-up Session 2026-04-25 (Evening)
+
+A third pass that evening continued the audit using the
+attune mission orchestration with scope-guard waived. Branch
+remained RED. Mission focus: address the remainder of
+deferred items from the morning and afternoon sessions.
+
+### What closed
+
+- **NEW-001 skill-graph-audit (deferred item #9)**:
+  Built `abstract:skill-graph-audit` skill backed by
+  `plugins/abstract/scripts/skill_graph.py` (242 LOC,
+  16 unit tests). Capabilities: parse `Skill(plugin:name)`
+  references across the marketplace, build a directed
+  graph, surface hubs/orchestrators/isolates/dangling
+  refs. Ships with a 3-way classifier (bugs vs external
+  vs placeholder) and an `KNOWN_EXTERNAL_PLUGINS` allowlist.
+
+  **Dogfood evidence**: First run against `plugins/`
+  surfaced two real dangling refs that the morning audit
+  missed -- `attune:makefile-generation -> abstract:
+  makefile-dogfooder` (script name confused with skill
+  name) and `imbue:karpathy-principles -> spec-kit:
+  speckit-clarify` (command referenced as skill). Both
+  were converted to correct `/command` references in
+  the same commit. Final marketplace state:
+  **0 bug-class dangling refs**, 9 external (valid),
+  1 placeholder (template).
+
+- **NEW-002 contract-validator CLI (deferred item #11)**:
+  The `imbue/scripts/contract_validator.py` library
+  (241 LOC, 19 tests) was already complete from prior
+  work but lacked a CLI entry point. Added `main()`
+  with `--findings`, `--contract`, `--format` flags.
+  4 new BDD CLI tests cover pass/fail/JSON/lenient
+  paths. Workflows can now call the validator from
+  the shell:
+
+  ```bash
+  python3 plugins/imbue/scripts/contract_validator.py \
+    --findings agent.findings.md \
+    --contract contract.yaml --format json
+  ```
+
+- **Audit-tool false-positive sweep**: `skills_eval/
+  auditor.py` `audit_metrics` schema was systematically
+  penalising 21 skills (cartograph, archetypes, parts of
+  conserve/tome) for following the modern compact
+  convention (H1 + free-form intro, no `## Overview`).
+  Moved Overview / Quick Start from `required_sections`
+  to `recommended_sections`; added `When To Use` to the
+  recommended set. **Marketplace impact**: average score
+  73.29 -> 77.33 (+4.04); well-structured count
+  41 -> 79 (+38). Pre-existing test
+  `test_missing_required_section_reported` updated to
+  cover the still-functional opt-in path.
+
+- **Cluster B retirement evaluation (deferred item #4)**:
+  Decision recorded in `docs/decisions/2026-04-25-
+  cluster-b-vow-enforcement-justify.md`. Verdict:
+  retire neither. `vow-enforcement` has 1 caller but
+  is healthy infrastructure post-promotion;
+  `justify` has 8 callers including two sanctum hubs
+  and is load-bearing. Aligned with the
+  `pensive:unified-review` Option C precedent
+  (promote-with-usage rather than retire-on-low-count).
+
+- **Trigger-pattern campaign (deferred item #2,
+  partial)**: Added explicit `Use when ...` triggers to
+  20 skills across pensive (11), sanctum (8), and
+  leyline (1 batch-eligible). **Marketplace coverage**:
+  26 -> 81 explicit triggers (14% -> 44%). Remaining
+  gap is mostly leyline (needs description rewrites
+  due to YAML wrapping) and sanctum stack-* /
+  pr-prep / version-updates which have multi-line
+  descriptions exceeding the bare-line edit pattern.
+  Mechanical follow-up: rewrite multi-line descriptions
+  as single-line quoted strings, then add triggers.
+
+### Numbers, before / after this session
+
+| Metric | Audit start | Morning end | Afternoon end | Evening end |
+|--------|-------------|-------------|---------------|-------------|
+| Explicit-trigger skills | 15 | 22 | 26 | 81 |
+| Marketplace avg score (auditor) | -- | -- | 73.29 | 77.33 |
+| Well-structured count (>=80) | -- | -- | 41 | 79 |
+| Bug-class dangling refs | -- | -- | -- | 0 |
+| Closed deferred items | 0 | 0 | 2 | 7 |
+| Open deferred items | 11 | 11 | 9 | 5 |
+
+### What remains deferred
+
+- **Cluster A** (pr-review absorbs unified-review): HIGH
+  risk, 7+ callers, needs focused mission with caller
+  analysis.
+- **Cluster D** (doc-updates + update-readme merge):
+  documented as opposed workflows; merge requires
+  reconciling pre-hoc vs post-hoc generation patterns.
+- **Cluster E** (git-catchup + imbue:catchup):
+  pure-stylistic divergence, low ROI.
+- **Cluster C** (audit-framework hub): considered
+  unnecessary now that `skill-graph-audit` provides
+  the cross-cutting view; close as obsoleted.
+- **Cluster G** (lifecycle unification): high disruption,
+  needs design proposal and multi-plugin coordination.
+- **Trigger campaign for remaining 103 skills**:
+  mostly mechanical; needs YAML description
+  rewriting helper.
+
+### Verification
+
+- `uv run pytest plugins/abstract/tests/scripts/
+  test_skill_graph.py plugins/abstract/tests/unit/
+  skills/test_skill_graph_audit.py` -- 24/24 passing
+- `uv run pytest plugins/abstract/tests/unit/
+  test_skills_eval_auditor.py` -- 71/71 passing
+- `uv run pytest plugins/imbue/tests/unit/
+  test_contract_validator*.py` -- 23/23 passing
+- Marketplace audit re-run: see metrics table above
+- Skill graph re-run: 0 bug-class dangling refs
+
+### References (added this session)
+
+- `plugins/abstract/skills/skill-graph-audit/SKILL.md`
+- `plugins/abstract/scripts/skill_graph.py`
+- `plugins/abstract/tests/scripts/test_skill_graph.py`
+- `plugins/abstract/tests/unit/skills/
+  test_skill_graph_audit.py`
+- `plugins/imbue/tests/unit/
+  test_contract_validator_cli.py`
+- `docs/decisions/2026-04-25-cluster-b-vow-enforcement-
+  justify.md`

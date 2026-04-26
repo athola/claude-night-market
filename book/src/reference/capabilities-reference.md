@@ -150,6 +150,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
+| `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
 | `smart-sourcing` | [conserve](../plugins/conserve.md) | Balance accuracy with token efficiency |

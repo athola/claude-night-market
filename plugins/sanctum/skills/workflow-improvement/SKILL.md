@@ -1,6 +1,6 @@
 ---
 name: workflow-improvement
-description: 'Retrospective evaluation and improvement of skills, agents, commands, and hooks'
+description: 'Retrospective evaluation and improvement of skills, agents, commands, and hooks. Use after a sprint or when a workflow felt friction-heavy.'
 version: 1.9.0
 alwaysApply: false
 category: workflow-ops

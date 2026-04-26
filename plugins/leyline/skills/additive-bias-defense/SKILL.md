@@ -27,6 +27,7 @@ usage_patterns:
 complexity: foundational
 model_hint: standard
 estimated_tokens: 800
+role: library
 ---
 
 > The default answer to "should we add this?" is no.

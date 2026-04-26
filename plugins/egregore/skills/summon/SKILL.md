@@ -29,6 +29,7 @@ modules:
   - modules/decisions.md
   - modules/model-routing.md
 model_hint: standard
+role: entrypoint
 ---
 ## Table of Contents
 

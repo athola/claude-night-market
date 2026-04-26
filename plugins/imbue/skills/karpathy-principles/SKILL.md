@@ -34,6 +34,7 @@ modules:
 - modules/tradeoff-acknowledgment.md
 references:
 - references/source-attribution.md
+role: entrypoint
 ---
 
 > The models make wrong assumptions on your behalf and
@@ -90,8 +91,8 @@ evidence.**
 
 Deep dives: `Skill(imbue:rigorous-reasoning)` for the
 sycophancy guard, `Skill(superpowers:brainstorming)`
-for option generation, `Skill(spec-kit:speckit-clarify)`
-for ambiguity drilldown.
+for option generation, `/spec-kit:speckit-clarify`
+command for ambiguity drilldown.
 
 ### 2. Simplicity First
 
