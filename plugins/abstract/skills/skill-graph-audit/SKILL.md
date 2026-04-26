@@ -81,6 +81,22 @@ audit (2026-04-25) had missed:
 Both were converted to correct command-style references in the
 same session.
 
+## Verification
+
+Two ways to validate the audit output is trustworthy:
+
+1. **Test-suite correctness check**: Run `pytest -o addopts=
+   plugins/abstract/tests/scripts/test_skill_graph.py` to confirm
+   extraction, graph construction, ranking, isolate detection, and
+   dangling-ref classification all pass on the current code. The
+   `-o addopts=` flag bypasses the package-wide coverage gate, which
+   would otherwise fail on a single-file run.
+2. **Round-trip smoke check**: Note the dangling-ref count from a
+   baseline run, fix one or more flagged references, then rerun and
+   verify the count drops by at least the number fixed. If the count
+   does not move, the report is stale or the regex missed a syntax
+   variant.
+
 ## Related Skills
 
 - `Skill(abstract:skills-eval)` -- per-skill quality scoring

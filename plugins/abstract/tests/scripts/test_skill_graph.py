@@ -299,6 +299,37 @@ class TestClassifyDanglingRefs:
         assert bugs == [("src:main", "imbue:typo-skill")]
 
     @pytest.mark.unit
+    def test_round_trip_fix_decrements_bug_count(self, tmp_path: Path) -> None:
+        """Scenario: Removing one bug ref from source drops the count by 1.
+
+        Encodes the audit's central round-trip claim documented in
+        SKILL.md Verification: fixing a flagged ref must reduce the
+        dangling-bug count. If a regex regression, stale-cache bug, or
+        classification drift breaks the source-to-report round trip,
+        this test fails before users act on a misleading report.
+        """
+        src_skill = tmp_path / "plugins" / "src" / "skills" / "main" / "SKILL.md"
+        src_skill.parent.mkdir(parents=True)
+
+        # GIVEN: source references two missing internal skills (both bugs)
+        src_skill.write_text(
+            "---\nname: main\ndescription: x\n---\n"
+            "Use `Skill(imbue:typo-one)` and `Skill(imbue:typo-two)`."
+        )
+        initial_bugs = detect_dangling_refs(build_graph(tmp_path / "plugins"))
+        assert len(initial_bugs) == 2
+
+        # WHEN: one bug ref is removed from source and the graph is rebuilt
+        src_skill.write_text(
+            "---\nname: main\ndescription: x\n---\nUse `Skill(imbue:typo-two)`."
+        )
+        after_fix_bugs = detect_dangling_refs(build_graph(tmp_path / "plugins"))
+
+        # THEN: the count drops by exactly 1 and the surviving ref is preserved
+        assert len(after_fix_bugs) == len(initial_bugs) - 1
+        assert after_fix_bugs == [("src:main", "imbue:typo-two")]
+
+    @pytest.mark.unit
     def test_known_external_plugins_includes_superpowers(self) -> None:
         """Scenario: superpowers is recognised as an external ecosystem plugin."""
         assert "superpowers" in KNOWN_EXTERNAL_PLUGINS
