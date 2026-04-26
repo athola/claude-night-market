@@ -115,8 +115,11 @@ class MakefileReviewSkill(BaseReviewSkill):
         targets = self._extract_targets(content)
         phony_targets = self._extract_phony_targets(content)
 
-        # Common non-file targets that should be .PHONY
-        common_phony = ["all", "build", "test", "clean", "install", "help", "docs"]
+        # Common non-file targets that should be .PHONY. Frozenset
+        # so the per-target membership test inside the loop is O(1).
+        common_phony = frozenset(
+            {"all", "build", "test", "clean", "install", "help", "docs"}
+        )
 
         missing_phony = []
         for target in targets:
@@ -843,11 +846,13 @@ class MakefileReviewSkill(BaseReviewSkill):
         # Track variables and their values across files
         all_variables: dict[str, str] = {}
 
+        # Hoisted: pattern is static, doesn't need per-makefile recompilation.
+        var_pattern = re.compile(r"^([A-Z_]+)\s*=\s*(.+)$", re.MULTILINE)
+
         for makefile in makefiles:
             content = context.get_file_content(makefile)
 
             # Extract variable definitions
-            var_pattern = re.compile(r"^([A-Z_]+)\s*=\s*(.+)$", re.MULTILINE)
             for match in var_pattern.finditer(content):
                 var_name = match.group(1)
                 var_value = match.group(2).strip()

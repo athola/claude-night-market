@@ -108,10 +108,11 @@ class RepositoryAnalyzer:
                 if (repo_path / config_file).exists():
                     languages[lang] = languages.get(lang, 0)
 
-        # Count files by extension
+        # Count files by extension. Use sum(1 for _ in ...) to avoid
+        # materializing the rglob iterator into an intermediate list.
         for lang, extensions in self.LANGUAGE_EXTENSIONS.items():
             for ext in extensions:
-                count = len(list(repo_path.rglob(f"*{ext}")))
+                count = sum(1 for _ in repo_path.rglob(f"*{ext}"))
                 if count > 0:
                     languages[lang] = languages.get(lang, 0) + count
 
@@ -163,7 +164,9 @@ class RepositoryAnalyzer:
         count = 0
         for extensions in self.LANGUAGE_EXTENSIONS.values():
             for ext in extensions:
-                count += len(list(repo_path.rglob(f"*{ext}")))
+                # sum(1 for _ in ...) avoids materializing the rglob
+                # iterator into a temporary list just to take its length.
+                count += sum(1 for _ in repo_path.rglob(f"*{ext}"))
         return count
 
     def get_files(self, pattern: str = "*") -> list[Path]:

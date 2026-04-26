@@ -51,6 +51,10 @@ class UnifiedReviewSkill(BaseReviewSkill):
             Dictionary mapping language names to detection metadata
         """
         files = context.get_files()
+        # Set lookup for O(1) membership tests inside the per-language loop.
+        # Build once outside the loop so a large repo doesn't pay O(n)
+        # per config-file probe.
+        files_set = set(files)
         languages: dict[str, Any] = {}
 
         # Build counts using RepositoryAnalyzer mappings
@@ -63,7 +67,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
             # Check config files
             config_files = RepositoryAnalyzer.LANGUAGE_CONFIG_FILES.get(lang, [])
             for config_file in config_files:
-                if config_file in files:
+                if config_file in files_set:
                     if config_file == "Cargo.toml":
                         lang_info["cargo_toml"] = True
                     if not any(config_file.endswith(ext) for ext in extensions):
