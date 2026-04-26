@@ -100,6 +100,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
+| `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
@@ -263,6 +264,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |
 | `/merge-docs` | sanctum | Consolidate ephemeral docs |
+| `/performance-review` | pensive | Time and space complexity hotspot review |
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
 | `/oracle-setup` | oracle | Install and configure the oracle ONNX inference daemon |

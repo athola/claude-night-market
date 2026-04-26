@@ -204,6 +204,10 @@ module = ["leyline.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = ["gauntlet.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = [
     "pensive.skills.rust_review.cargo",
     "pensive.skills.rust_review.builtins",
