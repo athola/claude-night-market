@@ -8,9 +8,6 @@ import random
 import uuid
 from collections.abc import Callable
 
-import anthropic
-from anthropic.types import TextBlock
-
 from gauntlet.models import (
     BankProblem,
     Challenge,
@@ -249,6 +246,14 @@ def _generate_problem_variation(problem: BankProblem) -> BankProblem:
     on any error (network error, API error, validation failure).
     """
     try:
+        # Imported lazily so that callers (e.g. the precommit hook) can
+        # import this module from a Python interpreter that does not have
+        # `anthropic` installed without crashing at import time. Missing-dep
+        # ImportError flows through the broad except below and degrades
+        # gracefully to the original YAML problem.
+        import anthropic  # noqa: PLC0415 - lazy import
+        from anthropic.types import TextBlock  # noqa: PLC0415 - lazy import
+
         client = anthropic.Anthropic()
         message = client.messages.create(
             model=_VARIATION_MODEL,

@@ -21,9 +21,12 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
-from gauntlet.challenges import generate_challenge, select_challenge_type
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
+
+# gauntlet.challenges pulls in `anthropic` for variation generation. Defer it
+# until a challenge is actually needed so this hook stays a clean no-op for
+# every non-`git commit` Bash invocation (and survives missing optional deps).
 
 # Graph-aware analysis (optional -- degrade gracefully)
 try:
@@ -102,8 +105,14 @@ def generate_challenge_for_files(
 ) -> Any | None:
     """Generate a challenge for *files* using the developer's progress.
 
-    Returns a Challenge object, or None if no knowledge entries match.
+    Returns a Challenge object, or None if no knowledge entries match
+    (or if optional dependencies for challenge generation are missing).
     """
+    try:
+        from gauntlet.challenges import generate_challenge, select_challenge_type
+    except ImportError:
+        return None
+
     store = KnowledgeStore(gauntlet_dir)
     entries = store.query(files=files)
     if not entries:

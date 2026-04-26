@@ -102,7 +102,7 @@ class TestGenerateProblemVariation:
 
         mock_response = _make_anthropic_response(varied_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -122,7 +122,7 @@ class TestGenerateProblemVariation:
 
         mock_response = _make_anthropic_response(varied_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -135,7 +135,7 @@ class TestGenerateProblemVariation:
     def test_falls_back_on_api_exception(self):
         problem = _make_problem()
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.side_effect = RuntimeError("network error")
@@ -147,7 +147,7 @@ class TestGenerateProblemVariation:
     def test_falls_back_on_anthropic_api_error(self):
         problem = _make_problem()
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.side_effect = Exception("APIStatusError")
@@ -163,7 +163,7 @@ class TestGenerateProblemVariation:
         response = MagicMock()
         response.content = [non_text_block]
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = response
@@ -179,7 +179,7 @@ class TestGenerateProblemVariation:
 
         mock_response = _make_anthropic_response(invalid_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -194,7 +194,7 @@ class TestGenerateProblemVariation:
 
         mock_response = _make_anthropic_response(varied_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -209,7 +209,7 @@ class TestGenerateProblemVariation:
 
         mock_response = _make_anthropic_response(varied_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -234,7 +234,7 @@ class TestGenerateBankChallenge:
 
         mock_response = _make_anthropic_response(varied_text)
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.return_value = mock_response
@@ -246,7 +246,7 @@ class TestGenerateBankChallenge:
     def test_returns_challenge_with_original_prompt_on_failure(self):
         problem = _make_problem()
 
-        with patch("gauntlet.challenges.anthropic.Anthropic") as mock_cls:
+        with patch("anthropic.Anthropic") as mock_cls:
             mock_client = MagicMock()
             mock_cls.return_value = mock_client
             mock_client.messages.create.side_effect = Exception("timeout")
