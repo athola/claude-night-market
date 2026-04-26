@@ -12,10 +12,7 @@ tags:
 - tdd
 - test-automation
 - quality-assurance
-tools:
-- test-analyzer
-- coverage-reporter
-- test-runner
+tools: []
 usage_patterns:
 - testing-implementation
 - test-suite-setup

@@ -20,15 +20,7 @@ dependencies:
   - sanctum:pr-review
   - sanctum:commit-messages
   - conserve:clear-context
-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
-  - Task
-  - Skill
+tools: []
 progressive_loading: true
 modules:
   - modules/pipeline.md
@@ -37,6 +29,7 @@ modules:
   - modules/decisions.md
   - modules/model-routing.md
 model_hint: standard
+role: entrypoint
 ---
 ## Table of Contents
 

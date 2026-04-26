@@ -12,12 +12,7 @@ tags:
 - gif
 - terminal
 - replay
-tools:
-- Read
-- Write
-- Bash
-- Glob
-- Skill
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1500

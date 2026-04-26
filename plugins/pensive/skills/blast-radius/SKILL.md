@@ -9,10 +9,7 @@ tags:
 - code-review
 - impact-analysis
 - risk-scoring
-tools:
-- Bash
-- Read
-- Grep
+tools: []
 ---
 
 # Blast Radius Analysis

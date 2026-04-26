@@ -1,6 +1,6 @@
 ---
 name: code-refinement
-description: 'Improve code quality: duplication, efficiency, clean code, architectural fit, and error handling'
+description: 'Improve code quality across duplication, efficiency, and architectural fit. Use when refactoring or hardening recently-written code.'
 version: 1.9.0
 alwaysApply: false
 category: code-quality
@@ -11,11 +11,7 @@ tags:
 - duplication
 - anti-slop
 - craft
-tools:
-- Read
-- Grep
-- Glob
-- Bash
+tools: []
 usage_patterns:
 - code-quality-improvement
 - duplication-reduction

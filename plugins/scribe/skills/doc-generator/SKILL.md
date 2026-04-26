@@ -14,11 +14,7 @@ tags:
 - generation
 - remediation
 - polish
-tools:
-- Read
-- Write
-- Edit
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1600

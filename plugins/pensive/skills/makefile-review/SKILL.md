@@ -1,6 +1,6 @@
 ---
 name: makefile-review
-description: 'Audit Makefiles for build correctness, portability, and recipe duplication'
+description: 'Audit Makefiles for build correctness and recipe duplication. Use when reviewing build pipelines or generated targets.'
 version: 1.9.0
 globs: "**/Makefile"
 alwaysApply: false
@@ -11,10 +11,7 @@ tags:
 - make
 - portability
 - automation
-tools:
-- dependency-mapper
-- dedup-finder
-- portability-checker
+tools: []
 usage_patterns:
 - makefile-audit
 - build-optimization

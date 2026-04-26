@@ -15,8 +15,7 @@ tags:
 - cost-tracking
 - thresholds
 dependencies: []
-tools:
-- quota-tracker
+tools: []
 provides:
   infrastructure:
   - quota-tracking

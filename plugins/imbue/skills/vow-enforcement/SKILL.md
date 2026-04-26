@@ -1,10 +1,6 @@
 ---
 name: vow-enforcement
-description: >-
-  Three-layer constraint enforcement: soft vows (skill
-  instructions), hard vows (hooks/settings), and Nen Court
-  (external validator agents). Classifies constraints by
-  reliability and graduates them when violation rates climb.
+description: 'Three-layer constraint enforcement (soft vows / hard vows / Nen Court). Use when classifying or graduating constraints by reliability.'
 version: 1.9.0
 alwaysApply: false
 category: workflow-methodology
@@ -18,10 +14,7 @@ dependencies:
 - imbue:proof-of-work
 - imbue:scope-guard
 - imbue:justify
-tools:
-- Bash
-- Read
-- Grep
+tools: []
 usage_patterns:
 - constraint-classification
 - vow-graduation
@@ -30,6 +23,7 @@ usage_patterns:
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 2800
+role: hook-target
 ---
 
 > Rules that depend on willpower fail under pressure.
@@ -267,3 +261,14 @@ the user provides an explicit override.
   working
 - Exploratory work where constraints would slow
   learning
+
+## Related Skills
+
+- `imbue:karpathy-principles` - the discursive layer
+  this skill governs (vow-enforcement decides which
+  principles graduate from skills to hooks)
+- `imbue:scope-guard`, `imbue:proof-of-work`,
+  `leyline:additive-bias-defense` - example soft vows
+  that vow-enforcement classifies and may promote
+- See `docs/quality-gates.md#skill-level-quality-gate-composition`
+  for the federation this skill governs

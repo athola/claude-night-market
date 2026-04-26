@@ -662,6 +662,8 @@ class TestGenerateBankChallenge:
         When generate_bank_challenge is called
         Then a Challenge object is returned with the correct prompt
         """
+        from unittest.mock import patch
+
         from gauntlet.challenges import generate_bank_challenge
 
         problem = BankProblem(
@@ -673,7 +675,12 @@ class TestGenerateBankChallenge:
             hints=["Use a stack."],
             solution_outline="Push opens, pop on close, check match.",
         )
-        challenge = generate_bank_challenge(problem)
+
+        with patch(
+            "gauntlet.challenges._generate_problem_variation",
+            return_value=problem,
+        ):
+            challenge = generate_bank_challenge(problem)
 
         assert challenge.prompt == problem.prompt
         assert challenge.id.startswith("bank-")

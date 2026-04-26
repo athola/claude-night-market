@@ -1,6 +1,6 @@
 ---
 name: stewardship
-description: 'Stewardship virtues (Care, Curiosity, Humility, Diligence) for plugins.'
+description: 'Stewardship virtues (Care, Curiosity, Humility, Diligence). Use when authoring or auditing a plugin for healthy maintenance posture.'
 version: 1.9.0
 alwaysApply: true
 category: cross-plugin-patterns

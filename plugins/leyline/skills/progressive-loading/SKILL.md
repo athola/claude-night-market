@@ -16,10 +16,7 @@ tags:
 - lazy-loading
 dependencies:
 - leyline:mecw-patterns
-tools:
-- mecw-monitor
-- context-tracker
-- module-selector
+tools: []
 provides:
   infrastructure:
   - progressive-loading

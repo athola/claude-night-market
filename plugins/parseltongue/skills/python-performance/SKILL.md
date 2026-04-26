@@ -12,10 +12,7 @@ tags:
 - optimization
 - cProfile
 - memory
-tools:
-- profiler-runner
-- memory-analyzer
-- benchmark-suite
+tools: []
 usage_patterns:
 - performance-analysis
 - bottleneck-identification

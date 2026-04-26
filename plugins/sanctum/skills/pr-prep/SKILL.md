@@ -10,10 +10,7 @@ tags:
 - pull-request
 - quality-gates
 - testing
-tools:
-- Bash
-- Write
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1000

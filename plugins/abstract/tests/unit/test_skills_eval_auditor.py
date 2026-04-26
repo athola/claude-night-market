@@ -468,6 +468,32 @@ class TestGenerateIssues:
         assert any("category" in i or "tags" in i for i in issues)
 
     @pytest.mark.unit
+    def test_compact_convention_not_flagged_for_overview(self, tmp_path: Path) -> None:
+        """Scenario: A skill using the compact paragraph-after-H1 convention
+        (no '## Overview' heading, but content present) should not be flagged
+        with a 'Missing required section: Overview' issue.
+
+        Background: 7 cartograph and 14 archetypes skills follow this style
+        intentionally; the previous schema treated this as a bug.
+        """
+        auditor = SkillsAuditor(tmp_path)
+        compact_content = (
+            "---\nname: x\ndescription: d\n---\n\n"
+            "# X\n\n"
+            "A short intro paragraph that describes what the skill does.\n\n"
+            "## When To Use\n\n- Foo\n- Bar\n\n"
+            "## Workflow\n\n"
+            "1. Step one\n2. Step two\n3. Step three\n\n"
+            "```bash\necho hello\n```\n"
+        )
+        issues = auditor._generate_issues(
+            {"name": "x", "description": "d"}, compact_content, 100
+        )
+        assert not any("required section: Overview" in i for i in issues), (
+            f"Compact convention skills should not be flagged: {issues}"
+        )
+
+    @pytest.mark.unit
     def test_high_token_count_reported(self, tmp_path: Path) -> None:
         """Scenario: Token count above acceptable limit triggers issue."""
         auditor = SkillsAuditor(tmp_path)
@@ -490,15 +516,24 @@ class TestGenerateIssues:
         assert any("code" in i.lower() for i in issues)
 
     @pytest.mark.unit
-    def test_missing_required_section_reported(self, tmp_path: Path) -> None:
-        """Scenario: Missing required section appears in issues."""
+    def test_explicitly_configured_required_section_reported(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: When required_sections is explicitly populated (e.g. via
+        config), missing sections still appear as issues.
+
+        Background: 2026-04-25 schema change moved Overview/Quick Start to
+        recommended; this test guards the still-functional required-section
+        path for opt-in stricter scoring.
+        """
         auditor = SkillsAuditor(tmp_path)
+        auditor.audit_metrics["required_sections"] = ["Custom"]
         issues = auditor._generate_issues(
             {"name": "x", "description": "d"},
             "---\nname: x\ndescription: d\n---\ncontent",
             100,
         )
-        assert any("Overview" in i or "Quick Start" in i for i in issues)
+        assert any("Custom" in i for i in issues)
 
 
 # ---------------------------------------------------------------------------

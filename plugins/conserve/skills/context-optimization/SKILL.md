@@ -36,6 +36,7 @@ hooks:
 
       '
 model_hint: standard
+role: hook-target
 ---
 ## Table of Contents
 

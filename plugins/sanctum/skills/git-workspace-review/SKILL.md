@@ -1,6 +1,6 @@
 ---
 name: git-workspace-review
-description: 'Verify workspace state, staged changes, and preflight checks before commits or PRs'
+description: 'Verify workspace state and staged changes. Use before commits, PRs, or reviews. Read-only preflight that downstream workflows depend on.'
 version: 1.9.0
 alwaysApply: false
 category: workspace-ops
@@ -10,9 +10,7 @@ tags:
 - status
 - diff
 - staged
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 500
@@ -33,6 +31,7 @@ hooks:
       ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 
       '
+role: library
 ---
 # Git Workspace Review
 

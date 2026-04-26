@@ -1,11 +1,6 @@
 ---
 name: dig
-description: >-
-  Interactively refine research results by searching deeper
-  into a subtopic or specific channel. Loads the active
-  session and merges new findings into it. Use after a
-  /tome:research session completes to explore areas of
-  interest.
+description: 'Interactively refine research results by searching deeper into a subtopic or channel. Use after /tome:research to explore areas of interest.'
 version: 1.9.0
 alwaysApply: false
 category: research

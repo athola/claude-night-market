@@ -15,12 +15,7 @@ tags:
 dependencies:
 - modular-skills
 - performance-optimization
-tools:
-- skills-auditor
-- improvement-suggester
-- compliance-checker
-- tool-performance-analyzer
-- token-usage-tracker
+tools: []
 provides:
   infrastructure:
   - evaluation-framework
@@ -70,6 +65,7 @@ modules:
 - modules/pressure-testing.md
 - modules/trigger-isolation-analysis.md
 - modules/troubleshooting.md
+role: entrypoint
 ---
 # Skills Evaluation and Improvement
 

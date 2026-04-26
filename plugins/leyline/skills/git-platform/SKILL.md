@@ -33,6 +33,7 @@ estimated_tokens: 400
 progressive_loading: true
 modules:
 - modules/command-mapping.md
+role: library
 ---
 ## Table of Contents
 

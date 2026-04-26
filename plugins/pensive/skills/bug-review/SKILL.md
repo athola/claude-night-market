@@ -1,6 +1,6 @@
 ---
 name: bug-review
-description: 'Bug hunting with evidence trails: find defects, document them, and verify fixes'
+description: 'Bug hunting with evidence trails. Use when investigating reported defects or verifying that a fix resolves the root cause.'
 version: 1.9.0
 alwaysApply: false
 category: code-review
@@ -11,10 +11,7 @@ tags:
 - code-quality
 - fixes
 - verification
-tools:
-- defect-tracker
-- fix-generator
-- verification-runner
+tools: []
 usage_patterns:
 - bug-hunting
 - defect-documentation

@@ -13,9 +13,7 @@ tags:
 - pip
 - pypi
 - distribution
-tools:
-- package-analyzer
-- build-runner
+tools: []
 usage_patterns:
 - package-creation
 - pypi-publishing

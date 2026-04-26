@@ -1,6 +1,6 @@
 ---
 name: test-updates
-description: 'Update, generate, and validate tests using git-workspace-review for change context'
+description: 'Update, generate, and validate tests using git-workspace context. Use when modifying code that needs new or refreshed test coverage.'
 version: 1.9.0
 alwaysApply: false
 category: testing-automation
@@ -15,10 +15,7 @@ dependencies:
 - test-driven-development
 - git-workspace-review
 - file-analysis
-tools:
-- test_analyzer
-- test_generator
-- quality_checker
+tools: []
 usage_patterns:
 - test-maintenance
 - test-generation

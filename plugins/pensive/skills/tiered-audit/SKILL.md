@@ -10,11 +10,7 @@ tags:
   - code-quality
   - review
   - escalation
-tools:
-  - Bash
-  - Read
-  - Grep
-  - Glob
+tools: []
 usage_patterns:
   - codebase-audit
   - git-history-review

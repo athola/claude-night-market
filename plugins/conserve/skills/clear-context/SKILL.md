@@ -13,6 +13,7 @@ hooks:
 
       '
 model_hint: standard
+role: library
 ---
 ## Table of Contents
 

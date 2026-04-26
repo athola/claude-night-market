@@ -187,12 +187,11 @@ class TestPluginReviewSkillStructure:
 
         Given the plugin-review SKILL.md
         When checking the tools list
-        Then it should list validate_plugin.py and others
+        Then it should list the real Python scripts in plugins/abstract/scripts/
         """
         assert "tools:" in skill_content
         assert "- validate_plugin.py" in skill_content
         assert "- skill_analyzer.py" in skill_content
-        assert "- generate_dependency_map.py" in skill_content
 
 
 class TestPluginReviewModules:

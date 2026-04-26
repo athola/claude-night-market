@@ -9,6 +9,8 @@ for failed validations.
 
 from __future__ import annotations
 
+import argparse
+import json
 import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -39,7 +41,7 @@ class OutputContract:
         """Create a contract from a dictionary."""
         return cls(
             required_sections=data["required_sections"],
-            min_evidence_count=data["min_evidence_count"],
+            min_evidence_count=data.get("min_evidence_count", 0),
             expected_artifacts=data.get("expected_artifacts", []),
             retry_budget=data.get("retry_budget", 2),
             strictness=data.get("strictness", "normal"),
@@ -100,6 +102,7 @@ class ContractValidationResult:
                 parts.append(f"- {artifact}")
             parts.append("")
 
+        parts.append("Retry the dispatch after addressing all issues above.")
         return "\n".join(parts)
 
 
@@ -239,3 +242,96 @@ def validate_findings(
         warnings=warnings,
         contract=contract,
     )
+
+
+def _load_contract(contract_path: Path) -> OutputContract:
+    """Load a contract from a JSON file.
+
+    YAML support is deferred to a follow-up; convert with
+    ``yq -o=json contract.yaml > contract.json`` if needed.
+    """
+    if contract_path.suffix in {".yaml", ".yml"}:
+        raise SystemExit(
+            "YAML contracts not yet supported by the CLI; "
+            "convert to JSON via 'yq -o=json' first."
+        )
+    data = json.loads(contract_path.read_text())
+    # Allow contracts wrapped under output_contract: key
+    if isinstance(data, dict) and "output_contract" in data:
+        data = data["output_contract"]
+    return OutputContract.from_dict(data)
+
+
+def _format_text(result: ContractValidationResult) -> str:
+    """Render a result as a human-readable verdict block."""
+    verdict = "PASS" if result.passed else "FAIL"
+    lines = [f"Contract validation: {verdict}"]
+    lines.append(f"  Evidence count: {result.evidence_count}")
+    if result.missing_sections:
+        lines.append("  Missing sections:")
+        for s in result.missing_sections:
+            lines.append(f"    - {s}")
+    if result.missing_artifacts:
+        lines.append("  Missing artifacts:")
+        for a in result.missing_artifacts:
+            lines.append(f"    - {a}")
+    if result.warnings:
+        lines.append("  Warnings:")
+        for w in result.warnings:
+            lines.append(f"    - {w}")
+    if not result.passed:
+        lines.append("")
+        lines.append(result.retry_feedback())
+    return "\n".join(lines)
+
+
+def main() -> int:
+    """CLI entry point: validate a findings file against a contract."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--findings", type=Path, required=True, help="Path to agent findings .md file"
+    )
+    parser.add_argument(
+        "--contract",
+        type=Path,
+        required=True,
+        help="Path to contract JSON or YAML file",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format (default: text)",
+    )
+    args = parser.parse_args()
+
+    if not args.findings.exists():
+        print(f"ERROR: findings file not found: {args.findings}")
+        return 2
+    if not args.contract.exists():
+        print(f"ERROR: contract file not found: {args.contract}")
+        return 2
+
+    contract = _load_contract(args.contract)
+    findings_text = args.findings.read_text()
+    result = validate_findings(findings_text, contract)
+
+    if args.format == "json":
+        # Convert dataclass to plain dict; contract field needs special handling.
+        payload = {
+            "passed": result.passed,
+            "evidence_count": result.evidence_count,
+            "missing_sections": result.missing_sections,
+            "missing_artifacts": result.missing_artifacts,
+            "warnings": result.warnings,
+            "contract": result.contract.to_dict() if result.contract else None,
+        }
+        print(json.dumps(payload, indent=2))
+    else:
+        print(_format_text(result))
+
+    return 0 if result.passed else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

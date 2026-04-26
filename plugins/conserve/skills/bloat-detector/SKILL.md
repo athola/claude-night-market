@@ -10,11 +10,7 @@ tags:
 - static-analysis
 - technical-debt
 - optimization
-tools:
-- Bash
-- Grep
-- Glob
-- Read
+tools: []
 modules:
 - quick-scan
 - git-history-analysis

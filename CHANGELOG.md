@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.3] - 2026-04-25
+
+### Added
+
+- **inclusive-defaults policy**: `docs/inclusive-defaults.md`
+  codifies the project rule that features default ON and
+  expose `--no-X` opt-out, with nine TRUE-exception
+  categories (heavy install, irreversible state, no-default
+  value, OS-level state, user-project overrides, per-rule
+  consent, full-codebase scans, block-mode enforcement,
+  prescriptive modes). Tracks the audit at #445.
+- **hookify safe-defaults bundle**: new `--bundle <name>`
+  install mode with built-in `safe-defaults` bundle
+  shipping six warn-only rules (slop scan, large commits,
+  risky git, large file ops, print statements, plan-before-
+  large-dispatch). Tests guard the bundle composition so
+  any future block-action rule added to safe-defaults will
+  fail CI. Run with
+  `python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
+
+### Changed
+
+- **spec-kit speckit-tasks now generates test tasks by
+  default**. Pre-1.9.3 wording said "Tests are OPTIONAL:
+  only generate test tasks if explicitly requested" —
+  defaulting away from the project's iron-law TDD posture.
+  New default is ON; opt-out via `--no-tdd` or explicit
+  spec opt-out for spikes/throwaways.
+- **sanctum update-docs slop-scan default-ON wording**:
+  the scan was already non-blocking by default; the new
+  wording says "default ON" not "non-blocking", since the
+  latter implied opt-in.
+- **per-plugin TRUE-exception callouts**: hookify, oracle,
+  egregore, conjure, phantom, imbue, leyline, and pensive
+  READMEs (or relevant skill modules) now reference
+  `docs/inclusive-defaults.md` and explain why each
+  feature stays opt-in.
+
 ## [1.9.2] - 2026-04-23
 
 ### Added

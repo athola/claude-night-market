@@ -14,6 +14,7 @@ estimated_tokens: 2100
 progressive_loading: true
 references:
 - references/mission-report.md
+role: library
 ---
 ## When To Use
 

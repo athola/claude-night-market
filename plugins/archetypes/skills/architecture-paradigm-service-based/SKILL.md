@@ -11,10 +11,7 @@ tags:
 - modular
 - shared-database
 dependencies: []
-tools:
-- api-gateway
-- service-registry
-- schema-management
+tools: []
 usage_patterns:
 - paradigm-implementation
 - monolith-refactoring

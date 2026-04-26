@@ -1,6 +1,6 @@
 ---
 name: architecture-review
-description: 'Assess architecture decisions, ADR compliance, coupling analysis, and design principles'
+description: 'Assess architecture decisions, ADR compliance, and coupling. Use when reviewing system design or evaluating major refactors.'
 version: 1.9.0
 alwaysApply: false
 category: architecture
@@ -11,10 +11,7 @@ tags:
 - coupling
 - patterns
 - principles
-tools:
-- adr-auditor
-- coupling-analyzer
-- principle-checker
+tools: []
 usage_patterns:
 - architecture-assessment
 - adr-audit

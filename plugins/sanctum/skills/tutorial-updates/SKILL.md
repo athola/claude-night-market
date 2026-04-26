@@ -11,13 +11,7 @@ tags:
 - playwright
 - documentation
 - demo
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
-- Glob
+tools: []
 complexity: high
 model_hint: deep
 estimated_tokens: 1100

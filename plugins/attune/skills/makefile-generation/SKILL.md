@@ -159,4 +159,4 @@ deploy: build ## Deploy to production
 ## Related Skills
 
 - `Skill(attune:project-init)` - Full project initialization
-- `Skill(abstract:makefile-dogfooder)` - Makefile testing and validation
+- `/abstract:make-dogfood` command - Makefile testing and validation

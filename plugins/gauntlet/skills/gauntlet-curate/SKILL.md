@@ -1,10 +1,6 @@
 ---
 name: gauntlet-curate
-description: >
-  Research and refresh the problem bank during /update-plugins.
-  Surveys data/problems/*.yaml for coverage by category, identifies
-  gaps against the NeetCode manifest counts, and produces a human-review
-  report with YAML-schema-valid proposals. Never overwrites curated files.
+description: 'Research and refresh the problem bank during /update-plugins. Use when surveying data/problems/*.yaml for category coverage gaps.'
 version: 1.9.2
 model_hint: standard
 ---
@@ -16,8 +12,12 @@ new YAML entries for human review.
 
 ## When This Skill Fires
 
-This skill is invoked during `/update-plugins` to keep the problem
-bank current. It is also available directly as `/gauntlet-curate`.
+Invoke this skill manually with `Skill(gauntlet:gauntlet-curate)`
+when the problem bank needs a coverage review. The skill is intended
+to participate in `/update-plugins` runs but is not yet wired into
+that command (see openpackage.yml registration). It is distinct from
+`gauntlet:curate`, which handles per-annotation knowledge capture
+and is what `/gauntlet-curate` invokes today.
 
 ## Steps
 

@@ -11,10 +11,7 @@ tags:
 - infrastructure-independence
 - testability
 dependencies: []
-tools:
-- boundary-validator
-- adapter-generator
-- contract-tester
+tools: []
 usage_patterns:
 - paradigm-implementation
 - refactoring-guidance

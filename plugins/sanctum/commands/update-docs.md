@@ -286,7 +286,7 @@ Phase 4.25 scans for AI-generated content markers:
 **Recommendation**: Run `Agent(scribe:doc-editor)` for interactive cleanup
 ```
 
-Use `--skip-slop` to bypass this phase. Slop warnings are non-blocking by default.
+**Default ON** (per `docs/inclusive-defaults.md`): Phase 4.25 runs the slop scan automatically. Findings are non-blocking — they surface as warnings, not commit-blockers. Use `--skip-slop` to bypass the phase entirely (e.g. for trivial doc edits where the scan would just add noise).
 
 ## README Update Mode
 

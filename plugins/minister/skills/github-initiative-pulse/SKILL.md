@@ -11,8 +11,7 @@ tags:
 - status
 - dashboards
 dependencies: []
-tools:
-- minister-tracker
+tools: []
 provides:
   reporting:
   - status-digest

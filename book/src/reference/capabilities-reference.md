@@ -91,6 +91,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
+| `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
@@ -149,6 +150,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
+| `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
 | `smart-sourcing` | [conserve](../plugins/conserve.md) | Balance accuracy with token efficiency |
@@ -256,6 +258,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/improve-skills` | abstract | Auto-improve skills from observability data |
 | `/install-watchdog` | egregore | Install crash-recovery watchdog |
 | `/justify` | imbue | Audit changes for additive bias |
+| `/karpathy-check` | imbue | Pre-flight gate for the four Karpathy principles |
 | `/make-dogfood` | abstract | Makefile enhancement |
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |

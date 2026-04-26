@@ -12,10 +12,7 @@ tags:
 - streaming
 - data-processing
 dependencies: []
-tools:
-- stream-processor
-- message-queue
-- data-validator
+tools: []
 usage_patterns:
 - paradigm-implementation
 - data-transformation

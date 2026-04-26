@@ -11,8 +11,7 @@ tags:
 - quality
 - governance
 dependencies: []
-tools:
-- minister-tracker
+tools: []
 provides:
   governance:
   - release-gates

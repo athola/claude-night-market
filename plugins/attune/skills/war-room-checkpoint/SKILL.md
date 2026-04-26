@@ -13,6 +13,7 @@ complexity: lightweight
 model_hint: fast
 estimated_tokens: 400
 progressive_loading: false
+role: library
 ---
 # War Room Checkpoint Skill
 

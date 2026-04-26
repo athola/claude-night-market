@@ -13,8 +13,7 @@ tags:
 dependencies:
 - quota-management
 - usage-logging
-tools:
-- service-executor
+tools: []
 provides:
   infrastructure:
   - service-registry

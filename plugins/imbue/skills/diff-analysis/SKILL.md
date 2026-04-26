@@ -12,9 +12,7 @@ tags:
 - summaries
 dependencies:
 - imbue:proof-of-work
-tools:
-- git
-- diff-tools
+tools: []
 usage_patterns:
 - change-analysis
 - risk-assessment

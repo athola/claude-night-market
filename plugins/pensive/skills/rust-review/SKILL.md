@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: 'Rust code audit: unsafe blocks, ownership patterns, and Cargo dependency security scanning'
+description: 'Rust audit for unsafe blocks, ownership, and Cargo deps. Use when reviewing Rust code for safety or supply-chain risk.'
 version: 1.9.0
 globs: "**/*.rs"
 alwaysApply: false
@@ -12,10 +12,7 @@ tags:
 - unsafe
 - traits
 - cargo
-tools:
-- borrow-checker-analyzer
-- unsafe-auditor
-- dependency-scanner
+tools: []
 usage_patterns:
 - rust-audit
 - unsafe-review

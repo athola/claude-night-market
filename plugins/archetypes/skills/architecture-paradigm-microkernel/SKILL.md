@@ -11,10 +11,7 @@ tags:
 - extensibility
 - platform-design
 dependencies: []
-tools:
-- plugin-loader
-- sandbox-executor
-- sdk-generator
+tools: []
 usage_patterns:
 - paradigm-implementation
 - platform-development

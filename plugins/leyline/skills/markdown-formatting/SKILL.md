@@ -1,10 +1,6 @@
 ---
 name: markdown-formatting
-description: >-
-  Canonical markdown formatting conventions for diff-friendly
-  documentation. Consult this skill when generating, editing,
-  or reviewing markdown prose. Defines hybrid line wrapping,
-  heading style, list spacing, and link conventions.
+description: 'Markdown formatting conventions for diff-friendly docs. Use when generating, editing, or reviewing markdown prose.'
 version: 1.9.0
 globs: "**/*.md"
 alwaysApply: false

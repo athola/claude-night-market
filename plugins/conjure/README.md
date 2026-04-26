@@ -36,6 +36,17 @@ For accurate token counts, install tiktoken:
 pip install tiktoken
 ```
 
+### Why delegation stays opt-in
+
+Per [docs/inclusive-defaults.md][inc] (TRUE-exception
+category 3), conjure delegation requires external CLIs
+(`gemini`, `qwen`) that must be separately installed and
+authenticated against third-party LLM providers. There is
+no reasonable default — flipping is impossible, not just
+unwise.
+
+[inc]: ../../docs/inclusive-defaults.md
+
 ## Usage
 
 ### Quick Start

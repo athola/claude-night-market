@@ -1,10 +1,6 @@
 ---
 name: papers
-description: >-
-  Search academic literature via arXiv, Semantic Scholar,
-  and open-access discovery chains. Fetches and parses
-  PDFs for key findings. Use when the user needs academic
-  papers, citations, or formal research on a topic.
+description: 'Search academic literature via arXiv, Semantic Scholar, and open-access PDFs. Use when the user needs papers, citations, or formal research.'
 version: 1.9.0
 alwaysApply: false
 category: research

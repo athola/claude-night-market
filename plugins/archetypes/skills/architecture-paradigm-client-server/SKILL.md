@@ -10,9 +10,7 @@ tags:
 - peer-to-peer
 - distributed-systems
 dependencies: []
-tools:
-- api-contract-generator
-- networking-debugger
+tools: []
 usage_patterns:
 - paradigm-implementation
 - distributed-system-design

@@ -17,7 +17,7 @@ dependencies:
 - delegation-core
 tools:
 - qwen-cli
-- delegation-executor
+- delegation_executor.py
 usage_patterns:
 - qwen-cli-integration
 - large-context-analysis
