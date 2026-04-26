@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **gauntlet ImportError observability**: opt-in stderr
+  diagnostic in `precommit_gate.generate_challenge_for_files`
+  gated on `GAUNTLET_DEBUG=1`. The function still returns
+  `None` silently by default (unchanged graceful-degradation
+  contract), but a developer hitting an unexpected import
+  failure can now see the cause without instrumenting the
+  hook. Two new tests in `test_precommit.py` guard both
+  paths (silent without env, diagnostic with env).
+- **release-consistency tests** (`plugins/sanctum/tests/test_release_consistency.py`):
+  filesystem-walking parity tests that catch real
+  ecosystem drift instead of asserting hardcoded fixtures.
+  Four invariants: all `plugin.json` versions agree;
+  each `pyproject.toml` matches its sibling `plugin.json`;
+  every Makefile `find commands/ ... *.md` invocation
+  uses `-maxdepth 1`; top-level `commands/*.md` count
+  equals `plugin.json.commands.length` for every plugin.
+  RED-proof: reverting `-maxdepth 1` in any Makefile
+  fails the static check immediately.
+
+### Notes
+
+- **Correction to 1.9.3 commit `22423bca` message**: the
+  commit body says the new ImportError test "guards the
+  precommit hook surface when `anthropic` is unavailable
+  in the system python3". The test actually patches
+  `gauntlet.challenges` (not `anthropic`); a missing
+  `anthropic` would surface inside
+  `gauntlet.challenges._generate_problem_variation` and is
+  caught by a different `except Exception` listed under
+  the 1.9.3 `Fixed` section. The test file's own docstring
+  is correct; only the commit message overstates the
+  trigger.
+
 ## [1.9.3] - 2026-04-26
 
 ### Added
@@ -63,11 +98,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **spec-kit speckit-tasks now generates test tasks by
-  default**. Pre-1.9.3 wording said "Tests are OPTIONAL:
-  only generate test tasks if explicitly requested" —
-  defaulting away from the project's iron-law TDD posture.
-  New default is ON; opt-out via `--no-tdd` or explicit
-  spec opt-out for spikes/throwaways.
+  default**. Previously the wording said "Tests are
+  OPTIONAL: only generate test tasks if explicitly
+  requested" — defaulting away from the project's
+  iron-law TDD posture. New default is ON; opt-out via
+  `--no-tdd` or explicit spec opt-out for
+  spikes/throwaways.
 - **sanctum update-docs slop-scan default-ON wording**:
   the scan was already non-blocking by default; the new
   wording says "default ON" not "non-blocking", since the
@@ -112,14 +148,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   used `len(list(repo_path.rglob(...)))` in two places. Replaced
   with `sum(1 for _ in repo_path.rglob(...))` so the iterator
   is consumed without an intermediate list allocation.
-- **README + pensive book doc accuracy refresh**: corrected
-  stale skill/command counts and per-plugin catalog rows
-  (`abstract` 13→14, `sanctum` 14→18, `imbue` 12→13/4→5,
-  `pensive` 13→14/12→13, `gauntlet` 6→7). Headline command
-  count fixed from `155` to `128` after discovering the
-  underlying counting bug below. Added missing
-  `performance-review`, `blast-radius`, `/performance-review`,
-  and `/refine-code` rows to `book/src/plugins/pensive.md`.
 
 ### Fixed
 
@@ -166,6 +194,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   count matches `plugin.json.commands.length` exactly.
   Verified: top-level `commands/*.md` count equals
   registered command count for all 23 plugins.
+- **README and pensive book doc stale counts** (consequence
+  of the command-counting bug above): corrected stale
+  skill/command counts and per-plugin catalog rows
+  (`abstract` 13→14, `sanctum` 14→18, `imbue` 12→13/4→5,
+  `pensive` 13→14/12→13, `gauntlet` 6→7). Headline command
+  count fixed from `155` to `128`. Added missing
+  `performance-review`, `blast-radius`, `/performance-review`,
+  and `/refine-code` rows to `book/src/plugins/pensive.md`.
 - **`update_versions.py` CACHE_EXCLUDES missing
   project-local tool/cache dirs**: the script's exclusion
   list omitted `.typecheck-venv`, `.uv-tools`, `.xdg-cache`,

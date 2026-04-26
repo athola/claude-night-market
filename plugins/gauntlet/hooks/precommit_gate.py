@@ -110,7 +110,17 @@ def generate_challenge_for_files(
     """
     try:
         from gauntlet.challenges import generate_challenge, select_challenge_type
-    except ImportError:
+    except ImportError as exc:
+        # Graceful degradation: hook stays a no-op if optional deps
+        # (anthropic) or the challenges module itself fail to import.
+        # Surface the cause behind GAUNTLET_DEBUG so silent regressions
+        # in gauntlet.challenges (vs. missing optional dep) are debuggable.
+        if os.environ.get("GAUNTLET_DEBUG"):
+            print(
+                f"[gauntlet] precommit_gate: skipping challenge "
+                f"(gauntlet.challenges unimportable: {exc})",
+                file=sys.stderr,
+            )
         return None
 
     store = KnowledgeStore(gauntlet_dir)

@@ -152,9 +152,10 @@ class TestGenerateChallenge:
         TestProblemVariationFallback in test_challenges.py; this test
         guards the hook surface itself.
         """
-        # Setting a sys.modules entry to None forces subsequent imports
-        # of that name to raise ModuleNotFoundError (subclass of
-        # ImportError). monkeypatch auto-restores after the test.
+        # monkeypatch makes `from gauntlet.challenges import ...`
+        # raise ImportError so we exercise the
+        # `except ImportError: return None` branch in
+        # generate_challenge_for_files. monkeypatch auto-restores.
         monkeypatch.setitem(sys.modules, "gauntlet.challenges", None)
 
         gauntlet_dir = sample_knowledge_base.parent
@@ -162,6 +163,63 @@ class TestGenerateChallenge:
             gauntlet_dir, ["billing"], "dev@example.com"
         )
         assert result is None
+
+    @pytest.mark.unit
+    def test_import_error_silent_without_debug_env(
+        self,
+        sample_knowledge_base: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """
+        Scenario: ImportError swallow does not pollute stderr by default
+        Given GAUNTLET_DEBUG is unset and gauntlet.challenges is unimportable
+        When generate_challenge_for_files is called
+        Then it returns None without writing to stderr (silent in normal use)
+        """
+        monkeypatch.delenv("GAUNTLET_DEBUG", raising=False)
+        monkeypatch.setitem(sys.modules, "gauntlet.challenges", None)
+
+        gauntlet_dir = sample_knowledge_base.parent
+        result = generate_challenge_for_files(
+            gauntlet_dir, ["billing"], "dev@example.com"
+        )
+
+        assert result is None
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    @pytest.mark.unit
+    def test_import_error_logs_to_stderr_with_debug_env(
+        self,
+        sample_knowledge_base: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """
+        Scenario: GAUNTLET_DEBUG=1 surfaces the swallowed ImportError
+        Given GAUNTLET_DEBUG is set and gauntlet.challenges is unimportable
+        When generate_challenge_for_files is called
+        Then it returns None AND writes a diagnostic line to stderr that
+          identifies the cause (gauntlet.challenges unimportable)
+
+        Regression: without this opt-in observability hook, a silent
+        regression inside gauntlet.challenges (vs. a missing optional
+        dep) is indistinguishable from the intended graceful-degradation
+        path, so debugging is blind.
+        """
+        monkeypatch.setenv("GAUNTLET_DEBUG", "1")
+        monkeypatch.setitem(sys.modules, "gauntlet.challenges", None)
+
+        gauntlet_dir = sample_knowledge_base.parent
+        result = generate_challenge_for_files(
+            gauntlet_dir, ["billing"], "dev@example.com"
+        )
+
+        assert result is None
+        captured = capsys.readouterr()
+        assert "gauntlet.challenges unimportable" in captured.err
+        assert "[gauntlet] precommit_gate" in captured.err
 
 
 class TestMain:
