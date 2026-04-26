@@ -30,6 +30,8 @@ selecting the right skills for each codebase.
 | `shell-review` | Shell script auditing | Exit codes, portability, safety patterns |
 | `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
 | `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
+| `performance-review` | Time and space complexity review | Detecting hotspots via Python AST (Tier 1) with optional gauntlet enrichment |
+| `blast-radius` | Change blast-radius analysis | Risk-scoring affected nodes via the code knowledge graph |
 | `tiered-audit` | Three-tier escalation audit | Codebase audits starting from git history |
 
 ## Commands
@@ -45,6 +47,8 @@ selecting the right skills for each codebase.
 | `/makefile-review` | Run Makefile review |
 | `/math-review` | Run mathematical review |
 | `/shell-review` | Run shell script safety review |
+| `/performance-review` | Run time and space complexity hotspot review |
+| `/refine-code` | Analyze and improve living code quality |
 | `/skill-review` | Analyze skill runtime metrics and stability gaps (canonical) |
 | `/skill-history` | View recent skill executions |
 

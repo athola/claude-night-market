@@ -129,6 +129,40 @@ class TestGenerateChallenge:
         )
         assert result is None
 
+    @pytest.mark.unit
+    def test_returns_none_when_challenges_unimportable(
+        self,
+        sample_knowledge_base: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """
+        Scenario: gauntlet.challenges cannot be imported at hook time
+        Given a populated knowledge base (so the entry-miss early return
+          does not fire) and a Python environment where
+          `from gauntlet.challenges import ...` raises ImportError
+        When generate_challenge_for_files is called with matching files
+        Then it returns None via the hook-level try/except, not by
+          crashing the precommit hook with ModuleNotFoundError
+
+        Encodes the invariant established in 2026-04-26: the lazy
+        import inside generate_challenge_for_files must catch ImportError
+        so the precommit hook stays a clean no-op when optional deps
+        are missing. The lower-level fallback in
+        gauntlet.challenges._generate_problem_variation is covered by
+        TestProblemVariationFallback in test_challenges.py; this test
+        guards the hook surface itself.
+        """
+        # Setting a sys.modules entry to None forces subsequent imports
+        # of that name to raise ModuleNotFoundError (subclass of
+        # ImportError). monkeypatch auto-restores after the test.
+        monkeypatch.setitem(sys.modules, "gauntlet.challenges", None)
+
+        gauntlet_dir = sample_knowledge_base.parent
+        result = generate_challenge_for_files(
+            gauntlet_dir, ["billing"], "dev@example.com"
+        )
+        assert result is None
+
 
 class TestMain:
     """

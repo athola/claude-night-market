@@ -1,5 +1,5 @@
 name: cartograph
-version: 1.9.2
+version: 1.9.3
 description: Codebase visualization - generates architecture, data flow, dependency, call chain, community
   detection, and class diagrams via Mermaid Chart MCP
 keywords:

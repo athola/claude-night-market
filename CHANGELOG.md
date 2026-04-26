@@ -7,8 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.3] - 2026-04-26
+
+### Added
+
+- **inclusive-defaults policy**: `docs/inclusive-defaults.md`
+  codifies the project rule that features default ON and
+  expose `--no-X` opt-out, with nine TRUE-exception
+  categories (heavy install, irreversible state, no-default
+  value, OS-level state, user-project overrides, per-rule
+  consent, full-codebase scans, block-mode enforcement,
+  prescriptive modes). Tracks the audit at #445.
+- **hookify safe-defaults bundle**: new `--bundle <name>`
+  install mode with built-in `safe-defaults` bundle
+  shipping six warn-only rules (slop scan, large commits,
+  risky git, large file ops, print statements, plan-before-
+  large-dispatch). Tests guard the bundle composition so
+  any future block-action rule added to safe-defaults will
+  fail CI. Run with
+  `python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
+- **pensive performance-review skill + command**: new
+  `/performance-review` slash command and matching skill detect
+  time- and space-complexity hotspots via Python AST. Six
+  time-complexity detectors (T1 nested loops over the same
+  iterable; T2 list `in` lookup in a loop; T3 `re.compile()`
+  in a loop; T4 string `+=` accumulator; T5 unmemoized
+  recursion; T6 list comprehension passed to a reducer) and
+  three space-complexity detectors (S1 unbounded `.append()`
+  in nested loops; S2 list-wrapping a generator inside a
+  reducer; S3 per-iteration `.copy()` / `dict()` / `list()`).
+  Tier 2 (`gauntlet.treesitter_parser`) and Tier 3
+  (`gauntlet.graph.GraphStore`) extend coverage to non-Python
+  languages and transitive call-chain severity upgrades when
+  gauntlet is installed; sentinel-pattern fallback keeps Tier
+  1 working when gauntlet is missing. Implementation lives at
+  `plugins/pensive/src/pensive/skills/performance_review.py`
+  with 15 BDD-style tests at
+  `plugins/pensive/tests/skills/test_performance_review.py`.
+  `make demo-performance-review` dogfoods on pensive's own
+  source (98 real findings on first run). Full pensive suite:
+  368 passed.
+- **gauntlet Makefile demo + test targets**: 12 new
+  per-command targets (`demo-gauntlet`, `demo-gauntlet-extract`,
+  `demo-gauntlet-curate`, `demo-gauntlet-graph`,
+  `demo-gauntlet-progress`, `demo-gauntlet-onboard`,
+  plus `demo-all`, and matching `test-*` targets). Demos
+  are LIVE (e.g. `demo-gauntlet-extract` runs
+  `scripts/extractor.py src/gauntlet` and prints real
+  knowledge entries dogfooded from gauntlet's own source).
+  Per-command test targets use `--no-cov` since they
+  exercise a slice rather than the full plugin surface;
+  use `make test` for the 85% coverage gate.
+  `makefile_dogfooder.py` coverage: 0% → 85%.
+
 ### Changed
 
+- **spec-kit speckit-tasks now generates test tasks by
+  default**. Pre-1.9.3 wording said "Tests are OPTIONAL:
+  only generate test tasks if explicitly requested" —
+  defaulting away from the project's iron-law TDD posture.
+  New default is ON; opt-out via `--no-tdd` or explicit
+  spec opt-out for spikes/throwaways.
+- **sanctum update-docs slop-scan default-ON wording**:
+  the scan was already non-blocking by default; the new
+  wording says "default ON" not "non-blocking", since the
+  latter implied opt-in.
+- **per-plugin TRUE-exception callouts**: hookify, oracle,
+  egregore, conjure, phantom, imbue, leyline, and pensive
+  READMEs (or relevant skill modules) now reference
+  `docs/inclusive-defaults.md` and explain why each
+  feature stays opt-in.
 - **pensive performance-review detector hardening**:
   iteratively suppressed false-positive classes that surfaced
   during dogfooding. T2 (`x in <Name>` membership): string-literal
@@ -44,42 +112,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   used `len(list(repo_path.rglob(...)))` in two places. Replaced
   with `sum(1 for _ in repo_path.rglob(...))` so the iterator
   is consumed without an intermediate list allocation.
-
-### Added
-
-- **pensive performance-review skill + command**: new
-  `/performance-review` slash command and matching skill detect
-  time- and space-complexity hotspots via Python AST. Six
-  time-complexity detectors (T1 nested loops over the same
-  iterable; T2 list `in` lookup in a loop; T3 `re.compile()`
-  in a loop; T4 string `+=` accumulator; T5 unmemoized
-  recursion; T6 list comprehension passed to a reducer) and
-  three space-complexity detectors (S1 unbounded `.append()`
-  in nested loops; S2 list-wrapping a generator inside a
-  reducer; S3 per-iteration `.copy()` / `dict()` / `list()`).
-  Tier 2 (`gauntlet.treesitter_parser`) and Tier 3
-  (`gauntlet.graph.GraphStore`) extend coverage to non-Python
-  languages and transitive call-chain severity upgrades when
-  gauntlet is installed; sentinel-pattern fallback keeps Tier
-  1 working when gauntlet is missing. Implementation lives at
-  `plugins/pensive/src/pensive/skills/performance_review.py`
-  with 15 BDD-style tests at
-  `plugins/pensive/tests/skills/test_performance_review.py`.
-  `make demo-performance-review` dogfoods on pensive's own
-  source (98 real findings on first run). Full pensive suite:
-  368 passed.
-- **gauntlet Makefile demo + test targets**: 12 new
-  per-command targets (`demo-gauntlet`, `demo-gauntlet-extract`,
-  `demo-gauntlet-curate`, `demo-gauntlet-graph`,
-  `demo-gauntlet-progress`, `demo-gauntlet-onboard`,
-  plus `demo-all`, and matching `test-*` targets). Demos
-  are LIVE (e.g. `demo-gauntlet-extract` runs
-  `scripts/extractor.py src/gauntlet` and prints real
-  knowledge entries dogfooded from gauntlet's own source).
-  Per-command test targets use `--no-cov` since they
-  exercise a slice rather than the full plugin surface;
-  use `make test` for the 85% coverage gate.
-  `makefile_dogfooder.py` coverage: 0% → 85%.
+- **README + pensive book doc accuracy refresh**: corrected
+  stale skill/command counts and per-plugin catalog rows
+  (`abstract` 13→14, `sanctum` 14→18, `imbue` 12→13/4→5,
+  `pensive` 13→14/12→13, `gauntlet` 6→7). Headline command
+  count fixed from `155` to `128` after discovering the
+  underlying counting bug below. Added missing
+  `performance-review`, `blast-radius`, `/performance-review`,
+  and `/refine-code` rows to `book/src/plugins/pensive.md`.
 
 ### Fixed
 
@@ -113,44 +153,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lacking `anthropic`. The pre-existing
   `except Exception` already catches `ImportError` and
   falls back to the verbatim YAML problem.
-
-## [1.9.3] - 2026-04-25
-
-### Added
-
-- **inclusive-defaults policy**: `docs/inclusive-defaults.md`
-  codifies the project rule that features default ON and
-  expose `--no-X` opt-out, with nine TRUE-exception
-  categories (heavy install, irreversible state, no-default
-  value, OS-level state, user-project overrides, per-rule
-  consent, full-codebase scans, block-mode enforcement,
-  prescriptive modes). Tracks the audit at #445.
-- **hookify safe-defaults bundle**: new `--bundle <name>`
-  install mode with built-in `safe-defaults` bundle
-  shipping six warn-only rules (slop scan, large commits,
-  risky git, large file ops, print statements, plan-before-
-  large-dispatch). Tests guard the bundle composition so
-  any future block-action rule added to safe-defaults will
-  fail CI. Run with
-  `python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
-
-### Changed
-
-- **spec-kit speckit-tasks now generates test tasks by
-  default**. Pre-1.9.3 wording said "Tests are OPTIONAL:
-  only generate test tasks if explicitly requested" —
-  defaulting away from the project's iron-law TDD posture.
-  New default is ON; opt-out via `--no-tdd` or explicit
-  spec opt-out for spikes/throwaways.
-- **sanctum update-docs slop-scan default-ON wording**:
-  the scan was already non-blocking by default; the new
-  wording says "default ON" not "non-blocking", since the
-  latter implied opt-in.
-- **per-plugin TRUE-exception callouts**: hookify, oracle,
-  egregore, conjure, phantom, imbue, leyline, and pensive
-  READMEs (or relevant skill modules) now reference
-  `docs/inclusive-defaults.md` and explain why each
-  feature stays opt-in.
+- **command-counting bug across 14 Makefiles + 1 doc
+  module**: every per-plugin `make status` target and the
+  `sanctum:doc-updates` accuracy-scanning module used
+  `find commands/ -name '*.md'` to count slash commands.
+  In plugins with modular commands (sanctum's
+  `fix-pr-modules/`, `update-plugins/modules/`,
+  `pr-review/modules/`) this counted helper sub-files as
+  separate commands, reporting `Commands: 46` for sanctum
+  (canonical: 19) and `155` for the project (canonical:
+  128). Added `-maxdepth 1` to all 15 invocations so the
+  count matches `plugin.json.commands.length` exactly.
+  Verified: top-level `commands/*.md` count equals
+  registered command count for all 23 plugins.
+- **`update_versions.py` CACHE_EXCLUDES missing
+  project-local tool/cache dirs**: the script's exclusion
+  list omitted `.typecheck-venv`, `.uv-tools`, `.xdg-cache`,
+  and `.tools`, so dry-run reported 137 candidate version
+  files including dozens inside installed Python packages.
+  Added the four missing entries to
+  `plugins/sanctum/scripts/update_plugins_modules/constants.py`
+  with a regression test
+  (`test_cache_excludes_contains_project_local_tool_dirs`).
+  Dry-run noise dropped from 137 to 97 files (95 actually
+  changed by the 1.9.2 → 1.9.3 bump).
 
 ## [1.9.2] - 2026-04-23
 

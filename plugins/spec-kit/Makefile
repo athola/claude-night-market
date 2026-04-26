@@ -64,7 +64,7 @@ clean: ## Clean up generated files
 status: ## Show project overview
 	@echo "Spec-Kit Plugin Status:"
 	@echo "Skills:   $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
+	@echo "Commands: $$(find commands/ -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
@@ -143,7 +143,7 @@ demo-skills: ## Validate spec-kit skill structure
 	@echo "  speckit-orchestrator: $$(test -f skills/speckit-orchestrator/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo ""
 	@echo "Commands:"
-	@find commands/ -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
+	@find commands/ -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
 
 plugin-check: demo-spec demo-tasks demo-skills ## Run all demo workflows
 	@echo ""
