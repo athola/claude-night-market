@@ -2768,6 +2768,294 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://byteiota.com/karpathy-claude-md-ai-coding-pitfalls-accuracy-2/
+  https://hn.algolia.com/api/v1/search?query=agent%20token%20budget%20context%20bloat&tags=story&hitsperpage=15:
+    content_hash: sha256:0f96ee64c7179276
+    stored_at: data/staging/webfetch-ai-agent-token-context-stories-2026-04-26_23-59-13.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:13.425265+00:00'
+    title: AI Agent Token & Context Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=agent%20token%20budget%20context%20bloat&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=ai%20configuration%20meta%20self-improving&tags=story&hitsperpage=15:
+    content_hash: sha256:e7a4b3941e408eb4
+    stored_at: data/staging/webfetch-search-results-2026-04-26_23-59-14.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:14.880559+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20configuration%20meta%20self-improving&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=tui%20web%20dashboard%20parity&tags=story&hitsperpage=10:
+    content_hash: sha256:141df1f58fc30575
+    stored_at: data/staging/webfetch-search-results-tui-web-dashboard-parity-2026-04-26_23-59-17.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:17.351217+00:00'
+    title: 'Search Results: TUI Web Dashboard Parity'
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=TUI%20web%20dashboard%20parity&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20context%20token&tags=story&hitsperpage=15:
+    content_hash: sha256:61befe928e096ea8
+    stored_at: data/staging/webfetch-claude-code-context-token-management-stories-2026-04-26_23-59-17.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:17.164021+00:00'
+    title: Claude Code Context & Token Management Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=claude%20code%20context%20token&tags=story&hitsPerPage=15
+  https://simonwillison.net/2025/jun/18/context-rot:
+    content_hash: sha256:2d04ea53585c175c
+    stored_at: data/staging/webfetch-context-rot-analysis-2026-04-26_23-59-39.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:39.671642+00:00'
+    title: Context Rot Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://simonwillison.net/2025/Jun/18/context-rot/
+  https://github.com/perkyzz999/zmanager:
+    content_hash: sha256:40ac422f999b46a7
+    stored_at: data/staging/webfetch-zmanager-architecture-overview-2026-04-26_23-59-39.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:40.021512+00:00'
+    title: ZManager Architecture Overview
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/PerkyZZ999/ZManager
+  https://simonwillison.net/2025/aug/22/too-many-mcps:
+    content_hash: sha256:411a48d12c1b7538
+    stored_at: data/staging/webfetch-token-bloat-from-mcp-server-overload-2026-04-26_23-59-40.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:40.813207+00:00'
+    title: Token Bloat from MCP Server Overload
+    maturity: seedling
+    routing_type: pending
+    url: https://simonwillison.net/2025/Aug/22/too-many-mcps/
+  https://github.com/clementtsang/bottom:
+    content_hash: sha256:11b303093aa84df5
+    stored_at: data/staging/webfetch-bottom-btm-architecture-analysis-2026-04-26_23-59-41.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:41.387067+00:00'
+    title: Bottom (btm) - Architecture Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/ClementTsang/bottom
+  https://github.com/tokio-rs/console:
+    content_hash: sha256:d07b5d21b48ec33b
+    stored_at: data/staging/webfetch-tokio-console-refresh-intervals-and-aggregation-2026-04-26_23-59-42.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:42.825506+00:00'
+    title: 'Tokio-Console: Refresh Intervals and Aggregation'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tokio-rs/console
+  https://github.com/bnjbvr/cargo-machete:
+    content_hash: sha256:2bc0af04af80e246
+    stored_at: data/staging/webfetch-cargo-machete-findings-and-report-structure-2026-04-26_23-59-43.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:43.810021+00:00'
+    title: 'Cargo-Machete: Findings and Report Structure'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/bnjbvr/cargo-machete
+  https://github.com/clementtsang/bottom/blob/main/src/app.rs:
+    content_hash: sha256:d7ce32138ba79a77
+    stored_at: data/staging/webfetch-refresh-tick-data-update-mechanism-2026-04-26_23-59-52.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:52.415590+00:00'
+    title: Refresh Tick & Data Update Mechanism
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/ClementTsang/bottom/blob/main/src/app.rs
+  https://github.com/bnjbvr/cargo-machete/blob/main/src/main.rs:
+    content_hash: sha256:ab029900dfc959f8
+    stored_at: data/staging/webfetch-cargo-machete-analysis-workflow-2026-04-26_23-59-53.md
+    importance_score: 50
+    last_updated: '2026-04-26T23:59:53.415522+00:00'
+    title: cargo-machete Analysis Workflow
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/bnjbvr/cargo-machete/blob/main/src/main.rs
+  https://github.com/davidpdrsn/axum-live-view:
+    content_hash: sha256:25201f0174c5a555
+    stored_at: data/staging/webfetch-axum-live-view-state-sharing-architecture-2026-04-27_00-00-07.md
+    importance_score: 50
+    last_updated: '2026-04-27T00:00:07.829862+00:00'
+    title: axum-live-view State Sharing Architecture
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/davidpdrsn/axum-live-view
+  https://github.com/domcyrus/rustnet:
+    content_hash: sha256:164f54e790d8811f
+    stored_at: data/staging/webfetch-rustnet-dashboard-configuration-architecture-2026-04-27_00-00-09.md
+    importance_score: 50
+    last_updated: '2026-04-27T00:00:09.753705+00:00'
+    title: RustNet Dashboard Configuration & Architecture
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/domcyrus/rustnet
+  https://hn.algolia.com/api/v1/search?query=auto-compact%20context%20agent%20warning&tags=story&hitsperpage=10:
+    content_hash: sha256:eff448c07b8c9c50
+    stored_at: data/staging/webfetch-search-results-2026-04-27_00-00-22.md
+    importance_score: 50
+    last_updated: '2026-04-27T00:00:22.780657+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=auto-compact%20context%20agent%20warning&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=expensively%20quadratic%20context%20window&tags=story&hitsperpage=10:
+    content_hash: sha256:ab134406202fa6c8
+    stored_at: data/staging/webfetch-search-results-2026-04-27_03-23-14.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:14.202706+00:00'
+    title: Search Results
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=expensively%20quadratic%20context%20window&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=mcp%20too%20many%20tools&tags=story&hitsperpage=10:
+    content_hash: sha256:26a590ba7f500624
+    stored_at: data/staging/webfetch-mcp-tool-overhead-stories-2026-04-27_03-23-17.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:17.379483+00:00'
+    title: MCP Tool Overhead Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=MCP%20too%20many%20tools&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20context%20window&tags=story&hitsperpage=10:
+    content_hash: sha256:e101b9efac18df56
+    stored_at: data/staging/webfetch-claude-code-context-management-stories-2026-04-27_03-23-17.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:17.758786+00:00'
+    title: Claude Code Context Management Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20context%20window&tags=story&hitsPerPage=10
+  https://github.com/tokio-rs/axum/blob/main/examples/graceful-shutdown/src/main.rs:
+    content_hash: sha256:4329e3a4c512ac87
+    stored_at: data/staging/webfetch-graceful-shutdown-pattern-in-axum-2026-04-27_03-23-17.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:18.200871+00:00'
+    title: Graceful Shutdown Pattern in Axum
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tokio-rs/axum/blob/main/examples/graceful-shutdown/src/main.rs
+  https://github.com/florianbruniaux/ccboard:
+    content_hash: sha256:36049ce47fb51391
+    stored_at: data/staging/webfetch-ccboard-shared-engine-architecture-2026-04-27_03-23-19.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:19.099708+00:00'
+    title: 'ccboard: Shared Engine Architecture'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/FlorianBruniaux/ccboard
+  https://github.com/njbrake/agent-of-empires:
+    content_hash: sha256:2b8386328549df62
+    stored_at: data/staging/webfetch-agent-of-empires-tui-web-state-sharing-2026-04-27_03-23-19.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:19.652244+00:00'
+    title: 'Agent of Empires: TUI-Web State Sharing Architecture'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/njbrake/agent-of-empires
+  https://hn.algolia.com/api/v1/search?query=context%20rot%20llm&tags=story&hitsperpage=10:
+    content_hash: sha256:d204107e20295b50
+    stored_at: data/staging/webfetch-stories-about-context-rot-and-llm-context-window-2026-04-27_03-23-20.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:20.053089+00:00'
+    title: Stories About Context Rot and LLM Context Window Issues
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=context%20rot%20LLM&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=quadratic%20attention%20cost&tags=story&hitsperpage=10:
+    content_hash: sha256:ccd1cd69282ea1c5
+    stored_at: data/staging/webfetch-stories-on-quadratic-attention-cost-context-length-2026-04-27_03-23-33.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:33.212355+00:00'
+    title: Stories on Quadratic Attention Cost & Context Length
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=quadratic%20attention%20cost&tags=story&hitsPerPage=10
+  https://github.com/ratatui/async-template:
+    content_hash: sha256:df86387e7b72d357
+    stored_at: data/staging/webfetch-tick-frame-loop-structure-analysis-2026-04-27_03-23-34.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:34.145562+00:00'
+    title: Tick/Frame Loop Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/ratatui/async-template
+  https://hn.algolia.com/api/v1/search?query=anthropic%20pricing%20long%20context&tags=story&hitsperpage=10:
+    content_hash: sha256:5ee29486cd7a58ae
+    stored_at: data/staging/webfetch-stories-about-anthropic-pricing-and-long-context-2026-04-27_03-23-38.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:38.721274+00:00'
+    title: Stories About Anthropic Pricing and Long-Context Economics
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=Anthropic%20pricing%20long%20context&tags=story&hitsPerPage=10
+  https://github.com/tokio-rs/axum/blob/main/examples/sse/src/main.rs:
+    content_hash: sha256:b0b7dc77aa8c5e99
+    stored_at: data/staging/webfetch-axum-sse-pattern-2026-04-27_03-23-47.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:47.869196+00:00'
+    title: Axum SSE Pattern
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/tokio-rs/axum/blob/main/examples/sse/src/main.rs
+  https://github.com/vectordotdev/vector/pull/4702:
+    content_hash: sha256:628837e94af66e77
+    stored_at: data/staging/webfetch-vector-top-dashboard-architecture-2026-04-27_03-23-50.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:23:50.783566+00:00'
+    title: Vector Top Dashboard Architecture
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/vectordotdev/vector/pull/4702
+  https://blog.exe.dev/expensively-quadratic:
+    content_hash: sha256:d7d1ea26cc2f38b0
+    stored_at: data/staging/webfetch-operative-claims-from-expensively-quadratic-2026-04-27_03-25-57.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:25:57.904047+00:00'
+    title: Operative Claims from "Expensively Quadratic"
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.exe.dev/expensively-quadratic
+  https://github.com/anthropics/claude-code/issues/39686:
+    content_hash: sha256:447cd8437b1fbbd0
+    stored_at: data/staging/webfetch-summary-of-github-issue-39686-2026-04-27_03-26-05.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:26:05.281880+00:00'
+    title: 'Summary of GitHub Issue #39686'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/anthropics/claude-code/issues/39686
+  https://news.ycombinator.com/item?id=47000034:
+    content_hash: sha256:346d7dab342b3b2b
+    stored_at: data/staging/webfetch-top-comment-themes-2026-04-27_03-26-05.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:26:05.930059+00:00'
+    title: Top Comment Themes
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47000034
+  https://lobste.rs/s/0stawc/expensively_quadratic_llm_agent_cost:
+    content_hash: sha256:9e76ba258f601207
+    stored_at: data/staging/webfetch-lobsters-discussion-summary-2026-04-27_03-26-36.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:26:36.644232+00:00'
+    title: Lobsters Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/0stawc/expensively_quadratic_llm_agent_cost
+  https://github.com/anthropics/claude-code/issues/6123:
+    content_hash: sha256:34f162f5640d80d8
+    stored_at: data/staging/webfetch-issue-summary-2026-04-27_03-26-39.md
+    importance_score: 50
+    last_updated: '2026-04-27T03:26:39.344529+00:00'
+    title: Issue Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/anthropics/claude-code/issues/6123
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3076,3 +3364,35 @@ hashes:
   sha256:7634cc3854425234: data/staging/webfetch-novel-agent-rule-frameworks-beyond-standard-2026-04-25_17-33-03.md
   sha256:7a981c702840c969: data/staging/webfetch-simon-willison-on-vibe-coding-2026-04-25_17-33-06.md
   sha256:cecf0591140cad50: data/staging/webfetch-karpathy-quotes-on-llm-coding-pitfalls-2026-04-25_17-33-16.md
+  sha256:0f96ee64c7179276: data/staging/webfetch-ai-agent-token-context-stories-2026-04-26_23-59-13.md
+  sha256:e7a4b3941e408eb4: data/staging/webfetch-search-results-2026-04-26_23-59-14.md
+  sha256:141df1f58fc30575: data/staging/webfetch-search-results-tui-web-dashboard-parity-2026-04-26_23-59-17.md
+  sha256:61befe928e096ea8: data/staging/webfetch-claude-code-context-token-management-stories-2026-04-26_23-59-17.md
+  sha256:2d04ea53585c175c: data/staging/webfetch-context-rot-analysis-2026-04-26_23-59-39.md
+  sha256:40ac422f999b46a7: data/staging/webfetch-zmanager-architecture-overview-2026-04-26_23-59-39.md
+  sha256:411a48d12c1b7538: data/staging/webfetch-token-bloat-from-mcp-server-overload-2026-04-26_23-59-40.md
+  sha256:11b303093aa84df5: data/staging/webfetch-bottom-btm-architecture-analysis-2026-04-26_23-59-41.md
+  sha256:d07b5d21b48ec33b: data/staging/webfetch-tokio-console-refresh-intervals-and-aggregation-2026-04-26_23-59-42.md
+  sha256:2bc0af04af80e246: data/staging/webfetch-cargo-machete-findings-and-report-structure-2026-04-26_23-59-43.md
+  sha256:d7ce32138ba79a77: data/staging/webfetch-refresh-tick-data-update-mechanism-2026-04-26_23-59-52.md
+  sha256:ab029900dfc959f8: data/staging/webfetch-cargo-machete-analysis-workflow-2026-04-26_23-59-53.md
+  sha256:25201f0174c5a555: data/staging/webfetch-axum-live-view-state-sharing-architecture-2026-04-27_00-00-07.md
+  sha256:164f54e790d8811f: data/staging/webfetch-rustnet-dashboard-configuration-architecture-2026-04-27_00-00-09.md
+  sha256:eff448c07b8c9c50: data/staging/webfetch-search-results-2026-04-27_00-00-22.md
+  sha256:ab134406202fa6c8: data/staging/webfetch-search-results-2026-04-27_03-23-14.md
+  sha256:26a590ba7f500624: data/staging/webfetch-mcp-tool-overhead-stories-2026-04-27_03-23-17.md
+  sha256:e101b9efac18df56: data/staging/webfetch-claude-code-context-management-stories-2026-04-27_03-23-17.md
+  sha256:4329e3a4c512ac87: data/staging/webfetch-graceful-shutdown-pattern-in-axum-2026-04-27_03-23-17.md
+  sha256:36049ce47fb51391: data/staging/webfetch-ccboard-shared-engine-architecture-2026-04-27_03-23-19.md
+  sha256:2b8386328549df62: data/staging/webfetch-agent-of-empires-tui-web-state-sharing-2026-04-27_03-23-19.md
+  sha256:d204107e20295b50: data/staging/webfetch-stories-about-context-rot-and-llm-context-window-2026-04-27_03-23-20.md
+  sha256:ccd1cd69282ea1c5: data/staging/webfetch-stories-on-quadratic-attention-cost-context-length-2026-04-27_03-23-33.md
+  sha256:df86387e7b72d357: data/staging/webfetch-tick-frame-loop-structure-analysis-2026-04-27_03-23-34.md
+  sha256:5ee29486cd7a58ae: data/staging/webfetch-stories-about-anthropic-pricing-and-long-context-2026-04-27_03-23-38.md
+  sha256:b0b7dc77aa8c5e99: data/staging/webfetch-axum-sse-pattern-2026-04-27_03-23-47.md
+  sha256:628837e94af66e77: data/staging/webfetch-vector-top-dashboard-architecture-2026-04-27_03-23-50.md
+  sha256:d7d1ea26cc2f38b0: data/staging/webfetch-operative-claims-from-expensively-quadratic-2026-04-27_03-25-57.md
+  sha256:447cd8437b1fbbd0: data/staging/webfetch-summary-of-github-issue-39686-2026-04-27_03-26-05.md
+  sha256:346d7dab342b3b2b: data/staging/webfetch-top-comment-themes-2026-04-27_03-26-05.md
+  sha256:9e76ba258f601207: data/staging/webfetch-lobsters-discussion-summary-2026-04-27_03-26-36.md
+  sha256:34f162f5640d80d8: data/staging/webfetch-issue-summary-2026-04-27_03-26-39.md

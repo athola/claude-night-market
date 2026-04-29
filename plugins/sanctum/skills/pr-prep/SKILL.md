@@ -1,7 +1,7 @@
 ---
 name: pr-prep
 description: 'Prepare pull requests by running quality gates, drafting descriptions, and validating tests before submission.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:

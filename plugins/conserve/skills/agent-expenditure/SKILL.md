@@ -1,7 +1,7 @@
 ---
 name: agent-expenditure
 description: 'Track per-agent token usage and flag waste in parallel dispatch. Use after running parallel agents to evaluate cost vs value.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: resource-optimization
 tags:

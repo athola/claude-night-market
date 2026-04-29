@@ -1,7 +1,7 @@
 ---
 name: bug-review
 description: 'Bug hunting with evidence trails. Use when investigating reported defects or verifying that a fix resolves the root cause.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: code-review
 tags:

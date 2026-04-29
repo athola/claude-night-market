@@ -1,7 +1,7 @@
 ---
 name: vow-enforcement
 description: 'Three-layer constraint enforcement (soft vows / hard vows / Nen Court). Use when classifying or graduating constraints by reliability.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-methodology
 tags:

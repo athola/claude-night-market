@@ -2,7 +2,7 @@
 name: stack-create
 description: 'Initialize a branch stack from a multi-step plan, creating one
   branch per slice with correct parent-child relationships.'
-version: 1.0.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-automation
 tags:

@@ -1,7 +1,7 @@
 ---
 name: karpathy-principles
 description: 'Four-principle pre-implementation gate: think first, simplicity, surgical edits, verifiable goals. Use when starting LLM-assisted coding work.'
-version: 1.9.4
+version: 1.9.3
 alwaysApply: false
 category: discipline
 tags:

@@ -75,7 +75,8 @@ class SkillsAuditor:
             "recommended_fields": ["category", "tags", "dependencies"],
             # Modern marketplace convention: H1 + free-form intro paragraph
             # is acceptable. Overview and Quick Start are still recommended
-            # but no longer scored as required. See docs/skill-taxonomy.md.
+            # but no longer scored as required. See the Skill Role Taxonomy
+            # section in docs/skill-integration-guide.md.
             "required_sections": [],
             "recommended_sections": [
                 "Overview",

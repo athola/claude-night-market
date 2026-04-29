@@ -1,7 +1,7 @@
 ---
 name: api-review
 description: 'Evaluate API surface design, consistency, and exemplar alignment. Use when reviewing public APIs or designing new endpoints.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: code-review
 tags:

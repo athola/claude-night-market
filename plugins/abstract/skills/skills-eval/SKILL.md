@@ -1,7 +1,7 @@
 ---
 name: skills-eval
 description: Evaluate and improve Claude skill quality through auditing. Use when reviewing, preparing for production, or auditing skills.
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: skill-management
 tags:

@@ -8,7 +8,7 @@ description: How to interpret graph metrics, including isolate taxonomy and fals
 ## Isolate Taxonomy
 
 A skill flagged as "isolate" (zero inbound, zero outbound) is not
-necessarily broken. Per `docs/skill-taxonomy.md`, three legitimate
+necessarily broken. Per `docs/skill-integration-guide.md#skill-role-taxonomy`, three legitimate
 roles produce zero edges:
 
 ### 1. Library skills

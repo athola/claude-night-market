@@ -1,7 +1,7 @@
 ---
 name: quality-gate
 description: "Orchestrate egregore's QUALITY pipeline stage. Use for self-review (pre-PR) or PR-review of other agents' PRs."
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: orchestration
 tags:

@@ -1,7 +1,7 @@
 ---
 name: update-readme
 description: 'Refresh README structure and content using repo context. Use after major features land or when README drifts from current capability.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:

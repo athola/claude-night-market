@@ -1,7 +1,7 @@
 ---
 name: memory-palace-architect
 description: 'Design memory palace structures with spatial layouts and domain org.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architecture
 tags:

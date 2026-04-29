@@ -1,7 +1,7 @@
 ---
 name: content-sanitization
 description: Sanitization guidelines for external content
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   consumed by skills and hooks. Use when loading external
   content (GitHub Issues, PRs, Discussions), processing

@@ -1,7 +1,7 @@
 ---
 name: modular-skills
 description: 'Build composable skill modules with hub-and-spoke loading. Use when: token budget is tight, complexity is high.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-optimization
 tags:

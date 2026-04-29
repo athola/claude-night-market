@@ -1,7 +1,7 @@
 ---
 name: justify
 description: 'Post-implementation audit against minimal-intervention standard. Detects additive bias and test tampering. Use after work, before commit or PR.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-methodology
 tags:

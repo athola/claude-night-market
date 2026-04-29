@@ -1,7 +1,7 @@
 ---
 name: computer-control
 description: 'Automate desktop GUI workflows via Claude computer use API with screenshot capture and mouse/keyboard control.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 model_hint: standard
 ---

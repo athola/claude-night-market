@@ -1,7 +1,7 @@
 ---
 name: plugin-review
 description: 'Review plugin quality with tiered checks and dependency-aware scoping. Use for PR validation and pre-release audits.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: plugin-management
 tags:

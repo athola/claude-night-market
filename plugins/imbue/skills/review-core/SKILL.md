@@ -1,7 +1,7 @@
 ---
 name: review-core
 description: 'Review-workflow scaffolding (context, evidence, output). Use when building review skills like feature-review, structured-review, pr-review.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: review-patterns
 tags:

@@ -1,7 +1,7 @@
 ---
 name: feature-review
 description: 'Score backlog items with RICE, WSJF, or Kano and file GitHub issues for the top picks. Use for roadmap triage. NOT a code or diff review.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-methodology
 tags:
@@ -262,7 +262,7 @@ Create `.feature-review.yaml` in project root:
 
 ```yaml
 # .feature-review.yaml
-version: 1.9.0
+version: 1.9.3
 
 # Scoring weights (must sum to 1.0)
 weights:

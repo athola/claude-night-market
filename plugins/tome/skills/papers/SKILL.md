@@ -1,7 +1,7 @@
 ---
 name: papers
 description: 'Search academic literature via arXiv, Semantic Scholar, and open-access PDFs. Use when the user needs papers, citations, or formal research.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: research
 tags:

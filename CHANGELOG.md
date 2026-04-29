@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [1.9.3] - 2026-04-26
+
 ### Added
 
 - **gauntlet ImportError observability**: opt-in stderr
@@ -27,25 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   equals `plugin.json.commands.length` for every plugin.
   RED-proof: reverting `-maxdepth 1` in any Makefile
   fails the static check immediately.
-
-### Notes
-
-- **Correction to 1.9.3 commit `22423bca` message**: the
-  commit body says the new ImportError test "guards the
-  precommit hook surface when `anthropic` is unavailable
-  in the system python3". The test actually patches
-  `gauntlet.challenges` (not `anthropic`); a missing
-  `anthropic` would surface inside
-  `gauntlet.challenges._generate_problem_variation` and is
-  caught by a different `except Exception` listed under
-  the 1.9.3 `Fixed` section. The test file's own docstring
-  is correct; only the commit message overstates the
-  trigger.
-
-## [1.9.3] - 2026-04-26
-
-### Added
-
 - **inclusive-defaults policy**: `docs/inclusive-defaults.md`
   codifies the project rule that features default ON and
   expose `--no-X` opt-out, with nine TRUE-exception
@@ -212,7 +197,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a regression test
   (`test_cache_excludes_contains_project_local_tool_dirs`).
   Dry-run noise dropped from 137 to 97 files (95 actually
-  changed by the 1.9.2 → 1.9.3 bump).
+  changed by the 1.9.2 to 1.9.3 bump).
+
+### Notes
+
+- **Correction to release commit `22423bca` message**: the
+  commit body says the new ImportError test "guards the
+  precommit hook surface when `anthropic` is unavailable
+  in the system python3". The test actually patches
+  `gauntlet.challenges` (not `anthropic`); a missing
+  `anthropic` would surface inside
+  `gauntlet.challenges._generate_problem_variation` and is
+  caught by a different `except Exception` listed under
+  the `Fixed` section above. The test file's own docstring
+  is correct; only the commit message overstates the
+  trigger.
 
 ## [1.9.2] - 2026-04-23
 

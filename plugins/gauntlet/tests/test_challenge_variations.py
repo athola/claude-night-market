@@ -8,7 +8,10 @@ from anthropic.types import TextBlock
 from gauntlet.challenges import (
     _generate_problem_variation,
     _is_valid_variation,
+    anthropic_variation_provider,
     generate_bank_challenge,
+    get_variation_provider,
+    set_variation_provider,
 )
 from gauntlet.models import BankProblem, Difficulty
 
@@ -254,3 +257,124 @@ class TestGenerateBankChallenge:
             challenge = generate_bank_challenge(problem)
 
         assert challenge.prompt == problem.prompt
+
+
+# ---------------------------------------------------------------------------
+# Provider injection API
+# ---------------------------------------------------------------------------
+
+
+class TestVariationProviderInjection:
+    """Tests for the pluggable VariationProvider registration API.
+
+    The provider pattern lets skills running with an LLM in-loop register
+    a callable that uses the parent LLM directly instead of round-tripping
+    through the Anthropic API. The tests below pin down the contract:
+    default provider preserves Anthropic-SDK behavior, custom providers
+    short-circuit the SDK, None provider disables variation entirely,
+    provider errors fall back to the seed problem.
+    """
+
+    def setup_method(self) -> None:
+        # Snapshot the current provider so tests can mutate it freely
+        # without leaking state across cases.
+        self._saved_provider = get_variation_provider()
+
+    def teardown_method(self) -> None:
+        set_variation_provider(self._saved_provider)
+
+    def test_default_provider_is_anthropic(self):
+        # By default the module wires up the Anthropic SDK provider so
+        # existing call sites work with no explicit registration.
+        assert get_variation_provider() is anthropic_variation_provider
+
+    def test_custom_provider_short_circuits_anthropic(self):
+        # A registered provider takes the call instead of the SDK; the
+        # anthropic.Anthropic constructor must not be invoked.
+        problem = _make_problem()
+        varied = "Given a sequence, write code that returns the maximum element."
+
+        def fake_provider(_template: str, _problem: BankProblem) -> str:
+            return varied
+
+        set_variation_provider(fake_provider)
+        with patch("anthropic.Anthropic") as mock_cls:
+            result = _generate_problem_variation(problem)
+
+        assert result.prompt == varied
+        mock_cls.assert_not_called()
+
+    def test_provider_receives_prompt_template_and_problem(self):
+        # The provider sees the full template plus the problem, so it can
+        # format whatever message it needs for its own LLM channel.
+        problem = _make_problem(prompt="seed prompt body")
+        captured: dict[str, object] = {}
+
+        def capturing_provider(template: str, p: BankProblem) -> str:
+            captured["template"] = template
+            captured["problem"] = p
+            return "Implement a function that returns the max value."
+
+        set_variation_provider(capturing_provider)
+        _generate_problem_variation(problem)
+
+        assert "{problem}" in captured["template"]  # type: ignore[operator] - dict[str, object] str-membership
+        assert captured["problem"] is problem
+
+    def test_provider_returning_none_falls_back_to_seed(self):
+        # Returning None is the explicit "no variation available" signal;
+        # the seed problem must come back unchanged.
+        problem = _make_problem()
+
+        def none_provider(_template: str, _problem: BankProblem) -> None:
+            return None
+
+        set_variation_provider(none_provider)
+        result = _generate_problem_variation(problem)
+
+        assert result is problem
+
+    def test_provider_returning_invalid_text_falls_back(self):
+        # Validation still applies: a provider that returns a too-short
+        # string is rejected and the seed problem is used.
+        problem = _make_problem()
+        set_variation_provider(lambda _t, _p: "short")
+        result = _generate_problem_variation(problem)
+        assert result is problem
+
+    def test_provider_raising_falls_back_to_seed(self):
+        # Provider errors must not propagate; the call site has to remain
+        # robust because it runs inside a precommit hook.
+        problem = _make_problem()
+
+        def boom(_template: str, _problem: BankProblem) -> str:
+            raise RuntimeError("provider explosion")
+
+        set_variation_provider(boom)
+        result = _generate_problem_variation(problem)
+        assert result is problem
+
+    def test_none_provider_disables_variation(self):
+        # Setting the provider to None disables variation entirely; no
+        # Anthropic call, seed prompt returned verbatim.
+        problem = _make_problem()
+        set_variation_provider(None)
+        with patch("anthropic.Anthropic") as mock_cls:
+            result = _generate_problem_variation(problem)
+
+        assert result is problem
+        mock_cls.assert_not_called()
+
+    def test_anthropic_provider_returns_text_from_response(self):
+        # The reference Anthropic provider unwraps a TextBlock and
+        # returns the text. Smoke test that the wiring still works.
+        problem = _make_problem()
+        varied_text = "Implement a function that returns the largest item."
+        with patch("anthropic.Anthropic") as mock_cls:
+            mock_client = MagicMock()
+            mock_cls.return_value = mock_client
+            mock_client.messages.create.return_value = _make_anthropic_response(
+                varied_text
+            )
+            out = anthropic_variation_provider("template {problem}", problem)
+        assert out == varied_text

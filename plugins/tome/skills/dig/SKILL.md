@@ -1,7 +1,7 @@
 ---
 name: dig
 description: 'Interactively refine research results by searching deeper into a subtopic or channel. Use after /tome:research to explore areas of interest.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: research
 tags:

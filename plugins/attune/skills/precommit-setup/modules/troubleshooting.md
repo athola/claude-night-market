@@ -77,9 +77,23 @@ pythonpath = ["src"]
 
 ## Type Checking Errors
 
+**Fix the implementation first.** A typecheck error
+almost always points at a real bug — a value that
+might be `None`, a return type that doesn't match,
+a function that lies about its signature. Loosening
+the typechecker hides the bug; it does not solve it.
+
+Only reach for per-module overrides as a last resort,
+after confirming the error reflects a deliberate
+escape hatch (e.g. interop with an untyped third-party
+library you cannot annotate). When you do override,
+narrow the scope tightly and leave a comment naming
+the underlying issue.
+
 \`\`\`toml
-# Use per-module overrides for gradual typing
+# LAST RESORT — fix the implementation before reaching for this.
+# Narrow the scope to the offending module only; do not blanket-disable.
 [[tool.mypy.overrides]]
 module = "legacy_module.*"
-disallow_untyped_defs = false
+disallow_untyped_defs = false  # tracked: <issue link>
 \`\`\`

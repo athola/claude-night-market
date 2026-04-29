@@ -1,7 +1,7 @@
 ---
 name: code-search
 description: 'Search GitHub for existing implementations. Use when looking for code examples, libraries, or implementation patterns on a topic.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: research
 tags:

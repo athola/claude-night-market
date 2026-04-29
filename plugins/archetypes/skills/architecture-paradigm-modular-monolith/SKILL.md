@@ -3,7 +3,7 @@ name: architecture-paradigm-modular-monolith
 description: 'Single deployable with enforced module boundaries for team autonomy
   without distributed complexity. Use when teams need autonomy without distributed
   overhead. Do not use when already using microservices or system is small.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architectural-pattern
 tags:

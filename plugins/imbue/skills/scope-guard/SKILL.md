@@ -1,7 +1,7 @@
 ---
 name: scope-guard
 description: 'Pre-implementation scope control: worthiness scoring, branch-size limits, defer nice-to-haves. Use before adding features or proposing abstractions.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-methodology
 tags:

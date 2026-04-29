@@ -4,7 +4,7 @@ description: >-
   Cross-cutting contract that inverts burden of proof
   for code additions. Use when reviewing proposed
   additions or detecting LLM additive-bias patterns.
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: quality-contract
 tags:

@@ -1,7 +1,7 @@
 ---
 name: rust-review
 description: 'Rust audit for unsafe blocks, ownership, and Cargo deps. Use when reviewing Rust code for safety or supply-chain risk.'
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.rs"
 alwaysApply: false
 category: code-review

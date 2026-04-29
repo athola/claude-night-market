@@ -1,7 +1,7 @@
 ---
 name: slop-detector
 description: 'Detect AI-generated markers in prose. Use when reviewing docs for slop, cleaning LLM output, or auditing prose quality. Not for generating new content.'
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.md"
 alwaysApply: false
 category: writing-quality

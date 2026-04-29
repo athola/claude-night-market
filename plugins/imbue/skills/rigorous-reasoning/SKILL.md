@@ -1,7 +1,7 @@
 ---
 name: rigorous-reasoning
 description: 'Anti-sycophancy reasoning checklist. Use when analyzing conflicts, contested claims, or detecting courtesy-driven agreement.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-methodology
 tags:

@@ -445,15 +445,15 @@ class TestInteractivePlanReview:
 
     @pytest.mark.bdd
     def test_orchestrator_skill_declares_version_1_9(self) -> None:
-        """Scenario: Orchestrator skill version is 1.9.0
+        """Scenario: Orchestrator skill version is 1.9.3
         Given the mission-orchestrator SKILL.md
         When parsing frontmatter
-        Then version should be 1.9.0
+        Then version should be 1.9.3
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
-        assert fm.get("version") == "1.9.0", (
-            f"Expected version='1.9.0', got {fm.get('version')!r}"
+        assert fm.get("version") == "1.9.3", (
+            f"Expected version='1.9.3', got {fm.get('version')!r}"
         )
 
     @pytest.mark.bdd

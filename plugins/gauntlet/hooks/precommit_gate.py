@@ -24,9 +24,13 @@ if str(_src_path) not in sys.path:
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
 
-# gauntlet.challenges pulls in `anthropic` for variation generation. Defer it
-# until a challenge is actually needed so this hook stays a clean no-op for
-# every non-`git commit` Bash invocation (and survives missing optional deps).
+# gauntlet.challenges uses a registered VariationProvider for problem
+# variation. The default provider lazy-imports `anthropic`, so this hook
+# stays a clean no-op for every non-`git commit` Bash invocation and
+# survives missing optional deps. Skills running with an LLM in-loop can
+# call set_variation_provider() to short-circuit through the parent LLM
+# instead of round-tripping to the Anthropic API; that integration is
+# tracked in the issue queue and not wired in this branch.
 
 # Graph-aware analysis (optional -- degrade gracefully)
 try:

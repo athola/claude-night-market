@@ -1,7 +1,7 @@
 ---
 name: skill-graph-audit
 description: 'Map Skill() refs across plugins; detect hubs, isolates, and dangling targets. Use when auditing skill composition or hunting broken refs.'
-version: 1.9.4
+version: 1.9.3
 alwaysApply: false
 tools: []
 modules:
@@ -110,4 +110,4 @@ Two ways to validate the audit output is trustworthy:
 - Tests: `plugins/abstract/tests/scripts/test_skill_graph.py`
 - Composition documentation:
   `docs/quality-gates.md#skill-level-quality-gate-composition`
-- Skill role taxonomy: `docs/skill-taxonomy.md`
+- Skill role taxonomy: `docs/skill-integration-guide.md#skill-role-taxonomy`

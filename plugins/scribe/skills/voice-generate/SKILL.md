@@ -4,7 +4,7 @@ description: Generate text in a learned writing voice using extracted voice
   profiles and register selection. Frames source material as raw notes for
   optimal output quality. Use when writing blog posts, essays, emails, or
   any prose in the user's trained voice.
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

@@ -136,6 +136,51 @@ class TestBuildGraph:
         assert graph.nodes["imbue:scope-guard"].name == "scope-guard"
 
     @pytest.mark.unit
+    def test_excludes_non_skill_markdown_at_other_depths(self, tmp_path: Path) -> None:
+        """Scenario: Only files at plugins/<plugin>/skills/<name>/SKILL.md
+        become nodes. Modular siblings, docs examples, and SKILL.md files at
+        other depths must be ignored so the graph reflects real skills, not
+        ancillary markdown that happens to share the SKILL.md filename or
+        live near a skill.
+        """
+        skill_dir = tmp_path / "plugins" / "imbue" / "skills" / "scope-guard"
+        skill_dir.mkdir(parents=True)
+        # Real skill — should appear.
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: scope-guard\ndescription: x\n---\nbody"
+        )
+        # Modular sibling with Skill() refs — must NOT become a node.
+        (skill_dir / "modules").mkdir()
+        (skill_dir / "modules" / "extra.md").write_text(
+            "---\nname: extra\ndescription: shared module\n---\n"
+            "Mentions `Skill(scribe:slop-detector)` but is not itself a skill."
+        )
+        # Stray SKILL.md inside docs/ — wrong depth, must NOT become a node.
+        docs_skill = tmp_path / "plugins" / "abstract" / "docs" / "examples" / "ignored"
+        docs_skill.mkdir(parents=True)
+        (docs_skill / "SKILL.md").write_text(
+            "---\nname: ignored\ndescription: example only\n---\nbody"
+        )
+        # SKILL.md under plugins/<plugin>/scripts/ — wrong second segment.
+        scripts_dir = tmp_path / "plugins" / "abstract" / "scripts" / "leak"
+        scripts_dir.mkdir(parents=True)
+        (scripts_dir / "SKILL.md").write_text(
+            "---\nname: leak\ndescription: x\n---\nbody"
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+
+        assert "imbue:scope-guard" in graph.nodes
+        assert "abstract:ignored" not in graph.nodes
+        assert "abstract:leak" not in graph.nodes
+        assert "imbue:extra" not in graph.nodes
+        # Modular .md must not contribute edges either — extra.md mentions
+        # scribe:slop-detector but slop-detector isn't even a defined node
+        # here, and the edge must not exist regardless.
+        assert ("imbue:extra", "scribe:slop-detector") not in graph.edges
+        assert ("imbue:scope-guard", "scribe:slop-detector") not in graph.edges
+
+    @pytest.mark.unit
     def test_builds_edges_from_skill_references(self, tmp_path: Path) -> None:
         """Scenario: Skill() references become directed edges."""
         (tmp_path / "plugins" / "imbue" / "skills" / "scope-guard").mkdir(parents=True)

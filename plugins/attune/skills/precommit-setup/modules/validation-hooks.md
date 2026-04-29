@@ -47,18 +47,16 @@ Add project-specific hooks for architectural or coverage rules:
         files: ^(plugins|src)/.*\\.py\$
 \`\`\`
 
-## Skip Specific Hooks (Emergency Use)
+## Hook Bypass Policy
 
-\`\`\`bash
-# Skip specific hook for one commit
-SKIP=run-component-tests git commit -m "WIP: tests in progress"
+`SKIP=<hook> git commit` and `git commit --no-verify`
+**must not be used**. Hooks exist to keep the tree
+green; bypassing them moves broken code into history,
+where the next commit fights yesterday's bug instead
+of today's feature.
 
-# Skip component checks but keep global checks
-SKIP=run-component-lint,run-component-typecheck,run-component-tests git commit -m "WIP"
-
-# Skip all hooks (DANGEROUS - use only for emergencies)
-git commit --no-verify -m "Emergency fix"
-\`\`\`
-
-Document the reason whenever a hook is skipped; SKIP is a
-last-resort tool, not a routine workflow.
+If a hook fails, fix the underlying issue. If a hook
+is wrong (false positive, slow, irrelevant), fix the
+hook configuration. If commit pressure is the problem,
+land a smaller change. There is no supported workflow
+in this codebase that ends with a bypassed hook.

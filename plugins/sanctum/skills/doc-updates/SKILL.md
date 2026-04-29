@@ -1,7 +1,7 @@
 ---
 name: doc-updates
 description: 'Update documentation after code changes with quality gates, slop detection, consolidation, and accuracy verification.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:
