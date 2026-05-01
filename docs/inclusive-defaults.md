@@ -194,10 +194,25 @@ The branch name `inclusive-default-1.9.3` reflects the
 guiding principle: defaults are accessibility. Flags the
 user has to discover are not really there.
 
+## Audit history
+
+The 1.9.3 audit ran the FLIP / KEEP / DOC classifier across
+all 23 plugins on the `inclusive-default-1.9.3` branch
+(see #445). Outcomes are captured by category:
+
+- **DOC entries** folded into per-plugin READMEs and
+  command docs as part of the 1.9.3 release commits.
+- **FLIP entries** that shipped: hookify `safe-defaults`
+  rule bundle (default-ON warn-only set); spec-kit TDD
+  task generation under reconsideration for a future
+  release.
+- **KEEP entries** are codified in the nine TRUE-exception
+  categories above. Each remains opt-in by design.
+
 ## References
 
 - [Audit checklist (#445)](https://github.com/athola/claude-night-market/issues/445)
-- `reviews/1.9.3/inclusive-default-audit.md` — per-plugin
-  audit
 - 1.9.2 CHANGELOG — first wave of inclusive flips
   (`--no-insights`, `--no-agent-teams`, etc.)
+- 1.9.3 CHANGELOG — `safe-defaults` bundle and policy
+  doc itself
