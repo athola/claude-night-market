@@ -1,5 +1,6 @@
 ---
 name: discourse
+role: library
 description: 'Scan HN, Lobsters, Reddit, and tech blogs for experience reports. Use when the user wants community perspectives on a technology.'
 version: 1.9.3
 alwaysApply: false

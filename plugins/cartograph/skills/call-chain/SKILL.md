@@ -1,5 +1,6 @@
 ---
 name: call-chain
+role: library
 description: >
   Trace execution paths from entry points through the
   code knowledge graph. Shows call chains with criticality

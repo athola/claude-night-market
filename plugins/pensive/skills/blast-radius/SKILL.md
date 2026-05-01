@@ -1,5 +1,6 @@
 ---
 name: blast-radius
+role: entrypoint
 description: >
   Analyze the blast radius of code changes with risk
   scoring. Shows affected nodes, untested functions,

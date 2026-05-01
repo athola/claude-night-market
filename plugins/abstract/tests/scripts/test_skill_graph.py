@@ -20,12 +20,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from skill_graph import (  # noqa: E402 - import after sys.path mutation
     KNOWN_EXTERNAL_PLUGINS,
+    VALID_ROLES,
     SkillGraph,
     SkillNode,
     build_graph,
+    classify_by_role,
     classify_dangling_refs,
     detect_dangling_refs,
     detect_isolates,
+    detect_uncalled_libraries,
     extract_skill_references,
     rank_hubs,
     rank_orchestrators,
@@ -110,6 +113,262 @@ class TestExtractSkillReferences:
 
         refs = extract_skill_references(f)
         assert refs == {("imbue", "scope-guard")}
+
+
+class TestFrontmatterDependencies:
+    """Feature: Frontmatter `dependencies:` and `modules:` arrays count as
+    skill references.
+
+    Background: The 2026-04-25 orphan audit had a measurement bug -- it only
+    saw inline `Skill(plugin:name)` calls and missed skills loaded via
+    frontmatter dependency arrays. This produced ~85 false-positive orphans.
+    The taxonomy in docs/skill-integration-guide.md formalises the entry
+    paths a skill can have; the audit must recognise all of them.
+    """
+
+    @pytest.mark.unit
+    def test_qualified_dependency_creates_edge(self, tmp_path: Path) -> None:
+        """Scenario: `dependencies: [tome:code-search]` is an edge to that skill."""
+        (tmp_path / "plugins" / "tome" / "skills" / "research").mkdir(parents=True)
+        (tmp_path / "plugins" / "tome" / "skills" / "research" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: research
+                description: Multi-source research.
+                dependencies:
+                  - tome:code-search
+                  - tome:discourse
+                ---
+                Body without inline Skill() calls.
+                """)
+        )
+        (tmp_path / "plugins" / "tome" / "skills" / "code-search").mkdir(parents=True)
+        (
+            tmp_path / "plugins" / "tome" / "skills" / "code-search" / "SKILL.md"
+        ).write_text("---\nname: code-search\ndescription: x\n---\nbody")
+        (tmp_path / "plugins" / "tome" / "skills" / "discourse").mkdir(parents=True)
+        (
+            tmp_path / "plugins" / "tome" / "skills" / "discourse" / "SKILL.md"
+        ).write_text("---\nname: discourse\ndescription: x\n---\nbody")
+
+        graph = build_graph(tmp_path / "plugins")
+
+        assert ("tome:research", "tome:code-search") in graph.edges
+        assert ("tome:research", "tome:discourse") in graph.edges
+
+    @pytest.mark.unit
+    def test_bare_dependency_resolves_to_same_plugin(self, tmp_path: Path) -> None:
+        """Scenario: `dependencies: [hexagonal]` in archetypes resolves to
+        archetypes:hexagonal. The architecture-paradigms hub uses bare-name
+        deps for sibling paradigm skills.
+        """
+        (
+            tmp_path / "plugins" / "archetypes" / "skills" / "architecture-paradigms"
+        ).mkdir(parents=True)
+        (
+            tmp_path
+            / "plugins"
+            / "archetypes"
+            / "skills"
+            / "architecture-paradigms"
+            / "SKILL.md"
+        ).write_text(
+            textwrap.dedent("""\
+                ---
+                name: architecture-paradigms
+                description: Paradigm router.
+                dependencies:
+                  - architecture-paradigm-hexagonal
+                  - architecture-paradigm-microservices
+                ---
+                Body.
+                """)
+        )
+        (
+            tmp_path
+            / "plugins"
+            / "archetypes"
+            / "skills"
+            / "architecture-paradigm-hexagonal"
+        ).mkdir(parents=True)
+        (
+            tmp_path
+            / "plugins"
+            / "archetypes"
+            / "skills"
+            / "architecture-paradigm-hexagonal"
+            / "SKILL.md"
+        ).write_text(
+            "---\nname: architecture-paradigm-hexagonal\ndescription: x\n---\nbody"
+        )
+        (
+            tmp_path
+            / "plugins"
+            / "archetypes"
+            / "skills"
+            / "architecture-paradigm-microservices"
+        ).mkdir(parents=True)
+        (
+            tmp_path
+            / "plugins"
+            / "archetypes"
+            / "skills"
+            / "architecture-paradigm-microservices"
+            / "SKILL.md"
+        ).write_text(
+            "---\nname: architecture-paradigm-microservices\ndescription: x\n---\nbody"
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+
+        assert (
+            "archetypes:architecture-paradigms",
+            "archetypes:architecture-paradigm-hexagonal",
+        ) in graph.edges
+        assert (
+            "archetypes:architecture-paradigms",
+            "archetypes:architecture-paradigm-microservices",
+        ) in graph.edges
+
+    @pytest.mark.unit
+    def test_bare_names_in_modules_array_treated_as_local_files(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: `modules: [tdd-methodology]` is a local module file
+        basename (resolves to ``modules/tdd-methodology.md``), NOT a
+        same-plugin skill reference.
+
+        This distinguishes `modules:` (composition of one skill from
+        local files) from `dependencies:` (sibling skill loads). Without
+        this distinction, the audit produces hundreds of false-positive
+        dangling-bug findings against module-heavy skills like
+        abstract:skill-authoring.
+        """
+        (tmp_path / "plugins" / "abstract" / "skills" / "skill-authoring").mkdir(
+            parents=True
+        )
+        (
+            tmp_path
+            / "plugins"
+            / "abstract"
+            / "skills"
+            / "skill-authoring"
+            / "SKILL.md"
+        ).write_text(
+            textwrap.dedent("""\
+                ---
+                name: skill-authoring
+                description: Skill authoring guide.
+                modules:
+                  - tdd-methodology
+                  - persuasion-principles
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+
+        # Bare names in modules: must NOT produce phantom edges.
+        assert (
+            "abstract:skill-authoring",
+            "abstract:tdd-methodology",
+        ) not in graph.edges
+        assert (
+            "abstract:skill-authoring",
+            "abstract:persuasion-principles",
+        ) not in graph.edges
+
+    @pytest.mark.unit
+    def test_qualified_entry_in_modules_still_creates_edge(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: `modules: [other-plugin:helper]` is a fully-qualified
+        cross-plugin reference and SHOULD produce an edge.
+
+        The bare-name suppression only applies to ambiguous entries; an
+        explicit `plugin:name` form is unambiguous and authoritative.
+        """
+        (tmp_path / "plugins" / "src" / "skills" / "main").mkdir(parents=True)
+        (tmp_path / "plugins" / "src" / "skills" / "main" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: main
+                description: x
+                modules:
+                  - other:helper
+                ---
+                Body.
+                """)
+        )
+        (tmp_path / "plugins" / "other" / "skills" / "helper").mkdir(parents=True)
+        (tmp_path / "plugins" / "other" / "skills" / "helper" / "SKILL.md").write_text(
+            "---\nname: helper\ndescription: x\n---\nbody"
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        assert ("src:main", "other:helper") in graph.edges
+
+    @pytest.mark.unit
+    def test_modules_array_with_local_paths_is_ignored(self, tmp_path: Path) -> None:
+        """Scenario: `modules: [modules/usage.md]` is a local file, not a
+        skill reference. It must NOT produce an edge to a phantom
+        `<plugin>:modules/usage.md` node.
+        """
+        (tmp_path / "plugins" / "abstract" / "skills" / "skill-graph-audit").mkdir(
+            parents=True
+        )
+        (
+            tmp_path
+            / "plugins"
+            / "abstract"
+            / "skills"
+            / "skill-graph-audit"
+            / "SKILL.md"
+        ).write_text(
+            textwrap.dedent("""\
+                ---
+                name: skill-graph-audit
+                description: Map Skill refs.
+                modules:
+                  - modules/usage.md
+                  - modules/interpretation.md
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+
+        # No phantom edges to file-path entries.
+        for _src, dst in graph.edges:
+            assert "/" not in dst, f"file path leaked into edges: {dst}"
+            assert not dst.endswith(".md"), f"file path leaked into edges: {dst}"
+
+    @pytest.mark.unit
+    def test_dep_to_unknown_plugin_classified_external(self, tmp_path: Path) -> None:
+        """Scenario: Frontmatter dep to a known-external plugin is treated
+        the same as an inline Skill() ref to that plugin -- external,
+        not a bug.
+        """
+        (tmp_path / "plugins" / "src" / "skills" / "main").mkdir(parents=True)
+        (tmp_path / "plugins" / "src" / "skills" / "main" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: main
+                description: x
+                dependencies:
+                  - superpowers:brainstorming
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        result = classify_dangling_refs(graph)
+
+        assert ("src:main", "superpowers:brainstorming") in result["external"]
+        assert result["bugs"] == []
 
 
 class TestBuildGraph:
@@ -396,3 +655,205 @@ class TestSkillNode:
         assert node.plugin == "imbue"
         assert node.name == "scope-guard"
         assert str(node) == "imbue:scope-guard"
+
+    @pytest.mark.unit
+    def test_node_role_defaults_to_empty(self) -> None:
+        """Scenario: Legacy nodes without role: have empty role, not None."""
+        node = SkillNode(
+            plugin="imbue",
+            name="scope-guard",
+            path=Path("/tmp/SKILL.md"),
+        )
+        assert node.role == ""
+
+    @pytest.mark.unit
+    def test_node_carries_role_when_set(self) -> None:
+        """Scenario: role= constructor argument is preserved."""
+        node = SkillNode(
+            plugin="scribe",
+            name="slop-detector",
+            path=Path("/tmp/SKILL.md"),
+            role="library",
+        )
+        assert node.role == "library"
+
+
+class TestRoleAwareClassification:
+    """Feature: Role-aware audit classification per the taxonomy in
+    docs/skill-integration-guide.md#skill-role-taxonomy.
+
+    Each role has different expectations:
+    - `entrypoint` skills are user-invoked; zero inbound is normal.
+    - `library` skills exist to be loaded; zero inbound is a smell
+      (genuinely uncalled).
+    - `hook-target` skills are invoked by hooks; the audit cannot see
+      that path, so zero inbound is normal.
+    - Unset roles fall back to legacy isolate detection.
+    """
+
+    @pytest.mark.unit
+    def test_valid_roles_constant(self) -> None:
+        """Scenario: The taxonomy's three roles are exposed as a constant."""
+        assert VALID_ROLES == {"entrypoint", "library", "hook-target"}
+
+    @pytest.mark.unit
+    def test_role_parsed_from_frontmatter(self, tmp_path: Path) -> None:
+        """Scenario: A skill declaring role: library has node.role set."""
+        (tmp_path / "plugins" / "scribe" / "skills" / "slop-detector").mkdir(
+            parents=True
+        )
+        (
+            tmp_path / "plugins" / "scribe" / "skills" / "slop-detector" / "SKILL.md"
+        ).write_text(
+            textwrap.dedent("""\
+                ---
+                name: slop-detector
+                description: Detect AI slop.
+                role: library
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        assert graph.nodes["scribe:slop-detector"].role == "library"
+
+    @pytest.mark.unit
+    def test_invalid_role_value_silently_dropped(self, tmp_path: Path) -> None:
+        """Scenario: An unknown role: value is treated as unset rather than error.
+
+        The audit must remain robust to typos and to future role additions
+        that haven't reached the validator yet.
+        """
+        (tmp_path / "plugins" / "x" / "skills" / "y").mkdir(parents=True)
+        (tmp_path / "plugins" / "x" / "skills" / "y" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: y
+                description: x
+                role: not-a-real-role
+                ---
+                Body.
+                """)
+        )
+        graph = build_graph(tmp_path / "plugins")
+        assert graph.nodes["x:y"].role == ""
+
+    @pytest.mark.unit
+    def test_library_with_zero_inbound_is_uncalled_not_isolate(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: role: library with zero inbound goes into
+        uncalled_libraries, NOT isolates.
+
+        The original audit's measurement bug flagged genuine libraries as
+        orphans. With role: declared, the audit can place them in a
+        dedicated bin that signals "potentially dead library" without
+        conflating with truly-dangling skills.
+        """
+        (tmp_path / "plugins" / "lib" / "skills" / "uncalled").mkdir(parents=True)
+        (tmp_path / "plugins" / "lib" / "skills" / "uncalled" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: uncalled
+                description: A library no one calls yet.
+                role: library
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        isolates = detect_isolates(graph)
+        uncalled = detect_uncalled_libraries(graph)
+
+        assert "lib:uncalled" not in isolates
+        assert "lib:uncalled" in uncalled
+
+    @pytest.mark.unit
+    def test_entrypoint_with_zero_inbound_is_neither_isolate_nor_uncalled(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: role: entrypoint skills are user-invoked; zero inbound
+        is the normal case, not a defect.
+        """
+        (tmp_path / "plugins" / "p" / "skills" / "user-facing").mkdir(parents=True)
+        (tmp_path / "plugins" / "p" / "skills" / "user-facing" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: user-facing
+                description: User invokes via slash command.
+                role: entrypoint
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        assert "p:user-facing" not in detect_isolates(graph)
+        assert "p:user-facing" not in detect_uncalled_libraries(graph)
+
+    @pytest.mark.unit
+    def test_hook_target_with_zero_inbound_is_neither(self, tmp_path: Path) -> None:
+        """Scenario: role: hook-target skills are invoked by hooks; the
+        audit cannot see that path, so zero inbound is normal.
+        """
+        (tmp_path / "plugins" / "p" / "skills" / "hookable").mkdir(parents=True)
+        (tmp_path / "plugins" / "p" / "skills" / "hookable" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: hookable
+                description: Read by a PreToolUse hook.
+                role: hook-target
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        assert "p:hookable" not in detect_isolates(graph)
+        assert "p:hookable" not in detect_uncalled_libraries(graph)
+
+    @pytest.mark.unit
+    def test_unset_role_falls_back_to_legacy_isolate_detection(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: Skills without role: keep the legacy zero-degree rule.
+
+        Backward compatibility: existing skills predate the convention
+        and must not be silently reclassified.
+        """
+        (tmp_path / "plugins" / "p" / "skills" / "legacy").mkdir(parents=True)
+        (tmp_path / "plugins" / "p" / "skills" / "legacy" / "SKILL.md").write_text(
+            "---\nname: legacy\ndescription: x\n---\nbody"
+        )
+
+        graph = build_graph(tmp_path / "plugins")
+        assert "p:legacy" in detect_isolates(graph)
+
+    @pytest.mark.unit
+    def test_classify_by_role_bins_skills(self, tmp_path: Path) -> None:
+        """Scenario: classify_by_role returns a dict keyed by role with
+        skills in each bin, plus an `unset` bin for legacy skills.
+        """
+        for role_value, skill_name in [
+            ("entrypoint", "ep"),
+            ("library", "lib"),
+            ("hook-target", "ht"),
+            ("", "legacy"),
+        ]:
+            (tmp_path / "plugins" / "p" / "skills" / skill_name).mkdir(parents=True)
+            fm_extra = f"role: {role_value}\n" if role_value else ""
+            (
+                tmp_path / "plugins" / "p" / "skills" / skill_name / "SKILL.md"
+            ).write_text(
+                f"---\nname: {skill_name}\ndescription: x\n{fm_extra}---\nbody"
+            )
+
+        graph = build_graph(tmp_path / "plugins")
+        bins = classify_by_role(graph)
+
+        assert bins["entrypoint"] == ["p:ep"]
+        assert bins["library"] == ["p:lib"]
+        assert bins["hook-target"] == ["p:ht"]
+        assert bins["unset"] == ["p:legacy"]

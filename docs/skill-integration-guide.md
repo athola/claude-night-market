@@ -216,27 +216,29 @@ exposed the audit's measurement bug:
 | `pensive:blast-radius` | orphan | entrypoint (`/pensive:blast-radius`) |
 | `tome:code-search` | orphan | library (loaded by `tome:research`) |
 | `tome:discourse` | orphan | library (loaded by `tome:research`) |
-| `scry:before-after` | orphan | hook-target (postlude script reads it) |
+| `leyline:supply-chain-advisory` | orphan | hook-target (read by dependency hooks) |
 | `conserve:agent-expenditure` | orphan | library (loaded by parallel-dispatch) |
-| `cartograph:call-chain` | orphan | entrypoint (slash command exists) |
+| `cartograph:call-chain` | orphan | library (loaded by visualize) |
 
 Verdict: 8 of 10 were correctly populated libraries that
 the `Skill()` regex could not see because their callers
-load them via `dependencies:` or `modules:` arrays in
-frontmatter, not inline `Skill(...)` invocations. Two
-were genuine entrypoints with slash commands.
+load them via `dependencies:` arrays in frontmatter, not
+inline `Skill(...)` invocations. The remaining two were
+a genuine entrypoint (`pensive:blast-radius`) and a real
+hook-target (`leyline:supply-chain-advisory`).
 
 This is a measurement bug in the audit, not a coverage
-problem in the marketplace. The taxonomy needs to be the
-basis for any future "orphan" detection: only skills
-with **no entry path of any kind** (Skill() callers,
-slash command, hook handle, dependency array, module
-reference) qualify as orphans.
+problem in the marketplace. The taxonomy is now the
+basis for orphan detection: only skills with **no entry
+path of any kind** (Skill() callers, slash command, hook
+handle, or `dependencies:` declaration) qualify as
+isolates.
 
-### Frontmatter convention (proposal)
+### Frontmatter convention
 
-Documented as a proposal -- no schema change has been
-made. The recommendation for new skills:
+The `role:` field is part of the SKILL.md frontmatter
+schema and is honored by `abstract:skill-graph-audit`.
+Recommended for every new skill:
 
 ```yaml
 ---
@@ -247,17 +249,44 @@ role: entrypoint  # or library, or hook-target
 ---
 ```
 
-Tooling implications if adopted: audit scripts can
-filter by role before flagging orphans (current
-false-positive rate is high), plugin validators can
-require role-appropriate fields (e.g., entrypoints must
-have a matching command file),
-`abstract:skills-eval` can apply different quality
-thresholds per role (entrypoints face higher
-description-budget pressure than libraries). Adoption
-path: tag new skills with `role:` going forward;
-backfill existing skills opportunistically during
-other work.
+Field semantics in the audit (`plugins/abstract/scripts/skill_graph.py`):
+
+- `role: entrypoint` skills are user-invoked; zero inbound
+  is the normal case and never flags as an isolate.
+- `role: library` skills exist to be loaded by other
+  skills. Zero inbound is reported in a separate
+  `uncalled_libraries` bin -- a softer "potentially
+  dead" signal that does not conflate with genuine
+  orphans.
+- `role: hook-target` skills are invoked by hooks; the
+  audit cannot trace that path, so zero inbound is
+  expected and never flags as an isolate.
+- Skills without `role:` fall back to legacy zero-degree
+  isolate detection. Backfill is opportunistic.
+
+The audit also recognises `dependencies:` arrays as a
+valid entry path. Bare names resolve to same-plugin
+sibling skills (the canonical hub-loads-paradigm
+pattern); fully-qualified `plugin:name` entries cross
+plugin boundaries. `modules:` arrays are NOT treated
+as skill references for bare names -- those refer to
+local module files within the skill's own directory.
+
+### Audit impact
+
+After applying the schema, a full audit of the 185
+skills in this marketplace produced:
+
+- **Isolates: 104 -> 45** (-59 false positives eliminated).
+- **Edges visible: 134 -> 298** (+164 previously-hidden
+  declarative dependencies now traced).
+- **Roles assigned**: 15 entrypoint, 24 library, 3
+  hook-target, 143 unset (legacy).
+- **Genuine dangling references surfaced**: 32 deps to
+  skills that do not exist (e.g. multiple plugins
+  reference a `<plugin>:shared` skill that is not in
+  the tree). These were always present but invisible
+  to the regex-only extractor.
 
 ---
 

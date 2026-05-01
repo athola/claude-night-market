@@ -1,5 +1,6 @@
 ---
 name: architecture-paradigm-hexagonal
+role: library
 description: 'Hexagonal (Ports and Adapters) architecture isolating domain logic from infrastructure.'
 version: 1.9.3
 alwaysApply: false
