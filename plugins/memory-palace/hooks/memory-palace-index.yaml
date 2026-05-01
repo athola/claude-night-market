@@ -3056,6 +3056,214 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/anthropics/claude-code/issues/6123
+  https://blogosphere.app/about:
+    content_hash: sha256:d7fb9993c11cec26
+    stored_at: data/staging/webfetch-i-appreciate-your-detailed-request-but-i-can-only-2026-04-30_01-49-00.md
+    importance_score: 50
+    last_updated: '2026-04-30T01:49:00.254481+00:00'
+    title: "I appreciate your detailed request, but I can only see a title tag from\
+      \ the webpage: \"Blogosphere \u2014 "
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/about
+  https://blogosphere.app:
+    content_hash: sha256:7f3459779bcb75c5
+    stored_at: data/staging/webfetch-page-description-blogosphere-2026-04-30_01-49-00.md
+    importance_score: 50
+    last_updated: '2026-04-30T01:49:00.771936+00:00'
+    title: 'Page Description: Blogosphere'
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/
+  https://blogosphere.app/feeds:
+    content_hash: sha256:34727ddd75dbc39e
+    stored_at: data/staging/webfetch-blogosphere-feed-discovery-page-2026-04-30_01-49-02.md
+    importance_score: 50
+    last_updated: '2026-04-30T01:49:02.306233+00:00'
+    title: Blogosphere Feed Discovery Page
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/feeds/
+  https://blogosphere.app/discover:
+    content_hash: sha256:9ec06ee8e448aeef
+    stored_at: data/staging/webfetch-blogosphere-web-page-analysis-2026-04-30_02-17-09.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:09.166033+00:00'
+    title: Blogosphere Web Page Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/discover
+  https://blogosphere.app/browse:
+    content_hash: sha256:9a1e7d4239d9f7b2
+    stored_at: data/staging/webfetch-blogosphere-web-page-analysis-2026-04-30_02-17-11.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:11.481734+00:00'
+    title: Blogosphere Web Page Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/browse
+  https://posthog.com/blog:
+    content_hash: sha256:9f78ebefd9ff92f6
+    stored_at: data/staging/webfetch-posthog-blog-index-page-design-2026-04-30_02-17-26.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:26.983842+00:00'
+    title: PostHog Blog Index Page Design
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/blog
+  https://posthog.com/about:
+    content_hash: sha256:9b0a72b4a401d01e
+    stored_at: data/staging/webfetch-posthog-about-page-analysis-2026-04-30_02-17-33.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:33.530638+00:00'
+    title: PostHog About Page Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/about
+  https://text.blogosphere.app/blogs:
+    content_hash: sha256:908f0b169d2ffd82
+    stored_at: data/staging/webfetch-blogosphere-blogs-page-description-2026-04-30_02-17-40.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:40.688268+00:00'
+    title: Blogosphere Blogs Page Description
+    maturity: seedling
+    routing_type: pending
+    url: https://text.blogosphere.app/blogs
+  https://news.ycombinator.com/item?id=47252700:
+    content_hash: sha256:2f17d915b28b389b
+    stored_at: data/staging/webfetch-blogosphere-app-discussion-summary-2026-04-30_02-17-42.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:42.823127+00:00'
+    title: Blogosphere.app Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=47252700
+  https://posthog.com/pricing:
+    content_hash: sha256:6881718b86fa53b7
+    stored_at: data/staging/webfetch-posthog-pricing-page-analysis-2026-04-30_02-17-44.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:44.715042+00:00'
+    title: PostHog Pricing Page Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/pricing
+  https://text.blogosphere.app:
+    content_hash: sha256:2de4bc93359a9b33
+    stored_at: data/staging/webfetch-blogosphere-visual-design-technical-analysis-2026-04-30_02-17-45.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:45.327910+00:00'
+    title: Blogosphere Visual Design & Technical Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://text.blogosphere.app/
+  https://blog.fsck.com:
+    content_hash: sha256:349f314564a603ca
+    stored_at: data/staging/webfetch-homepage-analysis-massively-parallel-2026-04-30_02-17-47.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:47.231141+00:00'
+    title: 'Homepage Analysis: Massively Parallel Procrastination'
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.fsck.com/
+  https://text.blogosphere.app/about:
+    content_hash: sha256:e3129a2dfbaf2785
+    stored_at: data/staging/webfetch-blogosphere-about-page-summary-2026-04-30_02-17-56.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:56.911994+00:00'
+    title: Blogosphere About Page Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://text.blogosphere.app/about
+  https://text.blogosphere.app/s.html:
+    content_hash: sha256:a1de98ae6edc7a24
+    stored_at: data/staging/webfetch-stumble-feature-description-2026-04-30_02-17-57.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:17:57.722801+00:00'
+    title: Stumble Feature Description
+    maturity: seedling
+    routing_type: pending
+    url: https://text.blogosphere.app/s.html
+  https://blog.fsck.com/2026/04/24/greenfield-and-iterative-development:
+    content_hash: sha256:c437585c5447da69
+    stored_at: data/staging/webfetch-blog-post-structure-analysis-2026-04-30_02-18-00.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:00.872147+00:00'
+    title: Blog Post Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.fsck.com/2026/04/24/greenfield-and-iterative-development/
+  https://blog.fsck.com/blog:
+    content_hash: sha256:b8704921ba3a58bc
+    stored_at: data/staging/webfetch-archive-page-layout-analysis-2026-04-30_02-18-06.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:06.430056+00:00'
+    title: Archive Page Layout Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.fsck.com/blog/
+  https://hyvor.com/blog/best-of-the-blogosphere:
+    content_hash: sha256:64931b8b6eebc87e
+    stored_at: data/staging/webfetch-response-2026-04-30_02-18-08.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:08.584616+00:00'
+    title: Response
+    maturity: seedling
+    routing_type: pending
+    url: https://hyvor.com/blog/best-of-the-blogosphere
+  https://blogosphere.app/recent:
+    content_hash: sha256:b3d52c57d9cd9ffb
+    stored_at: data/staging/webfetch-blogosphere-page-analysis-2026-04-30_02-18-08.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:09.414732+00:00'
+    title: Blogosphere Page Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://blogosphere.app/recent
+  https://posthog.com/handbook/brand/designing-posthog-website:
+    content_hash: sha256:5c245c7d0f230a0f
+    stored_at: data/staging/webfetch-design-system-extraction-from-posthog-com-handbook-2026-04-30_02-18-13.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:13.421605+00:00'
+    title: Design System Extraction from posthog.com Handbook
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/handbook/brand/designing-posthog-website
+  https://blog.fsck.com/about:
+    content_hash: sha256:ff3f50cd876737d0
+    stored_at: data/staging/webfetch-about-page-content-extraction-2026-04-30_02-18-16.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:16.932404+00:00'
+    title: About Page Content Extraction
+    maturity: seedling
+    routing_type: pending
+    url: https://blog.fsck.com/about/
+  https://posthog.com/handbook/brand/philosophy:
+    content_hash: sha256:299b7665404001a6
+    stored_at: data/staging/webfetch-posthog-design-philosophy-2026-04-30_02-18-17.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:17.641857+00:00'
+    title: PostHog Design Philosophy
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/handbook/brand/philosophy
+  https://posthog.com/blog/drawing-hedgehogs:
+    content_hash: sha256:2fa90d5c4612a21a
+    stored_at: data/staging/webfetch-blog-post-design-analysis-how-we-designed-the-2026-04-30_02-18-19.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:19.767888+00:00'
+    title: 'Blog Post Design Analysis: "How we designed the PostHog mascot"'
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/blog/drawing-hedgehogs
+  https://posthog.com/handbook/company/brand-assets:
+    content_hash: sha256:872b06d5f079f604
+    stored_at: data/staging/webfetch-posthog-brand-specifications-2026-04-30_02-18-34.md
+    importance_score: 50
+    last_updated: '2026-04-30T02:18:34.732448+00:00'
+    title: PostHog Brand Specifications
+    maturity: seedling
+    routing_type: pending
+    url: https://posthog.com/handbook/company/brand-assets
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3396,3 +3604,26 @@ hashes:
   sha256:346d7dab342b3b2b: data/staging/webfetch-top-comment-themes-2026-04-27_03-26-05.md
   sha256:9e76ba258f601207: data/staging/webfetch-lobsters-discussion-summary-2026-04-27_03-26-36.md
   sha256:34f162f5640d80d8: data/staging/webfetch-issue-summary-2026-04-27_03-26-39.md
+  sha256:d7fb9993c11cec26: data/staging/webfetch-i-appreciate-your-detailed-request-but-i-can-only-2026-04-30_01-49-00.md
+  sha256:7f3459779bcb75c5: data/staging/webfetch-page-description-blogosphere-2026-04-30_01-49-00.md
+  sha256:34727ddd75dbc39e: data/staging/webfetch-blogosphere-feed-discovery-page-2026-04-30_01-49-02.md
+  sha256:9ec06ee8e448aeef: data/staging/webfetch-blogosphere-web-page-analysis-2026-04-30_02-17-09.md
+  sha256:9a1e7d4239d9f7b2: data/staging/webfetch-blogosphere-web-page-analysis-2026-04-30_02-17-11.md
+  sha256:9f78ebefd9ff92f6: data/staging/webfetch-posthog-blog-index-page-design-2026-04-30_02-17-26.md
+  sha256:9b0a72b4a401d01e: data/staging/webfetch-posthog-about-page-analysis-2026-04-30_02-17-33.md
+  sha256:908f0b169d2ffd82: data/staging/webfetch-blogosphere-blogs-page-description-2026-04-30_02-17-40.md
+  sha256:2f17d915b28b389b: data/staging/webfetch-blogosphere-app-discussion-summary-2026-04-30_02-17-42.md
+  sha256:6881718b86fa53b7: data/staging/webfetch-posthog-pricing-page-analysis-2026-04-30_02-17-44.md
+  sha256:2de4bc93359a9b33: data/staging/webfetch-blogosphere-visual-design-technical-analysis-2026-04-30_02-17-45.md
+  sha256:349f314564a603ca: data/staging/webfetch-homepage-analysis-massively-parallel-2026-04-30_02-17-47.md
+  sha256:e3129a2dfbaf2785: data/staging/webfetch-blogosphere-about-page-summary-2026-04-30_02-17-56.md
+  sha256:a1de98ae6edc7a24: data/staging/webfetch-stumble-feature-description-2026-04-30_02-17-57.md
+  sha256:c437585c5447da69: data/staging/webfetch-blog-post-structure-analysis-2026-04-30_02-18-00.md
+  sha256:b8704921ba3a58bc: data/staging/webfetch-archive-page-layout-analysis-2026-04-30_02-18-06.md
+  sha256:64931b8b6eebc87e: data/staging/webfetch-response-2026-04-30_02-18-08.md
+  sha256:b3d52c57d9cd9ffb: data/staging/webfetch-blogosphere-page-analysis-2026-04-30_02-18-08.md
+  sha256:5c245c7d0f230a0f: data/staging/webfetch-design-system-extraction-from-posthog-com-handbook-2026-04-30_02-18-13.md
+  sha256:ff3f50cd876737d0: data/staging/webfetch-about-page-content-extraction-2026-04-30_02-18-16.md
+  sha256:299b7665404001a6: data/staging/webfetch-posthog-design-philosophy-2026-04-30_02-18-17.md
+  sha256:2fa90d5c4612a21a: data/staging/webfetch-blog-post-design-analysis-how-we-designed-the-2026-04-30_02-18-19.md
+  sha256:872b06d5f079f604: data/staging/webfetch-posthog-brand-specifications-2026-04-30_02-18-34.md
