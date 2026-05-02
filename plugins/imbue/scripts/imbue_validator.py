@@ -9,17 +9,23 @@ import sys
 from pathlib import Path
 from typing import TypedDict
 
-# Add abstract src to path for shared utilities
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "abstract" / "src"))
+# Bootstrap leyline so we can use its add_plugin_src_to_path helper
+# to discover the sibling 'abstract' plugin (AR-15).
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
+    from leyline.bootstrap import add_plugin_src_to_path  # type: ignore[import-not-found]
+
+    add_plugin_src_to_path("abstract", caller=__file__)
     from abstract.report_formatter import (  # type: ignore[import-not-found]  # cross-plugin import via sys.path
         format_validator_report,
     )
-except ImportError:
+except (ImportError, FileNotFoundError):
 
     def format_validator_report(results: dict, plugin_name: str = "") -> str:  # type: ignore[misc]  # redefinition needed for import fallback
-        """Fallback when abstract plugin is not available."""
+        """Fallback when leyline.bootstrap or abstract is not available."""
         return str(results)
 
 
