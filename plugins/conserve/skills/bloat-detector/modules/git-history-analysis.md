@@ -75,6 +75,28 @@ git log --numstat --pretty="%H" -- $file | \
 - **Low churn (<50 changes/year)**: Stable or abandoned
 - **Zero churn + old**: Strong bloat signal
 
+**Filter out cleanup-churn (release sweeps, frontmatter-only edits):**
+
+A naive commit count over-flags files swept by repo-wide release
+operations (version bumps, frontmatter additions). Filter to commits
+that made substantive changes to the file under analysis.
+
+```bash
+# Count only commits with >5 line net change in the file
+git log --numstat --pretty=tformat:%H -- "$file" | \
+  awk '/^[0-9]/ && ($1 + $2) > 5 { count++ } END { print count }'
+```
+
+Compare against the unfiltered count: if `substantive_count <
+total_count / 3`, the file is **cleanup-churn** not **design churn**.
+Downgrade the thrashing/hotspot signal in that case.
+
+Worked example: `rigorous-reasoning/SKILL.md` showed 12 commits in 30
+days. After filtering for substantive body changes (`>5` line net),
+only 1 commit remained. The rest were repo-wide frontmatter sweeps
+(version bumps, tag adds, description tweaks). This file is NOT a
+thrashing hotspot; the signal was a false positive from cleanup-churn.
+
 **Hotspot Detection:**
 ```python
 def is_hotspot(churn, complexity):
