@@ -8,21 +8,12 @@ from pathlib import Path
 from ._frontmatter import parse_frontmatter
 from ._results import SkillValidationResult
 
+# AR-F3: helper lives in _shared.py; re-exported here for the
+# package public surface (validators/__init__.py imports it from
+# this module per the original sanctum.validators contract).
+from ._shared import _extract_skill_refs_from_content
 
-def _extract_skill_refs_from_content(content: str) -> list[str]:
-    """Extract skill references from content (shared helper).
-
-    Finds all ``Skill(plugin:skill-name)`` patterns and returns the
-    skill name portion (after the colon when present).
-    """
-    refs: list[str] = []
-    matches = re.findall(r"Skill\(([^)]+)\)", content)
-    for match in matches:
-        if ":" in match:
-            refs.append(match.split(":")[1])
-        else:
-            refs.append(match)
-    return refs
+__all__ = ["SkillValidator", "_extract_skill_refs_from_content"]
 
 
 class SkillValidator:

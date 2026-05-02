@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ._frontmatter import parse_frontmatter
 from ._results import CommandValidationResult
-from .skill import _extract_skill_refs_from_content
+from ._shared import _extract_skill_refs_from_content  # AR-F3
 
 
 class CommandValidator:
