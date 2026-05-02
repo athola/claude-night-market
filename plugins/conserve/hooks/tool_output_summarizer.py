@@ -70,19 +70,38 @@ def resolve_session_file() -> Path | None:
     return max(jsonl_files, key=lambda f: f.stat().st_mtime)
 
 
+def _count_tool_result_bytes(content: Any) -> int:
+    """Count bytes of tool_result content blocks in an entry's content field.
+
+    Handles the three shapes Claude Code emits:
+    - list of blocks where a block has type=tool_result with str content,
+    - list of blocks where tool_result content is itself a list of items
+      (each item a dict with .text or a bare str).
+    """
+    if not isinstance(content, list):
+        return 0
+
+    total = 0
+    for block in content:
+        if not (isinstance(block, dict) and block.get("type") == "tool_result"):
+            continue
+        result_content = block.get("content", "")
+        if isinstance(result_content, str):
+            total += len(result_content)
+        elif isinstance(result_content, list):
+            for item in result_content:
+                if isinstance(item, dict):
+                    total += len(item.get("text", ""))
+                elif isinstance(item, str):
+                    total += len(item)
+    return total
+
+
 def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int:
     """Calculate total size of tool outputs in session.
 
     Reads at most *max_bytes* of the file to stay within the hook
-    timeout budget.  The result is an approximation for large sessions.
-
-    Args:
-        session_file: Path to the JSONL session file.
-        max_bytes: Maximum bytes to read (default 512 KB).
-
-    Returns:
-        Total bytes of tool result content (may be approximate).
-
+    timeout budget. The result is an approximation for large sessions.
     """
     total_size = 0
     bytes_read = 0
@@ -100,25 +119,7 @@ def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int
                     entry = json.loads(stripped)
                 except json.JSONDecodeError:
                     continue
-
-                content = entry.get("content", "")
-                if isinstance(content, list):
-                    for block in content:
-                        is_tool_result = (
-                            isinstance(block, dict)
-                            and block.get("type") == "tool_result"
-                        )
-                        if is_tool_result:
-                            result_content = block.get("content", "")
-                            if isinstance(result_content, str):
-                                total_size += len(result_content)
-                            elif isinstance(result_content, list):
-                                for item in result_content:
-                                    if isinstance(item, dict):
-                                        text = item.get("text", "")
-                                        total_size += len(text)
-                                    elif isinstance(item, str):
-                                        total_size += len(item)
+                total_size += _count_tool_result_bytes(entry.get("content", ""))
     except (OSError, PermissionError) as e:
         logger.warning("Could not read session file: %s", e)
 

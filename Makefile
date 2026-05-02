@@ -147,6 +147,9 @@ check-examples: ## Verify all plugins have proper examples
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
 
+check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh
+	@bash scripts/shared/check-json-utils-drift.sh
+
 # ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
 
 SKRILLS_REPO ?= $(HOME)/skrills

@@ -14,6 +14,18 @@ repos:
         stages: [pre-commit]
 
       # =================================================================
+      # JSON Utilities Drift Check - Keep inlined copies in sync
+      # =================================================================
+
+      - id: check-json-utils-drift
+        name: Verify Inlined JSON Utilities Match Canonical
+        entry: bash scripts/shared/check-json-utils-drift.sh
+        language: system
+        files: (scripts/shared/json_utils\.sh|plugins/(imbue|conserve)/hooks/session-start\.sh)$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # =================================================================
       # Per-File-Ignores Guard - Block config-level suppression creep
       # =================================================================
 
