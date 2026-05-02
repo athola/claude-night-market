@@ -23,7 +23,6 @@ class TestCatchupSkill:
 
     @pytest.fixture
     def mock_catchup_skill_content(self) -> str:
-        """Mock catchup skill content."""
         return """---
 name: catchup
 description: Methodology for summarizing changes and extracting insights
@@ -104,7 +103,6 @@ def56789 2024-12-03 15:30:00 Fix database connection timeout
 
     @pytest.fixture
     def sample_git_status_output(self) -> str:
-        """Sample git status output."""
         return """On branch feature/user-auth
 Your branch is ahead of 'origin/feature/user-auth' by 2 commits.
   (use "git push" to publish your local commits)

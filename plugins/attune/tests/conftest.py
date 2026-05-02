@@ -290,7 +290,7 @@ def create_mock_template_variables(
     project_name: str = "test-project",
     language: str = "python",
 ) -> dict[str, str]:
-    """Create mock template variables."""
+    """Build a fully-populated ``TEMPLATE_VARIABLES`` dict for renderer tests."""
     module_name = project_name.replace("-", "_")
     return {
         "PROJECT_NAME": project_name,

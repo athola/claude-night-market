@@ -385,7 +385,10 @@ class ProjectPalaceManager(MemoryPalaceManager):
         return self.create_project_palace(repo_name, repo_url)
 
     def save_project_palace(self, palace: dict[str, Any]) -> None:
-        """Save a project palace.
+        """Persist ``palace`` to disk, refresh ``last_modified``, and back it up.
+
+        Side effects: invalidates the embedding index cache and rewrites the
+        project index.
 
         Args:
             palace: Project palace dictionary to save

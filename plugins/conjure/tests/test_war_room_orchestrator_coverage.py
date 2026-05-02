@@ -78,7 +78,7 @@ class TestInvokeExpert:
         orchestrator: WarRoomOrchestrator,
         session: WarRoomSession,
     ) -> None:
-        """Available external expert invokes _invoke_external."""
+        """Patch the resolver and assert the orchestrator delegates to the external expert."""
         with patch(
             "scripts.war_room.experts.check_expert_availability",
             new_callable=AsyncMock,

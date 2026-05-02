@@ -57,7 +57,6 @@ More information here.
         assert isinstance(checker.rules, dict)
 
     def test_check_basic_compliance(self, temp_skill_dir) -> None:
-        """Test basic compliance checking."""
         checker = ComplianceChecker(temp_skill_dir)
         results = checker.check_compliance()
 
@@ -232,12 +231,6 @@ description: A test skill
         assert checker.rules.get("max_tokens", 4000) == 4000
 
     def test_empty_rules_file_uses_defaults(self, tmp_path) -> None:
-        """Test that empty rules file uses defaults.
-
-        GIVEN an empty rules file
-        WHEN ComplianceChecker loads the rules
-        THEN it should use default rules for all keys.
-        """
         # Create skill for testing
         skill_dir = tmp_path / "test-skill"
         skill_dir.mkdir()
@@ -611,7 +604,6 @@ class TestDetectEnforcementLevel:
         assert detect_enforcement_level(cast(Any, None)) == "none"
 
     def test_empty_string_returns_none(self) -> None:
-        """Test that empty string returns 'none'."""
         assert detect_enforcement_level("") == "none"
 
     def test_case_insensitive_matching(self) -> None:

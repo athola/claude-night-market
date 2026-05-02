@@ -559,7 +559,10 @@ class TasksManager:
         status: str,
         **kwargs: Any,
     ) -> bool:
-        """Update task status.
+        """Persist a status change for ``task_id`` via the active backend.
+
+        Routes to the bound ``_task_update`` callable when available, otherwise
+        falls back to mutating the JSON state file directly.
 
         Args:
             task_id: ID of the task to update

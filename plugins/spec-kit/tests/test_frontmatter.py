@@ -232,7 +232,6 @@ class TestFrontmatterValidation:
         sample_plugin_manifest,
         temp_skill_files,
     ) -> None:
-        """Test that manifest references existing skills."""
         # Given: manifest skills and skill files
         manifest_skills = sample_plugin_manifest["skills"]
 

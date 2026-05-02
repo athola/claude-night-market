@@ -57,25 +57,18 @@ def get_project_root() -> Path:
 
 
 def validate_event_type(event: str) -> bool:
-    """Validate an event type.
+    """Return True if ``event`` is one of Claude Code's hook event names.
 
-    Args:
-        event: Event type to validate
-
-    Returns:
-        True if valid event type
+    See ``VALID_EVENT_TYPES`` for the canonical list (``PreToolUse``,
+    ``PostToolUse``, ``Stop``, etc.).
     """
     return event in VALID_EVENT_TYPES
 
 
 def validate_action_type(action: str) -> bool:
-    """Validate an action type.
+    """Return True if ``action`` is ``"warn"`` or ``"block"``.
 
-    Args:
-        action: Action type to validate
-
-    Returns:
-        True if valid action type
+    These are the only two enforcement modes a hook rule may emit.
     """
     valid_actions = {"warn", "block"}
     return action in valid_actions

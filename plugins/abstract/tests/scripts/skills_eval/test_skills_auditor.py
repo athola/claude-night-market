@@ -94,7 +94,6 @@ category: detailed
         assert len(audit_results["skill_metrics"]) == EXPECTED_TOTAL_SKILLS
 
     def test_audit_single_skill(self, sample_skills_dir) -> None:
-        """Test auditing a single skill."""
         auditor = SkillsAuditor(sample_skills_dir)
         skill_audit = auditor.audit_skill("well-structured-skill")
 

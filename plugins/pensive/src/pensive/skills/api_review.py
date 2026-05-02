@@ -25,7 +25,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze TypeScript API.
+        """Regex-count exports, classes, interfaces, and functions in a ``.ts`` file.
 
         Args:
             context: Skill context with file access
@@ -69,7 +69,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze JavaScript API.
+        """Regex-count exports, classes, and functions in a ``.js`` file.
 
         Args:
             context: Skill context with file access
@@ -109,7 +109,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze Python API.
+        """Regex-count public classes, functions, and ``__all__`` entries in ``.py``.
 
         Args:
             context: Skill context with file access
@@ -145,7 +145,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze Rust API.
+        """Regex-count ``pub`` items (structs, enums, traits, fns) in a ``.rs`` file.
 
         Args:
             context: Skill context with file access
@@ -195,7 +195,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check documentation.
+        """Score docstring/JSDoc coverage on public symbols within ``filename``.
 
         Args:
             context: Skill context with file access
@@ -247,7 +247,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check naming consistency.
+        """Detect mixed naming conventions (snake_case vs camelCase) in public symbols.
 
         Args:
             context: Skill context with file access
@@ -325,7 +325,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check error handling.
+        """Detect bare ``except``, swallowed errors, and missing ``Result``-style returns.
 
         Args:
             context: Skill context with file access
@@ -369,7 +369,7 @@ class ApiReviewSkill(BaseReviewSkill):
         filename: str,
         _options: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
-        """Check breaking changes.
+        """Diff exported signatures against the prior version to flag breakage.
 
         Args:
             context: Skill context with file access
@@ -420,7 +420,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Validate REST patterns.
+        """Flag handlers missing HTTP-method or status-code conventions in ``filename``.
 
         Args:
             context: Skill context with file access
@@ -475,7 +475,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check input validation.
+        """Flag handlers that read inputs without an explicit validator call.
 
         Args:
             context: Skill context with file access
@@ -528,7 +528,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze versioning.
+        """Detect ``v1`` route prefixes, package metadata version, and changelog hints.
 
         Args:
             context: Skill context with file access
@@ -573,7 +573,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check security practices.
+        """Flag hardcoded secrets, insecure defaults, and missing auth gates.
 
         Args:
             context: Skill context with file access
@@ -659,7 +659,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Analyze performance.
+        """Flag N+1 patterns, sync-in-async calls, and unbounded loops in ``filename``.
 
         Args:
             context: Skill context with file access
@@ -734,7 +734,7 @@ class ApiReviewSkill(BaseReviewSkill):
         self,
         analysis_data: dict[str, Any],
     ) -> str:
-        """Generate API summary.
+        """Reduce per-language analyses into a single dict for the report renderer.
 
         Args:
             analysis_data: Data from API analysis including exports, languages,

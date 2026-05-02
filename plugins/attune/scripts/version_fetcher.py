@@ -113,13 +113,15 @@ def get_latest_action_versions(use_cache: bool = True) -> dict[str, str]:
 
 @lru_cache(maxsize=32)
 def fetch_pypi_latest_version(package: str) -> str | None:
-    """Fetch latest version from PyPI.
+    """Hit ``pypi.org/pypi/<package>/json`` and pull ``info.version``.
+
+    Cached via ``@lru_cache`` so repeated calls in one process are free.
 
     Args:
         package: PyPI package name
 
     Returns:
-        Latest version string or None
+        Latest version string or None on network/parse failure.
 
     """
     try:

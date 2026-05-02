@@ -187,7 +187,6 @@ class TestExtractContentSummary:
 
     @pytest.mark.unit
     def test_empty_content_returns_string(self, optimizer) -> None:
-        """Empty content returns empty string."""
         result = optimizer.extract_content_summary("", max_section_lines=5)
         assert isinstance(result, str)
 
@@ -364,7 +363,6 @@ class TestContextOptimizerCLI:
 
     @pytest.mark.unit
     def test_cli_format_text_stats_command(self, tmp_path: Path) -> None:
-        """format_text for stats command."""
         cli = ContextOptimizerCLI()
         config = AbstractConfig()
         opt = ContextOptimizer(config)

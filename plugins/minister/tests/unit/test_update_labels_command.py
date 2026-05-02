@@ -42,12 +42,7 @@ class TestUpdateLabelsCommand:
             self,
             command_file_path: Path,
         ) -> None:
-            """Test that the command file exists.
-
-            Given: The expected path to update-labels.md
-            When: Checking if the file exists
-            Then: The file should exist
-            """
+            """Guard: command file must be on disk at the resolved path."""
             # Given/When/Then
             assert command_file_path.exists(), (
                 f"Command file should exist at {command_file_path}"

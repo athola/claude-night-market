@@ -310,7 +310,7 @@ def test_cli_parser_no_command_shows_help() -> None:
 
 
 def test_cli_parser_invalid_command_rejected() -> None:
-    """Test that parser rejects invalid commands."""
+    """argparse must ``SystemExit`` on an unknown subcommand, not silently accept it."""
     parser = build_cli_parser()
 
     with pytest.raises(SystemExit):

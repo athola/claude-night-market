@@ -412,7 +412,6 @@ def create_mock_performance_metric(
     value: float,
     unit: str,
 ) -> dict[str, Any]:
-    """Create a mock performance metric."""
     return {
         "name": metric_name,
         "value": value,

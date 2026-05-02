@@ -185,7 +185,7 @@ class TestProjectPalaceManager:
         assert result is False
 
     def test_search_review_chamber(self, manager):
-        """Test searching the review chamber."""
+        """Index two review entries and assert keyword search returns the expected one."""
         palace = manager.create_project_palace("owner/repo")
 
         # Add entries
@@ -772,6 +772,6 @@ class TestRoomStructure:
             assert "retention" in room
 
     def test_project_palace_rooms_include_review_chamber(self):
-        """Test that project palace includes review-chamber."""
+        """Guard the registry: ``review-chamber`` must ship with ``subrooms``."""
         assert "review-chamber" in PROJECT_PALACE_ROOMS
         assert "subrooms" in PROJECT_PALACE_ROOMS["review-chamber"]

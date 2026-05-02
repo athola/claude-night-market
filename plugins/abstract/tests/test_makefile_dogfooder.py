@@ -549,7 +549,6 @@ target2: ## Target 2 (duplicate)
         assert "target1:" not in filtered_text
 
     def test_finds_phony_block(self, tmp_path: Path) -> None:
-        """Test .PHONY block finding."""
         dogfooder = MakefileDogfooder(root_dir=tmp_path)
 
         makefile_content = """

@@ -237,7 +237,6 @@ class _ReviewContext:
         return self._files
 
     def get_file_content(self, filename: str) -> str:
-        """Get file content."""
         file_path = self.repo_path / filename
         if file_path.exists():
             return file_path.read_text()

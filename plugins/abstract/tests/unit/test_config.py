@@ -211,7 +211,6 @@ class TestAbstractConfigInit:
 
     @pytest.mark.unit
     def test_default_environment_is_production(self):
-        """Default environment is PRODUCTION."""
         config = AbstractConfig()
         assert config.environment == Environment.PRODUCTION
 
@@ -223,7 +222,6 @@ class TestAbstractConfigInit:
 
     @pytest.mark.unit
     def test_debug_and_verbose_default_false(self):
-        """Debug and verbose default to False."""
         config = AbstractConfig()
         assert config.debug is False
         assert config.verbose is False

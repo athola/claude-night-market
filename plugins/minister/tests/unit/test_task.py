@@ -243,12 +243,7 @@ def test_given_two_identical_tasks_when_comparing_then_tasks_are_equal():
 
 
 def test_given_two_tasks_with_different_ids_when_comparing_then_tasks_are_not_equal():
-    """Test that tasks with different IDs are not equal.
-
-    GIVEN: Two Task instances that differ only in their ID
-    WHEN: The tasks are compared for equality
-    THEN: The tasks are not equal
-    """
+    """Equality must be ID-driven: two tasks with the same payload but different IDs differ."""
     task1 = Task(
         id="TSK-101",
         title="Same Task",

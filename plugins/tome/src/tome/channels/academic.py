@@ -381,7 +381,7 @@ def build_core_search_url(topic: str, limit: int = 5) -> str:
 
 
 def build_openalex_search_url(topic: str, per_page: int = 5) -> str:
-    """Build OpenAlex search URL.
+    """Compose an OpenAlex ``/works`` query URL with ``topic`` URL-encoded.
 
     Args:
         topic: Free-text research topic.

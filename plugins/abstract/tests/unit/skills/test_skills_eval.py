@@ -21,7 +21,6 @@ class TestSkillsEvalQualityFramework:
 
     @pytest.fixture
     def skills_eval_path(self) -> Path:
-        """Path to the skills-eval skill."""
         return Path(__file__).parents[3] / "skills" / "skills-eval" / "SKILL.md"
 
     @pytest.fixture
@@ -256,7 +255,6 @@ class TestModularSkillsQualityChecks:
 
     @pytest.fixture
     def modular_skills_path(self) -> Path:
-        """Path to the modular-skills skill."""
         return Path(__file__).parents[3] / "skills" / "modular-skills" / "SKILL.md"
 
     @pytest.fixture
@@ -415,7 +413,6 @@ class TestDocumentationTestingPatterns:
 
     @pytest.fixture
     def skills_eval_path(self) -> Path:
-        """Path to the skills-eval skill."""
         return Path(__file__).parents[3] / "skills" / "skills-eval" / "SKILL.md"
 
     @pytest.fixture
@@ -464,7 +461,6 @@ class TestProgressiveDisclosureEnforcement:
 
     @pytest.fixture
     def skills_eval_path(self) -> Path:
-        """Path to the skills-eval skill."""
         return Path(__file__).parents[3] / "skills" / "skills-eval" / "SKILL.md"
 
     @pytest.fixture

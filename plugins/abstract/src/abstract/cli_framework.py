@@ -444,7 +444,7 @@ class PathArgumentMixin:
         parser: argparse.ArgumentParser,
         required: bool = True,
     ) -> None:
-        """Add skill path argument.
+        """Register ``--skill-path`` (a ``Path`` to ``SKILL.md``) on ``parser``.
 
         Args:
             parser: ArgumentParser to add arguments to.

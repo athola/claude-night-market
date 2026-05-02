@@ -65,7 +65,7 @@ class RepositoryAnalyzer:
         }
 
     def analyze_repository(self, repo_path: Path | str) -> dict[str, Any]:
-        """Analyze a repository.
+        """Detect languages, build systems, and test frameworks under ``repo_path``.
 
         Args:
             repo_path: Path to the repository
