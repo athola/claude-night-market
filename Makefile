@@ -147,9 +147,6 @@ check-examples: ## Verify all plugins have proper examples
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
 
-stargazer-analysis: ## Analyze stargazer overlap for community targeting
-	@uv run python scripts/stargazer_overlap.py --limit 50
-
 # ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
 
 SKRILLS_REPO ?= $(HOME)/skrills
