@@ -702,16 +702,21 @@ class BugReviewSkill(BaseReviewSkill):
         return "\n".join(report_lines)
 
     def check_external_dependencies(self, _context: Any) -> dict[str, Any]:
-        """Check external dependencies for issues.
+        """Stub: external-dependency checking is not implemented.
+
+        Returns a fixed empty result. Subclasses or future
+        implementations should override to perform real checks
+        (and their own timeout handling). The base class never
+        makes a network call, so the previous "handles network
+        timeouts gracefully" comment was misleading and was
+        removed (B-15).
 
         Args:
-            _context: Skill context (unused in base implementation)
+            _context: Skill context (unused; reserved for overrides).
 
         Returns:
-            Dictionary with dependency check results
+            ``{"status": "ok", "checked": [], "issues": []}``.
         """
-        # This method handles network timeouts gracefully
-        # In a real implementation, this would check external services
         return {
             "status": "ok",
             "checked": [],
