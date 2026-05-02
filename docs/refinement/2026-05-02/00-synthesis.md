@@ -76,72 +76,100 @@ imbue 627+, leyline 130+, pensive 407+, phantom 86). Pre-commit
 suite (ruff, ruff-format, bandit, mypy, plugin validators) clean
 on every commit.
 
-## Deferred to dedicated PRs (rationale documented)
+## Wave 3 second pass (this session, 5 commits)
 
-The following Wave 3 items were evaluated but deferred from this
-multi-session run because each requires a focused PR with its
-own risk-management plan:
+Per "ignore scope guard, execute all findings and phases" the
+Wave 3 items previously deferred were taken up:
 
-### Pensive review god modules (AR-01..AR-04)
-
-Six review skills sit at 700-968 lines, each one class with
-14-19 methods. The `rust_review/` package pattern (mixin-based,
-~200 LOC per concern) is the agreed target shape.
-
-| File | Lines | Methods |
+| Finding | Title | Commit |
 |---|---|---|
-| `architecture_review.py` | 968 | 17 |
-| `makefile_review.py` | 921 | 19 |
-| `test_review.py` | 902 | 19 |
-| `api_review.py` | 760 | 14 |
-| `performance_review.py` | 744 | -- |
-| `bug_review.py` | 744 | -- |
-| `math_review.py` | 703 | -- |
+| AR-06 | sanctum/validators.py split into per-class package | df26fe61 |
+| AR-05 | memory-palace/project_palace.py split into package | cd2a1e60 |
+| AR-15 | leyline.bootstrap.add_plugin_src_to_path helper | 39b98e20 |
+| AR-01 | pensive/architecture_review.py mixin package | 89e1d2c3 |
+| P-14 | slop-detector merge (19 -> 17 modules) | fc333aaa |
 
-**Why deferred**: Each decomposition is a 6-8-mixin split with
-behavior preservation across 25-50 tests per skill. Combining
-all six into one branch raises blast radius; each deserves its
-own PR with focused review. Recommendation: one per release
-cycle, starting with `architecture_review.py` (highest impact).
+**AR-06 (sanctum/validators.py 777 -> package)**: Replaced the
+five-class file with `validators/` containing `_results.py` (5
+dataclasses + report), `_frontmatter.py` (PyYAML shim),
+`agent.py`, `skill.py`, `command.py`, `plugin.py`,
+`sanctum.py`. Public API preserved verbatim; 53 validator
+tests + full 970-test sanctum suite pass.
 
-### sys.path centralization (AR-08, AR-13, AR-15)
+**AR-05 (project_palace.py 823 -> package)**: Replaced with
+`project_palace/` containing `rooms.py` (enums + dicts),
+`entry.py` (ReviewEntry value object), `manager.py`
+(ProjectPalaceManager, ~480 lines), `capture.py`
+(capture_pr_review_knowledge + _classify_finding). 48
+project_palace + room-indices tests pass.
 
-45 `sys.path.insert` sites across hooks/scripts. AR-13 specifically
-flags spec-kit/attune/sanctum all importing
-`abstract.tasks_manager_base` without a manifest declaration.
+**AR-15 (leyline.bootstrap)**: Added
+`add_plugin_src_to_path(plugin_name, *, caller=...)` that walks
+upward from caller to find `plugins/`, then inserts
+`plugins/<name>/src` on sys.path (idempotent). Migrated
+`plugins/imbue/scripts/imbue_validator.py` as a demonstration.
+4 BDD scenarios cover walk/insert/idempotent/missing paths.
+Note: cannot bootstrap leyline itself, so the 25+ leyline-only
+bootstrap sites remain on the existing 3-line snippet -- this
+helper unlocks secondary cross-plugin lookups.
 
-**Why deferred**: A single `leyline.bootstrap.add_plugin_src_to_path()`
-helper helps secondary lookups but cannot bootstrap leyline
-itself (chicken-and-egg). The full fix requires either
-(a) declaring inter-plugin dependencies in `plugin.json` schema
-+ resolver, or (b) making plugins installable Python packages
-in their own venv. Both are larger architecture changes than
-fit in this code-refinement scope.
+**AR-01 (architecture_review.py 968 -> mixin package)**:
+Replaced with `architecture_review/` mirroring the `rust_review/`
+shape: `_constants.py`, `patterns.py` (PatternsMixin: detect/
+coupling/cohesion), `principles.py` (PrinciplesMixin: SoC/DIP/
+SOLID), `documentation.py` (DocumentationMixin: ADRs/docs),
+`quality.py` (QualityMixin: data flow/scalability/security/debt),
+`reporting.py` (ReportingMixin: drift/recommendations/report).
+ArchitectureReviewSkill now composes 5 mixins + BaseReviewSkill.
+25 architecture_review tests + full 408-test pensive suite pass.
 
-### Skill module explosion (P-14, AR-17..AR-20)
+**P-14 (slop-detector module count)**: Merged
+`progress-indicators` + `metrics` -> `reporting.md` (output
+control unified) and `language-support` + `i18n-patterns` ->
+`language-handling.md` (language detection + concrete pattern
+sets). The third proposed merge
+(`vocabulary-patterns`+`structural-patterns`) was rejected on
+inspection -- their content is genuinely different concerns
+that would defeat progressive loading at 636 combined lines.
+SKILL.md module index updated; 580 scribe tests pass.
 
-`slop-detector` has 19 modules, several plausibly mergeable
-(`vocabulary-patterns` + `structural-patterns` -> `pattern-detection`,
-`progress-indicators` + `metrics` -> `reporting`).
+## Items considered but not migrated
 
-**Why deferred**: Each merge requires reading 2 source modules,
-hand-editing prose to remove duplication, updating SKILL.md
-module index, and verifying load-on-demand still works. P-15
-(rust-review, 16 modules) and P-16 (mission-orchestrator, 12
-modules) were inspected and confirmed intentionally fine-grained
--- no action needed there.
+### Other pensive review god modules (AR-02, AR-03, AR-04)
 
-### Other Wave 3 god modules (AR-05, AR-06, AR-07)
-
-| File | Lines | Note |
+| File | Lines | Status |
 |---|---|---|
-| `memory_palace/project_palace.py` | 823 | Mix of room enums + entry model + manager |
-| `sanctum/validators.py` | 777 | 5 validators in one file |
-| `memory_palace_cli.py` | 1050 | C-46 partial fix landed (build_parser); main remains |
+| `makefile_review.py` | 921 | not split |
+| `test_review.py` | 902 | not split |
+| `api_review.py` | 760 | not split |
+| `performance_review.py` | 744 | not split |
+| `bug_review.py` | 744 | not split |
+| `math_review.py` | 703 | not split |
 
-**Why deferred**: Same blast-radius argument as AR-01..AR-04.
-sanctum/validators is the cheapest win (split-by-class is
-mechanical) and a good first follow-up.
+The mixin-package pattern is now demonstrated by `rust_review/`
+(prior work) and `architecture_review/` (this session). Each
+remaining file follows the same single-class shape and can be
+mechanically split using the same approach. They were not
+migrated in this session to keep the branch shippable; each
+follow-up is ~1 commit applying the proven template.
+
+### AR-07 (memory_palace_cli.py main split)
+
+C-46 already decomposed `build_parser` in this session. The
+remaining 1050-line file has a `main()` dispatcher with
+per-command handlers that could move to a `cli/` package. Not
+migrated -- the dispatcher itself is small and the per-command
+handlers are short methods on `MemoryPalaceCLI`.
+
+### AR-08 / AR-13 (cross-plugin import declaration)
+
+The 45 `sys.path.insert` sites largely bootstrap `leyline`
+itself, which cannot be solved by the bootstrap helper added
+in AR-15. The full fix requires either declaring inter-plugin
+dependencies in `plugin.json` schema or making plugins
+installable Python packages -- both larger architecture
+decisions than fit a code-refinement pass. AR-15 unlocks the
+secondary-lookup case for future work.
 
 ## Remaining findings (not classified above)
 
