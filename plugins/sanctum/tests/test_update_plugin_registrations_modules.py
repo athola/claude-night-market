@@ -485,17 +485,14 @@ class TestAuditSkillModulesAdvanced:
         auditor = PluginAuditor(tmp_path.parent, dry_run=True)
         issues = auditor.audit_skill_modules(tmp_path)
 
-        # existing.md is referenced AND on disk → not orphaned
-        # nonexistent.md is referenced but NOT on disk → only in all_references,
-        # not in modules_on_disk. The "missing" calculation is:
-        # referenced_modules - modules_on_disk, but referenced_modules only
-        # includes refs that ARE in modules_on_disk, so "missing" is always
-        # empty in current implementation.
-        if "my-skill" in issues:
-            assert "existing.md" not in issues["my-skill"].get("orphaned", [])
-        else:
-            # No issues at all — existing.md is properly referenced
-            assert True
+        # existing.md is referenced AND on disk -> not orphaned.
+        # nonexistent.md is referenced but NOT on disk -> reported as
+        # "missing" (B-10 fix: previously the missing set was always
+        # empty because referenced_modules was pre-filtered by disk
+        # presence).
+        assert "my-skill" in issues
+        assert "existing.md" not in issues["my-skill"].get("orphaned", [])
+        assert "nonexistent.md" in issues["my-skill"].get("missing", [])
 
     def test_multiple_skills_with_mixed_issues(self, tmp_path: Path) -> None:
         """
@@ -554,7 +551,7 @@ class TestAuditSkillModulesAdvanced:
         issues = auditor.audit_skill_modules(tmp_path)
 
         # shared-logic.md should NOT be orphaned because skill-a references it
-        if "skill-b" in issues:
-            assert "shared-logic.md" not in issues["skill-b"].get("orphaned", [])
-        else:
-            assert True  # No issues means it was resolved
+        # via skills/skill-b/modules/shared-logic.md (full-path form).
+        assert "skill-b" not in issues or (
+            "shared-logic.md" not in issues["skill-b"].get("orphaned", [])
+        )

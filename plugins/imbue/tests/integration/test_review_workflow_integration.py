@@ -6,20 +6,17 @@ and commands working together, following TDD/BDD principles.
 
 from __future__ import annotations
 
-import time
 from datetime import datetime, timezone
 from unittest.mock import Mock
 
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_ONE = 0.1
 ZERO_POINT_NINE = 0.9
 TWO = 2
 THREE = 3
 FOUR = 4
 FIVE = 5
-FIFTY = 50
 COMMITS_AHEAD = 12
 AVG_TIME_THRESHOLD = 0.01
 TIME_RANGE_THRESHOLD = 0.005
@@ -1000,90 +997,11 @@ class TestErrorPropagation:
         assert error_log[0]["error_type"] == "GitCommandError"
 
 
-class TestWorkflowPerformance:
-    """Feature: Workflow performs efficiently under load.
-
-    As a workflow executor
-    I want multiple workflows to complete quickly
-    So that performance remains acceptable
-    """
-
-    @pytest.mark.bdd
-    @pytest.mark.performance
-    @pytest.mark.integration
-    def test_workflow_total_duration(self, mock_claude_tools) -> None:
-        """Scenario: All workflows complete in under 1 second.
-
-        Given 5 concurrent workflow configurations
-        When executing review workflows
-        Then total duration should be under 1 second.
-        """
-        configs = [
-            {"target": "src/auth/", "focus": "security"},
-            {"target": "src/api/", "focus": "performance"},
-            {"target": "src/payment/", "focus": "correctness"},
-            {"target": "src/utils/", "focus": "style"},
-            {"target": "docs/", "focus": "documentation"},
-        ]
-
-        skills = [
-            "review-core",
-            "evidence-logging",
-            "diff-analysis",
-            "structured-output",
-        ]
-
-        start_time = time.time()
-        workflow_times = []
-
-        for _config in configs:
-            wf_start = time.time()
-            for _skill in skills:
-                time.sleep(0.001)
-            workflow_times.append(time.time() - wf_start)
-
-        total_duration = time.time() - start_time
-
-        assert total_duration < 1.0
-
-    @pytest.mark.bdd
-    @pytest.mark.performance
-    @pytest.mark.integration
-    def test_individual_workflow_timing(
-        self,
-        mock_claude_tools,
-    ) -> None:
-        """Scenario: Each individual workflow completes under 100ms.
-
-        Given workflow configurations
-        When measuring each workflow
-        Then each should complete in under 100ms.
-        """
-        workflow_times = []
-        for _ in range(5):
-            wf_start = time.time()
-            for _ in range(4):
-                time.sleep(0.001)
-            workflow_times.append(time.time() - wf_start)
-
-        for wf_time in workflow_times:
-            assert wf_time < ZERO_POINT_ONE
-
-    @pytest.mark.bdd
-    @pytest.mark.performance
-    @pytest.mark.integration
-    def test_skill_throughput(self, mock_claude_tools) -> None:
-        """Scenario: Skill throughput exceeds 50 skills per second.
-
-        Given multiple workflow executions
-        When measuring throughput
-        Then at least 50 skills per second should execute.
-        """
-        start_time = time.time()
-        total_skills = 20  # 5 workflows * 4 skills
-        for _ in range(total_skills):
-            time.sleep(0.001)
-        total_duration = time.time() - start_time
-
-        skills_per_second = total_skills / total_duration
-        assert skills_per_second > FIFTY
+# B-08: Removed TestWorkflowPerformance class (test_workflow_total_duration,
+# test_individual_workflow_timing, test_skill_throughput).
+#
+# Each test consisted of nested loops calling ``time.sleep(0.001)`` and
+# asserting that the resulting duration was below an arbitrary threshold.
+# The assertions tested the OS scheduler, not the workflow implementation
+# (no production code was invoked). If real performance instrumentation
+# becomes valuable, write a benchmark that exercises the actual workflow.

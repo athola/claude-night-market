@@ -75,8 +75,9 @@ class PluginAuditor:
         if not skills_dir.exists():
             return skill_module_issues
 
-        # First, collect ALL module references from the entire plugin
-        all_references = self._scan_plugin_for_module_refs(plugin_path)
+        # Collect every cross-skill reference that targets a specific
+        # skill via the full path form ``skills/<name>/modules/<file>``.
+        cross_skill_refs = self._scan_cross_skill_refs(plugin_path)
 
         for skill_dir in skills_dir.iterdir():
             if not skill_dir.is_dir() or self._should_exclude(skill_dir):
@@ -89,18 +90,12 @@ class PluginAuditor:
 
             skill_name = skill_dir.name
 
-            # Find references to THIS skill's modules
-            # References can be: modules/file.md, skills/skill-name/modules/file.md
-            referenced_modules: set[str] = set()
-            for ref in all_references:
-                # Direct module reference (from within the skill or relative)
-                if ref in modules_on_disk:
-                    referenced_modules.add(ref)
-                # Full path reference: skills/skill-name/modules/file.md
-                elif f"skills/{skill_name}/modules/" in ref:
-                    module_name = ref.split("/")[-1]
-                    if module_name in modules_on_disk:
-                        referenced_modules.add(module_name)
+            # Bare references (``modules/foo.md`` or frontmatter list
+            # entries) from this skill's own files belong to this skill.
+            # B-10: previously the audit pre-filtered refs by disk
+            # presence at this step, so ``missing`` was always empty.
+            referenced_modules = self._scan_skill_local_refs(skill_dir)
+            referenced_modules.update(cross_skill_refs.get(skill_name, set()))
 
             # Calculate discrepancies
             orphaned = modules_on_disk - referenced_modules
@@ -146,6 +141,52 @@ class PluginAuditor:
                     all_refs.update(self._extract_module_refs_from_file(md_file))
 
         return all_refs
+
+    def _scan_cross_skill_refs(self, plugin_path: Path) -> dict[str, set[str]]:
+        """Map ``skill-name`` to module filenames referenced via the
+        ``skills/<name>/modules/<file>`` full-path form anywhere in the
+        plugin (commands, agents, other skills).
+        """
+        cross: dict[str, set[str]] = {}
+        scanned_dirs = ("skills", "commands", "agents")
+        for sub in scanned_dirs:
+            sub_dir = plugin_path / sub
+            if not sub_dir.exists():
+                continue
+            for md_file in sub_dir.rglob("*.md"):
+                if self._should_exclude(md_file):
+                    continue
+                text = self._safe_read(md_file)
+                for skill_name, module in re.findall(
+                    r"skills/([a-zA-Z0-9_-]+)/modules/([a-zA-Z0-9_-]+\.md)",
+                    text,
+                ):
+                    cross.setdefault(skill_name, set()).add(module)
+                for skill_name, module in re.findall(
+                    r"plugins/[a-zA-Z0-9_-]+/skills/([a-zA-Z0-9_-]+)"
+                    r"/modules/([a-zA-Z0-9_-]+\.md)",
+                    text,
+                ):
+                    cross.setdefault(skill_name, set()).add(module)
+        return cross
+
+    def _scan_skill_local_refs(self, skill_dir: Path) -> set[str]:
+        """Collect bare ``modules/<file>`` and frontmatter ``modules:``
+        list entries from this skill's own .md files.
+        """
+        refs: set[str] = set()
+        for md_file in skill_dir.rglob("*.md"):
+            if self._should_exclude(md_file):
+                continue
+            refs.update(self._extract_module_refs_from_file(md_file))
+        return refs
+
+    def _safe_read(self, md_file: Path) -> str:
+        """Read a markdown file, returning an empty string on errors."""
+        try:
+            return md_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return ""
 
     def _scan_skill_modules(self, skill_dir: Path) -> set[str]:
         """Scan for .md files in a skill's modules/ subdirectory."""
