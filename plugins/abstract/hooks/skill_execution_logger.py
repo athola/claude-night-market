@@ -23,20 +23,13 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from shared.dir_utils import get_log_directory, get_observability_dir
 from shared.skill_utils import parse_skill_name as _parse_skill_name
 
 # Threshold for triggering stability gap warnings
 # Based on Avalanche paper: gap > 0.3 indicates significant instability
 # See: https://avalanche.continualai.org/
 STABILITY_GAP_THRESHOLD = 0.3
-
-
-def get_observability_dir() -> Path:
-    """Get observability state directory."""
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    state_dir = claude_home / "skills" / "observability"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
 
 
 class ContinualEvaluator:
@@ -109,23 +102,6 @@ class ContinualEvaluator:
             "avg_duration_ms": avg_duration,
             "execution_count": execution_count,
         }
-
-
-def get_log_directory() -> Path:
-    """Get or create the skill execution log directory.
-
-    Returns:
-        Path to .claude/skills/logs/<plugin>/<skill-name>/
-
-    """
-    # Try to get Claude home directory
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    log_base = claude_home / "skills" / "logs"
-
-    # Create base directory if it doesn't exist
-    log_base.mkdir(parents=True, exist_ok=True)
-
-    return log_base
 
 
 def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:

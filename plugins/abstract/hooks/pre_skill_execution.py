@@ -15,18 +15,10 @@ import os
 import sys
 import traceback
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
+from shared.dir_utils import get_observability_dir
 from shared.skill_utils import parse_skill_name as _parse_skill_name
-
-
-def get_observability_dir() -> Path:
-    """Get or create observability state directory."""
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    state_dir = claude_home / "skills" / "observability"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
 
 
 def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
