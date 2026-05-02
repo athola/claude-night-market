@@ -23,83 +23,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
-# --- Inlined JSON utilities (canonical: scripts/shared/json_utils.sh) ---
-# Inlined to avoid broken relative path when plugin runs from Claude Code cache.
-# NOTE: Intentionally duplicated — do not DRY-refactor. Update canonical source + all copies together.
-
-# Extract a field value from a JSON string
-# Uses three-tier fallback: jq → GNU grep → POSIX sed
-get_json_field() {
-    local json="$1"
-    local field="$2"
-    local value=""
-
-    if command -v jq >/dev/null 2>&1; then
-        value=$(echo "$json" | jq -r ".${field} // empty" 2>/dev/null || echo "")
-    elif echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
-        value=$(echo "$json" | grep -oP "\"${field}\"\\s*:\\s*\"\\K[^\"]+" 2>/dev/null || echo "")
-    else
-        value=$(echo "$json" | sed -n "s/.*\"${field}\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" 2>/dev/null || echo "")
-    fi
-
-    printf '%s' "$value"
-}
-
-# Escape a string for safe embedding in JSON
-# Uses jq when available, falls back to pure bash
-escape_for_json() {
-    local input="$1"
-
-    if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
-    else
-        [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1
-
-        local output=""
-        local i char
-        for (( i=0; i<${#input}; i++ )); do
-            char="${input:$i:1}"
-            case "$char" in
-                '\'$'\\') output+='\\\\' ;;
-                '"') output+='\\"' ;;
-                $'\n') output+='\\n' ;;
-                $'\r') output+='\\r' ;;
-                $'\t') output+='\\t' ;;
-                $'\b') output+='\\b' ;;
-                $'\f') output+='\\f' ;;
-                $'\x00') output+='\\u0000' ;;
-                $'\x01') output+='\\u0001' ;;
-                $'\x02') output+='\\u0002' ;;
-                $'\x03') output+='\\u0003' ;;
-                $'\x04') output+='\\u0004' ;;
-                $'\x05') output+='\\u0005' ;;
-                $'\x06') output+='\\u0006' ;;
-                $'\x07') output+='\\u0007' ;;
-                $'\x0e') output+='\\u000e' ;;
-                $'\x0f') output+='\\u000f' ;;
-                $'\x10') output+='\\u0010' ;;
-                $'\x11') output+='\\u0011' ;;
-                $'\x12') output+='\\u0012' ;;
-                $'\x13') output+='\\u0013' ;;
-                $'\x14') output+='\\u0014' ;;
-                $'\x15') output+='\\u0015' ;;
-                $'\x16') output+='\\u0016' ;;
-                $'\x17') output+='\\u0017' ;;
-                $'\x18') output+='\\u0018' ;;
-                $'\x19') output+='\\u0019' ;;
-                $'\x1a') output+='\\u001a' ;;
-                $'\x1b') output+='\\u001b' ;;
-                $'\x1c') output+='\\u001c' ;;
-                $'\x1d') output+='\\u001d' ;;
-                $'\x1e') output+='\\u001e' ;;
-                $'\x1f') output+='\\u001f' ;;
-                *) output+="$char" ;;
-            esac
-        done
-        printf '%s' "$output"
-    fi
-}
-# --- End inlined JSON utilities ---
+# Source vendored JSON utilities (canonical: scripts/shared/json_utils.sh).
+# Vendored under hooks/shared/ so the hook works from the Claude Code
+# plugin cache. CLAUDE_PLUGIN_ROOT is set by Claude Code; SCRIPT_DIR
+# fallback supports direct invocation in tests/CI.
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+# shellcheck source=plugins/imbue/hooks/shared/json_utils.sh
+source "${PLUGIN_ROOT}/hooks/shared/json_utils.sh"
 
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""
