@@ -1,7 +1,8 @@
 ---
 name: architecture-paradigm-hexagonal
+role: library
 description: 'Hexagonal (Ports and Adapters) architecture isolating domain logic from infrastructure.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -11,10 +12,7 @@ tags:
 - infrastructure-independence
 - testability
 dependencies: []
-tools:
-- boundary-validator
-- adapter-generator
-- contract-tester
+tools: []
 usage_patterns:
 - paradigm-implementation
 - refactoring-guidance

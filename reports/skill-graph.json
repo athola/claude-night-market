@@ -1,0 +1,252 @@
+{
+  "marketplace": "plugins",
+  "totals": {
+    "skills": 185,
+    "edges": 134,
+    "isolates": 104,
+    "dangling_bugs": 0,
+    "dangling_external": 9,
+    "dangling_placeholders": 2
+  },
+  "hubs": [
+    {
+      "skill": "scribe:slop-detector",
+      "inbound": 9
+    },
+    {
+      "skill": "attune:project-brainstorming",
+      "inbound": 6
+    },
+    {
+      "skill": "sanctum:git-workspace-review",
+      "inbound": 6
+    },
+    {
+      "skill": "attune:project-planning",
+      "inbound": 5
+    },
+    {
+      "skill": "attune:project-specification",
+      "inbound": 5
+    },
+    {
+      "skill": "attune:war-room",
+      "inbound": 5
+    },
+    {
+      "skill": "scribe:doc-generator",
+      "inbound": 5
+    },
+    {
+      "skill": "attune:mission-orchestrator",
+      "inbound": 4
+    },
+    {
+      "skill": "conjure:delegation-core",
+      "inbound": 4
+    },
+    {
+      "skill": "imbue:justify",
+      "inbound": 4
+    }
+  ],
+  "orchestrators": [
+    {
+      "skill": "egregore:summon",
+      "outbound": 11
+    },
+    {
+      "skill": "imbue:karpathy-principles",
+      "outbound": 8
+    },
+    {
+      "skill": "attune:mission-orchestrator",
+      "outbound": 7
+    },
+    {
+      "skill": "attune:project-brainstorming",
+      "outbound": 6
+    },
+    {
+      "skill": "attune:project-execution",
+      "outbound": 6
+    },
+    {
+      "skill": "attune:project-planning",
+      "outbound": 6
+    },
+    {
+      "skill": "abstract:skill-graph-audit",
+      "outbound": 5
+    },
+    {
+      "skill": "attune:project-specification",
+      "outbound": 5
+    },
+    {
+      "skill": "attune:war-room",
+      "outbound": 5
+    },
+    {
+      "skill": "scribe:session-to-post",
+      "outbound": 5
+    }
+  ],
+  "isolates": [
+    "abstract:escalation-governance",
+    "abstract:friction-detector",
+    "abstract:hook-authoring",
+    "abstract:metacognitive-self-mod",
+    "abstract:methodology-curator",
+    "abstract:modular-skills",
+    "abstract:shared-patterns",
+    "abstract:subagent-testing",
+    "archetypes:architecture-paradigm-client-server",
+    "archetypes:architecture-paradigm-cqrs-es",
+    "archetypes:architecture-paradigm-event-driven",
+    "archetypes:architecture-paradigm-functional-core",
+    "archetypes:architecture-paradigm-layered",
+    "archetypes:architecture-paradigm-microkernel",
+    "archetypes:architecture-paradigm-microservices",
+    "archetypes:architecture-paradigm-modular-monolith",
+    "archetypes:architecture-paradigm-pipeline",
+    "archetypes:architecture-paradigm-serverless",
+    "archetypes:architecture-paradigm-service-based",
+    "archetypes:architecture-paradigm-space-based",
+    "attune:dorodango",
+    "cartograph:architecture-diagram",
+    "cartograph:call-chain",
+    "cartograph:class-diagram",
+    "cartograph:code-communities",
+    "cartograph:data-flow",
+    "cartograph:dependency-graph",
+    "cartograph:workflow-diagram",
+    "conserve:agent-expenditure",
+    "conserve:context-map",
+    "conserve:context-optimization",
+    "conserve:cpu-gpu-performance",
+    "conserve:decisive-action",
+    "conserve:mcp-code-execution",
+    "conserve:response-compression",
+    "conserve:smart-sourcing",
+    "conserve:token-conservation",
+    "egregore:quality-gate",
+    "gauntlet:challenge",
+    "gauntlet:curate",
+    "gauntlet:extract",
+    "gauntlet:gauntlet-curate",
+    "gauntlet:graph-build",
+    "gauntlet:graph-search",
+    "gauntlet:onboard",
+    "imbue:catchup",
+    "imbue:diff-analysis",
+    "imbue:feature-review",
+    "imbue:latent-space-engineering",
+    "imbue:review-core",
+    "imbue:structured-output",
+    "imbue:vow-enforcement",
+    "leyline:content-sanitization",
+    "leyline:deferred-capture",
+    "leyline:document-conversion",
+    "leyline:evaluation-framework",
+    "leyline:progressive-loading",
+    "leyline:pytest-config",
+    "leyline:quota-management",
+    "leyline:sem-integration",
+    "leyline:service-registry",
+    "leyline:stewardship",
+    "leyline:storage-templates",
+    "leyline:supply-chain-advisory",
+    "leyline:testing-quality-standards",
+    "leyline:usage-logging",
+    "leyline:utility",
+    "memory-palace:digital-garden-cultivator",
+    "memory-palace:knowledge-locator",
+    "memory-palace:memory-palace-architect",
+    "memory-palace:palace-diagram",
+    "memory-palace:review-chamber",
+    "memory-palace:session-palace-builder",
+    "minister:github-initiative-pulse",
+    "minister:release-health-gates",
+    "oracle:setup",
+    "parseltongue:python-async",
+    "parseltongue:python-packaging",
+    "parseltongue:python-testing",
+    "pensive:api-review",
+    "pensive:blast-radius",
+    "pensive:bug-review",
+    "pensive:rust-review",
+    "pensive:safety-critical-patterns",
+    "pensive:test-review",
+    "pensive:tiered-audit",
+    "phantom:computer-control",
+    "sanctum:commit-messages",
+    "sanctum:file-analysis",
+    "sanctum:stack-create",
+    "sanctum:workflow-improvement",
+    "scribe:style-learner",
+    "scribe:voice-extract",
+    "scribe:voice-generate",
+    "scribe:voice-learn",
+    "scribe:voice-review",
+    "spec-kit:speckit-orchestrator",
+    "tome:code-search",
+    "tome:dig",
+    "tome:discourse",
+    "tome:papers",
+    "tome:research",
+    "tome:synthesize",
+    "tome:triz"
+  ],
+  "dangling_refs": {
+    "bugs": [],
+    "external": [
+      {
+        "source": "attune:project-brainstorming",
+        "target": "superpowers:brainstorming"
+      },
+      {
+        "source": "attune:project-execution",
+        "target": "superpowers:executing-plans"
+      },
+      {
+        "source": "attune:project-execution",
+        "target": "superpowers:systematic-debugging"
+      },
+      {
+        "source": "attune:project-execution",
+        "target": "superpowers:test-driven-development"
+      },
+      {
+        "source": "attune:project-execution",
+        "target": "superpowers:verification-before-completion"
+      },
+      {
+        "source": "attune:project-planning",
+        "target": "superpowers:writing-plans"
+      },
+      {
+        "source": "imbue:karpathy-principles",
+        "target": "superpowers:brainstorming"
+      },
+      {
+        "source": "imbue:karpathy-principles",
+        "target": "superpowers:test-driven-development"
+      },
+      {
+        "source": "sanctum:doc-updates",
+        "target": "elements-of-style:writing-clearly-and-concisely"
+      }
+    ],
+    "placeholders": [
+      {
+        "source": "abstract:skill-graph-audit",
+        "target": "plugin:name"
+      },
+      {
+        "source": "archetypes:architecture-paradigms",
+        "target": "archetypes:architecture-paradigm-NAME"
+      }
+    ]
+  }
+}

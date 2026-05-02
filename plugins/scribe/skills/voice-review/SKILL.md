@@ -4,7 +4,7 @@ description: Dispatch parallel prose and craft review agents on generated
   text. Merges results into unified advisory tables. Auto-fixes hard
   failures and presents soft findings for user decision. Use after
   voice-generate or on any text that should match a voice profile.
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality
@@ -14,11 +14,7 @@ tags:
 - prose
 - craft
 - quality
-tools:
-- Read
-- Write
-- Agent
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1600

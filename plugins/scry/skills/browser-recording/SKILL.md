@@ -1,7 +1,7 @@
 ---
 name: browser-recording
 description: Record browser sessions using Playwright for web UI tutorials, converts
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   video to GIF.
 category: media-generation
@@ -12,10 +12,7 @@ tags:
 - video
 - web
 - tutorial
-tools:
-- Read
-- Write
-- Bash
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 500

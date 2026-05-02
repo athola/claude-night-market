@@ -1,22 +1,14 @@
 ---
 name: research
 description: 'Multi-source research across code, discourse, and academic channels.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: orchestration
 tags:
   - research
   - synthesis
   - multi-source
-tools:
-  - Agent
-  - Read
-  - Write
-  - Bash
-  - WebSearch
-  - WebFetch
-  - Glob
-  - Grep
+tools: []
 estimated_tokens: 600
 progressive_loading: true
 orchestrates:

@@ -1,7 +1,7 @@
 ---
 name: unified-review
-description: 'Orchestrate multiple review types into a single multi-domain review with integrated reporting'
-version: 1.9.0
+description: 'Orchestrate multiple review types into a single multi-domain review. Use when needing API + architecture + bug + test review at once.'
+version: 1.9.3
 alwaysApply: false
 category: orchestration
 tags:
@@ -10,10 +10,7 @@ tags:
 - code-quality
 - analysis
 - multi-domain
-tools:
-- skill-selector
-- context-analyzer
-- report-integrator
+tools: []
 usage_patterns:
 - auto-detect-review
 - full-review

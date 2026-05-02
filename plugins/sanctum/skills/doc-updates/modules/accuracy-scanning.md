@@ -141,7 +141,7 @@ done | sort
 # Total counts
 echo "Plugins: $(ls -d plugins/*/.claude-plugin/plugin.json | wc -l)"
 echo "Skills: $(find plugins/*/skills -name 'SKILL.md' | wc -l)"
-echo "Commands: $(find plugins/*/commands -name '*.md' | wc -l)"
+echo "Commands: $(find plugins/*/commands -maxdepth 1 -name '*.md' | wc -l)"
 echo "Agents: $(find plugins/*/agents -name '*.md' | wc -l)"
 ```
 

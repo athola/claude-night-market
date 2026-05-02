@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-client-server
 description: 'Client-server architecture for web/mobile apps with centralized services and API design.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -10,9 +10,7 @@ tags:
 - peer-to-peer
 - distributed-systems
 dependencies: []
-tools:
-- api-contract-generator
-- networking-debugger
+tools: []
 usage_patterns:
 - paradigm-implementation
 - distributed-system-design

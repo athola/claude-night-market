@@ -8,9 +8,6 @@ import random
 import uuid
 from collections.abc import Callable
 
-import anthropic
-from anthropic.types import TextBlock
-
 from gauntlet.models import (
     BankProblem,
     Challenge,
@@ -240,34 +237,89 @@ def _is_valid_variation(text: str) -> bool:
     return "?" in stripped or any(v in lower for v in imperative_verbs)
 
 
-def _generate_problem_variation(problem: BankProblem) -> BankProblem:
-    """Return a new BankProblem with a Claude-generated prompt variation.
+# A VariationProvider takes (prompt_template, problem) and returns either
+# a varied problem statement string, or None when no variation is available.
+# Returning None signals graceful fallback to the seed problem; raising is
+# also acceptable and is caught at the call site.
+VariationProvider = Callable[[str, BankProblem], "str | None"]
 
-    Uses the seed problem as a template and asks Claude to produce a unique
-    variation that preserves the core concept and difficulty while changing
-    variable names, values, and framing.  Falls back to the original problem
-    on any error (network error, API error, validation failure).
+_provider: VariationProvider | None = None
+
+
+def set_variation_provider(provider: VariationProvider | None) -> None:
+    """Register the callable used to generate problem variations.
+
+    Setting this to None disables variation: callers receive the seed
+    problem verbatim. Skills running with an LLM in-loop (e.g. inside
+    Claude Code) can register a provider that uses the parent LLM
+    directly instead of the default `anthropic_variation_provider`,
+    avoiding a round-trip to the Anthropic API.
     """
+    global _provider  # noqa: PLW0603 - module-level provider registry
+    _provider = provider
+
+
+def get_variation_provider() -> VariationProvider | None:
+    """Return the currently registered variation provider (or None)."""
+    return _provider
+
+
+def anthropic_variation_provider(
+    prompt_template: str, problem: BankProblem
+) -> str | None:
+    """Default provider: invoke the Anthropic SDK to generate a variation.
+
+    Lazy-imports `anthropic` so this module can be imported on a Python
+    interpreter that lacks the SDK (e.g. the precommit hook running on
+    system python3). Callers wrap this in try/except; ImportError or
+    network/API failures flow through and the call site falls back to
+    the seed problem.
+    """
+    import anthropic  # type: ignore[import-not-found]  # noqa: I001, PLC0415 - lazy import: anthropic is an optional dep
+    from anthropic.types import TextBlock  # type: ignore[import-not-found]  # noqa: I001, PLC0415 - lazy import paired with anthropic
+
+    client = anthropic.Anthropic()
+    message = client.messages.create(
+        model=_VARIATION_MODEL,
+        max_tokens=1024,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt_template.format(problem=problem.prompt),
+            }
+        ],
+    )
+    first_block = message.content[0]
+    if not isinstance(first_block, TextBlock):
+        return None
+    return first_block.text
+
+
+# Default to the Anthropic SDK provider so existing call sites keep working
+# without an explicit registration step. Skills that want to short-circuit
+# to the in-loop LLM can call set_variation_provider(my_callback).
+set_variation_provider(anthropic_variation_provider)
+
+
+def _generate_problem_variation(problem: BankProblem) -> BankProblem:
+    """Return a new BankProblem whose prompt is a unique variation.
+
+    Delegates to the registered VariationProvider (default:
+    `anthropic_variation_provider`). Falls back to the seed problem on
+    any error: no provider registered, provider returned None, the
+    variation failed validation, or the provider raised.
+    """
+    provider = get_variation_provider()
+    if provider is None:
+        return problem
     try:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
-            model=_VARIATION_MODEL,
-            max_tokens=1024,
-            messages=[
-                {
-                    "role": "user",
-                    "content": _VARIATION_PROMPT.format(problem=problem.prompt),
-                }
-            ],
-        )
-        first_block = message.content[0]
-        if not isinstance(first_block, TextBlock):
+        varied_prompt = provider(_VARIATION_PROMPT, problem)
+        if varied_prompt is None:
             _log.warning(
-                "Unexpected content type for problem %s; using original",
+                "Provider returned no variation for problem %s; using original",
                 problem.id,
             )
             return problem
-        varied_prompt: str = first_block.text
         if not _is_valid_variation(varied_prompt):
             _log.warning(
                 "Variation for problem %s failed validation; using original",

@@ -1,7 +1,7 @@
 ---
 name: file-analysis
-description: 'Map file structure and organization for downstream review and refactoring workflows'
-version: 1.9.0
+description: 'Map file structure and organization. Use when preparing review or refactor workflows that need a file map.'
+version: 1.9.3
 alwaysApply: false
 category: workspace-ops
 tags:
@@ -10,11 +10,7 @@ tags:
 - analysis
 - codebase
 - exploration
-tools:
-- Bash
-- Glob
-- Grep
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 800

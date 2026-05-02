@@ -3,11 +3,10 @@ name: uninstall-watchdog
 description: >
   Remove the egregore watchdog daemon and clean up all
   associated files (plist/unit, pidfile, watchdog log).
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: setup
-tools:
-  - Bash
+tools: []
 model_hint: standard
 ---
 # Uninstall Watchdog

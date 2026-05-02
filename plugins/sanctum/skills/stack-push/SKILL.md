@@ -2,7 +2,7 @@
 name: stack-push
 description: 'Push all branches in a stack and create or update dependent PRs,
   targeting each PR at its parent branch.'
-version: 1.0.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-automation
 tags:
@@ -11,9 +11,7 @@ tags:
 - pr
 - push
 - github
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 900

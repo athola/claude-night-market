@@ -445,15 +445,15 @@ class TestInteractivePlanReview:
 
     @pytest.mark.bdd
     def test_orchestrator_skill_declares_version_1_9(self) -> None:
-        """Scenario: Orchestrator skill version is 1.9.0
+        """Scenario: Orchestrator skill version is 1.9.3
         Given the mission-orchestrator SKILL.md
         When parsing frontmatter
-        Then version should be 1.9.0
+        Then version should be 1.9.3
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
-        assert fm.get("version") == "1.9.0", (
-            f"Expected version='1.9.0', got {fm.get('version')!r}"
+        assert fm.get("version") == "1.9.3", (
+            f"Expected version='1.9.3', got {fm.get('version')!r}"
         )
 
     @pytest.mark.bdd
@@ -468,4 +468,45 @@ class TestInteractivePlanReview:
         deps = fm.get("dependencies", [])
         assert "leyline:additive-bias-defense" in deps, (
             "mission-orchestrator must depend on leyline:additive-bias-defense"
+        )
+
+    @pytest.mark.bdd
+    def test_adaptive_constraints_documents_user_directive_override(
+        self,
+    ) -> None:
+        """Scenario: Adaptive constraints documents directive override
+        Given the adaptive-constraints.md module
+        When reading content
+        Then it should document the User Directive Override parsing table
+        with at least the canonical trust-signal phrases.
+        """
+        content = (MODULES_DIR / "adaptive-constraints.md").read_text()
+        assert "User Directive Override" in content, (
+            "adaptive-constraints.md must document the User Directive "
+            "Override section so natural-language trust signals are "
+            "recognized without requiring --constraints= flags."
+        )
+        for phrase in (
+            "ignore scope guard",
+            "ultrathink",
+            "stop asking",
+            "be autonomous",
+        ):
+            assert phrase in content, (
+                f"directive override table must include phrase: {phrase!r}"
+            )
+
+    @pytest.mark.bdd
+    def test_skill_md_references_user_directive_overrides(self) -> None:
+        """Scenario: SKILL.md surfaces directive override capability
+        Given the mission-orchestrator SKILL.md
+        When reading content
+        Then it should reference User Directive Overrides so a reader
+        landing on the SKILL.md alone learns the natural-language path
+        before drilling into modules.
+        """
+        content = SKILL_FILE.read_text()
+        assert "User Directive Override" in content, (
+            "SKILL.md must surface User Directive Overrides at the "
+            "skill index level, not bury them only in adaptive-constraints"
         )

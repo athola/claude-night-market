@@ -1,7 +1,7 @@
 ---
 name: delegation-core
 description: Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging,
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   and error handling. Use when tasks exceed context window or need cheaper processing.
   Do not use when task requires reasoning by Claude.
@@ -19,8 +19,7 @@ dependencies:
 - leyline:service-registry
 - leyline:error-patterns
 - leyline:authentication-patterns
-tools:
-- delegation-executor
+tools: []
 usage_patterns:
 - task-assessment
 - delegation-planning

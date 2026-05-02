@@ -1,11 +1,8 @@
 ---
 name: discourse
-description: >-
-  Scan community discussion channels (HN, Lobsters, Reddit,
-  tech blogs) for experience reports and opinions on a
-  topic. Use when the user wants community perspectives
-  on a technology or approach.
-version: 1.9.0
+role: library
+description: 'Scan HN, Lobsters, Reddit, and tech blogs for experience reports. Use when the user wants community perspectives on a technology.'
+version: 1.9.3
 alwaysApply: false
 category: research
 tags:

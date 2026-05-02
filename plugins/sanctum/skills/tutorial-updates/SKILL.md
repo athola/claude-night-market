@@ -1,7 +1,7 @@
 ---
 name: tutorial-updates
 description: 'Generate tutorials from VHS tapes and Playwright specs with dual-tone markdown and GIF recording'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -11,13 +11,7 @@ tags:
 - playwright
 - documentation
 - demo
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
-- Glob
+tools: []
 complexity: high
 model_hint: deep
 estimated_tokens: 1100

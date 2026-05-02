@@ -1,7 +1,7 @@
 ---
 name: agent-teams
 description: Coordinate Claude Code Agent Teams through filesystem-based protocol. Use
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   when orchestrating multiple Claude agents on parallel tasks, need task dependency
   management, multi-agent code review or implementation. Do not use when single-agent
@@ -18,10 +18,7 @@ dependencies:
 - delegation-core
 - leyline:damage-control
 - leyline:risk-classification
-tools:
-- Bash
-- Read
-- Write
+tools: []
 usage_patterns:
 - team-orchestration
 - parallel-implementation

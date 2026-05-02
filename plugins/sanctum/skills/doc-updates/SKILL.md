@@ -1,7 +1,7 @@
 ---
 name: doc-updates
 description: 'Update documentation after code changes with quality gates, slop detection, consolidation, and accuracy verification.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -12,12 +12,7 @@ tags:
 - writing
 - consolidation
 - debloat
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1200

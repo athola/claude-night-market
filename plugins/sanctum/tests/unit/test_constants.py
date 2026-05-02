@@ -54,6 +54,19 @@ class TestCacheExcludes:
         assert ".git" in CACHE_EXCLUDES
 
     @pytest.mark.unit
+    def test_cache_excludes_contains_project_local_tool_dirs(self):
+        """Scenario: project-local tool/cache directories are excluded.
+
+        Regression: update_versions.py was finding 137 files in dry-run
+        because .typecheck-venv, .uv-tools, .xdg-cache, .tools were not
+        in CACHE_EXCLUDES. Without these, the script would rewrite
+        version strings inside installed Python packages.
+        """
+
+        for name in (".typecheck-venv", ".uv-tools", ".xdg-cache", ".tools"):
+            assert name in CACHE_EXCLUDES, f"{name} missing from CACHE_EXCLUDES"
+
+    @pytest.mark.unit
     def test_cache_excludes_backward_compat_with_legacy_plugin_auditor(self):
         """Scenario: CACHE_EXCLUDES contains all legacy PluginAuditor entries.
 

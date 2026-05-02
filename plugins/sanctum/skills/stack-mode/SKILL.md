@@ -1,9 +1,7 @@
 ---
 name: stack-mode
-description: 'Shared stack detection and multi-PR iteration contract for commands
-  that need to operate across a whole PR stack targeting a common base branch
-  (e.g., /pr-review --stack, /fix-pr --stack).'
-version: 1.0.0
+description: 'Shared stack detection and multi-PR iteration contract. Use when commands operate across a whole PR stack (e.g., /pr-review --stack, /fix-pr --stack).'
+version: 1.9.3
 alwaysApply: false
 category: workflow-automation
 tags:
@@ -13,9 +11,7 @@ tags:
 - review
 - fix-pr
 - iteration
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1100

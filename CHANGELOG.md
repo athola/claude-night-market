@@ -7,6 +7,212 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [1.9.3] - 2026-04-26
+
+### Added
+
+- **gauntlet ImportError observability**: opt-in stderr
+  diagnostic in `precommit_gate.generate_challenge_for_files`
+  gated on `GAUNTLET_DEBUG=1`. The function still returns
+  `None` silently by default (unchanged graceful-degradation
+  contract), but a developer hitting an unexpected import
+  failure can now see the cause without instrumenting the
+  hook. Two new tests in `test_precommit.py` guard both
+  paths (silent without env, diagnostic with env).
+- **release-consistency tests** (`plugins/sanctum/tests/test_release_consistency.py`):
+  filesystem-walking parity tests that catch real
+  ecosystem drift instead of asserting hardcoded fixtures.
+  Four invariants: all `plugin.json` versions agree;
+  each `pyproject.toml` matches its sibling `plugin.json`;
+  every Makefile `find commands/ ... *.md` invocation
+  uses `-maxdepth 1`; top-level `commands/*.md` count
+  equals `plugin.json.commands.length` for every plugin.
+  RED-proof: reverting `-maxdepth 1` in any Makefile
+  fails the static check immediately.
+- **inclusive-defaults policy**: `docs/inclusive-defaults.md`
+  codifies the project rule that features default ON and
+  expose `--no-X` opt-out, with nine TRUE-exception
+  categories (heavy install, irreversible state, no-default
+  value, OS-level state, user-project overrides, per-rule
+  consent, full-codebase scans, block-mode enforcement,
+  prescriptive modes). Tracks the audit at #445.
+- **hookify safe-defaults bundle**: new `--bundle <name>`
+  install mode with built-in `safe-defaults` bundle
+  shipping six warn-only rules (slop scan, large commits,
+  risky git, large file ops, print statements, plan-before-
+  large-dispatch). Tests guard the bundle composition so
+  any future block-action rule added to safe-defaults will
+  fail CI. Run with
+  `python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
+- **pensive performance-review skill + command**: new
+  `/performance-review` slash command and matching skill detect
+  time- and space-complexity hotspots via Python AST. Six
+  time-complexity detectors (T1 nested loops over the same
+  iterable; T2 list `in` lookup in a loop; T3 `re.compile()`
+  in a loop; T4 string `+=` accumulator; T5 unmemoized
+  recursion; T6 list comprehension passed to a reducer) and
+  three space-complexity detectors (S1 unbounded `.append()`
+  in nested loops; S2 list-wrapping a generator inside a
+  reducer; S3 per-iteration `.copy()` / `dict()` / `list()`).
+  Tier 2 (`gauntlet.treesitter_parser`) and Tier 3
+  (`gauntlet.graph.GraphStore`) extend coverage to non-Python
+  languages and transitive call-chain severity upgrades when
+  gauntlet is installed; sentinel-pattern fallback keeps Tier
+  1 working when gauntlet is missing. Implementation lives at
+  `plugins/pensive/src/pensive/skills/performance_review.py`
+  with 15 BDD-style tests at
+  `plugins/pensive/tests/skills/test_performance_review.py`.
+  `make demo-performance-review` dogfoods on pensive's own
+  source (98 real findings on first run). Full pensive suite:
+  368 passed.
+- **gauntlet Makefile demo + test targets**: 12 new
+  per-command targets (`demo-gauntlet`, `demo-gauntlet-extract`,
+  `demo-gauntlet-curate`, `demo-gauntlet-graph`,
+  `demo-gauntlet-progress`, `demo-gauntlet-onboard`,
+  plus `demo-all`, and matching `test-*` targets). Demos
+  are LIVE (e.g. `demo-gauntlet-extract` runs
+  `scripts/extractor.py src/gauntlet` and prints real
+  knowledge entries dogfooded from gauntlet's own source).
+  Per-command test targets use `--no-cov` since they
+  exercise a slice rather than the full plugin surface;
+  use `make test` for the 85% coverage gate.
+  `makefile_dogfooder.py` coverage: 0% → 85%.
+
+### Changed
+
+- **spec-kit speckit-tasks now generates test tasks by
+  default**. Previously the wording said "Tests are
+  OPTIONAL: only generate test tasks if explicitly
+  requested" — defaulting away from the project's
+  iron-law TDD posture. New default is ON; opt-out via
+  `--no-tdd` or explicit spec opt-out for
+  spikes/throwaways.
+- **sanctum update-docs slop-scan default-ON wording**:
+  the scan was already non-blocking by default; the new
+  wording says "default ON" not "non-blocking", since the
+  latter implied opt-in.
+- **per-plugin TRUE-exception callouts**: hookify, oracle,
+  egregore, conjure, phantom, imbue, leyline, and pensive
+  READMEs (or relevant skill modules) now reference
+  `docs/inclusive-defaults.md` and explain why each
+  feature stays opt-in.
+- **pensive performance-review detector hardening**:
+  iteratively suppressed false-positive classes that surfaced
+  during dogfooding. T2 (`x in <Name>` membership): string-literal
+  LHS, dict/set/string RHS Names tracked module-wide, string-
+  returning methods (`.lower`, `.upper`, `.strip`, `.read`, etc.),
+  `str`/`bytes`-annotated function params, `.split()`/`.splitlines()`
+  iter vars, comprehension generators, Name-to-Name assignment
+  propagation. S1 (`.append()` in nested loops): suppresses when
+  the target Name is initialized to an empty list in the same
+  function (Assign + List, AnnAssign + List, `list()` call). Net
+  result on pensive's own source: 98 to 10 total findings
+  (-90 percent), HIGH 64 to 2 (-97 percent), MEDIUM 32 to 6
+  (-81 percent), zero regressions in 376/376 pensive tests.
+  Iron Law followed for every classifier extension: failing
+  test first, minimum implementation, all-green verification
+  (23 BDD-style tests covering each detector and each
+  suppression class).
+- **pensive `common_phony` list to frozenset**:
+  `plugins/pensive/src/pensive/skills/makefile_review.py` was a
+  7-element list scanned inside the per-target loop. Converted
+  to `frozenset` for O(1) membership.
+- **pensive `unified_review.detect_languages` repo-file scan**:
+  `plugins/pensive/src/pensive/skills/unified_review.py` built
+  a `set(files)` once outside the per-language loop so the
+  per-config-file membership probe is O(1) regardless of
+  repository size.
+- **pensive `makefile_review` regex hoist**:
+  `plugins/pensive/src/pensive/skills/makefile_review.py` had
+  `re.compile(...)` inside the per-makefile loop. Hoisted above
+  the loop so the static pattern compiles once.
+- **pensive `repository_analyzer` materialization removal**:
+  `plugins/pensive/src/pensive/analysis/repository_analyzer.py`
+  used `len(list(repo_path.rglob(...)))` in two places. Replaced
+  with `sum(1 for _ in repo_path.rglob(...))` so the iterator
+  is consumed without an intermediate list allocation.
+
+### Fixed
+
+- **sanctum brainstorm SessionStart hook permission**:
+  `plugins/sanctum/hooks/brainstorm_session_warn.py` was
+  committed with mode 100644 and registered as a direct
+  `"type": "command"` hook in `hooks.json`. Without the
+  exec bit the kernel returned `EACCES` on every
+  SessionStart. Restored mode to 100755 via
+  `git update-index --chmod=+x` to match the six sibling
+  hooks in the same file.
+- **gauntlet precommit_gate Bash PreToolUse traceback**:
+  the hook imported `gauntlet.challenges` at module
+  scope, which transitively imports `anthropic`. Claude
+  Code invokes the hook via system `python3` (no
+  `anthropic`), so every `Bash` PreToolUse raised
+  `ModuleNotFoundError` before the hook's own
+  early-return for non-`git commit` commands. Moved
+  `from gauntlet.challenges import ...` inside
+  `generate_challenge_for_files()` with
+  `try/except ImportError: return None` for graceful
+  degradation. All 15 unit tests in
+  `tests/unit/test_precommit.py` still pass.
+- **gauntlet challenges module-scope anthropic import**:
+  closed the same import trap at the source.
+  `plugins/gauntlet/src/gauntlet/challenges.py` now
+  imports `anthropic` and `TextBlock` lazily inside
+  `_generate_problem_variation()` so any caller (not
+  just the precommit hook) can import
+  `gauntlet.challenges` from a Python interpreter
+  lacking `anthropic`. The pre-existing
+  `except Exception` already catches `ImportError` and
+  falls back to the verbatim YAML problem.
+- **command-counting bug across 14 Makefiles + 1 doc
+  module**: every per-plugin `make status` target and the
+  `sanctum:doc-updates` accuracy-scanning module used
+  `find commands/ -name '*.md'` to count slash commands.
+  In plugins with modular commands (sanctum's
+  `fix-pr-modules/`, `update-plugins/modules/`,
+  `pr-review/modules/`) this counted helper sub-files as
+  separate commands, reporting `Commands: 46` for sanctum
+  (canonical: 19) and `155` for the project (canonical:
+  128). Added `-maxdepth 1` to all 15 invocations so the
+  count matches `plugin.json.commands.length` exactly.
+  Verified: top-level `commands/*.md` count equals
+  registered command count for all 23 plugins.
+- **README and pensive book doc stale counts** (consequence
+  of the command-counting bug above): corrected stale
+  skill/command counts and per-plugin catalog rows
+  (`abstract` 13→14, `sanctum` 14→18, `imbue` 12→13/4→5,
+  `pensive` 13→14/12→13, `gauntlet` 6→7). Headline command
+  count fixed from `155` to `128`. Added missing
+  `performance-review`, `blast-radius`, `/performance-review`,
+  and `/refine-code` rows to `book/src/plugins/pensive.md`.
+- **`update_versions.py` CACHE_EXCLUDES missing
+  project-local tool/cache dirs**: the script's exclusion
+  list omitted `.typecheck-venv`, `.uv-tools`, `.xdg-cache`,
+  and `.tools`, so dry-run reported 137 candidate version
+  files including dozens inside installed Python packages.
+  Added the four missing entries to
+  `plugins/sanctum/scripts/update_plugins_modules/constants.py`
+  with a regression test
+  (`test_cache_excludes_contains_project_local_tool_dirs`).
+  Dry-run noise dropped from 137 to 97 files (95 actually
+  changed by the 1.9.2 to 1.9.3 bump).
+
+### Notes
+
+- **Correction to release commit `22423bca` message**: the
+  commit body says the new ImportError test "guards the
+  precommit hook surface when `anthropic` is unavailable
+  in the system python3". The test actually patches
+  `gauntlet.challenges` (not `anthropic`); a missing
+  `anthropic` would surface inside
+  `gauntlet.challenges._generate_problem_variation` and is
+  caught by a different `except Exception` listed under
+  the `Fixed` section above. The test file's own docstring
+  is correct; only the commit message overstates the
+  trigger.
+
 ## [1.9.2] - 2026-04-23
 
 ### Added

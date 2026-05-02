@@ -48,7 +48,7 @@ clean: ## Clean up generated files
 status: ## Show project overview
 	@echo "Leyline Plugin Status:"
 	@echo "Skills:   $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
+	@echo "Commands: $$(find commands/ -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Source:   $$(find src/ -name '*.py' 2>/dev/null | wc -l) Python files"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
@@ -129,7 +129,7 @@ demo-skills: ## Validate leyline skill structure
 	done 2>/dev/null || echo "  (no skills found)"
 	@echo ""
 	@echo "Commands:"
-	@find commands/ -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
+	@find commands/ -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
 
 demo-formatting: ## Validate markdown-formatting skill structure
 	@echo "=== Markdown Formatting Skill Demo ==="

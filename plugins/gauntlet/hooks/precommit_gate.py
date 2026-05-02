@@ -21,9 +21,16 @@ _src_path = Path(__file__).parent.parent / "src"
 if str(_src_path) not in sys.path:
     sys.path.insert(0, str(_src_path))
 
-from gauntlet.challenges import generate_challenge, select_challenge_type
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.progress import ProgressTracker
+
+# gauntlet.challenges uses a registered VariationProvider for problem
+# variation. The default provider lazy-imports `anthropic`, so this hook
+# stays a clean no-op for every non-`git commit` Bash invocation and
+# survives missing optional deps. Skills running with an LLM in-loop can
+# call set_variation_provider() to short-circuit through the parent LLM
+# instead of round-tripping to the Anthropic API; that integration is
+# tracked in the issue queue and not wired in this branch.
 
 # Graph-aware analysis (optional -- degrade gracefully)
 try:
@@ -102,8 +109,24 @@ def generate_challenge_for_files(
 ) -> Any | None:
     """Generate a challenge for *files* using the developer's progress.
 
-    Returns a Challenge object, or None if no knowledge entries match.
+    Returns a Challenge object, or None if no knowledge entries match
+    (or if optional dependencies for challenge generation are missing).
     """
+    try:
+        from gauntlet.challenges import generate_challenge, select_challenge_type
+    except ImportError as exc:
+        # Graceful degradation: hook stays a no-op if optional deps
+        # (anthropic) or the challenges module itself fail to import.
+        # Surface the cause behind GAUNTLET_DEBUG so silent regressions
+        # in gauntlet.challenges (vs. missing optional dep) are debuggable.
+        if os.environ.get("GAUNTLET_DEBUG"):
+            print(
+                f"[gauntlet] precommit_gate: skipping challenge "
+                f"(gauntlet.challenges unimportable: {exc})",
+                file=sys.stderr,
+            )
+        return None
+
     store = KnowledgeStore(gauntlet_dir)
     entries = store.query(files=files)
     if not entries:

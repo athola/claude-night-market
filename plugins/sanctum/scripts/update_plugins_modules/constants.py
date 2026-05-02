@@ -19,6 +19,10 @@ CACHE_EXCLUDES: frozenset[str] = frozenset(
         ".tox",
         ".eggs",
         ".uv-cache",
+        ".uv-tools",
+        ".typecheck-venv",
+        ".xdg-cache",
+        ".tools",
         # JavaScript/Node
         "node_modules",
         ".npm",

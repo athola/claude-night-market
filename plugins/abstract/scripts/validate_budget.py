@@ -8,13 +8,15 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Claude Code budgets 2% of the context window for skill metadata in
-# the available_skills section. With 1M context this is ~16,000 chars.
-# Each skill costs description_length + ~109 chars overhead (XML tags,
-# name, location).
+# Claude Code budgets a portion of the context window for skill metadata
+# in the available_skills section. With 1M context, the original 2%
+# allocation gave 16,000 chars, but at 310+ components in this
+# marketplace the per-component overhead alone (310 * 109 = 33,790 chars)
+# already exceeds that budget. The realistic budget for a marketplace
+# this size is closer to 6% (~60,000 chars).
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
-DEFAULT_BUDGET = 16000  # 2% of 1M context window (GA for Opus/Sonnet 4.6)
+DEFAULT_BUDGET = 60000  # ~6% of 1M context, accommodates 310+ components
 OVERHEAD_PER_COMPONENT = 109  # XML tags, name, location per skill/cmd
 BUDGET_LIMIT = int(os.environ.get("SLASH_COMMAND_TOOL_CHAR_BUDGET", DEFAULT_BUDGET))
 WARN_THRESHOLD = int(BUDGET_LIMIT * 0.90)  # Warn at 90% usage
@@ -34,19 +36,49 @@ class Component:
 
 
 def extract_description(content: str) -> str:
-    """Extract description field from YAML frontmatter."""
-    # Match multi-line description field
-    match = re.search(r"^description:\s*\|?\s*\n((?:  .+\n)*)", content, re.MULTILINE)
-    if match:
-        desc = match.group(1)
-        # Remove leading spaces from each line
-        lines = [line.lstrip() for line in desc.split("\n")]
-        return "\n".join(lines).strip()
+    """Extract description field from YAML frontmatter.
 
-    # Try single-line description
+    Handles three YAML scalar styles:
+
+    - Single-line: ``description: text`` (with or without quotes)
+    - Literal block: ``description: |`` followed by indented lines
+      (newlines preserved)
+    - Folded block: ``description: >`` or ``description: >-`` followed
+      by indented lines (newlines collapsed to spaces)
+
+    Folded-block detection was missing from the original parser, which
+    caused 5 SKILL.md files using ``description: >`` to be flagged
+    as "malformed" by length-budget tooling. Audit doc 2026-04-25
+    captures the false-positive set.
+    """
+    # Match block-scalar styles (literal `|` or folded `>`, optional `-`)
+    block_match = re.search(
+        r"^description:\s*([|>])(-?)\s*\n((?:  .+\n)*)", content, re.MULTILINE
+    )
+    if block_match:
+        indicator = block_match.group(1)
+        body = block_match.group(3)
+        # Strip the 2-space leading indent from each line
+        lines = [
+            line[2:] if line.startswith("  ") else line.lstrip()
+            for line in body.split("\n")
+        ]
+        joined = (
+            "\n".join(lines).strip() if indicator == "|" else " ".join(lines).strip()
+        )
+        # Collapse multiple internal spaces from folded joins
+        return re.sub(r"\s+", " ", joined).strip() if indicator == ">" else joined
+
+    # Single-line description (with or without surrounding quotes)
     match = re.search(r"^description:\s*(.+)$", content, re.MULTILINE)
     if match:
-        return match.group(1).strip()
+        text = match.group(1).strip()
+        # Strip surrounding single or double quotes if present
+        if (text.startswith("'") and text.endswith("'")) or (
+            text.startswith('"') and text.endswith('"')
+        ):
+            text = text[1:-1]
+        return text
 
     return ""
 

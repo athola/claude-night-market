@@ -3,7 +3,7 @@ name: risk-classification
 description: 'Inline risk classification for agent tasks using a 4-tier model. Hybrid
   routing: GREEN/YELLOW use heuristic file-pattern matching, RED/CRITICAL escalate
   to war-room-checkpoint for full reversibility scoring.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: infrastructure
 tags:
@@ -35,6 +35,7 @@ modules:
 - modules/heuristic-classifier.md
 - modules/verification-gates.md
 - modules/readiness-levels.md
+role: library
 ---
 ## Table of Contents
 

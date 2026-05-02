@@ -42,7 +42,7 @@ clean: ## Clean build artifacts and cache
 status: ## Show project overview
 	@echo "Hookify Plugin Status:"
 	@echo "Skills:   $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
+	@echo "Commands: $$(find commands/ -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Python:   $$(find . -name '*.py' -not -path '*/__pycache__/*' 2>/dev/null | wc -l) files"
 

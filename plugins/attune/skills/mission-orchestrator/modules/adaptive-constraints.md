@@ -47,6 +47,77 @@ Override with `--constraints=minimal|standard|full`.
 The override bypasses mission-type defaults and
 risk upgrades (always wins).
 
+### User Directive Override (Natural Language)
+
+Parse the command-args and any free-text the user
+provides at mission start. If a recognized trust
+signal is present, treat it as a manual override
+with the tier shown below. Directive overrides
+behave exactly like `--constraints=` flags: they win
+over mission-type defaults and risk upgrades, but
+never bypass the Safety Floor.
+
+| User phrase contains | Effective profile | Notes |
+|----------------------|-------------------|-------|
+| "ignore scope guard" / "skip scope guard" | Standard with scope-guard stripped | Acts like Minimal for scope, keeps proof-of-work |
+| "ultrathink" / "deep dive" / "be thorough" | Full quality, Minimal checkpoints | Use full reasoning depth, skip blocking gates |
+| "don't ask" / "stop asking" / "no more questions" | Minimal | Auto-continue all phase transitions |
+| "be autonomous" / "trust your judgment" | Minimal | Same as above |
+| "I trust you" / "go ahead" / "just do it" | Minimal | Same as above |
+| "ask before each step" / "supervised" | Full | Force maximum oversight |
+| "explain everything" / "teach me" | Full + verbose | Pair with explanatory output style |
+
+Match is case-insensitive substring. Multiple
+matches: the most-restrictive directive wins (Full
+beats Minimal). The orchestrator records the
+matched directive and resulting profile in
+`.attune/mission-state.json` under
+`directive_override`:
+
+```json
+{
+  "directive_override": {
+    "matched_phrase": "ignore scope guard",
+    "effective_profile": "standard_minus_scope_guard",
+    "matched_at": "2026-04-25T17:30:00Z"
+  }
+}
+```
+
+When a directive override is detected, the
+orchestrator MUST acknowledge it once at mission
+start, then stop asking for the corresponding
+checkpoints. Repeated approval-seeking after a
+directive override is itself a workflow bug; see
+`/sanctum:fix-workflow` retrospectives for examples.
+
+#### What Directives Cannot Override
+
+The Safety Floor below applies regardless of
+directive. Even "trust me, just do it" cannot waive:
+
+- Pre-commit hooks
+- Proof-of-work evidence capture
+- Destructive-operation confirmation (rm -rf, force
+  push, DROP TABLE, branch deletion)
+- External-facing actions (PR creation, issue
+  comments, release tags)
+- Cost threshold breaches (token/time budget exceeded)
+
+When the orchestrator hits one of these even under
+a Minimal directive override, it pauses. The
+override gives autonomy on routine decisions; it
+does not surrender oversight on irreversible ones.
+
+#### Persistent vs Per-Mission Directives
+
+Directive overrides apply for the current mission
+only. They do not persist to subsequent missions.
+For permanent autonomy escalation, the user should
+either set the profile flag on each mission or
+elevate skill trust tiers via repeated successful
+runs (see `trust-tier.md`).
+
 ### Risk Upgrade
 
 `leyline:risk-classification` can upgrade (never

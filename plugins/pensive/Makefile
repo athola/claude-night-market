@@ -13,7 +13,8 @@
 	security status test test-api-review test-architecture-review test-bug-review test-edge-case \
 	test-file test-fpf-review test-full-review test-integration test-makefile-review test-math-review \
 	test-parallel test-pattern test-refine-code test-rust-review test-shell-review test-skill-history \
-	test-skill-review test-structure test-test-review test-unit type-check typecheck
+	test-skill-review test-structure test-test-review test-unit type-check typecheck \
+	demo-performance-review test-performance-review
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -435,6 +436,17 @@ test-skill-history: ## Test skill history (not applicable: skill-only, no unit t
 
 test-skill-review: ## Test skill review (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: skill-review is a skill-only command with no unit tests"
+
+# ---------------------------------------------------------------------------
+# performance-review: AST-based time/space complexity hotspot detection.
+# Demo dogfoods on pensive's own source. Test target uses --no-cov (slice).
+# ---------------------------------------------------------------------------
+
+demo-performance-review: ## Demo: scan pensive's own source for complexity hotspots (LIVE)
+	@$(UV_RUN) python scripts/perf_review_demo.py
+
+test-performance-review: ## Test the performance-review skill
+	$(PYTEST) tests/skills/test_performance_review.py -v --no-cov
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

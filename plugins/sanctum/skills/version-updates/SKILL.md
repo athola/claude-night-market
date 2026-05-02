@@ -1,7 +1,7 @@
 ---
 name: version-updates
 description: 'Bump versions, update changelogs, and coordinate version changes across files for releases'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -10,12 +10,7 @@ tags:
 - changelog
 - semver
 - bump
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 700

@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-pipeline
 description: 'Design pipes-and-filters for sequential data transformations. Use when data flows through processing stages.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -12,10 +12,7 @@ tags:
 - streaming
 - data-processing
 dependencies: []
-tools:
-- stream-processor
-- message-queue
-- data-validator
+tools: []
 usage_patterns:
 - paradigm-implementation
 - data-transformation

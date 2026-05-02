@@ -54,7 +54,7 @@ clean: ## Clean build artifacts and cache
 status: ## Show project overview
 	@echo "Attune Plugin Status:"
 	@echo "Skills:   $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
+	@echo "Commands: $$(find commands/ -maxdepth 1 -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 

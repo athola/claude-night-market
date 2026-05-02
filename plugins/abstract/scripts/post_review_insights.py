@@ -173,7 +173,7 @@ def main() -> None:
     parser.add_argument(
         "review_file",
         type=Path,
-        help="Path to the /pr-review markdown output (e.g., reviews/pr-417-review.md)",
+        help="Path to the /pr-review markdown output (e.g., reviews/pr-NNN-review.md)",
     )
     parser.add_argument(
         "--pr",

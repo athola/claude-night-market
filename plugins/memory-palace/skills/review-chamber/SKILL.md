@@ -1,7 +1,7 @@
 ---
 name: review-chamber
-description: Capture and retrieve PR review knowledge in project memory palaces.
-version: 1.9.0
+description: 'Capture-and-retrieve sink for PR-review findings in memory palaces. Use after a review completes; this skill does NOT perform reviews.'
+version: 1.9.3
 alwaysApply: false
 usage_patterns:
 - capture-review: After PR review completion, capture significant findings

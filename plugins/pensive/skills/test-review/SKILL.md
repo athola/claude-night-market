@@ -1,7 +1,7 @@
 ---
 name: test-review
-description: 'Evaluate test suites for coverage gaps, quality issues, and TDD/BDD compliance'
-version: 1.9.0
+description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance. Use when auditing tests before release or after a major feature.'
+version: 1.9.3
 alwaysApply: false
 category: testing
 tags:
@@ -11,10 +11,7 @@ tags:
 - coverage
 - quality
 - fixtures
-tools:
-- coverage-analyzer
-- scenario-evaluator
-- gap-finder
+tools: []
 usage_patterns:
 - test-audit
 - coverage-analysis

@@ -99,6 +99,11 @@ docs/superpowers/specs/
 # Attune calibration data
 .attune/
 
+# Runtime state for egregore (manifest, clawhub progress) and
+# superpowers (brainstorm session artifacts). Peers of .attune/.
+.egregore/
+.superpowers/
+
 # Intake queue for memory palace artifacts
 plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/

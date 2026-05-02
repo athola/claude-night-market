@@ -1,7 +1,7 @@
 ---
 name: style-learner
 description: Learn and extract writing style patterns from exemplar text for consistent
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.md"
 alwaysApply: false
   application. Use when creating a style guide from existing content, ensuring consistency
@@ -17,10 +17,7 @@ tags:
 - exemplar
 - learning
 - consistency
-tools:
-- Read
-- Write
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 1800

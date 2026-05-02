@@ -285,6 +285,180 @@ class TestMainEmptyTaskId:
 
 
 # ============================================================================
+# main() — PostToolUse payload (current Claude Code event shape)
+# ============================================================================
+
+
+class TestMainPostToolUsePayload:
+    """Feature: main() handles PostToolUse-shaped payloads for the
+    TaskCreate tool. The legacy ``TaskCreated`` event never fires in
+    Claude Code v2.1.89+, so the hook must read ``tool_input`` and
+    parse the task id from ``tool_response``."""
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_writes_task_from_post_tool_use_payload(self, tmp_path) -> None:
+        """
+        Given a PostToolUse payload for TaskCreate with subject,
+        description, activeForm and a tool_response of the shape
+        "Task #N created successfully: <subject>",
+        When main() processes it,
+        Then it should write a JSONL entry whose task_id is the
+        integer N and whose description is tool_input.description.
+        """
+        state_dir = tmp_path / "state"
+        input_data = json.dumps(
+            {
+                "hook_event_name": "PostToolUse",
+                "tool_name": "TaskCreate",
+                "tool_input": {
+                    "subject": "Mission scaffold + state files",
+                    "description": "Create .attune/mission-state.json scaffold",
+                    "activeForm": "Setting up mission state",
+                },
+                "tool_response": (
+                    "Task #1 created successfully: Mission scaffold + state files"
+                ),
+            }
+        )
+        with (
+            patch("sys.stdin", StringIO(input_data)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+            patch("task_created_tracker.STATE_DIR", state_dir),
+            patch.dict(
+                "os.environ",
+                {"CLAUDE_SESSION_ID": "sess-ptu"},
+            ),
+        ):
+            try:
+                main()
+            except SystemExit:
+                pass
+
+        ledger = state_dir / "tasks_sess-ptu.jsonl"
+        assert ledger.exists(), "ledger file should be created"
+        entry = json.loads(ledger.read_text().strip())
+        assert entry["event"] == "created"
+        assert entry["task_id"] == "1"
+        assert entry["description"] == ("Create .attune/mission-state.json scaffold")
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_falls_back_to_subject_when_description_missing(self, tmp_path) -> None:
+        """
+        Given a PostToolUse payload where tool_input has subject
+        but no description,
+        When main() processes it,
+        Then the ledger description should fall back to subject.
+        """
+        state_dir = tmp_path / "state"
+        input_data = json.dumps(
+            {
+                "hook_event_name": "PostToolUse",
+                "tool_name": "TaskCreate",
+                "tool_input": {
+                    "subject": "Short title only",
+                    "activeForm": "Doing it",
+                },
+                "tool_response": "Task #7 created successfully: Short title only",
+            }
+        )
+        with (
+            patch("sys.stdin", StringIO(input_data)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+            patch("task_created_tracker.STATE_DIR", state_dir),
+            patch.dict(
+                "os.environ",
+                {"CLAUDE_SESSION_ID": "sess-fallback"},
+            ),
+        ):
+            try:
+                main()
+            except SystemExit:
+                pass
+
+        ledger = state_dir / "tasks_sess-fallback.jsonl"
+        entry = json.loads(ledger.read_text().strip())
+        assert entry["task_id"] == "7"
+        assert entry["description"] == "Short title only"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skips_when_post_tool_use_is_not_taskcreate(self, tmp_path) -> None:
+        """
+        Given a PostToolUse payload for a different tool (e.g. Bash),
+        When main() processes it,
+        Then no ledger entry should be written.
+        """
+        state_dir = tmp_path / "state"
+        input_data = json.dumps(
+            {
+                "hook_event_name": "PostToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "ls"},
+                "tool_response": "files listed",
+            }
+        )
+        with (
+            patch("sys.stdin", StringIO(input_data)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+            patch("task_created_tracker.STATE_DIR", state_dir),
+            patch.dict(
+                "os.environ",
+                {"CLAUDE_SESSION_ID": "sess-other"},
+            ),
+        ):
+            try:
+                main()
+            except SystemExit:
+                pass
+
+        # No ledger should be created for non-TaskCreate tools.
+        assert not state_dir.exists() or not list(state_dir.iterdir())
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skips_when_taskcreate_response_unparseable(self, tmp_path) -> None:
+        """
+        Given a TaskCreate PostToolUse with no parseable task id in
+        the response and no usable description fields,
+        When main() processes it,
+        Then it must not pollute the ledger with empty entries.
+        """
+        state_dir = tmp_path / "state"
+        input_data = json.dumps(
+            {
+                "hook_event_name": "PostToolUse",
+                "tool_name": "TaskCreate",
+                "tool_input": {},
+                "tool_response": "Something opaque",
+            }
+        )
+        with (
+            patch("sys.stdin", StringIO(input_data)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+            patch("task_created_tracker.STATE_DIR", state_dir),
+            patch.dict(
+                "os.environ",
+                {"CLAUDE_SESSION_ID": "sess-empty"},
+            ),
+        ):
+            try:
+                main()
+            except SystemExit:
+                pass
+
+        # No ledger should be created when both id and description
+        # are unrecoverable -- prevents the pollution that produced
+        # the 394-entry tasks_unknown.jsonl regression.
+        assert not state_dir.exists() or not list(state_dir.iterdir())
+
+
+# ============================================================================
 # main() — error handling
 # ============================================================================
 

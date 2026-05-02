@@ -1,7 +1,7 @@
 ---
 name: workflow-setup
 description: "Configure GitHub Actions CI/CD workflows for automated testing, linting, and deployment pipelines."
-version: 1.9.0
+version: 1.9.3
 globs: "**/.github/workflows/*.yml"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

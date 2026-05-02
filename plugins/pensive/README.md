@@ -49,6 +49,7 @@ Or reference from the marketplace:
 | `/rust-review` | Performs a safety audit for Rust projects. |
 | `/test-review` | Analyzes test suite quality. |
 | `/math-review` | Verifies mathematical correctness. |
+| `/performance-review` | Detects time and space complexity hotspots via AST scan, with optional cross-language and call-chain analysis through gauntlet. |
 | `/makefile-review` | Audits Makefiles against best practices. |
 | `/shell-review` | Checks shell script safety and portability. |
 | `/fpf-review` | Executes an FPF architecture review. |

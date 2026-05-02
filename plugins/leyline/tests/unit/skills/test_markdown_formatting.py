@@ -259,13 +259,18 @@ class TestProseCompliance:
         Then all prose lines should be 80 chars or fewer
         """
         in_code = False
+        in_frontmatter = False
         violations = []
         for i, line in enumerate(skill_content.split("\n"), 1):
             if line.startswith("```"):
                 in_code = not in_code
                 continue
-            if not in_code and len(line) > MAX_PROSE_LINE_LENGTH:
-                if line.startswith("|") or line.startswith("---"):
+            # Track YAML frontmatter delimiter (first --- opens, second closes).
+            if line == "---":
+                in_frontmatter = not in_frontmatter if i > 1 else True
+                continue
+            if not in_code and not in_frontmatter and len(line) > MAX_PROSE_LINE_LENGTH:
+                if line.startswith("|"):
                     continue
                 violations.append((i, len(line), line[:60]))
         assert violations == [], f"Lines exceeding 80 chars: {violations}"

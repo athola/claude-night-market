@@ -1,11 +1,7 @@
 ---
 name: quality-gate
-description: >
-  Orchestrates egregore's QUALITY pipeline stage.
-  Runs convention checks and invokes review skills
-  for each quality step. Supports self-review (pre-PR)
-  and PR-review (other agents' PRs) modes.
-version: 1.9.0
+description: "Orchestrate egregore's QUALITY pipeline stage. Use for self-review (pre-PR) or PR-review of other agents' PRs."
+version: 1.9.3
 alwaysApply: false
 category: orchestration
 tags:
@@ -13,11 +9,7 @@ tags:
   - quality
   - review
   - conventions
-tools:
-  - Bash
-  - Read
-  - Grep
-  - Skill
+tools: []
 complexity: intermediate
 model_hint: standard
 estimated_tokens: 300

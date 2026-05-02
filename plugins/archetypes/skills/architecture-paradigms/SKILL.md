@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigms
 description: Interactive selector and router for architecture paradigms. Use when
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   selecting architecture patterns for new systems, comparing paradigm trade-offs,
   creating architecture decision records, evaluating architecture fit for team size
@@ -31,10 +31,7 @@ dependencies:
 - architecture-paradigm-pipeline
 - architecture-paradigm-serverless
 - architecture-paradigm-client-server
-tools:
-- paradigm-selector
-- implementation-planner
-- compatibility-checker
+tools: []
 usage_patterns:
 - paradigm-selection
 - architecture-review

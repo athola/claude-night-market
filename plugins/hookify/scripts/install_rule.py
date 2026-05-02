@@ -22,6 +22,23 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).parent
 RULES_DIR = SCRIPT_DIR.parent / "skills" / "rule-catalog" / "rules"
 
+# Curated bundles of rules. Bundle names are user-facing
+# (`--bundle <name>`); each value is a list of `category:rule`
+# specs. Per docs/inclusive-defaults.md, bundles must contain
+# only `action: warn` rules so default-on bundling cannot
+# block legitimate commands. Adding a block-action rule to a
+# bundle requires a new bundle name and a policy update.
+BUNDLES: dict[str, list[str]] = {
+    "safe-defaults": [
+        "documentation:require-slop-scan-for-docs",
+        "git:warn-large-commits",
+        "git:warn-risky-git",
+        "performance:warn-large-file-ops",
+        "python:warn-print-statements",
+        "workflow:plan-before-large-dispatch",
+    ],
+}
+
 
 def get_available_rules() -> dict[str, list[str]]:
     """Get all available rules organized by category.
@@ -168,6 +185,31 @@ def install_all(target_dir: Path, force: bool = False) -> int:
     return installed
 
 
+def install_bundle(bundle_name: str, target_dir: Path, force: bool = False) -> int:
+    """Install all rules in a named bundle.
+
+    Args:
+        bundle_name: Bundle key from BUNDLES (e.g. "safe-defaults").
+        target_dir: Installation directory.
+        force: Overwrite existing rules.
+
+    Returns:
+        Number of rules installed. Zero if the bundle is unknown.
+    """
+    if bundle_name not in BUNDLES:
+        print(f"Bundle not found: {bundle_name}")
+        print(f"Available bundles: {', '.join(sorted(BUNDLES.keys()))}")
+        return 0
+
+    installed = 0
+    for spec in BUNDLES[bundle_name]:
+        category, rule_name = spec.split(":", 1)
+        if install_rule(category, rule_name, target_dir, force):
+            installed += 1
+
+    return installed
+
+
 def parse_rule_spec(spec: str) -> tuple[str, str] | None:
     """Parse a rule specification like 'git:block-force-push'.
 
@@ -196,6 +238,7 @@ def main() -> int:
 Examples:
   %(prog)s git:block-force-push     Install a specific rule
   %(prog)s --category python        Install all Python rules
+  %(prog)s --bundle safe-defaults   Install the curated warn-only bundle
   %(prog)s --all                    Install all rules
   %(prog)s --list                   List available rules
         """,
@@ -210,6 +253,11 @@ Examples:
         "--category",
         "-c",
         help="Install all rules in a category",
+    )
+    parser.add_argument(
+        "--bundle",
+        "-b",
+        help="Install a curated rule bundle (e.g. safe-defaults)",
     )
     parser.add_argument(
         "--all",
@@ -248,6 +296,12 @@ Examples:
     if args.all:
         count = install_all(args.target, args.force)
         print(f"\nInstalled {count} rules to {args.target}")
+        return 0 if count > 0 else 1
+
+    # Handle --bundle
+    if args.bundle:
+        count = install_bundle(args.bundle, args.target, args.force)
+        print(f"\nInstalled {count} rules from bundle '{args.bundle}' to {args.target}")
         return 0 if count > 0 else 1
 
     # Handle --category

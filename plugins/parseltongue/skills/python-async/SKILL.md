@@ -1,7 +1,7 @@
 ---
 name: python-async
 description: 'Async Python patterns and concurrency: async APIs, I/O-bound apps, rate limiting, context managers'
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.py"
 alwaysApply: false
 category: async
@@ -12,9 +12,7 @@ tags:
 - concurrency
 - await
 - coroutines
-tools:
-- async-analyzer
-- concurrency-checker
+tools: []
 usage_patterns:
 - async-api-development
 - concurrent-io

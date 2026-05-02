@@ -1,7 +1,7 @@
 ---
 name: testing-quality-standards
-description: 'Cross-plugin testing quality metrics, coverage thresholds, and anti-patterns'
-version: 1.9.0
+description: 'Testing quality metrics, coverage thresholds, and anti-patterns. Use when defining or auditing test quality standards.'
+version: 1.9.3
 globs: "**/test_*.py"
 alwaysApply: false
 category: infrastructure

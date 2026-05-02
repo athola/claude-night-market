@@ -1,7 +1,7 @@
 ---
 name: smart-sourcing
 description: Select optimal information sources for tool calls and file reads, balancing accuracy with token efficiency.
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 usage_patterns:
 - "research"
@@ -16,8 +16,7 @@ tags:
 - citations
 - accuracy
 - efficiency
-tools:
-- WebSearch
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 400

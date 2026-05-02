@@ -1,7 +1,7 @@
 ---
 name: rules-eval
 description: 'Evaluate and validate Claude Code rules in .claude/rules/ directories. Use for frontmatter, glob patterns, and quality audits.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: rule-management
 tags:
@@ -30,6 +30,7 @@ evaluation_criteria:
   organization: 15
   token_efficiency: 15
 model_hint: standard
+role: entrypoint
 ---
 # Rules Evaluation Framework
 

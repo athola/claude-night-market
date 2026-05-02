@@ -2,7 +2,7 @@
 name: stack-rebase
 description: 'Cascading rebase for a PR stack after a base PR merges or its base
   branch changes, using git --update-refs to rewrite all descendant branches atomically.'
-version: 1.0.0
+version: 1.9.3
 alwaysApply: false
 category: workflow-automation
 tags:
@@ -11,9 +11,7 @@ tags:
 - rebase
 - pr
 - cascade
-tools:
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 900

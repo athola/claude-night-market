@@ -1,7 +1,7 @@
 ---
 name: gif-generation
 description: Post-process video files and generate optimized GIFs. Converts webm/mp4
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
   to GIF with configurable quality settings.
 category: media-generation
@@ -11,8 +11,7 @@ tags:
 - video
 - conversion
 - optimization
-tools:
-- Bash
+tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 400

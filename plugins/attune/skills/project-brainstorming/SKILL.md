@@ -1,7 +1,7 @@
 ---
 name: project-brainstorming
 description: "Guide project ideation through Socratic questioning to generate actionable project briefs with alternative comparisons."
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
@@ -15,6 +15,7 @@ dependencies:
   modules:
     - modules/spec-review-loop.md
     - modules/deferred-capture.md
+role: library
 ---
 ## When To Use
 

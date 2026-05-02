@@ -9,8 +9,10 @@ from pathlib import Path
 
 try:
     from scripts.install_rule import (
+        BUNDLES,
         get_available_rules,
         get_rule_path,
+        install_bundle,
         install_category,
         install_rule,
         parse_rule_spec,
@@ -20,8 +22,10 @@ except ImportError:
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from scripts.install_rule import (
+        BUNDLES,
         get_available_rules,
         get_rule_path,
+        install_bundle,
         install_category,
         install_rule,
         parse_rule_spec,
@@ -204,3 +208,50 @@ class TestInstallCategory:
             # Verify files exist
             for rule_name in rules[category]:
                 assert (target / f"hookify.{rule_name}.local.md").exists()
+
+
+class TestBundles:
+    """Test the safe-defaults rule bundle.
+
+    The 1.9.3 inclusive-defaults policy ships a curated bundle of
+    warn-only rules that protect users without disrupting workflows.
+    Block-action rules are intentionally excluded so that bundling
+    them ON would not surprise users with interrupted commands.
+    """
+
+    def test_safe_defaults_bundle_exists(self):
+        """The safe-defaults bundle is registered."""
+        assert "safe-defaults" in BUNDLES
+
+    def test_safe_defaults_bundle_contains_only_warn_rules(self):
+        """No block-action rules ship in the safe-defaults bundle."""
+        rules_dir = Path(__file__).parent.parent / "skills" / "rule-catalog" / "rules"
+        for spec in BUNDLES["safe-defaults"]:
+            category, rule_name = spec.split(":", 1)
+            rule_path = rules_dir / category / f"{rule_name}.md"
+            assert rule_path.exists(), f"bundle references missing rule: {spec}"
+            content = rule_path.read_text()
+            assert "action: warn" in content, (
+                f"safe-defaults must not bundle blocking rules: {spec}"
+            )
+
+    def test_install_bundle_installs_all_rules(self):
+        """install_bundle copies every rule in the bundle to target."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+
+            count = install_bundle("safe-defaults", target)
+
+            assert count == len(BUNDLES["safe-defaults"])
+            for spec in BUNDLES["safe-defaults"]:
+                _, rule_name = spec.split(":", 1)
+                assert (target / f"hookify.{rule_name}.local.md").exists()
+
+    def test_install_bundle_returns_zero_for_unknown_bundle(self):
+        """Unknown bundle names install nothing and return 0."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+
+            count = install_bundle("nonexistent-bundle", target)
+
+            assert count == 0

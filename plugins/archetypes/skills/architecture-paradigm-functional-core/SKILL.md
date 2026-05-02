@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-functional-core
 description: 'Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: architectural-pattern
 tags:
@@ -12,10 +12,7 @@ tags:
 - business-logic
 - side-effects
 dependencies: []
-tools:
-- boundary-validator
-- core-test-generator
-- shell-adapter-generator
+tools: []
 usage_patterns:
 - paradigm-implementation
 - refactoring-guidance

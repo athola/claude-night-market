@@ -10,6 +10,16 @@
             "timeout": 2
           }
         ]
+      },
+      {
+        "matcher": "TaskCreate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/task_created_tracker.py",
+            "timeout": 1
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -19,6 +29,11 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/security_pattern_check.py",
+            "timeout": 2
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py",
             "timeout": 2
           }
         ]
@@ -31,6 +46,11 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py",
+            "timeout": 1
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/brainstorm_session_warn.py",
             "timeout": 1
           }
         ]
@@ -64,17 +84,6 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/deferred_item_sweep.py",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "TaskCreated": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/task_created_tracker.py",
-            "timeout": 1
           }
         ]
       }

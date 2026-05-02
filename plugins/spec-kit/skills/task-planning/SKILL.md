@@ -1,7 +1,7 @@
 ---
 name: task-planning
 description: 'Generate phased, dependency-ordered tasks from specifications with parallelization opportunities and tech-stack patterns.'
-version: 1.9.0
+version: 1.9.3
 alwaysApply: false
 category: planning
 tags:

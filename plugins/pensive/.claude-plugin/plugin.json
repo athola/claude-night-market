@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.9.2",
+  "version": "1.9.3",
   "description": "Reflective code review toolkit with structured analysis, blast radius analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/api-review.md",
@@ -9,6 +9,7 @@
     "./commands/full-review.md",
     "./commands/makefile-review.md",
     "./commands/math-review.md",
+    "./commands/performance-review.md",
     "./commands/refine-code.md",
     "./commands/rust-review.md",
     "./commands/shell-review.md",
@@ -23,6 +24,7 @@
     "./skills/code-refinement",
     "./skills/makefile-review",
     "./skills/math-review",
+    "./skills/performance-review",
     "./skills/rust-review",
     "./skills/safety-critical-patterns",
     "./skills/shell-review",

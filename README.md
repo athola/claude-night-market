@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.2-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.3-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-182-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-185-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-182 skills, 126 slash commands, and 54 agents.
+185 skills, 128 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -100,24 +100,24 @@ complements.
 
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
-| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 13 | 18 |
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 14 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts, additive-bias defense | 22 | 3 |
-| **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 14 | 19 |
-| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 12 | 4 |
+| **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 18 | 19 |
+| **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **herald** | Utility | Shared notification library: GitHub issue alerts, webhook support (Slack, Discord, generic) | 0 | 0 |
 | **oracle** | Utility | ONNX Runtime inference daemon for ML-enhanced plugin capabilities over localhost HTTP | 1 | 1 |
-| **pensive** | Domain | Code review, architecture review, bug hunting, blast radius analysis, Makefile audits, NASA Power of 10 | 13 | 12 |
+| **pensive** | Domain | Code review, architecture review, bug hunting, blast radius analysis, performance hotspots, Makefile audits, NASA Power of 10 | 14 | 13 |
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, interactive plan review, initialize, execute, war-room, dorodango polishing | 13 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
 | **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
 | **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, PR review capture | 7 | 5 |
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
-| **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, code knowledge graph, and spaced repetition | 6 | 6 |
+| **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, code knowledge graph, and spaced repetition | 7 | 6 |
 | **phantom** | Domain | Computer use: screenshot capture, mouse/keyboard control, autonomous desktop agent | 1 | 1 |
 | **scribe** | Domain | Documentation, AI slop detection, SICO voice extraction, style transfer, session replay | 11 | 9 |
 | **scry** | Domain | Terminal recordings (VHS), browser recordings (Playwright), GIF processing | 4 | 2 |
@@ -185,6 +185,17 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**1.9.3:** the project codifies an inclusive-defaults policy
+(`docs/inclusive-defaults.md`): features default ON with `--no-X`
+opt-outs unless they fall into one of nine TRUE-exception
+categories (heavy install, irreversible state, OS-level state,
+etc.). Hookify ships a `safe-defaults` bundle of six warn-only
+rules (slop scan, large commits, risky git, large file ops,
+print statements, plan-before-large-dispatch); install with
+`python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
+`spec-kit` `speckit-tasks` now generates test tasks by default
+to align with the iron-law TDD posture; opt out via `--no-tdd`.
 
 **1.9.2:** the `imbue` vow hooks split read-budget
 accounting from write-reset accounting so write-heavy sessions no longer

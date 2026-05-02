@@ -1,7 +1,7 @@
 ---
 name: tech-tutorial
 description: Plan, draft, and refine technical tutorials for developers.
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.md"
 alwaysApply: false
   Use when writing step-by-step guides, getting-started walkthroughs, or
@@ -14,12 +14,7 @@ tags:
 - code-examples
 - developer-docs
 - getting-started
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 2800

@@ -30,7 +30,7 @@ claude plugins add spec-kit
 | `/speckit-specify` | Create feature specifications from natural language |
 | `/speckit-clarify` | Refine specifications with targeted questions |
 | `/speckit-plan` | Execute the implementation planning workflow |
-| `/speckit-tasks` | Generate dependency-ordered tasks |
+| `/speckit-tasks` | Generate dependency-ordered tasks (TDD on by default; `--no-tdd` to opt out, since 1.9.3) |
 | `/speckit-implement` | Execute implementation tasks |
 | `/speckit-analyze` | Analyze consistency across artifacts |
 | `/speckit-checklist` | Generate quality checklists for requirements |

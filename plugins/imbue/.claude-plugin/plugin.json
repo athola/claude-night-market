@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.9.2",
+  "version": "1.9.3",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/catchup",
@@ -14,13 +14,15 @@
     "./skills/structured-output",
     "./skills/workflow-monitor",
     "./skills/justify",
-    "./skills/vow-enforcement"
+    "./skills/vow-enforcement",
+    "./skills/karpathy-principles"
   ],
   "commands": [
     "./commands/catchup.md",
     "./commands/justify.md",
     "./commands/stewardship-health.md",
-    "./commands/structured-review.md"
+    "./commands/structured-review.md",
+    "./commands/karpathy-check.md"
   ],
   "agents": [
     "./agents/review-analyst.md"
@@ -43,7 +45,10 @@
     "roadmap",
     "research-enrichment",
     "workflow-monitor",
-    "error-detection"
+    "error-detection",
+    "karpathy",
+    "coding-pitfalls",
+    "discipline"
   ],
   "author": {
     "name": "Alex Thola",

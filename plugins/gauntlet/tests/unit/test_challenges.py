@@ -279,3 +279,74 @@ class TestGenerateChallenge:
 
         assert "billing" in challenge.scope_files
         assert "src/billing/proration.py" in challenge.scope_files
+
+
+class TestProblemVariationFallback:
+    """
+    Feature: graceful degradation when anthropic is unavailable
+
+    As gauntlet.challenges,
+    I want _generate_problem_variation to fall back to the verbatim
+    problem when `import anthropic` fails,
+    So that callers running under a Python interpreter without
+    anthropic installed (e.g. the precommit hook under system
+    python3) do not crash with ModuleNotFoundError.
+
+    Encodes the invariant established in 2026-04-26: the lazy
+    anthropic import inside _generate_problem_variation must
+    flow ImportError through the broader except Exception block
+    that already handles network and API errors. Do not weaken
+    this assertion without explicit reasoning — silent removal
+    re-introduces the precommit hook traceback bug.
+    """
+
+    @pytest.mark.unit
+    def test_returns_original_when_anthropic_missing(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: lazy `import anthropic` raises ImportError
+        Given a BankProblem and a Python interpreter where anthropic
+          cannot be imported
+        When _generate_problem_variation is called
+        Then it returns the original problem unchanged (graceful
+          fallback via the existing except Exception handler)
+        """
+        import importlib
+        import sys
+
+        from gauntlet.challenges import _generate_problem_variation
+        from gauntlet.models import BankProblem, Difficulty
+
+        # Block re-imports of anthropic. We use a meta_path finder so
+        # the block is local to this test (monkeypatch auto-restores).
+        class _Blocker:
+            def find_module(self, name, path=None):  # noqa: ARG002 - PEP 302 finder protocol requires path parameter
+                if name == "anthropic" or name.startswith("anthropic."):
+                    return self
+                return None
+
+            def load_module(self, name):
+                raise ImportError(f"simulated missing: {name}")
+
+        # Clear any cached anthropic so the lazy import re-resolves
+        # through our blocker. monkeypatch.setattr/delitem auto-restore.
+        for cached in [m for m in sys.modules if m.startswith("anthropic")]:
+            monkeypatch.delitem(sys.modules, cached, raising=False)
+        monkeypatch.setattr(sys, "meta_path", [_Blocker(), *sys.meta_path])
+        # Ensure import machinery re-evaluates with the blocker in place.
+        importlib.invalidate_caches()
+
+        problem = BankProblem(
+            id="b1",
+            title="Pro-rata charge",
+            category="dsa",
+            difficulty=Difficulty.EASY,
+            prompt="What is the pro-rata charge for partial month? Return cents.",
+        )
+
+        result = _generate_problem_variation(problem)
+
+        # Same object identity: the function fell back to the original
+        # rather than mutating or wrapping it.
+        assert result is problem

@@ -1,7 +1,7 @@
 ---
 name: session-to-post
 description: 'Convert a Claude Code session into a shareable blog post or case study capturing decisions, process, and outcomes.'
-version: 1.9.0
+version: 1.9.3
 globs: "**/*.md"
 alwaysApply: false
 category: artifact-generation
@@ -12,14 +12,7 @@ tags:
 - case-study
 - storytelling
 - developer-experience
-tools:
-- Read
-- Write
-- Edit
-- Bash
-- Glob
-- Grep
-- TodoWrite
+tools: []
 complexity: medium
 model_hint: standard
 estimated_tokens: 2500
