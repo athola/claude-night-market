@@ -51,8 +51,11 @@ from discussion_enrichment import (
     track_issue_persistence,
 )
 
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    extract_section as _extract_section,
+)
 from abstract.utils import (
-    get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
+    get_config_dir as _shared_get_config_dir,
 )
 
 
@@ -245,15 +248,6 @@ def _parse_high_impact_issues(section: str) -> list[dict[str, Any]]:
 
         issues.append(issue)
     return issues
-
-
-def _extract_section(content: str, heading: str) -> str | None:
-    """Extract content between a heading and the next same-level heading or ---."""
-    pattern = re.escape(heading) + r"\n(.*?)(?=\n## |\n---|\Z)"
-    match = re.search(pattern, content, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return None
 
 
 def format_discussion_body(summary: LearningSummary) -> str:

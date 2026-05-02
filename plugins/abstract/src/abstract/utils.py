@@ -34,6 +34,7 @@ __all__ = [
     "extract_dependencies",
     # Frontmatter utilities
     "extract_frontmatter",
+    "extract_section",
     "find_dependency_file",
     # Project utilities
     "find_project_root",
@@ -458,6 +459,20 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
+
+
+def extract_section(content: str, heading: str) -> str | None:
+    """Extract the body of a markdown ``## Section`` heading (D-03).
+
+    Returns the text between ``heading`` and the next ``## ``
+    heading, ``---`` rule, or end-of-document. ``heading`` should
+    include the leading ``## `` so the caller can target deeper
+    levels. Result is ``None`` when the heading is not found and
+    the matched body is ``strip()``-ed.
+    """
+    pattern = re.escape(heading) + r"\n(.*?)(?=\n## |\n---|\Z)"
+    match = re.search(pattern, content, re.DOTALL)
+    return match.group(1).strip() if match else None
 
 
 def emit_warn(module: str, message: str) -> None:
