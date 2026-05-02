@@ -752,80 +752,66 @@ class MemoryPalaceCLI:
             self.print_error(f"Import failed: corrupt JSON in source: {e}")
 
 
-def build_parser() -> argparse.ArgumentParser:
-    """Construct and return the CLI argument parser."""
-    parser = argparse.ArgumentParser(
-        description="Memory Palace Plugin CLI",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s enable                 # Enable the plugin
-  %(prog)s create 'Code Fortress' programming --metaphor fortress
-  %(prog)s search 'Rust ownership'
-  %(prog)s status                 # Show current status
-        """,
-    )
-
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
+def _add_zero_arg_commands(subparsers: Any) -> None:
+    """Register subcommands that take no arguments."""
     subparsers.add_parser("enable", help="Enable the memory palace plugin")
     subparsers.add_parser("disable", help="Disable the memory palace plugin")
     subparsers.add_parser("status", help="Show plugin status and statistics")
     subparsers.add_parser("skills", help="List available skills")
     subparsers.add_parser("install", help="Install skills into Claude")
+    subparsers.add_parser("list", help="List all memory palaces")
 
+
+def _add_garden_command(subparsers: Any) -> None:
+    """Register the ``garden`` subcommand and its metrics/tend forms."""
     garden_parser = subparsers.add_parser("garden", help="Digital garden utilities")
     garden_sub = garden_parser.add_subparsers(dest="garden_cmd", help="Garden commands")
 
-    garden_metrics_parser = garden_sub.add_parser(
-        "metrics", help="Compute digital garden metrics"
-    )
-    garden_metrics_parser.add_argument(
+    metrics = garden_sub.add_parser("metrics", help="Compute digital garden metrics")
+    metrics.add_argument(
         "--path",
         help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
-    garden_metrics_parser.add_argument(
+    metrics.add_argument(
         "--now",
         help="Override timestamp (ISO 8601) for reproducible runs",
     )
-    garden_metrics_parser.add_argument(
+    metrics.add_argument(
         "--format",
         choices=["json", "brief", "prometheus"],
         default="json",
         help="Output format",
     )
-    garden_metrics_parser.add_argument(
-        "--label", help="Prometheus label (defaults to file stem)"
-    )
+    metrics.add_argument("--label", help="Prometheus label (defaults to file stem)")
 
-    garden_tend_parser = garden_sub.add_parser(
+    tend = garden_sub.add_parser(
         "tend",
         help="Report tending actions based on freshness cadence",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--path",
         help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
-    garden_tend_parser.add_argument("--now", help="Override timestamp (ISO 8601)")
-    garden_tend_parser.add_argument(
+    tend.add_argument("--now", help="Override timestamp (ISO 8601)")
+    tend.add_argument(
         "--prune-days",
         type=int,
         default=2,
         help="Days since tend to flag for quick prune",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--stale-days",
         type=int,
         default=7,
         help="Days since tend to flag as stale",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--archive-days",
         type=int,
         default=30,
         help="Days since tend to flag for archive",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--apply",
         action="store_true",
         help=(
@@ -833,25 +819,28 @@ Examples:
             "move archived plots to compost"
         ),
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--archive-export",
         help="Path to write archived plots (JSON) when applying",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--prometheus",
         action="store_true",
         help="Emit tending counts in Prometheus format",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--label",
         help="Prometheus garden label (defaults to file stem)",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--palaces",
         action="store_true",
         help="Also check palace health and report entries needing cleanup",
     )
 
+
+def _add_bundle_commands(subparsers: Any) -> None:
+    """Register the export/import bundle commands."""
     export_parser = subparsers.add_parser(
         "export", help="Export all palaces to a bundle"
     )
@@ -869,6 +858,9 @@ Examples:
     )
     import_parser.add_argument("--palaces-dir", help="Override palaces directory")
 
+
+def _add_create_command(subparsers: Any) -> None:
+    """Register the ``create`` subcommand."""
     create_parser = subparsers.add_parser("create", help="Create a new memory palace")
     create_parser.add_argument("name", help="Palace name")
     create_parser.add_argument("domain", help="Palace domain")
@@ -876,8 +868,9 @@ Examples:
         "--metaphor", default="building", help="Architectural metaphor"
     )
 
-    subparsers.add_parser("list", help="List all memory palaces")
 
+def _add_sync_command(subparsers: Any) -> None:
+    """Register the ``sync`` subcommand."""
     sync_parser = subparsers.add_parser("sync", help="Sync intake queue into palaces")
     sync_parser.add_argument(
         "--auto-create",
@@ -890,6 +883,9 @@ Examples:
         help="Preview changes without applying",
     )
 
+
+def _add_prune_command(subparsers: Any) -> None:
+    """Register the ``prune`` subcommand."""
     prune_parser = subparsers.add_parser("prune", help="Check/apply palace cleanup")
     prune_parser.add_argument(
         "--apply",
@@ -903,6 +899,9 @@ Examples:
         help="Days before entry is considered stale (default: 90)",
     )
 
+
+def _add_search_command(subparsers: Any) -> None:
+    """Register the ``search`` subcommand."""
     search_parser = subparsers.add_parser("search", help="Search across all palaces")
     search_parser.add_argument("query", help="Search query")
     search_parser.add_argument(
@@ -912,6 +911,9 @@ Examples:
         help="Search type",
     )
 
+
+def _add_manager_command(subparsers: Any) -> None:
+    """Register the ``manager`` passthrough subcommand."""
     manager_parser = subparsers.add_parser(
         "manager", help="Run palace manager directly"
     )
@@ -921,6 +923,34 @@ Examples:
         help="Arguments to pass to palace_manager.py",
     )
 
+
+def build_parser() -> argparse.ArgumentParser:
+    """Construct and return the CLI argument parser.
+
+    Each subcommand is registered by a dedicated ``_add_*_command``
+    helper so this function stays a thin coordinator (C-46).
+    """
+    parser = argparse.ArgumentParser(
+        description="Memory Palace Plugin CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s enable                 # Enable the plugin
+  %(prog)s create 'Code Fortress' programming --metaphor fortress
+  %(prog)s search 'Rust ownership'
+  %(prog)s status                 # Show current status
+        """,
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    _add_zero_arg_commands(subparsers)
+    _add_garden_command(subparsers)
+    _add_bundle_commands(subparsers)
+    _add_create_command(subparsers)
+    _add_sync_command(subparsers)
+    _add_prune_command(subparsers)
+    _add_search_command(subparsers)
+    _add_manager_command(subparsers)
     return parser
 
 
