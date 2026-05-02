@@ -122,12 +122,18 @@ class CodeReviewWorkflow:
 
         return results
 
+    # A-03: hold the suffix set as a frozenset literal so the set
+    # is built once at class load instead of allocating a list per
+    # call to _collect_files.
+    _CODE_SUFFIXES = frozenset({".py", ".rs", ".js", ".ts", ".java", ".go"})
+
     def _collect_files(self, repo_path: Path) -> list[str]:
-        """Collect repository files."""
-        files: list[str] = []
-        for ext in ["*.py", "*.rs", "*.js", "*.ts", "*.java", "*.go"]:
-            files.extend(str(f.relative_to(repo_path)) for f in repo_path.rglob(ext))
-        return files
+        """Collect repository code files in a single tree walk."""
+        return [
+            str(f.relative_to(repo_path))
+            for f in repo_path.rglob("*")
+            if f.is_file() and f.suffix in self._CODE_SUFFIXES
+        ]
 
     def _determine_skills(self, repo_path: Path, files: list[str]) -> list[str]:
         """Determine skills to run based on content."""

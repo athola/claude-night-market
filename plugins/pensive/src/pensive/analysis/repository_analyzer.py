@@ -108,13 +108,20 @@ class RepositoryAnalyzer:
                 if (repo_path / config_file).exists():
                     languages[lang] = languages.get(lang, 0)
 
-        # Count files by extension. Use sum(1 for _ in ...) to avoid
-        # materializing the rglob iterator into an intermediate list.
-        for lang, extensions in self.LANGUAGE_EXTENSIONS.items():
-            for ext in extensions:
-                count = sum(1 for _ in repo_path.rglob(f"*{ext}"))
-                if count > 0:
-                    languages[lang] = languages.get(lang, 0) + count
+        # A-02: walk the tree once and bucket by extension instead
+        # of doing one rglob per (lang, ext) pair. With ~10 langs and
+        # ~3 extensions each that was ~30 walks of the same tree.
+        ext_to_lang = {
+            ext: lang
+            for lang, extensions in self.LANGUAGE_EXTENSIONS.items()
+            for ext in extensions
+        }
+        for path in repo_path.rglob("*"):
+            if not path.is_file():
+                continue
+            lang_match: str | None = ext_to_lang.get(path.suffix)
+            if lang_match is not None:
+                languages[lang_match] = languages.get(lang_match, 0) + 1
 
         return languages
 
@@ -160,14 +167,16 @@ class RepositoryAnalyzer:
         return frameworks
 
     def _count_files(self, repo_path: Path) -> int:
-        """Count total code files in repository."""
-        count = 0
-        for extensions in self.LANGUAGE_EXTENSIONS.values():
-            for ext in extensions:
-                # sum(1 for _ in ...) avoids materializing the rglob
-                # iterator into a temporary list just to take its length.
-                count += sum(1 for _ in repo_path.rglob(f"*{ext}"))
-        return count
+        """Count total code files in repository.
+
+        A-02: single tree walk instead of one rglob per (lang, ext).
+        """
+        wanted = {ext for exts in self.LANGUAGE_EXTENSIONS.values() for ext in exts}
+        return sum(
+            1
+            for path in repo_path.rglob("*")
+            if path.is_file() and path.suffix in wanted
+        )
 
     def get_files(self, pattern: str = "*") -> list[Path]:
         """Get files matching pattern."""
