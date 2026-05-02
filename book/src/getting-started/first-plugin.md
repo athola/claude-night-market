@@ -5,7 +5,8 @@ and workspace operations.
 
 ## What You'll Build
 
-By the end of this tutorial, you'll:
+A working sanctum review pipeline:
+
 - Review your git workspace state
 - Generate a conventional commit message
 - Prepare a pull request description

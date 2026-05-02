@@ -172,8 +172,6 @@ onboarding friction
 | Skills Separation | [quickref](skills-separation-quickref.md) |
 | Data Extraction | _(embedded in guide)_ |
 | Optimization Patterns | _(embedded in guide)_ |
-| Error Handling | _(TODO)_ |
-| LSP Setup | _(TODO)_ |
 
 ---
 

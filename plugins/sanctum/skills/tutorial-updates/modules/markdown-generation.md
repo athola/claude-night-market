@@ -175,7 +175,8 @@ This guide walks through the complete skrills workflow: installation, validation
 
 ## Overview
 
-By the end of this tutorial, you'll understand:
+What this guide covers:
+
 - How to install skrills using cargo
 - The difference between Claude Code and Codex CLI validation targets
 - How to analyze skills for token optimization
