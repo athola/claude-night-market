@@ -19,7 +19,7 @@ Best for: dev blogs, company engineering blogs, personal sites.
 # [Verb]ing [What] [With/In/Using What]
 
 [2-3 sentence opener. State what was done and the headline result.
-No "In this post we will..." — just say the thing.]
+No "In this post we will...": just say the thing.]
 
 ## Where We Started
 
@@ -35,7 +35,7 @@ illustrates a technique worth sharing.]
 
 ### [Phase/Decision 2 name]
 
-[Same pattern. Focus on the interesting parts — skip
+[Same pattern. Focus on the interesting parts; skip
 anything a reader could guess.]
 
 ![Terminal recording of tests passing](assets/tests.gif)
@@ -101,7 +101,7 @@ Best for: Twitter/X, Bluesky, LinkedIn.
 
 3/ The approach: [key technique in 1-2 sentences]
 
-4/ [The interesting part — a decision, a pivot, a surprise]
+4/ [The interesting part: a decision, a pivot, a surprise]
 
 5/ Results: [numbers]
 
@@ -113,30 +113,30 @@ Best for: Twitter/X, Bluesky, LinkedIn.
 ## Writing Rules
 
 1. **Lead with the result**, not the process
-2. **One number per section** minimum — ground every claim
-3. **Show, don't summarize** — a GIF of tests passing says more
+2. **One number per section** minimum: ground every claim
+3. **Show, don't summarize**: a GIF of tests passing says more
    than "we wrote comprehensive tests"
-4. **Name the tools** — readers want to know how, not just what
-5. **Include a pivot** — straight-line success stories aren't
+4. **Name the tools**: readers want to know how, not just what
+5. **Include a pivot**: straight-line success stories aren't
    believable or interesting
-6. **End with honesty** — what's unfinished, what you'd change
+6. **End with honesty**: what's unfinished, what you'd change
 
 ## Title Patterns That Work
 
 - `[Verb]ing [Big Thing] in [Constraint]`
-  — "Porting a Game Engine to Rust in One Session"
+  e.g. "Porting a Game Engine to Rust in One Session"
 - `How We [Achieved Result] with [Tool/Technique]`
-  — "How We Hit 180 Tests in 3 Hours with Parallel Agents"
+  e.g. "How We Hit 180 Tests in 3 Hours with Parallel Agents"
 - `[Number] [Things] I Learned [Doing X]`
-  — "5 Things I Learned Rewriting C as Rust for WebAssembly"
+  e.g. "5 Things I Learned Rewriting C as Rust for WebAssembly"
 - `From [State A] to [State B]: [How]`
-  — "From Empty Repo to Playable Game: A Claude Code Session"
+  e.g. "From Empty Repo to Playable Game: A Claude Code Session"
 
 ## Anti-Patterns
 
-- "In this blog post, we will explore..." — skip the preamble
-- "It's worth noting that..." — if it's worth noting, just note it
-- Listing every file changed — nobody cares about the full diff
+- "In this blog post, we will explore...": skip the preamble
+- "It's worth noting that...": if it's worth noting, just note it
+- Listing every file changed: nobody cares about the full diff
 - Explaining things the audience already knows
 - Screenshots of code when a link to the repo would do
 - Claiming something works without showing evidence

@@ -38,7 +38,7 @@ estimated_tokens: 1000
 
 ## When To Use
 - When finalizing any review or analysis.
-- To format findings in a consistent and actionable way.
+- To format findings in a consistent way that names specific next steps.
 - Before presenting results to stakeholders or committing them to documentation.
 
 ## When NOT To Use
@@ -87,7 +87,7 @@ Mark each item complete as you finish the corresponding step.
 - Order findings by severity, then by file location.
 
 ## Step 3: Assign Actions (`structured-output:actions-assigned`)
-- Convert findings to actionable items:
+- Convert findings to action items with assignee and priority:
   ```markdown
   ## Action Items
   - [ ] [HIGH] Fix SQL injection in auth.py:45 (@security-team, P1)
@@ -120,7 +120,7 @@ Mark each item complete as you finish the corresponding step.
 Before finalizing:
 - [ ] All findings have evidence references.
 - [ ] Severity levels are justified.
-- [ ] Recommendations are specific and actionable.
+- [ ] Recommendations are specific and name the next step.
 - [ ] No orphaned sections or placeholder text.
 - [ ] Format renders correctly in target medium (GitHub, Confluence, etc.).
 

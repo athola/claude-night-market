@@ -27,7 +27,7 @@ Standard templates for consistent review deliverables.
 [Organized by category or severity]
 
 ## Action Items
-[Prioritized, actionable recommendations]
+[Prioritized recommendations with owner and next step]
 
 ## Evidence Appendix
 [Supporting code snippets, references, measurements]
@@ -62,7 +62,7 @@ RFCs. Summarize what the link teaches.]
 finding. When else would this principle apply?]
 
 **Recommendation**:
-[Specific, actionable steps to resolve]
+[Specific steps to resolve, with concrete next action]
 
 **References**: [Evidence appendix section or external docs]
 ```
@@ -142,5 +142,5 @@ finding. When else would this principle apply?]
 1. Adapt section headings to domain (e.g., "Endpoints" for API, "Components" for architecture)
 2. Always link findings to evidence
 3. Keep Executive Summary under 5 sentences
-4. validate every finding has actionable recommendation
+4. validate every finding has a concrete next step
 5. Use consistent severity assessment across entire review
