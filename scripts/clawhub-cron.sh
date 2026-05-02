@@ -29,8 +29,11 @@ echo "=== $(date): clawhub-cron run ===" >> "$LOG"
 export PATH="$HOME/.local/bin:$HOME/.nvm/versions/node/v25.2.1/bin:$PATH"
 
 cd "$REPO_ROOT"
-bash scripts/clawhub-submit.sh v1.8.3 >> "$LOG" 2>&1
-EXIT_CODE=$?
+# No explicit version -- clawhub-submit.sh auto-detects from
+# plugins/abstract/.claude-plugin/plugin.json so the cron stays
+# correct across releases.
+EXIT_CODE=0
+bash scripts/clawhub-submit.sh >> "$LOG" 2>&1 || EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -eq 0 ]; then
   echo "$(date): All skills synced. Removing cron job." >> "$LOG"

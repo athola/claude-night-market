@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import re
+import sys
 import warnings
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "check_meta_skill_indicators",
     "count_sections",
+    "emit_warn",
     "extract_dependencies",
     # Frontmatter utilities
     "extract_frontmatter",
@@ -435,3 +437,14 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
+
+
+def emit_warn(module: str, message: str) -> None:
+    """Write a newline-terminated ``module: message`` line to stderr.
+
+    Centralised replacement for the per-module ``_warn`` helpers
+    (D-12) used by improvement_queue, improvement_memory, and
+    performance_tracker. Stderr (not logging) is the contract
+    those modules' tests assert on via ``capsys``.
+    """
+    sys.stderr.write(f"{module}: {message}\n")

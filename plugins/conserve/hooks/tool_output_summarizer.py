@@ -14,10 +14,15 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
 from pathlib import Path
 from typing import Any
+
+# D-05: shared resolver lives at hooks/shared/session_file.py.
+sys.path.insert(0, str(Path(__file__).parent))
+from shared.session_file import (
+    resolve_session_file,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+)
 
 logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 logger = logging.getLogger(__name__)
@@ -27,47 +32,7 @@ logger = logging.getLogger(__name__)
 BLOAT_WARNING_THRESHOLD = 100_000
 
 
-def resolve_session_file() -> Path | None:
-    """Find the current session's JSONL file."""
-    claude_dir = Path(os.environ.get("CLAUDE_HOME", str(Path.home() / ".claude")))
-    claude_projects = claude_dir / "projects"
-
-    if not claude_projects.exists():
-        return None
-
-    # Try to find project directory from CWD
-    cwd = Path.cwd()
-    project_dir_name = str(cwd).replace(os.sep, "-")
-    if not project_dir_name.startswith("-"):
-        project_dir_name = "-" + project_dir_name
-
-    project_dir = claude_projects / project_dir_name
-    if not project_dir.exists():
-        # Fallback: list all project dirs and use most recent
-        project_dirs = sorted(
-            claude_projects.iterdir(),
-            key=lambda p: p.stat().st_mtime if p.is_dir() else 0,
-            reverse=True,
-        )
-        if project_dirs:
-            project_dir = project_dirs[0]
-        else:
-            return None
-
-    # Find the current session file
-    session_id = os.environ.get("CLAUDE_SESSION_ID", "")
-    jsonl_files = list(project_dir.glob("*.jsonl"))
-
-    if not jsonl_files:
-        return None
-
-    if session_id:
-        for f in jsonl_files:
-            if f.stem == session_id:
-                return f
-
-    # Fallback to most recent
-    return max(jsonl_files, key=lambda f: f.stat().st_mtime)
+__all__ = ["resolve_session_file"]
 
 
 def _count_tool_result_bytes(content: Any) -> int:

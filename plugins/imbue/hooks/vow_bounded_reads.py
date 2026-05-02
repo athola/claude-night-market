@@ -28,6 +28,12 @@ import os
 import sys
 from pathlib import Path
 
+# D-06: shadow_mode helper lives in shared/vow_utils.
+sys.path.insert(0, str(Path(__file__).parent))
+from shared.vow_utils import (
+    shadow_mode_active,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+)
+
 # fcntl is POSIX-only.  On Windows we fall back to unlocked RMW; the
 # small race window is acceptable for an advisory vow on non-POSIX
 # hosts.  See issue #418.
@@ -164,12 +170,8 @@ def _is_read_tool(tool_name: str) -> bool:
 
 
 def _shadow_mode() -> bool:
-    """Return True when shadow (warn-only) mode is active.
-
-    Shadow mode is the default.  Set VOW_SHADOW_MODE=0 to enable blocking.
-    """
-    val = os.environ.get("VOW_SHADOW_MODE", "1")
-    return val.strip() not in ("0", "false", "no")
+    """Return True when shadow (warn-only) mode is active."""
+    return shadow_mode_active()
 
 
 def _get_session_id(data: dict) -> str:

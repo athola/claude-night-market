@@ -105,8 +105,13 @@ echo ""
 echo "Running: $CLAWHUB sync ${SYNC_ARGS[*]}"
 echo ""
 
-$CLAWHUB sync "${SYNC_ARGS[@]}"
-SYNC_EXIT=$?
+# Capture exit code without tripping `set -e`.
+# Plain `$CLAWHUB sync ...; SYNC_EXIT=$?` is unreachable when sync
+# fails because errexit terminates the script first. The `|| ...`
+# tested-context exempts the command from errexit so we can fall
+# through to the partial-sync messaging below.
+SYNC_EXIT=0
+$CLAWHUB sync "${SYNC_ARGS[@]}" || SYNC_EXIT=$?
 
 # ---------- publish package ----------
 

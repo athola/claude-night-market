@@ -11,9 +11,16 @@ to switch to full blocking.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
+from pathlib import Path
+
+# D-06: shadow_mode + is_git_commit live in shared/vow_utils.
+sys.path.insert(0, str(Path(__file__).parent))
+from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+    is_git_commit,
+    shadow_mode_active,
+)
 
 _EMOJI_RE = re.compile(
     "["
@@ -32,8 +39,7 @@ _EMOJI_RE = re.compile(
 
 def _is_git_commit(command: str) -> bool:
     """Return True if the Bash command is a git commit invocation."""
-    stripped = command.strip()
-    return bool(re.match(r"git\s+commit\b", stripped))
+    return is_git_commit(command)
 
 
 def _has_emoji(command: str) -> bool:
@@ -42,12 +48,8 @@ def _has_emoji(command: str) -> bool:
 
 
 def _shadow_mode() -> bool:
-    """Return True when shadow (warn-only) mode is active.
-
-    Shadow mode is the default.  Set VOW_SHADOW_MODE=0 to enable blocking.
-    """
-    val = os.environ.get("VOW_SHADOW_MODE", "1")
-    return val.strip() not in ("0", "false", "no")
+    """Return True when shadow (warn-only) mode is active."""
+    return shadow_mode_active()
 
 
 def main() -> None:
