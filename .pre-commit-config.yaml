@@ -14,6 +14,18 @@ repos:
         stages: [pre-commit]
 
       # =================================================================
+      # Docstring Quality - Block name-restating docstrings
+      # =================================================================
+
+      - id: check-docstring-quality
+        name: Block Restating Docstrings
+        entry: python3 scripts/check_docstring_quality.py
+        language: system
+        types: [python]
+        exclude: (scripts/check_docstring_quality\.py|tests/.*test_check_docstring_quality)
+        stages: [pre-commit]
+
+      # =================================================================
       # JSON Utilities Drift Check - Keep inlined copies in sync
       # =================================================================
 

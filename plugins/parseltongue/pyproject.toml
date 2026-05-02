@@ -94,7 +94,7 @@ omit = [
     "*/site-packages/*",
     "setup.py",
     "parseltongue/_version.py",
-    "src/parseltongue/analysis/testing_guide.py",         # Recommendation engine
+    "src/parseltongue/analysis/testing_guide/*",          # Recommendation engine
     "src/parseltongue/analysis/compatibility_checker.py",  # Version compat checks
     "src/parseltongue/analysis/code_transformation.py",    # Code transformation utils
 ]
@@ -178,9 +178,6 @@ unfixable = [
 ]
 "src/parseltongue/analysis/pattern_matching/__init__.py" = [
     "PLR0904", # Too many public methods - single pattern recognition class
-]
-"src/parseltongue/analysis/testing_guide.py" = [
-    "PLR0904", # Too many public methods - single guide class
 ]
 [tool.ruff.lint.pylint]
 max-public-methods = 20

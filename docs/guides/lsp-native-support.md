@@ -56,9 +56,6 @@ $ which pylsp typescript-language-server
 | Script | Purpose |
 |--------|---------|
 | `watch-lsp` | Real-time LSP process monitoring |
-| `scripts/lsp-diagnostic.sh` | Full system health check |
-| `scripts/lsp-vs-grep-comparison.sh` | Compare LSP vs grep performance |
-| `scripts/test-lsp-manually.sh` | Verify language servers work |
 
 ---
 
@@ -82,14 +79,14 @@ $ which pylsp typescript-language-server
 ## Troubleshooting
 
 ```bash
-# Run diagnostic
-$ ./scripts/lsp-diagnostic.sh
-
 # Check settings
 $ grep -A 3 '"env"' ~/.claude/settings.json
 
 # Verify language servers
 $ which pyright typescript-language-server
+
+# Check active LSP processes
+$ ps aux | rg "pyright-langserver|typescript-language-server" | rg -v rg
 
 # Check logs
 $ ls ~/.claude/debug/
