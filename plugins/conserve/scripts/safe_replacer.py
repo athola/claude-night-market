@@ -96,18 +96,26 @@ class SafeDependencyUpdater:
         return issues
 
     def update_directory(self, base_path: Path) -> tuple[int, int]:
-        """Update all skill files in directory."""
+        """Update all skill files in directory.
+
+        Walks the tree once. Use ``update_files`` when the caller
+        already has a materialised list of paths to avoid a second
+        rglob.
+        """
+        return self.update_files(list(base_path.rglob("SKILL.md")))
+
+    def update_files(self, skill_files: list[Path]) -> tuple[int, int]:
+        """Update each ``SKILL.md`` in *skill_files*.
+
+        Validation happens in the caller after all updates complete.
+        """
         files_updated = 0
         total_changes = 0
-
-        for skill_file in base_path.rglob("SKILL.md"):
+        for skill_file in skill_files:
             updated, changes = self.update_file(skill_file)
             if updated:
                 files_updated += 1
                 total_changes += changes
-
-            # Validation happens in the caller (main) after all updates complete
-
         return files_updated, total_changes
 
 
@@ -142,48 +150,35 @@ def main() -> None:
             return
 
         updater = SafeDependencyUpdater()
+        # A-04: walk once, reuse for both update and validation.
+        skill_files = list(base_path.rglob("SKILL.md"))
+
+        def _collect_issues() -> list[dict[str, str]]:
+            issues: list[dict[str, str]] = []
+            for skill_file in skill_files:
+                for issue in updater.validate_references(skill_file):
+                    issues.append({"file": str(skill_file), "issue": issue})
+            return issues
 
         if args.validate_only:
-            # Validation mode - just report issues
-            issues = []
-            for skill_file in base_path.rglob("SKILL.md"):
-                file_issues = updater.validate_references(skill_file)
-                if file_issues:
-                    issues.extend(
-                        [
-                            {"file": str(skill_file), "issue": issue}
-                            for issue in file_issues
-                        ]
-                    )
-
-            result = {
-                "files_scanned": len(list(base_path.rglob("SKILL.md"))),
-                "issues_found": issues,
-                "validate_only": True,
-            }
-            output_result(result, args)
+            output_result(
+                {
+                    "files_scanned": len(skill_files),
+                    "issues_found": _collect_issues(),
+                    "validate_only": True,
+                },
+                args,
+            )
         else:
-            # Update mode
-            files_updated, total_changes = updater.update_directory(base_path)
-
-            # Check for remaining issues
-            issues = []
-            for skill_file in base_path.rglob("SKILL.md"):
-                file_issues = updater.validate_references(skill_file)
-                if file_issues:
-                    issues.extend(
-                        [
-                            {"file": str(skill_file), "issue": issue}
-                            for issue in file_issues
-                        ]
-                    )
-
-            result = {
-                "files_updated": files_updated,
-                "total_changes": total_changes,
-                "issues_found": issues,
-            }
-            output_result(result, args)
+            files_updated, total_changes = updater.update_files(skill_files)
+            output_result(
+                {
+                    "files_updated": files_updated,
+                    "total_changes": total_changes,
+                    "issues_found": _collect_issues(),
+                },
+                args,
+            )
 
     except FileNotFoundError as e:
         output_error(f"File not found: {e}", args)
