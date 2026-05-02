@@ -52,7 +52,7 @@ not happen on plugin install alone. Examples:
 
 **Current examples:**
 
-- `oracle:setup` — provisions Python 3.11+ venv, installs
+- `oracle:setup`: provisions Python 3.11+ venv, installs
   onnxruntime (~50MB), starts background HTTP daemon
 
 ### 2. Irreversible or hard-to-reverse state
@@ -68,7 +68,7 @@ outside the session and is not trivial to undo. Examples:
 
 **Current examples:**
 
-- Egregore `pipeline.auto_merge` — merges PRs without
+- Egregore `pipeline.auto_merge`: merges PRs without
   human review; the entry point (`/egregore:summon`) is
   already opt-in, so auto-merge gates the no-human-loop
   transition specifically
@@ -81,9 +81,9 @@ Flipping the default is impossible, not just unwise.
 
 **Current examples:**
 
-- Egregore Tier 2 webhooks (Slack/Discord/ntfy.sh) — no
+- Egregore Tier 2 webhooks (Slack/Discord/ntfy.sh): no
   reasonable default URL
-- Conjure delegation (Gemini/Qwen CLIs) — requires
+- Conjure delegation (Gemini/Qwen CLIs): requires
   external CLI authentication
 
 ### 4. OS-level or cross-process state changes
@@ -97,9 +97,9 @@ beyond the Claude Code session. Examples:
 
 **Current examples:**
 
-- `egregore:install-watchdog` — installs OS-level
+- `egregore:install-watchdog`: installs OS-level
   launchd plist or systemd unit
-- `phantom:control-desktop` — Computer Use API takes
+- `phantom:control-desktop`: Computer Use API takes
   screenshots and synthesizes keyboard/mouse input
 
 ### 5. User-project config that overrides intent
@@ -110,7 +110,7 @@ here erases user intent.
 
 **Current examples:**
 
-- `/spec-kit:speckit-constitution` — auto-applying every
+- `/spec-kit:speckit-constitution`: auto-applying every
   marketplace constitution would override user project
   rules
 
@@ -122,7 +122,7 @@ not per-feature.
 
 **Current examples:**
 
-- Hookify rules — each rule is an individual hook;
+- Hookify rules: each rule is an individual hook;
   bundling all of them ON would block legitimate
   commands. The `safe-defaults` bundle (1.9.3) bundles
   only `action: warn` rules.
@@ -135,10 +135,10 @@ tier; require explicit escalation.
 
 **Current examples:**
 
-- `pensive:tiered-audit` Tier 3 — full-codebase scan;
+- `pensive:tiered-audit` Tier 3: full-codebase scan;
   Tier 1 (git history) is the inclusive default,
   Tier 3 requires explicit user approval
-- `.claude/rules/plan-before-large-dispatch.md` — 4+
+- `.claude/rules/plan-before-large-dispatch.md`: 4+
   parallel agents requires plan mode
 
 ### 8. Block-mode enforcement of soft constraints
@@ -149,7 +149,7 @@ inclusive default; block mode is the opt-in.
 
 **Current examples:**
 
-- Imbue vow hooks — `VOW_SHADOW_MODE=1` (warn) is the
+- Imbue vow hooks: `VOW_SHADOW_MODE=1` (warn) is the
   inclusive default; set `VOW_SHADOW_MODE=0` to block
 
 ### 9. Frontmatter-controlled prescriptive modes
@@ -212,7 +212,7 @@ all 23 plugins on the `inclusive-default-1.9.3` branch
 ## References
 
 - [Audit checklist (#445)](https://github.com/athola/claude-night-market/issues/445)
-- 1.9.2 CHANGELOG — first wave of inclusive flips
+- 1.9.2 CHANGELOG: first wave of inclusive flips
   (`--no-insights`, `--no-agent-teams`, etc.)
-- 1.9.3 CHANGELOG — `safe-defaults` bundle and policy
+- 1.9.3 CHANGELOG: `safe-defaults` bundle and policy
   doc itself

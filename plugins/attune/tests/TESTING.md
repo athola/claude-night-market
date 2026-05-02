@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive test coverage for the attune plugin following TDD/BDD principles.
+Test coverage for the attune plugin following TDD/BDD principles.
 
 ## Test Statistics
 
@@ -84,7 +84,7 @@ def test_detect_python_from_pyproject_toml(self, python_project):
 
 ### Fixture Organization
 
-Comprehensive fixtures in `conftest.py`:
+Fixtures in `conftest.py`:
 - Mock project structures (Python, Rust, TypeScript)
 - Template variables and content
 - Git-initialized projects
@@ -182,7 +182,7 @@ These are lower priority as they're primarily CLI wrappers around the fully-test
 
 - All tests include docstrings explaining behavior
 - BDD-style naming with behavior descriptions
-- Comprehensive edge case coverage
+- Edge case coverage across input domains
 - Proper use of mocks for external dependencies (subprocess, urllib)
 
 ## CI/CD Integration

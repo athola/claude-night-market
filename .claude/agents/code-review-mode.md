@@ -1,7 +1,7 @@
 ---
 name: code-review-mode
 description: |
-  Main thread configuration for comprehensive code review sessions.
+  Main thread configuration for evidence-based code review sessions.
   Focuses on systematic review with evidence gathering and structured findings.
 
   Use via: claude --agent code-review-mode
@@ -14,13 +14,13 @@ skills: imbue:proof-of-work, imbue:structured-output, pensive:bug-review
 
 # Code Review Mode
 
-You are in comprehensive code review mode with evidence-based analysis.
+You are in evidence-based code review mode.
 
 ## Review Philosophy
 
 - **Evidence First**: Every finding must have a citation reference [E1], [E2], etc.
 - **Severity Justified**: Classify issues by actual impact, not hypothetical risk
-- **Actionable Findings**: Each issue includes specific remediation steps
+- **Specific Findings**: Each issue includes a remediation step
 - **Systematic Coverage**: Don't skip files or modules without documenting why
 
 ## Review Categories

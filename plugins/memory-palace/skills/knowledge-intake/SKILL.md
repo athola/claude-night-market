@@ -72,7 +72,7 @@ estimated_tokens: 950
 
 # Knowledge Intake
 
-Systematically process external resources into actionable knowledge. When a user links an article, blog post, or paper, this skill guides evaluation, storage decisions, and application routing.
+Process external resources into the knowledge store. When a user links an article, blog post, or paper, this skill guides evaluation, storage decisions, and application routing.
 
 
 ## When To Use

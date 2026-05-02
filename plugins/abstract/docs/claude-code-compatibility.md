@@ -6,10 +6,9 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Document | Purpose | When to Use |
 |----------|---------|-------------|
-| **[Reference](compatibility/compatibility-reference.md)** | Version matrix, breaking changes, migration guides | Check version compatibility, plan upgrades |
-| **[Features](compatibility/compatibility-features.md)** | Feature timeline by Claude Code version | Learn what's available in each version |
+| **[Features](compatibility/compatibility-features.md)** | Feature timeline by Claude Code version with version matrix | Learn what's available, check compatibility, plan upgrades |
 | **[Patterns](compatibility/compatibility-patterns.md)** | LSP, session forking, tool restriction patterns | Implement advanced features |
-| **[Issues](compatibility/compatibility-issues.md)** | Known issues, testing, troubleshooting | Debug problems, report bugs |
+| **[Plugin Compat](compatibility/compatibility-features-plugin-compat.md)** | Plugin-specific compatibility notes | Debug plugin issues, report bugs |
 
 ## Current Recommendations
 
@@ -66,7 +65,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 | 2.0.65+ | 1.0.0+ | ✅ Supported | Status line visibility, CLAUDE_CODE_SHELL |
 | < 2.0.65 | 1.0.0+ | ⚠️ Limited | Missing modern features |
 
-**Full version details**: See [Reference](compatibility/compatibility-reference.md)
+**Full version details**: See [Features](compatibility/compatibility-features.md)
 
 ## Feature Highlights
 
@@ -119,9 +118,9 @@ Create isolated conversation branches for exploration:
 
 ## Getting Help
 
-- **Known Issues**: See [Issues](compatibility/compatibility-issues.md#known-issues)
-- **Testing**: See [Issues](compatibility/compatibility-issues.md#testing-compatibility)
-- **Reporting Bugs**: See [Issues](compatibility/compatibility-issues.md#reporting-compatibility-issues)
+- **Plugin Compatibility**: See [Plugin Compat](compatibility/compatibility-features-plugin-compat.md)
+- **Patterns and Workarounds**: See [Patterns](compatibility/compatibility-patterns.md)
+- **Reporting Bugs**: File an issue on the marketplace repository.
 
 ---
 

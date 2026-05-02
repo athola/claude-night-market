@@ -73,12 +73,12 @@ Capture: build time, artifact sizes.
 
 These come from the session itself, not from commands:
 
-- **Initial goal** — what the user asked for
-- **Constraints** — time, tech stack, compatibility requirements
-- **Key decisions** — why X over Y at each fork
-- **Pivots** — where the plan changed and why
-- **Blockers hit** — what went wrong and how it was resolved
-- **Tools used** — parallel agents, specific skills invoked
+- **Initial goal**: what the user asked for
+- **Constraints**: time, tech stack, compatibility requirements
+- **Key decisions**: why X over Y at each fork
+- **Pivots**: where the plan changed and why
+- **Blockers hit**: what went wrong and how it was resolved
+- **Tools used**: parallel agents, specific skills invoked
 
 ## Output Format
 
@@ -97,7 +97,7 @@ Compile extraction results into a structured brief:
 - Tests: Z passing
 
 ### Key commits
-1. [hash] [message] — [significance]
+1. [hash] [message]: [significance]
 2. ...
 
 ### Decisions
