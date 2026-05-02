@@ -14,9 +14,16 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# D-11: shared metadata helper lives alongside this script.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _plugin_meta import (  # noqa: E402 - script must inject its own dir before importing sibling helper
+    get_plugin_version,
+)
 
 PLUGINS_DIR = Path(__file__).resolve().parent.parent / "plugins"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "bridge" / "a2a"
@@ -196,18 +203,6 @@ def discover_agents(
             agent_name = agent_file.stem
             agents.append((plugin_dir.name, agent_name, agent_file))
     return agents
-
-
-def get_plugin_version(plugin_dir: Path) -> str:
-    """Read version from .claude-plugin/plugin.json."""
-    pj = plugin_dir / ".claude-plugin" / "plugin.json"
-    if pj.exists():
-        try:
-            data = json.loads(pj.read_text())
-            return data.get("version", "1.0.0")
-        except (json.JSONDecodeError, OSError):
-            pass
-    return "1.0.0"
 
 
 # ---------- batch generation ----------

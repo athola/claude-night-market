@@ -22,6 +22,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# D-11: shared metadata helper lives alongside this script.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _plugin_meta import (  # noqa: E402 - script must inject its own dir before importing sibling helper
+    get_plugin_version,
+)
+
 # ---------- constants ----------
 
 PLUGINS_DIR = Path(__file__).resolve().parent.parent / "plugins"
@@ -306,18 +312,6 @@ def discover_skills(
             if skill_md.exists():
                 skills.append((plugin_dir.name, skill_dir.name, skill_md))
     return skills
-
-
-def get_plugin_version(plugin_dir: Path) -> str:
-    """Read version from .claude-plugin/plugin.json."""
-    pj = plugin_dir / ".claude-plugin" / "plugin.json"
-    if pj.exists():
-        try:
-            data = json.loads(pj.read_text())
-            return data.get("version", "1.0.0")
-        except (json.JSONDecodeError, OSError):
-            pass
-    return "1.0.0"
 
 
 # ---------- export ----------
