@@ -14,6 +14,16 @@ import re
 import sys
 from pathlib import Path
 
+# D-13: pull canonical CLI envelope helpers from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
+    error_envelope,
+    success_envelope,
+)
+
 
 class SafeDependencyUpdater:
     """Safely updates dependencies in skill files."""
@@ -191,15 +201,7 @@ def main() -> None:
 def output_result(result: dict, args: argparse.Namespace) -> None:
     """Output result in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": True,
-                    "data": result,
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(success_envelope(result), indent=2))
     else:
         print(f"Files updated: {result.get('files_updated', 0)}")
         print(f"Total changes: {result.get('total_changes', 0)}")
@@ -212,15 +214,7 @@ def output_result(result: dict, args: argparse.Namespace) -> None:
 def output_error(message: str, args: argparse.Namespace) -> None:
     """Output error in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": False,
-                    "error": message,
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(error_envelope(message), indent=2))
     else:
         print(f"Error: {message}", file=sys.stderr)
 

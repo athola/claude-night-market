@@ -15,9 +15,20 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+
+# D-13: pull canonical CLI envelope helpers from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
+    error_envelope,
+    success_envelope,
+)
 
 
 class TestStyle(Enum):
@@ -401,15 +412,7 @@ def main() -> None:
 def output_result(result: dict, args) -> None:
     """Output result in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": True,
-                    "data": result,
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(success_envelope(result), indent=2))
     else:
         print(f"Generated test file: {result.get('test_file')}")
         print(f"Style: {result.get('style')}")
@@ -418,15 +421,7 @@ def output_result(result: dict, args) -> None:
 def output_error(message: str, args) -> None:
     """Output error in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": False,
-                    "error": message,
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(error_envelope(message), indent=2))
     else:
         print(f"Error: {message}")
 
