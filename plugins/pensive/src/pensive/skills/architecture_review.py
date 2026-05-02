@@ -7,11 +7,14 @@ ADR compliance, and generates architecture quality reports.
 from __future__ import annotations
 
 import ast
+import logging
 import re
 import textwrap
 from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
+
+logger = logging.getLogger(__name__)
 
 # Architecture detection thresholds
 MIN_LAYERS_FOR_LAYERED = 3  # Minimum layers to detect layered architecture
@@ -574,8 +577,10 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             content = context.get_file_content("") or ""
             if content:
                 return content
-        except (OSError, NotImplementedError):
+        except OSError:
             pass
+        except NotImplementedError as exc:
+            logger.debug("context does not support get_file_content(''): %s", exc)
         try:
             for file_path in context.get_files():
                 try:
@@ -584,8 +589,10 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                         return str(content)
                 except OSError:
                     continue
-        except (OSError, NotImplementedError):
+        except OSError:
             pass
+        except NotImplementedError as exc:
+            logger.debug("context does not support get_files()/per-file fetch: %s", exc)
         return ""
 
     def analyze_scalability_patterns(self, context: Any) -> dict[str, Any]:

@@ -86,28 +86,32 @@ def _start_daemon() -> None:
         if f.exists():
             f.unlink()
 
-    log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd passed to Popen, must outlive this scope
+    log_fh = open(str(data_dir / "daemon.log"), "a")  # noqa: SIM115 - fd duped into subprocess; closed on the parent side after Popen returns
     try:
-        proc = subprocess.Popen(
-            [
-                python,
-                daemon_script,
-                "--host",
-                "127.0.0.1",
-                "--port",
-                "0",
-                "--models-dir",
-                str(models_dir),
-                "--port-file",
-                str(port_file),
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=log_fh,
-            start_new_session=True,
-        )
-    except OSError:
+        try:
+            proc = subprocess.Popen(
+                [
+                    python,
+                    daemon_script,
+                    "--host",
+                    "127.0.0.1",
+                    "--port",
+                    "0",
+                    "--models-dir",
+                    str(models_dir),
+                    "--port-file",
+                    str(port_file),
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=log_fh,
+                start_new_session=True,
+            )
+        except OSError:
+            return
+    finally:
+        # Popen dup'd the fd into the subprocess; close the parent-side
+        # handle so it doesn't leak.
         log_fh.close()
-        return
 
     pid_file.write_text(str(proc.pid))
 
