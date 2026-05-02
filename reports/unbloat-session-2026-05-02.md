@@ -3,6 +3,11 @@
 **Branch:** `ai-slop-1.9.4`
 **Continuation of:** `reports/unbloat-session-2026-05-01.md` (commits
 `e279b155`...`d1e42ddf`)
+
+> **Update (continuation pass):** After the original 8 commits (b8c45ab0
+> through a0130839), a follow-up pass landed two more commits covering
+> the quality and hygiene dimensions. See bottom of this file for the
+> supplemental record.
 **Mode:** Tier 3, all phases, scope-guard ignored per explicit user
 authorization, do not stop until complete.
 
@@ -197,3 +202,105 @@ untouched throughout this session.
 3. Schedule a follow-up to fix the `pensive` env issue surfaced when
    running spec-kit tests at the wrong rootdir
    (`ModuleNotFoundError: psutil`). Pre-existing; not blocking.
+
+---
+
+## Supplemental: Quality + Hygiene continuation pass
+
+After the bloat dimension was closed by `a0130839`, a continuation pass
+addressed the two remaining cleanup dimensions (quality and hygiene)
+that had been archived from the prior cleanup-report.md.
+
+### Fresh Tier 3 scans
+
+* `reports/cleanup-quality-2026-05-02.md` (487 lines, 18 findings,
+  pensive:code-refiner agent)
+* `reports/cleanup-hygiene-2026-05-02.md` (378 lines, 17 findings,
+  conserve:ai-hygiene-auditor agent)
+
+### Quality findings actioned (`b9283a5b`)
+
+| ID  | Action | Scope |
+|-----|--------|-------|
+| F01 | Remove dead `body` variable in `post_learnings_to_discussions.py:run_gh_graphql` | abstract |
+| F02 | Add `SECONDS_PER_HOUR = 3600` constant in 3 sites (conjure, gauntlet, conserve) | cross-plugin |
+| F03 | Drop `TypeError` from broad `except` in `unified_review.py:147`; updated paired test | pensive |
+| F04 | Add `timeout=60` to `leyline/scripts/verify_plugin.py:75` subprocess.run | leyline |
+| F09 | `RuntimeError` to `FileNotFoundError` for missing-binary scenarios (sanctum quality_checker, conjure war_room/experts); updated paired test | sanctum, conjure |
+
+Quality findings rejected after verification:
+
+| ID  | Why skipped |
+|-----|-------------|
+| F04 (reinstall_all_plugins.py) | Already takes `timeout` as a parameter; agent misread |
+
+### Hygiene findings actioned (`85e4de44`)
+
+Layer 0 (P0):
+
+| ID   | Action |
+|------|--------|
+| F-01 | Update `bandit rev: 1.8.0` to `1.8.3` in attune precommit-setup modules (matches the live `.pre-commit-config.yaml` pin) |
+| F-04 | Repoint 6 broken cross-references in `plugins/abstract/docs/claude-code-compatibility.md` to existing files (compatibility-features.md, compatibility-patterns.md, compatibility-features-plugin-compat.md). Removed two non-existent destinations |
+
+Layer 1 (em-dash density):
+
+| ID   | File | Reduction |
+|------|------|-----------|
+| F-06 | `plugins/scribe/commands/session-to-post.md` | 5 to 0 |
+| F-07 | `plugins/scribe/skills/session-to-post/modules/session-extraction.md` | 7 to 0 |
+| F-08 | `plugins/imbue/skills/proof-of-work/modules/todowrite-patterns.md` | 3 to 0 |
+| F-09 | `docs/inclusive-defaults.md` | 13 to 0 |
+| F-10 | `plugins/attune/commands/mission.md` | 10 to 0 |
+
+Layer 2 (banned vocab):
+
+| ID   | File | Replacement |
+|------|------|-------------|
+| F-11 | `.claude/agents/code-review-mode.md` | "comprehensive" to "evidence-based"; "Actionable Findings" to "Specific Findings" |
+| F-12 | `plugins/attune/tests/TESTING.md` | 3x "Comprehensive" paragraph openers replaced |
+| F-13 | `plugins/memory-palace/skills/knowledge-intake/SKILL.md` | "actionable knowledge" to "the knowledge store" |
+
+Layer 4 (orphan docs):
+
+| ID   | Files archived to `docs/archive/reports/` |
+|------|---------|
+| F-17 | `docs/guides/rules-templates.md`, `docs/module-loading-guide.md`, `docs/metrics/autonomy-dashboard.md`, `docs/claude-rules-templates.md` (666 lines combined) |
+
+### Hygiene findings rejected after verification
+
+| ID   | Why skipped |
+|------|-------------|
+| F-02 | Broken refs are inside ```` ```markdown ```` code fences (documentation examples), not real cross-references |
+| F-03 | Same: code-fence content showing the documented "good link" pattern |
+| F-05 | Same: `FORMS.md` and `REFERENCE.md` are example targets in a code fence |
+| F-14 | Process metric (refactor ratio); no file-level fix |
+| F-15 | Historical massive commits; no remediation possible after the fact |
+| F-16 | R7 docstring check: VERIFIED CLEAN (already closed in `b8c45ab0`) |
+
+### Test gates after both pass
+
+| Plugin | Result |
+|--------|--------|
+| pensive | 407 passed |
+| conjure | 351 passed |
+| attune | 466 passed |
+| sanctum | 970 passed |
+| conserve | 627 passed |
+| spec-kit, abstract, memory-palace, imbue, scribe, hookify, minister, tome | not re-run; touched files have no behavioral changes |
+
+### Net delta over the two passes
+
+| Pass | Commits | Net delta |
+|------|---------|-----------|
+| Bloat (original) | 8 | -2,098 lines |
+| Quality + hygiene (continuation) | 2 | -719 lines |
+| **Total** | **10** | **-2,817 lines** |
+
+### Lessons added
+
+The hygiene agent's link-extractor flags markdown links that appear
+inside ```` ```markdown ```` code fences as broken cross-references.
+Three of five Layer 0 findings were false positives for this reason.
+Future hygiene scans should treat fenced content as opaque to the
+link-resolution step.
