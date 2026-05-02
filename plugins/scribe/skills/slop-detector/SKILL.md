@@ -29,6 +29,7 @@ modules:
 - anti-goals
 - cleanup-workflow
 - empirical-baseline
+- structured-finding-output
 - remediation-strategies
 - language-support
 - config-file
@@ -361,7 +362,15 @@ from this module rather than asserting from authority.
 
 ## Step 10: Generate Report
 
-Output format:
+For per-finding output that reviewers can accept or reject
+independently, use the canonical structured format defined
+in `@modules/structured-finding-output.md`. Each finding
+carries `file`, `line`, `category`, `severity`,
+`confidence`, `evidence`, `rationale`, `fix`, and (for
+high-confidence) `diff`. Auto-apply policy is set by
+confidence; never auto-apply `confidence: low`.
+
+Summary report format (human-readable):
 
 ```markdown
 ## Slop Detection Report: [filename]

@@ -38,6 +38,10 @@ modules:
 - error-messages.md
 - duplicate-validators.md
 - builtin-preference.md
+- model-specific-tells.md
+- iterator-and-allocation-slop.md
+- test-slop.md
+- async-slop.md
 ---
 ## Table of Contents
 
