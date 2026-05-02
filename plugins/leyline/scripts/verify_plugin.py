@@ -77,6 +77,7 @@ def _query_workflow_runs(
         capture_output=True,
         text=True,
         check=False,
+        timeout=60,
     )
     if result.returncode != 0:
         msg = result.stderr.strip() or "gh api call failed"

@@ -318,14 +318,7 @@ def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
         RuntimeError: If gh command fails
 
     """
-    cmd = ["gh", "api", "graphql"]
-
-    # Build the request body
-    body: dict[str, Any] = {"query": query}
-    if variables:
-        body["variables"] = variables
-
-    cmd.extend(["-f", f"query={query}"])
+    cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
     if variables:
         for key, value in variables.items():
             cmd.extend(["-f", f"{key}={value}"])

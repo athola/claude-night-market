@@ -144,7 +144,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
                     ):
                         has_math = True
                         break
-                except (FileNotFoundError, OSError, AttributeError, TypeError):
+                except (FileNotFoundError, OSError, AttributeError):
                     pass
 
         if has_math:

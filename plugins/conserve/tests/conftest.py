@@ -38,6 +38,7 @@ __all__ = [
 
 # Constants for PLR2004 magic values
 FIVE = 5
+SECONDS_PER_HOUR = 3600
 
 # Constants for test thresholds and limits
 CPU_USAGE_THRESHOLD = 80
@@ -348,7 +349,7 @@ def mock_token_quota_tracker():
         def check_quota(self):
             session_duration = (
                 datetime.now(timezone.utc) - self.session_start
-            ).total_seconds() / 3600
+            ).total_seconds() / SECONDS_PER_HOUR
             remaining = self.weekly_limit - self.weekly_usage
             return {
                 "session_duration_hours": session_duration,

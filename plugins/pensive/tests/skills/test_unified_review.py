@@ -139,6 +139,9 @@ class TestUnifiedReviewSkill:
             "tests/test_app.py",
             "test/integration_test.py",
         ]
+        # The math-imports probe iterates with `in content`; default Mock
+        # is not iterable, so explicitly return an empty string.
+        mock_skill_context.get_file_content.return_value = ""
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)

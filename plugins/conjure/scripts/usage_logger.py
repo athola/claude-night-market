@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Session timeout in seconds (1 hour)
 SESSION_TIMEOUT_SECONDS = 3600
+SECONDS_PER_HOUR = 3600
 
 
 @dataclass
@@ -131,7 +132,9 @@ class GeminiUsageLogger:
         if not self.usage_log.exists():
             return {"total_requests": 0, "total_tokens": 0, "success_rate": 0.0}
 
-        cutoff_time = datetime.now(timezone.utc).timestamp() - (hours * 3600)
+        cutoff_time = datetime.now(timezone.utc).timestamp() - (
+            hours * SECONDS_PER_HOUR
+        )
         total_requests = 0
         total_tokens = 0
         successful_requests = 0

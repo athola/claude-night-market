@@ -323,7 +323,7 @@ class TestQualityChecker:
             start_time = time.time()
             python_path = shutil.which("python")
             if not python_path:
-                raise RuntimeError("Python not found")
+                raise FileNotFoundError("Python executable not found in PATH")
 
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False
