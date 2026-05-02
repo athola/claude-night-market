@@ -24,7 +24,9 @@
   ],
   "skills": [
     "./skills/escalation-governance",
+    "./skills/friction-detector",
     "./skills/hook-authoring",
+    "./skills/hook-scope-guide",
     "./skills/hooks-eval",
     "./skills/metacognitive-self-mod",
     "./skills/methodology-curator",
@@ -35,8 +37,7 @@
     "./skills/skill-authoring",
     "./skills/skill-graph-audit",
     "./skills/skills-eval",
-    "./skills/subagent-testing",
-    "./skills/friction-detector"
+    "./skills/subagent-testing"
   ],
   "agents": [
     "./agents/meta-architect.md",
