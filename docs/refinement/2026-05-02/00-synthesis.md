@@ -42,7 +42,7 @@
 | Plugin patterns | 06-plugin-patterns.md | 22 | varies | varies | varies |
 | **Total** | | **155** | | | |
 
-## Wave 1 Executed (this session, 8 commits)
+## Wave 1 + Wave 2a Executed (this session, 11 commits)
 
 | Finding | Title | Commit |
 |---|---|---|
@@ -62,10 +62,16 @@
 | A-02 | repository_analyzer single rglob | feec0f9d |
 | A-03 | code_review single rglob | feec0f9d |
 
-**14 findings closed.** D-09 verified already a thin delegator
-(no fix required). Net: ~150 LOC removed, ~30 helpers added,
-all behaviour preserved. Validated by 4,300+ tests across the
-modified plugins; ruff/bandit/mypy clean on every commit.
+**15 findings closed.** D-09 verified already a thin delegator
+(no fix required). Net: ~150 LOC removed, ~35 helpers added,
+all behaviour preserved. Validated by 5,855 tests across the
+modified plugins (abstract 2168, memory-palace 970, sanctum
+970, conserve 627, imbue 627, pensive 407, phantom 86); ruff/
+bandit/mypy clean on every commit.
+
+| Finding | Title | Commit |
+|---|---|---|
+| D-04 (partial) | abstract.utils dir helpers shared across scripts | 396ba302 |
 
 ## Wave 2 Candidates (medium effort)
 
