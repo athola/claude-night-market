@@ -98,7 +98,8 @@ def main() -> None:
         )
         sys.exit(0)
 
-    except Exception:  # hook must not crash the agent under any circumstance
+    except Exception as exc:  # hook must not crash the agent under any circumstance
+        print(f"[vow-no-emoji-commits] internal error: {exc}", file=sys.stderr)
         sys.exit(0)
 
 
