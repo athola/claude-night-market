@@ -5,7 +5,18 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from ..rust_review_data import (
+    INDEX_ACCESS_RE,
+    PANIC_CALL_RE,
+    TARGET_SECTION_RE,
+    UNWRAP_CALL_RE,
+)
+
 __all__ = ["CargoBuildMixin"]
+
+_CARGO_DEP_LINE_RE = re.compile(r'(\w+)\s*=\s*"([^"]+)"')
+_FEATURE_LINE_RE = re.compile(r"(\w+)\s*=\s*\[(.*)\]")
+_OPENSSL_OLD_RE = re.compile(r'openssl.*"0\.')
 
 
 def _iter_toml_sections(
@@ -58,7 +69,7 @@ class CargoBuildMixin:
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect explicit panic! calls
-            if re.search(r"panic!\s*\(", line):
+            if PANIC_CALL_RE.search(line):
                 panic_points.append(
                     {
                         "line": i + 1,
@@ -68,7 +79,7 @@ class CargoBuildMixin:
                 )
 
             # Detect unwrap() usage
-            if re.search(r"\.unwrap\(\)", line):
+            if UNWRAP_CALL_RE.search(line):
                 unwrap_usage.append(
                     {
                         "line": i + 1,
@@ -85,7 +96,7 @@ class CargoBuildMixin:
                 )
 
             # Detect array/vector indexing that can panic
-            if re.search(r"\w+\[\d+\]", line) and "get(" not in line:
+            if INDEX_ACCESS_RE.search(line) and "get(" not in line:
                 index_panics.append(
                     {
                         "line": i + 1,
@@ -110,7 +121,7 @@ class CargoBuildMixin:
         security_concerns: list[dict[str, str]],
     ) -> None:
         """Process a single dependency line from [dependencies]."""
-        deps = re.match(r'(\w+)\s*=\s*"([^"]+)"', line.strip())
+        deps = _CARGO_DEP_LINE_RE.match(line.strip())
         if deps:
             name, version = deps.groups()
             dependencies.append({"name": name, "version": version})
@@ -128,7 +139,7 @@ class CargoBuildMixin:
                     "issue": "'full' features - consider selecting only needed",
                 }
             )
-        if re.search(r'openssl.*"0\.', line):
+        if _OPENSSL_OLD_RE.search(line):
             security_concerns.append(
                 {
                     "dependency": "openssl",
@@ -142,7 +153,7 @@ class CargoBuildMixin:
         feature_analysis: list[dict[str, str]],
     ) -> None:
         """Process a single feature line from [features]."""
-        feature_match = re.match(r"(\w+)\s*=\s*\[(.*)\]", line.strip())
+        feature_match = _FEATURE_LINE_RE.match(line.strip())
         if feature_match:
             name, features = feature_match.groups()
             if not features.strip():
@@ -231,7 +242,7 @@ class CargoBuildMixin:
         try:
             config_content = context.get_file_content(".cargo/config.toml")
             if "[target." in config_content:
-                target_match = re.search(r"\[target\.([^\]]+)\]", config_content)
+                target_match = TARGET_SECTION_RE.search(config_content)
                 if target_match:
                     target_specific.append(
                         {

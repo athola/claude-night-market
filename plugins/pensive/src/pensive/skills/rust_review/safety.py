@@ -5,7 +5,17 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from ..rust_review_data import (
+    LARGE_OFFSET_RE,
+    LIFETIME_ANNOTATION_RE,
+    POINTER_OFFSET_RE,
+    UNSAFE_BLOCK_RE,
+    UNSAFE_FN_RE,
+)
+
 __all__ = ["SafetyMixin"]
+
+_SAFETY_DOC_RE = re.compile(r"(?i)safety|# SAFETY|/// # Safety")
 
 
 class SafetyMixin:
@@ -14,9 +24,8 @@ class SafetyMixin:
     def _has_safety_doc(
         self, lines: list[str], line_idx: int, lookback: int = 5
     ) -> bool:
-        pattern = r"(?i)safety|# SAFETY|/// # Safety"
         for j in range(max(0, line_idx - lookback), line_idx):
-            if re.search(pattern, lines[j]):
+            if _SAFETY_DOC_RE.search(lines[j]):
                 return True
         return False
 
@@ -37,12 +46,9 @@ class SafetyMixin:
         content = context.get_file_content(file_path)
         unsafe_blocks = []
 
-        unsafe_block_pattern = r"unsafe\s*\{"
-        unsafe_fn_pattern = r"unsafe\s+fn\s+(\w+)"
-
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            if re.search(unsafe_block_pattern, line):
+            if UNSAFE_BLOCK_RE.search(line):
                 unsafe_blocks.append(
                     {
                         "line": i + 1,
@@ -51,7 +57,7 @@ class SafetyMixin:
                     }
                 )
 
-            if re.search(unsafe_fn_pattern, line):
+            if UNSAFE_FN_RE.search(line):
                 unsafe_blocks.append(
                     {
                         "line": i + 1,
@@ -87,7 +93,7 @@ class SafetyMixin:
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect raw pointer operations
-            if re.search(r"\*\w+\.offset\(", line):
+            if POINTER_OFFSET_RE.search(line):
                 unsafe_operations.append(
                     {
                         "line": i + 1,
@@ -96,7 +102,7 @@ class SafetyMixin:
                     }
                 )
                 # Check if offset is out of bounds
-                if re.search(r"\.offset\((10|[2-9]\d+)\)", line):
+                if LARGE_OFFSET_RE.search(line):
                     buffer_overflows.append(
                         {
                             "line": i + 1,
@@ -129,7 +135,7 @@ class SafetyMixin:
                 )
 
             # Detect lifetime issues
-            if re.search(r"fn\s+\w+<'a>.*->.*&'a", line) or "lifetime" in line.lower():
+            if LIFETIME_ANNOTATION_RE.search(line) or "lifetime" in line.lower():
                 lifetime_issues.append(
                     {
                         "line": i + 1,

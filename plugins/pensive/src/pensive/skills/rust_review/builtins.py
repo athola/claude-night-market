@@ -8,19 +8,23 @@ wrappers, and manual combinator reimplementations.
 
 from __future__ import annotations
 
-import re
 from typing import Any, ClassVar
 
 from ..rust_review_data import (
     BUILTIN_CONVERSION_PATTERNS,
+    BUILTIN_CONVERSION_PATTERNS_RE,
     BUILTIN_ERROR_CONVERSION_PATTERNS,
+    BUILTIN_ERROR_CONVERSION_PATTERNS_RE,
     BUILTIN_EXCLUSION_PATTERNS,
+    BUILTIN_EXCLUSION_PATTERNS_RE,
     BUILTIN_MANUAL_COMBINATOR_PATTERNS,
+    BUILTIN_MANUAL_COMBINATOR_PATTERNS_RE,
     BUILTIN_STANDARD_TRAIT_PATTERNS,
-    BUILTIN_TO_METHOD_PATTERN,
+    BUILTIN_STANDARD_TRAIT_PATTERNS_RE,
+    BUILTIN_TO_METHOD_RE,
     BUILTIN_TO_METHOD_REC,
     BUILTIN_TO_METHOD_TRAIT,
-    BUILTIN_TO_STRING_PATTERN,
+    BUILTIN_TO_STRING_RE,
     BUILTIN_TO_STRING_REC,
     BUILTIN_TO_STRING_TRAIT,
 )
@@ -69,15 +73,15 @@ class BuiltinsMixin:
         lines = self._get_lines(content)
 
         for i, line in enumerate(lines):
-            if any(re.search(pat, line) for pat in self._BUILTIN_EXCLUSION_PATTERNS):
+            if any(rx.search(line) for rx in BUILTIN_EXCLUSION_PATTERNS_RE):
                 continue
 
             for (
-                pattern,
+                rx,
                 trait_name,
                 recommendation,
-            ) in self._BUILTIN_CONVERSION_PATTERNS:
-                if re.search(pattern, line):
+            ) in BUILTIN_CONVERSION_PATTERNS_RE:
+                if rx.search(line):
                     issues.append(
                         {
                             "line": i + 1,
@@ -89,7 +93,7 @@ class BuiltinsMixin:
                     )
                     break
 
-            if re.search(BUILTIN_TO_STRING_PATTERN, line):
+            if BUILTIN_TO_STRING_RE.search(line):
                 issues.append(
                     {
                         "line": i + 1,
@@ -99,7 +103,7 @@ class BuiltinsMixin:
                         "clippy_lint": "",
                     }
                 )
-            elif re.search(BUILTIN_TO_METHOD_PATTERN, line):
+            elif BUILTIN_TO_METHOD_RE.search(line):
                 issues.append(
                     {
                         "line": i + 1,
@@ -111,11 +115,11 @@ class BuiltinsMixin:
                 )
 
             for (
-                pattern,
+                rx,
                 trait_name,
                 recommendation,
-            ) in self._BUILTIN_STANDARD_TRAIT_PATTERNS:
-                if re.search(pattern, line):
+            ) in BUILTIN_STANDARD_TRAIT_PATTERNS_RE:
+                if rx.search(line):
                     clippy = (
                         "clippy::derivable_impls" if trait_name == "Default" else ""
                     )
@@ -131,11 +135,11 @@ class BuiltinsMixin:
                     break
 
             for (
-                pattern,
+                rx,
                 trait_name,
                 recommendation,
-            ) in self._BUILTIN_ERROR_CONVERSION_PATTERNS:
-                if re.search(pattern, line):
+            ) in BUILTIN_ERROR_CONVERSION_PATTERNS_RE:
+                if rx.search(line):
                     issues.append(
                         {
                             "line": i + 1,
@@ -149,12 +153,12 @@ class BuiltinsMixin:
 
         joined = "\n".join(lines)
         for (
-            pattern,
+            rx,
             lint_name,
             replacement,
             clippy_lint,
-        ) in self._BUILTIN_MANUAL_COMBINATOR_PATTERNS:
-            for match in re.finditer(pattern, joined, re.DOTALL):
+        ) in BUILTIN_MANUAL_COMBINATOR_PATTERNS_RE:
+            for match in rx.finditer(joined):
                 line_num = joined[: match.start()].count("\n") + 1
                 issues.append(
                     {

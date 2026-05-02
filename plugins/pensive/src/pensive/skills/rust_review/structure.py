@@ -2,8 +2,20 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
+
+from ..rust_review_data import (
+    CONST_GENERIC_STRUCT_RE,
+    CONST_MAX_RE,
+    DERIVE_MACRO_RE,
+    DOC_COMMENT_RE,
+    GENERIC_METHOD_RE,
+    IMPL_FOR_RE,
+    MACRO_RULES_RE,
+    STATIC_METHOD_RE,
+    TRAIT_DEF_RE,
+    TRAIT_METHOD_RE,
+)
 
 __all__ = ["StructureMixin"]
 
@@ -32,30 +44,29 @@ class StructureMixin:
 
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            if re.search(r"#\[derive\(", line):
+            if DERIVE_MACRO_RE.search(line):
                 derive_macros.append({"line": i + 1, "macros": line})
 
-            if re.search(r"macro_rules!\s+(\w+)", line):
-                macro_match = re.search(r"macro_rules!\s+(\w+)", line)
-                if macro_match:
-                    macro_name = macro_match.group(1)
-                    custom_macros.append({"line": i + 1, "name": macro_name})
+            macro_match = MACRO_RULES_RE.search(line)
+            if macro_match:
+                macro_name = macro_match.group(1)
+                custom_macros.append({"line": i + 1, "name": macro_name})
 
-                    has_docs = any(
-                        re.search(r"///|//!", lines[j]) for j in range(max(0, i - 5), i)
+                has_docs = any(
+                    DOC_COMMENT_RE.search(lines[j]) for j in range(max(0, i - 5), i)
+                )
+
+                if "unsafe" in macro_name.lower() and not has_docs:
+                    problematic_patterns.append(
+                        {
+                            "line": i + 1,
+                            "type": "undocumented_unsafe_macro",
+                            "name": macro_name,
+                            "description": ("Unsafe macro without documentation"),
+                        }
                     )
 
-                    if "unsafe" in macro_name.lower() and not has_docs:
-                        problematic_patterns.append(
-                            {
-                                "line": i + 1,
-                                "type": "undocumented_unsafe_macro",
-                                "name": macro_name,
-                                "description": ("Unsafe macro without documentation"),
-                            }
-                        )
-
-            if re.search(r"macro_rules!", line):
+            if "macro_rules!" in line:
                 for j in range(i, min(len(lines), i + 20)):
                     if "return" in lines[j] and not lines[j].strip().startswith("//"):
                         problematic_patterns.append(
@@ -100,19 +111,18 @@ class StructureMixin:
         trait_methods: list[str] = []
 
         for i, line in enumerate(lines):
-            if re.search(r"trait\s+(\w+)", line) and "impl" not in line:
-                trait_match = re.search(r"trait\s+(\w+)", line)
-                if trait_match:
-                    current_trait = trait_match.group(1)
-                    trait_methods = []
-                    trait_definitions.append({"line": i + 1, "name": current_trait})
+            trait_match = TRAIT_DEF_RE.search(line) if "impl" not in line else None
+            if trait_match:
+                current_trait = trait_match.group(1)
+                trait_methods = []
+                trait_definitions.append({"line": i + 1, "name": current_trait})
 
-            if current_trait and re.search(r"fn\s+(\w+)", line):
-                method_match = re.search(r"fn\s+(\w+)", line)
+            if current_trait:
+                method_match = TRAIT_METHOD_RE.search(line)
                 if method_match:
                     trait_methods.append(method_match.group(1))
 
-                    if re.search(r"fn\s+\w+<\w+>", line):
+                    if GENERIC_METHOD_RE.search(line):
                         object_safety_issues.append(
                             {
                                 "line": i + 1,
@@ -122,7 +132,7 @@ class StructureMixin:
                         )
 
                     if (
-                        re.search(r"fn\s+\w+\(\)", line)
+                        STATIC_METHOD_RE.search(line)
                         and "->" in line
                         and "self" not in line
                     ):
@@ -137,17 +147,16 @@ class StructureMixin:
             if current_trait and line.strip() == "}":
                 current_trait = None
 
-            if re.search(r"impl\s+(\w+)\s+for\s+(\w+)", line):
-                impl_match = re.search(r"impl\s+(\w+)\s+for\s+(\w+)", line)
-                if impl_match:
-                    trait_name, type_name = impl_match.groups()
-                    implementations.append(
-                        {
-                            "line": i + 1,
-                            "trait": trait_name,
-                            "type": type_name,
-                        }
-                    )
+            impl_match = IMPL_FOR_RE.search(line)
+            if impl_match:
+                trait_name, type_name = impl_match.groups()
+                implementations.append(
+                    {
+                        "line": i + 1,
+                        "trait": trait_name,
+                        "type": type_name,
+                    }
+                )
 
         return {
             "trait_definitions": trait_definitions,
@@ -179,36 +188,33 @@ class StructureMixin:
         current_struct = None
 
         for i, line in enumerate(lines):
-            if re.search(r"struct\s+(\w+)<.*const\s+(\w+):\s*usize", line):
-                struct_match = re.search(
-                    r"struct\s+(\w+)<.*const\s+(\w+):\s*usize", line
+            struct_match = CONST_GENERIC_STRUCT_RE.search(line)
+            if struct_match:
+                struct_name = struct_match.group(1)
+                const_param = struct_match.group(2)
+                current_struct = struct_name
+                const_generic_structs.append(
+                    {
+                        "line": i + 1,
+                        "name": struct_name,
+                        "const_param": const_param,
+                    }
                 )
-                if struct_match:
-                    struct_name = struct_match.group(1)
-                    const_param = struct_match.group(2)
-                    current_struct = struct_name
-                    const_generic_structs.append(
+
+                is_used = any(
+                    const_param in lines[j] and j != i
+                    for j in range(i, min(len(lines), i + 10))
+                )
+                if not is_used:
+                    unconstrained_usage.append(
                         {
                             "line": i + 1,
-                            "name": struct_name,
-                            "const_param": const_param,
+                            "struct": struct_name,
+                            "issue": (f"Const generic {const_param} unconstrained"),
                         }
                     )
 
-                    is_used = any(
-                        const_param in lines[j] and j != i
-                        for j in range(i, min(len(lines), i + 10))
-                    )
-                    if not is_used:
-                        unconstrained_usage.append(
-                            {
-                                "line": i + 1,
-                                "struct": struct_name,
-                                "issue": (f"Const generic {const_param} unconstrained"),
-                            }
-                        )
-
-            if re.search(r"const\s+MAX:\s*usize", line):
+            if CONST_MAX_RE.search(line):
                 bounded_generics.append(
                     {
                         "line": i + 1,
