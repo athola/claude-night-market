@@ -18,6 +18,9 @@ _CARGO_DEP_LINE_RE = re.compile(r'(\w+)\s*=\s*"([^"]+)"')
 _FEATURE_LINE_RE = re.compile(r"(\w+)\s*=\s*\[(.*)\]")
 _OPENSSL_OLD_RE = re.compile(r'openssl.*"0\.')
 
+# A-11: avoid re-allocating a list literal on every dependency line.
+_VERSION_RANGE_CHARS = frozenset("^~><*")
+
 
 def _iter_toml_sections(
     lines: list[str],
@@ -125,7 +128,7 @@ class CargoBuildMixin:
         if deps:
             name, version = deps.groups()
             dependencies.append({"name": name, "version": version})
-            if not any(c in version for c in ["^", "~", ">", "<", "*"]):
+            if not _VERSION_RANGE_CHARS.intersection(version):
                 version_issues.append(
                     {
                         "dependency": name,

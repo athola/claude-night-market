@@ -16,6 +16,11 @@ CONTROLLABLE_THRESHOLD = 50  # Percentage threshold for controllable growth
 GROWTH_RATE_WARNING = 0.1  # Growth rate threshold for warning
 GROWTH_RATE_CRITICAL = 0.2  # Growth rate threshold for critical priority
 
+# A-11: severity / urgency buckets pre-allocated as frozensets.
+_ELEVATED_SEVERITY = frozenset({"MODERATE", "SEVERE", "CRITICAL"})
+_HIGH_URGENCY = frozenset({"HIGH", "URGENT"})
+_HIGH_SEVERITY = frozenset({"SEVERE", "CRITICAL"})
+
 
 class GrowthController:
     """Generates and manages context growth control strategies."""
@@ -114,20 +119,20 @@ class GrowthController:
         )
 
         # Severity-based controls
-        if severity in ["MODERATE", "SEVERE", "CRITICAL"]:
+        if severity in _ELEVATED_SEVERITY:
             controls.append(
                 {
                     "name": "Emergency Context Compression",
                     "description": (
                         "Automated compression of older, low-priority context"
                     ),
-                    "priority": "Critical" if urgency in ["HIGH", "URGENT"] else "High",
+                    "priority": "Critical" if urgency in _HIGH_URGENCY else "High",
                     "effectiveness": "60-80%",
                     "implementation_time": "1-2 turns",
                 },
             )
 
-        if urgency in ["HIGH", "URGENT"]:
+        if urgency in _HIGH_URGENCY:
             controls.append(
                 {
                     "name": "Real-time Growth Monitoring",
@@ -322,7 +327,7 @@ class GrowthController:
             "alerts": ["threshold_breach"],
         }
 
-        if severity in ["MODERATE", "SEVERE", "CRITICAL"]:
+        if severity in _ELEVATED_SEVERITY:
             base_requirements.update(
                 {
                     "frequency": "Every 5 turns",
@@ -331,7 +336,7 @@ class GrowthController:
                 },
             )
 
-        if severity in ["SEVERE", "CRITICAL"]:
+        if severity in _HIGH_SEVERITY:
             base_requirements.update(
                 {
                     "frequency": "Every 2 turns",

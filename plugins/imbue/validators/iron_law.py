@@ -81,14 +81,7 @@ def impl_to_test_paths(impl_path: str) -> list[str]:
     candidates.append("/".join([*parts[:-1], "tests", test_base]))
     candidates.append("/".join(["tests", test_base]))
     candidates.append("/".join(["tests", "unit", test_base]))
-    # Deduplicate while preserving order.
-    seen: set[str] = set()
-    out: list[str] = []
-    for c in candidates:
-        if c not in seen:
-            seen.add(c)
-            out.append(c)
-    return out
+    return list(dict.fromkeys(candidates))
 
 
 def analyze_commit_order(commits: list[dict[str, Any]]) -> dict[str, Any]:

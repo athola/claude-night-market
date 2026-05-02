@@ -10,6 +10,11 @@ __all__ = ["ReportingMixin"]
 MIN_TEST_COVERAGE = 0.8  # Minimum acceptable test coverage
 MAX_DEPENDENCIES = 20  # Maximum recommended dependencies
 
+# A-11: severity buckets as frozensets so each call avoids list allocation.
+_CRITICAL_TYPES = frozenset({"buffer_overflow", "data_race"})
+_HIGH_TYPES = frozenset({"deprecated_dependency"})
+_MEDIUM_TYPES = frozenset({"unwrap_usage", "missing_docs"})
+
 
 class ReportingMixin:
     """Mixin providing report generation and recommendation logic."""
@@ -111,11 +116,11 @@ Panic points detected: {panic_points}
             issue_copy = issue.copy()
             issue_type = issue.get("type", "")
 
-            if issue_type in ["buffer_overflow", "data_race"]:
+            if issue_type in _CRITICAL_TYPES:
                 issue_copy["severity"] = "critical"
-            elif issue_type in ["deprecated_dependency"]:
+            elif issue_type in _HIGH_TYPES:
                 issue_copy["severity"] = "high"
-            elif issue_type in ["unwrap_usage", "missing_docs"]:
+            elif issue_type in _MEDIUM_TYPES:
                 issue_copy["severity"] = "medium"
             else:
                 issue_copy["severity"] = "low"

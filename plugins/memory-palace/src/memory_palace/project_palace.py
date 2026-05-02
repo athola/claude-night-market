@@ -27,6 +27,7 @@ import json
 import os
 import sys
 import uuid
+from collections import Counter
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
@@ -622,11 +623,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
         if not palace:
             return {}
 
+        tag_counts: Counter[str] = Counter()
         stats: dict[str, Any] = {
             "total_entries": 0,
             "by_room": {},
             "top_entries": [],
-            "top_tags": {},
+            "top_tags": tag_counts,
             "contributors": palace["metadata"].get("contributors", []),
         }
 
@@ -640,8 +642,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
             for entry in entries:
                 all_entries.append(entry)
-                for tag in entry.get("tags", []):
-                    stats["top_tags"][tag] = stats["top_tags"].get(tag, 0) + 1
+                tag_counts.update(entry.get("tags", []))
 
         # Sort by importance (top entries) instead of recency
         all_entries.sort(
@@ -649,11 +650,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
             reverse=True,
         )
         stats["top_entries"] = all_entries[:5]
-
-        # Sort tags by frequency
-        stats["top_tags"] = dict(
-            sorted(stats["top_tags"].items(), key=lambda x: x[1], reverse=True)[:10]
-        )
+        stats["top_tags"] = dict(tag_counts.most_common(10))
 
         return stats
 

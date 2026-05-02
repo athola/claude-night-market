@@ -33,6 +33,9 @@ COHESION_SCORE_MEDIUM = 0.7
 COHESION_SCORE_HIGH = 0.9
 MIN_RESPONSIBILITIES_FOR_MEDIUM_COHESION = 2
 
+# A-11: avoid re-allocating a 3-element list literal per match.
+_BUILTIN_EXC_NAMES = frozenset({"Exception", "ValueError", "TypeError"})
+
 # SRP keyword detection
 _SRP_KEYWORDS = frozenset(
     ["user", "email", "report", "backup", "send", "generate", "create"]
@@ -365,7 +368,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             matches = re.findall(init_pattern, content)
             for class_name in matches:
                 # Skip if it's a basic type or common exceptions
-                if class_name not in ["Exception", "ValueError", "TypeError"]:
+                if class_name not in _BUILTIN_EXC_NAMES:
                     violations.append(
                         {
                             "type": "concrete_dependency",

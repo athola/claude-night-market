@@ -10,6 +10,7 @@ from __future__ import annotations
 import fnmatch
 import json
 import sys
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -407,18 +408,16 @@ class SessionHistoryManager:
                 "last_session": None,
             }
 
-        topics: dict[str, int] = {}
-        outcomes: dict[str, int] = {}
+        topics: Counter[str] = Counter()
+        outcomes: Counter[str] = Counter()
         for s in sessions:
-            for topic in s.get("topics", []):
-                topics[topic] = topics.get(topic, 0) + 1
-            outcome = s.get("outcome", "unknown") or "unknown"
-            outcomes[outcome] = outcomes.get(outcome, 0) + 1
+            topics.update(s.get("topics", []))
+            outcomes[s.get("outcome", "unknown") or "unknown"] += 1
 
         return {
             "total": len(sessions),
-            "topics": dict(sorted(topics.items(), key=lambda x: -x[1])[:20]),
-            "outcomes": outcomes,
+            "topics": dict(topics.most_common(20)),
+            "outcomes": dict(outcomes),
             "first_session": sessions[0].get("started_at"),
             "last_session": sessions[-1].get("started_at"),
         }

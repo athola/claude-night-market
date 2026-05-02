@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -231,7 +232,7 @@ class PalaceRepository:
 
     def update_master_index(self) -> None:
         """Scan the palaces directory and rebuild master_index.json."""
-        domains: dict[str, int] = {}
+        domains: Counter[str] = Counter()
         global_stats: dict[str, Any] = {
             "total_palaces": 0,
             "total_concepts": 0,
@@ -264,8 +265,7 @@ class PalaceRepository:
                     palace.get("layout", {}).get("rooms", [])
                 )
 
-                domain = palace["domain"]
-                domains[domain] = domains.get(domain, 0) + 1
+                domains[palace["domain"]] += 1
 
             except KeyError as e:
                 print(f"[WARN] Skipped malformed palace file: {e}")
