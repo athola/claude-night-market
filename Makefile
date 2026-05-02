@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check stargazer-analysis demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
 
 # Default target
 all: lint test ## Run lint and test across all plugins
