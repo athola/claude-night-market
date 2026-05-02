@@ -62,13 +62,15 @@ Get started quickly with this development workflow framework:
 
 ## Available Modules
 
-This workflow includes these specialized modules:
+This workflow illustrates a hub coordinating these specialized modules.
+Module directories shown below are illustrative — when adapting this
+template, create the module subdirectories you actually need:
 
-- **[git-workflow](modules/git-workflow/)** - Repository setup, branching strategies, and daily git practices
-- **[code-review](modules/code-review/)** - Pull request process, review guidelines, and quality standards
-- **[testing-strategies](modules/testing-strategies/)** - Unit testing, integration testing, and E2E testing patterns
-- **[documentation-guidelines](modules/documentation-guidelines/)** - Code documentation, API docs, and README standards
-- **[deployment-procedures](modules/deployment-procedures/)** - CI/CD pipelines, environment setup, and monitoring
+- **git-workflow**: Repository setup, branching strategies, and daily git practices
+- **code-review**: Pull request process, review guidelines, and quality standards
+- **testing-strategies**: Unit testing, integration testing, and E2E testing patterns
+- **documentation-guidelines**: Code documentation, API docs, and README standards
+- **deployment-procedures**: CI/CD pipelines, environment setup, and monitoring
 
 ## Quick Start
 
@@ -97,13 +99,13 @@ To use this development workflow:
 ## Usage Patterns
 
 ### For New Projects
-Start with [git-workflow](modules/git-workflow/) to establish repository structure, then progress through modules as your project develops.
+Start with the git-workflow module to establish repository structure, then progress through modules as your project develops.
 
 ### For Existing Projects
 Use individual modules to improve specific areas:
-- Need better code reviews? → Use [code-review](modules/code-review/)
-- Testing coverage issues? → Use [testing-strategies](modules/testing-strategies/)
-- Deployment problems? → Use [deployment-procedures](modules/deployment-procedures/)
+- Need better code reviews? Use the code-review module
+- Testing coverage issues? Use the testing-strategies module
+- Deployment problems? Use the deployment-procedures module
 
 ### For Team Onboarding
 Guide new team members through the modules in order to establish consistent practices.

@@ -178,19 +178,12 @@ class ImbueValidator:
                     is_review_skill = True
 
             if not is_review_skill:
-                review_patterns = [
-                    r"workflow",
-                    r"evidence",
-                    r"structured",
-                    r"output",
-                    r"orchestrat",
-                    r"checklist",
-                    r"deliverable",
-                ]
-                for pattern in review_patterns:
-                    if re.search(pattern, content, re.IGNORECASE):
-                        review_workflow_skills.add(skill_name)
-                        break
+                review_pattern = re.compile(
+                    r"workflow|evidence|structured|output|orchestrat|checklist|deliverable",
+                    re.IGNORECASE,
+                )
+                if review_pattern.search(content):
+                    review_workflow_skills.add(skill_name)
 
             # --- Validate phase: check review workflow compliance ---
             if skill_name == "review-core":
@@ -201,10 +194,11 @@ class ImbueValidator:
                     r"structured",
                     r"workflow",
                 ]
-                missing_components = []
-                for component in review_components:
-                    if not re.search(component, content, re.IGNORECASE):
-                        missing_components.append(component)
+                missing_components = [
+                    component
+                    for component in review_components
+                    if not re.search(component, content, re.IGNORECASE)
+                ]
                 if missing_components:
                     missing_str = ", ".join(missing_components)
                     validation_issues.append(

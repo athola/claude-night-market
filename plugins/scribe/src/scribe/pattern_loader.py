@@ -30,6 +30,128 @@ LANGUAGE_CALIBRATION: dict[str, float] = {
 # Data directory
 DATA_DIR = Path(__file__).parent.parent.parent / "data" / "languages"
 
+# Common function words per language for detect_language()
+# NOTE: Italian "it" overlaps the English pronoun "it"; short English texts
+# can match Italian. detect_language() guards against this by preferring
+# English on ties.
+_LANGUAGE_MARKERS: dict[str, frozenset[str]] = {
+    "en": frozenset(
+        {
+            "the",
+            "is",
+            "are",
+            "was",
+            "were",
+            "have",
+            "has",
+            "been",
+            "will",
+            "would",
+            "could",
+            "should",
+            "this",
+            "that",
+            "with",
+            "from",
+        }
+    ),
+    "de": frozenset(
+        {
+            "der",
+            "die",
+            "das",
+            "ist",
+            "sind",
+            "war",
+            "haben",
+            "hat",
+            "wird",
+            "werden",
+            "ein",
+            "eine",
+            "mit",
+            "und",
+            "für",
+            "auf",
+        }
+    ),
+    "fr": frozenset(
+        {
+            "le",
+            "la",
+            "les",
+            "est",
+            "sont",
+            "avec",
+            "dans",
+            "pour",
+            "une",
+            "des",
+            "sur",
+            "qui",
+            "que",
+            "pas",
+        }
+    ),
+    "es": frozenset(
+        {
+            "el",
+            "la",
+            "los",
+            "las",
+            "es",
+            "son",
+            "con",
+            "para",
+            "una",
+            "del",
+            "por",
+            "que",
+            "como",
+        }
+    ),
+    "pt": frozenset(
+        {
+            "o",
+            "a",
+            "os",
+            "as",
+            "é",
+            "são",
+            "foi",
+            "tem",
+            "com",
+            "para",
+            "uma",
+            "dos",
+            "por",
+            "que",
+            "como",
+            "não",
+        }
+    ),
+    "it": frozenset(
+        {
+            "il",
+            "la",
+            "le",
+            "gli",
+            "è",
+            "sono",
+            "con",
+            "per",
+            "una",
+            "del",
+            "che",
+            "non",
+            "più",
+            "anche",
+            "questo",
+            "nella",
+        }
+    ),
+}
+
 
 def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     """Load slop patterns for a specific language.
@@ -110,127 +232,18 @@ def detect_language(text: str) -> str:
     Returns:
         ISO 639-1 language code.
     """
-    text_lower = text.lower()
-    words = text_lower.split()
-    word_set = set(words)
+    word_set = set(text.lower().split())
 
-    # Common function words per language
-    markers: dict[str, set] = {
-        "en": {
-            "the",
-            "is",
-            "are",
-            "was",
-            "were",
-            "have",
-            "has",
-            "been",
-            "will",
-            "would",
-            "could",
-            "should",
-            "this",
-            "that",
-            "with",
-            "from",
-        },
-        "de": {
-            "der",
-            "die",
-            "das",
-            "ist",
-            "sind",
-            "war",
-            "haben",
-            "hat",
-            "wird",
-            "werden",
-            "ein",
-            "eine",
-            "mit",
-            "und",
-            "für",
-            "auf",
-        },
-        "fr": {
-            "le",
-            "la",
-            "les",
-            "est",
-            "sont",
-            "avec",
-            "dans",
-            "pour",
-            "une",
-            "des",
-            "sur",
-            "qui",
-            "que",
-            "pas",
-        },
-        "es": {
-            "el",
-            "la",
-            "los",
-            "las",
-            "es",
-            "son",
-            "con",
-            "para",
-            "una",
-            "del",
-            "por",
-            "que",
-            "como",
-        },
-        "pt": {
-            "o",
-            "a",
-            "os",
-            "as",
-            "é",
-            "são",
-            "foi",
-            "tem",
-            "com",
-            "para",
-            "uma",
-            "dos",
-            "por",
-            "que",
-            "como",
-            "não",
-        },
-        "it": {
-            "il",
-            "la",
-            "le",
-            "gli",
-            "è",
-            "sono",
-            "con",
-            "per",
-            "una",
-            "del",
-            "che",
-            "non",
-            "più",
-            "anche",
-            "questo",
-            "nella",
-        },
+    scores = {
+        lang: len(word_set & lang_markers)
+        for lang, lang_markers in _LANGUAGE_MARKERS.items()
     }
-
-    scores: dict[str, int] = {}
-    for lang, lang_markers in markers.items():
-        overlap = word_set & lang_markers
-        scores[lang] = len(overlap)
 
     if not scores:
         return DEFAULT_LANGUAGE
 
     best_lang = max(scores, key=lambda k: scores[k])
-    # Only return non-English if it has significantly more markers
+    # Only return non-English if it has strictly more markers than English
     if best_lang != "en" and scores[best_lang] > scores.get("en", 0):
         return best_lang
 
