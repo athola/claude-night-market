@@ -76,5 +76,7 @@ __all__ = [
     "ArchitectureReviewSkill",
     "_BUILTIN_EXC_NAMES",
     "_SRP_KEYWORDS",
-    "logger",
 ]
+# AR-F2: ``logger`` is intentionally not exported. The original
+# single-file module did not export it either; it stays an
+# internal binding accessible via the per-mixin imports.

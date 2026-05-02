@@ -182,10 +182,20 @@ class PluginAuditor:
         return refs
 
     def _safe_read(self, md_file: Path) -> str:
-        """Read a markdown file, returning an empty string on errors."""
+        """Read a markdown file, returning an empty string on errors.
+
+        F3 fix: log to stderr so a silent disk error does not hide
+        cross-skill references and produce a falsely-empty
+        ``missing`` audit. Mirrors the logging pattern used by
+        ``_extract_module_refs_from_file``.
+        """
         try:
             return md_file.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError) as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {md_file}: {exc}",
+                file=sys.stderr,
+            )
             return ""
 
     def _scan_skill_modules(self, skill_dir: Path) -> set[str]:

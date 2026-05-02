@@ -412,7 +412,9 @@ def main() -> None:
 def output_result(result: dict, args) -> None:
     """Output result in requested format."""
     if args.output_json:
-        print(json.dumps(success_envelope(result), indent=2))
+        # F4: default=str so Path / datetime / custom objects in
+        # result do not raise an uncaught TypeError from main().
+        print(json.dumps(success_envelope(result), indent=2, default=str))
     else:
         print(f"Generated test file: {result.get('test_file')}")
         print(f"Style: {result.get('style')}")

@@ -160,6 +160,24 @@ class TestParseFrontmatterWithBody:
         assert "rest" in body
 
     @pytest.mark.unit
+    def test_handles_closing_dashes_at_end_of_file(self):
+        """Given a document where the closing ``---`` is the last
+        characters with no trailing newline,
+        When parse_frontmatter_with_body is called,
+        Then the meta is parsed and body is empty (parity with
+        parse_frontmatter for the same input).
+
+        Regression: F2 from /pensive:full-review. The original
+        FRONTMATTER_RE required ``\\n---\\s*\\n`` so a file ending
+        in ``---`` without trailing newline silently returned
+        ``({}, full_content)`` while parse_frontmatter handled it.
+        """
+        content = "---\ntitle: foo\n---"
+        meta, body = parse_frontmatter_with_body(content)
+        assert meta == {"title": "foo"}
+        assert body == ""
+
+    @pytest.mark.unit
     def test_returns_empty_meta_when_yaml_invalid(self):
         """Given invalid YAML in the frontmatter block,
         When parse_frontmatter_with_body is called,

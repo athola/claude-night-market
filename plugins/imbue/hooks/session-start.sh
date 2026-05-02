@@ -27,9 +27,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 # Vendored under hooks/shared/ so the hook works from the Claude Code
 # plugin cache. CLAUDE_PLUGIN_ROOT is set by Claude Code; SCRIPT_DIR
 # fallback supports direct invocation in tests/CI.
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+# F5: use a dedicated variable so the later PLUGIN_ROOT assignment
+# (line ~58) does not silently clobber it. Mirrors conserve's pattern.
+PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 # shellcheck source=plugins/imbue/hooks/shared/json_utils.sh
-source "${PLUGIN_ROOT}/hooks/shared/json_utils.sh"
+source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
 
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""

@@ -80,7 +80,13 @@ def _make_subprocess_result(
     returncode: int = 0,
     stderr: str = "",
 ) -> MagicMock:
-    """Build a mock subprocess.run result for gh api calls."""
+    """Build a mock subprocess.run result for gh api calls.
+
+    AR-30: verify_plugin now routes gh calls through
+    leyline.git_platform.gh_api which mocks subprocess one level
+    deeper. This helper still constructs a CompletedProcess-shaped
+    mock; tests patch ``leyline.git_platform.subprocess.run``.
+    """
     mock = MagicMock()
     mock.returncode = returncode
     mock.stdout = json.dumps({"workflow_runs": runs})
@@ -385,7 +391,7 @@ class TestVerifyPluginOnline:
         Then result has recommendation "unknown" and error.
         """
         mock_result = _make_subprocess_result([], returncode=1, stderr="gh: not found")
-        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+        with patch("leyline.git_platform.subprocess.run", return_value=mock_result):
             result = verify_plugin("some-plugin")
 
         assert result["recommendation"] == "unknown"
@@ -403,7 +409,7 @@ class TestVerifyPluginOnline:
             _make_gh_run(name="CI", conclusion="success", run_id=i) for i in range(10)
         ]
         mock_result = _make_subprocess_result(runs)
-        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+        with patch("leyline.git_platform.subprocess.run", return_value=mock_result):
             result = verify_plugin("good-plugin", level="L1", min_score=0.8)
 
         assert result["recommendation"] == "trusted"
@@ -421,7 +427,7 @@ class TestVerifyPluginOnline:
             _make_gh_run(conclusion="failure", run_id=i + 6) for i in range(4)
         ]
         mock_result = _make_subprocess_result(runs)
-        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+        with patch("leyline.git_platform.subprocess.run", return_value=mock_result):
             result = verify_plugin("test-plugin", level="L1", min_score=0.8)
 
         assert result["recommendation"] == "caution"
@@ -436,7 +442,7 @@ class TestVerifyPluginOnline:
         Then result is untrusted with no-history error.
         """
         mock_result = _make_subprocess_result([])
-        with patch("verify_plugin.subprocess.run", return_value=mock_result):
+        with patch("leyline.git_platform.subprocess.run", return_value=mock_result):
             result = verify_plugin("new-plugin")
 
         assert result["recommendation"] == "untrusted"
@@ -466,7 +472,7 @@ class TestVerifyPluginOnline:
         runs = [_make_gh_run(conclusion="success")]
         mock_result = _make_subprocess_result(runs)
         with patch(
-            "verify_plugin.subprocess.run", return_value=mock_result
+            "leyline.git_platform.subprocess.run", return_value=mock_result
         ) as mock_run:
             verify_plugin("test", repo="custom/repo")
 

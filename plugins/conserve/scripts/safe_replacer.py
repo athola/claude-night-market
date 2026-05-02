@@ -201,7 +201,9 @@ def main() -> None:
 def output_result(result: dict, args: argparse.Namespace) -> None:
     """Output result in requested format."""
     if args.output_json:
-        print(json.dumps(success_envelope(result), indent=2))
+        # F4: default=str so Path / datetime / custom objects in
+        # result do not raise an uncaught TypeError from main().
+        print(json.dumps(success_envelope(result), indent=2, default=str))
     else:
         print(f"Files updated: {result.get('files_updated', 0)}")
         print(f"Total changes: {result.get('total_changes', 0)}")

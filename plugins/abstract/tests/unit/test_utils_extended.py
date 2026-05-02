@@ -650,3 +650,30 @@ class TestExtractSection:
         content = "## Low User Ratings\n- entry\n"
         result = extract_section(content, "## Low User Ratings")
         assert result == "- entry"
+
+    @pytest.mark.unit
+    def test_returns_empty_when_next_heading_is_immediately_adjacent(self):
+        """Given the heading is followed immediately by another ## heading
+        with no body between them,
+        When extract_section is called,
+        Then it returns an empty string (not the next section's body).
+
+        Regression: F1 from /pensive:full-review. The original
+        lookahead `(?=\\n## |\\n---|\\Z)` failed when the immediately
+        next line was a `##` heading, capturing that heading and the
+        following section body instead.
+        """
+        content = "## Section A\n## Section B\nB content"
+        result = extract_section(content, "## Section A")
+        assert result == ""
+
+    @pytest.mark.unit
+    def test_returns_empty_when_heading_at_top_followed_by_next(self):
+        """Given the document begins with the heading and the very
+        next non-empty line is a sibling heading,
+        When extract_section is called,
+        Then the result is empty.
+        """
+        content = "## Empty\n## Has Content\nbody"
+        result = extract_section(content, "## Empty")
+        assert result == ""
