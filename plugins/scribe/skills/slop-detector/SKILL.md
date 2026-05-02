@@ -31,12 +31,10 @@ modules:
 - empirical-baseline
 - structured-finding-output
 - remediation-strategies
-- language-support
+- language-handling
 - config-file
-- progress-indicators
+- reporting
 - ci-integration
-- metrics
-- i18n-patterns
 dependencies:
 - scribe:shared
 role: library
@@ -64,7 +62,7 @@ score lower than the same markers in API reference.
 - Override with explicit `--lang` parameter (en, de, fr, es)
 - Load language-specific patterns from `data/languages/{lang}.yaml`
 - Fall back to English if detection confidence is low
-- See `modules/language-support.md` for details on cultural calibration
+- See `modules/language-handling.md` for cultural calibration and concrete pattern sets
 
 ### Vocabulary and Phrase Detection
 
