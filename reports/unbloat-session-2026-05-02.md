@@ -304,3 +304,36 @@ inside ```` ```markdown ```` code fences as broken cross-references.
 Three of five Layer 0 findings were false positives for this reason.
 Future hygiene scans should treat fenced content as opaque to the
 link-resolution step.
+
+---
+
+## Supplemental: god-function decomposition pass
+
+A third continuation pass addressed the MEDIUM-effort quality findings
+(F06, F07, F10, F16) that had been deferred to "separate PRs".
+
+### Commit `478bec2f`
+
+| ID | Target | Result |
+|----|--------|--------|
+| F06 | `web_research_handler.main` (175 LOC) | Extracted `_handle_webfetch` and `_handle_websearch`; main becomes a ~50-LOC dispatcher. Removed `# noqa: PLR0912,PLR0915`. |
+| F07 | `context_scanner.renderers.render_markdown` (163 LOC, 12 sections) | Extracted 12 per-section helpers (`_render_header`, `_render_structure`, `_render_dependencies`, etc.); main becomes a 25-LOC list extender. Removed `# noqa: PLR0912,PLR0915`. |
+| F10 | `attune_init.main` (141 LOC) + `attune_arch_init.main` (160 LOC) | `attune_init`: extracted `_build_parser`, `_resolve_language`, `_print_init_banner`. `attune_arch_init`: extracted `_build_arch_parser`, `_produce_recommendation`, `_scaffold_project`, `_write_architecture_docs`, `_print_arch_summary`. Both `main()` bodies reduced to ~30 LOC orchestrators. Removed `# noqa: PLR0915`. |
+| F16 | `_PerfVisitor.visit_Call` (142 LOC) | Extracted `_check_recompile_in_loop`, `_check_listcomp_to_reducer`, `_check_append_in_nested_loop`, `_check_per_iteration_allocation`. `visit_Call` is now a 5-line dispatcher delegating to the four detector methods. |
+| F05 | 7 frontmatter parsers | DELIBERATELY SKIPPED. Each "duplicate" has a different contract (dict[str,str] vs dict[str,Any] vs tuple-returns). Replacing with `leyline.frontmatter.parse_frontmatter` would change parsing semantics and require cross-plugin soft imports for ~50 LOC of savings. Status-quo preserved. |
+
+### Test gates (post-decomposition)
+
+| Plugin | Result |
+|--------|--------|
+| memory-palace | 970 passed |
+| conserve | 627 passed |
+| pensive | 407 passed |
+| attune | 466 passed |
+
+### Annotation requirements
+
+The attune typecheck step required `Any` annotations on the new helpers
+(per the plugin's `mypy --strict` config). `_scaffold_project` carries
+`# noqa: PLR0913` because consolidating its 6 init-phase parameters
+into a dataclass would obscure the call site without behavior benefit.
