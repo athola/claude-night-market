@@ -471,148 +471,148 @@ class _PerfVisitor(ast.NodeVisitor):
 
     # ---- T3, T6, S2, S3: Call patterns -----------------------------
 
-    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
-        # T3: re.compile inside a loop.
-        if self._loop_stack and self._is_re_compile(node):
-            self.findings.append(
-                ReviewFinding(
-                    file=self._file,
-                    line=node.lineno,
-                    severity="MEDIUM",
-                    category="time",
-                    message=(
-                        "re.compile() called inside a loop — pattern is "
-                        "recompiled per iteration."
-                    ),
-                    suggestion=(
-                        "Hoist re.compile(...) above the loop and reuse "
-                        "the compiled pattern."
-                    ),
-                )
+    def _check_recompile_in_loop(self, node: ast.Call) -> None:
+        """T3: ``re.compile()`` called inside a loop body."""
+        if not (self._loop_stack and self._is_re_compile(node)):
+            return
+        self.findings.append(
+            ReviewFinding(
+                file=self._file,
+                line=node.lineno,
+                severity="MEDIUM",
+                category="time",
+                message=(
+                    "re.compile() called inside a loop — pattern is "
+                    "recompiled per iteration."
+                ),
+                suggestion=(
+                    "Hoist re.compile(...) above the loop and reuse "
+                    "the compiled pattern."
+                ),
             )
+        )
 
-        # T6: list/dict/set comp passed to a reducer (sum, max, ...).
-        # S2: list(...) or dict(...) or tuple(...) wrapping a generator
-        #     inside a reducer call.
-        if isinstance(node.func, ast.Name) and node.func.id in _REDUCER_FUNCTIONS:
-            for arg in node.args:
-                if isinstance(arg, ast.ListComp):
-                    self.findings.append(
-                        ReviewFinding(
-                            file=self._file,
-                            line=node.lineno,
-                            severity="LOW",
-                            category="time",
-                            message=(
-                                f"List comprehension passed to "
-                                f"{node.func.id}() — materializes the "
-                                f"full list."
-                            ),
-                            suggestion=(
-                                "Drop the brackets to use a generator "
-                                "expression and avoid the intermediate."
-                            ),
-                        )
+    def _check_listcomp_to_reducer(self, node: ast.Call) -> None:
+        """T6 + S2: list/dict comp or list(...) wrapper passed to a reducer."""
+        if not (isinstance(node.func, ast.Name) and node.func.id in _REDUCER_FUNCTIONS):
+            return
+        for arg in node.args:
+            if isinstance(arg, ast.ListComp):
+                self.findings.append(
+                    ReviewFinding(
+                        file=self._file,
+                        line=node.lineno,
+                        severity="LOW",
+                        category="time",
+                        message=(
+                            f"List comprehension passed to "
+                            f"{node.func.id}() — materializes the "
+                            f"full list."
+                        ),
+                        suggestion=(
+                            "Drop the brackets to use a generator "
+                            "expression and avoid the intermediate."
+                        ),
                     )
-                if (
-                    isinstance(arg, ast.Call)
-                    and isinstance(arg.func, ast.Name)
-                    and arg.func.id in {"list", "dict", "tuple", "set"}
-                    and arg.args
-                    and isinstance(arg.args[0], ast.GeneratorExp)
-                ):
-                    self.findings.append(
-                        ReviewFinding(
-                            file=self._file,
-                            line=node.lineno,
-                            severity="LOW",
-                            category="space",
-                            message=(
-                                f"{arg.func.id}(...) wraps a generator "
-                                f"inside {node.func.id}() — "
-                                f"the wrapper materializes the entire "
-                                f"sequence."
-                            ),
-                            suggestion=(
-                                "Drop the wrapper; reducers accept generators directly."
-                            ),
-                        )
+                )
+            if (
+                isinstance(arg, ast.Call)
+                and isinstance(arg.func, ast.Name)
+                and arg.func.id in {"list", "dict", "tuple", "set"}
+                and arg.args
+                and isinstance(arg.args[0], ast.GeneratorExp)
+            ):
+                self.findings.append(
+                    ReviewFinding(
+                        file=self._file,
+                        line=node.lineno,
+                        severity="LOW",
+                        category="space",
+                        message=(
+                            f"{arg.func.id}(...) wraps a generator "
+                            f"inside {node.func.id}() — "
+                            f"the wrapper materializes the entire "
+                            f"sequence."
+                        ),
+                        suggestion=(
+                            "Drop the wrapper; reducers accept generators directly."
+                        ),
                     )
+                )
 
-        # S1: .append() inside a loop. We surface it as a hot-path
-        # accumulator hint rather than a hard error.
-        if (
+    def _check_append_in_nested_loop(self, node: ast.Call) -> None:
+        """S1: ``.append()`` inside nested loops, not to a local accumulator."""
+        if not (
             self._loop_stack
             and isinstance(node.func, ast.Attribute)
             and node.func.attr == "append"
         ):
-            # Suppress canonical accumulator pattern: target is a Name
-            # initialized to `[]` in the same function. Real S1 hotspots
-            # are appends to external state (params, class attrs).
-            target = node.func.value
-            is_local_accumulator = (
-                isinstance(target, ast.Name)
-                and bool(self._local_accumulators_stack)
-                and target.id in self._local_accumulators_stack[-1]
+            return
+        target = node.func.value
+        is_local_accumulator = (
+            isinstance(target, ast.Name)
+            and bool(self._local_accumulators_stack)
+            and target.id in self._local_accumulators_stack[-1]
+        )
+        if len(self._loop_stack) < 2 or is_local_accumulator:
+            return
+        self.findings.append(
+            ReviewFinding(
+                file=self._file,
+                line=node.lineno,
+                severity="MEDIUM",
+                category="space",
+                message=(
+                    "Unbounded .append() inside nested loops — "
+                    "output grows multiplicatively."
+                ),
+                suggestion=(
+                    "Consider yielding from a generator or "
+                    "computing on demand instead of materializing "
+                    "all combinations."
+                ),
             )
-            # Suppress when the loop has only one iteration source AND
-            # is not nested: single-loop accumulators are usually fine.
-            if len(self._loop_stack) >= 2 and not is_local_accumulator:
-                self.findings.append(
-                    ReviewFinding(
-                        file=self._file,
-                        line=node.lineno,
-                        severity="MEDIUM",
-                        category="space",
-                        message=(
-                            "Unbounded .append() inside nested loops — "
-                            "output grows multiplicatively."
-                        ),
-                        suggestion=(
-                            "Consider yielding from a generator or "
-                            "computing on demand instead of materializing "
-                            "all combinations."
-                        ),
-                    )
-                )
+        )
 
-        # S3: .copy() / dict() / list() / tuple() inside a loop body
-        # that allocate per iteration.
-        if self._loop_stack:
-            allocates = False
-            if isinstance(node.func, ast.Attribute) and node.func.attr == "copy":
+    def _check_per_iteration_allocation(self, node: ast.Call) -> None:
+        """S3: ``.copy()`` / ``dict(...)`` / ``list(...)`` / ``tuple(...)`` in a loop body."""
+        if not self._loop_stack:
+            return
+        allocates = False
+        if isinstance(node.func, ast.Attribute) and node.func.attr == "copy":
+            allocates = True
+        elif (
+            isinstance(node.func, ast.Name)
+            and node.func.id in {"dict", "list", "tuple"}
+            and node.args
+        ):
+            first = node.args[0]
+            if not isinstance(first, (ast.ListComp, ast.GeneratorExp, ast.DictComp)):
                 allocates = True
-            elif (
-                isinstance(node.func, ast.Name)
-                and node.func.id in {"dict", "list", "tuple"}
-                and node.args
-            ):
-                # dict(other) / list(other) / tuple(other) with a single arg
-                # is a copy. Skip when the only arg is a literal builder
-                # like a comprehension — those are expected.
-                first = node.args[0]
-                if not isinstance(
-                    first, (ast.ListComp, ast.GeneratorExp, ast.DictComp)
-                ):
-                    allocates = True
-            if allocates:
-                self.findings.append(
-                    ReviewFinding(
-                        file=self._file,
-                        line=node.lineno,
-                        severity="MEDIUM",
-                        category="space",
-                        message=(
-                            "Per-iteration allocation inside a loop "
-                            "(.copy() / dict() / list() / tuple())."
-                        ),
-                        suggestion=(
-                            "If the base is read-only, hoist it; if you "
-                            "need a snapshot, build it once outside."
-                        ),
-                    )
-                )
+        if not allocates:
+            return
+        self.findings.append(
+            ReviewFinding(
+                file=self._file,
+                line=node.lineno,
+                severity="MEDIUM",
+                category="space",
+                message=(
+                    "Per-iteration allocation inside a loop "
+                    "(.copy() / dict() / list() / tuple())."
+                ),
+                suggestion=(
+                    "If the base is read-only, hoist it; if you "
+                    "need a snapshot, build it once outside."
+                ),
+            )
+        )
 
+    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+        self._check_recompile_in_loop(node)
+        self._check_listcomp_to_reducer(node)
+        self._check_append_in_nested_loop(node)
+        self._check_per_iteration_allocation(node)
         self.generic_visit(node)
 
     # ---- T4: string += inside a loop -------------------------------

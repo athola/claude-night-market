@@ -244,170 +244,205 @@ def generate_wiki(root: Path, result: ScanResult) -> None:
 # ---------------------------------------------------------------------------
 
 
-def render_markdown(  # noqa: PLR0912, PLR0915 - rendering many optional sections requires branches and statements
-    result: ScanResult,
-    max_dirs: int = 8,
-    max_deps: int = 8,
-    include_timestamp: bool = True,
-) -> str:
-    """Render scan result as markdown context map."""
-    result = summarize(result, max_dirs=max_dirs, max_deps=max_deps)
-
-    lines: list[str] = []
+def _render_header(result: ScanResult, include_timestamp: bool) -> list[str]:
+    """Header line and meta-row for the markdown context map."""
     ts = (
         datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         if include_timestamp
         else ""
     )
     header_parts = [f"# Context Map: {result.project_name}"]
-    meta_parts = []
+    meta_parts: list[str] = []
     if ts:
         meta_parts.append(f"Generated: {ts}")
     meta_parts.append(f"Files: {result.total_files}")
-    if meta_parts:
-        header_parts.append(" | ".join(meta_parts))
-    lines.extend(header_parts)
+    header_parts.append(" | ".join(meta_parts))
+    return [*header_parts, ""]
+
+
+def _render_structure(result: ScanResult) -> list[str]:
+    if not result.directories:
+        return []
+    lines = ["## Structure", ""]
+    for d in result.directories:
+        lang = f" ({d.primary_language})" if d.primary_language else ""
+        lines.append(f"  {d.path:<20s} {d.file_count:>4d} files{lang}")
+    if result.truncated_dirs > 0:
+        lines.append(f"  ...{result.truncated_dirs} more directories")
     lines.append("")
+    return lines
 
-    # Structure section
-    if result.directories:
-        lines.append("## Structure")
-        lines.append("")
-        for d in result.directories:
-            lang = f" ({d.primary_language})" if d.primary_language else ""
-            lines.append(f"  {d.path:<20s} {d.file_count:>4d} files{lang}")
-        if result.truncated_dirs > 0:
-            lines.append(f"  ...{result.truncated_dirs} more directories")
-        lines.append("")
 
-    # Ecosystems
+def _render_dependencies(result: ScanResult, max_deps: int) -> list[str]:
+    lines: list[str] = []
     for eco in result.ecosystems:
-        if eco.name == "Generic":
+        if eco.name == "Generic" or not eco.dependencies:
             continue
-        # Dependencies
-        if eco.dependencies:
-            lines.append(f"## Dependencies ({eco.name})")
-            if eco.package_manager:
-                lines.append(f"Package manager: {eco.package_manager}")
-            lines.append("")
-            shown_deps = summarize_dependencies(eco.dependencies, max_items=max_deps)
-            for dep in shown_deps.shown:
-                ver = f" {dep.version}" if dep.version else ""
-                cat = " (dev)" if dep.category == "dev" else ""
-                lines.append(f"  - {dep.name}{ver}{cat}")
-            if shown_deps.remaining > 0:
-                lines.append(f"  ...{shown_deps.remaining} more")
-            lines.append("")
+        lines.append(f"## Dependencies ({eco.name})")
+        if eco.package_manager:
+            lines.append(f"Package manager: {eco.package_manager}")
+        lines.append("")
+        shown_deps = summarize_dependencies(eco.dependencies, max_items=max_deps)
+        for dep in shown_deps.shown:
+            ver = f" {dep.version}" if dep.version else ""
+            cat = " (dev)" if dep.category == "dev" else ""
+            lines.append(f"  - {dep.name}{ver}{cat}")
+        if shown_deps.remaining > 0:
+            lines.append(f"  ...{shown_deps.remaining} more")
+        lines.append("")
+    return lines
 
-    # Frameworks (combined across ecosystems)
+
+def _render_frameworks(result: ScanResult) -> list[str]:
     all_frameworks = result.all_frameworks
-    if all_frameworks:
-        lines.append("## Frameworks Detected")
-        lines.append("")
-        seen = set()
-        for fw in all_frameworks:
-            if fw.name not in seen:
-                seen.add(fw.name)
-                lines.append(f"  - {fw.name}")
-        lines.append("")
+    if not all_frameworks:
+        return []
+    lines = ["## Frameworks Detected", ""]
+    seen: set[str] = set()
+    for fw in all_frameworks:
+        if fw.name not in seen:
+            seen.add(fw.name)
+            lines.append(f"  - {fw.name}")
+    lines.append("")
+    return lines
 
-    # Entry points (combined)
+
+def _render_entry_points(result: ScanResult) -> list[str]:
     all_eps = result.all_entry_points
-    if all_eps:
-        lines.append("## Entry Points")
-        lines.append("")
-        for ep in all_eps:
-            lines.append(f"  - {ep.path} ({ep.kind})")
-        lines.append("")
+    if not all_eps:
+        return []
+    lines = ["## Entry Points", ""]
+    for ep in all_eps:
+        lines.append(f"  - {ep.path} ({ep.kind})")
+    lines.append("")
+    return lines
 
-    # Routes
-    if result.routes:
-        lines.append("## Routes")
-        lines.append("")
-        for r in result.routes[:_MAX_DISPLAY_ROUTES]:
-            lines.append(f"  {r.method:<6s} {r.path}  ({r.file})")
-        if len(result.routes) > _MAX_DISPLAY_ROUTES:
-            lines.append(f"  ...{len(result.routes) - _MAX_DISPLAY_ROUTES} more")
-        lines.append("")
 
-    # Hot files
-    if result.hot_files:
-        lines.append("## Hot Files (high blast radius)")
-        lines.append("")
-        graph = result.import_graph
-        for hf in result.hot_files[:_MAX_DISPLAY_HOT_FILES]:
-            if graph and hf in graph.imported_by:
-                count = len(graph.imported_by[hf])
-            else:
-                count = result.hot_file_counts.get(hf, 0)
-            lines.append(f"  - {hf} ({count} importers)")
-        if len(result.hot_files) > _MAX_DISPLAY_HOT_FILES:
-            lines.append(f"  ...{len(result.hot_files) - _MAX_DISPLAY_HOT_FILES} more")
-        lines.append("")
+def _render_routes(result: ScanResult) -> list[str]:
+    if not result.routes:
+        return []
+    lines = ["## Routes", ""]
+    for r in result.routes[:_MAX_DISPLAY_ROUTES]:
+        lines.append(f"  {r.method:<6s} {r.path}  ({r.file})")
+    if len(result.routes) > _MAX_DISPLAY_ROUTES:
+        lines.append(f"  ...{len(result.routes) - _MAX_DISPLAY_ROUTES} more")
+    lines.append("")
+    return lines
 
-    # Environment variables
-    if result.env_vars:
-        lines.append("## Environment Variables")
-        lines.append("")
-        for ev in result.env_vars[:_MAX_DISPLAY_ENV_VARS]:
-            default_mark = " (has default)" if ev.has_default else " (required)"
-            lines.append(f"  - {ev.name}{default_mark}")
-        if len(result.env_vars) > _MAX_DISPLAY_ENV_VARS:
-            lines.append(f"  ...{len(result.env_vars) - _MAX_DISPLAY_ENV_VARS} more")
-        lines.append("")
 
-    # Middleware
-    if result.middleware:
-        lines.append("## Middleware")
-        lines.append("")
-        for mw in result.middleware:
-            lines.append(f"  - {mw.name} ({mw.file})")
-        lines.append("")
+def _render_hot_files(result: ScanResult) -> list[str]:
+    if not result.hot_files:
+        return []
+    lines = ["## Hot Files (high blast radius)", ""]
+    graph = result.import_graph
+    for hf in result.hot_files[:_MAX_DISPLAY_HOT_FILES]:
+        if graph and hf in graph.imported_by:
+            count = len(graph.imported_by[hf])
+        else:
+            count = result.hot_file_counts.get(hf, 0)
+        lines.append(f"  - {hf} ({count} importers)")
+    if len(result.hot_files) > _MAX_DISPLAY_HOT_FILES:
+        lines.append(f"  ...{len(result.hot_files) - _MAX_DISPLAY_HOT_FILES} more")
+    lines.append("")
+    return lines
 
-    # Schemas section
-    if result.schemas:
-        lines.append("## Models/Schemas")
-        lines.append("")
-        shown = result.schemas[:_MAX_DISPLAY_SCHEMAS]
-        for s in shown:
-            fields = f"({s.field_count} fields)" if s.field_count else ""
-            lines.append(f"  {s.name:<16} {s.file} {fields}")
-        if len(result.schemas) > _MAX_DISPLAY_SCHEMAS:
-            lines.append(f"  ...{len(result.schemas) - _MAX_DISPLAY_SCHEMAS} more")
-        lines.append("")
 
-    # Config files
-    if result.config_files:
-        lines.append("## Configuration")
-        lines.append("")
-        for cf in result.config_files[:_MAX_DISPLAY_CONFIGS]:
-            lines.append(f"  - {cf}")
-        if len(result.config_files) > _MAX_DISPLAY_CONFIGS:
-            lines.append(f"  ...{len(result.config_files) - _MAX_DISPLAY_CONFIGS} more")
-        lines.append("")
+def _render_env_vars(result: ScanResult) -> list[str]:
+    if not result.env_vars:
+        return []
+    lines = ["## Environment Variables", ""]
+    for ev in result.env_vars[:_MAX_DISPLAY_ENV_VARS]:
+        default_mark = " (has default)" if ev.has_default else " (required)"
+        lines.append(f"  - {ev.name}{default_mark}")
+    if len(result.env_vars) > _MAX_DISPLAY_ENV_VARS:
+        lines.append(f"  ...{len(result.env_vars) - _MAX_DISPLAY_ENV_VARS} more")
+    lines.append("")
+    return lines
 
-    # Token savings estimate
-    if result.token_estimate and result.token_estimate.total > 0:
-        est = result.token_estimate
-        lines.append(f"## Token Savings: ~{_round_tokens(est.total)} tokens saved")
-        lines.append("")
-        if est.route_tokens:
-            lines.append(f"  Routes: ~{_round_tokens(est.route_tokens)}")
-        if est.hot_file_tokens:
-            lines.append(f"  Hot files: ~{_round_tokens(est.hot_file_tokens)}")
-        if est.env_var_tokens:
-            lines.append(f"  Env vars: ~{_round_tokens(est.env_var_tokens)}")
-        if est.file_scan_tokens:
-            lines.append(f"  File scanning: ~{_round_tokens(est.file_scan_tokens)}")
-        lines.append("")
+
+def _render_middleware(result: ScanResult) -> list[str]:
+    if not result.middleware:
+        return []
+    lines = ["## Middleware", ""]
+    for mw in result.middleware:
+        lines.append(f"  - {mw.name} ({mw.file})")
+    lines.append("")
+    return lines
+
+
+def _render_schemas(result: ScanResult) -> list[str]:
+    if not result.schemas:
+        return []
+    lines = ["## Models/Schemas", ""]
+    for s in result.schemas[:_MAX_DISPLAY_SCHEMAS]:
+        fields = f"({s.field_count} fields)" if s.field_count else ""
+        lines.append(f"  {s.name:<16} {s.file} {fields}")
+    if len(result.schemas) > _MAX_DISPLAY_SCHEMAS:
+        lines.append(f"  ...{len(result.schemas) - _MAX_DISPLAY_SCHEMAS} more")
+    lines.append("")
+    return lines
+
+
+def _render_config_files(result: ScanResult) -> list[str]:
+    if not result.config_files:
+        return []
+    lines = ["## Configuration", ""]
+    for cf in result.config_files[:_MAX_DISPLAY_CONFIGS]:
+        lines.append(f"  - {cf}")
+    if len(result.config_files) > _MAX_DISPLAY_CONFIGS:
+        lines.append(f"  ...{len(result.config_files) - _MAX_DISPLAY_CONFIGS} more")
+    lines.append("")
+    return lines
+
+
+def _render_token_savings(result: ScanResult) -> list[str]:
+    if not (result.token_estimate and result.token_estimate.total > 0):
+        return []
+    est = result.token_estimate
+    lines = [f"## Token Savings: ~{_round_tokens(est.total)} tokens saved", ""]
+    if est.route_tokens:
+        lines.append(f"  Routes: ~{_round_tokens(est.route_tokens)}")
+    if est.hot_file_tokens:
+        lines.append(f"  Hot files: ~{_round_tokens(est.hot_file_tokens)}")
+    if est.env_var_tokens:
+        lines.append(f"  Env vars: ~{_round_tokens(est.env_var_tokens)}")
+    if est.file_scan_tokens:
+        lines.append(f"  File scanning: ~{_round_tokens(est.file_scan_tokens)}")
+    lines.append("")
+    return lines
+
+
+def render_markdown(
+    result: ScanResult,
+    max_dirs: int = 8,
+    max_deps: int = 8,
+    include_timestamp: bool = True,
+) -> str:
+    """Render scan result as a markdown context map.
+
+    Sections appear in fixed order: header, structure, dependencies,
+    frameworks, entry points, routes, hot files, env vars, middleware,
+    schemas, config files, token savings. Empty sections are skipped.
+    """
+    result = summarize(result, max_dirs=max_dirs, max_deps=max_deps)
+
+    lines: list[str] = []
+    lines.extend(_render_header(result, include_timestamp))
+    lines.extend(_render_structure(result))
+    lines.extend(_render_dependencies(result, max_deps))
+    lines.extend(_render_frameworks(result))
+    lines.extend(_render_entry_points(result))
+    lines.extend(_render_routes(result))
+    lines.extend(_render_hot_files(result))
+    lines.extend(_render_env_vars(result))
+    lines.extend(_render_middleware(result))
+    lines.extend(_render_schemas(result))
+    lines.extend(_render_config_files(result))
+    lines.extend(_render_token_savings(result))
 
     output = "\n".join(lines)
-
-    # Replace token estimate in header
     output_tokens = len(output) // 4
-    output = output.replace("~calculating", f"~{_round_tokens(output_tokens)} tokens")
-
-    return output
+    return output.replace("~calculating", f"~{_round_tokens(output_tokens)} tokens")
 
 
 def _round_tokens(n: int) -> str:

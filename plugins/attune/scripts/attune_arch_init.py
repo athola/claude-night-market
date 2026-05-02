@@ -7,7 +7,7 @@ import argparse
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from architecture_researcher import (
@@ -382,8 +382,8 @@ architectural patterns
     return summary
 
 
-def main() -> None:  # noqa: PLR0915 - CLI entrypoint builds parser, validates args, and orchestrates multi-step init
-    """Initialize project with architecture awareness."""
+def _build_arch_parser() -> argparse.ArgumentParser:
+    """Build the ``attune arch-init`` argparse parser."""
     parser = argparse.ArgumentParser(
         description="Initialize a project with architecture awareness"
     )
@@ -403,67 +403,38 @@ def main() -> None:  # noqa: PLR0915 - CLI entrypoint builds parser, validates a
         default=Path.cwd(),
         help="Project path (defaults to current directory)",
     )
+    return parser
 
-    args = parser.parse_args()
 
-    project_path = args.path.resolve()
-    project_name = args.name or project_path.name
-
-    # Step 1: Gather context
-    context_data = interactive_context_gathering()
-    context_data["project_name"] = project_name
-
-    # Step 2: Research phase (optional, would use WebSearch in production)
-    context = parse_project_context(context_data)
-    researcher = ArchitectureResearcher(context)
-
-    if not args.no_research:
-        queries = researcher.generate_search_queries()
-        research_findings = perform_online_research(queries, context_data)
-    else:
-        research_findings = {}
-
-    # Step 3: Get recommendation
+def _produce_recommendation(
+    args: argparse.Namespace,
+    researcher: ArchitectureResearcher,
+    research_findings: dict,
+) -> Any:
+    """Either build a forced recommendation from ``--arch`` or run the researcher."""
     if args.arch:
-        # User specified architecture directly
-        paradigm = args.arch
-        recommendation = researcher._build_recommendation(
-            paradigm, "", "user-specified", research_findings
+        return researcher._build_recommendation(
+            args.arch, "", "user-specified", research_findings
         )
-    else:
-        # Algorithmic recommendation
-        recommendation = researcher.recommend_paradigm(research_findings)
+    return researcher.recommend_paradigm(research_findings)
 
-    # Step 4: Present and confirm
-    if not args.accept_recommendation:
-        if not present_recommendation(recommendation):
-            print("\n❌ Initialization cancelled by user.")
-            sys.exit(0)
-    else:
-        print(f"\n✓ Auto-accepted: {recommendation.primary}")
 
-    # Step 5: Customize templates based on architecture
-    print("\n" + "=" * 60)
-    print("🏗️  Customizing Templates")
-    print("=" * 60)
+def _scaffold_project(  # noqa: PLR0913 - phase helper consolidates init steps; bundling its params would obscure the call site
+    project_path: Path,
+    project_name: str,
+    context: Any,
+    context_data: dict,
+    customizer: TemplateCustomizer,
+    recommendation: Any,
+) -> tuple[list, list]:
+    """Initialize git, copy templates, create the standard + architecture dirs.
 
-    customizer = TemplateCustomizer(
-        recommendation.primary, context.language, project_name
-    )
-
-    print(f"\nArchitecture: {customizer.get_paradigm_description()}")
-
-    # Step 6: Create base project structure
-    print("\n" + "=" * 60)
-    print("📁 Creating Project Structure")
-    print("=" * 60)
-
-    # Initialize git
+    Returns ``(created_files, arch_dirs)``.
+    """
     detector = ProjectDetector(project_path)
     if not detector.check_git_initialized():
         initialize_git(project_path)
 
-    # Get template variables
     variables = get_default_variables(
         project_name=project_name,
         language=context.language,
@@ -475,9 +446,7 @@ def main() -> None:  # noqa: PLR0915 - CLI entrypoint builds parser, validates a
         description=f"A {recommendation.primary} architecture project",
     )
 
-    # Copy base templates
-    script_dir = Path(__file__).parent
-    templates_root = script_dir.parent / "templates"
+    templates_root = Path(__file__).parent.parent / "templates"
     created_files = copy_templates(
         language=context.language,
         project_path=project_path,
@@ -485,64 +454,119 @@ def main() -> None:  # noqa: PLR0915 - CLI entrypoint builds parser, validates a
         templates_root=templates_root,
         force=False,
     )
-
-    # Create standard structure
     create_project_structure(
         project_path, context.language, variables["PROJECT_MODULE"], project_name
     )
-
-    # Create architecture-specific directories
     arch_dirs = customizer.create_architecture_directories(project_path)
     print(f"\n✓ Created {len(arch_dirs)} architecture-specific directories")
+    return created_files, arch_dirs
 
-    # Step 7: Generate documentation
+
+def _write_architecture_docs(
+    project_path: Path,
+    customizer: TemplateCustomizer,
+    researcher: ArchitectureResearcher,
+) -> None:
+    """Write ARCHITECTURE.md, the ADR, and the research session JSON."""
     print("\n" + "=" * 60)
     print("📚 Generating Documentation")
     print("=" * 60)
 
-    # Create ARCHITECTURE.md
     arch_readme = project_path / "ARCHITECTURE.md"
     arch_readme.write_text(customizer.generate_architecture_readme())
     print(f"✓ Created: {arch_readme}")
 
-    # Create ADR
     adr_dir = project_path / "docs" / "adr"
     adr_dir.mkdir(parents=True, exist_ok=True)
     adr_file = adr_dir / "001-architecture-paradigm.md"
     adr_file.write_text(customizer.generate_architecture_adr())
     print(f"✓ Created: {adr_file}")
 
-    # Save research session
     session_file = project_path / ".attune" / "arch-init-session.json"
     session_file.parent.mkdir(parents=True, exist_ok=True)
     researcher.save_research_session(session_file)
     print(f"✓ Created: {session_file}")
 
-    # Step 8: Summary
+
+def _print_arch_summary(
+    project_path: Path,
+    project_name: str,
+    recommendation: Any,
+    created_files: list,
+    arch_dirs: list,
+) -> None:
+    """Print the final post-init summary."""
     print("\n" + "=" * 60)
     print("✓ Architecture-Aware Initialization Complete!")
     print("=" * 60)
-
     print(f"\nProject: {project_name}")
     print(f"Architecture: {recommendation.primary.replace('-', ' ').title()}")
     if recommendation.secondary:
         print(f"Secondary: {recommendation.secondary.replace('-', ' ').title()}")
-
     print(f"\n📁 Created {len(created_files)} files")
     print(f"📁 Created {len(arch_dirs)} architecture-specific directories")
-
     print("\n📚 Documentation:")
     print("  - ARCHITECTURE.md - Architecture overview")
     print("  - docs/adr/001-architecture-paradigm.md - Decision record")
-
     print("\n🔗 Next Steps:")
     print(f"  1. cd {project_path}")
     print("  2. make dev-setup")
     print("  3. Review ARCHITECTURE.md for implementation guidance")
     paradigm_skill = f"architecture-paradigm-{recommendation.primary}"
     print(f"  4. Load paradigm skill: Skill({paradigm_skill})")
-
     print("\n" + "=" * 60 + "\n")
+
+
+def main() -> None:
+    """Initialize project with architecture awareness."""
+    args = _build_arch_parser().parse_args()
+    project_path = args.path.resolve()
+    project_name = args.name or project_path.name
+
+    context_data = interactive_context_gathering()
+    context_data["project_name"] = project_name
+    context = parse_project_context(context_data)
+    researcher = ArchitectureResearcher(context)
+
+    if not args.no_research:
+        queries = researcher.generate_search_queries()
+        research_findings = perform_online_research(queries, context_data)
+    else:
+        research_findings = {}
+
+    recommendation = _produce_recommendation(args, researcher, research_findings)
+
+    if not args.accept_recommendation:
+        if not present_recommendation(recommendation):
+            print("\n❌ Initialization cancelled by user.")
+            sys.exit(0)
+    else:
+        print(f"\n✓ Auto-accepted: {recommendation.primary}")
+
+    print("\n" + "=" * 60)
+    print("🏗️  Customizing Templates")
+    print("=" * 60)
+    customizer = TemplateCustomizer(
+        recommendation.primary, context.language, project_name
+    )
+    print(f"\nArchitecture: {customizer.get_paradigm_description()}")
+
+    print("\n" + "=" * 60)
+    print("📁 Creating Project Structure")
+    print("=" * 60)
+    created_files, arch_dirs = _scaffold_project(
+        project_path,
+        project_name,
+        context,
+        context_data,
+        customizer,
+        recommendation,
+    )
+
+    _write_architecture_docs(project_path, customizer, researcher)
+    _print_arch_summary(
+        project_path, project_name, recommendation, created_files, arch_dirs
+    )
 
 
 if __name__ == "__main__":
