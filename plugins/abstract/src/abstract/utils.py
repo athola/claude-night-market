@@ -40,6 +40,7 @@ __all__ = [
     # Path utilities
     "get_config_dir",
     "get_log_directory",
+    "get_observability_dir",
     # Skill file utilities
     "find_skill_files",
     # Analysis utilities
@@ -106,6 +107,26 @@ def get_config_dir(*, create: bool = False) -> Path:
     if create:
         config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
+
+
+def get_observability_dir(*, create: bool = False) -> Path:
+    """Get the skill observability state directory.
+
+    Respects CLAUDE_HOME like the other dir helpers (D-04).
+
+    Args:
+        create: If True, create the directory if it doesn't exist.
+
+    Returns:
+        Path to ~/.claude/skills/observability/ (or
+        ``$CLAUDE_HOME/skills/observability/``).
+
+    """
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+    state_dir = claude_home / "skills" / "observability"
+    if create:
+        state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:

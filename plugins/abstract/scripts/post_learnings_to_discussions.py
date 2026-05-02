@@ -27,6 +27,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# D-04: pull canonical get_config_dir from abstract.utils.
+_src = Path(__file__).resolve().parent.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
 # Local script-directory module; co-located in plugins/abstract/scripts/.
 # sys.path is set in production by the entry-point caller; for direct
 # imports during testing the test files prepend the scripts dir.
@@ -47,10 +51,18 @@ from discussion_enrichment import (
     track_issue_persistence,
 )
 
+from abstract.utils import (
+    get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
+)
+
 
 def get_config_dir() -> Path:
-    """Get the discussions config directory."""
-    return Path.home() / ".claude" / "skills" / "discussions"
+    """Get the discussions config directory.
+
+    Thin wrapper over ``abstract.utils.get_config_dir`` so existing
+    tests that patch the module-level symbol keep working (D-04).
+    """
+    return _shared_get_config_dir()
 
 
 def get_learnings_path() -> Path:
