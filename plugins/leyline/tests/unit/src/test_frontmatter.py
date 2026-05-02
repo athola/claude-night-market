@@ -12,7 +12,11 @@ from __future__ import annotations
 import pytest
 
 import leyline.frontmatter as fm
-from leyline.frontmatter import _fallback_parse, parse_frontmatter
+from leyline.frontmatter import (
+    _fallback_parse,
+    parse_frontmatter,
+    parse_frontmatter_with_body,
+)
 
 
 class TestParseFrontmatter:
@@ -110,6 +114,64 @@ class TestParseFrontmatter:
         assert result is not None
         assert result["title"] == "Doc"
         assert len(result) == 1
+
+
+class TestParseFrontmatterWithBody:
+    """Scenarios for parse_frontmatter_with_body() (D-02).
+
+    The helper is added to consolidate the four scripts
+    (clawhub_export, a2a_cards, area_agent_registry,
+    coordination_workspace) that re-implemented FRONTMATTER_RE
+    plus a parser. Each needs the parsed frontmatter dict and
+    the body string after the closing ``---``.
+    """
+
+    @pytest.mark.unit
+    def test_returns_empty_meta_and_full_body_when_no_frontmatter(self):
+        """Given content without a frontmatter block,
+        When parse_frontmatter_with_body is called,
+        Then meta is empty and body is the original content.
+        """
+        meta, body = parse_frontmatter_with_body("# Just a heading\nText.")
+        assert meta == {}
+        assert body == "# Just a heading\nText."
+
+    @pytest.mark.unit
+    def test_returns_meta_and_body_for_valid_frontmatter(self):
+        """Given a valid frontmatter block,
+        When parse_frontmatter_with_body is called,
+        Then it returns the parsed meta and the body after ---.
+        """
+        content = "---\ntitle: Hi\n---\n# Body\ntext\n"
+        meta, body = parse_frontmatter_with_body(content)
+        assert meta == {"title": "Hi"}
+        assert body == "# Body\ntext\n"
+
+    @pytest.mark.unit
+    def test_preserves_body_when_body_contains_dashes(self):
+        """Given body that itself contains --- separators,
+        When parse_frontmatter_with_body is called,
+        Then those separators are preserved in body.
+        """
+        content = "---\nkey: v\n---\n# Heading\n---\nrest"
+        meta, body = parse_frontmatter_with_body(content)
+        assert meta == {"key": "v"}
+        assert "---" in body
+        assert "rest" in body
+
+    @pytest.mark.unit
+    def test_returns_empty_meta_when_yaml_invalid(self):
+        """Given invalid YAML in the frontmatter block,
+        When parse_frontmatter_with_body is called,
+        Then meta is empty and body is original content.
+
+        Callers (clawhub_export, a2a_cards) treat unparseable
+        frontmatter as 'no frontmatter' rather than fatal.
+        """
+        content = "---\n: :\n  - [\n---\nBody"
+        meta, body = parse_frontmatter_with_body(content)
+        assert meta == {}
+        assert body == content
 
 
 class TestFallbackParse:

@@ -28,12 +28,18 @@ from _plugin_meta import (  # noqa: E402 - script must inject its own dir before
     get_plugin_version,
 )
 
+# D-02: pull canonical frontmatter parser from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parent.parent / "plugins" / "leyline" / "src"
+sys.path.insert(0, str(_LEYLINE_SRC))
+from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
+    parse_frontmatter_with_body,
+)
+
 # ---------- constants ----------
 
 PLUGINS_DIR = Path(__file__).resolve().parent.parent / "plugins"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "clawhub"
 CLAWHUB_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
 # Skills most likely to attract OpenClaw users (hand-curated top 20)
 TOP_SKILLS = [
@@ -60,125 +66,16 @@ TOP_SKILLS = [
 ]
 
 
-# ---------- YAML parsing (minimal, no pyyaml dependency) ----------
+# ---------- format translation ----------
 
 
 def parse_frontmatter(content: str) -> tuple[dict[str, Any], str]:
-    """Parse YAML frontmatter from SKILL.md content.
+    """Parse YAML frontmatter and return ``(meta, body)``.
 
-    Returns (frontmatter_dict, body_text). Uses a minimal parser
-    to avoid requiring pyyaml as a dependency.
+    Thin wrapper over leyline.parse_frontmatter_with_body so the
+    rest of this module's call sites keep their current shape.
     """
-    match = FRONTMATTER_RE.match(content)
-    if not match:
-        return {}, content
-
-    raw_yaml = match.group(1)
-    body = content[match.end() :]
-    fm = _parse_yaml_block(raw_yaml)
-    return fm, body
-
-
-def _parse_yaml_block(text: str) -> dict[str, Any]:
-    """Minimal YAML parser for skill frontmatter."""
-    result: dict[str, Any] = {}
-    current_key: str = ""
-    current_list: list[str] | None = None
-    multiline_value: list[str] | None = None
-
-    for line in text.split("\n"):
-        stripped = line.strip()
-
-        # Skip empty lines and comments
-        if not stripped or stripped.startswith("#"):
-            if multiline_value is not None:
-                multiline_value.append("")
-            continue
-
-        # List item
-        if stripped.startswith("- ") and current_key:
-            if current_list is None:
-                current_list = []
-            item = stripped[2:].strip().strip("'\"")
-            current_list.append(item)
-            result[current_key] = current_list
-            multiline_value = None
-            continue
-
-        # Key-value pair
-        kv_match = re.match(r"^([a-zA-Z_-]+)\s*:\s*(.*)", line)
-        if kv_match and not line[0].isspace():
-            # Save previous multiline
-            if multiline_value is not None and current_key:
-                result[current_key] = " ".join(
-                    ln for ln in multiline_value if ln
-                ).strip()
-
-            current_key = kv_match.group(1).strip()
-            raw_val = kv_match.group(2).strip()
-            current_list = None
-            multiline_value = None
-
-            if not raw_val:
-                # Could be list or multiline block
-                result[current_key] = ""
-                continue
-
-            if raw_val in ("|", ">"):
-                multiline_value = []
-                continue
-
-            if raw_val.startswith("'") and raw_val.endswith("'"):
-                raw_val = raw_val[1:-1]
-            elif raw_val.startswith('"') and raw_val.endswith('"'):
-                raw_val = raw_val[1:-1]
-
-            # Detect inline list [a, b, c]
-            if raw_val.startswith("[") and raw_val.endswith("]"):
-                items = [
-                    s.strip().strip("'\"")
-                    for s in raw_val[1:-1].split(",")
-                    if s.strip()
-                ]
-                result[current_key] = items
-                continue
-
-            # Detect numeric
-            if raw_val.isdigit():
-                result[current_key] = int(raw_val)
-                continue
-
-            # Detect boolean
-            if raw_val.lower() in ("true", "false"):
-                result[current_key] = raw_val.lower() == "true"
-                continue
-
-            result[current_key] = raw_val
-            continue
-
-        # Continuation of multiline value
-        if multiline_value is not None:
-            multiline_value.append(stripped)
-            continue
-
-        # Indented continuation of a scalar value
-        if current_key and line[0].isspace() and current_list is None:
-            prev = result.get(current_key, "")
-            if isinstance(prev, str):
-                if multiline_value is None:
-                    multiline_value = [prev, stripped] if prev else [stripped]
-                else:
-                    multiline_value.append(stripped)
-                continue
-
-    # Flush final multiline
-    if multiline_value is not None and current_key:
-        result[current_key] = " ".join(ln for ln in multiline_value if ln).strip()
-
-    return result
-
-
-# ---------- format translation ----------
+    return parse_frontmatter_with_body(content)
 
 
 def to_clawhub_slug(plugin: str, skill_name: str) -> str:

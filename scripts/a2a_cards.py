@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,9 +24,15 @@ from _plugin_meta import (  # noqa: E402 - script must inject its own dir before
     get_plugin_version,
 )
 
+# D-02: pull canonical frontmatter parser from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parent.parent / "plugins" / "leyline" / "src"
+sys.path.insert(0, str(_LEYLINE_SRC))
+from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
+    parse_frontmatter,
+)
+
 PLUGINS_DIR = Path(__file__).resolve().parent.parent / "plugins"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "bridge" / "a2a"
-FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
 PROVIDER = {
     "organization": "Claude Night Market",
@@ -44,7 +49,8 @@ def parse_agent_frontmatter(content: str) -> dict[str, Any]:
     """Parse agent .md frontmatter (supports both YAML and JSON)."""
     stripped = content.strip()
 
-    # Try JSON format first
+    # Try JSON format first (some agent files use JSON-block frontmatter
+    # rather than YAML). leyline.parse_frontmatter expects ``---``.
     if stripped.startswith("{"):
         try:
             end = stripped.index("\n\n")
@@ -56,70 +62,8 @@ def parse_agent_frontmatter(content: str) -> dict[str, Any]:
         except json.JSONDecodeError:
             pass
 
-    # Try YAML format
-    match = FRONTMATTER_RE.match(content)
-    if not match:
-        return {}
-
-    raw_yaml = match.group(1)
-    result: dict[str, Any] = {}
-
-    current_key: str = ""
-    multiline_lines: list[str] | None = None
-
-    for line in raw_yaml.split("\n"):
-        stripped_line = line.strip()
-        if not stripped_line or stripped_line.startswith("#"):
-            continue
-
-        # Key-value pair at top level
-        kv_match = re.match(r"^([a-zA-Z_-]+)\s*:\s*(.*)", line)
-        if kv_match and not line[0].isspace():
-            # Flush previous multiline
-            if multiline_lines is not None and current_key:
-                result[current_key] = " ".join(
-                    ln for ln in multiline_lines if ln
-                ).strip()
-                multiline_lines = None
-
-            current_key = kv_match.group(1).strip()
-            val = kv_match.group(2).strip()
-
-            if val == "|" or val == ">":
-                multiline_lines = []
-                continue
-
-            if not val:
-                result[current_key] = ""
-                continue
-
-            # Inline list
-            if val.startswith("[") and val.endswith("]"):
-                result[current_key] = [
-                    s.strip().strip("'\"") for s in val[1:-1].split(",") if s.strip()
-                ]
-                continue
-
-            result[current_key] = val.strip("'\"")
-            continue
-
-        # Multiline continuation
-        if multiline_lines is not None:
-            multiline_lines.append(stripped_line)
-            continue
-
-        # List items
-        if stripped_line.startswith("- ") and current_key:
-            prev = result.get(current_key)
-            if not isinstance(prev, list):
-                result[current_key] = []
-            result[current_key].append(stripped_line[2:].strip().strip("'\""))
-
-    # Flush final multiline
-    if multiline_lines is not None and current_key:
-        result[current_key] = " ".join(ln for ln in multiline_lines if ln).strip()
-
-    return result
+    # YAML format -- delegate to leyline (handles PyYAML + fallback).
+    return parse_frontmatter(content) or {}
 
 
 # ---------- card generation ----------
