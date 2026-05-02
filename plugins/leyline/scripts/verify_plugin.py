@@ -14,10 +14,20 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any
+
+# AR-30: route gh invocations through the canonical wrapper.
+_LEYLINE_SRC = Path(__file__).resolve().parent.parent / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
+    GhCommandError,
+    gh_api,
+)
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -72,21 +82,10 @@ def _query_workflow_runs(
         RuntimeError: If the gh CLI fails.
     """
     endpoint = f"repos/{repo}/actions/runs?status=completed&per_page={per_page}"
-    result = subprocess.run(
-        ["gh", "api", endpoint],
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=60,
-    )
-    if result.returncode != 0:
-        msg = result.stderr.strip() or "gh api call failed"
-        raise RuntimeError(msg)
-
     try:
-        data = json.loads(result.stdout)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"gh api returned non-JSON: {result.stdout[:200]}") from exc
+        data = gh_api(endpoint, timeout=60)
+    except GhCommandError as exc:
+        raise RuntimeError(str(exc)) from exc
     return data.get("workflow_runs", [])
 
 

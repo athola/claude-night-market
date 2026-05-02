@@ -16,7 +16,7 @@ Features:
 from __future__ import annotations
 
 import json
-import subprocess
+import subprocess  # noqa: F401 - retained for legacy callers; gh now uses git_platform
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,6 +26,16 @@ from typing import Any
 _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
+# AR-30: route gh invocations through leyline.git_platform.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
+    GhCommandError,
+    gh_graphql,
+)
+
 from abstract.utils import (
     get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
 )
@@ -120,38 +130,17 @@ class DiscussionItem:
 
 
 def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
-    """Run a GraphQL query via gh api.
+    """Run a GraphQL query via gh api (AR-30).
 
-    Args:
-        query: GraphQL query string
-        variables: Optional query variables
-
-    Returns:
-        Parsed JSON response
-
-    Raises:
-        RuntimeError: If gh command fails
-
+    Thin wrapper over ``leyline.git_platform.gh_graphql`` so existing
+    callers in this module keep their import shape. Raises
+    RuntimeError on failure for backward compatibility with the
+    previous local implementation.
     """
-    cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
-    if variables:
-        for key, value in variables.items():
-            cmd.extend(["-f", f"{key}={value}"])
-
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"gh api graphql failed (exit {result.returncode}): {result.stderr}"
-        )
-
-    return json.loads(result.stdout)
+    try:
+        return gh_graphql(query, variables=variables)
+    except GhCommandError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def get_repo_node_id() -> str:
