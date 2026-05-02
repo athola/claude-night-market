@@ -167,7 +167,8 @@ After generation:
   subversion, and subtle voice qualities require the larger
   model. Sonnet flattens these.
 - **Banned phrase scan**: Can run locally (regex/grep)
-- **Review agents**: Sonnet is sufficient (structured prompts)
+- **Review agents**: Sonnet is sufficient (the prompts are
+  templated, so Opus tonal range is not needed)
 
 ## Per-Project Voice
 

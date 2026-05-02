@@ -157,4 +157,4 @@ The test suite (`test_voice_review.py`) validates:
 - Hard failure vs advisory separation is documented
 - Prose reviewer agent exists with hard-failure patterns
 - Craft reviewer agent exists with five-dimension ratings
-- Both agents produce structured output tables
+- Both agents produce tabular output for downstream merging
