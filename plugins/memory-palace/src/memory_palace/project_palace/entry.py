@@ -75,6 +75,7 @@ class ReviewEntry:
                 40 for other room types. ``ValueError`` on out-of-range.
 
         """
+        now = datetime.now(timezone.utc).isoformat()
         self.id = uuid.uuid4().hex[:12]
         self.source_pr = source_pr
         self.title = title
@@ -83,11 +84,14 @@ class ReviewEntry:
         self.participants = participants or []
         self.related_rooms = related_rooms or []
         self.tags = tags or []
-        self.created = datetime.now(timezone.utc).isoformat()
-        self.last_accessed = datetime.now(timezone.utc).isoformat()
+        self.created = now
+        self.last_accessed = now
         self.access_count = 0
 
-        if importance_score is not None:
+        if importance_score is None:
+            default = 70 if self.room_type == ReviewSubroom.DECISIONS else 40
+            self.importance_score = default
+        else:
             if not _IMPORTANCE_MIN <= importance_score <= _IMPORTANCE_MAX:
                 msg = (
                     f"importance_score must be in "
@@ -96,10 +100,6 @@ class ReviewEntry:
                 )
                 raise ValueError(msg)
             self.importance_score = importance_score
-        elif self.room_type == ReviewSubroom.DECISIONS:
-            self.importance_score = 70
-        else:
-            self.importance_score = 40
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""

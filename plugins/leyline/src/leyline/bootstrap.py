@@ -59,13 +59,13 @@ def add_plugin_src_to_path(
         FileNotFoundError: If no ``plugins/<plugin_name>/src``
             directory can be found by walking upward from ``caller``.
     """
-    if caller is None:
+    if caller is not None:
+        caller_path = Path(caller)
+    else:
         # Use the immediate caller's __file__ if available.
         frame = sys._getframe(1)  # noqa: SLF001 - sys._getframe is the recommended way
         caller_file = frame.f_globals.get("__file__")
         caller_path = Path(caller_file) if caller_file else Path.cwd()
-    else:
-        caller_path = Path(caller)
 
     plugins_root = _find_plugins_root(caller_path)
     if plugins_root is None:

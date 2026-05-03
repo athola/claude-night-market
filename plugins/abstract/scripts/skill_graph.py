@@ -40,8 +40,13 @@ _BARE_SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 # directory (e.g. `modules/tdd-methodology.md`). Bare names are NEVER
 # skill references in this field; only fully-qualified `plugin:name`
 # entries count, which is rare but legal.
-_FRONTMATTER_DEP_FIELDS_QUALIFIED_ONLY = ("modules",)
-_FRONTMATTER_DEP_FIELDS_ANY = ("dependencies",)
+# Map of frontmatter field -> whether bare names resolve to skill refs.
+# `dependencies:` allows bare names (sibling-skill shorthand);
+# `modules:` only counts fully-qualified `plugin:name` entries.
+_FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
+    ("dependencies", True),
+    ("modules", False),
+)
 
 # Valid values for the `role:` frontmatter field, per the taxonomy in
 # docs/skill-integration-guide.md#skill-role-taxonomy.
@@ -247,10 +252,7 @@ def extract_frontmatter_skill_refs(
     text = skill_md.read_text(encoding="utf-8", errors="replace")
     fm = _parse_frontmatter(text)
     refs: set[tuple[str, str]] = set()
-    for field_name, allow_bare in (
-        *((f, True) for f in _FRONTMATTER_DEP_FIELDS_ANY),
-        *((f, False) for f in _FRONTMATTER_DEP_FIELDS_QUALIFIED_ONLY),
-    ):
+    for field_name, allow_bare in _FRONTMATTER_DEP_FIELDS:
         items = fm.get(field_name) or []
         if not isinstance(items, list):
             continue
@@ -433,13 +435,9 @@ _PLACEHOLDER_RE = re.compile(
 
 def _is_placeholder(plugin: str, name: str) -> bool:
     """True if either side of the reference looks like template text."""
-    if _PLACEHOLDER_RE.search(name):
+    if _PLACEHOLDER_RE.search(name) or _PLACEHOLDER_RE.search(plugin):
         return True
-    if _PLACEHOLDER_RE.search(plugin):
-        return True
-    if plugin.lower() in {"plugin", "your-plugin"}:
-        return True
-    return False
+    return plugin.lower() in {"plugin", "your-plugin"}
 
 
 def classify_dangling_refs(

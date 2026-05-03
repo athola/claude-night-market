@@ -40,11 +40,11 @@ def gh_api(
         GhCommandError: If gh exits non-zero or stdout is not JSON.
     """
     cmd = ["gh", "api", endpoint]
-    if method.upper() != "GET":
-        cmd.extend(["-X", method.upper()])
-    if fields:
-        for key, value in fields.items():
-            cmd.extend(["-f", f"{key}={value}"])
+    method_upper = method.upper()
+    if method_upper != "GET":
+        cmd.extend(["-X", method_upper])
+    for key, value in (fields or {}).items():
+        cmd.extend(["-f", f"{key}={value}"])
     return _run_and_parse(cmd, timeout=timeout)
 
 
@@ -66,9 +66,8 @@ def gh_graphql(
         GhCommandError: If gh exits non-zero or stdout is not JSON.
     """
     cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
-    if variables:
-        for key, value in variables.items():
-            cmd.extend(["-f", f"{key}={value}"])
+    for key, value in (variables or {}).items():
+        cmd.extend(["-f", f"{key}={value}"])
     return _run_and_parse(cmd, timeout=timeout)
 
 
