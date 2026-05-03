@@ -177,6 +177,41 @@ def test_update_openpackage_version_unquoted():
     assert "version: 1.0.0" not in updated
 
 
+def test_update_skill_md_version_only_in_frontmatter():
+    """SKILL.md (#484): the ``version:`` key in YAML frontmatter is
+    bumped; matching key/value lines in the body are left alone so a
+    documented historical version doesn't get rewritten.
+    """
+    content = (
+        "---\n"
+        "name: foo\n"
+        "description: bar\n"
+        "version: 1.0.0\n"
+        "---\n"
+        "\n"
+        "# Heading\n"
+        "\n"
+        "Earlier shipped as version: 1.0.0 (kept for context).\n"
+    )
+    updated = update_versions.update_skill_md_version(content, "2.0.0")
+    # Frontmatter line bumped.
+    assert "version: 2.0.0" in updated
+    # Body line preserved (regression guard).
+    assert "Earlier shipped as version: 1.0.0" in updated
+
+
+def test_update_skill_md_version_no_frontmatter_returns_unchanged():
+    """SKILL.md without YAML frontmatter is left alone."""
+    content = "# Just markdown\n\nNo frontmatter here.\n"
+    assert update_versions.update_skill_md_version(content, "2.0.0") == content
+
+
+def test_update_skill_md_version_no_version_key_returns_unchanged():
+    """SKILL.md frontmatter without a ``version:`` key is left alone."""
+    content = "---\nname: foo\ndescription: bar\n---\n\nbody\n"
+    assert update_versions.update_skill_md_version(content, "2.0.0") == content
+
+
 def test_update_openpackage_version_quoted():
     """openpackage.yml also accepts double-quoted values."""
     content = 'name: foo\nversion: "1.0.0"\n'
@@ -194,6 +229,11 @@ def test_update_version_file_dispatches_by_filename():
         ("marketplace.json", '{"version":"1.0.0"}', '"2.0.0"'),
         ("__init__.py", '__version__ = "1.0.0"\n', '"2.0.0"'),
         ("openpackage.yml", "version: 1.0.0\n", "2.0.0"),
+        (
+            "SKILL.md",
+            "---\nname: x\nversion: 1.0.0\n---\n\nbody\n",
+            "version: 2.0.0",
+        ),
     ]
     with tempfile.TemporaryDirectory() as tmpdir:
         root = Path(tmpdir)

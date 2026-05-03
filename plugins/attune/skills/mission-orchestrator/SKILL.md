@@ -1,7 +1,7 @@
 ---
 name: mission-orchestrator
 description: "Lifecycle orchestrator that auto-detects project state and routes to the correct development phase."
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: workflow-orchestration
 tags:

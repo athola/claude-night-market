@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **PR #470 deferred items closed on this branch**:
+  the eight S-series suggestions (#484) and both
+  C-series architectural follow-ups (#485) are now
+  resolved on `ai-slop-1.9.4` instead of being deferred
+  to 1.10.x. See "PR #470 deferred-items closure" under
+  the 1.9.4 Internal heading for the per-finding map.
+
 ## [1.9.4] - 2026-05-03
 
 ### Added
@@ -176,6 +185,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   architecture (04), clean code (03), algorithm
   efficiency (02), additive bias (05), plugin patterns
   (06).
+- **PR #470 deferred-items closure** (#484, #485):
+  closed on this branch instead of carrying to 1.10.x.
+  - **S2** -- `gh_graphql` widens ``variables`` to
+    ``dict[str, Any]``; ``int`` / ``float`` / ``bool`` /
+    ``None`` are routed via ``gh -F`` (typed-field) so
+    GraphQL ``Int!`` / ``Boolean!`` / nullable variables
+    match their schema types.
+  - **S3** -- `bootstrap.add_plugin_src_to_path` swaps
+    CPython-private ``sys._getframe(1)`` for
+    ``inspect.stack()[1].filename`` and falls back to
+    ``Path.cwd()`` when the caller frame is synthetic.
+  - **S6** -- the residual "future GitLab/Bitbucket"
+    sentence is removed from the `git_platform`
+    docstring's user story in the test file.
+  - **S8** -- `PROJECT_PALACE_ROOMS` /
+    `REVIEW_CHAMBER_ROOMS` are typed via
+    ``dict[RoomType, RoomMetadata]`` /
+    ``dict[ReviewSubroom, RoomMetadata]`` with a frozen
+    ``RoomMetadata`` dataclass; the manager preserves
+    string-keyed palace JSON via ``RoomType.value``.
+  - **S9** -- `cli_envelope` exports ``SuccessEnvelope``
+    / ``ErrorEnvelope`` ``TypedDict``s plus a
+    discriminated ``Envelope`` union; ``success_envelope``
+    / ``error_envelope`` return the typed shapes.
+  - **S10** -- ``GhCommandError`` now carries ``cmd:
+    list[str]``, ``returncode: int | None``, and
+    ``stderr: str | None`` for programmatic error
+    handling; ``str(exc)`` stays human-readable.
+  - **S11** -- `test_dir_utils` adds three negative-path
+    scenarios: ``CLAUDE_HOME`` unset (falls back to
+    ``HOME``), ``not-a-dir`` collision (raises
+    ``FileExistsError``), unwritable parent (raises
+    ``PermissionError``, skipped under root).
+  - **gh_api `=` field key guard** -- ``gh_api`` raises
+    ``ValueError`` if a field key contains ``=`` so the
+    argv pair cannot be split to smuggle extra fields.
+  - **C7** -- `ReviewEntry` is now
+    ``@dataclass(frozen=True, slots=True)``;
+    ``from_dict`` is a regular constructor call (no
+    post-hoc attribute mutation), and read-tracking
+    flows through a new ``with_access()`` method that
+    returns a new instance.
+  - **C9** -- `TestQualityMixin` and
+    `TestRecommendationMixin` are demoted to
+    module-level functions in ``_quality`` /
+    ``_recommendations``; ``TestingGuideSkill`` becomes
+    a thin facade that delegates to them. Behavioural
+    surface unchanged for downstream consumers.
+  - **SKILL.md `version:` frontmatter drift** -- 170
+    SKILL.md files were stuck at ``version: 1.9.3``
+    while ``plugin.json`` was at 1.9.4. ``update_versions``
+    learns to bump the frontmatter ``version:`` (only
+    inside the leading YAML block; body code-block
+    examples are preserved). All in-tree SKILL.md
+    frontmatters synced to 1.9.4.
 
 
 

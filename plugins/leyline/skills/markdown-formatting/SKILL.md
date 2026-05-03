@@ -1,7 +1,7 @@
 ---
 name: markdown-formatting
 description: 'Markdown formatting conventions for diff-friendly docs. Use when generating, editing, or reviewing markdown prose.'
-version: 1.9.3
+version: 1.9.4
 globs: "**/*.md"
 alwaysApply: false
 category: cross-plugin-patterns

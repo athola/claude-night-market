@@ -2,7 +2,7 @@
 name: skill-graph-audit
 role: library
 description: 'Map Skill() refs across plugins; detect hubs, isolates, and dangling targets. Use when auditing skill composition or hunting broken refs.'
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 tools: []
 modules:

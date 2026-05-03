@@ -2,7 +2,7 @@
 name: stack-rebase
 description: 'Cascading rebase for a PR stack after a base PR merges or its base
   branch changes, using git --update-refs to rewrite all descendant branches atomically.'
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: workflow-automation
 tags:

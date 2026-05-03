@@ -1,7 +1,7 @@
 ---
 name: clear-context
 description: 'Automatic context management with graceful handoff to a continuation subagent at 80% usage'
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: conservation
 token_budget: 200

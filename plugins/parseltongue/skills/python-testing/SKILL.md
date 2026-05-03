@@ -1,7 +1,7 @@
 ---
 name: python-testing
 description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests'
-version: 1.9.3
+version: 1.9.4
 globs: "**/*.py"
 alwaysApply: false
 category: testing

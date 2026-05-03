@@ -1,7 +1,7 @@
 ---
 name: makefile-review
 description: 'Audit Makefiles for build correctness and recipe duplication. Use when reviewing build pipelines or generated targets.'
-version: 1.9.3
+version: 1.9.4
 globs: "**/Makefile"
 alwaysApply: false
 category: build

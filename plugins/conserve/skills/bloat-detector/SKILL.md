@@ -1,7 +1,7 @@
 ---
 name: bloat-detector
 description: 'Detect codebase bloat via progressive analysis: dead code, duplication, complexity, and doc bloat'
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: conservation
 tags:
