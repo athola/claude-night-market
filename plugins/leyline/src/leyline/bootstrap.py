@@ -1,9 +1,12 @@
 """Cross-plugin sys.path bootstrap helper (AR-15).
 
-Twenty-five+ scripts and hooks each open-coded their own
+Twenty-five+ scripts and hooks open-code their own
 ``Path(__file__).resolve().parents[N] / "<plugin>" / "src"``
 discovery before importing from a sibling plugin. This module
-collapses that pattern to one tested helper.
+collapses that pattern to one tested helper. Rollout is incremental:
+``plugins/imbue/scripts/imbue_validator.py`` is the first adopter;
+remaining sites migrate as they are touched (see
+``docs/refinement/2026-05-02/04-architecture.md``).
 
 Note: this module cannot bootstrap leyline itself -- callers
 that need leyline must still place ``plugins/leyline/src`` on
@@ -74,10 +77,7 @@ def add_plugin_src_to_path(
 
     target = plugins_root / plugin_name / "src"
     if not target.is_dir():
-        msg = (
-            f"add_plugin_src_to_path({plugin_name!r}): {target} "
-            "does not exist"
-        )
+        msg = f"add_plugin_src_to_path({plugin_name!r}): {target} does not exist"
         raise FileNotFoundError(msg)
 
     target_str = str(target)

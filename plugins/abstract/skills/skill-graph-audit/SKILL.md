@@ -20,9 +20,8 @@ referenced (hubs), which orchestrate many others (orchestrators), which
 have no incoming or outgoing references (isolates), and which point at
 non-existent skills (dangling references).
 
-Replaces the manual curation step previously needed for
-`docs/quality-gates.md#skill-level-quality-gate-composition` -- the
-federation graph is now derivable from source.
+The federation graph is now derivable from source rather than
+hand-curated.
 
 ## When To Use
 

@@ -104,12 +104,12 @@ Resolve, link, or delete. Commit per category.
 Run module `identity-and-voice-leaks.md`:
 
 - **P0. identity leaks**: any "as a large language model",
-  "as of my training cutoff", etc. → delete on sight.
+  "as of my training cutoff", etc.; delete on sight.
 - **Conversational voice leaks**: "Hope this helps!",
-  "Great question!", "Sure!" outside transcript blocks
-  → delete the phrase, keep substance.
+  "Great question!", "Sure!" outside transcript blocks;
+  delete the phrase, keep substance.
 - **Self-narration of structure**: "In this section, we
-  will cover..." → strip framing, start at content.
+  will cover..."; strip framing, start at content.
 
 This pass is small but high-priority. Identity leaks in
 particular fail review independent of any other score.

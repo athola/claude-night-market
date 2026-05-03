@@ -225,7 +225,7 @@ even when one side is clearly stronger.
 ```
 
 The fix is to take a position. If the analysis genuinely
-warrants a hedge, name *which* trade-off and *why* —
+warrants a hedge, name *which* trade-off and *why*:
 the seesaw form just performs balance without earning it.
 
 ### Parallel "not just" / "not only" (Score: 3)

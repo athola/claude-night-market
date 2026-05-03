@@ -17,8 +17,8 @@ config key never read, a cited URL that 404s. Slop
 detectors that only score word density miss these
 entirely, because each individual word is fine.
 
-The 2025-26 cross-evaluation work (§12.1) is unambiguous:
-GPT-5.x family fabricates more (invented identifiers,
+The 2025-26 cross-evaluation work (see `empirical-baseline.md`)
+is unambiguous: GPT-5.x family fabricates more (invented identifiers,
 made-up library APIs); Claude 4.x family omits more
 (skipped match arms, missed error paths). Both produce
 plausible-but-fake doc references. Calibrate the audit

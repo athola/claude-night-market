@@ -1,3 +1,10 @@
+---
+module: document-economy
+category: detection
+dependencies: [Read, Grep]
+estimated_tokens: 600
+---
+
 # Document Economy
 
 **A document costs the sum of its readers' time. Earn that

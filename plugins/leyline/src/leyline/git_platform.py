@@ -1,12 +1,11 @@
 """Python wrapper for the ``leyline:git-platform`` skill (AR-30).
 
-Routes plugin-side ``gh`` invocations through one tested shim
-so the seven sites listed in the synthesis (verify_plugin,
-notify, promote_discussion_to_issue, post_learnings_to_discussions,
-auto_promote_learnings, ...) no longer hand-build argv lists.
-
-Future GitLab/Bitbucket support gains a single switching point
-at ``gh_api`` / ``gh_graphql``.
+Routes plugin-side ``gh`` invocations through one tested shim.
+Current callers: ``verify_plugin.py``, ``post_learnings_to_discussions.py``,
+``promote_discussion_to_issue.py``, and ``sanitize_external_content``
+tests. See ``docs/refinement/2026-05-02/00-synthesis.md`` AR-30 for
+the migration log; additional call sites adopt this wrapper as the
+hand-rolled ``argv`` lists are touched.
 """
 
 from __future__ import annotations

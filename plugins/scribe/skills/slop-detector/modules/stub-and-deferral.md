@@ -12,10 +12,10 @@ incident. Either resolve, file a tracked issue, or delete
 the surrounding code.**
 
 This module covers the surface markers AI uses to signal
-"I did not actually finish this." They are conceptually
-simple: pattern-matched comments and constructs: but
-they accumulate fast in AI-generated codebases because
-the agent commits its incomplete drafts.
+"I did not actually finish this." The markers themselves
+are simple to detect (pattern-matched comments and
+constructs), but they accumulate fast in AI-generated
+codebases because the agent commits its incomplete drafts.
 
 ## The rule
 

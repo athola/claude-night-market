@@ -4,10 +4,8 @@ Builds a directed graph of `Skill(plugin:name)` references across all SKILL.md
 files in a plugins tree. Surfaces hubs (high inbound), orchestrators (high
 outbound), and isolates (zero degree).
 
-Used by:
-- abstract:skill-graph-audit (skill wrapper)
-- docs/quality-gates.md generation
-- audit reports
+Used by `abstract:skill-graph-audit` (the skill wrapper) and any tooling
+that needs the marketplace federation graph.
 """
 
 from __future__ import annotations
@@ -388,7 +386,6 @@ KNOWN_EXTERNAL_PLUGINS = frozenset(
         "feature-dev",
         "frontend-design",
         "interface-design",
-        "minister",
         "plugin-developer",
         "pr-review-toolkit",
         "ralph-wiggum",

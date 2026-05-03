@@ -4,7 +4,7 @@
 `forrestchang/andrej-karpathy-skills` into the
 claude-night-market plugin ecosystem, citing primary
 sources, integrating with existing skills, and adding the
-unique value-add (compact synthesis + concrete anti-pattern
+unique contribution (compact synthesis and concrete anti-pattern
 catalog).
 
 ## Source Material
@@ -42,9 +42,9 @@ catalog).
 | 3. Surgical Changes | `imbue:justify`, `leyline:additive-bias-defense`, `imbue:scope-guard` | Decent | "Drive-by refactoring" anti-pattern not named; "trace-back rule" not isolated |
 | 4. Goal-Driven Execution | `imbue:proof-of-work` (Iron Law), `superpowers:test-driven-development` | Strong | "Transform vague requests into verifiable goals" reformulation template missing |
 
-**Takeaway**: ~90% coverage exists. The unique value-add is
-the compact synthesis + diff-level anti-pattern catalog +
-honest tradeoff framing.
+**Takeaway**: ~90% coverage exists. The unique contribution is
+the compact synthesis, the diff-level anti-pattern catalog, and
+the honest tradeoff framing.
 
 ## Decision: What to Build
 
@@ -125,7 +125,7 @@ Plus:
 
 - Forking forrestchang's plugin into night-market verbatim
   (we are deriving, not redistributing).
-- Building agents or hooks (skill + optional command only).
+- Building agents or hooks (skill, plus an optional command).
 - Translating to non-English locales (upstream has zh, we
   defer).
 - Verbatim copying of EXAMPLES.md prose (paraphrase

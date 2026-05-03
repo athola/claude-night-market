@@ -7,11 +7,11 @@ Either delete it (the name is the documentation) or rewrite it to add
 information the name does not already convey.
 
 Skip rules:
-- Dunder methods (``__init__`` etc.) — Python convention permits stub
+- Dunder methods (``__init__`` etc.): Python convention permits stub
   docstrings.
-- Private helpers (``_name``) — implementation detail; full docstrings
+- Private helpers (``_name``): implementation detail; full docstrings
   are encouraged but minimal ones are acceptable.
-- Empty docstrings — not in scope for this rule.
+- Empty docstrings: not in scope for this rule.
 
 Exit codes:
     0 - no restating docstrings found

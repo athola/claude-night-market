@@ -86,7 +86,7 @@ either:
 - **Hand-coded fixtures**: `assert_eq!(double_all(&[1,2,3]), vec![2,4,6])`.
 - **Property tests**: assert invariants (e.g. `for all x:
   double_all(x).len() == x.len() && all elements doubled`).
-- **Golden-file tests**: serialize input → output → diff
+- **Golden-file tests**: serialize input, write output, diff
   against checked-in expected.
 
 Detection: this one is judgment-bound. Heuristic:
@@ -256,8 +256,8 @@ When pure functions are under-covered, prefer:
 
 - **Property-based tests** (`proptest`, `quickcheck`):
   assert invariants over random inputs.
-- **Golden-file tests**: serialize input → process →
-  diff vs. checked-in expected output.
+- **Golden-file tests**: serialize input, run the process,
+  diff against the checked-in expected output.
 - **Mutation testing** (`cargo mutants`): proves the
   remaining tests catch real behavior changes.
 

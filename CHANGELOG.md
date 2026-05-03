@@ -39,12 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cross-platform helpers for `gh api` and `gh api graphql`
   calls. Adopted by `post_learnings_to_discussions.py`,
   `promote_discussion_to_issue.py`, and `verify_plugin.py`.
-  128 unit tests in `test_git_platform.py`.
+  7 unit tests in `test_git_platform.py` (128-line file).
 - **leyline `bootstrap` cross-plugin sys.path helper**
   (`plugins/leyline/src/leyline/bootstrap.py`):
   eliminates ad-hoc `sys.path` manipulation in plugin
   scripts. First adopter: `plugins/imbue/scripts/imbue_validator.py`.
-  109 unit tests in `test_bootstrap.py`.
+  4 unit tests in `test_bootstrap.py` (109-line file).
 - **abstract `hook-scope-guide` skill**: decision
   framework for choosing hook scope (plugin / project /
   global). Promoted from a single-file skill into a
