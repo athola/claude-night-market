@@ -1,23 +1,22 @@
 """ReviewEntry value object for project palaces (AR-05).
 
-C7 (PR #470 review): the prior shape accepted ``room_type`` as both
-``str`` and ``ReviewSubroom`` and never normalised the value, which
-made the downstream ``room_type == ReviewSubroom.DECISIONS`` check in
-``capture.py`` silently fail when a string ``"decisions"`` was passed.
-``__init__`` now coerces every accepted shape into ``ReviewSubroom``
-and validates ``importance_score`` against its documented 0..100
-bound.
+C7 (PR #470 review, issue #485): :class:`ReviewEntry` is a frozen
+``@dataclass`` so identity / state cannot drift after construction.
+``from_dict`` is a regular constructor call (no post-hoc attribute
+mutation), and read-tracking goes through :meth:`with_access`, which
+returns a new instance with the bumped counter and refreshed
+timestamp instead of mutating in place.
 
-Frozen-dataclass conversion was considered and skipped: ``from_dict``
-deserialisation needs to overwrite ``id`` / ``created`` post-hoc, and
-the tracked mutation of ``access_count`` and ``last_accessed`` is part
-of the public contract. Strict immutability is deferred to a
-follow-up redesign that revisits the deserialiser shape.
+The mid-PR fix (commit a7b8f460) already coerced ``room_type`` to a
+:class:`ReviewSubroom` member at construction and validated
+``importance_score`` against its 0..100 bound; this module preserves
+that behaviour through ``__post_init__``.
 """
 
 from __future__ import annotations
 
 import uuid
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from typing import Any
 
@@ -25,6 +24,10 @@ from .rooms import ReviewSubroom
 
 _IMPORTANCE_MIN = 0
 _IMPORTANCE_MAX = 100
+# Sentinel so ``None`` (= "use default for this room type") and an
+# explicit 0 score remain distinguishable. The dataclass cannot use
+# ``None`` because the public field type stays ``int``.
+_IMPORTANCE_UNSET = -1
 
 
 def _coerce_room_type(value: str | ReviewSubroom) -> ReviewSubroom:
@@ -43,63 +46,77 @@ def _coerce_room_type(value: str | ReviewSubroom) -> ReviewSubroom:
         raise ValueError(msg) from exc
 
 
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _new_id() -> str:
+    return uuid.uuid4().hex[:12]
+
+
+@dataclass(frozen=True, slots=True)
 class ReviewEntry:
-    """Represents a single PR review knowledge entry."""
+    """A single PR review knowledge entry.
 
-    def __init__(  # noqa: PLR0913 - review entries have many structured metadata fields
-        self,
-        source_pr: str,
-        title: str,
-        room_type: str | ReviewSubroom,
-        content: dict[str, Any],
-        participants: list[str] | None = None,
-        related_rooms: list[str] | None = None,
-        tags: list[str] | None = None,
-        importance_score: int | None = None,
-    ) -> None:
-        """Initialize a review entry.
+    All fields are constructor parameters so the class is a pure
+    value object: ``ReviewEntry(...)`` and ``ReviewEntry.from_dict(d)``
+    follow the same code path. Mutation is forbidden; tracked state
+    (read counters, timestamps) flows through :meth:`with_access`,
+    which returns a new instance.
+    """
 
-        Args:
-            source_pr: Reference to source PR (e.g., "#42 - Add authentication")
-            title: Short title for the entry
-            room_type: One of decisions, patterns, standards, lessons.
-                Accepts either the ``ReviewSubroom`` enum or the string
-                value/name; both forms are normalised to the enum so
-                identity comparisons work for downstream callers.
-            content: Structured content of the entry
-            participants: List of PR participants
-            related_rooms: Links to related palace rooms
-            tags: Searchable tags
-            importance_score: Explicit importance (``_IMPORTANCE_MIN``..
-                ``_IMPORTANCE_MAX``). Defaults to 70 for decisions,
-                40 for other room types. ``ValueError`` on out-of-range.
+    source_pr: str
+    title: str
+    # Accepts ``str`` or ``ReviewSubroom`` from callers; ``__post_init__``
+    # coerces the stored value to a ``ReviewSubroom`` member so downstream
+    # reads see the canonical enum.
+    room_type: str | ReviewSubroom
+    content: dict[str, Any]
+    participants: list[str] = field(default_factory=list)
+    related_rooms: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    importance_score: int = _IMPORTANCE_UNSET
+    id: str = field(default_factory=_new_id)
+    created: str = field(default_factory=_now_iso)
+    last_accessed: str = ""
+    access_count: int = 0
 
+    def __post_init__(self) -> None:
+        """Coerce ``room_type`` to enum and validate ``importance_score``.
+
+        Runs at the end of dataclass-generated ``__init__``.
         """
-        now = datetime.now(timezone.utc).isoformat()
-        self.id = uuid.uuid4().hex[:12]
-        self.source_pr = source_pr
-        self.title = title
-        self.room_type = _coerce_room_type(room_type)
-        self.content = content
-        self.participants = participants or []
-        self.related_rooms = related_rooms or []
-        self.tags = tags or []
-        self.created = now
-        self.last_accessed = now
-        self.access_count = 0
+        # frozen=True forbids ``self.x = y``; use object.__setattr__
+        # to canonicalise fields exactly once at construction time.
+        coerced_room = _coerce_room_type(self.room_type)
+        object.__setattr__(self, "room_type", coerced_room)
 
-        if importance_score is None:
-            default = 70 if self.room_type == ReviewSubroom.DECISIONS else 40
-            self.importance_score = default
-        else:
-            if not _IMPORTANCE_MIN <= importance_score <= _IMPORTANCE_MAX:
-                msg = (
-                    f"importance_score must be in "
-                    f"[{_IMPORTANCE_MIN}, {_IMPORTANCE_MAX}], "
-                    f"got {importance_score}"
-                )
-                raise ValueError(msg)
-            self.importance_score = importance_score
+        if self.importance_score == _IMPORTANCE_UNSET:
+            default = 70 if coerced_room == ReviewSubroom.DECISIONS else 40
+            object.__setattr__(self, "importance_score", default)
+        elif not _IMPORTANCE_MIN <= self.importance_score <= _IMPORTANCE_MAX:
+            msg = (
+                f"importance_score must be in "
+                f"[{_IMPORTANCE_MIN}, {_IMPORTANCE_MAX}], "
+                f"got {self.importance_score}"
+            )
+            raise ValueError(msg)
+
+        if not self.last_accessed:
+            object.__setattr__(self, "last_accessed", self.created)
+
+    def with_access(self) -> ReviewEntry:
+        """Return a new entry with the read counter bumped.
+
+        The original instance is unchanged. ``last_accessed`` is set
+        to ``datetime.now()`` (UTC, ISO format), and ``access_count``
+        is incremented by one. All other fields are preserved.
+        """
+        return replace(
+            self,
+            access_count=self.access_count + 1,
+            last_accessed=_now_iso(),
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
@@ -109,9 +126,9 @@ class ReviewEntry:
             "title": self.title,
             "room_type": self.room_type,
             "content": self.content,
-            "participants": self.participants,
-            "related_rooms": self.related_rooms,
-            "tags": self.tags,
+            "participants": list(self.participants),
+            "related_rooms": list(self.related_rooms),
+            "tags": list(self.tags),
             "created": self.created,
             "last_accessed": self.last_accessed,
             "access_count": self.access_count,
@@ -120,22 +137,30 @@ class ReviewEntry:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ReviewEntry:
-        """Deserialize from dictionary."""
-        entry = cls(
+        """Deserialize from dictionary via the constructor.
+
+        All identity / tracking fields (``id``, ``created``,
+        ``last_accessed``, ``access_count``) are passed as
+        constructor arguments so the resulting instance can stay
+        frozen.
+        """
+        return cls(
             source_pr=data["source_pr"],
             title=data["title"],
             room_type=data["room_type"],
             content=data["content"],
-            participants=data.get("participants", []),
-            related_rooms=data.get("related_rooms", []),
-            tags=data.get("tags", []),
-            importance_score=data.get("importance_score"),
+            participants=list(data.get("participants", [])),
+            related_rooms=list(data.get("related_rooms", [])),
+            tags=list(data.get("tags", [])),
+            importance_score=data.get(
+                "importance_score",
+                _IMPORTANCE_UNSET,
+            ),
+            id=data["id"],
+            created=data["created"],
+            last_accessed=data.get("last_accessed", data["created"]),
+            access_count=data.get("access_count", 0),
         )
-        entry.id = data["id"]
-        entry.created = data["created"]
-        entry.last_accessed = data.get("last_accessed", entry.created)
-        entry.access_count = data.get("access_count", 0)
-        return entry
 
     def to_markdown(self) -> str:
         """Generate markdown representation for human readability."""

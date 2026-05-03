@@ -70,28 +70,31 @@ class ProjectPalaceManager(MemoryPalaceManager):
             f"{repo_name}{datetime.now(timezone.utc)}".encode()
         ).hexdigest()[:8]
 
-        # Create room structure
-        rooms = {}
+        # Create room structure. Palace JSON keeps string keys for
+        # disk compatibility; ``RoomType`` inherits ``str`` so
+        # ``room_name.value`` is the same string the palace has
+        # always serialised.
+        rooms: dict[str, Any] = {}
         for room_name, room_config in PROJECT_PALACE_ROOMS.items():
             room_data: dict[str, Any] = {
-                "description": room_config["description"],
-                "icon": room_config["icon"],
+                "description": room_config.description,
+                "icon": room_config.icon,
                 "entries": [],
                 "created": datetime.now(timezone.utc).isoformat(),
             }
 
-            # Add subrooms for review-chamber
-            if "subrooms" in room_config:
+            # Add subrooms for review-chamber.
+            if room_config.subrooms is not None:
                 room_data["subrooms"] = {}
-                for subroom_name, subroom_config in room_config["subrooms"].items():
-                    room_data["subrooms"][subroom_name] = {
-                        "description": subroom_config["description"],
-                        "icon": subroom_config["icon"],
-                        "retention": subroom_config["retention"],
+                for subroom_name, subroom_config in room_config.subrooms.items():
+                    room_data["subrooms"][subroom_name.value] = {
+                        "description": subroom_config.description,
+                        "icon": subroom_config.icon,
+                        "retention": subroom_config.retention,
                         "entries": [],
                     }
 
-            rooms[room_name] = room_data
+            rooms[room_name.value] = room_data
 
         project_palace = {
             "id": palace_id,
