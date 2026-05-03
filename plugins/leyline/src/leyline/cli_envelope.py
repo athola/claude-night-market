@@ -5,14 +5,42 @@ wrap their results in ``{"success": bool, ...}`` envelopes so
 downstream tooling can detect success without parsing prose.
 This module exposes that contract so future scripts cannot drift
 on key names, ordering, or shape (D-13).
+
+The structural shape is also exported as ``SuccessEnvelope`` /
+``ErrorEnvelope`` ``TypedDict``s plus a discriminated ``Envelope``
+union (S9, issue #484). Static type checkers can narrow on the
+``success`` literal at the call site.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, TypedDict
 
 
-def success_envelope(data: Any) -> dict[str, Any]:
+class SuccessEnvelope(TypedDict):
+    """Wire shape returned by :func:`success_envelope`.
+
+    The ``success`` field is the discriminator for the
+    :data:`Envelope` union; consumers narrow on it before reading
+    ``data`` vs ``error``.
+    """
+
+    success: Literal[True]
+    data: Any
+
+
+class ErrorEnvelope(TypedDict):
+    """Wire shape returned by :func:`error_envelope`."""
+
+    success: Literal[False]
+    error: str
+
+
+# Discriminated union: narrowing on env["success"] picks a branch.
+Envelope = SuccessEnvelope | ErrorEnvelope
+
+
+def success_envelope(data: Any) -> SuccessEnvelope:
     """Wrap a successful CLI result for JSON emission.
 
     Returns ``{"success": True, "data": data}``.
@@ -27,9 +55,18 @@ def success_envelope(data: Any) -> dict[str, Any]:
     return {"success": True, "data": data}
 
 
-def error_envelope(message: str) -> dict[str, Any]:
+def error_envelope(message: str) -> ErrorEnvelope:
     """Wrap a CLI error message for JSON emission.
 
     Returns ``{"success": False, "error": message}``.
     """
     return {"success": False, "error": message}
+
+
+__all__ = [
+    "Envelope",
+    "ErrorEnvelope",
+    "SuccessEnvelope",
+    "error_envelope",
+    "success_envelope",
+]

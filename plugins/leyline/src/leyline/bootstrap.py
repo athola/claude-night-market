@@ -18,6 +18,7 @@ helper.
 
 from __future__ import annotations
 
+import inspect
 import sys
 from pathlib import Path
 
@@ -49,7 +50,7 @@ def add_plugin_src_to_path(
         plugin_name: Sibling plugin name (e.g. ``"abstract"``).
         caller: Optional caller location, used as the starting point
             for the upward plugins/ walk. Defaults to the importer's
-            module file via ``sys._getframe`` introspection. Tests
+            module file via ``inspect.stack()`` introspection. Tests
             should pass the path explicitly.
 
     Returns:
@@ -62,10 +63,17 @@ def add_plugin_src_to_path(
     if caller is not None:
         caller_path = Path(caller)
     else:
-        # Use the immediate caller's __file__ if available.
-        frame = sys._getframe(1)  # noqa: SLF001 - sys._getframe is the recommended way
-        caller_file = frame.f_globals.get("__file__")
-        caller_path = Path(caller_file) if caller_file else Path.cwd()
+        # Use the immediate caller's frame via inspect (public API,
+        # avoids the CPython-private sys._getframe). inspect.stack()[1]
+        # is the caller's frame; .filename is its co_filename.
+        caller_file = inspect.stack()[1].filename
+        # Synthetic filenames (<stdin>, <string>, <frozen ...>) cannot be
+        # used as a starting point for the upward plugins/ walk; fall
+        # back to cwd in that case.
+        if caller_file and not caller_file.startswith("<"):
+            caller_path = Path(caller_file)
+        else:
+            caller_path = Path.cwd()
 
     plugins_root = _find_plugins_root(caller_path)
     if plugins_root is None:

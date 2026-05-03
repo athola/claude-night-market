@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -114,19 +115,21 @@ class TestAddPluginSrcToPath:
             add_plugin_src_to_path("nonexistent", caller=caller)
 
     @pytest.mark.unit
-    def test_caller_introspection_via_sys_getframe(
+    def test_caller_introspection_via_inspect_stack(
         self,
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """NB8 (PR #470 review): when caller is omitted, the helper
-        introspects the stack via sys._getframe(1) to locate the
-        invoking module's __file__. Exercise that path explicitly.
+        """NB8 (PR #470 review) / S3 (#484): when caller is omitted, the
+        helper introspects the stack via ``inspect.stack()[1].filename``
+        to locate the invoking module's source file. Exercise that path
+        explicitly.
 
         Strategy: write a fake caller module under plugins/bar/scripts/
         and import it; from inside the import, call
-        add_plugin_src_to_path with no caller argument. The sys._getframe
-        path must resolve back to the caller module's file location.
+        add_plugin_src_to_path with no caller argument. The
+        introspection must resolve back to the caller module's file
+        location.
         """
         plugins = tmp_path / "plugins"
         foo_src = plugins / "foo" / "src"
@@ -151,4 +154,35 @@ class TestAddPluginSrcToPath:
             assert str(foo_src) in sys.path
         finally:
             sys.modules.pop("_bootstrap_no_caller", None)
+            sys.path[:] = before
+
+    @pytest.mark.unit
+    def test_synthetic_caller_filename_falls_back_to_cwd(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """S3 (#484): when ``inspect.stack()[1].filename`` is a
+        synthetic name like ``<stdin>`` or ``<frozen importlib...>``
+        (REPL, exec'd string, frozen modules), the helper falls back
+        to ``Path.cwd()`` for the upward plugins/ walk.
+        """
+        plugins = tmp_path / "plugins"
+        foo_src = plugins / "foo" / "src"
+        foo_src.mkdir(parents=True)
+        # cwd is below plugins/ so the walker can find it.
+        monkeypatch.chdir(tmp_path / "plugins" / "foo")
+
+        class _FakeFrameInfo:
+            filename = "<stdin>"
+
+        before = list(sys.path)
+        try:
+            with patch(
+                "leyline.bootstrap.inspect.stack",
+                return_value=[None, _FakeFrameInfo()],
+            ):
+                result = add_plugin_src_to_path("foo")
+            assert result == foo_src
+        finally:
             sys.path[:] = before

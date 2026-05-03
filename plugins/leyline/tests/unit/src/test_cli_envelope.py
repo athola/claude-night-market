@@ -98,3 +98,41 @@ class TestErrorEnvelope:
         err = error_envelope("x")
         assert ok["success"] is True
         assert err["success"] is False
+
+
+class TestEnvelopeTypedDicts:
+    """S9 (#484): structural TypedDicts pin envelope key shape."""
+
+    @pytest.mark.unit
+    def test_success_envelope_typeddict_keys(self):
+        """SuccessEnvelope declares exactly ``success`` and ``data``
+        as required keys so static checkers reject drift.
+        """
+        from leyline.cli_envelope import SuccessEnvelope
+
+        assert SuccessEnvelope.__required_keys__ == frozenset(
+            {"success", "data"},
+        )
+        assert SuccessEnvelope.__optional_keys__ == frozenset()
+
+    @pytest.mark.unit
+    def test_error_envelope_typeddict_keys(self):
+        """ErrorEnvelope declares exactly ``success`` and ``error``
+        as required keys.
+        """
+        from leyline.cli_envelope import ErrorEnvelope
+
+        assert ErrorEnvelope.__required_keys__ == frozenset(
+            {"success", "error"},
+        )
+        assert ErrorEnvelope.__optional_keys__ == frozenset()
+
+    @pytest.mark.unit
+    def test_envelope_union_exported(self):
+        """A discriminated ``Envelope`` union of the two shapes is
+        exported so call sites can annotate as ``Envelope`` and let
+        type narrowing on the ``success`` literal pick a branch.
+        """
+        from leyline import cli_envelope
+
+        assert hasattr(cli_envelope, "Envelope")
