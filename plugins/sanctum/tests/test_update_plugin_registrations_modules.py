@@ -54,6 +54,34 @@ class TestExtractModuleRefsFromFile:
         assert "already-named.md" in refs
         assert "already-named.md.md" not in refs
 
+    def test_frontmatter_strips_modules_path_prefix(self, tmp_path: Path) -> None:
+        """
+        GIVEN a frontmatter modules: list where entries include path
+        prefixes (``modules/foo.md``, ``./modules/foo.md``) -- the two
+        forms found in real plugins (leyline/utility and attune)
+        WHEN extracting module refs
+        THEN entries are normalized to bare filenames so set-membership
+        comparisons against on-disk filenames succeed.
+        """
+        md_file = tmp_path / "SKILL.md"
+        md_file.write_text(
+            "---\nmodules:\n"
+            "- modules/state-builder.md\n"
+            "- modules/gain\n"
+            "- ./modules/language-detection.md\n"
+            "---\n"
+        )
+
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        refs = auditor._extract_module_refs_from_file(md_file)
+
+        assert "state-builder.md" in refs
+        assert "gain.md" in refs
+        assert "language-detection.md" in refs
+        assert "modules/state-builder.md" not in refs
+        assert "modules/gain.md" not in refs
+        assert "./modules/language-detection.md" not in refs
+
     def test_frontmatter_skips_jinja_template_entries(self, tmp_path: Path) -> None:
         """
         GIVEN a frontmatter modules: list with Jinja template entries (starting with {)

@@ -241,6 +241,14 @@ class PluginAuditor:
                     ):
                         entry = raw_name.strip()
                         if entry and not entry.startswith("{"):
+                            # Normalize any path-prefixed entry to its
+                            # basename so the set comparison against
+                            # on-disk filenames in _scan_skill_modules
+                            # (which stores bare names) is apples-to-apples.
+                            # Handles: "modules/foo.md", "./modules/foo.md",
+                            # "../modules/foo.md", and bare "foo.md".
+                            if "/" in entry:
+                                entry = entry.rsplit("/", 1)[-1]
                             # Convert bare name to filename: name -> name.md
                             if not entry.endswith(".md"):
                                 entry = f"{entry}.md"
