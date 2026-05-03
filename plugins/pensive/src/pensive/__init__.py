@@ -40,4 +40,4 @@ __all__ = [
     "should_escalate_to_tier2",
 ]
 
-__version__ = "1.9.3"
+__version__ = "1.9.4"

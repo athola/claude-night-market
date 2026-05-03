@@ -32,6 +32,9 @@ progressive_loading: true
 modules:
 - modules/scoring-patterns.md
 - modules/decision-thresholds.md
+- modules/evaluation-rubric.md
+- modules/multi-metric-evaluation-methodology.md
+- modules/quality-metrics.md
 ---
 ## Table of Contents
 

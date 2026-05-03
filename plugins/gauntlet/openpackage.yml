@@ -1,5 +1,5 @@
 name: gauntlet
-version: 1.9.3
+version: 1.9.4
 description: Codebase learning through knowledge extraction, code knowledge graph, challenges, and spaced repetition.
   Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.
 keywords:

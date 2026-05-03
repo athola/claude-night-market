@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.3-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.4-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-185-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-186-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-185 skills, 128 slash commands, and 54 agents.
+186 skills, 128 slash commands, and 54 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -186,24 +186,29 @@ See the [Common Workflows Guide][workflows] for full details.
 
 ## What's New
 
+**1.9.4:** the AI-slop playbook is now wired
+across the ecosystem. `scribe:slop-detector` gains seven modules
+(identity-and-voice leaks, hallucination detection, stub handling,
+document economy, empirical baseline calibration, evidence-backed
+claims, anti-goals) and a `cleanup-workflow` that walks editors
+through Layer 0 to Layer 3 remediation; `pensive:rust-review`
+adds four Rust-specific slop modules. A new top-level
+[CONSTITUTION.md](CONSTITUTION.md) codifies AI-hygiene guardrails
+as supreme rules. `leyline` ships a `git_platform` Python wrapper
+for cross-platform `gh api` calls and a `bootstrap` helper that
+eliminates ad-hoc `sys.path` manipulation in plugin scripts.
+`abstract` adds a `hook-scope-guide` skill for choosing
+plugin / project / global scope. Three quality refinement waves
+closed 24 review findings across eight plugins.
+
 **1.9.3:** the project codifies an inclusive-defaults policy
 (`docs/inclusive-defaults.md`): features default ON with `--no-X`
 opt-outs unless they fall into one of nine TRUE-exception
-categories (heavy install, irreversible state, OS-level state,
-etc.). Hookify ships a `safe-defaults` bundle of six warn-only
-rules (slop scan, large commits, risky git, large file ops,
-print statements, plan-before-large-dispatch); install with
+categories. Hookify ships a `safe-defaults` bundle of six
+warn-only rules; install with
 `python3 plugins/hookify/scripts/install_rule.py --bundle safe-defaults`.
 `spec-kit` `speckit-tasks` now generates test tasks by default
 to align with the iron-law TDD posture; opt out via `--no-tdd`.
-
-**1.9.2:** the `imbue` vow hooks split read-budget
-accounting from write-reset accounting so write-heavy sessions no longer
-pay a Python startup tax on every `Write`/`Edit`. Set `VOW_SHADOW_MODE=0`
-to turn the bounded-reads vow from warn-only into a hard block. The
-`abstract` plugin now posts PR review findings to GitHub Discussions as
-Insights and filters synthetic sessions out of its Phase 6a learning
-summaries.
 
 See the [Changelog](CHANGELOG.md) for the full history.
 
@@ -265,7 +270,10 @@ Each plugin README includes a Stewardship section with specific
 improvement opportunities. Run `/stewardship-health` to view per-plugin
 health dimensions.
 
-See [STEWARDSHIP.md](STEWARDSHIP.md) for the full manifesto.
+See [STEWARDSHIP.md](STEWARDSHIP.md) for the full manifesto and
+[CONSTITUTION.md](CONSTITUTION.md) for the immutable rules
+(AI disclosure, additive-bias defense, TDD gates, slop-scan
+gates) that override any conflicting skill or hook.
 
 ## Contributing
 

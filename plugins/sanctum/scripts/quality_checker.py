@@ -634,12 +634,14 @@ def output_error(message: str, args) -> None:
 
 def format_report(results: dict) -> str:
     """Format quality report for human reading."""
+    level = results["quality_level"]
+    level_str = level.value if isinstance(level, QualityLevel) else str(level)
     report = f"""
 Test Quality Report
 ==================
 
 Overall Quality Score: {results["quality_score"]}/100
-Quality Level: {results["quality_level"].upper()}
+Quality Level: {level_str.upper()}
 
 Dynamic Validation
 ------------------

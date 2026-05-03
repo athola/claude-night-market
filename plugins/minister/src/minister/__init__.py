@@ -14,4 +14,4 @@ __all__ = [
     "run_cli",
 ]
 
-__version__ = "1.9.3"
+__version__ = "1.9.4"

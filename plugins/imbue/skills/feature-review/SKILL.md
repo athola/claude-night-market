@@ -29,6 +29,7 @@ modules:
 - modules/tradeoff-dimensions.md
 - modules/research-enrichment.md
 - modules/configuration.md
+- modules/multi-metric-evaluation-methodology.md
 ---
 ## Table of Contents
 

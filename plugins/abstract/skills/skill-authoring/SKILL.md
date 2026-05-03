@@ -19,6 +19,13 @@ modules:
 - anti-rationalization
 - graphviz-conventions
 - deployment-checklist
+- modules/advanced-patterns.md
+- modules/authentication.md
+- modules/error-handling.md
+- modules/examples.md
+- modules/testing-with-subagents.md
+- modules/troubleshooting.md
+- modules/validation.md
 dependencies:
 - modular-skills
 estimated_tokens: 1500

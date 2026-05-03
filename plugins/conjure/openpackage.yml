@@ -1,5 +1,5 @@
 name: conjure
-version: 1.9.3
+version: 1.9.4
 description: Intelligent delegation framework for routing tasks to external LLM services while retaining strategic oversight
 keywords:
 - delegation

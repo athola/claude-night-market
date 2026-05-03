@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.4] - 2026-05-03
+
 ### Added
 
 - **AI slop playbook (2025-26) integrated into scribe**:
@@ -126,6 +128,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   monolithic disk-scan logic split into four typed
   helpers (`_scan_commands_dir`, `_scan_skills_dir`,
   `_scan_agents_dir`, `_scan_hooks_dir`).
+- **sanctum pytest coverage scope**:
+  `plugins/sanctum/pyproject.toml` adds `scripts` to
+  both `--cov` addopts and `coverage.run.source` so
+  code under `plugins/sanctum/scripts/` is instrumented
+  during the test run. Previously only `src/sanctum`
+  and hooks were measured.
 - **Unbloat phases 1-6**: archived stale tracked
   artifacts (F14, F17); deleted five orphaned plugin
   scripts; deleted residual `scripts/test-lsp-manually.sh`;

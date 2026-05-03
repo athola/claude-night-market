@@ -30,6 +30,7 @@ modules:
 - modules/implementation-patterns.md
 - modules/optimization-techniques.md
 - modules/troubleshooting.md
+- modules/design-patterns.md
 ---
 ## Table of Contents
 

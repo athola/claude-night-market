@@ -35,6 +35,7 @@ progressive_loading: true
 modules:
 - modules/template-patterns.md
 - modules/lifecycle-stages.md
+- modules/storage-patterns.md
 ---
 ## Table of Contents
 

@@ -474,10 +474,7 @@ def extract_section(content: str, heading: str) -> str | None:
     # ``---`` is at the start of the very next line (no preceding
     # blank line). The original ``\n## ``/``\n---`` lookahead missed
     # that case and captured the next section's body too.
-    pattern = (
-        re.escape(heading)
-        + r"(?:\n|$)(.*?)(?=(?:\n|^)## |(?:\n|^)---|\Z)"
-    )
+    pattern = re.escape(heading) + r"(?:\n|$)(.*?)(?=(?:\n|^)## |(?:\n|^)---|\Z)"
     match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
     return match.group(1).strip() if match else None
 

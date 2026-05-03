@@ -65,6 +65,7 @@ modules:
 - modules/pressure-testing.md
 - modules/trigger-isolation-analysis.md
 - modules/troubleshooting.md
+- modules/skill-authoring-best-practices.md
 role: entrypoint
 ---
 # Skills Evaluation and Improvement

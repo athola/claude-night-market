@@ -1302,7 +1302,7 @@ wheels = [
 
 [[package]]
 name = "memory-palace"
-version = "1.9.3"
+version = "1.9.4"
 source = { editable = "." }
 dependencies = [
     { name = "networkx", version = "3.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },

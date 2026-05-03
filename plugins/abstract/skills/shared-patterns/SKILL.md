@@ -13,6 +13,11 @@ tags:
 dependencies: []
 estimated_tokens: 400
 model_hint: standard
+modules:
+- modules/advanced.md
+- modules/creation.md
+- modules/editing.md
+- modules/troubleshooting.md
 ---
 # Shared Patterns
 

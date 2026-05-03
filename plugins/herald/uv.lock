@@ -269,7 +269,7 @@ wheels = [
 
 [[package]]
 name = "herald-dev"
-version = "1.9.3"
+version = "1.9.4"
 source = { editable = "." }
 
 [package.dev-dependencies]

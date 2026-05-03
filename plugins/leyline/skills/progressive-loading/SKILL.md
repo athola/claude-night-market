@@ -39,6 +39,26 @@ modules:
 - modules/selection-strategies.md
 - modules/loading-patterns.md
 - modules/performance-budgeting.md
+- modules/advanced-patterns.md
+- modules/api-patterns.md
+- modules/api-review.md
+- modules/cargo-patterns.md
+- modules/document-analysis-patterns.md
+- modules/git-catchup-patterns.md
+- modules/git-patterns.md
+- modules/large-reference.md
+- modules/legacy-python.md
+- modules/linux-patterns.md
+- modules/log-analysis-patterns.md
+- modules/macos-patterns.md
+- modules/modern-python.md
+- modules/performance.md
+- modules/python-packaging.md
+- modules/python-patterns.md
+- modules/python-testing.md
+- modules/rust-review.md
+- modules/troubleshooting.md
+- modules/windows-patterns.md
 ---
 ## Table of Contents
 
