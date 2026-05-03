@@ -86,6 +86,7 @@ addopts = [
     "-v",
     "--strict-markers",
     "--cov=src/sanctum",
+    "--cov=scripts",
     "--cov=hooks",
     "--cov-report=term-missing",
     "--cov-report=html",
@@ -101,7 +102,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/sanctum", "hooks"]
+source = ["src/sanctum", "scripts", "hooks"]
 omit = ["tests/*", "*/tests/*", "*/__pycache__/*"]
 
 [tool.coverage.report]
