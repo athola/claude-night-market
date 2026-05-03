@@ -71,3 +71,32 @@ def test_main_invocation_exits_with_usage_when_no_args():
     # leyline's run_capture should accept --help and exit 0;
     # if not available it exits 1 with the import-error message.
     assert result.returncode in (0, 1, 2), result.stderr
+
+
+def test_help_output_proves_leyline_delegation_with_sanctum_config():
+    """The --help text must reflect the wired CONFIG, not just print.
+
+    C6 (PR #470 review) flagged the prior tests as tautological for a
+    re-export wrapper. This test exercises the actual delegation: the
+    help banner must surface either the sanctum-specific source_help
+    string or one of the configured label names. If `run_capture` ever
+    stops consuming `CONFIG`, this test fails.
+    """
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH), "--help"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
+    )
+    if result.returncode == 1 and "leyline not found" in result.stderr:
+        # Environment without leyline installed is a known fallback;
+        # the script's import-error path is exercised by the smoke
+        # test above. Skip the delegation assertion.
+        return
+    combined = (result.stdout + result.stderr).lower()
+    # At least one of the configured discriminators must appear in
+    # the help text -- either the source-help phrase or a label name.
+    assert (
+        "origin skill" in combined or "war-room" in combined or "deferred" in combined
+    ), f"help output does not reflect CONFIG: {combined[:300]!r}"

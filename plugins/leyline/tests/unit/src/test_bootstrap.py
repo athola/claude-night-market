@@ -25,7 +25,9 @@ class TestAddPluginSrcToPath:
 
     @pytest.mark.unit
     def test_returns_path_when_plugin_exists(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Given a plugins/<name>/src directory below the caller,
         When add_plugin_src_to_path(<name>) is called,
@@ -50,7 +52,9 @@ class TestAddPluginSrcToPath:
 
     @pytest.mark.unit
     def test_inserts_dir_on_sys_path(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Given a plugin found by the walker,
         When add_plugin_src_to_path is called,
@@ -74,7 +78,8 @@ class TestAddPluginSrcToPath:
 
     @pytest.mark.unit
     def test_idempotent(
-        self, tmp_path: Path,
+        self,
+        tmp_path: Path,
     ) -> None:
         """Given the dir already on sys.path,
         When add_plugin_src_to_path is called twice,
@@ -107,3 +112,43 @@ class TestAddPluginSrcToPath:
         caller.touch()
         with pytest.raises(FileNotFoundError):
             add_plugin_src_to_path("nonexistent", caller=caller)
+
+    @pytest.mark.unit
+    def test_caller_introspection_via_sys_getframe(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """NB8 (PR #470 review): when caller is omitted, the helper
+        introspects the stack via sys._getframe(1) to locate the
+        invoking module's __file__. Exercise that path explicitly.
+
+        Strategy: write a fake caller module under plugins/bar/scripts/
+        and import it; from inside the import, call
+        add_plugin_src_to_path with no caller argument. The sys._getframe
+        path must resolve back to the caller module's file location.
+        """
+        plugins = tmp_path / "plugins"
+        foo_src = plugins / "foo" / "src"
+        foo_src.mkdir(parents=True)
+        bar_scripts = plugins / "bar" / "scripts"
+        bar_scripts.mkdir(parents=True)
+        caller_module = bar_scripts / "_bootstrap_no_caller.py"
+        caller_module.write_text(
+            "from leyline.bootstrap import add_plugin_src_to_path\n"
+            "RESULT = add_plugin_src_to_path('foo')\n"
+        )
+
+        before = list(sys.path)
+        # Make the fake caller importable as a top-level module.
+        monkeypatch.syspath_prepend(str(bar_scripts))
+        try:
+            import importlib
+
+            sys.modules.pop("_bootstrap_no_caller", None)
+            mod = importlib.import_module("_bootstrap_no_caller")
+            assert mod.RESULT == foo_src
+            assert str(foo_src) in sys.path
+        finally:
+            sys.modules.pop("_bootstrap_no_caller", None)
+            sys.path[:] = before

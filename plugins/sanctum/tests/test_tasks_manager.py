@@ -101,3 +101,61 @@ def test_all_exported_symbols_resolve():
     module = _load_script()
     for name in module.__all__:
         assert hasattr(module, name), name
+
+
+# ----- Behavioral tests (C4 from PR #470 review) -------------------
+# The constant-only tests above lock down configuration but do not
+# verify any logic. The tests below exercise detect_ambiguity and the
+# TasksManager fallback-state lifecycle so that reverting the SUT in
+# abstract.tasks_manager_base would actually fail this suite.
+
+
+def test_detect_ambiguity_clean_short_task():
+    module = _load_script()
+    result = module.detect_ambiguity("rename foo to bar")
+    assert result.is_ambiguous is False
+
+
+def test_detect_ambiguity_flags_large_word_count():
+    module = _load_script()
+    long_desc = " ".join(["word"] * 60)
+    result = module.detect_ambiguity(long_desc)
+    assert result.is_ambiguous is True
+    assert result.ambiguity_type == module.AmbiguityType.LARGE_SCOPE
+
+
+def test_detect_ambiguity_flags_multiple_components():
+    module = _load_script()
+    files = [f"plugins/p{i}/SKILL.md" for i in range(10)]
+    result = module.detect_ambiguity(
+        "edit a file",
+        context={"files_touched": files},
+    )
+    assert result.is_ambiguous is True
+    assert result.ambiguity_type == module.AmbiguityType.MULTIPLE_COMPONENTS
+
+
+def test_detect_ambiguity_flags_cross_cutting_keyword():
+    module = _load_script()
+    result = module.detect_ambiguity(
+        "review the codebase for issues",
+        cross_cutting_keywords=["codebase"],
+    )
+    assert result.is_ambiguous is True
+    assert result.ambiguity_type == module.AmbiguityType.CROSS_CUTTING
+
+
+def test_tasks_manager_fallback_lifecycle(tmp_path):
+    """Lifecycle smoke: create manager in fallback mode, load a plan,
+    confirm pending_count tracks the plan size."""
+    module = _load_script()
+    state_file = tmp_path / "tasks-state.json"
+    manager = module.TasksManager(
+        project_path=tmp_path,
+        fallback_state_file=state_file,
+        config=module.SANCTUM_CONFIG,
+        use_tasks=False,  # Force fallback path; no Claude Code Tasks needed.
+    )
+    assert manager.pending_count == 0
+    manager.load_plan(["task A", "task B", "task C"])
+    assert manager.pending_count == 3

@@ -10,6 +10,7 @@ Feature: Mission Orchestrator Skill Validation
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -444,16 +445,21 @@ class TestInteractivePlanReview:
         )
 
     @pytest.mark.bdd
-    def test_orchestrator_skill_declares_version_1_9(self) -> None:
-        """Scenario: Orchestrator skill version is 1.9.3
-        Given the mission-orchestrator SKILL.md
-        When parsing frontmatter
-        Then version should be 1.9.3
+    def test_orchestrator_skill_declares_semver_version(self) -> None:
+        """Scenario: Orchestrator skill declares a semver-shaped version.
+
+        I13 (PR #470 review): the prior test hardcoded '1.9.3', which
+        fails on every release bump. Assert the version field exists
+        and follows MAJOR.MINOR.PATCH so future bumps don't require
+        editing this test. Cross-version consistency with plugin.json
+        is enforced by the per-plugin release-consistency suite.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
-        assert fm.get("version") == "1.9.3", (
-            f"Expected version='1.9.3', got {fm.get('version')!r}"
+        version = fm.get("version")
+        assert version, f"version field missing from frontmatter: {fm!r}"
+        assert re.fullmatch(r"\d+\.\d+\.\d+", str(version)), (
+            f"version must be MAJOR.MINOR.PATCH, got {version!r}"
         )
 
     @pytest.mark.bdd

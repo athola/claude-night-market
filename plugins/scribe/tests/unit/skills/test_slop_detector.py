@@ -99,9 +99,16 @@ class TestDocumentEconomyModuleStructure:
 
     @pytest.mark.unit
     def test_module_references_reader_time_budget(self, module_text: str) -> None:
-        """The reader-time budget concept must be explicit."""
-        assert "reader-time budget" in module_text.lower() or (
-            "reader" in module_text.lower() and "budget" in module_text.lower()
+        """The reader-time budget concept must be explicit.
+
+        I12 (PR #470 review): the prior fallback condition allowed any
+        sentence containing both `reader` and `budget` to pass.
+        Tightened to require the canonical concept phrase, with one
+        whitespace-tolerant variant to absorb minor formatting drift.
+        """
+        text = module_text.lower()
+        assert "reader-time budget" in text or "reader time budget" in text, (
+            "module must name the reader-time budget concept verbatim"
         )
 
 
