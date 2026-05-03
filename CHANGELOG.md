@@ -56,6 +56,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (identity leaks, hallucinations, bare stubs in
   production paths) that fail a doc outright before
   any structural or sentence-level checks run.
+- **imbue `karpathy-principles` skill + `/karpathy-check`
+  command**: four-principle pre-implementation gate
+  (think first, simplicity, surgical edits, verify)
+  shipped as a 246-line SKILL.md plus `references/`
+  and `modules/`, bound to a 79-line `/karpathy-check`
+  command. Backed by 11 unit tests in
+  `test_karpathy_principles.py`. Source design brief
+  retained at `docs/karpathy-derivation/project-brief.md`.
+  See commit `bdf77595`.
+- **attune `mission-orchestrator` skill**: lifecycle
+  router across the attune brainstorm, specify,
+  blueprint, and execute phases, with adaptive
+  constraints in `modules/adaptive-constraints.md`.
+  29 unit tests in `test_mission_orchestrator.py`.
+  See commit `bdf77595`.
 
 ### Changed
 
@@ -116,11 +131,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tutorial-updates` module.
 - **PR #446 review threads resolved (42 threads)**:
   obsolete docs removed (`audit-2026-04-25-comprehensive-skill-audit.md`,
-  `karpathy-derivation/`, `quality-gate-orchestration.md`,
-  `skill-taxonomy.md`); replaced by `quality-gates.md`
-  and `skill-integration-guide.md`. Skill role taxonomy
-  findings applied across abstract, archetypes, and
-  other plugin SKILL.md files.
+  `karpathy-derivation/{implementation-plan,specification}.md`
+  superseded by the karpathy-principles skill itself,
+  `quality-gate-orchestration.md`, `skill-taxonomy.md`);
+  replaced by `quality-gates.md` and
+  `skill-integration-guide.md`. The
+  `karpathy-derivation/project-brief.md` source brief
+  was kept as the design record.
+  Skill role taxonomy findings applied across abstract,
+  archetypes, and other plugin SKILL.md files.
 
 ### Internal
 
