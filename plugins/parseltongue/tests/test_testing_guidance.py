@@ -560,3 +560,66 @@ class TestUserService:
 
         # Should provide recommendations
         assert "recommendations" in maintainability
+
+
+class TestMixinDemotion:
+    """C9 (#485): the stateless quality / recommendation mixins are
+    demoted to module-level functions; ``TestingGuideSkill`` is no
+    longer a multiple-inheritance composition of those namespaces.
+    """
+
+    @pytest.mark.unit
+    def test_quality_methods_are_module_level_functions(self) -> None:
+        """``evaluate_test_quality`` etc. are importable from
+        ``_quality`` directly, with no ``self`` parameter."""
+        import inspect
+
+        from parseltongue.analysis.testing_guide import _quality
+
+        for name in (
+            "evaluate_test_quality",
+            "evaluate_maintainability",
+            "validate_async_testing",
+        ):
+            fn = getattr(_quality, name)
+            assert inspect.isfunction(fn), f"{name} must be a function"
+            params = list(inspect.signature(fn).parameters)
+            assert "self" not in params
+
+    @pytest.mark.unit
+    def test_recommendation_methods_are_module_level_functions(self) -> None:
+        """All recommendation methods exist as module-level functions."""
+        import inspect
+
+        from parseltongue.analysis.testing_guide import _recommendations
+
+        for name in (
+            "recommend_tdd_workflow",
+            "suggest_improvements",
+            "generate_test_fixtures",
+            "recommend_test_types",
+            "recommend_testing_tools",
+            "generate_test_documentation",
+        ):
+            fn = getattr(_recommendations, name)
+            assert inspect.isfunction(fn), f"{name} must be a function"
+            params = list(inspect.signature(fn).parameters)
+            assert "self" not in params
+
+    @pytest.mark.unit
+    def test_mixin_classes_no_longer_exported(self) -> None:
+        """``TestQualityMixin`` / ``TestRecommendationMixin`` are no
+        longer part of the public testing_guide surface."""
+        from parseltongue.analysis import testing_guide
+
+        assert not hasattr(testing_guide, "TestQualityMixin")
+        assert not hasattr(testing_guide, "TestRecommendationMixin")
+
+    @pytest.mark.unit
+    def test_skill_class_does_not_inherit_demoted_mixins(self) -> None:
+        """The MRO no longer carries the demoted mixin classes."""
+        from parseltongue.analysis.testing_guide import TestingGuideSkill
+
+        mro_names = {cls.__name__ for cls in TestingGuideSkill.__mro__}
+        assert "TestQualityMixin" not in mro_names
+        assert "TestRecommendationMixin" not in mro_names
