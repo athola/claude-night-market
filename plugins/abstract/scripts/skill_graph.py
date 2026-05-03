@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -137,7 +138,11 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
         return {}
     try:
         data = _yaml.safe_load(m.group(1))
-    except _yaml.YAMLError:
+    except _yaml.YAMLError as exc:
+        print(
+            f"skill_graph: malformed YAML frontmatter ({exc})",
+            file=sys.stderr,
+        )
         return {}
     return data if isinstance(data, dict) else {}
 

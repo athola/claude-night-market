@@ -717,6 +717,9 @@ class PerformanceReviewSkill(BaseReviewSkill):
         try:
             _nodes, _edges = _gt_parse(file_path)
         except (OSError, ValueError):  # pragma: no cover
+            # When this stub is filled in, surface the parse error
+            # via result.warnings rather than swallowing silently;
+            # see I8 in PR #470 review.
             return []
         return []
 

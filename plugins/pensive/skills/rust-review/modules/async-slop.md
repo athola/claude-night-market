@@ -29,15 +29,22 @@ function is callable only from async contexts, forcing
 every caller to also be `async`. Strip `async` from the
 signature unless the body actually awaits.
 
-Detection:
+Detection (preferred: clippy):
 
 ```bash
-rg -A 10 "async fn " --type rust | rg -L "\.await"
-# Functions without .await in the next 10 lines
+cargo clippy --all-targets -- -W clippy::async_yields_async
 ```
 
-(Heuristic; manual review needed since `.await` may be
-deeper.)
+File-level heuristic when clippy is unavailable:
+
+```bash
+for f in $(rg -l "async fn " --type rust); do
+  rg -q "\.await" "$f" || echo "no-await: $f"
+done
+```
+
+(Heuristic; manual review needed since `.await` may live in
+a helper called by the async fn rather than inline.)
 
 ## Pattern 2: blocking I/O inside an async runtime
 
@@ -241,7 +248,8 @@ cargo clippy --all-targets -- \
   -D warnings
 
 # Manual scans for the structural patterns
-rg "async fn " --type rust -A 10 | grep -L "\.await"  # Pattern 1
+# Pattern 1: file-level "async fn but no .await" — see Pattern 1
+#            section above for the loop form.
 rg "tokio::spawn.*\.await" --type rust                # Pattern 3
 rg "#\[async_trait\]" --type rust                     # Pattern 4
 rg "Pin<Box<dyn Future" --type rust                   # Pattern 5
