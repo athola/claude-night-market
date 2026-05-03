@@ -170,19 +170,23 @@ class TestProjectPalaceManager:
         assert len(decisions["entries"]) == 1
         assert decisions["entries"][0]["title"] == "Test Entry"
 
-    def test_add_review_entry_invalid_room(self, manager):
-        """Test adding entry with invalid room type."""
-        palace = manager.create_project_palace("owner/repo")
+    def test_review_entry_rejects_invalid_room(self, manager):
+        """ReviewEntry construction rejects unrecognised room_type strings.
 
-        entry = ReviewEntry(
-            source_pr="#42",
-            title="Test",
-            room_type="invalid_room",
-            content={},
-        )
-
-        result = manager.add_review_entry(palace["id"], entry)
-        assert result is False
+        C7 (PR #470 review): the previous behaviour silently stored the
+        invalid string and let manager.add_review_entry be the rejecting
+        layer, hiding the bug from authors. ReviewEntry now coerces
+        room_type to ReviewSubroom at construction so invalid values
+        fail loudly at the source.
+        """
+        del manager  # the rejection happens before manager is ever called
+        with pytest.raises(ValueError, match="unknown room_type"):
+            ReviewEntry(
+                source_pr="#42",
+                title="Test",
+                room_type="invalid_room",
+                content={},
+            )
 
     def test_search_review_chamber(self, manager):
         """Index two review entries and assert keyword search returns the expected one."""

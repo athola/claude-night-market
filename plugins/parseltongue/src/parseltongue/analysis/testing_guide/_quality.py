@@ -1,13 +1,49 @@
-"""Test quality evaluation mixin for TestingGuideSkill."""
+"""Test quality evaluation mixin for TestingGuideSkill.
+
+C9 (PR #470 review): TestQualityMixin is a *namespace* that composes
+into TestingGuideSkill via multiple inheritance, not a standalone
+type with state. Methods take a single ``code: str`` argument and
+return ``dict[str, Any]`` envelopes whose shapes are pinned via the
+``QualityAssessment`` and ``QualityEnvelope`` ``TypedDict``s below
+so static checkers can narrow the dict keys callers rely on. A
+follow-up redesign may demote the mixin to module-level functions or
+introduce frozen dataclasses for the return shapes; for 1.9.4 the
+return dicts are typed instead so the contract is at least checkable.
+"""
 
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, TypedDict
+
+
+class QualityAspects(TypedDict):
+    readability: int
+    maintainability: int
+    coverage: int
+    organization: int
+
+
+class QualityAssessment(TypedDict):
+    score: int
+    aspects: QualityAspects
+    strengths: list[str]
+    weaknesses: list[str]
+    improvements: list[str]
+
+
+class QualityEnvelope(TypedDict):
+    quality_assessment: QualityAssessment
 
 
 class TestQualityMixin:
-    """Evaluation of test quality and maintainability metrics."""
+    """Method namespace composed into TestingGuideSkill (see module docstring).
+
+    Methods evaluate test code (a ``str``) and return a typed
+    ``dict``-shaped envelope. The mixin holds no state, takes no
+    constructor, and is interchangeable with module-level functions
+    of equivalent signatures.
+    """
 
     def evaluate_test_quality(self, code: str) -> dict[str, Any]:
         """Evaluate the overall quality of test code.
@@ -16,7 +52,15 @@ class TestQualityMixin:
             code: Test code to evaluate
 
         Returns:
-            Dictionary containing quality assessment
+            Dict matching the ``QualityEnvelope`` TypedDict shape:
+            ``{"quality_assessment": {"score": int, "aspects": ...,
+            "strengths": [...], "weaknesses": [...],
+            "improvements": [...]}}``. Callers can narrow with
+            ``cast(QualityEnvelope, result)``. Return is typed as
+            ``dict[str, Any]`` rather than ``QualityEnvelope`` so the
+            existing dict-literal initialisation in the body type-checks
+            without per-line cast; the TypedDict is the consumer-facing
+            contract document.
         """
         quality: dict[str, Any] = {
             "score": 50,

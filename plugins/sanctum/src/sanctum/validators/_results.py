@@ -1,9 +1,31 @@
-"""Validation result dataclasses shared across validator modules (AR-06)."""
+"""Validation result dataclasses shared across validator modules (AR-06).
+
+Invariant (enforced in __post_init__): for the four leaf result types
+(Agent / Skill / Command / Plugin), ``is_valid`` and ``errors`` are
+mirror fields. Constructing an instance with ``is_valid=True`` and a
+non-empty ``errors`` list (or vice versa) is illegal and raises
+``ValueError``. C8 (PR #470 review) flagged the prior denormalised
+shape as letting illegal state through silently.
+
+``SanctumValidationReport`` is intentionally not bound by the same
+invariant: its ``is_valid`` is a coordination flag aggregated from
+nested results, and validators populate it manually after collecting
+child errors. Use ``all_errors()`` for the canonical aggregate.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
+
+def _check_validity_invariant(cls_name: str, is_valid: bool, errors: list[str]) -> None:
+    if is_valid != (not errors):
+        msg = (
+            f"{cls_name}: is_valid={is_valid} contradicts errors={errors!r}; "
+            "the invariant `is_valid <-> errors == []` must hold"
+        )
+        raise ValueError(msg)
 
 
 @dataclass
@@ -16,6 +38,9 @@ class AgentValidationResult:
     agent_name: str | None = None
     has_capabilities: bool = False
     has_tools: bool = False
+
+    def __post_init__(self) -> None:
+        _check_validity_invariant("AgentValidationResult", self.is_valid, self.errors)
 
 
 @dataclass
@@ -30,6 +55,9 @@ class SkillValidationResult:
     has_workflow: bool = False
     frontmatter: dict[str, Any] | None = None
 
+    def __post_init__(self) -> None:
+        _check_validity_invariant("SkillValidationResult", self.is_valid, self.errors)
+
 
 @dataclass
 class CommandValidationResult:
@@ -42,6 +70,9 @@ class CommandValidationResult:
     has_description: bool = False
     has_usage: bool = False
     description: str | None = None
+
+    def __post_init__(self) -> None:
+        _check_validity_invariant("CommandValidationResult", self.is_valid, self.errors)
 
 
 @dataclass
@@ -56,6 +87,9 @@ class PluginValidationResult:
     has_skills: bool = False
     has_commands: bool = False
     has_agents: bool = False
+
+    def __post_init__(self) -> None:
+        _check_validity_invariant("PluginValidationResult", self.is_valid, self.errors)
 
 
 @dataclass

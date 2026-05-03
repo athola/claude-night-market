@@ -77,7 +77,19 @@ class SkillNode:
 
 @dataclass
 class SkillGraph:
-    """Directed graph of skills and their Skill() references."""
+    """Directed graph of skills and their Skill() references.
+
+    The four collections (``nodes``, ``edges``, ``outbound``,
+    ``inbound``) are mutually consistent: every key in ``outbound``
+    appears in ``nodes``, every ``(a, b)`` in ``edges`` corresponds
+    to ``b in outbound[a]`` and ``a in inbound[b]``. I14 (PR #470
+    review): prefer the ``add_node`` / ``add_edge`` mutators below
+    over direct collection mutation -- they update all four fields in
+    lockstep so a misplaced ``.add()`` cannot desynchronise the
+    invariant. Direct attribute access is preserved for read-only
+    consumers (``hubs``, ``isolates``, ``dangling`` walks) and for
+    legacy call sites; new code should use the mutators.
+    """
 
     nodes: dict[str, SkillNode] = field(default_factory=dict)
     edges: set[tuple[str, str]] = field(default_factory=set)
@@ -85,6 +97,24 @@ class SkillGraph:
     outbound: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
     # inbound[dst] -> set of src node keys
     inbound: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
+
+    def add_node(self, node: SkillNode) -> None:
+        """Register a node. Idempotent."""
+        self.nodes[str(node)] = node
+
+    def add_edge(self, src_key: str, dst_key: str) -> None:
+        """Add a directed edge maintaining all four collections in lockstep.
+
+        Skips no-op self-edges. Endpoints are NOT auto-registered;
+        callers should ``add_node`` for any endpoint they intend to
+        also be a node, but dangling endpoints are intentional (the
+        ``dangling`` audit identifies them).
+        """
+        if src_key == dst_key:
+            return
+        self.edges.add((src_key, dst_key))
+        self.outbound[src_key].add(dst_key)
+        self.inbound[dst_key].add(src_key)
 
 
 def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
@@ -281,7 +311,7 @@ def build_graph(plugins_root: Path) -> SkillGraph:
     graph = SkillGraph()
     nodes = _discover_skills(plugins_root)
     for node in nodes:
-        graph.nodes[str(node)] = node
+        graph.add_node(node)
 
     for node in nodes:
         src_key = str(node)
@@ -296,12 +326,7 @@ def build_graph(plugins_root: Path) -> SkillGraph:
         for plugin, name in all_refs:
             if plugin is None:
                 continue  # skip unqualified inline refs
-            dst_key = f"{plugin}:{name}"
-            if dst_key == src_key:
-                continue  # skip self-references
-            graph.edges.add((src_key, dst_key))
-            graph.outbound[src_key].add(dst_key)
-            graph.inbound[dst_key].add(src_key)
+            graph.add_edge(src_key, f"{plugin}:{name}")
     return graph
 
 
