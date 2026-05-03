@@ -24,9 +24,7 @@ try:
 except ImportError:  # pragma: no cover - PyYAML is in dev deps
     _yaml = None  # type: ignore[assignment]  # None sentinel; callers branch on `_yaml is None`
 
-# Matches Skill(plugin:name) and Skill(name) inside backticks or bare.
-# Backtick form: `Skill(plugin:name)` or `Skill(name)`
-# Bare form: Skill(plugin:name) -- captured anywhere.
+# Matches Skill(plugin:name) and Skill(name) anywhere in text.
 _SKILL_REF_RE = re.compile(r"Skill\(\s*([a-zA-Z0-9_-]+)(?::([a-zA-Z0-9_-]+))?\s*\)")
 
 # Matches a kebab-case bare skill name (no path separators, no extension).
@@ -137,9 +135,13 @@ def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
     return refs
 
 
-def _parse_frontmatter_field(text: str, field: str) -> str:
-    """Best-effort extraction of a top-level frontmatter scalar."""
-    pattern = re.compile(rf"^{field}:\s*(.*)$", re.MULTILINE)
+def _parse_frontmatter_field(text: str, field_name: str) -> str:
+    """Best-effort extraction of a top-level frontmatter scalar.
+
+    Note: ``field_name`` is named explicitly to avoid shadowing
+    ``dataclasses.field`` imported at module top (S1, PR #470).
+    """
+    pattern = re.compile(rf"^{field_name}:\s*(.*)$", re.MULTILINE)
     m = pattern.search(text)
     if not m:
         return ""
