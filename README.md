@@ -100,7 +100,7 @@ complements.
 
 | Plugin | Layer | Description | Skills | Cmds |
 |--------|-------|-------------|:------:|:----:|
-| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance | 14 | 18 |
+| **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance, hook scope guidance | 15 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts, additive-bias defense | 22 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 18 | 19 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |

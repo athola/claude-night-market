@@ -7,7 +7,150 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No changes yet._
+### Added
+
+- **AI slop playbook (2025-26) integrated into scribe**:
+  `slop-detector` gains seven new modules covering
+  identity-and-voice leaks, hallucination detection,
+  stub-and-deferral handling, document economy,
+  empirical baseline calibration, evidence-backed
+  claim auditing, and an explicit anti-goals list to
+  prevent over-correction. A `cleanup-workflow` module
+  walks editors through Layer 0 to Layer 3 remediation.
+  `doc-generator`, `style-learner`, `tech-tutorial`,
+  `voice-generate`, and `voice-review` were updated to
+  consume the new modules. Backed by 718 new test cases
+  across `test_slop_detector.py`,
+  `test_slop_detector_new_modules.py`,
+  `test_doc_generator.py`, `test_style_learner.py`, and
+  `test_tech_tutorial.py`.
+- **AI slop playbook extended to other plugins**:
+  pensive `rust-review` adds four modules
+  (`async-slop`, `iterator-and-allocation-slop`,
+  `model-specific-tells`, `test-slop`); conserve
+  `ai-hygiene-auditor` agent integrates the playbook;
+  scribe slop-detector adds `structured-finding-output`
+  for cross-tool consistency. New top-level
+  `CONSTITUTION.md` codifies AI hygiene guardrails.
+- **leyline `git_platform` Python wrapper**
+  (`plugins/leyline/src/leyline/git_platform.py`):
+  cross-platform helpers for `gh api` and `gh api graphql`
+  calls. Adopted by `post_learnings_to_discussions.py`,
+  `promote_discussion_to_issue.py`, and `verify_plugin.py`.
+  128 unit tests in `test_git_platform.py`.
+- **leyline `bootstrap` cross-plugin sys.path helper**
+  (`plugins/leyline/src/leyline/bootstrap.py`):
+  eliminates ad-hoc `sys.path` manipulation in plugin
+  scripts. First adopter: `plugins/imbue/scripts/imbue_validator.py`.
+  109 unit tests in `test_bootstrap.py`.
+- **abstract `hook-scope-guide` skill**: decision
+  framework for choosing hook scope (plugin / project /
+  global). Promoted from a single-file skill into a
+  proper directory structure with frontmatter and
+  registration in `plugin.json`. Indexed in
+  `book/src/reference/capabilities-reference.md`.
+- **slop-scan-for-docs Layer 0**: `.claude/rules/slop-scan-for-docs.md`
+  extended with three categorical critical patterns
+  (identity leaks, hallucinations, bare stubs in
+  production paths) that fail a doc outright before
+  any structural or sentence-level checks run.
+
+### Changed
+
+- **Quality refinement waves 1, 2, and 3 complete**:
+  24 review findings closed across abstract, conserve,
+  imbue, leyline, memory-palace, pensive, sanctum, and
+  scribe. Synthesis at `docs/refinement/2026-05-02/00-synthesis.md`.
+- **Shared-helper extraction (D-series)**: `json_utils.sh`
+  vendored per-plugin (D-01); `parse_frontmatter`
+  unified on the leyline canonical implementation
+  (D-02); `extract_section` shared across abstract
+  scripts (D-03); `dir_utils` facade shared by abstract
+  hooks (D-04); duplicated hook helpers consolidated
+  (D-05 / D-06 / D-12); `get_plugin_version` shared
+  between root scripts (D-11); CLI JSON envelope
+  helpers shared via leyline (D-13).
+- **God-function decompositions (F06 / F07 / F10 / F16)**:
+  large multi-responsibility functions split into focused
+  helpers across multiple plugins.
+- **Architecture-review split (AR-01)**: pensive
+  `architecture_review` now lives in a mixin package
+  rather than a single 1000+ line module.
+- **memory-palace `project_palace` split into a package**
+  (AR-05); sanctum `validators.py` split into per-class
+  package (AR-06); scribe `slop-detector` modules
+  consolidated (P-14); sanctum `_extract_skill_refs`
+  promoted to `_shared` module (AR-F3).
+- **Performance wins (Tier 3 A-series)**: pensive
+  `rust_review` regex patterns pre-compiled at module
+  load (A-01); pensive language detection now
+  single-walks (A-02 / A-03); conserve `safe_replacer`
+  walks the `SKILL.md` tree once (A-04); additional
+  algorithmic wins applied (A-07, A-11, A-12).
+
+### Fixed
+
+- **sanctum: path-prefixed frontmatter `modules:`
+  entries**: registration audit no longer false-flags
+  entries written as `./modules/foo.md` or
+  `../skills/.../modules/foo.md`.
+- **sanctum `scan_disk_files` audit bug** (B-08, B-10):
+  vacuous tests deleted, scan logic corrected.
+- **pensive code-refinement workflow**: Step 6 and a
+  completion gate added to `fix-workflow` (closes a
+  silent-success edge case).
+- **eight quality-review findings (F1-F5, AR-F1 / F2)**:
+  abstract `utils.py`, conserve `safe_replacer.py`,
+  imbue `session-start.sh`, leyline `cli_envelope.py`
+  and `frontmatter.py`, pensive
+  `architecture_review/__init__.py`, sanctum
+  `test_generator.py` and `update_plugin_registrations.py`,
+  memory-palace README -- all corrected with
+  regression coverage.
+- **slop-scan-for-docs Layer 0 P0 hits**: corrected
+  identity-leak / hallucination patterns in
+  `book/src/getting-started/first-plugin.md`,
+  `docs/guides/README.md`, and sanctum
+  `tutorial-updates` module.
+- **PR #446 review threads resolved (42 threads)**:
+  obsolete docs removed (`audit-2026-04-25-comprehensive-skill-audit.md`,
+  `karpathy-derivation/`, `quality-gate-orchestration.md`,
+  `skill-taxonomy.md`); replaced by `quality-gates.md`
+  and `skill-integration-guide.md`. Skill role taxonomy
+  findings applied across abstract, archetypes, and
+  other plugin SKILL.md files.
+
+### Internal
+
+- **sanctum `scan_disk_files` decomposition**:
+  monolithic disk-scan logic split into four typed
+  helpers (`_scan_commands_dir`, `_scan_skills_dir`,
+  `_scan_agents_dir`, `_scan_hooks_dir`).
+- **Unbloat phases 1-6**: archived stale tracked
+  artifacts (F14, F17); deleted five orphaned plugin
+  scripts; deleted residual `scripts/test-lsp-manually.sh`;
+  cleared 91 deferred docstring-restate hits;
+  structural cleanup (Phase 3) and refactor passes
+  (Phase 5 R1-R7, Phase 6).
+- **Hygiene fixes (Tier 3)**: F-01, F-04, F-06 through
+  F-13, F-17 applied across the codebase.
+- **Em-dash polish + "actionable" purge** (slop Phase 4):
+  prose cleanup pass across documentation.
+- **Truthful docstrings for stub safety / dependency
+  methods** (B-03, B-15): docstrings now match the
+  stub return contract.
+- **conserve `substantive-commits` filter**:
+  documented as the canonical churn-detection
+  predicate (excludes whitespace, format, and
+  generated-file commits).
+- **memory-palace**: indexed 23 web-fetch captures.
+- **Refinement records preserved** at
+  `docs/refinement/2026-05-02/`: synthesis (00),
+  architecture (04), clean code (03), algorithm
+  efficiency (02), additive bias (05), plugin patterns
+  (06).
+
+
 
 ## [1.9.3] - 2026-04-26
 

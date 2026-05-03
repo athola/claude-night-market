@@ -143,9 +143,10 @@ class PluginAuditor:
         return all_refs
 
     def _scan_cross_skill_refs(self, plugin_path: Path) -> dict[str, set[str]]:
-        """Map ``skill-name`` to module filenames referenced via the
-        ``skills/<name>/modules/<file>`` full-path form anywhere in the
-        plugin (commands, agents, other skills).
+        """Map ``skill-name`` to cross-skill full-path module references.
+
+        Scans commands, agents, and other skills in the plugin for the
+        ``skills/<name>/modules/<file>`` full-path form.
         """
         cross: dict[str, set[str]] = {}
         scanned_dirs = ("skills", "commands", "agents")
@@ -171,8 +172,10 @@ class PluginAuditor:
         return cross
 
     def _scan_skill_local_refs(self, skill_dir: Path) -> set[str]:
-        """Collect bare ``modules/<file>`` and frontmatter ``modules:``
-        list entries from this skill's own .md files.
+        """Collect a skill's own module references from its .md files.
+
+        Includes bare ``modules/<file>`` content references and
+        frontmatter ``modules:`` list entries.
         """
         refs: set[str] = set()
         for md_file in skill_dir.rglob("*.md"):
@@ -278,77 +281,83 @@ class PluginAuditor:
     def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:
         """Scan disk for actual commands, skills, agents, hooks."""
         results: dict[str, list[str]] = {
-            "commands": [],
-            "skills": [],
-            "agents": [],
-            "hooks": [],
+            "commands": self._scan_commands_dir(plugin_path / "commands"),
+            "skills": self._scan_skills_dir(plugin_path / "skills"),
+            "agents": self._scan_agents_dir(plugin_path / "agents"),
+            "hooks": self._scan_hooks_dir(plugin_path / "hooks"),
         }
-
-        # Commands: *.md files in commands/ (excluding module subdirs and cache dirs)
-        commands_dir = plugin_path / "commands"
-        if commands_dir.exists():
-            for cmd_file in commands_dir.rglob("*.md"):
-                # Skip cache directories
-                if self._should_exclude(cmd_file):
-                    continue
-                # Skip files in module subdirs (check all ancestors, not just parent)
-                # This handles paths like commands/fix-pr-modules/steps/1-analyze.md
-                rel_to_commands = cmd_file.relative_to(commands_dir)
-                if any(
-                    "module" in part.lower() or part == "steps"
-                    for part in rel_to_commands.parts[:-1]
-                ):
-                    continue
-                # Only register top-level commands (direct children of commands/)
-                if len(rel_to_commands.parts) == 1:
-                    rel_path = f"./commands/{cmd_file.name}"
-                    results["commands"].append(rel_path)
-
-        # Skills: directories in skills/ that contain skill content
-        # A valid skill directory must have SKILL.md OR *.md files at root level
-        # Directories with only modules/ subdirectories are module holders, not skills
-        skills_dir = plugin_path / "skills"
-        if skills_dir.exists():
-            for skill_dir in skills_dir.iterdir():
-                if skill_dir.is_dir() and not self._should_exclude(skill_dir):
-                    # Check if directory has actual skill content
-                    has_skill_md = (skill_dir / "SKILL.md").exists()
-                    has_root_md_files = any(
-                        f.suffix == ".md" for f in skill_dir.iterdir() if f.is_file()
-                    )
-                    # Only register if it has skill content
-                    if has_skill_md or has_root_md_files:
-                        rel_path = f"./skills/{skill_dir.name}"
-                        results["skills"].append(rel_path)
-
-        # Agents: *.md files in agents/ (excluding cache directories)
-        agents_dir = plugin_path / "agents"
-        if agents_dir.exists():
-            for agent_file in agents_dir.glob("*.md"):
-                if not self._should_exclude(agent_file):
-                    rel_path = f"./agents/{agent_file.name}"
-                    results["agents"].append(rel_path)
-
-        # Hooks: *.sh, *.py files in hooks/ (excluding test files, __init__.py, cache)
-        # Note: *.md files in hooks/ are documentation, not executable hooks
-        hooks_dir = plugin_path / "hooks"
-        if hooks_dir.exists():
-            for hook_file in hooks_dir.iterdir():
-                if self._should_exclude(hook_file):
-                    continue
-                if hook_file.is_file() and hook_file.suffix in [".sh", ".py"]:
-                    # Skip test files, __init__.py, and _private helpers
-                    if not hook_file.name.startswith(
-                        "test_"
-                    ) and not hook_file.name.startswith("_"):
-                        rel_path = f"./hooks/{hook_file.name}"
-                        results["hooks"].append(rel_path)
-
-        # Sort all lists for consistent comparison
-        for _key, items in results.items():
+        for items in results.values():
             items.sort()
-
         return results
+
+    def _scan_commands_dir(self, commands_dir: Path) -> list[str]:
+        """Find top-level command .md files, excluding module/steps subdirs."""
+        if not commands_dir.exists():
+            return []
+        out: list[str] = []
+        for cmd_file in commands_dir.rglob("*.md"):
+            if self._should_exclude(cmd_file):
+                continue
+            # Skip files nested in module subdirs (e.g.
+            # commands/fix-pr-modules/steps/1-analyze.md).
+            rel = cmd_file.relative_to(commands_dir)
+            if any(
+                "module" in part.lower() or part == "steps" for part in rel.parts[:-1]
+            ):
+                continue
+            if len(rel.parts) == 1:
+                out.append(f"./commands/{cmd_file.name}")
+        return out
+
+    def _scan_skills_dir(self, skills_dir: Path) -> list[str]:
+        """Find skill directories with SKILL.md or root-level .md files.
+
+        Directories containing only ``modules/`` subdirectories are
+        module holders, not skills, and are skipped.
+        """
+        if not skills_dir.exists():
+            return []
+        out: list[str] = []
+        for skill_dir in skills_dir.iterdir():
+            if not skill_dir.is_dir() or self._should_exclude(skill_dir):
+                continue
+            has_skill_md = (skill_dir / "SKILL.md").exists()
+            has_root_md = any(
+                f.suffix == ".md" for f in skill_dir.iterdir() if f.is_file()
+            )
+            if has_skill_md or has_root_md:
+                out.append(f"./skills/{skill_dir.name}")
+        return out
+
+    def _scan_agents_dir(self, agents_dir: Path) -> list[str]:
+        """Find top-level agent .md files."""
+        if not agents_dir.exists():
+            return []
+        return [
+            f"./agents/{agent_file.name}"
+            for agent_file in agents_dir.glob("*.md")
+            if not self._should_exclude(agent_file)
+        ]
+
+    def _scan_hooks_dir(self, hooks_dir: Path) -> list[str]:
+        """Find executable hook files (.sh/.py).
+
+        Excludes test files (``test_*``) and private helpers (``_*``).
+        Markdown files in ``hooks/`` are documentation, not executable
+        hooks, and are not registered.
+        """
+        if not hooks_dir.exists():
+            return []
+        out: list[str] = []
+        for hook_file in hooks_dir.iterdir():
+            if self._should_exclude(hook_file):
+                continue
+            if not hook_file.is_file() or hook_file.suffix not in (".sh", ".py"):
+                continue
+            if hook_file.name.startswith(("test_", "_")):
+                continue
+            out.append(f"./hooks/{hook_file.name}")
+        return out
 
     def read_plugin_json(self, plugin_path: Path) -> dict[str, Any] | None:
         """Read plugin.json file."""
