@@ -3264,6 +3264,87 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://posthog.com/handbook/company/brand-assets
+  https://github.com/athola/simple-resume:
+    content_hash: sha256:82249fd9edf428b5
+    stored_at: data/staging/webfetch-simple-resume-project-summary-2026-05-03_19-12-26.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:12:26.167889+00:00'
+    title: Simple-Resume Project Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/athola/simple-resume
+  https://github.com/athola/skrills:
+    content_hash: sha256:478276c4201eb9d4
+    stored_at: data/staging/webfetch-skrills-project-overview-2026-05-03_19-12-26.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:12:26.879470+00:00'
+    title: 'Skrills: Project Overview'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/athola/skrills
+  https://pypi.org/project/apscheduler:
+    content_hash: sha256:d5a55e29158f7569
+    stored_at: data/staging/webfetch-based-on-the-pypi-page-content-2026-05-03_19-31-42.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:31:42.745595+00:00'
+    title: 'Based on the PyPI page content:'
+    maturity: seedling
+    routing_type: pending
+    url: https://pypi.org/project/APScheduler/
+  https://hn.algolia.com/api/v1/search?query=marketing%20open%20source%20side%20project&tags=story&hitsperpage=15:
+    content_hash: sha256:b9820a44faf94266
+    stored_at: data/staging/webfetch-stories-about-marketing-open-source-side-projects-2026-05-03_19-31-45.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:31:45.699254+00:00'
+    title: Stories About Marketing Open Source Side Projects
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=marketing%20open%20source%20side%20project&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=show%20hn%20launch%20strategy&tags=story&hitsperpage=15:
+    content_hash: sha256:8d63c20e018c5c9d
+    stored_at: data/staging/webfetch-show-hn-launch-strategy-stories-2026-05-03_19-31-50.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:31:50.501992+00:00'
+    title: Show HN Launch Strategy Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=show%20HN%20launch%20strategy&tags=story&hitsPerPage=15
+  https://www.maxtaylor.me/articles/i-benchmarked-caveman-against-two-words:
+    content_hash: sha256:8f9432cbafc65df5
+    stored_at: data/staging/webfetch-claude-code-plugin-distribution-insights-2026-05-03_19-31-58.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:31:58.028470+00:00'
+    title: Claude Code Plugin Distribution Insights
+    maturity: seedling
+    routing_type: pending
+    url: https://www.maxtaylor.me/articles/i-benchmarked-caveman-against-two-words
+  https://hn.algolia.com/api/v1/search?query=how%20to%20get%20github%20stars&tags=story&hitsperpage=10:
+    content_hash: sha256:cc4bb90d37676303
+    stored_at: data/staging/webfetch-stories-with-score-5-about-github-stars-marketing-2026-05-03_19-32-14.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:32:14.581216+00:00'
+    title: Stories with Score > 5 About GitHub Stars/Marketing
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=how%20to%20get%20github%20stars&tags=story&hitsPerPage=10
+  https://www.markepear.dev/blog/dev-tool-hacker-news-launch:
+    content_hash: sha256:af88d7edf5a64267
+    stored_at: data/staging/webfetch-concrete-tactics-for-launching-a-dev-tool-on-2026-05-03_19-32-27.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:32:27.098743+00:00'
+    title: Concrete Tactics for Launching a Dev Tool on Hacker News
+    maturity: seedling
+    routing_type: pending
+    url: https://www.markepear.dev/blog/dev-tool-hacker-news-launch
+  https://www.mediafa.st/marketing-on-rsideproject:
+    content_hash: sha256:6864e912594d6ccf
+    stored_at: data/staging/webfetch-r-sideproject-marketing-tactics-2026-05-03_19-32-28.md
+    importance_score: 50
+    last_updated: '2026-05-03T19:32:28.812086+00:00'
+    title: r/SideProject Marketing Tactics
+    maturity: seedling
+    routing_type: pending
+    url: https://www.mediafa.st/marketing-on-rsideproject
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3627,3 +3708,12 @@ hashes:
   sha256:299b7665404001a6: data/staging/webfetch-posthog-design-philosophy-2026-04-30_02-18-17.md
   sha256:2fa90d5c4612a21a: data/staging/webfetch-blog-post-design-analysis-how-we-designed-the-2026-04-30_02-18-19.md
   sha256:872b06d5f079f604: data/staging/webfetch-posthog-brand-specifications-2026-04-30_02-18-34.md
+  sha256:82249fd9edf428b5: data/staging/webfetch-simple-resume-project-summary-2026-05-03_19-12-26.md
+  sha256:478276c4201eb9d4: data/staging/webfetch-skrills-project-overview-2026-05-03_19-12-26.md
+  sha256:d5a55e29158f7569: data/staging/webfetch-based-on-the-pypi-page-content-2026-05-03_19-31-42.md
+  sha256:b9820a44faf94266: data/staging/webfetch-stories-about-marketing-open-source-side-projects-2026-05-03_19-31-45.md
+  sha256:8d63c20e018c5c9d: data/staging/webfetch-show-hn-launch-strategy-stories-2026-05-03_19-31-50.md
+  sha256:8f9432cbafc65df5: data/staging/webfetch-claude-code-plugin-distribution-insights-2026-05-03_19-31-58.md
+  sha256:cc4bb90d37676303: data/staging/webfetch-stories-with-score-5-about-github-stars-marketing-2026-05-03_19-32-14.md
+  sha256:af88d7edf5a64267: data/staging/webfetch-concrete-tactics-for-launching-a-dev-tool-on-2026-05-03_19-32-27.md
+  sha256:6864e912594d6ccf: data/staging/webfetch-r-sideproject-marketing-tactics-2026-05-03_19-32-28.md

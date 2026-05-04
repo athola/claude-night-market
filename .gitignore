@@ -79,6 +79,7 @@ plugins/*/bin/.skrills-version
 debt_scan_results.json
 .demo-palaces/
 reports/skill-graph.json
+reviews/
 
 # local docs
 docs/plans/
