@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resolved on `ai-slop-1.9.4` instead of being deferred
   to 1.10.x. See "PR #470 deferred-items closure" under
   the 1.9.4 Internal heading for the per-finding map.
+- **PR #470 fix-pr session (50 review threads closed)**:
+  37 placeholder modules implemented across 6 skills
+  (~6,931 new lines), 12 ephemeral docs and reports
+  consolidated into the CHANGELOG and removed, deferred
+  follow-ups tracked in issue #486. See "PR #470 fix-pr
+  session" under the 1.9.4 Internal heading.
 
 ## [1.9.4] - 2026-05-03
 
@@ -86,7 +92,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quality refinement waves 1, 2, and 3 complete**:
   24 review findings closed across abstract, conserve,
   imbue, leyline, memory-palace, pensive, sanctum, and
-  scribe. Synthesis at `docs/refinement/2026-05-02/00-synthesis.md`.
+  scribe. Deferred follow-ups tracked in issue #486
+  (per-finding detail recoverable from git history at
+  commit `a50a9352`).
 - **Shared-helper extraction (D-series)**: `json_utils.sh`
   vendored per-plugin (D-01); `parse_frontmatter`
   unified on the leyline canonical implementation
@@ -180,11 +188,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   predicate (excludes whitespace, format, and
   generated-file commits).
 - **memory-palace**: indexed 23 web-fetch captures.
-- **Refinement records preserved** at
-  `docs/refinement/2026-05-02/`: synthesis (00),
-  architecture (04), clean code (03), algorithm
-  efficiency (02), additive bias (05), plugin patterns
-  (06).
+- **Refinement records consolidated**: dimension reports
+  (synthesis, architecture, clean code, algorithm
+  efficiency, additive bias, plugin patterns) merged into
+  this CHANGELOG entry and the deferred-items tracker
+  (issue #486). Per-finding detail recoverable from git
+  history at commit `a50a9352`.
 - **PR #470 deferred-items closure** (#484, #485):
   closed on this branch instead of carrying to 1.10.x.
   - **S2** -- `gh_graphql` widens ``variables`` to
@@ -240,6 +249,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     inside the leading YAML block; body code-block
     examples are preserved). All in-tree SKILL.md
     frontmatters synced to 1.9.4.
+- **PR #470 fix-pr session** (50 review threads closed):
+  - **Cluster A: 37 placeholder modules implemented**
+    (~6,931 lines) across six skills:
+    - ``leyline:progressive-loading`` (20 modules):
+      advanced-patterns, api-patterns, api-review,
+      cargo-patterns, document-analysis-patterns,
+      git-catchup-patterns, git-patterns, large-reference,
+      legacy-python, linux-patterns, log-analysis-patterns,
+      macos-patterns, modern-python, performance,
+      python-packaging, python-patterns, python-testing,
+      rust-review, troubleshooting, windows-patterns
+    - ``abstract:skill-authoring`` (7 modules):
+      advanced-patterns, authentication, error-handling,
+      examples, testing-with-subagents, troubleshooting,
+      validation
+    - ``abstract:shared-patterns`` (4 modules):
+      advanced, creation, editing, troubleshooting
+    - ``leyline:evaluation-framework`` (3 modules):
+      evaluation-rubric, multi-metric-evaluation-methodology,
+      quality-metrics
+    - ``imbue:feature-review`` (1 module):
+      multi-metric-evaluation-methodology
+    - ``leyline:storage-templates`` (1 module):
+      storage-patterns
+    - ``abstract:skills-eval`` (1 module):
+      skill-authoring-best-practices
+  - **Cluster B + C: 12 ephemeral docs and reports
+    consolidated into this CHANGELOG entry and removed**:
+    ``docs/refinement/2026-05-02/`` (7 dimension reports)
+    and ``reports/`` (3 cleanup scans plus 2 unbloat
+    session logs). Per-finding detail recoverable from
+    git history at commit ``a50a9352``.
+  - **Cluster D: CHANGELOG entries for the fix-pr
+    session** captured under this heading.
+  - All 37 implemented modules passed independent
+    layer-0 + layer-2 slop scan: zero em dashes outside
+    code spans, zero tier-1 banned words, zero banned
+    phrases, zero identity leaks, zero hallucinated
+    file/function references (every cited path verified
+    via ``ls`` / ``head`` before being written into the
+    module).
+  - Plugin tests post-implementation: leyline 655
+    passing, imbue 624 passing, abstract skill-structure
+    61 passing.
 
 
 
