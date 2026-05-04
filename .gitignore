@@ -1,6 +1,7 @@
 # Claude sessions
 .claude/session-*
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 *.txt
 
 # Python
