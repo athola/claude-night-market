@@ -54,7 +54,7 @@ def _new_id() -> str:
     return uuid.uuid4().hex[:12]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class ReviewEntry:
     """A single PR review knowledge entry.
 

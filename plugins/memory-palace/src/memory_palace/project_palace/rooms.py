@@ -45,7 +45,7 @@ class SortBy(str, Enum):
     IMPORTANCE = "importance"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class RoomMetadata:
     """Static metadata for a palace room.
 
