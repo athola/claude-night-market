@@ -176,6 +176,10 @@ Adjusted Score = Feature Score * Confidence
 - **< 1.5**: Low priority.
 
 See [scoring-framework.md](modules/scoring-framework.md) for the framework.
+See [multi-metric-evaluation-methodology.md](modules/multi-metric-evaluation-methodology.md)
+when one model is not enough: it covers how to combine
+RICE, WSJF, and Kano, where each model fits, and how to
+reconcile conflicting signals.
 
 ### Phase 4: Tradeoff Analysis (`feature-review:tradeoffs-analyzed`)
 
@@ -378,4 +382,6 @@ These rules apply to all configurations:
 - **[scoring-framework.md](modules/scoring-framework.md)**: RICE+WSJF hybrid.
 - **[classification-system.md](modules/classification-system.md)**: Axes definition.
 - **[tradeoff-dimensions.md](modules/tradeoff-dimensions.md)**: Quality attributes.
+- **[research-enrichment.md](modules/research-enrichment.md)**: tome-driven score deltas, channel-to-factor mapping, graceful degradation.
+- **[multi-metric-evaluation-methodology.md](modules/multi-metric-evaluation-methodology.md)**: Combining RICE, WSJF, and Kano when no single model suffices.
 - **[configuration.md](modules/configuration.md)**: Customization options.

@@ -181,7 +181,7 @@ These patterns look like error handling but degrade behavior.
 ## Error Recovery
 
 If anything fails, try the alternative approach in
-modules/fallback.md.
+modules/<fallback-name>.md.
 ```
 
 This trains Claude to swallow errors. Every failure becomes a

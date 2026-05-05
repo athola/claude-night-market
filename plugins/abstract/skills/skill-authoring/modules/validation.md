@@ -54,7 +54,7 @@ issues with line numbers.
 | `estimated_tokens` | yes | integer, realistic |
 
 The full schema is documented in
-`plugins/abstract/skills/skills-eval/modules/evaluation-criteria.md`.
+the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval/`).
 
 ### Module reference resolution
 
@@ -165,7 +165,7 @@ python plugins/abstract/scripts/compliance_checker.py \
 
 The compliance checker validates against the project standards
 documented in
-`plugins/abstract/skills/skills-eval/modules/evaluation-criteria.md`.
+the `evaluation-criteria` module of the `skills-eval` skill (under `plugins/abstract/skills/skills-eval/`).
 A score under 70 is a blocker. A score 70-89 is shippable
 with a note. A score 90+ is production-ready.
 

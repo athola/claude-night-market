@@ -168,13 +168,13 @@ re-run RED/GREEN/REFACTOR on the production model.
 
 ## Symptom: module references broken
 
-`SKILL.md` links to `modules/foo.md` but the link does not
-resolve when the user follows it.
+`SKILL.md` links to `modules/<example>.md` but the link does
+not resolve when the user follows it.
 
 ### Likely causes
 
-1. **Path typo**. `modules/foo.md` vs `Modules/foo.md` vs
-   `module/foo.md`.
+1. **Path typo**. `modules/<name>.md` vs `Modules/<name>.md`
+   vs `module/<name>.md`.
 2. **File not committed**. Module exists locally but not in
    the branch the user installed.
 3. **Cross-skill reference uses wrong syntax**. The skill

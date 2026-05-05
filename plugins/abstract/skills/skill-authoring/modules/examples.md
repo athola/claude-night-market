@@ -69,8 +69,8 @@ What to copy:
 
 2. **Token budget declared**. The frontmatter sets
    `token_budget: 30`, signaling the skill itself is small.
-   Most of its content lives in
-   `modules/testing-patterns.md`, loaded only when needed.
+   Most of its content lives in the `subagent-testing` skill's
+   testing-patterns module, loaded only when needed.
 
 3. **Hub Table of Contents**. The hub starts with a TOC. For
    skills above 100 lines, the TOC pays for itself in

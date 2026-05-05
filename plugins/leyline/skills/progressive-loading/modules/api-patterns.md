@@ -83,12 +83,13 @@ When the classifier returns
 hub loads three modules and skips the rest.
 
 ```yaml
-# hub frontmatter
+# hub frontmatter (illustrative; module names are placeholders
+# the consuming skill author would supply for their own domain)
 modules:
-  - modules/rest-conventions.md
-  - modules/auth-bearer.md
-  - modules/versioning-policy.md
-  - modules/error-envelopes.md
+  - modules/<rest-conventions>.md
+  - modules/<auth-bearer>.md
+  - modules/<versioning-policy>.md
+  - modules/<error-envelopes>.md
 ```
 
 For a GraphQL API with no auth, the load list shrinks to two

@@ -184,8 +184,8 @@ range: [1.0, 5.0]
 ## Template 3: Feature Backlog Rubric
 
 For prioritizing backlog items. Compact wrapper around
-RICE+WSJF; details live in
-`plugins/imbue/skills/feature-review/modules/scoring-framework.md`.
+RICE+WSJF; details live in the `scoring-framework` module of
+the `feature-review` skill (under `plugins/imbue/`).
 
 ```yaml
 rubric: feature-backlog

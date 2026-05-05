@@ -7,22 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [1.9.4] - 2026-05-03
+
+### Session summaries (PR #470)
 
 - **PR #470 deferred items closed on this branch**:
   the eight S-series suggestions (#484) and both
   C-series architectural follow-ups (#485) are now
   resolved on `ai-slop-1.9.4` instead of being deferred
   to 1.10.x. See "PR #470 deferred-items closure" under
-  the 1.9.4 Internal heading for the per-finding map.
+  the Internal heading below for the per-finding map.
 - **PR #470 fix-pr session (50 review threads closed)**:
   37 placeholder modules implemented across 6 skills
   (~6,931 new lines), 12 ephemeral docs and reports
   consolidated into the CHANGELOG and removed, deferred
   follow-ups tracked in issue #486. See "PR #470 fix-pr
-  session" under the 1.9.4 Internal heading.
-
-## [1.9.4] - 2026-05-03
+  session" under the Internal heading below.
 
 ### Added
 

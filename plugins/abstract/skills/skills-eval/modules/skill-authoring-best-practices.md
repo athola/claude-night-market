@@ -65,8 +65,8 @@ has two jobs. Split.
 ## Practice 2: progressive disclosure with real spokes
 
 High-scoring skills use the hub-and-spoke pattern documented
-in
-`plugins/abstract/skills/skill-authoring/modules/progressive-disclosure.md`.
+in the `progressive-disclosure` module of the
+`skill-authoring` skill (under `plugins/abstract/`).
 
 ### What works
 
@@ -140,9 +140,8 @@ imperative or declarative forms.
 
 The reason is behavioral. Claude treats "consider" as
 optional. Optional requirements get skipped under pressure.
-See
-`plugins/abstract/skills/skill-authoring/modules/anti-rationalization.md`
-for the full pattern.
+See the `anti-rationalization` module of the `skill-authoring`
+skill (under `plugins/abstract/`) for the full pattern.
 
 ## Practice 5: concrete commands in Quick Start
 
