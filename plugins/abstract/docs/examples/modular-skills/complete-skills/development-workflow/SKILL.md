@@ -10,11 +10,11 @@ estimated_tokens: 45
 dependencies: []
 companion_skills: []
 modules:
-  - git-workflow
-  - code-review
-  - testing-strategies
-  - documentation-guidelines
-  - deployment-procedures
+  - modules/git-workflow.md
+  - modules/code-review.md
+  - modules/testing-strategies.md
+  - modules/documentation-guidelines.md
+  - modules/deployment-procedures.md
 tools:
   - setup-validator
   - workflow-checker
@@ -61,15 +61,16 @@ Get started quickly with this development workflow framework:
 
 ## Available Modules
 
-This workflow illustrates a hub coordinating these specialized modules.
-Module directories shown below are illustrative — when adapting this
-template, create the module subdirectories you actually need:
+This workflow illustrates a hub coordinating these specialized
+modules. Each link below resolves to a working example file in
+this skill's `modules/` directory; copy the directory and adapt
+the contents when using this template for a real skill:
 
-- **git-workflow**: Repository setup, branching strategies, and daily git practices
-- **code-review**: Pull request process, review guidelines, and quality standards
-- **testing-strategies**: Unit testing, integration testing, and E2E testing patterns
-- **documentation-guidelines**: Code documentation, API docs, and README standards
-- **deployment-procedures**: CI/CD pipelines, environment setup, and monitoring
+- **[modules/git-workflow.md](modules/git-workflow.md)**: Repository setup, branching strategies, and daily git practices
+- **[modules/code-review.md](modules/code-review.md)**: Pull request process, review guidelines, and quality standards
+- **[modules/testing-strategies.md](modules/testing-strategies.md)**: Unit testing, integration testing, and E2E testing patterns
+- **[modules/documentation-guidelines.md](modules/documentation-guidelines.md)**: Code documentation, API docs, and README standards
+- **[modules/deployment-procedures.md](modules/deployment-procedures.md)**: CI/CD pipelines, environment setup, and monitoring
 
 ## Quick Start
 
