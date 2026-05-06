@@ -20,9 +20,9 @@ model_hint: standard
 estimated_tokens: 1600
 progressive_loading: true
 modules:
-- generation-guidelines
-- remediation-workflow
-- quality-gates
+- modules/generation-guidelines.md
+- modules/remediation-workflow.md
+- modules/quality-gates.md
 dependencies:
 - scribe:shared
 - scribe:slop-detector

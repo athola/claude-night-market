@@ -19,9 +19,9 @@ dependencies:
 - superpowers:executing-plans
 tools: []
 modules:
-- command-skill-matrix
-- progress-tracking
-- artifact-structure
+- modules/command-skill-matrix.md
+- modules/progress-tracking.md
+- modules/artifact-structure.md
 progressive_loading: true
 usage_patterns:
 - workflow-coordination

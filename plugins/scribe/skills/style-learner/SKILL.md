@@ -23,9 +23,9 @@ model_hint: standard
 estimated_tokens: 1800
 progressive_loading: true
 modules:
-- feature-extraction
-- exemplar-reference
-- style-application
+- modules/feature-extraction.md
+- modules/exemplar-reference.md
+- modules/style-application.md
 dependencies:
 - scribe:shared
 - scribe:slop-detector

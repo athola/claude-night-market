@@ -23,10 +23,10 @@ model_hint: deep
 estimated_tokens: 1800
 progressive_loading: true
 modules:
-- research-flow
-- paradigm-selection
-- scaffold-generation
-- script-integration
+- modules/research-flow.md
+- modules/paradigm-selection.md
+- modules/scaffold-generation.md
+- modules/script-integration.md
 ---
 
 # Architecture-Aware Project Initialization

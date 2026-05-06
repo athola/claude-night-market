@@ -11,9 +11,10 @@ You're building a cloud-architecture skill system that needs to handle multiple 
 3. **Dynamic Loading**: Implement `modules/dynamic-loading.md` for context-aware behavior
 
 ## Available Modules
-- **hierarchical-dependencies**: Multi-provider architecture design
-- **cross-cutting-concerns**: Governance, security, and cost management
-- **dynamic-loading**: Intelligent module selection and optimization
+
+- **[modules/hierarchical-dependencies.md](modules/hierarchical-dependencies.md)**: Multi-provider architecture design
+- **[modules/cross-cutting-concerns.md](modules/cross-cutting-concerns.md)**: Governance, security, and cost management
+- **[modules/dynamic-loading.md](modules/dynamic-loading.md)**: Intelligent module selection and optimization
 
 ## Architecture Overview
 

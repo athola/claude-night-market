@@ -25,11 +25,11 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 modules:
-- dependency-graph
-- deduplication-patterns
-- portability-checks
-- best-practices
-- plugin-dogfood-checks
+- modules/dependency-graph.md
+- modules/deduplication-patterns.md
+- modules/portability-checks.md
+- modules/best-practices.md
+- modules/plugin-dogfood-checks.md
 ---
 ## Table of Contents
 

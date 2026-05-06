@@ -25,11 +25,11 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 modules:
-- framework-detection
-- coverage-analysis
-- scenario-quality
-- remediation-planning
-- content-assertion-quality
+- modules/framework-detection.md
+- modules/coverage-analysis.md
+- modules/scenario-quality.md
+- modules/remediation-planning.md
+- modules/content-assertion-quality.md
 ---
 ## Table of Contents
 

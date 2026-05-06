@@ -18,8 +18,8 @@ model_hint: standard
 estimated_tokens: 2500
 progressive_loading: true
 modules:
-- session-extraction
-- narrative-structure
+- modules/session-extraction.md
+- modules/narrative-structure.md
 dependencies:
 - scribe:shared
 - scribe:slop-detector

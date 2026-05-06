@@ -23,13 +23,13 @@ model_hint: standard
 estimated_tokens: 400
 progressive_loading: true
 modules:
-- basic-patterns
-- concurrency-control
-- error-handling-timeouts
-- advanced-patterns
-- testing-async
-- real-world-applications
-- pitfalls-best-practices
+- modules/basic-patterns.md
+- modules/concurrency-control.md
+- modules/error-handling-timeouts.md
+- modules/advanced-patterns.md
+- modules/testing-async.md
+- modules/real-world-applications.md
+- modules/pitfalls-best-practices.md
 ---
 # Async Python Patterns
 

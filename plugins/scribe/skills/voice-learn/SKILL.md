@@ -17,8 +17,8 @@ model_hint: opus
 estimated_tokens: 2000
 progressive_loading: true
 modules:
-- snapshot-management
-- pattern-analysis
+- modules/snapshot-management.md
+- modules/pattern-analysis.md
 dependencies:
 - scribe:voice-extract
 - scribe:voice-generate

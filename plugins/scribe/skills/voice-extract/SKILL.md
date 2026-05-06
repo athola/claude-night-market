@@ -17,9 +17,9 @@ model_hint: opus
 estimated_tokens: 3200
 progressive_loading: true
 modules:
-- sico-extraction
-- sample-intake
-- register-creation
+- modules/sico-extraction.md
+- modules/sample-intake.md
+- modules/register-creation.md
 dependencies:
 - scribe:style-learner
 - scribe:slop-detector

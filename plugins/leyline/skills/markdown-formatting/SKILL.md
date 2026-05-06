@@ -17,7 +17,7 @@ model_hint: fast
 estimated_tokens: 800
 progressive_loading: true
 modules:
-  - wrapping-rules
+  - modules/wrapping-rules.md
 dependencies: []
 ---
 # Markdown Formatting Conventions

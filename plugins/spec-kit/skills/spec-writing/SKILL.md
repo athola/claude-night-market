@@ -22,9 +22,9 @@ model_hint: standard
 estimated_tokens: 1200
 progressive_loading: true
 modules:
-- success-criteria-patterns
-- specification-structure
-- checklist-dimensions
+- modules/success-criteria-patterns.md
+- modules/specification-structure.md
+- modules/checklist-dimensions.md
 ---
 # Spec Writing
 

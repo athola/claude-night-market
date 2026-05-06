@@ -23,9 +23,9 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 modules:
-- exit-codes
-- portability
-- safety-patterns
+- modules/exit-codes.md
+- modules/portability.md
+- modules/safety-patterns.md
 role: entrypoint
 ---
 ## Table of Contents

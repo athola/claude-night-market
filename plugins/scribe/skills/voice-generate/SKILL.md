@@ -17,9 +17,9 @@ model_hint: opus
 estimated_tokens: 2400
 progressive_loading: true
 modules:
-- source-framing
-- register-selection
-- generation-pipeline
+- modules/source-framing.md
+- modules/register-selection.md
+- modules/generation-pipeline.md
 dependencies:
 - scribe:voice-extract
 - scribe:slop-detector

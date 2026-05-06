@@ -17,9 +17,9 @@ model_hint: deep
 estimated_tokens: 1100
 progressive_loading: true
 modules:
-- manifest-parsing
-- markdown-generation
-- tape-validation
+- modules/manifest-parsing.md
+- modules/markdown-generation.md
+- modules/tape-validation.md
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review

@@ -17,8 +17,8 @@ model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:
-- tape-syntax
-- execution
+- modules/tape-syntax.md
+- modules/execution.md
 ---
 # VHS Recording Skill
 

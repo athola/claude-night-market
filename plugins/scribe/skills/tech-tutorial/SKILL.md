@@ -20,9 +20,9 @@ model_hint: standard
 estimated_tokens: 2800
 progressive_loading: true
 modules:
-- outline-structure
-- code-examples
-- progressive-complexity
+- modules/outline-structure.md
+- modules/code-examples.md
+- modules/progressive-complexity.md
 dependencies:
 - scribe:shared
 - scribe:slop-detector

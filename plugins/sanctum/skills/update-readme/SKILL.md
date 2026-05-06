@@ -15,8 +15,8 @@ complexity: high
 model_hint: deep
 estimated_tokens: 1200
 modules:
-- language-audit
-- exemplar-research
+- modules/language-audit.md
+- modules/exemplar-research.md
 progressive_loading: true
 dependencies:
 - sanctum:shared

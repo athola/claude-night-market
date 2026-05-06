@@ -17,7 +17,7 @@ tools: []
 modules:
 - phase-structure.md
 - dependency-patterns.md
-- tech-stack-patterns
+- modules/tech-stack-patterns.md
 progressive_loading: true
 usage_patterns:
 - task-generation

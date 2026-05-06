@@ -18,8 +18,8 @@ model_hint: standard
 estimated_tokens: 500
 progressive_loading: true
 modules:
-- spec-execution
-- video-capture
+- modules/spec-execution.md
+- modules/video-capture.md
 dependencies:
 - scry:gif-generation
 ---
