@@ -3345,6 +3345,42 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.mediafa.st/marketing-on-rsideproject
+  https://docs.z.ai/devpack/faq:
+    content_hash: sha256:7376e863fb123982
+    stored_at: data/staging/webfetch-z-ai-coding-plan-endpoint-web-search-tool-2026-05-04_13-51-23.md
+    importance_score: 50
+    last_updated: '2026-05-04T13:51:23.614823+00:00'
+    title: Z.AI Coding Plan Endpoint & Web Search Tool
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.z.ai/devpack/faq
+  https://docs.z.ai/api-reference/llm/chat-completion:
+    content_hash: sha256:0260fc9e44cb708c
+    stored_at: data/staging/webfetch-web-search-tool-json-format-2026-05-04_13-58-55.md
+    importance_score: 50
+    last_updated: '2026-05-04T13:58:55.358159+00:00'
+    title: Web Search Tool JSON Format
+    maturity: seedling
+    routing_type: pending
+    url: https://docs.z.ai/api-reference/llm/chat-completion
+  https://news.ycombinator.com/item?id=48022742:
+    content_hash: sha256:7a2c3f68236a4f96
+    stored_at: data/staging/webfetch-hacker-news-discussion-summary-2026-05-05_22-22-33.md
+    importance_score: 50
+    last_updated: '2026-05-05T22:22:33.592062+00:00'
+    title: Hacker News Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=48022742
+  https://idiallo.com/blog/ai-didnt-delete-your-database-you-did:
+    content_hash: sha256:7513f319f5e3fd57
+    stored_at: data/staging/webfetch-ai-didn-t-delete-your-database-you-did-complete-2026-05-05_22-22-55.md
+    importance_score: 50
+    last_updated: '2026-05-05T22:22:55.252174+00:00'
+    title: "\"AI Didn't Delete Your Database, You Did\" \u2014 Complete Analysis"
+    maturity: seedling
+    routing_type: pending
+    url: https://idiallo.com/blog/ai-didnt-delete-your-database-you-did
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3717,3 +3753,7 @@ hashes:
   sha256:cc4bb90d37676303: data/staging/webfetch-stories-with-score-5-about-github-stars-marketing-2026-05-03_19-32-14.md
   sha256:af88d7edf5a64267: data/staging/webfetch-concrete-tactics-for-launching-a-dev-tool-on-2026-05-03_19-32-27.md
   sha256:6864e912594d6ccf: data/staging/webfetch-r-sideproject-marketing-tactics-2026-05-03_19-32-28.md
+  sha256:7376e863fb123982: data/staging/webfetch-z-ai-coding-plan-endpoint-web-search-tool-2026-05-04_13-51-23.md
+  sha256:0260fc9e44cb708c: data/staging/webfetch-web-search-tool-json-format-2026-05-04_13-58-55.md
+  sha256:7a2c3f68236a4f96: data/staging/webfetch-hacker-news-discussion-summary-2026-05-05_22-22-33.md
+  sha256:7513f319f5e3fd57: data/staging/webfetch-ai-didn-t-delete-your-database-you-did-complete-2026-05-05_22-22-55.md
