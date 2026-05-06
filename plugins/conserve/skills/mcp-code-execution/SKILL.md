@@ -1,7 +1,7 @@
 ---
 name: mcp-code-execution
-description: 'Optimize multi-tool workflow chains via MCP server integration for processing large datasets, files, or complex pipelines.'
-version: 1.9.3
+description: 'Optimize multi-tool workflows via MCP server integration for large datasets and pipelines.'
+version: 1.9.4
 alwaysApply: false
 progressive_loading: true
 dependencies:
@@ -41,31 +41,59 @@ model_hint: standard
 
 ## Quick Start
 
-### Basic Usage
-\`\`\`bash
-# Run the main command
-python -m module_name
+This skill is an orchestration hub, not a CLI. It activates
+inside a Claude Code session when one of the trigger keywords
+below appears, or when invoked explicitly:
 
-# Show help
-python -m module_name --help
-\`\`\`
+```
+Skill(conserve:mcp-code-execution)
+```
 
-**Verification**: Run with `--help` flag to confirm installation.
+The hub then routes to the relevant sub-skill modules
+(`mcp-subagents`, `mcp-patterns`, `mcp-validation`) based on
+the detected workflow shape. There is no separate install
+step or CLI entry point.
+
 ## When To Use
 - **Automatic**: Keywords: `code execution`, `MCP`, `tool chain`, `data pipeline`, `MECW`
 - **Tool Chains**: >3 tools chained sequentially
 - **Data Processing**: Large datasets (>10k rows) or files (>50KB)
 - **Context Pressure**: Current usage >25% of total window (proactive context management)
 
-> **MCP Tool Search (Claude Code 2.1.7+)**: When MCP tool descriptions exceed 10% of context, tools are automatically deferred and discovered via MCPSearch instead of being loaded upfront. This reduces token overhead by ~85% but means tools must be discovered on-demand. Haiku models do not support tool search. Configure threshold with `ENABLE_TOOL_SEARCH=auto:N` where N is the percentage.
+> **MCP Tool Search (Claude Code 2.1.7+)**: When MCP tool
+> descriptions exceed 10% of context, tools are automatically
+> deferred and discovered via MCPSearch instead of being loaded
+> upfront. This reduces token overhead by ~85% but means tools
+> must be discovered on-demand. Haiku models do not support tool
+> search. Configure threshold with `ENABLE_TOOL_SEARCH=auto:N`
+> where N is the percentage.
 
-> **Subagent MCP Access Fix (Claude Code 2.1.30+)**: SDK-provided MCP tools are now properly synced to subagents. Prior to 2.1.30, subagents could not access SDK-provided MCP tools — workflows delegating MCP tool usage to subagents were silently broken. No workarounds needed on 2.1.30+.
+> **Subagent MCP Access Fix (Claude Code 2.1.30+)**: SDK-provided
+> MCP tools are now properly synced to subagents. Prior to 2.1.30,
+> subagents could not access SDK-provided MCP tools: workflows
+> delegating MCP tool usage to subagents were silently broken. No
+> workarounds needed on 2.1.30+.
 
-> **Claude.ai MCP Connectors (Claude Code 2.1.46+)**: Users logged into Claude Code with a claude.ai account may have additional MCP tools auto-loaded from claude.ai/settings/connectors. These tools contribute to the tool search threshold count. If workflows unexpectedly trigger tool search or context inflation, check `/mcp` for claude.ai-sourced connectors. Known reliability issue: connectors can silently disappear (GitHub #21817).
+> **Claude.ai MCP Connectors (Claude Code 2.1.46+)**: Users logged
+> into Claude Code with a claude.ai account may have additional
+> MCP tools auto-loaded from claude.ai/settings/connectors. These
+> tools contribute to the tool search threshold count. If
+> workflows unexpectedly trigger tool search or context inflation,
+> check `/mcp` for claude.ai-sourced connectors. Known reliability
+> issue: connectors can silently disappear (GitHub #21817).
 
-> **MCP Prompt Cache Fix (Claude Code 2.1.70+)**: MCP servers with instructions connecting after the first turn no longer bust the prompt cache. Previously, a late-connecting MCP server would invalidate cached prompt prefixes, increasing token costs for the rest of the session. On 2.1.70+, prompt cache reuse is preserved regardless of when MCP servers connect.
+> **MCP Prompt Cache Fix (Claude Code 2.1.70+)**: MCP servers with
+> instructions connecting after the first turn no longer bust the
+> prompt cache. Previously, a late-connecting MCP server would
+> invalidate cached prompt prefixes, increasing token costs for
+> the rest of the session. On 2.1.70+, prompt cache reuse is
+> preserved regardless of when MCP servers connect.
 
-> **ToolSearch Reliability Fix (Claude Code 2.1.70+)**: Empty model responses after ToolSearch are fixed. The server was rendering tool schemas with system-prompt-style tags that could confuse models into stopping early. ToolSearch-heavy workflows (many deferred MCP tools) are now more reliable.
+> **ToolSearch Reliability Fix (Claude Code 2.1.70+)**: Empty
+> model responses after ToolSearch are fixed. The server was
+> rendering tool schemas with system-prompt-style tags that could
+> confuse models into stopping early. ToolSearch-heavy workflows
+> (many deferred MCP tools) are now more reliable.
 
 ## When NOT To Use
 
@@ -110,7 +138,6 @@ def classify_workflow_for_mecw(workflow):
             'token_budget': 200
         }
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### MECW Risk Assessment
 Delegate to mcp-validation module for detailed risk analysis:
@@ -121,7 +148,6 @@ def delegate_mecw_assessment(workflow):
         hub_allocated_tokens=self.token_budget * 0.5
     )
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Step 2 – Route to Modules (`mcp-code-execution:route-to-modules`)
 
@@ -150,7 +176,6 @@ class MCPExecutionHub:
 
         return self.synthesize_results(results)
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Step 3 – Coordinate MECW (`mcp-code-execution:coordinate-mecw`)
 
@@ -165,7 +190,7 @@ class MCPExecutionHub:
 ### Result Integration
 ```python
 def synthesize_module_results(module_results):
-    """Combine results from MCP modules into structured output"""
+    """Combine module results into a single status dict."""
 
     return {
         'status': 'completed',
@@ -175,7 +200,6 @@ def synthesize_module_results(module_results):
         'results': consolidate_results(module_results)
     }
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Module Integration
 

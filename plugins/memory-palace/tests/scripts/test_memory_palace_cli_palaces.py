@@ -100,7 +100,7 @@ class TestCreatePalace:
         """Given manager raises, returns False with error."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.create_palace.side_effect = RuntimeError("disk full")
+        mock_manager.create_palace.side_effect = OSError("disk full")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             result = cli.create_palace("Test", "testing")
@@ -151,7 +151,7 @@ class TestListPalaces:
         """Given manager error, returns False."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.list_palaces.side_effect = RuntimeError("fail")
+        mock_manager.list_palaces.side_effect = OSError("fail")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             assert cli.list_palaces() is False
@@ -209,7 +209,7 @@ class TestSyncQueue:
         """Given manager error, returns False."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.sync_from_queue.side_effect = RuntimeError("fail")
+        mock_manager.sync_from_queue.side_effect = FileNotFoundError("fail")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             assert cli.sync_queue() is False
@@ -273,7 +273,7 @@ class TestPruneCheckCLI:
         """Given manager error, returns False."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.prune_check.side_effect = RuntimeError("fail")
+        mock_manager.prune_check.side_effect = OSError("fail")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             assert cli.prune_check() is False
@@ -378,7 +378,7 @@ class TestSearchPalaces:
         """Given manager error, returns False."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.search_palaces.side_effect = RuntimeError("fail")
+        mock_manager.search_palaces.side_effect = FileNotFoundError("fail")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             assert cli.search_palaces("test") is False
@@ -518,7 +518,7 @@ class TestExportImportCLI:
         """Given manager error, print error message."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.export_state.side_effect = RuntimeError("write err")
+        mock_manager.export_state.side_effect = FileNotFoundError("write err")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             cli.export_palaces("/tmp/out.json")
@@ -545,7 +545,7 @@ class TestExportImportCLI:
         """Given manager error, print error message."""
         cli = MemoryPalaceCLI()
         mock_manager = Mock(spec=MemoryPalaceManager)
-        mock_manager.import_state.side_effect = RuntimeError("read err")
+        mock_manager.import_state.side_effect = FileNotFoundError("read err")
 
         with patch.object(cli, "_manager", return_value=mock_manager):
             cli.import_palaces("/tmp/in.json")

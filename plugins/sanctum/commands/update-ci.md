@@ -5,7 +5,7 @@ usage: /update-ci [--since <ref>] [--scope hooks|workflows|all] [--dry-run]
 
 # Update CI/CD Configuration
 
-Reconcile pre-commit hooks and GitHub Actions workflows with recent project changes. This command is designed for intermittent use — it inspects the git log to determine what changed since the last run.
+Reconcile pre-commit hooks and GitHub Actions workflows with recent project changes. This command is designed for intermittent use; it inspects the git log to determine what changed since the last run.
 
 ## Arguments
 
@@ -58,21 +58,21 @@ cat Makefile | head -50  # Check make targets referenced by CI
 
 For each hook configuration found:
 
-1. **Verify hook targets exist** — Check that all referenced scripts/files still exist at their configured paths
-2. **Add hooks for new patterns** — If new lintable file types or directories were added, suggest hook additions
-3. **Update file patterns** — If files were renamed (e.g., kebab-case to snake_case), update hook path globs
-4. **Validate hook tool versions** — Check if pinned tool versions have newer releases
+1. **Verify hook targets exist**: Check that all referenced scripts/files still exist at their configured paths
+2. **Add hooks for new patterns**: If new lintable file types or directories were added, suggest hook additions
+3. **Update file patterns**: If files were renamed (e.g., kebab-case to snake_case), update hook path globs
+4. **Validate hook tool versions**: Check if pinned tool versions have newer releases
 
 ### Phase 3.5: Reconcile Makefile CI Targets (if --scope includes makefiles)
 
 Verify that Makefile targets referenced by workflows and hooks actually exist, and that new targets are wired up:
 
-1. **Extract workflow references** — Parse `.github/workflows/*.yml` for `make <target>` and `$(MAKE) <target>` invocations
-2. **Extract hook references** — Parse pre-commit configs and Claude hooks for `make` calls
-3. **Diff against actual targets** — Run `make -qp | grep '^[a-zA-Z]' | cut -d: -f1` to list real targets
-4. **Flag orphaned references** — Workflow/hook calls a target that no longer exists (renamed or removed)
-5. **Flag unwired targets** — New Makefile targets (added in change window) that look CI-relevant (`test-*`, `lint-*`, `check-*`, `validate-*`) but aren't referenced by any workflow
-6. **Check per-plugin Makefiles** — If plugins have their own Makefiles, verify those targets are included in the root workflow matrix or composite targets
+1. **Extract workflow references**: Parse `.github/workflows/*.yml` for `make <target>` and `$(MAKE) <target>` invocations
+2. **Extract hook references**: Parse pre-commit configs and Claude hooks for `make` calls
+3. **Diff against actual targets**: Run `make -qp | grep '^[a-zA-Z]' | cut -d: -f1` to list real targets
+4. **Flag orphaned references**: Workflow/hook calls a target that no longer exists (renamed or removed)
+5. **Flag unwired targets**: New Makefile targets (added in change window) that look CI-relevant (`test-*`, `lint-*`, `check-*`, `validate-*`) but aren't referenced by any workflow
+6. **Check per-plugin Makefiles**: If plugins have their own Makefiles, verify those targets are included in the root workflow matrix or composite targets
 
 ```bash
 # List all make targets in root Makefile
@@ -89,12 +89,12 @@ git diff "${since}"..HEAD -- '**/Makefile' | grep '^+[a-zA-Z].*:' | sed 's/^+//'
 
 For each workflow in `.github/workflows/`:
 
-1. **Verify referenced paths** — Ensure all paths in `paths:`, `paths-ignore:`, and script steps exist
-2. **Update test commands** — If Makefile targets changed, update workflow steps
-3. **Check action versions** — Flag outdated `uses:` action versions (e.g., `actions/checkout@v3` → `@v4`)
-4. **Sync trigger branches** — Verify branch names in `on.push.branches` match actual branches
-5. **Update matrix strategies** — If new plugins were added, update any matrix-based test jobs
-6. **Validate secrets/permissions** — Ensure `permissions:` blocks match what steps actually need
+1. **Verify referenced paths**: Ensure all paths in `paths:`, `paths-ignore:`, and script steps exist
+2. **Update test commands**: If Makefile targets changed, update workflow steps
+3. **Check action versions**: Flag outdated `uses:` action versions (e.g., `actions/checkout@v3` → `@v4`)
+4. **Sync trigger branches**: Verify branch names in `on.push.branches` match actual branches
+5. **Update matrix strategies**: If new plugins were added, update any matrix-based test jobs
+6. **Validate secrets/permissions**: Ensure `permissions:` blocks match what steps actually need
 
 ### Phase 5: Update Claude Hooks (if present)
 
@@ -126,7 +126,7 @@ Otherwise: apply changes and show the diff.
 ## Examples
 
 ```bash
-# Standard update — auto-detect change window
+# Standard update (auto-detect change window)
 /update-ci
 
 # Only update GitHub workflows

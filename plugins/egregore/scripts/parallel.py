@@ -42,27 +42,30 @@ def detect_independent_items(
     The heuristic: active items with different ``source_ref`` values
     are assumed independent.  Items that share a ``source_ref`` are
     placed in separate groups so they run sequentially.
+
+    O(n): bucket active items by source_ref preserving first-seen
+    order, then distribute one item per bucket per group (round-robin).
     """
-    groups: list[list[str]] = []
-    seen: set[str] = set()
+    buckets: dict[str | None, list[str]] = {}
+    bucket_order: list[str | None] = []
 
     for item in work_items:
-        if item.get("status") != "active" or item["id"] in seen:
+        if item.get("status") != "active":
             continue
+        ref = item.get("source_ref")
+        if ref not in buckets:
+            buckets[ref] = []
+            bucket_order.append(ref)
+        buckets[ref].append(item["id"])
 
-        group = [item["id"]]
-        seen.add(item["id"])
+    if not buckets:
+        return []
 
-        for other in work_items:
-            if other["id"] in seen or other.get("status") != "active":
-                continue
-            if other.get("source_ref") != item.get("source_ref"):
-                group.append(other["id"])
-                seen.add(other["id"])
-
-        groups.append(group)
-
-    return groups
+    max_depth = max(len(buckets[ref]) for ref in bucket_order)
+    return [
+        [buckets[ref][i] for ref in bucket_order if i < len(buckets[ref])]
+        for i in range(max_depth)
+    ]
 
 
 def build_agent_dispatch(

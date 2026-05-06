@@ -171,7 +171,7 @@ class ErrorHandler:
         validation_error: str,
         context: dict[str, Any] | None = None,
     ) -> ToolError:
-        """Handle validation errors."""
+        """Wrap a validation failure as a ``MEDIUM``-severity ``ToolError``."""
         return ToolError(
             severity=ErrorSeverity.MEDIUM,
             error_code="VALIDATION_ERROR",

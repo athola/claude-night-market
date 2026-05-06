@@ -1,7 +1,7 @@
 ---
 name: update-readme
-description: 'Refresh README structure and content using repo context. Use after major features land or when README drifts from current capability.'
-version: 1.9.3
+description: 'Refresh README structure and content using repo context.'
+version: 1.9.4
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -15,8 +15,8 @@ complexity: high
 model_hint: deep
 estimated_tokens: 1200
 modules:
-- language-audit
-- exemplar-research
+- modules/language-audit.md
+- modules/exemplar-research.md
 progressive_loading: true
 dependencies:
 - sanctum:shared

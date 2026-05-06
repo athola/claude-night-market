@@ -190,11 +190,6 @@ class TestValidateTranslation:
         )
 
     def test_validate_translation_empty_to_empty_returns_false(self) -> None:
-        """validate_translation returns False for empty translation.
-
-        Note: The function returns len(translated_params) > 0, so even
-        empty-to-empty returns False. This is current behavior.
-        """
         wrapper = _make_wrapper()
 
         original = {}

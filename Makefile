@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check stargazer-analysis demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -147,8 +147,8 @@ check-examples: ## Verify all plugins have proper examples
 docs-sync-check: ## Verify capabilities docs match plugin registrations
 	@bash scripts/capabilities-sync-check.sh
 
-stargazer-analysis: ## Analyze stargazer overlap for community targeting
-	@uv run python scripts/stargazer_overlap.py --limit 50
+check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh
+	@bash scripts/shared/check-json-utils-drift.sh
 
 # ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
 

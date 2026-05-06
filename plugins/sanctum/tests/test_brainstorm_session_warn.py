@@ -92,11 +92,14 @@ class TestMainHook:
                 pass
 
         out = captured_stdout.getvalue()
-        if out.strip():
-            payload = json.loads(out)
-            ctx = payload.get("hookSpecificOutput", {}).get("additionalContext", "")
-            assert "stale1" in ctx or "brainstorm" in ctx.lower()
-            assert "abandoned" in ctx.lower() or "stale" in ctx.lower()
+        # Hook MUST emit additionalContext when a stale session exists;
+        # an empty stdout is a regression. C5 (PR #470 review) flagged
+        # the prior `if out.strip():` guard as vacuous-pass.
+        assert out.strip(), "main() must produce additionalContext on stale sessions"
+        payload = json.loads(out)
+        ctx = payload.get("hookSpecificOutput", {}).get("additionalContext", "")
+        assert "stale1" in ctx or "brainstorm" in ctx.lower()
+        assert "abandoned" in ctx.lower() or "stale" in ctx.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit

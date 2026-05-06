@@ -75,8 +75,19 @@ paradigm, disruptive, ecosystem
 ```
 cutting-edge, state-of-the-art, next-gen, AI-powered,
 game-changing, innovative, transformative, seamless,
-user-friendly, best-in-class
+user-friendly, best-in-class, world-class
 ```
+
+### Empowerment / Quantity Cliches
+```
+empower, empowering, myriad, plethora, navigate (as metaphor)
+```
+
+Notes:
+- "navigate" is fine for actual UI/wayfinding; flag when used
+  for non-spatial concepts ("navigate the complexities").
+- "myriad" — replace with "many" plus a count if you have one.
+- "empower" — replace with "let users" plus a verb.
 
 ## Tier 3: Phrase Patterns
 

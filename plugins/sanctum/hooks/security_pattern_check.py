@@ -24,6 +24,9 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+# A-11: avoid re-allocating list literal on every PreToolUse invocation.
+_TRIGGERING_TOOLS = frozenset({"Edit", "Write", "MultiEdit"})
+
 
 def get_security_patterns():
     """Build patterns dynamically to avoid triggering other security hooks."""
@@ -208,7 +211,7 @@ def main():
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
 
-    if tool_name not in ["Edit", "Write", "MultiEdit"]:
+    if tool_name not in _TRIGGERING_TOOLS:
         sys.exit(0)
 
     file_path = tool_input.get("file_path", "")

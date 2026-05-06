@@ -306,7 +306,6 @@ detailed troubleshooting guide covering common issues and their solutions.
         assert len(comparison["comparison_table"]) == EXPECTED_SKILL_COUNT
 
     def test_monitor_token_budgets(self, sample_skills_dir) -> None:
-        """Test token budget monitoring."""
         tracker = TokenUsageTracker(sample_skills_dir)
 
         # Set a small budget

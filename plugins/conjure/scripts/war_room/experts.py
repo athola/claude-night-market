@@ -102,7 +102,7 @@ def get_haiku_command() -> list[str]:
     """
     if shutil.which("claude"):
         return ["claude", "--model", "claude-haiku-3", "-p"]
-    raise RuntimeError("Claude CLI not found - cannot use Haiku fallback")
+    raise FileNotFoundError("Claude CLI not found in PATH; cannot use Haiku fallback")
 
 
 async def check_expert_availability(expert: ExpertConfig) -> bool:

@@ -41,6 +41,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/.claude-plugin/marketplace.json",
         "**/__init__.py",
         "**/openpackage.yml",
+        "**/SKILL.md",
     ]
 
     # Shared exclusion set from update_plugins_modules.constants
@@ -112,6 +113,38 @@ def update_openpackage_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
 
+def update_skill_md_version(content: str, new_version: str) -> str:
+    """Update ``version:`` in SKILL.md YAML frontmatter only.
+
+    SKILL.md files (#484) duplicate the plugin version in their YAML
+    frontmatter; the release script previously bumped ``plugin.json``
+    but left these in drift. This helper rewrites the ``version:``
+    key inside the leading frontmatter block while leaving the body
+    untouched -- a body line like ``Earlier shipped as version:
+    1.0.0`` must not be rewritten.
+
+    Files without YAML frontmatter or without a ``version:`` key in
+    the frontmatter are returned unchanged.
+    """
+    fm_match = re.match(r"^(---\n)(.*?)(\n---\n?)", content, re.DOTALL)
+    if not fm_match:
+        return content
+    head, frontmatter, tail = fm_match.groups()
+    pattern = r'^version:\s*["\']?[0-9]+\.[0-9]+\.[0-9]+["\']?'
+    replacement = f"version: {new_version}"
+    new_frontmatter, n = re.subn(
+        pattern,
+        replacement,
+        frontmatter,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    if n == 0:
+        return content
+    body = content[fm_match.end() :]
+    return f"{head}{new_frontmatter}{tail}{body}"
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -132,6 +165,8 @@ def update_version_file(
             content = update_init_py_version(content, new_version)
         elif file_path.name == "openpackage.yml":
             content = update_openpackage_version(content, new_version)
+        elif file_path.name == "SKILL.md":
+            content = update_skill_md_version(content, new_version)
 
         if content != original:
             if not dry_run:

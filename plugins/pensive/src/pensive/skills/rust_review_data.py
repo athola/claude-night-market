@@ -8,6 +8,8 @@ analysis logic.
 
 from __future__ import annotations
 
+import re
+
 # ── Regex patterns used across analysis methods ──────────────
 
 # Unsafe code detection
@@ -237,3 +239,64 @@ Dependency vulnerabilities: {dependency_vulnerabilities}
 
 Panic points detected: {panic_points}
 """
+
+# ── Pre-compiled regex (A-01) ────────────────────────────────
+#
+# These compiled forms are imported by the analyzer mixins so
+# patterns are parsed once at module load instead of inside
+# per-line scans. Plain string forms above remain the source of
+# truth; the compiled forms below are derived mechanically.
+
+UNSAFE_BLOCK_RE = re.compile(UNSAFE_BLOCK_PATTERN)
+UNSAFE_FN_RE = re.compile(UNSAFE_FN_PATTERN)
+SAFETY_DOC_RE = re.compile(SAFETY_DOC_PATTERN)
+RC_REFCELL_RE = re.compile(RC_REFCELL_PATTERN)
+RC_NEW_REFCELL_RE = re.compile(RC_NEW_REFCELL_PATTERN)
+MIXED_BORROWS_MUT_RE = re.compile(MIXED_BORROWS_MUT_PATTERN)
+MIXED_BORROWS_REF_RE = re.compile(MIXED_BORROWS_REF_PATTERN)
+ARC_MUTEX_RE = re.compile(ARC_MUTEX_PATTERN)
+MUTEX_NEW_RE = re.compile(MUTEX_NEW_PATTERN)
+POINTER_OFFSET_RE = re.compile(POINTER_OFFSET_PATTERN)
+LARGE_OFFSET_RE = re.compile(LARGE_OFFSET_PATTERN)
+LIFETIME_ANNOTATION_RE = re.compile(LIFETIME_ANNOTATION_PATTERN)
+PANIC_CALL_RE = re.compile(PANIC_CALL_PATTERN)
+UNWRAP_CALL_RE = re.compile(UNWRAP_CALL_PATTERN)
+INDEX_ACCESS_RE = re.compile(INDEX_ACCESS_PATTERN)
+ASYNC_FN_RE = re.compile(ASYNC_FN_PATTERN)
+ASYNC_CALL_RE = re.compile(ASYNC_CALL_PATTERN)
+DERIVE_MACRO_RE = re.compile(DERIVE_MACRO_PATTERN)
+MACRO_RULES_RE = re.compile(MACRO_RULES_PATTERN)
+DOC_COMMENT_RE = re.compile(DOC_COMMENT_PATTERN)
+TRAIT_DEF_RE = re.compile(TRAIT_DEF_PATTERN)
+TRAIT_METHOD_RE = re.compile(TRAIT_METHOD_PATTERN)
+GENERIC_METHOD_RE = re.compile(GENERIC_METHOD_PATTERN)
+STATIC_METHOD_RE = re.compile(STATIC_METHOD_PATTERN)
+IMPL_FOR_RE = re.compile(IMPL_FOR_PATTERN)
+CONST_GENERIC_STRUCT_RE = re.compile(CONST_GENERIC_STRUCT_PATTERN)
+CONST_MAX_RE = re.compile(CONST_MAX_PATTERN)
+CARGO_DEP_RE = re.compile(CARGO_DEP_PATTERN)
+TARGET_SECTION_RE = re.compile(TARGET_SECTION_PATTERN)
+
+# Builtin preference compiled forms
+
+BUILTIN_TO_METHOD_RE = re.compile(BUILTIN_TO_METHOD_PATTERN)
+BUILTIN_TO_STRING_RE = re.compile(BUILTIN_TO_STRING_PATTERN)
+
+# Each entry is a triple: compiled regex, trait name, recommendation text.
+BUILTIN_CONVERSION_PATTERNS_RE: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(p), t, r) for p, t, r in BUILTIN_CONVERSION_PATTERNS
+]
+BUILTIN_STANDARD_TRAIT_PATTERNS_RE: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(p), t, r) for p, t, r in BUILTIN_STANDARD_TRAIT_PATTERNS
+]
+BUILTIN_ERROR_CONVERSION_PATTERNS_RE: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(p), t, r) for p, t, r in BUILTIN_ERROR_CONVERSION_PATTERNS
+]
+# Each entry: DOTALL-compiled regex, lint name, replacement, clippy lint id.
+BUILTIN_MANUAL_COMBINATOR_PATTERNS_RE: list[tuple[re.Pattern[str], str, str, str]] = [
+    (re.compile(p, re.DOTALL), n, repl, lint)
+    for p, n, repl, lint in BUILTIN_MANUAL_COMBINATOR_PATTERNS
+]
+BUILTIN_EXCLUSION_PATTERNS_RE: list[re.Pattern[str]] = [
+    re.compile(p) for p in BUILTIN_EXCLUSION_PATTERNS
+]

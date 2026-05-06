@@ -39,7 +39,6 @@ def build_history(total: int, regret_every: int, domain: str) -> list[dict]:
 
 
 def test_adjust_state_promotes_on_high_accuracy(tmp_path: Path) -> None:
-    """Test that adjust_state promotes on high accuracy."""
     module = load_module()
     events = build_history(total=30, regret_every=0, domain="cache")
     aggregate, per_domain = module.compute_stats(events)
@@ -51,7 +50,6 @@ def test_adjust_state_promotes_on_high_accuracy(tmp_path: Path) -> None:
 
 
 def test_adjust_state_demotes_when_regret_spikes(tmp_path: Path) -> None:
-    """Test that adjust_state demotes when regret spikes."""
     module = load_module()
     events = build_history(total=20, regret_every=2, domain="cache")
     aggregate, per_domain = module.compute_stats(events)
@@ -63,7 +61,6 @@ def test_adjust_state_demotes_when_regret_spikes(tmp_path: Path) -> None:
 
 
 def test_regret_alerts_fire_for_garden_commands(tmp_path: Path, monkeypatch) -> None:
-    """Test that regret alerts fire for garden commands."""
     module = load_module()
     history = [{"result": "regret", "domains": ["trust"]} for _ in range(5)]
     alerts = module.compute_regret_alerts(

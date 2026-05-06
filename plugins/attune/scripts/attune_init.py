@@ -420,8 +420,8 @@ def _print_summary(project_path: Path, created_files: list[str]) -> None:
     print(f"{'=' * 60}\n")
 
 
-def main() -> None:
-    """Run attune init CLI."""
+def _build_parser() -> argparse.ArgumentParser:
+    """Build the ``attune init`` argparse parser."""
     parser = argparse.ArgumentParser(description="Initialize a new project with attune")
     parser.add_argument(
         "--lang",
@@ -429,29 +429,14 @@ def main() -> None:
         choices=["python", "rust", "typescript"],
         help="Project language",
     )
+    parser.add_argument("--name", help="Project name")
+    parser.add_argument("--author", default="Your Name", help="Project author")
+    parser.add_argument("--email", default="you@example.com", help="Author email")
     parser.add_argument(
-        "--name",
-        help="Project name",
+        "--python-version", default="3.10", help="Python version (for Python projects)"
     )
     parser.add_argument(
-        "--author",
-        default="Your Name",
-        help="Project author",
-    )
-    parser.add_argument(
-        "--email",
-        default="you@example.com",
-        help="Author email",
-    )
-    parser.add_argument(
-        "--python-version",
-        default="3.10",
-        help="Python version (for Python projects)",
-    )
-    parser.add_argument(
-        "--rust-edition",
-        default="2021",
-        help="Rust edition (for Rust projects)",
+        "--rust-edition", default="2021", help="Rust edition (for Rust projects)"
     )
     parser.add_argument(
         "--package-manager",
@@ -459,15 +444,9 @@ def main() -> None:
         choices=["npm", "pnpm", "yarn"],
         help="Package manager (for TypeScript projects)",
     )
+    parser.add_argument("--repository", default="", help="Git repository URL")
     parser.add_argument(
-        "--repository",
-        default="",
-        help="Git repository URL",
-    )
-    parser.add_argument(
-        "--description",
-        default="A new project",
-        help="Project description",
+        "--description", default="A new project", help="Project description"
     )
     parser.add_argument(
         "--path",
@@ -480,40 +459,32 @@ def main() -> None:
         action="store_true",
         help="Overwrite existing files without prompting",
     )
+    parser.add_argument("--no-git", action="store_true", help="Skip git initialization")
     parser.add_argument(
-        "--no-git",
-        action="store_true",
-        help="Skip git initialization",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Preview changes without writing files",
+        "--dry-run", action="store_true", help="Preview changes without writing files"
     )
     parser.add_argument(
         "--backup",
         action="store_true",
         help="Create timestamped backup before overwriting files",
     )
+    return parser
 
-    args = parser.parse_args()
 
-    project_path = args.path.resolve()
-
-    # Detect or use specified language
-    detector = ProjectDetector(project_path)
-    language = args.lang or detector.detect_language()
-
+def _resolve_language(requested: str | None, detector: ProjectDetector) -> str:
+    """Use ``--lang`` if provided, otherwise auto-detect; ``sys.exit(1)`` on failure."""
+    language = requested or detector.detect_language()
     if not language:
         print(
             "Could not detect project language. Please specify with --lang",
             file=sys.stderr,
         )
         sys.exit(1)
+    return language
 
-    # Get project name
-    project_name = args.name or project_path.name
 
+def _print_init_banner(project_name: str, language: str, project_path: Path) -> None:
+    """Print the standard init banner for ``attune_init``."""
     print(f"\n{'=' * 60}")
     print("Attune Project Initialization")
     print(f"{'=' * 60}")
@@ -522,7 +493,18 @@ def main() -> None:
     print(f"Path: {project_path}")
     print(f"{'=' * 60}\n")
 
-    # Get template variables
+
+def main() -> None:
+    """Run attune init CLI."""
+    args = _build_parser().parse_args()
+    project_path = args.path.resolve()
+
+    detector = ProjectDetector(project_path)
+    language = _resolve_language(args.lang, detector)
+    project_name = args.name or project_path.name
+
+    _print_init_banner(project_name, language, project_path)
+
     variables = get_default_variables(
         project_name=project_name,
         language=language,
@@ -537,11 +519,7 @@ def main() -> None:
 
     _run_post_init_git(project_path, args.no_git, args.force, detector)
 
-    # Find templates directory (relative to this script)
-    script_dir = Path(__file__).parent
-    templates_root = script_dir.parent / "templates"
-
-    # Copy templates
+    templates_root = Path(__file__).parent.parent / "templates"
     created_files = copy_templates(
         language=language,
         project_path=project_path,
@@ -552,7 +530,6 @@ def main() -> None:
         backup=args.backup,
     )
 
-    # Create project structure
     create_project_structure(
         project_path,
         language,

@@ -50,7 +50,7 @@ review-core:report-assembled
 
 ## Task Deletion (Claude Code 2.1.20+)
 
-TaskUpdate now supports deleting tasks. For imbue skills, **keep proof-of-work items** as audit trails — only delete transient tracking items from completed workflows.
+TaskUpdate now supports deleting tasks. For imbue skills, **keep proof-of-work items** as audit trails. Only delete transient tracking items from completed workflows.
 
 > **2.1.21 fix**: Task IDs are no longer reused after deletion. On 2.1.20, deleting a task and creating a new one could silently reuse the same ID, leaking old state into new tasks. Upgrade to 2.1.21+ if using task deletion.
 
@@ -58,8 +58,8 @@ TaskUpdate now supports deleting tasks. For imbue skills, **keep proof-of-work i
 - Transient workflow items after successful completion (e.g., `catchup:scope-identified` after catchup finishes)
 
 ### Never Delete
-- `proof:*` items — these are audit evidence
-- `evidence-logging:*` items — these document captured evidence
+- `proof:*` items: these are audit evidence
+- `evidence-logging:*` items: these document captured evidence
 - Any items that serve as compliance records
 
 ## Best Practices

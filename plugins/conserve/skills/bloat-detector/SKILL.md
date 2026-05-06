@@ -1,7 +1,7 @@
 ---
 name: bloat-detector
-description: 'Detect codebase bloat via progressive analysis: dead code, duplication, complexity, and doc bloat'
-version: 1.9.3
+description: 'Detect codebase bloat via progressive analysis: dead code, duplication, complexity, and doc bloat.'
+version: 1.9.4
 alwaysApply: false
 category: conservation
 tags:
@@ -12,14 +12,14 @@ tags:
 - optimization
 tools: []
 modules:
-- quick-scan
-- git-history-analysis
-- growth-analysis
-- code-bloat-patterns
-- ai-generated-bloat
-- documentation-bloat
-- static-analysis-integration
-- remediation-types
+- modules/quick-scan.md
+- modules/git-history-analysis.md
+- modules/growth-analysis.md
+- modules/code-bloat-patterns.md
+- modules/ai-generated-bloat.md
+- modules/documentation-bloat.md
+- modules/static-analysis-integration.md
+- modules/remediation-types.md
 progressive_loading: true
 estimated_tokens: 400
 usage_patterns:

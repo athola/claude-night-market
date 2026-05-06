@@ -4,10 +4,8 @@ Builds a directed graph of `Skill(plugin:name)` references across all SKILL.md
 files in a plugins tree. Surfaces hubs (high inbound), orchestrators (high
 outbound), and isolates (zero degree).
 
-Used by:
-- abstract:skill-graph-audit (skill wrapper)
-- docs/quality-gates.md generation
-- audit reports
+Used by `abstract:skill-graph-audit` (the skill wrapper) and any tooling
+that needs the marketplace federation graph.
 """
 
 from __future__ import annotations
@@ -15,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -25,9 +24,7 @@ try:
 except ImportError:  # pragma: no cover - PyYAML is in dev deps
     _yaml = None  # type: ignore[assignment]  # None sentinel; callers branch on `_yaml is None`
 
-# Matches Skill(plugin:name) and Skill(name) inside backticks or bare.
-# Backtick form: `Skill(plugin:name)` or `Skill(name)`
-# Bare form: Skill(plugin:name) -- captured anywhere.
+# Matches Skill(plugin:name) and Skill(name) anywhere in text.
 _SKILL_REF_RE = re.compile(r"Skill\(\s*([a-zA-Z0-9_-]+)(?::([a-zA-Z0-9_-]+))?\s*\)")
 
 # Matches a kebab-case bare skill name (no path separators, no extension).
@@ -43,8 +40,13 @@ _BARE_SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 # directory (e.g. `modules/tdd-methodology.md`). Bare names are NEVER
 # skill references in this field; only fully-qualified `plugin:name`
 # entries count, which is rare but legal.
-_FRONTMATTER_DEP_FIELDS_QUALIFIED_ONLY = ("modules",)
-_FRONTMATTER_DEP_FIELDS_ANY = ("dependencies",)
+# Map of frontmatter field -> whether bare names resolve to skill refs.
+# `dependencies:` allows bare names (sibling-skill shorthand);
+# `modules:` only counts fully-qualified `plugin:name` entries.
+_FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
+    ("dependencies", True),
+    ("modules", False),
+)
 
 # Valid values for the `role:` frontmatter field, per the taxonomy in
 # docs/skill-integration-guide.md#skill-role-taxonomy.
@@ -78,7 +80,19 @@ class SkillNode:
 
 @dataclass
 class SkillGraph:
-    """Directed graph of skills and their Skill() references."""
+    """Directed graph of skills and their Skill() references.
+
+    The four collections (``nodes``, ``edges``, ``outbound``,
+    ``inbound``) are mutually consistent: every key in ``outbound``
+    appears in ``nodes``, every ``(a, b)`` in ``edges`` corresponds
+    to ``b in outbound[a]`` and ``a in inbound[b]``. I14 (PR #470
+    review): prefer the ``add_node`` / ``add_edge`` mutators below
+    over direct collection mutation -- they update all four fields in
+    lockstep so a misplaced ``.add()`` cannot desynchronise the
+    invariant. Direct attribute access is preserved for read-only
+    consumers (``hubs``, ``isolates``, ``dangling`` walks) and for
+    legacy call sites; new code should use the mutators.
+    """
 
     nodes: dict[str, SkillNode] = field(default_factory=dict)
     edges: set[tuple[str, str]] = field(default_factory=set)
@@ -86,6 +100,24 @@ class SkillGraph:
     outbound: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
     # inbound[dst] -> set of src node keys
     inbound: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
+
+    def add_node(self, node: SkillNode) -> None:
+        """Register a node. Idempotent."""
+        self.nodes[str(node)] = node
+
+    def add_edge(self, src_key: str, dst_key: str) -> None:
+        """Add a directed edge maintaining all four collections in lockstep.
+
+        Skips no-op self-edges. Endpoints are NOT auto-registered;
+        callers should ``add_node`` for any endpoint they intend to
+        also be a node, but dangling endpoints are intentional (the
+        ``dangling`` audit identifies them).
+        """
+        if src_key == dst_key:
+            return
+        self.edges.add((src_key, dst_key))
+        self.outbound[src_key].add(dst_key)
+        self.inbound[dst_key].add(src_key)
 
 
 def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
@@ -108,9 +140,13 @@ def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
     return refs
 
 
-def _parse_frontmatter_field(text: str, field: str) -> str:
-    """Best-effort extraction of a top-level frontmatter scalar."""
-    pattern = re.compile(rf"^{field}:\s*(.*)$", re.MULTILINE)
+def _parse_frontmatter_field(text: str, field_name: str) -> str:
+    """Best-effort extraction of a top-level frontmatter scalar.
+
+    Note: ``field_name`` is named explicitly to avoid shadowing
+    ``dataclasses.field`` imported at module top (S1, PR #470).
+    """
+    pattern = re.compile(rf"^{field_name}:\s*(.*)$", re.MULTILINE)
     m = pattern.search(text)
     if not m:
         return ""
@@ -139,7 +175,11 @@ def _parse_frontmatter(text: str) -> dict[str, Any]:
         return {}
     try:
         data = _yaml.safe_load(m.group(1))
-    except _yaml.YAMLError:
+    except _yaml.YAMLError as exc:
+        print(
+            f"skill_graph: malformed YAML frontmatter ({exc})",
+            file=sys.stderr,
+        )
         return {}
     return data if isinstance(data, dict) else {}
 
@@ -212,10 +252,7 @@ def extract_frontmatter_skill_refs(
     text = skill_md.read_text(encoding="utf-8", errors="replace")
     fm = _parse_frontmatter(text)
     refs: set[tuple[str, str]] = set()
-    for field_name, allow_bare in (
-        *((f, True) for f in _FRONTMATTER_DEP_FIELDS_ANY),
-        *((f, False) for f in _FRONTMATTER_DEP_FIELDS_QUALIFIED_ONLY),
-    ):
+    for field_name, allow_bare in _FRONTMATTER_DEP_FIELDS:
         items = fm.get(field_name) or []
         if not isinstance(items, list):
             continue
@@ -278,7 +315,7 @@ def build_graph(plugins_root: Path) -> SkillGraph:
     graph = SkillGraph()
     nodes = _discover_skills(plugins_root)
     for node in nodes:
-        graph.nodes[str(node)] = node
+        graph.add_node(node)
 
     for node in nodes:
         src_key = str(node)
@@ -293,12 +330,7 @@ def build_graph(plugins_root: Path) -> SkillGraph:
         for plugin, name in all_refs:
             if plugin is None:
                 continue  # skip unqualified inline refs
-            dst_key = f"{plugin}:{name}"
-            if dst_key == src_key:
-                continue  # skip self-references
-            graph.edges.add((src_key, dst_key))
-            graph.outbound[src_key].add(dst_key)
-            graph.inbound[dst_key].add(src_key)
+            graph.add_edge(src_key, f"{plugin}:{name}")
     return graph
 
 
@@ -388,7 +420,6 @@ KNOWN_EXTERNAL_PLUGINS = frozenset(
         "feature-dev",
         "frontend-design",
         "interface-design",
-        "minister",
         "plugin-developer",
         "pr-review-toolkit",
         "ralph-wiggum",
@@ -404,13 +435,9 @@ _PLACEHOLDER_RE = re.compile(
 
 def _is_placeholder(plugin: str, name: str) -> bool:
     """True if either side of the reference looks like template text."""
-    if _PLACEHOLDER_RE.search(name):
+    if _PLACEHOLDER_RE.search(name) or _PLACEHOLDER_RE.search(plugin):
         return True
-    if _PLACEHOLDER_RE.search(plugin):
-        return True
-    if plugin.lower() in {"plugin", "your-plugin"}:
-        return True
-    return False
+    return plugin.lower() in {"plugin", "your-plugin"}
 
 
 def classify_dangling_refs(

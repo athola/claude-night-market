@@ -10,12 +10,19 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Pattern to extract YAML frontmatter
-FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+# D-02: pull canonical frontmatter parser from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
+    parse_frontmatter,
+)
 
 # Pattern to extract a specific ## section
 SECTION_RE = re.compile(
@@ -37,17 +44,20 @@ class FindingsFile:
     raw_text: str = ""
 
 
-def _parse_frontmatter(text: str) -> dict[str, str]:
-    """Extract YAML-like key: value pairs from frontmatter."""
-    match = FRONTMATTER_RE.match(text)
-    if not match:
-        return {}
-    result: dict[str, str] = {}
-    for line in match.group(1).splitlines():
-        if ":" in line:
-            key, _, value = line.partition(":")
-            result[key.strip()] = value.strip()
-    return result
+def _coerce_int(value: object, default: int = 0) -> int:
+    """Convert a frontmatter value to int, defaulting on failure.
+
+    PyYAML may return int, str, bool, list, dict, or None for any
+    field; we only know how to coerce ints and digit-string forms.
+    """
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    return default
 
 
 def _extract_section(text: str, section_name: str) -> str:
@@ -70,18 +80,15 @@ def parse_findings_file(text: str) -> FindingsFile:
         FindingsFile with parsed metadata and summary.
 
     """
-    meta = _parse_frontmatter(text)
+    meta = parse_frontmatter(text) or {}
     summary = _extract_section(text, "summary")
 
-    tier_str = meta.get("tier", "0")
-    evidence_str = meta.get("evidence_count", "0")
-
     return FindingsFile(
-        agent=meta.get("agent", "unknown"),
-        area=meta.get("area", ""),
-        tier=int(tier_str) if tier_str.isdigit() else 0,
-        evidence_count=int(evidence_str) if evidence_str.isdigit() else 0,
-        validation_status=meta.get("validation_status", ""),
+        agent=str(meta.get("agent", "unknown")),
+        area=str(meta.get("area", "")),
+        tier=_coerce_int(meta.get("tier")),
+        evidence_count=_coerce_int(meta.get("evidence_count")),
+        validation_status=str(meta.get("validation_status", "")),
         summary=summary,
         raw_text=text,
     )

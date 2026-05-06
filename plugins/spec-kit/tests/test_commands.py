@@ -56,12 +56,6 @@ class TestSpeckitCommands:
             self,
             detailed_feature_description: str,
         ) -> None:
-            """Test short name pattern matching.
-
-            Given: A feature description containing specific topics
-            When: Generating candidate short names
-            Then: At least one candidate should match content in the description
-            """
             # Given
             feature_desc = detailed_feature_description
 
@@ -557,12 +551,6 @@ class TestSpeckitCommands:
             self,
             valid_task_list: list,
         ) -> None:
-            """Test blocking of tasks with unsatisfied dependencies.
-
-            Given: A task list with dependency relationships
-            When: No tasks have been completed yet
-            Then: Only tasks without dependencies should be ready
-            """
             # Given
             satisfied_tasks = set()  # Empty - nothing completed yet
 
@@ -683,12 +671,6 @@ class TestSpeckitCommands:
         def test_should_structure_report_correctly_when_generating_analysis(
             self,
         ) -> None:
-            """Test structure of analysis reports.
-
-            Given: Analysis results from code scanning
-            When: Generating the analysis report
-            Then: Should include all required sections
-            """
             # Given - Mock analysis results
             analysis_results = {
                 "coverage": {

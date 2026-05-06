@@ -1,7 +1,7 @@
 ---
 name: methodology-curator
-description: 'Surface expert frameworks and methodologies. Use when: creating or evaluating skills, hooks, or agents.'
-version: 1.9.3
+description: 'Surface expert frameworks and methodologies. Use when creating or evaluating skills, hooks, or agents.'
+version: 1.9.4
 alwaysApply: false
 category: meta-skills
 tags:

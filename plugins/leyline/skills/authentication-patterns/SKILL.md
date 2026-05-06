@@ -1,11 +1,7 @@
 ---
 name: authentication-patterns
-description: 'Authentication patterns for external services: API keys, OAuth, token
-  management, verification.
-
-
-  authentication, API keys, OAuth, token management, credentials.'
-version: 1.9.3
+description: 'Authentication patterns: API keys, OAuth, token management, credentials.'
+version: 1.9.4
 alwaysApply: false
 category: infrastructure
 tags:

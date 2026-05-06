@@ -320,7 +320,7 @@ class TestHaikuFallback:
     def test_get_haiku_command_not_found(self) -> None:
         """get_haiku_command raises when claude not available."""
         with patch("shutil.which", return_value=None):
-            with pytest.raises(RuntimeError, match="Claude CLI not found"):
+            with pytest.raises(FileNotFoundError, match="Claude CLI not found"):
                 get_haiku_command()
 
     @pytest.mark.asyncio

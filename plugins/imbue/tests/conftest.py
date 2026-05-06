@@ -436,7 +436,6 @@ def create_mock_skill(name: str, has_evidence_patterns: bool = True) -> dict[str
 
 
 def create_mock_evidence_item(e_id: str, command: str, output: str) -> dict[str, Any]:
-    """Create a mock evidence item."""
     return {
         "id": e_id,
         "command": command,

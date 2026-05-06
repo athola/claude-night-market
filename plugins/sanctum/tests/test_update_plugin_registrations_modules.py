@@ -54,6 +54,34 @@ class TestExtractModuleRefsFromFile:
         assert "already-named.md" in refs
         assert "already-named.md.md" not in refs
 
+    def test_frontmatter_strips_modules_path_prefix(self, tmp_path: Path) -> None:
+        """
+        GIVEN a frontmatter modules: list where entries include path
+        prefixes (``modules/foo.md``, ``./modules/foo.md``) -- the two
+        forms found in real plugins (leyline/utility and attune)
+        WHEN extracting module refs
+        THEN entries are normalized to bare filenames so set-membership
+        comparisons against on-disk filenames succeed.
+        """
+        md_file = tmp_path / "SKILL.md"
+        md_file.write_text(
+            "---\nmodules:\n"
+            "- modules/state-builder.md\n"
+            "- modules/gain\n"
+            "- ./modules/language-detection.md\n"
+            "---\n"
+        )
+
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        refs = auditor._extract_module_refs_from_file(md_file)
+
+        assert "state-builder.md" in refs
+        assert "gain.md" in refs
+        assert "language-detection.md" in refs
+        assert "modules/state-builder.md" not in refs
+        assert "modules/gain.md" not in refs
+        assert "./modules/language-detection.md" not in refs
+
     def test_frontmatter_skips_jinja_template_entries(self, tmp_path: Path) -> None:
         """
         GIVEN a frontmatter modules: list with Jinja template entries (starting with {)
@@ -485,17 +513,14 @@ class TestAuditSkillModulesAdvanced:
         auditor = PluginAuditor(tmp_path.parent, dry_run=True)
         issues = auditor.audit_skill_modules(tmp_path)
 
-        # existing.md is referenced AND on disk → not orphaned
-        # nonexistent.md is referenced but NOT on disk → only in all_references,
-        # not in modules_on_disk. The "missing" calculation is:
-        # referenced_modules - modules_on_disk, but referenced_modules only
-        # includes refs that ARE in modules_on_disk, so "missing" is always
-        # empty in current implementation.
-        if "my-skill" in issues:
-            assert "existing.md" not in issues["my-skill"].get("orphaned", [])
-        else:
-            # No issues at all — existing.md is properly referenced
-            assert True
+        # existing.md is referenced AND on disk -> not orphaned.
+        # nonexistent.md is referenced but NOT on disk -> reported as
+        # "missing" (B-10 fix: previously the missing set was always
+        # empty because referenced_modules was pre-filtered by disk
+        # presence).
+        assert "my-skill" in issues
+        assert "existing.md" not in issues["my-skill"].get("orphaned", [])
+        assert "nonexistent.md" in issues["my-skill"].get("missing", [])
 
     def test_multiple_skills_with_mixed_issues(self, tmp_path: Path) -> None:
         """
@@ -554,7 +579,7 @@ class TestAuditSkillModulesAdvanced:
         issues = auditor.audit_skill_modules(tmp_path)
 
         # shared-logic.md should NOT be orphaned because skill-a references it
-        if "skill-b" in issues:
-            assert "shared-logic.md" not in issues["skill-b"].get("orphaned", [])
-        else:
-            assert True  # No issues means it was resolved
+        # via skills/skill-b/modules/shared-logic.md (full-path form).
+        assert "skill-b" not in issues or (
+            "shared-logic.md" not in issues["skill-b"].get("orphaned", [])
+        )

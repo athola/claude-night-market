@@ -205,7 +205,6 @@ class TestLanguageDetection:
 
     @pytest.mark.unit
     def test_empty_text_defaults_to_english(self) -> None:
-        """Empty text defaults to English."""
         assert detect_language("") == "en"
 
 

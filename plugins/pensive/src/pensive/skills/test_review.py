@@ -626,7 +626,11 @@ class TestReviewSkill(BaseReviewSkill):
     def analyze_integration_test_coverage(
         self, context: Any, _file_path: str = ""
     ) -> dict[str, Any]:
-        """Analyze integration test coverage."""
+        """Categorize tests under ``context`` and score multi-component coverage.
+
+        Walks discovered test files, partitioning ``unit`` vs ``integration``
+        and grepping for cross-component patterns (e.g. service+database).
+        """
         files = context.get_files()
 
         # Categorize tests

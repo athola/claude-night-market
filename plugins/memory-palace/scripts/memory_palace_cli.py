@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import logging
 import os
 import shutil
 from dataclasses import dataclass
@@ -226,13 +225,6 @@ class MemoryPalaceCLI:
                     self.print_status(f"  {domain}: {count} palaces")
             except (OSError, json.JSONDecodeError, ValueError) as e:
                 self.print_warning(f"Could not get palace statistics: {e}")
-            except Exception:
-                logging.getLogger(__name__).exception(
-                    "Unexpected error in show_status (palace stats)"
-                )
-                self.print_warning(
-                    "Could not get palace statistics: unexpected error (check logs)"
-                )
 
             garden_path = Path(
                 os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json"))
@@ -243,13 +235,6 @@ class MemoryPalaceCLI:
                     compute_garden_metrics(garden_path)
                 except (OSError, json.JSONDecodeError, ValueError) as e:
                     self.print_warning(f"Could not compute garden metrics: {e}")
-                except Exception:
-                    logging.getLogger(__name__).exception(
-                        "Unexpected error in show_status (garden metrics)"
-                    )
-                    self.print_warning(
-                        "Could not compute garden metrics: unexpected error (check logs)"
-                    )
 
     def garden_metrics(
         self,
@@ -295,9 +280,6 @@ class MemoryPalaceCLI:
                 print(json.dumps(metrics, indent=2, default=str))
         except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Metrics failed: {e}")
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in garden_metrics")
-            self.print_error("Metrics failed: unexpected error (check logs)")
 
     def garden_tend(self, opts: TendingOptions, include_palaces: bool = False) -> None:
         """Report and optionally apply tending actions to a digital garden.
@@ -500,14 +482,6 @@ class MemoryPalaceCLI:
                         self.print_warning(
                             f"Could not read skill {skill_dir.name}: {e}"
                         )
-                    except Exception:
-                        logging.getLogger(__name__).exception(
-                            "Unexpected error in list_skills for %s",
-                            skill_dir.name,
-                        )
-                        self.print_warning(
-                            f"Could not read skill {skill_dir.name}: unexpected error (check logs)"
-                        )
 
     def create_palace(self, name: str, domain: str, metaphor: str = "building") -> bool:
         """Create a new memory palace with a given name, domain, and metaphor.
@@ -534,10 +508,6 @@ class MemoryPalaceCLI:
         except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to create palace: {e}")
             return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in create_palace")
-            self.print_error("Failed to create palace: unexpected error (check logs)")
-            return False
 
     def list_palaces(self) -> bool:
         """List all available memory palaces."""
@@ -560,10 +530,6 @@ class MemoryPalaceCLI:
             return True
         except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to list palaces: {e}")
-            return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in list_palaces")
-            self.print_error("Failed to list palaces: unexpected error (check logs)")
             return False
 
     def sync_queue(self, auto_create: bool = False, dry_run: bool = False) -> bool:
@@ -598,10 +564,6 @@ class MemoryPalaceCLI:
             return False
         except json.JSONDecodeError as e:
             self.print_error(f"Failed to sync queue: corrupt JSON: {e}")
-            return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in sync_queue")
-            self.print_error("Failed to sync queue: unexpected error (check logs)")
             return False
 
     def prune_check(self, stale_days: int = 90) -> bool:
@@ -654,10 +616,6 @@ class MemoryPalaceCLI:
         except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to check palaces: {e}")
             return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in prune_check")
-            self.print_error("Failed to check palaces: unexpected error (check logs)")
-            return False
 
     def prune_apply(self, actions: list[str]) -> bool:
         """Apply prune actions after user approval."""
@@ -675,10 +633,6 @@ class MemoryPalaceCLI:
             return True
         except (OSError, json.JSONDecodeError, ValueError) as e:
             self.print_error(f"Failed to apply prune: {e}")
-            return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in prune_apply")
-            self.print_error("Failed to apply prune: unexpected error (check logs)")
             return False
 
     def search_palaces(self, query: str, search_type: str = "semantic") -> bool:
@@ -707,10 +661,6 @@ class MemoryPalaceCLI:
             return False
         except json.JSONDecodeError as e:
             self.print_error(f"Search failed: corrupt palace file: {e}")
-            return False
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in search_palaces")
-            self.print_error("Search failed: unexpected error (check logs)")
             return False
 
     def install_skills(self) -> bool:
@@ -784,9 +734,6 @@ class MemoryPalaceCLI:
             self.print_error(f"Export failed: file not found: {e}")
         except json.JSONDecodeError as e:
             self.print_error(f"Export failed: corrupt palace file: {e}")
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in export_palaces")
-            self.print_error("Export failed: unexpected error (check logs)")
 
     def import_palaces(
         self,
@@ -803,85 +750,68 @@ class MemoryPalaceCLI:
             self.print_error(f"Import failed: file not found: {e}")
         except json.JSONDecodeError as e:
             self.print_error(f"Import failed: corrupt JSON in source: {e}")
-        except Exception:
-            logging.getLogger(__name__).exception("Unexpected error in import_palaces")
-            self.print_error("Import failed: unexpected error (check logs)")
 
 
-def build_parser() -> argparse.ArgumentParser:
-    """Construct and return the CLI argument parser."""
-    parser = argparse.ArgumentParser(
-        description="Memory Palace Plugin CLI",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s enable                 # Enable the plugin
-  %(prog)s create 'Code Fortress' programming --metaphor fortress
-  %(prog)s search 'Rust ownership'
-  %(prog)s status                 # Show current status
-        """,
-    )
-
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
+def _add_zero_arg_commands(subparsers: Any) -> None:
+    """Register subcommands that take no arguments."""
     subparsers.add_parser("enable", help="Enable the memory palace plugin")
     subparsers.add_parser("disable", help="Disable the memory palace plugin")
     subparsers.add_parser("status", help="Show plugin status and statistics")
     subparsers.add_parser("skills", help="List available skills")
     subparsers.add_parser("install", help="Install skills into Claude")
+    subparsers.add_parser("list", help="List all memory palaces")
 
+
+def _add_garden_command(subparsers: Any) -> None:
+    """Register the ``garden`` subcommand and its metrics/tend forms."""
     garden_parser = subparsers.add_parser("garden", help="Digital garden utilities")
     garden_sub = garden_parser.add_subparsers(dest="garden_cmd", help="Garden commands")
 
-    garden_metrics_parser = garden_sub.add_parser(
-        "metrics", help="Compute digital garden metrics"
-    )
-    garden_metrics_parser.add_argument(
+    metrics = garden_sub.add_parser("metrics", help="Compute digital garden metrics")
+    metrics.add_argument(
         "--path",
         help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
-    garden_metrics_parser.add_argument(
+    metrics.add_argument(
         "--now",
         help="Override timestamp (ISO 8601) for reproducible runs",
     )
-    garden_metrics_parser.add_argument(
+    metrics.add_argument(
         "--format",
         choices=["json", "brief", "prometheus"],
         default="json",
         help="Output format",
     )
-    garden_metrics_parser.add_argument(
-        "--label", help="Prometheus label (defaults to file stem)"
-    )
+    metrics.add_argument("--label", help="Prometheus label (defaults to file stem)")
 
-    garden_tend_parser = garden_sub.add_parser(
+    tend = garden_sub.add_parser(
         "tend",
         help="Report tending actions based on freshness cadence",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--path",
         help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
-    garden_tend_parser.add_argument("--now", help="Override timestamp (ISO 8601)")
-    garden_tend_parser.add_argument(
+    tend.add_argument("--now", help="Override timestamp (ISO 8601)")
+    tend.add_argument(
         "--prune-days",
         type=int,
         default=2,
         help="Days since tend to flag for quick prune",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--stale-days",
         type=int,
         default=7,
         help="Days since tend to flag as stale",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--archive-days",
         type=int,
         default=30,
         help="Days since tend to flag for archive",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--apply",
         action="store_true",
         help=(
@@ -889,25 +819,28 @@ Examples:
             "move archived plots to compost"
         ),
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--archive-export",
         help="Path to write archived plots (JSON) when applying",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--prometheus",
         action="store_true",
         help="Emit tending counts in Prometheus format",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--label",
         help="Prometheus garden label (defaults to file stem)",
     )
-    garden_tend_parser.add_argument(
+    tend.add_argument(
         "--palaces",
         action="store_true",
         help="Also check palace health and report entries needing cleanup",
     )
 
+
+def _add_bundle_commands(subparsers: Any) -> None:
+    """Register the export/import bundle commands."""
     export_parser = subparsers.add_parser(
         "export", help="Export all palaces to a bundle"
     )
@@ -925,6 +858,9 @@ Examples:
     )
     import_parser.add_argument("--palaces-dir", help="Override palaces directory")
 
+
+def _add_create_command(subparsers: Any) -> None:
+    """Register the ``create`` subcommand."""
     create_parser = subparsers.add_parser("create", help="Create a new memory palace")
     create_parser.add_argument("name", help="Palace name")
     create_parser.add_argument("domain", help="Palace domain")
@@ -932,8 +868,9 @@ Examples:
         "--metaphor", default="building", help="Architectural metaphor"
     )
 
-    subparsers.add_parser("list", help="List all memory palaces")
 
+def _add_sync_command(subparsers: Any) -> None:
+    """Register the ``sync`` subcommand."""
     sync_parser = subparsers.add_parser("sync", help="Sync intake queue into palaces")
     sync_parser.add_argument(
         "--auto-create",
@@ -946,6 +883,9 @@ Examples:
         help="Preview changes without applying",
     )
 
+
+def _add_prune_command(subparsers: Any) -> None:
+    """Register the ``prune`` subcommand."""
     prune_parser = subparsers.add_parser("prune", help="Check/apply palace cleanup")
     prune_parser.add_argument(
         "--apply",
@@ -959,6 +899,9 @@ Examples:
         help="Days before entry is considered stale (default: 90)",
     )
 
+
+def _add_search_command(subparsers: Any) -> None:
+    """Register the ``search`` subcommand."""
     search_parser = subparsers.add_parser("search", help="Search across all palaces")
     search_parser.add_argument("query", help="Search query")
     search_parser.add_argument(
@@ -968,6 +911,9 @@ Examples:
         help="Search type",
     )
 
+
+def _add_manager_command(subparsers: Any) -> None:
+    """Register the ``manager`` passthrough subcommand."""
     manager_parser = subparsers.add_parser(
         "manager", help="Run palace manager directly"
     )
@@ -977,6 +923,34 @@ Examples:
         help="Arguments to pass to palace_manager.py",
     )
 
+
+def build_parser() -> argparse.ArgumentParser:
+    """Construct and return the CLI argument parser.
+
+    Each subcommand is registered by a dedicated ``_add_*_command``
+    helper so this function stays a thin coordinator (C-46).
+    """
+    parser = argparse.ArgumentParser(
+        description="Memory Palace Plugin CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s enable                 # Enable the plugin
+  %(prog)s create 'Code Fortress' programming --metaphor fortress
+  %(prog)s search 'Rust ownership'
+  %(prog)s status                 # Show current status
+        """,
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    _add_zero_arg_commands(subparsers)
+    _add_garden_command(subparsers)
+    _add_bundle_commands(subparsers)
+    _add_create_command(subparsers)
+    _add_sync_command(subparsers)
+    _add_prune_command(subparsers)
+    _add_search_command(subparsers)
+    _add_manager_command(subparsers)
     return parser
 
 

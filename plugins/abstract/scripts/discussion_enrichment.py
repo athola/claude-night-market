@@ -27,9 +27,17 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+_SRC_DIR = Path(__file__).resolve().parent.parent / "src"
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+
 from insight_types import (  # noqa: E402 - sys.path adjusted above to discover sibling scripts
     AnalysisContext,
     Finding,
+)
+
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    extract_section as _extract_section,
 )
 
 # Failure-mode clustering thresholds
@@ -156,12 +164,6 @@ def parse_perf_summary(content: str) -> list[dict[str, str]]:
             }
         )
     return rows
-
-
-def _extract_section(content: str, heading: str) -> str | None:
-    pattern = re.escape(heading) + r"\n(.*?)(?=\n## |\n---|\Z)"
-    m = re.search(pattern, content, re.DOTALL)
-    return m.group(1).strip() if m else None
 
 
 def _field(body: str, name: str) -> str:

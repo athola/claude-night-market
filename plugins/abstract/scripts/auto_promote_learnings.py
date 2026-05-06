@@ -22,12 +22,21 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from post_learnings_to_discussions import (
+# D-03: pull canonical extract_section from abstract.utils.
+_SRC_DIR = Path(__file__).resolve().parent.parent / "src"
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+
+from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     PostedRecord,
     create_discussion,
     detect_target_repo,
     get_repo_node_id,
     resolve_category_id,
+)
+
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    extract_section as _extract_section,
 )
 
 # Thresholds for severity tiers
@@ -138,15 +147,6 @@ def calculate_priority(item: dict[str, Any]) -> float:
 # ---------------------------------------------------------------------------
 # LEARNINGS.md parsing
 # ---------------------------------------------------------------------------
-
-
-def _extract_section(content: str, heading: str) -> str | None:
-    """Extract content between a heading and the next same-level heading or ---."""
-    pattern = re.escape(heading) + r"\n(.*?)(?=\n## |\n---|\Z)"
-    match = re.search(pattern, content, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return None
 
 
 def _extract_bold_field(text: str, field_name: str) -> str:

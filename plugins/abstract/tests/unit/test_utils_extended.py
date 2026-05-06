@@ -17,6 +17,7 @@ from abstract.utils import (
     count_sections,
     extract_dependencies,
     extract_frontmatter,
+    extract_section,
     find_dependency_file,
     find_project_root,
     find_skill_files,
@@ -592,3 +593,87 @@ class TestSafeJsonLoad:
         p.write_text("")
         result = safe_json_load(p)
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# extract_section (D-03)
+# ---------------------------------------------------------------------------
+
+
+class TestExtractSection:
+    """extract_section pulls the body of a named markdown ## section.
+
+    Feature: shared markdown-section extraction (D-03).
+
+    The three abstract scripts (discussion_enrichment,
+    auto_promote_learnings, post_learnings_to_discussions) used
+    a byte-identical helper. Promoting it to abstract.utils gives
+    one definition consumed by all three.
+    """
+
+    @pytest.mark.unit
+    def test_extracts_body_of_named_section(self):
+        """Given a doc with a matching '## High-Impact Issues' heading,
+        When extract_section is called with that heading,
+        Then it returns the body up to the next ## or --- boundary.
+        """
+        content = (
+            "# Title\n\n## High-Impact Issues\n- Issue A\n- Issue B\n\n## Other\nRest"
+        )
+        result = extract_section(content, "## High-Impact Issues")
+        assert result == "- Issue A\n- Issue B"
+
+    @pytest.mark.unit
+    def test_returns_none_when_heading_absent(self):
+        """Given content without the heading,
+        When extract_section is called,
+        Then it returns None.
+        """
+        assert extract_section("# Doc\nNo headings here", "## Missing") is None
+
+    @pytest.mark.unit
+    def test_terminates_at_horizontal_rule(self):
+        """Given a section terminated by --- rather than another heading,
+        When extract_section is called,
+        Then it stops at ---.
+        """
+        content = "## Slow Execution\n- skill A\n- skill B\n\n---\nfooter"
+        result = extract_section(content, "## Slow Execution")
+        assert result == "- skill A\n- skill B"
+
+    @pytest.mark.unit
+    def test_terminates_at_end_of_file(self):
+        """Given the named section at the end of the document,
+        When extract_section is called,
+        Then it returns the remaining body without trailing whitespace.
+        """
+        content = "## Low User Ratings\n- entry\n"
+        result = extract_section(content, "## Low User Ratings")
+        assert result == "- entry"
+
+    @pytest.mark.unit
+    def test_returns_empty_when_next_heading_is_immediately_adjacent(self):
+        """Given the heading is followed immediately by another ## heading
+        with no body between them,
+        When extract_section is called,
+        Then it returns an empty string (not the next section's body).
+
+        Regression: F1 from /pensive:full-review. The original
+        lookahead `(?=\\n## |\\n---|\\Z)` failed when the immediately
+        next line was a `##` heading, capturing that heading and the
+        following section body instead.
+        """
+        content = "## Section A\n## Section B\nB content"
+        result = extract_section(content, "## Section A")
+        assert result == ""
+
+    @pytest.mark.unit
+    def test_returns_empty_when_heading_at_top_followed_by_next(self):
+        """Given the document begins with the heading and the very
+        next non-empty line is a sibling heading,
+        When extract_section is called,
+        Then the result is empty.
+        """
+        content = "## Empty\n## Has Content\nbody"
+        result = extract_section(content, "## Empty")
+        assert result == ""

@@ -12,49 +12,65 @@ from typing import Any, ClassVar
 
 __all__ = ["PatternsMixin"]
 
+# A-01: pre-compile patterns once at module load.
 
-class PatternsMixin:
-    """Mixin providing Rust code pattern detection analysis."""
-
-    # #248: let-else / match arms that silently discard Result/Option
-    _SILENT_RETURN_PATTERNS: ClassVar[list[str]] = [
+_SILENT_RETURN_RE = tuple(
+    re.compile(p)
+    for p in (
         r"else\s*\{\s*return\s*;",
         r"else\s*\{\s*continue\s*;",
         r"=>\s*(?:return|continue)\b",
-    ]
-    # #249: Vec used with set/map semantics
-    _COLLECTION_TYPE_PATTERNS: ClassVar[list[str]] = [
+    )
+)
+_COLLECTION_TYPE_RE = tuple(
+    re.compile(p)
+    for p in (
         r"\.contains\(&",
         r"\.dedup\(\)",
         r"\.iter\(\)\.find\(",
         r"\.iter\(\)\.position\(",
-    ]
-    # #250: format! with SQL keyword + {} interpolation
-    _SQL_INJECTION_PATTERNS: ClassVar[list[str]] = [
+    )
+)
+_SQL_INJECTION_RE = tuple(
+    re.compile(p)
+    for p in (
         r'format!\s*\(\s*"[^"]*\b(?:SELECT|INSERT|UPDATE|DELETE|DROP|WHERE)\b[^"]*\{\}',
         r'format!\s*\(\s*"[^"]*\{\}[^"]*\b(?:SELECT|INSERT|UPDATE|DELETE|DROP|WHERE)\b',
         r'format!\s*\(\s*"[^"]*\b(?:select|insert|update|delete|drop|where)\b[^"]*\{\}',
         r'format!\s*\(\s*"[^"]*\{\}[^"]*\b(?:select|insert|update|delete|drop|where)\b',
-    ]
-    # #251: #[cfg(test)] on item outside mod tests
-    _CFG_TEST_MISUSE_PATTERNS: ClassVar[list[str]] = [
+    )
+)
+_CFG_TEST_MISUSE_RE = tuple(
+    re.compile(p)
+    for p in (
         r"#\[cfg\(test\)\]\s*\n\s*(?:pub\s+)?fn\s+",
         r"#\[cfg\(test\)\]\s*\n\s*(?:pub\s+)?impl\s+",
         r"#\[cfg\(test\)\]\s*\n\s*(?:pub\s+)?struct\s+",
-    ]
-    # #252: short error strings (< ~20 chars) in Err/panic/expect
-    _ERROR_MESSAGE_PATTERNS: ClassVar[list[str]] = [
+    )
+)
+_ERROR_MESSAGE_RE = tuple(
+    re.compile(p)
+    for p in (
         r'Err\s*\(\s*"[^"]{1,19}"\s*\)',
         r'panic!\s*\(\s*"[^"]{1,19}"\s*\)',
         r'\.expect\s*\(\s*"[^"]{1,19}"\s*\)',
         r'Err\s*\(\s*"[^"]{1,19}"\.(?:to_string|into)\(\)\s*\)',
-    ]
-    # #253: validate_*/check_*/verify_* function names
-    _DUPLICATE_VALIDATOR_PATTERNS: ClassVar[list[str]] = [
+    )
+)
+_DUPLICATE_VALIDATOR_RE = tuple(
+    re.compile(p)
+    for p in (
         r"\bfn\s+(validate_\w+)\s*\(",
         r"\bfn\s+(check_\w+)\s*\(",
         r"\bfn\s+(verify_\w+)\s*\(",
-    ]
+    )
+)
+_MOD_TESTS_RE = re.compile(r"\bmod\s+tests\s*\{")
+
+
+class PatternsMixin:
+    """Mixin providing Rust code pattern detection analysis."""
+
     _MIN_CONSOLIDATION_COUNT: ClassVar[int] = 3
 
     def analyze_silent_returns(
@@ -75,8 +91,8 @@ class PatternsMixin:
         silent_returns = []
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            for pattern in self._SILENT_RETURN_PATTERNS:
-                if re.search(pattern, line):
+            for rx in _SILENT_RETURN_RE:
+                if rx.search(line):
                     silent_returns.append(
                         {
                             "line": i + 1,
@@ -107,8 +123,8 @@ class PatternsMixin:
         suggestions = []
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            for pattern in self._COLLECTION_TYPE_PATTERNS:
-                if re.search(pattern, line):
+            for rx in _COLLECTION_TYPE_RE:
+                if rx.search(line):
                     suggestions.append(
                         {
                             "line": i + 1,
@@ -140,8 +156,8 @@ class PatternsMixin:
         risks = []
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            for pattern in self._SQL_INJECTION_PATTERNS:
-                if re.search(pattern, line):
+            for rx in _SQL_INJECTION_RE:
+                if rx.search(line):
                     risks.append(
                         {
                             "line": i + 1,
@@ -176,7 +192,7 @@ class PatternsMixin:
         brace_depth = 0
         for i, line in enumerate(lines):
             stripped = line.strip()
-            if re.search(r"\bmod\s+tests\s*\{", line):
+            if _MOD_TESTS_RE.search(line):
                 in_mod_tests = True
             if in_mod_tests:
                 brace_depth += stripped.count("{") - stripped.count("}")
@@ -184,9 +200,9 @@ class PatternsMixin:
                     in_mod_tests = False
                     brace_depth = 0
                 continue
-            for pattern in self._CFG_TEST_MISUSE_PATTERNS:
+            for rx in _CFG_TEST_MISUSE_RE:
                 window = line + ("\n" + lines[i + 1] if i + 1 < len(lines) else "")
-                if re.search(pattern, window):
+                if rx.search(window):
                     misuses.append(
                         {
                             "line": i + 1,
@@ -219,8 +235,8 @@ class PatternsMixin:
         poor_messages = []
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            for pattern in self._ERROR_MESSAGE_PATTERNS:
-                if re.search(pattern, line):
+            for rx in _ERROR_MESSAGE_RE:
+                if rx.search(line):
                     poor_messages.append(
                         {
                             "line": i + 1,
@@ -253,8 +269,8 @@ class PatternsMixin:
         found: dict[str, list[int]] = {}
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
-            for pattern in self._DUPLICATE_VALIDATOR_PATTERNS:
-                match = re.search(pattern, line)
+            for rx in _DUPLICATE_VALIDATOR_RE:
+                match = rx.search(line)
                 if match:
                     name = match.group(1)
                     found.setdefault(name, []).append(i + 1)

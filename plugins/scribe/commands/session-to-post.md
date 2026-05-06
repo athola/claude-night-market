@@ -65,8 +65,8 @@ Assets written to docs/posts/assets/
 
 ## See Also
 
-- `Skill(scribe:session-to-post)` — full skill reference
-- `Skill(scry:vhs-recording)` — terminal recordings
-- `Skill(scry:browser-recording)` — browser recordings
-- `Skill(imbue:proof-of-work)` — claim verification
-- `/doc-generate` — general documentation generation
+- `Skill(scribe:session-to-post)`: full skill reference
+- `Skill(scry:vhs-recording)`: terminal recordings
+- `Skill(scry:browser-recording)`: browser recordings
+- `Skill(imbue:proof-of-work)`: claim verification
+- `/doc-generate`: general documentation generation

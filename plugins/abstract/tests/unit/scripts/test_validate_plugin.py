@@ -494,7 +494,6 @@ class TestValidateRecommendedFields:
 
     @pytest.mark.unit
     def test_non_string_version_adds_warning(self, tmp_path: Path) -> None:
-        """Non-string version adds a warning."""
         pd = _make_plugin(tmp_path, {"name": "my-plugin", "version": 123})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
@@ -600,7 +599,6 @@ class TestValidateSkills:
 
     @pytest.mark.unit
     def test_skill_without_frontmatter_adds_warning(self, tmp_path: Path) -> None:
-        """Skill without --- frontmatter adds warning."""
         pd = _make_plugin(
             tmp_path, {"name": "my-plugin", "skills": ["./skills/my-skill"]}
         )

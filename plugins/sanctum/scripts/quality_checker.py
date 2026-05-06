@@ -20,12 +20,23 @@ import os
 import re
 import shutil
 import subprocess
+import sys as _sys
 import tempfile
 import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+# D-13: pull canonical CLI envelope helpers from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in _sys.path:
+    _sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
+    error_envelope,
+    success_envelope,
+)
 
 # Constants for quality thresholds
 MIN_TEST_NAME_LENGTH = 10
@@ -323,7 +334,7 @@ class TestQualityChecker:
             start_time = time.time()
             python_path = shutil.which("python")
             if not python_path:
-                raise RuntimeError("Python not found")
+                raise FileNotFoundError("Python executable not found in PATH")
 
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False
@@ -603,15 +614,7 @@ def main() -> None:
 
 def output_result(result: dict, args) -> None:
     """Output result in requested format."""
-    output = json.dumps(
-        {
-            "success": True,
-            "data": result,
-        },
-        indent=2,
-        default=str,
-    )
-
+    output = json.dumps(success_envelope(result), indent=2, default=str)
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
@@ -621,14 +624,7 @@ def output_result(result: dict, args) -> None:
 
 def output_error(message: str, args) -> None:
     """Output error in requested format."""
-    error_output = json.dumps(
-        {
-            "success": False,
-            "error": message,
-        },
-        indent=2,
-    )
-
+    error_output = json.dumps(error_envelope(message), indent=2)
     if args.output:
         with open(args.output, "w") as f:
             f.write(error_output)
@@ -638,12 +634,14 @@ def output_error(message: str, args) -> None:
 
 def format_report(results: dict) -> str:
     """Format quality report for human reading."""
+    level = results["quality_level"]
+    level_str = level.value if isinstance(level, QualityLevel) else str(level)
     report = f"""
 Test Quality Report
 ==================
 
 Overall Quality Score: {results["quality_score"]}/100
-Quality Level: {results["quality_level"].upper()}
+Quality Level: {level_str.upper()}
 
 Dynamic Validation
 ------------------

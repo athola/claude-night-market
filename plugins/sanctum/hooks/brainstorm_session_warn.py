@@ -98,7 +98,11 @@ def main() -> None:
     """Emit an additionalContext warning when stale brainstorms exist."""
     try:
         sys.stdin.read()  # SessionStart payload is unused but must be consumed.
-    except (OSError, ValueError):
+    except (OSError, ValueError) as exc:
+        print(
+            f"brainstorm_session_warn: stdin read failed ({exc})",
+            file=sys.stderr,
+        )
         sys.exit(0)
 
     project_dir_str = os.environ.get("CLAUDE_PROJECT_DIR") or os.environ.get("PWD", ".")
@@ -106,8 +110,14 @@ def main() -> None:
 
     try:
         stale = find_stale_sessions(project_dir)
-    except OSError:
-        sys.exit(0)  # Non-critical -- never block session start.
+    except OSError as exc:
+        # Non-critical -- never block session start, but emit a
+        # stderr breadcrumb so the cause is recoverable from logs.
+        print(
+            f"brainstorm_session_warn: scan failed ({exc})",
+            file=sys.stderr,
+        )
+        sys.exit(0)
 
     if not stale:
         sys.exit(0)

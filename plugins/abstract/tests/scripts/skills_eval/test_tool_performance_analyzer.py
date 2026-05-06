@@ -205,7 +205,6 @@ if __name__ == "__main__":
             assert 0 <= score_data["overall_score"] <= MAX_SCORE
 
     def test_export_performance_data(self, sample_tools_dir, tmp_path) -> None:
-        """Test exporting performance data."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
 

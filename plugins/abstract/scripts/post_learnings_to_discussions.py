@@ -27,6 +27,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# D-04: pull canonical get_config_dir from abstract.utils.
+_src = Path(__file__).resolve().parent.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
 # Local script-directory module; co-located in plugins/abstract/scripts/.
 # sys.path is set in production by the entry-point caller; for direct
 # imports during testing the test files prepend the scripts dir.
@@ -47,10 +51,33 @@ from discussion_enrichment import (
     track_issue_persistence,
 )
 
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    extract_section as _extract_section,
+)
+from abstract.utils import (
+    get_config_dir as _shared_get_config_dir,
+)
+
+# AR-30: route gh invocations through leyline.git_platform.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
+    GhCommandError as _GhError,
+)
+from leyline.git_platform import (
+    gh_graphql as _gh_graphql,
+)
+
 
 def get_config_dir() -> Path:
-    """Get the discussions config directory."""
-    return Path.home() / ".claude" / "skills" / "discussions"
+    """Get the discussions config directory.
+
+    Thin wrapper over ``abstract.utils.get_config_dir`` so existing
+    tests that patch the module-level symbol keep working (D-04).
+    """
+    return _shared_get_config_dir()
 
 
 def get_learnings_path() -> Path:
@@ -235,15 +262,6 @@ def _parse_high_impact_issues(section: str) -> list[dict[str, Any]]:
     return issues
 
 
-def _extract_section(content: str, heading: str) -> str | None:
-    """Extract content between a heading and the next same-level heading or ---."""
-    pattern = re.escape(heading) + r"\n(.*?)(?=\n## |\n---|\Z)"
-    match = re.search(pattern, content, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-    return None
-
-
 def format_discussion_body(summary: LearningSummary) -> str:
     """Format a Discussion post body from parsed learnings.
 
@@ -305,45 +323,17 @@ def format_discussion_body(summary: LearningSummary) -> str:
 
 
 def run_gh_graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
-    """Run a GraphQL query via gh api.
+    """Run a GraphQL query via gh api (AR-30).
 
-    Args:
-        query: GraphQL query string
-        variables: Optional query variables
-
-    Returns:
-        Parsed JSON response
-
-    Raises:
-        RuntimeError: If gh command fails
-
+    Thin wrapper over ``leyline.git_platform.gh_graphql`` so the
+    callers in this module keep their import shape. Raises
+    RuntimeError on failure for parity with the previous local
+    implementation.
     """
-    cmd = ["gh", "api", "graphql"]
-
-    # Build the request body
-    body: dict[str, Any] = {"query": query}
-    if variables:
-        body["variables"] = variables
-
-    cmd.extend(["-f", f"query={query}"])
-    if variables:
-        for key, value in variables.items():
-            cmd.extend(["-f", f"{key}={value}"])
-
-    result = subprocess.run(  # nosec B603
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"gh api graphql failed (exit {result.returncode}): {result.stderr}"
-        )
-
-    return json.loads(result.stdout)
+    try:
+        return _gh_graphql(query, variables=variables)
+    except _GhError as exc:
+        raise RuntimeError(str(exc)) from exc
 
 
 def detect_target_repo() -> tuple[str, str] | None:

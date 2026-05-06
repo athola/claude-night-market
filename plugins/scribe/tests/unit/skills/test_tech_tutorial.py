@@ -610,3 +610,77 @@ class TestNoSlopInSkillFiles:
         content = (MODULES_ROOT / "progressive-complexity.md").read_text()
         found = self._find_slop(content)
         assert found == [], f"Tier-1 slop words in progressive-complexity.md: {found}"
+
+
+class TestTechTutorialDocumentEconomy:
+    """Feature: Tech-tutorial enforces document-economy at scope time.
+
+    As a tutorial author
+    I want the skill to require thesis + audience-size up front
+    So that document-level economy is enforced before drafting.
+    """
+
+    @pytest.fixture
+    def skill_text(self) -> str:
+        """Load tech-tutorial SKILL.md content."""
+        return (SKILL_ROOT / "SKILL.md").read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_scope_step_asks_for_thesis(self, skill_text: str) -> None:
+        """Scenario: Step 1 asks for the one-sentence takeaway.
+
+        Given the tech-tutorial SKILL.md
+        When reading Step 1 (Scope and Audience)
+        Then it should ask for the thesis the reader walks away with
+        """
+        text_lower = skill_text.lower()
+        assert "walk away with" in text_lower or "thesis" in text_lower, (
+            "Step 1 must ask the author for the single sentence the "
+            "reader walks away with"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_scope_step_asks_for_audience_size(self, skill_text: str) -> None:
+        """Scenario: Step 1 asks about audience size and read frequency.
+
+        Given the tech-tutorial SKILL.md
+        When reading Step 1
+        Then it should surface audience size for reader-time budgeting
+        """
+        text_lower = skill_text.lower()
+        assert "how many readers" in text_lower or ("audience size" in text_lower), (
+            "Step 1 must surface audience size so the reader-time "
+            "budget can be estimated"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_quality_gate_includes_document_level_checks(self, skill_text: str) -> None:
+        """Scenario: Step 7 quality gate splits into sentence + document.
+
+        Given the tech-tutorial SKILL.md
+        When reading the quality gate checklist
+        Then it should include document-level checks (thesis in lead,
+        thesis echoed at close, no summary section)
+        """
+        text_lower = skill_text.lower()
+        assert "document-level" in text_lower or ("document economy" in text_lower), (
+            "Quality gate must include document-level checks alongside "
+            "sentence-level checks"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_references_document_economy_module(self, skill_text: str) -> None:
+        """Scenario: Skill points readers at the document-economy module.
+
+        Given the tech-tutorial SKILL.md
+        When reading the references
+        Then it should mention slop-detector's document-economy module
+        """
+        assert "document-economy" in skill_text, (
+            "tech-tutorial must reference the slop-detector "
+            "document-economy module so the rubric is discoverable"
+        )

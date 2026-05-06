@@ -294,7 +294,6 @@ class TestAbstractScript:
         assert result == "Test content"
 
     def test_read_file_safe_nonexistent(self, tmp_path: Path) -> None:
-        """Test read_file_safe with nonexistent file."""
         # Given: An AbstractScript and a nonexistent file
         script = AbstractScript("test-script")
         nonexistent = tmp_path / "nonexistent.txt"
@@ -306,7 +305,6 @@ class TestAbstractScript:
         assert result is None
 
     def test_read_file_safe_unreadable(self, tmp_path: Path) -> None:
-        """Test read_file_safe with unreadable file."""
         # Given: An AbstractScript and a file with invalid encoding
         script = AbstractScript("test-script")
         test_file = tmp_path / "binary.txt"

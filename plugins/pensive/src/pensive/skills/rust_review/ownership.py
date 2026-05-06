@@ -5,7 +5,22 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from ..rust_review_data import (
+    ARC_MUTEX_RE,
+    ASYNC_CALL_RE,
+    ASYNC_FN_RE,
+    MIXED_BORROWS_MUT_RE,
+    MUTEX_NEW_RE,
+    RC_NEW_REFCELL_RE,
+    RC_REFCELL_RE,
+)
+
 __all__ = ["OwnershipMixin"]
+
+_MOVE_RE = re.compile(r"\blet\s+(\w+)\s*=\s*(\w+)\s*;")
+_AMP_W_RE = re.compile(r"&\w+")
+_FN_SIG_RE = re.compile(r"^\s*(pub\s+)?(async\s+)?fn\s+")
+_TRAIT_DEF_LINE_RE = re.compile(r"^\s*(pub\s+)?trait\s+")
 
 
 class OwnershipMixin:
@@ -31,13 +46,11 @@ class OwnershipMixin:
         reference_cycles = []
         borrow_checker_issues = []
 
-        move_pattern = re.compile(r"\blet\s+(\w+)\s*=\s*(\w+)\s*;")
-
         lines = self._get_lines(content)
         for i, line in enumerate(lines):
             # Detect use after move patterns
             for j in range(max(0, i - 10), i):
-                m = move_pattern.search(lines[j])
+                m = _MOVE_RE.search(lines[j])
                 if m:
                     moved_from = m.group(2)
                     if re.search(
@@ -55,7 +68,7 @@ class OwnershipMixin:
                         break
 
             # Detect reference cycle patterns (Rc + RefCell)
-            if re.search(r"Rc<RefCell<", line) or re.search(r"Rc::new\(RefCell", line):
+            if RC_REFCELL_RE.search(line) or RC_NEW_REFCELL_RE.search(line):
                 for j in range(i, min(len(lines), i + 10)):
                     if "borrow_mut().next = Some" in lines[j]:
                         reference_cycles.append(
@@ -71,10 +84,10 @@ class OwnershipMixin:
 
             # Detect borrow checker issues (exclude fn signatures and traits)
             if (
-                re.search(r"&mut\s+\w+", line)
-                and re.search(r"&\w+", line)
-                and not re.search(r"^\s*(pub\s+)?(async\s+)?fn\s+", line)
-                and not re.search(r"^\s*(pub\s+)?trait\s+", line)
+                MIXED_BORROWS_MUT_RE.search(line)
+                and _AMP_W_RE.search(line)
+                and not _FN_SIG_RE.search(line)
+                and not _TRAIT_DEF_LINE_RE.search(line)
             ):
                 borrow_checker_issues.append(
                     {
@@ -128,7 +141,7 @@ class OwnershipMixin:
                         break
 
             # Detect safe patterns
-            if re.search(r"Arc<Mutex<", line) or re.search(r"Mutex::new", line):
+            if ARC_MUTEX_RE.search(line) or MUTEX_NEW_RE.search(line):
                 safe_patterns.append(
                     {
                         "line": i + 1,
@@ -178,7 +191,7 @@ class OwnershipMixin:
         for i, line in enumerate(lines):
             brace_depth += line.count("{") - line.count("}")
 
-            if re.search(r"async\s+fn\s+\w+", line):
+            if ASYNC_FN_RE.search(line):
                 async_start_depth = brace_depth - line.count("{")
 
             in_async_fn = async_start_depth >= 0
@@ -198,7 +211,7 @@ class OwnershipMixin:
                     }
                 )
 
-            if in_async_fn and re.search(r"let\s+\w+\s*=\s*\w+\(\)", line):
+            if in_async_fn and ASYNC_CALL_RE.search(line):
                 has_await = False
                 for j in range(i, min(len(lines), i + 3)):
                     if ".await" in lines[j]:

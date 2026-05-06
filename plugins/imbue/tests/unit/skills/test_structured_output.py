@@ -23,7 +23,6 @@ class TestStructuredOutputSkill:
 
     @pytest.fixture
     def mock_structured_output_skill_content(self) -> str:
-        """Mock structured-output skill content."""
         return """---
 name: structured-output
 description: Guide for formatting review deliverables consistently

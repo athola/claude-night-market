@@ -7,16 +7,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 HOOKS_DIR = Path(__file__).resolve().parent.parent / "hooks"
 
 
 def run_hook(tmp_path, manifest_data=None):
     """Run user_prompt_hook.py as a subprocess with stdin."""
     hook_script = HOOKS_DIR / "user_prompt_hook.py"
-    if not hook_script.exists():
-        pytest.skip("user_prompt_hook.py not yet created")
 
     if manifest_data is not None:
         egregore_dir = tmp_path / ".egregore"

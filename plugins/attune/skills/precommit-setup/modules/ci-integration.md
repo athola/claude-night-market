@@ -74,7 +74,7 @@ repos:
         args: [--ignore-missing-imports]
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.0
+    rev: 1.8.3
     hooks:
       - id: bandit
         args: [-c, pyproject.toml]

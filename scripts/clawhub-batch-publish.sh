@@ -23,19 +23,26 @@ PROGRESS_FILE="$REPO_ROOT/.egregore/clawhub-progress.json"
 BATCH_SIZE=5
 RETRY_FAILED=false
 STATUS_ONLY=false
+DRY_RUN=false
 VERSION=""
 
 # ---------- parse args ----------
 
-for arg in "$@"; do
-  case "$arg" in
-    --batch-size=*) BATCH_SIZE="${arg#*=}" ;;
-    --retry-failed) RETRY_FAILED=true ;;
-    --status) STATUS_ONLY=true ;;
-    --dry-run) echo "[dry-run] mode"; exit 0 ;;
-    v*) VERSION="$arg" ;;
-    [0-9]*) VERSION="v$arg" ;;
-    *) echo "Unknown argument: $arg"; exit 1 ;;
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --batch-size=*) BATCH_SIZE="${1#*=}"; shift ;;
+    --batch-size)
+      if [ $# -lt 2 ]; then
+        echo "Error: --batch-size requires a value"; exit 1
+      fi
+      BATCH_SIZE="$2"; shift 2
+      ;;
+    --retry-failed) RETRY_FAILED=true; shift ;;
+    --status) STATUS_ONLY=true; shift ;;
+    --dry-run) DRY_RUN=true; shift ;;
+    v*) VERSION="$1"; shift ;;
+    [0-9]*) VERSION="v$1"; shift ;;
+    *) echo "Unknown argument: $1"; exit 1 ;;
   esac
 done
 
@@ -103,6 +110,35 @@ pct = (len(p['published']) / p['total'] * 100) if p['total'] else 0
 print(f'Progress:   {pct:.1f}%')
 if p['pending']:
     print(f'Next batch: {p[\"pending\"][:batch_size]}')
+"
+  exit 0
+fi
+
+# ---------- dry-run preview ----------
+
+if [ "$DRY_RUN" = true ]; then
+  PROGRESS_FILE="$PROGRESS_FILE" RETRY_FAILED="$RETRY_FAILED" \
+    BATCH_SIZE="$BATCH_SIZE" VERSION="$VERSION" python3 -c "
+import json, os
+from pathlib import Path
+
+p = json.loads(Path(os.environ['PROGRESS_FILE']).read_text())
+batch_size = int(os.environ['BATCH_SIZE'])
+retry_failed = os.environ.get('RETRY_FAILED', 'false')
+
+if retry_failed == 'true' and p['failed']:
+    batch, mode = p['failed'][:batch_size], 'retry'
+elif p['pending']:
+    batch, mode = p['pending'][:batch_size], 'publish'
+else:
+    print('No pending skills to publish.')
+    raise SystemExit(0)
+
+print(f'[dry-run] mode: {mode}')
+print(f'[dry-run] would publish {len(batch)} skill(s) for {os.environ[\"VERSION\"]}:')
+for slug in batch:
+    print(f'  - {slug}')
+print(f'[dry-run] no state changes, no network calls')
 "
   exit 0
 fi

@@ -176,15 +176,18 @@ def find_duplicates(
             ".php",
         }
 
-    # Collect all files
+    # Collect all files (single walk per directory; filter by suffix)
     files: list[Path] = []
     for path in paths:
         if path.is_file():
             if path.suffix.lower() in extensions:
                 files.append(path)
         elif path.is_dir():
-            for ext in extensions:
-                files.extend(path.rglob(f"*{ext}"))
+            files.extend(
+                f
+                for f in path.rglob("*")
+                if f.is_file() and f.suffix.lower() in extensions
+            )
 
     # Exclude common non-source directories
     exclude_patterns = {

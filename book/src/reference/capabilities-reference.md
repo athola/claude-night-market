@@ -88,6 +88,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
+| `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |

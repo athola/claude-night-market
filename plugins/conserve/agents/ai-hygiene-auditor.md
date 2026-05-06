@@ -194,9 +194,33 @@ def assess_test_quality(test_path):
 
 ### Category 5: Documentation Slop Detection
 
+The quick local check below catches the highest-frequency
+hedge patterns. For comprehensive prose-level scanning
+(identity leaks, hallucinations, document-economy,
+evidence-backed-claims, anti-goals, the multi-pass cleanup
+workflow), delegate to `Skill(scribe:slop-detector)`. This
+agent's role is the audit-time triage; scribe is the
+detailed scanner.
+
+| For this concern | Delegate to scribe module |
+|---|---|
+| "As a large language model" leaks | `identity-and-voice-leaks.md` |
+| Phantom imports / dead URLs | `hallucination-detection.md` |
+| Bare TODOs / "for now" hedges | `stub-and-deferral.md` |
+| Unverified "production-ready" claims | `evidence-backed-claims.md` |
+| Document buries its thesis | `document-economy.md` |
+| What NOT to clean up | `anti-goals.md` |
+| 11-pass systematic cleanup | `cleanup-workflow.md` |
+| Per-finding output format | `structured-finding-output.md` |
+| Research baseline (cite for severity) | `empirical-baseline.md` |
+
 ```python
 def detect_documentation_slop(docs_path):
-    """Detect AI-generated documentation patterns."""
+    """Detect AI-generated documentation patterns (quick triage).
+
+    For thorough prose scanning, invoke Skill(scribe:slop-detector)
+    with the document-economy and identity-and-voice-leaks modules.
+    """
     findings = []
 
     hedge_words = [
@@ -410,6 +434,27 @@ AI hygiene audit complements traditional bloat scan:
 - `proof-of-work`: Understanding verification for AI-generated code
 - `scope-guard`: Agent psychosis warning integration
 - `anti-cargo-cult`: AI amplification awareness
+
+### With scribe slop-detector
+
+`scribe:slop-detector` is the dedicated prose-level
+scanner. Delegate any deep documentation/comment audit to
+it; this agent focuses on git-history, code-level, and
+duplication patterns. Cross-reference table is in
+Category 5 above.
+
+Recommended workflow when both signals are needed:
+
+```bash
+# Step 1: this agent for code-level / git-level signals
+Agent(conserve:ai-hygiene-auditor)
+
+# Step 2: scribe for prose-level signals
+Skill(scribe:slop-detector)  # auto-loads relevant modules
+
+# Step 3: combine findings; resolve in cleanup-workflow order
+# (see scribe:slop-detector module cleanup-workflow.md)
+```
 
 ### With sanctum workflows
 

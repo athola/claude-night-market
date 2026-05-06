@@ -1,7 +1,7 @@
 ---
 name: test-review
-description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance. Use when auditing tests before release or after a major feature.'
-version: 1.9.3
+description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance.'
+version: 1.9.4
 alwaysApply: false
 category: testing
 tags:
@@ -25,11 +25,11 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 modules:
-- framework-detection
-- coverage-analysis
-- scenario-quality
-- remediation-planning
-- content-assertion-quality
+- modules/framework-detection.md
+- modules/coverage-analysis.md
+- modules/scenario-quality.md
+- modules/remediation-planning.md
+- modules/content-assertion-quality.md
 ---
 ## Table of Contents
 

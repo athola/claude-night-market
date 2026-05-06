@@ -22,7 +22,6 @@ class TestDiffAnalysisSkill:
 
     @pytest.fixture
     def mock_diff_analysis_skill_content(self) -> str:
-        """Mock diff-analysis skill content."""
         return """---
 name: diff-analysis
 description: Methodology for categorizing changes and assessing risks

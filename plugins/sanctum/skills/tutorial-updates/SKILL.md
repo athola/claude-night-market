@@ -1,7 +1,7 @@
 ---
 name: tutorial-updates
-description: 'Generate tutorials from VHS tapes and Playwright specs with dual-tone markdown and GIF recording'
-version: 1.9.3
+description: 'Generate tutorials from VHS tapes and Playwright specs with dual-tone markdown and GIF recording.'
+version: 1.9.4
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -17,9 +17,9 @@ model_hint: deep
 estimated_tokens: 1100
 progressive_loading: true
 modules:
-- manifest-parsing
-- markdown-generation
-- tape-validation
+- modules/manifest-parsing.md
+- modules/markdown-generation.md
+- modules/tape-validation.md
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review

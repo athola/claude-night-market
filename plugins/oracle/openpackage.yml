@@ -1,5 +1,5 @@
 name: oracle
-version: 1.9.3
+version: 1.9.4
 description: ONNX Runtime inference daemon for ML-enhanced plugin capabilities. Provides local model
   inference over HTTP with explicit opt-in activation.
 keywords:

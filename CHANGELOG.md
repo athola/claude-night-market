@@ -7,7 +7,294 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No changes yet._
+## [1.9.4] - 2026-05-03
+
+### Session summaries (PR #470)
+
+- **PR #470 deferred items closed on this branch**:
+  the eight S-series suggestions (#484) and both
+  C-series architectural follow-ups (#485) are now
+  resolved on `ai-slop-1.9.4` instead of being deferred
+  to 1.10.x. See "PR #470 deferred-items closure" under
+  the Internal heading below for the per-finding map.
+- **PR #470 fix-pr session (50 review threads closed)**:
+  37 placeholder modules implemented across 6 skills
+  (~6,931 new lines), 12 ephemeral docs and reports
+  consolidated into the CHANGELOG and removed, deferred
+  follow-ups tracked in issue #486. See "PR #470 fix-pr
+  session" under the Internal heading below.
+
+### Added
+
+- **AI slop playbook (2025-26) integrated into scribe**:
+  `slop-detector` gains seven new modules covering
+  identity-and-voice leaks, hallucination detection,
+  stub-and-deferral handling, document economy,
+  empirical baseline calibration, evidence-backed
+  claim auditing, and an explicit anti-goals list to
+  prevent over-correction. A `cleanup-workflow` module
+  walks editors through Layer 0 to Layer 3 remediation.
+  `doc-generator`, `style-learner`, `tech-tutorial`,
+  `voice-generate`, and `voice-review` were updated to
+  consume the new modules. Backed by 718 new test cases
+  across `test_slop_detector.py`,
+  `test_slop_detector_new_modules.py`,
+  `test_doc_generator.py`, `test_style_learner.py`, and
+  `test_tech_tutorial.py`.
+- **AI slop playbook extended to other plugins**:
+  pensive `rust-review` adds four modules
+  (`async-slop`, `iterator-and-allocation-slop`,
+  `model-specific-tells`, `test-slop`); conserve
+  `ai-hygiene-auditor` agent integrates the playbook;
+  scribe slop-detector adds `structured-finding-output`
+  for cross-tool consistency. New top-level
+  `CONSTITUTION.md` codifies AI hygiene guardrails.
+- **leyline `git_platform` Python wrapper**
+  (`plugins/leyline/src/leyline/git_platform.py`):
+  cross-platform helpers for `gh api` and `gh api graphql`
+  calls. Adopted by `post_learnings_to_discussions.py`,
+  `promote_discussion_to_issue.py`, and `verify_plugin.py`.
+  7 unit tests in `test_git_platform.py` (128-line file).
+- **leyline `bootstrap` cross-plugin sys.path helper**
+  (`plugins/leyline/src/leyline/bootstrap.py`):
+  eliminates ad-hoc `sys.path` manipulation in plugin
+  scripts. First adopter: `plugins/imbue/scripts/imbue_validator.py`.
+  4 unit tests in `test_bootstrap.py` (109-line file).
+- **abstract `hook-scope-guide` skill**: decision
+  framework for choosing hook scope (plugin / project /
+  global). Promoted from a single-file skill into a
+  proper directory structure with frontmatter and
+  registration in `plugin.json`. Indexed in
+  `book/src/reference/capabilities-reference.md`.
+- **slop-scan-for-docs Layer 0**: `.claude/rules/slop-scan-for-docs.md`
+  extended with three categorical critical patterns
+  (identity leaks, hallucinations, bare stubs in
+  production paths) that fail a doc outright before
+  any structural or sentence-level checks run.
+- **imbue `karpathy-principles` skill + `/karpathy-check`
+  command**: four-principle pre-implementation gate
+  (think first, simplicity, surgical edits, verify)
+  shipped as a 246-line SKILL.md plus `references/`
+  and `modules/`, bound to a 79-line `/karpathy-check`
+  command. Backed by 11 unit tests in
+  `test_karpathy_principles.py`. Source design brief
+  retained at `docs/karpathy-derivation/project-brief.md`.
+  See commit `bdf77595`.
+- **attune `mission-orchestrator` skill**: lifecycle
+  router across the attune brainstorm, specify,
+  blueprint, and execute phases, with adaptive
+  constraints in `modules/adaptive-constraints.md`.
+  29 unit tests in `test_mission_orchestrator.py`.
+  See commit `bdf77595`.
+
+### Changed
+
+- **Quality refinement waves 1, 2, and 3 complete**:
+  24 review findings closed across abstract, conserve,
+  imbue, leyline, memory-palace, pensive, sanctum, and
+  scribe. Deferred follow-ups tracked in issue #486
+  (per-finding detail recoverable from git history at
+  commit `a50a9352`).
+- **Shared-helper extraction (D-series)**: `json_utils.sh`
+  vendored per-plugin (D-01); `parse_frontmatter`
+  unified on the leyline canonical implementation
+  (D-02); `extract_section` shared across abstract
+  scripts (D-03); `dir_utils` facade shared by abstract
+  hooks (D-04); duplicated hook helpers consolidated
+  (D-05 / D-06 / D-12); `get_plugin_version` shared
+  between root scripts (D-11); CLI JSON envelope
+  helpers shared via leyline (D-13).
+- **God-function decompositions (F06 / F07 / F10 / F16)**:
+  large multi-responsibility functions split into focused
+  helpers across multiple plugins.
+- **Architecture-review split (AR-01)**: pensive
+  `architecture_review` now lives in a mixin package
+  rather than a single 1000+ line module.
+- **memory-palace `project_palace` split into a package**
+  (AR-05); sanctum `validators.py` split into per-class
+  package (AR-06); scribe `slop-detector` modules
+  consolidated (P-14); sanctum `_extract_skill_refs`
+  promoted to `_shared` module (AR-F3).
+- **Performance wins (Tier 3 A-series)**: pensive
+  `rust_review` regex patterns pre-compiled at module
+  load (A-01); pensive language detection now
+  single-walks (A-02 / A-03); conserve `safe_replacer`
+  walks the `SKILL.md` tree once (A-04); additional
+  algorithmic wins applied (A-07, A-11, A-12).
+
+### Fixed
+
+- **sanctum: path-prefixed frontmatter `modules:`
+  entries**: registration audit no longer false-flags
+  entries written as `./modules/foo.md` or
+  `../skills/.../modules/foo.md`.
+- **sanctum `scan_disk_files` audit bug** (B-08, B-10):
+  vacuous tests deleted, scan logic corrected.
+- **pensive code-refinement workflow**: Step 6 and a
+  completion gate added to `fix-workflow` (closes a
+  silent-success edge case).
+- **eight quality-review findings (F1-F5, AR-F1 / F2)**:
+  abstract `utils.py`, conserve `safe_replacer.py`,
+  imbue `session-start.sh`, leyline `cli_envelope.py`
+  and `frontmatter.py`, pensive
+  `architecture_review/__init__.py`, sanctum
+  `test_generator.py` and `update_plugin_registrations.py`,
+  memory-palace README -- all corrected with
+  regression coverage.
+- **slop-scan-for-docs Layer 0 P0 hits**: corrected
+  identity-leak / hallucination patterns in
+  `book/src/getting-started/first-plugin.md`,
+  `docs/guides/README.md`, and sanctum
+  `tutorial-updates` module.
+- **PR #446 review threads resolved (42 threads)**:
+  obsolete docs removed (`audit-2026-04-25-comprehensive-skill-audit.md`,
+  `karpathy-derivation/{implementation-plan,specification}.md`
+  superseded by the karpathy-principles skill itself,
+  `quality-gate-orchestration.md`, `skill-taxonomy.md`);
+  replaced by `quality-gates.md` and
+  `skill-integration-guide.md`. The
+  `karpathy-derivation/project-brief.md` source brief
+  was kept as the design record.
+  Skill role taxonomy findings applied across abstract,
+  archetypes, and other plugin SKILL.md files.
+
+### Internal
+
+- **sanctum `scan_disk_files` decomposition**:
+  monolithic disk-scan logic split into four typed
+  helpers (`_scan_commands_dir`, `_scan_skills_dir`,
+  `_scan_agents_dir`, `_scan_hooks_dir`).
+- **sanctum pytest coverage scope**:
+  `plugins/sanctum/pyproject.toml` adds `scripts` to
+  both `--cov` addopts and `coverage.run.source` so
+  code under `plugins/sanctum/scripts/` is instrumented
+  during the test run. Previously only `src/sanctum`
+  and hooks were measured.
+- **Unbloat phases 1-6**: archived stale tracked
+  artifacts (F14, F17); deleted five orphaned plugin
+  scripts; deleted residual `scripts/test-lsp-manually.sh`;
+  cleared 91 deferred docstring-restate hits;
+  structural cleanup (Phase 3) and refactor passes
+  (Phase 5 R1-R7, Phase 6).
+- **Hygiene fixes (Tier 3)**: F-01, F-04, F-06 through
+  F-13, F-17 applied across the codebase.
+- **Em-dash polish + "actionable" purge** (slop Phase 4):
+  prose cleanup pass across documentation.
+- **Truthful docstrings for stub safety / dependency
+  methods** (B-03, B-15): docstrings now match the
+  stub return contract.
+- **conserve `substantive-commits` filter**:
+  documented as the canonical churn-detection
+  predicate (excludes whitespace, format, and
+  generated-file commits).
+- **memory-palace**: indexed 23 web-fetch captures.
+- **Refinement records consolidated**: dimension reports
+  (synthesis, architecture, clean code, algorithm
+  efficiency, additive bias, plugin patterns) merged into
+  this CHANGELOG entry and the deferred-items tracker
+  (issue #486). Per-finding detail recoverable from git
+  history at commit `a50a9352`.
+- **PR #470 deferred-items closure** (#484, #485):
+  closed on this branch instead of carrying to 1.10.x.
+  - **S2** -- `gh_graphql` widens ``variables`` to
+    ``dict[str, Any]``; ``int`` / ``float`` / ``bool`` /
+    ``None`` are routed via ``gh -F`` (typed-field) so
+    GraphQL ``Int!`` / ``Boolean!`` / nullable variables
+    match their schema types.
+  - **S3** -- `bootstrap.add_plugin_src_to_path` swaps
+    CPython-private ``sys._getframe(1)`` for
+    ``inspect.stack()[1].filename`` and falls back to
+    ``Path.cwd()`` when the caller frame is synthetic.
+  - **S6** -- the residual "future GitLab/Bitbucket"
+    sentence is removed from the `git_platform`
+    docstring's user story in the test file.
+  - **S8** -- `PROJECT_PALACE_ROOMS` /
+    `REVIEW_CHAMBER_ROOMS` are typed via
+    ``dict[RoomType, RoomMetadata]`` /
+    ``dict[ReviewSubroom, RoomMetadata]`` with a frozen
+    ``RoomMetadata`` dataclass; the manager preserves
+    string-keyed palace JSON via ``RoomType.value``.
+  - **S9** -- `cli_envelope` exports ``SuccessEnvelope``
+    / ``ErrorEnvelope`` ``TypedDict``s plus a
+    discriminated ``Envelope`` union; ``success_envelope``
+    / ``error_envelope`` return the typed shapes.
+  - **S10** -- ``GhCommandError`` now carries ``cmd:
+    list[str]``, ``returncode: int | None``, and
+    ``stderr: str | None`` for programmatic error
+    handling; ``str(exc)`` stays human-readable.
+  - **S11** -- `test_dir_utils` adds three negative-path
+    scenarios: ``CLAUDE_HOME`` unset (falls back to
+    ``HOME``), ``not-a-dir`` collision (raises
+    ``FileExistsError``), unwritable parent (raises
+    ``PermissionError``, skipped under root).
+  - **gh_api `=` field key guard** -- ``gh_api`` raises
+    ``ValueError`` if a field key contains ``=`` so the
+    argv pair cannot be split to smuggle extra fields.
+  - **C7** -- `ReviewEntry` is now
+    ``@dataclass(frozen=True, slots=True)``;
+    ``from_dict`` is a regular constructor call (no
+    post-hoc attribute mutation), and read-tracking
+    flows through a new ``with_access()`` method that
+    returns a new instance.
+  - **C9** -- `TestQualityMixin` and
+    `TestRecommendationMixin` are demoted to
+    module-level functions in ``_quality`` /
+    ``_recommendations``; ``TestingGuideSkill`` becomes
+    a thin facade that delegates to them. Behavioural
+    surface unchanged for downstream consumers.
+  - **SKILL.md `version:` frontmatter drift** -- 170
+    SKILL.md files were stuck at ``version: 1.9.3``
+    while ``plugin.json`` was at 1.9.4. ``update_versions``
+    learns to bump the frontmatter ``version:`` (only
+    inside the leading YAML block; body code-block
+    examples are preserved). All in-tree SKILL.md
+    frontmatters synced to 1.9.4.
+- **PR #470 fix-pr session** (50 review threads closed):
+  - **Cluster A: 37 placeholder modules implemented**
+    (~6,931 lines) across six skills:
+    - ``leyline:progressive-loading`` (20 modules):
+      advanced-patterns, api-patterns, api-review,
+      cargo-patterns, document-analysis-patterns,
+      git-catchup-patterns, git-patterns, large-reference,
+      legacy-python, linux-patterns, log-analysis-patterns,
+      macos-patterns, modern-python, performance,
+      python-packaging, python-patterns, python-testing,
+      rust-review, troubleshooting, windows-patterns
+    - ``abstract:skill-authoring`` (7 modules):
+      advanced-patterns, authentication, error-handling,
+      examples, testing-with-subagents, troubleshooting,
+      validation
+    - ``abstract:shared-patterns`` (4 modules):
+      advanced, creation, editing, troubleshooting
+    - ``leyline:evaluation-framework`` (3 modules):
+      evaluation-rubric, multi-metric-evaluation-methodology,
+      quality-metrics
+    - ``imbue:feature-review`` (1 module):
+      multi-metric-evaluation-methodology
+    - ``leyline:storage-templates`` (1 module):
+      storage-patterns
+    - ``abstract:skills-eval`` (1 module):
+      skill-authoring-best-practices
+  - **Cluster B + C: 12 ephemeral docs and reports
+    consolidated into this CHANGELOG entry and removed**:
+    ``docs/refinement/2026-05-02/`` (7 dimension reports)
+    and ``reports/`` (3 cleanup scans plus 2 unbloat
+    session logs). Per-finding detail recoverable from
+    git history at commit ``a50a9352``.
+  - **Cluster D: CHANGELOG entries for the fix-pr
+    session** captured under this heading.
+  - All 37 implemented modules passed independent
+    layer-0 + layer-2 slop scan: zero em dashes outside
+    code spans, zero tier-1 banned words, zero banned
+    phrases, zero identity leaks, zero hallucinated
+    file/function references (every cited path verified
+    via ``ls`` / ``head`` before being written into the
+    module).
+  - Plugin tests post-implementation: leyline 655
+    passing, imbue 624 passing, abstract skill-structure
+    61 passing.
+
+
 
 ## [1.9.3] - 2026-04-26
 

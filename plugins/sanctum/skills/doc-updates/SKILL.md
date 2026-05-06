@@ -1,7 +1,7 @@
 ---
 name: doc-updates
 description: 'Update documentation after code changes with quality gates, slop detection, consolidation, and accuracy verification.'
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: artifact-generation
 tags:
@@ -18,11 +18,11 @@ model_hint: standard
 estimated_tokens: 1200
 progressive_loading: true
 modules:
-- adr-patterns
-- directory-style-rules
-- accuracy-scanning
-- consolidation-integration
-- capabilities-sync
+- modules/adr-patterns.md
+- modules/directory-style-rules.md
+- modules/accuracy-scanning.md
+- modules/consolidation-integration.md
+- modules/capabilities-sync.md
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review

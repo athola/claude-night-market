@@ -13,7 +13,6 @@ Part of Issue #69 Phase 3: Log Aggregation & Pattern Detection
 from __future__ import annotations
 
 import json
-import os
 import statistics
 import sys
 from collections import Counter, defaultdict
@@ -26,6 +25,9 @@ from typing import Any
 _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
+
+from abstract.utils import get_log_directory  # noqa: E402 - import after sys.path setup
+
 try:
     from abstract.improvement_memory import ImprovementMemory
 
@@ -79,12 +81,6 @@ class AggregationResult:
     slow_skills: list[dict[str, Any]]
     low_rated_skills: list[dict[str, Any]]
     metrics_by_skill: dict[str, SkillLogSummary]
-
-
-def get_log_directory() -> Path:
-    """Get the skill execution log directory."""
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    return claude_home / "skills" / "logs"
 
 
 def get_learnings_path() -> Path:

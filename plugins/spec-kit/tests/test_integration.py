@@ -373,7 +373,6 @@ class TestSpeckitIntegration:
                 # In real implementation, would regenerate or prompt user
 
         def test_inconsistent_artifact_recovery(self, complete_speckit_project) -> None:
-            """Test recovery from inconsistent artifacts."""
             spec_dir = complete_speckit_project / ".specify" / "specs" / "5-user-auth"
 
             # Create inconsistent data
@@ -417,7 +416,6 @@ class TestSpeckitIntegration:
         """Test performance characteristics of workflows."""
 
         def test_large_specification_handling(self) -> None:
-            """Test handling of large specifications."""
             # Create large specification
             large_spec_content = "# Large Feature Specification\n\n## Overview\n"
             for i in range(100):
@@ -447,7 +445,6 @@ class TestSpeckitIntegration:
             assert len(requirements) >= 100, "Should find requirements in large spec"
 
         def test_many_tasks_handling(self, sample_task_list) -> None:
-            """Test handling of many tasks."""
             # Expand task list
             expanded_tasks = []
             for phase in sample_task_list:

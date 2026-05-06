@@ -74,7 +74,7 @@ selecting the right skills for each codebase.
 # 2. Select relevant review skills
 # 3. Execute reviews in priority order
 # 4. Synthesize findings
-# 5. Provide actionable recommendations
+# 5. Provide specific recommendations with evidence
 ```
 
 ### Specific Reviews

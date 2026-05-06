@@ -1,7 +1,7 @@
 ---
 name: python-testing
-description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests'
-version: 1.9.3
+description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests.'
+version: 1.9.4
 globs: "**/*.py"
 alwaysApply: false
 category: testing
@@ -23,12 +23,12 @@ model_hint: standard
 estimated_tokens: 900
 progressive_loading: true
 modules:
-- unit-testing
-- fixtures-and-mocking
-- test-infrastructure
-- testing-workflows
-- test-quality
-- async-testing
+- modules/unit-testing.md
+- modules/fixtures-and-mocking.md
+- modules/test-infrastructure.md
+- modules/testing-workflows.md
+- modules/test-quality.md
+- modules/async-testing.md
 ---
 # Python Testing Hub
 

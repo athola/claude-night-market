@@ -150,6 +150,165 @@ def build_tools(
     return tools
 
 
+def _error_tool_result(tool_use_id: str, message: str) -> dict[str, Any]:
+    return {
+        "type": "tool_result",
+        "tool_use_id": tool_use_id,
+        "content": message,
+        "is_error": True,
+    }
+
+
+def _run_tool_block(
+    block: Any,
+    *,
+    action_filter: ActionFilter,
+    gate: ConfirmationGate,
+    display: DisplayToolkit,
+    screenshot_tracker: ScreenshotTracker,
+    stuck_policy: StuckPolicy,
+    on_action: Callable[[str, dict[str, Any]], None] | None,
+    on_screenshot: Callable[[str], None] | None,
+    result: LoopResult,
+) -> tuple[dict[str, Any] | None, bool]:
+    """Process one block from the assistant response.
+
+    Returns ``(tool_result, abort_for_stuck)``. ``tool_result`` is None
+    when the block produced no result (e.g. text blocks). ``abort_for_stuck``
+    is True when stuck detection has tripped and the loop should return
+    immediately.
+    """
+    if block.type == "text":
+        result.final_text = block.text
+        return None, False
+    if block.type != "tool_use":
+        return None, False
+
+    if block.name == "computer" and not action_filter.is_allowed(block.input):
+        result.actions_blocked += 1
+        return (
+            _error_tool_result(block.id, "Action blocked: restricted region"),
+            False,
+        )
+    if block.name == "computer" and not gate.check(block.input):
+        result.actions_blocked += 1
+        return (
+            _error_tool_result(block.id, "Action rejected by confirmation gate"),
+            False,
+        )
+
+    result.actions_taken += 1
+    tool_result = _execute_tool(
+        block.name,
+        block.input,
+        block.id,
+        display,
+        on_action,
+        on_screenshot,
+    )
+
+    if block.name == "computer":
+        b64 = _extract_screenshot_b64(tool_result)
+        if b64:
+            is_stuck = screenshot_tracker.record(b64)
+            if is_stuck:
+                logger.warning(
+                    "Stuck detected: %d consecutive identical screenshots",
+                    screenshot_tracker.stuck_count,
+                )
+            if stuck_policy.should_abort(screenshot_tracker.stuck_count):
+                return tool_result, True
+
+    return tool_result, False
+
+
+def _process_iteration(
+    *,
+    config: LoopConfig,
+    d_config: DisplayConfig,
+    client: Any,
+    tools: list[dict[str, Any]],
+    beta_flag: str,
+    messages: list[dict[str, Any]],
+    cost_tracker: CostTracker,
+    action_filter: ActionFilter,
+    gate: ConfirmationGate,
+    display: DisplayToolkit,
+    screenshot_tracker: ScreenshotTracker,
+    stuck_policy: StuckPolicy,
+    on_action: Callable[[str, dict[str, Any]], None] | None,
+    on_screenshot: Callable[[str], None] | None,
+    result: LoopResult,
+) -> str | None:
+    """Run one iteration of the agent loop.
+
+    Returns a stop-reason string when the loop must halt, or None to
+    continue. Mutates ``messages`` and ``result`` in place.
+    """
+    if cost_tracker.budget_exceeded:
+        logger.warning("Budget exceeded: %s", cost_tracker.summary())
+        return "budget_exceeded"
+
+    kwargs: dict[str, Any] = {
+        "model": config.model,
+        "max_tokens": config.max_tokens,
+        "messages": messages,
+        "tools": tools,
+        "betas": [beta_flag],
+    }
+    if config.system_prompt:
+        kwargs["system"] = config.system_prompt
+    if config.thinking_budget:
+        kwargs["thinking"] = {
+            "type": "enabled",
+            "budget_tokens": config.thinking_budget,
+        }
+
+    response = client.beta.messages.create(**kwargs)
+
+    usage = getattr(response, "usage", None)
+    cost_tracker.record(
+        input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
+        output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
+        screenshot_tokens_est=estimate_screenshot_tokens(
+            d_config.width,
+            d_config.height,
+        ),
+    )
+
+    response_content = response.content
+    messages.append(
+        {
+            "role": "assistant",
+            "content": [_block_to_dict(b) for b in response_content],
+        }
+    )
+
+    tool_results: list[dict[str, Any]] = []
+    for block in response_content:
+        tool_result, abort_stuck = _run_tool_block(
+            block,
+            action_filter=action_filter,
+            gate=gate,
+            display=display,
+            screenshot_tracker=screenshot_tracker,
+            stuck_policy=stuck_policy,
+            on_action=on_action,
+            on_screenshot=on_screenshot,
+            result=result,
+        )
+        if tool_result is not None:
+            tool_results.append(tool_result)
+        if abort_stuck:
+            return "stuck"
+
+    if not tool_results:
+        return "completed"
+
+    messages.append({"role": "user", "content": tool_results})
+    return None
+
+
 def run_loop(
     task: str,
     api_key: str,
@@ -179,11 +338,8 @@ def run_loop(
     d_config = display_config or DisplayConfig()
     display = toolkit or DisplayToolkit(config=d_config)
 
-    # Initialize safety, stuck detection, and cost tracking
     action_filter = ActionFilter(blocked_regions=config.blocked_regions)
-    gate = ConfirmationGate(
-        callback=confirm_callback or no_confirm,
-    )
+    gate = ConfirmationGate(callback=confirm_callback or no_confirm)
     screenshot_tracker = ScreenshotTracker()
     stuck_policy = StuckPolicy(max_stuck=config.max_stuck)
     cost_tracker = CostTracker(
@@ -194,134 +350,35 @@ def run_loop(
     client = anthropic.Anthropic(api_key=api_key)
     tool_version = resolve_tool_version(config.model)
     beta_flag = get_beta_flag(tool_version)
-
     tools = build_tools(config, d_config)
 
-    messages: list[dict[str, Any]] = [
-        {"role": "user", "content": task},
-    ]
-
+    messages: list[dict[str, Any]] = [{"role": "user", "content": task}]
     result = LoopResult(stopped_reason="max_iterations")
 
     for iteration in range(config.max_iterations):
         result.iterations = iteration + 1
         logger.info("Iteration %d/%d", iteration + 1, config.max_iterations)
 
-        # Check budget before making API call
-        if cost_tracker.budget_exceeded:
-            result.stopped_reason = "budget_exceeded"
-            logger.warning("Budget exceeded: %s", cost_tracker.summary())
-            break
-
-        # Build API kwargs
-        kwargs: dict[str, Any] = {
-            "model": config.model,
-            "max_tokens": config.max_tokens,
-            "messages": messages,
-            "tools": tools,
-            "betas": [beta_flag],
-        }
-        if config.system_prompt:
-            kwargs["system"] = config.system_prompt
-        if config.thinking_budget:
-            kwargs["thinking"] = {
-                "type": "enabled",
-                "budget_tokens": config.thinking_budget,
-            }
-
-        response = client.beta.messages.create(**kwargs)
-
-        # Track token costs
-        usage = getattr(response, "usage", None)
-        cost_tracker.record(
-            input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
-            output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
-            screenshot_tokens_est=estimate_screenshot_tokens(
-                d_config.width,
-                d_config.height,
-            ),
+        stop_reason = _process_iteration(
+            config=config,
+            d_config=d_config,
+            client=client,
+            tools=tools,
+            beta_flag=beta_flag,
+            messages=messages,
+            cost_tracker=cost_tracker,
+            action_filter=action_filter,
+            gate=gate,
+            display=display,
+            screenshot_tracker=screenshot_tracker,
+            stuck_policy=stuck_policy,
+            on_action=on_action,
+            on_screenshot=on_screenshot,
+            result=result,
         )
-
-        # Add assistant response to history
-        response_content = response.content
-        messages.append(
-            {
-                "role": "assistant",
-                "content": [_block_to_dict(b) for b in response_content],
-            }
-        )
-
-        # Process tool use blocks
-        tool_results: list[dict[str, Any]] = []
-        for block in response_content:
-            if block.type == "tool_use":
-                # Safety: check blocked regions
-                if block.name == "computer" and not action_filter.is_allowed(
-                    block.input
-                ):
-                    result.actions_blocked += 1
-                    tool_results.append(
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": "Action blocked: restricted region",
-                            "is_error": True,
-                        }
-                    )
-                    continue
-
-                # Safety: confirmation gate
-                if block.name == "computer" and not gate.check(block.input):
-                    result.actions_blocked += 1
-                    tool_results.append(
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": "Action rejected by confirmation gate",
-                            "is_error": True,
-                        }
-                    )
-                    continue
-
-                result.actions_taken += 1
-                tool_result = _execute_tool(
-                    block.name,
-                    block.input,
-                    block.id,
-                    display,
-                    on_action,
-                    on_screenshot,
-                )
-
-                # Stuck detection: check if screenshot changed
-                if block.name == "computer":
-                    b64 = _extract_screenshot_b64(tool_result)
-                    if b64:
-                        is_stuck = screenshot_tracker.record(b64)
-                        if is_stuck:
-                            logger.warning(
-                                "Stuck detected: %d consecutive identical screenshots",
-                                screenshot_tracker.stuck_count,
-                            )
-                        if stuck_policy.should_abort(
-                            screenshot_tracker.stuck_count,
-                        ):
-                            result.stopped_reason = "stuck"
-                            result.cost_summary = cost_tracker.summary()
-                            result.messages = messages
-                            return result
-
-                tool_results.append(tool_result)
-            elif block.type == "text":
-                result.final_text = block.text
-
-        # If no tools were used, Claude is done
-        if not tool_results:
-            result.stopped_reason = "completed"
+        if stop_reason is not None:
+            result.stopped_reason = stop_reason
             break
-
-        # Add tool results for next iteration
-        messages.append({"role": "user", "content": tool_results})
 
     result.messages = messages
     result.cost_summary = cost_tracker.summary()

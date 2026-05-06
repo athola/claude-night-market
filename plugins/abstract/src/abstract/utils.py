@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import re
+import sys
 import warnings
 from pathlib import Path
 from typing import Any
@@ -29,15 +30,18 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "check_meta_skill_indicators",
     "count_sections",
+    "emit_warn",
     "extract_dependencies",
     # Frontmatter utilities
     "extract_frontmatter",
+    "extract_section",
     "find_dependency_file",
     # Project utilities
     "find_project_root",
     # Path utilities
     "get_config_dir",
     "get_log_directory",
+    "get_observability_dir",
     # Skill file utilities
     "find_skill_files",
     # Analysis utilities
@@ -104,6 +108,26 @@ def get_config_dir(*, create: bool = False) -> Path:
     if create:
         config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
+
+
+def get_observability_dir(*, create: bool = False) -> Path:
+    """Get the skill observability state directory.
+
+    Respects CLAUDE_HOME like the other dir helpers (D-04).
+
+    Args:
+        create: If True, create the directory if it doesn't exist.
+
+    Returns:
+        Path to ~/.claude/skills/observability/ (or
+        ``$CLAUDE_HOME/skills/observability/``).
+
+    """
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+    state_dir = claude_home / "skills" / "observability"
+    if create:
+        state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:
@@ -435,3 +459,32 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
+
+
+def extract_section(content: str, heading: str) -> str | None:
+    """Extract the body of a markdown ``## Section`` heading (D-03).
+
+    Returns the text between ``heading`` and the next ``## ``
+    heading, ``---`` rule, or end-of-document. ``heading`` should
+    include the leading ``## `` so the caller can target deeper
+    levels. Result is ``None`` when the heading is not found and
+    the matched body is ``strip()``-ed.
+    """
+    # F1 fix: the lookahead must terminate when the next ``## `` /
+    # ``---`` is at the start of the very next line (no preceding
+    # blank line). The original ``\n## ``/``\n---`` lookahead missed
+    # that case and captured the next section's body too.
+    pattern = re.escape(heading) + r"(?:\n|$)(.*?)(?=(?:\n|^)## |(?:\n|^)---|\Z)"
+    match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+
+def emit_warn(module: str, message: str) -> None:
+    """Write a newline-terminated ``module: message`` line to stderr.
+
+    Centralised replacement for the per-module ``_warn`` helpers
+    (D-12) used by improvement_queue, improvement_memory, and
+    performance_tracker. Stderr (not logging) is the contract
+    those modules' tests assert on via ``capsys``.
+    """
+    sys.stderr.write(f"{module}: {message}\n")

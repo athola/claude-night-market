@@ -1,7 +1,7 @@
 ---
 name: architecture-aware-init
-description: 'Research-backed paradigm selection before scaffolding. Use when starting a project where architecture is undecided.'
-version: 1.9.3
+description: 'Research-backed paradigm selection before scaffolding.'
+version: 1.9.4
 alwaysApply: false
 category: project-initialization
 tags:
@@ -23,10 +23,10 @@ model_hint: deep
 estimated_tokens: 1800
 progressive_loading: true
 modules:
-- research-flow
-- paradigm-selection
-- scaffold-generation
-- script-integration
+- modules/research-flow.md
+- modules/paradigm-selection.md
+- modules/scaffold-generation.md
+- modules/script-integration.md
 ---
 
 # Architecture-Aware Project Initialization

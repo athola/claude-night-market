@@ -111,69 +111,7 @@ MIT
     print(f"✓ Created: {readme}")
 
 
-def initialize_plugin_project(  # noqa: PLR0915 - plugin scaffolding creates many directories and files in sequence
-    project_path: Path,
-    plugin_name: str,
-    author: str = "Your Name",
-    email: str = "you@example.com",
-    force: bool = False,
-) -> None:
-    """Initialize a Claude Code plugin project.
-
-    Args:
-        project_path: Path to project directory
-        plugin_name: Name of the plugin
-        author: Author name
-        email: Author email
-        force: Force overwrite without prompting
-
-    """
-    print(f"\n{'=' * 60}")
-    print("Claude Code Plugin Project Initialization")
-    print(f"{'=' * 60}")
-    print(f"Plugin: {plugin_name}")
-    print(f"Path: {project_path}")
-    print(f"{'=' * 60}\n")
-
-    # Initialize git
-    initialize_git(project_path, force=force)
-
-    # Create plugin structure
-    create_plugin_structure(project_path, plugin_name)
-
-    # Get template variables for Python project
-    variables = get_default_variables(
-        project_name=plugin_name,
-        language="python",
-        author=author,
-        email=email,
-        description=f"Claude Code plugin for {plugin_name}",
-    )
-
-    # Find templates directory
-    script_dir = Path(__file__).parent
-    templates_root = script_dir.parent / "templates"
-
-    # Copy Python templates (for scripts/)
-    copy_templates(
-        language="python",
-        project_path=project_path,
-        variables=variables,
-        templates_root=templates_root,
-        force=force,
-    )
-
-    # Create scripts directory structure
-    scripts_dir = project_path / "scripts"
-    scripts_dir.mkdir(exist_ok=True)
-    (scripts_dir / "__init__.py").write_text("")
-
-    # Create tests directory structure
-    tests_dir = project_path / "tests"
-    tests_dir.mkdir(exist_ok=True)
-    (tests_dir / "__init__.py").write_text("")
-
-    # Create example skill
+def _create_example_skill(project_path: Path, plugin_name: str) -> None:
     example_skill_dir = project_path / "skills" / "example-skill"
     example_skill_dir.mkdir(parents=True, exist_ok=True)
 
@@ -215,7 +153,8 @@ Assistant: [executes skill]
 """)
     print(f"✓ Created: {skill_md}")
 
-    # Create example command
+
+def _create_example_command(project_path: Path, plugin_name: str) -> None:
     example_command = project_path / "commands" / "example.md"
     example_command.write_text(f"""---
 name: example
@@ -252,21 +191,23 @@ Example command demonstrating {plugin_name} plugin functionality.
 """)
     print(f"✓ Created: {example_command}")
 
-    # Copy TDD hook templates if available
-    script_dir_hooks = Path(__file__).parent.parent / "templates" / "hooks"
-    if script_dir_hooks.is_dir():
-        hooks_dir = project_path / "hooks"
-        hooks_dir.mkdir(exist_ok=True)
-        for template_file in script_dir_hooks.glob("*.template"):
-            # Strip .template extension for the destination filename
-            dest_name = template_file.stem
-            dest_path = hooks_dir / dest_name
-            if not dest_path.exists() or force:
-                dest_path.write_text(template_file.read_text())
-                print(f"  Created: {dest_path}")
-        print("  TDD hook templates installed to hooks/")
 
-    # Create plugin structure test
+def _copy_hook_templates(project_path: Path, force: bool) -> None:
+    script_dir_hooks = Path(__file__).parent.parent / "templates" / "hooks"
+    if not script_dir_hooks.is_dir():
+        return
+    hooks_dir = project_path / "hooks"
+    hooks_dir.mkdir(exist_ok=True)
+    for template_file in script_dir_hooks.glob("*.template"):
+        dest_name = template_file.stem
+        dest_path = hooks_dir / dest_name
+        if not dest_path.exists() or force:
+            dest_path.write_text(template_file.read_text())
+            print(f"  Created: {dest_path}")
+    print("  TDD hook templates installed to hooks/")
+
+
+def _create_plugin_structure_test(project_path: Path, plugin_name: str) -> None:
     test_file = project_path / "tests" / "test_plugin_structure.py"
     test_file.write_text(f'''"""Test {plugin_name} plugin structure."""
 
@@ -308,6 +249,66 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 ''')
     print(f"✓ Created: {test_file}")
+
+
+def initialize_plugin_project(
+    project_path: Path,
+    plugin_name: str,
+    author: str = "Your Name",
+    email: str = "you@example.com",
+    force: bool = False,
+) -> None:
+    """Initialize a Claude Code plugin project.
+
+    Args:
+        project_path: Path to project directory
+        plugin_name: Name of the plugin
+        author: Author name
+        email: Author email
+        force: Force overwrite without prompting
+
+    """
+    print(f"\n{'=' * 60}")
+    print("Claude Code Plugin Project Initialization")
+    print(f"{'=' * 60}")
+    print(f"Plugin: {plugin_name}")
+    print(f"Path: {project_path}")
+    print(f"{'=' * 60}\n")
+
+    initialize_git(project_path, force=force)
+    create_plugin_structure(project_path, plugin_name)
+
+    variables = get_default_variables(
+        project_name=plugin_name,
+        language="python",
+        author=author,
+        email=email,
+        description=f"Claude Code plugin for {plugin_name}",
+    )
+
+    script_dir = Path(__file__).parent
+    templates_root = script_dir.parent / "templates"
+
+    copy_templates(
+        language="python",
+        project_path=project_path,
+        variables=variables,
+        templates_root=templates_root,
+        force=force,
+    )
+
+    scripts_dir = project_path / "scripts"
+    scripts_dir.mkdir(exist_ok=True)
+    (scripts_dir / "__init__.py").write_text("")
+
+    tests_dir = project_path / "tests"
+    tests_dir.mkdir(exist_ok=True)
+    (tests_dir / "__init__.py").write_text("")
+
+    _create_example_skill(project_path, plugin_name)
+    _create_example_command(project_path, plugin_name)
+    _copy_hook_templates(project_path, force)
+    _create_plugin_structure_test(project_path, plugin_name)
 
     print(f"\n{'=' * 60}")
     print("✓ Plugin project initialized successfully!")

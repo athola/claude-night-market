@@ -341,7 +341,6 @@ class TestSkillValidatorFrontmatter:
 
     @pytest.mark.unit
     def test_negative_estimated_tokens_adds_error(self, tmp_path: Path) -> None:
-        """Negative estimated_tokens adds an error."""
         content = (
             "---\nname: test-skill\ndescription: A skill.\nversion: 1.0.0\n"
             "category: testing\ntags: []\nestimated_tokens: -1\n---\n# Skill\n"
@@ -379,7 +378,6 @@ class TestSkillValidatorFrontmatter:
 
     @pytest.mark.unit
     def test_non_string_category_adds_error(self, tmp_path: Path) -> None:
-        """Non-string category adds an error."""
         content = (
             "---\nname: test-skill\ndescription: A skill.\nversion: 1.0.0\n"
             "category: 123\ntags: []\nestimated_tokens: 100\n---\n# Skill\n"
@@ -427,7 +425,6 @@ class TestSkillValidatorBody:
 
     @pytest.mark.unit
     def test_missing_overview_section_adds_warning(self, tmp_path: Path) -> None:
-        """Missing Overview section adds a warning."""
         content = (
             "---\nname: test-skill\n"
             "description: Guides you through things. Use when needed.\n"

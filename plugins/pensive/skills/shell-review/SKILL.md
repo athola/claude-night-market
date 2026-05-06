@@ -1,7 +1,7 @@
 ---
 name: shell-review
-description: 'Audit shell scripts for correctness and common pitfalls. Use when reviewing bash/sh scripts before merging.'
-version: 1.9.3
+description: 'Audit shell scripts for correctness and common pitfalls.'
+version: 1.9.4
 globs: "**/*.sh"
 alwaysApply: false
   Use when reviewing shell scripts, CI scripts, hook scripts, wrapper scripts. Do
@@ -23,9 +23,9 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 modules:
-- exit-codes
-- portability
-- safety-patterns
+- modules/exit-codes.md
+- modules/portability.md
+- modules/safety-patterns.md
 role: entrypoint
 ---
 ## Table of Contents

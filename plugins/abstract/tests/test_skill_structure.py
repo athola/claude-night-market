@@ -271,8 +271,8 @@ class TestHookScopeGuideSkill:
 
     @pytest.fixture
     def skill_path(self):
-        """Return path to the hook-scope-guide skill."""
-        return Path(__file__).parent.parent / "skills" / "hook-scope-guide.md"
+        """Return path to the hook-scope-guide skill SKILL.md."""
+        return Path(__file__).parent.parent / "skills" / "hook-scope-guide" / "SKILL.md"
 
     @pytest.mark.bdd
     def test_skill_exists(self, skill_path) -> None:
@@ -282,7 +282,7 @@ class TestHookScopeGuideSkill:
         When I look for the hook-scope-guide skill
         Then it should exist in the skills directory
         """
-        assert skill_path.exists(), f"hook-scope-guide.md not found at {skill_path}"
+        assert skill_path.exists(), f"SKILL.md not found at {skill_path}"
 
     @pytest.mark.bdd
     def test_skill_has_valid_frontmatter(self, skill_path) -> None:

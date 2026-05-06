@@ -1,7 +1,7 @@
 ---
 name: rust-review
-description: 'Rust audit for unsafe blocks, ownership, and Cargo deps. Use when reviewing Rust code for safety or supply-chain risk.'
-version: 1.9.3
+description: 'Rust audit for unsafe blocks, ownership, and Cargo deps.'
+version: 1.9.4
 globs: "**/*.rs"
 alwaysApply: false
 category: code-review
@@ -38,6 +38,10 @@ modules:
 - error-messages.md
 - duplicate-validators.md
 - builtin-preference.md
+- model-specific-tells.md
+- iterator-and-allocation-slop.md
+- test-slop.md
+- async-slop.md
 ---
 ## Table of Contents
 

@@ -10,17 +10,16 @@ Storage: ~/.claude/skills/performance_history.json
 from __future__ import annotations
 
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .utils import safe_json_load
+from .utils import emit_warn, safe_json_load
 
 
 def _warn(message: str) -> None:
-    """Write a warning message to stderr."""
-    sys.stderr.write(f"performance_tracker: {message}\n")
+    """Forward to the shared stderr writer (D-12)."""
+    emit_warn("performance_tracker", message)
 
 
 class PerformanceTracker:

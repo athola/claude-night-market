@@ -1,10 +1,7 @@
 ---
 name: deferred-capture
-description: >-
-  Contract for unified deferred-item capture across plugins.
-  Defines CLI interface, issue template, label taxonomy,
-  and compliance test.
-version: 1.9.3
+description: 'Deferred-item capture across plugins: CLI, template, taxonomy.'
+version: 1.9.4
 alwaysApply: false
 model_hint: standard
 ---

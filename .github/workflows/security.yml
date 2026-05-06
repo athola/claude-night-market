@@ -39,8 +39,8 @@ jobs:
     - name: Run Bandit security linter
       run: |
         source .venv/bin/activate
-        bandit -r . -f json -o bandit-report.json --exclude .venv,.git,__pycache__,*.pyc,dist,build,.eggs || true
-        bandit -r . -f txt --exclude .venv,.git,__pycache__,*.pyc,dist,build,.eggs
+        bandit -c pyproject.toml -r . -f json -o bandit-report.json || true
+        bandit -c pyproject.toml -r . -f txt
       continue-on-error: true
 
     - name: Convert Bandit JSON to SARIF
@@ -64,6 +64,7 @@ jobs:
           }
           out_path.write_text(json.dumps(sarif, indent=2))
           raise SystemExit(0)
+        MAX_SARIF_RESULTS_PER_RUN = 25000  # GitHub Code Scanning limit
         report = json.loads(in_path.read_text())
         results = report.get("results", []) or []
         severity_to_level = {"LOW": "note", "MEDIUM": "warning", "HIGH": "error"}
@@ -107,6 +108,14 @@ jobs:
             "results": sarif_results,
           }],
         }
+        if len(sarif_results) > MAX_SARIF_RESULTS_PER_RUN:
+          truncated = len(sarif_results) - MAX_SARIF_RESULTS_PER_RUN
+          print(
+            f"::warning::Bandit produced {len(sarif_results)} results; "
+            f"truncating to {MAX_SARIF_RESULTS_PER_RUN} for SARIF upload "
+            f"({truncated} omitted; see bandit-report.json artifact).",
+          )
+          sarif["runs"][0]["results"] = sarif_results[:MAX_SARIF_RESULTS_PER_RUN]
         out_path.write_text(json.dumps(sarif, indent=2))
         PY
 

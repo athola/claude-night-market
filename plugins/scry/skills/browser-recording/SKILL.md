@@ -1,7 +1,7 @@
 ---
 name: browser-recording
-description: Record browser sessions using Playwright for web UI tutorials, converts
-version: 1.9.3
+description: 'Record browser sessions using Playwright for web UI tutorials, converts.'
+version: 1.9.4
 alwaysApply: false
   video to GIF.
 category: media-generation
@@ -18,8 +18,8 @@ model_hint: standard
 estimated_tokens: 500
 progressive_loading: true
 modules:
-- spec-execution
-- video-capture
+- modules/spec-execution.md
+- modules/video-capture.md
 dependencies:
 - scry:gif-generation
 ---

@@ -426,12 +426,7 @@ class TestVersionFetcherBehavior:
 
     @patch("urllib.request.urlopen")
     def test_scenario_fetch_latest_github_action_version(self, mock_urlopen):
-        """Scenario: Fetching latest GitHub Action version.
-
-        Given a GitHub Action exists
-        When I fetch its latest version
-        Then it should return the major version number
-        """
+        """Mock GitHub releases API and assert ``v4.2.1`` is collapsed to ``v4``."""
         # Given
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps({"tag_name": "v4.2.1"}).encode()

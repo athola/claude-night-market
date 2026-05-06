@@ -8,59 +8,19 @@ loaded to provide deep context without manual prompt engineering.
 
 from __future__ import annotations
 
-import re
+import sys
 from dataclasses import dataclass, field
 from fnmatch import fnmatch
 from pathlib import Path
 
-# Pattern to extract YAML frontmatter
-FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+# D-02: pull canonical frontmatter parser from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
 
-
-def _parse_yaml_list(text: str) -> list[str]:
-    """Parse a simple YAML list (lines starting with '- ')."""
-    return [
-        line.strip().lstrip("- ").strip().strip('"').strip("'")
-        for line in text.splitlines()
-        if line.strip().startswith("- ")
-    ]
-
-
-def _parse_frontmatter(text: str) -> dict[str, str | list[str]]:
-    """Extract key-value pairs from YAML-like frontmatter.
-
-    Handles simple scalars and list values (lines starting with -).
-    """
-    match = FRONTMATTER_RE.match(text)
-    if not match:
-        return {}
-
-    result: dict[str, str | list[str]] = {}
-    current_key = ""
-    list_buffer: list[str] = []
-
-    for line in match.group(1).splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- "):
-            list_buffer.append(stripped.lstrip("- ").strip().strip('"').strip("'"))
-        elif ":" in stripped:
-            # Save previous list if any
-            if current_key and list_buffer:
-                result[current_key] = list_buffer
-                list_buffer = []
-            key, _, value = stripped.partition(":")
-            current_key = key.strip()
-            value = value.strip()
-            if value:
-                result[current_key] = value
-        else:
-            continue
-
-    # Save trailing list
-    if current_key and list_buffer:
-        result[current_key] = list_buffer
-
-    return result
+from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
+    parse_frontmatter_with_body,
+)
 
 
 @dataclass(frozen=True)
@@ -88,11 +48,8 @@ def load_area_config(config_path: Path) -> AreaAgentConfig:
 
     """
     text = config_path.read_text()
-    meta = _parse_frontmatter(text)
-
-    # Extract body (everything after frontmatter)
-    fm_match = FRONTMATTER_RE.match(text)
-    body = text[fm_match.end() :].strip() if fm_match else text.strip()
+    meta, body = parse_frontmatter_with_body(text)
+    body = body.strip() if meta else text.strip()
 
     globs = meta.get("ownership_globs", [])
     if isinstance(globs, str):

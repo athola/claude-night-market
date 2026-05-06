@@ -62,11 +62,14 @@ fi
 project_dir=$(jq -r '.project_dir' "$MANIFEST" 2>/dev/null)
 if [[ -z "$project_dir" || "$project_dir" == "null" ]]; then
     project_dir="$(pwd)"
+elif [[ ! -d "$project_dir" ]]; then
+    log "ERROR: project_dir '$project_dir' from manifest does not exist; aborting relaunch"
+    exit 1
 fi
 
 # Relaunch
 log "Relaunching egregore session ($remaining active items)"
-cd "$project_dir"
+cd "$project_dir" || { log "ERROR: cd to '$project_dir' failed; aborting"; exit 1; }
 
 relaunch_prompt="$EGREGORE_DIR/relaunch-prompt.md"
 if [[ -f "$relaunch_prompt" ]]; then

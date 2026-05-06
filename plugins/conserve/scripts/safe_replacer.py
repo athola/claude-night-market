@@ -14,6 +14,16 @@ import re
 import sys
 from pathlib import Path
 
+# D-13: pull canonical CLI envelope helpers from leyline.
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
+
+from leyline.cli_envelope import (  # noqa: E402 - import after sys.path setup
+    error_envelope,
+    success_envelope,
+)
+
 
 class SafeDependencyUpdater:
     """Safely updates dependencies in skill files."""
@@ -96,18 +106,26 @@ class SafeDependencyUpdater:
         return issues
 
     def update_directory(self, base_path: Path) -> tuple[int, int]:
-        """Update all skill files in directory."""
+        """Update all skill files in directory.
+
+        Walks the tree once. Use ``update_files`` when the caller
+        already has a materialised list of paths to avoid a second
+        rglob.
+        """
+        return self.update_files(list(base_path.rglob("SKILL.md")))
+
+    def update_files(self, skill_files: list[Path]) -> tuple[int, int]:
+        """Update each ``SKILL.md`` in *skill_files*.
+
+        Validation happens in the caller after all updates complete.
+        """
         files_updated = 0
         total_changes = 0
-
-        for skill_file in base_path.rglob("SKILL.md"):
+        for skill_file in skill_files:
             updated, changes = self.update_file(skill_file)
             if updated:
                 files_updated += 1
                 total_changes += changes
-
-            # Validation happens in the caller (main) after all updates complete
-
         return files_updated, total_changes
 
 
@@ -142,48 +160,35 @@ def main() -> None:
             return
 
         updater = SafeDependencyUpdater()
+        # A-04: walk once, reuse for both update and validation.
+        skill_files = list(base_path.rglob("SKILL.md"))
+
+        def _collect_issues() -> list[dict[str, str]]:
+            issues: list[dict[str, str]] = []
+            for skill_file in skill_files:
+                for issue in updater.validate_references(skill_file):
+                    issues.append({"file": str(skill_file), "issue": issue})
+            return issues
 
         if args.validate_only:
-            # Validation mode - just report issues
-            issues = []
-            for skill_file in base_path.rglob("SKILL.md"):
-                file_issues = updater.validate_references(skill_file)
-                if file_issues:
-                    issues.extend(
-                        [
-                            {"file": str(skill_file), "issue": issue}
-                            for issue in file_issues
-                        ]
-                    )
-
-            result = {
-                "files_scanned": len(list(base_path.rglob("SKILL.md"))),
-                "issues_found": issues,
-                "validate_only": True,
-            }
-            output_result(result, args)
+            output_result(
+                {
+                    "files_scanned": len(skill_files),
+                    "issues_found": _collect_issues(),
+                    "validate_only": True,
+                },
+                args,
+            )
         else:
-            # Update mode
-            files_updated, total_changes = updater.update_directory(base_path)
-
-            # Check for remaining issues
-            issues = []
-            for skill_file in base_path.rglob("SKILL.md"):
-                file_issues = updater.validate_references(skill_file)
-                if file_issues:
-                    issues.extend(
-                        [
-                            {"file": str(skill_file), "issue": issue}
-                            for issue in file_issues
-                        ]
-                    )
-
-            result = {
-                "files_updated": files_updated,
-                "total_changes": total_changes,
-                "issues_found": issues,
-            }
-            output_result(result, args)
+            files_updated, total_changes = updater.update_files(skill_files)
+            output_result(
+                {
+                    "files_updated": files_updated,
+                    "total_changes": total_changes,
+                    "issues_found": _collect_issues(),
+                },
+                args,
+            )
 
     except FileNotFoundError as e:
         output_error(f"File not found: {e}", args)
@@ -196,15 +201,9 @@ def main() -> None:
 def output_result(result: dict, args: argparse.Namespace) -> None:
     """Output result in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": True,
-                    "data": result,
-                },
-                indent=2,
-            )
-        )
+        # F4: default=str so Path / datetime / custom objects in
+        # result do not raise an uncaught TypeError from main().
+        print(json.dumps(success_envelope(result), indent=2, default=str))
     else:
         print(f"Files updated: {result.get('files_updated', 0)}")
         print(f"Total changes: {result.get('total_changes', 0)}")
@@ -217,15 +216,7 @@ def output_result(result: dict, args: argparse.Namespace) -> None:
 def output_error(message: str, args: argparse.Namespace) -> None:
     """Output error in requested format."""
     if args.output_json:
-        print(
-            json.dumps(
-                {
-                    "success": False,
-                    "error": message,
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps(error_envelope(message), indent=2))
     else:
         print(f"Error: {message}", file=sys.stderr)
 

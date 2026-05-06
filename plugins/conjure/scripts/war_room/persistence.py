@@ -180,7 +180,36 @@ def archive_session(
     return None
 
 
-def list_sessions(  # noqa: PLR0912 - nested directory traversal with many entry types
+def _load_session_summary(
+    session_file: Path,
+    *,
+    archived: bool,
+    project: str | None = None,
+) -> dict[str, Any] | None:
+    """Read ``session.json`` and shape a row for ``list_sessions``.
+
+    Returns ``None`` if the file is missing or unparseable.
+    """
+    if not session_file.exists():
+        return None
+    try:
+        with open(session_file) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+    summary: dict[str, Any] = {
+        "session_id": data["session_id"],
+        "problem": data["problem_statement"][:100],
+        "status": data["status"],
+        "mode": data["mode"],
+        "archived": archived,
+    }
+    if project is not None:
+        summary["project"] = project
+    return summary
+
+
+def list_sessions(
     strategeion: Path, include_archived: bool = False
 ) -> list[dict[str, Any]]:
     """List all War Room sessions."""
@@ -190,49 +219,31 @@ def list_sessions(  # noqa: PLR0912 - nested directory traversal with many entry
     war_table = strategeion / "war-table"
     if war_table.exists():
         for session_dir in war_table.iterdir():
-            if session_dir.is_dir():
-                session_file = session_dir / "session.json"
-                if session_file.exists():
-                    try:
-                        with open(session_file) as f:
-                            data = json.load(f)
-                    except (json.JSONDecodeError, OSError):
-                        continue
-                    sessions.append(
-                        {
-                            "session_id": data["session_id"],
-                            "problem": data["problem_statement"][:100],
-                            "status": data["status"],
-                            "mode": data["mode"],
-                            "archived": False,
-                        }
-                    )
+            if not session_dir.is_dir():
+                continue
+            summary = _load_session_summary(
+                session_dir / "session.json", archived=False
+            )
+            if summary is not None:
+                sessions.append(summary)
 
     # Archived sessions
     if include_archived:
         archive = strategeion / "campaign-archive"
         if archive.exists():
             for project_dir in archive.iterdir():
-                if project_dir.is_dir():
-                    for date_dir in project_dir.iterdir():
-                        if date_dir.is_dir():
-                            for session_dir in date_dir.iterdir():
-                                session_file = session_dir / "session.json"
-                                if session_file.exists():
-                                    try:
-                                        with open(session_file) as f:
-                                            data = json.load(f)
-                                    except (json.JSONDecodeError, OSError):
-                                        continue
-                                    sessions.append(
-                                        {
-                                            "session_id": data["session_id"],
-                                            "problem": data["problem_statement"][:100],
-                                            "status": data["status"],
-                                            "mode": data["mode"],
-                                            "archived": True,
-                                            "project": project_dir.name,
-                                        }
-                                    )
+                if not project_dir.is_dir():
+                    continue
+                for date_dir in project_dir.iterdir():
+                    if not date_dir.is_dir():
+                        continue
+                    for session_dir in date_dir.iterdir():
+                        summary = _load_session_summary(
+                            session_dir / "session.json",
+                            archived=True,
+                            project=project_dir.name,
+                        )
+                        if summary is not None:
+                            sessions.append(summary)
 
     return sessions

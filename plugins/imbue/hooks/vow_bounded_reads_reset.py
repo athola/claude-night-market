@@ -118,7 +118,8 @@ def main() -> None:
         _atomic_reset(counter_file)
         sys.exit(0)
 
-    except Exception:  # hook must not crash the agent under any circumstance
+    except Exception as exc:  # hook must not crash the agent under any circumstance
+        print(f"[vow-bounded-reads-reset] internal error: {exc}", file=sys.stderr)
         sys.exit(0)
 
 

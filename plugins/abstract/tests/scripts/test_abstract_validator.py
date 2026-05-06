@@ -194,7 +194,6 @@ Content without module references.
         assert not content.startswith("---")
 
     def test_fix_patterns_actual_fix(self, temp_skill_dir) -> None:
-        """Test actual fixing of patterns."""
         skill_dir = temp_skill_dir / "fixable-skill"
         skill_dir.mkdir()
         original_content = "No frontmatter"
@@ -222,7 +221,6 @@ class TestScanInfrastructureBranches:
 
     @pytest.mark.unit
     def test_invalid_plugin_json_adds_issue(self, tmp_path: Path) -> None:
-        """Invalid plugin.json adds 'Invalid plugin.json' issue."""
         (tmp_path / "plugin.json").write_text("{ invalid json }")
 
         validator = AbstractValidator(tmp_path)

@@ -32,7 +32,6 @@ class TestHooksJsonResolution:
         assert result == "./hooks/my_script.sh"
 
     def test_extract_script_path_returns_none_for_invalid(self, tmp_path: Path) -> None:
-        """Test that invalid paths return None."""
         auditor = PluginAuditor(tmp_path, dry_run=True)
 
         result = auditor._extract_script_path("echo hello")
@@ -88,7 +87,6 @@ class TestHooksJsonResolution:
     def test_resolve_hooks_json_returns_none_for_missing_file(
         self, tmp_path: Path
     ) -> None:
-        """Test that missing hooks.json returns None."""
         plugin_dir = tmp_path / "test-plugin"
         plugin_dir.mkdir()
 

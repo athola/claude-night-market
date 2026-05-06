@@ -30,12 +30,12 @@ When a supply chain compromise is reported:
 
 If a credential-stealing payload was present, rotate in this order:
 
-1. **Cloud provider keys** (AWS, GCP, Azure) — highest blast radius
-2. **Database passwords** — data exfiltration risk
-3. **SSH keys** — lateral movement risk
-4. **API tokens** — service access
-5. **Kubernetes tokens** — cluster compromise
-6. **Environment variables** — may contain any of the above
+1. **Cloud provider keys** (AWS, GCP, Azure): highest blast radius
+2. **Database passwords**: data exfiltration risk
+3. **SSH keys**: lateral movement risk
+4. **API tokens**: service access
+5. **Kubernetes tokens**: cluster compromise
+6. **Environment variables**: may contain any of the above
 
 ### 5. Documentation
 

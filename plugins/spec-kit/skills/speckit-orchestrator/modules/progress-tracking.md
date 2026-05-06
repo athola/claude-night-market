@@ -62,7 +62,7 @@ For every speckit command session:
 ```
 - [ ] Read all available design artifacts (spec, plan, constitution)
 - [ ] Analyze dependencies and ordering constraints
-- [ ] Generate tasks.md with actionable items
+- [ ] Generate tasks.md with concrete tasks
 - [ ] Verify task ordering and completeness
 - [ ] Mark tasks ready for implementation
 ```
@@ -87,7 +87,7 @@ For every speckit command session:
 - [ ] Check cross-artifact consistency
 - [ ] Identify quality issues
 - [ ] Generate analysis report
-- [ ] Provide actionable recommendations
+- [ ] Provide concrete recommendations with evidence
 ```
 
 **`/speckit-checklist`**
@@ -146,7 +146,7 @@ After each phase transition, report:
 
 ### Task Generation Verification
 
-- [ ] tasks.md exists with actionable items
+- [ ] tasks.md exists with concrete tasks
 - [ ] Tasks are dependency-ordered
 - [ ] Each task has clear completion criteria
 - [ ] File paths and locations specified

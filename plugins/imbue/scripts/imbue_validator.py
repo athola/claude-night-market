@@ -9,17 +9,23 @@ import sys
 from pathlib import Path
 from typing import TypedDict
 
-# Add abstract src to path for shared utilities
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "abstract" / "src"))
+# Bootstrap leyline so we can use its add_plugin_src_to_path helper
+# to discover the sibling 'abstract' plugin (AR-15).
+_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
+if str(_LEYLINE_SRC) not in sys.path:
+    sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
+    from leyline.bootstrap import add_plugin_src_to_path  # type: ignore[import-not-found]
+
+    add_plugin_src_to_path("abstract", caller=__file__)
     from abstract.report_formatter import (  # type: ignore[import-not-found]  # cross-plugin import via sys.path
         format_validator_report,
     )
-except ImportError:
+except (ImportError, FileNotFoundError):
 
     def format_validator_report(results: dict, plugin_name: str = "") -> str:  # type: ignore[misc]  # redefinition needed for import fallback
-        """Fallback when abstract plugin is not available."""
+        """Fallback when leyline.bootstrap or abstract is not available."""
         return str(results)
 
 
@@ -178,19 +184,12 @@ class ImbueValidator:
                     is_review_skill = True
 
             if not is_review_skill:
-                review_patterns = [
-                    r"workflow",
-                    r"evidence",
-                    r"structured",
-                    r"output",
-                    r"orchestrat",
-                    r"checklist",
-                    r"deliverable",
-                ]
-                for pattern in review_patterns:
-                    if re.search(pattern, content, re.IGNORECASE):
-                        review_workflow_skills.add(skill_name)
-                        break
+                review_pattern = re.compile(
+                    r"workflow|evidence|structured|output|orchestrat|checklist|deliverable",
+                    re.IGNORECASE,
+                )
+                if review_pattern.search(content):
+                    review_workflow_skills.add(skill_name)
 
             # --- Validate phase: check review workflow compliance ---
             if skill_name == "review-core":
@@ -201,10 +200,11 @@ class ImbueValidator:
                     r"structured",
                     r"workflow",
                 ]
-                missing_components = []
-                for component in review_components:
-                    if not re.search(component, content, re.IGNORECASE):
-                        missing_components.append(component)
+                missing_components = [
+                    component
+                    for component in review_components
+                    if not re.search(component, content, re.IGNORECASE)
+                ]
                 if missing_components:
                     missing_str = ", ".join(missing_components)
                     validation_issues.append(

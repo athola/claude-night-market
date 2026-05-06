@@ -1,7 +1,7 @@
 ---
 name: spec-writing
-description: 'Create clear, testable specifications from feature descriptions with user stories, acceptance criteria, and success metrics.'
-version: 1.9.3
+description: 'Create clear, testable specifications from feature descriptions with user stories.'
+version: 1.9.4
 alwaysApply: false
 category: specification
 tags:
@@ -22,9 +22,9 @@ model_hint: standard
 estimated_tokens: 1200
 progressive_loading: true
 modules:
-- success-criteria-patterns
-- specification-structure
-- checklist-dimensions
+- modules/success-criteria-patterns.md
+- modules/specification-structure.md
+- modules/checklist-dimensions.md
 ---
 # Spec Writing
 

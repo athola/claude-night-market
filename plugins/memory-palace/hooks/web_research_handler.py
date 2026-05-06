@@ -401,8 +401,160 @@ def _build_storage_reminder(tool_name: str) -> str:
     )
 
 
-def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive request routing
-    """Run the web research handler hook entry point."""
+def _handle_webfetch(
+    tool_input: dict[str, Any],
+    tool_response: dict[str, Any],
+    config: dict[str, Any],
+    auto_capture: bool,
+) -> tuple[list[str], str | None, dict[str, str] | None]:
+    """Process a WebFetch tool result.
+
+    Returns ``(context_parts, stored_path, graph_register_kwargs)``.
+    ``graph_register_kwargs`` is ``None`` when nothing was stored.
+    Exits with code 0 if the fetched content is too short to be valuable.
+    """
+    context_parts: list[str] = []
+    stored_path: str | None = None
+
+    content, url = extract_content_from_webfetch(tool_response)
+    url = url or tool_input.get("url", "")
+    prompt = tool_input.get("prompt", "")
+
+    if not content or len(content) < 100:
+        sys.exit(0)  # Too short to be valuable
+
+    safety_result = is_safe_content(content, config)
+    if not safety_result.is_safe:
+        context_parts.append(
+            f"Memory Palace: Content from {url} skipped - {safety_result.reason}",
+        )
+        return context_parts, None, None
+
+    if safety_result.should_sanitize and safety_result.sanitized_content:
+        content = safety_result.sanitized_content
+
+    content_hash = get_content_hash(content)
+
+    if is_known(url=url):
+        if needs_update(content_hash, url=url):
+            context_parts.append(
+                f"Memory Palace: Content at {url} has changed. "
+                "Consider updating the stored knowledge entry.",
+            )
+        return context_parts, None, None
+
+    if auto_capture:
+        stored_path = store_webfetch_content(content, url, prompt)
+        if stored_path:
+            context_parts.append(
+                f"Memory Palace: Auto-captured web content from {url}\n"
+                f"  Stored to: {Path(stored_path).name}\n"
+                f"  Content length: {len(content):,} chars\n"
+                "  Status: pending_review\n"
+                "  IMPORTANT: Do NOT delete without evaluation"
+                " - run knowledge-intake to review",
+            )
+        else:
+            context_parts.append(
+                f"Memory Palace: New web content fetched from {url}. "
+                "Auto-capture failed - consider manual knowledge-intake. "
+                f"Content length: {len(content)} chars.",
+            )
+    else:
+        context_parts.append(
+            f"Memory Palace: New web content fetched from {url}. "
+            "Consider running knowledge-intake to evaluate and store if valuable. "
+            f"Content length: {len(content)} chars.",
+        )
+
+    register_kwargs: dict[str, str] | None = None
+    if stored_path:
+        register_kwargs = {
+            "entity_id": "web_"
+            + (url or "unknown").replace("://", "_").replace("/", "_")[:40],
+            "name": extract_title_from_content(content, url or ""),
+        }
+    return context_parts, stored_path, register_kwargs
+
+
+def _handle_websearch(
+    query: str,
+    tool_response: dict[str, Any],
+    auto_capture: bool,
+) -> tuple[list[str], str | None, dict[str, str] | None]:
+    """Process a WebSearch tool result.
+
+    Returns ``(context_parts, stored_path, graph_register_kwargs)``.
+    ``graph_register_kwargs`` is ``None`` when nothing was stored.
+    """
+    context_parts: list[str] = []
+    stored_path: str | None = None
+
+    results = extract_results_from_websearch(tool_response)
+    if not results:
+        return context_parts, None, None
+
+    new_urls: list[dict[str, Any]] = []
+    known_urls: list[dict[str, Any]] = []
+    for result in results:
+        url = result.get("url")
+        if not url:
+            continue
+        if is_known(url=url):
+            known_urls.append(result)
+        else:
+            new_urls.append(result)
+
+    if auto_capture and new_urls:
+        stored_path = store_websearch_results(query, results)
+        if stored_path:
+            context_parts.append(
+                f"Memory Palace: Auto-captured WebSearch results for '{query}'\n"
+                f"  Stored to: {Path(stored_path).name}\n"
+                f"  New sources: {len(new_urls)}, Known: {len(known_urls)}\n"
+                "  Status: pending_review\n"
+                "  IMPORTANT: Do NOT delete without evaluation"
+                " - run knowledge-intake to review",
+            )
+        else:
+            context_parts.append(
+                f"Memory Palace: WebSearch found {len(new_urls)} new sources "
+                "not in memory palace (auto-capture failed):",
+            )
+            for r in new_urls[:5]:
+                context_parts.append(
+                    f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
+                )
+    elif new_urls:
+        context_parts.append(
+            f"Memory Palace: WebSearch found {len(new_urls)} new sources "
+            "not in memory palace:",
+        )
+        for r in new_urls[:5]:
+            context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
+
+    if known_urls:
+        context_parts.append(
+            f"\nMemory Palace: {len(known_urls)} result(s) already stored. "
+            "Check existing knowledge before re-fetching.",
+        )
+
+    register_kwargs: dict[str, str] | None = None
+    if stored_path:
+        register_kwargs = {
+            "entity_id": "websearch_" + slugify(query or "")[:40],
+            "name": f"WebSearch: {query}",
+        }
+    return context_parts, stored_path, register_kwargs
+
+
+def main() -> None:
+    """Run the web research handler hook entry point.
+
+    Routes WebFetch / WebSearch postToolUse payloads to dimension-specific
+    handlers, then handles graph registration, storage reminders, and
+    response shaping.
+    """
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError as e:
@@ -413,7 +565,6 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive 
     tool_input = payload.get("tool_input", {})
     tool_response = payload.get("tool_response", {})
 
-    # Fast path: not a web tool
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
 
@@ -425,146 +576,31 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive 
     if not feature_flags.get("lifecycle", True):
         sys.exit(0)
 
-    # Auto-capture feature flag (default: True)
     auto_capture = feature_flags.get("auto_capture", True)
-
-    context_parts = []
-    response: dict[str, Any] | None = None
-    stored_path: str | None = None
-
-    # Check if research_interceptor already flagged this query for intake
     query = tool_input.get("query", "") or tool_input.get("prompt", "")
     intake_already_pending = query and _recent_intake_pending(query)
 
     if tool_name == "WebFetch":
-        content, url = extract_content_from_webfetch(tool_response)
-        url = url or tool_input.get("url", "")
-        prompt = tool_input.get("prompt", "")
+        context_parts, stored_path, register_kwargs = _handle_webfetch(
+            tool_input, tool_response, config, auto_capture
+        )
+    else:  # WebSearch
+        context_parts, stored_path, register_kwargs = _handle_websearch(
+            query, tool_response, auto_capture
+        )
 
-        if not content or len(content) < 100:
-            sys.exit(0)  # Too short to be valuable
-
-        # Safety check
-        safety_result = is_safe_content(content, config)
-        if not safety_result.is_safe:
-            context_parts.append(
-                f"Memory Palace: Content from {url} skipped - {safety_result.reason}",
-            )
-        else:
-            # Use sanitized content if available
-            if safety_result.should_sanitize and safety_result.sanitized_content:
-                content = safety_result.sanitized_content
-
-            content_hash = get_content_hash(content)
-
-            if is_known(url=url):
-                if needs_update(content_hash, url=url):
-                    context_parts.append(
-                        f"Memory Palace: Content at {url} has changed. "
-                        "Consider updating the stored knowledge entry.",
-                    )
-                # else: unchanged, no message needed
-            # Auto-capture the content
-            elif auto_capture:
-                stored_path = store_webfetch_content(content, url, prompt)
-                if stored_path:
-                    context_parts.append(
-                        f"Memory Palace: Auto-captured web content from {url}\n"
-                        f"  Stored to: {Path(stored_path).name}\n"
-                        f"  Content length: {len(content):,} chars\n"
-                        "  Status: pending_review\n"
-                        "  IMPORTANT: Do NOT delete without evaluation"
-                        " - run knowledge-intake to review",
-                    )
-                else:
-                    context_parts.append(
-                        f"Memory Palace: New web content fetched from {url}. "
-                        "Auto-capture failed - consider manual knowledge-intake. "
-                        f"Content length: {len(content)} chars.",
-                    )
-            else:
-                context_parts.append(
-                    f"Memory Palace: New web content fetched from {url}. "
-                    "Consider running knowledge-intake to evaluate and store if valuable. "
-                    f"Content length: {len(content)} chars.",
-                )
-
-    elif tool_name == "WebSearch":
-        results = extract_results_from_websearch(tool_response)
-
-        if results:
-            new_urls = []
-            known_urls = []
-
-            for result in results:
-                url = result.get("url")
-                if url:
-                    if is_known(url=url):
-                        known_urls.append(result)
-                    else:
-                        new_urls.append(result)
-
-            # Auto-capture search results
-            if auto_capture and new_urls:
-                stored_path = store_websearch_results(query, results)
-                if stored_path:
-                    context_parts.append(
-                        f"Memory Palace: Auto-captured WebSearch results for '{query}'\n"
-                        f"  Stored to: {Path(stored_path).name}\n"
-                        f"  New sources: {len(new_urls)}, Known: {len(known_urls)}\n"
-                        "  Status: pending_review\n"
-                        "  IMPORTANT: Do NOT delete without evaluation"
-                        " - run knowledge-intake to review",
-                    )
-                else:
-                    # Fallback to old behavior
-                    context_parts.append(
-                        f"Memory Palace: WebSearch found {len(new_urls)} new sources "
-                        "not in memory palace (auto-capture failed):",
-                    )
-                    for r in new_urls[:5]:
-                        context_parts.append(
-                            f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
-                        )
-            elif new_urls:
-                context_parts.append(
-                    f"Memory Palace: WebSearch found {len(new_urls)} new sources "
-                    "not in memory palace:",
-                )
-                for r in new_urls[:5]:
-                    context_parts.append(
-                        f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
-                    )
-
-            if known_urls:
-                context_parts.append(
-                    f"\nMemory Palace: {len(known_urls)} result(s) already stored. "
-                    "Check existing knowledge before re-fetching.",
-                )
-
-    # Register in knowledge graph after successful storage (non-blocking)
-    if stored_path:
+    if stored_path and register_kwargs:
         palaces_dir = PLUGIN_ROOT / "data" / "palaces"
-        if tool_name == "WebFetch":
-            entity_id = (
-                "web_" + (url or "unknown").replace("://", "_").replace("/", "_")[:40]
-            )
-            entity_name = extract_title_from_content(content or "", url or "")
-        else:
-            entity_id = "websearch_" + slugify(query or "")[:40]
-            entity_name = f"WebSearch: {query}"
         _try_register_graph_entity(
             palaces_dir=palaces_dir,
-            entity_id=entity_id,
-            name=entity_name,
+            entity_id=register_kwargs["entity_id"],
+            name=register_kwargs["name"],
             entity_type="web_resource",
         )
 
-    # Add storage reminder if no auto-capture happened and intake not already pending
     if not stored_path and not intake_already_pending and not context_parts:
         context_parts.append(_build_storage_reminder(tool_name))
 
-    # Output response
     if context_parts:
         response = {
             "hookSpecificOutput": {
@@ -572,8 +608,6 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with extensive 
                 "additionalContext": "\n".join(context_parts),
             },
         }
-
-    if response:
         print(json.dumps(response))
 
     sys.exit(0)

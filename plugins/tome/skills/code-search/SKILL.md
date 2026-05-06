@@ -1,8 +1,8 @@
 ---
 name: code-search
 role: library
-description: 'Search GitHub for existing implementations. Use when looking for code examples, libraries, or implementation patterns on a topic.'
-version: 1.9.3
+description: 'Search GitHub for existing implementations, libraries, or patterns.'
+version: 1.9.4
 alwaysApply: false
 category: research
 tags:

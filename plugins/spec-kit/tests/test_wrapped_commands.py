@@ -21,7 +21,6 @@ class TestWrappedCommands:
             assert "speckit-orchestrator" in mock_skills
 
         def test_spec_kit_context_initialization(self, temp_speckit_project) -> None:
-            """Test spec-kit context initialization."""
             # Given: a speckit project (fixture already creates .specify)
             project_dir = temp_speckit_project
             specify_dir = project_dir / ".specify"
@@ -157,7 +156,6 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
             assert len(phases["Phase 1"]) >= 3
 
         def test_mvp_scope_identification(self) -> None:
-            """Test MVP scope identification."""
             mvp_tasks = ["core-authentication", "basic-profile", "simple-ui"]
             enhanced_tasks = ["advanced-features", "optimizations", "extras"]
 
@@ -303,7 +301,6 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
                 assert "fallback" in scenario
 
         def test_artifact_missing_handling(self) -> None:
-            """Test handling of missing artifacts."""
             missing_artifacts = {
                 "spec.md": {"action": "suggest_run_specify", "continue": False},
                 "plan.md": {"action": "suggest_run_plan", "continue": False},

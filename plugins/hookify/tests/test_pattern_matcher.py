@@ -318,7 +318,6 @@ class TestGetPattern:
         assert result is None
 
     def test_returns_none_for_empty_string(self) -> None:
-        """Empty string returns None."""
         result = PatternMatcher.get_pattern("")
         assert result is None
 
@@ -385,7 +384,6 @@ class TestExtractMatches:
         assert result == ["123", "456", "789"]
 
     def test_no_matches_returns_empty_list(self) -> None:
-        """No matches returns an empty list."""
         result = PatternMatcher.extract_matches(r"\d+", "no digits here")
         assert result == []
 

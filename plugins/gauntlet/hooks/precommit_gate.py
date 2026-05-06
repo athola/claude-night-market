@@ -45,6 +45,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 _TOKEN_FILENAME = "pass_token.json"  # nosec B105 - filename, not a password
+_SECONDS_PER_HOUR = 3600
 
 
 def write_pass_token(
@@ -254,7 +255,7 @@ def _graph_staleness_warning(
         mtime = db_path.stat().st_mtime
     except OSError:
         return None
-    age_hours = (time.time() - mtime) / 3600
+    age_hours = (time.time() - mtime) / _SECONDS_PER_HOUR
 
     if age_hours <= threshold:
         return None

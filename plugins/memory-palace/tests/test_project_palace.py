@@ -1,5 +1,6 @@
 """Tests for the ProjectPalaceManager and PR Review Room functionality."""
 
+import dataclasses
 import json
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from memory_palace.project_palace import (
     ReviewEntry,
     capture_pr_review_knowledge,
 )
+from memory_palace.project_palace import rooms as _rooms
 
 
 @pytest.fixture
@@ -82,6 +84,73 @@ class TestReviewEntry:
         assert restored.id == entry.id
         assert restored.title == entry.title
         assert restored.room_type == entry.room_type
+
+    def test_entry_is_frozen_after_construction(self):
+        """C7 (#485): ReviewEntry is a frozen dataclass; mutating any
+        field raises ``FrozenInstanceError``. The deserialiser
+        (``from_dict``) goes through the constructor, not post-hoc
+        attribute writes.
+        """
+        entry = ReviewEntry(
+            source_pr="#1",
+            title="t",
+            room_type="decisions",
+            content={"decision": "d"},
+        )
+        assert dataclasses.is_dataclass(entry)
+        # B010 noqa is intentional: assignment to a frozen dataclass
+        # field is the contract under test.
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            setattr(entry, "title", "mutated")  # noqa: B010 - frozen-mutation contract
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            setattr(entry, "access_count", 99)  # noqa: B010 - frozen-mutation contract
+
+    def test_entry_from_dict_preserves_all_metadata_via_constructor(self):
+        """C7 (#485): ``from_dict`` is now a regular constructor call.
+        Round-trip preserves ``id``, ``created``, ``last_accessed``,
+        and ``access_count`` even though the entry is frozen.
+        """
+        original = ReviewEntry(
+            source_pr="#7",
+            title="round-trip",
+            room_type="patterns",
+            content={"decision": "x"},
+        )
+        data = original.to_dict()
+        # Simulate access tracking before re-hydrating.
+        data["access_count"] = 3
+        data["last_accessed"] = "2026-05-03T12:00:00+00:00"
+        restored = ReviewEntry.from_dict(data)
+        assert restored.id == original.id
+        assert restored.created == original.created
+        assert restored.access_count == 3
+        assert restored.last_accessed == "2026-05-03T12:00:00+00:00"
+
+    def test_track_access_returns_new_instance(self):
+        """C7 (#485): read-tracking goes through a separate
+        ``with_access()`` API that returns a new instance with an
+        incremented ``access_count`` and refreshed ``last_accessed``.
+        The original entry is unchanged (frozen).
+        """
+        entry = ReviewEntry(
+            source_pr="#1",
+            title="t",
+            room_type="decisions",
+            content={"decision": "d"},
+        )
+        original_count = entry.access_count
+        original_last = entry.last_accessed
+        bumped = entry.with_access()
+        # Original untouched.
+        assert entry.access_count == original_count
+        assert entry.last_accessed == original_last
+        # New instance has bumped counter.
+        assert bumped.access_count == original_count + 1
+        # last_accessed is monotonic non-decreasing.
+        assert bumped.last_accessed >= original_last
+        # Identity-preserving fields stay the same.
+        assert bumped.id == entry.id
+        assert bumped.title == entry.title
 
     def test_entry_to_markdown(self):
         """Test generating markdown from entry."""
@@ -170,22 +239,26 @@ class TestProjectPalaceManager:
         assert len(decisions["entries"]) == 1
         assert decisions["entries"][0]["title"] == "Test Entry"
 
-    def test_add_review_entry_invalid_room(self, manager):
-        """Test adding entry with invalid room type."""
-        palace = manager.create_project_palace("owner/repo")
+    def test_review_entry_rejects_invalid_room(self, manager):
+        """ReviewEntry construction rejects unrecognised room_type strings.
 
-        entry = ReviewEntry(
-            source_pr="#42",
-            title="Test",
-            room_type="invalid_room",
-            content={},
-        )
-
-        result = manager.add_review_entry(palace["id"], entry)
-        assert result is False
+        C7 (PR #470 review): the previous behaviour silently stored the
+        invalid string and let manager.add_review_entry be the rejecting
+        layer, hiding the bug from authors. ReviewEntry now coerces
+        room_type to ReviewSubroom at construction so invalid values
+        fail loudly at the source.
+        """
+        del manager  # the rejection happens before manager is ever called
+        with pytest.raises(ValueError, match="unknown room_type"):
+            ReviewEntry(
+                source_pr="#42",
+                title="Test",
+                room_type="invalid_room",
+                content={},
+            )
 
     def test_search_review_chamber(self, manager):
-        """Test searching the review chamber."""
+        """Index two review entries and assert keyword search returns the expected one."""
         palace = manager.create_project_palace("owner/repo")
 
         # Add entries
@@ -767,11 +840,58 @@ class TestRoomStructure:
         assert "lessons" in REVIEW_CHAMBER_ROOMS
 
         for room in REVIEW_CHAMBER_ROOMS.values():
-            assert "description" in room
-            assert "icon" in room
-            assert "retention" in room
+            # RoomMetadata dataclass exposes attributes, not dict keys.
+            assert room.description
+            assert room.icon
+            assert room.retention
 
     def test_project_palace_rooms_include_review_chamber(self):
-        """Test that project palace includes review-chamber."""
+        """Guard the registry: ``review-chamber`` must ship with ``subrooms``."""
         assert "review-chamber" in PROJECT_PALACE_ROOMS
-        assert "subrooms" in PROJECT_PALACE_ROOMS["review-chamber"]
+        assert PROJECT_PALACE_ROOMS["review-chamber"].subrooms is not None
+
+
+class TestTypedRoomRegistry:
+    """S8 (#484): the room registries are typed via enum keys and a
+    frozen ``RoomMetadata`` dataclass instead of nested ``dict[str, Any]``.
+    """
+
+    def test_review_chamber_keyed_by_review_subroom_enum(self):
+        """REVIEW_CHAMBER_ROOMS keys are ``ReviewSubroom`` enum members.
+
+        Callers cannot pass a misspelled string and silently miss.
+        """
+        # Every key is a ReviewSubroom (enum members are also their str value).
+        for key in REVIEW_CHAMBER_ROOMS:
+            assert isinstance(key, _rooms.ReviewSubroom)
+
+    def test_project_palace_keyed_by_room_type_enum(self):
+        """PROJECT_PALACE_ROOMS keys are ``RoomType`` enum members."""
+        for key in PROJECT_PALACE_ROOMS:
+            assert isinstance(key, _rooms.RoomType)
+
+    def test_room_metadata_is_frozen_dataclass(self):
+        """RoomMetadata is a frozen dataclass; mutating fields raises."""
+        meta = REVIEW_CHAMBER_ROOMS[next(iter(REVIEW_CHAMBER_ROOMS))]
+        assert isinstance(meta, _rooms.RoomMetadata)
+        assert dataclasses.is_dataclass(meta)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            setattr(meta, "description", "mutated")  # noqa: B010 - frozen-mutation contract
+
+    def test_review_chamber_subroom_metadata_includes_retention(self):
+        """Every review-chamber subroom carries the retention policy."""
+        for meta in REVIEW_CHAMBER_ROOMS.values():
+            assert meta.retention in {
+                "permanent",
+                "evergreen",
+                "growing",
+            }
+
+    def test_review_chamber_room_carries_subrooms_link(self):
+        """``review-chamber`` exposes its subrooms via the field.
+
+        The four subrooms ride on the ``subrooms`` attribute of the
+        :class:`RoomMetadata`, not via a free ``dict[str, Any]`` slot.
+        """
+        review_chamber = PROJECT_PALACE_ROOMS[_rooms.RoomType.REVIEW_CHAMBER]
+        assert review_chamber.subrooms is REVIEW_CHAMBER_ROOMS

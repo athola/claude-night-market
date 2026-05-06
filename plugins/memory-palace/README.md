@@ -132,7 +132,7 @@ memory-palace/
 ├── hooks/               # 6 runtime hooks + setup hook
 ├── src/memory_palace/
 │   ├── palace_manager.py
-│   ├── project_palace.py
+│   ├── project_palace/  # rooms.py, entry.py, manager.py, capture.py
 │   ├── corpus/          # Indexing, caching, deduplication, lineage
 │   └── lifecycle/       # Autonomy state, decay model
 ├── scripts/             # CLI tools, metrics, embedding builder

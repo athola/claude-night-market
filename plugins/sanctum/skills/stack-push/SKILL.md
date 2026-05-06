@@ -1,8 +1,7 @@
 ---
 name: stack-push
-description: 'Push all branches in a stack and create or update dependent PRs,
-  targeting each PR at its parent branch.'
-version: 1.9.3
+description: 'Push all branches in a stack and open or update dependent PRs.'
+version: 1.9.4
 alwaysApply: false
 category: workflow-automation
 tags:

@@ -234,7 +234,15 @@ class TestSkillModuleReferences:
             modules = self.extract_module_refs(content)
 
             for module in modules:
-                module_path = skill_dir / "modules" / f"{module}.md"
+                # Accept both bare-name form ("foo") and path form
+                # ("modules/foo.md"), matching the project convention
+                # that the loader normalizes either to the same file.
+                normalized = module
+                if "/" in normalized:
+                    normalized = normalized.rsplit("/", 1)[-1]
+                if normalized.endswith(".md"):
+                    normalized = normalized[:-3]
+                module_path = skill_dir / "modules" / f"{normalized}.md"
                 assert module_path.exists(), (
                     f"Module '{module}' not found for skill '{skill_dir.name}'"
                 )

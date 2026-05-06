@@ -5,7 +5,7 @@ description: "Run full attune lifecycle as a mission with state detection and ph
 
 # Attune Mission Command
 
-Orchestrate the entire attune development lifecycle — brainstorm, specify, plan, execute — as a single mission with automatic state detection and recovery.
+Orchestrate the entire attune development lifecycle (brainstorm, specify, plan, execute) as a single mission with automatic state detection and recovery.
 
 ## When To Use
 
@@ -48,12 +48,12 @@ Avoid this command if:
 
 ## What This Command Does
 
-1. **Detects project state** — scans for existing artifacts (brief, spec, plan)
-2. **Selects mission type** — chooses the appropriate phase sequence
-3. **Routes through phases** — invokes `Skill(attune:{phase})` for each step
-4. **Checkpoints between phases** — lets you review, pause, or adjust
-5. **Handles errors** — recovers from failures via `leyline:damage-control`
-6. **Saves mission state** — enables resume from any point
+1. **Detects project state**: scans for existing artifacts (brief, spec, plan)
+2. **Selects mission type**: chooses the appropriate phase sequence
+3. **Routes through phases**: invokes `Skill(attune:{phase})` for each step
+4. **Checkpoints between phases**: lets you review, pause, or adjust
+5. **Handles errors**: recovers from failures via `leyline:damage-control`
+6. **Saves mission state**: enables resume from any point
 
 ## Mission Types
 
@@ -124,7 +124,7 @@ The resume command:
   └─ /attune:execute         ← Phase 4 (always)
 ```
 
-The mission command wraps the existing phase commands — you can still use individual commands for fine-grained control.
+The mission command wraps the existing phase commands: you can still use individual commands for fine-grained control.
 
 ## Examples
 
@@ -175,7 +175,7 @@ The mission command wraps the existing phase commands — you can still use indi
 | Auto-detect mission type from artifacts | No | Yes |
 
 **When to use which**:
-- **Individual commands**: Quick runs, familiar projects, no need for recovery — auto-chain handles the happy path
+- **Individual commands**: Quick runs, familiar projects, no need for recovery: auto-chain handles the happy path
 - **Mission**: New or complex projects, need resume support, want error recovery, or require artifact-based state detection
 
 ## Related Commands

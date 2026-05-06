@@ -165,60 +165,10 @@ fi
 # OUTPUT
 # =============================================================================
 
-# Escape for JSON
-escape_for_json() {
-    local input="$1"
-    if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs 'rtrimstr("\n")' | sed 's/^"//;s/"$//'
-    else
-        # Pure bash fallback with complete JSON control character handling
-        [ "${_JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export _JSON_ESCAPE_WARN=1
-
-        local output=""
-        local i char
-        for (( i=0; i<${#input}; i++ )); do
-            char="${input:$i:1}"
-            case "$char" in
-                '\'$'\\') output+='\\\\' ;;
-                '"') output+='\\"' ;;
-                $'\n') output+='\\n' ;;
-                $'\r') output+='\\r' ;;
-                $'\t') output+='\\t' ;;
-                $'\b') output+='\\b' ;;  # Backspace
-                $'\f') output+='\\f' ;;  # Form feed
-                # Handle other control characters (U+0000-U+001F)
-                $'\x00') output+='\\u0000' ;;
-                $'\x01') output+='\\u0001' ;;
-                $'\x02') output+='\\u0002' ;;
-                $'\x03') output+='\\u0003' ;;
-                $'\x04') output+='\\u0004' ;;
-                $'\x05') output+='\\u0005' ;;
-                $'\x06') output+='\\u0006' ;;
-                $'\x07') output+='\\u0007' ;;
-                $'\x0e') output+='\\u000e' ;;
-                $'\x0f') output+='\\u000f' ;;
-                $'\x10') output+='\\u0010' ;;
-                $'\x11') output+='\\u0011' ;;
-                $'\x12') output+='\\u0012' ;;
-                $'\x13') output+='\\u0013' ;;
-                $'\x14') output+='\\u0014' ;;
-                $'\x15') output+='\\u0015' ;;
-                $'\x16') output+='\\u0016' ;;
-                $'\x17') output+='\\u0017' ;;
-                $'\x18') output+='\\u0018' ;;
-                $'\x19') output+='\\u0019' ;;
-                $'\x1a') output+='\\u001a' ;;
-                $'\x1b') output+='\\u001b' ;;
-                $'\x1c') output+='\\u001c' ;;
-                $'\x1d') output+='\\u001d' ;;
-                $'\x1e') output+='\\u001e' ;;
-                $'\x1f') output+='\\u001f' ;;
-                *) output+="$char" ;;
-            esac
-        done
-        printf '%s' "$output"
-    fi
-}
+# Source vendored JSON utilities (D-01).
+PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
+# shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
+source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
 
 context_escaped=$(escape_for_json "$setup_context")
 

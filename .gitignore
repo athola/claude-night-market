@@ -1,6 +1,7 @@
 # Claude sessions
 .claude/session-*
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 *.txt
 
 # Python
@@ -42,6 +43,7 @@ htmlcov/
 .nox/
 coverage.xml
 .tools/
+.uv-tools/
 
 # Type checking
 .mypy_cache/
@@ -77,6 +79,8 @@ plugins/*/bin/.skrills-version
 # Generated reports and scans
 debt_scan_results.json
 .demo-palaces/
+reports/skill-graph.json
+reviews/
 
 # local docs
 docs/plans/

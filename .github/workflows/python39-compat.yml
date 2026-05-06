@@ -140,11 +140,17 @@ jobs:
       # isolated venv to avoid the plugin's requires-python
       # constraint (most plugins target >=3.12 for their main
       # code, but hooks must run under system Python 3.9).
+      # PyYAML is included because abstract's hook-adjacent script
+      # ``aggregate_skill_logs.py`` imports ``abstract.utils``, which
+      # transitively loads ``abstract/__init__.py`` ->
+      # ``frontmatter.py`` -> ``yaml``. Adding it unconditionally
+      # is cheaper than per-matrix branching and does not affect
+      # other plugins (their hook tests do not import yaml).
       - name: Create Python 3.9 venv with pytest
         working-directory: plugins/${{ matrix.plugin }}
         run: |
           uv venv --python 3.9
-          uv pip install pytest
+          uv pip install pytest pyyaml
 
       - name: Run hook tests under Python 3.9
         working-directory: plugins/${{ matrix.plugin }}

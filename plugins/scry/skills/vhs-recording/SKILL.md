@@ -1,7 +1,7 @@
 ---
 name: vhs-recording
 description: Generate terminal recordings using VHS tape files, produces GIF outputs.
-version: 1.9.3
+version: 1.9.4
 alwaysApply: false
 category: media-generation
 tags:
@@ -17,8 +17,8 @@ model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:
-- tape-syntax
-- execution
+- modules/tape-syntax.md
+- modules/execution.md
 ---
 # VHS Recording Skill
 

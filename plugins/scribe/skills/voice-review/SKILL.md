@@ -1,10 +1,7 @@
 ---
 name: voice-review
-description: Dispatch parallel prose and craft review agents on generated
-  text. Merges results into unified advisory tables. Auto-fixes hard
-  failures and presents soft findings for user decision. Use after
-  voice-generate or on any text that should match a voice profile.
-version: 1.9.3
+description: 'Run prose and craft review agents on text against a voice profile.'
+version: 1.9.4
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality
@@ -157,4 +154,4 @@ The test suite (`test_voice_review.py`) validates:
 - Hard failure vs advisory separation is documented
 - Prose reviewer agent exists with hard-failure patterns
 - Craft reviewer agent exists with five-dimension ratings
-- Both agents produce structured output tables
+- Both agents produce tabular output for downstream merging
