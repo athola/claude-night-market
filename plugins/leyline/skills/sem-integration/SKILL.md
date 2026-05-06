@@ -1,9 +1,6 @@
 ---
 name: sem-integration
-description: >
-  Foundation skill for sem (semantic diff CLI) integration.
-  Provides detection, install-on-first-use, and output
-  normalization patterns for consumer skills.
+description: 'Foundation for sem (semantic diff CLI) integration: detection, install-on-first-use, output normalization.'
 version: 1.9.4
 alwaysApply: false
 category: infrastructure

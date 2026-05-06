@@ -1,9 +1,6 @@
 ---
 name: additive-bias-defense
-description: >-
-  Cross-cutting contract that inverts burden of proof
-  for code additions. Use when reviewing proposed
-  additions or detecting LLM additive-bias patterns.
+description: 'Inverts burden of proof for code additions.'
 version: 1.9.4
 alwaysApply: false
 category: quality-contract

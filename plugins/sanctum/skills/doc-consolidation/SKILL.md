@@ -1,6 +1,6 @@
 ---
 name: doc-consolidation
-description: 'Merge report and analysis artifacts into permanent docs. Use when consolidating ephemeral LLM output into the permanent docs tree.'
+description: 'Merge report and analysis artifacts into permanent docs.'
 version: 1.9.4
 globs: "**/*.md"
 alwaysApply: false

@@ -1,6 +1,6 @@
 ---
 name: shell-review
-description: 'Audit shell scripts for correctness and common pitfalls. Use when reviewing bash/sh scripts before merging.'
+description: 'Audit shell scripts for correctness and common pitfalls.'
 version: 1.9.4
 globs: "**/*.sh"
 alwaysApply: false

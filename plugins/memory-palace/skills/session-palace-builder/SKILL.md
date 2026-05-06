@@ -1,6 +1,6 @@
 ---
 name: session-palace-builder
-description: 'Build session-scoped temporary knowledge structures for multi-step projects. Use when working on complex tasks spanning turns.'
+description: 'Build session-scoped temporary knowledge structures for multi-step projects.'
 version: 1.9.4
 alwaysApply: false
 category: session-management

@@ -1,6 +1,6 @@
 ---
 name: python-packaging
-description: 'Python package creation and distribution: pyproject.toml, entry points, PyPI publishing, CI/CD'
+description: 'Python package creation and distribution: pyproject.toml, entry points, PyPI publishing, CI/CD.'
 version: 1.9.4
 globs: "**/*.py"
 alwaysApply: false

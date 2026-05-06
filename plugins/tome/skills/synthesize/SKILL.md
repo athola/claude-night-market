@@ -1,9 +1,6 @@
 ---
 name: synthesize
-description: >-
-  Merge, deduplicate, rank, and format research findings
-  from multiple channels into a coherent report. Use after
-  research agents return their results.
+description: 'Merge, dedupe, rank, and format research findings into a report.'
 version: 1.9.4
 alwaysApply: false
 category: synthesis

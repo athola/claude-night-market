@@ -1,6 +1,6 @@
 ---
 name: code-refinement
-description: 'Improve code quality across duplication, efficiency, and architectural fit. Use when refactoring or hardening recently-written code.'
+description: 'Improve code quality across duplication, efficiency, and architectural fit.'
 version: 1.9.4
 alwaysApply: false
 category: code-quality

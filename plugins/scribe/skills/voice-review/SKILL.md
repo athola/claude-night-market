@@ -1,9 +1,6 @@
 ---
 name: voice-review
-description: Dispatch parallel prose and craft review agents on generated
-  text. Merges results into unified advisory tables. Auto-fixes hard
-  failures and presents soft findings for user decision. Use after
-  voice-generate or on any text that should match a voice profile.
+description: 'Run prose and craft review agents on text against a voice profile.'
 version: 1.9.4
 globs: "**/*.{md,txt}"
 alwaysApply: false

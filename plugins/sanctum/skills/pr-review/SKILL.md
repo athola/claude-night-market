@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: 'Scope-focused PR review with requirements validation and backlog triage. Use when reviewing pull requests with a clear scope contract.'
+description: 'Scope-focused PR review with requirements validation and backlog triage.'
 version: 1.9.4
 alwaysApply: false
 category: review

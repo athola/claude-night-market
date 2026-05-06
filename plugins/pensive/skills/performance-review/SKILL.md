@@ -1,6 +1,6 @@
 ---
 name: performance-review
-description: 'Detect time and space complexity hotspots via AST scan. Optional gauntlet enrichment for non-Python and call-chain analysis.'
+description: 'Detect time and space complexity hotspots via AST scan.'
 version: 1.9.4
 alwaysApply: false
 category: code-quality

@@ -1,6 +1,6 @@
 ---
 name: gauntlet-curate
-description: 'Research and refresh the problem bank during /update-plugins. Use when surveying data/problems/*.yaml for category coverage gaps.'
+description: 'Refresh the problem bank during /update-plugins (data/problems/*.yaml).'
 version: 1.9.4
 model_hint: standard
 ---

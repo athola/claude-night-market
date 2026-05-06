@@ -1,6 +1,6 @@
 ---
 name: test-review
-description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance. Use when auditing tests before release or after a major feature.'
+description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance.'
 version: 1.9.4
 alwaysApply: false
 category: testing

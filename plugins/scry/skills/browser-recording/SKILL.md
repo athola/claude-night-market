@@ -1,6 +1,6 @@
 ---
 name: browser-recording
-description: Record browser sessions using Playwright for web UI tutorials, converts
+description: 'Record browser sessions using Playwright for web UI tutorials, converts.'
 version: 1.9.4
 alwaysApply: false
   video to GIF.

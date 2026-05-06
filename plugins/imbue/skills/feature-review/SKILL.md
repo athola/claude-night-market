@@ -1,6 +1,6 @@
 ---
 name: feature-review
-description: 'Score backlog items with RICE, WSJF, or Kano and file GitHub issues for the top picks. Use for roadmap triage. NOT a code or diff review.'
+description: 'Score backlog items with RICE/WSJF/Kano and file GitHub issues for top picks. Roadmap triage.'
 version: 1.9.4
 alwaysApply: false
 category: workflow-methodology

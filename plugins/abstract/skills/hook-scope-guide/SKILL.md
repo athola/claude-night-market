@@ -1,6 +1,6 @@
 ---
 name: hook-scope-guide
-description: Decision framework to select hook scope (plugin, project, or global) by audience. Use when placing a hook. For syntax see hook-authoring.
+description: 'Decision framework to select hook scope (plugin, project, global) by audience. Use when placing a hook; for syntax see hook-authoring.'
 ---
 
 # Hook Scope Decision Guide

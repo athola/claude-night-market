@@ -1,6 +1,6 @@
 ---
 name: latent-space-engineering
-description: 'Shape agent behavior through instruction framing, emotional priming, and style transfer rather than information density alone.'
+description: 'Shape agent behavior via instruction framing, emotional priming, and style transfer.'
 version: 1.9.4
 alwaysApply: false
 category: methodology

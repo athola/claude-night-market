@@ -1,6 +1,6 @@
 ---
 name: project-brainstorming
-description: "Guide project ideation through Socratic questioning to generate actionable project briefs with alternative comparisons."
+description: 'Guide project ideation via Socratic questioning to generate project briefs.'
 version: 1.9.4
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

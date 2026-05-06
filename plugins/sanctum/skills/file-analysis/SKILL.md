@@ -1,6 +1,6 @@
 ---
 name: file-analysis
-description: 'Map file structure and organization. Use when preparing review or refactor workflows that need a file map.'
+description: 'Map file structure and organization.'
 version: 1.9.4
 alwaysApply: false
 category: workspace-ops

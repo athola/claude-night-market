@@ -1,6 +1,6 @@
 ---
 name: spec-writing
-description: 'Create clear, testable specifications from feature descriptions with user stories, acceptance criteria, and success metrics.'
+description: 'Create clear, testable specifications from feature descriptions with user stories.'
 version: 1.9.4
 alwaysApply: false
 category: specification

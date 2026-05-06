@@ -1,6 +1,6 @@
 ---
 name: agent-teams
-description: Coordinate Claude Code Agent Teams through filesystem-based protocol. Use
+description: 'Coordinate Claude Code Agent Teams through filesystem-based protocol. Use.'
 version: 1.9.4
 alwaysApply: false
   when orchestrating multiple Claude agents on parallel tasks, need task dependency

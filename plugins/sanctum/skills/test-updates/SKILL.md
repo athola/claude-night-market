@@ -1,6 +1,6 @@
 ---
 name: test-updates
-description: 'Update, generate, and validate tests using git-workspace context. Use when modifying code that needs new or refreshed test coverage.'
+description: 'Update, generate, and validate tests using git-workspace context.'
 version: 1.9.4
 alwaysApply: false
 category: testing-automation

@@ -1,6 +1,6 @@
 ---
 name: friction-detector
-description: 'Detect friction signals during execution and graduate recurring patterns into rules. Use for session retrospectives and learning pipeline automation.'
+description: 'Detect friction signals and graduate recurring patterns into rules. Use for session retrospectives and learning pipeline automation.'
 version: 1.9.4
 alwaysApply: false
 trigger: friction, friction detection, session retrospective, learning pipeline, recurring mistakes, pattern graduation, friction report

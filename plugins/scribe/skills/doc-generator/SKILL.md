@@ -1,6 +1,6 @@
 ---
 name: doc-generator
-description: Generate or remediate documentation with human-quality writing and style
+description: 'Generate or remediate documentation with human-quality writing and style.'
 version: 1.9.4
 globs: "**/*.md"
 alwaysApply: false

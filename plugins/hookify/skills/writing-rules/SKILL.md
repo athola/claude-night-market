@@ -1,6 +1,6 @@
 ---
 name: writing-rules
-description: 'Create markdown-based behavioral rules to prevent unwanted actions and block dangerous commands'
+description: 'Create markdown-based behavioral rules to prevent unwanted actions and block dangerous commands.'
 version: 1.9.4
 alwaysApply: false
 category: hook-development

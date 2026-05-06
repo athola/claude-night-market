@@ -1,6 +1,6 @@
 ---
 name: review-chamber
-description: 'Capture-and-retrieve sink for PR-review findings in memory palaces. Use after a review completes; this skill does NOT perform reviews.'
+description: 'Capture-and-retrieve sink for PR-review findings in memory palaces.'
 version: 1.9.4
 alwaysApply: false
 usage_patterns:

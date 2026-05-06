@@ -1,6 +1,6 @@
 ---
 name: project-planning
-description: "Turn a specification into a phased implementation plan with dependency ordering. Use when converting a spec into executable tasks."
+description: 'Turn a specification into a phased implementation plan with dependency ordering.'
 version: 1.9.4
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):

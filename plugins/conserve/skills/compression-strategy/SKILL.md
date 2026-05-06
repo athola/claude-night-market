@@ -1,6 +1,6 @@
 ---
 name: compression-strategy
-description: 'Analyze current context and recommend compression strategies for bloated or quota-heavy sessions'
+description: 'Analyze current context and recommend compression strategies for bloated or quota-heavy sessions.'
 version: 1.9.4
 globs:
 alwaysApply: false

@@ -1,6 +1,6 @@
 ---
 name: media-composition
-description: Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal
+description: 'Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal.'
 version: 1.9.4
 alwaysApply: false
   layouts.

@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigms
-description: Interactive selector and router for architecture paradigms. Use when
+description: 'Interactive selector and router for architecture paradigms.'
 version: 1.9.4
 alwaysApply: false
   selecting architecture patterns for new systems, comparing paradigm trade-offs,

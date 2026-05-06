@@ -1,6 +1,6 @@
 ---
 name: unified-review
-description: 'Orchestrate multiple review types into a single multi-domain review. Use when needing API + architecture + bug + test review at once.'
+description: 'Orchestrate multiple review types into a single multi-domain review.'
 version: 1.9.4
 alwaysApply: false
 category: orchestration

@@ -1,6 +1,6 @@
 ---
 name: style-learner
-description: Learn and extract writing style patterns from exemplar text for consistent
+description: 'Learn and extract writing style patterns from exemplar text for consistent.'
 version: 1.9.4
 globs: "**/*.md"
 alwaysApply: false

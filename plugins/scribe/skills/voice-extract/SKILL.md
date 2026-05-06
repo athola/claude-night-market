@@ -1,10 +1,6 @@
 ---
 name: voice-extract
-description: Extract writing voice from user samples using SICO comparative
-  analysis. Compares user writing against Claude's default output to identify
-  distinctive voice features. Use when training the system on a new writing
-  voice, adding samples to an existing profile, or re-running extraction
-  for improved specificity.
+description: 'Extract writing voice from samples via SICO comparative analysis.'
 version: 1.9.4
 globs: "**/*.{md,txt}"
 alwaysApply: false

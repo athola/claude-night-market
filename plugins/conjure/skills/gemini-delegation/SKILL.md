@@ -1,6 +1,6 @@
 ---
 name: gemini-delegation
-description: Gemini CLI delegation workflow implementing delegation-core for Google's
+description: "Gemini CLI delegation workflow implementing delegation-core for Google's."
 version: 1.9.4
 alwaysApply: false
   Gemini models. Use when delegation-core selected Gemini, need Gemini's 1M+ token

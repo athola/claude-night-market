@@ -1,6 +1,6 @@
 ---
 name: utility
-description: 'Score candidate agent actions by expected gain, cost, uncertainty, and redundancy to guide dispatch and termination decisions.'
+description: 'Score agent actions by expected gain, cost, uncertainty, and redundancy.'
 version: 1.9.4
 alwaysApply: false
 category: infrastructure
