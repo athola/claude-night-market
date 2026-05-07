@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for the post_learnings_stop Stop hook.
 
 Feature: Post learnings to GitHub Discussions on session stop

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for PluginAuditor module reference extraction and audit."""
 
 from pathlib import Path

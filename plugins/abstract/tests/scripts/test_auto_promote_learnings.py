@@ -767,3 +767,73 @@ class TestMainCLI:
             promote_module.main()
 
         assert exc_info.value.code == 0
+
+
+class TestAutoImprovementGate:
+    """Test the soft-block gate added in issue #461.
+
+    abstract:skill-auditor had three closed auto-improvement cycles
+    without root-cause resolution. The gate suppresses further
+    auto-promotion for that skill until the investigation completes.
+    """
+
+    def test_gated_skill_is_recorded_but_not_promoted(
+        self,
+        promote_module,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Given: An item targets the gated skill (abstract:skill-auditor)
+        When: run_auto_promote() processes the items list
+        Then: The item is recorded as gated-pending-issue-461
+        And: Neither promote_to_issue nor post_to_discussion is called.
+        """
+        record_path = tmp_path / "promoted_issues.json"
+        learnings_path = tmp_path / "LEARNINGS.md"
+        learnings_path.write_text(SAMPLE_LEARNINGS_MD)
+
+        monkeypatch.setattr(
+            promote_module, "get_learnings_path", lambda: learnings_path
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "detect_target_repo",
+            lambda: ("athola", "claude-night-market"),
+        )
+        monkeypatch.setattr(
+            promote_module, "get_promoted_record_path", lambda: record_path
+        )
+        # Filter parse_improvement_items to a gated-skill item only.
+        monkeypatch.setattr(
+            promote_module,
+            "parse_improvement_items",
+            lambda _content: [
+                {
+                    "skill": "abstract:skill-auditor",
+                    "type": "high_failure_rate",
+                    "severity": "high",
+                    "success_rate": 40.0,
+                    "frequency": 24,
+                }
+            ],
+        )
+
+        promote_called = MagicMock()
+        post_called = MagicMock()
+        monkeypatch.setattr(promote_module, "promote_to_issue", promote_called)
+        monkeypatch.setattr(promote_module, "post_to_discussion", post_called)
+        monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_: False)
+
+        urls = promote_module.run_auto_promote()
+
+        assert urls == [], "gated skill must produce no issue/discussion URL"
+        assert not promote_called.called, "gated skill must not be promoted to issue"
+        assert not post_called.called, "gated skill must not be posted to discussion"
+
+        record_data = json.loads(record_path.read_text())
+        promoted = record_data.get("promoted", record_data)
+        gated_keys = [k for k, v in promoted.items() if v == "gated-pending-issue-461"]
+        assert gated_keys, (
+            "gated skill must be recorded with 'gated-pending-issue-461' marker so the "
+            "investigation can be tracked"
+        )

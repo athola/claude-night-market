@@ -248,10 +248,7 @@ def _parse_turn_range(turns_str: str) -> tuple[int, int]:
         try:
             start, end = int(start_str), int(end_str)
         except ValueError:
-            msg = (
-                f"Invalid turn range: expected integers, "
-                f"got '{start_str}' and/or '{end_str}'"
-            )
+            msg = f"Invalid turn range: expected integers, got '{start_str}' and/or '{end_str}'"
             raise ValueError(msg) from None
         if start > end:
             msg = f"Invalid turn range: start ({start}) must not exceed end ({end})"

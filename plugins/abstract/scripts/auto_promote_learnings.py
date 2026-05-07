@@ -520,7 +520,25 @@ def run_auto_promote() -> list[str]:
     record = PromotedIssueRecord.load()
     created_urls: list[str] = []
 
+    # Auto-improvement gate (issue #461): three closure cycles for
+    # ``abstract:skill-auditor`` did not resolve the recurring failure
+    # pattern. Suppress further auto-promotion for this skill until the
+    # root-cause investigation completes; reset by removing this set.
+    auto_improvement_gate: frozenset[str] = frozenset(
+        {
+            "abstract:skill-auditor",
+        }
+    )
+
     for item in items:
+        if item.get("skill") in auto_improvement_gate:
+            record.add(
+                f"{item['skill']}:{item.get('type', 'unknown')}",
+                "gated-pending-issue-461",
+            )
+            record.save()
+            continue
+
         key = f"{item['skill']}:{item.get('type', 'unknown')}"
 
         if record.is_promoted(key):

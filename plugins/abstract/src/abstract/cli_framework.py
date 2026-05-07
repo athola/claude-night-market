@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """CLI Framework for Abstract scripts.
 
 Provide standardized CLI creation with common arguments, output formatting,

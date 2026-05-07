@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for hooks/shared/dir_utils.py.
 
 Feature: Shared directory helpers for PreToolUse/PostToolUse hooks

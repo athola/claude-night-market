@@ -80,8 +80,7 @@ class PalaceMaintenance:
                     entry = json.loads(line)
                 except json.JSONDecodeError:
                     sys.stderr.write(
-                        f"palace_maintenance: dropping malformed queue entry:"
-                        f" {line[:100]}\n"
+                        f"palace_maintenance: dropping malformed queue entry: {line[:100]}\n"
                     )
                     continue
 
@@ -216,8 +215,7 @@ class PalaceMaintenance:
                         results["total_stale"] += 1
                 except (ValueError, AttributeError) as e:
                     sys.stderr.write(
-                        f"palace_maintenance: failed to parse timestamp for entry"
-                        f" {entry_id}: {e}\n"
+                        f"palace_maintenance: failed to parse timestamp for entry {entry_id}: {e}\n"
                     )
 
                 if novelty < LOW_QUALITY_THRESHOLD:

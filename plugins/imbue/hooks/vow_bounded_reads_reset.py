@@ -75,8 +75,15 @@ def _atomic_reset(path: Path) -> None:
         if _HAS_FCNTL and _fcntl is not None:
             try:
                 _fcntl.flock(fd, _fcntl.LOCK_EX)
-            except OSError:
-                pass
+            except OSError as exc:
+                # Lock unavailable; surface so operators see when the
+                # reset path runs without serialization vs concurrent
+                # increments.
+                print(
+                    f"[vow-bounded-reads] WARN: flock unavailable on "
+                    f"reset, falling back to unlocked truncate: {exc}",
+                    file=sys.stderr,
+                )
         try:
             os.lseek(fd, 0, os.SEEK_SET)
             os.ftruncate(fd, 0)

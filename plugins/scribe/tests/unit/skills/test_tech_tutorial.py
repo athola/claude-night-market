@@ -636,8 +636,7 @@ class TestTechTutorialDocumentEconomy:
         """
         text_lower = skill_text.lower()
         assert "walk away with" in text_lower or "thesis" in text_lower, (
-            "Step 1 must ask the author for the single sentence the "
-            "reader walks away with"
+            "Step 1 must ask the author for the single sentence the reader walks away with"
         )
 
     @pytest.mark.bdd
@@ -651,8 +650,7 @@ class TestTechTutorialDocumentEconomy:
         """
         text_lower = skill_text.lower()
         assert "how many readers" in text_lower or ("audience size" in text_lower), (
-            "Step 1 must surface audience size so the reader-time "
-            "budget can be estimated"
+            "Step 1 must surface audience size so the reader-time budget can be estimated"
         )
 
     @pytest.mark.bdd
@@ -667,8 +665,7 @@ class TestTechTutorialDocumentEconomy:
         """
         text_lower = skill_text.lower()
         assert "document-level" in text_lower or ("document economy" in text_lower), (
-            "Quality gate must include document-level checks alongside "
-            "sentence-level checks"
+            "Quality gate must include document-level checks alongside sentence-level checks"
         )
 
     @pytest.mark.bdd

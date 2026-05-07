@@ -312,12 +312,12 @@ class _PerfVisitor(ast.NodeVisitor):
 
     # ---- function tracking (T5, T4 scoping) -------------------------
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._enter_func(node)
         self.generic_visit(node)
         self._exit_func()
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         self._enter_func(node)
         self.generic_visit(node)
         self._exit_func()
@@ -368,15 +368,13 @@ class _PerfVisitor(ast.NodeVisitor):
                 return False
             if isinstance(value, ast.List) and not value.elts:
                 return True
-            if (
+            return bool(
                 isinstance(value, ast.Call)
                 and isinstance(value.func, ast.Name)
                 and value.func.id == "list"
                 and not value.args
                 and not value.keywords
-            ):
-                return True
-            return False
+            )
 
         for body_node in ast.walk(node):
             if isinstance(body_node, ast.Assign) and _is_empty_list_value(
@@ -399,7 +397,7 @@ class _PerfVisitor(ast.NodeVisitor):
 
     # ---- loop tracking (T1, T2, T3, T4, S1, S3) --------------------
 
-    def visit_For(self, node: ast.For) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_For(self, node: ast.For) -> None:
         # T1: nested for over the same iterable.
         cur_iter = _iter_name(node)
         if cur_iter is not None and cur_iter in self._loop_stack:
@@ -424,7 +422,7 @@ class _PerfVisitor(ast.NodeVisitor):
         self.generic_visit(node)
         self._loop_stack.pop()
 
-    def visit_AsyncFor(self, node: ast.AsyncFor) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_AsyncFor(self, node: ast.AsyncFor) -> None:
         cur_iter = node.iter.id if isinstance(node.iter, ast.Name) else None
         self._loop_stack.append(cur_iter)
         self.generic_visit(node)
@@ -432,7 +430,7 @@ class _PerfVisitor(ast.NodeVisitor):
 
     # ---- T2: `x in <Name>` inside a loop ---------------------------
 
-    def visit_Compare(self, node: ast.Compare) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_Compare(self, node: ast.Compare) -> None:
         # T2 suppression rules:
         # - LHS string literal (e.g. `'foo' in s`): always substring
         #   matching, O(m+n) on string length, not list scan.
@@ -608,7 +606,7 @@ class _PerfVisitor(ast.NodeVisitor):
             )
         )
 
-    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_Call(self, node: ast.Call) -> None:
         self._check_recompile_in_loop(node)
         self._check_listcomp_to_reducer(node)
         self._check_append_in_nested_loop(node)
@@ -617,7 +615,7 @@ class _PerfVisitor(ast.NodeVisitor):
 
     # ---- T4: string += inside a loop -------------------------------
 
-    def visit_AugAssign(self, node: ast.AugAssign) -> None:  # noqa: N802 - ast.NodeVisitor uppercase visit_X convention
+    def visit_AugAssign(self, node: ast.AugAssign) -> None:
         if (
             self._loop_stack
             and isinstance(node.op, ast.Add)

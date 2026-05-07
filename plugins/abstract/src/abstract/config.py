@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Centralized configuration management for Abstract tools and skills.
 
 Consolidate all configuration values and provide validation.

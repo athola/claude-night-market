@@ -431,8 +431,7 @@ def main() -> int:
         type=int,
         default=DEFAULT_MAX_COMPLEXITY,
         help=(
-            "Maximum complexity score for convertible hooks "
-            f"(default: {DEFAULT_MAX_COMPLEXITY})"
+            f"Maximum complexity score for convertible hooks (default: {DEFAULT_MAX_COMPLEXITY})"
         ),
     )
     parser.add_argument(

@@ -66,7 +66,7 @@ class TestKarpathyPrinciplesFrontmatter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_name_matches_directory(self, skill_md: str) -> None:
-        """name field must equal karpathy-principles."""
+        """Name field must equal karpathy-principles."""
         head = skill_md.split("---", 2)[1]
         assert "name: karpathy-principles" in head
 

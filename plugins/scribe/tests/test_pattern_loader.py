@@ -146,10 +146,7 @@ class TestLanguageDetection:
     @pytest.mark.unit
     def test_detect_english(self) -> None:
         """Detects English text correctly."""
-        text = (
-            "The quick brown fox has been jumping over the lazy dog "
-            "with great enthusiasm."
-        )
+        text = "The quick brown fox has been jumping over the lazy dog with great enthusiasm."
         assert detect_language(text) == "en"
 
     @pytest.mark.unit

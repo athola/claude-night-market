@@ -233,10 +233,7 @@ class TestFrenchTier1Patterns:
     @pytest.mark.unit
     def test_multiple_french_markers(self) -> None:
         """Scenario: Several French tier-1 words in one passage are all detected."""
-        text = (
-            "Cette solution exhaustive et polyvalente est incontournable "
-            "pour tout projet novateur."
-        )
+        text = "Cette solution exhaustive et polyvalente est incontournable pour tout projet novateur."
         assert count_matches(text, FR_TIER1_PATTERNS) >= 3
 
 
@@ -497,28 +494,19 @@ class TestMixedLanguageDocuments:
     @pytest.mark.unit
     def test_german_section_detected_in_mixed_doc(self) -> None:
         """Scenario: German markers in a bilingual doc are caught."""
-        text = (
-            "The API returns JSON. "
-            "Diese umfassende Lösung ist bahnbrechend und wegweisend."
-        )
+        text = "The API returns JSON. Diese umfassende Lösung ist bahnbrechend und wegweisend."
         assert count_matches(text, DE_TIER1_PATTERNS) >= 2
 
     @pytest.mark.unit
     def test_french_section_detected_in_mixed_doc(self) -> None:
         """Scenario: French markers in a bilingual doc are caught."""
-        text = (
-            "The API returns JSON. "
-            "Cette solution polyvalente est incontournable pour les équipes."
-        )
+        text = "The API returns JSON. Cette solution polyvalente est incontournable pour les équipes."
         assert count_matches(text, FR_TIER1_PATTERNS) >= 2
 
     @pytest.mark.unit
     def test_spanish_section_detected_in_mixed_doc(self) -> None:
         """Scenario: Spanish markers in a bilingual doc are caught."""
-        text = (
-            "The API returns JSON. "
-            "Esta solución integral e innovadora es imprescindible."
-        )
+        text = "The API returns JSON. Esta solución integral e innovadora es imprescindible."
         assert count_matches(text, ES_TIER1_PATTERNS) >= 2
 
     @pytest.mark.unit

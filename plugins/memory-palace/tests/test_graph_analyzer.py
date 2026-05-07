@@ -163,7 +163,7 @@ class TestLinkPrediction:
     def test_suggests_links(self, analyzer: PalaceGraphAnalyzer) -> None:
         suggestions = analyzer.predict_links(top_n=5)
         assert isinstance(suggestions, list)
-        for u, v, score in suggestions:
+        for _u, _v, score in suggestions:
             assert isinstance(score, float)
 
     def test_does_not_suggest_existing_links(

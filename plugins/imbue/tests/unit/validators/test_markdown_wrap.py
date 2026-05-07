@@ -265,11 +265,16 @@ class TestCliEntry:
         assert out["verdict"] == "pass"
 
     @pytest.mark.unit
-    def test_main_reads_files_input(self, validator_module, capsys, tmp_path):
+    def test_main_reads_files_input(
+        self, validator_module, capsys, tmp_path, monkeypatch
+    ):
         """main() with {"files": [...]} returns aggregated verdict.
 
         A clean file should produce verdict=pass and exit code 0.
+        Pin IMBUE_VALIDATOR_ROOT so the path safety check honors tmp_path
+        as inside the workspace for this test.
         """
+        monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
         f = tmp_path / "doc.md"
         f.write_text("Short prose only.\n")
         payload = json.dumps({"files": [str(f)]})
@@ -290,8 +295,11 @@ class TestCliEntry:
         assert exc.value.code == 1
 
     @pytest.mark.unit
-    def test_main_inconclusive_exit_code_two(self, validator_module, capsys, tmp_path):
+    def test_main_inconclusive_exit_code_two(
+        self, validator_module, capsys, tmp_path, monkeypatch
+    ):
         """Inconclusive verdict exits with code 2 (do not block, flag for review)."""
+        monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
         payload = json.dumps({"files": [str(tmp_path / "missing.md")]})
         with patch("sys.stdin", StringIO(payload)):
             with pytest.raises(SystemExit) as exc:
@@ -307,3 +315,66 @@ class TestCliEntry:
         assert exc.value.code == 2
         out = json.loads(capsys.readouterr().out)
         assert out["verdict"] == "inconclusive"
+
+
+class TestPathRestriction:
+    """Feature: Reject caller-supplied paths that escape the workspace root.
+
+    As a CI invoker
+    I want validate_files to refuse paths outside the workspace
+    So that a malicious payload cannot make the validator open
+    /etc/passwd or other sensitive files (PR #417 finding NB2).
+    """
+
+    @pytest.mark.unit
+    def test_path_inside_root_is_safe(self, validator_module, tmp_path):
+        """A path inside the configured root passes the safety check."""
+        target = tmp_path / "ok.md"
+        target.write_text("short prose\n", encoding="utf-8")
+        assert validator_module._is_path_safe(str(target), root=tmp_path) is True
+
+    @pytest.mark.unit
+    def test_absolute_path_outside_root_rejected(self, validator_module, tmp_path):
+        """An absolute path outside the root is rejected."""
+        assert validator_module._is_path_safe("/etc/passwd", root=tmp_path) is False
+
+    @pytest.mark.unit
+    def test_traversal_path_rejected(self, validator_module, tmp_path):
+        """A path using ``..`` to escape the root is rejected."""
+        outside = tmp_path / ".." / "outside.md"
+        assert validator_module._is_path_safe(str(outside), root=tmp_path) is False
+
+    @pytest.mark.unit
+    def test_validate_files_rejects_outside_root_when_enforced(
+        self, validator_module, tmp_path, monkeypatch
+    ):
+        """validate_files emits inconclusive evidence for rejected paths."""
+        monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
+        result = validator_module.validate_files(["/etc/passwd"], enforce_root=True)
+        assert result["verdict"] == "inconclusive"
+        assert any(
+            "outside workspace root" in ev.get("error", "") for ev in result["evidence"]
+        )
+
+    @pytest.mark.unit
+    def test_main_rejects_paths_outside_root(
+        self, validator_module, tmp_path, monkeypatch, capsys
+    ):
+        """main() (stdin-driver) enforces workspace root by default."""
+        monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
+        payload = json.dumps({"files": ["/etc/passwd"]})
+        with patch("sys.stdin", StringIO(payload)):
+            with pytest.raises(SystemExit) as exc:
+                validator_module.main()
+        assert exc.value.code == 2
+        out = json.loads(capsys.readouterr().out)
+        assert out["verdict"] == "inconclusive"
+        assert any(
+            "outside workspace root" in ev.get("error", "") for ev in out["evidence"]
+        )
+
+    @pytest.mark.unit
+    def test_validator_root_env_override(self, validator_module, tmp_path, monkeypatch):
+        """IMBUE_VALIDATOR_ROOT honored when set."""
+        monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
+        assert validator_module._validator_root() == tmp_path.resolve()

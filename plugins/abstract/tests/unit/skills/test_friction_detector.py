@@ -3,8 +3,18 @@
 Validates that the friction-detector skill defines signal types,
 graduation tiers, detection workflow, anti-noise rules, and
 integration points for the friction-to-learning pipeline.
+
+Test graduation note (#442):
+The bulk of tests in this file assert text presence (``"X" in
+skill_content``). That style catches deletion but misses rewording
+and value drift inside numeric thresholds. The
+``TestFrictionDetectorInvariants`` class below shows the target
+pattern: assert structural and numeric invariants instead of literal
+strings. New tests should follow the invariant style; existing tests
+will be migrated incrementally as the file is touched.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -416,15 +426,20 @@ class TestSkillQuality:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skill_under_200_lines(self, skill_lines: list[str]) -> None:
-        """Scenario: Skill stays under 200 lines.
+    def test_skill_under_220_lines(self, skill_lines: list[str]) -> None:
+        """Scenario: Skill stays compact (<=220 lines).
 
         Given the friction-detector skill
         When counting lines
-        Then it should be under 200 lines
+        Then it should be under 220 lines
+
+        Bumped from 200 to 220 to accommodate the envelope schema
+        example added for ADR-0011 (issue #422). The hard cap exists
+        to prevent unbounded growth, not to lock the file at a
+        single value.
         """
-        assert len(skill_lines) <= 200, (
-            f"Skill has {len(skill_lines)} lines, exceeds 200 limit"
+        assert len(skill_lines) <= 220, (
+            f"Skill has {len(skill_lines)} lines, exceeds 220 limit"
         )
 
     @pytest.mark.bdd
@@ -501,3 +516,123 @@ class TestSkillQuality:
         )
         matches = emoji_pattern.findall(skill_content)
         assert not matches, f"Emojis found: {matches}"
+
+
+class TestFrictionDetectorInvariants:
+    """Feature: Skill structure encodes operational invariants (#442).
+
+    Tests in this class assert *invariants* about structure and
+    numeric thresholds rather than literal string presence. They
+    serve as the migration target for the older string-presence
+    tests above.
+
+    As a maintainer
+    I want tests that catch value drift and rewording
+    So that a change to "Tier 2 threshold: 6.0" -> "Tier 2: 8.0"
+       fails the suite, not silently changes meaning.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_graduation_thresholds_are_strictly_monotonic(
+        self, skill_content: str
+    ) -> None:
+        """Scenario: Tier 2 < Tier 3 graduation thresholds.
+
+        Given the friction-detector skill defines graduation thresholds
+        When the Tier 2 and Tier 3 numeric values are extracted
+        Then Tier 2 must be strictly less than Tier 3
+        Because graduation is a one-way escalation; equal or inverted
+             thresholds collapse the tier system.
+        """
+        tier2_match = re.search(
+            r"Tier\s*2\s*threshold:\s*graduation_score\s*>=\s*([\d.]+)",
+            skill_content,
+        )
+        tier3_match = re.search(
+            r"Tier\s*3\s*proposal:\s*graduation_score\s*>=\s*([\d.]+)",
+            skill_content,
+        )
+        assert tier2_match, "Tier 2 threshold must be specified numerically"
+        assert tier3_match, "Tier 3 proposal threshold must be specified numerically"
+        tier2 = float(tier2_match.group(1))
+        tier3 = float(tier3_match.group(1))
+        assert tier2 < tier3, (
+            f"Tier 2 threshold ({tier2}) must be strictly less than "
+            f"Tier 3 proposal threshold ({tier3}); inverted/equal "
+            "thresholds collapse the tier system"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_recency_factor_is_strictly_decreasing(self, skill_content: str) -> None:
+        """Scenario: Recency factor decays with age.
+
+        Given the friction-detector skill defines a recency_factor table
+        When the four numeric coefficients are extracted in time order
+        Then they must be strictly decreasing
+        Because more recent friction must outweigh older friction;
+             equal or non-monotonic values break graduation scoring.
+        """
+        recent = re.search(r"last 7 days\s*=\s*([\d.]+)", skill_content)
+        mid = re.search(r"8-14 days\s*=\s*([\d.]+)", skill_content)
+        late = re.search(r"15-30 days\s*=\s*([\d.]+)", skill_content)
+        old = re.search(r"31\+\s*days\s*=\s*([\d.]+)", skill_content)
+        assert all([recent, mid, late, old]), (
+            "All four recency_factor entries must be specified"
+        )
+        # Pyright cannot infer assert all() narrows None types.
+        assert recent is not None
+        assert mid is not None
+        assert late is not None
+        assert old is not None
+        values = [
+            float(recent.group(1)),
+            float(mid.group(1)),
+            float(late.group(1)),
+            float(old.group(1)),
+        ]
+        for left, right in zip(values, values[1:], strict=False):
+            assert left > right, f"recency_factor must strictly decrease: {values}"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_signal_weights_are_distinct_and_ordered(self, skill_content: str) -> None:
+        """Scenario: Signal weight scoring uses distinct integer points.
+
+        Given the skill specifies "High = 3, Medium = 2, Low = 1"
+        When the three weights are parsed
+        Then High > Medium > Low and all are positive integers
+        Because zero or duplicate weights make graduation insensitive
+             to severity classification.
+        """
+        match = re.search(
+            r"High\s*=\s*(\d+)[^M]*Medium\s*=\s*(\d+)[^L]*Low\s*=\s*(\d+)",
+            skill_content,
+        )
+        assert match, "Weight scoring must specify High/Medium/Low integer points"
+        high, medium, low = (int(g) for g in match.groups())
+        assert high > medium > low > 0, (
+            f"weights must satisfy High > Medium > Low > 0: "
+            f"got High={high}, Medium={medium}, Low={low}"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_storage_path_uses_envelope_schema_version(
+        self, skill_content: str
+    ) -> None:
+        """Scenario: Friction signals use the shared session-capture envelope.
+
+        Given the friction-detector skill emits per-session JSON
+        When inspecting the example payload
+        Then it must declare ``schema_version`` and ``source: friction-detector``
+        Because envelope adoption (ADR-0011) is what lets downstream
+             readers consume friction signals and traces uniformly.
+        """
+        assert '"schema_version"' in skill_content, (
+            "Friction signal example must declare schema_version (ADR-0011)"
+        )
+        assert '"source": "friction-detector"' in skill_content, (
+            "Friction signal envelope must set source=friction-detector"
+        )

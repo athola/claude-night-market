@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Base class for Abstract scripts with common functionality.
 
 Centralize import handling, file discovery, and frontmatter operations.

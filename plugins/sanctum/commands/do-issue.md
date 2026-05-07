@@ -466,7 +466,35 @@ done
 - **GitHub**: Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
 - **GitLab**: Ensure MR body contains "Closes #ISSUE_NUMBER" for auto-close on merge.
 
-**Step 6 Output**: PR created, issue updated
+### 6.5 Tooling Reflection (opt-in, #462)
+
+Before reporting completion, ask:
+
+> Did I observe friction, bugs, or improvement opportunities in
+> the night-market tooling itself (skills, agents, commands,
+> hooks) during this workflow?
+
+If yes, format the observation as a Learnings entry and ask the
+user before posting:
+
+```bash
+# Confirm with user, then:
+plugins/abstract/scripts/post_learnings_to_discussions.py \
+  --title "<short title>" \
+  --category Learnings \
+  --body-file /tmp/learning-observation.md
+```
+
+The reflection is **opt-in**: never auto-post without explicit
+user confirmation. The intent is to capture tooling drift signals
+that would otherwise vanish at session end. See ADR-0007 (GitHub
+Discussions integration) and Discussion #271 for the wiring
+context.
+
+If no observations, skip this step.
+
+**Step 6 Output**: PR created, issue updated, optional learning
+posted
 
 ---
 

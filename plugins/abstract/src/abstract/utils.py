@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Common utilities for Abstract scripts.
 
 Provide utility functions for:

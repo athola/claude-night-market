@@ -8,10 +8,10 @@ import textwrap
 from typing import Any
 
 from ._constants import (
-    MIN_RESPONSIBILITIES_FOR_LOW_COHESION,
-    MIN_VIOLATIONS_TO_REPORT,
     _BUILTIN_EXC_NAMES,
     _SRP_KEYWORDS,
+    MIN_RESPONSIBILITIES_FOR_LOW_COHESION,
+    MIN_VIOLATIONS_TO_REPORT,
 )
 
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Universal quota tracking for rate-limited services.
 
 This is a generalized quota tracker that can be used by any plugin
@@ -23,7 +22,7 @@ from dataclasses import dataclass, field
 # ``post_learnings_to_discussions`` -> ``leyline.git_platform`` ->
 # ``leyline/__init__.py``. ``datetime.UTC`` is a 3.11+ alias and
 # breaks the 3.9 import chain.
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 from leyline.tokens import DEFAULT_EXTENSION_TOKEN_RATIO, EXTENSION_TOKEN_RATIOS
@@ -126,7 +125,7 @@ class QuotaTracker:
             tz=timezone.utc,  # noqa: UP017 - kept for Python 3.9 import compat (see module docstring)
         ).date()
         current_date = datetime.now(  # noqa: UP017 - kept for Python 3.9 import compat (see module docstring)
-            timezone.utc,
+            UTC,
         ).date()
         if current_date > last_date:
             self.usage.requests_today = 0

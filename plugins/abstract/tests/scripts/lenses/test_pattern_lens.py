@@ -63,7 +63,7 @@ def test_shared_friction_pattern_detected():
     ctx = _ctx(metrics=metrics)
     findings = analyze(ctx)
     # At least detects shared friction
-    pattern_findings = [f for f in findings if f.type == "Pattern"]
+    [f for f in findings if f.type == "Pattern"]
     # May or may not detect depending on similarity threshold
     # Just verify no crash
     assert isinstance(findings, list)

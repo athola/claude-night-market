@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for PluginAuditor advanced fix, module scanning, descriptions, and output."""
 
 import json

@@ -16,17 +16,45 @@ if str(_LEYLINE_SRC) not in sys.path:
     sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
-    from leyline.bootstrap import add_plugin_src_to_path  # type: ignore[import-not-found]
+    from leyline.bootstrap import (  # type: ignore[import-not-found]  # sibling plugin imported at runtime
+        add_plugin_src_to_path,
+    )
 
     add_plugin_src_to_path("abstract", caller=__file__)
-    from abstract.report_formatter import (  # type: ignore[import-not-found]  # cross-plugin import via sys.path
+    from abstract.report_formatter import (  # type: ignore[import-not-found]  # added to sys.path above
         format_validator_report,
     )
 except (ImportError, FileNotFoundError):
+    from pathlib import Path as _Path  # local alias to avoid shadowing
+    from typing import Any as _Any
 
-    def format_validator_report(results: dict, plugin_name: str = "") -> str:  # type: ignore[misc]  # redefinition needed for import fallback
-        """Fallback when leyline.bootstrap or abstract is not available."""
-        return str(results)
+    def format_validator_report(  # type: ignore[misc]  # redefinition needed for import fallback
+        title: str,
+        plugin_root: "_Path",
+        skill_file_count: int,
+        metadata: list[tuple[str, "_Any"]],
+        issues: list[str],
+        success_message: str = "All validations passed successfully!",
+    ) -> str:
+        """Fallback when leyline.bootstrap or abstract is not available.
+
+        Mirrors the real ``abstract.report_formatter.format_validator_report``
+        signature so call sites do not silently produce garbage when the
+        cross-plugin import fails. Output format matches the real helper
+        so downstream parsers continue to work.
+        """
+        lines: list[str] = [title, "=" * 50]
+        lines.append(f"\nPlugin Root: {plugin_root}")
+        lines.append(f"Skill Files: {skill_file_count}")
+        for label, value in metadata:
+            lines.append(f"\n{label}: {value}")
+        if issues:
+            lines.append(f"\nIssues Found ({len(issues)}):")
+            for index, issue in enumerate(issues, 1):
+                lines.append(f"  {index}. {issue}")
+        else:
+            lines.append(f"\n{success_message}")
+        return "\n".join(lines)
 
 
 # Configure logging for the validator

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for workflow-steps.md modularization.
 
 These tests verify that the workflow-steps.md file has been properly

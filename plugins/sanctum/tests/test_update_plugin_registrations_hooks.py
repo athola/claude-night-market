@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for PluginAuditor hooks.json resolution and parsing."""
 
 import json

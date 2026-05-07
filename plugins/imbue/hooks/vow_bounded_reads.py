@@ -122,8 +122,16 @@ def _atomic_increment(path: Path) -> int:
         if _HAS_FCNTL and _fcntl is not None:
             try:
                 _fcntl.flock(fd, _fcntl.LOCK_EX)
-            except OSError:
-                pass  # lock unavailable; fall through to unlocked RMW
+            except OSError as exc:
+                # Lock unavailable (NFS quirks, exhausted fd table, OS
+                # limits). Emit a warning so operators have a signal that
+                # the concurrency guarantee is absent on this invocation,
+                # then fall through to unlocked RMW.
+                print(
+                    f"[vow-bounded-reads] WARN: flock unavailable, "
+                    f"falling back to unlocked RMW: {exc}",
+                    file=sys.stderr,
+                )
         try:
             os.lseek(fd, 0, os.SEEK_SET)
             raw = os.read(fd, 4096)

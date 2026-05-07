@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import random
 from dataclasses import asdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -265,7 +265,7 @@ def seeded_data_file(temp_data_file: Path, sample_tasks: list[Task]) -> Path:
     """Provide a data file pre-seeded with sample tasks for load testing."""
     data = {
         "tasks": [asdict(t) for t in sample_tasks],
-        "last_updated": datetime.now(timezone.utc).isoformat(),
+        "last_updated": datetime.now(UTC).isoformat(),
     }
     temp_data_file.parent.mkdir(parents=True, exist_ok=True)
     with open(temp_data_file, "w", encoding="utf-8") as f:

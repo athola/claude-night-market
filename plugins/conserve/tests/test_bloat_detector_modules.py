@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Test that bloat-detector modules are properly referenced."""
 
 import re

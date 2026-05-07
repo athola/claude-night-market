@@ -31,9 +31,43 @@ dominated by URLs or inline code spans.
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
+from pathlib import Path
 from typing import Any
+
+
+def _validator_root() -> Path:
+    """Workspace root that bounds caller-supplied validator paths.
+
+    Honors ``IMBUE_VALIDATOR_ROOT`` so CI can pin the root explicitly;
+    otherwise falls back to the current working directory.
+    """
+    override = os.environ.get("IMBUE_VALIDATOR_ROOT")
+    if override:
+        return Path(override).resolve()
+    return Path.cwd().resolve()
+
+
+def _is_path_safe(path: str, root: Path | None = None) -> bool:
+    """Return True if *path* resolves inside the validator root.
+
+    Defends against caller-supplied paths in the validator payload that
+    escape the workspace via ``..`` or absolute paths to system files.
+    Symlinks are resolved before the prefix check.
+    """
+    base = (root or _validator_root()).resolve()
+    try:
+        candidate = Path(path).resolve()
+    except (OSError, RuntimeError):
+        return False
+    try:
+        candidate.relative_to(base)
+    except ValueError:
+        return False
+    return True
+
 
 DEFAULT_MAX_WIDTH = 80
 _PREVIEW_MAX = 90  # Truncate evidence preview at 90 chars (just past 80-char rule).
@@ -146,16 +180,41 @@ def validate_text(
 
 
 def validate_files(
-    paths: list[str], *, max_width: int = DEFAULT_MAX_WIDTH
+    paths: list[str],
+    *,
+    max_width: int = DEFAULT_MAX_WIDTH,
+    enforce_root: bool = False,
+    root: Path | None = None,
 ) -> dict[str, Any]:
     """Validate a list of markdown files on disk.
 
     Aggregates verdicts: pass if all pass, violation if any violates,
     inconclusive if any file is missing or unreadable.
+
+    When ``enforce_root`` is True, paths are rejected if they resolve
+    outside *root* (or the validator root from IMBUE_VALIDATOR_ROOT /
+    cwd). Library callers default to the permissive mode; the stdin
+    driver (``main``) opts in to enforcement to defend against
+    caller-supplied paths in JSON payloads (PR #417 finding NB2).
     """
     all_evidence: list[dict[str, Any]] = []
     inconclusive = False
     for path in paths:
+        if enforce_root and not _is_path_safe(path, root=root):
+            # Caller-supplied path escapes the workspace root. Treat as
+            # inconclusive (do not block, do not silently pass) so the
+            # operator can investigate. CI sets IMBUE_VALIDATOR_ROOT to
+            # the repo root if cwd is not appropriate.
+            inconclusive = True
+            all_evidence.append(
+                {
+                    "file": path,
+                    "error": "path outside workspace root (rejected)",
+                    "line": 0,
+                    "length": 0,
+                }
+            )
+            continue
         try:
             with open(path, encoding="utf-8") as f:
                 text = f.read()
@@ -217,7 +276,11 @@ def main() -> None:
     max_width = int(payload.get("max_width", DEFAULT_MAX_WIDTH))
 
     if "files" in payload:
-        result = validate_files(list(payload["files"]), max_width=max_width)
+        # Stdin-driven path: enforce workspace root to defend against
+        # caller-supplied paths escaping cwd (PR #417 finding NB2).
+        result = validate_files(
+            list(payload["files"]), max_width=max_width, enforce_root=True
+        )
     elif "text" in payload:
         result = validate_text(
             str(payload["text"]),

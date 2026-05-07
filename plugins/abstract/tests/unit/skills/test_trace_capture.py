@@ -32,8 +32,7 @@ def _parse_frontmatter(content: str) -> dict:
 
 
 class TestTraceCaptureFileExistence:
-    """
-    Feature: Module file existence and readability
+    """Feature: Module file existence and readability
 
     As a plugin validator
     I want the trace-capture module to exist and be readable
@@ -61,8 +60,7 @@ class TestTraceCaptureFileExistence:
 
 
 class TestTraceCaptureFrontmatter:
-    """
-    Feature: YAML frontmatter validity
+    """Feature: YAML frontmatter validity
 
     As a plugin validator
     I want the trace-capture frontmatter to contain required fields
@@ -121,8 +119,7 @@ class TestTraceCaptureFrontmatter:
 
 
 class TestTraceCaptureRequiredSections:
-    """
-    Feature: Required documentation sections
+    """Feature: Required documentation sections
 
     As a skill consumer
     I want the trace-capture to contain all required sections
@@ -177,8 +174,7 @@ class TestTraceCaptureRequiredSections:
 
 
 class TestTraceCaptureContent:
-    """
-    Feature: Trace capture content validation
+    """Feature: Trace capture content validation
 
     As a plugin developer
     I want the module to define capture modes and storage limits
@@ -272,8 +268,7 @@ class TestTraceCaptureContent:
 
 
 class TestTraceCaptureLineWrapping:
-    """
-    Feature: Markdown prose line wrapping
+    """Feature: Markdown prose line wrapping
 
     As a documentation maintainer
     I want prose lines to wrap at 80 characters

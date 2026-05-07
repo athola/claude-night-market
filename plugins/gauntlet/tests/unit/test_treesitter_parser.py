@@ -183,9 +183,7 @@ class TestParsePythonFile:
 
 
 class TestParseJavaScriptFile:
-    """
-    Feature: Parse JavaScript source files
-    """
+    """Feature: Parse JavaScript source files"""
 
     @pytest.mark.unit
     def test_extracts_js_function(self, fixtures_dir: Path) -> None:
@@ -205,9 +203,7 @@ class TestParseJavaScriptFile:
 
 
 class TestParseGoFile:
-    """
-    Feature: Parse Go source files
-    """
+    """Feature: Parse Go source files"""
 
     @pytest.mark.unit
     def test_extracts_go_function(self, fixtures_dir: Path) -> None:

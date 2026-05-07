@@ -18,7 +18,8 @@ except ImportError:
 # closing ``---`` was silently rejected while parse_frontmatter (the
 # sibling line-based parser) handled it correctly.
 FRONTMATTER_RE = re.compile(
-    r"^---\s*\n(.*?)\n---\s*(?:\n|\Z)", re.DOTALL,
+    r"^---\s*\n(.*?)\n---\s*(?:\n|\Z)",
+    re.DOTALL,
 )
 
 

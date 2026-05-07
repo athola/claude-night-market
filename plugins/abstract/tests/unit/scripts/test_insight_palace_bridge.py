@@ -400,8 +400,7 @@ class TestIntegrationRoundTrip:
         medium_finding_no_files: Finding,
         tmp_path: Path,
     ) -> None:
-        """
-        Scenario: Ingest 3 findings, then query returns all 3.
+        """Scenario: Ingest 3 findings, then query returns all 3.
         Given 3 findings of different types/severities
         When ingest_findings writes them to staging
         And the index is populated
@@ -517,8 +516,7 @@ class TestIntegrationRoundTrip:
         high_finding: Finding,
         tmp_path: Path,
     ) -> None:
-        """
-        Scenario: Same finding ingested twice is skipped.
+        """Scenario: Same finding ingested twice is skipped.
         Given a finding already in the index
         When ingest_findings is called again
         Then it returns 0 (skipped)

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for the supply_chain_scan.py script.
 
 Feature: Supply chain scanning across repository lockfiles

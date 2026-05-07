@@ -185,3 +185,42 @@ class TestMalformedInput:
             with pytest.raises(SystemExit) as exc:
                 hook_module.main()
         assert exc.value.code == 0
+
+
+class TestCorruptFileRecovery:
+    """Feature: _atomic_reset recovers when the counter file is corrupt.
+
+    As the Night Market vow enforcement system
+    I want reset to overwrite garbage in the counter file
+    So that a corrupt state from a prior crashed write is healed
+    on the next Write/Edit cycle (#423 gap 2).
+    """
+
+    @pytest.mark.unit
+    def test_atomic_reset_overwrites_corrupt_file(self, hook_module, tmp_path):
+        """
+        Scenario: Counter file containing invalid JSON is reset cleanly
+        Given a counter file containing garbage bytes
+        When _atomic_reset is called
+        Then the file now contains a valid {"count": 0} document
+        And the operation does not raise
+        """
+        path = tmp_path / "vow_read_counter_corrupt_reset.json"
+        path.write_bytes(b"{not valid json")
+        hook_module._atomic_reset(path)
+        parsed = json.loads(path.read_bytes())
+        assert parsed == {"count": 0}
+
+    @pytest.mark.unit
+    def test_atomic_reset_overwrites_truncated_file(self, hook_module, tmp_path):
+        """
+        Scenario: Counter file with partial bytes (interrupted write) is reset
+        Given a counter file containing partial JSON
+        When _atomic_reset is called
+        Then the file is overwritten with the canonical zero state
+        """
+        path = tmp_path / "vow_read_counter_partial_reset.json"
+        path.write_bytes(b'{"count": 4')  # missing closing brace
+        hook_module._atomic_reset(path)
+        parsed = json.loads(path.read_bytes())
+        assert parsed == {"count": 0}

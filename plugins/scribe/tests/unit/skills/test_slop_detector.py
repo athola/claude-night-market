@@ -49,8 +49,7 @@ class TestDocumentEconomyModuleExists:
         fm = _parse_frontmatter(SKILL_FILE.read_text())
         modules = fm.get("modules", [])
         assert "document-economy" in modules, (
-            "document-economy must be listed in slop-detector "
-            "SKILL.md frontmatter modules"
+            "document-economy must be listed in slop-detector SKILL.md frontmatter modules"
         )
 
     @pytest.mark.unit
@@ -127,6 +126,5 @@ class TestSkillFileEatsItsOwnDogfood:
     def test_skill_references_document_economy_step(self, skill_text: str) -> None:
         """SKILL.md must point readers at the document-economy module."""
         assert "document-economy" in skill_text or ("Document Economy" in skill_text), (
-            "SKILL.md must reference the document-economy module so "
-            "readers know to load it"
+            "SKILL.md must reference the document-economy module so readers know to load it"
         )

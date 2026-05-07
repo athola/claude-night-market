@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Provide shared skill tools importable by any skill.
 
 Usage from within a skill:

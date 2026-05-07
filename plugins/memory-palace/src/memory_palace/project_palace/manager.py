@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # mypy: disable-error-code="index,operator,var-annotated,no-any-return"
 """ProjectPalaceManager extends MemoryPalaceManager with PR review rooms (AR-05)."""
 

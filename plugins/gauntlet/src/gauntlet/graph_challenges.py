@@ -85,7 +85,7 @@ def _impact_prediction(
     call_targets: list[str],
     graph: GraphStore,
 ) -> Challenge:
-    """Generate: 'If you change X, what downstream code is affected?'"""
+    """Generate: 'If you change X, what downstream code is affected?'."""
     name = _bare_name(node.qualified_name)
 
     # BFS to find full downstream impact
@@ -132,7 +132,7 @@ def _dependency_trace(
     callers: list[str],
     graph: GraphStore,
 ) -> Challenge:
-    """Generate: 'What calls X? / What does X depend on?'"""
+    """Generate: 'What calls X? / What does X depend on?'."""
     name = _bare_name(node.qualified_name)
     caller_names = sorted({_bare_name(c) for c in callers})[:5]
 

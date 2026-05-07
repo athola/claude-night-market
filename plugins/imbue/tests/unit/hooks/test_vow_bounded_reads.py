@@ -791,6 +791,91 @@ class TestAtomicIncrement:
         )
 
     @pytest.mark.unit
+    def test_atomic_increment_50_thread_unfenced_documents_race(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: Document the 50-thread Windows-fallback behavior (#423 gap 1)
+        Given _HAS_FCNTL=False (Windows / free-threaded interpreters)
+          And os.read is patched to sleep 5ms inside the RMW window
+          And 50 threads are released simultaneously
+        When all threads complete
+        Then lost updates manifest as len(set(results)) < 50
+
+        This documents that the unfenced path on Windows is *susceptible*
+        to lost updates when the GIL no longer serializes the RMW.
+        Operators relying on flock for correctness need to know the
+        Windows path degrades silently.
+        """
+        import os as _os
+        import threading
+        import time
+
+        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        path = tmp_path / "vow_read_counter_nofcntl_50_thread.json"
+        n_threads = 50
+        real_read = _os.read
+
+        def slow_read(fd, size):
+            data = real_read(fd, size)
+            time.sleep(0.005)
+            return data
+
+        monkeypatch.setattr(hook_module.os, "read", slow_read)
+
+        results: list[int] = []
+        results_lock = threading.Lock()
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            value = hook_module._atomic_increment(path)
+            with results_lock:
+                results.append(value)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Without flock and with the injected race, lost updates are
+        # expected: distinct return values are strictly fewer than the
+        # number of threads. If this ever stops holding, the race is no
+        # longer effective and the paired flocked test should be
+        # revisited.
+        assert len(set(results)) < n_threads, (
+            f"unfenced 50-thread test produced {len(set(results))} "
+            f"distinct values for {n_threads} threads -- race injection "
+            "may have become ineffective"
+        )
+
+    @pytest.mark.unit
+    def test_atomic_increment_succeeds_when_fchmod_raises(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: fchmod failure does not break increment (#423 gap 3)
+        Given the underlying filesystem rejects fchmod (e.g. some FUSE
+              mounts, network filesystems)
+        When _atomic_increment runs
+        Then the swallowed OSError does not corrupt state
+        And the counter still advances correctly
+        """
+
+        def raising_fchmod(_fd, _mode):
+            raise OSError("permission rejected by filesystem")
+
+        monkeypatch.setattr(hook_module.os, "fchmod", raising_fchmod)
+        path = tmp_path / "vow_read_counter_fchmod_fail.json"
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._atomic_increment(path) == 2
+        # File contents must remain a valid JSON object with the
+        # expected count, despite fchmod failures.
+        parsed = json.loads(path.read_bytes())
+        assert parsed == {"count": 2}
+
+    @pytest.mark.unit
     def test_atomic_increment_falls_back_when_fcntl_missing(
         self, hook_module, tmp_path, monkeypatch
     ):
@@ -805,6 +890,32 @@ class TestAtomicIncrement:
         assert hook_module._atomic_increment(path) == 1
         assert hook_module._atomic_increment(path) == 2
         assert hook_module._read_counter(path) == 2
+
+    @pytest.mark.unit
+    def test_flock_failure_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock unavailability surfaces as a stderr warning (#438)
+        Given fcntl.flock raises OSError (e.g. NFS, exhausted fd table)
+        When _atomic_increment runs
+        Then the increment still completes
+        And a "[vow-bounded-reads] WARN: flock unavailable" line is on stderr
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping fcntl warning test")
+        import errno
+
+        def raising_flock(_fd, _op):
+            raise OSError(errno.EWOULDBLOCK, "lock contention")
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        path = tmp_path / "vow_read_counter_flock_warn.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unavailable" in captured.err
+        assert "[vow-bounded-reads] WARN" in captured.err
 
     @pytest.mark.unit
     def test_atomic_increment_survives_corrupt_file(self, hook_module, tmp_path):

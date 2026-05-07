@@ -22,8 +22,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_includes_title_and_separator(self):
-        """
-        Scenario: Report header contains the title and a separator line.
+        """Scenario: Report header contains the title and a separator line.
         Given a title string
         When format_validator_report is called
         Then the first line is the title
@@ -42,8 +41,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_includes_plugin_root_and_skill_count(self):
-        """
-        Scenario: Report shows plugin root path and skill file count.
+        """Scenario: Report shows plugin root path and skill file count.
         Given a plugin root and skill file count
         When format_validator_report is called
         Then the output contains both values.
@@ -60,8 +58,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_renders_metadata_pairs(self):
-        """
-        Scenario: Domain-specific metadata lines appear in the report.
+        """Scenario: Domain-specific metadata lines appear in the report.
         Given metadata tuples for domain-specific summaries
         When format_validator_report is called
         Then each label and value appears in the output.
@@ -81,8 +78,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_enumerates_issues_when_present(self):
-        """
-        Scenario: Issues are numbered in the report.
+        """Scenario: Issues are numbered in the report.
         Given a list of two issues
         When format_validator_report is called
         Then the report contains a count header and numbered entries.
@@ -100,8 +96,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_shows_success_when_no_issues(self):
-        """
-        Scenario: Clean report when no issues found.
+        """Scenario: Clean report when no issues found.
         Given an empty issues list
         When format_validator_report is called
         Then the report contains a success message.
@@ -118,8 +113,7 @@ class TestFormatValidatorReport:
 
     @pytest.mark.unit
     def test_report_uses_custom_success_message(self):
-        """
-        Scenario: Custom success message overrides the default.
+        """Scenario: Custom success message overrides the default.
         Given a custom success_message parameter
         When format_validator_report is called with no issues
         Then the report uses the custom message instead of the default.

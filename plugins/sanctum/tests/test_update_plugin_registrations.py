@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for update_plugin_registrations.py script.
 
 This module has been split into focused sub-modules for maintainability:

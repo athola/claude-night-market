@@ -7,7 +7,7 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from minister.project_tracker import ProjectTracker, Task
 
@@ -180,7 +180,7 @@ class TestUpdateTask:
         # Arrange
         task_id = populated_tracker.data.tasks[0].id
         original_date = populated_tracker.data.tasks[0].updated_date
-        before_update = datetime.now(timezone.utc)
+        before_update = datetime.now(UTC)
 
         # Act
         populated_tracker.update_task(task_id, {"status": "Done"})

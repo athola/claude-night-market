@@ -25,52 +25,65 @@ generation, reflection, and curation).
 ## Trace Structure
 
 Each trace captures a single skill invocation from start
-to finish.
+to finish. The trace body sits inside the shared
+session-capture envelope (ADR-0011) so friction signals
+and traces can be consumed through one parser:
 
 ```json
 {
-  "trace_id": "session-{date}-{hash}",
-  "skill": "attune:project-execution",
-  "started": "2026-04-14T10:30:00Z",
-  "completed": "2026-04-14T10:32:15Z",
-  "outcome": "success",
-  "capture_mode": "decision-only",
-  "steps": [
-    {
-      "tool": "Read",
-      "target": "src/main.py",
-      "purpose": "understand entry point",
-      "result": "success",
-      "tokens_used": 1200,
-      "decision_point": false
-    },
-    {
-      "tool": "Edit",
-      "target": "src/main.py:45",
-      "purpose": "add error handling",
-      "result": "success",
-      "tokens_used": 800,
-      "decision_point": true,
-      "alternatives_considered": [
-        "try/except",
-        "result type",
-        "assertion"
-      ],
-      "rationale": "try/except matches existing patterns"
-    }
-  ],
-  "attribution": {
-    "success_factors": [
-      "followed existing patterns",
-      "tested incrementally"
+  "schema_version": "session-capture/1",
+  "session_id": "2026-04-14-abc12345",
+  "timestamp": "2026-04-14T10:30:00Z",
+  "source": "trace-capture",
+  "payload": {
+    "trace_id": "session-{date}-{hash}",
+    "skill": "attune:project-execution",
+    "started": "2026-04-14T10:30:00Z",
+    "completed": "2026-04-14T10:32:15Z",
+    "outcome": "success",
+    "capture_mode": "decision-only",
+    "steps": [
+      {
+        "tool": "Read",
+        "target": "src/main.py",
+        "purpose": "understand entry point",
+        "result": "success",
+        "tokens_used": 1200,
+        "decision_point": false
+      },
+      {
+        "tool": "Edit",
+        "target": "src/main.py:45",
+        "purpose": "add error handling",
+        "result": "success",
+        "tokens_used": 800,
+        "decision_point": true,
+        "alternatives_considered": [
+          "try/except",
+          "result type",
+          "assertion"
+        ],
+        "rationale": "try/except matches existing patterns"
+      }
     ],
-    "failure_factors": [],
-    "key_decisions": [
-      "chose try/except over result type at step 4"
-    ]
+    "attribution": {
+      "success_factors": [
+        "followed existing patterns",
+        "tested incrementally"
+      ],
+      "failure_factors": [],
+      "key_decisions": [
+        "chose try/except over result type at step 4"
+      ]
+    }
   }
 }
 ```
+
+Legacy traces written before envelope adoption are read
+as ``session-capture/0`` (entire file treated as the
+payload). See ``docs/adr/0011-session-capture-envelope.md``
+for the contract and migration path.
 
 ## Capture Modes
 

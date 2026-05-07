@@ -53,8 +53,7 @@ class Finding:
             )
         except KeyError as exc:
             raise KeyError(
-                f"Finding.from_dict missing required field {exc}: "
-                f"keys present = {sorted(d.keys())}"
+                f"Finding.from_dict missing required field {exc}: keys present = {sorted(d.keys())}"
             ) from exc
 
 

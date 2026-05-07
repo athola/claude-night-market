@@ -4,6 +4,7 @@
 Verifies that commits include test files alongside implementation changes.
 Part of Iron Law TDD enforcement (Level 4: Pre-Commit Hooks).
 """
+
 import subprocess
 import sys
 
@@ -12,14 +13,17 @@ def get_staged_files():
     """Get list of staged Python files."""
     result = subprocess.run(
         ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-        capture_output=True, text=True
+        capture_output=True,
+        text=True,
     )
     return [f for f in result.stdout.strip().split("\n") if f.endswith(".py")]
 
 
 def check_tdd_compliance(staged_files):
     """Check that implementation files have corresponding test files."""
-    impl_files = [f for f in staged_files if not f.startswith("tests/") and "test_" not in f]
+    impl_files = [
+        f for f in staged_files if not f.startswith("tests/") and "test_" not in f
+    ]
     test_files = [f for f in staged_files if f.startswith("tests/") or "test_" in f]
 
     if impl_files and not test_files:
