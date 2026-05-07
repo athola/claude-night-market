@@ -9,6 +9,7 @@
     "./commands/do-issue.md",
     "./commands/fix-pr.md",
     "./commands/fix-workflow.md",
+    "./commands/fixit.md",
     "./commands/git-catchup.md",
     "./commands/merge-docs.md",
     "./commands/pr-review.md",
