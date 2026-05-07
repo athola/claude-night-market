@@ -795,7 +795,7 @@ class TestAtomicIncrement:
         self, hook_module, tmp_path, monkeypatch
     ):
         """
-        Scenario: Document the 50-thread Windows-fallback behavior (#423 gap 1)
+        Scenario: Document the 50-thread Windows-fallback behavior
         Given _HAS_FCNTL=False (Windows / free-threaded interpreters)
           And os.read is patched to sleep 5ms inside the RMW window
           And 50 threads are released simultaneously
@@ -855,7 +855,7 @@ class TestAtomicIncrement:
         self, hook_module, tmp_path, monkeypatch
     ):
         """
-        Scenario: fchmod failure does not break increment (#423 gap 3)
+        Scenario: fchmod failure does not break increment
         Given the underlying filesystem rejects fchmod (e.g. some FUSE
               mounts, network filesystems)
         When _atomic_increment runs
@@ -896,7 +896,7 @@ class TestAtomicIncrement:
         self, hook_module, tmp_path, capsys, monkeypatch
     ):
         """
-        Scenario: flock unavailability surfaces as a stderr warning (#438)
+        Scenario: flock unavailability surfaces as a stderr warning
         Given fcntl.flock raises OSError (e.g. NFS, exhausted fd table)
         When _atomic_increment runs
         Then the increment still completes
@@ -916,6 +916,77 @@ class TestAtomicIncrement:
         captured = capsys.readouterr()
         assert "flock unavailable" in captured.err
         assert "[vow-bounded-reads] WARN" in captured.err
+
+    @pytest.mark.unit
+    def test_flock_runtimeerror_also_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock raises a non-OSError condition (FUSE/Windows shim)
+        Given _fcntl.flock raises RuntimeError on a platform that
+        loaded fcntl but does not actually support flock at runtime
+        When _atomic_increment runs
+        Then the increment still completes
+        And the "flock unavailable" warning still fires.
+
+        Regression: a narrow ``except OSError`` would propagate the
+        RuntimeError to the outer ``except Exception`` and surface
+        only as the generic "counter increment failed" line, losing
+        the specific flock-unavailability signal.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping non-OSError flock test")
+
+        def raising_flock(_fd, _op):
+            raise RuntimeError("simulated FUSE-layer flock not implemented")
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        path = tmp_path / "vow_read_counter_flock_rt.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unavailable" in captured.err, (
+            f"non-OSError flock failures must surface the same warning; "
+            f"got: {captured.err!r}"
+        )
+
+    @pytest.mark.unit
+    def test_unlock_failure_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock(LOCK_UN) fails after a successful LOCK_EX
+        Given an environment where unlock raises OSError
+              (lock leak risk, e.g. fd already closed by signal handler)
+        When _atomic_increment runs to completion
+        Then a "[vow-bounded-reads] WARN: flock unlock failed" line is on stderr
+        And the increment still returns the new count.
+
+        Asymmetry between acquire-side and release-side observability
+        was previously a silent failure mode -- a leaked lock on
+        shutdown showed nothing in the operator log. This test pins
+        the symmetric pattern.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping unlock warning test")
+
+        original_flock = hook_module._fcntl.flock
+        unlock_op = hook_module._fcntl.LOCK_UN
+
+        def selective_flock(fd, op):
+            if op == unlock_op:
+                raise OSError(9, "Bad file descriptor (simulated)")
+            return original_flock(fd, op)
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", selective_flock)
+        path = tmp_path / "vow_read_counter_unlock_warn.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unlock failed" in captured.err, (
+            f"unlock failures must be surfaced for symmetry with the "
+            f"acquire-side warning; got: {captured.err!r}"
+        )
 
     @pytest.mark.unit
     def test_atomic_increment_survives_corrupt_file(self, hook_module, tmp_path):

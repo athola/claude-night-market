@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Validate Imbue plugin review workflow and evidence management skills."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 # Bootstrap leyline so we can use its add_plugin_src_to_path helper
 # to discover the sibling 'abstract' plugin (AR-15).
@@ -25,14 +28,22 @@ try:
         format_validator_report,
     )
 except (ImportError, FileNotFoundError):
-    from pathlib import Path as _Path  # local alias to avoid shadowing
-    from typing import Any as _Any
+    # Fallback path: signal degraded mode at module load so operators
+    # see why the report shape might differ from the canonical helper.
+    # Suppressed under pytest so deliberate fallback-coverage tests do
+    # not spam stderr.
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        print(
+            "[imbue-validator] WARN: using local fallback for "
+            "format_validator_report (abstract plugin not on sys.path)",
+            file=sys.stderr,
+        )
 
     def format_validator_report(  # type: ignore[misc]  # redefinition needed for import fallback
         title: str,
-        plugin_root: "_Path",
+        plugin_root: Path,
         skill_file_count: int,
-        metadata: list[tuple[str, "_Any"]],
+        metadata: list[tuple[str, Any]],
         issues: list[str],
         success_message: str = "All validations passed successfully!",
     ) -> str:

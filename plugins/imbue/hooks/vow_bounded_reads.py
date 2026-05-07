@@ -44,6 +44,15 @@ try:
 except ImportError:  # pragma: no cover - exercised only on non-POSIX
     _fcntl = None  # type: ignore[assignment]  # intentional None sentinel; guarded by _HAS_FCNTL at call sites
     _HAS_FCNTL = False
+    # One-shot operator signal so non-POSIX hosts see parity with the
+    # POSIX-side flock-failure warning. Suppressed under pytest so unit
+    # runs that exercise the no-fcntl path do not spam stderr.
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        print(
+            "[vow-bounded-reads] WARN: fcntl unavailable on this platform; "
+            "counter increments are not atomic under concurrent reads",
+            file=sys.stderr,
+        )
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
@@ -122,10 +131,12 @@ def _atomic_increment(path: Path) -> int:
         if _HAS_FCNTL and _fcntl is not None:
             try:
                 _fcntl.flock(fd, _fcntl.LOCK_EX)
-            except OSError as exc:
+            except (OSError, RuntimeError, NotImplementedError) as exc:
                 # Lock unavailable (NFS quirks, exhausted fd table, OS
-                # limits). Emit a warning so operators have a signal that
-                # the concurrency guarantee is absent on this invocation,
+                # limits, FUSE/Windows-shim layers that surface the
+                # condition as RuntimeError or NotImplementedError).
+                # Emit a warning so operators have a signal that the
+                # concurrency guarantee is absent on this invocation,
                 # then fall through to unlocked RMW.
                 print(
                     f"[vow-bounded-reads] WARN: flock unavailable, "
@@ -164,8 +175,14 @@ def _atomic_increment(path: Path) -> int:
             if _HAS_FCNTL and _fcntl is not None:
                 try:
                     _fcntl.flock(fd, _fcntl.LOCK_UN)
-                except OSError:
-                    pass
+                except (OSError, RuntimeError, NotImplementedError) as exc:
+                    # Asymmetry with the acquire-side warning above
+                    # would hide a lock leak on shutdown. Surface the
+                    # failure so it shows up in operator triage.
+                    print(
+                        f"[vow-bounded-reads] WARN: flock unlock failed: {exc}",
+                        file=sys.stderr,
+                    )
             try:
                 os.close(fd)
             except OSError:

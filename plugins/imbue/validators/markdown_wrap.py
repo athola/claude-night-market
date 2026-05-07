@@ -195,7 +195,7 @@ def validate_files(
     outside *root* (or the validator root from IMBUE_VALIDATOR_ROOT /
     cwd). Library callers default to the permissive mode; the stdin
     driver (``main``) opts in to enforcement to defend against
-    caller-supplied paths in JSON payloads (PR #417 finding NB2).
+    caller-supplied paths in JSON payloads.
     """
     all_evidence: list[dict[str, Any]] = []
     inconclusive = False
@@ -277,7 +277,7 @@ def main() -> None:
 
     if "files" in payload:
         # Stdin-driven path: enforce workspace root to defend against
-        # caller-supplied paths escaping cwd (PR #417 finding NB2).
+        # caller-supplied paths escaping cwd.
         result = validate_files(
             list(payload["files"]), max_width=max_width, enforce_root=True
         )

@@ -323,7 +323,7 @@ class TestPathRestriction:
     As a CI invoker
     I want validate_files to refuse paths outside the workspace
     So that a malicious payload cannot make the validator open
-    /etc/passwd or other sensitive files (PR #417 finding NB2).
+    /etc/passwd or other sensitive files.
     """
 
     @pytest.mark.unit
@@ -378,3 +378,61 @@ class TestPathRestriction:
         """IMBUE_VALIDATOR_ROOT honored when set."""
         monkeypatch.setenv("IMBUE_VALIDATOR_ROOT", str(tmp_path))
         assert validator_module._validator_root() == tmp_path.resolve()
+
+    @pytest.mark.unit
+    def test_symlink_inside_root_pointing_outside_is_rejected(
+        self, validator_module, tmp_path
+    ):
+        """
+        Scenario: An attacker plants a symlink inside the workspace
+                  pointing to a sensitive file outside the workspace.
+        Given a symlink ``tmp_path/sneaky.md`` -> ``/etc/passwd``
+        When _is_path_safe is asked about the symlink with root=tmp_path
+        Then the path is rejected (False).
+
+        Regression: a regression that swapped ``Path.resolve()`` for
+        ``Path.absolute()`` would NOT follow the symlink and would
+        accept ``tmp_path/sneaky.md`` as inside-root, exposing
+        ``/etc/passwd`` to a markdown-wrap reader. The
+        implementation docstring at markdown_wrap.py:58 promises
+        symlink resolution; this test pins that contract.
+        """
+        target = "/etc/passwd"
+        if not Path(target).exists():
+            pytest.skip(f"{target} not present on this platform")
+        attacker = tmp_path / "sneaky.md"
+        try:
+            attacker.symlink_to(target)
+        except (OSError, NotImplementedError):
+            pytest.skip("symlinks not supported on this platform")
+
+        assert validator_module._is_path_safe(str(attacker), root=tmp_path) is False, (
+            "symlink whose target lies outside the workspace root must be "
+            "rejected; otherwise a writer of files inside the workspace "
+            "can read arbitrary files via symlink redirection"
+        )
+
+    @pytest.mark.unit
+    def test_symlink_inside_root_pointing_inside_is_safe(
+        self, validator_module, tmp_path
+    ):
+        """
+        Scenario: A symlink inside the workspace pointing to another
+                  file inside the workspace should still pass.
+        Given a real file ``tmp_path/real.md``
+        And a symlink ``tmp_path/link.md`` -> ``tmp_path/real.md``
+        When _is_path_safe is asked about the symlink
+        Then the path is accepted (True).
+
+        Negative control for the previous test: confirms the
+        symlink-rejection logic does not over-reject benign symlinks.
+        """
+        real = tmp_path / "real.md"
+        real.write_text("short prose\n", encoding="utf-8")
+        link = tmp_path / "link.md"
+        try:
+            link.symlink_to(real)
+        except (OSError, NotImplementedError):
+            pytest.skip("symlinks not supported on this platform")
+
+        assert validator_module._is_path_safe(str(link), root=tmp_path) is True

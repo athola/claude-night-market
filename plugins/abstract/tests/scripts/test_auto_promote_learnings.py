@@ -832,8 +832,138 @@ class TestAutoImprovementGate:
 
         record_data = json.loads(record_path.read_text())
         promoted = record_data.get("promoted", record_data)
-        gated_keys = [k for k, v in promoted.items() if v == "gated-pending-issue-461"]
+        gated_keys = [k for k, v in promoted.items() if v == "gated-auto-improvement"]
         assert gated_keys, (
-            "gated skill must be recorded with 'gated-pending-issue-461' marker so the "
-            "investigation can be tracked"
+            "gated skill must be recorded with the stable 'gated-auto-improvement' "
+            "marker so the investigation can be tracked without an embedded issue "
+            "number that will rot"
+        )
+
+    def test_gate_does_not_overwrite_existing_promotion_url(
+        self,
+        promote_module,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Given: A gated skill was previously promoted to a real issue URL
+        When: run_auto_promote() processes the same item again
+        Then: The pre-existing real URL is preserved (not clobbered).
+        And: A stderr signal is emitted naming the gated skill.
+
+        Regression: prior to this fix the gate ran before the is_promoted
+        check, so each invocation overwrote real URLs with the gated
+        marker, destroying the audit trail.
+        """
+        record_path = tmp_path / "promoted_issues.json"
+        learnings_path = tmp_path / "LEARNINGS.md"
+        learnings_path.write_text(SAMPLE_LEARNINGS_MD)
+
+        # Pre-populate the record with a real GitHub issue URL for the
+        # gated skill, simulating a successful prior promotion.
+        existing_url = "https://github.com/athola/claude-night-market/issues/9999"
+        record_path.write_text(
+            json.dumps(
+                {
+                    "promoted": {
+                        "abstract:skill-auditor:high_failure_rate": existing_url,
+                    }
+                }
+            )
+        )
+
+        monkeypatch.setattr(
+            promote_module, "get_learnings_path", lambda: learnings_path
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "detect_target_repo",
+            lambda: ("athola", "claude-night-market"),
+        )
+        monkeypatch.setattr(
+            promote_module, "get_promoted_record_path", lambda: record_path
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "parse_improvement_items",
+            lambda _content: [
+                {
+                    "skill": "abstract:skill-auditor",
+                    "type": "high_failure_rate",
+                    "severity": "high",
+                    "success_rate": 40.0,
+                    "frequency": 24,
+                }
+            ],
+        )
+
+        promote_called = MagicMock()
+        post_called = MagicMock()
+        monkeypatch.setattr(promote_module, "promote_to_issue", promote_called)
+        monkeypatch.setattr(promote_module, "post_to_discussion", post_called)
+        monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_: False)
+
+        promote_module.run_auto_promote()
+
+        record_data = json.loads(record_path.read_text())
+        promoted = record_data.get("promoted", record_data)
+        assert (
+            promoted.get("abstract:skill-auditor:high_failure_rate") == existing_url
+        ), (
+            "gate must not overwrite a previously-stored real promotion URL; "
+            f"got {promoted.get('abstract:skill-auditor:high_failure_rate')!r}"
+        )
+        assert not promote_called.called
+        assert not post_called.called
+
+    def test_gate_emits_stderr_signal(
+        self,
+        promote_module,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+        tmp_path: Path,
+    ) -> None:
+        """Given: A first-time gated item
+        When: run_auto_promote() processes it
+        Then: A stderr line names the gated skill so operators see the
+              gate is active and items are being deferred.
+        """
+        record_path = tmp_path / "promoted_issues.json"
+        learnings_path = tmp_path / "LEARNINGS.md"
+        learnings_path.write_text(SAMPLE_LEARNINGS_MD)
+
+        monkeypatch.setattr(
+            promote_module, "get_learnings_path", lambda: learnings_path
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "detect_target_repo",
+            lambda: ("athola", "claude-night-market"),
+        )
+        monkeypatch.setattr(
+            promote_module, "get_promoted_record_path", lambda: record_path
+        )
+        monkeypatch.setattr(
+            promote_module,
+            "parse_improvement_items",
+            lambda _content: [
+                {
+                    "skill": "abstract:skill-auditor",
+                    "type": "high_failure_rate",
+                    "severity": "high",
+                    "success_rate": 40.0,
+                    "frequency": 24,
+                }
+            ],
+        )
+        monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_: False)
+
+        promote_module.run_auto_promote()
+
+        captured = capsys.readouterr()
+        assert "abstract:skill-auditor" in captured.err, (
+            "stderr must name the gated skill so operators have a visible "
+            "signal that items were deferred"
+        )
+        assert "gate" in captured.err.lower() or "gated" in captured.err.lower(), (
+            "stderr must indicate gating, not just print the skill name"
         )

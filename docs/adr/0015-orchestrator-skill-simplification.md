@@ -26,7 +26,7 @@ Adopt the **two-phase plan** the issue proposes.
 
 ### Phase 1: Usage-data collection (current step)
 
-For 30 days starting from this ADR's release date, leverage
+For 30 days starting from this ADR's release date, use
 existing observability data (``abstract:skills-eval`` runs,
 session logs) to capture for each of the four skills:
 

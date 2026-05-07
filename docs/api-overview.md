@@ -4,10 +4,10 @@
 
 ## API Surface Summary
 
-Claude Night Market consists of 23 plugins that provide
-CLI commands, Python packages, and skill-based APIs.
-These tools support a range of workflows, from code
-review to knowledge management.
+Claude Night Market exposes 23 plugins through CLI
+commands, Python packages, and skill-based APIs. The
+inventory below is the canonical surface; per-plugin
+details follow in the next section.
 
 ## API Inventory
 
@@ -233,10 +233,12 @@ problem solving).
 
 ## API Quality Assessment
 
-We enforce documentation and type safety using `ruff`, `mypy`, and `bandit`.
-All plugins adhere to a standard directory structure to ensure discovery.
-Our current focus is on normalizing command naming across plugins
-and clarifying export patterns for cross-plugin dependencies.
+Plugins are validated by `ruff`, `mypy`, and `bandit` in CI; the
+`make validate` target runs the same gates locally. Directory
+structure is verified by `abstract:validate-plugin` and the
+`/sanctum:update-plugins` audit. Current focus: normalizing command
+naming across plugins and clarifying export patterns for cross-plugin
+dependencies.
 
 ## Enterprise Configuration (2.1.51+)
 

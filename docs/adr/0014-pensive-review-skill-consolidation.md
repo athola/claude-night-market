@@ -21,12 +21,12 @@ Adopt the consolidation plan with **separate PRs per skill** and
 
 ### Sequence
 
-1. **PR-A: shell-review** -> move content into
+1. **PR-A: shell-review**: move content into
    ``pensive:unified-review/modules/shell-review.md``; replace
    the public ``/shell-review`` slash command with a thin alias
    that invokes unified-review with the shell selector. Migrate
    tests.
-2. **PR-B: makefile-review** -> identical pattern, separate PR
+2. **PR-B: makefile-review**: identical pattern, separate PR
    so review surface stays small.
 
 ### Compatibility
@@ -53,7 +53,7 @@ Any remaining external references convert to
 
 ### Positive
 
-- Two fewer top-level skills in pensive (9 -> 7), reducing the
+- Two fewer top-level skills in pensive (9 to 7), reducing the
   "9 review skills, all named alike" cognitive load.
 - Single ownership of the review scaffold inside unified-review.
 - Future review-domain additions land as modules, not new skills.

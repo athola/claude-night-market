@@ -520,28 +520,39 @@ def run_auto_promote() -> list[str]:
     record = PromotedIssueRecord.load()
     created_urls: list[str] = []
 
-    # Auto-improvement gate (issue #461): three closure cycles for
+    # Auto-improvement gate (see issue #461): three closure cycles for
     # ``abstract:skill-auditor`` did not resolve the recurring failure
     # pattern. Suppress further auto-promotion for this skill until the
     # root-cause investigation completes; reset by removing this set.
+    # The persisted marker uses a stable label (``gated-auto-improvement``)
+    # rather than the issue number, so the audit trail stays meaningful
+    # after the issue closes.
     auto_improvement_gate: frozenset[str] = frozenset(
         {
             "abstract:skill-auditor",
         }
     )
 
+    gated_count = 0
     for item in items:
-        if item.get("skill") in auto_improvement_gate:
-            record.add(
-                f"{item['skill']}:{item.get('type', 'unknown')}",
-                "gated-pending-issue-461",
-            )
-            record.save()
-            continue
-
         key = f"{item['skill']}:{item.get('type', 'unknown')}"
 
+        # Honor existing promotions before consulting the gate, so a
+        # previously-stored real URL is never overwritten by the gated
+        # marker. Without this ordering the record is rewritten on every
+        # invocation and real promotion URLs are lost.
         if record.is_promoted(key):
+            continue
+
+        if item.get("skill") in auto_improvement_gate:
+            print(
+                f"[auto-promote] gated: {item['skill']} "
+                f"({item.get('type', 'unknown')}) — see issue #461",
+                file=sys.stderr,
+            )
+            record.add(key, "gated-auto-improvement")
+            record.save()
+            gated_count += 1
             continue
 
         score = calculate_priority(item)

@@ -193,7 +193,7 @@ class TestCorruptFileRecovery:
     As the Night Market vow enforcement system
     I want reset to overwrite garbage in the counter file
     So that a corrupt state from a prior crashed write is healed
-    on the next Write/Edit cycle (#423 gap 2).
+    on the next Write/Edit cycle.
     """
 
     @pytest.mark.unit
@@ -224,3 +224,93 @@ class TestCorruptFileRecovery:
         hook_module._atomic_reset(path)
         parsed = json.loads(path.read_bytes())
         assert parsed == {"count": 0}
+
+
+class TestResetFlockObservability:
+    """Mirror the increment-side flock visibility tests on the reset path.
+
+    The corrupt-file tests above pass against any implementation that
+    overwrites garbage with a valid document; they do not exercise the
+    locking contract the reset hook actually relies on. These tests
+    target the flock branch directly so a regression that drops the
+    lock (or its observability) fails immediately.
+    """
+
+    @pytest.mark.unit
+    def test_flock_failure_emits_stderr_warning_on_reset(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: flock acquisition raises during _atomic_reset
+        Given a system where _fcntl.flock raises OSError(EACCES)
+        When _atomic_reset is called
+        Then a stderr line names "flock unavailable on reset"
+        And the function still completes without raising
+        And the counter is reset to zero via the unlocked path.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable on this platform")
+
+        path = tmp_path / "vow_read_counter_flock_reset.json"
+        path.write_bytes(b'{"count": 7}')
+
+        original_flock = hook_module._fcntl.flock
+        call_log = []
+
+        def fake_flock(fd, op):
+            call_log.append(op)
+            # Raise on LOCK_EX, allow LOCK_UN to proceed (so finally
+            # cleanup mirrors real behavior).
+            if op == hook_module._fcntl.LOCK_EX:
+                raise OSError(13, "Permission denied (simulated)")
+            return original_flock(fd, op)
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", fake_flock)
+
+        hook_module._atomic_reset(path)
+
+        captured = capsys.readouterr()
+        assert "flock unavailable on" in captured.err and "reset" in captured.err, (
+            f"reset path must surface flock failures with the same loud "
+            f"signal as the increment path; got: {captured.err!r}"
+        )
+        # The unlocked-fallback truncate must still produce a valid
+        # zero document so the reset contract is not silently dropped.
+        assert json.loads(path.read_bytes()) == {"count": 0}
+
+    @pytest.mark.unit
+    def test_flock_runtimeerror_also_emits_stderr_warning(
+        self, hook_module, capsys, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: flock raises a non-OSError condition on reset
+        Given some FUSE/Windows-shim layer raises RuntimeError
+        When _atomic_reset is called
+        Then the warning still fires (broadened except clause).
+
+        Regression: a narrow ``except OSError`` would let the error
+        propagate to the outer handler and lose the specific
+        "flock unavailable on reset" signal.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable on this platform")
+
+        path = tmp_path / "vow_read_counter_flock_rt_reset.json"
+        path.write_bytes(b'{"count": 3}')
+
+        original_flock = hook_module._fcntl.flock
+
+        def fake_flock(fd, op):
+            if op == hook_module._fcntl.LOCK_EX:
+                raise RuntimeError("simulated FUSE-layer failure")
+            return original_flock(fd, op)
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", fake_flock)
+
+        hook_module._atomic_reset(path)
+
+        captured = capsys.readouterr()
+        assert "flock unavailable on" in captured.err, (
+            f"non-OSError flock failures must also be surfaced; got: {captured.err!r}"
+        )
+        assert json.loads(path.read_bytes()) == {"count": 0}
