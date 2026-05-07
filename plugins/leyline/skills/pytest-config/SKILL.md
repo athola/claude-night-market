@@ -1,7 +1,7 @@
 ---
 name: pytest-config
 description: 'Standardized pytest config with reusable fixtures and CI integration.'
-version: 1.9.4
+version: 1.9.5
 globs: ["**/conftest.py", "**/pytest.ini", "**/pyproject.toml"]
 alwaysApply: false
 category: infrastructure

@@ -1,7 +1,7 @@
 ---
 name: cpu-gpu-performance
 description: 'Establish CPU/GPU baselines before resource-intensive operations.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 progressive_loading: true
 dependencies:

@@ -1,7 +1,7 @@
 ---
 name: service-registry
 description: 'Service registry for external services: health checks, central config, unified execution.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

@@ -1,7 +1,7 @@
 ---
 name: doc-consolidation
 description: 'Merge report and analysis artifacts into permanent docs.'
-version: 1.9.4
+version: 1.9.5
 globs: "**/*.md"
 alwaysApply: false
 category: documentation

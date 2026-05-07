@@ -1,7 +1,7 @@
 ---
 name: error-patterns
 description: 'Error handling patterns: classification, recovery, logging, graceful degradation, resilience.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

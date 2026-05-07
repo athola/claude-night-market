@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from conftest import _module_listed
 
 SKILL_DIR = (
     Path(__file__).resolve().parent.parent.parent.parent / "skills" / "slop-detector"
@@ -81,7 +82,9 @@ class TestSkillMdWiresInNewModules:
         """Each new module must appear in frontmatter `modules:` list."""
         fm = _parse_frontmatter(skill_text)
         modules = fm.get("modules", [])
-        assert module in modules, f"slop-detector frontmatter must list '{module}'"
+        assert _module_listed(module, modules), (
+            f"slop-detector frontmatter must list '{module}'"
+        )
 
     @pytest.mark.unit
     @pytest.mark.parametrize("module", NEW_MODULES)

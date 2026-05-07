@@ -1,7 +1,7 @@
 ---
 name: slop-detector
 description: 'Detect AI-generated markers in prose.'
-version: 1.9.4
+version: 1.9.5
 globs: "**/*.md"
 alwaysApply: false
 category: writing-quality

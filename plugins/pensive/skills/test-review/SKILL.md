@@ -1,7 +1,7 @@
 ---
 name: test-review
 description: 'Evaluate test suites for coverage gaps and TDD/BDD compliance.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: testing
 tags:

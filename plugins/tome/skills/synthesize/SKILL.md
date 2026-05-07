@@ -1,7 +1,7 @@
 ---
 name: synthesize
 description: 'Merge, dedupe, rank, and format research findings into a report.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: synthesis
 tags:

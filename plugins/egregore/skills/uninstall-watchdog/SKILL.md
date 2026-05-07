@@ -1,7 +1,7 @@
 ---
 name: uninstall-watchdog
 description: 'Remove the egregore watchdog daemon and its associated files.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: setup
 tools: []

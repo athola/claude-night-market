@@ -1,7 +1,7 @@
 ---
 name: context-map
 description: 'Generate a compressed project context map.'
-version: 1.9.4
+version: 1.9.5
 category: optimization
 tags:
   - context

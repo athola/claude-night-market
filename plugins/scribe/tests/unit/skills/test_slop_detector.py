@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from conftest import _module_listed
 
 SKILL_DIR = (
     Path(__file__).resolve().parent.parent.parent.parent / "skills" / "slop-detector"
@@ -48,7 +49,7 @@ class TestDocumentEconomyModuleExists:
         """Frontmatter `modules:` must include document-economy."""
         fm = _parse_frontmatter(SKILL_FILE.read_text())
         modules = fm.get("modules", [])
-        assert "document-economy" in modules, (
+        assert _module_listed("document-economy", modules), (
             "document-economy must be listed in slop-detector SKILL.md frontmatter modules"
         )
 

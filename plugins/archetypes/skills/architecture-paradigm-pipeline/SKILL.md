@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-pipeline
 description: 'Design pipes-and-filters for sequential data transformations.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

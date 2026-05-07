@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.5] - 2026-05-07
+
+### Fixed
+
+- **PR #417 review batch (24 issues closed)**: bugfix-only
+  release rolling up the imbue hook hardening, imbue test
+  reliability, docs slop fixes, cross-plugin refactors,
+  abstract plugin work, and policy / research / features
+  threads tracked under issues #420--#462. Resolves
+  #420, #421, #422, #423, #438, #439, #440, #441, #442,
+  #443, #444, #450, #451, #452, #453, #454, #455, #456,
+  #457, #458, #459, #460, #461, and #462. Test suites
+  pass: imbue 635, leyline 656 (89.58% coverage), abstract
+  2186 (3 xfailed). See commit `237e4819` for the file map.
+
 ## [1.9.4] - 2026-05-03
 
 ### Session summaries (PR #470)

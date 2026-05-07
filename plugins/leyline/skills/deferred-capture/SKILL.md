@@ -1,7 +1,7 @@
 ---
 name: deferred-capture
 description: 'Deferred-item capture across plugins: CLI, template, taxonomy.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 model_hint: standard
 ---

@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-microkernel
 description: 'Microkernel architecture with a minimal core and plugin-based extensibility for platforms.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

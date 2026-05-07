@@ -1,7 +1,7 @@
 ---
 name: scope-guard
 description: 'Pre-implementation scope control: worthiness scoring, branch-size limits.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: workflow-methodology
 tags:

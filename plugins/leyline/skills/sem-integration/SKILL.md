@@ -1,7 +1,7 @@
 ---
 name: sem-integration
 description: 'Foundation for sem (semantic diff CLI) integration: detection, install-on-first-use, output normalization.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

@@ -1,7 +1,7 @@
 ---
 name: token-conservation
 description: 'Enforce token quota management at session start with conservation rules, delegation checks, and compression review.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: true
 progressive_loading: true
 dependencies:

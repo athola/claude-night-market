@@ -1,7 +1,7 @@
 ---
 name: triz
 description: 'TRIZ cross-domain analogical reasoning to find solutions from adjacent fields.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: research
 tags:

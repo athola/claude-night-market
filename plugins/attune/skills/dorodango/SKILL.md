@@ -1,7 +1,7 @@
 ---
 name: dorodango
 description: "Iteratively polish code through successive quality passes run in fresh subagents."
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: workflow
 tags:

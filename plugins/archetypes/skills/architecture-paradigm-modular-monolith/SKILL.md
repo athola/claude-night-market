@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-modular-monolith
 description: 'Single deployable with enforced module boundaries.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

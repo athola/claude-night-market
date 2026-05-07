@@ -1,7 +1,7 @@
 ---
 name: testing-quality-standards
 description: 'Testing quality metrics, coverage thresholds, and anti-patterns.'
-version: 1.9.4
+version: 1.9.5
 globs: "**/test_*.py"
 alwaysApply: false
 category: infrastructure

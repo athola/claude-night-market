@@ -1,7 +1,7 @@
 ---
 name: smart-sourcing
 description: Select optimal information sources for tool calls and file reads, balancing accuracy with token efficiency.
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 usage_patterns:
 - "research"

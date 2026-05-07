@@ -1,7 +1,7 @@
 ---
 name: summon
 description: 'Autonomous orchestrator processing manifest work items through the development lifecycle with budget tracking.'
-version: 1.9.4
+version: 1.9.5
 alwaysApply: false
 category: orchestration
 tags:
