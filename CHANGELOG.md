@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **PR #511 review batch (23 threads resolved)**:
+  - Python 3.9 compatibility: replaced `from datetime import
+    UTC` (3.11+ alias) with `from datetime import timezone`
+    plus `timezone.utc` across 11 files in leyline, minister,
+    and sanctum tests. Most consequential fix was
+    `plugins/leyline/src/leyline/deferred_capture.py`, which
+    is library code documented as 3.9-compatible.
+  - Removed `auto_improvement_gate` frozenset from
+    `auto_promote_learnings.py` and its three supporting
+    tests. The gate was suppressing recurring
+    `abstract:skill-auditor` failures (issue #461) instead
+    of fixing them; with the gate removed, normal auto-promote
+    will surface the failures so root cause can be addressed.
+  - Merged `docs/observability-hook-audit.md` into a new
+    module `plugins/abstract/skills/hook-authoring/modules/
+    observability-warnings.md` (registered in the
+    hook-authoring SKILL.md module references) and deleted
+    the source. The pattern, three-category classification
+    (binary-actionable, observe-only, needs-triage),
+    counter-examples, and authoring checklist are preserved.
+  - Replied to and resolved 19 "Why is this being removed?"
+    threads. All flagged the same change: removing
+    `#!/usr/bin/env python3` shebangs from non-executable
+    Python modules and test files per PEP 394 and ruff's
+    EXE001 rule. Shebangs belong only on entry-point
+    scripts.
+
 ### Added
 
 - **`/fix-pr` Step 5: HTTP, browser, and Playwright

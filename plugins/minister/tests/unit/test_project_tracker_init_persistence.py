@@ -8,7 +8,7 @@ Covers:
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from minister.project_tracker import InitiativeTracker, ProjectTracker, Task
@@ -227,7 +227,7 @@ class TestDataPersistence:
             created_date="2025-01-01T10:00:00",
             updated_date="2025-01-01T10:00:00",
         )
-        before_save = datetime.now(UTC)
+        before_save = datetime.now(timezone.utc)
 
         # Act
         empty_tracker.add_task(task)

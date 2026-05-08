@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import os
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -72,7 +72,7 @@ class TestImprovementVelocity:
         actions_dir = tmp_path / "stewardship"
         actions_dir.mkdir(parents=True)
         actions_file = actions_dir / "actions.jsonl"
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         t1 = (now - timedelta(days=5)).isoformat()
         t2 = (now - timedelta(days=3)).isoformat()
         t3 = (now - timedelta(days=1)).isoformat()

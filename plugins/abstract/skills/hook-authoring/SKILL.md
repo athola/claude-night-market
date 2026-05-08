@@ -613,6 +613,7 @@ For detailed guidance on specific topics:
 - **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
 - **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
 - **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures
+- **Observability Warnings**: `modules/observability-warnings.md` - Copy-pasteable resolution pattern for binary-actionable drift hooks
 
 ## Tools
 

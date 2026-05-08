@@ -15,7 +15,7 @@ Each scenario tests end-to-end functionality as experienced by actual users:
 from __future__ import annotations
 
 import csv
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -40,7 +40,7 @@ def _make_task(
     github_issue: str | None = None,
 ) -> Task:
     """Build a Task with sensible defaults for BDD tests."""
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     return Task(
         id=task_id,
         title=title,
