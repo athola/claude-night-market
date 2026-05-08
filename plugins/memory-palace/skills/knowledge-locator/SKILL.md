@@ -1,7 +1,6 @@
 ---
 name: knowledge-locator
 description: 'Search and navigate stored knowledge in memory palaces.'
-version: 1.9.5
 alwaysApply: false
 category: navigation
 tags:

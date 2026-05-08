@@ -1,7 +1,6 @@
 ---
 name: project-init
 description: 'Interactive project init: git, workflows, hooks, build config. Scaffold a new project.'
-version: 1.9.5
 alwaysApply: false
 model: claude-sonnet-4
 tools: []

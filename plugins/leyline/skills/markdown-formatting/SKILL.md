@@ -1,7 +1,6 @@
 ---
 name: markdown-formatting
 description: 'Markdown formatting conventions for diff-friendly docs.'
-version: 1.9.5
 globs: "**/*.md"
 alwaysApply: false
 category: cross-plugin-patterns

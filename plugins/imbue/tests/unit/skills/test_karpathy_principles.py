@@ -58,9 +58,9 @@ class TestKarpathyPrinciplesFrontmatter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_required_frontmatter_fields(self, skill_md: str) -> None:
-        """Frontmatter must declare name, description, version."""
+        """Frontmatter must declare name, description."""
         head = skill_md.split("---", 2)[1]
-        for field in ("name:", "description:", "version:"):
+        for field in ("name:", "description:"):
             assert field in head, f"missing frontmatter field: {field}"
 
     @pytest.mark.bdd

@@ -49,11 +49,10 @@ class TestFrictionDetectorFrontmatter:
 
         Given the friction-detector skill
         When parsing frontmatter
-        Then it should have name, description, version, and trigger
+        Then it should have name, description, and trigger
         """
         assert "name: friction-detector" in skill_content
         assert "description:" in skill_content
-        assert "version:" in skill_content
         assert "trigger:" in skill_content
 
     @pytest.mark.bdd

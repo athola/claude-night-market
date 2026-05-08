@@ -1,7 +1,6 @@
 ---
 name: architecture-paradigm-client-server
 description: 'Client-server architecture for web/mobile apps with centralized services and API design.'
-version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

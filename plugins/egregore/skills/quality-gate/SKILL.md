@@ -1,7 +1,6 @@
 ---
 name: quality-gate
 description: "Orchestrate egregore's QUALITY pipeline stage."
-version: 1.9.5
 alwaysApply: false
 category: orchestration
 tags:

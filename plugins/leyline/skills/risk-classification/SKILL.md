@@ -1,7 +1,6 @@
 ---
 name: risk-classification
 description: '4-tier risk classification for agent tasks. GREEN/YELLOW heuristic, RED/CRITICAL escalate to war-room-checkpoint.'
-version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

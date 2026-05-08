@@ -1,7 +1,6 @@
 ---
 name: quota-management
 description: 'Quota tracking, threshold monitoring, graceful degradation for rate-limited APIs.'
-version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

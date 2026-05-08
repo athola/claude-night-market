@@ -1,7 +1,6 @@
 ---
 name: performance-review
 description: 'Detect time and space complexity hotspots via AST scan.'
-version: 1.9.5
 alwaysApply: false
 category: code-quality
 tags:

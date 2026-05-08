@@ -1,7 +1,6 @@
 ---
 name: stack-push
 description: 'Push all branches in a stack and open or update dependent PRs.'
-version: 1.9.5
 alwaysApply: false
 category: workflow-automation
 tags:

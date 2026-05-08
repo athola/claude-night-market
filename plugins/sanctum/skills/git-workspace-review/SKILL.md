@@ -1,7 +1,6 @@
 ---
 name: git-workspace-review
 description: 'Verify workspace state and staged changes. Read-only preflight before commits or PRs.'
-version: 1.9.5
 alwaysApply: false
 category: workspace-ops
 tags:

@@ -1,7 +1,6 @@
 ---
 name: voice-generate
 description: 'Generate text in a learned writing voice.'
-version: 1.9.5
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

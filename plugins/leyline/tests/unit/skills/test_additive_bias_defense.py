@@ -120,17 +120,6 @@ class TestAdditiveBiasDefenseFrontmatter:
         assert len(fm["description"]) > 20, "description is too short to be meaningful"
 
     @pytest.mark.bdd
-    def test_frontmatter_has_version(self) -> None:
-        """Scenario: Version field present
-        Given the additive-bias-defense SKILL.md
-        When parsing frontmatter
-        Then a 'version' field should be present.
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert "version" in fm, "Frontmatter missing 'version' field"
-
-    @pytest.mark.bdd
     def test_frontmatter_category_is_quality_contract(self) -> None:
         """Scenario: Category reflects quality-contract purpose
         Given the additive-bias-defense SKILL.md

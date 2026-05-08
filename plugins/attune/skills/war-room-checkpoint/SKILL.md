@@ -1,7 +1,6 @@
 ---
 name: war-room-checkpoint
 description: 'Assess decision reversibility and risk at critical checkpoints.'
-version: 1.9.5
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

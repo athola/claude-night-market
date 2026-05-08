@@ -1,7 +1,6 @@
 ---
 name: project-planning
 description: 'Turn a specification into a phased implementation plan with dependency ordering.'
-version: 1.9.5
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

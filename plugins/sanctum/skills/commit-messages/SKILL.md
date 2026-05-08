@@ -1,7 +1,6 @@
 ---
 name: commit-messages
 description: 'Generate conventional commit messages from staged changes.'
-version: 1.9.5
 alwaysApply: false
 category: artifact-generation
 tags:

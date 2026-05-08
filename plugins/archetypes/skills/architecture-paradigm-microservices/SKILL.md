@@ -2,7 +2,6 @@
 name: architecture-paradigm-microservices
 role: library
 description: 'Apply microservices for independent deployment and per-service scaling.'
-version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

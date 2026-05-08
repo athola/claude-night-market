@@ -1,7 +1,6 @@
 ---
 name: architecture-paradigm-functional-core
 description: 'Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.'
-version: 1.9.5
 alwaysApply: false
 category: architectural-pattern
 tags:

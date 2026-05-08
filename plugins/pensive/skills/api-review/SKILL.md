@@ -2,7 +2,6 @@
 name: api-review
 role: library
 description: 'Evaluate API surface design, consistency, and exemplar alignment.'
-version: 1.9.5
 alwaysApply: false
 category: code-review
 tags:

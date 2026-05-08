@@ -1,7 +1,6 @@
 ---
 name: workflow-improvement
 description: 'Retrospective evaluation and improvement of skills, agents, commands, and hooks.'
-version: 1.9.5
 alwaysApply: false
 category: workflow-ops
 tags:

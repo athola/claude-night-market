@@ -1,7 +1,6 @@
 ---
 name: authentication-patterns
 description: 'Authentication patterns: API keys, OAuth, token management, credentials.'
-version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

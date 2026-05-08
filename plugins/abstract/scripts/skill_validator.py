@@ -211,7 +211,6 @@ class SkillValidator:
         required = [
             "name",
             "description",
-            "version",
             "category",
             "tags",
             "estimated_tokens",
@@ -228,10 +227,6 @@ class SkillValidator:
         # Description validation
         if "description" in fm:
             self._validate_description(fm["description"])
-
-        # Version validation
-        if "version" in fm:
-            self._validate_version(fm["version"])
 
         # Category validation
         if "category" in fm:
@@ -345,18 +340,6 @@ class SkillValidator:
         if len(desc.split()) < MIN_DESCRIPTION_WORDS:
             self.result.add_warning(
                 "Description has few words. Include more discovery terms.",
-            )
-
-    def _validate_version(self, version: str) -> None:
-        """Validate version follows semver."""
-        if not isinstance(version, str):
-            self.result.add_error("Version must be a string")
-            return
-
-        # Basic semver check: X.Y.Z
-        if not re.match(r"^\d+\.\d+\.\d+(-[a-z0-9.]+)?$", version):
-            self.result.add_error(
-                f"Version '{version}' invalid. Use semver: X.Y.Z (e.g., 1.0.0)",
             )
 
     def _validate_body(self, body: str) -> None:

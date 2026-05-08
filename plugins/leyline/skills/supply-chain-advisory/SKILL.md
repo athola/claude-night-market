@@ -1,7 +1,6 @@
 ---
 name: supply-chain-advisory
 description: 'Supply chain security: bad-version detection, incident response, lockfile audit, artifact scan.'
-version: 1.9.5
 alwaysApply: false
 category: infrastructure
 tags:

@@ -1,7 +1,7 @@
 """BDD tests for the gauntlet-curate skill.
 
 These tests verify the *behavior* described in SKILL.md:
-- The skill has valid frontmatter (name, description, version, model_hint)
+- The skill has valid frontmatter (name, description, model_hint)
 - The skill workflow never writes to data/problems/
 - The skill produces a report rather than mutating YAML files
 - The skill is registered in openpackage.yml
@@ -26,7 +26,8 @@ _MANIFEST = _PLUGIN_ROOT / "openpackage.yml"
 _SCRIPT = _PLUGIN_ROOT / "scripts" / "curate_problems.py"
 
 # Required frontmatter fields per issue #388 acceptance criteria.
-_REQUIRED_FRONTMATTER = {"name", "description", "version"}
+# Version was removed (was a duplicate of plugin.json, see CHANGELOG 1.9.6).
+_REQUIRED_FRONTMATTER = {"name", "description"}
 
 
 # ---------------------------------------------------------------------------
@@ -83,10 +84,10 @@ class TestGauntletCurateSkillFile:
     @pytest.mark.unit
     def test_skill_frontmatter_has_required_fields(self):
         """
-        Scenario: Frontmatter contains name, description, and version
+        Scenario: Frontmatter contains name and description
         Given the SKILL.md file
         When frontmatter is parsed
-        Then name, description, and version are all present and non-empty
+        Then name and description are present and non-empty
         """
         fm = _parse_skill_frontmatter(_SKILL_FILE)
         missing = _REQUIRED_FRONTMATTER - set(fm.keys())
@@ -104,21 +105,6 @@ class TestGauntletCurateSkillFile:
         """
         fm = _parse_skill_frontmatter(_SKILL_FILE)
         assert fm.get("name") == "gauntlet-curate"
-
-    @pytest.mark.unit
-    def test_skill_version_matches_plugin(self):
-        """
-        Scenario: Skill version matches the plugin version in openpackage.yml
-        Given the SKILL.md and openpackage.yml
-        When their versions are compared
-        Then they match
-        """
-        fm = _parse_skill_frontmatter(_SKILL_FILE)
-        pkg = _load_openpackage()
-        assert fm.get("version") == pkg.get("version"), (
-            f"Skill version {fm.get('version')!r} != "
-            f"plugin version {pkg.get('version')!r}"
-        )
 
     @pytest.mark.unit
     def test_skill_description_mentions_problem_bank(self):

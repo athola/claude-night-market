@@ -2,7 +2,6 @@
 name: code-search
 role: library
 description: 'Search GitHub for existing implementations, libraries, or patterns.'
-version: 1.9.5
 alwaysApply: false
 category: research
 tags:

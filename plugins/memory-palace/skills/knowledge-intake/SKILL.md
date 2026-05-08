@@ -1,7 +1,6 @@
 ---
 name: knowledge-intake
 description: 'Process external resources into stored knowledge with quality evaluation, curation routing, and application decisions.'
-version: 1.9.5
 alwaysApply: false
 category: governance
 tags:

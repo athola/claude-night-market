@@ -1,7 +1,6 @@
 ---
 name: shared-patterns
 description: 'Provide reusable patterns for validation, error handling, and test scaffolding. Use when ensuring consistency across skills.'
-version: 1.9.5
 alwaysApply: false
 category: meta-infrastructure
 tags:

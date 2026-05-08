@@ -1,7 +1,6 @@
 ---
 name: additive-bias-defense
 description: 'Inverts burden of proof for code additions.'
-version: 1.9.5
 alwaysApply: false
 category: quality-contract
 tags:

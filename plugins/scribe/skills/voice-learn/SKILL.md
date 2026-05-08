@@ -1,7 +1,6 @@
 ---
 name: voice-learn
 description: 'Learn from manual edits to improve voice profile. Compares pre-review, post-review, and edited text.'
-version: 1.9.5
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

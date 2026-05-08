@@ -36,7 +36,6 @@ Part of Issue #69 Phase 5, this command closes the self-improvement loop by:
    - How (implementation approach)
 5. **Optionally implements**:
    - Updates skill files
-   - Increments version in frontmatter
    - Runs validation tests
    - Creates commit
 
@@ -162,7 +161,6 @@ For each improvement (if not --dry-run):
 
 1. **Read skill file** (SKILL.md or skill module)
 2. **Apply changes**:
-   - Update frontmatter (increment version)
    - Modify content (add examples, fix errors, etc.)
    - Update changelog entry
 3. **Validate**:

@@ -1,7 +1,6 @@
 ---
 name: justify
 description: 'Post-implementation audit. Detects additive bias and test tampering.'
-version: 1.9.5
 alwaysApply: false
 category: workflow-methodology
 tags:

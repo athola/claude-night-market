@@ -1,7 +1,6 @@
 ---
 name: karpathy-principles
 description: 'Pre-implementation gate: think first, simplicity, surgical edits, verifiable goals.'
-version: 1.9.5
 alwaysApply: false
 category: discipline
 tags:

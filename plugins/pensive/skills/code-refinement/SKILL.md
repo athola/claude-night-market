@@ -1,7 +1,6 @@
 ---
 name: code-refinement
 description: 'Improve code quality across duplication, efficiency, and architectural fit.'
-version: 1.9.5
 alwaysApply: false
 category: code-quality
 tags:

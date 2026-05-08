@@ -1,7 +1,6 @@
 ---
 name: mcp-code-execution
 description: 'Optimize multi-tool workflows via MCP server integration for large datasets and pipelines.'
-version: 1.9.5
 alwaysApply: false
 progressive_loading: true
 dependencies:

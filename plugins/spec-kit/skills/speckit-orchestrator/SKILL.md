@@ -2,7 +2,6 @@
 name: speckit-orchestrator
 role: entrypoint
 description: 'Workflow orchestrator for Spec Driven Development. Coordinates skills and tracks progress.'
-version: 1.9.5
 alwaysApply: false
 category: workflow-orchestration
 tags:

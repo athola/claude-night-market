@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Removed `version:` field from skill frontmatter** (170
+  SKILL.md files + dispatch tooling). The field was a
+  duplicate of the per-plugin version in `plugin.json` /
+  `openpackage.yml`, kept in sync by the release script
+  per issue #484. Issue #484 explicitly listed removal as
+  one of two acceptable resolutions; the auto-bump path
+  was chosen at the time, but the field had no runtime
+  consumers. Removing it eliminates 170 file edits per
+  release. The plugin version remains the single source
+  of truth.
+  - Removed: `update_skill_md_version()` and the
+    `**/SKILL.md` entry from `update_versions.py`.
+  - Removed: `version` from `skill_validator.py` required
+    fields and the `_validate_version` semver check.
+  - Removed: tests asserting `version` presence in skill
+    frontmatter (5 plugins, ~10 tests).
+  - Unrelated: per-skill *adaptation* versioning
+    (`adaptation.current_version` / `version_history`
+    consumed by `abstract.skill_versioning`) is unchanged
+    — that's a different feature.
+
 ## [1.9.5] - 2026-05-07
 
 ### Fixed

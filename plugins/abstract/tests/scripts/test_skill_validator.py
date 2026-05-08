@@ -39,7 +39,6 @@ VALID_FRONTMATTER = """\
 ---
 name: test-skill
 description: Guides developers through testing practices. Provides clear examples and methodologies. Use when you need to test your code thoroughly.
-version: 1.0.0
 category: testing
 tags:
   - test
@@ -212,15 +211,15 @@ class TestSkillValidatorFrontmatter:
 
     @pytest.mark.unit
     def test_missing_required_field_adds_error(self, tmp_path: Path) -> None:
-        """Missing required field (version) adds error."""
+        """Missing required field (category) adds error."""
         content = (
             "---\nname: test-skill\ndescription: A skill.\n"
-            "category: testing\ntags: []\nestimated_tokens: 100\n---\n# Skill\n"
+            "tags: []\nestimated_tokens: 100\n---\n# Skill\n"
         )
         skill_file = _make_skill(tmp_path, content)
         v = SkillValidator(skill_file)
         result = v.validate()
-        assert any("version" in e for e in result.errors)
+        assert any("category" in e for e in result.errors)
 
     @pytest.mark.unit
     def test_valid_frontmatter_no_errors(self, tmp_path: Path) -> None:
@@ -290,30 +289,6 @@ class TestSkillValidatorFrontmatter:
         validator = SkillValidator(skill_file)
         result = validator.validate()
         assert any("consecutive hyphens" in w for w in result.warnings)
-
-    @pytest.mark.unit
-    def test_invalid_version_adds_error(self, tmp_path: Path) -> None:
-        """Invalid version format adds an error."""
-        content = (
-            "---\nname: test-skill\ndescription: A skill.\nversion: 'bad'\n"
-            "category: testing\ntags: []\nestimated_tokens: 100\n---\n# Skill\n"
-        )
-        skill_file = _make_skill(tmp_path, content)
-        v = SkillValidator(skill_file)
-        result = v.validate()
-        assert any("Version" in e and "invalid" in e for e in result.errors)
-
-    @pytest.mark.unit
-    def test_version_as_integer_adds_error(self, tmp_path: Path) -> None:
-        """Version as integer (not string) adds error."""
-        skill_file = tmp_path / "SKILL.md"
-        skill_file.write_text(
-            "---\nname: my-skill\ndescription: test\nversion: 1\n"
-            "category: tools\ntags: [test]\nestimated_tokens: 100\n---\n\n# Skill\n"
-        )
-        validator = SkillValidator(skill_file)
-        result = validator.validate()
-        assert result.has_errors
 
     @pytest.mark.unit
     def test_non_list_tags_adds_error(self, tmp_path: Path) -> None:

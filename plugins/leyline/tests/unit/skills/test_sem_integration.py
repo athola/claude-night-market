@@ -111,10 +111,10 @@ class TestSkillFileExists:
         """Scenario: Required frontmatter fields are present
         Given SKILL.md
         When its frontmatter is parsed
-        Then description, version, category, and tags are present
+        Then description, category, and tags are present
         """
         fm = _parse_frontmatter(SKILL_FILE)
-        for field in ("description", "version", "category", "tags"):
+        for field in ("description", "category", "tags"):
             assert field in fm, f"Missing required frontmatter field: {field}"
 
     @pytest.mark.unit

@@ -1,7 +1,6 @@
 ---
 name: tutorial-updates
 description: 'Generate tutorials from VHS tapes and Playwright specs with dual-tone markdown and GIF recording.'
-version: 1.9.5
 alwaysApply: false
 category: artifact-generation
 tags:

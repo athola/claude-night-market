@@ -103,22 +103,6 @@ class TestRiskClassificationFrontmatter:
         assert len(fm["description"]) > 20, "description is too short to be meaningful"
 
     @pytest.mark.bdd
-    def test_frontmatter_has_version_or_complexity(self) -> None:
-        """Scenario: Version marker present
-        Given the risk-classification SKILL.md
-        When parsing frontmatter
-        Then either 'version' or 'complexity' should be present
-        to establish the skill maturity level.
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        has_version = "version" in fm
-        has_complexity = "complexity" in fm
-        assert has_version or has_complexity, (
-            "Frontmatter must have 'version' or 'complexity' field"
-        )
-
-    @pytest.mark.bdd
     def test_frontmatter_declares_modules(self) -> None:
         """Scenario: Module declarations match expected modules
         Given the risk-classification SKILL.md frontmatter
