@@ -12,8 +12,8 @@ The April 2026 audit identified the top four violators of AP-3
 
 | Skill | Violation | Recommendation |
 |-------|-----------|----------------|
-| ``abstract:skills-eval`` | 11 modules + (formerly) 5 fictional tools for a single audit flow | Collapse to a flat checklist |
-| ``attune:mission-orchestrator`` | 12 modules + 11 dependencies for "detect phase, call phase skill" | Reduce to a router table |
+| ``abstract:skills-eval`` | 11 modules and (formerly) 5 fictional tools for a single audit flow | Collapse to a flat checklist |
+| ``attune:mission-orchestrator`` | 12 modules and 11 dependencies for "detect phase, call phase skill" | Reduce to a router table |
 | ``attune:war-room`` | 4 deliberation modes (Express, Lightweight, Full Council, Delphi) gated by reversibility-score formula | Hard-code one mode after collecting usage data |
 | ``imbue:feature-review`` | RICE, WSJF, AND Kano (3 frameworks where 1 would suffice) | Pick one default; others as extensions |
 
