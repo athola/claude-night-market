@@ -101,7 +101,8 @@ Ensure all fixes are correct and quality gates pass.
 **Validation Steps:**
 - Version validation (if applicable)
 - Execute automated test plan
-- Agent-verify manual test plan (creative verification)
+- Agent-verify manual test plan via shell, HTTP probes, or
+  headless browser (CDP MCP / Playwright); see Section 5.4
 - Run quality gates
 - Document results
 

@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`/fix-pr` Step 5: HTTP, browser, and Playwright
+  verification strategies.** The agent-verify manual test
+  plan flow (Section 5.4) previously documented only
+  shell, validator, and grep strategies. Reviewer test
+  plan items like "verify the dashboard renders X" or
+  "POST /api returns 200" had no documented strategy and
+  fell back to LOW-confidence prose. Section 5.4.2 now
+  covers HTTP probes (`curl -sf` + `jq -e`), DOM checks
+  via the `mcp__plugin_superpowers-chrome_chrome__use_browser`
+  MCP tool, multi-step Playwright specs, visual regression,
+  and `phantom:computer-control` as last resort. New
+  Section 5.4.5 ranks the three browser tiers (CDP MCP,
+  Playwright, Computer Use) by cost and pins Tier 1 as
+  the default to avoid spawning a Playwright instance per
+  DOM assertion.
+- **Invariant-encoding regression tests for `/fix-pr`
+  Section 5.4.** New `test_fix_pr_validate_strategies.py`
+  guards three load-bearing decisions: 5.4.x sub-section
+  ordering (regression guard for a prior reorder bug),
+  presence of all five verification surfaces (shell, HTTP,
+  CDP MCP, Playwright, computer-control), and the browser
+  tier ordering. Mutation-tested: breaking the MCP tool
+  name fails the two relevant tests.
+
 ### Changed
 
 - **Removed `version:` field from skill frontmatter** (170
