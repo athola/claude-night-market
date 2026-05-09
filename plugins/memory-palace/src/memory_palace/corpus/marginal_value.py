@@ -216,8 +216,7 @@ class MarginalValueFilter:
             level = RedundancyLevel.HIGHLY_REDUNDANT
         elif max_overlap >= OVERLAP_PARTIAL:
             reasons.append(
-                f"Partial overlap ({max_overlap:.0%}) with"
-                f" {len(matching_entries)} entries",
+                f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries",
             )
             level = RedundancyLevel.PARTIAL_OVERLAP
         else:

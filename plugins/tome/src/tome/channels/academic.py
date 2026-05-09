@@ -72,10 +72,7 @@ def build_arxiv_search_url(topic: str, max_results: int = 10) -> str:
         URL string for the arXiv Atom API, sorted by relevance.
     """
     encoded = quote_plus(topic)
-    return (
-        f"{_ARXIV_API_BASE}?search_query=all:{encoded}"
-        f"&max_results={max_results}&sortBy=relevance"
-    )
+    return f"{_ARXIV_API_BASE}?search_query=all:{encoded}&max_results={max_results}&sortBy=relevance"
 
 
 def _extract_tag_text(xml: str, tag: str) -> str | None:

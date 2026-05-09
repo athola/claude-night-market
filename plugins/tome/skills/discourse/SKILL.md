@@ -2,7 +2,6 @@
 name: discourse
 role: library
 description: 'Scan HN, Lobsters, Reddit, and tech blogs for experience reports.'
-version: 1.9.4
 alwaysApply: false
 category: research
 tags:

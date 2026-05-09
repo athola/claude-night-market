@@ -124,3 +124,43 @@ directory or with correct PYTHONPATH so that
 - **skills-eval**: Primary evaluation framework
 - **modular-skills**: Architectural analysis reference
 - **performance-optimization**: Efficiency metrics source
+
+## Operational Health (issue #461)
+
+Daily learnings reports observed this agent at ~40%
+success rate over a 30-day window with three prior
+auto-improvement cycles closed without resolving the
+root cause. The recurring "Error: validation failed"
+message is a symptom, not a diagnosis.
+
+### Investigation plan (run before further auto-fixes)
+
+1. **Capture and classify.** Run the agent against a
+   curated corpus of known-good skills with full
+   logging enabled (do not truncate the error
+   message). Group failures by upstream cause:
+   - validator contract too strict on edge inputs
+   - validator measuring the wrong target
+   - agent producing malformed output
+   - observability sampler counting startup errors
+2. **Targeted fix.** Branch by classification:
+   - validator wrong: relax or correct the validator
+   - skill wrong: patch the failing path in the
+     auditor's prompt or tool sequencing
+   - metric wrong: reframe what counts as failure
+3. **Prevention.** Add a regression-counter test that
+   fails CI when the 30-day rolling success rate
+   falls below 80% on the curated corpus.
+
+Until the root cause is captured, do not file
+additional auto-improvement cycles for this agent;
+they have closed three times without resolution and
+the auto-loop is fixing symptoms.
+
+### Auto-improvement gate
+
+Auto-improvement issues for ``skill-auditor`` should
+not be filed by ``aggregate_learnings_daily`` until
+issue #461 is closed. The gate is a soft block, not
+an enforced filter; respect it manually until a
+mechanism lands.

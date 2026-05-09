@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Validate Imbue plugin review workflow and evidence management skills."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 # Bootstrap leyline so we can use its add_plugin_src_to_path helper
 # to discover the sibling 'abstract' plugin (AR-15).
@@ -16,17 +19,53 @@ if str(_LEYLINE_SRC) not in sys.path:
     sys.path.insert(0, str(_LEYLINE_SRC))
 
 try:
-    from leyline.bootstrap import add_plugin_src_to_path  # type: ignore[import-not-found]
+    from leyline.bootstrap import (  # type: ignore[import-not-found]  # sibling plugin imported at runtime
+        add_plugin_src_to_path,
+    )
 
     add_plugin_src_to_path("abstract", caller=__file__)
-    from abstract.report_formatter import (  # type: ignore[import-not-found]  # cross-plugin import via sys.path
+    from abstract.report_formatter import (  # type: ignore[import-not-found]  # added to sys.path above
         format_validator_report,
     )
 except (ImportError, FileNotFoundError):
+    # Fallback path: signal degraded mode at module load so operators
+    # see why the report shape might differ from the canonical helper.
+    # Suppressed under pytest so deliberate fallback-coverage tests do
+    # not spam stderr.
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        print(
+            "[imbue-validator] WARN: using local fallback for "
+            "format_validator_report (abstract plugin not on sys.path)",
+            file=sys.stderr,
+        )
 
-    def format_validator_report(results: dict, plugin_name: str = "") -> str:  # type: ignore[misc]  # redefinition needed for import fallback
-        """Fallback when leyline.bootstrap or abstract is not available."""
-        return str(results)
+    def format_validator_report(  # type: ignore[misc]  # redefinition needed for import fallback
+        title: str,
+        plugin_root: Path,
+        skill_file_count: int,
+        metadata: list[tuple[str, Any]],
+        issues: list[str],
+        success_message: str = "All validations passed successfully!",
+    ) -> str:
+        """Fallback when leyline.bootstrap or abstract is not available.
+
+        Mirrors the real ``abstract.report_formatter.format_validator_report``
+        signature so call sites do not silently produce garbage when the
+        cross-plugin import fails. Output format matches the real helper
+        so downstream parsers continue to work.
+        """
+        lines: list[str] = [title, "=" * 50]
+        lines.append(f"\nPlugin Root: {plugin_root}")
+        lines.append(f"Skill Files: {skill_file_count}")
+        for label, value in metadata:
+            lines.append(f"\n{label}: {value}")
+        if issues:
+            lines.append(f"\nIssues Found ({len(issues)}):")
+            for index, issue in enumerate(issues, 1):
+                lines.append(f"  {index}. {issue}")
+        else:
+            lines.append(f"\n{success_message}")
+        return "\n".join(lines)
 
 
 # Configure logging for the validator

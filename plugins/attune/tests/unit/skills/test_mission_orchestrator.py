@@ -10,7 +10,6 @@ Feature: Mission Orchestrator Skill Validation
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 import pytest
@@ -117,22 +116,6 @@ class TestMissionOrchestratorFrontmatter:
         fm = _parse_frontmatter(content)
         assert "description" in fm, "Frontmatter missing 'description' field"
         assert len(fm["description"]) > 20, "description is too short to be meaningful"
-
-    @pytest.mark.bdd
-    def test_frontmatter_has_version_or_complexity(self) -> None:
-        """Scenario: Version marker present
-        Given the mission-orchestrator SKILL.md
-        When parsing frontmatter
-        Then either 'version' or 'complexity' should be present
-        to establish the skill maturity level
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        has_version = "version" in fm
-        has_complexity = "complexity" in fm
-        assert has_version or has_complexity, (
-            "Frontmatter must have 'version' or 'complexity' field"
-        )
 
     @pytest.mark.bdd
     def test_frontmatter_declares_modules(self) -> None:
@@ -442,24 +425,6 @@ class TestInteractivePlanReview:
         content = (MODULES_DIR / "mission-state.md").read_text()
         assert "plan_review" in content, (
             "mission-state.md must define the plan_review schema"
-        )
-
-    @pytest.mark.bdd
-    def test_orchestrator_skill_declares_semver_version(self) -> None:
-        """Scenario: Orchestrator skill declares a semver-shaped version.
-
-        I13 (PR #470 review): the prior test hardcoded '1.9.3', which
-        fails on every release bump. Assert the version field exists
-        and follows MAJOR.MINOR.PATCH so future bumps don't require
-        editing this test. Cross-version consistency with plugin.json
-        is enforced by the per-plugin release-consistency suite.
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        version = fm.get("version")
-        assert version, f"version field missing from frontmatter: {fm!r}"
-        assert re.fullmatch(r"\d+\.\d+\.\d+", str(version)), (
-            f"version must be MAJOR.MINOR.PATCH, got {version!r}"
         )
 
     @pytest.mark.bdd

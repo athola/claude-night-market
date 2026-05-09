@@ -1,7 +1,6 @@
 ---
 name: gauntlet-curate
 description: 'Refresh the problem bank during /update-plugins (data/problems/*.yaml).'
-version: 1.9.4
 model_hint: standard
 ---
 

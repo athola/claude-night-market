@@ -55,8 +55,7 @@ def decide_integration(
             decision=IntegrationDecision.SKIP,
             target_entries=redundancy.matching_entries,
             rationale=(
-                "80%+ overlap with existing entries: "
-                f"{', '.join(redundancy.matching_entries[:3])}"
+                f"80%+ overlap with existing entries: {', '.join(redundancy.matching_entries[:3])}"
             ),
             confidence=0.9,
         )

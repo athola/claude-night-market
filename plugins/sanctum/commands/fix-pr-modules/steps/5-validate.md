@@ -166,6 +166,14 @@ each item programmatically. Human QA still owns final sign-off,
 but agent pre-verification catches issues early and provides
 evidence for the reviewer.
 
+**Verification surface area**: shell commands, validators,
+HTTP probes, headless browser actions (CDP-based MCP tool or
+Playwright spec), and -- as a last resort -- desktop GUI
+control. The strategy table in 5.4.2 maps test-item shapes to
+the lightest tool that can answer them; the tier-selection
+guide in 5.4.5 covers when to escalate from Tier 1 (MCP CDP)
+to Tier 2 (Playwright) to Tier 3 (Computer Use).
+
 ### 5.4.1 Discover Manual Test Plan Items
 
 Search PR comments for checkbox-style test plans written by
@@ -202,6 +210,11 @@ partially automated:
 | "Verify X was updated to Y" | Read file and assert content | Read file, check the specific line |
 | "Ensure X discovers both A and B" | Run discovery, check output contains both | Execute script, grep output for A and B |
 | "Update X" (imperative fix item) | Verify the fix was applied | `git diff origin/BASE -- path/to/file` |
+| "Verify endpoint/API returns X" | HTTP probe with curl/httpie, assert response | `curl -sf -X POST http://localhost:PORT/api -d '{...}' \| jq -e '.field=="value"'` |
+| "Check the page/UI shows X" | Drive browser via MCP tool, assert DOM/text | `mcp__plugin_superpowers-chrome_chrome__use_browser` (CDP-based, lightweight). See 5.4.5 |
+| "Smoke-test the flow A->B->C" | Playwright spec executing the full path | `npx playwright test specs/pr-NNN-smoke.spec.ts` (see `scry:browser-recording` for spec patterns) |
+| "Visual regression / screenshot" | Playwright screenshot + diff against baseline | `page.screenshot({path: 'after.png'})` then `compare-images` |
+| "Workflow involves desktop GUI" | Last resort: full Computer Use sandbox | `Skill(phantom:computer-control)` only when web-based tools cannot reach the target |
 | Subjective/UX judgment | Acknowledge limitation, do best-effort check | Note as LOW confidence |
 
 **Creative verification techniques:**
@@ -218,6 +231,22 @@ partially automated:
   side effects, then run the actual target
 - **Diff inspection**: For "verify X changed", use
   `git diff origin/BASE -- file` to show the exact change
+- **HTTP probing**: For API endpoints, prefer `curl -sf
+  -w '%{http_code}'` (fail-on-error + status code
+  capture) over manual `curl | grep`; use `jq -e` to make
+  field assertions exit non-zero on mismatch
+- **Browser verification**: For UI claims, drive a
+  headless browser. Default to the Chrome MCP tool
+  (`mcp__plugin_superpowers-chrome_chrome__use_browser`)
+  for navigation + DOM assertions: it reuses an existing
+  Chrome session and is lightweight. Escalate to a
+  Playwright spec only when the test needs scripted
+  multi-step flows or visual regression
+- **Server lifecycle**: When a manual item assumes "the
+  server is running", verify the listener with `curl -sf
+  http://localhost:PORT/health` or `nc -z localhost PORT`
+  BEFORE running the actual check; mark INCONCLUSIVE
+  with evidence if the server is not reachable
 
 ### 5.4.3 Execute and Capture Evidence
 
@@ -261,6 +290,41 @@ For each item, execute the strategy and record evidence:
   `make memory-profile` prints "Install memory_profiler: ..."
 - [E3]: `uv run pytest tests/ -v --tb=short` -> 21 passed
 ```
+
+### 5.4.5 Browser Verification Tier Selection
+
+When a manual test item involves the browser/UI, choose the
+lightest tool that can verify it. Heavier tools cost more
+tokens and setup time; reach for them only when the lighter
+option cannot answer the question.
+
+| Tier | Tool | Use when | Cost |
+|------|------|----------|------|
+| 1 | `mcp__plugin_superpowers-chrome_chrome__use_browser` | Navigate + read DOM/text + click; reusing local Chrome | Lightest -- one MCP call per action |
+| 2 | Playwright spec (`scry:browser-recording` patterns) | Multi-step user journeys, login, file upload, visual regression | Spawns a browser per spec; ~5-15s/run |
+| 3 | `Skill(phantom:computer-control)` | Native desktop UI, OS dialogs, non-web targets | Heavy -- full Computer Use API + sandbox |
+
+**Default to Tier 1.** If you find yourself writing a
+Playwright spec just to assert one DOM value, that is a
+signal to drop back to the MCP tool.
+
+**Tier 2 spec template** (drop into `tests/playwright/`):
+
+```javascript
+// pr-NNN-smoke.spec.ts -- generated for /fix-pr verification
+import { test, expect } from '@playwright/test';
+
+test('PR #NNN: <one-line description of the manual item>', async ({ page }) => {
+  await page.goto(process.env.BASE_URL ?? 'http://localhost:3000');
+  // Assertion: the manual test item phrased as expect()
+  await expect(page.getByRole('heading', { name: /Dashboard/ })).toBeVisible();
+});
+```
+
+Run with `npx playwright test tests/playwright/pr-NNN-smoke.spec.ts`
+and capture the JSON reporter output as evidence. If
+Playwright is not installed, fall back to Tier 1 and note
+the limitation in the result row.
 
 **Rules:**
 - Attempt EVERY item, even if verification is only partial

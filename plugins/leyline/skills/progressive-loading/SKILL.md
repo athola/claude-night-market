@@ -1,7 +1,6 @@
 ---
 name: progressive-loading
 description: 'Progressive module loading with hub-and-spoke pattern for token optimization. Lazy loading.'
-version: 1.9.4
 alwaysApply: false
 category: infrastructure
 tags:

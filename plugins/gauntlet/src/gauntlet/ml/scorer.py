@@ -10,7 +10,17 @@ from typing import Protocol
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-import yaml
+# Issue #518: PyYAML is declared in pyproject.toml but the gauntlet
+# precommit hook runs under the system Python, which may not have it.
+# Guard the import so YamlScorer reports unavailable() instead of
+# crashing the hook on every `git commit`.
+try:
+    import yaml as _yaml
+
+    _HAS_YAML = True
+except ImportError:  # pragma: no cover - exercised only on hosts without PyYAML
+    _yaml = None  # type: ignore[assignment]  # sentinel; guarded by _HAS_YAML at call sites
+    _HAS_YAML = False
 
 _log = logging.getLogger(__name__)
 
@@ -54,9 +64,16 @@ class YamlScorer:
 
     def _load(self, model_path: str) -> None:
         """Load model coefficients from YAML."""
+        if not _HAS_YAML:
+            # PyYAML unavailable: stay unloaded so available() returns False
+            # and the score() fallback returns 0.0 (issue #518).
+            self._loaded = False
+            return
+        # _HAS_YAML implies _yaml is the imported pyyaml module.
+        assert _yaml is not None  # noqa: S101 - narrowing for type-checker; guarded by _HAS_YAML
         try:
             with open(model_path) as f:
-                data = yaml.safe_load(f)
+                data = _yaml.safe_load(f)
             if not isinstance(data, dict):
                 return
             self._weights = {
@@ -74,7 +91,7 @@ class YamlScorer:
                 wo, ml = 0.5, 0.5
             self._blend = (wo, ml)
             self._loaded = bool(self._weights)
-        except (OSError, yaml.YAMLError, ValueError, TypeError) as exc:
+        except (OSError, _yaml.YAMLError, ValueError, TypeError) as exc:
             _log.warning("Failed to load model from %s: %s", model_path, exc)
             self._loaded = False
 

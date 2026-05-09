@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Token estimation logic.
 
 Centralized token estimation.

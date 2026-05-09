@@ -1,7 +1,6 @@
 ---
 name: rigorous-reasoning
 description: 'Anti-sycophancy reasoning checklist.'
-version: 1.9.4
 alwaysApply: false
 category: workflow-methodology
 tags:

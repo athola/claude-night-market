@@ -662,7 +662,7 @@ def _finding(
 
 
 class TestDefaultOnFilterInvariant:
-    """Invariant: discussion sections default to non-emitting on empty data.
+    r"""Invariant: discussion sections default to non-emitting on empty data.
 
     This is load-bearing. post_learnings_to_discussions.compose_enriched_body
     joins sections with double-newlines and drops any that evaluate falsy.
@@ -672,7 +672,7 @@ class TestDefaultOnFilterInvariant:
 
     @pytest.mark.unit
     def test_every_formatter_returns_empty_string_on_empty_input(self) -> None:
-        """All format_* functions return "" (not "## Heading\\n") on empty input."""
+        r"""All format_* functions return "" (not "## Heading\\n") on empty input."""
         assert format_enriched_issues([]) == ""
         assert format_perf_summary([]) == ""
         assert format_failure_modes([]) == ""

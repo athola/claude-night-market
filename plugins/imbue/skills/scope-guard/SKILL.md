@@ -1,7 +1,6 @@
 ---
 name: scope-guard
 description: 'Pre-implementation scope control: worthiness scoring, branch-size limits.'
-version: 1.9.4
 alwaysApply: false
 category: workflow-methodology
 tags:
@@ -64,7 +63,10 @@ role: library
 
 # Scope Guard
 
-Prevents overengineering by both Claude and human during the brainstorm→plan→execute workflow. Forces explicit evaluation of every proposed feature against business value, opportunity cost, and branch constraints.
+Prevents overengineering by both Claude and human during the
+brainstorm, plan, and execute workflow. Forces explicit evaluation of
+every proposed feature against business value, opportunity cost, and
+branch constraints.
 
 ## Philosophy
 

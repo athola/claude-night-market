@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Universal quota tracking for rate-limited services.
 
 This is a generalized quota tracker that can be used by any plugin

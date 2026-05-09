@@ -1,7 +1,6 @@
 ---
 name: release-health-gates
 description: 'Standardize release approvals with GitHub-aware checklists and deployment gate validation.'
-version: 1.9.4
 alwaysApply: false
 category: governance
 tags:

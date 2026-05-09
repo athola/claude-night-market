@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Consolidated frontmatter processing for Abstract.
 
 Provide the single source of truth for all frontmatter operations:

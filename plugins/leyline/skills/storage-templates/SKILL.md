@@ -1,7 +1,6 @@
 ---
 name: storage-templates
 description: Consult this skill when designing storage and documentation systems.
-version: 1.9.4
 alwaysApply: false
   Use when organizing knowledge storage, managing configuration lifecycle, creating
   structured documentation, establishing naming conventions. Do not use when simple

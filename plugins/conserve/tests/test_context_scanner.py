@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for context_scanner.py - project context map generator.
 
 Tests organized by implementation task (T001-T007).
@@ -237,7 +236,7 @@ class TestFileTreeWalker:
         link.symlink_to(target)
         result = cs.scan_directory(tmp_project)
         # Should not double-count src files via symlink
-        src_files = sum(
+        sum(
             d.file_count for d in result.directories if d.path in ("src", "link_to_src")
         )
         # link_to_src might be counted but should not recurse into it
@@ -1077,7 +1076,7 @@ class TestBlastRadiusCLI:
         (tmp_path / "a.py").write_text("import core\n")
         (tmp_path / "b.py").write_text("import a\n")
 
-        exit_code = cs.main(["--blast", "core.py", str(tmp_path)])
+        cs.main(["--blast", "core.py", str(tmp_path)])
         captured = capsys.readouterr()
 
         assert "via" in captured.out.lower() or "a.py" in captured.out
@@ -1150,8 +1149,7 @@ class TestScanCaching:
         assert exit_code == 0
 
     def test_save_cache_oserror_does_not_crash(self, tmp_path, capsys):
-        """
-        GIVEN a read-only filesystem
+        """GIVEN a read-only filesystem
         WHEN main() tries to save_cache and gets OSError
         THEN the scan still completes successfully.
         """
@@ -1165,8 +1163,7 @@ class TestCopyResult:
     """Tests for _copy_result preventing mutation."""
 
     def test_copy_result_does_not_share_directories_list(self, tmp_path):
-        """
-        GIVEN a ScanResult
+        """GIVEN a ScanResult
         WHEN _copy_result is called
         THEN modifying the clone's directories does not affect the original.
         """
@@ -1180,8 +1177,7 @@ class TestCopyResult:
         assert result.directories == original_dirs
 
     def test_render_json_does_not_mutate_result(self, tmp_path):
-        """
-        GIVEN a ScanResult
+        """GIVEN a ScanResult
         WHEN render_json is called
         THEN the original result.directories is unchanged.
         """
@@ -1198,8 +1194,7 @@ class TestImportGraphDedup:
     """Tests for file_index.setdefault deduplication in build_import_graph."""
 
     def test_duplicate_filenames_keep_first_path(self, tmp_path):
-        """
-        GIVEN two files with the same basename in different directories
+        """GIVEN two files with the same basename in different directories
         WHEN build_import_graph runs
         THEN the graph builds without error (setdefault prevents overwrite).
         """

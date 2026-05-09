@@ -120,17 +120,6 @@ class TestAdditiveBiasDefenseFrontmatter:
         assert len(fm["description"]) > 20, "description is too short to be meaningful"
 
     @pytest.mark.bdd
-    def test_frontmatter_has_version(self) -> None:
-        """Scenario: Version field present
-        Given the additive-bias-defense SKILL.md
-        When parsing frontmatter
-        Then a 'version' field should be present.
-        """
-        content = SKILL_FILE.read_text()
-        fm = _parse_frontmatter(content)
-        assert "version" in fm, "Frontmatter missing 'version' field"
-
-    @pytest.mark.bdd
     def test_frontmatter_category_is_quality_contract(self) -> None:
         """Scenario: Category reflects quality-contract purpose
         Given the additive-bias-defense SKILL.md
@@ -159,21 +148,42 @@ class TestAdditiveBiasDefenseFrontmatter:
         assert "burden-of-proof" in fm["tags"], "tags must include 'burden-of-proof'"
 
     @pytest.mark.bdd
-    def test_frontmatter_declares_provides_contract(self) -> None:
-        """Scenario: Provides contract declarations present
+    def test_frontmatter_declares_provides_guidance(self) -> None:
+        """Scenario: Provides guidance declarations present
         Given the additive-bias-defense SKILL.md
         When parsing frontmatter
-        Then provides.contract should include scrutiny and verdict entries.
+        Then provides.guidance should include scrutiny and verdict entries.
+
+        Renamed from provides.contract per #444: the skill ships
+        guidance consumed by other skills (code-refinement, unbloat),
+        not an enforced contract; the label now reflects reality.
         """
         content = SKILL_FILE.read_text()
         fm = _parse_frontmatter(content)
         assert "provides" in fm, "Frontmatter missing 'provides' field"
-        contract = fm["provides"].get("contract", [])
-        assert "additive-bias-scrutiny" in contract, (
-            "provides.contract must include 'additive-bias-scrutiny'"
+        guidance = fm["provides"].get("guidance", [])
+        assert "additive-bias-scrutiny" in guidance, (
+            "provides.guidance must include 'additive-bias-scrutiny'"
         )
-        assert "burden-of-proof-verdict" in contract, (
-            "provides.contract must include 'burden-of-proof-verdict'"
+        assert "burden-of-proof-verdict" in guidance, (
+            "provides.guidance must include 'burden-of-proof-verdict'"
+        )
+
+    @pytest.mark.bdd
+    def test_frontmatter_does_not_declare_unenforced_contract(self) -> None:
+        """Scenario: provides.contract removed (#444)
+        Given the additive-bias-defense SKILL.md
+        When parsing frontmatter
+        Then provides.contract must NOT be present
+        Because no validator or hook enforces it; contract implies
+        verification that does not exist for this skill.
+        """
+        content = SKILL_FILE.read_text()
+        fm = _parse_frontmatter(content)
+        provides = fm.get("provides") or {}
+        assert "contract" not in provides, (
+            "provides.contract is unenforced; rename to provides.guidance "
+            "or add a validator/hook (#444)"
         )
 
     @pytest.mark.bdd

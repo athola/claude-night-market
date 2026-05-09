@@ -1,7 +1,6 @@
 ---
 name: stack-create
 description: 'Initialize a branch stack from a plan, one branch per slice with parent-child links.'
-version: 1.9.4
 alwaysApply: false
 category: workflow-automation
 tags:

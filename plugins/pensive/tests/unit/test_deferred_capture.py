@@ -1,4 +1,3 @@
-# ruff: noqa: D101,D102,D103,S603,S607
 """Tests for pensive deferred_capture.py wrapper.
 
 Validates plugin-specific config and enrichment. Shared logic

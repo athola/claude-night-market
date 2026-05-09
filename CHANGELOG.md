@@ -7,6 +7,96 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.5] - 2026-05-07
+
+### Added
+
+- **`/fix-pr` Step 5: HTTP, browser, and Playwright
+  verification strategies.** The agent-verify manual test
+  plan flow (Section 5.4) previously documented only
+  shell, validator, and grep strategies. Reviewer test
+  plan items like "verify the dashboard renders X" or
+  "POST /api returns 200" had no documented strategy and
+  fell back to LOW-confidence prose. Section 5.4.2 now
+  covers HTTP probes (`curl -sf` + `jq -e`), DOM checks
+  via the `mcp__plugin_superpowers-chrome_chrome__use_browser`
+  MCP tool, multi-step Playwright specs, visual regression,
+  and `phantom:computer-control` as last resort. New
+  Section 5.4.5 ranks the three browser tiers (CDP MCP,
+  Playwright, Computer Use) by cost and pins Tier 1 as
+  the default to avoid spawning a Playwright instance per
+  DOM assertion.
+- **Invariant-encoding regression tests for `/fix-pr`
+  Section 5.4.** New `test_fix_pr_validate_strategies.py`
+  guards three load-bearing decisions: 5.4.x sub-section
+  ordering (regression guard for a prior reorder bug),
+  presence of all five verification surfaces (shell, HTTP,
+  CDP MCP, Playwright, computer-control), and the browser
+  tier ordering. Mutation-tested: breaking the MCP tool
+  name fails the two relevant tests.
+
+### Changed
+
+- **Removed `version:` field from skill frontmatter** (170
+  SKILL.md files + dispatch tooling). The field was a
+  duplicate of the per-plugin version in `plugin.json` /
+  `openpackage.yml`, kept in sync by the release script
+  per issue #484. Issue #484 explicitly listed removal as
+  one of two acceptable resolutions; the auto-bump path
+  was chosen at the time, but the field had no runtime
+  consumers. Removing it eliminates 170 file edits per
+  release. The plugin version remains the single source
+  of truth.
+  - Removed: `update_skill_md_version()` and the
+    `**/SKILL.md` entry from `update_versions.py`.
+  - Removed: `version` from `skill_validator.py` required
+    fields and the `_validate_version` semver check.
+  - Removed: tests asserting `version` presence in skill
+    frontmatter (5 plugins, ~10 tests).
+  - Unrelated: per-skill *adaptation* versioning
+    (`adaptation.current_version` / `version_history`
+    consumed by `abstract.skill_versioning`) is unchanged
+    — that's a different feature.
+
+### Fixed
+
+- **PR #511 review batch (23 threads resolved)**:
+  - Python 3.9 compatibility: replaced `from datetime import
+    UTC` (3.11+ alias) with `from datetime import timezone`
+    plus `timezone.utc` across 11 files in leyline, minister,
+    and sanctum tests. Most consequential fix was
+    `plugins/leyline/src/leyline/deferred_capture.py`, which
+    is library code documented as 3.9-compatible.
+  - Removed `auto_improvement_gate` frozenset from
+    `auto_promote_learnings.py` and its three supporting
+    tests. The gate was suppressing recurring
+    `abstract:skill-auditor` failures (issue #461) instead
+    of fixing them; with the gate removed, normal auto-promote
+    will surface the failures so root cause can be addressed.
+  - Merged `docs/observability-hook-audit.md` into a new
+    module `plugins/abstract/skills/hook-authoring/modules/
+    observability-warnings.md` (registered in the
+    hook-authoring SKILL.md module references) and deleted
+    the source. The pattern, three-category classification
+    (binary-actionable, observe-only, needs-triage),
+    counter-examples, and authoring checklist are preserved.
+  - Replied to and resolved 19 "Why is this being removed?"
+    threads. All flagged the same change: removing
+    `#!/usr/bin/env python3` shebangs from non-executable
+    Python modules and test files per PEP 394 and ruff's
+    EXE001 rule. Shebangs belong only on entry-point
+    scripts.
+- **PR #417 review batch (24 issues closed)**: bugfix-only
+  release rolling up the imbue hook hardening, imbue test
+  reliability, docs slop fixes, cross-plugin refactors,
+  abstract plugin work, and policy / research / features
+  threads tracked under issues #420--#462. Resolves
+  #420, #421, #422, #423, #438, #439, #440, #441, #442,
+  #443, #444, #450, #451, #452, #453, #454, #455, #456,
+  #457, #458, #459, #460, #461, and #462. Test suites
+  pass: imbue 635, leyline 656 (89.58% coverage), abstract
+  2186 (3 xfailed). See commit `237e4819` for the file map.
+
 ## [1.9.4] - 2026-05-03
 
 ### Session summaries (PR #470)

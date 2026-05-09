@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for the lint_suppression_guard PreToolUse hook.
 
 Feature: Block inline lint suppression directives

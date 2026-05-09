@@ -41,9 +41,9 @@ class TestSkillScaffold:
 
     @pytest.mark.unit
     def test_frontmatter_required_fields(self) -> None:
-        """Scenario: name, description, version, alwaysApply present."""
+        """Scenario: name, description present."""
         fm = _load_frontmatter(SKILL_MD)
-        for key in ("name", "description", "version", "alwaysApply"):
+        for key in ("name", "description"):
             assert key in fm, f"Missing frontmatter field: {key}"
 
     @pytest.mark.unit

@@ -61,8 +61,7 @@ def _parse_frontmatter(path: Path) -> dict:
 
 
 class TestSkillFileExists:
-    """
-    Feature: SKILL.md exists and is parseable
+    """Feature: SKILL.md exists and is parseable
 
     As a plugin loader
     I want SKILL.md to exist with valid frontmatter
@@ -71,8 +70,7 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_directory_exists(self) -> None:
-        """
-        Scenario: Skill directory is present on disk
+        """Scenario: Skill directory is present on disk
         Given the sem-integration skill
         When the loader checks for the directory
         Then it exists
@@ -81,8 +79,7 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_file_exists(self) -> None:
-        """
-        Scenario: SKILL.md is present in the skill directory
+        """Scenario: SKILL.md is present in the skill directory
         Given the sem-integration skill directory
         When the loader checks for SKILL.md
         Then the file exists
@@ -91,8 +88,7 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_frontmatter_is_valid_yaml(self) -> None:
-        """
-        Scenario: Frontmatter parses without error
+        """Scenario: Frontmatter parses without error
         Given SKILL.md with YAML frontmatter
         When yaml.safe_load is called on the frontmatter block
         Then no exception is raised and the result is a dict
@@ -102,8 +98,7 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_name_matches_directory(self) -> None:
-        """
-        Scenario: Skill name in frontmatter matches directory name
+        """Scenario: Skill name in frontmatter matches directory name
         Given SKILL.md with a 'name' field
         When the name field is read
         Then it equals 'sem-integration'
@@ -113,20 +108,18 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_has_required_frontmatter_fields(self) -> None:
-        """
-        Scenario: Required frontmatter fields are present
+        """Scenario: Required frontmatter fields are present
         Given SKILL.md
         When its frontmatter is parsed
-        Then description, version, category, and tags are present
+        Then description, category, and tags are present
         """
         fm = _parse_frontmatter(SKILL_FILE)
-        for field in ("description", "version", "category", "tags"):
+        for field in ("description", "category", "tags"):
             assert field in fm, f"Missing required frontmatter field: {field}"
 
     @pytest.mark.unit
     def test_skill_category_is_infrastructure(self) -> None:
-        """
-        Scenario: Skill is categorized as infrastructure
+        """Scenario: Skill is categorized as infrastructure
         Given the sem-integration skill
         When its category is read
         Then it equals 'infrastructure'
@@ -136,8 +129,7 @@ class TestSkillFileExists:
 
     @pytest.mark.unit
     def test_skill_lists_expected_modules(self) -> None:
-        """
-        Scenario: Skill frontmatter declares detection and fallback modules
+        """Scenario: Skill frontmatter declares detection and fallback modules
         Given SKILL.md
         When the modules list is read
         Then it includes detection.md and fallback.md
@@ -156,8 +148,7 @@ class TestSkillFileExists:
 
 
 class TestModuleFilesExist:
-    """
-    Feature: Module files are present on disk
+    """Feature: Module files are present on disk
 
     As a progressive loader
     I want all declared modules to exist as files
@@ -167,8 +158,7 @@ class TestModuleFilesExist:
     @pytest.mark.unit
     @pytest.mark.parametrize("module_name", EXPECTED_MODULES)
     def test_module_file_exists(self, module_name: str) -> None:
-        """
-        Scenario: Each declared module file is present
+        """Scenario: Each declared module file is present
         Given a module name declared in SKILL.md
         When the filesystem is checked
         Then the file exists under modules/
@@ -179,8 +169,7 @@ class TestModuleFilesExist:
     @pytest.mark.unit
     @pytest.mark.parametrize("module_name", EXPECTED_MODULES)
     def test_module_has_frontmatter(self, module_name: str) -> None:
-        """
-        Scenario: Each module file has parseable YAML frontmatter
+        """Scenario: Each module file has parseable YAML frontmatter
         Given a module file
         When its frontmatter is parsed
         Then it is a non-empty dict
@@ -194,8 +183,7 @@ class TestModuleFilesExist:
     @pytest.mark.unit
     @pytest.mark.parametrize("module_name", EXPECTED_MODULES)
     def test_module_has_parent_skill_reference(self, module_name: str) -> None:
-        """
-        Scenario: Each module references its parent skill
+        """Scenario: Each module references its parent skill
         Given a module file
         When its frontmatter is read
         Then 'parent_skill' equals 'leyline:sem-integration'
@@ -213,8 +201,7 @@ class TestModuleFilesExist:
 
 
 class TestSemDetection:
-    """
-    Feature: Detect sem CLI availability
+    """Feature: Detect sem CLI availability
 
     As a night-market skill consumer
     I want to know if sem is installed
@@ -223,8 +210,7 @@ class TestSemDetection:
 
     @pytest.mark.unit
     def test_detection_returns_true_when_sem_installed(self, tmp_path: Path) -> None:
-        """
-        Scenario: sem is on PATH
+        """Scenario: sem is on PATH
         Given sem is installed
         When detection logic runs
         Then the cache file contains '1'
@@ -248,8 +234,7 @@ class TestSemDetection:
 
     @pytest.mark.unit
     def test_detection_returns_false_when_sem_missing(self, tmp_path: Path) -> None:
-        """
-        Scenario: sem is not on PATH
+        """Scenario: sem is not on PATH
         Given sem is absent
         When detection logic runs
         Then the cache file contains '0'
@@ -273,8 +258,7 @@ class TestSemDetection:
 
     @pytest.mark.unit
     def test_detection_caches_result(self, tmp_path: Path) -> None:
-        """
-        Scenario: Detection result is cached
+        """Scenario: Detection result is cached
         Given the cache file already contains a result
         When detection logic is invoked again
         Then the cached value is returned without re-running command -v
@@ -313,8 +297,7 @@ class TestSemDetection:
 
 
 class TestFallbackNormalization:
-    """
-    Feature: Produce normalized output from git diff fallback
+    """Feature: Produce normalized output from git diff fallback
 
     As a consumer module
     I want fallback output in the same schema as sem JSON
@@ -323,8 +306,7 @@ class TestFallbackNormalization:
 
     @pytest.mark.unit
     def test_parse_diff_filter_added(self) -> None:
-        """
-        Scenario: git diff --diff-filter=A output is parsed as additions
+        """Scenario: git diff --diff-filter=A output is parsed as additions
         Given a line of added-file output from git diff
         When the fallback normalizer processes it
         Then the entity has change_type 'added' and kind 'file'
@@ -346,8 +328,7 @@ class TestFallbackNormalization:
 
     @pytest.mark.unit
     def test_parse_diff_filter_modified(self) -> None:
-        """
-        Scenario: git diff --diff-filter=M output is parsed as modifications
+        """Scenario: git diff --diff-filter=M output is parsed as modifications
         Given two lines of modified-file output from git diff
         When the fallback normalizer processes them
         Then both entities have change_type 'modified'
@@ -368,8 +349,7 @@ class TestFallbackNormalization:
 
     @pytest.mark.unit
     def test_empty_diff_produces_empty_list(self) -> None:
-        """
-        Scenario: Empty git diff output produces no entities
+        """Scenario: Empty git diff output produces no entities
         Given an empty string from git diff
         When the fallback normalizer processes it
         Then the entity list is empty
@@ -390,8 +370,7 @@ class TestFallbackNormalization:
 
     @pytest.mark.unit
     def test_entity_schema_has_required_keys(self) -> None:
-        """
-        Scenario: Normalized entity has all required schema keys
+        """Scenario: Normalized entity has all required schema keys
         Given a single changed file
         When the fallback normalizer produces an entity
         Then it contains name, kind, change_type, and file keys

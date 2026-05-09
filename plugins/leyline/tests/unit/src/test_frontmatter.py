@@ -161,7 +161,7 @@ class TestParseFrontmatterWithBody:
 
     @pytest.mark.unit
     def test_handles_closing_dashes_at_end_of_file(self):
-        """Given a document where the closing ``---`` is the last
+        r"""Given a document where the closing ``---`` is the last
         characters with no trailing newline,
         When parse_frontmatter_with_body is called,
         Then the meta is parsed and body is empty (parity with

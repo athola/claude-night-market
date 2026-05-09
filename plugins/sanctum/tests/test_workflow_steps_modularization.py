@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for workflow-steps.md modularization.
 
 These tests verify that the workflow-steps.md file has been properly
@@ -244,7 +243,8 @@ class TestNoContentLoss:
         # Original file was 1203 lines, +47 lines for PENDING review detection (PR #142)
         # +270 lines for mandatory issue creation enforcement (Gates 2 & 3)
         # +183 lines from modularizing 6-complete into sub-modules (issue #122)
-        ORIGINAL_LINE_COUNT = 1703
+        # +64 lines for HTTP/browser/Playwright strategies in 5.4 (validate)
+        ORIGINAL_LINE_COUNT = 1767
         TOLERANCE = 0.20  # Allow 20% variance for added navigation/headers/structure
 
         # Count lines in hub + all step files + step 6 sub-modules

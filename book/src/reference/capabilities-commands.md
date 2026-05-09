@@ -581,6 +581,34 @@ WORKFLOW_NAME    Specific workflow to analyze
 /fix-workflow --lessons --improvements
 ```
 
+### `/sanctum:fixit`
+Fix broken functionality from pasted error output, stack traces, or
+failing-behavior descriptions using research, TDD, and proof-of-work.
+
+```bash
+# Usage
+/fixit <pasted-error-or-description> [--file PATH] [--scope auto|minor|medium|major]
+       [--from STEP] [--to STEP] [--research|--no-research]
+       [--strict|--quick] [--commit] [--dry-run]
+
+# Options
+--file PATH      Read input from a file instead of arguments
+--scope          Override scope detection (default: auto)
+--from STEP      Skip to a later step (triage|reproduce|research|hypothesize|test|fix|verify|report)
+--to STEP        Stop after a given step
+--research       Force research even on minor scope
+--no-research    Skip research even on medium/major scope
+--strict         Enforce Iron Law in all paths (default behaviour)
+--quick          Skip research; RED test still required
+--commit         Auto-commit via /sanctum:acp on PASS
+--dry-run        Plan only, no edits or commands
+
+# Examples
+/fixit "TypeError: 'NoneType' object has no attribute 'upper' at parser.py:88"
+/fixit --file /tmp/build.log --scope major
+/fixit "render() returns '' but should return HTML" --to test --dry-run
+```
+
 ### `/sanctum:pr-review`
 Enhanced PR review.
 

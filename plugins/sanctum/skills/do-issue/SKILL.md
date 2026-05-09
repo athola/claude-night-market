@@ -2,7 +2,6 @@
 name: do-issue
 role: entrypoint
 description: 'Parallel subagent execution with review gates between task batches. For multi-step issues.'
-version: 1.9.4
 alwaysApply: false
 category: workflow-automation
 tags:

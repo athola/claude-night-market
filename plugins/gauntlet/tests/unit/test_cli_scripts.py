@@ -1,5 +1,6 @@
 """Tests for CLI scripts: extractor, challenge_engine, answer_evaluator,
-progress_tracker."""
+progress_tracker.
+"""
 
 from __future__ import annotations
 

@@ -1,7 +1,6 @@
 ---
 name: file-analysis
 description: 'Map file structure and organization.'
-version: 1.9.4
 alwaysApply: false
 category: workspace-ops
 tags:

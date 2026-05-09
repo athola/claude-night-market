@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Tests for error handling scenarios in plugin management."""
 
 import json

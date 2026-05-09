@@ -395,10 +395,7 @@ def _recent_intake_pending(query: str) -> bool:
 def _build_storage_reminder(tool_name: str) -> str:
     """Build a storage reminder message for when auto-capture is not active."""
     skill_ref = "/memory-palace:knowledge-intake"
-    return (
-        f"Research detected via {tool_name}. "
-        f"Consider storing valuable findings with {skill_ref}"
-    )
+    return f"Research detected via {tool_name}. Consider storing valuable findings with {skill_ref}"
 
 
 def _handle_webfetch(
@@ -527,8 +524,7 @@ def _handle_websearch(
                 )
     elif new_urls:
         context_parts.append(
-            f"Memory Palace: WebSearch found {len(new_urls)} new sources "
-            "not in memory palace:",
+            f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:",
         )
         for r in new_urls[:5]:
             context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")

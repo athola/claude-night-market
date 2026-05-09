@@ -1,7 +1,6 @@
 ---
 name: architecture-paradigm-event-driven
 description: 'Apply event-driven async messaging to decouple producers and consumers.'
-version: 1.9.4
 alwaysApply: false
 category: architectural-pattern
 tags:

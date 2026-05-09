@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Test that all executable scripts have proper permissions (0755)."""
 
 import os

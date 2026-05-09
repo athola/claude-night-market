@@ -588,7 +588,6 @@ Skipping this improvement until resolved.
 - [ ] Calculate priority scores correctly
 - [ ] Generate readable proposals
 - [ ] Apply changes without breaking syntax
-- [ ] Update frontmatter versions
 - [ ] Validate changes (YAML, tokens, structure)
 - [ ] Create proper git commits
 - [ ] Track improvements for measurement

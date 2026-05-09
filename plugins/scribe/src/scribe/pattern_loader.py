@@ -168,8 +168,7 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     """
     if language not in SUPPORTED_LANGUAGES:
         raise ValueError(
-            f"Unsupported language: {language}. "
-            f"Supported: {', '.join(sorted(SUPPORTED_LANGUAGES))}"
+            f"Unsupported language: {language}. Supported: {', '.join(sorted(SUPPORTED_LANGUAGES))}"
         )
 
     pattern_file = DATA_DIR / f"{language}.yaml"
@@ -178,8 +177,7 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
 
     if yaml is None:
         raise ImportError(
-            "pyyaml is required to load language patterns. "
-            "Install it with: pip install pyyaml"
+            "pyyaml is required to load language patterns. Install it with: pip install pyyaml"
         )
 
     with open(pattern_file, encoding="utf-8") as f:

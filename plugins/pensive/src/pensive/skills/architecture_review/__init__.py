@@ -18,6 +18,8 @@ from typing import ClassVar
 
 from ..base import BaseReviewSkill
 from ._constants import (
+    _BUILTIN_EXC_NAMES,
+    _SRP_KEYWORDS,
     COHESION_SCORE_HIGH,
     COHESION_SCORE_MEDIUM,
     COUPLING_DEPENDENCY_SCALE,
@@ -29,8 +31,6 @@ from ._constants import (
     MIN_RESPONSIBILITIES_FOR_MEDIUM_COHESION,
     MIN_SERVICES_FOR_MICROSERVICES,
     MIN_VIOLATIONS_TO_REPORT,
-    _BUILTIN_EXC_NAMES,
-    _SRP_KEYWORDS,
     logger,
 )
 from .documentation import DocumentationMixin
@@ -73,9 +73,9 @@ __all__ = [
     "MIN_RESPONSIBILITIES_FOR_MEDIUM_COHESION",
     "MIN_SERVICES_FOR_MICROSERVICES",
     "MIN_VIOLATIONS_TO_REPORT",
-    "ArchitectureReviewSkill",
     "_BUILTIN_EXC_NAMES",
     "_SRP_KEYWORDS",
+    "ArchitectureReviewSkill",
 ]
 # AR-F2: ``logger`` is intentionally not exported. The original
 # single-file module did not export it either; it stays an

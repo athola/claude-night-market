@@ -1,7 +1,6 @@
 ---
 name: install-watchdog
 description: 'Install egregore watchdog daemon via OS scheduler (launchd or systemd).'
-version: 1.9.4
 alwaysApply: false
 category: setup
 tools: []

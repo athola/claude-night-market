@@ -17,3 +17,13 @@ def _write_jsonl(tmp_path: Path, records: list[dict[str, Any]]) -> Path:
     p = tmp_path / "session.jsonl"
     p.write_text(_make_jsonl(records))
     return p
+
+
+def _module_listed(name: str, modules: list[str]) -> bool:
+    """Return True if a module with stem `name` is in the modules: list.
+
+    Tolerates both bare-name (``document-economy``) and full-path
+    (``modules/document-economy.md``) frontmatter formats so the
+    assertion survives module-list normalization changes.
+    """
+    return any(Path(m).stem == name for m in modules)

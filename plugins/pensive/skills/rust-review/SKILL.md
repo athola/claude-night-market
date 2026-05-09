@@ -1,7 +1,6 @@
 ---
 name: rust-review
 description: 'Rust audit for unsafe blocks, ownership, and Cargo deps.'
-version: 1.9.4
 globs: "**/*.rs"
 alwaysApply: false
 category: code-review

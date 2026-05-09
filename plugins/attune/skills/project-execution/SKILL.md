@@ -1,7 +1,6 @@
 ---
 name: project-execution
 description: "Execute implementation plans with progress tracking, checkpoint validation, and quality gates."
-version: 1.9.4
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

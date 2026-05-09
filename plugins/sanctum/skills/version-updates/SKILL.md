@@ -1,7 +1,6 @@
 ---
 name: version-updates
 description: 'Bump versions, update changelogs, and coordinate version changes across files for releases.'
-version: 1.9.4
 alwaysApply: false
 category: artifact-generation
 tags:

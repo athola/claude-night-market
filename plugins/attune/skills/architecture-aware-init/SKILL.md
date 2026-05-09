@@ -1,7 +1,6 @@
 ---
 name: architecture-aware-init
 description: 'Research-backed paradigm selection before scaffolding.'
-version: 1.9.4
 alwaysApply: false
 category: project-initialization
 tags:

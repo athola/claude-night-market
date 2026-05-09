@@ -1,7 +1,6 @@
 ---
 name: review-chamber
 description: 'Capture-and-retrieve sink for PR-review findings in memory palaces.'
-version: 1.9.4
 alwaysApply: false
 usage_patterns:
 - capture-review: After PR review completion, capture significant findings

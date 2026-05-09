@@ -1,7 +1,6 @@
 ---
 name: github-initiative-pulse
 description: 'Generate markdown digests and CSV exports for GitHub issues, PRs, and initiative health tracking.'
-version: 1.9.4
 alwaysApply: false
 category: project-management
 tags:

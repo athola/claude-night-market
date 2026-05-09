@@ -43,6 +43,7 @@ history and guides.
 | `/do-issue` | Fix GitHub issues using parallel execution via sub-agents. |
 | `/fix-workflow` | Improve the most recent workflow slice through a retrospective. |
 | `/fix-pr` | Address PR review comments, implement fixes, and resolve threads. |
+| `/fixit` | Fix broken functionality from pasted error output using research, TDD, and proof-of-work. |
 | `/pr` | Prepare PR description with quality gates. |
 | `/update-docs` | Update project documentation. |
 | `/update-readme` | Update README with recent changes. |

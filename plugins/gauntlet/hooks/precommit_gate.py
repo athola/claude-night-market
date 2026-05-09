@@ -327,6 +327,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     - hookSpecificOutput with permissionDecision "allow" to allow.
     - hookSpecificOutput with permissionDecision "deny" to block.
     - {"additionalContext": ...} to nudge without blocking.
+
     """
     tool_input = hook_input.get("tool_input", {})
     command = tool_input.get("command", "")

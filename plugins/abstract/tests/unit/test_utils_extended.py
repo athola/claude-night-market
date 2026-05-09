@@ -653,7 +653,7 @@ class TestExtractSection:
 
     @pytest.mark.unit
     def test_returns_empty_when_next_heading_is_immediately_adjacent(self):
-        """Given the heading is followed immediately by another ## heading
+        r"""Given the heading is followed immediately by another ## heading
         with no body between them,
         When extract_section is called,
         Then it returns an empty string (not the next section's body).

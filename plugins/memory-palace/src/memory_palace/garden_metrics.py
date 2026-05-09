@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Calculate and report key metrics for a digital garden.
 
 Process a JSON file representing a digital garden to derive actionable insights

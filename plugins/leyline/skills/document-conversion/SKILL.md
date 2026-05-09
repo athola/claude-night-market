@@ -1,7 +1,6 @@
 ---
 name: document-conversion
 description: 'Document-to-markdown conversion with tiered fallback: MCP markitdown, native tools, or user notice.'
-version: 1.9.4
 alwaysApply: false
 category: infrastructure
 tags:

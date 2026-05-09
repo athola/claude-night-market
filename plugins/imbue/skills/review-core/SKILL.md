@@ -1,7 +1,6 @@
 ---
 name: review-core
 description: 'Review-workflow scaffolding (context, evidence, output).'
-version: 1.9.4
 alwaysApply: false
 category: review-patterns
 tags:

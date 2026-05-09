@@ -1,7 +1,6 @@
 ---
 name: rule-catalog
 description: 'Browse the rule catalog and guide installation.'
-version: 1.9.4
 alwaysApply: false
   ready-made rules, installing standard rules, browsing available categories. Do not
   use when writing custom rules - use writing-rules skill instead.

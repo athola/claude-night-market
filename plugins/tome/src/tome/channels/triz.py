@@ -496,10 +496,7 @@ def format_bridge_statement(
         recording bridge_confidence, source_field, and target_field.
     """
     title = f"Bridge: {source_field} to {target_domain}"
-    summary = (
-        f"In {source_field}, {source_solution}. "
-        f"This maps to {target_domain} as {application}."
-    )
+    summary = f"In {source_field}, {source_solution}. This maps to {target_domain} as {application}."
     url = f"triz://bridge/{source_field.replace(' ', '-')}/{target_domain}"
 
     return Finding(

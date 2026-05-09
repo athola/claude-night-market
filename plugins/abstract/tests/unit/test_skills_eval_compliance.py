@@ -239,7 +239,7 @@ class TestCheckTriggerIsolation:
 
     @pytest.mark.unit
     def test_body_with_dont_use_when_penalizes(self) -> None:
-        """Scenario: Body with \"Don't use when\" reduces score."""
+        r"""Scenario: Body with \"Don't use when\" reduces score."""
         description = "Triggers: x\nUse when: x\nDO NOT use when: x"
         body = "Don't use when: something else applies."
         result = check_trigger_isolation(description, body)

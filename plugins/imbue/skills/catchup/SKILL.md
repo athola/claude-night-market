@@ -1,7 +1,6 @@
 ---
 name: catchup
 description: 'Summarize recent git changes for context recovery.'
-version: 1.9.4
 alwaysApply: false
 category: analysis-methods
 tags:

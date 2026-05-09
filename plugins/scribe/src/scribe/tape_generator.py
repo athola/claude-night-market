@@ -93,8 +93,7 @@ def _scale_ms(base_ms: float, speed: float) -> int:
     """
     if speed <= 0:
         raise ValueError(
-            f"Speed must be positive, got {speed}. "
-            f"Minimum allowed value is {_MIN_SPEED}."
+            f"Speed must be positive, got {speed}. Minimum allowed value is {_MIN_SPEED}."
         )
     return max(1, round(base_ms / max(speed, _MIN_SPEED)))
 

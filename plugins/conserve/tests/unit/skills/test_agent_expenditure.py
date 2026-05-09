@@ -262,18 +262,6 @@ class TestWasteSignalDetection:
         Then findings >50% overlap indicate duplication
         """
         # Arrange
-        agent_findings = {
-            "agent_security": [
-                {"issue": "Missing input validation on login form"},
-                {"issue": "SQL injection vulnerability in query builder"},
-                {"issue": "Weak password hashing algorithm"},
-            ],
-            "agent_quality": [
-                {"issue": "Input not validated in login endpoint"},
-                {"issue": "Database query vulnerable to SQL injection"},
-                {"issue": "Code style violations in auth module"},
-            ],
-        }
 
         # Act - detect semantic overlap
         security_set = {
@@ -463,7 +451,6 @@ class TestBrooksLawThresholds:
         # Act - verify decision logic
         threshold_free = 3  # Up to 3 can dispatch freely
         threshold_plan = 4  # 4+ require a plan
-        threshold_careful = 6  # 6+ require close monitoring
 
         verified = {}
         for count, expected in decisions.items():
@@ -555,7 +542,7 @@ class TestPostDispatchReview:
         answered = {
             i: (question, response)
             for i, (question, response) in enumerate(
-                zip(review_checklist, review_responses.values())
+                zip(review_checklist, review_responses.values(), strict=False)
             )
         }
 

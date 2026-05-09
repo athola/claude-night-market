@@ -1,7 +1,6 @@
 ---
 name: python-async
 description: 'Async Python patterns and concurrency: async APIs, I/O-bound apps, rate limiting, context managers.'
-version: 1.9.4
 globs: "**/*.py"
 alwaysApply: false
 category: async

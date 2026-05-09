@@ -1,7 +1,6 @@
 ---
 name: gif-generation
 description: 'Post-process video files and generate optimized GIFs. Converts webm/mp4.'
-version: 1.9.4
 alwaysApply: false
   to GIF with configurable quality settings.
 category: media-generation

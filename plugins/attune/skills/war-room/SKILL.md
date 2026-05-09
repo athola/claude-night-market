@@ -1,7 +1,6 @@
 ---
 name: war-room
 description: 'Multi-LLM expert panel for high-stakes, hard-to-reverse decisions. Adversarial review.'
-version: 1.9.4
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-opus-4

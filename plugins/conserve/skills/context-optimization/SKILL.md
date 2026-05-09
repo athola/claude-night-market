@@ -1,7 +1,6 @@
 ---
 name: context-optimization
 description: 'Optimize context window via MECW principles, memory tiering, and subagent coordination.'
-version: 1.9.4
 alwaysApply: false
 category: conservation
 token_budget: 150

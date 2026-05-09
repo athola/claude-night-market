@@ -48,10 +48,9 @@ class TestJustifySkillStructure:
 
         Given the justify skill
         When parsing frontmatter
-        Then name, description, version, and category should be present
+        Then name, description, and category should be present
         """
         assert "name: justify" in skill_content
-        assert "version:" in skill_content
         assert "category:" in skill_content
         assert "description:" in skill_content
 

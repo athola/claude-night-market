@@ -14,7 +14,7 @@ import json
 import logging
 import sys
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -75,20 +75,20 @@ class ProjectTracker:
                 logging.getLogger(__name__).warning(
                     "minister: corrupt data file %s: %s", self.data_file, exc
                 )
-                return InitiativeTracker([], datetime.now(UTC).isoformat())
+                return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
             tasks = [Task(**task) for task in data.get("tasks", [])]
             return InitiativeTracker(
-                tasks, data.get("last_updated", datetime.now(UTC).isoformat())
+                tasks, data.get("last_updated", datetime.now(timezone.utc).isoformat())
             )
 
-        return InitiativeTracker([], datetime.now(UTC).isoformat())
+        return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
 
     def _save_data(self) -> None:
         """Save tracking data to file."""
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
         data = {
             "tasks": [asdict(task) for task in self.data.tasks],
-            "last_updated": datetime.now(UTC).isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat(),
         }
         with open(self.data_file, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=2)
@@ -104,7 +104,7 @@ class ProjectTracker:
             if task.id == task_id:
                 for key, value in updates.items():
                     setattr(task, key, value)
-                task.updated_date = datetime.now(UTC).isoformat()
+                task.updated_date = datetime.now(timezone.utc).isoformat()
                 self._save_data()
                 return
 
@@ -201,8 +201,8 @@ class ProjectTracker:
         else:
             start_date = datetime.fromisoformat(earliest)
             if start_date.tzinfo is None:
-                start_date = start_date.replace(tzinfo=UTC)
-            weeks_elapsed = max(1, (datetime.now(UTC) - start_date).days / 7)
+                start_date = start_date.replace(tzinfo=timezone.utc)
+            weeks_elapsed = max(1, (datetime.now(timezone.utc) - start_date).days / 7)
         burn_rate = completed_effort / weeks_elapsed
 
         return {
@@ -379,8 +379,8 @@ def run_cli(argv: list[str] | None = None) -> int:
                 effort_hours=args.effort,
                 completion_percent=0,
                 due_date=args.due,
-                created_date=datetime.now(UTC).isoformat(),
-                updated_date=datetime.now(UTC).isoformat(),
+                created_date=datetime.now(timezone.utc).isoformat(),
+                updated_date=datetime.now(timezone.utc).isoformat(),
                 github_issue=args.github_issue,
             )
             tracker.add_task(task)

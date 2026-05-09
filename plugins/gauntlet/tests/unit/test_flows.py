@@ -92,9 +92,7 @@ class TestDetectEntryPoints:
 
     @pytest.mark.unit
     def test_conventional_name_is_entry(self, store: GraphStore) -> None:
-        """
-        Scenario: Functions named 'main' or 'handle_*' are entries
-        """
+        """Scenario: Functions named 'main' or 'handle_*' are entries"""
         store.upsert_node(
             GraphNode(
                 kind=NodeKind.FUNCTION,

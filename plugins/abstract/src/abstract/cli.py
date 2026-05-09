@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Unified CLI for Abstract skills evaluation tools.
 
 Provides subcommands for compliance checking, auditing, improvement suggestions,

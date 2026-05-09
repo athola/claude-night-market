@@ -226,7 +226,10 @@ class TestMainHook:
         Scenario: Warning emitted when read count exceeds 15
         Given a session with 15 reads already counted
         When main() is called with a Read tool
-        Then output JSON has decision=warn mentioning the budget
+        Then stdout JSON contains additionalContext mentioning the budget
+        (issue #517: shadow-mode warn must use the additionalContext root
+        key; the older hookSpecificOutput wrapper fails Claude Code's
+        schema validation)
         """
         counter_path = tmp_path / "vow_read_counter_test-session2.json"
         hook_module._write_counter(counter_path, 15)
@@ -239,13 +242,11 @@ class TestMainHook:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         output = json.loads(captured.out)
-        hook_out = output["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "warn"
-        assert "Bounded discovery" in hook_out["permissionDecisionReason"]
-        assert (
-            "15" in hook_out["permissionDecisionReason"]
-            or "16" in hook_out["permissionDecisionReason"]
-        )
+        # Schema check: no legacy hookSpecificOutput wrapper.
+        assert "hookSpecificOutput" not in output
+        ctx = output["additionalContext"]
+        assert "Bounded discovery" in ctx
+        assert "15" in ctx or "16" in ctx
 
     @pytest.mark.unit
     def test_non_tracked_tool_exits_silently(self, hook_module, capsys, tmp_path):
@@ -438,11 +439,13 @@ class TestShadowMode:
     @pytest.mark.unit
     def test_warn_decision_in_shadow_mode(self, hook_module, capsys, tmp_path):
         """
-        Scenario: Budget exceeded in shadow mode emits warn decision
+        Scenario: Budget exceeded in shadow mode emits additionalContext
         Given VOW_SHADOW_MODE=1 (default)
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has permissionDecision=warn
+        Then the output JSON has additionalContext mentioning shadow mode
+        (issue #517: shadow-mode advisory uses additionalContext;
+        Claude Code rejects the legacy hookSpecificOutput wrapper)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-warn.json"
         hook_module._write_counter(counter_path, 15)
@@ -454,9 +457,10 @@ class TestShadowMode:
                         hook_module.main()
         assert exc.value.code == 0
         captured = capsys.readouterr()
-        hook_out = json.loads(captured.out)["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "warn"
-        assert "Shadow mode" in hook_out["permissionDecisionReason"]
+        output = json.loads(captured.out)
+        assert "hookSpecificOutput" not in output
+        ctx = output["additionalContext"]
+        assert "Shadow mode" in ctx
         assert "[vow-bounded-reads] WARN" in captured.err
 
     @pytest.mark.unit
@@ -466,7 +470,9 @@ class TestShadowMode:
         Given VOW_SHADOW_MODE=0
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has permissionDecision=block
+        Then the output JSON has decision=block with a reason
+        (issue #517: block-mode uses the {decision, reason} root keys
+        directly; not wrapped in hookSpecificOutput)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-block.json"
         hook_module._write_counter(counter_path, 15)
@@ -478,8 +484,10 @@ class TestShadowMode:
                         hook_module.main()
         assert exc.value.code == 0
         captured = capsys.readouterr()
-        hook_out = json.loads(captured.out)["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "block"
+        output = json.loads(captured.out)
+        assert "hookSpecificOutput" not in output
+        assert output["decision"] == "block"
+        assert "Bounded discovery" in output["reason"]
         assert "[vow-bounded-reads] BLOCK" in captured.err
 
 
@@ -791,6 +799,91 @@ class TestAtomicIncrement:
         )
 
     @pytest.mark.unit
+    def test_atomic_increment_50_thread_unfenced_documents_race(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: Document the 50-thread Windows-fallback behavior
+        Given _HAS_FCNTL=False (Windows / free-threaded interpreters)
+          And os.read is patched to sleep 5ms inside the RMW window
+          And 50 threads are released simultaneously
+        When all threads complete
+        Then lost updates manifest as len(set(results)) < 50
+
+        This documents that the unfenced path on Windows is *susceptible*
+        to lost updates when the GIL no longer serializes the RMW.
+        Operators relying on flock for correctness need to know the
+        Windows path degrades silently.
+        """
+        import os as _os
+        import threading
+        import time
+
+        monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
+        path = tmp_path / "vow_read_counter_nofcntl_50_thread.json"
+        n_threads = 50
+        real_read = _os.read
+
+        def slow_read(fd, size):
+            data = real_read(fd, size)
+            time.sleep(0.005)
+            return data
+
+        monkeypatch.setattr(hook_module.os, "read", slow_read)
+
+        results: list[int] = []
+        results_lock = threading.Lock()
+        barrier = threading.Barrier(n_threads)
+
+        def worker():
+            barrier.wait()
+            value = hook_module._atomic_increment(path)
+            with results_lock:
+                results.append(value)
+
+        threads = [threading.Thread(target=worker) for _ in range(n_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Without flock and with the injected race, lost updates are
+        # expected: distinct return values are strictly fewer than the
+        # number of threads. If this ever stops holding, the race is no
+        # longer effective and the paired flocked test should be
+        # revisited.
+        assert len(set(results)) < n_threads, (
+            f"unfenced 50-thread test produced {len(set(results))} "
+            f"distinct values for {n_threads} threads -- race injection "
+            "may have become ineffective"
+        )
+
+    @pytest.mark.unit
+    def test_atomic_increment_succeeds_when_fchmod_raises(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: fchmod failure does not break increment
+        Given the underlying filesystem rejects fchmod (e.g. some FUSE
+              mounts, network filesystems)
+        When _atomic_increment runs
+        Then the swallowed OSError does not corrupt state
+        And the counter still advances correctly
+        """
+
+        def raising_fchmod(_fd, _mode):
+            raise OSError("permission rejected by filesystem")
+
+        monkeypatch.setattr(hook_module.os, "fchmod", raising_fchmod)
+        path = tmp_path / "vow_read_counter_fchmod_fail.json"
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._atomic_increment(path) == 2
+        # File contents must remain a valid JSON object with the
+        # expected count, despite fchmod failures.
+        parsed = json.loads(path.read_bytes())
+        assert parsed == {"count": 2}
+
+    @pytest.mark.unit
     def test_atomic_increment_falls_back_when_fcntl_missing(
         self, hook_module, tmp_path, monkeypatch
     ):
@@ -805,6 +898,103 @@ class TestAtomicIncrement:
         assert hook_module._atomic_increment(path) == 1
         assert hook_module._atomic_increment(path) == 2
         assert hook_module._read_counter(path) == 2
+
+    @pytest.mark.unit
+    def test_flock_failure_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock unavailability surfaces as a stderr warning
+        Given fcntl.flock raises OSError (e.g. NFS, exhausted fd table)
+        When _atomic_increment runs
+        Then the increment still completes
+        And a "[vow-bounded-reads] WARN: flock unavailable" line is on stderr
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping fcntl warning test")
+        import errno
+
+        def raising_flock(_fd, _op):
+            raise OSError(errno.EWOULDBLOCK, "lock contention")
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        path = tmp_path / "vow_read_counter_flock_warn.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unavailable" in captured.err
+        assert "[vow-bounded-reads] WARN" in captured.err
+
+    @pytest.mark.unit
+    def test_flock_runtimeerror_also_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock raises a non-OSError condition (FUSE/Windows shim)
+        Given _fcntl.flock raises RuntimeError on a platform that
+        loaded fcntl but does not actually support flock at runtime
+        When _atomic_increment runs
+        Then the increment still completes
+        And the "flock unavailable" warning still fires.
+
+        Regression: a narrow ``except OSError`` would propagate the
+        RuntimeError to the outer ``except Exception`` and surface
+        only as the generic "counter increment failed" line, losing
+        the specific flock-unavailability signal.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping non-OSError flock test")
+
+        def raising_flock(_fd, _op):
+            raise RuntimeError("simulated FUSE-layer flock not implemented")
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", raising_flock)
+        path = tmp_path / "vow_read_counter_flock_rt.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unavailable" in captured.err, (
+            f"non-OSError flock failures must surface the same warning; "
+            f"got: {captured.err!r}"
+        )
+
+    @pytest.mark.unit
+    def test_unlock_failure_emits_stderr_warning(
+        self, hook_module, tmp_path, capsys, monkeypatch
+    ):
+        """
+        Scenario: flock(LOCK_UN) fails after a successful LOCK_EX
+        Given an environment where unlock raises OSError
+              (lock leak risk, e.g. fd already closed by signal handler)
+        When _atomic_increment runs to completion
+        Then a "[vow-bounded-reads] WARN: flock unlock failed" line is on stderr
+        And the increment still returns the new count.
+
+        Asymmetry between acquire-side and release-side observability
+        was previously a silent failure mode -- a leaked lock on
+        shutdown showed nothing in the operator log. This test pins
+        the symmetric pattern.
+        """
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable; skipping unlock warning test")
+
+        original_flock = hook_module._fcntl.flock
+        unlock_op = hook_module._fcntl.LOCK_UN
+
+        def selective_flock(fd, op):
+            if op == unlock_op:
+                raise OSError(9, "Bad file descriptor (simulated)")
+            return original_flock(fd, op)
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", selective_flock)
+        path = tmp_path / "vow_read_counter_unlock_warn.json"
+        result = hook_module._atomic_increment(path)
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "flock unlock failed" in captured.err, (
+            f"unlock failures must be surfaced for symmetry with the "
+            f"acquire-side warning; got: {captured.err!r}"
+        )
 
     @pytest.mark.unit
     def test_atomic_increment_survives_corrupt_file(self, hook_module, tmp_path):

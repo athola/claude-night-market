@@ -68,7 +68,7 @@ class TestWebResearchHandlerGraphWiring:
                 "web_research_handler.store_webfetch_content",
                 return_value=str(tmp_path / "stored.md"),
             ),
-            patch("web_research_handler._try_register_graph_entity") as mock_register,
+            patch("web_research_handler._try_register_graph_entity"),
             pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()

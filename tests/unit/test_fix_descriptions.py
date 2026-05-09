@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Feature: Consolidate skill descriptions into Claude Code official format
 

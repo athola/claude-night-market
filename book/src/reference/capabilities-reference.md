@@ -241,6 +241,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/evaluate-skill` | abstract | Evaluate skill execution quality |
 | `/fix-pr` | sanctum | Address PR review comments |
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
+| `/fixit` | sanctum | Fix broken functionality from pasted output using research, TDD, and proof-of-work |
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
 | `/gauntlet` | gauntlet | Run an ad-hoc challenge session (5 questions, random scope) |

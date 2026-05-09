@@ -1,7 +1,6 @@
 ---
 name: decisive-action
 description: 'Guide on when to ask clarifying questions vs proceed with standard approaches.'
-version: 1.9.4
 alwaysApply: true
 category: workflow
 tags:

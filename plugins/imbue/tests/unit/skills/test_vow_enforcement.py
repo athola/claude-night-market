@@ -48,10 +48,9 @@ class TestVowEnforcementSkillStructure:
 
         Given the vow-enforcement skill
         When parsing frontmatter
-        Then name, description, version, and category should be present
+        Then name, description, and category should be present
         """
         assert "name: vow-enforcement" in skill_content
-        assert "version:" in skill_content
         assert "category:" in skill_content
         assert "description:" in skill_content
 

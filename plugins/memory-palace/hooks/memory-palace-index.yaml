@@ -3381,6 +3381,24 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://idiallo.com/blog/ai-didnt-delete-your-database-you-did
+  https://github.com/anthropics/claude-code/blob/main/plugins/readme.md:
+    content_hash: sha256:2e772d380767277c
+    stored_at: data/staging/webfetch-claude-code-plugins-readme-structure-2026-05-07_16-34-34.md
+    importance_score: 50
+    last_updated: '2026-05-07T16:34:34.034857+00:00'
+    title: Claude Code Plugins README Structure
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/anthropics/claude-code/blob/main/plugins/README.md
+  https://github.com/astral-sh/uv:
+    content_hash: sha256:a89ee1a28375fee8
+    stored_at: data/staging/webfetch-uv-readme-structure-analysis-2026-05-07_16-34-35.md
+    importance_score: 50
+    last_updated: '2026-05-07T16:34:35.741578+00:00'
+    title: uv README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/astral-sh/uv
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3757,3 +3775,5 @@ hashes:
   sha256:0260fc9e44cb708c: data/staging/webfetch-web-search-tool-json-format-2026-05-04_13-58-55.md
   sha256:7a2c3f68236a4f96: data/staging/webfetch-hacker-news-discussion-summary-2026-05-05_22-22-33.md
   sha256:7513f319f5e3fd57: data/staging/webfetch-ai-didn-t-delete-your-database-you-did-complete-2026-05-05_22-22-55.md
+  sha256:2e772d380767277c: data/staging/webfetch-claude-code-plugins-readme-structure-2026-05-07_16-34-34.md
+  sha256:a89ee1a28375fee8: data/staging/webfetch-uv-readme-structure-analysis-2026-05-07_16-34-35.md

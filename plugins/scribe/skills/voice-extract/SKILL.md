@@ -1,7 +1,6 @@
 ---
 name: voice-extract
 description: 'Extract writing voice from samples via SICO comparative analysis.'
-version: 1.9.4
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

@@ -1,7 +1,6 @@
 ---
 name: voice-review
 description: 'Run prose and craft review agents on text against a voice profile.'
-version: 1.9.4
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality
