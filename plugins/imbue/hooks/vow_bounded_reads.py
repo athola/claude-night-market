@@ -241,13 +241,14 @@ def main() -> None:
                     else ""
                 )
             )
-            output = {
-                "hookSpecificOutput": {
-                    "hookEventName": "PreToolUse",
-                    "permissionDecision": decision,
-                    "permissionDecisionReason": reason,
-                }
-            }
+            # Issue #517: Claude Code rejects the legacy hookSpecificOutput
+            # wrapper. Shadow mode injects advisory text via additionalContext
+            # (no permission change); block mode uses the {decision, reason}
+            # root keys to halt the tool call.
+            if shadow:
+                output: dict[str, str] = {"additionalContext": reason}
+            else:
+                output = {"decision": "block", "reason": reason}
             print(json.dumps(output))
             print(
                 f"[vow-bounded-reads] {decision.upper()}: "

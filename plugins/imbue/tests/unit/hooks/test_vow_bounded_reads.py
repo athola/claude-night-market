@@ -226,7 +226,10 @@ class TestMainHook:
         Scenario: Warning emitted when read count exceeds 15
         Given a session with 15 reads already counted
         When main() is called with a Read tool
-        Then output JSON has decision=warn mentioning the budget
+        Then stdout JSON contains additionalContext mentioning the budget
+        (issue #517: shadow-mode warn must use the additionalContext root
+        key; the older hookSpecificOutput wrapper fails Claude Code's
+        schema validation)
         """
         counter_path = tmp_path / "vow_read_counter_test-session2.json"
         hook_module._write_counter(counter_path, 15)
@@ -239,13 +242,11 @@ class TestMainHook:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         output = json.loads(captured.out)
-        hook_out = output["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "warn"
-        assert "Bounded discovery" in hook_out["permissionDecisionReason"]
-        assert (
-            "15" in hook_out["permissionDecisionReason"]
-            or "16" in hook_out["permissionDecisionReason"]
-        )
+        # Schema check: no legacy hookSpecificOutput wrapper.
+        assert "hookSpecificOutput" not in output
+        ctx = output["additionalContext"]
+        assert "Bounded discovery" in ctx
+        assert "15" in ctx or "16" in ctx
 
     @pytest.mark.unit
     def test_non_tracked_tool_exits_silently(self, hook_module, capsys, tmp_path):
@@ -438,11 +439,13 @@ class TestShadowMode:
     @pytest.mark.unit
     def test_warn_decision_in_shadow_mode(self, hook_module, capsys, tmp_path):
         """
-        Scenario: Budget exceeded in shadow mode emits warn decision
+        Scenario: Budget exceeded in shadow mode emits additionalContext
         Given VOW_SHADOW_MODE=1 (default)
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has permissionDecision=warn
+        Then the output JSON has additionalContext mentioning shadow mode
+        (issue #517: shadow-mode advisory uses additionalContext;
+        Claude Code rejects the legacy hookSpecificOutput wrapper)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-warn.json"
         hook_module._write_counter(counter_path, 15)
@@ -454,9 +457,10 @@ class TestShadowMode:
                         hook_module.main()
         assert exc.value.code == 0
         captured = capsys.readouterr()
-        hook_out = json.loads(captured.out)["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "warn"
-        assert "Shadow mode" in hook_out["permissionDecisionReason"]
+        output = json.loads(captured.out)
+        assert "hookSpecificOutput" not in output
+        ctx = output["additionalContext"]
+        assert "Shadow mode" in ctx
         assert "[vow-bounded-reads] WARN" in captured.err
 
     @pytest.mark.unit
@@ -466,7 +470,9 @@ class TestShadowMode:
         Given VOW_SHADOW_MODE=0
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has permissionDecision=block
+        Then the output JSON has decision=block with a reason
+        (issue #517: block-mode uses the {decision, reason} root keys
+        directly; not wrapped in hookSpecificOutput)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-block.json"
         hook_module._write_counter(counter_path, 15)
@@ -478,8 +484,10 @@ class TestShadowMode:
                         hook_module.main()
         assert exc.value.code == 0
         captured = capsys.readouterr()
-        hook_out = json.loads(captured.out)["hookSpecificOutput"]
-        assert hook_out["permissionDecision"] == "block"
+        output = json.loads(captured.out)
+        assert "hookSpecificOutput" not in output
+        assert output["decision"] == "block"
+        assert "Bounded discovery" in output["reason"]
         assert "[vow-bounded-reads] BLOCK" in captured.err
 
 
