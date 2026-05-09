@@ -7,7 +7,16 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-import yaml
+# Issue #518: PyYAML is declared in pyproject.toml but the precommit hook
+# runs under the system Python, which may not have it. Guard so importing
+# this module from the hook does not crash on `git commit`.
+try:
+    import yaml as _yaml
+
+    _HAS_YAML = True
+except ImportError:  # pragma: no cover - exercised only on hosts without PyYAML
+    _yaml = None  # type: ignore[assignment]  # sentinel; guarded by _HAS_YAML at call sites
+    _HAS_YAML = False
 
 from gauntlet.models import BankProblem, Challenge, ChallengeType, Difficulty
 
@@ -17,6 +26,13 @@ _log = logging.getLogger(__name__)
 
 def load_bank(data_dir: Path | None = None) -> list[BankProblem]:
     """Load all problems from YAML files in the data directory."""
+    if not _HAS_YAML:
+        # Without PyYAML installed we cannot parse the problem bank;
+        # callers see an empty list and the gauntlet falls back to its
+        # built-in challenge generator. Issue #518.
+        _log.warning("PyYAML unavailable; problem bank cannot be loaded")
+        return []
+    assert _yaml is not None  # noqa: S101 - narrowing for type-checker; guarded by _HAS_YAML
     directory = data_dir or _DEFAULT_DATA_DIR
     problems: list[BankProblem] = []
     for yaml_file in sorted(directory.glob("*.yaml")):
@@ -24,8 +40,8 @@ def load_bank(data_dir: Path | None = None) -> list[BankProblem]:
             continue  # skip manifest and other meta files
         try:
             with open(yaml_file) as f:  # noqa: PTH123 - reading from plugin data dir
-                data = yaml.safe_load(f)
-        except yaml.YAMLError:
+                data = _yaml.safe_load(f)
+        except _yaml.YAMLError:
             _log.warning("Skipping malformed YAML: %s", yaml_file.name)
             continue
         if not data or "problems" not in data:
@@ -83,9 +99,12 @@ def bank_problem_to_challenge(problem: BankProblem) -> Challenge:
 
 def load_manifest(data_dir: Path | None = None) -> dict[str, Any]:
     """Load the problem bank manifest with category metadata."""
+    if not _HAS_YAML:
+        return {}
+    assert _yaml is not None  # noqa: S101 - narrowing for type-checker; guarded by _HAS_YAML
     directory = data_dir or _DEFAULT_DATA_DIR
     manifest_path = directory / "_manifest.yaml"
     if not manifest_path.exists():
         return {}
     with open(manifest_path) as f:  # noqa: PTH123 - reading from plugin data dir
-        return yaml.safe_load(f) or {}
+        return _yaml.safe_load(f) or {}

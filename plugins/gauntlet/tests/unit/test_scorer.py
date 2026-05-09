@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import importlib
 import math
+import sys
 from pathlib import Path
 
 import pytest
@@ -193,3 +195,47 @@ class TestYamlScorer:
         model_path.write_text(content)
         scorer = YamlScorer(str(model_path))
         assert scorer.blend_weights == (0.5, 0.5)
+
+
+class TestYamlUnavailable:
+    """Issue #518: scorer.py must import cleanly when PyYAML is absent.
+
+    The gauntlet precommit hook runs under the system python, which may
+    not have PyYAML installed. A hard `import yaml` at module top crashes
+    the hook on every `git commit`. Guard the import so YamlScorer just
+    reports unavailable() and the score_answer_quality() fallback kicks
+    in.
+    """
+
+    @pytest.mark.unit
+    def test_module_imports_without_yaml(self, monkeypatch, tmp_path: Path):
+        """
+        Scenario: scorer module reloads cleanly when yaml is unavailable
+        Given the `yaml` module is absent from sys.modules and unimportable
+        When gauntlet.ml.scorer is reloaded
+        Then the import succeeds (no ImportError propagates)
+        And YamlScorer().available() returns False
+        And score() returns 0.0 instead of crashing
+        """
+        # Strip the cached yaml module and prevent re-import.
+        monkeypatch.delitem(sys.modules, "yaml", raising=False)
+        # Block any subsequent import of yaml under this monkeypatch scope.
+        real_import = (
+            __builtins__["__import__"]
+            if isinstance(__builtins__, dict)
+            else __builtins__.__import__
+        )
+
+        def block_yaml(name, *args, **kwargs):
+            if name == "yaml" or name.startswith("yaml."):
+                raise ImportError("No module named 'yaml'")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr("builtins.__import__", block_yaml)
+        # Force a fresh import of scorer.
+        monkeypatch.delitem(sys.modules, "gauntlet.ml.scorer", raising=False)
+        scorer_mod = importlib.import_module("gauntlet.ml.scorer")
+        # Reaching this line proves the import didn't raise.
+        scorer = scorer_mod.YamlScorer(str(tmp_path / "irrelevant.yaml"))
+        assert scorer.available() is False
+        assert scorer.score({"feat_a": 1.0}) == 0.0
