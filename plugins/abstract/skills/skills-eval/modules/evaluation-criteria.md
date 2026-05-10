@@ -51,7 +51,7 @@ description:
 | `user-invocable` | boolean | `true` or `false` |
 | `allowed-tools` | string | Comma-separated tool names |
 | `model` | string | Valid model name |
-| `effort` | string | `low`, `medium`, `high`, `max` |
+| `effort` | string | `low`, `medium`, `high`, `xhigh` (Opus 4.7), `max` (Opus 4.7) |
 | `context` | string | Only `fork` supported |
 | `agent` | string | Subagent type (with `context: fork`) |
 | `argument-hint` | string | Shown in autocomplete |
