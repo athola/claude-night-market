@@ -71,6 +71,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `doc-importer` | [scribe](../plugins/scribe.md) | Import external documents to markdown |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
 | `document-conversion` | [leyline](../plugins/leyline.md) | Universal document-to-markdown conversion |
+| `dora-metrics` | [minister](../plugins/minister.md) | Compute DORA delivery-performance metrics with tier classification |
 | `dorodango` | [attune](../plugins/attune.md) | Iterative code polishing workflow |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
