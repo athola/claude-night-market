@@ -297,7 +297,9 @@ def anthropic_variation_provider(
 
 # Default to the Anthropic SDK provider so existing call sites keep working
 # without an explicit registration step. Skills that want to short-circuit
-# to the in-loop LLM can call set_variation_provider(my_callback).
+# to the in-loop LLM can call set_variation_provider(my_callback). The
+# session-start hook at hooks/register_in_loop_provider.py wires the
+# in-loop provider when running inside Claude Code (issue #464).
 set_variation_provider(anthropic_variation_provider)
 
 
@@ -342,5 +344,9 @@ def generate_bank_challenge(problem: BankProblem) -> Challenge:
     Produces a unique variation of the seed problem via Claude so that
     users cannot memorise the original YAML answers.  Falls back to the
     verbatim YAML problem when the Claude call fails.
+
+    Skills that run inside Claude Code can call
+    ``gauntlet.providers.in_loop.register_in_loop_provider_if_inside_claude_code()``
+    at activation time to short-circuit the Anthropic SDK call (issue #464).
     """
     return bank_problem_to_challenge(_generate_problem_variation(problem))
