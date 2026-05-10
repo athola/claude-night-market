@@ -369,6 +369,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
 | `prose-reviewer` | scribe | AI patterns, banned phrases, voice drift detection |
+| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research)`) |
 | `project-architect` | attune | Guides full-cycle workflow (brainstorm to plan) |
 | `project-implementer` | attune | Executes implementation with TDD |
 | `python-linter` | parseltongue | Strict ruff linting without bypasses |

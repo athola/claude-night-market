@@ -21,6 +21,7 @@
     "./agents/code-searcher.md",
     "./agents/discourse-scanner.md",
     "./agents/literature-reviewer.md",
+    "./agents/research.md",
     "./agents/triz-analyst.md"
   ],
   "hooks": [],
