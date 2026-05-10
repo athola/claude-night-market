@@ -159,9 +159,13 @@ class TestComputeMetrics:
 
     def test_empty_events(self) -> None:
         metrics = compute_metrics(deployments=[], failures=[], window_days=30)
-        # No deploys: DF=0, but other metrics should still produce something defensible
+        # Issue #527: empty input distinguishes "no signal" from "perfect."
+        # DF stays float (0 deploys/day is well-defined Low); CFR/LT/TRS
+        # become None (will classify as N/A, not Elite).
         assert metrics.deployment_frequency == 0.0
-        assert metrics.change_failure_rate == 0.0
+        assert metrics.change_failure_rate is None
+        assert metrics.lead_time_hours is None
+        assert metrics.time_to_restore_hours is None
 
     def test_basic_window(self) -> None:
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
@@ -697,6 +701,85 @@ class TestStrictFlag:
 
 
 # =============================================================================
+# Issue #527 — Empty-window metrics should report N/A, not Elite
+# =============================================================================
+
+
+class TestEmptyWindowNotElite:
+    """Issue #527: a team that hasn't shipped anything should not look the
+    same as a team that ships continuously with zero failures.
+
+    Lead Time, Change Failure Rate, and Time to Restore Service all default
+    to 0 when their input is empty. Under the previous behavior 0 classified
+    as Elite — indistinguishable from "perfect quality." The fix returns
+    None for these metrics when input is empty and surfaces "N/A" in the
+    tier table. Deployment Frequency stays float since 0 deploys/day has a
+    well-defined meaning (Low tier).
+    """
+
+    def test_empty_window_lt_is_none(self) -> None:
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        assert m.lead_time_hours is None
+
+    def test_empty_window_cfr_is_none(self) -> None:
+        # No deploys means CFR is undefined (no denominator).
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        assert m.change_failure_rate is None
+
+    def test_empty_window_trs_is_none(self) -> None:
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        assert m.time_to_restore_hours is None
+
+    def test_empty_window_df_is_zero_not_none(self) -> None:
+        # DF is 0 deploys / 30 days = 0.0 / day. Well-defined; not None.
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        assert m.deployment_frequency == 0.0
+
+    def test_empty_window_tier_table_reports_na(self) -> None:
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        tiers = m.tier()
+        assert tiers["lead_time"] == "N/A"
+        assert tiers["change_failure_rate"] == "N/A"
+        assert tiers["time_to_restore"] == "N/A"
+        # DF is well-defined zero -> Low, not N/A
+        assert tiers["deployment_frequency"] == "Low"
+
+    def test_empty_window_overall_tier_excludes_na(self) -> None:
+        """overall_tier reports the weakest non-N/A metric (DF=Low here),
+        not 'N/A' itself, so partial-data still gives the operator a tier
+        floor for the metrics that ARE measurable."""
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        # DF=Low is the only computable metric -> Low overall
+        assert m.overall_tier() == "Low"
+
+    def test_empty_window_bottleneck_excludes_na(self) -> None:
+        """bottleneck names the weakest computable metric, not an N/A."""
+        m = compute_metrics(deployments=[], failures=[], window_days=30)
+        bn = m.bottleneck()
+        # DF is the only computable; it's the bottleneck.
+        assert bn == "deployment_frequency"
+
+    def test_all_metrics_na_overall_is_na(self) -> None:
+        """If somehow every metric is N/A, overall_tier reports N/A."""
+        # Construct DORAMetrics directly with all-None to test the corner.
+        metrics = DORAMetrics(
+            deployment_frequency=None,
+            lead_time_hours=None,
+            change_failure_rate=None,
+            time_to_restore_hours=None,
+        )
+        assert metrics.overall_tier() == "N/A"
+        assert metrics.bottleneck() == "insufficient_data"
+
+    def test_classifier_returns_na_on_none(self) -> None:
+        """The four classifiers must accept None and return 'N/A'."""
+        assert classify_lead_time(None) == "N/A"
+        assert classify_change_failure_rate(None) == "N/A"
+        assert classify_time_to_restore(None) == "N/A"
+        assert classify_deployment_frequency(None) == "N/A"
+
+
+# =============================================================================
 # Issue #529 — Type design refinements
 # =============================================================================
 
@@ -758,7 +841,10 @@ class TestTierLiteral:
         )
 
     def test_tier_literal_values(self) -> None:
-        """The Tier alias must enumerate exactly the four DORA tiers."""
+        """The Tier alias enumerates the four DORA tiers plus 'N/A'.
+
+        Issue #527 added 'N/A' for metrics with no signal in the window.
+        """
         import typing
 
         from minister import dora_metrics
@@ -766,7 +852,7 @@ class TestTierLiteral:
         # Resolve the Literal to its args.
         tier_alias = dora_metrics.Tier
         args = typing.get_args(tier_alias)
-        assert set(args) == {"Low", "Medium", "High", "Elite"}
+        assert set(args) == {"Low", "Medium", "High", "Elite", "N/A"}
 
 
 class TestJsonPayloadPartialField:

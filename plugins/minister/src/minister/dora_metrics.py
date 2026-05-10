@@ -35,9 +35,13 @@ DEFAULT_WINDOW_DAYS = 30
 # Issue #529: constrain tier strings to a Literal so a typo
 # ("elite" lowercase, "medum") fails type-check at the boundary
 # rather than silently misclassifying.
-Tier = Literal["Low", "Medium", "High", "Elite"]
+# Issue #527: "N/A" extends the alias for metrics that have no signal
+# (empty input). N/A is excluded from bottleneck and overall_tier
+# ranking so a team that hasn't shipped is not classified Elite.
+Tier = Literal["Low", "Medium", "High", "Elite", "N/A"]
 
 # Tier names ordered weakest -> strongest for ranking.
+# N/A is intentionally not in this map; rankers must skip N/A entries.
 _TIER_RANK: dict[Tier, int] = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
 
 
@@ -131,8 +135,13 @@ class FailureEvent:
 # =============================================================================
 
 
-def classify_deployment_frequency(per_day: float) -> Tier:
-    """Classify DF: Elite >=1/day, High >=1/week, Medium >=1/month, else Low."""
+def classify_deployment_frequency(per_day: float | None) -> Tier:
+    """Classify DF: Elite >=1/day, High >=1/week, Medium >=1/month, else Low.
+
+    Issue #527: None input maps to "N/A".
+    """
+    if per_day is None:
+        return "N/A"
     if per_day >= 1.0:
         return "Elite"
     if per_day >= 1 / 7:
@@ -142,8 +151,14 @@ def classify_deployment_frequency(per_day: float) -> Tier:
     return "Low"
 
 
-def classify_lead_time(hours: float) -> Tier:
-    """Classify LT: Elite <=24h, High <=1 week, Medium <=1 month, else Low."""
+def classify_lead_time(hours: float | None) -> Tier:
+    """Classify LT: Elite <=24h, High <=1 week, Medium <=1 month, else Low.
+
+    Issue #527: None input (no deploys in window) maps to "N/A" rather
+    than the previous "0 hours -> Elite" silent misclassification.
+    """
+    if hours is None:
+        return "N/A"
     if hours <= 24.0:
         return "Elite"
     if hours <= 24 * 7:
@@ -153,8 +168,14 @@ def classify_lead_time(hours: float) -> Tier:
     return "Low"
 
 
-def classify_change_failure_rate(rate: float) -> Tier:
-    """Classify CFR: Elite 0-15%, High 16-30%, Medium 31-45%, Low 46%+."""
+def classify_change_failure_rate(rate: float | None) -> Tier:
+    """Classify CFR: Elite 0-15%, High 16-30%, Medium 31-45%, Low 46%+.
+
+    Issue #527: None input (no deploys, so the ratio is undefined) maps
+    to "N/A".
+    """
+    if rate is None:
+        return "N/A"
     if rate <= 0.15:
         return "Elite"
     if rate <= 0.30:
@@ -164,8 +185,13 @@ def classify_change_failure_rate(rate: float) -> Tier:
     return "Low"
 
 
-def classify_time_to_restore(hours: float) -> Tier:
-    """Classify TRS: Elite <1h, High <24h, Medium <1 week, else Low."""
+def classify_time_to_restore(hours: float | None) -> Tier:
+    """Classify TRS: Elite <1h, High <24h, Medium <1 week, else Low.
+
+    Issue #527: None input (no resolved failures in window) maps to "N/A".
+    """
+    if hours is None:
+        return "N/A"
     if hours < 1.0:
         return "Elite"
     if hours < 24.0:
@@ -182,12 +208,21 @@ def classify_time_to_restore(hours: float) -> Tier:
 
 @dataclass(frozen=True)
 class DORAMetrics:
-    """Frozen value object holding all four DORA metric values."""
+    """Frozen value object holding all four DORA metric values.
 
-    deployment_frequency: float  # deploys per day
-    lead_time_hours: float  # median commit -> deploy hours
-    change_failure_rate: float  # 0.0 - 1.0
-    time_to_restore_hours: float  # median resolve - open hours
+    Issue #527: lead_time_hours, change_failure_rate, and
+    time_to_restore_hours may be None when the input window contained
+    no relevant events. None classifies as "N/A" rather than 0/Elite
+    so a team that has not shipped anything is not silently promoted
+    to the highest tier. deployment_frequency stays float because
+    "0 deploys per day" is well-defined and correctly classifies as
+    Low.
+    """
+
+    deployment_frequency: float | None  # deploys per day
+    lead_time_hours: float | None  # median commit -> deploy hours
+    change_failure_rate: float | None  # 0.0 - 1.0
+    time_to_restore_hours: float | None  # median resolve - open hours
 
     def tier(self) -> dict[str, Tier]:
         """Return per-metric tier classification."""
@@ -203,7 +238,12 @@ class DORAMetrics:
         }
 
     def bottleneck(self) -> str:
-        """Return the tier key of the weakest metric.
+        """Return the tier key of the weakest computable metric.
+
+        N/A entries are excluded from the comparison; they have no
+        signal to rank against. If every metric is N/A, returns
+        "insufficient_data" so the caller can see that the window
+        contained no signal at all.
 
         Ties break deterministically by declaration order (DF, LT, CFR, TRS).
         """
@@ -214,12 +254,25 @@ class DORAMetrics:
             "change_failure_rate",
             "time_to_restore",
         )
-        return min(ordered_keys, key=lambda k: _TIER_RANK[tiers[k]])
+        computable = [k for k in ordered_keys if tiers[k] != "N/A"]
+        if not computable:
+            return "insufficient_data"
+        return min(computable, key=lambda k: _TIER_RANK[tiers[k]])
 
     def overall_tier(self) -> Tier:
-        """Return the weakest tier across all four metrics."""
+        """Return the weakest tier across all *computable* metrics.
+
+        N/A is excluded from the comparison so partial-data still
+        gives the operator a tier floor on the metrics that ARE
+        measurable. If every metric is N/A, returns "N/A".
+        """
         tiers = self.tier()
-        return min(tiers.values(), key=lambda t: _TIER_RANK[t])
+        computable: list[Tier] = [t for t in tiers.values() if t != "N/A"]
+        if not computable:
+            return "N/A"
+        # Restrict the comparator's input type so _TIER_RANK lookup
+        # type-checks (N/A keys are intentionally absent).
+        return min(computable, key=lambda t: _TIER_RANK[t])
 
 
 # =============================================================================
@@ -227,8 +280,15 @@ class DORAMetrics:
 # =============================================================================
 
 
-def _median_or_zero(values: list[float]) -> float:
-    return statistics.median(values) if values else 0.0
+def _median_or_none(values: list[float]) -> float | None:
+    """Return the median of values, or None when the input is empty.
+
+    Issue #527: callers previously used ``_median_or_zero`` and the 0.0
+    return classified as Elite for LT/TRS, indistinguishable from
+    "perfect quality." None classifies as N/A and is excluded from the
+    bottleneck/overall_tier ranking so operators see honest signal.
+    """
+    return statistics.median(values) if values else None
 
 
 def compute_metrics(
@@ -238,6 +298,9 @@ def compute_metrics(
     window_end: datetime | None = None,
 ) -> DORAMetrics:
     """Compute DORA metrics over a window.
+
+    Empty inputs produce None for LT, CFR, and TRS (issue #527). DF
+    stays a float because "zero deploys per day" is well-defined.
 
     Args:
         deployments: Deployment events; events outside the window are filtered.
@@ -263,16 +326,20 @@ def compute_metrics(
         for d in in_window_deploys
         if d.deployed_at >= d.commit_at
     ]
-    lt = _median_or_zero(lead_times)
+    lt: float | None = _median_or_none(lead_times)
 
-    cfr = len(in_window_failures) / len(in_window_deploys) if in_window_deploys else 0.0
+    cfr: float | None = (
+        len(in_window_failures) / len(in_window_deploys)
+        if in_window_deploys
+        else None  # No deploys -> CFR is undefined, not "0% / Elite"
+    )
 
     restore_times = [
         (f.resolved_at - f.opened_at).total_seconds() / 3600.0
         for f in in_window_failures
         if f.resolved_at is not None and f.resolved_at >= f.opened_at
     ]
-    trs = _median_or_zero(restore_times)
+    trs: float | None = _median_or_none(restore_times)
 
     return DORAMetrics(
         deployment_frequency=df,
@@ -288,32 +355,48 @@ def compute_metrics(
 
 
 def format_report(m: DORAMetrics, window_days: int) -> str:
-    """Render a human-readable summary suitable for terminal or PR comment."""
+    """Render a human-readable summary suitable for terminal or PR comment.
+
+    None metrics (issue #527) render as "N/A" rather than "0.00" so the
+    operator can distinguish "no signal" from "perfect quality."
+    """
     tiers = m.tier()
     bottleneck = m.bottleneck()
+
+    def fmt_df(value: float | None) -> str:
+        return "N/A" if value is None else f"{value:.2f}/day"
+
+    def fmt_hours(value: float | None) -> str:
+        return "N/A" if value is None else f"{value:.1f} hours"
+
+    def fmt_pct(value: float | None) -> str:
+        return "N/A" if value is None else f"{value * 100:.1f}%"
+
+    def fmt_hours2(value: float | None) -> str:
+        return "N/A" if value is None else f"{value:.2f} hours"
 
     rows = [
         (
             "Deployment Frequency",
-            f"{m.deployment_frequency:.2f}/day",
+            fmt_df(m.deployment_frequency),
             tiers["deployment_frequency"],
             "deployment_frequency",
         ),
         (
             "Lead Time for Changes",
-            f"{m.lead_time_hours:.1f} hours",
+            fmt_hours(m.lead_time_hours),
             tiers["lead_time"],
             "lead_time",
         ),
         (
             "Change Failure Rate",
-            f"{m.change_failure_rate * 100:.1f}%",
+            fmt_pct(m.change_failure_rate),
             tiers["change_failure_rate"],
             "change_failure_rate",
         ),
         (
             "Time to Restore Service",
-            f"{m.time_to_restore_hours:.2f} hours",
+            fmt_hours2(m.time_to_restore_hours),
             tiers["time_to_restore"],
             "time_to_restore",
         ),
