@@ -179,7 +179,18 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 
     Note: This does write to disk - use sparingly.
 
+    Raises:
+        ValueError: if ``importance_score`` is outside the documented
+            closed range [0, 100]. Validation runs before any state
+            mutation so a bad score cannot poison the cache or the
+            on-disk index.
+
     """
+    if not 0 <= importance_score <= 100:
+        raise ValueError(
+            f"importance_score must be in [0, 100], got {importance_score}"
+        )
+
     global _index_cache  # noqa: PLW0603 - invalidate module-level cache after disk write
 
     index = _load_index()

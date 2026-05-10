@@ -141,6 +141,25 @@ and its `/health` endpoint responds.
 Both scorers implement the same `Scorer` protocol, so
 consumer code never changes.
 
+## Variation Provider
+
+To vary a challenge wording without making it a memorisation
+drill, gauntlet asks a `VariationProvider` for a perturbed
+seed prompt. Two implementations ship:
+
+- **Anthropic** (default outside Claude Code): calls the
+  Anthropic SDK to generate variations.
+- **In-loop** (default inside Claude Code, issue #464):
+  produces deterministic local variations by perturbing
+  integers and small numeric tokens. Avoids spawning a
+  sibling Claude through the API when the parent LLM is
+  already in-loop. Imports nothing from `anthropic`.
+
+The challenge skill calls
+`register_in_loop_provider_if_inside_claude_code()` to
+switch providers based on the runtime. The selection is
+automatic and requires no configuration.
+
 ## CLI Scripts
 
 For scripted or CI use, four scripts are available under

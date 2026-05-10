@@ -3399,6 +3399,105 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/astral-sh/uv
+  https://github.com/pytest-dev/pytest:
+    content_hash: sha256:bf36fcc7f588336b
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: pytest
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/pytest-dev/pytest
+  https://testing-library.com/docs/guiding-principles/:
+    content_hash: sha256:2f1f977514a088c3
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Testing Library Guiding Principles
+    maturity: growing
+    routing_type: meta
+    url: https://testing-library.com/docs/guiding-principles/
+  https://github.com/testcontainers/testcontainers-java:
+    content_hash: sha256:43171c54b2c7d2ee
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Testcontainers (JVM)
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/testcontainers/testcontainers-java
+  https://github.com/microsoft/playwright:
+    content_hash: sha256:e8a6ea38f92e425f
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Playwright
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/microsoft/playwright
+  https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/docs/stateful.rst:
+    content_hash: sha256:051faeefc985e549
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Hypothesis stateful testing
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/docs/stateful.rst
+  https://github.com/stryker-mutator/stryker-js:
+    content_hash: sha256:28967d12c5b22cd8
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: StrykerJS
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/stryker-mutator/stryker-js
+  https://github.com/labgrid-project/labgrid:
+    content_hash: sha256:103d1a3ef516a9ed
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: labgrid embedded board control
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/labgrid-project/labgrid
+  https://github.com/google/openhtf:
+    content_hash: sha256:219cf12bf81bab29
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: OpenHTF bench tests
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/google/openhtf
+  https://github.com/athola/claude-night-market/issues/519:
+    content_hash: sha256:3764cc6ebe2f9b79
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: qa-tester plugin proposal (issue
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/athola/claude-night-market/issues/519
+  https://raw.githubusercontent.com/burntsushi/ripgrep/master/readme.md:
+    content_hash: sha256:bed625ed7044228c
+    stored_at: data/staging/webfetch-ripgrep-readme-structure-analysis-2026-05-10_03-46-17.md
+    importance_score: 50
+    last_updated: '2026-05-10T03:46:17.748075+00:00'
+    title: ripgrep README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/BurntSushi/ripgrep/master/README.md
+  https://raw.githubusercontent.com/sharkdp/bat/master/readme.md:
+    content_hash: sha256:0481a86d7cad9e73
+    stored_at: data/staging/webfetch-bat-readme-structure-analysis-2026-05-10_03-46-19.md
+    importance_score: 50
+    last_updated: '2026-05-10T03:46:19.724681+00:00'
+    title: bat README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/sharkdp/bat/master/README.md
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3777,3 +3876,14 @@ hashes:
   sha256:7513f319f5e3fd57: data/staging/webfetch-ai-didn-t-delete-your-database-you-did-complete-2026-05-05_22-22-55.md
   sha256:2e772d380767277c: data/staging/webfetch-claude-code-plugins-readme-structure-2026-05-07_16-34-34.md
   sha256:a89ee1a28375fee8: data/staging/webfetch-uv-readme-structure-analysis-2026-05-07_16-34-35.md
+  sha256:bf36fcc7f588336b: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:2f1f977514a088c3: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:43171c54b2c7d2ee: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:e8a6ea38f92e425f: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:051faeefc985e549: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:28967d12c5b22cd8: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:103d1a3ef516a9ed: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:219cf12bf81bab29: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:3764cc6ebe2f9b79: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:bed625ed7044228c: data/staging/webfetch-ripgrep-readme-structure-analysis-2026-05-10_03-46-17.md
+  sha256:0481a86d7cad9e73: data/staging/webfetch-bat-readme-structure-analysis-2026-05-10_03-46-19.md
