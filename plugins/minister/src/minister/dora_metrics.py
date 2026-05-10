@@ -37,6 +37,26 @@ _TIER_RANK = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
 
 
 # =============================================================================
+# Collection result envelope
+# =============================================================================
+
+
+@dataclass(frozen=True)
+class CollectionResult:
+    """Envelope for collector output.
+
+    A bare list cannot distinguish "we found zero events" from "the
+    collector failed and we have no signal." This envelope carries the
+    distinction so the CLI can refuse to silently classify a broken
+    `gh` invocation as Elite (issue #525).
+    """
+
+    events: list[Any]
+    partial: bool = False
+    warnings: tuple[str, ...] = ()
+
+
+# =============================================================================
 # Event types
 # =============================================================================
 
@@ -285,28 +305,37 @@ def collect_deployments_from_git(
     window_days: int,
     window_end: datetime | None = None,
     cwd: Path | None = None,
-) -> list[DeploymentEvent]:
+) -> CollectionResult:
     """Treat each commit on ``branch`` as a deployment event.
 
     This is the simplest mapping that works for trunk-based and merge-PR
     workflows; teams with explicit deploy events should override this with a
     custom collector. ``commit_at`` and ``deployed_at`` collapse to the same
     timestamp here, giving lead time = 0; pass real deploy data for accuracy.
+
+    Returns a CollectionResult so the CLI can distinguish between "no
+    deploys in window" and "collector failed." Malformed timestamps are
+    skipped with a warning rather than aborting the whole run.
     """
     if window_end is None:
         window_end = datetime.now(timezone.utc)
     since = (window_end - timedelta(days=window_days)).isoformat()
+    # Place "--" before the branch so a value like "--upload-pack=..."
+    # is treated as a positional rather than a git log flag (issue #526).
     output = _run_git(
         [
             "log",
-            branch,
             f"--since={since}",
             "--pretty=format:%H|%aI|%cI",
             "--no-merges",
+            "--",
+            branch,
         ],
         cwd=cwd,
     )
     events: list[DeploymentEvent] = []
+    warnings: list[str] = []
+    partial = False
     for line in output.strip().splitlines():
         if not line:
             continue
@@ -314,12 +343,19 @@ def collect_deployments_from_git(
         if len(parts) != 3:
             continue
         sha, author_iso, commit_iso = parts
-        commit_at = datetime.fromisoformat(author_iso)
-        deployed_at = datetime.fromisoformat(commit_iso)
+        try:
+            commit_at = datetime.fromisoformat(author_iso)
+            deployed_at = datetime.fromisoformat(commit_iso)
+        except ValueError as exc:
+            warnings.append(
+                f"skipped git log line with malformed timestamp ({sha[:12]}): {exc}"
+            )
+            partial = True
+            continue
         events.append(
             DeploymentEvent(sha=sha, deployed_at=deployed_at, commit_at=commit_at)
         )
-    return events
+    return CollectionResult(events=events, partial=partial, warnings=tuple(warnings))
 
 
 def collect_failures_from_gh(
@@ -327,8 +363,14 @@ def collect_failures_from_gh(
     window_days: int,
     window_end: datetime | None = None,
     cwd: Path | None = None,
-) -> list[FailureEvent]:
-    """Pull GitHub issues with ``failure_label`` opened in the window."""
+) -> CollectionResult:
+    """Pull GitHub issues with ``failure_label`` opened in the window.
+
+    A `gh` failure (auth expired, rate-limited, missing binary,
+    paginator banner) returns ``CollectionResult(events=[], partial=True)``
+    so the caller can refuse to silently classify a broken collector
+    as zero failures (issue #525).
+    """
     if window_end is None:
         window_end = datetime.now(timezone.utc)
     since = (window_end - timedelta(days=window_days)).date().isoformat()
@@ -354,33 +396,62 @@ def collect_failures_from_gh(
             text=True,
             check=True,
         )
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return []
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        msg = f"gh CLI failed: {type(exc).__name__}: {exc}"
+        print(f"[dora] WARNING: {msg}", file=sys.stderr)
+        return CollectionResult(events=[], partial=True, warnings=(msg,))
 
     try:
         rows = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        preview = result.stdout[:200].replace("\n", " ")
+        msg = f"gh json parse failed: {exc}; head: {preview!r}"
+        print(f"[dora] WARNING: {msg}", file=sys.stderr)
+        return CollectionResult(events=[], partial=True, warnings=(msg,))
 
     events: list[FailureEvent] = []
+    warnings: list[str] = []
+    partial = False
     for row in rows:
         opened_iso = row.get("createdAt")
         closed_iso = row.get("closedAt")
         if not opened_iso:
             continue
-        opened_at = datetime.fromisoformat(opened_iso.replace("Z", "+00:00"))
-        resolved_at = (
-            datetime.fromisoformat(closed_iso.replace("Z", "+00:00"))
-            if closed_iso
-            else None
-        )
+        try:
+            opened_at = datetime.fromisoformat(opened_iso.replace("Z", "+00:00"))
+            resolved_at = (
+                datetime.fromisoformat(closed_iso.replace("Z", "+00:00"))
+                if closed_iso
+                else None
+            )
+        except ValueError as exc:
+            warnings.append(f"skipped gh row with malformed timestamp: {exc}")
+            partial = True
+            continue
         events.append(FailureEvent(opened_at=opened_at, resolved_at=resolved_at))
-    return events
+    return CollectionResult(events=events, partial=partial, warnings=tuple(warnings))
 
 
 # =============================================================================
 # CLI
 # =============================================================================
+
+
+def _positive_int(value: str) -> int:
+    """argparse type-checker: window must be a positive integer (issue #526).
+
+    Zero produces a zero-by-zero classification trap; negative produces a
+    future-dated window that includes commits ahead of the head.
+    """
+    try:
+        ivalue = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            f"expected a positive integer, got {value!r}"
+        ) from exc
+    if ivalue < 1:
+        raise argparse.ArgumentTypeError(f"window must be >= 1, got {ivalue}")
+    return ivalue
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -390,9 +461,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--window",
-        type=int,
+        type=_positive_int,
         default=DEFAULT_WINDOW_DAYS,
-        help="Measurement window in days (default: 30).",
+        help="Measurement window in days (must be >= 1; default: 30).",
     )
     parser.add_argument(
         "--branch",
@@ -415,20 +486,34 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Path to the repository (default: current dir).",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help=(
+            "Exit non-zero when any collector returns partial data (issue "
+            "#525). Use in CI to refuse silent 'Elite' tier reports caused "
+            "by a broken gh CLI."
+        ),
+    )
     return parser
 
 
 def run_cli(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    deployments = collect_deployments_from_git(
+    deploy_result = collect_deployments_from_git(
         branch=args.branch, window_days=args.window, cwd=args.repo_path
     )
-    failures = collect_failures_from_gh(
+    failure_result = collect_failures_from_gh(
         failure_label=args.failure_label, window_days=args.window, cwd=args.repo_path
     )
     metrics = compute_metrics(
-        deployments=deployments, failures=failures, window_days=args.window
+        deployments=deploy_result.events,
+        failures=failure_result.events,
+        window_days=args.window,
     )
+
+    partial = bool(deploy_result.partial or failure_result.partial)
+    warnings = list(deploy_result.warnings) + list(failure_result.warnings)
 
     if args.json:
         payload: dict[str, Any] = {
@@ -444,11 +529,23 @@ def run_cli(argv: list[str] | None = None) -> int:
                 "tiers": metrics.tier(),
                 "overall_tier": metrics.overall_tier(),
                 "bottleneck": metrics.bottleneck(),
+                "partial": partial,
+                "warnings": warnings,
             },
         }
         print(json.dumps(payload, indent=2))
     else:
         print(format_report(metrics, window_days=args.window))
+        if partial:
+            print(
+                "\nNOTE: results are partial. One or more collectors failed; "
+                "the reported tier may not reflect reality. See stderr for "
+                "specific warnings.",
+                file=sys.stderr,
+            )
+
+    if args.strict and partial:
+        return 2
     return 0
 
 
