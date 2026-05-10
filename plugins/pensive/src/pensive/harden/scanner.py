@@ -27,9 +27,11 @@ _SKIP_COMPONENTS = frozenset(
         ".mypy_cache",
         ".ruff_cache",
         ".pytest_cache",
+        ".uv-cache",  # uv's local package cache
         "site-packages",
         ".eggs",
         "target",  # Rust build output
+        ".cargo",  # Rust toolchain cache
     }
 )
 
