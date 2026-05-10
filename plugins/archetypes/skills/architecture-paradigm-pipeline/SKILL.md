@@ -46,3 +46,16 @@ estimated_tokens: 700
   - **Mitigation**: Centralize schema definitions in a shared repository and enforce compatibility tests as part of the CI/CD process to prevent breaking changes.
 - **Back-Pressure Failures**:
   - **Mitigation**: Conduct rigorous load testing to simulate high-volume scenarios. Validate that buffering, retry logic, and back-pressure mechanisms behave as expected under stress.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``stream-processor`` -- the runtime that executes a filter (e.g. Flink, Apache Beam, Faust)
+- ``message-queue`` -- the durable pipe between filters (e.g. Kafka, RabbitMQ, in-memory channel)
+- ``data-validator`` -- schema-checks every record at filter input and output

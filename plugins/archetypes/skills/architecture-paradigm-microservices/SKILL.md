@@ -91,3 +91,16 @@ estimated_tokens: 900
   - **Mitigation**: Maintaining data consistency across services is a primary challenge. Employ patterns like Sagas for orchestrating transactions, validate message-based communication is idempotent, and use reconciliation jobs to handle eventual consistency.
 - **Incorrect Service Granularity ("Over-splitting")**:
   - **Mitigation**: If services are too small, the communication overhead can outweigh the benefits of distribution. validate each service owns a meaningful and substantial piece of functionality. Monitor change coupling between services to identify candidates for merging.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``service-boundary-analyzer`` -- finds candidate seams via call-graph and data-ownership analysis
+- ``api-contract-generator`` -- OpenAPI/protobuf scaffolding for new service boundaries
+- ``resilience-patterns`` -- retry, circuit breaker, bulkhead, and timeout libraries

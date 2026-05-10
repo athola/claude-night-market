@@ -54,3 +54,16 @@ estimated_tokens: 700
   - **Mitigation**: Changes to a shared database can have cascading effects across services. Mitigate this by using database views, replication, or a formal schema deprecation schedule to manage change.
 - **Architectural Degradation**:
   - **Mitigation**: Without strong governance, this architecture can degrade into a "distributed monolith"—a monolith with the added complexity of network hops. Track coupling metrics closely and enforce strict ownership of services and data to prevent this.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``api-gateway`` -- single ingress that routes to coarse-grained services and centralizes cross-cutting concerns
+- ``service-registry`` -- directory of available services with health status and contracts
+- ``schema-management`` -- shared schema repo for types crossing service boundaries

@@ -87,3 +87,16 @@ estimated_tokens: 700
   - **Mitigation**: For features that span multiple layers, strict adherence can lead to excessive "pass-through" code and increased latency. In such cases, consider using a Façade pattern to provide a more direct interface where appropriate.
 - **"Leaky" Layers**:
   - **Mitigation**: Developers may be tempted to bypass architectural rules for expediency, which degrades the architecture. Treat all architectural violations as build-breaking failures or critical issues in code review.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``dependency-validator`` -- fails the build when a layer imports above its allowed depth
+- ``layer-enforcer`` -- static-analysis gate that checks namespaces match layer rules
+- ``architecture-compliance-checker`` -- diffs the implemented layer graph against the documented one
