@@ -142,6 +142,31 @@ class TestYamlUnavailable:
         index = dedup_module._load_index()
         assert index == {"entries": {}, "hashes": {}}
 
+    def test_load_index_recovers_from_corrupt_yaml(
+        self, tmp_path: object, monkeypatch: object, capsys: object
+    ) -> None:
+        """A corrupt YAML index file must not take down web-research store
+        calls. The loader catches yaml.YAMLError, logs to stderr, and
+        returns the empty-index sentinel (issue #528)."""
+        import yaml as real_yaml
+
+        index_path = tmp_path / "dedup-index.yaml"
+        # Write a syntactically invalid YAML file.
+        index_path.write_text(
+            "entries:\n  - this is malformed because: : :\n  bad: }\n"
+        )
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+
+        # Should NOT raise; should return the empty-index sentinel.
+        index = dedup_module._load_index()
+        assert index == {"entries": {}, "hashes": {}}
+        # Should log to stderr so the operator notices.
+        err = capsys.readouterr().err
+        assert (
+            "yaml" in err.lower() or "corrupt" in err.lower() or "index" in err.lower()
+        )
+
     def test_is_known_returns_false_when_yaml_unavailable(
         self, monkeypatch: object
     ) -> None:
