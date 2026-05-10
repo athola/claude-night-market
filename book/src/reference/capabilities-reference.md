@@ -84,6 +84,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
+| `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
@@ -252,6 +253,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/gauntlet-onboard` | gauntlet | Start or resume a guided onboarding path |
 | `/gauntlet-progress` | gauntlet | Show challenge accuracy stats, weak areas, and streak |
 | `/git-catchup` | sanctum | Git repository catchup |
+| `/harden` | pensive | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `/hookify` | hookify | Create behavioral rules to prevent unwanted actions |
 | `/hookify:configure` | hookify | Interactive rule enable/disable interface |
 | `/hookify:from-hook` | hookify | Convert Python SDK hooks to declarative rules |
@@ -358,6 +360,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `extractor` | gauntlet | Autonomous knowledge extraction agent for gauntlet knowledge base |
 | `garden-curator` | memory-palace | Digital garden maintenance |
 | `git-workspace-agent` | sanctum | Repository state analyzer |
+| `harden-orchestrator` | pensive | Active hardening orchestrator (composes rust-review, supply-chain-advisory, bug-review) |
 | `implementation-executor` | spec-kit | Task executor |
 | `knowledge-librarian` | memory-palace | Knowledge routing |
 | `knowledge-navigator` | memory-palace | Palace search |
