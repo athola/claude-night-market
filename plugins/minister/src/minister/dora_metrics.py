@@ -27,13 +27,18 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 DEFAULT_FAILURE_LABEL = "bug"
 DEFAULT_WINDOW_DAYS = 30
 
+# Issue #529: constrain tier strings to a Literal so a typo
+# ("elite" lowercase, "medum") fails type-check at the boundary
+# rather than silently misclassifying.
+Tier = Literal["Low", "Medium", "High", "Elite"]
+
 # Tier names ordered weakest -> strongest for ranking.
-_TIER_RANK = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
+_TIER_RANK: dict[Tier, int] = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
 
 
 # =============================================================================
@@ -61,21 +66,64 @@ class CollectionResult:
 # =============================================================================
 
 
+def _require_aware(name: str, dt: datetime) -> None:
+    """Issue #529: reject naive datetimes at construction.
+
+    A naive datetime silently breaks the window-comparison arithmetic
+    in compute_metrics; callers that pass datetime.now() (instead of
+    datetime.now(timezone.utc)) would discover this deep inside the
+    metric calculation. Catching at the boundary makes the bug
+    reachable from a single line of test scaffolding.
+    """
+    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+        raise ValueError(
+            f"{name} must be tz-aware (timezone-attached); got naive datetime {dt!r}"
+        )
+
+
 @dataclass(frozen=True)
 class DeploymentEvent:
-    """A deploy to production. ``commit_at`` is the source-commit timestamp."""
+    """A deploy to production. ``commit_at`` is the source-commit timestamp.
+
+    Both timestamps must be tz-aware (issue #529). Naive datetimes are
+    rejected at construction so window-comparison arithmetic never
+    silently uses mixed-offset values.
+    """
 
     sha: str
     deployed_at: datetime
     commit_at: datetime
 
+    def __post_init__(self) -> None:
+        _require_aware("deployed_at", self.deployed_at)
+        _require_aware("commit_at", self.commit_at)
+
 
 @dataclass(frozen=True)
 class FailureEvent:
-    """A production failure. ``resolved_at`` may be None for ongoing incidents."""
+    """A production failure. ``resolved_at`` may be None for ongoing incidents.
+
+    Invariants enforced at construction (issue #529):
+
+    - ``opened_at`` and (if set) ``resolved_at`` must be tz-aware.
+    - ``resolved_at`` (if set) must be >= ``opened_at``. A backwards
+      pair is a data-integrity bug, not a TRS sample to silently
+      filter downstream.
+    """
 
     opened_at: datetime
     resolved_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        _require_aware("opened_at", self.opened_at)
+        if self.resolved_at is not None:
+            _require_aware("resolved_at", self.resolved_at)
+            if self.resolved_at < self.opened_at:
+                raise ValueError(
+                    f"resolved_at {self.resolved_at!r} is before "
+                    f"opened_at {self.opened_at!r}; backwards events "
+                    "are a data-integrity bug, not a TRS sample"
+                )
 
 
 # =============================================================================
@@ -83,7 +131,7 @@ class FailureEvent:
 # =============================================================================
 
 
-def classify_deployment_frequency(per_day: float) -> str:
+def classify_deployment_frequency(per_day: float) -> Tier:
     """Classify DF: Elite >=1/day, High >=1/week, Medium >=1/month, else Low."""
     if per_day >= 1.0:
         return "Elite"
@@ -94,7 +142,7 @@ def classify_deployment_frequency(per_day: float) -> str:
     return "Low"
 
 
-def classify_lead_time(hours: float) -> str:
+def classify_lead_time(hours: float) -> Tier:
     """Classify LT: Elite <=24h, High <=1 week, Medium <=1 month, else Low."""
     if hours <= 24.0:
         return "Elite"
@@ -105,7 +153,7 @@ def classify_lead_time(hours: float) -> str:
     return "Low"
 
 
-def classify_change_failure_rate(rate: float) -> str:
+def classify_change_failure_rate(rate: float) -> Tier:
     """Classify CFR: Elite 0-15%, High 16-30%, Medium 31-45%, Low 46%+."""
     if rate <= 0.15:
         return "Elite"
@@ -116,7 +164,7 @@ def classify_change_failure_rate(rate: float) -> str:
     return "Low"
 
 
-def classify_time_to_restore(hours: float) -> str:
+def classify_time_to_restore(hours: float) -> Tier:
     """Classify TRS: Elite <1h, High <24h, Medium <1 week, else Low."""
     if hours < 1.0:
         return "Elite"
@@ -141,7 +189,7 @@ class DORAMetrics:
     change_failure_rate: float  # 0.0 - 1.0
     time_to_restore_hours: float  # median resolve - open hours
 
-    def tier(self) -> dict[str, str]:
+    def tier(self) -> dict[str, Tier]:
         """Return per-metric tier classification."""
         return {
             "deployment_frequency": classify_deployment_frequency(
@@ -168,7 +216,7 @@ class DORAMetrics:
         )
         return min(ordered_keys, key=lambda k: _TIER_RANK[tiers[k]])
 
-    def overall_tier(self) -> str:
+    def overall_tier(self) -> Tier:
         """Return the weakest tier across all four metrics."""
         tiers = self.tier()
         return min(tiers.values(), key=lambda t: _TIER_RANK[t])

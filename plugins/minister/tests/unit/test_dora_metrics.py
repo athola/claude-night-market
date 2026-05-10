@@ -696,6 +696,79 @@ class TestStrictFlag:
         assert rc == 0
 
 
+# =============================================================================
+# Issue #529 — Type design refinements
+# =============================================================================
+
+
+class TestEventInvariants:
+    """Issue #529: enforce datetime invariants at construction-time."""
+
+    def test_failure_event_rejects_resolved_before_opened(self) -> None:
+        """A FailureEvent with resolved_at < opened_at is a data-integrity
+        bug, not a sample to filter downstream. Reject at construction.
+        """
+        now = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        with pytest.raises(ValueError, match="resolved_at"):
+            FailureEvent(
+                opened_at=now,
+                resolved_at=now - timedelta(hours=1),  # backwards
+            )
+
+    def test_failure_event_accepts_resolved_equal_to_opened(self) -> None:
+        """resolved_at == opened_at is a zero-duration but valid event."""
+        now = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        event = FailureEvent(opened_at=now, resolved_at=now)
+        assert event.resolved_at == event.opened_at
+
+    def test_failure_event_accepts_unresolved(self) -> None:
+        """resolved_at=None means the incident is still open."""
+        now = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        event = FailureEvent(opened_at=now, resolved_at=None)
+        assert event.resolved_at is None
+
+    def test_failure_event_rejects_naive_opened_at(self) -> None:
+        """Naive datetimes silently break window-comparison arithmetic.
+        Force tz-aware at construction to catch the bug at the boundary.
+        """
+        now_naive = datetime(2026, 5, 1)  # no tzinfo
+        with pytest.raises(ValueError, match="tz-aware|timezone"):
+            FailureEvent(opened_at=now_naive)
+
+    def test_failure_event_rejects_naive_resolved_at(self) -> None:
+        now = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        naive = datetime(2026, 5, 2)  # no tzinfo
+        with pytest.raises(ValueError, match="tz-aware|timezone"):
+            FailureEvent(opened_at=now, resolved_at=naive)
+
+    def test_deployment_event_rejects_naive_datetimes(self) -> None:
+        naive = datetime(2026, 5, 1)
+        with pytest.raises(ValueError, match="tz-aware|timezone"):
+            DeploymentEvent(sha="a" * 40, deployed_at=naive, commit_at=naive)
+
+
+class TestTierLiteral:
+    """Issue #529: tier strings should be a constrained Literal type."""
+
+    def test_tier_literal_exported(self) -> None:
+        """The Tier Literal type alias must be exported so callers can
+        type-check tier-bearing code paths."""
+        from minister.dora_metrics import (
+            Tier,  # noqa: F401 - import is the assertion (existence check)
+        )
+
+    def test_tier_literal_values(self) -> None:
+        """The Tier alias must enumerate exactly the four DORA tiers."""
+        import typing
+
+        from minister import dora_metrics
+
+        # Resolve the Literal to its args.
+        tier_alias = dora_metrics.Tier
+        args = typing.get_args(tier_alias)
+        assert set(args) == {"Low", "Medium", "High", "Elite"}
+
+
 class TestJsonPayloadPartialField:
     """JSON payload must surface the partial flag and warnings."""
 
