@@ -22,7 +22,7 @@ Per-plugin minimum version requirements and version-specific notes:
 
 ### April–May 2026 (2.1.97-2.1.138)
 
-Plugin-author-actionable changes only; UI, IDE, and CLI-internal
+Plugin-author-relevant changes only; UI, IDE, and CLI-internal
 fixes are omitted. See `~/.claude/release-notes` for the full log.
 
 - **2.1.136**: `skills` entry in `plugin.json` listing a file path

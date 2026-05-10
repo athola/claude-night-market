@@ -35,9 +35,9 @@ modules:
 
 ## Purpose
 
-Compute the four DORA delivery-performance metrics — Deployment
+Compute the four DORA delivery-performance metrics (Deployment
 Frequency, Lead Time for Changes, Change Failure Rate, and Time to
-Restore Service — from local git history and the GitHub API. Classify
+Restore Service) from local git history and the GitHub API. Classify
 each metric into Elite, High, Medium, or Low using thresholds from
 DORA's State of DevOps research, and surface the single weakest
 dimension as the next improvement target.
@@ -67,9 +67,9 @@ dimension as the next improvement target.
 2. Read the output: per-metric value, tier classification, and the
    bottleneck pointer.
 
-3. For agentic-workflow audits, run the same window twice — once
-   filtering to AI-authored PRs (e.g., `--failure-label ai-bug`) and
-   once across all PRs — and compare the CFR delta. See
+3. For agentic-workflow audits, run the same window twice. Once
+   filtering to AI-authored PRs (e.g., `--failure-label ai-bug`),
+   once across all PRs. Compare the CFR delta. See
    `modules/agentic-workflow-signals.md`.
 
 4. Optionally pipe `--json` into the tracker so trend data persists

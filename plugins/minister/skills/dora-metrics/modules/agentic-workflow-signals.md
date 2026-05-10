@@ -57,7 +57,7 @@ print("Agent bottleneck:", agent.bottleneck())
 ```
 
 If the bottleneck differs across cohorts, that is the most
-actionable single output: it tells the engineering manager which
+useful single output: it tells the engineering manager which
 guardrail is missing for which population.
 
 ## Anti-Patterns

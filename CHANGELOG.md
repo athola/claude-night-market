@@ -13,10 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`minister:dora-metrics` skill (#487).** Computes the four
   DORA delivery-performance metrics (deployment frequency, lead
-  time for changes, change failure rate, mean time to restore)
-  from GitHub PR and deployment data, and classifies the result
-  into the Elite / High / Medium / Low tier from the Accelerate
-  research. Intended for quarterly delivery retros. See
+  time for changes, change failure rate, time to restore service
+  — median) from GitHub PR and deployment data, and classifies
+  the result into the Elite / High / Medium / Low tier from the
+  Accelerate research. Intended for quarterly delivery retros. See
   `plugins/minister/skills/dora-metrics/` and the entry in
   `book/src/reference/capabilities-reference.md`.
 - **In-loop variation provider for gauntlet (#464).** When

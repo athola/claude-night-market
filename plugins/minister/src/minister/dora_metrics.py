@@ -13,6 +13,7 @@ Returns (JSON, when used as a CLI):
     data.window_days (int): Measurement window in days.
     data.metrics (dict): The four metric values.
     data.tiers (dict): Per-metric classification.
+    data.overall_tier (str): Weakest tier across all four metrics.
     data.bottleneck (str): Weakest dimension key.
 """
 

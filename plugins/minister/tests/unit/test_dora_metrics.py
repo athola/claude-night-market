@@ -34,9 +34,20 @@ class TestClassifyDeploymentFrequency:
         # >=1/day is Elite per DORA research
         assert classify_deployment_frequency(per_day=1.0) == "Elite"
 
+    def test_high_boundary(self) -> None:
+        # 1/week boundary: per_day == 1/7 must classify as High,
+        # not Medium. Pins the `>=` in the High branch and would
+        # fail if the inequality flipped to `>`.
+        assert classify_deployment_frequency(per_day=1 / 7) == "High"
+
     def test_high_tier(self) -> None:
         # 1/week to 1/day is High
         assert classify_deployment_frequency(per_day=0.3) == "High"
+
+    def test_medium_boundary(self) -> None:
+        # 1/month boundary: per_day == 1/30 must classify as
+        # Medium, not Low. Pins the `>=` in the Medium branch.
+        assert classify_deployment_frequency(per_day=1 / 30) == "Medium"
 
     def test_medium_tier(self) -> None:
         # 1/month to 1/week
@@ -60,8 +71,18 @@ class TestClassifyLeadTime:
     def test_high_one_day_to_one_week(self) -> None:
         assert classify_lead_time(hours=72.0) == "High"
 
+    def test_high_boundary(self) -> None:
+        # 1 week boundary: 24*7 hours must classify as High,
+        # not Medium. Pins the `<=` in the High branch.
+        assert classify_lead_time(hours=24 * 7) == "High"
+
     def test_medium_one_week_to_one_month(self) -> None:
         assert classify_lead_time(hours=24 * 14) == "Medium"
+
+    def test_medium_boundary(self) -> None:
+        # 1 month boundary: 24*30 hours must classify as Medium,
+        # not Low. Pins the `<=` in the Medium branch.
+        assert classify_lead_time(hours=24 * 30) == "Medium"
 
     def test_low_over_one_month(self) -> None:
         assert classify_lead_time(hours=24 * 60) == "Low"
@@ -78,22 +99,56 @@ class TestClassifyChangeFailureRate:
     def test_high_tier(self) -> None:
         assert classify_change_failure_rate(rate=0.25) == "High"
 
+    def test_high_boundary(self) -> None:
+        # 30% boundary must classify as High, not Medium.
+        # Pins the `<=` in the High branch.
+        assert classify_change_failure_rate(rate=0.30) == "High"
+
     def test_medium_tier(self) -> None:
         assert classify_change_failure_rate(rate=0.40) == "Medium"
+
+    def test_medium_boundary(self) -> None:
+        # 45% boundary must classify as Medium, not Low.
+        # Pins the `<=` in the Medium branch.
+        assert classify_change_failure_rate(rate=0.45) == "Medium"
 
     def test_low_tier(self) -> None:
         assert classify_change_failure_rate(rate=0.60) == "Low"
 
 
 class TestClassifyTimeToRestore:
+    """TRS is the only DORA classifier that uses strict `<` rather
+    than `<=`, so its tier boundaries fall into the *next* tier,
+    not the better one. These boundary tests pin that asymmetry so
+    a future contributor who flips `<` to `<=` (perhaps to match
+    the other three classifiers) breaks tests rather than silently
+    regresses production behavior.
+    """
+
     def test_elite_under_one_hour(self) -> None:
         assert classify_time_to_restore(hours=0.5) == "Elite"
+
+    def test_elite_just_under_one_hour(self) -> None:
+        # 0.999h is still under the strict `< 1.0` threshold.
+        assert classify_time_to_restore(hours=0.999) == "Elite"
+
+    def test_one_hour_is_high_not_elite(self) -> None:
+        # Strict `<`: exactly 1.0h is High, not Elite.
+        assert classify_time_to_restore(hours=1.0) == "High"
 
     def test_high_under_one_day(self) -> None:
         assert classify_time_to_restore(hours=12.0) == "High"
 
+    def test_one_day_is_medium_not_high(self) -> None:
+        # Strict `<`: exactly 24h is Medium, not High.
+        assert classify_time_to_restore(hours=24.0) == "Medium"
+
     def test_medium_under_one_week(self) -> None:
         assert classify_time_to_restore(hours=24 * 3) == "Medium"
+
+    def test_one_week_is_low_not_medium(self) -> None:
+        # Strict `<`: exactly 24*7=168h is Low, not Medium.
+        assert classify_time_to_restore(hours=24 * 7) == "Low"
 
     def test_low_over_one_week(self) -> None:
         assert classify_time_to_restore(hours=24 * 14) == "Low"

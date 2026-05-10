@@ -14,7 +14,7 @@
 #   bash assets/tapes/add-subtitles.sh
 #   bash assets/tapes/add-subtitles.sh path/to/in.gif path/to/out.gif
 
-set -eu
+set -euo pipefail
 
 INPUT="${1:-assets/gifs/skills-showcase.gif}"
 OUTPUT="${2:-assets/gifs/skills-showcase.gif}"

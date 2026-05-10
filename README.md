@@ -221,10 +221,10 @@ See the [Common Workflows Guide][workflows] for full details.
 
 **1.9.6:** adds `minister:dora-metrics` for computing the
 four DORA delivery-performance metrics (deployment frequency,
-lead time for changes, change failure rate, mean time to
-restore) from GitHub PR and deployment data, classifying
-results into Elite / High / Medium / Low tiers from the
-Accelerate research (#487). `gauntlet` gains an in-loop
+lead time for changes, change failure rate, median time to
+restore service) from GitHub PR and deployment data,
+classifying results into Elite / High / Medium / Low tiers
+from the Accelerate research (#487). `gauntlet` gains an in-loop
 variation provider that runs deterministically inside Claude
 Code, so challenge wording can vary without spawning a sibling
 Claude through the Anthropic SDK (#464). `memory-palace`

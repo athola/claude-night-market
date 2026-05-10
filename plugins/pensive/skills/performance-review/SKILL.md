@@ -225,8 +225,8 @@ exact code shape.
 ## Verification
 
 A perf-review finding is only useful if the caller can confirm it
-is real. Use this checklist before treating any finding as
-actionable:
+is real. Use this checklist before treating any finding as worth
+fixing:
 
 1. **Reproduce under a profiler.** Run `cProfile`, `py-spy`, or the
    language-specific equivalent on the hotspot. The findings
@@ -260,3 +260,19 @@ the AST-shape detectors. Two rules for changes here:
 The Iron Law applies: a new detector without a failing test first
 is a request to skip TDD on a code-analysis component, which is
 exactly the place where TDD pays off most.
+
+## Exit Criteria
+
+- [ ] A perf-review report file exists for the requested target.
+- [ ] Every finding carries a severity label and a concrete
+      suggestion the caller can act on.
+- [ ] Time-complexity (T1-T6) and space-complexity (S1-S3)
+      detectors have been run; tier coverage is reported.
+- [ ] Tier 2 (gauntlet treesitter) and Tier 3 (graph store)
+      contracts honor the optional-import sentinel: missing
+      modules return `[]` rather than raising.
+- [ ] Each new detector ships with a smallest-AST test that
+      fails before the detector exists; each removed false
+      positive ships with a regression test.
+- [ ] Findings flow into `Skill(pensive:unified-review)` without
+      translation when invoked from the unified entry point.

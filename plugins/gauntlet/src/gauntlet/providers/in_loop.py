@@ -43,16 +43,13 @@ _INT_RE = re.compile(r"\b\d+\b")
 def _shift_int(match: re.Match[str]) -> str:
     """Shift an integer by a deterministic, bounded delta.
 
-    Even-length numbers shift by +2; odd-length by +3. The result is
-    always >= 1 so we never introduce zero (which often degenerates
-    a problem to triviality).
+    Even-length numbers shift by +2; odd-length by +3. The regex
+    matches non-negative integers and the delta is always positive,
+    so the result is always >= 2.
     """
     raw = match.group(0)
     delta = 2 if len(raw) % 2 == 0 else 3
-    new = int(raw) + delta
-    if new < 1:
-        new = 1
-    return str(new)
+    return str(int(raw) + delta)
 
 
 def in_loop_variation_provider(
