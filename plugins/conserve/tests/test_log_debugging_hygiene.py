@@ -8,6 +8,8 @@ Verifies:
 - Parent SKILL.md references the module.
 - The "filter beats compress" claim is reproducible on the
   committed intake_queue.jsonl fixture.
+- Invariant: the conserve plugin does not bundle a runtime
+  compressor (load-bearing for the module's doctrine).
 """
 
 from __future__ import annotations
@@ -136,4 +138,45 @@ def test_filter_first_claim_is_reproducible() -> None:
         f"committed intake_queue.jsonl fixture; got {savings:.2%}. "
         f"Either the fixture changed or the module claim is no "
         f"longer accurate."
+    )
+
+
+def test_conserve_does_not_bundle_runtime_compressor() -> None:
+    """Encode the no-bundled-compressor invariant.
+
+    The module's doctrine is "filter beats compress" and the
+    shared-utility-consumer-rule requires 2+ documented consumers
+    before scaffolding. Bundling llmlingua, drain3, or similar
+    contradicts both. If this test fails, present the human three
+    options:
+
+    1. Preserve: revert the dep; tier 3 stays external.
+    2. Layer: ship the compressor in a separate plugin instead.
+    3. Revise: update the module doctrine and the rule with
+       documented consumers and ADR justification.
+    """
+    pyproject = REPO_ROOT / "plugins" / "conserve" / "pyproject.toml"
+    text = pyproject.read_text()
+    project_section = re.search(
+        r"^\[project\]\n(.*?)(?=^\[|\Z)",
+        text,
+        re.DOTALL | re.MULTILINE,
+    )
+    assert project_section, "Could not locate [project] section in pyproject.toml"
+    section_body = project_section.group(1).lower()
+    banned = ["llmlingua", "drain3", "lognplus", "logparser", "loghub"]
+    found = [b for b in banned if b in section_body]
+    assert not found, (
+        f"conserve runtime deps must not include a log compressor; "
+        f"found {found}. See "
+        f"plugins/conserve/skills/compression-strategy/modules/"
+        f"log-debugging-hygiene.md for the doctrine and "
+        f".claude/rules/shared-utility-consumer-rule.md for the "
+        f"consumer-count requirement."
+    )
+
+    module_text = MODULE_FILE.read_text().lower()
+    assert "does not bundle" in module_text or "not bundled" in module_text, (
+        "Module no longer states the no-bundle position; doctrine drift "
+        "between docs and deps is the failure mode this test prevents."
     )
