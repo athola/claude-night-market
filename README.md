@@ -137,7 +137,7 @@ complements.
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts, additive-bias defense | 22 | 3 |
 | **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 18 | 19 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |
-| **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
+| **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation, filter-first log debugging | 13 | 5 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
 | **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
@@ -218,6 +218,18 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**Unreleased:** `conserve` adds the `log-debugging-hygiene`
+module and `/filter-log` command. On the committed
+`intake_queue.jsonl` fixture, `tail -n 100` beats lossless
+log compression by 25 percentage points; the module documents
+a three-tier workflow (filter -> compact output -> compress as
+fallback) anchored on that reproducible benchmark. An
+invariant test prevents future regression by asserting the
+plugin's runtime deps stay free of bundled compressors, and
+hypothesis-based property tests verify tier-1 outputs remain
+literal subsets of the input. See
+[CHANGELOG](CHANGELOG.md#unreleased) for the full entry.
 
 **1.9.5:** bugfix-only batch closing 24 review findings
 from PR #417. Imbue hooks are hardened against false
