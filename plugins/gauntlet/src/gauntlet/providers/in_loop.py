@@ -31,6 +31,12 @@ import os
 import re
 from typing import TYPE_CHECKING
 
+from gauntlet.challenges import (
+    anthropic_variation_provider,
+    get_variation_provider,
+    set_variation_provider,
+)
+
 if TYPE_CHECKING:
     from gauntlet.models import BankProblem
 
@@ -97,15 +103,6 @@ def register_in_loop_provider_if_inside_claude_code(*, force: bool = False) -> b
     """
     if not is_running_in_claude_code():
         return False
-    # Imported here so the providers package is importable on
-    # interpreters that lack the rest of gauntlet (e.g. precommit
-    # hooks running on system python).
-    from gauntlet.challenges import (  # noqa: PLC0415 - lazy import: avoids circular import at module load
-        anthropic_variation_provider,
-        get_variation_provider,
-        set_variation_provider,
-    )
-
     if not force and get_variation_provider() is not anthropic_variation_provider:
         # A test or skill registered a custom provider on purpose;
         # leave it alone.

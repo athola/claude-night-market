@@ -14,7 +14,10 @@ from gauntlet.models import BankProblem, Difficulty
 from gauntlet.providers.in_loop import (
     in_loop_variation_provider,
     is_running_in_claude_code,
+    register_in_loop_provider_if_inside_claude_code,
 )
+
+from gauntlet import challenges
 
 
 def _sample_problem() -> BankProblem:
@@ -132,12 +135,6 @@ class TestAutoRegistration:
         When register_in_loop_provider_if_inside_claude_code runs
         Then it returns False and leaves the active provider alone.
         """
-        from gauntlet.providers.in_loop import (
-            register_in_loop_provider_if_inside_claude_code,
-        )
-
-        from gauntlet import challenges
-
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
         monkeypatch.delenv("CLAUDECODE", raising=False)
         previous = challenges.get_variation_provider()
@@ -155,12 +152,6 @@ class TestAutoRegistration:
         When register_in_loop_provider_if_inside_claude_code runs
         Then the active provider is in_loop_variation_provider.
         """
-        from gauntlet.providers.in_loop import (
-            register_in_loop_provider_if_inside_claude_code,
-        )
-
-        from gauntlet import challenges
-
         monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", "/tmp/gauntlet-test")
         previous = challenges.get_variation_provider()
         challenges.set_variation_provider(challenges.anthropic_variation_provider)
@@ -178,11 +169,6 @@ class TestAutoRegistration:
         When register_in_loop_provider_if_inside_claude_code() runs
         Then it returns False and leaves the custom provider in place.
         """
-        from gauntlet.providers.in_loop import (
-            register_in_loop_provider_if_inside_claude_code,
-        )
-
-        from gauntlet import challenges
 
         def custom(_template: str, _problem) -> str:  # noqa: ANN001 - test stub matches VariationProvider Callable typing
             return "custom"
@@ -204,11 +190,6 @@ class TestAutoRegistration:
         When register_in_loop_provider_if_inside_claude_code(force=True) runs
         Then the custom provider is replaced with in-loop.
         """
-        from gauntlet.providers.in_loop import (
-            register_in_loop_provider_if_inside_claude_code,
-        )
-
-        from gauntlet import challenges
 
         def custom(_template: str, _problem) -> str:  # noqa: ANN001 - test stub matches VariationProvider Callable typing
             return "custom"

@@ -21,11 +21,11 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
+from pensive.harden.detectors_python import scan_path, scan_source
+
 
 def _scan(source: str) -> list[object]:
     """Helper: run all Python detectors on a snippet, return findings."""
-    from pensive.harden.detectors_python import scan_source
-
     return scan_source(source, file="snippet.py")
 
 
@@ -264,8 +264,6 @@ class TestScanFile:
     """The scanner walks a real file path and emits findings."""
 
     def test_scan_file_path(self, tmp_path: Path) -> None:
-        from pensive.harden.detectors_python import scan_path
-
         kw = "shell" + "=True"
         src = textwrap.dedent(f"""
             import subprocess
