@@ -68,6 +68,20 @@ similar blocks), "vibe coding" patterns (massive single commits),
 and happy-path-only tests.
 It identifies problematic live code that traditional bloat detection might miss.
 
+### `/filter-log`
+
+Inspects a log file, classifies it into one of four shapes
+(JSONL, timestamped plaintext, stack trace, unstructured), and
+recommends the smallest tier-1 filter (`tail`, `head`, `rg`,
+`jq`, `awk`) that still answers the question. Supports
+`--apply` to execute the recommended filter, `--tokens` to
+measure the `tiktoken` delta, and `--lines N` to override the
+line budget. Stops at tier 1 by design; refers to the
+`log-debugging-hygiene` module for tier 3 compression options.
+The filter-first thesis is anchored on a reproducible benchmark
+where `tail -n 100` beats logs-tokenizer compression by 25
+percentage points on the committed `intake_queue.jsonl` fixture.
+
 ## Agents
 
 | Agent | Purpose | Tools | Model |
