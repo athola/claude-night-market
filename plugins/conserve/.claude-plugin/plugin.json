@@ -20,6 +20,7 @@
   "commands": [
     "./commands/ai-hygiene-audit.md",
     "./commands/bloat-scan.md",
+    "./commands/filter-log.md",
     "./commands/optimize-context.md",
     "./commands/unbloat.md"
   ],
