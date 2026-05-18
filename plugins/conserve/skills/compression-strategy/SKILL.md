@@ -6,7 +6,8 @@ alwaysApply: false
 progressive_loading: true
 dependencies:
   hub: []
-  modules: []
+  modules:
+    - log-debugging-hygiene
 model_hint: standard
 ---
 # Compression Strategy
@@ -117,6 +118,16 @@ any `/compact` operation.
 - **PreCompact hook**: Automatically preserves context before compression
 - **Tool output summarizer**: Warns when tool outputs accumulate
 - **Context warning hook**: Three-tier alerts at 40%/50%/80%
+
+## Specialized Modules
+
+Load `modules/log-debugging-hygiene.md` when the bloat source is
+pasted log output (debug traces, CI failures, hook logs, JSONL).
+That module documents a three-tier filter-first workflow with
+benchmarked snippets and an honest framing of when compression
+is and is not warranted. On the committed `intake_queue.jsonl`
+fixture, `tail -n 100` beats lossless compression by 25
+percentage points; the module formalizes that asymmetry.
 
 ## Example Usage
 

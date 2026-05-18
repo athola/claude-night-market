@@ -3399,6 +3399,294 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/astral-sh/uv
+  https://github.com/pytest-dev/pytest:
+    content_hash: sha256:bf36fcc7f588336b
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: pytest
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/pytest-dev/pytest
+  https://testing-library.com/docs/guiding-principles/:
+    content_hash: sha256:2f1f977514a088c3
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Testing Library Guiding Principles
+    maturity: growing
+    routing_type: meta
+    url: https://testing-library.com/docs/guiding-principles/
+  https://github.com/testcontainers/testcontainers-java:
+    content_hash: sha256:43171c54b2c7d2ee
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Testcontainers (JVM)
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/testcontainers/testcontainers-java
+  https://github.com/microsoft/playwright:
+    content_hash: sha256:e8a6ea38f92e425f
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Playwright
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/microsoft/playwright
+  https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/docs/stateful.rst:
+    content_hash: sha256:051faeefc985e549
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: Hypothesis stateful testing
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/HypothesisWorks/hypothesis/blob/master/hypothesis-python/docs/stateful.rst
+  https://github.com/stryker-mutator/stryker-js:
+    content_hash: sha256:28967d12c5b22cd8
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: StrykerJS
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/stryker-mutator/stryker-js
+  https://github.com/labgrid-project/labgrid:
+    content_hash: sha256:103d1a3ef516a9ed
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: labgrid embedded board control
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/labgrid-project/labgrid
+  https://github.com/google/openhtf:
+    content_hash: sha256:219cf12bf81bab29
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: OpenHTF bench tests
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/google/openhtf
+  https://github.com/athola/claude-night-market/issues/519:
+    content_hash: sha256:3764cc6ebe2f9b79
+    stored_at: docs/knowledge-corpus/qa-testing-tiers.md
+    importance_score: 82
+    last_updated: '2026-05-09T23:10:38.019805+00:00'
+    title: qa-tester plugin proposal (issue
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/athola/claude-night-market/issues/519
+  https://raw.githubusercontent.com/burntsushi/ripgrep/master/readme.md:
+    content_hash: sha256:bed625ed7044228c
+    stored_at: data/staging/webfetch-ripgrep-readme-structure-analysis-2026-05-10_03-46-17.md
+    importance_score: 50
+    last_updated: '2026-05-10T03:46:17.748075+00:00'
+    title: ripgrep README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/BurntSushi/ripgrep/master/README.md
+  https://raw.githubusercontent.com/sharkdp/bat/master/readme.md:
+    content_hash: sha256:0481a86d7cad9e73
+    stored_at: data/staging/webfetch-bat-readme-structure-analysis-2026-05-10_03-46-19.md
+    importance_score: 50
+    last_updated: '2026-05-10T03:46:19.724681+00:00'
+    title: bat README Structure Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/sharkdp/bat/master/README.md
+  https://raw.githubusercontent.com/pydantic/pydantic/main/readme.md:
+    content_hash: sha256:7ef4c32f8bca6677
+    stored_at: data/staging/webfetch-pydantic-readme-outline-analysis-2026-05-12_13-08-27.md
+    importance_score: 50
+    last_updated: '2026-05-12T13:08:27.325514+00:00'
+    title: Pydantic README Outline Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/pydantic/pydantic/main/README.md
+  https://raw.githubusercontent.com/astral-sh/uv/main/readme.md:
+    content_hash: sha256:be02a89ca480c3f6
+    stored_at: data/staging/webfetch-uv-readme-outline-analysis-2026-05-12_13-08-27.md
+    importance_score: 50
+    last_updated: '2026-05-12T13:08:27.910728+00:00'
+    title: uv README Outline Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/astral-sh/uv/main/README.md
+  https://github.com/sergeivaskov/logs-tokenizer:
+    content_hash: sha256:235cf576ee53f241
+    stored_at: data/staging/webfetch-logs-tokenizer-technical-analysis-2026-05-18_14-00-42.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:42.209605+00:00'
+    title: 'Logs Tokenizer: Technical Analysis'
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/sergeivaskov/logs-tokenizer
+  https://hn.algolia.com/api/v1/search?query=logs-tokenizer%20sergeivaskov&tags=story&hitsperpage=10:
+    content_hash: sha256:c68565e5d68d9157
+    stored_at: data/staging/webfetch-search-results-for-logs-tokenizer-sergeivaskov-2026-05-18_14-00-45.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:45.303699+00:00'
+    title: Search Results for "logs-tokenizer sergeivaskov"
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=logs-tokenizer%20sergeivaskov&tags=story&hitsPerPage=10
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=drain+log+parsing+template+mining&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-00-47.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:47.742786+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=Drain+log+parsing+template+mining&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=llmlingua+prompt+compression&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-00-48.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:48.244656+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=LLMLingua+prompt+compression&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=llm+log+analysis+logprompt+loggpt+logllm&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-00-49.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:49.651029+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=LLM+log+analysis+LogPrompt+LogGPT+LogLLM&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  https://hn.algolia.com/api/v1/search?query=compress%20logs%20llm&tags=story&hitsperpage=10:
+    content_hash: sha256:6976dd57c6a0d814
+    stored_at: data/staging/webfetch-stories-about-compressing-logs-for-llms-2026-05-18_14-00-51.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:51.044241+00:00'
+    title: Stories About Compressing Logs for LLMs
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=compress%20logs%20LLM&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llmlingua&tags=story&hitsperpage=10:
+    content_hash: sha256:1b368b2f57bb5b4f
+    stored_at: data/staging/webfetch-llmlingua-related-stories-summary-2026-05-18_14-00-51.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:51.518043+00:00'
+    title: LLMLingua-Related Stories Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=LLMLingua&tags=story&hitsPerPage=10
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=logpai+benchmark+log+parsing+spell+logram&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:e9aadcd7fcfe071c
+    stored_at: data/staging/webfetch-log-parsing-research-key-papers-2026-05-18_14-00-56.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:00:56.942890+00:00'
+    title: 'Log Parsing Research: Key Papers'
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=LogPAI+benchmark+log+parsing+Spell+Logram&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  https://export.arxiv.org/api/query?search_query=all:llmlingua+prompt+compression&max_results=8&sortby=relevance:
+    content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-01.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:01.702976+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:LLMLingua+prompt+compression&max_results=8&sortBy=relevance
+  https://export.arxiv.org/api/query?search_query=all:%22drain%22+log+parsing+template&max_results=8&sortby=relevance:
+    content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-02.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:02.276948+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:%22Drain%22+log+parsing+template&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:logprompt+or+loggpt+or+logllm+log+analysis&max_results=8&sortby=relevance
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-02.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:03.145245+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:LogPrompt+OR+LogGPT+OR+LogLLM+log+analysis&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:%22lost+in+the+middle%22+long+context+llm&max_results=5&sortby=relevance
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-03.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:03.852033+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:%22lost+in+the+middle%22+long+context+LLM&max_results=5&sortBy=relevance
+  https://lobste.rs/s/fkzupi/drink_me_ab_using_llm_compress_text:
+    content_hash: sha256:a95f2e4ed9fe5f01
+    stored_at: data/staging/webfetch-llm-text-compression-discussion-summary-2026-05-18_14-01-05.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:05.570276+00:00'
+    title: LLM Text Compression Discussion Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://lobste.rs/s/fkzupi/drink_me_ab_using_llm_compress_text
+  https://github.com/logpai/drain3:
+    content_hash: sha256:4cfdfa5f6d71f826
+    stored_at: data/staging/webfetch-drain3-repository-summary-2026-05-18_14-01-08.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:08.539128+00:00'
+    title: Drain3 Repository Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/logpai/Drain3
+  https://github.com/fedora-copr/logdetective:
+    content_hash: sha256:ea52aac26137e54d
+    stored_at: data/staging/webfetch-log-detective-repository-summary-2026-05-18_14-01-08.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:09.154667+00:00'
+    title: Log Detective Repository Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/fedora-copr/logdetective
+  https://github.com/chopratejas/headroom:
+    content_hash: sha256:7d9bac8d64be8177
+    stored_at: data/staging/webfetch-headroom-repository-analysis-2026-05-18_14-01-19.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:19.535883+00:00'
+    title: Headroom Repository Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/chopratejas/headroom
+  https://github.com/rtk-ai/rtk:
+    content_hash: sha256:c0c1169ae9053a51
+    stored_at: data/staging/webfetch-rtk-project-extract-2026-05-18_14-01-20.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:20.303693+00:00'
+    title: RTK Project Extract
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/rtk-ai/rtk
+  https://news.ycombinator.com/item?id=38617135:
+    content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-22.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:22.672889+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=38617135
+  https://hn.algolia.com/api/v1/search?query=headroom%20llm%20compress&tags=story&hitsperpage=10:
+    content_hash: sha256:15c63bd80fc62a5b
+    stored_at: data/staging/webfetch-llm-token-compression-tools-2026-05-18_14-01-23.md
+    importance_score: 50
+    last_updated: '2026-05-18T14:01:23.689105+00:00'
+    title: LLM Token Compression Tools
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=headroom%20LLM%20compress&tags=story&hitsPerPage=10
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -3777,3 +4065,28 @@ hashes:
   sha256:7513f319f5e3fd57: data/staging/webfetch-ai-didn-t-delete-your-database-you-did-complete-2026-05-05_22-22-55.md
   sha256:2e772d380767277c: data/staging/webfetch-claude-code-plugins-readme-structure-2026-05-07_16-34-34.md
   sha256:a89ee1a28375fee8: data/staging/webfetch-uv-readme-structure-analysis-2026-05-07_16-34-35.md
+  sha256:bf36fcc7f588336b: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:2f1f977514a088c3: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:43171c54b2c7d2ee: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:e8a6ea38f92e425f: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:051faeefc985e549: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:28967d12c5b22cd8: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:103d1a3ef516a9ed: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:219cf12bf81bab29: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:3764cc6ebe2f9b79: docs/knowledge-corpus/qa-testing-tiers.md
+  sha256:bed625ed7044228c: data/staging/webfetch-ripgrep-readme-structure-analysis-2026-05-10_03-46-17.md
+  sha256:0481a86d7cad9e73: data/staging/webfetch-bat-readme-structure-analysis-2026-05-10_03-46-19.md
+  sha256:7ef4c32f8bca6677: data/staging/webfetch-pydantic-readme-outline-analysis-2026-05-12_13-08-27.md
+  sha256:be02a89ca480c3f6: data/staging/webfetch-uv-readme-outline-analysis-2026-05-12_13-08-27.md
+  sha256:235cf576ee53f241: data/staging/webfetch-logs-tokenizer-technical-analysis-2026-05-18_14-00-42.md
+  sha256:c68565e5d68d9157: data/staging/webfetch-search-results-for-logs-tokenizer-sergeivaskov-2026-05-18_14-00-45.md
+  sha256:3085b3edee98d6cc: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-22.md
+  sha256:6976dd57c6a0d814: data/staging/webfetch-stories-about-compressing-logs-for-llms-2026-05-18_14-00-51.md
+  sha256:1b368b2f57bb5b4f: data/staging/webfetch-llmlingua-related-stories-summary-2026-05-18_14-00-51.md
+  sha256:e9aadcd7fcfe071c: data/staging/webfetch-log-parsing-research-key-papers-2026-05-18_14-00-56.md
+  sha256:a95f2e4ed9fe5f01: data/staging/webfetch-llm-text-compression-discussion-summary-2026-05-18_14-01-05.md
+  sha256:4cfdfa5f6d71f826: data/staging/webfetch-drain3-repository-summary-2026-05-18_14-01-08.md
+  sha256:ea52aac26137e54d: data/staging/webfetch-log-detective-repository-summary-2026-05-18_14-01-08.md
+  sha256:7d9bac8d64be8177: data/staging/webfetch-headroom-repository-analysis-2026-05-18_14-01-19.md
+  sha256:c0c1169ae9053a51: data/staging/webfetch-rtk-project-extract-2026-05-18_14-01-20.md
+  sha256:15c63bd80fc62a5b: data/staging/webfetch-llm-token-compression-tools-2026-05-18_14-01-23.md
