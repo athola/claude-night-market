@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.5-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.7-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-186-teal)](book/src/reference/capabilities-reference.md)
@@ -219,17 +219,17 @@ See the [Common Workflows Guide][workflows] for full details.
 
 ## What's New
 
-**Unreleased:** `conserve` adds the `log-debugging-hygiene`
-module and `/filter-log` command. On the committed
-`intake_queue.jsonl` fixture, `tail -n 100` beats lossless
-log compression by 25 percentage points; the module documents
-a three-tier workflow (filter -> compact output -> compress as
+**1.9.7:** `conserve` adds the `log-debugging-hygiene` module
+and `/filter-log` command. On the committed
+`intake_queue.jsonl` fixture, `tail -n 100` beats lossless log
+compression by 25 percentage points; the module documents a
+three-tier workflow (filter -> compact output -> compress as
 fallback) anchored on that reproducible benchmark. An
 invariant test prevents future regression by asserting the
 plugin's runtime deps stay free of bundled compressors, and
 hypothesis-based property tests verify tier-1 outputs remain
 literal subsets of the input. See
-[CHANGELOG](CHANGELOG.md#unreleased) for the full entry.
+[CHANGELOG](CHANGELOG.md#197---2026-05-18) for the full entry.
 
 **1.9.5:** bugfix-only batch closing 24 review findings
 from PR #417. Imbue hooks are hardened against false
