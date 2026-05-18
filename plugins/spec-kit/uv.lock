@@ -972,7 +972,7 @@ wheels = [
 
 [[package]]
 name = "spec-kit"
-version = "1.9.5"
+version = "1.9.6"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },

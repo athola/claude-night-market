@@ -42,4 +42,5 @@ and adapts search depth automatically.
 - `code-searcher` -- GitHub code search
 - `discourse-scanner` -- community discussion scanning
 - `literature-reviewer` -- academic paper review
+- `research` -- multi-source research orchestrator (delegates to `Skill(tome:research)`)
 - `triz-analyst` -- cross-domain analysis

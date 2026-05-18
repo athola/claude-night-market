@@ -3,10 +3,15 @@
 
 Scans all plugin hooks for known anti-patterns:
 - PostToolUse hooks returning invalid decision values
-- PreToolUse hooks using deprecated decision/reason fields
 - Hooks missing stdin error handling
 - Hooks printing unnecessary stdout on no-op paths
-- Deprecated hookSpecificOutput structures
+
+Note: Both PreToolUse output forms are valid per the Claude Code SDK:
+- Legacy: {"decision": "block"|"approve", "reason": "..."}
+- Modern: {"hookSpecificOutput": {"hookEventName": "PreToolUse",
+          "permissionDecision": "allow"|"deny"|"ask", ...}}
+Neither form is deprecated; the scanner does not flag either. See
+issue #517 for the diagnosis history.
 
 Exit codes:
     0 - no issues found (or --json mode)
@@ -53,9 +58,6 @@ class AuditResult:
 # PostToolUse: decision can only be "block" or omitted.
 # "ALLOW", "approve", "allow" are invalid.
 _INVALID_POST_DECISION = {"ALLOW", "allow", "approve", "APPROVE"}
-
-# PreToolUse: deprecated fields
-_DEPRECATED_PRE_FIELDS = {"decision", "reason"}
 
 
 def find_hooks_json(repo_root: Path) -> list[Path]:
@@ -130,35 +132,9 @@ def check_python_source(
                     )
                 )
 
-    # Check for deprecated PreToolUse decision/reason fields
-    if "PreToolUse" in event_types:
-        for dep_field in _DEPRECATED_PRE_FIELDS:
-            # Look for top-level decision/reason in JSON output
-            pattern = f'"{dep_field}":'
-            if pattern in source:
-                # Exclude hookSpecificOutput nested usage
-                lines = source.split("\n")
-                for i, line in enumerate(lines):
-                    stripped = line.strip()
-                    if pattern in stripped and "hookSpecificOutput" not in stripped:
-                        # Check surrounding context for hookSpecificOutput
-                        context = "\n".join(lines[max(0, i - 3) : i + 1])
-                        if "hookSpecificOutput" not in context:
-                            findings.append(
-                                Finding(
-                                    plugin=plugin,
-                                    file=filename,
-                                    pattern="deprecated-pre-decision",
-                                    severity="warning",
-                                    message=(
-                                        f"PreToolUse hook uses deprecated "
-                                        f'"{dep_field}" field. Use '
-                                        f'"hookSpecificOutput.'
-                                        f'permissionDecision" instead.'
-                                    ),
-                                )
-                            )
-                            break
+    # PreToolUse output forms: both legacy {"decision", "reason"} and
+    # modern hookSpecificOutput.permissionDecision are valid per the SDK.
+    # Neither is flagged. See issue #517 for the diagnosis history.
 
     # Check for missing stdin error handling
     if "sys.stdin" in source or "json.load" in source:

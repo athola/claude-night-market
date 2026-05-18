@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.5-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.6-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-186-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-187-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-186 skills, 128 slash commands, and 54 agents.
+187 skills, 129 slash commands, and 55 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -135,7 +135,7 @@ complements.
 |--------|-------|-------------|:------:|:----:|
 | **abstract** | Meta | Skill authoring, hook development, evaluation frameworks, escalation governance, hook scope guidance | 15 | 18 |
 | **leyline** | Foundation | Auth flows (GitHub/GitLab/AWS), quota management, error patterns, markdown formatting, Discussions retrieval, damage-control, stewardship, trust verification, injection detection, deferred-capture contracts, additive-bias defense | 22 | 3 |
-| **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 18 | 19 |
+| **sanctum** | Foundation | Git workflows, commit messages, PR prep, docs updates, version management, sessions, deferred-item capture | 18 | 20 |
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation | 13 | 4 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
@@ -147,7 +147,7 @@ complements.
 | **attune** | Domain | Project lifecycle: brainstorm, specify, plan, interactive plan review, initialize, execute, war-room, dorodango polishing | 13 | 10 |
 | **spec-kit** | Domain | Spec-driven development: specifications, task generation, implementation | 3 | 10 |
 | **parseltongue** | Domain | Python: testing, performance, async patterns, packaging | 4 | 3 |
-| **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking | 2 | 3 |
+| **minister** | Domain | GitHub issue management, label taxonomy, initiative tracking, DORA delivery metrics | 3 | 3 |
 | **memory-palace** | Domain | Spatial knowledge organization, digital garden curation, PR review capture | 7 | 5 |
 | **archetypes** | Domain | Architecture paradigm selection (hexagonal, CQRS, microservices, etc.) | 14 | 0 |
 | **gauntlet** | Domain | Codebase learning through knowledge extraction, challenges, code knowledge graph, and spaced repetition | 7 | 6 |
@@ -218,6 +218,22 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**1.9.6:** adds `minister:dora-metrics` for computing the
+four DORA delivery-performance metrics (deployment frequency,
+lead time for changes, change failure rate, median time to
+restore service) from GitHub PR and deployment data,
+classifying results into Elite / High / Medium / Low tiers
+from the Accelerate research (#487). `gauntlet` gains an in-loop
+variation provider that runs deterministically inside Claude
+Code, so challenge wording can vary without spawning a sibling
+Claude through the Anthropic SDK (#464). `memory-palace`
+deduplication validates `importance_score` bounds `[0, 100]`
+before any cache or on-disk mutation. `tome:research` is now
+registered as a dispatchable agent so other plugins can invoke
+it through the Agent tool (#465). Test and documentation
+backfills land across `minister`, `tome`, `sanctum`, `imbue`,
+`pensive`, `archetypes`, and `abstract`.
 
 **1.9.5:** bugfix-only batch closing 24 review findings
 from PR #417. Imbue hooks are hardened against false

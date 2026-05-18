@@ -131,20 +131,30 @@ class TestPostToolUseInvalidDecision:
 
 
 # ============================================================================
-# check_python_source — PreToolUse deprecated fields
+# check_python_source — PreToolUse output forms
 # ============================================================================
 
 
-class TestPreToolUseDeprecatedFields:
-    """Feature: Detect deprecated decision/reason in PreToolUse hooks."""
+class TestPreToolUseOutputForms:
+    """Feature: Both legacy and hookSpecificOutput PreToolUse forms are valid.
+
+    The Claude Code SDK supports two output schemas for PreToolUse hooks:
+    - Legacy: {"decision": "block"|"approve", "reason": "..."}
+    - Modern: {"hookSpecificOutput": {"hookEventName": "PreToolUse",
+              "permissionDecision": "allow"|"deny"|"ask",
+              "permissionDecisionReason": "..."}}
+
+    Neither form is deprecated. The scanner must not flag either.
+    See issue #517 for the diagnosis history.
+    """
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_detects_deprecated_decision_field(self) -> None:
+    def test_legacy_decision_reason_form_is_not_flagged(self) -> None:
         """
-        Given a PreToolUse hook using top-level "decision" field,
+        Given a PreToolUse hook using top-level {"decision", "reason"},
         When the source is checked,
-        Then it should warn about deprecated usage.
+        Then it should NOT warn about a deprecated form.
         """
         source = textwrap.dedent("""
             import json, sys
@@ -153,16 +163,16 @@ class TestPreToolUseDeprecatedFields:
                     data = json.load(sys.stdin)
                 except json.JSONDecodeError:
                     pass
-                result = {"decision": "approve", "reason": "safe file"}
+                result = {"decision": "block", "reason": "blocked"}
                 print(json.dumps(result))
         """)
         findings = check_python_source(source, "test", "hook.py", ["PreToolUse"])
         deprecated = [f for f in findings if f.pattern == "deprecated-pre-decision"]
-        assert len(deprecated) >= 1
+        assert deprecated == []
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_allows_hookSpecificOutput_usage(self) -> None:
+    def test_hookSpecificOutput_form_is_not_flagged(self) -> None:
         """
         Given a PreToolUse hook using hookSpecificOutput.permissionDecision,
         When the source is checked,
@@ -177,6 +187,7 @@ class TestPreToolUseDeprecatedFields:
                     pass
                 result = {
                     "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
                         "permissionDecision": "allow",
                     }
                 }
@@ -184,7 +195,29 @@ class TestPreToolUseDeprecatedFields:
         """)
         findings = check_python_source(source, "test", "hook.py", ["PreToolUse"])
         deprecated = [f for f in findings if f.pattern == "deprecated-pre-decision"]
-        assert len(deprecated) == 0
+        assert deprecated == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_additionalContext_form_is_not_flagged(self) -> None:
+        """
+        Given a PreToolUse hook using {"additionalContext": "..."},
+        When the source is checked,
+        Then it should NOT warn (this is the shadow-mode advisory form).
+        """
+        source = textwrap.dedent("""
+            import json, sys
+            def main():
+                try:
+                    data = json.load(sys.stdin)
+                except json.JSONDecodeError:
+                    pass
+                result = {"additionalContext": "advisory"}
+                print(json.dumps(result))
+        """)
+        findings = check_python_source(source, "test", "hook.py", ["PreToolUse"])
+        deprecated = [f for f in findings if f.pattern == "deprecated-pre-decision"]
+        assert deprecated == []
 
 
 # ============================================================================

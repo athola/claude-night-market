@@ -59,3 +59,16 @@ estimated_tokens: 1200
   - **Mitigation**: The imperative shell may still need to interact with framework-specific lifecycle hooks. Before committing to a large rewrite, build small proof-of-concept adapters to validate the integration strategy.
 - **Team Unfamiliarity with the Pattern**:
   - **Mitigation**: Introduce the pattern using pair programming and internal "brown-bag" learning sessions. Document common anti-patterns that are discovered during the pilot phase to guide future development.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``boundary-validator`` -- guards inputs to the pure core so the core can stay total
+- ``core-test-generator`` -- generates property-based tests against the deterministic core
+- ``shell-adapter-generator`` -- scaffolds the imperative shell that wires the core into I/O

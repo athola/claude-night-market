@@ -44,3 +44,15 @@ estimated_tokens: 600
   - **Mitigation**: When clients contain too much business logic, it often becomes duplicated and out-of-sync with the server. Share validation logic by packaging it in a common library or move the rules definitively to the server.
 - **Peer-to-Peer Data Conflicts**:
   - **Mitigation**: In a peer-to-peer model, data conflicts are inevitable. Design formal conflict resolution strategies (e.g., CRDTs, last-write-wins) and consensus mechanisms from the beginning.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``api-contract-generator`` -- produces machine-readable OpenAPI/RPC contracts the client and server share
+- ``networking-debugger`` -- captures request/response traces for diagnosing latency, retries, and timeout issues

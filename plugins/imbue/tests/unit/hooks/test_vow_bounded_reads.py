@@ -527,9 +527,16 @@ class TestBudgetBoundary:
         Given os.open raises PermissionError (sandbox deny or /tmp full)
         When main() fires a Read tool call
         Then exit code is 0 and stdout is empty (hook must not crash the agent)
+
+        The patch is scoped to ``hook_module.os.open`` rather than the
+        global ``os.open`` so a module-init call to ``os.open`` on this
+        platform cannot mask a regression in the hook's error path
+        (issue #496).
         """
         stdin_data = _make_input(tool_name="Read", session_id="perm-error")
-        with patch("os.open", side_effect=PermissionError("no space")):
+        with patch.object(
+            hook_module.os, "open", side_effect=PermissionError("no space")
+        ):
             with patch("sys.stdin", StringIO(stdin_data)):
                 with pytest.raises(SystemExit) as exc:
                     hook_module.main()

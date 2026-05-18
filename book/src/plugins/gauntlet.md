@@ -50,6 +50,21 @@ See [oracle](oracle.md) for daemon setup and
 [ADR-0009](../../../docs/adr/0009-sidecar-service-discovery.md)
 for the discovery pattern.
 
+## Variation Provider
+
+Gauntlet varies challenge wording through a `VariationProvider`
+abstraction. Two implementations ship: an Anthropic-SDK
+provider (default outside Claude Code) and an in-loop provider
+(default inside Claude Code, issue #464) that perturbs
+integers and small numeric tokens deterministically.
+The in-loop provider avoids spawning a sibling Claude through
+the API when the parent LLM is already in-loop, and imports
+nothing from `anthropic`.
+
+The challenge skill calls
+`register_in_loop_provider_if_inside_claude_code()` to switch
+providers based on runtime. Selection is automatic.
+
 ## Code Knowledge Graph
 
 The graph module builds a SQLite-backed knowledge graph using

@@ -66,3 +66,16 @@ Use progressive disclosure - move details to modules
 
 **Modules not found**
 Verify module paths in SKILL.md are correct
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``dependency-analyzer`` -- module dependency graph builder for spotting forbidden edges
+- ``module-boundary-enforcer`` -- fails the build when a module imports across a boundary
+- ``refactoring-planner`` -- ranks modules by extraction-readiness for a future split
