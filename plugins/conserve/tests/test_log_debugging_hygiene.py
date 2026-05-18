@@ -32,7 +32,7 @@ def test_module_file_exists() -> None:
 
 
 def test_module_has_required_sections() -> None:
-    content = MODULE_FILE.read_text()
+    content = MODULE_FILE.read_text(encoding="utf-8")
     required = [
         "# Log Debugging Hygiene",
         "## When to Use",
@@ -46,7 +46,7 @@ def test_module_has_required_sections() -> None:
 
 
 def test_exit_criteria_has_falsifiable_checkboxes() -> None:
-    content = MODULE_FILE.read_text()
+    content = MODULE_FILE.read_text(encoding="utf-8")
     if "## Exit Criteria" not in content:
         pytest.fail("Exit Criteria section missing")
     exit_section = content.split("## Exit Criteria", 1)[1]
@@ -61,7 +61,7 @@ def test_exit_criteria_has_falsifiable_checkboxes() -> None:
 
 
 def test_parent_skill_references_module() -> None:
-    content = PARENT_SKILL.read_text()
+    content = PARENT_SKILL.read_text(encoding="utf-8")
     assert "log-debugging-hygiene" in content, (
         "Parent SKILL.md must reference the log-debugging-hygiene "
         "module so progressive loading can resolve it."
@@ -75,7 +75,7 @@ def test_module_avoids_em_dashes() -> None:
     .claude/rules/slop-scan-for-docs.md. Module is small so we cap
     at 2 absolute.
     """
-    content = MODULE_FILE.read_text()
+    content = MODULE_FILE.read_text(encoding="utf-8")
     em_count = content.count("—")
     assert em_count <= 2, (
         f"Module has {em_count} em-dashes; replace with colons, "
@@ -91,7 +91,7 @@ def test_module_lacks_unsupported_accuracy_claim() -> None:
     claim as its own assertion. Quoting the phrase inside the
     Anti-Patterns section to warn against it is allowed.
     """
-    content = MODULE_FILE.read_text()
+    content = MODULE_FILE.read_text(encoding="utf-8")
     # Strip the Anti-Patterns section so warnings that quote the
     # banned phrase do not trip the check.
     body = re.split(
@@ -116,25 +116,37 @@ def test_module_lacks_unsupported_accuracy_claim() -> None:
     )
 
 
-@pytest.mark.skipif(not FIXTURE.exists(), reason="intake_queue.jsonl fixture missing")
 def test_filter_first_claim_is_reproducible() -> None:
     """Verify the filter-first benchmark on the committed fixture.
 
-    The module claims Tier 1 (e.g. `tail -n 100`) achieves >=90%
-    byte reduction on highly-repetitive committed logs. Verify on
-    the actual intake_queue.jsonl fixture so the claim cannot rot
-    silently.
+    The fixture is committed to the repo; its absence means the repo
+    is broken, not the test environment. The module claims >=90% byte
+    reduction on highly-repetitive committed logs; actual is ~95.6%.
+    Band assertion catches both downward drift (fixture grows less
+    repetitive) and upward drift (fixture replaced with trivial data).
     """
+    assert FIXTURE.exists(), (
+        f"intake_queue.jsonl fixture missing — repo is broken ({FIXTURE})"
+    )
+    assert FIXTURE.stat().st_size > 0, (
+        f"intake_queue.jsonl is empty — repo is broken ({FIXTURE})"
+    )
     orig_bytes = FIXTURE.stat().st_size
     result = subprocess.run(  # noqa: S603 - hardcoded argv, no shell, fixture path resolved from repo root
         ["tail", "-n", "100", str(FIXTURE)],  # noqa: S607 - partial path tail intentional; system PATH only
         capture_output=True,
-        check=True,
+        check=False,
     )
+    if result.returncode != 0:
+        pytest.fail(
+            f"tail failed (exit {result.returncode}):\n"
+            f"  stderr: {result.stderr!r}\n"
+            f"  stdout: {result.stdout!r}"
+        )
     tail_bytes = len(result.stdout)
     savings = 1 - tail_bytes / orig_bytes
-    assert savings >= 0.90, (
-        f"tail -n 100 should achieve >=90% byte reduction on the "
+    assert 0.94 <= savings <= 0.98, (
+        f"tail -n 100 should achieve 94%-98% byte reduction on the "
         f"committed intake_queue.jsonl fixture; got {savings:.2%}. "
         f"Either the fixture changed or the module claim is no "
         f"longer accurate."
@@ -154,18 +166,23 @@ def test_conserve_does_not_bundle_runtime_compressor() -> None:
     2. Layer: ship the compressor in a separate plugin instead.
     3. Revise: update the module doctrine and the rule with
        documented consumers and ADR justification.
+
+    Scans the full pyproject.toml text (not just [project]) so that
+    adding a banned dep to [project.optional-dependencies] or
+    [dependency-groups] is also caught.
     """
     pyproject = REPO_ROOT / "plugins" / "conserve" / "pyproject.toml"
-    text = pyproject.read_text()
-    project_section = re.search(
-        r"^\[project\]\n(.*?)(?=^\[|\Z)",
-        text,
-        re.DOTALL | re.MULTILINE,
-    )
-    assert project_section, "Could not locate [project] section in pyproject.toml"
-    section_body = project_section.group(1).lower()
-    banned = ["llmlingua", "drain3", "lognplus", "logparser", "loghub"]
-    found = [b for b in banned if b in section_body]
+    text = pyproject.read_text(encoding="utf-8")
+    full_text_lower = text.lower()
+    banned = [
+        "llmlingua",
+        "drain3",
+        "lognplus",
+        "logparser",
+        "loghub",
+        "logs-tokenizer",
+    ]
+    found = [b for b in banned if b in full_text_lower]
     assert not found, (
         f"conserve runtime deps must not include a log compressor; "
         f"found {found}. See "
@@ -175,7 +192,7 @@ def test_conserve_does_not_bundle_runtime_compressor() -> None:
         f"consumer-count requirement."
     )
 
-    module_text = MODULE_FILE.read_text().lower()
+    module_text = MODULE_FILE.read_text(encoding="utf-8").lower()
     assert "does not bundle" in module_text or "not bundled" in module_text, (
         "Module no longer states the no-bundle position; doctrine drift "
         "between docs and deps is the failure mode this test prevents."

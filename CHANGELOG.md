@@ -38,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   line budget. The subset property is what distinguishes tier 1
   from tier 3; a "smart filter" that paraphrased would break
   these tests. Hypothesis added to conserve dev-deps only;
-  runtime deps stay empty, preserving the invariant the
-  invariant test guards.
+  runtime deps stay empty, preserving the no-bundle invariant
+  the test guards.
 
 ## [1.9.5] - 2026-05-07
 

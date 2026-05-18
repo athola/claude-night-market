@@ -17,6 +17,9 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+import yaml
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PLUGIN_DIR = REPO_ROOT / "plugins" / "conserve"
 COMMAND_FILE = PLUGIN_DIR / "commands" / "filter-log.md"
@@ -37,12 +40,10 @@ def _read_frontmatter(text: str) -> dict[str, str]:
     if end == -1:
         return {}
     block = text[4:end]
-    out: dict[str, str] = {}
-    for line in block.splitlines():
-        if ":" in line and not line.startswith(" "):
-            key, _, val = line.partition(":")
-            out[key.strip()] = val.strip()
-    return out
+    result = yaml.safe_load(block)
+    if not isinstance(result, dict):
+        return {}
+    return {k: str(v) for k, v in result.items()}
 
 
 def test_command_file_exists() -> None:
@@ -50,7 +51,7 @@ def test_command_file_exists() -> None:
 
 
 def test_command_frontmatter_has_required_fields() -> None:
-    text = COMMAND_FILE.read_text()
+    text = COMMAND_FILE.read_text(encoding="utf-8")
     fm = _read_frontmatter(text)
     missing = [k for k in ("name", "description", "usage") if k not in fm]
     assert not missing, f"Frontmatter missing: {missing}"
@@ -58,7 +59,7 @@ def test_command_frontmatter_has_required_fields() -> None:
 
 
 def test_command_references_log_debugging_module() -> None:
-    text = COMMAND_FILE.read_text()
+    text = COMMAND_FILE.read_text(encoding="utf-8")
     assert "log-debugging-hygiene" in text, (
         "Command must reference the log-debugging-hygiene module to anchor "
         "its tier-1 guidance in the existing skill content"
@@ -66,7 +67,7 @@ def test_command_references_log_debugging_module() -> None:
 
 
 def test_command_documents_tier1_filters() -> None:
-    text = COMMAND_FILE.read_text().lower()
+    text = COMMAND_FILE.read_text(encoding="utf-8").lower()
     patterns = ["tail", "head", "rg ", "jq ", "awk ", "sort "]
     found = [p for p in patterns if p in text]
     assert len(found) >= 4, (
@@ -76,13 +77,12 @@ def test_command_documents_tier1_filters() -> None:
 
 
 def test_command_warns_against_compression_first() -> None:
-    text = COMMAND_FILE.read_text().lower()
+    text = COMMAND_FILE.read_text(encoding="utf-8").lower()
     anti_pattern_markers = [
         "filter beats",
         "filter first",
         "before compression",
         "not compression",
-        "tier 3",
     ]
     assert any(m in text for m in anti_pattern_markers), (
         "Command must reinforce filter-first thesis; expected one of "
@@ -91,7 +91,10 @@ def test_command_warns_against_compression_first() -> None:
 
 
 def test_command_registered_in_plugin_manifest() -> None:
-    data = json.loads(PLUGIN_JSON.read_text())
+    try:
+        data = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        pytest.fail(f"plugin.json is not valid JSON ({PLUGIN_JSON}): {exc}")
     commands = data.get("commands", [])
     expected = "./commands/filter-log.md"
     assert expected in commands, (
@@ -102,7 +105,7 @@ def test_command_registered_in_plugin_manifest() -> None:
 def test_command_prose_wraps_at_80_chars() -> None:
     """Prose lines must wrap at 80 chars. Exempt: tables, code blocks,
     frontmatter, headings, link definitions, URLs."""
-    text = COMMAND_FILE.read_text()
+    text = COMMAND_FILE.read_text(encoding="utf-8")
     lines = text.splitlines()
     in_code = False
     in_frontmatter = False
@@ -130,6 +133,12 @@ def test_command_prose_wraps_at_80_chars() -> None:
             continue
         if len(line) > 80 and not re.search(r"https?://\S{40,}", line):
             violations.append((i, line))
-    assert not violations, "Lines exceeding 80 chars: " + "\n".join(
-        f"  {n}: {txt!r}" for n, txt in violations[:5]
-    )
+    if violations:
+        truncated = violations[:5]
+        extra = len(violations) - 5
+        suffix = f"\n  ... and {extra} more" if extra > 0 else ""
+        raise AssertionError(
+            "Lines exceeding 80 chars: "
+            + "\n".join(f"  {n}: {txt!r}" for n, txt in truncated)
+            + suffix
+        )

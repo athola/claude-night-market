@@ -47,11 +47,11 @@ requires no new tooling.
 | Last N unique | `sort -u file.log \| tail -n 30` | Dedup then trim |
 
 Benchmark on this repo's `plugins/memory-palace/data/intake_queue.jsonl`
-(1.65 MB, 2650 lines):
+(1.05 MB, 1333 lines):
 
 | Command | Output bytes | Reduction |
 |---------|--------------|-----------|
-| `tail -n 100` | 73 KB | 95.6% |
+| `tail -n 100` | 47 KB | 95.6% |
 | `jq -c 'select(.tool_name)' \| tail -n 20` | 14 KB | 99.1% |
 | logs-tokenizer (compress all) | 491 KB | 70.3% |
 

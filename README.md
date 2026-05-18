@@ -223,8 +223,9 @@ See the [Common Workflows Guide][workflows] for full details.
 and `/filter-log` command. On the committed
 `intake_queue.jsonl` fixture, `tail -n 100` beats lossless log
 compression by 25 percentage points; the module documents a
-three-tier workflow (filter -> compact output -> compress as
-fallback) anchored on that reproducible benchmark. An
+three-tier workflow (filter first, then compact-output flags,
+then compression as fallback) anchored on that reproducible
+benchmark. An
 invariant test prevents future regression by asserting the
 plugin's runtime deps stay free of bundled compressors, and
 hypothesis-based property tests verify tier-1 outputs remain
