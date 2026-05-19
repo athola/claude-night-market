@@ -424,7 +424,7 @@ TIER5_NEGATIVE_PARALLELISM = [
     r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
     # Comma-joined variant: "No X, no Y, no Z"
     r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
-    # Trailing corrective negation: "Y, not X." (advisory on proper nouns)
+    # Trailing corrective negation: "Y, not X." -> "Y instead of X"
     r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
     r"\bNot because \w+\.\s+Because \w+",
     r"\.\s+That's it\.\s+That's the\b",

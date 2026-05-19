@@ -315,8 +315,8 @@ NEGATIVE_PARALLELISM = [
     # Comma-joined variant: "No X, no Y, no Z"
     r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
     # Trailing corrective negation: "Y, not X." Genuine either/or
-    # choices (e.g. "Python, not Java") also match; treat the
-    # trailing form as advisory when the negated term is a proper noun.
+    # choices (e.g. "Python, not Java") are slop too; rewrite as
+    # "Y instead of X" to keep the contrast without the negation.
     r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
     r"\bNot because \w+\.\s+Because \w+",
     r"\.\s+That's it\.\s+That's the\b",
@@ -337,6 +337,7 @@ isn't, then what it does.
 | "No friction. No setup. Just code." | "Zero-setup. Drop in and run." |
 | "No friction, no setup, no config." | "Zero-setup and zero-config." |
 | "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |
+| "We use Python, not Java." | "We use Python instead of Java." (keep the contrast, drop the negation) |
 
 ## Three-Fragment Burst
 

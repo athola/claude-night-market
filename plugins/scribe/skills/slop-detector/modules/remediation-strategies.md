@@ -229,7 +229,7 @@ stack labels in diagrams, math.
 | Slop | Replacement |
 |------|-------------|
 | "It's not X, it's Y" | "It is Y" (state Y positively; avoid the "Y, not X" tail, which is itself flagged) |
-| "Y, not X" (trailing) | "Y" (drop the corrective tail) |
+| "Y, not X" (trailing) | "Y instead of X" (when the contrast carries information) or "Y" (drop the tail) |
 | "Not just X, but Y" | "X and Y" or "X. Also Y." |
 | "Not only X, but also Y" | "X and Y" |
 | "No X. No Y. Just Z." | "Zero X. Zero Y. Only Z." (rare) or "Z, with no X or Y" |

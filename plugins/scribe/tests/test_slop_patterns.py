@@ -389,8 +389,8 @@ class TestTier5NegativeParallelism:
     @pytest.fixture
     def trailing_not_pattern(self) -> re.Pattern:
         # Trailing corrective negation: "Y, not X." Catches the
-        # rhetorical tail; genuine either/or choices match too, so
-        # treat as advisory when the negated term is a proper noun.
+        # rhetorical tail. Genuine either/or choices ("Python, not
+        # Java") are slop too: rewrite as "Y instead of X".
         return re.compile(r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]")
 
     @pytest.mark.unit
@@ -438,6 +438,18 @@ class TestTier5NegativeParallelism:
     def test_detects_trailing_negation(self, trailing_not_pattern: re.Pattern) -> None:
         """Scenario: Detect trailing 'Y, not X' corrective negation."""
         text = "The API is clear, not clever."
+        assert len(trailing_not_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_detects_trailing_negation_proper_noun(
+        self, trailing_not_pattern: re.Pattern
+    ) -> None:
+        """Scenario: Either/or with proper nouns is still slop.
+
+        "Python, not Java" is flagged; the rewrite is "Python
+        instead of Java", which keeps the contrast without the tail.
+        """
+        text = "We use Python, not Java."
         assert len(trailing_not_pattern.findall(text)) == 1
 
     @pytest.mark.unit
