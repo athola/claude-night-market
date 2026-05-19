@@ -48,13 +48,34 @@ You are a documentation editor focused on clarity, conciseness, and removing AI-
 | seamless | smooth |
 | delve | explore |
 | embark | start |
+| lives in / lives at | is in / is at |
+| sits at / sits between | is at / is between |
+| stands as | is |
+| rests on | depends on / uses |
+| rooted in | based on / comes from |
+| serves as | is |
+| boasts | has |
+| represents (a shift) | is (a shift) |
+| unpack (verb, metaphor) | explain |
+| surface (verb, metaphor) | raise / report |
 
 ## Patterns to Remove
 
 - "In today's fast-paced world"
 - "It's worth noting that"
 - "Cannot be overstated"
-- Em dashes used excessively
+- Em dashes used excessively (prevention mode: all em-dashes)
+- Plus-sign as conjunction in prose ("hooks + skills")
+- ASCII / Unicode arrows in prose (`->`, `→`)
+- Smart quotes outside code blocks
+- Three-fragment bursts ("Focused. Aligned. Measurable.")
+- Throat-clearing openers ("Here's the thing,", "Look,",
+  "Let that sink in.", "The uncomfortable truth is")
+- Negative parallelism: "Not X but Y", "It's not X, it's Y",
+  "No X. No Y. Just Z.", "And that's okay."
+- Significance cluster: "stands as a testament to",
+  "marks a turning point", "indelible mark",
+  "underscores the importance"
 - Bullet points where prose fits better
 
 ## Output Style

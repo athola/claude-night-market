@@ -35,9 +35,30 @@ These are never advisory. Fix them without reporting:
 
 - **Banned phrases**: Any phrase from the banned list
 - **Em dashes**: Replace with commas, colons, semicolons, or parentheses
-- **Negation-correction patterns**: "This isn't X. This is Y." -> rewrite
+- **Plus-sign conjunction in prose**: "X + Y" -> "X and Y" (keep
+  in code, math, version strings, diagram labels)
+- **ASCII/Unicode arrow connectors in prose**: `->` / `→` -> "to" /
+  "into" / "produces" (keep in code and type signatures)
+- **Smart quotes outside code blocks**: `"text"` / `"text"` /
+  `'text'` -> straight quotes
+- **Spatial copula with inanimate subject**: "lives in" / "sits
+  at" / "stands as" / "rests on" / "rooted in" / "boasts" /
+  "serves as" / "marks" (a turning point) / "represents" (a shift) ->
+  "is" / "has" / "uses" / delete
+- **Negation-correction patterns**:
+  - "This isn't X. This is Y." -> rewrite
+  - "Not just X, but Y" / "Not only X, but also Y" -> "X and Y"
+  - "It's not X, it's Y" -> state Y positively
+  - "No X. No Y. Just Z." -> "Z, with no X or Y"
+  - "And that's okay." -> delete
+- **Three-fragment burst**: "Focused. Aligned. Measurable." ->
+  collapse to a single sentence
+- **Throat-clearing openers**: "Here's the thing,", "Look,",
+  "So," (non-contrastive), "Let me explain.", "Bear with me.",
+  "Let that sink in.", "The uncomfortable truth is" -> delete
 - **AI vocabulary**: delve, utilize, leverage, facilitate, moreover,
-  furthermore, comprehensive, robust, seamless, cutting-edge
+  furthermore, comprehensive, robust, seamless, cutting-edge,
+  unpack (verb), surface (verb), boasts
 
 ## Critical Evaluations (Advisory Table)
 

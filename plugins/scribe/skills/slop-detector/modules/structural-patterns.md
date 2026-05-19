@@ -11,7 +11,11 @@ AI-generated text exhibits distinctive structural patterns beyond vocabulary.
 
 ## Em Dash Analysis
 
-AI uses em dashes (—) excessively as a rhetorical device.
+AI uses em dashes (—) excessively as a rhetorical device. The
+em-dash has become the most-cited single AI tell on Reddit,
+HN, Wikipedia, and the Field Guide. Detection has two modes:
+*audit* (forensic, applied to existing prose) and *prevention*
+(applied to newly generated prose).
 
 ```bash
 # Count em dashes per file
@@ -20,12 +24,33 @@ word_count=$(wc -w < "$file")
 density=$((em_count * 1000 / word_count))
 ```
 
+### Audit mode (existing prose)
+
 | Density (per 1000 words) | Signal |
 |--------------------------|--------|
-| 0-2 | Normal |
-| 3-5 | Elevated |
-| 6-10 | High AI signal |
+| 0-1 | Normal |
+| 2-4 | Elevated |
+| 5-9 | High AI signal |
 | 10+ | Very high AI signal |
+
+### Prevention mode (newly generated prose)
+
+**Target: zero em-dashes.** When the slop-detector runs on
+docs that an agent just wrote (auto-invoked after `/doc-generate`,
+`/doc-polish`, `/update-readme`, `/update-docs`, etc.), every
+em-dash is a finding. Replace before write:
+
+| Original em-dash use | Replacement |
+|----------------------|-------------|
+| Brief aside ("X — which is Y — does Z") | Commas: "X, which is Y, does Z" |
+| Tangential info ("X — a Y — does Z") | Parentheses: "X (a Y) does Z" |
+| Completed thought ("X. — Y") | Period: "X. Y." |
+| Definition ("X — a tool that...") | Colon: "X: a tool that..." |
+| Dramatic pause ("X — and that's why") | Rewrite without the pause |
+
+The audit threshold is empirical (tolerant of human writers
+who use em-dashes legitimately). The prevention threshold is
+agent-applied and strict.
 
 ## Tricolon Detection
 
@@ -186,17 +211,174 @@ awk '/^```/{c=!c}!c' file.md | grep -oP '\s->\s|→' | wc -l
 ## Plus-Sign Conjunction
 
 AI uses `+` as a conjunction ("X + Y") in prose instead of
-"and" or "with". Fine in code, math, and labels.
+"and" or "with". This is a strong AI tell because human writers
+almost never reach for `+` in prose. They have the word "and"
+available. Fine in code, math, labels, version strings.
 
 Examples:
 - "hooks + skills" (slop)
 - "hooks and skills" (human)
 - "1 + 1 = 2" (fine, math)
+- "Python 3.11+" (fine, version)
+- "PostgreSQL + Redis stack" (slop in body prose; ok in a
+  diagram label or stack-name tag)
 
 ```bash
-# Detect prose plus signs (word + word pattern)
+# Detect prose plus signs (word + word pattern, exclude code)
 awk '/^```/{c=!c}!c' file.md | grep -oP '\w\s\+\s\w' | wc -l
 ```
+
+### Prevention rule
+
+In newly generated prose, **every prose `+` is a finding.**
+Replace `X + Y` with `X and Y`, `X with Y`, or restructure.
+
+## Spatial Copula / Animated Inanimates
+
+AI substitutes spatial or animate verbs for plain "is/are"
+to inject false gravitas. The hallmark is a verb whose subject
+is *inanimate* but the verb implies *agency or embodiment*. See
+also `vocabulary-patterns.md` Tier 5 for the word list.
+
+Trigger verbs (flag when the subject is inanimate and the
+verb is one of these):
+
+```
+lives in, lives at, sits at, sits between, sits within,
+stands as, rests on, dwells in, exists at,
+serves as, marks, represents, embodies, constitutes,
+boasts, features, maintains, encompasses,
+rooted in, anchored in, nestled in, situated at
+```
+
+Examples:
+
+- "The skill **lives in** `plugins/scribe/`" (slop;
+  the skill **is in** `plugins/scribe/`)
+- "The cache **sits between** the API and database"
+  (slop; the cache **is between**...)
+- "The library **boasts** 50 features" (slop; the
+  library **has** 50 features)
+- "The framework **stands as a testament to** Y"
+  (slop; delete or rewrite)
+
+```bash
+# Detect spatial copula verbs (exclude code blocks)
+awk '/^```/{c=!c}!c' file.md | \
+  grep -oP '\b(lives?|sits?|stands?|rests?|dwells?)\s+(in|at|on|between|within)\b' | \
+  wc -l
+```
+
+| Count per 1000 words | Signal |
+|----------------------|--------|
+| 0 | Normal |
+| 1-2 | Elevated; check subject animacy |
+| 3+ | Strong AI signal |
+
+### When to skip
+
+- Subject is literally animate ("the developer lives in
+  Berlin").
+- Subject is a daemon, process, container, or service that
+  has actual runtime presence ("the agent **runs** at
+  `/var/run/...`", though prefer "runs" over "lives").
+- Inside dialogue, quotations, or transcripts.
+- Botanical/biological/etymological context ("the variant
+  is rooted in Latin").
+
+## Negative Parallelism Constructions
+
+The strongest non-vocabulary 2026 prose tell. Independently
+flagged by Wikipedia, OliviaCal, ContentBeta, Stop-Slop, and
+George Kao. AI reaches for these rhetorical scaffolds when it
+has no real argument to make.
+
+| Pattern | Example |
+|---------|---------|
+| `It's not X, it's Y` | "It's not a tool, it's a transformation" |
+| `Not just X, but Y` | "Not just fast, but elegant" |
+| `Not only X, but also Y` | "Not only saves time, but also improves quality" |
+| `No X. No Y. Just Z.` | "No friction. No setup. Just code." |
+| `Not because X. Because Y.` | "Not because it's hard. Because it matters." |
+| `X. That's it. That's the Y.` | "Documentation. That's it. That's the feature." |
+| `And that's okay.` | (closing reassurance with no information) |
+
+```python
+NEGATIVE_PARALLELISM = [
+    # "It's not X, it's Y" — X can be multi-word (e.g., "a tool")
+    r"\bIt's not [\w\s]+?,\s+it's \w+",
+    r"\bNot just \w+,?\s+but (?:also )?\w+",
+    r"\bNot only \w+,?\s+but (?:also )?\w+",
+    r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
+    r"\bNot because \w+\.\s+Because \w+",
+    r"\.\s+That's it\.\s+That's the\b",
+    r"\bAnd that's okay\.",
+]
+```
+
+### Prevention rule
+
+Any match in newly generated docs is a hard failure. Rewrite
+positively: state what the thing *is* rather than what it
+isn't, then what it does.
+
+| Slop | Rewrite |
+|------|---------|
+| "Not just fast, but elegant" | "Fast and elegant" or "Fast; the API is also clean" |
+| "It's not a tool, it's a transformation" | "It is a tool. It changes how you do X." |
+| "No friction. No setup. Just code." | "Zero-setup. Drop in and run." |
+
+## Three-Fragment Burst
+
+AI loves three short fragments in a row, usually adjectives
+or verbs separated by periods. ContentBeta and the Stop-Slop
+skill both name this directly.
+
+Examples:
+
+- "Focused. Aligned. Measurable."
+- "Fast. Reliable. Cheap."
+- "Built. Tested. Shipped."
+
+```python
+# Detect three single-word sentences in sequence
+three_fragment = r'\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.'
+```
+
+| Count per 1000 words | Signal |
+|----------------------|--------|
+| 0-1 | Normal (legitimate punchy close) |
+| 2+ | Strong AI signal; formulaic |
+
+### When to skip
+
+- The fragments are proper nouns or technical terms (e.g.,
+  "Rust. Python. Go.").
+- Inside a heading or chapter title.
+
+## Smart Quotes / Curly Quotation Marks
+
+AI tools default to smart quotes (`"`, `"`, `'`, `'`)
+because their copy-paste source was a word processor. In
+plain-text docs, source code, and most markdown, prefer
+straight quotes (`"`, `'`).
+
+```bash
+# Detect smart quotes outside code blocks
+awk '/^```/{c=!c}!c' file.md | grep -oP '[“”‘’]' | wc -l
+```
+
+| Count per 1000 words | Signal |
+|----------------------|--------|
+| 0 | Normal for technical docs |
+| 1-2 | Elevated (probable AI paste) |
+| 3+ | Strong AI signal |
+
+### When to skip
+
+- The project is fiction or long-form publishing where smart
+  quotes are house style.
+- The match is inside a quoted excerpt from a published source.
 
 ## Colon Addiction
 
@@ -281,5 +463,17 @@ def structural_score(metrics):
         score += 1
     if metrics.get('plus_conjunctions', 0) > 1:
         score += 1
+    # Tier 5 / 2026 structural patterns
+    if metrics.get('spatial_copula_count', 0) >= 1:
+        score += 2
+    if metrics.get('negative_parallelism_count', 0) >= 1:
+        score += 3
+    if metrics.get('three_fragment_burst_count', 0) >= 2:
+        score += 2
+    if metrics.get('smart_quote_count', 0) >= 3:
+        score += 1
+    # Prevention mode: any em-dash in fresh prose is a finding
+    if metrics.get('mode') == 'prevention' and metrics.get('em_dash_count', 0) > 0:
+        score += min(5, metrics['em_dash_count'])
     return min(10, score)
 ```

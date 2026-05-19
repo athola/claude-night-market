@@ -46,10 +46,49 @@ Context-dependent markers:
 
 ### Structural Markers
 
-- Em dashes > 5/1000 words
+- Em dashes > 5/1000 words (audit) / any (prevention)
 - Bullet ratio > 50%
 - Sentence length SD < 5
 - Perfect grammar, no contractions
+- Plus-sign conjunction in prose ("hooks + skills")
+- ASCII / Unicode arrow as prose connector (`->`, `→`)
+- Smart quotes outside code blocks ("text", 'text')
+- Three-fragment burst ("Focused. Aligned. Measurable.")
+
+### Tier 5: 2026 Patterns (Score 3-4 each)
+
+The post-GPT-5 / post-Claude-4.5 prose tells. Cross-source
+consensus: Wikipedia, Field Guide, Stop-Slop, OliviaCal,
+George Kao.
+
+**Spatial copula / animated inanimates** (3):
+- "lives in", "lives at", "sits at", "sits between",
+  "stands as", "rests on", "rooted in", "anchored in",
+  "nestled in"
+- "serves as", "marks", "represents", "embodies", "boasts",
+  "features" (when subject is inanimate)
+
+**Negative parallelism** (4):
+- "It's not X, it's Y"
+- "Not just X, but Y" / "Not only X, but also Y"
+- "No X. No Y. Just Z."
+- "Not because X. Because Y."
+- "And that's okay."
+
+**Throat-clearing openers** (3):
+- "Here's the thing,", "Look,", "So," (non-contrastive)
+- "The thing is,", "Let that sink in.", "Bear with me."
+- "The uncomfortable truth is", "This matters because"
+
+**Significance cluster** (3):
+- "stands as a testament to", "marks a turning point",
+  "represents a shift", "indelible mark", "deeply rooted"
+- "setting the stage for", "shaping the future of",
+  "underscores the importance", "plays a pivotal role"
+
+**Loop/signal/cascade vocabulary** (2-3):
+- "unpack", "surface" (as verb), "drift", "cascade"
+- "a quiet shift", "the signal here is", "a sharp framing"
 
 ## Scan Workflow
 

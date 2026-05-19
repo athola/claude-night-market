@@ -174,3 +174,118 @@ def process(data):
 - **Historical documents**: Preserve original language
 - **Intentional style**: Some "AI-like" formality may be intentional
 - **User preference**: If user wants formal tone, respect it
+
+## Tier 5 / 2026 Remediations
+
+These complement the older substitutions above. Apply during
+the Pass-5 prose sweep and during prevention-mode generation.
+
+### Copula-Avoidance Verbs (Spatial / Animated)
+
+| Slop | Replacement |
+|------|-------------|
+| "lives in" / "lives at" | "is in" / "is at" |
+| "sits at" / "sits between" / "sits within" | "is at" / "is between" / "is in" |
+| "stands as" | "is" or delete |
+| "rests on" | "depends on" / "uses" |
+| "rooted in" | "based on" / "comes from" |
+| "anchored in" | "based on" / delete |
+| "nestled in" | "in" |
+| "serves as" | "is" |
+| "marks" (a turning point/shift) | "starts" / "begins" / delete |
+| "represents" (a shift/transformation) | "is" or delete |
+| "embodies" | "is" or "shows" |
+| "boasts" | "has" |
+| "features" (as main verb) | "has" / "includes" |
+| "encompasses" | "covers" / "includes" |
+
+**Heuristic:** if the subject cannot literally do the verb,
+replace with "is", "has", or "uses".
+
+### Plus-Sign Conjunction
+
+| Slop | Replacement |
+|------|-------------|
+| "hooks + skills" | "hooks and skills" |
+| "Python + Rust workflow" | "Python and Rust workflow" |
+| "API + cache" | "API and cache" |
+| "fast + cheap" | "fast and cheap" |
+
+Exception: keep in code blocks, version strings ("3.11+"),
+stack labels in diagrams, math.
+
+### Em-Dash Replacement (Prevention Mode)
+
+| Original | Replacement | When |
+|----------|-------------|------|
+| "X — Y — Z" | "X, Y, Z" | Brief aside |
+| "X — a Y — Z" | "X (a Y) Z" | Tangential definition |
+| "X — and Y" | "X. And Y." | Dramatic pause |
+| "X — Y." | "X: Y." | Definition / list-lead |
+| "X — Y." | "X. Y." | Two complete thoughts |
+
+### Negative Parallelism
+
+| Slop | Replacement |
+|------|-------------|
+| "It's not X, it's Y" | "It is Y" or "Y, not X" (state positive first) |
+| "Not just X, but Y" | "X and Y" or "X. Also Y." |
+| "Not only X, but also Y" | "X and Y" |
+| "No X. No Y. Just Z." | "Zero X. Zero Y. Only Z." (rare) or "Z, with no X or Y" |
+| "Not because X. Because Y." | "Because Y, not X" |
+| "X. That's it. That's the Y." | "X is the Y." |
+| "And that's okay." | Delete |
+
+The replacements remove the rhetorical scaffold and state the
+claim directly.
+
+### Throat-Clearing Openers
+
+| Slop opener | Replacement |
+|-------------|-------------|
+| "Here's the thing," | Delete; start at substance |
+| "Look," (sentence opener) | Delete |
+| "So," (non-contrastive) | Delete |
+| "The thing is," | Delete |
+| "Let that sink in." | Delete |
+| "The uncomfortable truth is" | Delete; state the truth directly |
+| "This matters because" | Delete the framing; state why directly |
+| "Let me explain." | Delete; just explain |
+| "Bear with me." | Delete |
+
+### Significance Cluster
+
+| Slop | Replacement |
+|------|-------------|
+| "stands as a testament to" | "shows" / delete |
+| "marks a turning point" | "is when X changed" |
+| "represents a shift" | "is a shift" or describe the shift |
+| "indelible mark" | name the specific effect |
+| "deeply rooted" | "old" / "longstanding" |
+| "setting the stage for" | "before" / "leading to" |
+| "shaping the future of" | name the specific influence |
+| "underscores the importance" | "is important because" |
+| "plays a pivotal role" | "is central" or describe the role |
+
+### Three-Fragment Burst
+
+When you see "X. Y. Z." with three short fragments, ask:
+*does the rhythm carry information, or is it ornament?* If
+ornament, replace with a complete sentence.
+
+| Slop | Replacement |
+|------|-------------|
+| "Focused. Aligned. Measurable." | "Focused, aligned, measurable." or full sentence |
+| "Fast. Reliable. Cheap." | "Fast, reliable, and cheap." |
+| "Built. Tested. Shipped." | "Built, tested, and shipped." |
+
+### Loop/Signal/Cascade Vocabulary
+
+| Slop | Replacement |
+|------|-------------|
+| "unpack this" | "explain" / "go through" |
+| "surface the issue" | "raise" / "report" |
+| "a quiet shift" | name the shift |
+| "the signal here is" | "the point is" |
+| "a sharp framing" | describe the framing |
+| "feedback loop" (non-control) | describe the actual mechanism |

@@ -95,7 +95,8 @@ modesty.
 ## Fix before committing
 
 - Replace em dashes with colons, periods, commas, or
-  parentheses
+  parentheses. In prevention mode (docs you just generated),
+  the target is zero em-dashes
 - Replace "structured" with nothing (usually filler) or a
   specific word
 - Replace "actionable" with "specific" or "concrete"
@@ -109,11 +110,50 @@ modesty.
   connectors with "to", "into", or "produces" (arrows
   are fine in code and type signatures)
 - Replace `+` used as a prose conjunction with "and" or
-  rewrite the sentence (fine in code, math, and labels)
+  rewrite the sentence (fine in code, math, version strings,
+  and diagram labels)
 - Strip "Let's", "We'll", "In this guide" framings; start
   the sentence at the substantive content
 - Replace hedging seesaw with a position
 - Replace "not only X, but also Y" with the simpler form
+
+### Tier 5 / 2026 patterns (cross-source consensus)
+
+These crystallized in early 2026 from Wikipedia *Signs of AI
+writing*, Algorithmic Bridge *10 Signs*, Ignorance.ai *Field
+Guide to AI Slop*, the Stop-Slop Claude skill, George Kao,
+ContentBeta, and OliviaCal. Apply at the same priority as the
+list above.
+
+- **Spatial copula / animated inanimates**: replace
+  "lives in", "lives at", "sits at", "sits between", "stands
+  as", "rests on", "rooted in", "nestled in", "serves as",
+  "boasts", "marks" (a turning point), "represents" (a shift)
+  with plain "is", "has", "uses", or delete. Heuristic: if
+  the subject cannot literally do the verb, the verb is slop.
+- **Negative parallelism**: rewrite "It's not X, it's Y",
+  "Not just X, but Y", "Not only X, but also Y", "No X. No
+  Y. Just Z.", "Not because X. Because Y.", "And that's
+  okay." Positively state Y; drop the X half.
+- **Throat-clearing openers**: delete "Here's the thing,",
+  "Look,", "So," (non-contrastive), "The thing is,", "Let
+  that sink in.", "The uncomfortable truth is", "Let me
+  explain.", "Bear with me." Start at the substantive
+  content.
+- **Three-fragment burst**: collapse "Focused. Aligned.
+  Measurable." → "Focused, aligned, and measurable." Or
+  rewrite as a complete sentence with content.
+- **Significance cluster**: cut "stands as a testament to",
+  "marks a turning point", "indelible mark", "deeply rooted",
+  "setting the stage for", "shaping the future of",
+  "underscores the importance", "plays a pivotal role". The
+  surrounding facts carry significance better.
+- **Smart quotes outside code blocks**: replace `"`/`"`
+  with `"` and `'`/`'` with `'` in technical prose.
+- **Loop/cascade vocabulary**: replace "unpack" (verb,
+  metaphor) with "explain"; "surface" (verb, metaphor) with
+  "raise" or "report"; "a quiet shift" with the named shift;
+  "the signal here is" with "the point is".
 
 ## Anti-goals (do not over-correct)
 
