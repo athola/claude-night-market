@@ -47,5 +47,5 @@ examples:
 - **Chosen Approach**: A/B/C/…
 - **Acceptance Criteria**: 3–6 bullet checks, including at least one measurable metric
 - **Plan**: Ordered steps with exact file paths and intended changes
-- **Validation**: Commands to run and what “pass” means
+- **Validation**: Commands to run and what "pass" means
 - **Deferrals**: Explicit out-of-scope improvements to park

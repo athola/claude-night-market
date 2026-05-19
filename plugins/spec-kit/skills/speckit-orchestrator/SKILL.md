@@ -51,7 +51,7 @@ Coordinates the Spec Driven Development workflow, skill loading, and progress tr
 
 ## Persistent Presence Lens
 
-Treat SDD as a minimal, testable “self-modeling” loop:
+Treat SDD as a minimal, testable "self-modeling" loop:
 
 - **World model**: repo + speckit artifacts (`spec.md`, `plan.md`, `tasks.md`)
 - **Agent model**: loaded skills/plugins + constraints (especially `.specify/memory/constitution.md`) + progress state

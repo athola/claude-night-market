@@ -137,7 +137,7 @@ Generate 3 to 5 distinct improvement approaches and score each on impact, comple
 ## Step 4: Agree on a Plan (`plan-agreed`)
 
 Choose 1 approach and define:
-- Acceptance criteria (“substantive difference”)
+- Acceptance criteria ("substantive difference")
 - Files to change
 - Validation commands to run
 - Out-of-scope items to defer

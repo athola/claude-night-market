@@ -57,7 +57,7 @@ references:
 
 ## Overview
 
-Claude Code Agent Teams enables multiple Claude CLI processes to collaborate on shared work through a filesystem-based coordination protocol. Each teammate runs as an independent `claude` process in a tmux pane, communicating via JSON files guarded by `fcntl` locks. No database, no daemon, no network layer.
+Claude Code Agent Teams enables multiple Claude CLI processes to collaborate on shared work through a filesystem-based coordination protocol. Each teammate runs as an independent `claude` process in a tmux pane, communicating via JSON files guarded by `fcntl` locks, with no database, daemon, or network layer.
 
 This skill provides the patterns for orchestrating agent teams effectively.
 
