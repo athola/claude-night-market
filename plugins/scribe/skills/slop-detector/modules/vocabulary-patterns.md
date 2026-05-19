@@ -380,6 +380,8 @@ Wikipedia, OliviaCal, ContentBeta, Stop-Slop, and George Kao.
 "Not just X, but Y"
 "Not only X, but also Y"
 "No X. No Y. Just Z."
+"No X, no Y, no Z"
+"Y, not X" (trailing corrective negation)
 "Not because X. Because Y."
 "X. That's it. That's the Y."
 "Not a X, not a Y, just a Z"
@@ -420,6 +422,10 @@ TIER5_NEGATIVE_PARALLELISM = [
     r"\bNot just \w+,?\s+but (?:also )?\w+",
     r"\bNot only \w+,?\s+but (?:also )?\w+",
     r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
+    # Comma-joined variant: "No X, no Y, no Z"
+    r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
+    # Trailing corrective negation: "Y, not X." (advisory on proper nouns)
+    r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
     r"\bNot because \w+\.\s+Because \w+",
     r"\.\s+That's it\.\s+That's the\b",
     r"\bAnd that's okay\.",

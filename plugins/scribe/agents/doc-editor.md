@@ -72,7 +72,8 @@ You are a documentation editor focused on clarity, conciseness, and removing AI-
 - Throat-clearing openers ("Here's the thing,", "Look,",
   "Let that sink in.", "The uncomfortable truth is")
 - Negative parallelism: "Not X but Y", "It's not X, it's Y",
-  "No X. No Y. Just Z.", "And that's okay."
+  "Y, not X", "No X. No Y. Just Z.", "No X, no Y, no Z",
+  "And that's okay."
 - Significance cluster: "stands as a testament to",
   "marks a turning point", "indelible mark",
   "underscores the importance"

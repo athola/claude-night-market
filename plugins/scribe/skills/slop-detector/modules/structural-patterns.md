@@ -299,6 +299,8 @@ has no real argument to make.
 | `Not just X, but Y` | "Not just fast, but elegant" |
 | `Not only X, but also Y` | "Not only saves time, but also improves quality" |
 | `No X. No Y. Just Z.` | "No friction. No setup. Just code." |
+| `No X, no Y, no Z` | "No friction, no setup, no config." |
+| `Y, not X` (trailing) | "The API is clear, not clever." |
 | `Not because X. Because Y.` | "Not because it's hard. Because it matters." |
 | `X. That's it. That's the Y.` | "Documentation. That's it. That's the feature." |
 | `And that's okay.` | (closing reassurance with no information) |
@@ -310,6 +312,12 @@ NEGATIVE_PARALLELISM = [
     r"\bNot just \w+,?\s+but (?:also )?\w+",
     r"\bNot only \w+,?\s+but (?:also )?\w+",
     r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
+    # Comma-joined variant: "No X, no Y, no Z"
+    r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
+    # Trailing corrective negation: "Y, not X." Genuine either/or
+    # choices (e.g. "Python, not Java") also match; treat the
+    # trailing form as advisory when the negated term is a proper noun.
+    r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
     r"\bNot because \w+\.\s+Because \w+",
     r"\.\s+That's it\.\s+That's the\b",
     r"\bAnd that's okay\.",
@@ -327,6 +335,8 @@ isn't, then what it does.
 | "Not just fast, but elegant" | "Fast and elegant" or "Fast; the API is also clean" |
 | "It's not a tool, it's a transformation" | "It is a tool. It changes how you do X." |
 | "No friction. No setup. Just code." | "Zero-setup. Drop in and run." |
+| "No friction, no setup, no config." | "Zero-setup and zero-config." |
+| "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |
 
 ## Three-Fragment Burst
 

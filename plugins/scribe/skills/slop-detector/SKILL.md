@@ -233,7 +233,7 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Em-dash overuse | — used as rhetorical pause | Most-cited single tell of 2026 |
 | Plus-sign for "and" | "hooks + skills" in prose | Strong: humans have "and" |
 | Spatial copula | "lives in", "sits at", "stands as", "boasts" | Inanimate subject with animate verb |
-| Negative parallelism | "Not X but Y", "No X. No Y. Just Z.", "It's not X, it's Y" | Rhetorical scaffold with no argument |
+| Negative parallelism | "Not X but Y", "No X. No Y. Just Z.", "No X, no Y, no Z", "It's not X, it's Y", "Y, not X" | Rhetorical scaffold with no argument |
 | Throat-clearing openers | "Here's the thing,", "Look,", "Let that sink in." | Discourse markers signaling nothing |
 | Three-fragment burst | "Focused. Aligned. Measurable." | Rhythm without information |
 | Significance cluster | "stands as a testament to", "marks a turning point" | Asserts importance without showing it |

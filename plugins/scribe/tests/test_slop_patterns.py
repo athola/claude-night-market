@@ -381,6 +381,18 @@ class TestTier5NegativeParallelism:
     def thats_okay_pattern(self) -> re.Pattern:
         return re.compile(r"\bAnd that's okay\.", re.IGNORECASE)
 
+    @pytest.fixture
+    def comma_no_pattern(self) -> re.Pattern:
+        # Comma-joined variant of "No X. No Y.": "No X, no Y, no Z".
+        return re.compile(r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*", re.IGNORECASE)
+
+    @pytest.fixture
+    def trailing_not_pattern(self) -> re.Pattern:
+        # Trailing corrective negation: "Y, not X." Catches the
+        # rhetorical tail; genuine either/or choices match too, so
+        # treat as advisory when the negated term is a proper noun.
+        return re.compile(r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]")
+
     @pytest.mark.unit
     def test_detects_not_just_but(self, not_just_pattern: re.Pattern) -> None:
         """Scenario: Detect 'Not just X, but Y' construction."""
@@ -415,6 +427,24 @@ class TestTier5NegativeParallelism:
         text = "Sometimes the tests fail. And that's okay."
         matches = thats_okay_pattern.findall(text)
         assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_comma_joined_no(self, comma_no_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'No X, no Y, no Z' comma-joined construction."""
+        text = "No friction, no setup, no config."
+        assert len(comma_no_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_detects_trailing_negation(self, trailing_not_pattern: re.Pattern) -> None:
+        """Scenario: Detect trailing 'Y, not X' corrective negation."""
+        text = "The API is clear, not clever."
+        assert len(trailing_not_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_comma_no_ignores_single_no(self, comma_no_pattern: re.Pattern) -> None:
+        """Scenario: A single 'No X.' is not the comma-joined pattern."""
+        text = "No config required."
+        assert len(comma_no_pattern.findall(text)) == 0
 
     @pytest.mark.unit
     def test_positive_statement_passes(

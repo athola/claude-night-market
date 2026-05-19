@@ -71,7 +71,8 @@ George Kao.
 **Negative parallelism** (4):
 - "It's not X, it's Y"
 - "Not just X, but Y" / "Not only X, but also Y"
-- "No X. No Y. Just Z."
+- "Y, not X" (trailing corrective negation)
+- "No X. No Y. Just Z." / "No X, no Y, no Z"
 - "Not because X. Because Y."
 - "And that's okay."
 

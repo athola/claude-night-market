@@ -228,11 +228,13 @@ stack labels in diagrams, math.
 
 | Slop | Replacement |
 |------|-------------|
-| "It's not X, it's Y" | "It is Y" or "Y, not X" (state positive first) |
+| "It's not X, it's Y" | "It is Y" (state Y positively; avoid the "Y, not X" tail, which is itself flagged) |
+| "Y, not X" (trailing) | "Y" (drop the corrective tail) |
 | "Not just X, but Y" | "X and Y" or "X. Also Y." |
 | "Not only X, but also Y" | "X and Y" |
 | "No X. No Y. Just Z." | "Zero X. Zero Y. Only Z." (rare) or "Z, with no X or Y" |
-| "Not because X. Because Y." | "Because Y, not X" |
+| "No X, no Y, no Z" | "Z, with no X or Y" |
+| "Not because X. Because Y." | "Because Y" (drop the "not X" half) |
 | "X. That's it. That's the Y." | "X is the Y." |
 | "And that's okay." | Delete |
 

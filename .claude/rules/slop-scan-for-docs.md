@@ -132,9 +132,10 @@ list above.
   with plain "is", "has", "uses", or delete. Heuristic: if
   the subject cannot literally do the verb, the verb is slop.
 - **Negative parallelism**: rewrite "It's not X, it's Y",
-  "Not just X, but Y", "Not only X, but also Y", "No X. No
-  Y. Just Z.", "Not because X. Because Y.", "And that's
-  okay." Positively state Y; drop the X half.
+  "Y, not X" (trailing), "Not just X, but Y", "Not only X,
+  but also Y", "No X. No Y. Just Z.", "No X, no Y, no Z",
+  "Not because X. Because Y.", "And that's okay." Positively
+  state Y; drop the X half.
 - **Throat-clearing openers**: delete "Here's the thing,",
   "Look,", "So," (non-contrastive), "The thing is,", "Let
   that sink in.", "The uncomfortable truth is", "Let me

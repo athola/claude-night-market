@@ -49,7 +49,8 @@ These are never advisory. Fix them without reporting:
   - "This isn't X. This is Y." -> rewrite
   - "Not just X, but Y" / "Not only X, but also Y" -> "X and Y"
   - "It's not X, it's Y" -> state Y positively
-  - "No X. No Y. Just Z." -> "Z, with no X or Y"
+  - "Y, not X" (trailing negation) -> state Y positively, drop "not X"
+  - "No X. No Y. Just Z." / "No X, no Y, no Z" -> "Z, with no X or Y"
   - "And that's okay." -> delete
 - **Three-fragment burst**: "Focused. Aligned. Measurable." ->
   collapse to a single sentence

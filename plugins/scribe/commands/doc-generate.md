@@ -102,7 +102,8 @@ write:
 - Spatial copula with inanimate subject ("lives in", "sits
   at", "stands as", "rests on", "serves as", "boasts")
 - Negative parallelism ("Not X but Y", "It's not X, it's Y",
-  "No X. No Y. Just Z.", "And that's okay.")
+  "Y, not X", "No X. No Y. Just Z.", "No X, no Y, no Z",
+  "And that's okay.")
 - Throat-clearing openers ("Here's the thing,", "Look,",
   "Let that sink in.")
 - Three-fragment burst ("Focused. Aligned. Measurable.")
