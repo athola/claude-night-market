@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
+
+import pytest
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
@@ -11,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 import shared.deduplication as dedup_module
 from shared.deduplication import (
     get_content_hash,
+    get_entry,
     get_index_stats,
     get_url_key,
     is_known,
@@ -138,6 +142,31 @@ class TestYamlUnavailable:
         index = dedup_module._load_index()
         assert index == {"entries": {}, "hashes": {}}
 
+    def test_load_index_recovers_from_corrupt_yaml(
+        self, tmp_path: object, monkeypatch: object, capsys: object
+    ) -> None:
+        """A corrupt YAML index file must not take down web-research store
+        calls. The loader catches yaml.YAMLError, logs to stderr, and
+        returns the empty-index sentinel (issue #528)."""
+        import yaml as real_yaml
+
+        index_path = tmp_path / "dedup-index.yaml"
+        # Write a syntactically invalid YAML file.
+        index_path.write_text(
+            "entries:\n  - this is malformed because: : :\n  bad: }\n"
+        )
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+
+        # Should NOT raise; should return the empty-index sentinel.
+        index = dedup_module._load_index()
+        assert index == {"entries": {}, "hashes": {}}
+        # Should log to stderr so the operator notices.
+        err = capsys.readouterr().err
+        assert (
+            "yaml" in err.lower() or "corrupt" in err.lower() or "index" in err.lower()
+        )
+
     def test_is_known_returns_false_when_yaml_unavailable(
         self, monkeypatch: object
     ) -> None:
@@ -170,3 +199,305 @@ class TestYamlUnavailable:
         assert isinstance(stats, dict)
         assert stats["total_entries"] == 0
         assert stats["total_hashes"] == 0
+
+
+class TestUpdateIndexIntegration:
+    """Round-trip and invariant tests for update_index → lookup paths.
+
+    These tests cross the write/read boundary that earlier unit tests
+    skip: each test calls ``update_index`` against an isolated YAML
+    file (via ``_get_index_path`` monkeypatch) and then asserts that
+    the matching lookup function (``is_known``, ``get_entry``,
+    ``needs_update``) reports the entry consistent with what was
+    written. The original diff (knowledge-corpus QA-tier ingest)
+    exercises exactly this round-trip in production.
+    """
+
+    def setup_method(self) -> None:
+        """Reset dedup caches before each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    def teardown_method(self) -> None:
+        """Reset dedup caches after each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    @staticmethod
+    def _isolate_index(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+        """Redirect the index file to an isolated tmp_path location.
+
+        Returns the path so individual tests can read raw YAML if
+        they need to assert on-disk shape.
+        """
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        return index_path
+
+    def test_url_entry_round_trip_marks_known(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes a URL-keyed entry
+        THEN is_known(url=...) returns True for the same URL.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        url = "https://github.com/pytest-dev/pytest"
+        content_hash = get_content_hash("pytest readme content")
+
+        update_index(
+            content_hash=content_hash,
+            stored_at="docs/knowledge-corpus/qa-testing-tiers.md",
+            importance_score=82,
+            url=url,
+            title="pytest",
+            maturity="growing",
+            routing_type="meta",
+        )
+
+        assert is_known(url=url)
+        assert is_known(content_hash=content_hash)
+
+    def test_full_metadata_preserved_by_get_entry(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes an entry with title, maturity, and
+             routing_type
+        THEN get_entry(url=...) returns each field verbatim.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        url = "https://github.com/microsoft/playwright"
+        content_hash = get_content_hash("playwright doc content")
+
+        update_index(
+            content_hash=content_hash,
+            stored_at="docs/knowledge-corpus/qa-testing-tiers.md",
+            importance_score=82,
+            url=url,
+            title="Playwright",
+            maturity="growing",
+            routing_type="meta",
+        )
+
+        entry = get_entry(url=url)
+        assert entry is not None
+        assert entry["content_hash"] == content_hash
+        assert entry["stored_at"] == "docs/knowledge-corpus/qa-testing-tiers.md"
+        assert entry["importance_score"] == 82
+        assert entry["title"] == "Playwright"
+        assert entry["maturity"] == "growing"
+        assert entry["routing_type"] == "meta"
+        assert entry["url"] == url
+        # last_updated is stamped server-side and must be present
+        assert "last_updated" in entry
+
+    def test_needs_update_false_when_hash_unchanged(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an entry already written for a URL
+        WHEN needs_update is called with the same content_hash
+        THEN it returns False (no rewrite needed).
+        AND when called with a different hash, it returns True.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        url = "https://github.com/google/openhtf"
+        original_hash = get_content_hash("openhtf v1 content")
+        update_index(
+            content_hash=original_hash,
+            stored_at="docs/knowledge-corpus/qa-testing-tiers.md",
+            importance_score=82,
+            url=url,
+            title="OpenHTF bench tests",
+            maturity="growing",
+            routing_type="meta",
+        )
+
+        assert needs_update(original_hash, url=url) is False
+
+        changed_hash = get_content_hash("openhtf v2 content")
+        assert needs_update(changed_hash, url=url) is True
+
+    def test_url_normalization_invariant_across_write_and_read(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Encodes the design invariant that get_url_key normalization
+        binds writes and reads together. Cosmetic URL variants
+        (trailing slash, fragment, mixed case) MUST hit the same
+        entry; if this test breaks, get_url_key has diverged
+        between write-side and read-side and the index is no
+        longer deduplicating reliably.
+
+        Three resolution options if this ever fails:
+          1. Preserve: revert the change to get_url_key
+          2. Layer:    add an explicit migration step
+          3. Revise:   rebuild the index under the new normalization
+        Picking the wrong one corrupts dedup silently — this is
+        not a test to weaken without human review.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        canonical = "https://testing-library.com/docs/guiding-principles"
+        content_hash = get_content_hash("testing-library guiding principles")
+
+        # Write under one cosmetic form
+        update_index(
+            content_hash=content_hash,
+            stored_at="docs/knowledge-corpus/qa-testing-tiers.md",
+            importance_score=82,
+            url=canonical + "/",  # trailing slash
+            title="Testing Library Guiding Principles",
+            maturity="growing",
+            routing_type="meta",
+        )
+
+        # Read under cosmetic variants — all must resolve to the
+        # same entry
+        assert is_known(url=canonical)
+        assert is_known(url=canonical + "#section-1")
+        assert is_known(url="HTTPS://Testing-Library.com/docs/guiding-principles")
+
+    def test_path_keyed_entry_round_trip(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes a path-keyed (local-doc) entry
+        THEN get_entry(path=...) and is_known(path=...) recover it.
+
+        The diff exercises the URL branch; this test guards the
+        symmetric path branch so a regression there cannot ship
+        unnoticed.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        local_doc = tmp_path / "local-doc.md"
+        local_doc.write_text("local doc body")
+        content_hash = get_content_hash(local_doc.read_text())
+
+        update_index(
+            content_hash=content_hash,
+            stored_at=str(local_doc),
+            importance_score=50,
+            path=str(local_doc),
+            title="local doc",
+        )
+
+        assert is_known(path=str(local_doc))
+        entry = get_entry(path=str(local_doc))
+        assert entry is not None
+        assert entry["path"] == str(local_doc)
+        assert entry["content_hash"] == content_hash
+
+    def test_index_stats_count_matches_writes(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index is called N times with distinct URLs and
+             distinct content
+        THEN get_index_stats reports total_entries == N and
+             total_hashes == N.
+
+        The diff added 9 entries in one ingest pass; this test
+        guards the counter invariant under a small N=3 batch so a
+        regression in the cache-invalidation logic surfaces.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        for i, url in enumerate(
+            [
+                "https://github.com/pytest-dev/pytest",
+                "https://github.com/microsoft/playwright",
+                "https://github.com/google/openhtf",
+            ]
+        ):
+            update_index(
+                content_hash=get_content_hash(f"body-{i}"),
+                stored_at="docs/knowledge-corpus/qa-testing-tiers.md",
+                importance_score=82,
+                url=url,
+                title=f"entry-{i}",
+                maturity="growing",
+                routing_type="meta",
+            )
+
+        stats = get_index_stats()
+        assert stats["total_entries"] == 3
+        assert stats["total_hashes"] == 3
+        assert stats["urls"] == 3
+        assert stats["local_docs"] == 0
+
+
+class TestImportanceScoreBounds:
+    """Bounds enforcement for the documented ``importance_score`` contract.
+
+    The function's docstring declares a 0-100 closed range (knowledge
+    intake evaluation scale). Until now the code accepted any int and
+    a -1 or 101 score would silently corrupt the dedup index. These
+    tests lock the contract: in-range scores succeed, out-of-range
+    scores raise ValueError before any state mutation.
+    """
+
+    def setup_method(self) -> None:
+        """Reset dedup caches before each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    def teardown_method(self) -> None:
+        """Reset dedup caches after each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    @staticmethod
+    def _isolate_index(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+        """Redirect index file to an isolated tmp_path location."""
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        return index_path
+
+    @pytest.mark.parametrize("score", [0, 50, 100])
+    def test_in_range_score_accepted(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        score: int,
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index is called with a score in the closed
+             [0, 100] range
+        THEN it succeeds and writes the entry.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        update_index(
+            content_hash=get_content_hash(f"body-{score}"),
+            stored_at="docs/test.md",
+            importance_score=score,
+            url=f"https://example.com/score-{score}",
+        )
+        entry = get_entry(url=f"https://example.com/score-{score}")
+        assert entry is not None
+        assert entry["importance_score"] == score
+
+    @pytest.mark.parametrize("score", [-1, -100, 101, 1000])
+    def test_out_of_range_score_raises(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        score: int,
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index is called with a score outside [0, 100]
+        THEN it raises ValueError before mutating the index.
+
+        Failure-mode rationale: a silently-accepted out-of-range
+        score corrupts downstream consumers that rank by score
+        (knowledge-intake evaluation, garden curation). Fail-fast
+        at the boundary is cheaper than debugging poisoned scores.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        with pytest.raises(ValueError, match="importance_score"):
+            update_index(
+                content_hash=get_content_hash(f"body-{score}"),
+                stored_at="docs/test.md",
+                importance_score=score,
+                url=f"https://example.com/score-{score}",
+            )
+        # Index must remain untouched on validation failure.
+        assert get_entry(url=f"https://example.com/score-{score}") is None
+        assert get_index_stats()["total_entries"] == 0

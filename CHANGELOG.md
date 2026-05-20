@@ -41,6 +41,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runtime deps stay empty, preserving the no-bundle invariant
   the test guards.
 
+## [1.9.6] - 2026-05-10
+
+### Added
+
+- **`minister:dora-metrics` skill (#487).** Computes the four
+  DORA delivery-performance metrics (deployment frequency, lead
+  time for changes, change failure rate, time to restore service
+  — median) from GitHub PR and deployment data, and classifies
+  the result into the Elite / High / Medium / Low tier from the
+  Accelerate research. Intended for quarterly delivery retros. See
+  `plugins/minister/skills/dora-metrics/` and the entry in
+  `book/src/reference/capabilities-reference.md`.
+- **In-loop variation provider for gauntlet (#464).** When
+  gauntlet runs inside Claude Code, the new
+  `gauntlet.providers.in_loop` module replaces the default
+  Anthropic-SDK variation provider with a deterministic local
+  one that perturbs integers and small numeric tokens in the
+  seed prompt. This avoids spawning a sibling Claude through
+  the API just to vary a challenge wording. The default
+  provider is unchanged outside Claude Code. The challenge
+  skill registers the in-loop provider via
+  `register_in_loop_provider_if_inside_claude_code()`. See
+  `plugins/gauntlet/src/gauntlet/providers/in_loop.py` and
+  the "In-Loop Provider Setup" section of
+  `plugins/gauntlet/skills/challenge/SKILL.md`.
+
+### Changed
+
+- **`memory-palace` deduplication index validates
+  `importance_score` bounds.** `update_index()` in
+  `plugins/memory-palace/hooks/shared/deduplication.py` now
+  raises `ValueError` when `importance_score` falls outside
+  the documented closed range `[0, 100]`. Validation runs
+  before any cache or on-disk mutation, so a bad score cannot
+  poison the index. The `knowledge-intake` SKILL.md now
+  states the `[0, 100]` bound explicitly alongside the field.
+
+### Fixed
+
+- **`fix(tome)`: register `tome:research` as dispatchable
+  agent (#465).** The research agent was discoverable as a
+  skill but missing from the agent registry, so other plugins
+  could not invoke it through the Agent tool. Adding it to
+  the registry restores the documented dispatch path.
+- **`fix(scripts)`: remove false-positive
+  `deprecated-pre-decision` rule.** The hook-modernization
+  scanner was flagging a pattern that the deprecation policy
+  no longer treats as deprecated. The rule and its tests were
+  removed; remaining rules are unchanged.
+
+### Tests
+
+- `test(minister)`: cover `project_tracker` CLI surface.
+- `test(tome)`: backfill coverage for channels and output
+  modules.
+- `test(sanctum)`: regression test for stale module references
+  (#468).
+- `test(imbue)`: scope `os.open` patch to hook module to avoid
+  masking init calls (#496).
+
+### Documentation
+
+- `docs(abstract)`: refresh effort levels and add
+  2.1.97-2.1.138 compat notes.
+- `docs(pensive)`: add Verification + Testing sections to
+  `performance-review` (#469).
+- `docs(archetypes)`: restore paradigm-component vocabulary
+  in 13 SKILL.md files (#463).
+
 ## [1.9.5] - 2026-05-07
 
 ### Added

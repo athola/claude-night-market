@@ -221,3 +221,58 @@ exact code shape.
 - `modules/space-complexity.md`: S1-S3 detector patterns.
 - `modules/gauntlet-integration.md`: Tier 2/3 contract,
   fallback semantics, examples.
+
+## Verification
+
+A perf-review finding is only useful if the caller can confirm it
+is real. Use this checklist before treating any finding as worth
+fixing:
+
+1. **Reproduce under a profiler.** Run `cProfile`, `py-spy`, or the
+   language-specific equivalent on the hotspot. The findings
+   pinpoint AST shapes; the profiler validates the runtime impact.
+2. **Re-run the failing benchmark.** If `benches/` exists, the
+   hotspot should show up in numbers, not just AST scans.
+3. **Compare numbers before and after the proposed fix.** The fix
+   is wrong if numbers do not move. Capture both timings as
+   evidence references like `[E1]` (before) and `[E2]` (after).
+4. **Sample two or three reported hotspots manually.** Findings can
+   be true at the AST level and false at the call-graph level
+   when callers short-circuit. Manual sampling catches that.
+
+The `Skill(imbue:proof-of-work)` discipline applies: claims like
+"the hotspot is fixed" require evidence, not assertion.
+
+## Testing
+
+A test file already lives at
+`plugins/pensive/tests/skills/test_performance_review.py` covering
+the AST-shape detectors. Two rules for changes here:
+
+- **Add a new detector with a test.** Any new T-* or S-* pattern
+  added to the modules ships with a test that has the smallest
+  AST sample exercising it.
+- **Add a regression test for any false positive removed.** When
+  the skill stops firing on a shape that used to look hot, the
+  reason should appear as a test case so the regression is
+  discoverable later.
+
+The Iron Law applies: a new detector without a failing test first
+is a request to skip TDD on a code-analysis component, which is
+exactly the place where TDD pays off most.
+
+## Exit Criteria
+
+- [ ] A perf-review report file exists for the requested target.
+- [ ] Every finding carries a severity label and a concrete
+      suggestion the caller can act on.
+- [ ] Time-complexity (T1-T6) and space-complexity (S1-S3)
+      detectors have been run; tier coverage is reported.
+- [ ] Tier 2 (gauntlet treesitter) and Tier 3 (graph store)
+      contracts honor the optional-import sentinel: missing
+      modules return `[]` rather than raising.
+- [ ] Each new detector ships with a smallest-AST test that
+      fails before the detector exists; each removed false
+      positive ships with a regression test.
+- [ ] Findings flow into `Skill(pensive:unified-review)` without
+      translation when invoked from the unified entry point.

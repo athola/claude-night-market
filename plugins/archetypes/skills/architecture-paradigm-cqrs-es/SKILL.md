@@ -58,3 +58,16 @@ estimated_tokens: 800
   - **Mitigation**: Users may be confused by delays between performing an action and seeing the result. Clearly document the SLAs for read model updates and manage user-facing expectations accordingly, for example, by providing immediate feedback on the command side.
 - **Schema Drift**:
   - **Mitigation**: An unplanned change to an event schema can break consumers. Enforce the use of a formal schema registry and implement version gates in the CI/CD pipeline to prevent the emission of unvalidated event versions.
+
+## Concrete Components
+
+These vocabulary items name the concrete tools and abstractions
+that show up when the paradigm is implemented. They are not
+required dependencies and they are not part of the skill's
+``tools:`` frontmatter (which is reserved for Claude Code tool
+restrictions). Use this list to disambiguate during architecture
+discussions.
+
+- ``event-store`` -- append-only log of domain events; the system of record from which projections are built
+- ``message-broker`` -- carries commands and integration events between bounded contexts
+- ``projection-builder`` -- rebuilds read-side views by replaying the event store

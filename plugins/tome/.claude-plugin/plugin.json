@@ -1,7 +1,7 @@
 {
   "name": "tome",
   "version": "1.9.7",
-  "description": "Multi-source research plugin \u2014 code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
+  "description": "Multi-source research plugin — code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
   "skills": [
     "./skills/research",
     "./skills/code-search",
@@ -21,6 +21,7 @@
     "./agents/code-searcher.md",
     "./agents/discourse-scanner.md",
     "./agents/literature-reviewer.md",
+    "./agents/research.md",
     "./agents/triz-analyst.md"
   ],
   "hooks": [],

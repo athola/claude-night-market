@@ -8,6 +8,7 @@
     "./commands/update-labels.md"
   ],
   "skills": [
+    "./skills/dora-metrics",
     "./skills/github-initiative-pulse",
     "./skills/release-health-gates"
   ],

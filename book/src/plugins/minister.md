@@ -18,6 +18,7 @@ It bridges the gap between development work and project management.
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
+| `dora-metrics` | DORA delivery-performance metrics with tier classification | Quarterly delivery retros |
 | `github-initiative-pulse` | Initiative progress tracking | Weekly status reports |
 | `release-health-gates` | Release readiness checks | Before releasing |
 

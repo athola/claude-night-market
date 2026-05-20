@@ -86,8 +86,24 @@ def _load_index() -> dict[str, Any]:
             _index_cache = {"entries": {}, "hashes": {}}
             return _index_cache
 
-        with open(index_path) as f:
-            _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
+        try:
+            with open(index_path) as f:
+                _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
+        except yaml.YAMLError as exc:
+            # Issue #528: a corrupt index file must not take down web-research
+            # store calls. Log to stderr so the operator notices, then fall
+            # back to the empty-index sentinel.
+            import sys as _sys
+
+            print(
+                f"[memory-palace] WARNING: corrupt YAML index at "
+                f"{index_path}: {exc}; falling back to empty index. "
+                f"Repair or delete the file to restore persistence.",
+                file=_sys.stderr,
+            )
+            _index_cache = {"entries": {}, "hashes": {}}
+            _index_mtime = current_mtime
+            return _index_cache
 
         # validate required keys exist
         _index_cache.setdefault("entries", {})
@@ -179,7 +195,18 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
 
     Note: This does write to disk - use sparingly.
 
+    Raises:
+        ValueError: if ``importance_score`` is outside the documented
+            closed range [0, 100]. Validation runs before any state
+            mutation so a bad score cannot poison the cache or the
+            on-disk index.
+
     """
+    if not 0 <= importance_score <= 100:
+        raise ValueError(
+            f"importance_score must be in [0, 100], got {importance_score}"
+        )
+
     global _index_cache  # noqa: PLW0603 - invalidate module-level cache after disk write
 
     index = _load_index()
