@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/agent-expenditure",
@@ -20,6 +20,7 @@
   "commands": [
     "./commands/ai-hygiene-audit.md",
     "./commands/bloat-scan.md",
+    "./commands/filter-log.md",
     "./commands/optimize-context.md",
     "./commands/unbloat.md"
   ],

@@ -280,3 +280,360 @@ class TestSlopScoring:
         score = (tier1_count * 3) / word_count * 100
 
         assert score > 5.0  # Heavy slop threshold
+
+
+class TestTier5SpatialCopula:
+    """Feature: Detect spatial-copula / animated-inanimate patterns.
+
+    As a documentation maintainer
+    I want to detect "lives in", "sits at", "stands as" and similar
+    verbs used with inanimate subjects
+    So that I can replace them with plain "is/has/uses"
+    """
+
+    @pytest.fixture
+    def copula_pattern(self) -> re.Pattern:
+        """Pattern for spatial copula verbs."""
+        return re.compile(
+            r"\b(?:lives?|sits?|stands?|rests?|dwells?)"
+            r"\s+(?:in|at|on|between|within|atop)\b",
+            re.IGNORECASE,
+        )
+
+    @pytest.fixture
+    def serves_pattern(self) -> re.Pattern:
+        """Pattern for 'serves as' / 'stands as' / 'boasts'."""
+        return re.compile(
+            r"\b(?:serves?\s+as|stands?\s+as|boasts?|nestled\s+in|rooted\s+in)\b",
+            re.IGNORECASE,
+        )
+
+    @pytest.mark.unit
+    def test_detects_lives_in(self, copula_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'lives in' as spatial copula."""
+        text = "The skill lives in `plugins/scribe/`."
+        matches = copula_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_sits_between(self, copula_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'sits between' as spatial copula."""
+        text = "The cache sits between the API and the database."
+        matches = copula_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_stands_as(self, serves_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'stands as' (copula avoidance, not spatial)."""
+        text = "The framework stands as a foundation for new work."
+        matches = serves_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_detects_boasts(self, serves_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'boasts' (animation of inanimate)."""
+        text = "The library boasts 50 features and excellent docs."
+        matches = serves_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_detects_serves_as(self, serves_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'serves as'."""
+        text = "This pattern serves as the basis for the workflow."
+        matches = serves_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_plain_is_passes(self, copula_pattern: re.Pattern) -> None:
+        """Scenario: Plain 'is' does not match."""
+        text = "The skill is in plugins/scribe/."
+        matches = copula_pattern.findall(text)
+        assert len(matches) == 0
+
+
+class TestTier5NegativeParallelism:
+    """Feature: Detect negative-parallelism rhetorical scaffolds.
+
+    The strongest 2026 prose tell per cross-source consensus.
+    """
+
+    @pytest.fixture
+    def not_just_pattern(self) -> re.Pattern:
+        return re.compile(
+            r"\bNot\s+just\s+\w+,?\s+but(?:\s+also)?\s+\w+", re.IGNORECASE
+        )
+
+    @pytest.fixture
+    def its_not_pattern(self) -> re.Pattern:
+        # Non-greedy across optional articles/words up to the
+        # comma, then "it's <word>". Real prose uses multi-word
+        # objects like "a tool", "just a phase".
+        return re.compile(
+            r"\bIt's not [\w\s]+?,\s+it's \w+",
+            re.IGNORECASE,
+        )
+
+    @pytest.fixture
+    def no_no_just_pattern(self) -> re.Pattern:
+        return re.compile(r"\bNo \w+\.\s+No \w+\.\s+Just \w+", re.IGNORECASE)
+
+    @pytest.fixture
+    def thats_okay_pattern(self) -> re.Pattern:
+        return re.compile(r"\bAnd that's okay\.", re.IGNORECASE)
+
+    @pytest.fixture
+    def comma_no_pattern(self) -> re.Pattern:
+        # Comma-joined variant of "No X. No Y.": "No X, no Y, no Z".
+        return re.compile(r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*", re.IGNORECASE)
+
+    @pytest.fixture
+    def trailing_not_pattern(self) -> re.Pattern:
+        # Trailing corrective negation: "Y, not X." Catches the
+        # rhetorical tail. Genuine either/or choices ("Python, not
+        # Java") are slop too: rewrite as "Y instead of X".
+        return re.compile(r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]")
+
+    @pytest.mark.unit
+    def test_detects_not_just_but(self, not_just_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Not just X, but Y' construction."""
+        text = "Not just fast, but elegant."
+        matches = not_just_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_not_just_but_also(self, not_just_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Not just X, but also Y' variant."""
+        text = "Not just fast, but also elegant."
+        matches = not_just_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_its_not_its(self, its_not_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'It's not X, it's Y' construction."""
+        text = "It's not a tool, it's a transformation."
+        matches = its_not_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_no_no_just(self, no_no_just_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'No X. No Y. Just Z.' construction."""
+        text = "No friction. No setup. Just code."
+        matches = no_no_just_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_and_thats_okay(self, thats_okay_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'And that's okay.' closing reassurance."""
+        text = "Sometimes the tests fail. And that's okay."
+        matches = thats_okay_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_comma_joined_no(self, comma_no_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'No X, no Y, no Z' comma-joined construction."""
+        text = "No friction, no setup, no config."
+        assert len(comma_no_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_detects_trailing_negation(self, trailing_not_pattern: re.Pattern) -> None:
+        """Scenario: Detect trailing 'Y, not X' corrective negation."""
+        text = "The API is clear, not clever."
+        assert len(trailing_not_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_detects_trailing_negation_proper_noun(
+        self, trailing_not_pattern: re.Pattern
+    ) -> None:
+        """Scenario: Either/or with proper nouns is still slop.
+
+        "Python, not Java" is flagged; the rewrite is "Python
+        instead of Java", which keeps the contrast without the tail.
+        """
+        text = "We use Python, not Java."
+        assert len(trailing_not_pattern.findall(text)) == 1
+
+    @pytest.mark.unit
+    def test_comma_no_ignores_single_no(self, comma_no_pattern: re.Pattern) -> None:
+        """Scenario: A single 'No X.' is not the comma-joined pattern."""
+        text = "No config required."
+        assert len(comma_no_pattern.findall(text)) == 0
+
+    @pytest.mark.unit
+    def test_positive_statement_passes(
+        self,
+        not_just_pattern: re.Pattern,
+        its_not_pattern: re.Pattern,
+    ) -> None:
+        """Scenario: Positive statement does not match negative parallelism."""
+        text = "The framework is fast and elegant."
+        assert len(not_just_pattern.findall(text)) == 0
+        assert len(its_not_pattern.findall(text)) == 0
+
+
+class TestTier5PlusSignConjunction:
+    """Feature: Detect plus-sign used as 'and' in prose."""
+
+    @pytest.fixture
+    def plus_pattern(self) -> re.Pattern:
+        return re.compile(r"\w\s\+\s\w")
+
+    @pytest.mark.unit
+    def test_detects_plus_in_prose(self, plus_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'hooks + skills' in prose."""
+        text = "The plugin uses hooks + skills together."
+        matches = plus_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_plus_in_version_string_acceptable(self) -> None:
+        """Scenario: '3.11+' in version context is acceptable.
+
+        The detection regex requires word-space-plus-space-word,
+        so '3.11+' (no surrounding spaces) does not match.
+        """
+        pattern = re.compile(r"\w\s\+\s\w")
+        text = "Requires Python 3.11+ for typing features."
+        matches = pattern.findall(text)
+        assert len(matches) == 0
+
+    @pytest.mark.unit
+    def test_and_passes(self, plus_pattern: re.Pattern) -> None:
+        """Scenario: Plain 'and' does not match."""
+        text = "The plugin uses hooks and skills together."
+        matches = plus_pattern.findall(text)
+        assert len(matches) == 0
+
+
+class TestTier5ThroatClearing:
+    """Feature: Detect throat-clearing discourse openers."""
+
+    @pytest.fixture
+    def opener_pattern(self) -> re.Pattern:
+        return re.compile(
+            r"^(?:Here's the thing,|Look,\s+[A-Z]|The thing is,|"
+            r"Let me explain\.|Bear with me\.|"
+            r"The uncomfortable truth is)",
+            re.MULTILINE,
+        )
+
+    @pytest.fixture
+    def let_that_sink_pattern(self) -> re.Pattern:
+        return re.compile(r"\bLet that sink in\b", re.IGNORECASE)
+
+    @pytest.mark.unit
+    def test_detects_heres_the_thing(self, opener_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Here's the thing,' opener."""
+        text = "Here's the thing, this approach is fragile."
+        matches = opener_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_look_opener(self, opener_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Look,' as sentence opener."""
+        text = "Look, This is not the right path forward."
+        matches = opener_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_detects_let_that_sink_in(self, let_that_sink_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Let that sink in.'"""
+        text = "The system handles 1M req/s. Let that sink in."
+        matches = let_that_sink_pattern.findall(text)
+        assert len(matches) == 1
+
+    @pytest.mark.unit
+    def test_substantive_opener_passes(self, opener_pattern: re.Pattern) -> None:
+        """Scenario: Substantive opener does not match."""
+        text = "The skill processes input and returns findings."
+        matches = opener_pattern.findall(text)
+        assert len(matches) == 0
+
+
+class TestTier5ThreeFragmentBurst:
+    """Feature: Detect three-fragment-burst patterns."""
+
+    @pytest.fixture
+    def burst_pattern(self) -> re.Pattern:
+        return re.compile(r"\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.")
+
+    @pytest.mark.unit
+    def test_detects_three_word_burst(self, burst_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Focused. Aligned. Measurable.'"""
+        text = "Our principles are simple. Focused. Aligned. Measurable."
+        matches = burst_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_detects_fast_reliable_cheap(self, burst_pattern: re.Pattern) -> None:
+        """Scenario: Detect 'Fast. Reliable. Cheap.'"""
+        text = "Pick two. Fast. Reliable. Cheap."
+        matches = burst_pattern.findall(text)
+        assert len(matches) >= 1
+
+    @pytest.mark.unit
+    def test_normal_short_sentences_no_match(self, burst_pattern: re.Pattern) -> None:
+        """Scenario: Normal short sentences with content don't match."""
+        text = (
+            "The cache works well. It returns results quickly. We added it last week."
+        )
+        matches = burst_pattern.findall(text)
+        # These have multi-word sentences; the burst regex needs
+        # exactly three single-capitalized-word sentences in a row
+        assert len(matches) == 0
+
+
+class TestTier5EmDashPreventionMode:
+    """Feature: Prevention-mode em-dash detection (any em-dash fails).
+
+    Audit mode tolerates legitimate em-dash usage by human writers.
+    Prevention mode applies to docs an agent just generated, where
+    every em-dash is a finding.
+    """
+
+    @pytest.mark.unit
+    def test_prevention_mode_any_em_dash_is_finding(self) -> None:
+        """Scenario: In prevention mode, even one em dash fails."""
+        text = "The system handles requests—and returns results quickly."
+        em_dash_count = text.count("—")
+        # Prevention mode: nonzero count is a finding
+        assert em_dash_count == 1
+        prevention_failed = em_dash_count > 0
+        assert prevention_failed
+
+    @pytest.mark.unit
+    def test_prevention_mode_zero_em_dashes_passes(self) -> None:
+        """Scenario: In prevention mode, zero em dashes passes."""
+        text = "The system handles requests and returns results quickly."
+        em_dash_count = text.count("—")
+        assert em_dash_count == 0
+        prevention_failed = em_dash_count > 0
+        assert not prevention_failed
+
+
+class TestTier5SmartQuotes:
+    """Feature: Detect smart quotes outside code blocks."""
+
+    @pytest.fixture
+    def smart_quote_pattern(self) -> re.Pattern:
+        return re.compile(r"[“”‘’]")
+
+    @pytest.mark.unit
+    def test_detects_curly_double_quotes(self, smart_quote_pattern: re.Pattern) -> None:
+        """Scenario: Detect curly double quotes (“”)."""
+        text = "The skill returns a “finding” for each match."
+        matches = smart_quote_pattern.findall(text)
+        assert len(matches) == 2
+
+    @pytest.mark.unit
+    def test_detects_curly_single_quotes(self, smart_quote_pattern: re.Pattern) -> None:
+        """Scenario: Detect curly single quotes (‘’)."""
+        text = "The flag ‘--strict’ enables prevention mode."
+        matches = smart_quote_pattern.findall(text)
+        assert len(matches) == 2
+
+    @pytest.mark.unit
+    def test_straight_quotes_pass(self, smart_quote_pattern: re.Pattern) -> None:
+        """Scenario: Straight quotes do not match."""
+        text = 'The skill returns a "finding" for each match.'
+        matches = smart_quote_pattern.findall(text)
+        assert len(matches) == 0

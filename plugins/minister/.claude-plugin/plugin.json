@@ -1,6 +1,6 @@
 {
   "name": "minister",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "description": "Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects into status dashboards",
   "commands": [
     "./commands/close-issue.md",
@@ -18,7 +18,6 @@
     "initiatives",
     "status-tracking",
     "release-gates",
-    "dora-metrics",
     "dashboards",
     "reporting",
     "program-management"

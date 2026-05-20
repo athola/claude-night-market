@@ -42,8 +42,12 @@ Clean up AI-generated content and improve documentation quality.
 
 ## Workflow
 
-1. **Scan** for slop markers
-2. **Categorize** by severity
+1. **Scan** for slop markers (audit mode by default; pass
+   `--prevention` for strict mode on freshly generated docs)
+2. **Categorize** by severity (includes Tier 5 / 2026 patterns:
+   em-dash, plus-sign, spatial copula, negative parallelism,
+   throat-clearing openers, three-fragment burst, smart quotes,
+   significance cluster, loop/cascade vocabulary)
 3. **Present** section-by-section changes
 4. **Apply** approved changes
 5. **Verify** improvement

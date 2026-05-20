@@ -57,7 +57,7 @@ Once we've evaluated the scope, we move on to designing the module architecture.
 
 We use a "hub-and-spoke" pattern for our modular skills. This means we have a primary "hub" skill that contains the core metadata and an overview, and then optional "spoke" submodules that contain more detailed information.
 
-Here’s an example of what the structure looks like:
+This is an example of the structure:
 
 ```
 skill-category/

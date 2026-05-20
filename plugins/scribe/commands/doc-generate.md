@@ -90,7 +90,28 @@ All generated content automatically:
 2. Follows grounding principle (specifics over adjectives)
 3. Uses appropriate sentence variation
 4. Skips formulaic openers/closers
-5. Runs through slop-detector before output
+5. Runs through slop-detector in **prevention mode** before output
+
+Prevention mode is strict. Any of the following in newly
+generated prose is a hard failure that must be fixed before
+write:
+
+- Em-dashes (target: zero; replace with comma/colon/period/paren)
+- Plus-sign as conjunction in prose ("hooks + skills")
+- ASCII / Unicode arrows in prose (`->`, `→`)
+- Spatial copula with inanimate subject ("lives in", "sits
+  at", "stands as", "rests on", "serves as", "boasts")
+- Negative parallelism ("Not X but Y", "It's not X, it's Y",
+  "Y, not X", "No X. No Y. Just Z.", "No X, no Y, no Z",
+  "And that's okay.")
+- Throat-clearing openers ("Here's the thing,", "Look,",
+  "Let that sink in.")
+- Three-fragment burst ("Focused. Aligned. Measurable.")
+- Smart quotes outside code blocks
+
+See `Skill(scribe:slop-detector)` § Step 4.6 for the full
+prevention catalog and `modules/remediation-strategies.md`
+§ Tier 5 / 2026 for the substitution tables.
 
 ## Output
 

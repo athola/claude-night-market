@@ -225,7 +225,17 @@ def detect_documentation_slop(docs_path):
 
     hedge_words = [
         "worth noting", "arguably", "to some extent",
-        "it's important", "consider that", "generally speaking"
+        "it's important", "consider that", "generally speaking",
+        # 2026 cross-source consensus tells (Wikipedia, Field
+        # Guide, Stop-Slop, OliviaCal, George Kao). Quick
+        # triage only; delegate full check to scribe.
+        "lives in", "sits at", "stands as", "rests on",
+        "rooted in", "serves as", "boasts",
+        "here's the thing", "let that sink in",
+        "the uncomfortable truth is",
+        "not just", "not only", "it's not",
+        "stands as a testament", "marks a turning point",
+        "underscores the importance",
     ]
 
     for md_file in glob("**/*.md"):

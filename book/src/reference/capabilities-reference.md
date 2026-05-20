@@ -241,6 +241,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/doc-generate` | scribe | Generate new documentation |
 | `/doc-polish` | scribe | Clean up AI-generated content |
 | `/evaluate-skill` | abstract | Evaluate skill execution quality |
+| `/filter-log` | conserve | Suggest tier-1 filter commands for a log file before any compression or paste |
 | `/fix-pr` | sanctum | Address PR review comments |
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
 | `/fixit` | sanctum | Fix broken functionality from pasted output using research, TDD, and proof-of-work |

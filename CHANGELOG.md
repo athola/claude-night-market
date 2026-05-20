@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.7] - 2026-05-18
+
+### Added
+
+- **conserve: `log-debugging-hygiene` module + `/filter-log`
+  command.** New progressive-loading module under
+  `compression-strategy` documents a three-tier workflow for
+  handling pasted log output. Tier 1 (filter at source) beats
+  tier 3 (compression) by 25 percentage points on the committed
+  `intake_queue.jsonl` fixture; the asymmetry is guarded by
+  `test_log_debugging_hygiene.py::test_filter_first_claim_is_reproducible`.
+  The companion `/conserve:filter-log` command routes users to
+  tier-1 filters (`tail`, `head`, `rg`, `jq`, `awk`) without
+  auto-invoking compression. Honest framing of LLM accuracy
+  claims cites LLMLingua, LogFiT, LogLLM, and CompressionAttack
+  rather than asserting the unsupported claim that LLMs work
+  better on compressed logs.
+- **conserve: no-bundled-compressor invariant test.** New
+  `test_conserve_does_not_bundle_runtime_compressor` asserts
+  that `plugins/conserve/pyproject.toml` `[project].dependencies`
+  contains no log compressor (llmlingua, drain3, lognplus,
+  logparser, loghub). Bundling one would contradict the module
+  doctrine and the `shared-utility-consumer-rule`; the failure
+  surfaces three deliberate options (preserve, layer, revise).
+- **conserve: hypothesis-based tier-1 subset property tests.**
+  New `test_log_filter_properties.py` fuzzes log content shapes
+  and verifies that `tail`/`head` outputs remain literal
+  suffixes/prefixes of the input and never exceed the requested
+  line budget. The subset property is what distinguishes tier 1
+  from tier 3; a "smart filter" that paraphrased would break
+  these tests. Hypothesis added to conserve dev-deps only;
+  runtime deps stay empty, preserving the no-bundle invariant
+  the test guards.
+
 ## [1.9.6] - 2026-05-10
 
 ### Added

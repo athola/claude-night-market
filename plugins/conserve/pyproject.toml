@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.9.6"
+version = "1.9.7"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -50,6 +50,7 @@ dev = [
     "pytest-asyncio>=0.25.0",
     "pytest-bdd>=8.1.0",
     "pytest-xdist>=3.6.1",
+    "hypothesis>=6.152.7",
 ]
 
 [tool.hatch.build.targets.wheel]

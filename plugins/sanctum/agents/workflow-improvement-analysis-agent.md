@@ -32,7 +32,7 @@ examples:
 - Generate 3–5 distinct improvement approaches for the workflow slice
 - Make trade-offs explicit (impact/complexity/reversibility/consistency)
 - Identify which plugin assets to change (skills/agents/commands/hooks)
-- Define measurable “substantive improvement” metrics for the slice
+- Define measurable "substantive improvement" metrics for the slice
 
 ## Tools
 - Read

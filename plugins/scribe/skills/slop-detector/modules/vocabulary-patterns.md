@@ -234,6 +234,238 @@ These overwhelmingly start AI conclusions. Human writers end with specifics, cal
 
 AI text is measured at 50% more sycophantic than human text (Georgetown AI Sycophancy Research, 2025).
 
+## Tier 5: 2026 Patterns (Wikipedia, Field Guide, Stop-Slop)
+
+These patterns crystallized in cross-source agreement during
+early 2026. Wikipedia's *Signs of AI writing*, the Algorithmic
+Bridge *10 Signs*, the Ignorance.ai *Field Guide to AI Slop*,
+and Hardik Pandya's *Stop Slop* Claude skill all converge on
+the same shapes. Treat them as Tier-1 weight when they appear.
+
+### Copula-Avoidance Verbs (Score: 3 each)
+
+AI substitutes weighty verbs for plain "is/are" to inject
+false gravitas. The hallmark is a verb whose subject is
+inanimate. *Wikipedia: "Avoidance of is/are."*
+
+```
+serves as, stands as, marks, represents, embodies,
+constitutes, lives in, lives at, sits at, sits between,
+sits within, rests on, rooted in, anchored in,
+nestled in, situated at, exists at, dwells in,
+boasts, features, maintains, offers, encompasses
+```
+
+| Pattern | Why it's slop | Human alternative |
+|---------|---------------|-------------------|
+| "The skill lives in `plugins/scribe/`" | A skill does not live | "The skill is in `plugins/scribe/`" |
+| "The cache sits between the API and DB" | The cache does not sit | "The cache is between the API and DB" |
+| "This serves as a foundation for X" | "Is" works | "This is the foundation for X" |
+| "The function rests on three invariants" | Functions do not rest | "The function depends on three invariants" |
+| "The library boasts 50 features" | Libraries cannot boast | "The library has 50 features" |
+| "The framework stands as a testament to Y" | Frameworks do not stand | "The framework shows Y" or delete |
+
+**Detection rule:** if the subject is inanimate and the verb
+is one above (other than "is", "are", "has", "contains",
+"depends on", "uses"), flag.
+
+### Throat-Clearing Openers (Score: 3 each)
+
+Discourse markers AI uses to *appear* conversational without
+saying anything. *Stop-Slop catalog, Hardik Pandya 2026.*
+
+```
+"Here's the thing,"
+"Look,"   (sentence opener)
+"So,"     (sentence opener, when not contrastive)
+"The thing is,"
+"Let that sink in."
+"The uncomfortable truth is"
+"This matters because"
+"To be clear,"
+"Let me explain."
+"Here's what I mean:"
+"Bear with me."
+```
+
+These open paragraphs where the substance should. Delete and
+start at the substantive content.
+
+### Loop/Signal/Cascade Vocabulary (Score: 2-3 each)
+
+Post-2025 AI develops a fondness for systems-theory-flavored
+nouns. *George Kao, April 2026.* Individually unremarkable;
+clustered they signal generated text.
+
+```
+loop, signal, cascade, drift, ripple, surface (as verb),
+unpack (as verb), surface (as verb meaning "reveal"),
+quiet/quietly (as evaluative adjective: "a quiet shift"),
+sharp (as evaluative: "a sharp framing"),
+fresh (as evaluative: "a fresh take")
+```
+
+| Phrase | Flag when |
+|--------|-----------|
+| "unpack this" | "unpack" used metaphorically; "explain" works |
+| "surface the issue" | "raise" or "report" works |
+| "a quiet shift" | evaluative; describe the shift instead |
+| "the signal here is" | "the point is" works |
+| "a feedback loop" | flag in non-control-theory prose |
+
+### Significance & Legacy Cluster (Score: 3 each)
+
+AI over-narrates importance. *Wikipedia, OliviaCal 2026.*
+
+```
+"stands as a testament to"
+"marks a turning point"
+"represents a shift"
+"key turning point"
+"focal point"
+"indelible mark"
+"deeply rooted"
+"setting the stage for"
+"contributing to the"
+"shaping the future of"
+"reflects broader"
+"plays a key role in"
+"plays a pivotal role"
+"underscores the importance of"
+```
+
+Pattern: any sentence whose entire job is to assert that the
+subject *matters*, without saying what it does. Cut the
+sentence; the surrounding facts carry significance better.
+
+### Notability & Attribution Inflation (Score: 2-3 each)
+
+Post-GPT-5 patterns that overstate sourcing. *Wikipedia 2026
+update.*
+
+```
+"independent coverage"
+"covered by multiple outlets"
+"active social media presence"
+"written by a leading expert"
+"profiled in"
+"industry reports indicate"
+"observers have cited"
+"experts argue"
+"several sources / publications"
+```
+
+Especially common in AI-generated bios and READMEs claiming
+unverified third-party validation.
+
+### Abstraction-Trap Adjectives (Score: 2-3 each)
+
+The Algorithmic Bridge "Abstraction Trap": prefer concrete
+over abstract. Flag when a sentence is *unvisualizable*.
+
+```
+foundational, conceptual, structural (as adjective),
+strategic, holistic, systemic, principled,
+foundational (repeat), underlying (as adjective filler)
+```
+
+### Negative Parallelism Phrases (Score: 4 each)
+
+The strongest 2026 prose tell. Flagged independently by
+Wikipedia, OliviaCal, ContentBeta, Stop-Slop, and George Kao.
+
+```
+"It's not X, it's Y"
+"It's not just X, it's Y"
+"Not just X, but Y"
+"Not only X, but also Y"
+"No X. No Y. Just Z."
+"No X, no Y, no Z"
+"Y, not X" (trailing corrective negation)
+"Not because X. Because Y."
+"X. That's it. That's the Y."
+"Not a X, not a Y, just a Z"
+"And that's okay."
+```
+
+Structural fingerprint, not just a phrase. See
+`structural-patterns.md` for full detection. Listed here so
+vocabulary scans surface the lexical version.
+
+## Tier 5 Detection Regex Patterns
+
+```python
+TIER5_COPULA_PATTERNS = [
+    r'\b(?:lives?|sits?|stands?|rests?|dwells?)\s+(?:in|at|on|between|within|atop)\b',
+    r'\bserves?\s+as\b',
+    r'\bmarks?\s+(?:a|the|an)\s+(?:turning|pivotal|key|defining)\b',
+    r'\brepresents?\s+(?:a|the|an)\s+(?:shift|transformation|paradigm)\b',
+    r'\b(?:rooted|anchored|nestled|situated)\s+in\b',
+    r'\bboasts?\s+(?:a|an|the|over|more than)\b',
+]
+
+TIER5_THROAT_CLEARING = [
+    r"^Here's the thing,",
+    r"^Look,\s+[A-Z]",
+    r"^So,\s+[A-Z]",
+    r"^The thing is,",
+    r"\bLet that sink in\b",
+    r"^The uncomfortable truth is",
+    r"\bThis matters because\b",
+    r"^Let me explain\.",
+    r"^Bear with me\.",
+]
+
+TIER5_NEGATIVE_PARALLELISM = [
+    # "It's not X, it's Y" — X can be multi-word (e.g., "a tool")
+    r"\bIt's not [\w\s]+?,\s+it's \w+",
+    r"\bNot just \w+,?\s+but (?:also )?\w+",
+    r"\bNot only \w+,?\s+but (?:also )?\w+",
+    r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
+    # Comma-joined variant: "No X, no Y, no Z"
+    r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
+    # Trailing corrective negation: "Y, not X." -> "Y instead of X"
+    r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
+    r"\bNot because \w+\.\s+Because \w+",
+    r"\.\s+That's it\.\s+That's the\b",
+    r"\bAnd that's okay\.",
+]
+
+TIER5_LOOP_VOCAB = [
+    r'\bunpack (?:this|that|the)\b',
+    r'\bsurface (?:the|a) (?:issue|question|tension|point)\b',
+    r'\ba quiet (?:shift|revolution|change|moment)\b',
+    r'\bthe signal (?:here|is)\b',
+    r'\ba sharp (?:framing|take|distinction)\b',
+]
+
+TIER5_SIGNIFICANCE = [
+    r'\bstands? as a testament to\b',
+    r'\bmarks? a turning point\b',
+    r'\brepresents? a (?:shift|transformation)\b',
+    r'\bindelible mark\b',
+    r'\bdeeply rooted\b',
+    r'\bsetting the stage for\b',
+    r'\bshaping the future of\b',
+    r'\breflects broader\b',
+    r'\bplays? a (?:key|pivotal|crucial) role\b',
+    r'\bunderscores? the importance\b',
+]
+```
+
+## Tier 5 False-Positive Exclusions
+
+| Pattern | Skip when | Flag when |
+|---------|-----------|-----------|
+| "lives in" | Describing actual habitation ("the daemon lives in `/run`") | Files, skills, modules, abstractions "living" |
+| "sits at" | Physical seating | Anything non-physical "sitting" |
+| "serves as" | Military, restaurant, sports context | Abstractions "serving as" anything |
+| "Look," | Inside dialogue or transcripts | Author voice outside quotation |
+| "unpack" | Actual unpacking (luggage, archives) | Metaphorical use for "explain" |
+| "rooted in" | Botanical, etymological | Abstract concepts "rooted" |
+| "loop" | Code loops, control structures | "feedback loop" as metaphor |
+| "signal" | Telecom, statistics, signals.h | Evaluative use ("the signal here is") |
+
 ## Detection Regex Patterns
 
 For automated scanning:

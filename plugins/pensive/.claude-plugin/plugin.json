@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "description": "Reflective code review toolkit with structured analysis, blast radius analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/api-review.md",
@@ -21,6 +21,7 @@
   "skills": [
     "./skills/api-review",
     "./skills/architecture-review",
+    "./skills/blast-radius",
     "./skills/bug-review",
     "./skills/code-refinement",
     "./skills/harden",
@@ -32,16 +33,15 @@
     "./skills/shell-review",
     "./skills/test-review",
     "./skills/tiered-audit",
-    "./skills/unified-review",
-    "./skills/blast-radius"
+    "./skills/unified-review"
   ],
   "agents": [
-    "./agents/code-reviewer.md",
     "./agents/architecture-reviewer.md",
-    "./agents/rust-auditor.md",
-    "./agents/code-refiner.md",
     "./agents/blast-radius-reviewer.md",
-    "./agents/harden-orchestrator.md"
+    "./agents/code-refiner.md",
+    "./agents/code-reviewer.md",
+    "./agents/harden-orchestrator.md",
+    "./agents/rust-auditor.md"
   ],
   "keywords": [
     "review",

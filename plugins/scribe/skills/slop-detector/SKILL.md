@@ -129,10 +129,20 @@ Load: `@modules/structural-patterns.md`
 
 ### Em Dash Overuse
 
-Count em dashes (—) per 1000 words:
-- **0-2**: Normal human range
-- **3-5**: Elevated, review usage
-- **6+**: Strong AI signal
+The single most-cited 2026 AI tell across Wikipedia, the Field
+Guide, and the Algorithmic Bridge. Detection runs in two modes:
+
+**Audit mode** (forensic, applied to unknown prose):
+- **0-1 per 1000 words**: Normal human range
+- **2-4**: Elevated, review usage
+- **5+**: Strong AI signal
+
+**Prevention mode** (applied to docs the agent just generated):
+- **Target zero**. Every em-dash is a finding.
+- Replace with commas (asides), parentheses (tangents), colons
+  (definitions), or periods (separate thoughts). See
+  `modules/structural-patterns.md` § Em Dash Analysis for the
+  full replacement table.
 
 ```bash
 # Count em dashes in file
@@ -207,6 +217,35 @@ Especially relevant for conversational or instructional content
 | "You're absolutely right" | Sycophancy |
 
 These phrases add no information and signal generated content.
+
+## Step 4.6: Tier 5 / 2026 Patterns (Prevention-Strict)
+
+The 2026 cross-source consensus (Wikipedia *Signs of AI
+writing*, Algorithmic Bridge *10 Signs*, Ignorance.ai *Field
+Guide*, Stop-Slop Claude skill, George Kao, ContentBeta,
+OliviaCal) identifies a handful of shapes that dominate
+post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
+`@modules/vocabulary-patterns.md` (lexical form) and
+`@modules/structural-patterns.md` (structural form).
+
+| Pattern | Form | Why it matters |
+|---------|------|----------------|
+| Em-dash overuse | — used as rhetorical pause | Most-cited single tell of 2026 |
+| Plus-sign for "and" | "hooks + skills" in prose | Strong: humans have "and" |
+| Spatial copula | "lives in", "sits at", "stands as", "boasts" | Inanimate subject with animate verb |
+| Negative parallelism | "Not X but Y", "No X. No Y. Just Z.", "No X, no Y, no Z", "It's not X, it's Y", "Y, not X" | Rhetorical scaffold with no argument |
+| Throat-clearing openers | "Here's the thing,", "Look,", "Let that sink in." | Discourse markers signaling nothing |
+| Three-fragment burst | "Focused. Aligned. Measurable." | Rhythm without information |
+| Significance cluster | "stands as a testament to", "marks a turning point" | Asserts importance without showing it |
+| Smart quotes in technical prose | `"text"` / `"text"` instead of `"text"` | Word-processor paste signature |
+| Loop/cascade vocab | "unpack", "surface" (verb), "a quiet shift" | 2026 systems-theory affectation |
+
+**Prevention rule**: when the slop-detector runs on docs the
+agent itself just generated (auto-invoked by `/doc-generate`,
+`/doc-polish`, `/update-readme`, `/update-docs`, etc.), every
+match in this table is a hard failure. Fix before write. See
+`modules/remediation-strategies.md` § Tier 5 / 2026 for the
+substitution tables.
 
 ## Step 5: Calculate Slop Density Score
 
@@ -397,6 +436,20 @@ Summary report format (human-readable):
 - Line 12: "In today's fast-paced world" (vapid opener)
 - Line 89: "cannot be overstated" (empty emphasis)
 - Line 134: "Let's dive into" (self-narration of structure)
+
+### Tier 5 / 2026 Patterns
+- Line 19: "The skill lives in `plugins/scribe/`" → "is in"
+  (spatial copula, inanimate subject)
+- Line 27: "hooks + skills" → "hooks and skills" (plus-sign
+  conjunction in prose)
+- Line 34: "It's not a tool, it's a transformation" →
+  rewrite positively (negative parallelism)
+- Line 56: "Here's the thing," → delete (throat-clearing
+  opener)
+- Line 78: "Focused. Aligned. Measurable." → "Focused,
+  aligned, and measurable." (three-fragment burst)
+- Line 91: 3 smart quotes outside code blocks (Word-processor
+  paste signature)
 
 ### Stub & Deferral
 - Line 56: bare `// TODO: handle expired tokens` (no
