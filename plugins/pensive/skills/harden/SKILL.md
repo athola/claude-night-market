@@ -1,6 +1,6 @@
 ---
 name: harden
-description: 'Active codebase hardening with NIST/CWE-cited checks for Python and Rust. Composes existing reviews; proposes concrete remediations.'
+description: 'Active hardening with NIST/CWE checks for Python and Rust. Proposes concrete remediations.'
 globs: "**/*.{py,rs,toml,yaml,yml,sh}"
 alwaysApply: false
 category: security
