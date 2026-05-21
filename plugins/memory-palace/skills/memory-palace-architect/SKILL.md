@@ -1,6 +1,6 @@
 ---
 name: memory-palace-architect
-description: 'Design memory palace structures with spatial layouts and domain org.'
+description: Designs memory palace structures with spatial layouts and domain organization. Use when creating a new palace or planning knowledge architecture by hand.
 alwaysApply: false
 category: architecture
 tags:

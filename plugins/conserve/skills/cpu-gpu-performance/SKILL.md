@@ -1,6 +1,6 @@
 ---
 name: cpu-gpu-performance
-description: 'Establish CPU/GPU baselines before resource-intensive operations.'
+description: Establishes CPU/GPU baselines before resource-intensive operations. Use before builds, training runs, or any task that pins cores or GPUs for over a minute.
 alwaysApply: false
 progressive_loading: true
 dependencies:

@@ -1,6 +1,6 @@
 ---
 name: risk-classification
-description: '4-tier risk classification for agent tasks. GREEN/YELLOW heuristic; RED/CRITICAL escalates.'
+description: Classifies agent tasks into 4 risk tiers (GREEN/YELLOW/RED/CRITICAL). Use when assessing action reversibility before committing to an approach.
 alwaysApply: false
 category: infrastructure
 tags:

@@ -1,7 +1,7 @@
 # ADR 0004: Skill Description Budget Optimization
 
 **Date**: 2025-12-31
-**Updated**: 2026-02-07
+**Updated**: 2026-05-21
 **Status**: Accepted (Updated)
 **Context**: Slash Command Character Budget Management
 
@@ -121,9 +121,47 @@ a two-pronged approach was applied:
 | **Validator Limit** | 15,000 | 17,000 | 20,000 |
 | **Per-desc Max** | 130 | 130 | 160 |
 
+## 2026-05 Overhaul: Action-Oriented Description Rewrite
+
+All 188 SKILL.md `description:` fields rewritten in May 2026 to use
+Anthropic's recommended activation format:
+
+```
+[Verb phrase]. Use when [trigger condition].
+[Do not use when [negative]; use [alternative] instead.]
+```
+
+**Why**: 173/188 skills had noun-phrase descriptions that told Claude
+WHAT a skill does but not WHEN to invoke it. The `description:` field
+is the only signal in the system-reminder Claude uses for skill
+selection — triggering skills requires action-oriented triggers.
+
+**Results**:
+
+| Metric | Before (Round 3) | After (2026-05) |
+|--------|-----------------|-----------------|
+| **Total Chars (raw)** | ~15,966 | 35,472 |
+| **With overhead** | ~21k | 70,239 |
+| **Avg desc length** | 77.7 chars | 144.6 chars |
+| **Skills with "Use when" trigger** | ~15/188 | 188/188 |
+| **Per-desc over 160 chars** | 0 | 0 |
+
+The raw description budget grew 2.2x because descriptions now contain
+trigger context that drives accurate skill activation. This is within
+Claude Code's 1M context budget (~80k available for descriptions with
+overhead) and is a deliberate trade-off: better activation accuracy
+over minimal budget.
+
+**Template doc**: `docs/skill-description-guide.md`
+
+**Commands excluded**: The ~100 slash command `.md` files were not
+updated — command descriptions appear in `/help` output for humans and
+use noun-phrase format by design (commands are user-typed, not
+Claude-selected).
+
 ## Future Opportunities
 
-1. **Archetypes consolidation** (potential savings: ~1,500 chars)
+1. **Archetypes consolidation** (potential savings: ~1,500 chars raw)
    - Merge 13 architecture-paradigm-* skills into 1 interactive selector
 2. **`SLASH_COMMAND_TOOL_CHAR_BUDGET` env var** - document for power users with
    many plugins

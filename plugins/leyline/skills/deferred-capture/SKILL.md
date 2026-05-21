@@ -1,6 +1,6 @@
 ---
 name: deferred-capture
-description: 'Deferred-item capture across plugins: CLI, template, taxonomy.'
+description: Defines the contract for deferred-item capture across plugins. Use when building or validating a plugin's deferred-capture wrapper or adding source labels.
 alwaysApply: false
 model_hint: standard
 ---

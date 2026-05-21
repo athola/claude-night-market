@@ -1,6 +1,6 @@
 ---
 name: response-compression
-description: 'Compress verbose responses by removing filler, hype, and framing. Directness guidelines.'
+description: Compresses verbose responses by removing filler and framing to save 200-400 tokens. Use when responses feel bloated or context is filling fast.
 alwaysApply: true
 category: optimization
 tags:

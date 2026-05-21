@@ -1,6 +1,6 @@
 ---
 name: shell-review
-description: 'Audit shell scripts for correctness and common pitfalls.'
+description: Audits shell scripts for correctness, portability, and common pitfalls. Use when reviewing shell scripts or before committing shell changes.
 globs: "**/*.sh"
 alwaysApply: false
   Use when reviewing shell scripts, CI scripts, hook scripts, wrapper scripts. Do

@@ -1,6 +1,6 @@
 ---
 name: tiered-audit
-description: 'Three-tier codebase audit: git history, targeted deep-dives, full review with gating.'
+description: Runs a three-tier codebase audit (git history, targeted scans, full review) with gating. Use when auditing a codebase before release or after incidents.
 alwaysApply: false
 category: audit
 tags:

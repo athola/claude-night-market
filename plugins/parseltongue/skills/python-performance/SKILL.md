@@ -1,6 +1,6 @@
 ---
 name: python-performance
-description: 'Python performance profiling and optimization: bottleneck detection, memory tuning, benchmarking.'
+description: Profiles Python code for performance bottlenecks and memory issues. Use when Python code is slow or when profiling for optimization before a release.
 globs: "**/*.py"
 alwaysApply: false
 category: performance

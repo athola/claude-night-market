@@ -1,6 +1,6 @@
 ---
 name: sem-integration
-description: 'Foundation for sem (semantic diff CLI): detection, install-on-first-use, output normalization.'
+description: Provides sem semantic-diff detection, install-on-first-use, and fallback patterns. Use when building skills that consume git diff output.
 alwaysApply: false
 category: infrastructure
 tags:

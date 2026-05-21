@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: 'Rust audit for unsafe blocks, ownership, and Cargo deps.'
+description: Audits Rust code for unsafe blocks, ownership issues, and Cargo dependency risks. Use when reviewing Rust code or before merging Rust changes.
 globs: "**/*.rs"
 alwaysApply: false
 category: code-review

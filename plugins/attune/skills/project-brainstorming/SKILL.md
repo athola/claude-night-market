@@ -1,6 +1,6 @@
 ---
 name: project-brainstorming
-description: 'Guide project ideation via Socratic questioning to generate project briefs.'
+description: Guides project ideation via Socratic questioning to produce a validated brief. Use before specification when requirements are unclear.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

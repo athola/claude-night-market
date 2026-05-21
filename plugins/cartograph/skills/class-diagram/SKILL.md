@@ -1,6 +1,6 @@
 ---
 name: class-diagram
-description: 'Generate class diagrams showing classes, interfaces, inheritance, and composition.'
+description: Generates a Mermaid class diagram showing types, inheritance, and composition. Use when visualizing class hierarchies or documenting a module public API.
 ---
 
 # Class Diagram

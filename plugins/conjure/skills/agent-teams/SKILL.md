@@ -1,10 +1,7 @@
 ---
 name: agent-teams
-description: 'Coordinate Claude Code Agent Teams through filesystem-based protocol. Use.'
+description: Coordinates Claude agent teams via filesystem protocol. Use when orchestrating parallel agents with task dependencies. Do not use for single-agent tasks.
 alwaysApply: false
-  when orchestrating multiple Claude agents on parallel tasks, need task dependency
-  management, multi-agent code review or implementation. Do not use when single-agent
-  work suffices, task is not parallelizable.
 category: delegation-framework
 tags:
 - agent-teams

@@ -1,6 +1,6 @@
 ---
 name: dora-metrics
-description: 'Compute DORA delivery-performance metrics from git and GitHub API. Classify tier and bottleneck.'
+description: Computes DORA delivery-performance metrics from git and GitHub API. Use when assessing deployment frequency, lead time, or change failure rate.
 alwaysApply: false
 category: governance
 tags:

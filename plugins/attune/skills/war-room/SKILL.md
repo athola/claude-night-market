@@ -1,6 +1,6 @@
 ---
 name: war-room
-description: 'Multi-LLM expert panel for high-stakes, hard-to-reverse decisions. Adversarial review.'
+description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-opus-4

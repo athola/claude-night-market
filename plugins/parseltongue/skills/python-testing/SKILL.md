@@ -1,6 +1,6 @@
 ---
 name: python-testing
-description: 'Python testing patterns: pytest setup, fixtures, TDD, mocking, async tests, and integration tests.'
+description: Python testing patterns with pytest, fixtures, TDD, mocking, async and integration tests. Use when writing or auditing a Python test suite.
 globs: "**/*.py"
 alwaysApply: false
 category: testing

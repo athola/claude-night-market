@@ -1,6 +1,6 @@
 ---
 name: stack-create
-description: 'Initialize a branch stack from a plan, one branch per slice with parent-child links.'
+description: Initializes a stacked branch set from an ordered plan, one branch per slice with parent-child links. Use when a plan has 2+ sequentially dependent changes.
 alwaysApply: false
 category: workflow-automation
 tags:

@@ -1,7 +1,7 @@
 ---
 name: code-search
 role: library
-description: 'Search GitHub for existing implementations, libraries, or patterns.'
+description: Searches GitHub for existing implementations, libraries, or patterns. Use when finding code examples or prior art on a topic during a research session.
 alwaysApply: false
 category: research
 tags:

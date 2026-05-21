@@ -1,9 +1,7 @@
 ---
 name: rule-catalog
-description: 'Browse the rule catalog and guide installation.'
+description: Browse hookify rule catalog. Use when installing pre-built rules or browsing categories. Do not use when writing custom rules; use hookify:writing-rules.
 alwaysApply: false
-  ready-made rules, installing standard rules, browsing available categories. Do not
-  use when writing custom rules - use writing-rules skill instead.
 category: hook-development
 tags:
 - hookify

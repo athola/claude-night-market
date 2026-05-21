@@ -1,6 +1,6 @@
 ---
 name: project-planning
-description: 'Turn a specification into a phased implementation plan with dependency ordering.'
+description: Converts a specification into a phased, dependency-ordered implementation plan. Use after specification is complete and before execution begins.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

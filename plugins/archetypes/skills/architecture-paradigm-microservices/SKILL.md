@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-microservices
 role: library
-description: 'Apply microservices for independent deployment and per-service scaling.'
+description: Applies microservices for independent deployment and per-service scaling. Use when teams need autonomous release cycles with distinct capability scaling needs.
 alwaysApply: false
 category: architectural-pattern
 tags:

@@ -1,7 +1,7 @@
 ---
 name: api-review
 role: library
-description: 'Evaluate API surface design, consistency, and exemplar alignment.'
+description: Evaluates API surface design, consistency, and exemplar alignment. Use when reviewing public API changes or before releasing a new API surface.
 alwaysApply: false
 category: code-review
 tags:

@@ -1,6 +1,6 @@
 ---
 name: stack-mode
-description: 'Shared stack detection for multi-PR iteration.'
+description: Detects shared stack membership and iterates a command across all PRs in base-to-tip order. Use when a command supports --stack flag for multi-PR iteration.
 alwaysApply: false
 category: workflow-automation
 tags:

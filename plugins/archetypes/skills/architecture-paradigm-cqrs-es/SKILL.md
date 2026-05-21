@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-cqrs-es
-description: 'Apply CQRS and Event Sourcing for read/write separation and audit trails.'
+description: Applies CQRS and Event Sourcing for read/write separation and audit trails. Use when designing systems with complex domain logic or full state-change history.
 alwaysApply: false
 category: architectural-pattern
 tags:

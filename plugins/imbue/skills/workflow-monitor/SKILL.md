@@ -1,6 +1,6 @@
 ---
 name: workflow-monitor
-description: 'Detect workflow failures and inefficient patterns; create GitHub issues via /fix-workflow.'
+description: Detects workflow failures and inefficient patterns then files GitHub issues. Use when a workflow step repeatedly fails or produces inconsistent output.
 alwaysApply: false
 category: workflow-methodology
 tags:

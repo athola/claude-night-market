@@ -1,6 +1,6 @@
 ---
 name: palace-diagram
-description: 'Generate visual diagrams of palace structure, knowledge topology, and synapse connectivity.'
+description: Generates Mermaid and ASCII diagrams of palace structure, knowledge topology, and synapse connectivity. Use when inspecting or presenting a palace visually.
 alwaysApply: false
 category: visualization
 tags:

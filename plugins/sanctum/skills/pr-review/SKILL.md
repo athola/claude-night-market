@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: 'Scope-focused PR review with requirements validation and backlog triage.'
+description: Reviews pull requests with scope validation, requirements compliance, and line comments. Use when reviewing GitHub or GitLab PRs.
 alwaysApply: false
 category: review
 tags:

@@ -1,8 +1,7 @@
 ---
 name: session-management
-description: Manage Claude Code sessions with naming, checkpointing, and resume strategies.
+description: Manages Claude Code sessions with naming, checkpointing, and resume strategies. Use when organizing long-running work or resuming across sessions.
 alwaysApply: false
-  Use when organizing long-running work, creating debug checkpoints, managing PR reviews.
 category: workflow
 tags:
 - session

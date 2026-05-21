@@ -1,6 +1,6 @@
 ---
 name: mcp-code-execution
-description: 'Optimize multi-tool workflows via MCP server integration for large datasets and pipelines.'
+description: Routes multi-tool workflows through MCP servers for large datasets and pipelines. Use when Bash tool overhead is limiting throughput on data-heavy tasks.
 alwaysApply: false
 progressive_loading: true
 dependencies:

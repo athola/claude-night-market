@@ -1,6 +1,6 @@
 ---
 name: code-refinement
-description: 'Improve code quality across duplication, efficiency, and architectural fit.'
+description: Improves code quality across duplication, efficiency, and architectural fit. Use when code passes tests but quality is poor or before a major release.
 alwaysApply: false
 category: code-quality
 tags:

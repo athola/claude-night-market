@@ -1,6 +1,6 @@
 ---
 name: workflow-improvement
-description: 'Retrospective evaluation and improvement of skills, agents, commands, and hooks.'
+description: Evaluates and improves skills, agents, commands, and hooks after a workflow slice. Use when execution felt slow, confusing, repetitive, or fragile.
 alwaysApply: false
 category: workflow-ops
 tags:

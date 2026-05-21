@@ -1,6 +1,6 @@
 ---
 name: computer-control
-description: 'Automate desktop GUI workflows via computer use API: screenshots, mouse, and keyboard.'
+description: Automates desktop GUI workflows via computer use API with screenshot capture. Use when scripting GUI interactions or recording browser sessions for tutorials.
 alwaysApply: false
 model_hint: standard
 ---

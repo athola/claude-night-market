@@ -1,13 +1,8 @@
 ---
 name: style-learner
-description: 'Learn and extract writing style patterns from exemplar text for consistent.'
+description: Extracts writing style patterns from exemplar text into a reusable profile. Use when creating a style guide or learning a specific author's voice.
 globs: "**/*.md"
 alwaysApply: false
-  application. Use when creating a style guide from existing content, ensuring consistency
-  across documents, learning a specific author's voice, customizing AI output style.
-  Do not use when detecting AI slop - use slop-detector instead. just need to clean
-  up existing content - use doc-generator with --remediate. Use this skill to build
-  style profiles from exemplar text.
 category: writing-quality
 tags:
 - style

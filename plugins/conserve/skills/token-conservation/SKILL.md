@@ -1,6 +1,6 @@
 ---
 name: token-conservation
-description: 'Enforce token quota at session start with conservation rules, delegation, and compression.'
+description: Enforces token quota management at session start with conservation and compression checks. Use at the start of every session or before large context loads.
 alwaysApply: true
 progressive_loading: true
 dependencies:

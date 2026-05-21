@@ -1,6 +1,6 @@
 ---
 name: unified-review
-description: 'Orchestrate multiple review types into a single multi-domain review.'
+description: Orchestrates multi-domain review (code, arch, tests, security) in a single pass. Use when comprehensive pre-release review is needed.
 alwaysApply: false
 category: orchestration
 tags:

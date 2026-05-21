@@ -1,14 +1,7 @@
 ---
 name: architecture-paradigms
-description: 'Interactive selector and router for architecture paradigms.'
+description: Selects and routes to the right architecture paradigm. Use when choosing patterns for a new system or comparing trade-offs before making architecture decisions.
 alwaysApply: false
-  selecting architecture patterns for new systems, comparing paradigm trade-offs,
-  creating architecture decision records, evaluating architecture fit for team size
-  and domain complexity, planning implementation roadmaps. Do not use when implementing
-  a specific known paradigm - use the specific architecture-paradigm-* skill (hexagonal,
-  layered, microservices, etc.) instead. reviewing existing architecture - use architecture-review
-  instead. Use this skill BEFORE making architecture decisions. Check even if unsure
-  about needs.
 category: architecture-decision
 tags:
 - architecture

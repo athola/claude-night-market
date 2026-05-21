@@ -1,6 +1,6 @@
 ---
 name: review-chamber
-description: 'Capture-and-retrieve sink for PR-review findings in memory palaces.'
+description: Captures and retrieves PR-review findings in memory palaces. Use after PR review to store architectural decisions, patterns, and standards for future reference.
 alwaysApply: false
 usage_patterns:
 - capture-review: After PR review completion, capture significant findings

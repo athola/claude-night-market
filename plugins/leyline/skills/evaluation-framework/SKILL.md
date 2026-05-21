@@ -1,6 +1,6 @@
 ---
 name: evaluation-framework
-description: 'Patterns for evaluation and scoring systems, quality gates, rubrics, and decision frameworks.'
+description: Provides weighted scoring, rubrics, and decision-threshold patterns. Use when designing quality gates, evaluation systems, or decision frameworks.
 alwaysApply: false
 category: infrastructure
 tags:

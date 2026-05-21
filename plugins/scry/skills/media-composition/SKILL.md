@@ -1,8 +1,7 @@
 ---
 name: media-composition
-description: 'Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal.'
+description: Combines GIFs and videos into composite tutorials with vertical or grid layouts via ffmpeg. Use when assembling multi-part media into a single output.
 alwaysApply: false
-  layouts.
 category: media-generation
 tags:
 - composition

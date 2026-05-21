@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-space-based
-description: 'Apply data-grid architecture for high-traffic stateful workloads with in-memory processing.'
+description: Applies data-grid architecture for high-traffic stateful workloads. Use when a single database cannot scale and in-memory partitioning is needed.
 alwaysApply: false
 category: architectural-pattern
 tags:

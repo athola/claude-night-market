@@ -1,6 +1,6 @@
 ---
 name: harden
-description: 'Active hardening with NIST/CWE checks for Python and Rust. Proposes concrete remediations.'
+description: Applies NIST/CWE security hardening to Python and Rust code. Use when auditing code for vulnerabilities or proposing concrete security remediations.
 globs: "**/*.{py,rs,toml,yaml,yml,sh}"
 alwaysApply: false
 category: security

@@ -1,6 +1,6 @@
 ---
 name: session-to-post
-description: 'Convert a Claude Code session into a blog post or case study capturing decisions and process.'
+description: Converts a Claude Code session into a blog post or case study. Use when publishing dev blog content or case studies from real work sessions.
 globs: "**/*.md"
 alwaysApply: false
 category: artifact-generation

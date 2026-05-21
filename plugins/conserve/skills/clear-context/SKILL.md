@@ -1,6 +1,6 @@
 ---
 name: clear-context
-description: 'Automatic context management with graceful handoff to a continuation subagent at 80% usage.'
+description: Manages context overflow by handing off to a fresh subagent at 80% usage. Use when context pressure is critical and work must continue uninterrupted.
 alwaysApply: false
 category: conservation
 token_budget: 200

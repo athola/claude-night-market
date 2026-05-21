@@ -1,6 +1,6 @@
 ---
 name: mission-orchestrator
-description: "Lifecycle orchestrator that auto-detects project state and routes to the correct development phase."
+description: Orchestrates full project lifecycle by auto-detecting state and routing to the correct phase. Use when starting or resuming a project mid-workflow.
 alwaysApply: false
 category: workflow-orchestration
 tags:

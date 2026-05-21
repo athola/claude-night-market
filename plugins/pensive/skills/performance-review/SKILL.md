@@ -1,6 +1,6 @@
 ---
 name: performance-review
-description: 'Detect time and space complexity hotspots via AST scan.'
+description: Detects time and space complexity hotspots via AST scan. Use when code feels slow, before performance-sensitive merges, or to find O(n²) regressions.
 alwaysApply: false
 category: code-quality
 tags:

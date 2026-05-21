@@ -1,6 +1,6 @@
 ---
 name: quality-gate
-description: "Orchestrate egregore's QUALITY pipeline stage."
+description: Orchestrates the QUALITY pipeline stage for egregore work items, running code review, unbloat, and test updates. Use when running quality checks before a PR.
 alwaysApply: false
 category: orchestration
 tags:

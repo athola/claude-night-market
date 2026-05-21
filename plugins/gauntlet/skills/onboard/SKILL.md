@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: 'Guided five-stage onboarding: big picture, domain, interfaces, patterns, hardening.'
+description: Guides a new developer through five staged challenge sets covering architecture, domain, patterns, and hardening. Use when onboarding contributors.
 model_hint: standard
 ---
 

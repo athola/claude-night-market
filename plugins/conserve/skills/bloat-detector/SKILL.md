@@ -1,6 +1,6 @@
 ---
 name: bloat-detector
-description: 'Detect codebase bloat via progressive analysis: dead code, duplication, complexity, and doc bloat.'
+description: Detects codebase bloat via dead code, duplication, complexity, and doc bloat scans. Use when codebase feels large or before a release.
 alwaysApply: false
 category: conservation
 tags:

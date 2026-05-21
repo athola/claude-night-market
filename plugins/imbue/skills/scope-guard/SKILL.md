@@ -1,6 +1,6 @@
 ---
 name: scope-guard
-description: 'Pre-implementation scope control: worthiness scoring, branch-size limits.'
+description: Scores feature worthiness and enforces branch-size limits against overengineering. Use when evaluating whether a feature belongs in the current scope or branch.
 alwaysApply: false
 category: workflow-methodology
 tags:

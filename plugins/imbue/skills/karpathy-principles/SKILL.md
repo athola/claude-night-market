@@ -1,6 +1,6 @@
 ---
 name: karpathy-principles
-description: 'Pre-implementation gate: think first, simplicity, surgical edits, verifiable goals.'
+description: Pre-implementation gate covering think-first, simplicity, surgical edits, and verifiable goals. Use when starting implementation to verify the approach.
 alwaysApply: false
 category: discipline
 tags:

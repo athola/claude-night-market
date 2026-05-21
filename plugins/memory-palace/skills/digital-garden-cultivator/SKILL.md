@@ -1,6 +1,6 @@
 ---
 name: digital-garden-cultivator
-description: 'Cultivate digital gardens: manage notes, link structures, knowledge bases, and garden health.'
+description: Manages digital garden notes, link structures, and health metrics. Use when curating a knowledge base, pruning stale notes, or tracking content maturity.
 alwaysApply: false
 category: cultivation
 tags:

@@ -1,6 +1,6 @@
 ---
 name: install-watchdog
-description: 'Install egregore watchdog daemon via OS scheduler (launchd or systemd).'
+description: Installs egregore watchdog daemon via launchd or systemd for autonomous relaunching. Use when setting up egregore on a new machine. Do not use on CI/CD runners.
 alwaysApply: false
 category: setup
 tools: []

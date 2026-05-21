@@ -1,6 +1,6 @@
 ---
 name: triz
-description: 'TRIZ cross-domain analogical reasoning to find solutions from adjacent fields.'
+description: Applies TRIZ cross-domain analogical reasoning to find solutions from adjacent fields. Use when stuck on a problem and needing inventive perspectives.
 alwaysApply: false
 category: research
 tags:

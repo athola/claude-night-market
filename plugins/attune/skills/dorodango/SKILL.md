@@ -1,6 +1,6 @@
 ---
 name: dorodango
-description: "Iteratively polish code through successive quality passes run in fresh subagents."
+description: Polishes working code through successive quality passes in fresh subagents. Use after tests pass when code needs multi-dimension refinement before release.
 alwaysApply: false
 category: workflow
 tags:

@@ -1,6 +1,6 @@
 ---
 name: structured-output
-description: 'Format final review deliverables with consistent structure for comparable findings across reviews.'
+description: Formats review deliverables with consistent structure for comparable findings. Use when finalizing any review or analysis that must be shared or compared.
 alwaysApply: false
 category: output-patterns
 tags:

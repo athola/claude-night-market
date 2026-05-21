@@ -1,6 +1,6 @@
 ---
 name: project-specification
-description: 'Transform project briefs into testable specifications with user stories and acceptance criteria.'
+description: Transforms project briefs into testable specifications with user stories and acceptance criteria. Use after brainstorming, before planning.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4

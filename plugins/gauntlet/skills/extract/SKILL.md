@@ -1,6 +1,6 @@
 ---
 name: extract
-description: 'Build a codebase knowledge base of business logic, architecture, data flow, and patterns.'
+description: Builds the gauntlet knowledge base from AST extraction and AI enrichment. Use when initializing or refreshing codebase knowledge for challenges.
 model_hint: standard
 ---
 

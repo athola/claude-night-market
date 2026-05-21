@@ -1,9 +1,7 @@
 ---
 name: usage-logging
-description: Consult this skill when implementing usage logging and audit trails.
+description: Implements structured usage logging and audit trails for cost and session tracking. Use when adding audit trails, usage analytics, or cost tracking to a skill.
 alwaysApply: false
-  Use when implementing audit trails, tracking costs, collecting usage analytics,
-  managing session logging. Do not use when simple operations without logging needs.
 category: infrastructure
 tags:
 - logging

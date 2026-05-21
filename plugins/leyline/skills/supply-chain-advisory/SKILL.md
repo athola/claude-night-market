@@ -1,6 +1,6 @@
 ---
 name: supply-chain-advisory
-description: 'Supply chain security: bad-version detection, incident response, lockfile audit, artifact scan.'
+description: Audits dependency supply chains for bad versions, lockfile drift, and artifact integrity. Use when adding deps, handling incidents, or releasing a plugin.
 alwaysApply: false
 category: infrastructure
 tags:

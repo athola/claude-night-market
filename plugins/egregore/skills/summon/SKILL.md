@@ -1,6 +1,6 @@
 ---
 name: summon
-description: 'Autonomous orchestrator for manifest work items through the development lifecycle with budgets.'
+description: Autonomous orchestrator for manifest work items through the development lifecycle. Use when running egregore to process a backlog automatically.
 alwaysApply: false
 category: orchestration
 tags:

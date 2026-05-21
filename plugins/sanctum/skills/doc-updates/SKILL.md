@@ -1,6 +1,6 @@
 ---
 name: doc-updates
-description: 'Update documentation after code changes: quality gates, slop detection, and accuracy checks.'
+description: Updates documentation after code changes with quality gates, slop detection, and accuracy checks. Use when code changes require corresponding doc updates.
 alwaysApply: false
 category: artifact-generation
 tags:
