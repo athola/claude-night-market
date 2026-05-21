@@ -707,3 +707,40 @@ class TestBugReviewSkill:
         assert "15" in report  # Total bugs
         assert "2" in report  # Critical bugs
         assert "security" in report.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyze_aggregates_all_detectors(self, mock_skill_context) -> None:
+        """Given a file with multiple bug types, analyze() returns an AnalysisResult."""
+        from pensive.skills.base import AnalysisResult
+
+        mock_skill_context.get_file_content.return_value = """
+        import threading
+
+        def get_user(user_id):
+            query = "SELECT * FROM users WHERE id = " + str(user_id)
+            return db.execute(query)
+
+        account = None
+        print(account.balance)
+        """
+
+        result = self.skill.analyze(mock_skill_context, "example.py")
+
+        assert isinstance(result, AnalysisResult)
+        assert "bugs" in result.info
+        assert isinstance(result.info["bugs"], list)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyze_returns_empty_bugs_on_clean_code(self, mock_skill_context) -> None:
+        """Given minimal benign code, analyze() returns zero or few bugs."""
+        from pensive.skills.base import AnalysisResult
+
+        mock_skill_context.get_file_content.return_value = "x = 1\n"
+
+        result = self.skill.analyze(mock_skill_context, "clean.py")
+
+        assert isinstance(result, AnalysisResult)
+        assert result.issues == []
+        assert result.warnings == []

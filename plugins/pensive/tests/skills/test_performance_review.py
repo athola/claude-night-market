@@ -675,3 +675,23 @@ class TestPerformanceReviewSkill:
             )
             assert f.category in ("time", "space"), f"bad category: {f.category}"
             assert f.message, "missing .message"
+
+    @pytest.mark.unit
+    def test_analyze_returns_empty_result_on_empty_content(
+        self, mock_skill_context: Mock
+    ) -> None:
+        """Given empty file content, analyze() returns an empty AnalysisResult."""
+        mock_skill_context.get_file_content.return_value = ""
+        result = self.skill.analyze(mock_skill_context, "empty.py")
+
+        assert result.issues == []
+        assert result.warnings == []
+
+    @pytest.mark.unit
+    def test_analyze_warns_on_syntax_error(self, mock_skill_context: Mock) -> None:
+        """Given invalid Python, analyze() records a parse warning."""
+        mock_skill_context.get_file_content.return_value = "def broken(:\n"
+        result = self.skill.analyze(mock_skill_context, "broken.py")
+
+        assert result.issues == []
+        assert any("AST parse failed" in w for w in result.warnings)
