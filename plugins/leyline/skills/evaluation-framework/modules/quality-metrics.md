@@ -166,7 +166,7 @@ indicator has a per-1000-words target.
 | Heading-restating sentences | < 5% of paras | manual sample |
 | Participial tail-loading | < 10% of sentences | manual sample |
 
-The full slop checklist lives in
+The full slop checklist is in
 `Skill(scribe:slop-detector)`. Apply to any markdown longer
 than 100 words before merge.
 

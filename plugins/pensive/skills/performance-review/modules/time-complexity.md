@@ -152,7 +152,7 @@ optional and may be cosmetic.
 
 ## Test references
 
-Tests for each detector live at
+Tests for each detector are at
 `plugins/pensive/tests/skills/test_performance_review.py`. Each
 detector is paired with at least one BDD-style scenario test
 (`test_t1_*`, `test_t2_*`, ...). New detectors should ship with

@@ -50,7 +50,7 @@ the rg output every turn.
 Load on demand. Pick exemplars matching the surface style.
 For a Python data API, `pandas` and `polars` are reasonable
 references. For an HTTP client, `requests` and `httpx`. The
-exemplar list lives in a separate module so it can be swapped
+exemplar list is in a separate module so it can be swapped
 without rewriting the review skeleton.
 
 ### Phase 3: Consistency Audit

@@ -321,7 +321,7 @@ and naming conventions. For LSP integration, see the
 - [Architecture Decision Records](docs/adr/) -
   design rationale and trade-off documentation
 
-Per-plugin documentation lives in `book/src/plugins/`
+Per-plugin documentation is in `book/src/plugins/`
 (one page per plugin).
 
 ## Stewardship
@@ -360,7 +360,7 @@ Night Market stands on the shoulders of upstream work:
 - [QAInsights/Quillx][quillx]: three of five Quillx patterns adapted
   into Night Market plugins (see the badge near the top).
 
-Per-plugin attributions live in each plugin's `pyproject.toml` and
+Per-plugin attributions are in each plugin's `pyproject.toml` and
 documentation. See [STEWARDSHIP.md](STEWARDSHIP.md) for the
 maintenance contract that governs how upstream changes flow in.
 

@@ -188,7 +188,7 @@ file. The fix is to write to a sibling tempfile and rename
 into place. On POSIX, `os.replace` is atomic on the same
 filesystem.
 
-The reference implementation lives in
+The reference implementation is in
 `plugins/memory-palace/src/memory_palace/migration.py` as
 `_atomic_write_json`. Copy the shape:
 
@@ -224,7 +224,7 @@ def write_atomic_json(target: Path, data: dict[str, Any]) -> None:
 
 Three properties matter:
 
-1. The tempfile sits in the same directory as the target so
+1. The tempfile is in the same directory as the target so
    `os.replace` is a same-filesystem rename.
 2. `flush()` then `fsync()` before the rename, so a crash
    between rename and the next sync still leaves the data on
@@ -318,6 +318,6 @@ around the read-modify-write cycle, or move to SQLite.
 
 ## Cross-Reference
 
-See `template-patterns.md` for record shapes that live in
+See `template-patterns.md` for record shapes that are in
 these backends, and `lifecycle-stages.md` for the maturity
 transitions retention policies enforce.

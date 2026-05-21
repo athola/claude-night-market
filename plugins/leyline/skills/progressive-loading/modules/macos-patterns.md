@@ -101,7 +101,7 @@ with `launchctl load -w <path>`, unload with `launchctl unload`.
 
 ## Homebrew Detection
 
-Homebrew lives in different prefixes on Apple Silicon versus
+Homebrew is in different prefixes on Apple Silicon versus
 Intel. The Homebrew sub-module documents detection.
 
 ```bash
@@ -122,7 +122,7 @@ hard-code one prefix.
 ## Pitfalls
 
 1. **Hard-coding `/usr/local/bin`**: This breaks on Apple Silicon
-   Macs where Homebrew lives at `/opt/homebrew`. Use the
+   Macs where Homebrew is at `/opt/homebrew`. Use the
    detection block above.
 2. **Treating `~/Library/Application Support` as `~/.config`**:
    They are conceptually similar but the Apple convention uses

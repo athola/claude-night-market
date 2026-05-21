@@ -79,7 +79,7 @@ Plus:
    cross-reference our existing scope-guard / proof-of-work
    skills, leaving users with redundant guidance.
 2. **Anti-pattern catalog**: EXAMPLES.md is not packaged as
-   a skill upstream; it sits as a flat doc. Repackaging the
+   a skill upstream; it is a flat doc. Repackaging the
    patterns as a structured module is value-add.
 3. **Voice consistency**: night-market has its own writing
    conventions (markdown-formatting, slop-scan, prose

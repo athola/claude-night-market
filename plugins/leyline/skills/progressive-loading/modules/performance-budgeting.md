@@ -25,7 +25,7 @@ The `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides the default. The ecosyste
 ## Core Principles
 
 1. **Metadata-first discovery** - Claude scans ~100 tokens of frontmatter to decide relevance before loading full content
-2. **Progressive disclosure** - Essential content loads immediately; advanced content lives in modules loaded on-demand
+2. **Progressive disclosure** - Essential content loads immediately; advanced content is in modules loaded on-demand
 3. **Token budgeting** - Track and enforce per-skill token limits aligned with the ecosystem budget
 4. **Context-aware delivery** - Load depth matches task complexity
 

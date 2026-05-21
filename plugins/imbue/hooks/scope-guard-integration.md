@@ -18,7 +18,7 @@ This document explains how to integrate scope-guard with the superpowers brainst
 
 ## Integration Approach
 
-Since superpowers skills live in a separate repository, we integrate via:
+Since superpowers skills are in a separate repository, we integrate via:
 1. **Automatic hooks** that inject scope-guard awareness (now default)
 2. **Keyword triggers** in scope-guard that auto-activate after brainstorming/planning
 3. **Manual invocation** at workflow checkpoints

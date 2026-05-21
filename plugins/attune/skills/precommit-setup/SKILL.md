@@ -68,7 +68,7 @@ catching the slow / project-specific bugs before they land.
 
 ## Module Loading
 
-The detailed configuration patterns live in modules; load
+The detailed configuration patterns are in modules; load
 only the ones you need:
 
 - `modules/standard-hooks.md` -- Layer 1 patterns for

@@ -105,5 +105,5 @@ python3 plugins/leyline/scripts/verify_plugin.py sanctum --json
   needed
 - Assertion history comes from the 10 most recent completed
   workflow runs
-- The caution zone sits between 70% and 100% of the
+- The caution zone is between 70% and 100% of the
   threshold (e.g., for 0.8 threshold, 0.56-0.79 is caution)

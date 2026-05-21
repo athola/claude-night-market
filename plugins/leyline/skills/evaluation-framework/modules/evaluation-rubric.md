@@ -27,7 +27,7 @@ them and reviewers drift.
 | Aggregation rule | How parts combine | Different reviewers compute differently |
 | Decision mapping | What the score triggers | Score with no consequence is theatre |
 
-The first four are below; decision mapping lives in
+The first four are below; decision mapping is in
 `modules/decision-thresholds.md`.
 
 ## Picking a Scale
@@ -184,7 +184,7 @@ range: [1.0, 5.0]
 ## Template 3: Feature Backlog Rubric
 
 For prioritizing backlog items. Compact wrapper around
-RICE+WSJF; details live in the `scoring-framework` module of
+RICE+WSJF; details are in the `scoring-framework` module of
 the `feature-review` skill (under `plugins/imbue/`).
 
 ```yaml

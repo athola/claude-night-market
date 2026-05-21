@@ -55,7 +55,7 @@ responding to compromised packages in Python ecosystems.
 
 ## Known-Bad Versions Blocklist
 
-The blocklist lives at `${CLAUDE_SKILL_DIR}/known-bad-versions.json`.
+The blocklist is at `${CLAUDE_SKILL_DIR}/known-bad-versions.json`.
 It is consumed by:
 
 1. **SessionStart hook** — warns per-session when compromised versions detected

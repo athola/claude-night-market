@@ -9,7 +9,7 @@ Progressive disclosure structures skills so Claude loads only what's needed when
 **SKILL.md is the table of contents, not the encyclopedia.**
 
 - Main file provides overview and entry points
-- Detailed content lives in separate files
+- Detailed content is in separate files
 - Claude loads details only when needed
 - Keeps initial context small and focused
 

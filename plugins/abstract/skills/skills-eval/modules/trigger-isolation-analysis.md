@@ -6,7 +6,7 @@ This module provides criteria and workflows for evaluating whether skills proper
 
 ## Why Trigger Isolation Matters
 
-Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic lives in the skill body:
+Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic is in the skill body:
 
 1. **Discovery fails**: Claude must already be reading the skill to discover it applies
 2. **Token waste**: Skills get read unnecessarily when they don't apply

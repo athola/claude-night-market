@@ -2,7 +2,7 @@
 
 ## The Core Problem
 
-Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic lives in the skill body, Claude must already be reading the skill to discover it applies - a chicken-and-egg problem.
+Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic is in the skill body, Claude must already be reading the skill to discover it applies - a chicken-and-egg problem.
 
 **Solution**: Put ALL trigger logic in the description field (frontmatter).
 

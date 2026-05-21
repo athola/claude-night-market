@@ -315,5 +315,5 @@ Post via `gh pr comment "$ROOT_PR" --body-file <file>`.
   should update (not duplicate) the summary comment.
   Match on `## Stack <Command Name> Summary` as the key.
 - `stack-mode` is a read/orchestration skill; it does NOT
-  push, rebase, or edit branches. Those concerns live in
+  push, rebase, or edit branches. Those concerns are in
   `stack-create`, `stack-push`, and `stack-rebase`.
