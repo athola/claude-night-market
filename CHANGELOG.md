@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **hookify: `destructive-command-guard` security rule (#488).**
+  New rule in `plugins/hookify/skills/rule-catalog/rules/security/`
+  warns when a destructive command (`rm -rf`, `git push --force`,
+  `kubectl delete`, `terraform destroy`, `DROP TABLE`,
+  `DELETE FROM`) is paired with a production-shaped path or
+  environment variable (`prod`, `production`, `live`, `PROD_*`).
+  Motivated by the Replit/SaaStr incident (July 2025) where an
+  agent reached a self-destruct button without friction.
+  Rule defaults to `warn` (not `block`) so legitimate ops can
+  proceed; disable temporarily via the local override file.
+  Covered by `test_destructive_command_guard_rule.py`.
+
+### Changed
+
+- **pensive: `shell-review` skill hardened with POSIX structure
+  patterns.** New module `structure-patterns.md` in
+  `plugins/pensive/skills/shell-review/modules/` covers the
+  library/executable distinction, the required preamble,
+  `main "${@}"` as the last line, top-down execution prohibition,
+  `depcheck()`, `usage()`, xtrace support, `readonly` globals,
+  platform detection via `uname -s`, `case` over `[ ]`, and
+  `shfmt -p -i 2 -ci` formatting.
+  `safety-patterns.md` rewritten to match CLAUDE.md shell rules:
+  no `echo`, braced variable references, `:?` expansion, `cd` in
+  subshells, `${0%/*}` for script-relative paths, no
+  `basename`/`dirname`, library-guard `case` form, and no
+  `set -e`/`set -u` in libraries.
+  Exit criteria now uses the required checkbox format per
+  `.claude/rules/skill-exit-criteria.md`.
+- **pensive: six review modules refactored into mixin packages
+  (#486).** `math_review`, `performance_review`, `bug_review`,
+  `api_review`, `test_review`, and `makefile_review` each moved
+  from a single `.py` file into a package directory with focused
+  submodules (`_analysis.py`, `_constants.py`, `_helpers.py`,
+  `_quality.py`, `_reporting.py`, etc.). Public API unchanged;
+  callers import from the same package name. Each refactor is
+  guarded by a `test_*_package_structure.py` test that verifies
+  importability and re-exports.
+
+### Fixed
+
+- **abstract/skills: compress 37 skill descriptions to ≤100 chars
+  and fix stale `shared-patterns` module refs.** Skill frontmatter
+  `description` fields exceeding 100 characters were trimmed
+  across `abstract`, `pensive`, `minister`, and other plugins to
+  stay within the token budget enforced by the system prompt.
+  Stale `@include shared-patterns.md` references in `abstract`
+  skills were replaced with the correct module path.
+
+### Tests
+
+- `test(pensive)`: cover `analyze()` edge cases in `bug_review`
+  and `performance_review` for empty input, single-file input, and
+  paths that raise `OSError` during analysis.
+
 ## [1.9.7] - 2026-05-18
 
 ### Added
