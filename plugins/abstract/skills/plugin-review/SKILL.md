@@ -1,6 +1,6 @@
 ---
 name: plugin-review
-description: 'Review plugin quality with tiered checks and dependency-aware scoping. Use for PR validation and pre-release audits.'
+description: 'Review plugin quality with tiered checks and dependency scoping. Use for PR and pre-release audits.'
 alwaysApply: false
 category: plugin-management
 tags:

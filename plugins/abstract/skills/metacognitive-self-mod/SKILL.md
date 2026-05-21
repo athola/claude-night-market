@@ -1,6 +1,6 @@
 ---
 name: metacognitive-self-mod
-description: 'Analyze and improve the improvement process. Use for detecting quality regressions and refining meta-optimization.'
+description: 'Analyze and improve the improvement process. Use for detecting regressions and meta-optimization.'
 alwaysApply: false
 trigger: metacognitive, self-modification, improve the improver, meta-improvement, improvement effectiveness, regression detected, improvement failed
 model_hint: standard

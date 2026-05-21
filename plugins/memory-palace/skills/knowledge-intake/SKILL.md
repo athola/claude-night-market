@@ -1,6 +1,6 @@
 ---
 name: knowledge-intake
-description: 'Process external resources into stored knowledge with quality evaluation, curation routing, and application decisions.'
+description: 'Process external resources into stored knowledge with quality evaluation and curation.'
 alwaysApply: false
 category: governance
 tags:

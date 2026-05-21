@@ -1,6 +1,6 @@
 ---
 name: damage-control
-description: 'Recover from broken agent state including crash recovery, context overflow, merge conflicts, and corrupted worktrees.'
+description: 'Recover from broken agent state: crash recovery, context overflow, and corrupted worktrees.'
 alwaysApply: false
 category: infrastructure
 tags:

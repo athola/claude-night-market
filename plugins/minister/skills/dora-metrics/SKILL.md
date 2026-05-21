@@ -1,6 +1,6 @@
 ---
 name: dora-metrics
-description: 'Compute DORA delivery-performance metrics from local git and GitHub API. Classify tier and surface bottleneck.'
+description: 'Compute DORA delivery-performance metrics from git and GitHub API. Classify tier and bottleneck.'
 alwaysApply: false
 category: governance
 tags:

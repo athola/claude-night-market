@@ -1,6 +1,6 @@
 ---
 name: challenge
-description: 'Adaptive-difficulty challenge testing codebase understanding via multiple-choice and trace exercises.'
+description: 'Adaptive challenge testing codebase understanding via multiple-choice and trace exercises.'
 model_hint: standard
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: code-communities
-description: 'Detect architectural clusters via community detection on the code graph. Shows boundaries and coupling.'
+description: 'Detect architectural clusters via community detection on the code graph: boundaries and coupling.'
 ---
 
 # Code Community Detection

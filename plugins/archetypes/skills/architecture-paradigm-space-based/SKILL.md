@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-space-based
-description: 'Apply data-grid architecture for high-traffic stateful workloads with in-memory processing and linear scalability.'
+description: 'Apply data-grid architecture for high-traffic stateful workloads with in-memory processing.'
 alwaysApply: false
 category: architectural-pattern
 tags:

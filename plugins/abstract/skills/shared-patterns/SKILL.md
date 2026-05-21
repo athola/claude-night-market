@@ -1,6 +1,6 @@
 ---
 name: shared-patterns
-description: 'Provide reusable patterns for validation, error handling, and test scaffolding. Use when ensuring consistency across skills.'
+description: 'Provide reusable patterns for validation, error handling, scaffolding. Use for skill consistency.'
 alwaysApply: false
 category: meta-infrastructure
 tags:
@@ -13,6 +13,10 @@ dependencies: []
 estimated_tokens: 400
 model_hint: standard
 modules:
+- modules/validation-patterns.md
+- modules/error-handling.md
+- modules/testing-templates.md
+- modules/workflow-patterns.md
 - modules/advanced.md
 - modules/creation.md
 - modules/editing.md

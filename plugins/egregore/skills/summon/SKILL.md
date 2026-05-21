@@ -1,6 +1,6 @@
 ---
 name: summon
-description: 'Autonomous orchestrator processing manifest work items through the development lifecycle with budget tracking.'
+description: 'Autonomous orchestrator for manifest work items through the development lifecycle with budgets.'
 alwaysApply: false
 category: orchestration
 tags:

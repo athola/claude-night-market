@@ -1,6 +1,6 @@
 ---
 name: risk-classification
-description: '4-tier risk classification for agent tasks. GREEN/YELLOW heuristic, RED/CRITICAL escalate to war-room-checkpoint.'
+description: '4-tier risk classification for agent tasks. GREEN/YELLOW heuristic; RED/CRITICAL escalates.'
 alwaysApply: false
 category: infrastructure
 tags:

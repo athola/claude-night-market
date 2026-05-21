@@ -218,14 +218,24 @@ class TestDescriptionLength:
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skill_description_length(self, component_path):
-        """Skills should have 100-300 char descriptions (target 150-200)."""
+        """Skills should have 20-100 char descriptions."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
         length = len(desc)
 
-        # Skills can be up to 300 chars (complex skills allowed longer)
-        assert 100 <= length <= 350, (
-            f"{component_path}: Skill description length {length} outside range [100-350]"
+        assert 20 <= length <= 100, (
+            f"{component_path}: Skill description length {length} outside range [20-100]"
+        )
+
+    @pytest.mark.parametrize("component_path", ECOSYSTEM_SKILLS)
+    def test_ecosystem_skill_description_under_100(self, component_path):
+        """Ecosystem skill descriptions must be ≤100 chars to stay within token budget."""
+        data, _, _ = parse_frontmatter(component_path)
+        desc = data.get("description", "")
+        length = len(desc)
+
+        assert length <= 100, (
+            f"{component_path}: description is {length} chars (max 100): {desc!r}"
         )
 
     @pytest.mark.parametrize("component_path", COMMANDS)
@@ -341,9 +351,9 @@ class TestTokenBudget:
 
         avg_length = total_chars / len(ALL_COMPONENTS)
 
-        # Average should be between 150-250 chars
-        assert 150 <= avg_length <= 250, (
-            f"Average description length {avg_length:.0f} outside reasonable range [150-250]"
+        # Average should be between 20-120 chars (descriptions cap at 100)
+        assert 20 <= avg_length <= 120, (
+            f"Average description length {avg_length:.0f} outside reasonable range [20-120]"
         )
 
 
