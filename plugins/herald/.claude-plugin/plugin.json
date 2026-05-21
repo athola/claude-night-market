@@ -1,6 +1,6 @@
 {
   "name": "herald",
-  "version": "1.9.7",
+  "version": "1.9.8",
   "description": "Standalone notification system for Claude Code plugins. Provides GitHub issue alerts and webhook support (Slack, Discord, generic).",
   "skills": [],
   "commands": [],

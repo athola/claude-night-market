@@ -107,6 +107,10 @@ own review:
 - **Destructive-command blockers** (`conserve`): auto-approve safe
   commands while halting `rm -rf`, `git push --force`,
   `git reset --hard`, and similar.
+- **Production-environment guard** (`hookify:destructive-command-guard`):
+  warns when a destructive command targets a production-shaped path
+  or env var (`prod`, `PROD_*`, `live`). Defaults to `warn`, not
+  `block`, so legitimate ops proceed with friction, not refusal.
 - **Additive-bias audits** (`leyline:additive-bias-defense`): every
   diff is checked for unjustified additions before commit.
 
@@ -139,7 +143,7 @@ complements.
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation, filter-first log debugging | 13 | 5 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
-| **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
+| **hookify** | Utility | Behavioral rules engine with markdown configuration, hook-to-rule conversion, and a security rule catalog (production-guard, destructive-command-guard) | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **herald** | Utility | Shared notification library: GitHub issue alerts, webhook support (Slack, Discord, generic) | 0 | 0 |
 | **oracle** | Utility | ONNX Runtime inference daemon for ML-enhanced plugin capabilities over localhost HTTP | 1 | 1 |
