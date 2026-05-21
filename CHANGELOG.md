@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **All 188 SKILL.md `description:` fields rewritten to action-oriented format.**
+  Every skill now starts with an action-oriented verb phrase and includes a
+  trigger condition (Use when/before/after/for). Anthropic recommends this
+  format for accurate Claude-driven skill activation. Previously 173/188
+  descriptions were noun phrases that told Claude what a skill does but gave
+  no signal for when to invoke it. The `description:` field is the only signal
+  in the system-reminder Claude uses for skill selection; trigger phrasing
+  makes activation accurate. Raw description budget grew from ~16k to ~35k
+  chars, a deliberate trade-off within the 1M context window's ~80k available
+  for descriptions.
+  See `docs/skill-description-guide.md` and ADR-0004.
+
+### Added
+
+- **`docs/skill-description-guide.md`**: authoring guide for SKILL.md
+  `description:` fields. Covers hard constraints (160 char max, third
+  person), the format template, four skill categories with patterns and
+  examples, a before/after table, common mistakes, and how to run the
+  budget validator (`plugins/abstract/scripts/validate_budget.py`).
+
 ## [1.9.8] - 2026-05-21
 
 ### Added

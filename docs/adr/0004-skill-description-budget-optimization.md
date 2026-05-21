@@ -143,7 +143,7 @@ selection — triggering skills requires action-oriented triggers.
 | **Total Chars (raw)** | ~15,966 | 35,472 |
 | **With overhead** | ~21k | 70,239 |
 | **Avg desc length** | 77.7 chars | 144.6 chars |
-| **Skills with "Use when" trigger** | ~15/188 | 188/188 |
+| **Skills with a trigger phrase** | ~15/188 | 188/188 (158 "Use when"; 30 "Use before/after/for/at") |
 | **Per-desc over 160 chars** | 0 | 0 |
 
 The raw description budget grew 2.2x because descriptions now contain
@@ -169,16 +169,17 @@ Claude-selected).
 ## Monitoring
 
 1. ✅ Pre-commit hook (`validate-description-budget`) enforces limit
-2. ✅ Validator tracks per-description lengths (150 char recommendation)
+2. ✅ Validator tracks per-description lengths (160 char max)
 3. ⏳ Monitor for description creep in future PRs
 4. ⏳ Consider archetypes consolidation if headroom shrinks
 
 ## Summary
 
-The ecosystem works with default CC settings (16k fallback).
-The validator uses a 17k limit to provide growth headroom.
-Description condensation preserved all functional keywords while standardizing
-on a shorter "Use for/Skip if" pattern.
+After the 2026-05 overhaul, all 188 descriptions use action-oriented triggers
+("Use when/before/after/for"). Raw budget is ~35k chars (~70k with overhead),
+within the 1M context window's ~80k available. Validator ceiling is 60,000
+chars (enforced by pre-commit hook). Growth is intentional: trigger phrasing
+improves skill activation accuracy at the cost of budget.
 
 ## Related
 

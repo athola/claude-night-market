@@ -6,11 +6,12 @@ patterns. Governs the `description:` field in every `SKILL.md`.
 ## Hard Constraints
 
 - **Max 160 chars** per description (enforced by pre-commit hook)
-- **Third person only** — no "I" or "you"
-- **No surrounding quotes needed** — use `description: text` not
+- **Third person only**: no "I" or "you"
+- **No surrounding quotes needed**: use `description: text` not
   `description: 'text'`
-- Total ecosystem budget: ~60,000 chars with overhead
-  (run `python3 plugins/abstract/scripts/validate_budget.py` to check)
+- Current total: ~70,000 chars with overhead (validator ceiling: 60,000;
+  1M context allows ~80,000). Growth is intentional per ADR-0004.
+  Run `python3 plugins/abstract/scripts/validate_budget.py` to check.
 
 ## Format Template
 
@@ -94,12 +95,12 @@ resuming [workflow] from saved state.
 
 ## Common Mistakes
 
-- **No trigger**: `'Audit Makefiles for build correctness.'` — tells Claude WHAT
-  but not WHEN to invoke it
+- **No trigger**: `'Audit Makefiles for build correctness.'` Tells Claude WHAT
+  but not WHEN to invoke it.
 - **Over-long**: descriptions > 160 chars fail the pre-commit hook
-- **First-person**: `'I help you...'` or `'You can use this...'` — use third
+- **First-person**: `'I help you...'` or `'You can use this...'`: use third
   person
-- **Vague trigger**: `'Use when needed.'` — must name specific situations
+- **Vague trigger**: `'Use when needed.'` Must name specific situations.
 - **Missing "Do not use when"**: for skills with similar alternatives, add the
   negative condition to prevent mis-activation
 
