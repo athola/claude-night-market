@@ -93,6 +93,7 @@ python3 plugins/hookify/scripts/install_rule.py --all
 | Rule | Action | Default | Description |
 |------|--------|---------|-------------|
 | `require-security-review` | block | enabled | Require review for auth code |
+| `destructive-command-guard` | warn | enabled | Warn on destructive commands targeting prod-shaped paths |
 
 ### workflow/ - Workflow Enforcement
 | Rule | Action | Default | Description |
@@ -168,7 +169,8 @@ skills/rule-catalog/
     │   ├── block-dynamic-code.md
     │   └── warn-print-statements.md
     ├── security/
-    │   └── require-security-review.md
+    │   ├── require-security-review.md
+    │   └── destructive-command-guard.md
     ├── workflow/
     │   ├── enforce-scope-guard.md
     │   └── require-spec-before-code.md
