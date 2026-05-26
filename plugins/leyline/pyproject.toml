@@ -20,6 +20,9 @@ dev = [
     "pytest-mock>=3.15.1",
 ]
 
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -104,4 +107,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
-fail_under = 90

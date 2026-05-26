@@ -29,6 +29,9 @@ dev = [
 [project.scripts]
 abstract-skills = "abstract.cli:main"
 
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -155,4 +158,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

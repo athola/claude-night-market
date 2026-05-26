@@ -66,8 +66,23 @@ run_plugin_tests() {
     # Check if plugin has pyproject.toml with pytest
     if [ -f "$plugin_dir/pyproject.toml" ]; then
         if grep -q "pytest" "$plugin_dir/pyproject.toml" 2>/dev/null; then
+            # Read coverage threshold from [tool.nightmarket] if set
+            local cov_threshold
+            cov_threshold=$(awk '
+                /^\[tool\.nightmarket\]/ { in_nm=1; next }
+                /^\[/ { in_nm=0 }
+                in_nm && /^coverage_threshold[[:space:]]*=/ {
+                    split($0, a, "="); gsub(/[[:space:]]/, "", a[2]); print a[2]; exit
+                }
+            ' "$plugin_dir/pyproject.toml")
+
+            local cov_flag=""
+            if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ] 2>/dev/null; then
+                cov_flag="--cov-fail-under=${cov_threshold}"
+            fi
+
             # Run using uv/pytest - capture output, show on failure
-            if (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short --quiet 2>&1 > "$temp_output"); then
+            if (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short --quiet ${cov_flag} 2>&1 > "$temp_output"); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -76,7 +91,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short 2>&1)
+                (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short ${cov_flag} 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1

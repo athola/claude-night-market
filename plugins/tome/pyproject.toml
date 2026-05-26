@@ -1,3 +1,6 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -56,7 +59,6 @@ branch = true
 omit = ["*/tests/*"]
 
 [tool.coverage.report]
-fail_under = 90
 show_missing = true
 
 [tool.mypy]

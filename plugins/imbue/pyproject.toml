@@ -44,6 +44,9 @@ dev = [
     "psutil>=5.9.8",
 ]
 
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -141,7 +144,6 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
-    "--cov-fail-under=90",
     "--no-cov-on-fail",
     "--tb=short",
     "--durations=10"
@@ -189,7 +191,6 @@ exclude_lines = [
 show_missing = true
 precision = 2
 skip_covered = false
-fail_under = 90
 
 [tool.coverage.html]
 directory = "htmlcov"

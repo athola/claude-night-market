@@ -1,3 +1,6 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -152,7 +155,6 @@ addopts = [
     "--strict-markers",
     "--cov=scripts",
     "--cov-report=term-missing",
-    "--cov-fail-under=90",
 ]
 markers = [
     "unit: Unit tests for individual components",
@@ -183,4 +185,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

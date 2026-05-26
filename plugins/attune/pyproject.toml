@@ -1,3 +1,6 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -172,7 +175,6 @@ addopts = [
     # Reason: New scripts (architecture_researcher.py, attune_arch_init.py, template_customizer.py)
     # are excluded from coverage per tool.coverage.run.omit - they use external APIs and are
     # tested manually. TODO: Restore to 85% when integration test mocks are added (#TBD)
-    "--cov-fail-under=90",
     "--no-cov-on-fail"
 ]
 markers = [
@@ -203,7 +205,6 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 90
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
