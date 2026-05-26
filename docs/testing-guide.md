@@ -121,6 +121,20 @@ These help verify user-facing behavior.
 Configure `pytest` in `pyproject.toml` to set test paths, verbosity,
 and coverage options. Use `conftest.py` for shared fixtures.
 
+**Coverage thresholds** are stored in `[tool.nightmarket]` rather than
+`addopts` or `[tool.coverage.report]`:
+
+```toml
+[tool.nightmarket]
+coverage_threshold = 90
+```
+
+`scripts/run-plugin-tests.sh` reads this value and passes
+`--cov-fail-under` only for full-suite runs. Running a subset of tests
+(e.g. content-assertion tests that don't import Python source) shows
+coverage but does not fail the run. Use `scripts/fix_coverage_threshold.py`
+to migrate a plugin that still uses the old location.
+
 ## Running Tests
 
 ### Pre-Commit (Automatic)

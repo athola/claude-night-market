@@ -382,7 +382,7 @@ Tradeoff Score = Σ(dimension_score * dimension_weight) / Σ(weights)
 
 | Pattern | Concern | Action |
 |---------|---------|--------|
-| High Quality + High Latency | May frustrate users | Optimize or classify as Proactive |
-| Low Readability + Low API Surface | Maintenance nightmare | Refactor before extending |
-| High Token + Low Quality | Wasteful | Optimize prompts |
-| Low Redundancy + High Integration | Cascading failures | Add fault tolerance |
+| High Quality and High Latency | May frustrate users | Optimize or classify as Proactive |
+| Low Readability and Low API Surface | Maintenance nightmare | Refactor before extending |
+| High Token and Low Quality | Wasteful | Optimize prompts |
+| Low Redundancy and High Integration | Cascading failures | Add fault tolerance |

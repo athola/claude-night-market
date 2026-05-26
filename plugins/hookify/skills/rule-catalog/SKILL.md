@@ -1,9 +1,7 @@
 ---
 name: rule-catalog
-description: 'Browse the rule catalog and guide installation.'
+description: Browse hookify rule catalog. Use when installing pre-built rules or browsing categories. Do not use when writing custom rules; use hookify:writing-rules.
 alwaysApply: false
-  ready-made rules, installing standard rules, browsing available categories. Do not
-  use when writing custom rules - use writing-rules skill instead.
 category: hook-development
 tags:
 - hookify
@@ -93,6 +91,7 @@ python3 plugins/hookify/scripts/install_rule.py --all
 | Rule | Action | Default | Description |
 |------|--------|---------|-------------|
 | `require-security-review` | block | enabled | Require review for auth code |
+| `destructive-command-guard` | warn | enabled | Warn on destructive commands targeting prod-shaped paths |
 
 ### workflow/ - Workflow Enforcement
 | Rule | Action | Default | Description |
@@ -168,7 +167,8 @@ skills/rule-catalog/
     │   ├── block-dynamic-code.md
     │   └── warn-print-statements.md
     ├── security/
-    │   └── require-security-review.md
+    │   ├── require-security-review.md
+    │   └── destructive-command-guard.md
     ├── workflow/
     │   ├── enforce-scope-guard.md
     │   └── require-spec-before-code.md

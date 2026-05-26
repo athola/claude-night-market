@@ -1,6 +1,6 @@
 ---
 name: pytest-config
-description: 'Standardized pytest config with reusable fixtures and CI integration.'
+description: Provides standardized pytest config, reusable fixtures, and CI integration patterns. Use when setting up or auditing a Python plugin's test infrastructure.
 globs: ["**/conftest.py", "**/pytest.ini", "**/pyproject.toml"]
 alwaysApply: false
 category: infrastructure

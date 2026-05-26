@@ -130,7 +130,7 @@ flowchart TD
 
 **Problem**: Skills bleeding between contexts
 
-→ **Solution**: Verify directory separation + use namespace prefixes
+→ **Solution**: Verify directory separation and use namespace prefixes
 
 ---
 

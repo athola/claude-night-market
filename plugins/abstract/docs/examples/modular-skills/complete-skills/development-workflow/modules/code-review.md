@@ -29,9 +29,9 @@ Master code review practices with this detailed framework:
 - Start using structured feedback process
 
 **Progressive Learning**: Build review expertise gradually
-1. **Foundation** → Basic review process + checklist + feedback patterns
-2. **Quality Focus** → Security review + performance review + testing coverage
-3. **Team Scaling** → Review automation + metrics + mentorship patterns
+1. **Foundation** → Basic review process, checklist, and feedback patterns
+2. **Quality Focus** → Security review, performance review, and testing coverage
+3. **Team Scaling** → Review automation, metrics, and mentorship patterns
 
 ** Use Case-Based**: Jump directly to what you need right now
 - New team? → Focus on review process + feedback guidelines

@@ -98,7 +98,7 @@ The `bloat-detector` skill uses three tiers of analysis,
 from heuristic-based checks to deep audits with full tooling.
 `clear-context` persists session state across context windows.
 `compression-strategy` analyzes context usage and recommends optimal
-compression strategies (clear + catchup, continuation agent, archive + summarize,
+compression strategies (clear, catchup, continuation agent, archive, and summarize,
 or delegate to subagent).
 `response-compression` eliminates filler words, hedging language,
 and hype words, saving between 150 and 350 tokens per response.

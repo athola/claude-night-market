@@ -80,7 +80,7 @@ Currently, this requires manual setup or copying from reference projects, leadin
 
 ---
 
-### Approach 3: Hybrid Template + Generation
+### Approach 3: Hybrid Template and Generation
 
 **Description**: Base templates with programmatic enhancements and version detection.
 
@@ -125,7 +125,7 @@ Currently, this requires manual setup or copying from reference projects, leadin
 
 ### Approach 5: Reference Project Cloning
 
-**Description**: Maintain reference projects (Python, Rust, TS) and clone + customize them.
+**Description**: Maintain reference projects (Python, Rust, TS) and clone and customize them.
 
 **Pros**:
 - Always working (reference projects are tested)
@@ -147,7 +147,7 @@ Currently, this requires manual setup or copying from reference projects, leadin
 
 ## Recommended Approach
 
-**Hybrid Template + Generation (Approach 3)** with **Skill-Driven Orchestration (Approach 4)**
+**Hybrid Template and Generation (Approach 3)** with **Skill-Driven Orchestration (Approach 4)**
 
 ### Rationale
 

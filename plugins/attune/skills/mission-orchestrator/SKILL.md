@@ -1,6 +1,6 @@
 ---
 name: mission-orchestrator
-description: "Lifecycle orchestrator that auto-detects project state and routes to the correct development phase."
+description: Orchestrates full project lifecycle by auto-detecting state and routing to the correct phase. Use when starting or resuming a project mid-workflow.
 alwaysApply: false
 category: workflow-orchestration
 tags:
@@ -134,7 +134,7 @@ See `modules/mission-types.md` for full type definitions and custom type support
 | brainstorm | `Skill(attune:project-brainstorming)` | `docs/project-brief.md` |
 | specify | `Skill(attune:project-specification)` | `docs/specification.md` |
 | plan | `Skill(attune:project-planning)` | `docs/implementation-plan.md` |
-| execute | `Skill(attune:project-execution)` | Implemented code + tests |
+| execute | `Skill(attune:project-execution)` | Implemented code and tests |
 
 The orchestrator **never** re-implements phase logic. Each phase is a complete `Skill()` invocation that handles its own workflow.
 
@@ -270,7 +270,7 @@ orchestrator itself loads only the four core modules at
 mission start; the rest are loaded on-demand when their
 phase runs.
 
-| Mission type | Core | Plan-review | Reflexion | Trust + adaptive |
+| Mission type | Core | Plan-review | Reflexion | Trust and adaptive |
 |--------------|------|-------------|-----------|------------------|
 | `quickfix` (execute only) | yes | -- | -- | if directive |
 | `tactical` (plan -> execute) | yes | yes | if revising | if directive |
@@ -282,10 +282,10 @@ loaded modules and converted at ~1.3 tokens per word):
 
 | Mission type | Loaded modules | Approx tokens |
 |--------------|----------------|---------------|
-| `quickfix`   | hub + core (4) | ~4,100 |
-| `tactical`   | hub + core + plan-review (9) | ~6,900 |
+| `quickfix`   | hub and core (4) | ~4,100 |
+| `tactical`   | hub, core, and plan-review (9) | ~6,900 |
 | `standard`   | same as tactical (9) | ~6,900 |
-| `full`       | hub + core + plan-review + reflexion (10) | ~7,900 |
+| `full`       | hub, core, plan-review, and reflexion (10) | ~7,900 |
 
 The previous load-all pattern brought in roughly 10,100
 tokens for every mission, including `quickfix` runs that

@@ -1,6 +1,6 @@
 # Voice Craft Implementation Plan
 
-## Phase 1: Foundation (Storage + Extraction)
+## Phase 1: Foundation (Storage and Extraction)
 
 ### T1: Storage model and manifest
 - Create ~/.claude/voice-profiles/ directory structure
@@ -86,5 +86,5 @@
 
 T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9 -> T10 -> T11 -> T12
 
-Parallelizable: T6 + T7 (independent agents)
-Parallelizable: T9 + T10 (can develop together)
+Parallelizable: T6 and T7 (independent agents)
+Parallelizable: T9 and T10 (can develop together)

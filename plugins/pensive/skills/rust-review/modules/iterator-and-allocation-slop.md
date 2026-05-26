@@ -215,6 +215,89 @@ Heap allocation is justified for:
 
 Anywhere else, `Box::new` is unjustified allocation.
 
+### Pattern E2: `Box<dyn Trait>` or `&dyn Trait` in a hot inner loop
+
+This is distinct from Pattern E. The box itself may be
+justified: the problem is calling a `dyn` method millions of
+times when the method body is tiny.
+
+```rust
+// Potentially slow: dyn dispatch in the inner loop
+let decoders: Vec<Box<dyn ColumnDecoder>> = build_decoders(&schema, &batch);
+
+for i in 0..n_rows {
+    for d in &decoders {
+        d.write_to_row(i, &mut row);  // indirect call every iteration
+    }
+}
+```
+
+**Why it matters**: each `dyn` call goes through a vtable
+(`call *0x18(%rax)`). The compiler cannot inline across that
+boundary, so it cannot fuse the inner loop, vectorize small
+stores, or eliminate the function-call prologue/epilogue overhead.
+When the method body is ~25 instructions (a null check, a bit
+flip, a 4-byte move), the prologue/epilogue and indirect
+jump overhead can represent 40–50% of total runtime.
+
+Note: `&dyn Trait` has the same problem as `Box<dyn Trait>`.
+The issue is dynamic dispatch, not heap allocation.
+
+**Fix 1: flip the loop order (batch-first)**: iterate
+all rows for each decoder, not all decoders for each row.
+The dyn dispatch cost is paid once per decoder per batch
+instead of once per cell:
+
+```rust
+let mut rows: Vec<WriteRow> = (0..n_rows)
+    .map(|i| WriteRow::new(&segment, key_array.value(i)))
+    .collect();
+
+for d in &decoders {
+    d.write_to_rows(0, &mut rows[..]);  // dispatch once per decoder
+}
+```
+
+**Fix 2: enum dispatch**: replace `dyn Trait` with a
+closed enum. The compiler can monomorphize and inline each
+variant:
+
+```rust
+enum ColDecoder {
+    F32(F32Decoder),
+    Utf8(Utf8Decoder),
+    Bool(BoolDecoder),
+}
+
+impl ColDecoder {
+    #[inline(always)]
+    fn write_to_row(&self, index: usize, row: &mut WriteRow) {
+        match self {
+            ColDecoder::F32(d) => d.write_to_row(index, row),
+            ColDecoder::Utf8(d) => d.write_to_row(index, row),
+            ColDecoder::Bool(d) => d.write_to_row(index, row),
+        }
+    }
+}
+```
+
+**When to flag**: any `Vec<Box<dyn Trait>>` or `Vec<&dyn Trait>`
+iterated inside an inner loop where the method body is
+inlineable. The Java/JVM analogy is instructive: the JVM
+de-virtualizes and inlines at JIT time; rustc cannot cross
+the `dyn` boundary. If reviewers come from JVM backgrounds,
+this is the most important Rust performance lesson to surface.
+
+Detection:
+
+```bash
+# Find Vec<Box<dyn>> that appear inside nested loops
+rg "Vec<Box<dyn" --type rust -n
+
+# Find dyn method calls inside for loops (heuristic)
+rg -A 5 "for .* in" --type rust | rg "\.write_to|\.decode|\.encode|\.process"
+```
+
 ### Pattern F: `Vec` for fixed small set
 
 ```rust

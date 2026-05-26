@@ -22,10 +22,10 @@ Evaluates skill documentation completeness and clarity.
 
 | Score | Criteria |
 |-------|----------|
-| 100 | Clear concept + workflow + examples + integration + outputs |
-| 90 | Concept + workflow + most examples + some integration |
-| 80 | Clear explanation + workflow + limited examples |
-| 70 | Basic explanation + workflow but sparse details |
+| 100 | Clear concept, workflow, examples, integration, and outputs |
+| 90 | Concept, workflow, most examples, and some integration |
+| 80 | Clear explanation, workflow, and limited examples |
+| 70 | Basic explanation and workflow but sparse details |
 | 60 | Adequate but missing key sections |
 
 ### Token Efficiency (0-100)

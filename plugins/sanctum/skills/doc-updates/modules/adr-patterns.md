@@ -76,7 +76,7 @@ When replacing an existing decision:
 
 ## Location Conventions
 
-ADRs typically live in one of these locations:
+ADRs typically are in one of these locations:
 - `wiki/architecture/`
 - `docs/adr/`
 - `architecture/decisions/`

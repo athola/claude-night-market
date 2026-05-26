@@ -1,10 +1,13 @@
+[tool.nightmarket]
+coverage_threshold = 85
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.9.7"
+version = "1.9.8"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -63,7 +66,7 @@ ignore_missing_imports = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src", "scripts", "hooks"]
-addopts = "-v --cov=src/gauntlet --cov-report=term-missing --cov-fail-under=85"
+addopts = "-v --cov=src/gauntlet --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
@@ -79,7 +82,6 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 85
 
 [dependency-groups]
 dev = [

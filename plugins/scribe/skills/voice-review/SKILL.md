@@ -1,6 +1,6 @@
 ---
 name: voice-review
-description: 'Run prose and craft review agents on text against a voice profile.'
+description: Runs parallel prose and craft review agents against a voice profile. Use when checking generated content for AI patterns and voice drift before publishing.
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

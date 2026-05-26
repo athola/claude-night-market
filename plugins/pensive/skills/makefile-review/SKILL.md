@@ -1,6 +1,6 @@
 ---
 name: makefile-review
-description: 'Audit Makefiles for build correctness and recipe duplication.'
+description: Audits Makefiles for build correctness, portability, and recipe duplication. Use when reviewing a Makefile or before committing Makefile changes.
 globs: "**/Makefile"
 alwaysApply: false
 category: build

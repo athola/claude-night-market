@@ -29,9 +29,9 @@ Master documentation practices with this detailed framework:
 - Start documenting with clear examples and usage guides
 
 **Progressive Learning**: Build documentation expertise gradually
-1. **Foundation** → README basics + inline comments + simple examples
-2. **Developer Focus** → API documentation + architecture guides + tutorials
-3. **User Focus** → User guides + troubleshooting + detailed examples
+1. **Foundation** → README basics, inline comments, and simple examples
+2. **Developer Focus** → API documentation, architecture guides, and tutorials
+3. **User Focus** → User guides, troubleshooting, and detailed examples
 
 ** Use Case-Based**: Jump directly to what you need right now
 - New project? → Focus on README template + documentation structure

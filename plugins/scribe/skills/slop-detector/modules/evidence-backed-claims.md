@@ -27,15 +27,15 @@ the claim is marketing slop and must be deleted.
 | Claim | Required evidence |
 |-------|-------------------|
 | "Production-ready" | CI workflow, release process doc, version >= 1.0, named adopters |
-| "Fast" / "Blazing fast" / "High-performance" | `benches/` directory with reproducible benchmark + numbers |
+| "Fast" / "Blazing fast" / "High-performance" | `benches/` directory with reproducible benchmark and numbers |
 | "Memory-safe" / "Safe" | `#![forbid(unsafe_code)]`, audited unsafe blocks, or fuzz harness |
 | "Zero-cost" | benchmark vs. equivalent unabstracted code |
 | "Type-safe" | named the type system property, or strict mode enabled |
 | "Fault-tolerant" | tests covering the failure modes named |
-| "Resilient" | retry logic + tests of failure paths |
+| "Resilient" | retry logic and tests of failure paths |
 | "Scalable" | load tests, capacity numbers, or deployment story |
 | "Battle-tested" | named adopters, version history, issue-resolution track |
-| "Robust" | replace with concrete error-handling guarantees + test coverage |
+| "Robust" | replace with concrete error-handling guarantees and test coverage |
 | "Idiomatic" | replace with "passes [linter] -- -D warnings" |
 | "Secure" | threat model, audit reference, or `cargo audit`/equivalent in CI |
 | "Easy to use" | three-line "minimal example" that actually runs |
@@ -51,7 +51,7 @@ For each claim word/phrase in the README and other
 public-facing docs, check whether the corresponding
 evidence exists.
 
-### Pattern 1: simple grep + file existence
+### Pattern 1: simple grep and file existence
 
 ```bash
 # Does the README claim "production-ready"?

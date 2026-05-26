@@ -1,7 +1,7 @@
 ---
 name: bug-review
 role: library
-description: 'Bug hunting with evidence trails.'
+description: Hunts bugs with evidence trails. Use when investigating unexpected behavior or before merging code with potential hidden defects.
 alwaysApply: false
 category: code-review
 tags:

@@ -20,7 +20,7 @@ Without formal governance, architectural knowledge lives only in commit history 
 Establish a lightweight architecture governance framework consisting of:
 
 1. **ADR Process**: Architecture Decision Records in `docs/adr/` for significant decisions
-2. **Two-tier Review**: Automated pre-commit checks + manual ADR-linked checklists
+2. **Two-tier Review**: Automated pre-commit checks and manual ADR-linked checklists
 3. **Evolution Patterns**: Documented patterns for how the architecture grows
 4. **Composition Model**: Plugins compose from abstract components rather than inherit
 5. **Version Compatibility**: SemVer contract with explicit version constraints

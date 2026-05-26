@@ -36,7 +36,7 @@ grep -q '^\[workspace\]' Cargo.toml
 
 A workspace root delegates dependency versions to member crates
 or pins them in `[workspace.dependencies]`. The audit rules
-differ enough that they live in separate modules.
+differ enough that they are in separate modules.
 
 ## Loading Map
 

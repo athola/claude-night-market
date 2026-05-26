@@ -476,3 +476,56 @@ class TestOutputFormatTemplates:
         assert "Educational Depth" in content or "Severity" in content
         assert "Critical" in content
         assert "Required" in content
+
+
+class TestUnderstandingProbe:
+    """Feature: PR review requires author understanding before merge.
+
+    As a PR reviewer
+    I want the review to check that the author understands their changes
+    So that AI-generated code is not merged without human comprehension
+    """
+
+    @pytest.fixture()
+    def skill_content(self) -> str:
+        return SKILL_FILE.read_text()
+
+    @pytest.mark.unit
+    def test_understanding_anti_pattern_present(self, skill_content: str) -> None:
+        """Scenario: SKILL.md contains anti-pattern against merging unexplained code.
+
+        Given the pr-review SKILL.md
+        When reading the anti-patterns section
+        Then it must warn against merging code the author cannot explain
+        """
+        assert "Cannot Explain" in skill_content or (
+            "cannot explain" in skill_content.lower()
+        )
+
+    @pytest.mark.unit
+    def test_quality_gate_includes_understanding_check(
+        self, skill_content: str
+    ) -> None:
+        """Scenario: Quality gates require understanding verification.
+
+        Given the pr-review SKILL.md Quality Gates section
+        When reading the gate checklist
+        Then it must include an understanding check beyond test passage
+        """
+        gates_start = skill_content.find("## Quality Gates")
+        assert gates_start != -1
+        gates_section = skill_content[gates_start:]
+        next_section = gates_section.find("\n## ", 4)
+        if next_section != -1:
+            gates_section = gates_section[:next_section]
+        assert "understand" in gates_section.lower()
+
+    @pytest.mark.unit
+    def test_understanding_probe_applies_to_ai_code(self, skill_content: str) -> None:
+        """Scenario: Anti-pattern explicitly covers AI-assisted code.
+
+        Given the pr-review SKILL.md
+        When reading the understanding anti-pattern
+        Then it must specifically address AI-generated or AI-assisted code
+        """
+        assert "AI" in skill_content or "ai-assisted" in skill_content.lower()

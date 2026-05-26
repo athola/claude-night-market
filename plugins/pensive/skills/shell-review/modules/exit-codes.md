@@ -117,4 +117,4 @@ fi
 | `$(cmd \| filter)` | Exit code from filter | PIPESTATUS or capture |
 | `cmd \| head -1` | Loses cmd failure | pipefail |
 | `cmd 2>&1 \| tee log` | May hide failure | pipefail |
-| `set -e` + pipes | Inconsistent behavior | Explicit checks |
+| `set -e` and pipes | Inconsistent behavior | Explicit checks |

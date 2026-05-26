@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-layered
-description: 'Layered (n-tier) architecture with enforced layer boundaries and separation of concerns.'
+description: Applies layered n-tier architecture with enforced boundaries. Use when designing moderate systems needing clear presentation, domain, and persistence layers.
 alwaysApply: false
 category: architectural-pattern
 tags:

@@ -60,7 +60,7 @@ Avoid this command if:
 | `--level <1\|2\|3>` | Analysis depth: 1=quick, 2=targeted, 3=deep | `1` |
 | `--focus <area>` | Focus: `all`, `duplication`, `algorithms`, `clean-code`, `architecture` | `all` |
 | `--report <file>` | Save report to file | stdout |
-| `--apply` | Interactive remediation mode (preview + approve) | `false` |
+| `--apply` | Interactive remediation mode (preview and approve) | `false` |
 | `--min-severity <level>` | Minimum severity to report: `high`, `medium`, `low` | `low` |
 
 ## Analysis Dimensions
@@ -178,7 +178,7 @@ When `--apply` is used:
 | Command | Focus | Scope |
 |---------|-------|-------|
 | `/refine-code` | Living code quality | Improve what exists |
-| `/bloat-scan` + `/unbloat` | Dead/unused code | Remove what's unnecessary |
+| `/bloat-scan` and `/unbloat` | Dead/unused code | Remove what's unnecessary |
 | `/ai-hygiene-audit` | AI-specific symptoms | Detect AI slop patterns |
 | `/full-review` | Bug/security/API review | Find defects |
 | `/cleanup` | All of the above | Unified orchestration |

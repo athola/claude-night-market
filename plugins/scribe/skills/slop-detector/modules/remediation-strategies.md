@@ -206,10 +206,10 @@ replace with "is", "has", or "uses".
 
 | Slop | Replacement |
 |------|-------------|
-| "hooks + skills" | "hooks and skills" |
-| "Python + Rust workflow" | "Python and Rust workflow" |
-| "API + cache" | "API and cache" |
-| "fast + cheap" | "fast and cheap" |
+| "hooks and skills" | "hooks and skills" |
+| "Python and Rust workflow" | "Python and Rust workflow" |
+| "API and cache" | "API and cache" |
+| "fast and cheap" | "fast and cheap" |
 
 Exception: keep in code blocks, version strings ("3.11+"),
 stack labels in diagrams, math.

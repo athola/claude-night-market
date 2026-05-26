@@ -1,6 +1,6 @@
 ---
 name: context-optimization
-description: 'Optimize context window via MECW principles, memory tiering, and subagent coordination.'
+description: Optimizes context window via MECW principles and memory tiering. Use when context exceeds 30% or before long multi-step tasks.
 alwaysApply: false
 category: conservation
 token_budget: 150

@@ -120,7 +120,7 @@ Resolve threads, create issues, and post summary.
 **Sub-Modules:**
 | Sub-Step | Module | Purpose |
 |----------|--------|---------|
-| **6.0** | [Reconciliation](steps/6-complete/reconciliation.md) | Reconcile ALL unworked items + enforcement |
+| **6.0** | [Reconciliation](steps/6-complete/reconciliation.md) | Reconcile ALL unworked items and enforcement |
 | **6.1-6.2** | [Issue Creation](steps/6-complete/issue-creation.md) | Create issues for suggestions/deferred items |
 | **6.3** | [Thread Resolution](steps/6-complete/thread-resolution.md) | Reply to and resolve ALL review threads |
 | **6.4** | [Issue Linkage](steps/6-complete/issue-linkage.md) | Link/close related issues |

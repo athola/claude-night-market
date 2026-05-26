@@ -54,7 +54,7 @@ git ls-files | while read file; do
 done | grep "^0 "
 ```
 
-**Confidence:** HIGH (90%) if zero refs + stale
+**Confidence:** HIGH (90%) if zero refs and stale
 
 **False Positives:**
 - Entry points (main.py, index.js)

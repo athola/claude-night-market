@@ -213,7 +213,7 @@ partially automated:
 | "Verify endpoint/API returns X" | HTTP probe with curl/httpie, assert response | `curl -sf -X POST http://localhost:PORT/api -d '{...}' \| jq -e '.field=="value"'` |
 | "Check the page/UI shows X" | Drive browser via MCP tool, assert DOM/text | `mcp__plugin_superpowers-chrome_chrome__use_browser` (CDP-based, lightweight). See 5.4.5 |
 | "Smoke-test the flow A->B->C" | Playwright spec executing the full path | `npx playwright test specs/pr-NNN-smoke.spec.ts` (see `scry:browser-recording` for spec patterns) |
-| "Visual regression / screenshot" | Playwright screenshot + diff against baseline | `page.screenshot({path: 'after.png'})` then `compare-images` |
+| "Visual regression / screenshot" | Playwright screenshot and diff against baseline | `page.screenshot({path: 'after.png'})` then `compare-images` |
 | "Workflow involves desktop GUI" | Last resort: full Computer Use sandbox | `Skill(phantom:computer-control)` only when web-based tools cannot reach the target |
 | Subjective/UX judgment | Acknowledge limitation, do best-effort check | Note as LOW confidence |
 
@@ -238,7 +238,7 @@ partially automated:
 - **Browser verification**: For UI claims, drive a
   headless browser. Default to the Chrome MCP tool
   (`mcp__plugin_superpowers-chrome_chrome__use_browser`)
-  for navigation + DOM assertions: it reuses an existing
+  for navigation and DOM assertions: it reuses an existing
   Chrome session and is lightweight. Escalate to a
   Playwright spec only when the test needs scripted
   multi-step flows or visual regression
@@ -300,9 +300,9 @@ option cannot answer the question.
 
 | Tier | Tool | Use when | Cost |
 |------|------|----------|------|
-| 1 | `mcp__plugin_superpowers-chrome_chrome__use_browser` | Navigate + read DOM/text + click; reusing local Chrome | Lightest -- one MCP call per action |
+| 1 | `mcp__plugin_superpowers-chrome_chrome__use_browser` | Navigate, read DOM/text, and click; reusing local Chrome | Lightest -- one MCP call per action |
 | 2 | Playwright spec (`scry:browser-recording` patterns) | Multi-step user journeys, login, file upload, visual regression | Spawns a browser per spec; ~5-15s/run |
-| 3 | `Skill(phantom:computer-control)` | Native desktop UI, OS dialogs, non-web targets | Heavy -- full Computer Use API + sandbox |
+| 3 | `Skill(phantom:computer-control)` | Native desktop UI, OS dialogs, non-web targets | Heavy -- full Computer Use API and sandbox |
 
 **Default to Tier 1.** If you find yourself writing a
 Playwright spec just to assert one DOM value, that is a

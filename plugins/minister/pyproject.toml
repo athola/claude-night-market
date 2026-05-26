@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.9.7"
+version = "1.9.8"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -21,6 +21,9 @@ github = [
     "pygithub>=2.4.0",
     "requests>=2.32.0",
 ]
+
+[tool.nightmarket]
+coverage_threshold = 90
 
 [build-system]
 requires = ["hatchling"]
@@ -79,4 +82,3 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "raise NotImplementedError",
 ]
-fail_under = 90

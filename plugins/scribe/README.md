@@ -27,7 +27,7 @@ Or reference from the marketplace:
 | **tech-tutorial** | Plan, draft, and refine technical tutorials |
 | **voice-extract** | SICO comparative extraction from writing samples |
 | **voice-generate** | Generate text in a learned writing voice |
-| **voice-review** | Dual-gate review (prose + craft) against voice profile |
+| **voice-review** | Dual-gate review (prose and craft) against voice profile |
 | **voice-learn** | Learning loop from manual edits to improve profile |
 
 ### Commands

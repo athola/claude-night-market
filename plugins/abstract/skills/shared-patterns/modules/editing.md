@@ -109,7 +109,7 @@ For breaking changes, walk each caller in order:
 4. Land the new pattern and the caller updates together so no
    intermediate commit references a missing surface.
 
-If callers live in multiple plugins, coordinate via the parent
+If callers are in multiple plugins, coordinate via the parent
 plugin's release notes rather than landing partial migrations.
 
 ## Anti-Patterns

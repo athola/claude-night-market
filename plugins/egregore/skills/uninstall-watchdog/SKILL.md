@@ -1,6 +1,6 @@
 ---
 name: uninstall-watchdog
-description: 'Remove the egregore watchdog daemon and its associated files.'
+description: Removes the egregore watchdog daemon and its associated files. Use when stopping automated session relaunching or cleaning up egregore infrastructure.
 alwaysApply: false
 category: setup
 tools: []

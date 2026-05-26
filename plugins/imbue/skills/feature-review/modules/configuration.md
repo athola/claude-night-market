@@ -138,7 +138,7 @@ These rules apply regardless of configuration:
 
 ## Environment Variable Overrides
 
-Pattern: `FEATURE_REVIEW_` + uppercase path with
+Pattern: `FEATURE_REVIEW_` and uppercase path with
 underscores.
 
 ```bash

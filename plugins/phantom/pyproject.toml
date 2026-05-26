@@ -1,6 +1,6 @@
 [project]
 name = "phantom"
-version = "1.9.7"
+version = "1.9.8"
 description = "Computer use toolkit for Claude - screenshot capture, mouse/keyboard control, and agent loop"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -17,6 +17,9 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.4.0",
 ]
+
+[tool.nightmarket]
+coverage_threshold = 90
 
 [build-system]
 requires = ["hatchling"]
@@ -45,7 +48,7 @@ follow_imports = "skip"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-v --tb=short --cov=phantom --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --tb=short --cov=phantom --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["src/phantom"]
@@ -64,4 +67,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

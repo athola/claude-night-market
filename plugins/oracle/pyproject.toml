@@ -1,10 +1,13 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "oracle"
-version = "1.9.7"
+version = "1.9.8"
 description = "ONNX Runtime inference daemon for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -62,7 +65,7 @@ ignore_missing_imports = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src", "hooks"]
-addopts = "-v --cov=src/oracle --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --cov=src/oracle --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
@@ -78,4 +81,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

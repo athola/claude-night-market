@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: 'Interactive project init: git, workflows, hooks, build config. Scaffold a new project.'
+description: Scaffolds new projects with git, CI/CD workflows, pre-commit hooks, and build config. Use when starting a new Python, Rust, or TypeScript project from scratch.
 alwaysApply: false
 model: claude-sonnet-4
 tools: []

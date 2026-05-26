@@ -233,8 +233,8 @@ Recommendation: DEFER - Create new branch for caching layer.
 "I'd be happy to help you add dark mode support!"
 
 Offered 5 implementation approaches:
-1. CSS Custom Properties + prefers-color-scheme
-2. CSS Variables + Toggle Component
+1. CSS Custom Properties and prefers-color-scheme
+2. CSS Variables and Toggle Component
 3. Tailwind dark mode
 4. CSS-in-JS Theme Provider
 5. Third-party library

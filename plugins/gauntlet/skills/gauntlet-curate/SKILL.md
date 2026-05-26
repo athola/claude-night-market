@@ -1,6 +1,6 @@
 ---
 name: gauntlet-curate
-description: 'Refresh the problem bank during /update-plugins (data/problems/*.yaml).'
+description: Audits the DSA problem bank for coverage gaps and proposes new YAML entries. Use when refreshing the problem bank during update-plugins runs.
 model_hint: standard
 ---
 

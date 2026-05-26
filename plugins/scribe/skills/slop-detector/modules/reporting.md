@@ -14,7 +14,7 @@ the slop scanner emits during and after a run:
 2. **Historical metrics** persisted to `.slop-history/` for trend
    detection.
 
-Merged from `progress-indicators.md` + `metrics.md` (P-14) so a
+Merged from `progress-indicators.md` and `metrics.md` (P-14) so a
 caller loading "how do I report results?" gets one module.
 
 ## Part 1: Progress Indicators

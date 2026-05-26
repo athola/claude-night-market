@@ -1,6 +1,6 @@
 ---
 name: precommit-setup
-description: 'Configure pre-commit hooks for linting, type checking, formatting, and testing.'
+description: Configures pre-commit hooks for linting, type checking, formatting, and testing. Use when setting up a new project or adding quality gates to an existing one.
 globs: "**/.pre-commit-config.yaml"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
@@ -68,7 +68,7 @@ catching the slow / project-specific bugs before they land.
 
 ## Module Loading
 
-The detailed configuration patterns live in modules; load
+The detailed configuration patterns are in modules; load
 only the ones you need:
 
 - `modules/standard-hooks.md` -- Layer 1 patterns for

@@ -1,6 +1,6 @@
 ---
 name: review-core
-description: 'Review-workflow scaffolding (context, evidence, output).'
+description: Provides review-workflow scaffolding for context, evidence, and output. Use at the start of any detailed review to ensure consistent, comparable findings.
 alwaysApply: false
 category: review-patterns
 tags:

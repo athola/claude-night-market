@@ -431,8 +431,8 @@ def test_version_refs_cross_reference_docs(
 
 | Observed in Git Diff | Start With |
 |---|---|
-| New skill or module created | L1 (sections + modules exist) |
-| JSON/YAML code blocks added or modified | L2 (parse + schema) |
+| New skill or module created | L1 (sections and modules exist) |
+| JSON/YAML code blocks added or modified | L2 (parse and schema) |
 | Version references added or changed | L3 (cross-reference) |
 | Behavioral guidance added (decision trees, strategies) | L3 (contracts) |
 | Forbidden behavior patterns specified | L3 (anti-pattern detection) |

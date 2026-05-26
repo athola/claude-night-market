@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-pipeline
-description: 'Design pipes-and-filters for sequential data transformations.'
+description: Applies pipes-and-filters for sequential data transformations. Use when data flows through discrete stages like ETL, streaming analytics, or CI/CD pipelines.
 alwaysApply: false
 category: architectural-pattern
 tags:

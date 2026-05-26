@@ -17,7 +17,7 @@ An egregore session operates within a budget window (default:
 The window tracks cumulative token usage and rate limit
 events across multiple sessions.
 
-The budget state lives in `.egregore/budget.json`:
+The budget state is in `.egregore/budget.json`:
 
 ```json
 {

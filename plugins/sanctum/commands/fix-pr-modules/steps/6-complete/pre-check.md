@@ -115,7 +115,7 @@ Read this table before proceeding. These are the most frequent mistakes that cau
 | Posted regular PR comment with `gh pr comment` | Comment not in thread context, thread remains unresolved | Use `addPullRequestReviewThreadReply` GraphQL mutation |
 | Tried to use REST API `/comments/{id}/replies` | REST API doesn't support thread replies | Use GraphQL `addPullRequestReviewThreadReply` |
 | Used comment ID instead of thread ID | Comment IDs can't resolve threads | Use thread ID (format: `PRRT_*`) |
-| Skipped because "fixes are obvious" | Reviewer not notified, thread remains open | ALWAYS reply + resolve, even for "obvious" fixes |
+| Skipped because "fixes are obvious" | Reviewer not notified, thread remains open | ALWAYS reply and resolve, even for "obvious" fixes |
 | Assumed someone else will handle it | YOU are the PR author, it's YOUR responsibility | Complete the workflow yourself |
 | **Review is in PENDING state** | Threads from pending reviews cannot be resolved until review is submitted | Submit the review first (or ask reviewer to submit), then re-run `/fix-pr` |
 

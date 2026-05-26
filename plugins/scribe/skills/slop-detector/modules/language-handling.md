@@ -14,7 +14,7 @@ Two related concerns are bundled in one module:
 2. **Concrete pattern sets** for non-English slop (German, French,
    Spanish, with extension hooks for Portuguese and Italian).
 
-Merged from `language-support.md` + `i18n-patterns.md` (P-14).
+Merged from `language-support.md` and `i18n-patterns.md` (P-14).
 
 ## Part 1: Supported Languages
 

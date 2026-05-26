@@ -1,11 +1,8 @@
 ---
 name: doc-generator
-description: 'Generate or remediate documentation with human-quality writing and style.'
+description: Generates or remediates documentation with human-quality writing. Use when creating new docs, rewriting AI-generated content, or applying style profiles.
 globs: "**/*.md"
 alwaysApply: false
-  adherence. Use when creating new documentation, rewriting AI-generated content,
-  or applying style profiles. Do not use for slop detection only (use slop-detector)
-  or learning styles (use style-learner).
 category: artifact-generation
 tags:
 - documentation

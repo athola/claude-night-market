@@ -13,7 +13,7 @@ During the knowledge-librarian's review of corpus entries, when an entry has rea
 | Seedling | No promotion option |
 | Growing | No promotion option |
 | Evergreen | "Promote to Discussion" |
-| Evergreen + has `discussion_url` | "Update Discussion" |
+| Evergreen and has `discussion_url` | "Update Discussion" |
 
 ## Promote to Discussion
 

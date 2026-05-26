@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-event-driven
-description: 'Apply event-driven async messaging to decouple producers and consumers.'
+description: Applies event-driven async messaging to decouple producers and consumers. Use when designing real-time or multi-subscriber systems needing loose coupling.
 alwaysApply: false
 category: architectural-pattern
 tags:

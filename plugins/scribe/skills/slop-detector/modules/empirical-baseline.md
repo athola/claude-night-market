@@ -28,7 +28,7 @@ Poisson rate ratios.
 | Total issues | ~1.7x |
 | Critical issues | ~1.4x |
 | Logic / correctness | 1.75x |
-| Algorithm + business logic errors | >2x |
+| Algorithm and business logic errors | >2x |
 | Error handling gaps | ~2x |
 | Code readability | >3x |
 | Naming inconsistency | ~2x |
@@ -66,7 +66,7 @@ experienced OSS contributors:
 - Developers were measurably **19% slower**.
 
 **Cleanup-phase implication**: when an AI agent (or a
-human + AI) reports that a module has been cleaned up, do
+human and AI) reports that a module has been cleaned up, do
 not trust the felt-productivity report. Verify with
 external metrics: lint counts, defect counts, test pass
 rates, mutation kill rates.
@@ -103,7 +103,7 @@ scales with reasoning depth, not just code volume.
 
 ## Hallucination patterns by model family
 
-From cross-evaluation work (Anthropic + DEV.to community
+From cross-evaluation work (Anthropic and DEV.to community
 benchmarks, Q1 2026):
 
 | Family | Tendency |

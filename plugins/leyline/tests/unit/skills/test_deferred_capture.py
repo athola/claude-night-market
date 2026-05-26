@@ -193,15 +193,24 @@ class TestDeferredCaptureSkillStructure:
         Then all prose lines should be 80 characters or fewer
         """
         in_code = False
+        in_frontmatter = False
+        frontmatter_seen = 0
         violations = []
         for i, line in enumerate(skill_content.split("\n"), 1):
+            if line.startswith("---"):
+                if frontmatter_seen < 2:
+                    frontmatter_seen += 1
+                    in_frontmatter = frontmatter_seen == 1
+                continue
+            if in_frontmatter:
+                continue
             if line.startswith("```"):
                 in_code = not in_code
                 continue
             if in_code:
                 continue
-            # Skip table rows and horizontal rules
-            if line.startswith("|") or line.startswith("---"):
+            # Skip table rows
+            if line.startswith("|"):
                 continue
             if len(line) > MAX_PROSE_LINE_LENGTH:
                 violations.append((i, len(line), line[:60]))

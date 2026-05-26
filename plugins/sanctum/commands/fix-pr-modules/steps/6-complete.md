@@ -23,7 +23,7 @@ Step 6 is organized into sub-modules. Execute them in order:
 | Sub-Step | Module | Purpose |
 |----------|--------|---------|
 | **Pre** | [Pre-Check](6-complete/pre-check.md) | Validate reviews submitted and threads resolved |
-| **6.0** | [Reconciliation](6-complete/reconciliation.md) | Reconcile ALL unworked items + enforcement |
+| **6.0** | [Reconciliation](6-complete/reconciliation.md) | Reconcile ALL unworked items and enforcement |
 | **6.1-6.2** | [Issue Creation](6-complete/issue-creation.md) | Create issues for suggestions and deferred items |
 | **6.3** | [Thread Resolution](6-complete/thread-resolution.md) | Reply to and resolve every review thread |
 | **6.4** | [Issue Linkage](6-complete/issue-linkage.md) | Link/close related issues |

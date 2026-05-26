@@ -1,6 +1,6 @@
 ---
 name: service-registry
-description: 'Service registry for external services: health checks, central config, unified execution.'
+description: Registers external services with health checks, central config, and unified execution. Use when integrating multiple external services needing coordination.
 alwaysApply: false
 category: infrastructure
 tags:

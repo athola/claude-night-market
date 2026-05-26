@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: 'Rust audit for unsafe blocks, ownership, and Cargo deps.'
+description: Audits Rust code for unsafe blocks, ownership issues, and Cargo dependency risks. Use when reviewing Rust code or before merging Rust changes.
 globs: "**/*.rs"
 alwaysApply: false
 category: code-review
@@ -103,7 +103,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 
 Load modules as needed based on review scope:
 
-**Quick Review** (ownership + errors):
+**Quick Review** (ownership and errors):
 - See `modules/ownership-analysis.md` for borrowing and lifetime analysis
 - See `modules/error-handling.md` for Result/Option patterns
 
@@ -134,6 +134,8 @@ Load modules as needed based on review scope:
 - [ ] All unsafe blocks documented with SAFETY comments
 - [ ] FFI boundaries properly wrapped
 - [ ] Memory safety invariants maintained
+- [ ] `mlock`/`munlock` calls: RLIMIT verified, page-aligned,
+  ENOMEM handled
 
 ### Correctness
 - [ ] Error handling complete

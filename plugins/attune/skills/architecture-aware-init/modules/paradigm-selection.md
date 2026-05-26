@@ -69,10 +69,10 @@ recommendation.
 
 | Workload                  | Paradigm                     |
 |---------------------------|------------------------------|
-| Real-time / Streaming     | Event-Driven + Pipeline      |
+| Real-time / Streaming     | Event-Driven and Pipeline      |
 | Bursty / Cloud-Native     | Serverless                   |
 | Extensible Platform       | Microkernel                  |
-| Data Processing           | Pipeline + Event-Driven      |
+| Data Processing           | Pipeline and Event-Driven      |
 | Legacy Integration        | Hexagonal                    |
 | High-Throughput Stateful  | Space-Based                  |
 

@@ -42,7 +42,7 @@ cargo test 2>&1 | grep "test result"
 # or: npm test 2>&1 | grep "Tests:"
 ```
 
-Capture: total lines, file count, test count + pass/fail.
+Capture: total lines, file count, test count and pass/fail.
 
 ## Architecture
 

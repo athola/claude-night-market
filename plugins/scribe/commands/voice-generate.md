@@ -43,7 +43,7 @@ Generate text in a trained writing voice.
 3. Frames source material as "raw notes to think through"
 4. Generates text using Opus with full voice features
 5. Auto-fixes hard failures (banned phrases, em dashes)
-6. Dispatches prose + craft review agents (if --review)
+6. Dispatches prose and craft review agents (if --review)
 7. Presents advisory tables for user decisions
 8. Saves snapshots (if --learn)
 

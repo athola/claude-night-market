@@ -1,6 +1,6 @@
 ---
 name: stack-mode
-description: 'Shared stack detection for multi-PR iteration.'
+description: Detects shared stack membership and iterates a command across all PRs in base-to-tip order. Use when a command supports --stack flag for multi-PR iteration.
 alwaysApply: false
 category: workflow-automation
 tags:
@@ -55,7 +55,7 @@ A calling command MUST:
 5. Emit ONE stack-level summary comment on the root PR
    using the format in Step 4.
 6. Respect per-PR Gate rules (every PR still needs its own
-   thread resolution + issue tracking).
+   thread resolution and issue tracking).
 
 A calling command MAY:
 
@@ -315,5 +315,5 @@ Post via `gh pr comment "$ROOT_PR" --body-file <file>`.
   should update (not duplicate) the summary comment.
   Match on `## Stack <Command Name> Summary` as the key.
 - `stack-mode` is a read/orchestration skill; it does NOT
-  push, rebase, or edit branches. Those concerns live in
+  push, rebase, or edit branches. Those concerns are in
   `stack-create`, `stack-push`, and `stack-rebase`.

@@ -158,7 +158,7 @@ several library skills internally.
 
 Signature: corresponds to a `commands/<name>.md` file,
 registered in `plugin.json` under `commands` (not just
-`skills`), description follows the "Verb + domain. Use
+`skills`), description follows the "Verb and domain. Use
 when..." trigger pattern, often a long SKILL.md with
 multiple modules. Examples:
 `attune:mission-orchestrator` (12 modules, user-invoked

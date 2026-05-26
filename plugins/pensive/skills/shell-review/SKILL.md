@@ -1,6 +1,6 @@
 ---
 name: shell-review
-description: 'Audit shell scripts for correctness and common pitfalls.'
+description: Audits shell scripts for correctness, portability, and common pitfalls. Use when reviewing shell scripts or before committing shell changes.
 globs: "**/*.sh"
 alwaysApply: false
   Use when reviewing shell scripts, CI scripts, hook scripts, wrapper scripts. Do
@@ -25,6 +25,7 @@ modules:
 - modules/exit-codes.md
 - modules/portability.md
 - modules/safety-patterns.md
+- modules/structure-patterns.md
 role: entrypoint
 ---
 ## Table of Contents
@@ -72,7 +73,8 @@ Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate re
 2. `shell-review:exit-codes-checked`
 3. `shell-review:portability-checked`
 4. `shell-review:safety-patterns-verified`
-5. `shell-review:evidence-logged`
+5. `shell-review:structure-checked`
+6. `shell-review:evidence-logged`
 
 ## Workflow
 
@@ -106,7 +108,11 @@ Document:
 
 @include modules/safety-patterns.md
 
-### Step 5: Evidence Log (`shell-review:evidence-logged`)
+### Step 5: Structure Patterns (`shell-review:structure-checked`)
+
+@include modules/structure-patterns.md
+
+### Step 6: Evidence Log (`shell-review:evidence-logged`)
 
 Use `imbue:proof-of-work` to record findings with file:line references.
 
@@ -142,7 +148,11 @@ Approve / Approve with actions / Block
 
 ## Exit Criteria
 
-- Exit code propagation verified
-- Portability issues documented
-- Safety patterns checked
-- Evidence logged
+- [ ] Exit code propagation verified (pipelines checked for pipefail or
+  capture-and-check)
+- [ ] Portability issues documented (Bash-isms in `#!/bin/sh` scripts flagged)
+- [ ] Safety patterns verified (no echo, braced vars, `:?` expansion, cd in
+  subshells, no basename/dirname)
+- [ ] Structure patterns verified (library/executable distinction, main call,
+  preamble, depcheck, shfmt formatting)
+- [ ] Evidence logged with file:line references via `imbue:proof-of-work`

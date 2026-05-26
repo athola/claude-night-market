@@ -1,6 +1,6 @@
 ---
 name: deferred-capture
-description: 'Deferred-item capture across plugins: CLI, template, taxonomy.'
+description: Defines the contract for deferred-item capture across plugins. Use when building or validating a plugin's deferred-capture wrapper or adding source labels.
 alwaysApply: false
 model_hint: standard
 ---
@@ -34,7 +34,7 @@ Required arguments:
 Optional arguments:
 
 - `--labels` (str): Comma-separated additional labels beyond
-  `deferred` + source
+  `deferred` and source
 - `--session-id` (str): Session ID. Canonical source:
   `$CLAUDE_SESSION_ID` env var, fallback: UTC timestamp
   `YYYYMMDD-HHMMSS`
@@ -47,7 +47,7 @@ Optional arguments:
 
 Title: `[Deferred] <title>`
 
-Labels: `deferred` + `<source>`
+Labels: `deferred` and `<source>`
 
 Body:
 

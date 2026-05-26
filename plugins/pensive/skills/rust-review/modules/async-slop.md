@@ -43,7 +43,7 @@ for f in $(rg -l "async fn " --type rust); do
 done
 ```
 
-(Heuristic; manual review needed since `.await` may live in
+(Heuristic; manual review needed since `.await` may be in
 a helper called by the async fn rather than inline.)
 
 ## Pattern 2: blocking I/O inside an async runtime

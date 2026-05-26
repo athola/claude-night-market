@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.9.7"
+version = "1.9.8"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -28,6 +28,9 @@ dev = [
 
 [project.scripts]
 abstract-skills = "abstract.cli:main"
+
+[tool.nightmarket]
+coverage_threshold = 90
 
 [build-system]
 requires = ["hatchling"]
@@ -155,4 +158,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

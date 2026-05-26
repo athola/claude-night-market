@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.9.7"
+version = "1.9.8"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -19,6 +19,9 @@ dev = [
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
 ]
+
+[tool.nightmarket]
+coverage_threshold = 90
 
 [build-system]
 requires = ["hatchling"]
@@ -104,4 +107,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
-fail_under = 90

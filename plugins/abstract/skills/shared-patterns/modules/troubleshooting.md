@@ -97,7 +97,7 @@ Check for duplicate definitions:
 rg "class ValidationError" plugins/
 ```
 
-A single canonical definition lives in
+A single canonical definition is in
 `plugins/abstract/skills/shared-patterns/modules/error-handling.md`
 (reference) and the corresponding Python module. Anything else
 is a fork to remove.

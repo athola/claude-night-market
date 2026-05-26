@@ -1,6 +1,6 @@
 ---
 name: error-patterns
-description: 'Error handling patterns: classification, recovery, logging, graceful degradation, resilience.'
+description: Provides error classification, recovery, and graceful-degradation patterns. Use when implementing error handling or debugging resilience failures in any skill.
 alwaysApply: false
 category: infrastructure
 tags:

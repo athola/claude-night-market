@@ -220,9 +220,9 @@ Decision tree:
 | Need | First choice | Second |
 |------|--------------|--------|
 | Fast and explainable | Weighted sum | Weighted product |
-| Hard priority | Lexicographic | Weighted sum + veto |
+| Hard priority | Lexicographic | Weighted sum and veto |
 | Surface trade-offs | Pareto front | TOPSIS |
-| Defensible against critique | TOPSIS | Weighted sum + sensitivity |
+| Defensible against critique | TOPSIS | Weighted sum and sensitivity |
 
 ## Sensitivity Analysis (Required)
 

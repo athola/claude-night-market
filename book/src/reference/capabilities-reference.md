@@ -84,11 +84,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
-| `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
+| `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |

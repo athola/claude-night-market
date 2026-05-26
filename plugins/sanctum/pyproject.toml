@@ -1,6 +1,6 @@
 [project]
 name = "sanctum"
-version = "1.9.7"
+version = "1.9.8"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
@@ -19,6 +19,9 @@ dev = [
     "pytest-mock>=3.15.1",
     "types-PyYAML>=6.0.0",
 ]
+
+[tool.nightmarket]
+coverage_threshold = 90
 
 [build-system]
 requires = ["hatchling"]
@@ -114,4 +117,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

@@ -185,7 +185,7 @@ Maintaining original conclusion: [ ] Yes [ ] No (if no, document substantive rea
 
 **Wrong:** "This could have caused harm, so it's problematic."
 
-**Right:** "No actual harm occurred. 'Could have' requires: causal pathway + empirical support. Neither present here."
+**Right:** "No actual harm occurred. 'Could have' requires: causal pathway and empirical support. Neither present here."
 
 ### Error: Initial Reaction Preservation
 

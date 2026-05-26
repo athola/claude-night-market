@@ -1,7 +1,7 @@
 ---
 name: architecture-paradigm-hexagonal
 role: library
-description: 'Hexagonal (Ports and Adapters) architecture isolating domain logic from infrastructure.'
+description: Applies hexagonal architecture isolating domain from infrastructure. Use when designing systems where testability and port/adapter separation are priorities.
 alwaysApply: false
 category: architectural-pattern
 tags:

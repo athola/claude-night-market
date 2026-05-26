@@ -1,6 +1,6 @@
 ---
 name: utility
-description: 'Score agent actions by expected gain, cost, uncertainty, and redundancy.'
+description: Scores agent actions by expected gain, cost, uncertainty, and redundancy. Use when deciding whether to dispatch an agent or invoke a tool.
 alwaysApply: false
 category: infrastructure
 tags:

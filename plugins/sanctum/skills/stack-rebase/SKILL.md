@@ -1,6 +1,6 @@
 ---
 name: stack-rebase
-description: 'Cascading rebase for a PR stack using git --update-refs.'
+description: Cascades a rebase through an entire PR stack after a base PR merges or upstream changes. Use when a stack needs to incorporate new base branch commits.
 alwaysApply: false
 category: workflow-automation
 tags:

@@ -1,6 +1,6 @@
 [project]
 name = "hookify"
-version = "1.9.7"
+version = "1.9.8"
 description = "Hook generation and pattern matching utilities for Claude Code"
 requires-python = ">=3.10"
 dependencies = [
@@ -43,7 +43,7 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short --cov=core --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --tb=short --cov=core --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["core"]
@@ -55,4 +55,6 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90
+
+[tool.nightmarket]
+coverage_threshold = 90

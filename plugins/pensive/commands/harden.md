@@ -72,7 +72,7 @@ practices for Python and Rust.
 
 - **Python** (frontier 2025-2026): unsafe-deserialization
   alternatives, tarfile member filter (PEP 706), pip-audit /
-  osv-scanner, typosquatting + dependency confusion defenses,
+  osv-scanner, typosquatting and dependency confusion defenses,
   PEP 740 sigstore attestations, async TOCTOU patterns, MCP
   server hardening, prompt-injection patterns in LLM SDK
   clients.

@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-functional-core
-description: 'Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.'
+description: Applies Functional Core, Imperative Shell to isolate logic from side effects. Use when business logic is entangled with I/O or unit tests are slow and brittle.
 alwaysApply: false
 category: architectural-pattern
 tags:

@@ -1,6 +1,6 @@
 ---
 name: architecture-review
-description: 'Assess architecture decisions, ADR compliance, and coupling.'
+description: Assesses architecture decisions, ADR compliance, and coupling. Use when evaluating design changes or validating structural decisions before merging.
 alwaysApply: false
 category: architecture
 tags:

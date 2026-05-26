@@ -8,7 +8,7 @@ This module provides patterns for designing skill frontmatter that validates rel
 
 ### Problem
 
-Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic lives in the skill body:
+Claude's skill selection uses the `description` field to decide which skill to read. If conditional logic is in the skill body:
 
 1. Claude must already be reading the skill to discover it applies (chicken-and-egg)
 2. Skills get read unnecessarily, wasting tokens

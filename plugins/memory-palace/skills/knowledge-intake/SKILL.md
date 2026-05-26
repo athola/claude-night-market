@@ -1,6 +1,6 @@
 ---
 name: knowledge-intake
-description: 'Process external resources into stored knowledge with quality evaluation, curation routing, and application decisions.'
+description: Processes external resources into stored knowledge with quality scoring and routing. Use when ingesting articles, papers, or docs into a memory palace.
 alwaysApply: false
 category: governance
 tags:

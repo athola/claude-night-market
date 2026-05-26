@@ -1,6 +1,6 @@
 ---
 name: smart-sourcing
-description: Select optimal information sources for tool calls and file reads, balancing accuracy with token efficiency.
+description: Selects optimal sources for tool calls, balancing accuracy with token cost. Use before research tasks or when deciding whether a claim needs verification.
 alwaysApply: false
 usage_patterns:
 - "research"

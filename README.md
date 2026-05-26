@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.7-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.8-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-187-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-188-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 [![GitHub Stars](https://img.shields.io/github/stars/athola/claude-night-market?style=social)](https://github.com/athola/claude-night-market)
 [![Quillx: 3/5 Adapted](https://img.shields.io/badge/Quillx-3%2F5%20Adapted-blue)](https://github.com/QAInsights/Quillx)
@@ -16,7 +16,7 @@ covering git workflows, code review, spec-driven
 development, architecture selection, codebase
 visualization, autonomous agents, multi-LLM delegation,
 ML-enhanced scoring, and multi-source research.
-187 skills, 129 slash commands, and 55 agents.
+188 skills, 131 slash commands, and 56 agents.
 Each plugin installs independently.
 
 <p align="center">
@@ -107,6 +107,10 @@ own review:
 - **Destructive-command blockers** (`conserve`): auto-approve safe
   commands while halting `rm -rf`, `git push --force`,
   `git reset --hard`, and similar.
+- **Production-environment guard** (`hookify:destructive-command-guard`):
+  warns when a destructive command targets a production-shaped path
+  or env var (`prod`, `PROD_*`, `live`). Defaults to `warn`, not
+  `block`, so legitimate ops proceed with friction, not refusal.
 - **Additive-bias audits** (`leyline:additive-bias-defense`): every
   diff is checked for unjustified additions before commit.
 
@@ -139,7 +143,7 @@ complements.
 | **imbue** | Foundation | TDD enforcement, proof-of-work validation, scope guarding, additive-bias auditing, rigorous reasoning, vow enforcement | 13 | 5 |
 | **conserve** | Utility | Context optimization, bloat detection, context mapping, CPU/GPU monitoring, token conservation, filter-first log debugging | 13 | 5 |
 | **conjure** | Utility | Delegation framework for routing tasks to external LLMs (Gemini, Qwen) with cheapest-capable model selection | 4 | 0 |
-| **hookify** | Utility | Behavioral rules engine with markdown configuration and hook-to-rule conversion | 2 | 6 |
+| **hookify** | Utility | Behavioral rules engine with markdown configuration, hook-to-rule conversion, and a security rule catalog (production-guard, destructive-command-guard) | 2 | 6 |
 | **egregore** | Utility | Autonomous agent orchestrator with parallel worktrees, agent specialization, cross-item learning, and crash recovery | 4 | 5 |
 | **herald** | Utility | Shared notification library: GitHub issue alerts, webhook support (Slack, Discord, generic) | 0 | 0 |
 | **oracle** | Utility | ONNX Runtime inference daemon for ML-enhanced plugin capabilities over localhost HTTP | 1 | 1 |
@@ -218,6 +222,27 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**1.9.8:** `hookify` adds a `destructive-command-guard` security
+rule that warns when a destructive command (`rm -rf`,
+`git push --force`, `kubectl delete`, `terraform destroy`,
+`DROP TABLE`, `DELETE FROM`) is paired with a
+production-shaped path or env var (`prod`, `PROD_*`). Rule
+defaults to `warn` so legitimate ops proceed unblocked.
+`pensive:shell-review` is hardened with POSIX structure
+patterns covering the library/executable distinction,
+`depcheck()`, `usage()`, xtrace, `readonly` globals, and
+`shfmt -p -i 2 -ci` formatting. Six `pensive` review
+modules (`math_review`, `bug_review`, `api_review`, and
+others) are refactored into mixin packages with focused
+submodules; public API unchanged.
+All 188 `SKILL.md` descriptions are rewritten to
+action-oriented trigger phrases ("Use when/before/after/for")
+so Claude selects skills accurately; see
+[`docs/skill-description-guide.md`](docs/skill-description-guide.md)
+and [ADR-0004](docs/adr/0004-skill-description-budget-optimization.md).
+See [CHANGELOG](CHANGELOG.md#198---2026-05-21) for the full
+entry.
 
 **1.9.7:** `conserve` adds the `log-debugging-hygiene` module
 and `/filter-log` command. On the committed
@@ -318,10 +343,14 @@ and naming conventions. For LSP integration, see the
   full skill, command, and agent inventory
 - [Tutorials](book/src/tutorials/README.md) -
   PR workflows, debugging, feature lifecycles
+- [Testing Guide](docs/testing-guide.md) -
+  BDD patterns, coverage threshold config, TDD enforcement
+- [Quality Gates](docs/quality-gates.md) -
+  pre-commit, CI, and coverage gate reference
 - [Architecture Decision Records](docs/adr/) -
   design rationale and trade-off documentation
 
-Per-plugin documentation lives in `book/src/plugins/`
+Per-plugin documentation is in `book/src/plugins/`
 (one page per plugin).
 
 ## Stewardship
@@ -360,7 +389,7 @@ Night Market stands on the shoulders of upstream work:
 - [QAInsights/Quillx][quillx]: three of five Quillx patterns adapted
   into Night Market plugins (see the badge near the top).
 
-Per-plugin attributions live in each plugin's `pyproject.toml` and
+Per-plugin attributions are in each plugin's `pyproject.toml` and
 documentation. See [STEWARDSHIP.md](STEWARDSHIP.md) for the
 maintenance contract that governs how upstream changes flow in.
 

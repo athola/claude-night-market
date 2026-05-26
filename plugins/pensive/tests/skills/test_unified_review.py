@@ -12,6 +12,53 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+SKILL_MD = Path(__file__).parents[2] / "skills" / "unified-review" / "SKILL.md"
+
+
+class TestUnifiedReviewSkillContent:
+    """Content assertions for unified-review SKILL.md.
+
+    These tests fail if the guidance is removed, ensuring behavioral
+    constraints survive refactors.
+    """
+
+    @pytest.fixture
+    def skill_content(self) -> str:
+        return SKILL_MD.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_md_exists(self) -> None:
+        """SKILL.md must exist at the expected path."""
+        assert SKILL_MD.exists(), f"SKILL.md missing: {SKILL_MD}"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_sub_agent_isolation_guidance_present(self, skill_content: str) -> None:
+        """Step 3 must instruct agents to be dispatched in a single parallel call
+        before synthesis begins (anti-flattery bias requirement)."""
+        assert "Sub-agent isolation" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_isolation_requires_all_agents_before_synthesis(
+        self, skill_content: str
+    ) -> None:
+        """Isolation guidance must specify waiting for ALL results before
+        synthesizing — not just dispatching concurrently."""
+        assert "ALL agents have returned" in skill_content or (
+            "all agent" in skill_content.lower()
+            and "synthesize" in skill_content.lower()
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_isolation_names_anchoring_as_risk(self, skill_content: str) -> None:
+        """Isolation guidance must name the bias being prevented so readers
+        understand why the constraint exists, not just what it is."""
+        assert "anchor" in skill_content.lower() or "bias" in skill_content.lower()
+
+
 # Import the skill we're testing
 from pensive.skills.base import AnalysisResult
 from pensive.skills.unified_review import UnifiedReviewSkill

@@ -1,6 +1,6 @@
 ---
 name: token-conservation
-description: 'Enforce token quota management at session start with conservation rules, delegation checks, and compression review.'
+description: Enforces token quota management at session start with conservation and compression checks. Use at the start of every session or before large context loads.
 alwaysApply: true
 progressive_loading: true
 dependencies:
@@ -28,7 +28,7 @@ model_hint: standard
 
 ## Step 1 – Quota Check (`quota-check`)
 - Record current session duration and weekly usage (from `/status` or notebook).
-  Note the 5-hour rolling cap + weekly cap highlighted in the Claude community notice.
+  Note the 5-hour rolling cap and weekly cap highlighted in the Claude community notice.
 - Capture remaining budget and set a max token target for this task.
 
 ## Step 2 – Context Plan (`context-plan`)

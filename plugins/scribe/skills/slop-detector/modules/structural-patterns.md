@@ -118,7 +118,7 @@ ratio=$((bullet_lines * 100 / total_lines))
 
 ## Five-Paragraph Essay Structure
 
-AI defaults to: intro + three body sections + conclusion recap.
+AI defaults to: intro, three body sections, and conclusion recap.
 
 Check for:
 1. Opening paragraph that restates the question

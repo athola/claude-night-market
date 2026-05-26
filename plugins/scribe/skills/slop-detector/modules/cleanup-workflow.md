@@ -131,7 +131,7 @@ JSDoc, etc.), enforce the docstring/implementation ratio:
 | < 0.5 | balanced or code-heavy; usually fine |
 
 Trivial helpers should often have *no* doc comment at all
-— the function name + signature is the spec. See
+— the function name and signature is the spec. See
 `anti-goals.md` Class 1 for what to keep.
 
 Commit.

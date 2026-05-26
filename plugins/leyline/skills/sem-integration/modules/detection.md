@@ -60,6 +60,6 @@ proceed with fallback for the rest of the session.
 
 ## Cache Invalidation
 
-The cache file lives in `$CLAUDE_CODE_TMPDIR` which is
+The cache file is in `$CLAUDE_CODE_TMPDIR` which is
 per-session. No explicit invalidation needed: each new
 Claude Code session starts fresh.

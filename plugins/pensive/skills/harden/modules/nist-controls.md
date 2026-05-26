@@ -1,4 +1,4 @@
-# NIST + CWE Citation Backbone
+# NIST and CWE Citation Backbone
 
 Every finding in a hardening report carries a citation. This
 module is the lookup table.

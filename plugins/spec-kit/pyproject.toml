@@ -1,10 +1,13 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.9.7"
+version = "1.9.8"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
@@ -133,7 +136,6 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=90",
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -170,7 +172,6 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-fail_under = 90
 
 # Bandit configuration
 [tool.bandit]

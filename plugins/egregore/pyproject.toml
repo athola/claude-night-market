@@ -1,10 +1,13 @@
+[tool.nightmarket]
+coverage_threshold = 90
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "egregore-dev"
-version = "1.9.7"
+version = "1.9.8"
 description = "Autonomous agent orchestrator plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -69,7 +72,7 @@ disable_error_code = ["assignment", "arg-type"]
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
-addopts = "-v --cov=scripts --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --cov=scripts --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
@@ -85,4 +88,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 90

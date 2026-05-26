@@ -5,7 +5,118 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.8] - 2026-05-21
+
+### Added
+
+- **`scripts/fix_coverage_threshold.py`**: one-shot migration script that
+  removes `--cov-fail-under` from `addopts` and `fail_under` from
+  `[tool.coverage.report]`, then writes the threshold into a
+  `[tool.nightmarket]` section so `run-plugin-tests.sh` can enforce it
+  explicitly for full-suite runs only. Supports `--dry-run` and processes
+  all 20 plugin `pyproject.toml` files.
+- **pensive/unified-review: sub-agent isolation guidance.** Step 3 now
+  requires all review agents to be dispatched in a single parallel call
+  and all results collected before synthesis begins. Prevents
+  first-result anchoring, where the first returned agent report skews
+  evaluation of the remaining results.
+- **sanctum/pr-review: understanding-probe anti-pattern and quality gate.**
+  New anti-pattern "Merge Code You Cannot Explain" documents the risk of
+  approving AI-generated changes the author cannot trace through. The
+  quality gate now requires the author to explain how each changed section
+  works and how it could fail, not just that tests pass.
+- **`docs/skill-description-guide.md`**: authoring guide for SKILL.md
+  `description:` fields. Covers hard constraints (160 char max, third
+  person), the format template, four skill categories with patterns and
+  examples, a before/after table, common mistakes, and how to run the
+  budget validator (`plugins/abstract/scripts/validate_budget.py`).
+- **hookify: `destructive-command-guard` security rule (#488).**
+  New rule in `plugins/hookify/skills/rule-catalog/rules/security/`
+  warns when a destructive command (`rm -rf`, `git push --force`,
+  `kubectl delete`, `terraform destroy`, `DROP TABLE`,
+  `DELETE FROM`) is paired with a production-shaped path or
+  environment variable (`prod`, `production`, `live`, `PROD_*`).
+  Motivated by the Replit/SaaStr incident (July 2025) where an
+  agent reached a self-destruct button without friction.
+  Rule defaults to `warn` (not `block`) so legitimate ops can
+  proceed; disable temporarily via the local override file.
+  Covered by `test_destructive_command_guard_rule.py`.
+
+### Changed
+
+- **All 188 SKILL.md `description:` fields rewritten to action-oriented format.**
+  Every skill now starts with an action-oriented verb phrase and includes a
+  trigger condition (Use when/before/after/for). Anthropic recommends this
+  format for accurate Claude-driven skill activation. Previously 173/188
+  descriptions were noun phrases that told Claude what a skill does but gave
+  no signal for when to invoke it. The `description:` field is the only signal
+  in the system-reminder Claude uses for skill selection; trigger phrasing
+  makes activation accurate. Raw description budget grew from ~16k to ~35k
+  chars, a deliberate trade-off within the 1M context window's ~80k available
+  for descriptions.
+  See `docs/skill-description-guide.md` and ADR-0004.
+- **pensive: `shell-review` skill hardened with POSIX structure
+  patterns.** New module `structure-patterns.md` in
+  `plugins/pensive/skills/shell-review/modules/` covers the
+  library/executable distinction, the required preamble,
+  `main "${@}"` as the last line, top-down execution prohibition,
+  `depcheck()`, `usage()`, xtrace support, `readonly` globals,
+  platform detection via `uname -s`, `case` over `[ ]`, and
+  `shfmt -p -i 2 -ci` formatting.
+  `safety-patterns.md` rewritten to match CLAUDE.md shell rules:
+  no `echo`, braced variable references, `:?` expansion, `cd` in
+  subshells, `${0%/*}` for script-relative paths, no
+  `basename`/`dirname`, library-guard `case` form, and no
+  `set -e`/`set -u` in libraries.
+  Exit criteria now uses the required checkbox format per
+  `.claude/rules/skill-exit-criteria.md`.
+- **pensive: six review modules refactored into mixin packages
+  (#486).** `math_review`, `performance_review`, `bug_review`,
+  `api_review`, `test_review`, and `makefile_review` each moved
+  from a single `.py` file into a package directory with focused
+  submodules (`_analysis.py`, `_constants.py`, `_helpers.py`,
+  `_quality.py`, `_reporting.py`, etc.). Public API unchanged;
+  callers import from the same package name. Each refactor is
+  guarded by a `test_*_package_structure.py` test that verifies
+  importability and re-exports.
+
+### Fixed
+
+- **Coverage threshold enforcement decoupled from pytest `addopts` across
+  all 20 plugins.** Previously `--cov-fail-under=N` in `addopts` and
+  `fail_under` in `[tool.coverage.report]` caused subset test runs
+  (content-assertion tests that import no Python source) to fail with
+  low total coverage. Both keys are now removed from every plugin's
+  `pyproject.toml`. The threshold is stored in a `[tool.nightmarket]`
+  section (unknown to coverage.py) and read by `run-plugin-tests.sh`
+  via awk; the `--cov-fail-under` flag is passed explicitly only for
+  full-suite runs.
+- **abstract/skills: compress 37 skill descriptions to ≤100 chars
+  and fix stale `shared-patterns` module refs.** Skill frontmatter
+  `description` fields exceeding 100 characters were trimmed
+  across `abstract`, `pensive`, `minister`, and other plugins to
+  stay within the token budget enforced by the system prompt.
+  Stale `@include shared-patterns.md` references in `abstract`
+  skills were replaced with the correct module path.
+
+### Tests
+
+- `test(scripts)`: 18 BDD unit tests for `fix_coverage_threshold.py`
+  covering threshold extraction, addopts cleanup, report-section removal,
+  `[tool.nightmarket]` insertion, and end-to-end migration in dry-run and
+  write modes.
+- `test(scripts)`: 7 unit tests for `run-plugin-tests.sh` awk threshold
+  extraction covering the 90%/85% standard cases, absent section, multiple
+  tool sections, first-match semantics, and both `pensive` and `gauntlet`
+  real `pyproject.toml` files.
+- `test(scribe)`: removed stale `version:` frontmatter assertions from
+  `test_voice_extract.py` and `test_voice_generate.py`; fixed
+  `_check_line_lengths` in `test_tech_tutorial.py` to skip YAML
+  frontmatter blocks so long `description:` values no longer trigger
+  false 80-char violations.
+- `test(pensive)`: cover `analyze()` edge cases in `bug_review`
+  and `performance_review` for empty input, single-file input, and
+  paths that raise `OSError` during analysis.
 
 ## [1.9.7] - 2026-05-18
 

@@ -12,7 +12,7 @@ Weekly cadences that tie tracker output to GitHub comments. Each ritual has an o
 2. Post to Program Review issue: `gh issue comment ISSUE_ID --body-file .claude/minister/latest.md`
 3. Copy comment permalink into Projects "Initiative Pulse" note field
 4. File follow-up issues for blockers >3 days: `gh issue create --title "..." --label blocker`
-5. Update swimlanes: ensure every card has owner + due date
+5. Update swimlanes: ensure every card has owner and due date
 
 ## Wednesday – Risk Radar
 
@@ -52,7 +52,7 @@ Weekly cadences that tie tracker output to GitHub comments. Each ritual has an o
 5. Update labels: `gh issue edit ID --add-label risk:yellow` for escalations
 6. Add discussion permalink to Projects "Risk Radar" lane notes
 
-## Friday – Demo + Planning
+## Friday – Demo and Planning
 
 **Owner**: Delivery Lead | **Search**: `is:open is:pr label:demo sort:updated-desc`
 
@@ -64,7 +64,7 @@ Weekly cadences that tie tracker output to GitHub comments. Each ritual has an o
 
 ## Monthly – Executive Packet
 
-**Owner**: Program Lead + Exec Partner | **Search**: `is:open label:exec-packet`
+**Owner**: Program Lead and Exec Partner | **Search**: `is:open label:exec-packet`
 
 1. Concatenate weekly `.claude/minister/latest.md` files → `.claude/minister/executive.md`
 2. Find the Executive Packet discussion ID:

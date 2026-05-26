@@ -208,7 +208,7 @@ Check for:
 ### For Existing Large Files
 
 1. **Assess structure**: Identify distinct sections
-2. **Create hub file**: Overview + navigation (150-300 lines)
+2. **Create hub file**: Overview and navigation (150-300 lines)
 3. **Split into modules**: Each module focused on one aspect (400-600 lines)
 4. **Update references**: Fix links in other files
 5. **Verify**: Check all cross-references work

@@ -27,7 +27,7 @@ them and reviewers drift.
 | Aggregation rule | How parts combine | Different reviewers compute differently |
 | Decision mapping | What the score triggers | Score with no consequence is theatre |
 
-The first four are below; decision mapping lives in
+The first four are below; decision mapping is in
 `modules/decision-thresholds.md`.
 
 ## Picking a Scale
@@ -184,7 +184,7 @@ range: [1.0, 5.0]
 ## Template 3: Feature Backlog Rubric
 
 For prioritizing backlog items. Compact wrapper around
-RICE+WSJF; details live in the `scoring-framework` module of
+RICE+WSJF; details are in the `scoring-framework` module of
 the `feature-review` skill (under `plugins/imbue/`).
 
 ```yaml
@@ -216,7 +216,7 @@ Pick one explicitly. Each has trade-offs.
 | Weighted product | product(s_i ** w_i) | One bad dim should drag total down |
 | Min (worst-of) | min(s_i) | Any failing dim is a real failure |
 | Lexicographic | sort by d1, ties by d2 | Strict priority order |
-| Weighted sum + gates | gates pass AND weighted sum | Some dims are veto-class |
+| Weighted sum and gates | gates pass AND weighted sum | Some dims are veto-class |
 
 Weighted sum is the default. Pick anything else only if you
 can name the dimension that should be allowed to veto.

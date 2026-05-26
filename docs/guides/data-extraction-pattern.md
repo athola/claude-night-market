@@ -109,7 +109,7 @@ topics = load_topics()  # Loads from YAML
 ### Example 1: Seed Corpus (Memory Palace)
 
 **Before**: 1,117 lines
-**After**: ~285 lines + YAML data file
+**After**: ~285 lines and YAML data file
 **Savings**: ~832 lines (75%)
 
 **What was extracted**:
@@ -120,7 +120,7 @@ topics = load_topics()  # Loads from YAML
 ### Example 2: Architecture Templates (Attune)
 
 **Before**: 792 lines
-**After**: ~130 lines + YAML data file
+**After**: ~130 lines and YAML data file
 **Savings**: ~662 lines (84%)
 
 **What was extracted**:
@@ -140,7 +140,7 @@ templates:
 ### Example 3: Makefile Targets (Abstract)
 
 **Before**: 793 lines
-**After**: ~200 lines + YAML data file
+**After**: ~200 lines and YAML data file
 **Savings**: ~593 lines (75%)
 
 **What was extracted**:
@@ -152,7 +152,7 @@ templates:
 ### Example 4: Decision Matrix (Attune)
 
 **Before**: 641 lines
-**After**: ~180 lines + YAML data file
+**After**: ~180 lines and YAML data file
 **Savings**: ~461 lines (72%)
 
 **What was extracted**:
@@ -364,7 +364,7 @@ From 4 real-world refactorings:
 |--------|--------|-------|--------|
 | **Total Lines** | 3,343 | ~795 | -76% |
 | **Token Savings** | - | ~10,192 | - |
-| **Files Created** | 4 scripts | 4 scripts + 4 YAML | +4 data files |
+| **Files Created** | 4 scripts | 4 scripts and 4 YAML | +4 data files |
 | **Avg Reduction** | - | 75% | - |
 
 ### Individual Results

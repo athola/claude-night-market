@@ -1,10 +1,7 @@
 ---
 name: storage-templates
-description: Consult this skill when designing storage and documentation systems.
+description: Provides templates and lifecycle patterns for storage and documentation systems. Use when organizing knowledge storage, config lifecycle, or naming conventions.
 alwaysApply: false
-  Use when organizing knowledge storage, managing configuration lifecycle, creating
-  structured documentation, establishing naming conventions. Do not use when simple
-  storage without lifecycle or structure needs.
 category: infrastructure
 tags:
 - templates

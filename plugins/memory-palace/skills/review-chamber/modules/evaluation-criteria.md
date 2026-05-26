@@ -164,7 +164,7 @@ Based on memory-palace:knowledge-intake, adapted for PR reviews.
 
 | Score | Description |
 |-------|-------------|
-| 10 | Domain expert + senior reviewer |
+| 10 | Domain expert and senior reviewer |
 | 7 | Domain expert OR senior reviewer |
 | 5 | Experienced team member |
 | 3 | Regular contributor |

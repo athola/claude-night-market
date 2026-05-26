@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-modular-monolith
-description: 'Single deployable with enforced module boundaries.'
+description: Applies modular monolith with enforced internal boundaries. Use when teams want service-level autonomy without distributed system overhead.
 alwaysApply: false
 category: architectural-pattern
 tags:

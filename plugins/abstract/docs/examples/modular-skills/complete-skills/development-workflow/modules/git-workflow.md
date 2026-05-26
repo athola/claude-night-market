@@ -31,9 +31,9 @@ Master Git collaboration with this complete workflow guide:
 - Start using feature branch workflow immediately
 
 **Progressive Learning**: Advance from basic to advanced Git practices
-1. **Essentials** → Repository setup + basic branching + commit standards
-2. **Team Workflow** → Feature branches + pull requests + code review
-3. **Advanced** → Rebase + cherry-pick + hooks + performance optimization
+1. **Essentials** → Repository setup, basic branching, and commit standards
+2. **Team Workflow** → Feature branches, pull requests, and code review
+3. **Advanced** → Rebase, cherry-pick, hooks, and performance optimization
 
 ** Use Case-Based**: Jump directly to your specific needs
 - New repository? → Use repository initialization + branching strategy setup

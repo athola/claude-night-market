@@ -1,6 +1,6 @@
 ---
 name: voice-learn
-description: 'Learn from manual edits to improve voice profile. Compares pre-review, post-review, and edited text.'
+description: Improves a voice profile by learning from manual edits. Use after editing generated text to refine registers and close voice drift over time.
 globs: "**/*.{md,txt}"
 alwaysApply: false
 category: writing-quality

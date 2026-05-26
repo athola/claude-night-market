@@ -1,6 +1,6 @@
 ---
 name: proof-of-work
-description: 'Enforce validation and evidence before declaring work complete.'
+description: Enforces validation and evidence before claiming work complete. Use before declaring implementation done, creating a PR, or submitting deliverables for review.
 alwaysApply: false
 category: workflow-methodology
 tags:

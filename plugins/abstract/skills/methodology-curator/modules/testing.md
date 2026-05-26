@@ -196,7 +196,7 @@ flowchart LR
 
 ## TDD Workflow Template
 
-Blended from Beck + Freeman:
+Blended from Beck and Freeman:
 
 ```markdown
 ## Feature: [Name]

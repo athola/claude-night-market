@@ -67,7 +67,7 @@ def match_pattern(new_pattern, accumulator):
 | Action | Threshold |
 |--------|-----------|
 | Apply to register | 3+ instances across 2+ pieces |
-| Apply with accumulator match | 1-2 new + 2 prior instances |
+| Apply with accumulator match | 1-2 new and 2 prior instances |
 | Hold in accumulator | 1-2 instances, no prior match |
 | Discard | Contradicts 3+ counter-examples |
 

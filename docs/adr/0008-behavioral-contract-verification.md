@@ -65,9 +65,9 @@ provenance attestations for cryptographic proof.
 | Criterion | GitHub Attestations | ERC-8004 |
 |-----------|-------------------|----------|
 | Cost | Free (GitHub-hosted) | Gas fees on L2 |
-| Setup | Zero (built into Actions) | Wallet + RPC config |
+| Setup | Zero (built into Actions) | Wallet and RPC config |
 | Signing | Sigstore (automatic) | Ethereum keys |
-| Verification | `gh attestation verify` | Custom SDK + web3 |
+| Verification | `gh attestation verify` | Custom SDK and web3 |
 | Infrastructure | GitHub (already used) | Blockchain node/RPC |
 | Python deps | None (uses `gh` CLI) | web3.py |
 | Maturity | GA since 2024 | Mainnet since Jan 2026 |

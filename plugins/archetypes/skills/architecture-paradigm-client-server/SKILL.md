@@ -1,6 +1,6 @@
 ---
 name: architecture-paradigm-client-server
-description: 'Client-server architecture for web/mobile apps with centralized services and API design.'
+description: Applies client-server architecture for web/mobile apps. Use when designing systems with centralized backend services, trust boundaries, or offline-first sync.
 alwaysApply: false
 category: architectural-pattern
 tags:

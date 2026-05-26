@@ -102,7 +102,7 @@ Include exemplar citations in the final verification report so future maintainer
 
 ## Example Multi-Language Research
 
-For a project with Rust backend + TypeScript frontend:
+For a project with Rust backend and TypeScript frontend:
 
 1. **Rust Exemplars** (2-3 projects)
    - Focus on: CLI tool patterns, installation via cargo, feature flags, performance claims

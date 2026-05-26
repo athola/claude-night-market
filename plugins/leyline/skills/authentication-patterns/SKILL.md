@@ -1,6 +1,6 @@
 ---
 name: authentication-patterns
-description: 'Authentication patterns: API keys, OAuth, token management, credentials.'
+description: Provides auth patterns for API keys, OAuth, and token management. Use when implementing or reviewing service authentication and credential handling.
 alwaysApply: false
 category: infrastructure
 tags:

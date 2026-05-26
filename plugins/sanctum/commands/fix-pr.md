@@ -41,7 +41,7 @@ Use this command when you need to:
 | **2. Triage** | Classify comments by type/priority | Single simple fix |
 | **3. Plan** | Generate fix strategies | Fixes are obvious |
 | **4. Fix** | Apply code changes | Just need validation |
-| **5. Validate** | Run tests, version checks, agent-verify manual test plan via shell + HTTP + browser (CDP/Playwright) | Already validated |
+| **5. Validate** | Run tests, version checks, agent-verify manual test plan via shell, HTTP, and browser (CDP/Playwright) | Already validated |
 | **6. Complete** | **Reconcile all unworked items**, **reply to & resolve threads** (required), create issues, post summary | Never - issue tracking & thread resolution enforced |
 
 **Detailed Steps**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)

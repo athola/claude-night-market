@@ -53,7 +53,7 @@ RS Range: 0.04 (most reversible) to 1.0 (least reversible)
 | 0.04 - 0.40 | **Type 2** | Two-way door | Express (single expert) |
 | 0.41 - 0.60 | **Type 1B** | Heavy door | Standard (lightweight panel) |
 | 0.61 - 0.80 | **Type 1A** | One-way door | Full Council |
-| 0.81 - 1.00 | **Type 1A+** | Locked vault | Full Council + Delphi |
+| 0.81 - 1.00 | **Type 1A+** | Locked vault | Full Council and Delphi |
 
 > **Note**: These thresholds are defaults calibrated for general use. Teams with different risk tolerances can adjust at session initialization.
 
@@ -226,7 +226,7 @@ Supreme Commander may override automatic classification when:
 | Express | 1 | 1 | < 2 min | 500 |
 | Lightweight | 3 | 2 | 5-10 min | 2,500 |
 | Full Council | 7 | 2 | 15-30 min | 8,000 |
-| Full Council + Delphi | 7 | 3-5 | 30-60 min | 15,000 |
+| Full Council and Delphi | 7 | 3-5 | 30-60 min | 15,000 |
 
 ## Quick Assessment Heuristics
 

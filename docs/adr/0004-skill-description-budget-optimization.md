@@ -1,7 +1,7 @@
 # ADR 0004: Skill Description Budget Optimization
 
 **Date**: 2025-12-31
-**Updated**: 2026-02-07
+**Updated**: 2026-05-21
 **Status**: Accepted (Updated)
 **Context**: Slash Command Character Budget Management
 
@@ -121,9 +121,47 @@ a two-pronged approach was applied:
 | **Validator Limit** | 15,000 | 17,000 | 20,000 |
 | **Per-desc Max** | 130 | 130 | 160 |
 
+## 2026-05 Overhaul: Action-Oriented Description Rewrite
+
+All SKILL.md `description:` fields rewritten in May 2026 to use
+Anthropic's recommended activation format:
+
+```
+[Verb phrase]. Use when [trigger condition].
+[Do not use when [negative]; use [alternative] instead.]
+```
+
+**Why**: The majority of skills had noun-phrase descriptions that told
+Claude WHAT a skill does but not WHEN to invoke it. The `description:`
+field is the only signal in the system-reminder Claude uses for skill
+selection — triggering skills requires action-oriented triggers.
+
+**Results**:
+
+| Metric | Before (Round 3) | After (2026-05) |
+|--------|-----------------|-----------------|
+| **Total Chars (raw)** | ~15,966 | 35,472 |
+| **With overhead** | ~21k | 70,239 |
+| **Avg desc length** | 77.7 chars | 144.6 chars |
+| **Skills with a trigger phrase** | ~8% | 100% (majority "Use when"; remainder "Use before/after/for/at") |
+| **Per-desc over 160 chars** | 0 | 0 |
+
+The raw description budget grew 2.2x because descriptions now contain
+trigger context that drives accurate skill activation. This is within
+Claude Code's 1M context budget (~80k available for descriptions with
+overhead) and is a deliberate trade-off: better activation accuracy
+over minimal budget.
+
+**Template doc**: `docs/skill-description-guide.md`
+
+**Commands excluded**: Slash command `.md` files were not updated —
+command descriptions appear in `/help` output for humans and use
+noun-phrase format by design (commands are user-typed, not
+Claude-selected).
+
 ## Future Opportunities
 
-1. **Archetypes consolidation** (potential savings: ~1,500 chars)
+1. **Archetypes consolidation** (potential savings: ~1,500 chars raw)
    - Merge 13 architecture-paradigm-* skills into 1 interactive selector
 2. **`SLASH_COMMAND_TOOL_CHAR_BUDGET` env var** - document for power users with
    many plugins
@@ -131,16 +169,17 @@ a two-pronged approach was applied:
 ## Monitoring
 
 1. ✅ Pre-commit hook (`validate-description-budget`) enforces limit
-2. ✅ Validator tracks per-description lengths (150 char recommendation)
+2. ✅ Validator tracks per-description lengths (160 char max)
 3. ⏳ Monitor for description creep in future PRs
 4. ⏳ Consider archetypes consolidation if headroom shrinks
 
 ## Summary
 
-The ecosystem works with default CC settings (16k fallback).
-The validator uses a 17k limit to provide growth headroom.
-Description condensation preserved all functional keywords while standardizing
-on a shorter "Use for/Skip if" pattern.
+After the 2026-05 overhaul, all descriptions use action-oriented triggers
+("Use when/before/after/for"). Raw budget is ~35k chars (~70k with overhead),
+within the 1M context window's ~80k available. Validator ceiling is 60,000
+chars (enforced by pre-commit hook). Growth is intentional: trigger phrasing
+improves skill activation accuracy at the cost of budget.
 
 ## Related
 

@@ -1,6 +1,6 @@
 ---
 name: computer-control
-description: 'Automate desktop GUI workflows via Claude computer use API with screenshot capture and mouse/keyboard control.'
+description: Automates desktop GUI workflows via computer use API with screenshot capture. Use when scripting GUI interactions or recording browser sessions for tutorials.
 alwaysApply: false
 model_hint: standard
 ---
