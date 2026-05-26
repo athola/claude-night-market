@@ -343,6 +343,10 @@ and naming conventions. For LSP integration, see the
   full skill, command, and agent inventory
 - [Tutorials](book/src/tutorials/README.md) -
   PR workflows, debugging, feature lifecycles
+- [Testing Guide](docs/testing-guide.md) -
+  BDD patterns, coverage threshold config, TDD enforcement
+- [Quality Gates](docs/quality-gates.md) -
+  pre-commit, CI, and coverage gate reference
 - [Architecture Decision Records](docs/adr/) -
   design rationale and trade-off documentation
 
