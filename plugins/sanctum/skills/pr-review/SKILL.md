@@ -501,6 +501,8 @@ A PR should be approved when:
 - [ ] Tests cover new code paths
 - [ ] Tests would fail if the fix were reverted (the revert test)
 - [ ] No obvious agent-generated code left uncurated
+- [ ] Author can explain how each changed section works and how
+      it could fail (understanding check, not just "tests pass")
 
 ## Anti-Patterns to Avoid
 
@@ -538,6 +540,25 @@ not document why the change was needed. See
 **Do:** One PR = one logical change. Formatting, refactors,
 and unrelated fixes belong in separate PRs. See
 `modules/pr-hygiene.md` Principle 2.
+
+### Don't: Merge Code You Cannot Explain
+
+> "It works and the tests pass."
+
+A PR where the author cannot explain how each changed section
+works and how it might fail is not ready to merge. This is
+especially true for AI-assisted code: generation speed creates
+the illusion of understanding.
+
+**Do:** Before marking a PR ready, ask the reviewing agent to
+question you about the changed code — how each part works, what
+assumptions it makes, and what inputs would break it. Continue
+until you can answer without hesitation. Only merge code you
+own front-to-back.
+
+This applies to self-reviews: run the same probe before
+requesting external review. Do not submit a PR for review that
+you yourself do not fully understand.
 
 ## Integration with Other Tools
 
