@@ -134,6 +134,8 @@ Load modules as needed based on review scope:
 - [ ] All unsafe blocks documented with SAFETY comments
 - [ ] FFI boundaries properly wrapped
 - [ ] Memory safety invariants maintained
+- [ ] `mlock`/`munlock` calls: RLIMIT verified, page-aligned,
+  ENOMEM handled
 
 ### Correctness
 - [ ] Error handling complete

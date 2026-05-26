@@ -92,6 +92,45 @@ class TestModuleWiring:
         assert hasattr(dora_metrics, "DORAMetrics")
 
 
+class TestKuvaVisualizationStep:
+    """Feature: dora-metrics SKILL.md documents kuva trend visualization.
+
+    As a developer reviewing DORA metric trends across multiple windows,
+    I need the skill to document how to render charts with kuva
+    so that I can produce visual evidence without searching external docs.
+    """
+
+    def test_kuva_step_present(self) -> None:
+        """Scenario: step 5 references kuva for trend charts.
+
+        Given the updated dora-metrics workflow
+        When I read the SKILL.md
+        Then it must mention kuva.
+        """
+        text = SKILL_FILE.read_text(encoding="utf-8")
+        assert "kuva" in text.lower()
+
+    def test_kuva_terminal_flag_documented(self) -> None:
+        """Scenario: terminal preview is documented.
+
+        Given developers may not want SVG files in every run
+        When I read the SKILL.md
+        Then the --terminal flag must be shown.
+        """
+        text = SKILL_FILE.read_text(encoding="utf-8")
+        assert "--terminal" in text
+
+    def test_kuva_github_url_referenced(self) -> None:
+        """Scenario: the kuva repo URL appears for discoverability.
+
+        Given attribution matters for external tool references
+        When I read the SKILL.md
+        Then the Psy-Fer/kuva GitHub reference must be present.
+        """
+        text = SKILL_FILE.read_text(encoding="utf-8")
+        assert "Psy-Fer/kuva" in text
+
+
 class TestExitCriteria:
     """Feature: the SKILL.md follows project rule skill-exit-criteria."""
 

@@ -24,6 +24,7 @@ modules:
 - modules/time-complexity.md
 - modules/space-complexity.md
 - modules/gauntlet-integration.md
+- modules/kuva-visualization.md
 ---
 
 ## Table of Contents
@@ -221,6 +222,9 @@ exact code shape.
 - `modules/space-complexity.md`: S1-S3 detector patterns.
 - `modules/gauntlet-integration.md`: Tier 2/3 contract,
   fallback semantics, examples.
+- `modules/kuva-visualization.md`: Rendering benchmark data as
+  charts with kuva (criterion, pytest-benchmark, ad-hoc tables).
+  Covers when chart evidence satisfies proof-of-work requirements.
 
 ## Verification
 
@@ -236,6 +240,8 @@ fixing:
 3. **Compare numbers before and after the proposed fix.** The fix
    is wrong if numbers do not move. Capture both timings as
    evidence references like `[E1]` (before) and `[E2]` (after).
+   When 3+ data points exist, render a kuva chart and attach it
+   to the PR — see `modules/kuva-visualization.md`.
 4. **Sample two or three reported hotspots manually.** Findings can
    be true at the AST level and false at the call-graph level
    when callers short-circuit. Manual sampling catches that.

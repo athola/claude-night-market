@@ -75,6 +75,24 @@ dimension as the next improvement target.
 4. Optionally pipe `--json` into the tracker so trend data persists
    alongside `release-health-gates` snapshots.
 
+5. Optionally render trend charts with kuva when reviewing multiple
+   windows or comparing before/after an agentic-workflow change:
+
+   ```bash
+   # Collect weekly snapshots into a TSV, then plot all four metrics
+   # week<TAB>metric<TAB>value
+   kuva line trends.tsv --x week --y value --color-by metric \
+       --title "DORA trends (30-day windows)" -o dora-trends.svg
+
+   # Quick terminal preview without writing a file
+   kuva line trends.tsv --x week --y value --color-by metric --terminal
+   ```
+
+   kuva reads TSV/CSV from stdin or a file path. Install once:
+   `cargo install kuva --features cli`. No project source changes
+   required. See [kuva](https://github.com/Psy-Fer/kuva) for the
+   full plot-type reference.
+
 ## Inputs
 
 | Flag | Default | Meaning |

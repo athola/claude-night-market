@@ -24,11 +24,31 @@ synchronization point by its cost tier.
 | 3 | Syscalls | ~1 us | Kernel transitions on lock paths |
 | 4 | Context switches | ~10 us | Blocking locks, scheduler involvement |
 | 5 | Catastrophe | ~ms+ | Spinning on oversubscribed systems |
+| 6 | Kernel page fault | ~100-400 ms | Paged-out buffer re-faulted on access |
 
-Levels 3-5 are performance bugs. Target Level 2 as the
-default. Achieve Level 1 through contention reduction.
-Level 0 requires architectural redesign (per-thread
-computation with periodic merges).
+Levels 3-5 are performance bugs. Level 6 is invisible in
+task scheduler traces (tokio-console shows tasks scheduling
+in microseconds while the actual latency occurs in the
+kernel page fault handler). Target Level 2 as the default.
+Achieve Level 1 through contention reduction. Level 0
+requires architectural redesign (per-thread computation
+with periodic merges).
+
+**Level 6: kernel paging latency**: Long-lived Tokio
+runtimes that co-reside with large heap users (e.g., ML
+model weights) are at risk: the kernel may page out
+latency-sensitive buffers during idle periods. When audio
+or ring-ring buffers page back in on the next access, the
+page fault adds 100–400 ms of p99 latency with no Tokio
+trace signal.
+
+Detection: production-only latency spikes, no reproduction
+on dev box, `perf stat` shows elevated `page-faults` on
+the audio/buffer threads.
+
+Fix: `libc::mlock` on the buffer pages. See
+`modules/unsafe-audit.md` for the full production checklist
+(RLIMIT_MEMLOCK, page alignment, ENOMEM fallback).
 
 **Key insight**: Performance is dominated by atomic
 instruction count, not total instruction count. An
