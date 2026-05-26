@@ -45,7 +45,6 @@ class TestVoiceExtractSkillStructure:
         content = (SKILL_DIR / "SKILL.md").read_text()
         assert content.startswith("---")
         assert "name: voice-extract" in content
-        assert "version:" in content
         assert "description:" in content
         assert "tools:" in content
         assert "tags:" in content

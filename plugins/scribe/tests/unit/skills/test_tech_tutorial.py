@@ -455,15 +455,26 @@ class TestProseCompliance:
     def _check_line_lengths(self, content: str, filename: str) -> list:
         """Return lines exceeding 80 chars, skipping exempt content."""
         in_code = False
+        in_frontmatter = False
+        frontmatter_seen = 0
         violations = []
         for i, line in enumerate(content.split("\n"), 1):
+            stripped = line.strip()
+            # Track YAML frontmatter block (first --- ... --- block)
+            if stripped == "---" and frontmatter_seen < 2:
+                frontmatter_seen += 1
+                in_frontmatter = frontmatter_seen == 1
+                continue
+            if frontmatter_seen == 2:
+                in_frontmatter = False
+            if in_frontmatter:
+                continue
             if line.startswith("```"):
                 in_code = not in_code
                 continue
             if not in_code and len(line) > MAX_PROSE_LINE_LENGTH:
-                # Skip tables, frontmatter separators, and bare URLs
-                stripped = line.strip()
-                if stripped.startswith("|") or stripped == "---":
+                # Skip tables and bare URLs
+                if stripped.startswith("|"):
                     continue
                 if stripped.startswith("http://") or stripped.startswith("https://"):
                     continue

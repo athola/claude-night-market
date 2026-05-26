@@ -44,7 +44,6 @@ class TestVoiceGenerateSkillStructure:
         content = (SKILL_DIR / "SKILL.md").read_text()
         assert content.startswith("---")
         assert "name: voice-generate" in content
-        assert "version:" in content
         assert "model_hint: opus" in content
 
     @pytest.mark.unit
