@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`scripts/fix_coverage_threshold.py`**: one-shot migration script that
+  removes `--cov-fail-under` from `addopts` and `fail_under` from
+  `[tool.coverage.report]`, then writes the threshold into a
+  `[tool.nightmarket]` section so `run-plugin-tests.sh` can enforce it
+  explicitly for full-suite runs only. Supports `--dry-run` and processes
+  all 20 plugin `pyproject.toml` files.
+- **pensive/unified-review: sub-agent isolation guidance.** Step 3 now
+  requires all review agents to be dispatched in a single parallel call
+  and all results collected before synthesis begins. Prevents
+  first-result anchoring, where the first returned agent report skews
+  evaluation of the remaining results.
+- **sanctum/pr-review: understanding-probe anti-pattern and quality gate.**
+  New anti-pattern "Merge Code You Cannot Explain" documents the risk of
+  approving AI-generated changes the author cannot trace through. The
+  quality gate now requires the author to explain how each changed section
+  works and how it could fail, not just that tests pass.
+
+- **`docs/skill-description-guide.md`**: authoring guide for SKILL.md
+  `description:` fields. Covers hard constraints (160 char max, third
+  person), the format template, four skill categories with patterns and
+  examples, a before/after table, common mistakes, and how to run the
+  budget validator (`plugins/abstract/scripts/validate_budget.py`).
+
 ### Changed
 
 - **All 188 SKILL.md `description:` fields rewritten to action-oriented format.**
@@ -21,13 +46,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for descriptions.
   See `docs/skill-description-guide.md` and ADR-0004.
 
-### Added
+### Fixed
 
-- **`docs/skill-description-guide.md`**: authoring guide for SKILL.md
-  `description:` fields. Covers hard constraints (160 char max, third
-  person), the format template, four skill categories with patterns and
-  examples, a before/after table, common mistakes, and how to run the
-  budget validator (`plugins/abstract/scripts/validate_budget.py`).
+- **Coverage threshold enforcement decoupled from pytest `addopts` across
+  all 20 plugins.** Previously `--cov-fail-under=N` in `addopts` and
+  `fail_under` in `[tool.coverage.report]` caused subset test runs
+  (content-assertion tests that import no Python source) to fail with
+  low total coverage. Both keys are now removed from every plugin's
+  `pyproject.toml`. The threshold is stored in a `[tool.nightmarket]`
+  section (unknown to coverage.py) and read by `run-plugin-tests.sh`
+  via awk; the `--cov-fail-under` flag is passed explicitly only for
+  full-suite runs.
+
+### Tests
+
+- `test(scripts)`: 18 BDD unit tests for `fix_coverage_threshold.py`
+  covering threshold extraction, addopts cleanup, report-section removal,
+  `[tool.nightmarket]` insertion, and end-to-end migration in dry-run and
+  write modes.
+- `test(scripts)`: 7 unit tests for `run-plugin-tests.sh` awk threshold
+  extraction covering the 90%/85% standard cases, absent section, multiple
+  tool sections, first-match semantics, and both `pensive` and `gauntlet`
+  real `pyproject.toml` files.
+- `test(scribe)`: removed stale `version:` frontmatter assertions from
+  `test_voice_extract.py` and `test_voice_generate.py`; fixed
+  `_check_line_lengths` in `test_tech_tutorial.py` to skip YAML
+  frontmatter blocks so long `description:` values no longer trigger
+  false 80-char violations.
 
 ## [1.9.8] - 2026-05-21
 
