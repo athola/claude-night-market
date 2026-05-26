@@ -103,7 +103,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 
 Load modules as needed based on review scope:
 
-**Quick Review** (ownership + errors):
+**Quick Review** (ownership and errors):
 - See `modules/ownership-analysis.md` for borrowing and lifetime analysis
 - See `modules/error-handling.md` for Result/Option patterns
 

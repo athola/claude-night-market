@@ -56,7 +56,7 @@ Treat SDD as a minimal, testable "self-modeling" loop:
 - **World model**: repo + speckit artifacts (`spec.md`, `plan.md`, `tasks.md`)
 - **Agent model**: loaded skills/plugins + constraints (especially `.specify/memory/constitution.md`) + progress state
 
-This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) that compound capability via a curriculum (`tasks.md`) and a skill library (reusable plugin skills + superpowers methodology skills).
+This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) that compound capability via a curriculum (`tasks.md`) and a skill library (reusable plugin skills and superpowers methodology skills).
 
 ## When To Use
 

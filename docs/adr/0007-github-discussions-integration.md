@@ -36,7 +36,7 @@ auto-publish without user consent
 
 ## Decision
 
-Adopt a **distributed hooks + shared leyline module** architecture.
+Adopt a **distributed hooks and shared leyline module** architecture.
 Leyline provides the GraphQL foundation via command-mapping templates;
 each plugin owns its publishing and retrieval logic.
 

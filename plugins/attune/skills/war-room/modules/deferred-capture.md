@@ -7,7 +7,7 @@ category: integration
 
 # Deferred Capture
 
-After Phase 5 (Voting + Narrowing), capture rejected COAs and
+After Phase 5 (Voting and Narrowing), capture rejected COAs and
 any future-work items from the Dissenting Views section so
 nothing valuable is lost.
 

@@ -76,7 +76,7 @@ tool = next((t for t in PRIORITY.get(lang, []) if t in available), 'heuristic')
 
 ## Confidence Boosting
 
-When heuristic + tool agree: boost confidence by 15% (max 95%)
+When heuristic and tool agree: boost confidence by 15% (max 95%)
 
 ```yaml
 # Output format

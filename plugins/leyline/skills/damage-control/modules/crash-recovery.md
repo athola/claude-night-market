@@ -43,7 +43,7 @@ Classify what you find:
 |---|---|
 | Clean index, no changes | Task never started — restart normally |
 | Only unstaged changes | Safe to inspect and resume |
-| Staged + unstaged mix | Stash before any further work |
+| Staged and unstaged mix | Stash before any further work |
 | Merge in progress | Switch to merge-conflict-resolution.md |
 
 ### Step 2: Inspect the task list

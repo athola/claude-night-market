@@ -9,7 +9,7 @@
 > - Active LSP server processes (pyright-langserver, typescript-language-server)
 > - Semantic queries trigger language servers as expected
 >
-> **Configuration:** `.cclsp.json` + `~/.claude/settings.json` environment setup
+> **Configuration:** `.cclsp.json` and `~/.claude/settings.json` environment setup
 
 ## Configuration (Settings-Level)
 

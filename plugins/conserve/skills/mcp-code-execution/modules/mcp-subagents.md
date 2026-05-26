@@ -26,7 +26,7 @@ permissions, system prompts) regardless of your instruction length.
 Efficiency = Task_Reasoning_Tokens / (Task_Reasoning_Tokens + Base_Overhead)
 ```
 
-| Task Reasoning | + Overhead (~8k) | Efficiency | Verdict |
+| Task Reasoning | and Overhead (~8k) | Efficiency | Verdict |
 |---------------|------------------|------------|---------|
 | 50 tokens | 8,050 | **0.6%** | ❌ Parent does it |
 | 500 tokens | 8,500 | **5.9%** | ❌ Parent does it |

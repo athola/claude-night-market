@@ -16,7 +16,7 @@ audit *which* of its other modules to weight more heavily
 based on which model produced the code under review. If
 you cannot determine the model, run the full audit. The
 2025-Q1 2026 cross-evaluation work (Sonar leaderboard,
-Anthropic + DEV.to benchmarks) makes the calibration
+Anthropic and DEV.to benchmarks) makes the calibration
 defensible.
 
 ## GPT-5.x family (Codex, direct API)
@@ -160,9 +160,9 @@ just sometimes redundant.
 
 | Signal | Likely source |
 |---|---|
-| Lots of `Box<dyn Error>` returns + tutorial-style doc comments | GPT-family from a "convert this Python to Rust" prompt |
+| Lots of `Box<dyn Error>` returns and tutorial-style doc comments | GPT-family from a "convert this Python to Rust" prompt |
 | `unreachable!()` without SAFETY comment, sparse tests | Claude-family from a refactoring prompt |
-| 150-line function with 7 sequential `if let` + lots of mut | Gemini-family from a "implement this from spec" prompt |
+| 150-line function with 7 sequential `if let` and lots of mut | Gemini-family from a "implement this from spec" prompt |
 | 200-character lifetime annotations and `impl Trait` chains | Any model in reasoning mode |
 | "As a large language model" leaks | Bug, regardless of model — escalate to scribe:slop-detector |
 

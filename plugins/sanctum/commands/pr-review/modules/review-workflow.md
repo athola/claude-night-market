@@ -141,7 +141,7 @@ for the full detection heuristics.
 | Debug statements in new code | IN-SCOPE |
 | Wrapper functions (single-call body) | SUGGESTION |
 | Add/delete ratio >5:1 | SUGGESTION |
-| Incomplete refactor (old + new coexist) | IN-SCOPE |
+| Incomplete refactor (old and new coexist) | IN-SCOPE |
 
 **Output from this phase:**
 

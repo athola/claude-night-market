@@ -55,7 +55,7 @@ A calling command MUST:
 5. Emit ONE stack-level summary comment on the root PR
    using the format in Step 4.
 6. Respect per-PR Gate rules (every PR still needs its own
-   thread resolution + issue tracking).
+   thread resolution and issue tracking).
 
 A calling command MAY:
 

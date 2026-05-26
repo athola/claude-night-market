@@ -12,7 +12,7 @@ enough on its own.
 | Model | Origin | Output | Captures |
 |-------|--------|--------|----------|
 | RICE | Intercom (Sean McBride, 2017) | Number | Reach * Impact * Confidence / Effort |
-| WSJF | SAFe (Scaled Agile) | Number | (Value + Time + Risk) / Effort |
+| WSJF | SAFe (Scaled Agile) | Number | (Value, Time, and Risk) / Effort |
 | Kano | Noriaki Kano (1984) | Category | Basic, Performance, Delighter, Indifferent, Reverse |
 | MoSCoW | DSDM Consortium (1994) | Bucket | Must, Should, Could, Won't |
 | Cost-of-Delay | Don Reinertsen (2009) | $ / week | Value lost per week of delay |
@@ -156,7 +156,7 @@ Stakeholders need narrative buckets, not numbers?
 |---------------|-------------|--------|
 | Consumer product, many features | RICE | Kano gate |
 | Enterprise SaaS with deadlines | WSJF | RICE |
-| New product, no users yet | Kano + MoSCoW | RICE later |
+| New product, no users yet | Kano and MoSCoW | RICE later |
 | Regulated domain | WSJF | Cost-of-Delay |
 | Internal tooling | RICE with reach=team_size | Kano |
 

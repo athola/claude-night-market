@@ -62,8 +62,8 @@ Avoid this command if:
 
 | Tier | Default | Scope | Duration |
 |------|---------|-------|----------|
-| branch | Yes | Affected + related plugins | ~2 min |
-| pr | No | Affected + related, deeper | ~5 min |
+| branch | Yes | Affected and related plugins | ~2 min |
+| pr | No | Affected and related, deeper | ~5 min |
 | release | No | All 17 plugins | ~15 min |
 
 ```bash

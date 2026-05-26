@@ -33,7 +33,7 @@ Extract style from exemplar text and codify it as a profile
 that downstream skills (`scribe:doc-generator`,
 `scribe:voice-generate`) can apply consistently.
 
-## Approach: Feature Extraction + Exemplar Reference
+## Approach: Feature Extraction and Exemplar Reference
 
 The skill combines two methods because each fails alone:
 

@@ -154,7 +154,7 @@ Based on complexity score from Phase 0:
 |-------|------------|---------------|
 | 1-3 | Simple | Skip reflexion, direct implement |
 | 4-6 | Medium | Quick reflexion (2 questions) |
-| 7-10 | Complex | Full reflexion + PDCA cycle |
+| 7-10 | Complex | Full reflexion and PDCA cycle |
 
 **Complexity Score Factors:**
 - Files affected (1 point per file)

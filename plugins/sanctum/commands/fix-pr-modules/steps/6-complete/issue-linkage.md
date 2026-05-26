@@ -33,7 +33,7 @@ gh pr view --json files,commits -q '{files: .files[].path, commits: .commits[].m
 **Classification:**
 | Status | Criteria | Action |
 |--------|----------|--------|
-| **Fully Addressed** | All acceptance criteria met, all required changes made | Comment + Close |
+| **Fully Addressed** | All acceptance criteria met, all required changes made | Comment and Close |
 | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
 | **Not Related** | PR doesn't touch issue scope | Skip |
 

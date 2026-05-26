@@ -71,9 +71,9 @@ line, branch, mutation.
 | Stack | Tool | Boundary |
 |-------|------|----------|
 | React/Vue | Testing Library | DOM-observable behavior |
-| Spring Boot | `@WebMvcTest` + `@MockBean` | web slice; persistence excluded |
-| NestJS | Testing module | controller + DI graph |
-| FastAPI | `TestClient` | router + deps; mocked I/O |
+| Spring Boot | `@WebMvcTest` and `@MockBean` | web slice; persistence excluded |
+| NestJS | Testing module | controller and DI graph |
+| FastAPI | `TestClient` | router and deps; mocked I/O |
 | Multi-stack | Playwright component | real browser, between unit and E2E |
 
 Pattern: assert on user-observable behavior, not on instance
@@ -117,7 +117,7 @@ safety: create, run, clean up.
 | Rust | proptest | proptest-stateful |
 | Haskell | QuickCheck | StateMachine |
 | Scala | ScalaCheck | Stateful |
-| C/C++ | libFuzzer + custom | structure-aware via FuzzedDataProvider |
+| C/C++ | libFuzzer and custom | structure-aware via FuzzedDataProvider |
 
 Property catalog: round-trip, commutativity, idempotence,
 oracle/model equivalence, metamorphic relations. Stateful
@@ -205,7 +205,7 @@ Question to verify:
   pitest on Java ME) is mostly unexplored.
 - Hardware testing's "hand-rolled per project" status is a
   durable gap. A consolidating OSS framework would unlock the
-  tier; meanwhile, the labgrid + pytest + custom-fixtures
+  tier; meanwhile, the labgrid, pytest, and custom-fixtures
   stack is the working pattern.
 
 ## Application

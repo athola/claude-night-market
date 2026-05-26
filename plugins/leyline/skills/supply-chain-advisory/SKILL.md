@@ -113,7 +113,7 @@ will fail with a hash mismatch. This is your strongest automatic defense.
 | **Lockfile hashes** | uv.lock SHA256 | Tampered re-published versions |
 | **Version exclusions** | pyproject.toml `!=` | Known-bad versions on fresh resolve |
 | **SessionStart hook** | sanctum hook | Per-session warning for compromised deps |
-| **CI scanning** | OSV + Safety | CVE database + advisory matching |
+| **CI scanning** | OSV, Safety | CVE database, and advisory matching |
 | **Artifact scanning** | make supply-chain-scan | Malicious files (.pth, scripts) |
 
 ## Limitations

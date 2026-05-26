@@ -39,7 +39,7 @@ Implement a **hybrid approach** combining:
 1. **Template Development**: Create reusable templates for skills, commands,
    and agents
 2. **Incremental Rollout**: Pilot → High-Priority → Remaining (4 phases)
-3. **Description Formula**: WHAT + WHEN + WHEN NOT pattern
+3. **Description Formula**: WHAT, WHEN, and WHEN NOT pattern
 4. **Token Management**: Target 100-200 chars per description with monitoring
 
 ### Description Pattern
@@ -79,7 +79,7 @@ Every enhanced component includes:
 
 | Phase | Components | Duration | Chars | Status |
 |-------|-----------|----------|-------|--------|
-| Phase 0: Foundation | Templates + Guide | 3 hours | N/A | ✅ Complete |
+| Phase 0: Foundation | Templates and Guide | 3 hours | N/A | ✅ Complete |
 | Phase 1: Pilot | 3 (skill, cmd, agent) | 4 hours | 691 | ✅ Complete |
 | Phase 2: High-Pri Skills | 4 skills | 4 hours | 1,196 | ✅ Complete |
 | Phase 3: High-Pri Commands | 4 commands | 4 hours | 431 | ✅ Complete |

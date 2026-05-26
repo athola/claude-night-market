@@ -56,7 +56,7 @@ api-development/
 skill-load api-design          # 600 tokens
 ```
 
-### Design + Testing
+### Design and Testing
 ```bash
 skill-load api-design api-testing  # 1,300 tokens
 ```

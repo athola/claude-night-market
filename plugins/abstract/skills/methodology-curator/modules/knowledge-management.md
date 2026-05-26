@@ -10,7 +10,7 @@ Expert frameworks for capturing, organizing, connecting, and retrieving knowledg
 | Sönke Ahrens | Smart Notes Method | Writing-focused knowledge work |
 | Vannevar Bush | Memex Concept | Associative trails, hypertext thinking |
 | David Allen | GTD (Getting Things Done) | Action-oriented knowledge capture |
-| Tiago Forte | PARA + Building a Second Brain | Digital organization, progressive summarization |
+| Tiago Forte | PARA and Building a Second Brain | Digital organization, progressive summarization |
 
 ## Detailed Frameworks
 

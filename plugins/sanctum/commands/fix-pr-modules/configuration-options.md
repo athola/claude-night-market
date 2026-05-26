@@ -280,7 +280,7 @@ If context usage approaches 50%:
 1. Complete current phase fully
 2. Commit and push changes
 3. Document remaining phases in a PR comment
-4. Use `/clear` + `/fix-pr --continue` to resume
+4. Use `/clear` and `/fix-pr --continue` to resume
 
 **Mandatory phases that MUST NOT be skipped:**
 - **Phase 3.5**: Create backlog issues (deferred items must be tracked)

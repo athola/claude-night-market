@@ -97,7 +97,7 @@ skills rather than re-implementing them.
    `proposal-shape.md`.
 7. **Approval gate**: present each proposal via
    `AskUserQuestion`; apply / file / defer / reject.
-8. **Apply + validate**: discrete commit per approved finding;
+8. **Apply and validate**: discrete commit per approved finding;
    re-run gates; revert on gate failure.
 9. **Report**: write `reviews/harden-<date>.md`; optionally
    post to Discussions via

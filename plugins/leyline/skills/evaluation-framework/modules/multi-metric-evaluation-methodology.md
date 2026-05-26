@@ -42,7 +42,7 @@ Skip normalization and units silently dominate weights.
 | Min-max | (x - min) / (max - min) | Bounded scale, no outliers |
 | Z-score | (x - mean) / stdev | Unbounded, normal-ish |
 | Vector | x / sqrt(sum(x^2)) | Scale-invariant rankings |
-| Logarithmic | log(x + 1) / log(max + 1) | Heavy-tailed, diminishing returns |
+| Logarithmic | log(x, 1) / log(max, and 1) | Heavy-tailed, diminishing returns |
 
 Document which method was used and why. The choice affects
 final ranks more than reviewers usually expect.
@@ -220,9 +220,9 @@ Decision tree:
 | Need | First choice | Second |
 |------|--------------|--------|
 | Fast and explainable | Weighted sum | Weighted product |
-| Hard priority | Lexicographic | Weighted sum + veto |
+| Hard priority | Lexicographic | Weighted sum and veto |
 | Surface trade-offs | Pareto front | TOPSIS |
-| Defensible against critique | TOPSIS | Weighted sum + sensitivity |
+| Defensible against critique | TOPSIS | Weighted sum and sensitivity |
 
 ## Sensitivity Analysis (Required)
 

@@ -20,7 +20,7 @@ or visual only), None (not supported at this tier).
 | DOCX | High: headings, lists, tables | None | Tier 3 only without markitdown |
 | PPTX | High: slide-by-slide, speaker notes | None | Tier 3 only |
 | XLSX/XLS | High: tables to markdown | None | Tier 3 only |
-| MSG | High: email headers + body | None | Outlook format, Tier 3 only |
+| MSG | High: email headers and body | None | Outlook format, Tier 3 only |
 
 ## Web and Data Formats
 
@@ -35,7 +35,7 @@ or visual only), None (not supported at this tier).
 
 | Format | Tier 1 (markitdown) | Tier 2 (native) | Notes |
 |--------|---------------------|------------------|-------|
-| Images | High: OCR + EXIF + description | Low: Read (visual) | Native shows image, no text |
+| Images | High: OCR, EXIF, and description | Low: Read (visual) | Native shows image, no text |
 | Audio | Medium: speech transcription | None | Tier 3 only |
 
 ## Archive and Other

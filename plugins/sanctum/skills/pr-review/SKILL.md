@@ -248,7 +248,7 @@ Before diving into code, run the PR hygiene checks from
 `modules/pr-hygiene.md`:
 
 1. **Atomicity check**: Does this PR contain one logical
-   change? Flag mixed commit types (feat + refactor + fix),
+   change? Flag mixed commit types (feat, refactor, and fix),
    formatting commits bundled with logic, or changes spanning
    unrelated subsystems. Large PRs get 30% defect detection
    vs 75% for focused ones.

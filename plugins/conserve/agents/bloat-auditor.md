@@ -34,9 +34,9 @@ Orchestrates progressive bloat detection from quick heuristic scans to deep stat
 
 | Tier | Duration | Tools | Confidence |
 |------|----------|-------|------------|
-| 1 (Quick) | 2-5 min | Heuristics + git | 70-90% |
+| 1 (Quick) | 2-5 min | Heuristics and git | 70-90% |
 | 2 (Targeted) | 10-20 min | Static analysis | 85-95% |
-| 3 (Deep) | 30-60 min | All tools + cross-file | 90-98% |
+| 3 (Deep) | 30-60 min | All tools and cross-file | 90-98% |
 
 ### Tier 1 Detects
 - Large files (> 500 lines), stale files (6+ months)

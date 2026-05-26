@@ -12,7 +12,7 @@ from unittest.mock import Mock
 
 import pytest
 
-# Import the skill we're testing
+from pensive.skills.base import AnalysisResult
 from pensive.skills.bug_review import BugReviewSkill
 
 
@@ -712,8 +712,6 @@ class TestBugReviewSkill:
     @pytest.mark.unit
     def test_analyze_aggregates_all_detectors(self, mock_skill_context) -> None:
         """Given a file with multiple bug types, analyze() returns an AnalysisResult."""
-        from pensive.skills.base import AnalysisResult
-
         mock_skill_context.get_file_content.return_value = """
         import threading
 
@@ -735,8 +733,6 @@ class TestBugReviewSkill:
     @pytest.mark.unit
     def test_analyze_returns_empty_bugs_on_clean_code(self, mock_skill_context) -> None:
         """Given minimal benign code, analyze() returns zero or few bugs."""
-        from pensive.skills.base import AnalysisResult
-
         mock_skill_context.get_file_content.return_value = "x = 1\n"
 
         result = self.skill.analyze(mock_skill_context, "clean.py")

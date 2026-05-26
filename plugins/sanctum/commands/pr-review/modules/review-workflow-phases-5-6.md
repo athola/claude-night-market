@@ -223,8 +223,8 @@ After documenting review threads, generate a detailed test plan that `/fix-pr` c
 
 | Finding Type | Include in Test Plan | Verification Depth |
 |--------------|---------------------|-------------------|
-| Blocking | Always | Full: code review + tests + manual |
-| In-Scope | Always | Standard: code review + tests |
+| Blocking | Always | Full: code review, tests, and manual |
+| In-Scope | Always | Standard: code review and tests |
 | Suggestion | If addressed | Light: code review only |
 | Backlog | Never | N/A (tracked in issues) |
 

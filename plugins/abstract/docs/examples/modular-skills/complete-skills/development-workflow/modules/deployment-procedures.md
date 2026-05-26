@@ -29,9 +29,9 @@ Master deployment practices with this detailed framework:
 - Implement deployment monitoring and alerting
 
 **Progressive Learning**: Build deployment expertise gradually
-1. **Foundation** → Basic deployment + environment setup + monitoring
-2. **CI/CD Pipeline** → Automated testing + release management + rollback
-3. **Production Ready** → Performance monitoring + scaling + disaster recovery
+1. **Foundation** → Basic deployment, environment setup, and monitoring
+2. **CI/CD Pipeline** → Automated testing, release management, and rollback
+3. **Production Ready** → Performance monitoring, scaling, and disaster recovery
 
 ** Use Case-Based**: Jump directly to what you need right now
 - First deployment? → Focus on environment setup + basic pipeline + monitoring

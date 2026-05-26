@@ -584,7 +584,7 @@ When blocked:
 
 ### Project: CLI Tool
 
-**Approach**: Quick start (init + execute)
+**Approach**: Quick start (init and execute)
 **Timeline**: 1 week, solo developer
 **Results**:
 - ✅ Project initialized in 5 minutes

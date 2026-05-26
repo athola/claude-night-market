@@ -205,7 +205,7 @@ START
 
 ## Mode Compatibility
 
-### Subagents + Worktrees
+### Subagents and Worktrees
 
 For parallel tasks with potential file conflicts, combine
 subagents with git worktrees:
@@ -217,7 +217,7 @@ Agent B: worktree/feature-b/
 Each agent works in isolated worktree, results merged later.
 ```
 
-### Agent-Team + Shared Workspace
+### Agent-Team and Shared Workspace
 
 Agent-team mode works best when agents share awareness of:
 
@@ -270,7 +270,7 @@ Mode: single-session
 Rationale: Sequential tasks in same file, quick iteration
 ```
 
-### Example 3: API + Frontend (Agent-Team)
+### Example 3: API and Frontend (Agent-Team)
 
 ```
 Mission: Implement user preferences feature

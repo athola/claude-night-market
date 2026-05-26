@@ -29,9 +29,9 @@ Master testing practices with this detailed framework:
 - Set up pytest configuration for your project
 
 **Progressive Learning**: Build testing expertise gradually
-1. **Foundation** → Unit tests + basic assertions + test naming
-2. **Integration** → Database tests + API tests + mocking
-3. **Advanced** → E2E tests + performance testing + CI/CD
+1. **Foundation** → Unit tests, basic assertions, and test naming
+2. **Integration** → Database tests, API tests, and mocking
+3. **Advanced** → E2E tests, performance testing, and CI/CD
 
 **Use Case-Based**: Jump to what you need right now
 - New project? → Start with unit testing patterns + test structure

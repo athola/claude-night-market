@@ -253,7 +253,7 @@ ffmpeg -i top.gif -i bottom.gif \
 
 ## Example Compositions
 
-### Terminal + Browser Tutorial
+### Terminal and Browser Tutorial
 
 ```yaml
 name: plugin-demo

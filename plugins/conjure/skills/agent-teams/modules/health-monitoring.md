@@ -276,7 +276,7 @@ when reassigning the task.
 ## Agent Teams Footer Hint Fix (2.1.75+)
 
 Fixed the footer hint in agent teams showing "down to
-expand" instead of the correct "shift + down to expand".
+expand" instead of the correct "shift and down to expand".
 Users were pressing the wrong key combination based on
 the incorrect hint. The footer now correctly indicates
 `shift + down-arrow` for expanding agent output panels.

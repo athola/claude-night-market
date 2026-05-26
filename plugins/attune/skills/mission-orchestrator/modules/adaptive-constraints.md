@@ -27,8 +27,8 @@ governance, not the same governance.
 | Profile | Task Type | Constraints Loaded | Governance |
 |---------|-----------|-------------------|------------|
 | Minimal | quickfix, single-file changes | Core safety only (no `--no-verify`, no secrets) | No war-room, no scope-guard, no plan review |
-| Standard | tactical missions, multi-file | Core safety + scope-guard + proof-of-work | Plan review, single checkpoint |
-| Full | full/standard missions, architecture changes | All constraints + war-room + extended thinking | Full checkpoints, iteration governor |
+| Standard | tactical missions, multi-file | Core safety, scope-guard, and proof-of-work | Plan review, single checkpoint |
+| Full | full/standard missions, architecture changes | All constraints, war-room, and extended thinking | Full checkpoints, iteration governor |
 
 ## Profile Selection
 
@@ -65,7 +65,7 @@ never bypass the Safety Floor.
 | "be autonomous" / "trust your judgment" | Minimal | Same as above |
 | "I trust you" / "go ahead" / "just do it" | Minimal | Same as above |
 | "ask before each step" / "supervised" | Full | Force maximum oversight |
-| "explain everything" / "teach me" | Full + verbose | Pair with explanatory output style |
+| "explain everything" / "teach me" | Full and verbose | Pair with explanatory output style |
 
 Match is case-insensitive substring. Multiple
 matches: the most-restrictive directive wins (Full
@@ -226,6 +226,6 @@ constraints before each phase transition:
 | Phase Transition | Minimal | Standard | Full |
 |-----------------|---------|----------|------|
 | brainstorm to specify | auto-continue | auto-continue | checkpoint |
-| specify to plan | auto-continue | checkpoint | checkpoint + backlog triage |
-| plan to execute | auto-continue | single-pass review | full review loop + war-room |
-| post-execute | proof-of-work only | proof-of-work + scope check | proof-of-work + scope + bias audit |
+| specify to plan | auto-continue | checkpoint | checkpoint and backlog triage |
+| plan to execute | auto-continue | single-pass review | full review loop and war-room |
+| post-execute | proof-of-work only | proof-of-work, scope check | proof-of-work, scope, and bias audit |

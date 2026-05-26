@@ -43,7 +43,7 @@ This plan addresses DRY violations and modularization opportunities identified t
 
 4. **Module Content Overlap** - Conjure modules duplicate leyline:
    - `conjure:delegation-core/modules/quota-management.md` (42 lines)
-   - `leyline:quota-management/SKILL.md` (114 lines) + modules
+   - `leyline:quota-management/SKILL.md` (114 lines) and modules
 
 ## Implementation Plan
 

@@ -1,6 +1,6 @@
 # Skill Description Guide
 
-Source: Anthropic official best practices + ADR-0004 + obra/superpowers
+Source: Anthropic official best practices, ADR-0004, and obra/superpowers
 patterns. Governs the `description:` field in every `SKILL.md`.
 
 ## Hard Constraints

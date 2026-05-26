@@ -223,28 +223,28 @@ Combining both axes creates four feature archetypes:
 
 ### Archetype Details
 
-#### Predictive Cache (Proactive + Static)
+#### Predictive Cache (Proactive and Static)
 
 - **Example:** Prefetching documentation pages
 - **Pattern:** Background worker loads static assets
 - **Complexity:** Low - just scheduling and caching
 - **Risk:** Wasted bandwidth if prediction wrong
 
-#### Smart Assistant (Proactive + Dynamic)
+#### Smart Assistant (Proactive and Dynamic)
 
 - **Example:** AI-powered suggestions based on context
 - **Pattern:** Real-time inference on streaming data
 - **Complexity:** High - ML models, data pipelines
 - **Risk:** Expensive, can be wrong, privacy concerns
 
-#### Reference Lookup (Reactive + Static)
+#### Reference Lookup (Reactive and Static)
 
 - **Example:** Loading skill definitions
 - **Pattern:** Cache-first, fallback to file
 - **Complexity:** Low - simple read operations
 - **Risk:** Stale data if cache not invalidated
 
-#### Interactive Query (Reactive + Dynamic)
+#### Interactive Query (Reactive and Dynamic)
 
 - **Example:** Search across current repository
 - **Pattern:** Query on demand, may use indexes
@@ -255,14 +255,14 @@ Combining both axes creates four feature archetypes:
 
 | Feature Type | Typical Classification | Notes |
 |--------------|----------------------|-------|
-| CLI Commands | Reactive + Static | User-invoked, defined behavior |
-| Auto-complete | Proactive + Dynamic | Predicts input from context |
-| Configuration | Reactive + Static | Loaded on demand, versioned |
-| Session state | Reactive + Dynamic | User-driven, real-time |
-| Caching layer | Proactive + Static | Anticipates access patterns |
-| Notifications | Proactive + Dynamic | Pushed based on events |
-| Validation | Reactive + Static | Rules are static, input is dynamic |
-| Analytics | Proactive + Dynamic | Background collection |
+| CLI Commands | Reactive and Static | User-invoked, defined behavior |
+| Auto-complete | Proactive and Dynamic | Predicts input from context |
+| Configuration | Reactive and Static | Loaded on demand, versioned |
+| Session state | Reactive and Dynamic | User-driven, real-time |
+| Caching layer | Proactive and Static | Anticipates access patterns |
+| Notifications | Proactive and Dynamic | Pushed based on events |
+| Validation | Reactive and Static | Rules are static, input is dynamic |
+| Analytics | Proactive and Dynamic | Background collection |
 
 ## Using Classification in Review
 

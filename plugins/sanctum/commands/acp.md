@@ -13,7 +13,7 @@ are ready to go.
 
 1. **Gather context** (run in parallel):
    - `git status -sb`
-   - `git diff --stat` (unstaged + staged)
+   - `git diff --stat` (unstaged and staged)
    - `git diff` (full diff for commit message)
    - `git log --oneline -5`
    - `git branch --show-current`

@@ -93,7 +93,7 @@ fi
 
 | Signal | Severity | Threshold |
 |--------|----------|-----------|
-| Mixed commit types (feat + refactor + fix) | SUGGESTION | >2 distinct types |
+| Mixed commit types (feat, refactor, and fix) | SUGGESTION | >2 distinct types |
 | Large file count | SUGGESTION | >30 files |
 | Mixed concerns across unrelated subsystems | IN-SCOPE | Subjective, reviewer judgment |
 | Refactor bundled with feature | SUGGESTION | Any occurrence |

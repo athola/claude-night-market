@@ -28,8 +28,8 @@ commits and changed files. The loader picks a tier first.
 | Tier | Diff Size | Modules Loaded |
 |------|-----------|----------------|
 | Quick | <10 commits, <20 files | `git-summary-quick.md` |
-| Standard | 10-50 commits, <100 files | quick + `commit-grouping.md` |
-| Deep | >50 commits or >100 files | standard + `chunked-analysis.md` |
+| Standard | 10-50 commits, <100 files | quick and `commit-grouping.md` |
+| Deep | >50 commits or >100 files | standard and `chunked-analysis.md` |
 
 The tier is computed once at the start of catchup. If the user
 asks follow-up questions about specific files, the loader can

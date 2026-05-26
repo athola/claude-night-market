@@ -74,7 +74,7 @@ Execute progressive bloat detection across code, documentation, and dependencies
 - Old TODOs (> 3 months)
 - Zero-reference files
 
-**Requirements:** None (heuristics + git)
+**Requirements:** None (heuristics and git)
 
 ### Tier 2: Targeted Analysis (10-20 min)
 

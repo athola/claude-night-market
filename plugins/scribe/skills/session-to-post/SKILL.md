@@ -61,7 +61,7 @@ Use them when the post needs more than prose.
 |------|-------|-------------|
 | Terminal demo GIF | `scry:vhs-recording` | Record a build/test run as an animated GIF |
 | Browser demo GIF | `scry:browser-recording` | Capture a web UI walkthrough via Playwright |
-| Composite media | `scry:media-composition` | Stitch terminal + browser GIFs side-by-side |
+| Composite media | `scry:media-composition` | Stitch terminal and browser GIFs side-by-side |
 | Proof of claims | `imbue:proof-of-work` | Verify every number in the post with evidence |
 | Code quality narrative | `pensive:code-refinement` | Describe what was cleaned up and why |
 | Review narrative | `imbue:structured-review` | Capture review findings as post content |
@@ -88,7 +88,7 @@ Invoke Skill(scry:browser-recording) with a Playwright spec that:
   captures the result
 ```
 
-**Composition** (side-by-side before/after, terminal + browser):
+**Composition** (side-by-side before/after, terminal and browser):
 ```
 Invoke Skill(scry:media-composition) to stitch recordings into
 a single visual that tells the story.

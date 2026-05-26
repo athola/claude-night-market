@@ -38,7 +38,7 @@ estimated_tokens: 250
 
 **Typical files**: Components, routes, views, service layer methods, configuration
 
-**Verification**: Conflict check + test pass
+**Verification**: Conflict check and test pass
 
 ---
 
@@ -54,7 +54,7 @@ estimated_tokens: 250
 
 **Typical files**: Database migrations, authentication modules, encryption, API schemas, shared types
 
-**Verification**: War-room-checkpoint RS scoring + full test suite + code review
+**Verification**: War-room-checkpoint RS scoring, full test suite, and code review
 
 ---
 
@@ -70,7 +70,7 @@ estimated_tokens: 250
 
 **Typical files**: Production configs, data deletion scripts, deployment manifests, security credentials, compliance-related code
 
-**Verification**: War-room-checkpoint RS scoring + human approval before execution
+**Verification**: War-room-checkpoint RS scoring and human approval before execution
 
 ## File Pattern Heuristics per Tier
 

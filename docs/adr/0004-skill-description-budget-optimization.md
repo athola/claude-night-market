@@ -123,7 +123,7 @@ a two-pronged approach was applied:
 
 ## 2026-05 Overhaul: Action-Oriented Description Rewrite
 
-All 188 SKILL.md `description:` fields rewritten in May 2026 to use
+All SKILL.md `description:` fields rewritten in May 2026 to use
 Anthropic's recommended activation format:
 
 ```
@@ -131,9 +131,9 @@ Anthropic's recommended activation format:
 [Do not use when [negative]; use [alternative] instead.]
 ```
 
-**Why**: 173/188 skills had noun-phrase descriptions that told Claude
-WHAT a skill does but not WHEN to invoke it. The `description:` field
-is the only signal in the system-reminder Claude uses for skill
+**Why**: The majority of skills had noun-phrase descriptions that told
+Claude WHAT a skill does but not WHEN to invoke it. The `description:`
+field is the only signal in the system-reminder Claude uses for skill
 selection — triggering skills requires action-oriented triggers.
 
 **Results**:
@@ -143,7 +143,7 @@ selection — triggering skills requires action-oriented triggers.
 | **Total Chars (raw)** | ~15,966 | 35,472 |
 | **With overhead** | ~21k | 70,239 |
 | **Avg desc length** | 77.7 chars | 144.6 chars |
-| **Skills with a trigger phrase** | ~15/188 | 188/188 (158 "Use when"; 30 "Use before/after/for/at") |
+| **Skills with a trigger phrase** | ~8% | 100% (majority "Use when"; remainder "Use before/after/for/at") |
 | **Per-desc over 160 chars** | 0 | 0 |
 
 The raw description budget grew 2.2x because descriptions now contain
@@ -154,9 +154,9 @@ over minimal budget.
 
 **Template doc**: `docs/skill-description-guide.md`
 
-**Commands excluded**: The ~100 slash command `.md` files were not
-updated — command descriptions appear in `/help` output for humans and
-use noun-phrase format by design (commands are user-typed, not
+**Commands excluded**: Slash command `.md` files were not updated —
+command descriptions appear in `/help` output for humans and use
+noun-phrase format by design (commands are user-typed, not
 Claude-selected).
 
 ## Future Opportunities
@@ -175,7 +175,7 @@ Claude-selected).
 
 ## Summary
 
-After the 2026-05 overhaul, all 188 descriptions use action-oriented triggers
+After the 2026-05 overhaul, all descriptions use action-oriented triggers
 ("Use when/before/after/for"). Raw budget is ~35k chars (~70k with overhead),
 within the 1M context window's ~80k available. Validator ceiling is 60,000
 chars (enforced by pre-commit hook). Growth is intentional: trigger phrasing

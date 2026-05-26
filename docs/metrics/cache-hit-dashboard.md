@@ -26,7 +26,7 @@ sum(rate(cache_intercept_decision_total{decision="web_bypass"}[5m])) /
 sum(increase(cache_intercept_trust_override_total[1h]))
 ```
 
-Store the rendered panel markdown + SVG in
+Store the rendered panel markdown and SVG in
 `plugins/memory-palace/telemetry/dashboards/cache-hit/` during each preview run.
 
 ## Alert Routes

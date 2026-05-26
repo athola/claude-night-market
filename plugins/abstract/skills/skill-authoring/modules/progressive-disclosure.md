@@ -522,7 +522,7 @@ skill-name/
 [150 lines]
 ```
 
-**After (400 + modules):**
+**After (400 and modules):**
 ```markdown
 # API Security (SKILL.md - 400 lines)
 

@@ -47,7 +47,7 @@ Phase: {phase_name}
 | brainstorm | `Skill(attune:project-brainstorming)` | `docs/project-brief.md` |
 | specify | `Skill(attune:project-specification)` | `docs/specification.md` |
 | plan | `Skill(attune:project-planning)` | `docs/implementation-plan.md` |
-| execute | `Skill(attune:project-execution)` | Code changes + `.attune/execution-state.json` |
+| execute | `Skill(attune:project-execution)` | Code changes and `.attune/execution-state.json` |
 
 ## Pre-Phase Validation
 
@@ -132,7 +132,7 @@ It invokes the full interactive review loop from
    and generate risk summary for mission state
 
 **This replaces the previous 3-line transition.**
-The old behavior (verify + classify + summarize) is
+The old behavior (verify, classify, and summarize) is
 now step 9 after the review loop completes.
 
 ## Post-Phase Backlog Triage

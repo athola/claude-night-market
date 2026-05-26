@@ -202,7 +202,7 @@ grep -r "compact_boundary" ~/.claude/projects/*/agent_*.log | tail -5
 
 ### The Economics
 
-| Task Type | Task Tokens | + Base Overhead | Total | Efficiency |
+| Task Type | Task Tokens | and Base Overhead | Total | Efficiency |
 |-----------|-------------|-----------------|-------|------------|
 | Simple commit | ~50 | +8,000 | 8,050 | **0.6%** ❌ |
 | PR description | ~200 | +8,000 | 8,200 | **2.4%** ❌ |
@@ -497,7 +497,7 @@ Claude Code 2.1.32 introduces **agent teams** as a research preview for multi-ag
 | **Coordination** | Parent dispatches, collects results | Lead assigns, teammates message each other |
 | **Communication** | One-way (parent→child→result) | Bidirectional (lead↔teammates, teammate↔teammate) |
 | **State** | Independent context per subagent | Shared task list, message passing |
-| **Parallelism** | Up to 10 concurrent tasks | Lead + multiple teammates |
+| **Parallelism** | Up to 10 concurrent tasks | Lead and multiple teammates |
 | **Resume** | Sessions resumable | No resume with in-process teammates |
 | **Nesting** | Subagents can spawn subagents | No nested teams |
 

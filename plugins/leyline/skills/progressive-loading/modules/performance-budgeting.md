@@ -18,7 +18,7 @@ The `SLASH_COMMAND_TOOL_CHAR_BUDGET` env var overrides the default. The ecosyste
 | Skill Size | Token Range | Strategy |
 |-----------|-------------|----------|
 | Minimal | <300 tokens | Single SKILL.md, no modules |
-| Standard | 300-800 tokens | SKILL.md + 1-2 modules |
+| Standard | 300-800 tokens | SKILL.md and 1-2 modules |
 | Large | 800-1500 tokens | Progressive loading required |
 | Oversize | >1500 tokens | Split into separate skills |
 

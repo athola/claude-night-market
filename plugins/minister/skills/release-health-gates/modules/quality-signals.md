@@ -13,11 +13,11 @@
 | Signal | GitHub Source | Notes |
 |--------|---------------|-------|
 | Checks | `GET /repos/{owner}/{repo}/commits/{sha}/check-suites` | Store snapshot hash in tracker notes. |
-| Deployments | `GET /repos/{owner}/{repo}/deployments` | Validate staging + prod status. |
+| Deployments | `GET /repos/{owner}/{repo}/deployments` | Validate staging and prod status. |
 | Issues | label:`qa-blocker` | Drive gating conversation. |
 
 ## Escalation Path
 
-1. If any check fails, tag `@release-captain` + owning engineer in PR.
+1. If any check fails, tag `@release-captain` and owning engineer in PR.
 2. Log blocker in tracker with `status="In Progress"` and pointer to GitHub artifact.
 3. Update Release Gate comment with mitigation ETA.

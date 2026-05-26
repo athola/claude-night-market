@@ -83,7 +83,7 @@ foundation.
 
 ## Decision
 
-Adopt **git --update-refs + gh pr create --base** as the
+Adopt **git --update-refs and gh pr create --base** as the
 zero-dependency foundation for stacked diff workflows.
 Layer **jj** as an optional accelerator when available.
 Defer gh-stack adoption until GA.
@@ -137,7 +137,7 @@ fi
 | 2 | `stack-push` skill: push all branches, open/update dependent PRs |
 | 3 | `stack-rebase` skill: cascading rebase after base PR merges |
 | 4 | Update `do-issue` task-planning module with stack awareness |
-| 5 | `stack-mode` skill + `--stack` flag for `/pr-review` and `/fix-pr`: review and fix every PR in a stack (rooted at a common base branch) in one invocation |
+| 5 | `stack-mode` skill and `--stack` flag for `/pr-review` and `/fix-pr`: review and fix every PR in a stack (rooted at a common base branch) in one invocation |
 | 6 | Add gh-stack layer when GA |
 
 **Phase 5 contract** (`stack-mode` skill):

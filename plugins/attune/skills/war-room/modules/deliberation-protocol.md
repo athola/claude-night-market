@@ -219,7 +219,7 @@ If Phase 0 classified as Type 1 but evidence suggests Type 2:
 - Merge with existing COAs
 - Update RS assessment with new information
 
-### Phase 4: Red Team + Wargaming
+### Phase 4: Red Team and Wargaming
 
 **Purpose**: Challenge assumptions and identify weaknesses.
 
@@ -239,7 +239,7 @@ If Phase 0 classified as Type 1 but evidence suggests Type 2:
 
 **Duration Target**: 30-60 seconds
 
-### Phase 5: Voting + Narrowing
+### Phase 5: Voting and Narrowing
 
 **Purpose**: Aggregate expert rankings to identify top approaches.
 
@@ -352,7 +352,7 @@ When `--agent-teams` is active (Full Council / Delphi only), phases execute thro
 | Phase | Standard (Conjure) | Agent Teams |
 |-------|-------------------|-------------|
 | Phase 0: RS Assessment | Chief Strategist direct call | Lead agent computes directly (no team needed yet) |
-| Phase 1: Intel | Parallel delegation to Scout + Intel | Lead sends inbox tasks to `scout` + `intel-officer` teammates |
+| Phase 1: Intel | Parallel delegation to Scout and Intel | Lead sends inbox tasks to `scout` and `intel-officer` teammates |
 | Phase 2: Assessment | Sequential delegation | Lead's `chief-strategist` teammate processes intel reports |
 | Phase 3: COA Dev | Parallel delegation, anonymized | Teammates develop COAs independently; can send clarifying questions via inbox |
 | Phase 4: Red Team | Sequential delegation | `red-team` teammate receives COAs; **can message authors for clarification** |

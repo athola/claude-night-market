@@ -21,7 +21,7 @@ detector module under `plugins/pensive/skills/harden/detectors/`
 | PY03 | Code injection via `eval`/`exec`/`compile(...,'exec')` | CWE-94 | PW.5.1 | `<eval-family>(` with a non-constant argument |
 | PY04 | Shell-command injection in a child-process call | CWE-78 | PW.5.1 | bandit B602 / B605: child-process helper invoked with the shell-mode flag and a formatted string |
 | PY05 | SQL injection via string formatting | CWE-89 | PW.5.1 | `cursor.execute(f"...")` or `% ` formatting in a query |
-| PY06 | Path traversal in user-supplied paths | CWE-22 | PW.5.1 | `open(user_input)` without `Path.resolve()` + `is_relative_to()` |
+| PY06 | Path traversal in user-supplied paths | CWE-22 | PW.5.1 | `open(user_input)` without `Path.resolve()` and `is_relative_to()` |
 | PY07 | Insecure RNG used for security purposes | CWE-330 | PW.5.1 | `import random` then a token/secret/key generated from it; should be `secrets` |
 | PY08 | TLS verification disabled | CWE-295 | PW.9 | `requests.*(verify=False)`, `ssl.CERT_NONE`, `disable_warnings(InsecureRequestWarning)` |
 | PY09 | Hardcoded credentials | CWE-798 | PW.5.1 | regex match for `api[_-]?key`, `secret`, `token`, `passwd` literals; AWS prefixes (`AKIA...`) |
@@ -60,7 +60,7 @@ library or call. The substitution table:
 | `tempfile.mktemp` | `tempfile.NamedTemporaryFile(delete=False)` | atomic creation |
 | `assert is_authorized()` | explicit `if not is_authorized(): raise PermissionError(...)` | survives `python -O` |
 | `hashlib.md5/sha1` for passwords | `argon2-cffi`, `bcrypt`, or `passlib` | KDF with cost factor |
-| static API tokens for PyPI | PyPI Trusted Publishers + sigstore attestation (PEP 740) | revocable, log-traceable, no shared secret |
+| static API tokens for PyPI | PyPI Trusted Publishers and sigstore attestation (PEP 740) | revocable, log-traceable, no shared secret |
 
 ## Static-analyzer integration
 
@@ -104,7 +104,7 @@ Loaded from `frontier-checks.md` for full coverage. Brief list:
 - Sandboxing application code: WASM (Pyodide), gVisor, nsjail.
 - Slopsquatting / package hallucination (arXiv 2406.10279):
   LLM-suggested non-existent packages later registered as
-  malware. Mitigation: lockfile + `--require-hashes` + human
+  malware. Mitigation: lockfile and `--require-hashes` and human
   review on every dep addition.
 
 ## Output schema

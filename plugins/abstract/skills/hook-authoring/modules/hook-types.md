@@ -482,7 +482,7 @@ duplicate injection.
 | Use Case | Recommended Hook | Why |
 |----------|------------------|-----|
 | Log all tool calls | PreToolUse | Captures before execution |
-| Track execution time | Pre + PostToolUse | Measure duration |
+| Track execution time | Pre and PostToolUse | Measure duration |
 | Validate inputs | UserPromptSubmit | Before processing |
 | Handle tool errors | PostToolUseFailure | Error-specific handling |
 | Auto-approve tools | PermissionRequest | Bypass permission dialog |

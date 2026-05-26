@@ -50,7 +50,7 @@ usage: /bulletproof-skill [skill-path]
 ---
 ```
 
-**After (Short Description + Body Section)**
+**After (Short Description and Body Section)**
 ```yaml
 ---
 name: bulletproof-skill
@@ -110,7 +110,7 @@ do_not_use_when:
 **Batch 2: sanctum (4 commands)**
 - fix-pr, fix-workflow, pr-review, do-issue
 
-**Batch 3: conserve + spec-kit (3 commands)**
+**Batch 3: conserve and spec-kit (3 commands)**
 - unbloat, bloat-scan, speckit-clarify
 
 ## Consequences

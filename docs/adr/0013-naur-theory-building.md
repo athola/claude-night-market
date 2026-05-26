@@ -41,7 +41,7 @@ complementary defense.
 | Variant | What it does | Tradeoff |
 |---------|--------------|----------|
 | Senior-engineer-test question: "Could I explain this code without re-reading the LLM transcript?" | Lightweight; relies on agent self-report | Easily fooled by motivated reasoning |
-| New module ``theory-maintenance.md`` (reference doc + checklist) | Adds scaffolding | May be ignored; doesn't change behavior |
+| New module ``theory-maintenance.md`` (reference doc and checklist) | Adds scaffolding | May be ignored; doesn't change behavior |
 | Behavior change: agent must produce a 2-sentence narrative summary alongside any non-trivial diff | Forces theory articulation | Increases output volume; may fragment focus |
 | Audit: periodic check that the human has written N% of recent commits by hand | Quantitative discipline | Hard to define "by hand"; may game |
 

@@ -17,6 +17,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from pensive.skills import performance_review as pr_mod
 from pensive.skills.performance_review import PerformanceReviewSkill
 
 
@@ -582,7 +583,6 @@ class TestPerformanceReviewSkill:
         When _tier2_findings is invoked
         Then it returns [] without raising
         """
-        from pensive.skills import performance_review as pr_mod
 
         monkeypatch.setattr(pr_mod, "_gt_parse", None)
         skill = pr_mod.PerformanceReviewSkill()
@@ -601,7 +601,6 @@ class TestPerformanceReviewSkill:
         When _tier3_findings is invoked
         Then it returns [] without raising
         """
-        from pensive.skills import performance_review as pr_mod
 
         monkeypatch.setattr(pr_mod, "_GraphStore", None)
         skill = pr_mod.PerformanceReviewSkill()
@@ -620,7 +619,6 @@ class TestPerformanceReviewSkill:
         Then it still returns the T1 finding (Tier 1 always works)
         And does NOT raise ModuleNotFoundError
         """
-        from pensive.skills import performance_review as pr_mod
 
         monkeypatch.setattr(pr_mod, "_gt_parse", None)
         monkeypatch.setattr(pr_mod, "_GraphStore", None)

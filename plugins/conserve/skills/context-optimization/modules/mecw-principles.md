@@ -269,7 +269,7 @@ case, preventing forced `/clear` with total context loss.
 
 MCP tool descriptions and server instructions capped at
 2KB to prevent OpenAPI-generated servers from bloating
-context. Duplicate servers (local + claude.ai connectors)
+context. Duplicate servers (local and claude.ai connectors)
 are deduplicated: local config wins. This protects MECW
 compliance for sessions using many MCP servers.
 
@@ -420,7 +420,7 @@ class MECWMonitor:
 
 ### Compression Techniques
 
-1. **Code Summarization**: Replace full code with signatures + descriptions
+1. **Code Summarization**: Replace full code with signatures and descriptions
 2. **Content Chunking**: Process in MECW-compliant segments
 3. **Result Synthesis**: Combine partial results efficiently
 4. **Context Rotation**: Swap out completed context for new tasks
@@ -435,7 +435,7 @@ class MECWMonitor:
 ## Best Practices
 
 1. **Plan for 40%**: Design workflows to use ~40% of context
-2. **Buffer for Response**: Leave 50% for model reasoning + response
+2. **Buffer for Response**: Leave 50% for model reasoning and response
 3. **Monitor Continuously**: Check context at each major step
 4. **Fail Fast**: Abort and restructure when approaching limits
 5. **Document Aggressively**: Keep summaries for context recovery

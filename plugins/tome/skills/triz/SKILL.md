@@ -33,9 +33,9 @@ to find solutions from adjacent fields.
 | Depth | Fields | Analysis |
 |-------|--------|----------|
 | light | 1 | Contradiction only |
-| medium | 2 | Contradiction + field mapping |
-| deep | 3 | Full matrix + principles |
-| maximum | 5 | Distant fields + full TRIZ |
+| medium | 2 | Contradiction and field mapping |
+| deep | 3 | Full matrix and principles |
+| maximum | 5 | Distant fields and full TRIZ |
 
 ## Workflow
 

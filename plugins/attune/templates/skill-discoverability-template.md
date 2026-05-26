@@ -35,7 +35,7 @@ estimated_tokens: [realistic estimate]
 
 ### Formula Components
 
-1. **WHAT** (30-50 chars): Active verb + specific outcome
+1. **WHAT** (30-50 chars): Active verb and specific outcome
    - ✅ "Guide project ideation through Socratic questioning"
    - ❌ "Helps with projects" (too vague)
 
@@ -221,7 +221,7 @@ Check with:
 | "Helps with project stuff" | "Guide project ideation to create actionable briefs" |
 | "Uses Socratic questioning" | "Guide ideation through Socratic questioning" (how → content) |
 | No boundaries mentioned | "Do not use when: requirements already clear" |
-| Generic triggers only | Mix user language + technical terms + workflow stages |
+| Generic triggers only | Mix user language, technical terms, and workflow stages |
 | Description is a paragraph | 1-2 sentences max (100-200 chars) |
 
 ## References

@@ -116,7 +116,7 @@ Our implementation fills this gap.
 Edit-diff learning with pattern decay.
 
 **Implication**: Multi-layer validation is the gold standard.
-Our prose + craft dual review approximates this.
+Our prose and craft dual review approximates this.
 
 ### blader/humanizer (13.2k stars)
 

@@ -288,7 +288,7 @@ These involve pattern analysis with some judgment but not deep reasoning:
 ### Sanctum Plugin
 | Component | Type | Rationale |
 |-----------|------|-----------|
-| `catchup` | command | Change enumeration + basic summary |
+| `catchup` | command | Change enumeration and basic summary |
 | `pr` | command | PR template population |
 | `update-docs` | command | Doc structure updates |
 | `update-readme` | command | README section updates |

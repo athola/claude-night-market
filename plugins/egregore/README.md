@@ -154,9 +154,9 @@ Stored in `.egregore/config.json`:
 |---|---|---|
 | Loop mechanism | Stop hook re-injects same prompt | Stop hook reads manifest, injects current step |
 | State awareness | None (reads files each time) | Full pipeline state in manifest.json |
-| Session management | None | Continuation agents + watchdog daemon |
+| Session management | None | Continuation agents and watchdog daemon |
 | Token budgets | None | In-session CronCreate recovery (2.1.71+) + watchdog fallback |
-| Crash recovery | None | Watchdog + GitHub issue alerts |
+| Crash recovery | None | Watchdog and GitHub issue alerts |
 | Progress visibility | None | `/loop 5m /egregore:status` auto-scheduled |
 | Decision making | Blind repetition | Autonomous with decision logging |
 | Pipeline | None | 16-step across 4 stages |

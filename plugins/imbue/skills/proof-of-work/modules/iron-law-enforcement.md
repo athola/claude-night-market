@@ -11,7 +11,7 @@ NO CODE WITHOUT UNDERSTANDING FIRST
 
 This is the fundamental principle that unites **TDD (Test-Driven Development)** and **BDD (Behavior-Driven Development)** with proof-of-work and skill authoring. It prevents the **Cargo Cult TDD** anti-pattern where tests are written to validate pre-conceived implementations rather than to discover the right implementation.
 
-### TDD + BDD: Complementary Practices
+### TDD and BDD: Complementary Practices
 
 | Practice | Focus | Format | Enforcement |
 |----------|-------|--------|-------------|
@@ -436,7 +436,7 @@ I violated the Iron Law by writing implementation before tests.
 
 **Context:** Creating a new skill (`rigorous-reasoning`) for anti-sycophancy reasoning.
 
-**Violation:** Created 8 markdown files (SKILL.md + 7 modules) and updated README/hook without writing any tests first.
+**Violation:** Created 8 markdown files (SKILL.md and 7 modules) and updated README/hook without writing any tests first.
 
 **Rationalization Chain:**
 1. "Skills are documentation, not code" → FALSE (skills have testable structure)

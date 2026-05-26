@@ -119,7 +119,7 @@ The command uses a decision matrix based on team size and domain complexity:
 | Team Size | Simple Domain | Moderate | Complex | Highly Complex |
 |-----------|---------------|----------|---------|----------------|
 | < 5       | Layered       | Layered/Hexagonal | Hexagonal | Functional Core |
-| 5-15      | Layered       | Modular Monolith | Modular Monolith | Hexagonal + FC |
+| 5-15      | Layered       | Modular Monolith | Modular Monolith | Hexagonal and FC |
 | 15-50     | Modular Monolith | Microservices | Microservices | CQRS/ES |
 | 50+       | Microservices | Microservices | Event-Driven | Space-Based |
 

@@ -194,7 +194,7 @@ guidance and example team formations.
 
 ## Health Monitoring
 
-Team members can be monitored for health via heartbeat messages and claim expiry. The lead polls team health every 60s with a 2-stage stall detection protocol (health_check probe + 30s wait). Stalled agents have their tasks released and are restarted or replaced following the "replace don't wait" doctrine. See `modules/health-monitoring.md` for the full protocol and state machine.
+Team members can be monitored for health via heartbeat messages and claim expiry. The lead polls team health every 60s with a 2-stage stall detection protocol (health_check probe and 30s wait). Stalled agents have their tasks released and are restarted or replaced following the "replace don't wait" doctrine. See `modules/health-monitoring.md` for the full protocol and state machine.
 
 ## Module Reference
 
@@ -237,7 +237,7 @@ Install via package manager: `brew install tmux` / `apt install tmux`
 If an agent crashes mid-operation, lock files may persist. Remove `.lock` files manually from `~/.claude/teams/<team>/inboxes/` or `~/.claude/tasks/<team>/`
 
 **Orphaned tasks**
-Tasks claimed by a crashed agent stay `in_progress` indefinitely. Use `modules/health-monitoring.md` for heartbeat-based stall detection and automatic task release. The health monitoring protocol detects unresponsive agents within 60s + 30s probe window and releases their tasks for reassignment.
+Tasks claimed by a crashed agent stay `in_progress` indefinitely. Use `modules/health-monitoring.md` for heartbeat-based stall detection and automatic task release. The health monitoring protocol detects unresponsive agents within 60s and 30s probe window and releases their tasks for reassignment.
 
 **Message ordering**
 Filesystem timestamp resolution varies (HFS+ = 1s granularity). Use numbered filenames or UUID-sorted names to avoid collision on rapid message bursts.

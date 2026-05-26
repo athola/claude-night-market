@@ -64,7 +64,7 @@ same number of atomics performs identically.
 - **Level 3**: `sched_yield()` or `thread::yield_now()`
   in lock loops. Suggest backoff or parking.
 - **Level 2 (avoidable)**: Atomic RMW on shared counter
-  when per-thread counters + merge would suffice.
+  when per-thread counters and merge would suffice.
 - **False sharing**: Independent atomics on the same
   cache line (64 bytes). Suggest `#[repr(align(64))]`
   or `crossbeam_utils::CachePadded`.

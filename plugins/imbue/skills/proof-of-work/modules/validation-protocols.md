@@ -86,7 +86,7 @@ Detailed testing protocols for common completion scenarios.
 
 ### 3. Integration Validation
 
-**Use when:** Integrating multiple components (e.g., LSP + MCP + Claude)
+**Use when:** Integrating multiple components (e.g., LSP, MCP, and Claude)
 
 **Steps:**
 1. **Test each component in isolation**
@@ -261,7 +261,7 @@ Detailed testing protocols for common completion scenarios.
 |----------|-------------|
 | Setting up LSP, MCP servers | Configuration Validation |
 | Installing npm/pip packages | Installation Validation |
-| Connecting Claude + LSP + MCP | Integration Validation |
+| Connecting Claude, LSP, and MCP | Integration Validation |
 | Recommending a tool/approach | Bug/Issue Research |
 | Writing scripts or code | Code/Script Validation |
 | Assuming system state | Environment/Dependency Validation |

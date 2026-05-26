@@ -79,13 +79,13 @@ Risk tiers constrain which tasks can execute in parallel:
 
 ### Prohibited Combinations
 
-**RED + RED**: Two high-risk tasks running simultaneously create compounding risk. Merge conflicts between RED tasks could produce dangerous states. Execute sequentially.
+**RED and RED**: Two high-risk tasks running simultaneously create compounding risk. Merge conflicts between RED tasks could produce dangerous states. Execute sequentially.
 
-**Any + CRITICAL**: CRITICAL tasks require dedicated oversight — only GREEN tasks may run in parallel, since they cannot interfere. All YELLOW, RED, and CRITICAL tasks must wait.
+**Any and CRITICAL**: CRITICAL tasks require dedicated oversight — only GREEN tasks may run in parallel, since they cannot interfere. All YELLOW, RED, and CRITICAL tasks must wait.
 
 ### Conflict Monitoring for Mixed-Tier Parallel
 
-When running YELLOW + RED in parallel:
+When running YELLOW and RED in parallel:
 - Lead monitors for file overlap continuously
 - RED task has priority in any conflict
 - YELLOW task pauses if conflict detected

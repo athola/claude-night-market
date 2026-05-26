@@ -21,7 +21,7 @@ This command can cause **irreversible data loss** - uncommitted changes, local b
 
 | Command | Risk | What It Destroys |
 |---------|------|------------------|
-| `git reset --hard` | 🔴 Critical | All uncommitted changes (staged + unstaged) |
+| `git reset --hard` | 🔴 Critical | All uncommitted changes (staged and unstaged) |
 | `git checkout -- .` | 🔴 Critical | All unstaged changes in working directory |
 | `git checkout HEAD -- <file>` | 🟡 High | Specific file's uncommitted changes |
 | `git checkout <branch> -- <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |

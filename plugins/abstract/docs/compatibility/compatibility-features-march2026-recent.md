@@ -215,7 +215,7 @@ released in March 2026.
 
 - ✅ **MCP Tool Descriptions Capped at 2KB**: Prevents
   OpenAPI-generated servers from bloating context.
-  Duplicate servers (local + claude.ai) deduplicated;
+  Duplicate servers (local and claude.ai) deduplicated;
   local config wins.
   - **Impact**: Context conservation
   - **Affected**: conserve:context-optimization
@@ -1861,7 +1861,7 @@ mode.
 **Bug Fixes**:
 - ✅ **`/clear` Skill Cache Reset**: Fixed `/clear` not resetting cached
   skills, causing stale skill content to persist in new conversations
-  - **Impact**: `/clear` + `/catchup` pattern is now fully reliable;
+  - **Impact**: `/clear` and `/catchup` pattern is now fully reliable;
     skills refresh properly after clear
   - **Affected**: conserve:clear-context (updated with fix note),
     sanctum:session-management

@@ -97,7 +97,7 @@ Route findings to appropriate subrooms:
 
 | Finding Type | Target Room | Criteria |
 |-------------|-------------|----------|
-| Architectural choice | `decisions/` | BLOCKING + architectural context |
+| Architectural choice | `decisions/` | BLOCKING and architectural context |
 | Recurring issue | `patterns/` | Seen before or likely to recur |
 | Quality example | `standards/` | Exemplifies coding standards |
 | Learning/insight | `lessons/` | Retrospective or post-mortem |

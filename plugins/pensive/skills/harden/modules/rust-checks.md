@@ -51,7 +51,7 @@ cargo geiger --output-format json > /tmp/harden-geiger.json
 cargo mutants --in-diff origin/main..HEAD --no-times --json
 ```
 
-The harden report joins these on file:line + advisory ID.
+The harden report joins these on file:line and advisory ID.
 
 ## Capability-style hardening (frontier 2025-2026)
 
@@ -60,7 +60,7 @@ The harden report joins these on file:line + advisory ID.
 | `std::fs` ambient access | `cap-std::fs::Dir` capability | filesystem ops require an explicit handle, not a path |
 | raw `socket`/`std::net` | `cap-std::net` | network endpoints are capabilities, not strings |
 | environment-driven config | `secrecy::SecretString` for secrets | wrapper prevents `Debug`/`Display` leaks |
-| ad-hoc retry loops | `tower::retry` with backoff + budget | bounded resource consumption (CWE-400) |
+| ad-hoc retry loops | `tower::retry` with backoff and budget | bounded resource consumption (CWE-400) |
 
 These are recommendations, not blocking findings — surface in
 the report as MEDIUM advisories with the rationale in the

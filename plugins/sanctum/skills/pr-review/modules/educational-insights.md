@@ -72,9 +72,9 @@ explain it inline.
 
 | Classification | Insight Depth | Proof Required |
 |---------------|--------------|----------------|
-| **BLOCKING** | Full (why + impact + fix) | Yes, with link |
-| **IN-SCOPE** | Standard (why + fix) | Yes, with link |
-| **SUGGESTION** | Brief (why + alternative) | Optional |
+| **BLOCKING** | Full (why, impact, and fix) | Yes, with link |
+| **IN-SCOPE** | Standard (why and fix) | Yes, with link |
+| **SUGGESTION** | Brief (why and alternative) | Optional |
 | **BACKLOG** | One-liner rationale | No |
 
 BLOCKING and IN-SCOPE findings always include proof links.

@@ -273,7 +273,7 @@ git worktree, providing filesystem-level isolation.
 |----------|--------------|--------|
 | Agents touch different files | No | No conflict possible |
 | Agents touch overlapping files | **Yes** | Prevents race conditions |
-| Agent does destructive ops (delete + recreate) | **Yes** | Failed agent won't corrupt main |
+| Agent does destructive ops (delete and recreate) | **Yes** | Failed agent won't corrupt main |
 | Research/read-only agents | No | No writes to conflict |
 
 ### Worktree Behavior

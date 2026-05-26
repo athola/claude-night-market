@@ -13,7 +13,11 @@ in code, not just in docs.
 
 from __future__ import annotations
 
+import typing
+
 import pytest
+
+from pensive.harden.types import Citation, Finding, Severity
 
 
 class TestFindingContract:
@@ -23,17 +27,11 @@ class TestFindingContract:
     def test_severity_literal_matches_skill_md(self) -> None:
         """Severity must match the SKILL.md classification:
         CRITICAL / HIGH / MEDIUM / LOW / ADVISORY."""
-        import typing
-
-        from pensive.harden.types import Severity
-
         args = typing.get_args(Severity)
         assert set(args) == {"CRITICAL", "HIGH", "MEDIUM", "LOW", "ADVISORY"}
 
     def test_finding_requires_citation(self) -> None:
         """A Finding without a primary CWE is downgraded to ADVISORY."""
-        from pensive.harden.types import Citation, Finding
-
         # No-citation finding cannot exceed ADVISORY (constructor enforces it)
         with pytest.raises(ValueError, match="citation"):
             Finding(
@@ -71,8 +69,6 @@ class TestFindingContract:
         assert f2.severity == "MEDIUM"
 
     def test_citation_renders_human_readable(self) -> None:
-        from pensive.harden.types import Citation
-
         c = Citation(
             cwe="CWE-502",
             nist_ssdf="PW.7",

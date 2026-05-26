@@ -231,7 +231,7 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Pattern | Form | Why it matters |
 |---------|------|----------------|
 | Em-dash overuse | — used as rhetorical pause | Most-cited single tell of 2026 |
-| Plus-sign for "and" | "hooks + skills" in prose | Strong: humans have "and" |
+| Plus-sign for "and" | "hooks and skills" in prose | Strong: humans have "and" |
 | Spatial copula | "lives in", "sits at", "stands as", "boasts" | Inanimate subject with animate verb |
 | Negative parallelism | "Not X but Y", "No X. No Y. Just Z.", "No X, no Y, no Z", "It's not X, it's Y", "Y, not X" | Rhetorical scaffold with no argument |
 | Throat-clearing openers | "Here's the thing,", "Look,", "Let that sink in." | Discourse markers signaling nothing |
@@ -364,11 +364,11 @@ ordering. Summary:
 | Pass | Focus |
 |---|---|
 | 0 | Pre-slop sweep: secrets, agent configs |
-| 1 | Surface lint floor (formatter + linter) |
+| 1 | Surface lint floor (formatter and linter) |
 | 2 | Hallucination & stubs (modules: hallucination, stub-and-deferral) |
 | 3 | Identity & voice leaks |
 | 4 | Comment slop (translation, marketing, banner, deferral) |
-| 5 | Prose slop (vocabulary + structural + document-economy + evidence-backed-claims) |
+| 5 | Prose slop (vocabulary, structural, document-economy, and evidence-backed-claims) |
 | 6 | Code idiom (delegate to language-specific plugins) |
 | 7 | Architecture (judgment-heavy; see anti-goals) |
 | 8 | Tests (tautology, mocks, snapshots) |

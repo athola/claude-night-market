@@ -216,7 +216,7 @@ Pick one explicitly. Each has trade-offs.
 | Weighted product | product(s_i ** w_i) | One bad dim should drag total down |
 | Min (worst-of) | min(s_i) | Any failing dim is a real failure |
 | Lexicographic | sort by d1, ties by d2 | Strict priority order |
-| Weighted sum + gates | gates pass AND weighted sum | Some dims are veto-class |
+| Weighted sum and gates | gates pass AND weighted sum | Some dims are veto-class |
 
 Weighted sum is the default. Pick anything else only if you
 can name the dimension that should be allowed to veto.

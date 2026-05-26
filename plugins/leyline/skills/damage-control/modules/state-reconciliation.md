@@ -35,7 +35,7 @@ applying a more specific recovery protocol.
 |---|---|---|
 | Task list | Task status, dependencies, notes | Work intent and completion claims |
 | Git history | Committed changes, authors, timestamps | What was actually persisted |
-| On-disk state | Working tree + index | Current in-flight work |
+| On-disk state | Working tree and index | Current in-flight work |
 
 When these three agree, state is consistent. When they
 disagree, one or more sources is stale or incorrect.
