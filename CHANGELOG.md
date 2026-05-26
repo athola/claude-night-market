@@ -5,7 +5,7 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.8] - 2026-05-21
 
 ### Added
 
@@ -25,59 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   approving AI-generated changes the author cannot trace through. The
   quality gate now requires the author to explain how each changed section
   works and how it could fail, not just that tests pass.
-
 - **`docs/skill-description-guide.md`**: authoring guide for SKILL.md
   `description:` fields. Covers hard constraints (160 char max, third
   person), the format template, four skill categories with patterns and
   examples, a before/after table, common mistakes, and how to run the
   budget validator (`plugins/abstract/scripts/validate_budget.py`).
-
-### Changed
-
-- **All 188 SKILL.md `description:` fields rewritten to action-oriented format.**
-  Every skill now starts with an action-oriented verb phrase and includes a
-  trigger condition (Use when/before/after/for). Anthropic recommends this
-  format for accurate Claude-driven skill activation. Previously 173/188
-  descriptions were noun phrases that told Claude what a skill does but gave
-  no signal for when to invoke it. The `description:` field is the only signal
-  in the system-reminder Claude uses for skill selection; trigger phrasing
-  makes activation accurate. Raw description budget grew from ~16k to ~35k
-  chars, a deliberate trade-off within the 1M context window's ~80k available
-  for descriptions.
-  See `docs/skill-description-guide.md` and ADR-0004.
-
-### Fixed
-
-- **Coverage threshold enforcement decoupled from pytest `addopts` across
-  all 20 plugins.** Previously `--cov-fail-under=N` in `addopts` and
-  `fail_under` in `[tool.coverage.report]` caused subset test runs
-  (content-assertion tests that import no Python source) to fail with
-  low total coverage. Both keys are now removed from every plugin's
-  `pyproject.toml`. The threshold is stored in a `[tool.nightmarket]`
-  section (unknown to coverage.py) and read by `run-plugin-tests.sh`
-  via awk; the `--cov-fail-under` flag is passed explicitly only for
-  full-suite runs.
-
-### Tests
-
-- `test(scripts)`: 18 BDD unit tests for `fix_coverage_threshold.py`
-  covering threshold extraction, addopts cleanup, report-section removal,
-  `[tool.nightmarket]` insertion, and end-to-end migration in dry-run and
-  write modes.
-- `test(scripts)`: 7 unit tests for `run-plugin-tests.sh` awk threshold
-  extraction covering the 90%/85% standard cases, absent section, multiple
-  tool sections, first-match semantics, and both `pensive` and `gauntlet`
-  real `pyproject.toml` files.
-- `test(scribe)`: removed stale `version:` frontmatter assertions from
-  `test_voice_extract.py` and `test_voice_generate.py`; fixed
-  `_check_line_lengths` in `test_tech_tutorial.py` to skip YAML
-  frontmatter blocks so long `description:` values no longer trigger
-  false 80-char violations.
-
-## [1.9.8] - 2026-05-21
-
-### Added
-
 - **hookify: `destructive-command-guard` security rule (#488).**
   New rule in `plugins/hookify/skills/rule-catalog/rules/security/`
   warns when a destructive command (`rm -rf`, `git push --force`,
@@ -92,6 +44,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **All 188 SKILL.md `description:` fields rewritten to action-oriented format.**
+  Every skill now starts with an action-oriented verb phrase and includes a
+  trigger condition (Use when/before/after/for). Anthropic recommends this
+  format for accurate Claude-driven skill activation. Previously 173/188
+  descriptions were noun phrases that told Claude what a skill does but gave
+  no signal for when to invoke it. The `description:` field is the only signal
+  in the system-reminder Claude uses for skill selection; trigger phrasing
+  makes activation accurate. Raw description budget grew from ~16k to ~35k
+  chars, a deliberate trade-off within the 1M context window's ~80k available
+  for descriptions.
+  See `docs/skill-description-guide.md` and ADR-0004.
 - **pensive: `shell-review` skill hardened with POSIX structure
   patterns.** New module `structure-patterns.md` in
   `plugins/pensive/skills/shell-review/modules/` covers the
@@ -119,6 +82,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Coverage threshold enforcement decoupled from pytest `addopts` across
+  all 20 plugins.** Previously `--cov-fail-under=N` in `addopts` and
+  `fail_under` in `[tool.coverage.report]` caused subset test runs
+  (content-assertion tests that import no Python source) to fail with
+  low total coverage. Both keys are now removed from every plugin's
+  `pyproject.toml`. The threshold is stored in a `[tool.nightmarket]`
+  section (unknown to coverage.py) and read by `run-plugin-tests.sh`
+  via awk; the `--cov-fail-under` flag is passed explicitly only for
+  full-suite runs.
 - **abstract/skills: compress 37 skill descriptions to ≤100 chars
   and fix stale `shared-patterns` module refs.** Skill frontmatter
   `description` fields exceeding 100 characters were trimmed
@@ -129,6 +101,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Tests
 
+- `test(scripts)`: 18 BDD unit tests for `fix_coverage_threshold.py`
+  covering threshold extraction, addopts cleanup, report-section removal,
+  `[tool.nightmarket]` insertion, and end-to-end migration in dry-run and
+  write modes.
+- `test(scripts)`: 7 unit tests for `run-plugin-tests.sh` awk threshold
+  extraction covering the 90%/85% standard cases, absent section, multiple
+  tool sections, first-match semantics, and both `pensive` and `gauntlet`
+  real `pyproject.toml` files.
+- `test(scribe)`: removed stale `version:` frontmatter assertions from
+  `test_voice_extract.py` and `test_voice_generate.py`; fixed
+  `_check_line_lengths` in `test_tech_tutorial.py` to skip YAML
+  frontmatter blocks so long `description:` values no longer trigger
+  false 80-char violations.
 - `test(pensive)`: cover `analyze()` edge cases in `bug_review`
   and `performance_review` for empty input, single-file input, and
   paths that raise `OSError` during analysis.
