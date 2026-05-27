@@ -3750,6 +3750,303 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.thealgorithmicbridge.com/p/10-signs-of-ai-writing-that-99-of
+  https://hn.algolia.com/api/v1/search?query=ai%20writing%20tells%20slop&tags=story&hitsperpage=10:
+    content_hash: sha256:07b94eed4f2bded1
+    stored_at: data/staging/webfetch-ai-writing-detection-stories-2026-05-27_04-18-24.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:24.179989+00:00'
+    title: AI Writing Detection Stories
+    maturity: seedling
+    routing_type: pending
+    url: https://hn.algolia.com/api/v1/search?query=AI%20writing%20tells%20slop&tags=story&hitsPerPage=10
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=llm%20generated%20text%20stylometric%20detection%20syntactic%20features&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-18-25.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:25.575594+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=LLM%20generated%20text%20stylometric%20detection%20syntactic%20features&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  ? https://export.arxiv.org/api/query?search_query=all:llm+generated+text+detection+stylometric+features&max_results=10&sortby=relevance
+  : content_hash: sha256:9da960be4ae2ff53
+    stored_at: data/staging/webfetch-arxiv-papers-on-llm-generated-text-detection-2026-05-27_04-18-39.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:39.333370+00:00'
+    title: ArXiv Papers on LLM-Generated Text Detection
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+generated+text+detection+stylometric+features&max_results=10&sortBy=relevance
+  https://www.deadlanguagesociety.com/p/rhetorical-analysis-ai:
+    content_hash: sha256:04543acfe32f83b9
+    stored_at: data/staging/webfetch-rhetorical-constructions-ai-overuses-2026-05-27_04-18-40.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:40.413024+00:00'
+    title: Rhetorical Constructions AI Overuses
+    maturity: seedling
+    routing_type: pending
+    url: https://www.deadlanguagesociety.com/p/rhetorical-analysis-ai
+  https://www.popularai.org/p/how-to-stop-chatgpt-from-writing-not-just-x-but-y:
+    content_hash: sha256:2b865da57eff5670
+    stored_at: data/staging/webfetch-contrastive-parallelism-templates-in-ai-writing-2026-05-27_04-18-41.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:41.972861+00:00'
+    title: Contrastive Parallelism Templates in AI Writing
+    maturity: seedling
+    routing_type: pending
+    url: https://www.popularai.org/p/how-to-stop-chatgpt-from-writing-not-just-x-but-y
+  https://news.ycombinator.com/item?id=45407571:
+    content_hash: sha256:785fe4d0868b79dc
+    stored_at: data/staging/webfetch-discussion-summary-negative-parallelism-as-ai-2026-05-27_04-18-43.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:43.829389+00:00'
+    title: 'Discussion Summary: Negative Parallelism as AI Writing Tell'
+    maturity: seedling
+    routing_type: pending
+    url: https://news.ycombinator.com/item?id=45407571
+  https://github.com/kdgbalmer/ai-tells:
+    content_hash: sha256:22bb48676ba9af3e
+    stored_at: data/staging/webfetch-analysis-of-ai-tells-repository-2026-05-27_04-18-50.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:50.302651+00:00'
+    title: Analysis of ai-tells Repository
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/kdgbalmer/ai-tells
+  https://github.com/skew202/antislop:
+    content_hash: sha256:8b4526580659e8a2
+    stored_at: data/staging/webfetch-antislop-pattern-detection-analysis-2026-05-27_04-18-50.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:50.794843+00:00'
+    title: AntiSlop Pattern Detection Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/skew202/antislop
+  https://github.com/dannote/sloplint:
+    content_hash: sha256:389efa25dacb65cd
+    stored_at: data/staging/webfetch-sloplint-analysis-2026-05-27_04-18-53.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:53.305213+00:00'
+    title: Sloplint Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/dannote/sloplint
+  https://github.com/sicariussicariistuff/slop_detector:
+    content_hash: sha256:4234536ed56e5039
+    stored_at: data/staging/webfetch-slop-detector-analysis-2026-05-27_04-18-53.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:54.028087+00:00'
+    title: SLOP Detector Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/SicariusSicariiStuff/SLOP_Detector
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=detecting+ai+generated+text+syntactic+repetition+parallelism&limit=10&fields=title,abstract,year,citationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-18-55.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:18:55.776735+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=detecting+AI+generated+text+syntactic+repetition+parallelism&limit=10&fields=title,abstract,year,citationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  https://www.georgekao.com/blog/118515-how-to-write-without-sounding-like-ai:
+    content_hash: sha256:5fef1b6a110fb81d
+    stored_at: data/staging/webfetch-ai-writing-patterns-george-kao-identifies-2026-05-27_04-19-00.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:00.122999+00:00'
+    title: AI Writing Patterns George Kao Identifies
+    maturity: seedling
+    routing_type: pending
+    url: https://www.georgekao.com/blog/118515-how-to-write-without-sounding-like-ai
+  https://raw.githubusercontent.com/kdgbalmer/ai-tells/main/skill.md:
+    content_hash: sha256:b10f262c12c9af38
+    stored_at: data/staging/webfetch-negative-contrastive-parallelism-rules-2026-05-27_04-19-01.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:01.764479+00:00'
+    title: Negative/Contrastive Parallelism Rules
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/kdgbalmer/ai-tells/main/SKILL.md
+  https://raw.githubusercontent.com/sicariussicariistuff/slop_detector/main/slop.yml:
+    content_hash: sha256:6b44870cee1e5ccc
+    stored_at: data/staging/webfetch-contrastive-parallelism-phrases-found-2026-05-27_04-19-03.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:03.803405+00:00'
+    title: Contrastive Parallelism Phrases Found
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/SicariusSicariiStuff/SLOP_Detector/main/SLOP.yml
+  ? https://export.arxiv.org/api/query?search_query=all:chatgpt+writing+style+repetition+formulaic+linguistic+features+human+comparison&max_results=10&sortby=relevance
+  : content_hash: sha256:4b6661b4a0f08405
+    stored_at: data/staging/webfetch-papers-on-chatgpt-llm-vs-human-text-stylistic-2026-05-27_04-19-05.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:05.764151+00:00'
+    title: Papers on ChatGPT/LLM vs. Human Text Stylistic Analysis
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:ChatGPT+writing+style+repetition+formulaic+linguistic+features+human+comparison&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:antithesis+chiasmus+antimetabole+detection+definition+rhetorical&max_results=8&sortby=relevance
+  : content_hash: sha256:2dfc1127e3f39ab3
+    stored_at: data/staging/webfetch-academic-papers-on-rhetorical-figures-detection-2026-05-27_04-19-05.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:06.244635+00:00'
+    title: 'Academic Papers on Rhetorical Figures: Detection and Definition'
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:antithesis+chiasmus+antimetabole+detection+definition+rhetorical&max_results=8&sortBy=relevance
+  https://raw.githubusercontent.com/hardikpandya/stop-slop/main/skill.md:
+    content_hash: sha256:03fd6002dfb75fc9
+    stored_at: data/staging/webfetch-binary-contrast-rule-from-stop-slop-2026-05-27_04-19-06.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:06.776329+00:00'
+    title: Binary Contrast Rule from Stop Slop
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/hardikpandya/stop-slop/main/SKILL.md
+  https://arxiv.org/abs/2312.00100v1:
+    content_hash: sha256:9afbd965947d3fb4
+    stored_at: data/staging/webfetch-rhetorical-parallelism-detection-paper-summary-2026-05-27_04-19-17.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:17.560532+00:00'
+    title: Rhetorical Parallelism Detection Paper Summary
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/abs/2312.00100v1
+  https://www.blakestockton.com/dont-write-like-ai-1-101-negation:
+    content_hash: sha256:90a9f9ef28463e02
+    stored_at: data/staging/webfetch-negation-antithesis-templates-in-don-t-write-like-2026-05-27_04-19-21.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:21.858094+00:00'
+    title: Negation/Antithesis Templates in "Don't Write Like AI"
+    maturity: seedling
+    routing_type: pending
+    url: https://www.blakestockton.com/dont-write-like-ai-1-101-negation/
+  https://raw.githubusercontent.com/sicariussicariistuff/slop_detector/main/penalty.yml:
+    content_hash: sha256:d31f0144e7fcce34
+    stored_at: data/staging/webfetch-regex-patterns-and-phrases-from-file-2026-05-27_04-19-22.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:22.589536+00:00'
+    title: Regex Patterns and Phrases from File
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/SicariusSicariiStuff/SLOP_Detector/main/penalty.yml
+  https://github.com/blader/humanizer/blob/main/skill.md:
+    content_hash: sha256:e8f6a64732e0348b
+    stored_at: data/staging/webfetch-negative-contrastive-parallelism-rules-2026-05-27_04-19-24.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:24.774969+00:00'
+    title: Negative/Contrastive Parallelism Rules
+    maturity: seedling
+    routing_type: pending
+    url: https://github.com/blader/humanizer/blob/main/SKILL.md
+  ? https://export.arxiv.org/api/query?search_query=all:gpt+slop+formulaic+phrases+overrepresented+lexical+bigram+frequency+detection&max_results=10&sortby=relevance
+  : content_hash: sha256:9232867f9367ffe0
+    stored_at: data/staging/webfetch-arxiv-search-results-llm-phrase-n-gram-detection-2026-05-27_04-19-25.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:25.398028+00:00'
+    title: 'arXiv Search Results: LLM Phrase/N-gram Detection'
+    maturity: seedling
+    routing_type: pending
+    url: https://export.arxiv.org/api/query?search_query=all:GPT+slop+formulaic+phrases+overrepresented+lexical+bigram+frequency+detection&max_results=10&sortBy=relevance
+  https://www.marketingideas.com/p/the-anti-ai-writing-cheat-sheet:
+    content_hash: sha256:03a66929361b714d
+    stored_at: data/staging/webfetch-analysis-of-contrast-patterns-in-anti-ai-writing-2026-05-27_04-19-34.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:34.635759+00:00'
+    title: Analysis of Contrast Patterns in "Anti-AI Writing Cheat Sheet"
+    maturity: seedling
+    routing_type: pending
+    url: https://www.marketingideas.com/p/the-anti-ai-writing-cheat-sheet
+  https://arxiv.org/html/2410.16107v2:
+    content_hash: sha256:e76b39575b0a7636
+    stored_at: data/staging/webfetch-analysis-of-rhetorical-style-differences-in-llm-2026-05-27_04-19-36.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:36.261283+00:00'
+    title: Analysis of Rhetorical Style Differences in LLM vs. Human Text
+    maturity: seedling
+    routing_type: pending
+    url: https://arxiv.org/html/2410.16107v2
+  https://raw.githubusercontent.com/jalaalrd/anti-ai-slop-writing/main/skill.md:
+    content_hash: sha256:cb727220cfeea785
+    stored_at: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-36.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:36.760541+00:00'
+    title: The server returned HTTP 404 Not Found.
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/jalaalrd/anti-ai-slop-writing/main/SKILL.md
+  https://www.grc-health.com/knowledge-centre/the-predictable-rhetoric-of-ai-generated-text-overused-stylistic-devices:
+    content_hash: sha256:938e323bdedf807d
+    stored_at: data/staging/webfetch-ai-s-overused-rhetorical-devices-antithesis-2026-05-27_04-19-40.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:40.431124+00:00'
+    title: 'AI''s Overused Rhetorical Devices: Antithesis & Parallelism Analysis'
+    maturity: seedling
+    routing_type: pending
+    url: https://www.grc-health.com/knowledge-centre/the-predictable-rhetoric-of-ai-generated-text-overused-stylistic-devices
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=reinhart+llms+write+like+humans+grammatical+rhetorical+styles&limit=5&fields=title,authors,year,venue,citationcount,externalids,openaccesspdf,abstract
+  : content_hash: sha256:3085b3edee98d6cc
+    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-19-45.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:45.941820+00:00'
+    title: The server returned HTTP 429 Too Many Requests.
+    maturity: seedling
+    routing_type: pending
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=Reinhart+LLMs+write+like+humans+grammatical+rhetorical+styles&limit=5&fields=title,authors,year,venue,citationCount,externalIds,openAccessPdf,abstract
+  https://tropes.fyi:
+    content_hash: sha256:a5d0a0d8bcae7fb3
+    stored_at: data/staging/webfetch-contrast-antithesis-tropes-from-tropes-fyi-2026-05-27_04-19-53.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:53.189215+00:00'
+    title: Contrast/Antithesis Tropes from tropes.fyi
+    maturity: seedling
+    routing_type: pending
+    url: https://tropes.fyi/
+  https://rhetoric.byu.edu/figures/p/parison.htm:
+    content_hash: sha256:cb727220cfeea785
+    stored_at: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-56.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:56.511057+00:00'
+    title: The server returned HTTP 404 Not Found.
+    maturity: seedling
+    routing_type: pending
+    url: https://rhetoric.byu.edu/Figures/P/parison.htm
+  https://rhetoric.byu.edu/figures/a/antithesis.htm:
+    content_hash: sha256:5593ba331bf93d18
+    stored_at: data/staging/webfetch-antithesis-definition-2026-05-27_04-19-58.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:19:58.496811+00:00'
+    title: Antithesis Definition
+    maturity: seedling
+    routing_type: pending
+    url: https://rhetoric.byu.edu/Figures/A/antithesis.htm
+  https://raw.githubusercontent.com/adamcharnock/deslop/main/src/deslop/rules.py:
+    content_hash: sha256:747c6a839f4df7ca
+    stored_at: data/staging/webfetch-contrastive-negative-parallelism-rules-2026-05-27_04-20-08.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:20:08.883410+00:00'
+    title: Contrastive/Negative Parallelism Rules
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/adamcharnock/deslop/main/src/deslop/rules.py
+  https://raw.githubusercontent.com/hsjobeki/slop-md-lint/main/slop_md_lint.py:
+    content_hash: sha256:b1d47650e1e1cf75
+    stored_at: data/staging/webfetch-contrastive-negative-parallelism-patterns-in-slop-2026-05-27_04-20-11.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:20:11.799175+00:00'
+    title: Contrastive/Negative Parallelism Patterns in slop-md-lint
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/hsjobeki/slop-md-lint/main/slop_md_lint.py
+  https://raw.githubusercontent.com/athanor-ai/pythia/main/tools/md_lint.py:
+    content_hash: sha256:a71d38c50e046c62
+    stored_at: data/staging/webfetch-regex-patterns-for-contrastive-negative-2026-05-27_04-20-13.md
+    importance_score: 50
+    last_updated: '2026-05-27T04:20:13.445916+00:00'
+    title: Regex Patterns for Contrastive/Negative Parallelism
+    maturity: seedling
+    routing_type: pending
+    url: https://raw.githubusercontent.com/athanor-ai/pythia/main/tools/md_lint.py
 hashes:
   sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
   sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
@@ -4143,7 +4440,7 @@ hashes:
   sha256:be02a89ca480c3f6: data/staging/webfetch-uv-readme-outline-analysis-2026-05-12_13-08-27.md
   sha256:235cf576ee53f241: data/staging/webfetch-logs-tokenizer-technical-analysis-2026-05-18_14-00-42.md
   sha256:c68565e5d68d9157: data/staging/webfetch-search-results-for-logs-tokenizer-sergeivaskov-2026-05-18_14-00-45.md
-  sha256:3085b3edee98d6cc: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-01-22.md
+  sha256:3085b3edee98d6cc: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-19-45.md
   sha256:6976dd57c6a0d814: data/staging/webfetch-stories-about-compressing-logs-for-llms-2026-05-18_14-00-51.md
   sha256:1b368b2f57bb5b4f: data/staging/webfetch-llmlingua-related-stories-summary-2026-05-18_14-00-51.md
   sha256:e9aadcd7fcfe071c: data/staging/webfetch-log-parsing-research-key-papers-2026-05-18_14-00-56.md
@@ -4160,3 +4457,32 @@ hashes:
   sha256:f47af0ef560b110d: data/staging/webfetch-stop-slop-pattern-detection-list-2026-05-19_17-38-46.md
   sha256:c7adb48854829479: data/staging/webfetch-writing-without-ai-tells-key-guidance-2026-05-19_17-39-01.md
   sha256:4c57b06f4a9c943f: data/staging/webfetch-10-signs-of-ai-writing-2026-05-19_17-39-31.md
+  sha256:07b94eed4f2bded1: data/staging/webfetch-ai-writing-detection-stories-2026-05-27_04-18-24.md
+  sha256:9da960be4ae2ff53: data/staging/webfetch-arxiv-papers-on-llm-generated-text-detection-2026-05-27_04-18-39.md
+  sha256:04543acfe32f83b9: data/staging/webfetch-rhetorical-constructions-ai-overuses-2026-05-27_04-18-40.md
+  sha256:2b865da57eff5670: data/staging/webfetch-contrastive-parallelism-templates-in-ai-writing-2026-05-27_04-18-41.md
+  sha256:785fe4d0868b79dc: data/staging/webfetch-discussion-summary-negative-parallelism-as-ai-2026-05-27_04-18-43.md
+  sha256:22bb48676ba9af3e: data/staging/webfetch-analysis-of-ai-tells-repository-2026-05-27_04-18-50.md
+  sha256:8b4526580659e8a2: data/staging/webfetch-antislop-pattern-detection-analysis-2026-05-27_04-18-50.md
+  sha256:389efa25dacb65cd: data/staging/webfetch-sloplint-analysis-2026-05-27_04-18-53.md
+  sha256:4234536ed56e5039: data/staging/webfetch-slop-detector-analysis-2026-05-27_04-18-53.md
+  sha256:5fef1b6a110fb81d: data/staging/webfetch-ai-writing-patterns-george-kao-identifies-2026-05-27_04-19-00.md
+  sha256:b10f262c12c9af38: data/staging/webfetch-negative-contrastive-parallelism-rules-2026-05-27_04-19-01.md
+  sha256:6b44870cee1e5ccc: data/staging/webfetch-contrastive-parallelism-phrases-found-2026-05-27_04-19-03.md
+  sha256:4b6661b4a0f08405: data/staging/webfetch-papers-on-chatgpt-llm-vs-human-text-stylistic-2026-05-27_04-19-05.md
+  sha256:2dfc1127e3f39ab3: data/staging/webfetch-academic-papers-on-rhetorical-figures-detection-2026-05-27_04-19-05.md
+  sha256:03fd6002dfb75fc9: data/staging/webfetch-binary-contrast-rule-from-stop-slop-2026-05-27_04-19-06.md
+  sha256:9afbd965947d3fb4: data/staging/webfetch-rhetorical-parallelism-detection-paper-summary-2026-05-27_04-19-17.md
+  sha256:90a9f9ef28463e02: data/staging/webfetch-negation-antithesis-templates-in-don-t-write-like-2026-05-27_04-19-21.md
+  sha256:d31f0144e7fcce34: data/staging/webfetch-regex-patterns-and-phrases-from-file-2026-05-27_04-19-22.md
+  sha256:e8f6a64732e0348b: data/staging/webfetch-negative-contrastive-parallelism-rules-2026-05-27_04-19-24.md
+  sha256:9232867f9367ffe0: data/staging/webfetch-arxiv-search-results-llm-phrase-n-gram-detection-2026-05-27_04-19-25.md
+  sha256:03a66929361b714d: data/staging/webfetch-analysis-of-contrast-patterns-in-anti-ai-writing-2026-05-27_04-19-34.md
+  sha256:e76b39575b0a7636: data/staging/webfetch-analysis-of-rhetorical-style-differences-in-llm-2026-05-27_04-19-36.md
+  sha256:cb727220cfeea785: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-56.md
+  sha256:938e323bdedf807d: data/staging/webfetch-ai-s-overused-rhetorical-devices-antithesis-2026-05-27_04-19-40.md
+  sha256:a5d0a0d8bcae7fb3: data/staging/webfetch-contrast-antithesis-tropes-from-tropes-fyi-2026-05-27_04-19-53.md
+  sha256:5593ba331bf93d18: data/staging/webfetch-antithesis-definition-2026-05-27_04-19-58.md
+  sha256:747c6a839f4df7ca: data/staging/webfetch-contrastive-negative-parallelism-rules-2026-05-27_04-20-08.md
+  sha256:b1d47650e1e1cf75: data/staging/webfetch-contrastive-negative-parallelism-patterns-in-slop-2026-05-27_04-20-11.md
+  sha256:a71d38c50e046c62: data/staging/webfetch-regex-patterns-for-contrastive-negative-2026-05-27_04-20-13.md

@@ -28,6 +28,7 @@ sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 from finding_verifier import (
     FileRef,
     VerificationResult,
+    _count_lines,
     parse_where_refs,
     resolve_skill_refs,
     should_skip_promotion,
@@ -92,6 +93,16 @@ class TestParseWhereRefs:
     def test_no_parseable_path_returns_empty(self) -> None:
         assert parse_where_refs("a vague narrative concern with no path") == []
 
+    @pytest.mark.unit
+    def test_punctuation_only_tokens_are_skipped(self) -> None:
+        """Tokens that strip down to nothing (``...``, ``()``) are
+        dropped, leaving only the real path. Guards the tokenizer
+        against the trailing-punctuation noise Insight-Engine
+        ``Where:`` strings often carry.
+        """
+        refs = parse_where_refs("src/app.py ... () , ;")
+        assert refs == [FileRef("src/app.py")]
+
 
 class TestResolveSkillRefs:
     """resolve_skill_refs() maps a ``plugin:name`` skill id to its
@@ -109,6 +120,17 @@ class TestResolveSkillRefs:
     @pytest.mark.unit
     def test_bare_skill_name_without_plugin_returns_empty(self, tmp_path: Path) -> None:
         assert resolve_skill_refs("just-a-name", repo_root=tmp_path) == []
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("malformed", [":no-plugin", "no-name:", ":"])
+    def test_malformed_skill_id_returns_empty(
+        self, malformed: str, tmp_path: Path
+    ) -> None:
+        """A colon with an empty half (``:foo`` / ``foo:`` / ``:``) has
+        nothing reliable to resolve, so no candidate path is built --
+        the gate then treats it as ``no_refs`` and never blocks.
+        """
+        assert resolve_skill_refs(malformed, repo_root=tmp_path) == []
 
 
 class TestVerifyRefs:
@@ -149,9 +171,49 @@ class TestVerifyRefs:
         assert result.status == "stale_lines"
 
     @pytest.mark.unit
+    def test_present_plus_drifted_lines_stays_present_medium(
+        self, tmp_path: Path
+    ) -> None:
+        """One file with in-bounds lines and another whose cited range
+        drifted past EOF: the surviving in-bounds reference keeps the
+        verdict ``present`` (so promotion is allowed), but confidence
+        drops to ``medium`` to flag the drift for human review.
+        """
+        (tmp_path / "good.md").write_text("\n".join(f"l{i}" for i in range(1, 51)))
+        (tmp_path / "short.md").write_text("only\ntwo\n")  # 2 lines
+        result = verify_refs(
+            [FileRef("good.md", 10, 20), FileRef("short.md", 40, 47)],
+            repo_root=tmp_path,
+        )
+        assert result.status == "present"
+        assert result.confidence == "medium"
+        assert result.missing == []
+        assert not should_skip_promotion(result)
+
+    @pytest.mark.unit
     def test_no_refs_returns_no_refs_status(self, tmp_path: Path) -> None:
         result = verify_refs([], repo_root=tmp_path)
         assert result.status == "no_refs"
+
+
+class TestCountLines:
+    """_count_lines() returns a line count, or None when the path
+    cannot be read as a file.
+    """
+
+    @pytest.mark.unit
+    def test_counts_lines_of_a_file(self, tmp_path: Path) -> None:
+        f = tmp_path / "three.md"
+        f.write_text("a\nb\nc\n")
+        assert _count_lines(f) == 3
+
+    @pytest.mark.unit
+    def test_unreadable_path_returns_none(self, tmp_path: Path) -> None:
+        """Opening a directory raises OSError; the helper swallows it
+        and returns None so verify_refs degrades to a plain existence
+        check instead of crashing.
+        """
+        assert _count_lines(tmp_path) is None
 
 
 class TestShouldSkipPromotion:

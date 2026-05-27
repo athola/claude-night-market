@@ -5,6 +5,55 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.9] - 2026-05-26
+
+### Added
+
+- **`plugins/abstract/scripts/finding_verifier.py`**: shared verifier
+  that checks whether an auto-promoted finding's referenced locations
+  still exist at HEAD. Parses a finding's `Where:` string or a
+  `plugin:skill` id into file references, then reports `present`,
+  `missing`, `stale_lines`, or `no_refs`. Scope boundary: it verifies
+  location existence, not concern resolution, so a missing file is
+  strong staleness evidence while a present file proves nothing.
+  Covered by `test_finding_verifier.py`.
+- **abstract/auto_promote_learnings: verify-before-promote gate.**
+  `run_auto_promote` now skips a finding whose every referenced
+  location has been removed, recording it as `stale-skipped` instead of
+  minting a phantom issue. Motivated by a 2026-05 sweep that found 8 of
+  11 auto-promoted issues already resolved by later work. Covered by
+  the promotion-gate tests in `test_auto_promote_learnings.py`.
+- **sanctum/do-issue: Step 1.4 verify-against-HEAD triage.** The
+  interactive workflow now classifies each auto-promoted finding as
+  outstanding, already resolved, or uncertain before implementing,
+  backed by the same `finding_verifier.py` module so the gate and the
+  command agree on what "stale" means.
+
+### Changed
+
+- **CHANGELOG/skill-graph-audit: PR #470 finding traceability.** Label
+  the AR-30 (git_platform wrapper) and AR-15 (bootstrap helper) entries
+  in the 1.9.4 section for grep-traceability (#502), surface the
+  C-series IDs (C-13, C-20, C-21, C-46) in the aggregate refinement
+  entry (#503), and replace 10 ASCII `--` prose connectors in
+  `skill-graph-audit/SKILL.md` with commas and colons per the project
+  slop rules (#507).
+
+### Fixed
+
+- **sanctum/create-tag: release tags now trigger the pipeline.**
+  `create-tag` pushed bare version tags (for example `1.9.9`), which
+  never matched the cross-framework-publish workflow's `v*` trigger, so
+  no release run started. Tags are normalized to a `v` prefix, then the
+  command verifies the run appeared via `gh run list --branch "$TAG"`
+  and surfaces its URL.
+- **`scripts/clawhub_export.py`: emit valid YAML scalars.** Unquoted
+  scalars containing `": "` or a leading indicator character re-parsed
+  to an empty mapping and failed `clawhub-export --validate`, breaking
+  the v1.9.4 through v1.9.7 release runs. New `_yaml_scalar` and
+  `_needs_yaml_quoting` helpers quote scalars correctly, with tests
+  covering the edge cases.
+
 ## [1.9.8] - 2026-05-21
 
 ### Added
