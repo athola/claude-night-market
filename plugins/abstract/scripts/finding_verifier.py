@@ -1,0 +1,245 @@
+"""Verify that an auto-promoted finding's locations still exist.
+
+The Insight Engine promotes review findings into GitHub Issues.
+Later work often resolves a finding incidentally, leaving a
+phantom-open issue behind (a verify-then-close sweep in
+2026-05 found 8 of 11 auto-promoted issues already resolved).
+
+This module provides the shared, honest core for catching that
+drift: given a finding's ``Where:`` string or a ``plugin:skill``
+id, it resolves the referenced locations and checks whether they
+still exist at the current HEAD.
+
+Scope boundary (deliberate): this verifies *location existence*,
+not *concern resolution*. File existence is a high-precision,
+low-recall signal -- a missing file is strong evidence the area
+was refactored away; a present file proves nothing about whether
+the concern was addressed. Concern resolution requires reading
+content and stays a human / ``/do-issue`` decision. The promotion
+gate therefore skips only the clearest case (every referenced
+location gone) and never auto-closes anything.
+
+Consumers:
+- ``auto_promote_learnings.py`` -- promotion gate (skip stale).
+- ``/do-issue`` Step 1.4 -- documents the same verify-before-act
+  pattern for the interactive workflow.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+
+# A bare token counts as a path if it has a directory separator or a
+# short trailing extension, and contains at least one alphanumeric.
+_EXTENSION_RE = re.compile(r"\.[A-Za-z0-9]{1,6}$")
+_ALNUM_RE = re.compile(r"[A-Za-z0-9]")
+
+# `path/to/file.md:20-22` -- embedded colon line range.
+_COLON_RANGE_RE = re.compile(
+    r"^(?P<path>[\w./-]+\.[A-Za-z0-9]{1,6}):(?P<start>\d+)(?:-(?P<end>\d+))?$"
+)
+# `L37-47` or `L45` -- an L-prefixed line marker.
+_L_MARKER_RE = re.compile(r"^L(?P<start>\d+)(?:-(?P<end>\d+))?$")
+
+
+@dataclass
+class FileRef:
+    """A referenced location: a repo-relative path and optional lines."""
+
+    path: str
+    line_start: int | None = None
+    line_end: int | None = None
+
+
+@dataclass
+class VerificationResult:
+    """Outcome of checking a set of references against HEAD.
+
+    Attributes:
+        status: One of ``present`` (all locations exist),
+            ``missing`` (one or more gone), ``stale_lines`` (file
+            exists but the cited line range is out of bounds), or
+            ``no_refs`` (nothing parseable to check).
+        confidence: ``high`` / ``medium`` / ``low``.
+        refs_checked: The references that were evaluated.
+        missing: Paths that no longer exist.
+        rationale: Short human-readable explanation.
+
+    """
+
+    status: str
+    confidence: str
+    refs_checked: list[FileRef] = field(default_factory=list)
+    missing: list[str] = field(default_factory=list)
+    rationale: str = ""
+
+
+def _looks_like_path(token: str) -> bool:
+    """True if a bare token resembles a repo path."""
+    if not _ALNUM_RE.search(token):
+        return False
+    return "/" in token or bool(_EXTENSION_RE.search(token))
+
+
+def parse_where_refs(where: str) -> list[FileRef]:
+    """Extract file references from a free-text ``Where:`` string.
+
+    Handles the formats the Insight Engine emits in practice:
+    backticked ``path:20-22`` ranges, ``path L37-47`` markers,
+    repeated ``L45 / L87`` markers on one path, and bare paths
+    trailed by prose ("... and 2 siblings").
+    """
+    text = where.replace("`", " ")
+    paths: list[FileRef] = []
+    line_markers: list[tuple[int, int | None]] = []
+
+    for raw in text.split():
+        token = raw.strip().strip(",.;()[]")
+        if not token:
+            continue
+
+        marker = _L_MARKER_RE.match(token)
+        if marker:
+            end = int(marker["end"]) if marker["end"] else None
+            line_markers.append((int(marker["start"]), end))
+            continue
+
+        colon = _COLON_RANGE_RE.match(token)
+        if colon:
+            end = int(colon["end"]) if colon["end"] else None
+            paths.append(FileRef(colon["path"], int(colon["start"]), end))
+            continue
+
+        if _looks_like_path(token):
+            paths.append(FileRef(token))
+
+    # One path with trailing L-markers: distribute the markers across it
+    # (e.g. "project-brief.md L45 / L87 / L147" -> three refs).
+    if len(paths) == 1 and paths[0].line_start is None and line_markers:
+        base = paths[0].path
+        return [FileRef(base, start, end) for start, end in line_markers]
+
+    return paths
+
+
+def resolve_skill_refs(skill: str, repo_root: Path) -> list[FileRef]:
+    """Map a ``plugin:name`` skill id to its on-disk skill directory.
+
+    Returns an empty list for a bare name with no plugin prefix
+    (nothing reliable to resolve). Existence is checked later by
+    ``verify_refs``; this only builds the candidate path.
+    """
+    if ":" not in skill:
+        return []
+    plugin, _, name = skill.partition(":")
+    if not plugin or not name:
+        return []
+    # A finding's "skill" may actually be a command or agent; probe
+    # each conventional location and return the one that exists.
+    candidates = [
+        f"plugins/{plugin}/skills/{name}",
+        f"plugins/{plugin}/commands/{name}.md",
+        f"plugins/{plugin}/agents/{name}.md",
+    ]
+    for rel in candidates:
+        if (repo_root / rel).exists():
+            return [FileRef(rel)]
+    # Default to the conventional skills path so verify_refs reports
+    # it missing (a strong staleness signal for the gate).
+    return [FileRef(candidates[0])]
+
+
+def _count_lines(path: Path) -> int | None:
+    """Return the line count of a file, or None if unreadable."""
+    try:
+        with path.open("r", encoding="utf-8", errors="ignore") as handle:
+            return sum(1 for _ in handle)
+    except OSError:
+        return None
+
+
+def verify_refs(refs: list[FileRef], repo_root: Path) -> VerificationResult:
+    """Check whether referenced locations exist at ``repo_root``."""
+    if not refs:
+        return VerificationResult(
+            "no_refs", "low", [], [], "no parseable references in the finding"
+        )
+
+    missing: list[str] = []
+    stale: list[str] = []
+    present: list[str] = []
+
+    for ref in refs:
+        target = repo_root / ref.path
+        if not target.exists():
+            missing.append(ref.path)
+            continue
+        if ref.line_start is not None and target.is_file():
+            count = _count_lines(target)
+            if count is not None and ref.line_start > count:
+                stale.append(ref.path)
+                continue
+        present.append(ref.path)
+
+    missing = _dedup(missing)
+
+    if missing:
+        confidence = "medium" if (present or stale) else "high"
+        rationale = f"referenced location(s) no longer exist: {', '.join(missing)}"
+        return VerificationResult("missing", confidence, refs, missing, rationale)
+
+    if stale and not present:
+        return VerificationResult(
+            "stale_lines",
+            "medium",
+            refs,
+            [],
+            "file(s) exist but the cited line range is out of bounds",
+        )
+
+    if stale:
+        return VerificationResult(
+            "present",
+            "medium",
+            refs,
+            [],
+            "locations exist; some cited line ranges drifted",
+        )
+
+    return VerificationResult(
+        "present", "high", refs, [], "all referenced locations exist"
+    )
+
+
+def should_skip_promotion(result: VerificationResult) -> bool:
+    """Promotion gate: skip only when every location is gone.
+
+    Weaker signals (``stale_lines``, ``no_refs``, ``present``) never
+    block promotion -- they are surfaced for human review instead.
+    Partial-missing (``medium``) also never blocks: a finding whose
+    surviving files still exist may still apply.
+    """
+    return result.status == "missing" and result.confidence == "high"
+
+
+def _dedup(items: list[str]) -> list[str]:
+    """Order-preserving de-duplication."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            out.append(item)
+    return out
+
+
+__all__ = [
+    "FileRef",
+    "VerificationResult",
+    "parse_where_refs",
+    "resolve_skill_refs",
+    "verify_refs",
+    "should_skip_promotion",
+]

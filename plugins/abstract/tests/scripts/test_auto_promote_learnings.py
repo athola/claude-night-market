@@ -767,3 +767,69 @@ class TestMainCLI:
             promote_module.main()
 
         assert exc_info.value.code == 0
+
+
+class TestPromotionGate:
+    """Verify-before-promote gate (verify-then-close learning).
+
+    The Insight Engine should not mint a fresh issue for a finding
+    whose referenced locations the codebase has already removed.
+    """
+
+    def _repo_with_skill(self, root: Path, plugin: str, name: str) -> None:
+        skill_dir = root / "plugins" / plugin / "skills" / name
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "SKILL.md").write_text("---\nname: x\n---\n")
+
+    @pytest.mark.unit
+    def test_skips_when_skill_location_gone(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given a finding whose skill no longer exists on disk,
+        When the gate verifies it,
+        Then promotion is skipped (status missing, high confidence).
+        """
+        item = {"skill": "leyline:deleted-skill", "type": "improvement"}
+        verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
+        assert verdict.status == "missing"
+        assert promote_module.should_skip_promotion(verdict)
+
+    @pytest.mark.unit
+    def test_promotes_when_skill_location_present(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given a finding whose skill still exists,
+        When the gate verifies it,
+        Then promotion is allowed (status present).
+        """
+        self._repo_with_skill(tmp_path, "leyline", "git-platform")
+        item = {"skill": "leyline:git-platform", "type": "improvement"}
+        verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
+        assert verdict.status == "present"
+        assert not promote_module.should_skip_promotion(verdict)
+
+    @pytest.mark.unit
+    def test_does_not_skip_when_unverifiable(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given an item with no resolvable location references,
+        When the gate verifies it,
+        Then promotion is allowed (no_refs never blocks).
+        """
+        item = {"skill": "bare-name-no-plugin", "type": "improvement"}
+        verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
+        assert verdict.status == "no_refs"
+        assert not promote_module.should_skip_promotion(verdict)
+
+    @pytest.mark.unit
+    def test_uses_where_field_file_reference(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given an item whose detail cites a file that exists,
+        When the gate verifies it,
+        Then the location is found present.
+        """
+        (tmp_path / "CHANGELOG.md").write_text("a\nb\nc\n")
+        item = {"skill": "", "detail": "CHANGELOG.md L2-3"}
+        verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
+        assert verdict.status == "present"

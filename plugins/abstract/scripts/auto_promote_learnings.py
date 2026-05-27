@@ -27,6 +27,14 @@ _SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
+from finding_verifier import (
+    FileRef,
+    VerificationResult,
+    parse_where_refs,
+    resolve_skill_refs,
+    should_skip_promotion,
+    verify_refs,
+)
 from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     PostedRecord,
     create_discussion,
@@ -51,6 +59,33 @@ SLOW_THRESHOLD_MS = 10000
 def get_learnings_path() -> Path:
     """Get path to LEARNINGS.md file."""
     return Path.home() / ".claude" / "skills" / "LEARNINGS.md"
+
+
+def get_repo_root() -> Path:
+    """Repo root used to verify a finding's locations still exist."""
+    return Path(__file__).resolve().parents[3]
+
+
+def verify_item_locations(
+    item: dict[str, Any],
+    repo_root: Path | None = None,
+) -> VerificationResult:
+    """Resolve an item's referenced locations and check they exist.
+
+    Builds references from the item's ``skill`` id (``plugin:name``)
+    and any file paths embedded in its free-text fields, then verifies
+    them against HEAD. This is the promotion gate's honest staleness
+    check: it confirms the locations still exist, not that the concern
+    is unresolved (see ``finding_verifier`` for the scope boundary).
+    """
+    root = repo_root if repo_root is not None else get_repo_root()
+    refs: list[FileRef] = []
+    skill = str(item.get("skill", ""))
+    if ":" in skill:
+        refs.extend(resolve_skill_refs(skill, root))
+    for key in ("where", "detail", "metric"):
+        refs.extend(parse_where_refs(str(item.get(key, ""))))
+    return verify_refs(refs, root)
 
 
 def get_promoted_record_path() -> Path:
@@ -536,6 +571,18 @@ def run_auto_promote() -> list[str]:
 
         url: str | None = None
         if score >= HIGH_PRIORITY_THRESHOLD:
+            # Promotion gate: do not create an issue for a finding whose
+            # every referenced location has already been removed.
+            verdict = verify_item_locations(item)
+            if should_skip_promotion(verdict):
+                print(
+                    f"[auto_promote] skipping stale finding for '{key}': "
+                    f"{verdict.rationale}",
+                    file=sys.stderr,
+                )
+                record.add(key, "stale-skipped")
+                record.save()
+                continue
             url = promote_to_issue(item, target_repo)
         elif score >= MEDIUM_PRIORITY_THRESHOLD:
             url = post_to_discussion(item, owner, name)
