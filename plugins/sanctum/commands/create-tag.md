@@ -1,5 +1,5 @@
 ---
-description: Create git tags for releases from merged PRs or explicit version arguments. Triggers post-tag submission workflows.
+description: Create git release tags from merged PRs or version args. Pushes a v-prefixed tag to trigger the release pipeline, then confirms the run started.
 usage: /create-tag [version|PR-URL]...
 ---
 
@@ -39,26 +39,37 @@ For each PR (explicit or inferred):
    - Look for version changes in PR files (package.json, pyproject.toml, plugin.json)
    - If no version found, prompt user for version
 
-### Step 3: Validate
+### Step 3: Validate and Normalize
 
 Before creating tags:
+
 - Confirm PR is merged (`merged: true`)
-- Verify tag doesn't already exist: `git tag -l <version>`
-- validate version follows semver format
+- Validate version follows semver format
+- **Normalize to a `v` prefix**: the release pipeline
+  (`.github/workflows/cross-framework-publish.yml`) only fires on
+  tags matching `v*`. A bare `1.2.0` tag will push successfully but
+  silently never trigger a release. Always tag as `v<version>`:
+  ```bash
+  # Strip any leading v, then re-add it, so 1.2.0 and v1.2.0
+  # both become v1.2.0
+  TAG="v${VERSION#v}"
+  ```
+- Verify the normalized tag doesn't already exist: `git tag -l "$TAG"`
 
 ### Step 4: Create Tags
 
-For each version/commit pair:
+For each version/commit pair, using the normalized `$TAG` from
+Step 3:
 
 ```bash
 # Fetch latest from remote
 git fetch origin <base-branch>
 
-# Create annotated tag
-git tag -a <version> <merge_commit_sha> -m "<tag message>"
+# Create annotated tag (TAG is v-prefixed, e.g. v1.2.0)
+git tag -a "$TAG" <merge_commit_sha> -m "<tag message>"
 
-# Push tag to remote
-git push origin <version>
+# Push tag to remote (this is what triggers the release pipeline)
+git push origin "$TAG"
 ```
 
 Tag message format:
@@ -68,7 +79,38 @@ Tag message format:
 <PR title>
 ```
 
-### Step 5: Run Post-Tag Submissions (Config-Driven)
+### Step 5: Verify Release Pipeline Triggered
+
+Pushing a `v*` tag should start the `cross-framework-publish`
+release run. Confirm it actually appeared, then hand the operator a
+link to watch it. This is a non-blocking check: report and move on,
+do not wait for the run to finish.
+
+```bash
+# GitHub reports the tag name as the run's headBranch, so filter
+# the workflow runs by the tag we just pushed.
+sleep 8  # give GitHub a moment to register the run
+RUN_URL=$(gh run list \
+  --workflow cross-framework-publish.yml \
+  --branch "$TAG" \
+  --limit 1 \
+  --json url,status \
+  -q '.[0].url')
+
+if [ -n "$RUN_URL" ]; then
+  echo "Release pipeline triggered: $RUN_URL"
+else
+  echo "::warning::No release run found for $TAG. Confirm the tag" \
+    "matches the v* trigger and that Actions is enabled, then check" \
+    "the Actions tab manually."
+fi
+```
+
+If no run is found, the most likely cause is a tag that does not
+match `v*` (see Step 3 normalization) or Actions being disabled for
+the repo. Capture `$RUN_URL` for the summary in Step 7.
+
+### Step 6: Run Post-Tag Submissions (Config-Driven)
 
 After the tag is pushed, check for a `tag-submissions.json`
 file in the repository root. This file defines which external
@@ -113,17 +155,20 @@ Each entry's `script` path is relative to the repo root.
 Scripts receive the version tag as their first argument and
 use the user's existing `gh auth` session.
 
-### Step 6: Report Results
+### Step 7: Report Results
 
-Display summary table:
+Display summary table, including the release run from Step 5:
+
 ```
-| Tag     | PR   | Commit  | Status |
-|---------|------|---------|--------|
-| v1.2.0  | #45  | abc1234 | OK     |
-| v1.3.0  | #52  | def5678 | OK     |
+| Tag     | PR   | Commit  | Release run | Status |
+|---------|------|---------|-------------|--------|
+| v1.2.0  | #45  | abc1234 | triggered   | OK     |
+| v1.3.0  | #52  | def5678 | triggered   | OK     |
 ```
 
-Include links to created tags on GitHub and the ClawHub PR.
+Include links to created tags on GitHub, the release run URL
+(`$RUN_URL`) so the operator can watch the build-and-release job,
+and the ClawHub PR.
 
 ## Examples
 
@@ -188,8 +233,12 @@ If GitHub MCP tools are unavailable:
 # Get PR info via gh CLI
 gh pr view <PR-NUMBER> --json mergeCommit,merged,title
 
-# Create tag manually
+# Create tag manually (keep the v prefix so the release pipeline fires)
 git fetch origin
 git tag -a v1.2.0 <merge-commit-sha> -m "v1.2.0 - merged from PR #<number>"
 git push origin v1.2.0
+
+# Confirm the release run started
+gh run list --workflow cross-framework-publish.yml \
+  --branch v1.2.0 --limit 1 --json url -q '.[0].url'
 ```

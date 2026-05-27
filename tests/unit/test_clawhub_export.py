@@ -25,6 +25,7 @@ from clawhub_export import (
     discover_skills,
     export_all,
     extract_triggers,
+    generate_openclaw_skill_md,
     parse_frontmatter,
     to_clawhub_slug,
     translate_frontmatter,
@@ -485,6 +486,72 @@ class TestTranslateFrontmatter:
         assert "Review code quality" in cleaned
         assert "Use when" not in cleaned
         assert "Do not use" not in cleaned
+
+
+# ---------- frontmatter serialization round-trip ----------
+
+
+class TestFrontmatterRoundTrip:
+    """
+    Feature: Exported frontmatter survives re-parsing
+
+    As the release pipeline
+    I want generated SKILL.md frontmatter to be valid YAML
+    So that --validate does not reject skills and abort the
+    cross-framework release (regression for v1.9.4-v1.9.7).
+    """
+
+    @pytest.mark.unit
+    def test_short_description_with_colon_round_trips(self) -> None:
+        """
+        Scenario: Short description containing an internal ": "
+        Given a <=80 char description with a colon-space inside
+        When I generate SKILL.md and re-parse its frontmatter
+        Then name, description, and version are still present.
+
+        Regression: bare-scalar serialization emitted invalid YAML
+        for descriptions like "Pre-implementation scope control:
+        worthiness scoring, branch-size limits.", which re-parsed
+        to an empty mapping and failed clawhub-export --validate.
+        """
+        fm: dict[str, Any] = {
+            "name": "scope-guard",
+            "description": (
+                "Pre-implementation scope control: worthiness scoring, limits."
+            ),
+            "version": "1.9.9",
+            "source_plugin": "imbue",
+        }
+        assert len(fm["description"]) <= 80
+        assert ": " in fm["description"]
+
+        rendered = generate_openclaw_skill_md(fm, "body text")
+        meta, _ = parse_frontmatter(rendered)
+
+        assert meta.get("name") == "scope-guard"
+        assert meta.get("description"), "description lost on re-parse"
+        assert "worthiness" in meta["description"]
+        assert meta.get("version") == "1.9.9"
+
+    @pytest.mark.unit
+    def test_yaml_special_leading_chars_round_trip(self) -> None:
+        """
+        Scenario: Description starting with a YAML indicator char
+        Given descriptions led by characters like "[" or "#"
+        When I generate SKILL.md and re-parse it
+        Then the description survives intact.
+        """
+        for desc in ("[beta] quick scaffolder", "#1 priority triage"):
+            fm: dict[str, Any] = {
+                "name": "edge",
+                "description": desc,
+                "version": "1.0.0",
+                "source_plugin": "imbue",
+            }
+            rendered = generate_openclaw_skill_md(fm, "body")
+            meta, _ = parse_frontmatter(rendered)
+            assert meta.get("description") == desc, f"lost: {desc!r}"
+            assert meta.get("version") == "1.0.0"
 
 
 # ---------- skill discovery ----------

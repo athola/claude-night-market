@@ -214,6 +214,34 @@ def discover_skills(
 # ---------- export ----------
 
 
+# Leading characters that give a YAML scalar special meaning.
+_YAML_INDICATORS = set("[]{}#&*!|>'\"%@`,?:-")
+
+
+def _needs_yaml_quoting(s: str) -> bool:
+    """Return True if a single-line scalar must be quoted.
+
+    Bare interpolation (``key: value``) breaks when the value
+    contains an internal ``": "`` or starts with a YAML indicator
+    character: the re-parse yields an empty mapping and
+    clawhub-export --validate rejects the skill. This was the
+    root cause of the v1.9.4-v1.9.7 release failures.
+    """
+    if s == "" or s[0] in _YAML_INDICATORS or s[-1] in " :":
+        return True
+    return ": " in s or " #" in s
+
+
+def _yaml_scalar(val: Any) -> str:
+    """Render a single-line scalar as valid YAML."""
+    if not isinstance(val, str):
+        return str(val)
+    if not _needs_yaml_quoting(val):
+        return val
+    escaped = val.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
 def generate_openclaw_skill_md(
     openclaw_fm: dict[str, Any],
     body: str,
@@ -228,7 +256,7 @@ def generate_openclaw_skill_md(
             for subline in val.split("\n"):
                 lines.append(f"  {subline}")
         else:
-            lines.append(f"{key}: {val}")
+            lines.append(f"{key}: {_yaml_scalar(val)}")
 
     triggers = openclaw_fm.get("triggers", [])
     if triggers:
