@@ -3759,15 +3759,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://hn.algolia.com/api/v1/search?query=AI%20writing%20tells%20slop&tags=story&hitsPerPage=10
-  ? https://api.semanticscholar.org/graph/v1/paper/search?query=llm%20generated%20text%20stylometric%20detection%20syntactic%20features&limit=10&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
-  : content_hash: sha256:3085b3edee98d6cc
-    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-18-25.md
-    importance_score: 50
-    last_updated: '2026-05-27T04:18:25.575594+00:00'
-    title: The server returned HTTP 429 Too Many Requests.
-    maturity: seedling
-    routing_type: pending
-    url: https://api.semanticscholar.org/graph/v1/paper/search?query=LLM%20generated%20text%20stylometric%20detection%20syntactic%20features&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
   ? https://export.arxiv.org/api/query?search_query=all:llm+generated+text+detection+stylometric+features&max_results=10&sortby=relevance
   : content_hash: sha256:9da960be4ae2ff53
     stored_at: data/staging/webfetch-arxiv-papers-on-llm-generated-text-detection-2026-05-27_04-18-39.md
@@ -3840,15 +3831,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://github.com/SicariusSicariiStuff/SLOP_Detector
-  ? https://api.semanticscholar.org/graph/v1/paper/search?query=detecting+ai+generated+text+syntactic+repetition+parallelism&limit=10&fields=title,abstract,year,citationcount,isopenaccess,openaccesspdf,authors,venue,externalids
-  : content_hash: sha256:3085b3edee98d6cc
-    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-18-55.md
-    importance_score: 50
-    last_updated: '2026-05-27T04:18:55.776735+00:00'
-    title: The server returned HTTP 429 Too Many Requests.
-    maturity: seedling
-    routing_type: pending
-    url: https://api.semanticscholar.org/graph/v1/paper/search?query=detecting+AI+generated+text+syntactic+repetition+parallelism&limit=10&fields=title,abstract,year,citationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
   https://www.georgekao.com/blog/118515-how-to-write-without-sounding-like-ai:
     content_hash: sha256:5fef1b6a110fb81d
     stored_at: data/staging/webfetch-ai-writing-patterns-george-kao-identifies-2026-05-27_04-19-00.md
@@ -3966,15 +3948,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://arxiv.org/html/2410.16107v2
-  https://raw.githubusercontent.com/jalaalrd/anti-ai-slop-writing/main/skill.md:
-    content_hash: sha256:cb727220cfeea785
-    stored_at: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-36.md
-    importance_score: 50
-    last_updated: '2026-05-27T04:19:36.760541+00:00'
-    title: The server returned HTTP 404 Not Found.
-    maturity: seedling
-    routing_type: pending
-    url: https://raw.githubusercontent.com/jalaalrd/anti-ai-slop-writing/main/SKILL.md
   https://www.grc-health.com/knowledge-centre/the-predictable-rhetoric-of-ai-generated-text-overused-stylistic-devices:
     content_hash: sha256:938e323bdedf807d
     stored_at: data/staging/webfetch-ai-s-overused-rhetorical-devices-antithesis-2026-05-27_04-19-40.md
@@ -3984,15 +3957,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://www.grc-health.com/knowledge-centre/the-predictable-rhetoric-of-ai-generated-text-overused-stylistic-devices
-  ? https://api.semanticscholar.org/graph/v1/paper/search?query=reinhart+llms+write+like+humans+grammatical+rhetorical+styles&limit=5&fields=title,authors,year,venue,citationcount,externalids,openaccesspdf,abstract
-  : content_hash: sha256:3085b3edee98d6cc
-    stored_at: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-19-45.md
-    importance_score: 50
-    last_updated: '2026-05-27T04:19:45.941820+00:00'
-    title: The server returned HTTP 429 Too Many Requests.
-    maturity: seedling
-    routing_type: pending
-    url: https://api.semanticscholar.org/graph/v1/paper/search?query=Reinhart+LLMs+write+like+humans+grammatical+rhetorical+styles&limit=5&fields=title,authors,year,venue,citationCount,externalIds,openAccessPdf,abstract
   https://tropes.fyi:
     content_hash: sha256:a5d0a0d8bcae7fb3
     stored_at: data/staging/webfetch-contrast-antithesis-tropes-from-tropes-fyi-2026-05-27_04-19-53.md
@@ -4002,15 +3966,6 @@ entries:
     maturity: seedling
     routing_type: pending
     url: https://tropes.fyi/
-  https://rhetoric.byu.edu/figures/p/parison.htm:
-    content_hash: sha256:cb727220cfeea785
-    stored_at: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-56.md
-    importance_score: 50
-    last_updated: '2026-05-27T04:19:56.511057+00:00'
-    title: The server returned HTTP 404 Not Found.
-    maturity: seedling
-    routing_type: pending
-    url: https://rhetoric.byu.edu/Figures/P/parison.htm
   https://rhetoric.byu.edu/figures/a/antithesis.htm:
     content_hash: sha256:5593ba331bf93d18
     stored_at: data/staging/webfetch-antithesis-definition-2026-05-27_04-19-58.md
@@ -4440,7 +4395,7 @@ hashes:
   sha256:be02a89ca480c3f6: data/staging/webfetch-uv-readme-outline-analysis-2026-05-12_13-08-27.md
   sha256:235cf576ee53f241: data/staging/webfetch-logs-tokenizer-technical-analysis-2026-05-18_14-00-42.md
   sha256:c68565e5d68d9157: data/staging/webfetch-search-results-for-logs-tokenizer-sergeivaskov-2026-05-18_14-00-45.md
-  sha256:3085b3edee98d6cc: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-27_04-19-45.md
+  sha256:3085b3edee98d6cc: data/staging/webfetch-the-server-returned-http-429-too-many-requests-2026-05-18_14-00-47.md
   sha256:6976dd57c6a0d814: data/staging/webfetch-stories-about-compressing-logs-for-llms-2026-05-18_14-00-51.md
   sha256:1b368b2f57bb5b4f: data/staging/webfetch-llmlingua-related-stories-summary-2026-05-18_14-00-51.md
   sha256:e9aadcd7fcfe071c: data/staging/webfetch-log-parsing-research-key-papers-2026-05-18_14-00-56.md
@@ -4479,7 +4434,6 @@ hashes:
   sha256:9232867f9367ffe0: data/staging/webfetch-arxiv-search-results-llm-phrase-n-gram-detection-2026-05-27_04-19-25.md
   sha256:03a66929361b714d: data/staging/webfetch-analysis-of-contrast-patterns-in-anti-ai-writing-2026-05-27_04-19-34.md
   sha256:e76b39575b0a7636: data/staging/webfetch-analysis-of-rhetorical-style-differences-in-llm-2026-05-27_04-19-36.md
-  sha256:cb727220cfeea785: data/staging/webfetch-the-server-returned-http-404-not-found-2026-05-27_04-19-56.md
   sha256:938e323bdedf807d: data/staging/webfetch-ai-s-overused-rhetorical-devices-antithesis-2026-05-27_04-19-40.md
   sha256:a5d0a0d8bcae7fb3: data/staging/webfetch-contrast-antithesis-tropes-from-tropes-fyi-2026-05-27_04-19-53.md
   sha256:5593ba331bf93d18: data/staging/webfetch-antithesis-definition-2026-05-27_04-19-58.md

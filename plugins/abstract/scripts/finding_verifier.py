@@ -28,8 +28,16 @@ Consumers:
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
+
+# Closed string domains for the verification verdict. Bare ``str``
+# would let a typo (``"mising"``) pass the type checker and silently
+# defeat the gate, so both are constrained to their valid members.
+Status = Literal["present", "missing", "stale_lines", "no_refs"]
+Confidence = Literal["high", "medium", "low"]
 
 # A bare token counts as a path if it has a directory separator or a
 # short trailing extension, and contains at least one alphanumeric.
@@ -44,16 +52,26 @@ _COLON_RANGE_RE = re.compile(
 _L_MARKER_RE = re.compile(r"^L(?P<start>\d+)(?:-(?P<end>\d+))?$")
 
 
-@dataclass
+@dataclass(frozen=True)
 class FileRef:
-    """A referenced location: a repo-relative path and optional lines."""
+    """A referenced location: a repo-relative path and optional lines.
+
+    A pure value object, never mutated after construction (hence
+    ``frozen``). ``line_end`` without ``line_start`` is an illegal
+    state and is rejected at construction.
+    """
 
     path: str
     line_start: int | None = None
     line_end: int | None = None
 
+    def __post_init__(self) -> None:
+        """Reject an end line with no start line (an illegal range)."""
+        if self.line_end is not None and self.line_start is None:
+            raise ValueError("line_end set without line_start")
 
-@dataclass
+
+@dataclass(frozen=True)
 class VerificationResult:
     """Outcome of checking a set of references against HEAD.
 
@@ -69,8 +87,8 @@ class VerificationResult:
 
     """
 
-    status: str
-    confidence: str
+    status: Status
+    confidence: Confidence
     refs_checked: list[FileRef] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)
     rationale: str = ""
@@ -146,9 +164,11 @@ def resolve_skill_refs(skill: str, repo_root: Path) -> list[FileRef]:
     for rel in candidates:
         if (repo_root / rel).exists():
             return [FileRef(rel)]
-    # Default to the conventional skills path so verify_refs reports
-    # it missing (a strong staleness signal for the gate).
-    return [FileRef(candidates[0])]
+    # No conventional location resolved: the id may be renamed or use a
+    # non-standard path. Return nothing (-> ``no_refs``, non-skipping)
+    # rather than fabricating a missing path -- "unresolvable" must not
+    # masquerade as "removed" and silently skip a live finding.
+    return []
 
 
 def _count_lines(path: Path) -> int | None:
@@ -156,7 +176,13 @@ def _count_lines(path: Path) -> int | None:
     try:
         with path.open("r", encoding="utf-8", errors="ignore") as handle:
             return sum(1 for _ in handle)
-    except OSError:
+    except OSError as exc:
+        # Fail open: skip the stale-line check, but make the abandoned
+        # check visible rather than masking the I/O error.
+        print(
+            f"[finding_verifier] cannot read {path} for line count: {exc}",
+            file=sys.stderr,
+        )
         return None
 
 
@@ -186,7 +212,7 @@ def verify_refs(refs: list[FileRef], repo_root: Path) -> VerificationResult:
     missing = _dedup(missing)
 
     if missing:
-        confidence = "medium" if (present or stale) else "high"
+        confidence: Confidence = "medium" if (present or stale) else "high"
         rationale = f"referenced location(s) no longer exist: {', '.join(missing)}"
         return VerificationResult("missing", confidence, refs, missing, rationale)
 
@@ -222,6 +248,18 @@ def should_skip_promotion(result: VerificationResult) -> bool:
     surviving files still exist may still apply.
     """
     return result.status == "missing" and result.confidence == "high"
+
+
+def repo_root_is_valid(root: Path) -> bool:
+    """True if ``root`` looks like the night-market repo root.
+
+    The gate's correctness hinges on resolving locations against the
+    real tree. A wrong root (relocated, symlinked, or installed copy)
+    would report every finding ``missing`` and skip them all. Callers
+    use this to disable the gate and promote normally when the root
+    cannot be trusted, rather than failing silently.
+    """
+    return (root / ".git").exists() or (root / "plugins" / "abstract").exists()
 
 
 def _dedup(items: list[str]) -> list[str]:

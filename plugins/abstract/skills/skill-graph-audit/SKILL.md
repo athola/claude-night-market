@@ -96,6 +96,19 @@ Two ways to validate the audit output is trustworthy:
    does not move, the report is stale or the regex missed a syntax
    variant.
 
+## Exit Criteria
+
+- [ ] The graph builds: `skill_graph.py` runs against `plugins/`
+      without error and emits a node/edge count.
+- [ ] Dangling references are classified into bugs, external, and
+      placeholders (the three `Core Outputs` rows resolve).
+- [ ] Every `Dangling: bugs` entry is either fixed in the same
+      session or filed as a tracked issue.
+- [ ] `pytest -o addopts= plugins/abstract/tests/scripts/test_skill_graph.py`
+      passes.
+- [ ] The round-trip smoke check shows the dangling-ref count drops
+      by at least the number of references fixed.
+
 ## Related Skills
 
 - `Skill(abstract:skills-eval)`: per-skill quality scoring

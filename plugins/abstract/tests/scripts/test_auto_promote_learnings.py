@@ -782,17 +782,38 @@ class TestPromotionGate:
         (skill_dir / "SKILL.md").write_text("---\nname: x\n---\n")
 
     @pytest.mark.unit
-    def test_skips_when_skill_location_gone(
+    def test_skips_when_referenced_file_gone(
         self, promote_module, tmp_path: Path
     ) -> None:
-        """Given a finding whose skill no longer exists on disk,
+        """Given a finding whose only referenced file no longer exists,
         When the gate verifies it,
         Then promotion is skipped (status missing, high confidence).
+
+        Genuine skip path: a probed path that is absent. (A bare skill
+        id that resolves to nothing is non-skipping; see below.)
         """
-        item = {"skill": "leyline:deleted-skill", "type": "improvement"}
+        item = {"skill": "", "detail": "plugins/leyline/skills/gone/SKILL.md"}
         verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
         assert verdict.status == "missing"
+        assert verdict.confidence == "high"
         assert promote_module.should_skip_promotion(verdict)
+
+    @pytest.mark.unit
+    def test_does_not_skip_when_skill_id_unresolvable(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given a finding whose skill id maps to no on-disk location,
+        When the gate verifies it,
+        Then promotion is allowed (no_refs, not missing).
+
+        Regression (S-b): an unresolvable ``plugin:name`` id must not
+        masquerade as ``missing`` and silently skip a live finding -- a
+        renamed skill would otherwise be wrongly dropped.
+        """
+        item = {"skill": "leyline:renamed-skill", "type": "improvement"}
+        verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
+        assert verdict.status == "no_refs"
+        assert not promote_module.should_skip_promotion(verdict)
 
     @pytest.mark.unit
     def test_promotes_when_skill_location_present(
@@ -833,3 +854,122 @@ class TestPromotionGate:
         item = {"skill": "", "detail": "CHANGELOG.md L2-3"}
         verdict = promote_module.verify_item_locations(item, repo_root=tmp_path)
         assert verdict.status == "present"
+
+    # --- C2: repo-root validation (gate fails open on a bad root) ---
+
+    @pytest.mark.unit
+    def test_stale_skip_reason_disabled_on_invalid_root(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given a repo root that is not the night-market tree,
+        When the gate runs,
+        Then it is disabled (returns None) rather than skipping every
+        finding because every probed path is 'missing'.
+
+        Regression (C2): a wrong root must not silently skip 100% of
+        findings -- it disables the gate and promotes normally.
+        """
+        bad_root = tmp_path / "not-a-repo"
+        bad_root.mkdir()
+        item = {"skill": "", "detail": "plugins/leyline/skills/gone/SKILL.md"}
+        assert promote_module.stale_skip_reason(item, repo_root=bad_root) is None
+
+    @pytest.mark.unit
+    def test_stale_skip_reason_active_on_valid_root(
+        self, promote_module, tmp_path: Path
+    ) -> None:
+        """Given a valid repo root (has .git),
+        When a finding's only referenced path is gone,
+        Then the gate returns a skip rationale.
+        """
+        (tmp_path / ".git").mkdir()
+        item = {"skill": "", "detail": "plugins/leyline/skills/gone/SKILL.md"}
+        assert promote_module.stale_skip_reason(item, repo_root=tmp_path) is not None
+
+    # --- C3: gate call fails open if verification raises ---
+
+    @pytest.mark.unit
+    def test_stale_skip_reason_fails_open_on_exception(
+        self, promote_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given verify_item_locations raises (e.g. NUL byte in a path),
+        When the gate runs,
+        Then it returns None (promote) instead of propagating and
+        dropping the rest of the batch.
+
+        Regression (C3): one bad finding must not abort promotion.
+        """
+        (tmp_path / ".git").mkdir()
+
+        def boom(*_a, **_k):
+            raise ValueError("embedded null byte")
+
+        monkeypatch.setattr(promote_module, "verify_item_locations", boom)
+        item = {"skill": "imbue:proof-of-work", "type": "high_failure_rate"}
+        assert promote_module.stale_skip_reason(item, repo_root=tmp_path) is None
+
+    # --- C5: end-to-end gate skip-branch through run_auto_promote ---
+
+    @pytest.mark.unit
+    def test_run_auto_promote_skips_stale_promotes_live(
+        self, promote_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given a high-priority stale item and a high-priority live item,
+        When run_auto_promote() executes,
+        Then the stale item is NOT promoted (recorded stale-skipped and
+        excluded from the URL list) while the live item IS promoted.
+
+        Regression (C5): a defect that inverts the gate, reorders it, or
+        drops the ``continue`` would pass every isolated test while
+        silently promoting or dropping high-priority findings. This
+        drives the real loop end-to-end.
+        """
+        (tmp_path / ".git").mkdir()
+        (tmp_path / "LIVE.md").write_text("line\n")
+        (tmp_path / "LEARNINGS.md").write_text("# placeholder\n")
+
+        stale = {
+            "skill": "leyline:gone",
+            "type": "high_failure_rate",
+            "severity": "high",
+            "executions": 26,
+            "success_rate": 42.3,
+            "detail": "plugins/leyline/skills/gone/SKILL.md",
+        }
+        live = {
+            "skill": "imbue:proof-of-work",
+            "type": "high_failure_rate",
+            "severity": "high",
+            "executions": 26,
+            "success_rate": 42.3,
+            "detail": "LIVE.md",
+        }
+        assert promote_module.calculate_priority(stale) >= 5.0
+        assert promote_module.calculate_priority(live) >= 5.0
+
+        monkeypatch.setattr(
+            promote_module, "parse_improvement_items", lambda _c: [stale, live]
+        )
+        monkeypatch.setattr(
+            promote_module, "detect_target_repo", lambda: ("athola", "cnm")
+        )
+        monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_a: False)
+        monkeypatch.setattr(promote_module, "get_repo_root", lambda: tmp_path)
+        promoted_items = []
+
+        def fake_promote(item, _repo):
+            promoted_items.append(item["skill"])
+            return f"https://github.com/athola/cnm/issues/{len(promoted_items)}"
+
+        monkeypatch.setattr(promote_module, "promote_to_issue", fake_promote)
+
+        urls = promote_module.run_auto_promote()
+
+        assert promoted_items == ["imbue:proof-of-work"], (
+            f"stale finding was not skipped: promoted {promoted_items}"
+        )
+        assert len(urls) == 1
+        record = promote_module.PromotedIssueRecord.load(
+            tmp_path / "promoted_issues.json"
+        )
+        assert record.promoted["leyline:gone:high_failure_rate"] == "stale-skipped"

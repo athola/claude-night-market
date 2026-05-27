@@ -553,6 +553,84 @@ class TestFrontmatterRoundTrip:
             assert meta.get("description") == desc, f"lost: {desc!r}"
             assert meta.get("version") == "1.0.0"
 
+    @pytest.mark.unit
+    def test_trigger_with_colon_round_trips(self) -> None:
+        """
+        Scenario: A trigger phrase containing an internal ": "
+        Given a trigger like "when user says: do this"
+        When I generate SKILL.md and re-parse it
+        Then the trigger stays a string, not a nested mapping.
+
+        Regression: bare ``  - {t}`` interpolation re-parsed a
+        colon-bearing trigger as ``{'when user says': 'do this'}``,
+        the same failure class the description fix targeted.
+        """
+        fm: dict[str, Any] = {
+            "name": "edge",
+            "description": "d",
+            "version": "1.0.0",
+            "triggers": ["plain-trigger", "when user says: do this"],
+            "source_plugin": "imbue",
+        }
+        rendered = generate_openclaw_skill_md(fm, "body")
+        meta, _ = parse_frontmatter(rendered)
+        triggers = meta.get("triggers")
+        assert triggers == ["plain-trigger", "when user says: do this"], (
+            f"trigger mangled on re-parse: {triggers!r}"
+        )
+
+    @pytest.mark.unit
+    def test_metadata_mapping_round_trips(self) -> None:
+        """
+        Scenario: JSON-serialized metadata survives re-parse as a mapping
+        Given metadata produced by translate_frontmatter (json.dumps)
+        When I generate SKILL.md and re-parse it
+        Then metadata is still a mapping, not a stringified blob.
+
+        Guard: the colon fix must NOT quote the JSON mapping into a
+        bare string (that would break consumers reading metadata as a
+        structure).
+        """
+        fm = translate_frontmatter(
+            {
+                "name": "x",
+                "description": "d",
+                "category": "code-review",
+                "dependencies": ["pensive:bug-review"],
+            },
+            "pensive",
+        )
+        rendered = generate_openclaw_skill_md(fm, "body")
+        meta, _ = parse_frontmatter(rendered)
+        md = meta.get("metadata")
+        assert isinstance(md, dict), f"metadata not a mapping: {md!r}"
+        assert "openclaw" in md
+
+    @pytest.mark.unit
+    def test_boolish_and_numeric_descriptions_round_trip(self) -> None:
+        """
+        Scenario: Scalars that look like YAML booleans / numbers
+        Given a description literally "true" or "1.0"
+        When I generate SKILL.md and re-parse it
+        Then it re-parses as the original string, not a bool/float.
+
+        Regression (S1): unquoted bool/numeric-looking scalars
+        re-parsed as ``True`` / ``1.0``, silently changing the value
+        type in the exported frontmatter.
+        """
+        for desc in ("true", "False", "1.0", "42", "no", "null"):
+            fm: dict[str, Any] = {
+                "name": "edge",
+                "description": desc,
+                "version": "1.0.0",
+                "source_plugin": "imbue",
+            }
+            rendered = generate_openclaw_skill_md(fm, "body")
+            meta, _ = parse_frontmatter(rendered)
+            assert meta.get("description") == desc, (
+                f"type changed on re-parse: {desc!r} -> {meta.get('description')!r}"
+            )
+
 
 # ---------- skill discovery ----------
 
