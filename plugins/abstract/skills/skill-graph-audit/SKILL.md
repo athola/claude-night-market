@@ -32,9 +32,9 @@ hand-curated.
 
 ## When NOT To Use
 
-- For per-skill quality scoring -- use `Skill(abstract:skills-eval)` instead
-- For frontmatter/structure validation -- use `Skill(abstract:plugin-review)`
-- For hook-specific audits -- use `Skill(abstract:hooks-eval)`
+- For per-skill quality scoring, use `Skill(abstract:skills-eval)` instead
+- For frontmatter/structure validation, use `Skill(abstract:plugin-review)`
+- For hook-specific audits, use `Skill(abstract:hooks-eval)`
 
 ## Quick Start
 
@@ -59,9 +59,9 @@ See `modules/usage.md` for full CLI reference and example workflows.
 | Hubs | Most-referenced skills | Treat as core API; retire with extreme care |
 | Orchestrators | Skills that call many others | Verify each ref still resolves |
 | Isolates | Zero in / zero out | Check role: library? entrypoint? typo? |
-| Dangling -- bugs | Missing internal target | Fix immediately (typo or retired skill) |
-| Dangling -- external | Reference to external plugin | Document plugin dependency |
-| Dangling -- placeholders | Template text like `-NAME` | Verify intentional |
+| Dangling: bugs | Missing internal target | Fix immediately (typo or retired skill) |
+| Dangling: external | Reference to external plugin | Document plugin dependency |
+| Dangling: placeholders | Template text like `-NAME` | Verify intentional |
 
 See `modules/interpretation.md` for false-positive guidance and
 isolation taxonomy.
@@ -98,10 +98,10 @@ Two ways to validate the audit output is trustworthy:
 
 ## Related Skills
 
-- `Skill(abstract:skills-eval)` -- per-skill quality scoring
-- `Skill(abstract:plugin-review)` -- plugin manifest + structure
-- `Skill(abstract:hooks-eval)` -- hook-specific validation
-- `Skill(abstract:rules-eval)` -- rules directory validation
+- `Skill(abstract:skills-eval)`: per-skill quality scoring
+- `Skill(abstract:plugin-review)`: plugin manifest and structure
+- `Skill(abstract:hooks-eval)`: hook-specific validation
+- `Skill(abstract:rules-eval)`: rules directory validation
 
 ## References
 

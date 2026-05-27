@@ -353,13 +353,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scribe slop-detector adds `structured-finding-output`
   for cross-tool consistency. New top-level
   `CONSTITUTION.md` codifies AI hygiene guardrails.
-- **leyline `git_platform` Python wrapper**
+- **leyline `git_platform` Python wrapper (AR-30)**
   (`plugins/leyline/src/leyline/git_platform.py`):
   cross-platform helpers for `gh api` and `gh api graphql`
   calls. Adopted by `post_learnings_to_discussions.py`,
   `promote_discussion_to_issue.py`, and `verify_plugin.py`.
   7 unit tests in `test_git_platform.py` (128-line file).
-- **leyline `bootstrap` cross-plugin sys.path helper**
+- **leyline `bootstrap` cross-plugin sys.path helper (AR-15)**
   (`plugins/leyline/src/leyline/bootstrap.py`):
   eliminates ad-hoc `sys.path` manipulation in plugin
   scripts. First adopter: `plugins/imbue/scripts/imbue_validator.py`.
@@ -396,9 +396,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quality refinement waves 1, 2, and 3 complete**:
   24 review findings closed across abstract, conserve,
   imbue, leyline, memory-palace, pensive, sanctum, and
-  scribe. Deferred follow-ups tracked in issue #486
-  (per-finding detail recoverable from git history at
-  commit `a50a9352`).
+  scribe, including the C-series architectural follow-ups
+  C-13 (conserve CLI `main` decomposition), C-20
+  (memory-palace CLI typed-error narrowing), C-21 (vow hook
+  exception surfacing), and C-46 (`memory_palace_cli`
+  `build_parser` decomposition). Deferred follow-ups tracked
+  in issue #486 (per-finding detail recoverable from git
+  history at commit `a50a9352`).
 - **Shared-helper extraction (D-series)**: `json_utils.sh`
   vendored per-plugin (D-01); `parse_frontmatter`
   unified on the leyline canonical implementation
