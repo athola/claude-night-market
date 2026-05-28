@@ -27,6 +27,7 @@ Consumers:
 
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 from dataclasses import dataclass, field
@@ -273,11 +274,78 @@ def _dedup(items: list[str]) -> list[str]:
     return out
 
 
+def _default_repo_root() -> Path:
+    """Repo root inferred from this file: scripts/ -> abstract -> plugins -> root."""
+    return Path(__file__).resolve().parents[3]
+
+
+def _collect_refs(
+    where: str | None, skill: str | None, repo_root: Path
+) -> list[FileRef]:
+    """Build the reference set from a Where: string and/or a skill id."""
+    refs: list[FileRef] = []
+    if where:
+        refs.extend(parse_where_refs(where))
+    if skill:
+        refs.extend(resolve_skill_refs(skill, repo_root))
+    return refs
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Verify a finding's locations against a repo and print the verdict.
+
+    A thin shell over the tested core: resolve ``--where`` / ``--skill``
+    into references, check them against ``--repo-root``, and report the
+    status, confidence, and whether the promotion gate would skip. Exit
+    code is 0 on a completed check, 2 when the repo root is untrusted
+    (gate disabled) so callers never silently skip live findings.
+    """
+    parser = argparse.ArgumentParser(
+        description="Verify that a finding's referenced locations still exist.",
+    )
+    parser.add_argument("--where", help="Free-text 'Where:' string from a finding.")
+    parser.add_argument("--skill", help="A 'plugin:name' id to resolve to a path.")
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=_default_repo_root(),
+        help="Repo root to resolve locations against (default: inferred).",
+    )
+    args = parser.parse_args(argv)
+
+    if not args.where and not args.skill:
+        parser.error("provide --where and/or --skill")
+
+    repo_root = Path(args.repo_root)
+    if not repo_root_is_valid(repo_root):
+        print(
+            f"[finding_verifier] repo root not trusted, gate disabled: {repo_root}",
+            file=sys.stderr,
+        )
+        return 2
+
+    result = verify_refs(_collect_refs(args.where, args.skill, repo_root), repo_root)
+
+    print(f"status:         {result.status}")
+    print(f"confidence:     {result.confidence}")
+    print(f"refs_checked:   {len(result.refs_checked)}")
+    if result.missing:
+        print(f"missing:        {', '.join(result.missing)}")
+    print(f"rationale:      {result.rationale}")
+    print(f"skip_promotion: {should_skip_promotion(result)}")
+    return 0
+
+
 __all__ = [
     "FileRef",
     "VerificationResult",
+    "main",
     "parse_where_refs",
     "resolve_skill_refs",
     "verify_refs",
     "should_skip_promotion",
 ]
+
+
+if __name__ == "__main__":
+    sys.exit(main())

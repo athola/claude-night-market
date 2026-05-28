@@ -29,6 +29,7 @@ from finding_verifier import (
     FileRef,
     VerificationResult,
     _count_lines,
+    main,
     parse_where_refs,
     resolve_skill_refs,
     should_skip_promotion,
@@ -241,3 +242,76 @@ class TestShouldSkipPromotion:
         assert not should_skip_promotion(
             VerificationResult("missing", "medium", [], ["gone.md"], "")
         )
+
+
+class TestMainCli:
+    """The thin CLI wrapper exercises the same parse/verify/gate core
+    against a real repo root, so the verifier has a runnable surface
+    (and a live dogfood demo) rather than being library-only.
+    """
+
+    @staticmethod
+    def _repo(tmp_path: Path) -> Path:
+        """A minimal tree that ``repo_root_is_valid`` trusts."""
+        (tmp_path / ".git").mkdir()
+        return tmp_path
+
+    @pytest.mark.unit
+    def test_present_location_exits_zero_and_does_not_skip(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A finding whose file exists verifies present and is not skipped."""
+        repo = self._repo(tmp_path)
+        (repo / "plugins").mkdir()
+        (repo / "plugins" / "x.md").write_text("a\nb\n", encoding="utf-8")
+
+        code = main(["--where", "plugins/x.md", "--repo-root", str(repo)])
+
+        out = capsys.readouterr().out
+        assert code == 0
+        assert "present" in out
+        assert "skip_promotion: False" in out
+
+    @pytest.mark.unit
+    def test_missing_location_flags_skip(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A finding whose only file is gone is flagged skip (high)."""
+        repo = self._repo(tmp_path)
+
+        code = main(["--where", "plugins/gone.md", "--repo-root", str(repo)])
+
+        out = capsys.readouterr().out
+        assert code == 0
+        assert "missing" in out
+        assert "skip_promotion: True" in out
+
+    @pytest.mark.unit
+    def test_skill_id_resolves_to_directory(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A ``plugin:name`` id resolving to a real skill dir is present."""
+        repo = self._repo(tmp_path)
+        (repo / "plugins" / "demo" / "skills" / "thing").mkdir(parents=True)
+
+        code = main(["--skill", "demo:thing", "--repo-root", str(repo)])
+
+        out = capsys.readouterr().out
+        assert code == 0
+        assert "present" in out
+
+    @pytest.mark.unit
+    def test_requires_where_or_skill(self, tmp_path: Path) -> None:
+        """Invoking with neither --where nor --skill is a usage error."""
+        repo = self._repo(tmp_path)
+        with pytest.raises(SystemExit):
+            main(["--repo-root", str(repo)])
+
+    @pytest.mark.unit
+    def test_untrusted_repo_root_returns_2(self, tmp_path: Path) -> None:
+        """An untrusted root disables the gate (returns 2) rather than
+        reporting every location missing and skipping live findings.
+        """
+        bogus = tmp_path / "not-a-repo"
+        code = main(["--where", "x.md", "--repo-root", str(bogus)])
+        assert code == 2
