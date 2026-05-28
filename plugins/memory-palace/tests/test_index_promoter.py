@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from memory_palace.corpus import index_promoter
 from memory_palace.corpus.index_promoter import (
     Proposal,
     apply_orphan_prunes,
@@ -148,6 +149,25 @@ class TestProposePromotions:
         proposals = _by_key(propose_promotions(sample_index))
         assert "https://obscure.example/old" not in proposals
 
+    def test_entry_without_stored_at_is_not_orphan(self, tmp_path: Path) -> None:
+        """An entry that never recorded a backing file is not an orphan.
+
+        Orphan detection keys off a *missing* file at a known path. An
+        entry with no ``stored_at`` has no path to check, so it must not
+        be misclassified as orphaned (which would wrongly archive it).
+        """
+        index = {
+            "entries": {
+                "https://no-file.test": _entry(
+                    stored_at="", url="https://no-file.test", last_updated=_iso(2)
+                )
+            },
+            "hashes": {},
+        }
+        proposals = _by_key(propose_promotions(index, plugin_root=tmp_path))
+        archived = proposals.get("https://no-file.test")
+        assert archived is None or archived.action != "archive"
+
     def test_skips_non_pending(self, sample_index: dict) -> None:
         """Already-promoted entries are never proposed."""
         proposals = _by_key(propose_promotions(sample_index))
@@ -207,6 +227,62 @@ class TestApplyPromotions:
         again = propose_promotions(reloaded, plugin_root=plugin_root_with_files)
         assert again == []
 
+    def test_skips_proposal_for_key_absent_from_index(self, tmp_path: Path) -> None:
+        """A stale proposal whose key is gone is skipped, not applied.
+
+        Encodes the invariant: a proposal referencing an entry deleted
+        since classification can never resurrect or corrupt the index.
+        """
+        index = {"entries": {"https://kept.test": _entry(url="https://kept.test")}}
+        index_path = self._write_index(tmp_path, index)
+        backup_dir = tmp_path / "backups"
+        stale = Proposal(
+            key="https://deleted.test",
+            action="promote",
+            changes={"routing_type": "meta"},
+        )
+
+        result = apply_promotions([stale], index_path, backup_dir=backup_dir)
+
+        assert result.applied == 0
+        reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+        assert "https://deleted.test" not in reloaded["entries"]
+        assert reloaded["entries"]["https://kept.test"]["routing_type"] == "pending"
+
+    def test_apply_without_existing_index_makes_no_backup(self, tmp_path: Path) -> None:
+        """Applying against a missing index is a no-op with no backup copy."""
+        index_path = tmp_path / "absent.yaml"
+        backup_dir = tmp_path / "backups"
+
+        result = apply_promotions([], index_path, backup_dir=backup_dir)
+
+        assert result.applied == 0
+        assert not result.backup_path.exists()
+
+    def test_atomic_write_failure_leaves_no_temp_file(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """If the atomic replace fails, the temp file is cleaned and the
+        error propagates -- a half-written index is never left behind.
+        """
+        index = {"entries": {"https://x.test": _entry(url="https://x.test")}}
+        index_path = self._write_index(tmp_path, index)
+        backup_dir = tmp_path / "backups"
+        proposal = Proposal(
+            key="https://x.test", action="promote", changes={"routing_type": "meta"}
+        )
+
+        def _boom(*_args: object) -> None:
+            raise OSError("disk full")
+
+        monkeypatch.setattr(index_promoter.os, "replace", _boom)
+
+        with pytest.raises(OSError, match="disk full"):
+            apply_promotions([proposal], index_path, backup_dir=backup_dir)
+
+        leftovers = list(index_path.parent.glob("memory-palace-index-*.tmp"))
+        assert leftovers == []
+
 
 class TestOrphanPrune:
     """Hard-delete orphaned entries (record-shells with missing files)."""
@@ -264,3 +340,56 @@ class TestOrphanPrune:
         assert "sha256:keep" in reloaded["hashes"]
         # Idempotent: nothing left to prune.
         assert propose_orphan_prunes(reloaded, plugin_root_with_files) == []
+
+    def test_apply_skips_keys_absent_from_index(self, tmp_path: Path) -> None:
+        """Pruning a key that is no longer present is a safe no-op."""
+        index = {
+            "entries": {"https://kept.test": _entry(url="https://kept.test")},
+            "hashes": {"sha256:0000": "data/staging/x.md"},
+        }
+        index_path = self._write_index(tmp_path, index)
+        backup_dir = tmp_path / "backups"
+
+        result = apply_orphan_prunes(
+            ["https://already-gone.test"], index_path, backup_dir=backup_dir
+        )
+
+        assert result.applied == 0
+        reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+        assert "https://kept.test" in reloaded["entries"]
+
+    def test_apply_without_existing_index_makes_no_backup(self, tmp_path: Path) -> None:
+        """Pruning against a missing index is a no-op with no backup copy."""
+        index_path = tmp_path / "absent.yaml"
+        backup_dir = tmp_path / "backups"
+
+        result = apply_orphan_prunes(
+            ["https://x.test"], index_path, backup_dir=backup_dir
+        )
+
+        assert result.applied == 0
+        assert not result.backup_path.exists()
+
+    def test_prunes_entry_whose_hash_is_absent(self, tmp_path: Path) -> None:
+        """An entry pruned without a matching hash mapping still deletes
+        cleanly -- the hashes dict is simply left untouched.
+        """
+        index = {
+            "entries": {
+                "https://gone.test": _entry(
+                    content_hash="sha256:orphanhash", url="https://gone.test"
+                )
+            },
+            "hashes": {"sha256:unrelated": "data/staging/other.md"},
+        }
+        index_path = self._write_index(tmp_path, index)
+        backup_dir = tmp_path / "backups"
+
+        result = apply_orphan_prunes(
+            ["https://gone.test"], index_path, backup_dir=backup_dir
+        )
+
+        assert result.applied == 1
+        reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+        assert "https://gone.test" not in reloaded["entries"]
+        assert reloaded["hashes"] == {"sha256:unrelated": "data/staging/other.md"}

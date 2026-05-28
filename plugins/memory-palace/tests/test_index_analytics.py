@@ -127,6 +127,18 @@ class TestLoadCaptureIndex:
         index = load_capture_index(tmp_path / "nope.yaml")
         assert index == {"entries": {}, "hashes": {}}
 
+    def test_corrupt_yaml_returns_empty_index(self, tmp_path: Path) -> None:
+        """Unparsable YAML degrades to the empty sentinel, not a crash.
+
+        The loader mirrors the hook-side resilience: a corrupt index must
+        never take down a read-only analytics pass. If this test breaks,
+        someone made the loader raise on bad input -- a behavior change
+        that needs a conscious decision, not a silent edit.
+        """
+        index_path = tmp_path / "memory-palace-index.yaml"
+        index_path.write_text("entries: [unterminated\n", encoding="utf-8")
+        assert load_capture_index(index_path) == {"entries": {}, "hashes": {}}
+
 
 class TestCorpusStats:
     """Aggregate statistics over the index."""
@@ -160,6 +172,20 @@ class TestCorpusStats:
         stats = corpus_stats(sample_index)
         assert stats.orphan_count == 0
 
+    def test_importance_buckets_span_all_bands(self) -> None:
+        """by_importance_bucket bins scores into the four coarse bands."""
+        index = {
+            "entries": {
+                "https://a.test": {"importance_score": 10, "url": "https://a.test"},
+                "https://b.test": {"importance_score": 40, "url": "https://b.test"},
+                "https://c.test": {"importance_score": 60, "url": "https://c.test"},
+                "https://d.test": {"importance_score": 90, "url": "https://d.test"},
+            },
+            "hashes": {},
+        }
+        buckets = corpus_stats(index).by_importance_bucket
+        assert buckets == {"0-25": 1, "26-50": 1, "51-75": 1, "76-100": 1}
+
 
 class TestClusterByDomain:
     """Topic clustering by URL domain."""
@@ -172,6 +198,58 @@ class TestClusterByDomain:
             "https://github.com/not-fl3/macroquad",
         }
         assert clusters["docs.litellm.ai"] == ["https://docs.litellm.ai/blog/x"]
+
+    def test_entry_without_url_clusters_under_local(self) -> None:
+        """A capture with no URL (local file) groups under ``(local)``."""
+        index = {
+            "entries": {"local:note": {"importance_score": 50, "url": None}},
+            "hashes": {},
+        }
+        clusters = cluster_by_domain(index)
+        assert clusters["(local)"] == ["local:note"]
+
+
+class TestTimestampResilience:
+    """``_parse_timestamp`` tolerates non-ISO and non-string inputs.
+
+    Reached through ``staleness_report``, which parses ``last_updated``
+    on every entry. The deliberate design is to default a bad timestamp
+    to *now* (UTC) rather than raise, so one malformed entry cannot abort
+    a whole report. Pinning it here makes any future "fail loud" change a
+    conscious decision.
+    """
+
+    def test_unparsable_timestamp_does_not_raise(self) -> None:
+        """A garbage ``last_updated`` string yields a report, not an error."""
+        index = {
+            "entries": {
+                "https://x.test": {
+                    "importance_score": 50,
+                    "maturity": "seedling",
+                    "last_updated": "not-a-timestamp",
+                    "url": "https://x.test",
+                }
+            },
+            "hashes": {},
+        }
+        report = {s.entry_id: s for s in staleness_report(index)}
+        assert "https://x.test" in report
+
+    def test_naive_datetime_is_treated_as_utc(self) -> None:
+        """A tz-naive ``datetime`` is accepted and assumed UTC, not rejected."""
+        index = {
+            "entries": {
+                "https://y.test": {
+                    "importance_score": 50,
+                    "maturity": "seedling",
+                    "last_updated": datetime(2026, 1, 1, 12, 0, 0),  # noqa: DTZ001 - intentional naive datetime under test
+                    "url": "https://y.test",
+                }
+            },
+            "hashes": {},
+        }
+        report = {s.entry_id: s for s in staleness_report(index)}
+        assert "https://y.test" in report
 
 
 class TestStalenessReport:
