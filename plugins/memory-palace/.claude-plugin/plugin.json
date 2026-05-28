@@ -16,7 +16,8 @@
     "./skills/digital-garden-cultivator",
     "./skills/knowledge-intake",
     "./skills/review-chamber",
-    "./skills/palace-diagram"
+    "./skills/palace-diagram",
+    "./skills/palace-index-curator"
   ],
   "agents": [
     "./agents/palace-architect.md",

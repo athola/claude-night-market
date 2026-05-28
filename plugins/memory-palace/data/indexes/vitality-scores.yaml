@@ -1,8 +1,6 @@
-# Vitality scores for memory palace knowledge entries
-# Emptied in 1.5.0: knowledge-corpus was removed during consolidation.
 entries: {}
 metadata:
-  last_recomputed: null
+  last_recomputed: '2026-05-28T13:56:45.623327+00:00'
   decay_per_day: 1
   promotion_thresholds:
     growing: 30
