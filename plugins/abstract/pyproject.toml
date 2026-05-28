@@ -69,6 +69,13 @@ extend-ignore = [
 "src/abstract/cli_framework.py" = ["UP046"]
 "tests/test_hooks_homeostatic_monitor.py" = ["F401"]
 
+[tool.ruff.lint.isort]
+# Mirror the root workspace classification so plugin-level ruff agrees
+# with `make lint`: abstract and leyline are both first-party, ordered
+# alphabetically. Without this, leyline is treated as third-party and
+# import ordering ping-pongs between the two configs.
+known-first-party = ["abstract", "leyline", "shared"]
+
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true

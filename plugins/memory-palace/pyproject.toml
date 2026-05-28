@@ -181,6 +181,11 @@ module = [
 ]
 disable_error_code = ["attr-defined"]
 
+[tool.pyright]
+pythonVersion = "3.10"
+extraPaths = ["src", "hooks", "scripts"]
+exclude = [".venv", ".uv-cache", "**/__pycache__"]
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101", "B404", "B603"]
