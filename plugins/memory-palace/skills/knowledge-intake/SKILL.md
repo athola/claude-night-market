@@ -48,6 +48,7 @@ estimated_tokens: 950
 - [Filter Output Example](#filter-output-example)
 - [Progressive Autonomy Integration](#progressive-autonomy-integration)
 - [RL-Based Quality Scoring](#rl-based-quality-scoring)
+- [Anchor-Question Clarity Gate](#anchor-question-clarity-gate)
 - [Usage Signals](#usage-signals)
 - [Quality Decay Model](#quality-decay-model)
 - [Source Lineage Tracking](#source-lineage-tracking)
@@ -67,6 +68,7 @@ estimated_tokens: 950
 - [Safety Checks](#safety-checks)
 - [Index Schema Alignment](#index-schema-alignment)
 - [Integration](#integration)
+- [Exit Criteria](#exit-criteria)
 
 
 # Knowledge Intake
@@ -399,6 +401,30 @@ Current implementation: Level 0 (all human-in-the-loop).
 
 The knowledge corpus uses reinforcement learning signals to dynamically score entry quality based on actual usage patterns.
 
+### Anchor-Question Clarity Gate
+
+Usage signals score an entry *after* it is stored, from how it gets
+accessed. They cannot catch a summary that was never clear enough to
+be useful. Before an entry is written, gate it on the MMPO dual-probe
+(arXiv:2605.30159), adapted from task state to knowledge value:
+
+1. **Value probe**: what does this knowledge let us *do*? Name a
+   concrete capability or decision it enables, not a topic label.
+2. **Gap probe**: what does this knowledge *not* answer? List the
+   bounded open questions it leaves, not generic "more research".
+
+| Value probe | Gap probe | Decision |
+|-------------|-----------|----------|
+| Names a concrete use | Bounded, specific gaps | Store at the evaluated score |
+| Names a concrete use | "Everything" / empty | Store, but cap at seedling until gaps are named |
+| Vague ("useful background") | Any | Do not store as knowledge: capture the key quote only or skip |
+
+This gate is qualitative and complements, does not replace, the
+Importance Criteria score: a summary can score well on Applicability
+yet still fail the value probe if it cannot name what it enables.
+When `memory-palace:memory-clarity-probe` is installed, delegate the
+dual-probe evaluation to it and use its `Recommendation` as the gate.
+
 ### Usage Signals
 
 | Signal | Weight | Description |
@@ -701,3 +727,16 @@ entries:
 - `digital-garden-cultivator` - Manages knowledge lifecycle
 - `knowledge-locator` - Finds and retrieves stored knowledge
 - `skills-eval` (abstract) - Evaluates meta-infrastructure updates
+- `memory-clarity-probe` - Dual-probe gate for the clarity check above
+
+## Exit Criteria
+
+- [ ] A non-2xx fetch is dropped, not stored: an HTTP 404/429 body
+  produces no index entry (enforced by `web_research_handler`)
+- [ ] Every stored entry passed the anchor-question clarity gate: its
+  value probe names a concrete capability the knowledge enables
+- [ ] Each stored entry has an `importance_score` in `[0, 100]` and a
+  routing decision from the Application Routing tree
+- [ ] Entries scoring below 40 are captured as a quote or skipped, not
+  stored as full knowledge notes
+- [ ] The index round-trips through its loader after intake

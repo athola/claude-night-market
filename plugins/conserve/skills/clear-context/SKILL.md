@@ -178,6 +178,35 @@ if parent_state and parent_state.get("execution_mode"):
     execution_mode = parent_state["execution_mode"]
 ```
 
+### Step 2.5: Verify Session-State Clarity Before Handoff
+
+A continuation agent inherits only what `session-state.md` says. If
+the draft is ambiguous, the new agent starts from corrupted task
+state. Before spawning, gate the handoff on the belief-clarity check
+(the `belief-clarity` module of `Skill(conserve:context-optimization)`),
+which asks two anchor questions against the draft state:
+
+1. **Progress probe**: what is the current task progress: what is
+   done, and what state is the task in now?
+2. **Gap probe**: what information is still needed to finish: a
+   bounded list of concrete open items, not generic categories.
+
+Gate logic:
+
+- Both answers specific and bounded: save and proceed to Step 3.
+- Gap probe open-ended or progress probe hedging: append the failing
+  probe's answer to `session-state.md` as explicit `Current state:`
+  and `Still needed:` bullets, then re-score.
+- Progress probe vague or empty: do not hand off. Confirm current
+  state with the user (or `imbue:proof-of-work` in unattended mode)
+  before writing state and retrying.
+
+When `memory-palace:memory-clarity-probe` is installed, delegate the
+dual-probe evaluation to it and use its "Proceed" composite as the
+gate. This check is qualitative: it catches drift and omission, not
+confidently-wrong state, so pair it with task-state verification for
+high-stakes handoffs.
+
 ### Step 3: Spawn Continuation Agent
 
 Use the Task tool to delegate. **Important**: Include execution mode in the task prompt:
@@ -360,3 +389,15 @@ Configure thresholds via environment:
 - `CONSERVE_EMERGENCY_THRESHOLD`: Override 80% default (e.g., "0.75")
 - `CONSERVE_CONTEXT_ESTIMATION`: Set to "0" to disable fallback
 - `CONSERVE_CONTEXT_WINDOW_BYTES`: Override 800000 byte estimate
+
+## Exit Criteria
+
+- [ ] The task list is reconciled (completed tasks marked, open task
+  IDs recorded) before any state is written
+- [ ] `.claude/session-state.md` exists and records current task,
+  progress, execution mode, and continuation instructions
+- [ ] The session-state clarity gate (Step 2.5) passed, or the failing
+  probe's answer was appended and re-scored, before handoff
+- [ ] A continuation agent was spawned with the execution mode and the
+  existing task IDs passed through (no duplicate task creation)
+- [ ] Handoff is refused when the progress probe is vague or empty
