@@ -950,3 +950,150 @@ class TestMainDisabledConfig:
         assert exc_info.value.code == 0
         assert capsys.readouterr().out.strip() == ""
         mock_get_config.assert_called_once()
+
+
+class TestNonOkFetchRejection:
+    """Feature: never persist a non-2xx fetch as a knowledge note (#547).
+
+    WebFetch surfaces transport failures as content text such as
+    'The server returned HTTP 429 Too Many Requests.'  A 2026-05 review
+    (PR #546) found such error bodies stored with importance_score 50 and
+    maturity seedling, polluting the index. The intake step must drop any
+    response it can identify as non-2xx before storage.
+    """
+
+    @pytest.mark.unit
+    def test_429_error_body_is_not_stored(self, capsys: pytest.CaptureFixture[str]):
+        """Given a 429 error page over the length floor, do not store it."""
+        # Long enough to clear the <100-char short-circuit, so this test
+        # proves the status guard rejects it, not the length check.
+        error_body = (
+            "The server returned HTTP 429 Too Many Requests.\n"
+            + "Rate limit exceeded; please retry later. " * 5
+        )
+        payload = {
+            "tool_name": "WebFetch",
+            "tool_input": {"url": "https://example.com", "prompt": "get"},
+            "tool_response": {
+                "content": error_body,
+                "url": "https://example.com",
+            },
+        }
+
+        safety_result = MagicMock()
+        safety_result.is_safe = True
+        safety_result.should_sanitize = False
+
+        with (
+            patch("sys.stdin", _json_stdin(payload)),
+            patch(
+                "web_research_handler.get_config",
+                return_value=_default_config(auto_capture=True),
+            ),
+            patch(
+                "web_research_handler.is_safe_content",
+                return_value=safety_result,
+            ),
+            patch("web_research_handler.is_known", return_value=False),
+            patch(
+                "web_research_handler.store_webfetch_content",
+                return_value="/tmp/stored.md",
+            ) as mock_store,
+            pytest.raises(SystemExit) as exc_info,
+        ):
+            web_research_handler.main()
+
+        assert exc_info.value.code == 0
+        mock_store.assert_not_called()
+        ctx = json.loads(capsys.readouterr().out.strip())["hookSpecificOutput"][
+            "additionalContext"
+        ]
+        assert "429" in ctx
+        assert "not captured" in ctx.lower()
+
+    @pytest.mark.unit
+    def test_404_error_body_is_not_stored(self):
+        """Given a 404 error page, do not store it."""
+        error_body = (
+            "The server returned HTTP 404 Not Found.\n"
+            + "The requested resource does not exist. " * 5
+        )
+        payload = {
+            "tool_name": "WebFetch",
+            "tool_input": {"url": "https://example.com/gone", "prompt": "get"},
+            "tool_response": {
+                "content": error_body,
+                "url": "https://example.com/gone",
+            },
+        }
+        safety_result = MagicMock()
+        safety_result.is_safe = True
+        safety_result.should_sanitize = False
+
+        with (
+            patch("sys.stdin", _json_stdin(payload)),
+            patch(
+                "web_research_handler.get_config",
+                return_value=_default_config(auto_capture=True),
+            ),
+            patch(
+                "web_research_handler.is_safe_content",
+                return_value=safety_result,
+            ),
+            patch("web_research_handler.is_known", return_value=False),
+            patch(
+                "web_research_handler.store_webfetch_content",
+                return_value="/tmp/stored.md",
+            ) as mock_store,
+            pytest.raises(SystemExit),
+        ):
+            web_research_handler.main()
+
+        mock_store.assert_not_called()
+
+    @pytest.mark.unit
+    def test_article_mentioning_status_codes_is_still_stored(self):
+        """A legit article that merely mentions 404/429 is still captured.
+
+        Guards against an over-broad detector: only the WebFetch failure
+        signature ('server returned HTTP <code>') counts as a failed
+        fetch, not prose that discusses HTTP status codes.
+        """
+        article = (
+            "# Understanding HTTP status codes\n"
+            "A 404 means Not Found and a 429 means Too Many Requests. "
+            "This guide explains how to handle them gracefully. " * 4
+        )
+        payload = {
+            "tool_name": "WebFetch",
+            "tool_input": {"url": "https://blog.example/http", "prompt": "get"},
+            "tool_response": {
+                "content": article,
+                "url": "https://blog.example/http",
+            },
+        }
+        safety_result = MagicMock()
+        safety_result.is_safe = True
+        safety_result.should_sanitize = False
+
+        with (
+            patch("sys.stdin", _json_stdin(payload)),
+            patch(
+                "web_research_handler.get_config",
+                return_value=_default_config(auto_capture=True),
+            ),
+            patch(
+                "web_research_handler.is_safe_content",
+                return_value=safety_result,
+            ),
+            patch("web_research_handler.is_known", return_value=False),
+            patch("web_research_handler.get_content_hash", return_value="abc123"),
+            patch(
+                "web_research_handler.store_webfetch_content",
+                return_value="/tmp/stored.md",
+            ) as mock_store,
+            pytest.raises(SystemExit),
+        ):
+            web_research_handler.main()
+
+        mock_store.assert_called_once()

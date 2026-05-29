@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -137,6 +138,40 @@ def extract_content_from_webfetch(
                 content = result.get("content", "")
 
     return content, url
+
+
+# WebFetch reports transport failures as content text, e.g.
+# "The server returned HTTP 429 Too Many Requests." Anchoring on this
+# exact phrase keeps the detector precise: an article that merely
+# mentions "404" or "HTTP 500" in prose is not a failed fetch.
+_FETCH_STATUS_RE = re.compile(r"server returned HTTP\s+(\d{3})", re.IGNORECASE)
+
+
+def detect_failed_fetch_status(
+    tool_response: dict[str, Any],
+    content: str,
+) -> int | None:
+    """Return the HTTP status of a non-2xx fetch, or None if it looks OK.
+
+    Storing an error body (HTTP 404/429/5xx page) as a seedling knowledge
+    note pollutes the index (issue #547). The caller drops any response we
+    can positively identify as non-2xx. A return of None means "no failure
+    detected", not "verified 2xx": a present body without the failure
+    signature is treated as a successful fetch, matching prior behavior.
+    """
+    if isinstance(tool_response, dict):
+        for key in ("status_code", "status", "http_status"):
+            val = tool_response.get(key)
+            if isinstance(val, bool):
+                continue
+            if isinstance(val, int) and not 200 <= val < 300:
+                return val
+    match = _FETCH_STATUS_RE.search(content or "")
+    if match:
+        code = int(match.group(1))
+        if not 200 <= code < 300:
+            return code
+    return None
 
 
 def extract_results_from_websearch(
@@ -416,6 +451,15 @@ def _handle_webfetch(
     content, url = extract_content_from_webfetch(tool_response)
     url = url or tool_input.get("url", "")
     prompt = tool_input.get("prompt", "")
+
+    failed_status = detect_failed_fetch_status(tool_response, content)
+    if failed_status is not None:
+        logger.info("Skipping non-2xx fetch (HTTP %s) from %s", failed_status, url)
+        context_parts.append(
+            f"Memory Palace: Fetch from {url} returned HTTP "
+            f"{failed_status}; not captured.",
+        )
+        return context_parts, None, None
 
     if not content or len(content) < 100:
         sys.exit(0)  # Too short to be valuable
