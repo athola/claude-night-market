@@ -131,11 +131,21 @@ list above.
   "boasts", "marks" (a turning point), "represents" (a shift)
   with plain "is", "has", "uses", or delete. Heuristic: if
   the subject cannot literally do the verb, the verb is slop.
-- **Negative parallelism**: rewrite "It's not X, it's Y",
-  "Y, not X" (trailing), "Not just X, but Y", "Not only X,
-  but also Y", "No X. No Y. Just Z.", "No X, no Y, no Z",
-  "Not because X. Because Y.", "And that's okay." Positively
-  state Y; drop the X half.
+- **Negative parallelism (contrastive negation)**: rewrite
+  "It's not X, it's Y", "Y, not X" (trailing), "Not just X,
+  but Y", "Not only X, but also Y", "No X. No Y. Just Z.",
+  "No X, no Y, no Z", "Not because X. Because Y.", "And
+  that's okay." Positively state Y; drop the X half.
+- **Contrastive parallelism (affirmative antithesis)**: the
+  same scaffold without a "not" anchor. Rewrite "Less X,
+  more Y", "Where others X, we Y", subject-swap clauses
+  ("Humans propose; machines dispose"), "Old way: X. New
+  way: Y.", and chiasmus. Avoid both contrastive forms in
+  all but the most necessary cases: keep one only when the
+  contrast is load-bearing and survives removal. Subject-swap
+  and chiasmus are judgment-level; surface, do not
+  auto-rewrite. Leave `Before:`/`After:` code-example labels
+  alone.
 - **Throat-clearing openers**: delete "Here's the thing,",
   "Look,", "So," (non-contrastive), "The thing is,", "Let
   that sink in.", "The uncomfortable truth is", "Let me

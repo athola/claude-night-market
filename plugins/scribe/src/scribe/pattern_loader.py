@@ -218,6 +218,43 @@ def get_phrase_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
+def get_tier5_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract Tier 5 structural patterns from loaded patterns.
+
+    Tier 5 covers the 2026 structural tells (spatial copula, negative
+    parallelism, contrastive parallelism, three-fragment burst, smart
+    quotes, and similar) as regex rather than word lists. Each category
+    carries a score, a confidence level, and an ``ignore_case`` flag so
+    callers can compile the regex with the correct flags.
+
+    Languages without a ``tier5`` section return an empty list, which
+    lets callers degrade gracefully until a language pack is translated.
+
+    Args:
+        patterns: Loaded language pattern dictionary.
+
+    Returns:
+        List of dicts, one per category, each with ``category``,
+        ``patterns`` (list of regex strings), ``score``, ``confidence``,
+        and ``ignore_case``.
+    """
+    tier5 = patterns.get("tier5", {})
+    result: list[dict[str, Any]] = []
+    for category_name, category_data in tier5.items():
+        if not isinstance(category_data, dict):
+            continue
+        result.append(
+            {
+                "category": category_name,
+                "patterns": list(category_data.get("patterns", [])),
+                "score": category_data.get("score", 2),
+                "confidence": category_data.get("confidence", "high"),
+                "ignore_case": bool(category_data.get("ignore_case", False)),
+            }
+        )
+    return result
+
+
 def detect_language(text: str) -> str:
     """Simple language detection based on common function words.
 

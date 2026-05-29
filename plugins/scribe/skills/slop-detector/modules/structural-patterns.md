@@ -9,6 +9,14 @@ estimated_tokens: 600
 
 AI-generated text exhibits distinctive structural patterns beyond vocabulary.
 
+The Tier 5 regexes below (spatial copula, negative parallelism,
+contrastive parallelism, three-fragment burst, smart quotes, plus-sign
+conjunction, arrow connector, throat-clearing) are mirrored in the
+runtime source at `data/languages/en.yaml` § `tier5` and exposed by
+`pattern_loader.get_tier5_patterns()`. The YAML is the single source of
+truth for the regex; this module is the prose reference. Keep the two in
+sync when editing a pattern.
+
 ## Em Dash Analysis
 
 AI uses em dashes (—) excessively as a rhetorical device. The
@@ -286,12 +294,22 @@ awk '/^```/{c=!c}!c' file.md | \
 - Botanical/biological/etymological context ("the variant
   is rooted in Latin").
 
-## Negative Parallelism Constructions
+## Negative Parallelism Constructions (Contrastive Negation)
 
 The strongest non-vocabulary 2026 prose tell. Independently
 flagged by Wikipedia, OliviaCal, ContentBeta, Stop-Slop, and
 George Kao. AI reaches for these rhetorical scaffolds when it
 has no real argument to make.
+
+In linguistics this family is **contrastive negation**: a
+clause that negates one element to assert another ("not X,
+but Y"). It is one half of a broader device, **contrastive
+parallelism** (antithesis); the affirmative half, which has no
+"not" anchor, is covered in the next section. Treat both the
+same way: avoid them in all but the most necessary cases. The
+test for "necessary" is whether deleting the contrast loses
+information. "We use Python instead of Java" keeps a fact;
+"It's not a tool, it's a transformation" keeps nothing.
 
 | Pattern | Example |
 |---------|---------|
@@ -338,6 +356,55 @@ isn't, then what it does.
 | "No friction, no setup, no config." | "Zero-setup and zero-config." |
 | "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |
 | "We use Python, not Java." | "We use Python instead of Java." (keep the contrast, drop the negation) |
+
+## Contrastive Parallelism (Affirmative Antithesis)
+
+The affirmative sibling of contrastive negation: two parallel
+clauses set in opposition with no "not" anchor. AI reaches for
+antithesis to manufacture punch, the same impulse behind the
+negation form, but without the "not" it slips past a scan that
+only looks for "not X, but Y".
+
+| Pattern | Example |
+|---------|---------|
+| `Less X, more Y` / `More X, less Y` | "Less config, more code" |
+| `Where others X, we Y` | "Where others add complexity, we remove it" |
+| Subject-swap clauses | "Humans propose; machines dispose" |
+| `Old way: X. New way: Y.` framing | "Old way: tickets. New way: chat" |
+| Chiasmus (reversed repetition) | "Code you can read, read code you can trust" |
+
+```python
+# Only the comparative form is reliable enough to flag
+# automatically; the rest are judgment-level (confidence: low).
+CONTRASTIVE_PARALLELISM = [
+    # "Less X, more Y" / "More X, less Y" — comparative antithesis
+    r"\b(?:Less|More)\s+\w+,\s+(?:less|more)\s+\w+",
+    # "Where others X, we Y" — pronoun guard limits locative false
+    # positives ("where the file is, the system...") but not all
+    r"\bWhere\s+[\w\s]+?,\s+(?:we|you|they|it)\b",
+]
+```
+
+Subject-swap clauses, `Old way:/New way:` framing, and chiasmus
+resist a tight regex (the opposition is semantic, not lexical).
+Flag them by reading, mark `confidence: low`, and surface for
+human decision rather than auto-rewriting. `Before:`/`After:`
+labels are common in legitimate code examples; do not flag them
+as antithesis.
+
+### Prevention rule
+
+In newly generated docs, treat affirmative antithesis the same
+as contrastive negation: avoid in all but the most necessary
+cases. Keep it only when both sides are concrete, the contrast
+is load-bearing, and you use it once rather than as a rhythm.
+Rewrite decorative antithesis as a plain statement.
+
+| Slop | Rewrite |
+|------|---------|
+| "Less config, more code" | "Setup is one file; the rest is code" |
+| "Where others add complexity, we remove it" | "This removes a configuration step competitors require" |
+| "Humans propose; machines dispose" | "A human picks the option; the agent applies it" |
 
 ## Three-Fragment Burst
 
@@ -479,6 +546,10 @@ def structural_score(metrics):
         score += 2
     if metrics.get('negative_parallelism_count', 0) >= 1:
         score += 3
+    # Affirmative antithesis: comparative form scores; judgment-level
+    # matches (subject-swap, chiasmus) are surfaced, not scored.
+    if metrics.get('contrastive_parallelism_count', 0) >= 1:
+        score += 2
     if metrics.get('three_fragment_burst_count', 0) >= 2:
         score += 2
     if metrics.get('smart_quote_count', 0) >= 3:

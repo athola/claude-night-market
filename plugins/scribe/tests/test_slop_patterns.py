@@ -7,8 +7,39 @@ vocabulary, structural, and fiction-specific categories.
 """
 
 import re
+import sys
+from pathlib import Path
 
 import pytest
+
+# Add src to path so the runtime pattern source is importable. Tier 5
+# tests source their regex from pattern_loader rather than inline
+# fixtures, so they fail if the YAML tier5 section is removed
+# (de-tautologized per Discussion #542).
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from scribe.pattern_loader import get_tier5_patterns, load_language_patterns
+
+
+def _tier5_category(name: str) -> dict:
+    """Return one Tier 5 category from the English runtime source."""
+    patterns = load_language_patterns("en")
+    for entry in get_tier5_patterns(patterns):
+        if entry["category"] == name:
+            return entry
+    raise AssertionError(f"tier5 category not found in runtime source: {name}")
+
+
+def _compile_category(name: str) -> list[re.Pattern]:
+    """Compile every regex in a Tier 5 category with its declared flags."""
+    entry = _tier5_category(name)
+    flags = re.IGNORECASE if entry.get("ignore_case") else 0
+    return [re.compile(p, flags) for p in entry["patterns"]]
+
+
+def _category_hits(name: str, text: str) -> int:
+    """Total matches across all regex in a Tier 5 category."""
+    return sum(len(p.findall(text)) for p in _compile_category(name))
 
 
 class TestTier1VocabularyPatterns:
@@ -637,3 +668,69 @@ class TestTier5SmartQuotes:
         text = 'The skill returns a "finding" for each match.'
         matches = smart_quote_pattern.findall(text)
         assert len(matches) == 0
+
+
+class TestTier5ContrastiveParallelism:
+    """Feature: Detect affirmative contrastive parallelism (antithesis).
+
+    Contrastive negation ("not X, but Y") is covered by
+    TestTier5NegativeParallelism. This class covers the affirmative
+    sibling: two parallel clauses set in opposition with no "not"
+    anchor ("Less config, more code"; "Where others X, we Y"). These
+    are judgment-level tells: keep them only when the contrast carries
+    information that survives removal.
+
+    The regex is sourced from the runtime pattern loader
+    (data/languages/en.yaml § tier5.contrastive_parallelism), not from
+    an inline fixture, so removing it from the YAML breaks these tests.
+    """
+
+    CATEGORY = "contrastive_parallelism"
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Affirmative antithesis never auto-applies."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_detects_less_more(self) -> None:
+        """Scenario: Detect 'Less X, more Y' comparative antithesis."""
+        assert _category_hits(self.CATEGORY, "Less config, more code.") == 1
+
+    @pytest.mark.unit
+    def test_detects_more_less(self) -> None:
+        """Scenario: Detect 'More X, less Y' comparative antithesis."""
+        assert _category_hits(self.CATEGORY, "More haste, less speed.") == 1
+
+    @pytest.mark.unit
+    def test_less_more_ignores_no_comma(self) -> None:
+        """Scenario: 'more X and less Y' (no comma) is not the pattern.
+
+        Plain comparatives joined by "and" are ordinary prose, not the
+        antithesis scaffold. Requiring the comma keeps the match tight.
+        """
+        assert (
+            _category_hits(self.CATEGORY, "We added more tests and less mocking.") == 0
+        )
+
+    @pytest.mark.unit
+    def test_detects_where_contrast(self) -> None:
+        """Scenario: Detect 'Where others X, we Y' rhetorical contrast."""
+        text = "Where others add complexity, we remove it."
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    def test_where_locative_with_noun_passes(self) -> None:
+        """Scenario: Locative 'where' with a noun subject does not match.
+
+        The pronoun guard means "Where the config is stored, the
+        system reads it" is left alone (subject is "the system").
+        """
+        text = "Where the config is stored, the system reads it."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_positive_statement_passes(self) -> None:
+        """Scenario: A direct positive statement matches no pattern."""
+        text = "The config is small and the code is short."
+        assert _category_hits(self.CATEGORY, text) == 0
