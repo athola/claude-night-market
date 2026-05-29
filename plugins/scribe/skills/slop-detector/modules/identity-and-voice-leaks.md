@@ -244,6 +244,33 @@ Especially as a paragraph opener. As a single sentence
 inside a longer argument it can be fine; as a structural
 reflex it is generated.
 
+The "not just / not only" family is the **contrastive
+negation** half of a broader device. Its affirmative
+sibling has no "not" anchor and is covered next.
+
+### Affirmative antithesis (Score: 3)
+
+The same opposition scaffold with the negation removed:
+two parallel clauses set against each other to manufacture
+punch.
+
+```
+"Less [X], more [Y]"   ("Less config, more code")
+"Where others [X], we [Y]"
+"[Old]: X. [New]: Y."
+subject-swap clauses   ("Humans propose; machines dispose")
+```
+
+Treat it the same as contrastive negation: avoid in all but
+the most necessary cases, keeping it only when both sides are
+concrete and the contrast survives removal. The comparative
+"Less X, more Y" form is regex-detectable; subject-swap and
+chiasmus are judgment-level (`confidence: low`), so surface
+them for human decision rather than auto-rewriting. The full
+detection regex, scoring, and remediation table live in
+`structural-patterns.md` § Contrastive Parallelism. Leave
+`Before:`/`After:` labels on code examples alone.
+
 ### Detection rule
 
 Both patterns are pattern-matchable but contextual. Flag

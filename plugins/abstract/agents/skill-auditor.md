@@ -49,24 +49,24 @@ of individual skills.
 
 ### Detailed Audit
 
-1. **Discover skills** -- scan the target plugin or
+1. **Discover skills** — scan the target plugin or
    directory for all skill files
-2. **Analyze structure** -- validate frontmatter, section
+2. **Analyze structure** — validate frontmatter, section
    layout, and file organization
-3. **Evaluate quality** -- score each skill against the
+3. **Evaluate quality** — score each skill against the
    quality metrics below
-4. **Generate improvements** -- rank issues by severity
+4. **Generate improvements** — rank issues by severity
    and propose fixes
-5. **Create report** -- produce the final audit report
+5. **Create report** — produce the final audit report
    in the requested format
 
 ### Targeted Review
 
-1. **Analyze skill** -- deep-dive into a single skill
-2. **Check compliance** -- verify against all standards
-3. **Suggest improvements** -- produce specific, ranked
+1. **Analyze skill** — deep-dive into a single skill
+2. **Check compliance** — verify against all standards
+3. **Suggest improvements** — produce specific, ranked
    recommendations
-4. **Validate fixes** -- re-check after changes are applied
+4. **Validate fixes** — re-check after changes are applied
 
 ## Quality Metrics
 
@@ -110,13 +110,13 @@ directory or with correct PYTHONPATH so that
 
 ## Output Formats
 
-- **markdown-report** -- human-readable audit with
+- **markdown-report** — human-readable audit with
   findings, scores, and recommendations
-- **json-analysis** -- machine-readable scores and
+- **json-analysis** — machine-readable scores and
   metadata for downstream processing
-- **quality-score** -- single composite score (0-100)
+- **quality-score** — single composite score (0-100)
   with per-dimension breakdown
-- **improvement-plan** -- prioritized list of changes
+- **improvement-plan** — prioritized list of changes
   with estimated effort and impact
 
 ## Integration

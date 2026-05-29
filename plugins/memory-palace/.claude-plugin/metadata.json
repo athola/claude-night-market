@@ -1,13 +1,14 @@
 {
   "name": "memory-palace",
-  "version": "1.9.8",
+  "version": "1.9.9",
   "main": "skills",
   "skills": [
     "skills/memory-palace-architect",
     "skills/knowledge-locator",
     "skills/session-palace-builder",
     "skills/digital-garden-cultivator",
-    "skills/knowledge-intake"
+    "skills/knowledge-intake",
+    "skills/memory-clarity-probe"
   ],
   "dependencies": {},
   "provides": {

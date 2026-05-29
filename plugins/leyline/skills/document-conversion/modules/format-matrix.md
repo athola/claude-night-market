@@ -57,6 +57,6 @@ or visual only), None (not supported at this tier).
 **When Tier 1 matters most** (strongly prefer markitdown):
 
 - PDFs with tables, equations, or scanned content
-- Office documents (DOCX, PPTX, XLSX) -- no Tier 2 at all
+- Office documents (DOCX, PPTX, XLSX) — no Tier 2 at all
 - Images requiring text extraction (OCR)
 - Audio files requiring transcription

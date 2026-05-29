@@ -80,6 +80,6 @@ def analyze_git_changes():
 
 #### Execution Markdown Detection
 
-Files under `skills/`, `agents/`, `modules/`, or `commands/` with `.md` extension are execution markdown -- Claude interprets them as behavioral instructions. These are NOT low-priority documentation changes.
+Files under `skills/`, `agents/`, `modules/`, or `commands/` with `.md` extension are execution markdown — Claude interprets them as behavioral instructions. These are NOT low-priority documentation changes.
 
 When execution markdown is modified, check for corresponding content tests using the L1/L2/L3 taxonomy. See `modules/content-test-discovery.md` for detection heuristics and gap analysis, and `modules/generation/content-test-templates.md` for BDD test scaffolding.

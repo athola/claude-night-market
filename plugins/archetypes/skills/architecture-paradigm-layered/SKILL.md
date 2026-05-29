@@ -97,6 +97,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``dependency-validator`` -- fails the build when a layer imports above its allowed depth
-- ``layer-enforcer`` -- static-analysis gate that checks namespaces match layer rules
-- ``architecture-compliance-checker`` -- diffs the implemented layer graph against the documented one
+- ``dependency-validator`` — fails the build when a layer imports above its allowed depth
+- ``layer-enforcer`` — static-analysis gate that checks namespaces match layer rules
+- ``architecture-compliance-checker`` — diffs the implemented layer graph against the documented one

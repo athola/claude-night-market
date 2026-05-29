@@ -20,13 +20,13 @@ load_when: hooks are slow or failing
 
 ## Optimization Strategies
 
-1. **Only test changed components** -- default behavior in
+1. **Only test changed components** — default behavior in
    the Layer 2 scripts.
-2. **Parallel execution** -- pre-commit runs hooks
+2. **Parallel execution** — pre-commit runs hooks
    concurrently when possible.
-3. **Caching** -- dependencies cached by uv; mypy uses
+3. **Caching** — dependencies cached by uv; mypy uses
    `.mypy_cache/`.
-4. **Incremental mypy** -- enable `--incremental` for repeat
+4. **Incremental mypy** — enable `--incremental` for repeat
    commits in the same session.
 
 ## Hooks Too Slow

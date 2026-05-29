@@ -12,7 +12,7 @@ estimated_tokens: 250
 
 ### GREEN — Safe
 
-**Scope**: Single file, trivially reversible (`git checkout -- <file>`)
+**Scope**: Single file, trivially reversible (`git checkout — <file>`)
 
 **Criteria:**
 - Changes confined to a single file

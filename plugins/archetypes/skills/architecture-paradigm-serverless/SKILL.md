@@ -66,6 +66,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``cloud-sdk`` -- AWS SDK, Google Cloud SDK, or Azure SDK; first-class platform integration
-- ``serverless-framework`` -- Serverless Framework, SAM, or CDK; declarative function deployment
-- ``IaC-tools`` -- Terraform, Pulumi, or platform-native IaC for shared infrastructure around functions
+- ``cloud-sdk`` — AWS SDK, Google Cloud SDK, or Azure SDK; first-class platform integration
+- ``serverless-framework`` — Serverless Framework, SAM, or CDK; declarative function deployment
+- ``IaC-tools`` — Terraform, Pulumi, or platform-native IaC for shared infrastructure around functions

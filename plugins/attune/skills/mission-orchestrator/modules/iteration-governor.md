@@ -23,7 +23,7 @@ upstream in the specification.
 | Round | Status | User Sees |
 |-------|--------|-----------|
 | 1 | Normal | "Round 1/3" in review header |
-| 2 | Warning | "Round 2/3 -- next round is final" |
+| 2 | Warning | "Round 2/3 — next round is final" |
 | 3 | Final | "Final round (3/3)" |
 | After 3 | Blocked | Escalation options presented |
 

@@ -64,6 +64,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``api-gateway`` -- single ingress that routes to coarse-grained services and centralizes cross-cutting concerns
-- ``service-registry`` -- directory of available services with health status and contracts
-- ``schema-management`` -- shared schema repo for types crossing service boundaries
+- ``api-gateway`` — single ingress that routes to coarse-grained services and centralizes cross-cutting concerns
+- ``service-registry`` — directory of available services with health status and contracts
+- ``schema-management`` — shared schema repo for types crossing service boundaries

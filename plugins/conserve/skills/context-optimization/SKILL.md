@@ -13,6 +13,7 @@ modules:
 - modules/memory-tiers.md
 - modules/session-routing.md
 - modules/subagent-coordination.md
+- modules/belief-clarity.md
 hooks:
   PreToolUse:
   - matcher: Read

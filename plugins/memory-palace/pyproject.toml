@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.9.8"
+version = "1.9.9"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -180,6 +180,11 @@ module = [
     "tests.scripts.test_update_autonomy_state",
 ]
 disable_error_code = ["attr-defined"]
+
+[tool.pyright]
+pythonVersion = "3.10"
+extraPaths = ["src", "hooks", "scripts"]
+exclude = [".venv", ".uv-cache", "**/__pycache__"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

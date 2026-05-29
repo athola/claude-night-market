@@ -59,6 +59,9 @@ endif
 test-unit: ## Run unit tests only
 	@echo "Running unit tests..."
 	@$(PYTEST) $(TEST_UNIT_TARGETS) $(TEST_UNIT_ARGS) || { echo "[WARN] Tests failed"; exit 1; }
+ifneq ($(strip $(TEST_UNIT_EXTRA)),)
+	@$(TEST_UNIT_EXTRA)
+endif
 
 # Alias for backwards compatibility
 unit-tests: test-unit

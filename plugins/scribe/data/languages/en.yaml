@@ -149,3 +149,62 @@ sycophantic:
     - "That's a wonderful point"
     - "I'm glad you asked"
     - "You're absolutely right"
+tier5:
+  spatial_copula:
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:lives?|sits?|stands?|rests?|dwells?)\s+(?:in|at|on|between|within|atop)\b'
+      - '\b(?:serves?\s+as|stands?\s+as|boasts?|nestled\s+in|rooted\s+in)\b'
+  negative_parallelism:
+    score: 3
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bNot\s+just\s+\w+,?\s+but(?:\s+also)?\s+\w+'
+      - '\bIt''s not [\w\s]+?,\s+it''s \w+'
+      - '\bNo \w+\.\s+No \w+\.\s+Just \w+'
+      - '\bNo \w+,\s+no \w+(?:,\s+no \w+)*'
+      - '\bAnd that''s okay\.'
+      - '\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]'
+  contrastive_parallelism:
+    score: 2
+    confidence: low
+    ignore_case: false
+    patterns:
+      - '\b(?:Less|More)\s+\w+,\s+(?:less|more)\s+\w+'
+      - '\bWhere\s+[\w\s]+?,\s+(?:we|you|they|it)\b'
+  three_fragment_burst:
+    score: 2
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.'
+  smart_quotes:
+    score: 1
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '[“”‘’]'
+  plus_sign_conjunction:
+    score: 1
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '\w\s\+\s\w'
+  arrow_connector:
+    score: 1
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '\s->\s|→'
+  throat_clearing:
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bHere''s the thing,'
+      - '\bThe thing is,'
+      - '\bLet that sink in\b'
+      - '\bThe uncomfortable truth is\b'

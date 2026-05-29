@@ -18,7 +18,7 @@ This command modifies history or discards work. Please verify before proceeding.
 | Command | Effect | Recovery |
 |---------|--------|----------|
 | `git reset` (soft/mixed) | Moves HEAD, may unstage | `git reflog` and `git reset` |
-| `git checkout <branch> -- <file>` | Replaces file from branch | None for uncommitted |
+| `git checkout <branch> — <file>` | Replaces file from branch | None for uncommitted |
 | `git rebase -i` | Rewrites commit history | `git reflog` |
 | `git rebase --onto` | Transplants commits | `git reflog` |
 | `git cherry-pick --abort` | Discards in-progress pick | None |

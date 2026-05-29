@@ -146,7 +146,7 @@ surfaces in:
 All compound the maintenance bill. Read reasoning-mode
 output as a *first draft*, not as production code.
 
-Detection: run `cargo clippy --all-targets -- -W
+Detection: run `cargo clippy --all-targets — -W
 clippy::cognitive_complexity -W clippy::too_many_lines`
 and treat the resulting warnings as load-bearing, not
 cosmetic.

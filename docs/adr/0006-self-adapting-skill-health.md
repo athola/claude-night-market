@@ -10,7 +10,7 @@ Skills degrade over time as codebases evolve, dependencies shift,
 and usage patterns change. Without automated monitoring,
 skill regressions go unnoticed until users report failures.
 We need a system that detects degrading skills, triggers improvements,
-and safeguards against regressions -- all with minimal human intervention.
+and safeguards against regressions — all with minimal human intervention.
 
 ### Requirements
 

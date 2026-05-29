@@ -66,7 +66,7 @@ each plugin owns its publishing and retrieval logic.
    No auto-publish.
 
 3. **Graceful degradation**: Non-GitHub platforms, repos without Discussions,
-   unauthenticated `gh` -- all result in silent skip with valid empty-context
+   unauthenticated `gh` — all result in silent skip with valid empty-context
    JSON. The hook is best-effort enrichment, not a critical path.
 
 4. **Category resolution by slug**:

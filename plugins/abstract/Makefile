@@ -13,7 +13,8 @@
 
 .PHONY:
 .PHONY: analyze-skill audit-all audit-skill check check-changelog check-compliance ci-check clean \
-	debug-variables demo-skills demo-validate-plugin dev-setup docs docs-check docs-clean docs-serve \
+	debug-variables demo-analyzer demo-skills demo-tokens demo-validate-plugin demo-validation \
+	demo-verify dev-setup docs docs-check docs-clean docs-serve \
 	estimate-tokens eval-report format generate-wrappers help improve-skill install-hooks lint \
 	mutation-test plugin-check security status test test-coverage test-quick test-unit \
 	test-validate-plugin test-wrappers type-check typecheck unit-tests update-changelog \
@@ -268,7 +269,18 @@ demo-skills: ## List available skills
 		echo "  - $$name"; \
 	done
 
-plugin-check: demo-validation demo-tokens demo-analyzer ## Run all live demos
+demo-verify: ## Demonstrate the finding-verifier promotion gate (LIVE)
+	@echo "=== Finding-Verifier Promotion Gate Demo (LIVE) ==="
+	@echo ""
+	@echo "Finding at a live location (gate should NOT skip):"
+	@$(UV_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+		--where "plugins/abstract/scripts/finding_verifier.py:50-60" || true
+	@echo ""
+	@echo "Finding whose location was refactored away (gate SHOULD skip):"
+	@$(UV_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+		--where "plugins/abstract/scripts/removed_long_ago.py" || true
+
+plugin-check: demo-validation demo-tokens demo-analyzer demo-verify ## Run all live demos
 	@echo ""
 	@echo "=== Abstract Plugin Check Complete ==="
 

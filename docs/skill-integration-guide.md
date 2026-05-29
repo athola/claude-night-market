@@ -131,10 +131,10 @@ A 2026-04-25 audit found that 85 of 195 skills (~43%) had
 until you separate two distinct populations:
 
 1. Skills users invoke directly via slash commands or
-   agent prompts -- they SHOULD have low Skill() inbound
+   agent prompts — they SHOULD have low Skill() inbound
    counts because the user is the caller.
 2. Skills that exist solely to be loaded by other skills
-   -- they SHOULD have high Skill() inbound counts because
+   — they SHOULD have high Skill() inbound counts because
    that is their entire purpose.
 
 Without this distinction, "orphan" is a meaningless flag.
@@ -255,7 +255,7 @@ Field semantics in the audit (`plugins/abstract/scripts/skill_graph.py`):
   is the normal case and never flags as an isolate.
 - `role: library` skills exist to be loaded by other
   skills. Zero inbound is reported in a separate
-  `uncalled_libraries` bin -- a softer "potentially
+  `uncalled_libraries` bin — a softer "potentially
   dead" signal that does not conflate with genuine
   orphans.
 - `role: hook-target` skills are invoked by hooks; the
@@ -269,7 +269,7 @@ valid entry path. Bare names resolve to same-plugin
 sibling skills (the canonical hub-loads-paradigm
 pattern); fully-qualified `plugin:name` entries cross
 plugin boundaries. `modules:` arrays are NOT treated
-as skill references for bare names -- those refer to
+as skill references for bare names — those refer to
 local module files within the skill's own directory.
 
 ### Audit impact

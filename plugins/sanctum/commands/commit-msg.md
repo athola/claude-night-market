@@ -30,7 +30,7 @@ Run these git commands to gather context, then draft the message.
    <footer: BREAKING CHANGE or issue refs, if any>
    ```
 
-5. **Slop check** -- the message must NOT contain:
+5. **Slop check** — the message must NOT contain:
    leverage, utilize, seamless, comprehensive, robust, facilitate,
    streamline, delve, multifaceted, pivotal, intricate, optimize,
    nuanced, furthermore, moreover, revolutionize, elevate, unlock,

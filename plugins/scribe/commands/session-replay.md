@@ -83,9 +83,9 @@ and WebM output formats. Auto-detects the session format
 VHS supports three output formats, selected by the file
 extension in `--output` or explicitly via `--format`:
 
-- **gif** -- animated GIF (default), good for docs and READMEs
-- **mp4** -- H.264 video, smaller files for longer replays
-- **webm** -- VP8/VP9 video, open format for web embedding
+- **gif** — animated GIF (default), good for docs and READMEs
+- **mp4** — H.264 video, smaller files for longer replays
+- **webm** — VP8/VP9 video, open format for web embedding
 
 SVG output is not supported by VHS and is not available.
 
@@ -100,6 +100,6 @@ Done: session-replay.mp4 (18s, 960x540)
 
 ## See Also
 
-- `Skill(scribe:session-replay)` -- full skill reference
-- `Skill(scry:vhs-recording)` -- terminal recording
-- `/session-to-post` -- convert sessions to blog posts
+- `Skill(scribe:session-replay)` — full skill reference
+- `Skill(scry:vhs-recording)` — terminal recording
+- `/session-to-post` — convert sessions to blog posts

@@ -9,7 +9,7 @@ estimated_tokens: 1100
 
 Two related concerns are bundled in one module:
 
-1. **Language detection and calibration** -- which languages are
+1. **Language detection and calibration** — which languages are
    supported, how to detect them, and how to calibrate scores.
 2. **Concrete pattern sets** for non-English slop (German, French,
    Spanish, with extension hooks for Portuguese and Italian).
@@ -29,7 +29,7 @@ Merged from `language-support.md` and `i18n-patterns.md` (P-14).
 
 ## Part 2: Language Selection
 
-### Step 1 -- Check config
+### Step 1 — Check config
 
 Look for a `languages` key in `.slop-config.yaml`:
 
@@ -42,7 +42,7 @@ languages:
 If `languages` is set, scan only those pattern sets. If absent, fall back to
 heuristic detection.
 
-### Step 2 -- Heuristic (no config)
+### Step 2 — Heuristic (no config)
 
 Sample the first 200 words. Count function-word hits:
 
@@ -88,7 +88,30 @@ phrases:
   filler:
     score: 2
     patterns: [...]
+tier5:
+  contrastive_parallelism:
+    score: 2
+    confidence: low
+    ignore_case: false
+    patterns: [...]   # regex strings
+  negative_parallelism:
+    score: 3
+    confidence: high
+    ignore_case: true
+    patterns: [...]
 ```
+
+The optional `tier5` section holds the 2026 structural tells
+(spatial copula, negative parallelism, contrastive parallelism,
+three-fragment burst, smart quotes, and similar) as regex rather
+than word lists. Each category carries a `score`, a `confidence`
+level (`high`, or `low` for judgment-level patterns that must
+never auto-apply), and an `ignore_case` flag. `pattern_loader`
+exposes the section through `get_tier5_patterns()`. A language
+without a `tier5` section returns an empty list, so detection
+degrades to vocabulary and phrase tiers until the pack is
+translated. English (`en.yaml`) is the reference pack; the other
+languages carry no `tier5` patterns yet.
 
 ## Part 4: Cultural Calibration
 

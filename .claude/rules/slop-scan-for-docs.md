@@ -59,6 +59,12 @@ After Layers 0 and 1 pass, you MUST run
    `.claude/rules/markdown-formatting.md`)
 2. Count em dashes: `grep -o '—' file.md | wc -l`
    (target: 0-2 per 1000 words)
+2a. Scan for double-dash em-dash substitution:
+   `grep -n ' -- ' file.md` — any prose match (outside
+   code blocks and `| -- |` table cells) is slop.
+   Replace with a real em-dash `—`, a colon, or rewrite
+   the sentence. `--` is a shell end-of-options separator;
+   it is not punctuation.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)
@@ -131,11 +137,21 @@ list above.
   "boasts", "marks" (a turning point), "represents" (a shift)
   with plain "is", "has", "uses", or delete. Heuristic: if
   the subject cannot literally do the verb, the verb is slop.
-- **Negative parallelism**: rewrite "It's not X, it's Y",
-  "Y, not X" (trailing), "Not just X, but Y", "Not only X,
-  but also Y", "No X. No Y. Just Z.", "No X, no Y, no Z",
-  "Not because X. Because Y.", "And that's okay." Positively
-  state Y; drop the X half.
+- **Negative parallelism (contrastive negation)**: rewrite
+  "It's not X, it's Y", "Y, not X" (trailing), "Not just X,
+  but Y", "Not only X, but also Y", "No X. No Y. Just Z.",
+  "No X, no Y, no Z", "Not because X. Because Y.", "And
+  that's okay." Positively state Y; drop the X half.
+- **Contrastive parallelism (affirmative antithesis)**: the
+  same scaffold without a "not" anchor. Rewrite "Less X,
+  more Y", "Where others X, we Y", subject-swap clauses
+  ("Humans propose; machines dispose"), "Old way: X. New
+  way: Y.", and chiasmus. Avoid both contrastive forms in
+  all but the most necessary cases: keep one only when the
+  contrast is load-bearing and survives removal. Subject-swap
+  and chiasmus are judgment-level; surface, do not
+  auto-rewrite. Leave `Before:`/`After:` code-example labels
+  alone.
 - **Throat-clearing openers**: delete "Here's the thing,",
   "Look,", "So," (non-contrastive), "The thing is,", "Let
   that sink in.", "The uncomfortable truth is", "Let me

@@ -32,7 +32,32 @@ def _is_evergreen(payload: dict[str, Any]) -> bool:
 
 def _persist_queue(queue: dict[str, Any], queue_path: Path) -> None:
     queue_path.parent.mkdir(parents=True, exist_ok=True)
-    queue_path.write_text(json.dumps(queue, indent=2), encoding="utf-8")
+    queue_path.write_text(json.dumps(queue, indent=2) + "\n", encoding="utf-8")
+
+
+def effective_decay(
+    rate_per_day: int, last_recomputed: str | None, now: dt.datetime
+) -> int:
+    """Decay scaled by whole days elapsed since the last recompute.
+
+    Commits in this repo arrive in bursts then go quiet, so decay tracks
+    wall-clock time rather than invocation count. Returns 0 when there
+    is no prior timestamp or less than a full day has elapsed, so bursty
+    same-day runs do not over-decay. Otherwise returns
+    ``rate_per_day * elapsed_days``.
+    """
+    if not last_recomputed:
+        return 0
+    try:
+        last = dt.datetime.fromisoformat(str(last_recomputed).replace("Z", "+00:00"))
+    except ValueError:
+        return 0
+    if last.tzinfo is None:
+        last = last.replace(tzinfo=dt.timezone.utc)
+    elapsed_days = (now - last).days
+    if elapsed_days <= 0:
+        return 0
+    return rate_per_day * elapsed_days
 
 
 def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
@@ -83,14 +108,31 @@ def main() -> None:
     args = parser.parse_args()
 
     data = load_vitality(args.file)
-    decay = args.decay or data.get("metadata", {}).get("decay_per_day", 1)
+    metadata = data.get("metadata", {})
+    rate = metadata.get("decay_per_day", 1)
+    last_recomputed = metadata.get("last_recomputed")
+    now = dt.datetime.now(dt.timezone.utc)
+
+    # Manual --decay overrides the time-based amount; otherwise scale by
+    # elapsed days so bursty same-day commits are a no-op.
+    decay = (
+        args.decay
+        if args.decay is not None
+        else effective_decay(rate, last_recomputed, now)
+    )
+
+    # Persist only when something actually changed: a real decay, or a
+    # first-run bootstrap that needs to record the baseline timestamp.
+    bootstrap = last_recomputed is None
+    changed = decay > 0 or bootstrap
+
     queue = decay_entries(data, decay)
 
-    if not args.dry_run:
+    if not args.dry_run and changed:
         args.file.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
-    if args.queue_file:
-        _persist_queue(queue, Path(args.queue_file))
-    print(json.dumps({"decay": decay, "queue": queue}, indent=2))
+        if args.queue_file:
+            _persist_queue(queue, Path(args.queue_file))
+    print(json.dumps({"decay": decay, "queue": queue, "changed": changed}, indent=2))
 
 
 if __name__ == "__main__":

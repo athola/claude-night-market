@@ -105,6 +105,7 @@ CONFIG_DEFAULTS: dict[str, Any] = {
         "autonomy": True,
         "lifecycle": True,
         "auto_capture": True,  # Auto-store WebFetch/WebSearch content to queue
+        "context_injection": False,  # Surface promoted captures at SessionStart
     },
 }
 

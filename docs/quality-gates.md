@@ -97,31 +97,31 @@ flowchart LR
 
 **Pre-implementation** (before code is written)
 
-- `imbue:scope-guard` -- worthiness scoring, branch-size
+- `imbue:scope-guard` — worthiness scoring, branch-size
   budgets, defer nice-to-haves. The first question.
-- `imbue:karpathy-principles` -- four-principle gate (think
+- `imbue:karpathy-principles` — four-principle gate (think
   first, simplicity, surgical edits, verifiable goals).
   Synthesis hub; routes into the others.
-- `leyline:additive-bias-defense` -- inverts burden of proof
+- `leyline:additive-bias-defense` — inverts burden of proof
   for additions. Cross-cutting contract that reviews consult.
 
 **During implementation** (cross-cutting)
 
-- `imbue:rigorous-reasoning` -- anti-sycophancy checklist for
+- `imbue:rigorous-reasoning` — anti-sycophancy checklist for
   contested claims, conflicts, and reasoning quality.
-- `conserve:code-quality-principles` -- KISS, YAGNI, SOLID
+- `conserve:code-quality-principles` — KISS, YAGNI, SOLID
   applied as living-code review heuristics.
 
 **Post-implementation** (validation and audit)
 
-- `imbue:proof-of-work` -- evidence and acceptance gates with
+- `imbue:proof-of-work` — evidence and acceptance gates with
   `[E1]`/`[E2]` citations. The "is it actually done?" gate.
-- `imbue:justify` -- minimal-intervention audit; every change
+- `imbue:justify` — minimal-intervention audit; every change
   must justify itself against a "do nothing" baseline.
 
 **Meta-constraint** (governs all phases)
 
-- `imbue:vow-enforcement` -- three-layer constraint
+- `imbue:vow-enforcement` — three-layer constraint
   classifier (soft vows in skills, hard vows in hooks,
   governance vows in policy). Sits above the federation.
 
@@ -380,7 +380,7 @@ Other plugins reference individual gates:
 
 No caller invokes the full federation in the order the
 gate authors intended. `imbue:vow-enforcement` is invoked
-nowhere in skill prose -- it only fires through hook
+nowhere in skill prose — it only fires through hook
 paths (`imbue/hooks/vow_*.py`).
 
 ### Recommended composition order

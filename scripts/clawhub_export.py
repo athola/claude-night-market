@@ -214,6 +214,68 @@ def discover_skills(
 # ---------- export ----------
 
 
+# Leading characters that give a YAML scalar special meaning.
+_YAML_INDICATORS = set("[]{}#&*!|>'\"%@`,?:-")
+
+# Scalars that YAML 1.1 resolves to a bool or null. A description
+# literally "true" or "no" would otherwise re-parse as a bool.
+_YAML_BOOLISH = frozenset(
+    {"true", "false", "yes", "no", "on", "off", "null", "none", "~"}
+)
+# Int/float (incl. sign and exponent) that would re-parse as a number.
+_YAML_NUMERIC_RE = re.compile(r"^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$")
+
+
+def _needs_yaml_quoting(s: str) -> bool:
+    """Return True if a single-line scalar must be quoted.
+
+    Bare interpolation (``key: value``) breaks when the value
+    contains an internal ``": "`` or starts with a YAML indicator
+    character: the re-parse yields an empty mapping and
+    clawhub-export --validate rejects the skill. This was the
+    root cause of the v1.9.4-v1.9.7 release failures.
+
+    A scalar that *looks* like a YAML bool, null, or number is also
+    quoted so its type survives the round-trip (a description of
+    ``"true"`` must re-parse as the string ``"true"``, not ``True``).
+    """
+    if s == "" or s[0] in _YAML_INDICATORS or s[-1] in " :":
+        return True
+    if s.lower() in _YAML_BOOLISH or _YAML_NUMERIC_RE.match(s):
+        return True
+    return ": " in s or " #" in s
+
+
+def _yaml_scalar(val: Any) -> str:
+    """Render a single-line scalar as valid YAML."""
+    if not isinstance(val, str):
+        return str(val)
+    if not _needs_yaml_quoting(val):
+        return val
+    escaped = val.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def _yaml_inline(val: Any) -> str:
+    """Render an inline YAML node that may be a JSON container.
+
+    The ``metadata`` field is a ``json.dumps`` mapping, which is
+    already valid flow YAML and must round-trip as a structure, so it
+    passes through unchanged. Any other string is quoted via
+    :func:`_yaml_scalar` so an internal ``": "`` cannot silently turn
+    it into a mapping (the line-269 ``ScannerError`` failure mode).
+    """
+    if isinstance(val, str):
+        stripped = val.strip()
+        if stripped[:1] in "{[":
+            try:
+                json.loads(val)
+                return val
+            except (ValueError, TypeError):
+                pass
+    return _yaml_scalar(val)
+
+
 def generate_openclaw_skill_md(
     openclaw_fm: dict[str, Any],
     body: str,
@@ -228,17 +290,17 @@ def generate_openclaw_skill_md(
             for subline in val.split("\n"):
                 lines.append(f"  {subline}")
         else:
-            lines.append(f"{key}: {val}")
+            lines.append(f"{key}: {_yaml_scalar(val)}")
 
     triggers = openclaw_fm.get("triggers", [])
     if triggers:
         lines.append("triggers:")
         for t in triggers:
-            lines.append(f"  - {t}")
+            lines.append(f"  - {_yaml_scalar(t)}")
 
     metadata = openclaw_fm.get("metadata", "")
     if metadata:
-        lines.append(f"metadata: {metadata}")
+        lines.append(f"metadata: {_yaml_inline(metadata)}")
 
     # Provenance fields
     lines.append(f"source: {openclaw_fm.get('source', 'claude-night-market')}")

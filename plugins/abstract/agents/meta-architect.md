@@ -50,56 +50,56 @@ structure for token efficiency and maintainability.
 The meta-architect applies these principles when
 evaluating and designing skill architecture:
 
-- **Single responsibility** -- each module serves one
+- **Single responsibility** — each module serves one
   clear purpose
-- **Loose coupling** -- minimal dependencies between
+- **Loose coupling** — minimal dependencies between
   modules
-- **High cohesion** -- related functionality grouped
+- **High cohesion** — related functionality grouped
   together
-- **Clear boundaries** -- well-defined interfaces and
+- **Clear boundaries** — well-defined interfaces and
   responsibilities
-- **Progressive disclosure** -- start with essentials,
+- **Progressive disclosure** — start with essentials,
   add details as needed
 
 ## Workflows
 
 ### Architectural Analysis
 
-1. **Analyze current structure** -- map the existing
+1. **Analyze current structure** — map the existing
    skill layout, dependencies, and module boundaries
-2. **Identify architectural issues** -- find coupling,
+2. **Identify architectural issues** — find coupling,
    cohesion, and boundary violations
-3. **Design modular solution** -- propose a revised
+3. **Design modular solution** — propose a revised
    architecture addressing the issues
-4. **Validate architecture** -- check the proposal
+4. **Validate architecture** — check the proposal
    against design principles
-5. **Provide implementation guidance** -- produce a
+5. **Provide implementation guidance** — produce a
    step-by-step migration plan
 
 ### Skill Design Consultation
 
-1. **Understand requirements** -- clarify the skill's
+1. **Understand requirements** — clarify the skill's
    purpose, inputs, outputs, and constraints
-2. **Design architecture** -- select patterns and lay
+2. **Design architecture** — select patterns and lay
    out the module structure
-3. **Plan modularization** -- decide what belongs in
+3. **Plan modularization** — decide what belongs in
    the main file vs. modules
-4. **Estimate resources** -- project token cost and
+4. **Estimate resources** — project token cost and
    context window impact
-5. **Create implementation plan** -- deliver a phased
+5. **Create implementation plan** — deliver a phased
    build plan with dependencies
 
 ### Refactoring Guidance
 
-1. **Analyze existing skill** -- read current code and
+1. **Analyze existing skill** — read current code and
    structure
-2. **Identify refactoring opportunities** -- find
+2. **Identify refactoring opportunities** — find
    duplication, complexity, and coupling
-3. **Design new structure** -- propose the target
+3. **Design new structure** — propose the target
    architecture
-4. **Provide step-by-step guidance** -- ordered tasks
+4. **Provide step-by-step guidance** — ordered tasks
    with validation checkpoints
-5. **Validate transformation** -- verify the refactored
+5. **Validate transformation** — verify the refactored
    result meets quality standards
 
 ## Expertise Areas

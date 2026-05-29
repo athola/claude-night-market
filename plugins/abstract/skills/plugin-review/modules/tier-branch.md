@@ -67,7 +67,7 @@ Capture pass/fail. If typecheck fails, mark as WARNING.
 
 ### 6. Diff Analysis
 
-Run `git diff main -- plugins/<plugin>/` to identify:
+Run `git diff main — plugins/<plugin>/` to identify:
 - New files (commands, skills, hooks, agents)
 - Deleted files
 - Modified production code vs test-only changes

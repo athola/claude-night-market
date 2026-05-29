@@ -82,7 +82,7 @@ git diff HEAD -- <file>                   # review what changed
 rm <file>.recovered
 ```
 
-Never use `git checkout -- <file>` as it discards work
+Never use `git checkout — <file>` as it discards work
 irreversibly. Always inspect the diff first so partial
 progress can be preserved.
 
@@ -130,7 +130,7 @@ git reset HEAD <files>         # unstage
 # Update task list: reset task to pending
 ```
 
-Never use `git checkout -- <files>` as it discards all
+Never use `git checkout — <files>` as it discards all
 changes without review. Always diff first.
 
 Mark the crashed task with a note in its description recording

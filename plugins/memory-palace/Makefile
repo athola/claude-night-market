@@ -5,7 +5,7 @@
 
 .PHONY:
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
-	demo-import demo-memory demo-memory-palace-commands demo-navigate demo-palace demo-pensive \
+	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace demo-pensive \
 	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix format \
 	garden-metrics garden-tend help import install skills install-hooks lint list manager \
 	memory-profile mutation-test plugin-check precommit search security skills spellcheck status \
@@ -16,6 +16,12 @@
 SRC_DIRS := scripts src
 UV ?= UV_CACHE_DIR=$(PWD)/.uv-cache uv
 COV_DIRS := $(SRC_DIRS)
+
+# Extend the shared python.mk test-unit recipe with queue cleanup instead of
+# redefining the target (which warns "overriding recipe"). Must be set before
+# the python.mk include: its `ifneq` hook guard is evaluated at include time.
+# $(QUEUE_DIR) is expanded later, when the recipe runs.
+TEST_UNIT_EXTRA ?= rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 2>/dev/null || true
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -166,12 +172,6 @@ garden-tend:
 # Override test-unit to clean up queue files created during hook tests
 QUEUE_DIR := data/queue
 
-test-unit: ## Run unit tests (with queue cleanup)
-	@echo "Running unit tests..."
-	@$(PYTEST) $(TEST_UNIT_TARGETS) $(TEST_UNIT_ARGS) || { echo "[WARN] Tests failed"; exit 1; }
-	@echo "Cleaning up test-generated queue files..."
-	@rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 2>/dev/null || true
-
 clean-queue: ## Remove auto-generated queue files from tests
 	@echo "Cleaning queue directory..."
 	@rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 2>/dev/null || true
@@ -287,7 +287,18 @@ demo-memory: ## Demo memory command (LIVE)
 	@echo ""
 	@echo "Use /memory-palace for full memory management."
 
-demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory ## Run all memory-palace documented command demos
+demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (LIVE)
+	@echo "=== Capture-Index Curation Demo (LIVE) ==="
+	@echo ""
+	@echo "Corpus analytics over the real capture index (read-only):"
+	@$(CLI) index report || true
+	@echo ""
+	@echo "Promotion / archive proposals (dry-run, writes nothing):"
+	@$(CLI) index promote || true
+	@echo ""
+	@echo "Apply for real with: $(CLI) index promote --apply"
+
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory demo-index ## Run all memory-palace documented command demos
 	@echo ""
 	@echo "=== Memory-palace All Commands Demo Complete ==="
 	@echo ""

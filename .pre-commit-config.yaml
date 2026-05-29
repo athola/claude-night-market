@@ -302,6 +302,51 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      # =================================================================
+      # Memory-Palace Self-Curation
+      # Burst-tolerant maintenance cycles, re-stages changed artifacts:
+      #   - capture-index drain (promote + prune-orphans): idempotent
+      #   - vitality refresh (decay by elapsed days, not per-run)
+      # Sub-second when there is nothing to do.
+      # =================================================================
+
+      - id: memory-palace-maintenance
+        name: Memory-Palace Self-Curation (drain + vitality)
+        entry: bash plugins/memory-palace/scripts/precommit_palace_maintenance.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      # =================================================================
+      # Skill-Graph Dangling-Ref Ratchet
+      # Fails only when broken Skill(plugin:name) refs exceed the
+      # committed baseline. Deterministic, idempotent, read-only.
+      # =================================================================
+
+      - id: check-skill-graph-drift
+        name: Block New Dangling Skill References
+        entry: python3 scripts/check_skill_graph_drift.py
+        language: system
+        files: SKILL\.md$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # =================================================================
+      # Skill Exit-Criteria Coverage Ratchet
+      # Fails only when SKILL.md files lacking an "## Exit Criteria"
+      # section exceed the committed baseline (issue #454).
+      # Deterministic, idempotent, read-only.
+      # =================================================================
+
+      - id: check-skill-exit-criteria-drift
+        name: Block New Skills Without Exit Criteria
+        entry: python3 scripts/check_skill_exit_criteria_drift.py
+        language: system
+        files: SKILL\.md$
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -387,7 +432,7 @@ repos:
 # CI Configuration
 # =================================================================
 ci:
-  skip: [run-plugin-typecheck, run-plugin-tests]
+  skip: [run-plugin-typecheck, run-plugin-tests, memory-palace-maintenance]
 
 default_stages: [pre-commit]
 default_language_version:

@@ -36,7 +36,7 @@ the claim is marketing slop and must be deleted.
 | "Scalable" | load tests, capacity numbers, or deployment story |
 | "Battle-tested" | named adopters, version history, issue-resolution track |
 | "Robust" | replace with concrete error-handling guarantees and test coverage |
-| "Idiomatic" | replace with "passes [linter] -- -D warnings" |
+| "Idiomatic" | replace with "passes [linter] — -D warnings" |
 | "Secure" | threat model, audit reference, or `cargo audit`/equivalent in CI |
 | "Easy to use" | three-line "minimal example" that actually runs |
 | "Well-tested" | coverage % from a real run, or test count |

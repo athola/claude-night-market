@@ -31,13 +31,12 @@ _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
 if str(_LEYLINE_SRC) not in sys.path:
     sys.path.insert(0, str(_LEYLINE_SRC))
 
+from abstract.utils import (
+    get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
+)
 from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
     GhCommandError,
     gh_graphql,
-)
-
-from abstract.utils import (
-    get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
 )
 
 # Hardcoded target repository

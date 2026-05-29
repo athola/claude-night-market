@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.8-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.9-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-188-teal)](book/src/reference/capabilities-reference.md)
@@ -222,6 +222,21 @@ See the [Common Workflows Guide][workflows] for full details.
   for compatibility rules.
 
 ## What's New
+
+**1.9.9:** `abstract` adds a verify-before-promote gate so the
+Insight Engine stops minting issues for findings the codebase has
+already resolved. A shared `finding_verifier.py` parses a finding's
+`Where:` location and checks it still exists at HEAD;
+`auto_promote_learnings` skips a finding whose every referenced
+location is gone (recorded `stale-skipped`), and `sanctum:do-issue`
+gains a Step 1.4 that triages each auto-promoted finding as
+outstanding, resolved, or uncertain before implementing. Motivated by
+a 2026-05 sweep that found 8 of 11 auto-promoted issues already
+resolved. A `sanctum:create-tag` fix normalizes release tags to a `v`
+prefix and `clawhub_export` now quotes YAML scalars correctly,
+unblocking the cross-framework release runs that failed silently from
+v1.9.4 to v1.9.7. See
+[CHANGELOG](CHANGELOG.md#199---2026-05-26) for the full entry.
 
 **1.9.8:** `hookify` adds a `destructive-command-guard` security
 rule that warns when a destructive command (`rm -rf`,

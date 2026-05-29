@@ -2,7 +2,7 @@
 
 ## Why Content Assertions Exist
 
-Markdown files under `skills/`, `agents/`, `modules/`, and `commands/` are execution markdown -- Claude Code interprets them as behavioral instructions, not static documentation. When these files contain broken JSON schemas, stale version references, or manipulative language, Claude produces broken outputs or harmful behaviors.
+Markdown files under `skills/`, `agents/`, `modules/`, and `commands/` are execution markdown — Claude Code interprets them as behavioral instructions, not static documentation. When these files contain broken JSON schemas, stale version references, or manipulative language, Claude produces broken outputs or harmful behaviors.
 
 Content assertions catch these problems before users encounter them. The guiding question: "If this content were wrong, what would Claude do incorrectly?"
 
@@ -72,8 +72,8 @@ assert len(found) >= 3
 |---|---|---|
 | Skill SKILL.md (simple) | L1 | Cross-references other docs |
 | Skill with code examples | L2 | Code examples are templates Claude copies |
-| Skill with decision frameworks | L2 | Always -- decisions affect user outcomes |
-| Module with version gates | L2 | Always -- wrong versions break features |
+| Skill with decision frameworks | L2 | Always — decisions affect user outcomes |
+| Module with version gates | L2 | Always — wrong versions break features |
 | Agent definitions | L1 | Defines forbidden or required behaviors |
 
 ## Test Class Conventions
