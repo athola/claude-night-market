@@ -9,6 +9,7 @@ on:
       - 'plugins/*/agents/**'
       - 'plugins/*/hooks/**'
       - 'book/src/reference/capabilities-reference.md'
+      - '.github/workflows/capabilities-sync.yml'
 
 jobs:
   sync-check:
