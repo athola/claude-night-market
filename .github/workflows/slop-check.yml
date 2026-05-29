@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '**.md'
+      - '.github/workflows/slop-check.yml'
 
 jobs:
   slop-check:
