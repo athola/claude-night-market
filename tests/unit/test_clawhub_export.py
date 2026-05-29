@@ -25,6 +25,7 @@ from clawhub_export import (
     discover_skills,
     export_all,
     extract_triggers,
+    generate_openclaw_skill_md,
     parse_frontmatter,
     to_clawhub_slug,
     translate_frontmatter,
@@ -485,6 +486,150 @@ class TestTranslateFrontmatter:
         assert "Review code quality" in cleaned
         assert "Use when" not in cleaned
         assert "Do not use" not in cleaned
+
+
+# ---------- frontmatter serialization round-trip ----------
+
+
+class TestFrontmatterRoundTrip:
+    """
+    Feature: Exported frontmatter survives re-parsing
+
+    As the release pipeline
+    I want generated SKILL.md frontmatter to be valid YAML
+    So that --validate does not reject skills and abort the
+    cross-framework release (regression for v1.9.4-v1.9.7).
+    """
+
+    @pytest.mark.unit
+    def test_short_description_with_colon_round_trips(self) -> None:
+        """
+        Scenario: Short description containing an internal ": "
+        Given a <=80 char description with a colon-space inside
+        When I generate SKILL.md and re-parse its frontmatter
+        Then name, description, and version are still present.
+
+        Regression: bare-scalar serialization emitted invalid YAML
+        for descriptions like "Pre-implementation scope control:
+        worthiness scoring, branch-size limits.", which re-parsed
+        to an empty mapping and failed clawhub-export --validate.
+        """
+        fm: dict[str, Any] = {
+            "name": "scope-guard",
+            "description": (
+                "Pre-implementation scope control: worthiness scoring, limits."
+            ),
+            "version": "1.9.9",
+            "source_plugin": "imbue",
+        }
+        assert len(fm["description"]) <= 80
+        assert ": " in fm["description"]
+
+        rendered = generate_openclaw_skill_md(fm, "body text")
+        meta, _ = parse_frontmatter(rendered)
+
+        assert meta.get("name") == "scope-guard"
+        assert meta.get("description"), "description lost on re-parse"
+        assert "worthiness" in meta["description"]
+        assert meta.get("version") == "1.9.9"
+
+    @pytest.mark.unit
+    def test_yaml_special_leading_chars_round_trip(self) -> None:
+        """
+        Scenario: Description starting with a YAML indicator char
+        Given descriptions led by characters like "[" or "#"
+        When I generate SKILL.md and re-parse it
+        Then the description survives intact.
+        """
+        for desc in ("[beta] quick scaffolder", "#1 priority triage"):
+            fm: dict[str, Any] = {
+                "name": "edge",
+                "description": desc,
+                "version": "1.0.0",
+                "source_plugin": "imbue",
+            }
+            rendered = generate_openclaw_skill_md(fm, "body")
+            meta, _ = parse_frontmatter(rendered)
+            assert meta.get("description") == desc, f"lost: {desc!r}"
+            assert meta.get("version") == "1.0.0"
+
+    @pytest.mark.unit
+    def test_trigger_with_colon_round_trips(self) -> None:
+        """
+        Scenario: A trigger phrase containing an internal ": "
+        Given a trigger like "when user says: do this"
+        When I generate SKILL.md and re-parse it
+        Then the trigger stays a string, not a nested mapping.
+
+        Regression: bare ``  - {t}`` interpolation re-parsed a
+        colon-bearing trigger as ``{'when user says': 'do this'}``,
+        the same failure class the description fix targeted.
+        """
+        fm: dict[str, Any] = {
+            "name": "edge",
+            "description": "d",
+            "version": "1.0.0",
+            "triggers": ["plain-trigger", "when user says: do this"],
+            "source_plugin": "imbue",
+        }
+        rendered = generate_openclaw_skill_md(fm, "body")
+        meta, _ = parse_frontmatter(rendered)
+        triggers = meta.get("triggers")
+        assert triggers == ["plain-trigger", "when user says: do this"], (
+            f"trigger mangled on re-parse: {triggers!r}"
+        )
+
+    @pytest.mark.unit
+    def test_metadata_mapping_round_trips(self) -> None:
+        """
+        Scenario: JSON-serialized metadata survives re-parse as a mapping
+        Given metadata produced by translate_frontmatter (json.dumps)
+        When I generate SKILL.md and re-parse it
+        Then metadata is still a mapping, not a stringified blob.
+
+        Guard: the colon fix must NOT quote the JSON mapping into a
+        bare string (that would break consumers reading metadata as a
+        structure).
+        """
+        fm = translate_frontmatter(
+            {
+                "name": "x",
+                "description": "d",
+                "category": "code-review",
+                "dependencies": ["pensive:bug-review"],
+            },
+            "pensive",
+        )
+        rendered = generate_openclaw_skill_md(fm, "body")
+        meta, _ = parse_frontmatter(rendered)
+        md = meta.get("metadata")
+        assert isinstance(md, dict), f"metadata not a mapping: {md!r}"
+        assert "openclaw" in md
+
+    @pytest.mark.unit
+    def test_boolish_and_numeric_descriptions_round_trip(self) -> None:
+        """
+        Scenario: Scalars that look like YAML booleans / numbers
+        Given a description literally "true" or "1.0"
+        When I generate SKILL.md and re-parse it
+        Then it re-parses as the original string, not a bool/float.
+
+        Regression (S1): unquoted bool/numeric-looking scalars
+        re-parsed as ``True`` / ``1.0``, silently changing the value
+        type in the exported frontmatter.
+        """
+        for desc in ("true", "False", "1.0", "42", "no", "null"):
+            fm: dict[str, Any] = {
+                "name": "edge",
+                "description": desc,
+                "version": "1.0.0",
+                "source_plugin": "imbue",
+            }
+            rendered = generate_openclaw_skill_md(fm, "body")
+            meta, _ = parse_frontmatter(rendered)
+            assert meta.get("description") == desc, (
+                f"type changed on re-parse: {desc!r} -> {meta.get('description')!r}"
+            )
 
 
 # ---------- skill discovery ----------

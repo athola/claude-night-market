@@ -7,6 +7,7 @@ work across all supported languages.
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -23,6 +24,7 @@ from scribe.pattern_loader import (
     get_phrase_patterns,
     get_tier1_words,
     get_tier2_words,
+    get_tier5_patterns,
     list_supported_languages,
     load_language_patterns,
 )
@@ -298,3 +300,88 @@ class TestGetAllLanguagePatterns:
         result = get_all_language_patterns(["en", "pt", "it"])
         for lang, patterns in result.items():
             assert "tier1" in patterns, f"Missing tier1 for {lang}"
+
+
+class TestTier5RuntimeSource:
+    """Feature: Tier 5 structural patterns load from the runtime source.
+
+    Discussion #543: Tier 5 patterns were absent from the runtime
+    pattern source and existed only in the markdown skill path. These
+    tests source the regex from pattern_loader rather than inline
+    fixtures, so they fail if the YAML tier5 section is removed
+    (de-tautologized per Discussion #542).
+    """
+
+    @pytest.fixture
+    def tier5(self) -> dict:
+        """Tier 5 categories from the English runtime source, keyed by name."""
+        patterns = load_language_patterns("en")
+        return {entry["category"]: entry for entry in get_tier5_patterns(patterns)}
+
+    @staticmethod
+    def _compile(entry: dict) -> list[re.Pattern]:
+        flags = re.IGNORECASE if entry.get("ignore_case") else 0
+        return [re.compile(p, flags) for p in entry["patterns"]]
+
+    @pytest.mark.unit
+    def test_english_yaml_has_tier5(self) -> None:
+        """The English pattern source declares a tier5 section."""
+        patterns = load_language_patterns("en")
+        assert "tier5" in patterns
+
+    @pytest.mark.unit
+    def test_exposes_structural_categories(self, tier5: dict) -> None:
+        """The structural Tier 5 family is present in the runtime source."""
+        for category in (
+            "spatial_copula",
+            "negative_parallelism",
+            "contrastive_parallelism",
+            "three_fragment_burst",
+            "smart_quotes",
+        ):
+            assert category in tier5, f"Missing tier5 category: {category}"
+
+    @pytest.mark.unit
+    def test_every_pattern_compiles(self, tier5: dict) -> None:
+        """Every Tier 5 regex in the source compiles without error."""
+        for entry in tier5.values():
+            for pattern in self._compile(entry):
+                assert pattern is not None
+
+    @pytest.mark.unit
+    def test_contrastive_parallelism_matches_from_source(self, tier5: dict) -> None:
+        """Affirmative antithesis matches when sourced from the YAML."""
+        compiled = self._compile(tier5["contrastive_parallelism"])
+        assert any(c.search("Less config, more code.") for c in compiled)
+        assert any(
+            c.search("Where others add complexity, we remove it.") for c in compiled
+        )
+
+    @pytest.mark.unit
+    def test_contrastive_parallelism_is_low_confidence(self, tier5: dict) -> None:
+        """Affirmative antithesis is marked low confidence (never auto-apply)."""
+        assert tier5["contrastive_parallelism"]["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_contrastive_parallelism_ignores_positive(self, tier5: dict) -> None:
+        """A plain positive statement matches no contrastive pattern."""
+        compiled = self._compile(tier5["contrastive_parallelism"])
+        assert not any(
+            c.search("The config is small and the code is short.") for c in compiled
+        )
+
+    @pytest.mark.unit
+    def test_negative_parallelism_matches_from_source(self, tier5: dict) -> None:
+        """Contrastive negation matches when sourced from the YAML."""
+        compiled = self._compile(tier5["negative_parallelism"])
+        assert any(
+            c.search("It's not a tool, it's a transformation.") for c in compiled
+        )
+        assert any(c.search("Not just fast, but elegant.") for c in compiled)
+
+    @pytest.mark.unit
+    def test_spatial_copula_matches_from_source(self, tier5: dict) -> None:
+        """Spatial copula matches when sourced from the YAML."""
+        compiled = self._compile(tier5["spatial_copula"])
+        assert any(c.search("The skill lives in `plugins/scribe/`.") for c in compiled)
+        assert not any(c.search("The skill is in plugins/scribe/.") for c in compiled)

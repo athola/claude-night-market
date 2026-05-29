@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.9.8"
+version = "1.9.9"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -68,6 +68,13 @@ extend-ignore = [
 "src/abstract/tasks_manager_base.py" = ["S607"]
 "src/abstract/cli_framework.py" = ["UP046"]
 "tests/test_hooks_homeostatic_monitor.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+# Mirror the root workspace classification so plugin-level ruff agrees
+# with `make lint`: abstract and leyline are both first-party, ordered
+# alphabetically. Without this, leyline is treated as third-party and
+# import ordering ping-pongs between the two configs.
+known-first-party = ["abstract", "leyline", "shared"]
 
 [tool.mypy]
 python_version = "3.12"

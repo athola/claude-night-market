@@ -224,7 +224,7 @@ stack labels in diagrams, math.
 | "X — Y." | "X: Y." | Definition / list-lead |
 | "X — Y." | "X. Y." | Two complete thoughts |
 
-### Negative Parallelism
+### Negative Parallelism (Contrastive Negation)
 
 | Slop | Replacement |
 |------|-------------|
@@ -240,6 +240,24 @@ stack labels in diagrams, math.
 
 The replacements remove the rhetorical scaffold and state the
 claim directly.
+
+### Contrastive Parallelism (Affirmative Antithesis)
+
+The affirmative sibling: parallel clauses in opposition with no
+"not" anchor. Keep it only when the contrast is load-bearing
+and used once; otherwise state the point plainly.
+
+| Slop | Replacement |
+|------|-------------|
+| "Less config, more code" | "Setup is one file; the rest is code" |
+| "Where others X, we Y" | "We do Y" (drop the unnamed comparison) |
+| "Humans propose; machines dispose" | "A human picks; the agent applies" (when both sides are concrete) |
+| "Old way: X. New way: Y." | "Y replaces X" |
+
+Subject-swap clauses and chiasmus are judgment-level
+(`confidence: low`); surface for human decision rather than
+auto-rewriting. Leave `Before:`/`After:` labels on code
+examples alone.
 
 ### Throat-Clearing Openers
 

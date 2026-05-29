@@ -17,6 +17,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace.corpus.index_analytics import (
+    cluster_by_domain,
+    corpus_stats,
+    load_capture_index,
+    rank_promotion_candidates,
+)
+from memory_palace.corpus.index_promoter import (
+    apply_orphan_prunes,
+    apply_promotions,
+    propose_orphan_prunes,
+    propose_promotions,
+)
 from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
 
@@ -453,6 +465,148 @@ class MemoryPalaceCLI:
 
         self.print_success(f"Tending applied. Backup saved to {backup}")
 
+    def _capture_index_path(self) -> Path:
+        """Resolve the capture index path (hooks/memory-palace-index.yaml)."""
+        return self.plugin_dir / "hooks" / "memory-palace-index.yaml"
+
+    def index_report(self, output_format: str = "text", top: int = 10) -> bool:
+        """Report read-only analytics over the capture index.
+
+        Surfaces corpus statistics, the inert-entry ratio, orphaned
+        captures, the largest topic clusters, and the top promotion
+        candidates. Mutates nothing.
+        """
+        index_path = self._capture_index_path()
+        index = load_capture_index(index_path)
+        stats = corpus_stats(index, plugin_root=self.plugin_dir)
+        clusters = cluster_by_domain(index)
+        candidates = rank_promotion_candidates(index, limit=top)
+
+        if output_format == "json":
+            cluster_counts = sorted(
+                ((d, len(k)) for d, k in clusters.items()),
+                key=lambda item: item[1],
+                reverse=True,
+            )[:top]
+            print(
+                json.dumps(
+                    {
+                        "total": stats.total,
+                        "inert_count": stats.inert_count,
+                        "inert_ratio": round(stats.inert_ratio, 4),
+                        "orphan_count": stats.orphan_count,
+                        "by_routing_type": stats.by_routing_type,
+                        "by_maturity": stats.by_maturity,
+                        "by_importance_bucket": stats.by_importance_bucket,
+                        "top_clusters": cluster_counts,
+                        "promotion_candidates": [
+                            {"key": c.key, "score": c.score, "reasons": c.reasons}
+                            for c in candidates
+                        ],
+                    },
+                    indent=2,
+                )
+            )
+            return True
+
+        self.print_status(f"Capture index: {index_path}")
+        print(f"  Total entries:   {stats.total}")
+        print(
+            f"  Inert (default): {stats.inert_count} "
+            f"({stats.inert_ratio:.0%} never processed)"
+        )
+        print(f"  Orphaned files:  {stats.orphan_count}")
+        print(f"  By routing_type: {dict(stats.by_routing_type)}")
+        print(f"  By maturity:     {dict(stats.by_maturity)}")
+        print(f"  By importance:   {dict(stats.by_importance_bucket)}")
+
+        top_clusters = sorted(
+            clusters.items(), key=lambda item: len(item[1]), reverse=True
+        )[:top]
+        print("\n  Largest topic clusters (domain: count):")
+        for domain, keys in top_clusters:
+            print(f"    {domain}: {len(keys)}")
+
+        print(f"\n  Top {len(candidates)} promotion candidates:")
+        for cand in candidates:
+            print(f"    [{cand.score:.3f}] {cand.title}")
+            print(f"        {', '.join(cand.reasons)}")
+        return True
+
+    def index_promote(self, apply: bool = False, top: int = 0) -> bool:
+        """Propose (and optionally apply) promotions over the capture index.
+
+        Dry-run by default: prints the promote/archive proposals and
+        writes nothing. With ``apply=True`` it creates a timestamped
+        backup under ``data/backups/`` and then persists the changes.
+        """
+        index_path = self._capture_index_path()
+        index = load_capture_index(index_path)
+        proposals = propose_promotions(index, plugin_root=self.plugin_dir)
+
+        promotes = [p for p in proposals if p.action == "promote"]
+        archives = [p for p in proposals if p.action == "archive"]
+        self.print_status(f"Capture index: {index_path}")
+        print(f"  Proposals: {len(promotes)} promote, {len(archives)} archive")
+
+        shown = proposals if top <= 0 else proposals[:top]
+        for proposal in shown:
+            print(f"  [{proposal.action.upper()}] {proposal.key}")
+            print(f"      changes: {proposal.changes}")
+            print(f"      why: {', '.join(proposal.reasons)}")
+
+        if not apply:
+            print("\n  DRY RUN - no changes written. Re-run with --apply to commit.")
+            return True
+
+        if not proposals:
+            self.print_success("Nothing to apply.")
+            return True
+
+        backup_dir = self.plugin_dir / "data" / "backups"
+        result = apply_promotions(proposals, index_path, backup_dir=backup_dir)
+        self.print_success(
+            f"Applied {result.applied} proposals. Backup: {result.backup_path}"
+        )
+        return True
+
+    def index_prune_orphans(self, apply: bool = False, top: int = 0) -> bool:
+        """Propose (and optionally apply) hard-deletion of orphan entries.
+
+        Orphans are entries whose ``stored_at`` file no longer exists.
+        Dry-run by default: prints the keys that would be deleted but
+        writes nothing. With ``apply=True`` it backs up the index, then
+        removes both the entry and its hash mapping atomically.
+        """
+        index_path = self._capture_index_path()
+        index = load_capture_index(index_path)
+        keys = propose_orphan_prunes(index, self.plugin_dir)
+
+        self.print_status(f"Capture index: {index_path}")
+        print(f"  Orphan entries to prune: {len(keys)}")
+        shown = keys if top <= 0 else keys[:top]
+        for key in shown:
+            stored = index["entries"].get(key, {}).get("stored_at", "?")
+            print(f"  [PRUNE] {key}")
+            print(f"      stored_at (missing): {stored}")
+        if top > 0 and len(keys) > top:
+            print(f"  ... and {len(keys) - top} more")
+
+        if not apply:
+            print("\n  DRY RUN - no changes written. Re-run with --apply to commit.")
+            return True
+
+        if not keys:
+            self.print_success("Nothing to prune.")
+            return True
+
+        backup_dir = self.plugin_dir / "data" / "backups"
+        result = apply_orphan_prunes(keys, index_path, backup_dir=backup_dir)
+        self.print_success(
+            f"Pruned {result.applied} orphans. Backup: {result.backup_path}"
+        )
+        return True
+
     def list_skills(self) -> None:
         """List the available skills in the Memory Palace."""
         self.print_status("Available Memory Palace Skills:")
@@ -839,6 +993,61 @@ def _add_garden_command(subparsers: Any) -> None:
     )
 
 
+def _add_index_command(subparsers: Any) -> None:
+    """Register the ``index`` subcommand for capture-index analytics."""
+    index_parser = subparsers.add_parser(
+        "index", help="Analyze the web-capture index (read-only)"
+    )
+    index_sub = index_parser.add_subparsers(dest="index_cmd", help="Index commands")
+
+    report = index_sub.add_parser(
+        "report", help="Corpus stats, inert ratio, clusters, candidates"
+    )
+    report.add_argument(
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
+    )
+    report.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help="How many clusters/candidates to show",
+    )
+
+    promote = index_sub.add_parser(
+        "promote", help="Propose promote/archive actions (dry-run by default)"
+    )
+    promote.add_argument(
+        "--apply",
+        action="store_true",
+        help="Persist changes after a timestamped backup (default: dry-run)",
+    )
+    promote.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Limit how many proposals to print (0 = all)",
+    )
+
+    prune = index_sub.add_parser(
+        "prune-orphans",
+        help="Hard-delete entries whose backing file is gone (dry-run by default)",
+    )
+    prune.add_argument(
+        "--apply",
+        action="store_true",
+        help="Persist deletions after a timestamped backup (default: dry-run)",
+    )
+    prune.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Limit how many orphans to print (0 = all)",
+    )
+
+
 def _add_bundle_commands(subparsers: Any) -> None:
     """Register the export/import bundle commands."""
     export_parser = subparsers.add_parser(
@@ -945,6 +1154,7 @@ Examples:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     _add_zero_arg_commands(subparsers)
     _add_garden_command(subparsers)
+    _add_index_command(subparsers)
     _add_bundle_commands(subparsers)
     _add_create_command(subparsers)
     _add_sync_command(subparsers)
@@ -985,6 +1195,16 @@ def main() -> None:
         else:
             parser.print_help()
 
+    def handle_index() -> None:
+        if args.index_cmd == "report":
+            cli.index_report(output_format=args.format, top=args.top)
+        elif args.index_cmd == "promote":
+            cli.index_promote(apply=args.apply, top=args.top)
+        elif args.index_cmd == "prune-orphans":
+            cli.index_prune_orphans(apply=args.apply, top=args.top)
+        else:
+            parser.print_help()
+
     handlers = {
         "enable": lambda: cli.enable_plugin(),
         "disable": lambda: cli.disable_plugin(),
@@ -1004,6 +1224,7 @@ def main() -> None:
         ),
         "search": lambda: cli.search_palaces(args.query, args.type),
         "garden": handle_garden,
+        "index": handle_index,
         "export": lambda: cli.export_palaces(args.destination, args.palaces_dir),
         "import": lambda: cli.import_palaces(
             args.source,

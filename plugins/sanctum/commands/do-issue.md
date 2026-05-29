@@ -106,7 +106,43 @@ glab issue list --search "related keywords"
 glab issue view ISSUE_NUMBER
 ```
 
-**Step 1 Output**: Issue understanding, context gathered
+### 1.4 Verify Finding Against Current HEAD (auto-promoted issues)
+
+**Purpose**: Auto-promoted findings (labels `improvement:auto-promoted`,
+`source:discussion`) reference a PR-era state of the code. Later work
+often resolves the finding incidentally, leaving a phantom-open issue.
+Before implementing, confirm the finding is still outstanding.
+
+A 2026-05 sweep of one such backlog found 8 of 11 issues already
+resolved: blindly "fixing" them would have added duplicate frontmatter,
+redundant tests, and a renamed-back field. Verify first.
+
+For each issue, parse the `Where:` location from the body and check it
+against the working tree. The shared
+`plugins/abstract/scripts/finding_verifier.py` module does this (it also
+backs the promotion gate, so the gate and `/do-issue` agree on what
+"stale" means):
+
+```bash
+# Quick manual check: does the cited location still exist, and is the
+# concern's signature still present?
+WHERE="plugins/foo/skills/bar/SKILL.md:20-22"   # from the issue body
+FILE="${WHERE%%:*}"
+[ -e "$FILE" ] || echo "Location gone -- finding likely resolved by refactor"
+rg -n "the concern's grep signature" "$FILE" || echo "Signature absent -- likely resolved"
+```
+
+Honest boundary: file existence is a high-precision staleness signal,
+but a present file does not prove the concern remains. Read the content
+to confirm. Classify each issue as:
+
+- **outstanding**: implement it (continue to Step 2+)
+- **already resolved**: comment with the file/line evidence and close;
+  do not implement
+- **uncertain**: surface to the user, do not auto-close
+
+**Step 1 Output**: Issue understanding, context gathered, and each
+auto-promoted finding classified outstanding / resolved / uncertain
 
 ---
 

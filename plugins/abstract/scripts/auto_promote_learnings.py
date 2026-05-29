@@ -27,6 +27,15 @@ _SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
+from finding_verifier import (  # noqa: E402 - sibling script
+    FileRef,
+    VerificationResult,
+    parse_where_refs,
+    repo_root_is_valid,
+    resolve_skill_refs,
+    should_skip_promotion,
+    verify_refs,
+)
 from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     PostedRecord,
     create_discussion,
@@ -53,6 +62,73 @@ def get_learnings_path() -> Path:
     return Path.home() / ".claude" / "skills" / "LEARNINGS.md"
 
 
+def get_repo_root() -> Path:
+    """Repo root used to verify a finding's locations still exist."""
+    return Path(__file__).resolve().parents[3]
+
+
+def verify_item_locations(
+    item: dict[str, Any],
+    repo_root: Path | None = None,
+) -> VerificationResult:
+    """Resolve an item's referenced locations and check they exist.
+
+    Builds references from the item's ``skill`` id (``plugin:name``)
+    and any file paths embedded in its free-text fields, then verifies
+    them against HEAD. This is the promotion gate's honest staleness
+    check: it confirms the locations still exist, not that the concern
+    is unresolved (see ``finding_verifier`` for the scope boundary).
+    """
+    root = repo_root if repo_root is not None else get_repo_root()
+    refs: list[FileRef] = []
+    skill = str(item.get("skill", ""))
+    if ":" in skill:
+        refs.extend(resolve_skill_refs(skill, root))
+    for key in ("where", "detail", "metric"):
+        refs.extend(parse_where_refs(str(item.get(key, ""))))
+    return verify_refs(refs, root)
+
+
+def stale_skip_reason(
+    item: dict[str, Any],
+    repo_root: Path | None = None,
+) -> str | None:
+    """Return a skip rationale if the finding is provably stale, else None.
+
+    The promotion gate must never *silently* drop a real finding, so
+    this fails **open** (returns ``None`` -> promote) in every
+    uncertain case:
+
+    - the repo root cannot be trusted (``repo_root_is_valid`` is
+      False) -- a wrong root would report every finding missing;
+    - the location check raises (e.g. an embedded NUL byte makes
+      ``Path.exists`` raise ``ValueError``) -- one bad finding must
+      not abort the batch and drop the rest.
+
+    It returns a rationale string only for the highest-confidence
+    signal (every referenced location gone), matching
+    :func:`should_skip_promotion`.
+    """
+    root = repo_root if repo_root is not None else get_repo_root()
+    if not repo_root_is_valid(root):
+        print(
+            f"[auto_promote] repo root {root} is unverifiable; "
+            "promotion gate disabled (promoting normally)",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        verdict = verify_item_locations(item, root)
+    except (OSError, ValueError) as exc:
+        print(
+            f"[auto_promote] location check failed ({exc}); "
+            "promoting (gate fails open)",
+            file=sys.stderr,
+        )
+        return None
+    return verdict.rationale if should_skip_promotion(verdict) else None
+
+
 def get_promoted_record_path() -> Path:
     """Get path to promoted_issues.json deduplication file."""
     return Path.home() / ".claude" / "skills" / "discussions" / "promoted_issues.json"
@@ -77,8 +153,15 @@ class PromotedIssueRecord:
             try:
                 data = json.loads(record_path.read_text())
                 return cls(promoted=data.get("promoted", {}))
-            except (json.JSONDecodeError, OSError):
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                # A reset re-promotes everything; the gate now hangs more
+                # decisions off this record, so make corruption visible
+                # instead of silently starting from an empty record.
+                print(
+                    f"[auto_promote] promoted record {record_path} unreadable "
+                    f"({exc}); starting fresh (may re-promote)",
+                    file=sys.stderr,
+                )
         return cls()
 
     def save(self, path: Path | None = None) -> None:
@@ -536,6 +619,19 @@ def run_auto_promote() -> list[str]:
 
         url: str | None = None
         if score >= HIGH_PRIORITY_THRESHOLD:
+            # Promotion gate: do not create an issue for a finding whose
+            # every referenced location has already been removed. The
+            # gate fails open (promotes) on any error or untrusted root,
+            # so a real finding is never silently dropped.
+            skip_reason = stale_skip_reason(item)
+            if skip_reason is not None:
+                print(
+                    f"[auto_promote] skipping stale finding for '{key}': {skip_reason}",
+                    file=sys.stderr,
+                )
+                record.add(key, "stale-skipped")
+                record.save()
+                continue
             url = promote_to_issue(item, target_repo)
         elif score >= MEDIUM_PRIORITY_THRESHOLD:
             url = post_to_discussion(item, owner, name)

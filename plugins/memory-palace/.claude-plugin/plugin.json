@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.9.8",
+  "version": "1.9.9",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.",
   "commands": [
     "./commands/garden.md",
@@ -17,7 +17,8 @@
     "./skills/knowledge-intake",
     "./skills/review-chamber",
     "./skills/palace-diagram",
-    "./skills/memory-clarity-probe"
+    "./skills/memory-clarity-probe",
+    "./skills/palace-index-curator"
   ],
   "agents": [
     "./agents/palace-architect.md",

@@ -392,6 +392,13 @@ Structural fingerprint, not just a phrase. See
 `structural-patterns.md` for full detection. Listed here so
 vocabulary scans surface the lexical version.
 
+This is the **contrastive negation** half of the broader
+**contrastive parallelism** (antithesis) family. The affirmative
+half ("Less X, more Y"; "Where others X, we Y") has no "not"
+anchor and is detected structurally; see
+`structural-patterns.md` § Contrastive Parallelism. Avoid both
+in all but the most necessary cases.
+
 ## Tier 5 Detection Regex Patterns
 
 ```python

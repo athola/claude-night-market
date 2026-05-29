@@ -88,7 +88,30 @@ phrases:
   filler:
     score: 2
     patterns: [...]
+tier5:
+  contrastive_parallelism:
+    score: 2
+    confidence: low
+    ignore_case: false
+    patterns: [...]   # regex strings
+  negative_parallelism:
+    score: 3
+    confidence: high
+    ignore_case: true
+    patterns: [...]
 ```
+
+The optional `tier5` section holds the 2026 structural tells
+(spatial copula, negative parallelism, contrastive parallelism,
+three-fragment burst, smart quotes, and similar) as regex rather
+than word lists. Each category carries a `score`, a `confidence`
+level (`high`, or `low` for judgment-level patterns that must
+never auto-apply), and an `ignore_case` flag. `pattern_loader`
+exposes the section through `get_tier5_patterns()`. A language
+without a `tier5` section returns an empty list, so detection
+degrades to vocabulary and phrase tiers until the pack is
+translated. English (`en.yaml`) is the reference pack; the other
+languages carry no `tier5` patterns yet.
 
 ## Part 4: Cultural Calibration
 
