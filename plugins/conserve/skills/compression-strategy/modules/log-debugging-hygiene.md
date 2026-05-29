@@ -2,10 +2,12 @@
 
 When pasting logs into a Claude Code session, filter at the
 source before you reach for compression. On the committed
-`intake_queue.jsonl` fixture in this repo, `tail -n 100` saves
-95.6% of bytes; the best lossless compressor we measured saves
-70.3%. Filter wins by 25 percentage points and stays forensically
-useful because output remains a literal subset of the log.
+`intake_queue.jsonl` fixture in this repo (a deterministic
+synthetic intake log under `tests/fixtures/`), `tail -n 100` saves
+95.0% of bytes and stays forensically useful because the output is
+a literal subset of the log. `gzip -9` on the same fixture saves
+65.0%, so filtering wins by 30 percentage points and needs no
+extra tooling.
 
 This module formalizes a three-tier workflow so that compression
 is the last lever pulled, not the first.
@@ -46,20 +48,27 @@ requires no new tooling.
 | Time window | `awk '/14:23:00/,/14:24:00/' file.log` | Slice by stamp |
 | Last N unique | `sort -u file.log \| tail -n 30` | Dedup then trim |
 
-Benchmark on this repo's `plugins/memory-palace/data/intake_queue.jsonl`
-(1.05 MB, 1333 lines):
+Benchmark on the committed fixture
+`plugins/conserve/tests/fixtures/intake_queue.jsonl`
+(0.89 MB, 2000 lines):
 
 | Command | Output bytes | Reduction |
 |---------|--------------|-----------|
-| `tail -n 100` | 47 KB | 95.6% |
-| `jq -c 'select(.tool_name)' \| tail -n 20` | 14 KB | 99.1% |
-| logs-tokenizer (compress all) | 491 KB | 70.3% |
+| `tail -n 100` | 46 KB | 95.0% |
+| `jq -c 'select(.tool_name)' \| tail -n 20` | 9 KB | 99.0% |
+| `gzip -9` (compress all) | 319 KB | 65.0% |
 
-Filter beats compression by 25-29 percentage points on this
-fixture and by ~99x in absolute reduction when `jq` can
-specify the relevant rows. The
-`tests/test_log_debugging_hygiene.py::test_filter_first_claim_is_reproducible`
-test guards this property.
+Every row is reproducible from the committed fixture with stock
+tools; the `tail` row is guarded by
+`tests/test_log_debugging_hygiene.py::test_filter_first_claim_is_reproducible`.
+The fixture is a deterministic synthetic intake log (high-entropy
+per-line content, so `gzip` cannot collapse it the way it would a
+repetitive log); it replaces an earlier benchmark that pointed at a
+mutable runtime artifact. A dedicated log-template compressor
+(logs-tokenizer, external and not bundled, see Tier 3) saved 70.3%
+on the original real-traffic snapshot. Filtering still wins on byte
+reduction, and by roughly 99x in absolute terms when `jq` can name
+the relevant rows.
 
 ## Tier 2: Minimize Structurally (50-95% reduction)
 
