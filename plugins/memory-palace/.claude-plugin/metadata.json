@@ -7,7 +7,8 @@
     "skills/knowledge-locator",
     "skills/session-palace-builder",
     "skills/digital-garden-cultivator",
-    "skills/knowledge-intake"
+    "skills/knowledge-intake",
+    "skills/memory-clarity-probe"
   ],
   "dependencies": {},
   "provides": {

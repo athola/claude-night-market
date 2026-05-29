@@ -97,6 +97,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
+| `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
