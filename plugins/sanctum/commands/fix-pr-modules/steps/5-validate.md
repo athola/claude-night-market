@@ -382,8 +382,55 @@ steps on-the-fly:
 3. Run overall quality gates
 4. Document results
 
+## 5.7 Diff-Derived Validation (validate-mr)
+
+After 5.1-5.6, run `Skill(sanctum:validate-mr)` to generate and
+execute a validation plan matched to what actually changed in this
+MR. This step replaces the generic "suite passes" claim with
+targeted, area-level evidence and a revert-test quality check.
+
+**Invocation (automatic from `/fix-pr`):**
+
+```markdown
+Skill(sanctum:validate-mr) with:
+  mr: <current MR number>
+  post: false          # results feed into Step 6 Gate 3, not posted here
+  revert_tests: 1      # one representative revert-test quality check
+```
+
+**What it does:**
+
+1. Fetches the diff and groups changed files by area (Rust, Python,
+   Shell, grammar, build/config)
+2. Generates at least one verification step per area
+3. Executes each step and captures evidence (`[E1]`, `[E2]`, ...)
+4. Runs one revert-test: breaks a representative fix, confirms the
+   test fails, restores via `git checkout -- <file>`
+5. Runs the final full-suite test (cargo test --workspace or
+   uv run pytest)
+6. Produces a summary table: Area | Step | Evidence | Result
+
+**Halt condition:**
+
+If `validate-mr` reports any **FAIL** step, `/fix-pr` halts before
+Step 6 (Complete/Gate 3). Fix the failures, then re-run from Step 5.
+Pass `--skip-validate` to bypass for scope=minor or
+formatting-only fixes.
+
+**Skip conditions:**
+
+- `--scope minor` with only formatting or doc changes (no logic changed)
+- `--skip-validate` flag passed explicitly to `/fix-pr`
+- No diff available (branch is clean after fixes)
+
+**Summary table feeds Gate 3:**
+
+The validate-mr summary table is included verbatim in the Step 6.5
+summary comment, so the full validation evidence appears in Gate 3.
+
 **Step 5 Output**: All tests passing, quality gates green,
-manual test plan agent-verified with evidence
+manual test plan agent-verified with evidence, diff-derived
+validate-mr summary table ready for Gate 3
 
 ---
 

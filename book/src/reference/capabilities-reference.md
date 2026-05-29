@@ -187,6 +187,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `utility` | [leyline](../plugins/leyline.md) | Utility-guided action selection for orchestration |
+| `validate-mr` | [sanctum](../plugins/sanctum.md) | Diff-derived MR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
@@ -330,6 +331,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/update-tutorial` | sanctum | Update tutorial content |
 | `/update-version` | sanctum | Bump versions |
 | `/validate-hook` | abstract | Validate hook compliance |
+| `/validate-mr` | sanctum | Diff-derived MR test plan with area-targeted checks and revert-test quality proof |
 | `/validate-plugin` | abstract | Check plugin structure |
 | `/verify-plugin` | leyline | Verify plugin behavioral contract history via GitHub Attestations |
 | `/visualize` | cartograph | Generate codebase diagrams via Mermaid Chart MCP |

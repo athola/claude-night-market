@@ -13,6 +13,7 @@ Command options, configuration, and best practices.
 | `--to <step>` | Stop after specific step |
 | `--scope <level>` | Set scope level (auto, minor, medium, major) |
 | `--commit-strategy` | Choose commit approach (single, separate, manual) |
+| `--skip-validate` | Skip the Step 5.7 diff-derived `validate-mr` check (auto-applied for `--scope minor` with formatting-only diffs) |
 | `--skip-issue-linkage` | Skip issue analysis in Step 6 |
 | `--close-issues` | Automatically close fully addressed issues |
 | `--continue` | Resume from last incomplete phase (see Session Resumption) |

@@ -1,7 +1,7 @@
 ---
 name: fix-pr
 description: Address PR/MR review feedback by reading comments, implementing fixes, and resolving threads. GitHub and GitLab support.
-usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--no-insights] [--stack] [--no-stack] [--base <branch>]
+usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual] [--no-insights] [--skip-validate] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -41,7 +41,7 @@ Use this command when you need to:
 | **2. Triage** | Classify comments by type/priority | Single simple fix |
 | **3. Plan** | Generate fix strategies | Fixes are obvious |
 | **4. Fix** | Apply code changes | Just need validation |
-| **5. Validate** | Run tests, version checks, agent-verify manual test plan via shell, HTTP, and browser (CDP/Playwright) | Already validated |
+| **5. Validate** | Run tests, version checks, agent-verify manual test plan, then `validate-mr` diff-derived plan with revert-test quality check | Already validated |
 | **6. Complete** | **Reconcile all unworked items**, **reply to & resolve threads** (required), create issues, post summary | Never - issue tracking & thread resolution enforced |
 
 **Detailed Steps**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
@@ -412,7 +412,9 @@ The PR summary comment (Step 6.5) must include:
 
 - `/pr` - Create pull request
 - `/pr-review` - Review pull request (also supports `--stack`)
+- `/sanctum:validate-mr` - Standalone diff-derived validation (called automatically at Step 5.7)
 - `/update-tests` - Update test suite
+- `Skill(sanctum:validate-mr)` - Diff-derived test plan and revert-test quality checks
 - `Skill(sanctum:stack-mode)` - Shared multi-PR stack iteration contract
 - `Skill(sanctum:stack-create)` / `stack-push` / `stack-rebase` - Stack lifecycle primitives
 - **Attune Workflow**: `plugins/attune/commands/attune.md`
