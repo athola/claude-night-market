@@ -59,9 +59,9 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 
 1. **CHECK STATE VERSION** (before anything else):
    - Look for `state_version: N` in the first 5 lines of the file
-   - If `state_version: 1` -- proceed normally
-   - If no `state_version` line (v0, unversioned) -- treat as v1 and proceed normally. If you update the file later, add `state_version: 1` at that time.
-   - If `state_version` is greater than 1 -- log a warning ("Session state version N is newer than expected, reading with best effort") then proceed, skipping any unrecognized sections
+   - If `state_version: 1` — proceed normally
+   - If no `state_version` line (v0, unversioned) — treat as v1 and proceed normally. If you update the file later, add `state_version: 1` at that time.
+   - If `state_version` is greater than 1 — log a warning ("Session state version N is newer than expected, reading with best effort") then proceed, skipping any unrecognized sections
 
 2. **CHECK EXECUTION MODE** (before starting work):
    - Look for the "Execution Mode" section

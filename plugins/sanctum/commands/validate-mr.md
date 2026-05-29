@@ -58,7 +58,7 @@ See `Skill(sanctum:validate-mr)` for the full algorithm:
 2. Generate at least one verification step per area
 3. Execute each step, capture output as evidence (`[E1]`, `[E2]`, ...)
 4. Run a revert-test quality check: break a representative fix, confirm
-   the corresponding test fails, restore via `git checkout -- <file>`
+   the corresponding test fails, restore via `git checkout — <file>`
 5. Run the final full-suite test (cargo test --workspace or uv run pytest)
 6. Produce a summary table: Area | Step | Evidence | Result
 7. If `--post`: post the table as a PR comment

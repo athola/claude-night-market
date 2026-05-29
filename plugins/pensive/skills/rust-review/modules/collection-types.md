@@ -13,9 +13,9 @@ correct or more efficient.
 
 ## What This Detects
 
-- `vec.contains(&x)` -- O(n) membership test; `HashSet` gives O(1)
-- `vec.dedup()` -- sorting + dedup pattern suggests a set
-- `vec.iter().find(...)` / `vec.iter().position(...)` -- linear key lookup
+- `vec.contains(&x)` — O(n) membership test; `HashSet` gives O(1)
+- `vec.dedup()` — sorting + dedup pattern suggests a set
+- `vec.iter().find(...)` / `vec.iter().position(...)` — linear key lookup
   suggests `HashMap`
 
 ## Why It Matters

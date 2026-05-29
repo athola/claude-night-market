@@ -61,11 +61,11 @@ session files from `~/.claude/projects/`.
 The function returns a list of `SessionInfo` objects sorted by
 modification time (most recent first), each containing:
 
-- `path` -- full path to the .jsonl file
-- `modified` -- mtime timestamp
-- `first_user_message` -- preview of the first human message
-- `turn_count` -- number of user turns in the session
-- `project_name` -- parent directory name
+- `path` — full path to the .jsonl file
+- `modified` — mtime timestamp
+- `first_user_message` — preview of the first human message
+- `turn_count` — number of user turns in the session
+- `project_name` — parent directory name
 
 Present the list to the user as a numbered menu:
 

@@ -81,9 +81,9 @@ update-docs   (independent)
 `plan_stage_execution("quality", steps)` produces waves:
 
 - **Wave 1** (parallel): `code-review`, `unbloat`,
-  `update-docs` -- no interdependencies.
+  `update-docs` — no interdependencies.
 - **Wave 2** (parallel): `code-refinement`, `update-tests`
-  -- both depend on `code-review` completing first.
+  — both depend on `code-review` completing first.
 
 All steps in a wave can be dispatched simultaneously via
 `build_parallel_dispatch(wave, item_id)`. The orchestrator

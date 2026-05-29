@@ -54,12 +54,12 @@ commit.
 The system is organised in three layers, each with a
 different cost / coverage tradeoff:
 
-- **Layer 1 -- Standard hooks**: fast global checks
+- **Layer 1 — Standard hooks**: fast global checks
   (50-200ms total). Lints and type-checks every staged file.
-- **Layer 2 -- Component-specific checks**: per-component
+- **Layer 2 — Component-specific checks**: per-component
   lint, typecheck, and test (10-30s total). Only the
   components touched by the staged files are run.
-- **Layer 3 -- Validation hooks**: project-specific
+- **Layer 3 — Validation hooks**: project-specific
   structure and pattern checks (varies). Catches violations
   that generic linters miss.
 
@@ -71,19 +71,19 @@ catching the slow / project-specific bugs before they land.
 The detailed configuration patterns are in modules; load
 only the ones you need:
 
-- `modules/standard-hooks.md` -- Layer 1 patterns for
+- `modules/standard-hooks.md` — Layer 1 patterns for
   Python, Rust, and TypeScript (load when configuring base
   linters).
-- `modules/component-level-hooks.md` -- Layer 2 monorepo
+- `modules/component-level-hooks.md` — Layer 2 monorepo
   scripts and pre-commit wiring (load when project has
   multiple components / plugins).
-- `modules/validation-hooks.md` -- Layer 3 custom hooks
+- `modules/validation-hooks.md` — Layer 3 custom hooks
   and SKIP patterns (load when enforcing project conventions
   beyond linting).
-- `modules/ci-integration.md` -- GitHub Actions workflow
+- `modules/ci-integration.md` — GitHub Actions workflow
   plus a complete `.pre-commit-config.yaml` example (load
   when wiring CI to mirror local checks).
-- `modules/troubleshooting.md` -- timing tables, cache
+- `modules/troubleshooting.md` — timing tables, cache
   clearing, hook-failure recovery (load when hooks are slow
   or failing).
 
@@ -164,7 +164,7 @@ For full quality checks (CI/CD, monthly audits):
 
 \`\`\`bash
 #!/bin/bash
-# scripts/check-all-quality.sh -- full quality check for all components
+# scripts/check-all-quality.sh — full quality check for all components
 
 set -e
 
@@ -195,7 +195,7 @@ the commit to succeed:
 
 ### For New Projects
 
-Start with strict settings from the beginning -- they are
+Start with strict settings from the beginning — they are
 easier to maintain over time. Configure type checking with
 `strict = true` in `pyproject.toml`, set up testing early
 (include pytest in pre-commit), and document the reason
@@ -218,15 +218,15 @@ progressive disclosure (summary first, detail on failure).
 
 ## Related Skills
 
-- `Skill(attune:project-init)` -- Full project initialization
-- `Skill(attune:workflow-setup)` -- GitHub Actions setup
-- `Skill(attune:makefile-generation)` -- Generate component
+- `Skill(attune:project-init)` — Full project initialization
+- `Skill(attune:workflow-setup)` — GitHub Actions setup
+- `Skill(attune:makefile-generation)` — Generate component
   Makefiles
-- `Skill(pensive:shell-review)` -- Audit shell scripts for
+- `Skill(pensive:shell-review)` — Audit shell scripts for
   exit-code and safety issues
 
 ## See Also
 
-- **Quality Gates** -- three-layer validation: pre-commit
+- **Quality Gates** — three-layer validation: pre-commit
   hooks (formatting, linting), CI checks (tests, coverage),
   and PR review gates (code quality, security).

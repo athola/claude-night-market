@@ -56,6 +56,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``stream-processor`` -- the runtime that executes a filter (e.g. Flink, Apache Beam, Faust)
-- ``message-queue`` -- the durable pipe between filters (e.g. Kafka, RabbitMQ, in-memory channel)
-- ``data-validator`` -- schema-checks every record at filter input and output
+- ``stream-processor`` — the runtime that executes a filter (e.g. Flink, Apache Beam, Faust)
+- ``message-queue`` — the durable pipe between filters (e.g. Kafka, RabbitMQ, in-memory channel)
+- ``data-validator`` — schema-checks every record at filter input and output

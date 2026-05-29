@@ -29,18 +29,18 @@ and adapts search depth automatically.
 
 ## Skills
 
-- `research` -- orchestrate a full research session
-- `code-search` -- search GitHub implementations
-- `discourse` -- scan community discussions
-- `papers` -- search academic literature
-- `triz` -- cross-domain analogical reasoning
-- `synthesize` -- merge and rank findings
-- `dig` -- interactive refinement
+- `research` — orchestrate a full research session
+- `code-search` — search GitHub implementations
+- `discourse` — scan community discussions
+- `papers` — search academic literature
+- `triz` — cross-domain analogical reasoning
+- `synthesize` — merge and rank findings
+- `dig` — interactive refinement
 
 ## Agents
 
-- `code-searcher` -- GitHub code search
-- `discourse-scanner` -- community discussion scanning
-- `literature-reviewer` -- academic paper review
-- `research` -- multi-source research orchestrator (delegates to `Skill(tome:research)`)
-- `triz-analyst` -- cross-domain analysis
+- `code-searcher` — GitHub code search
+- `discourse-scanner` — community discussion scanning
+- `literature-reviewer` — academic paper review
+- `research` — multi-source research orchestrator (delegates to `Skill(tome:research)`)
+- `triz-analyst` — cross-domain analysis

@@ -59,6 +59,12 @@ After Layers 0 and 1 pass, you MUST run
    `.claude/rules/markdown-formatting.md`)
 2. Count em dashes: `grep -o '—' file.md | wc -l`
    (target: 0-2 per 1000 words)
+2a. Scan for double-dash em-dash substitution:
+   `grep -n ' -- ' file.md` — any prose match (outside
+   code blocks and `| -- |` table cells) is slop.
+   Replace with a real em-dash `—`, a colon, or rewrite
+   the sentence. `--` is a shell end-of-options separator;
+   it is not punctuation.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)

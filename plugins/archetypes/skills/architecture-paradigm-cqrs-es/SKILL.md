@@ -68,6 +68,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``event-store`` -- append-only log of domain events; the system of record from which projections are built
-- ``message-broker`` -- carries commands and integration events between bounded contexts
-- ``projection-builder`` -- rebuilds read-side views by replaying the event store
+- ``event-store`` — append-only log of domain events; the system of record from which projections are built
+- ``message-broker`` — carries commands and integration events between bounded contexts
+- ``projection-builder`` — rebuilds read-side views by replaying the event store

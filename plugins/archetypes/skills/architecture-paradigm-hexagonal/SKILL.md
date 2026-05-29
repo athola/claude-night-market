@@ -69,6 +69,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``boundary-validator`` -- checks every adapter conforms to the port contract
-- ``adapter-generator`` -- scaffolds primary and secondary adapters from a port spec
-- ``contract-tester`` -- validates each adapter against its port via shared contract tests
+- ``boundary-validator`` — checks every adapter conforms to the port contract
+- ``adapter-generator`` — scaffolds primary and secondary adapters from a port spec
+- ``contract-tester`` — validates each adapter against its port via shared contract tests

@@ -69,6 +69,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``boundary-validator`` -- guards inputs to the pure core so the core can stay total
-- ``core-test-generator`` -- generates property-based tests against the deterministic core
-- ``shell-adapter-generator`` -- scaffolds the imperative shell that wires the core into I/O
+- ``boundary-validator`` — guards inputs to the pure core so the core can stay total
+- ``core-test-generator`` — generates property-based tests against the deterministic core
+- ``shell-adapter-generator`` — scaffolds the imperative shell that wires the core into I/O

@@ -288,11 +288,11 @@ complexity.
 
 **Key checks:**
 
-1. **Additive bias score** -- flag changes with high
+1. **Additive bias score** — flag changes with high
    add/delete ratio (>5:1) that lack justification
-2. **Iron Law compliance** -- verify test assertions were
+2. **Iron Law compliance** — verify test assertions were
    not weakened to match broken implementations
-3. **Minimal intervention** -- confirm each changed file
+3. **Minimal intervention** — confirm each changed file
    was necessary and the change was the smallest fix
 
 **Classify justify findings using the scope framework:**

@@ -22,7 +22,7 @@ This skill should be invoked automatically when:
 1. **Regression detected**: The homeostatic monitor finds
    a skill's evaluation window ended in
    `pending_rollback_review` status. The improvement
-   made things worse -- we need to understand why.
+   made things worse — we need to understand why.
 
 2. **Low effectiveness rate**: When
    `ImprovementMemory.get_effective_strategies()` vs

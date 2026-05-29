@@ -9,7 +9,7 @@ estimated_tokens: 1100
 
 Two related concerns are bundled in one module:
 
-1. **Language detection and calibration** -- which languages are
+1. **Language detection and calibration** — which languages are
    supported, how to detect them, and how to calibrate scores.
 2. **Concrete pattern sets** for non-English slop (German, French,
    Spanish, with extension hooks for Portuguese and Italian).
@@ -29,7 +29,7 @@ Merged from `language-support.md` and `i18n-patterns.md` (P-14).
 
 ## Part 2: Language Selection
 
-### Step 1 -- Check config
+### Step 1 — Check config
 
 Look for a `languages` key in `.slop-config.yaml`:
 
@@ -42,7 +42,7 @@ languages:
 If `languages` is set, scan only those pattern sets. If absent, fall back to
 heuristic detection.
 
-### Step 2 -- Heuristic (no config)
+### Step 2 — Heuristic (no config)
 
 Sample the first 200 words. Count function-word hits:
 

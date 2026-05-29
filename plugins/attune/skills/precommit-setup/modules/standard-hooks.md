@@ -13,12 +13,12 @@ Fast global checks that run on every commit (typically 50-200ms total).
 
 ### Basic Quality Checks
 
-1. **pre-commit-hooks** -- file validation (trailing whitespace,
+1. **pre-commit-hooks** — file validation (trailing whitespace,
    EOF, YAML/TOML/JSON syntax)
-2. **ruff** -- ultra-fast linting and formatting (~50ms)
-3. **ruff-format** -- code formatting
-4. **mypy** -- static type checking (~200ms)
-5. **bandit** -- security scanning
+2. **ruff** — ultra-fast linting and formatting (~50ms)
+3. **ruff-format** — code formatting
+4. **mypy** — static type checking (~200ms)
+5. **bandit** — security scanning
 
 ### Configuration
 
@@ -56,12 +56,12 @@ repos:
 
 ## Rust Projects
 
-1. **rustfmt** -- code formatting
-2. **clippy** -- linting
-3. **cargo-check** -- compilation check
+1. **rustfmt** — code formatting
+2. **clippy** — linting
+3. **cargo-check** — compilation check
 
 ## TypeScript Projects
 
-1. **eslint** -- linting
-2. **prettier** -- code formatting
-3. **tsc** -- type checking
+1. **eslint** — linting
+2. **prettier** — code formatting
+3. **tsc** — type checking

@@ -113,7 +113,7 @@ proceeding. If RED or STOP, rethink the approach.
 
 **Manual verification:**
 
-- [ ] Read the full diff -- does every change serve the
+- [ ] Read the full diff — does every change serve the
       stated goal?
 - [ ] No debug statements or `TODO` markers left in
 - [ ] No commented-out code blocks

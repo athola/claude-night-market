@@ -34,10 +34,10 @@ openclaw plugin add .
 
 All skills are prefixed with `nm-{plugin}-` for namespace safety:
 
-- `nm-pensive-bug-review` -- systematic bug hunting
-- `nm-conserve-token-conservation` -- token budget management
-- `nm-scribe-slop-detector` -- AI content quality detection
-- `nm-sanctum-pr-prep` -- pull request preparation
+- `nm-pensive-bug-review` — systematic bug hunting
+- `nm-conserve-token-conservation` — token budget management
+- `nm-scribe-slop-detector` — AI content quality detection
+- `nm-sanctum-pr-prep` — pull request preparation
 
 ## Full Experience
 
@@ -51,4 +51,4 @@ claude plugin install athola/claude-night-market
 
 ## License
 
-MIT -- see [LICENSE](../../LICENSE) for details.
+MIT — see [LICENSE](../../LICENSE) for details.

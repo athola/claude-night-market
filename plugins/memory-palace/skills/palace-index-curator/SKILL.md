@@ -98,10 +98,21 @@ and it exits silently on any error so it can never block a session.
   cluster size). The decision logic is deterministic; no model call
   gates a transition.
 - The decay half-lives (14/30/90 days) are tunable priors, not retention
-  constants. See `docs/palace-index-methods/research-findings.md` for the
-  literature behind this and for power-law and adaptive-decay follow-ups.
-- Retrieval stays keyword-first; embeddings are not required at the
-  current corpus scale.
+  constants. Wixted & Ebbesen (1997) and Murre & Dros (2015) show
+  forgetting follows a power law; FSRS (Ye, Su & Cao, 2022) validates
+  exponential decay only with a learned per-item half-life. Calibrate
+  against reopen logs if usage data accrues.
+- Retrieval stays keyword-first (`cache_lookup` / `keyword_index`);
+  embeddings are not required at the current corpus scale. BM25 is the
+  workhorse up to ~5000 documents; embeddings add value only for
+  vocabulary-mismatch discovery.
+- Near-duplicate detection layers SHA-256 exact match (present via
+  `content_hash`) then MinHash with k-shingling for near-duplicates
+  (Broder, 1997). SimHash is preferable only at tens of thousands of
+  documents.
+- Importance formula: `relevance = w1 * centrality + w2 * decay(t) +
+  w3 * usage`. The plugin ships all three terms (`graph_analyzer`
+  PageRank, `decay_model`, `usage_tracker`).
 
 ## Exit Criteria
 

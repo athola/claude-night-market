@@ -171,7 +171,7 @@ fi
 2. Identify the specific changed line or block from the diff.
 3. Edit that line to revert the fix to its broken state.
 4. Run the targeted test: confirm it **FAILS** (expected).
-5. Restore: `git checkout -- <file>` (git-based restore, safe on interrupt).
+5. Restore: `git checkout — <file>` (git-based restore, safe on interrupt).
 6. Run the targeted test again: confirm it **PASSES**.
 7. If any step cannot complete, mark INCONCLUSIVE with the reason.
 

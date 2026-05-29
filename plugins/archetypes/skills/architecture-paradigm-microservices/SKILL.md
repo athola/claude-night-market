@@ -101,6 +101,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``service-boundary-analyzer`` -- finds candidate seams via call-graph and data-ownership analysis
-- ``api-contract-generator`` -- OpenAPI/protobuf scaffolding for new service boundaries
-- ``resilience-patterns`` -- retry, circuit breaker, bulkhead, and timeout libraries
+- ``service-boundary-analyzer`` — finds candidate seams via call-graph and data-ownership analysis
+- ``api-contract-generator`` — OpenAPI/protobuf scaffolding for new service boundaries
+- ``resilience-patterns`` — retry, circuit breaker, bulkhead, and timeout libraries

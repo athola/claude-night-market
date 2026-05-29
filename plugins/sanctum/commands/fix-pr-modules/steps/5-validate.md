@@ -168,7 +168,7 @@ evidence for the reviewer.
 
 **Verification surface area**: shell commands, validators,
 HTTP probes, headless browser actions (CDP-based MCP tool or
-Playwright spec), and -- as a last resort -- desktop GUI
+Playwright spec), and — as a last resort — desktop GUI
 control. The strategy table in 5.4.2 maps test-item shapes to
 the lightest tool that can answer them; the tier-selection
 guide in 5.4.5 covers when to escalate from Tier 1 (MCP CDP)
@@ -198,7 +198,7 @@ test plan exists, skip to 5.5.
 ### 5.4.2 Classify Each Item and Choose Strategy
 
 For each manual test item, determine the best verification
-approach. Be creative -- most "manual" checks can be at least
+approach. Be creative — most "manual" checks can be at least
 partially automated:
 
 | Pattern in test item | Strategy | Example command |
@@ -209,7 +209,7 @@ partially automated:
 | "Spot-check that all X references updated" | Search for stale pattern | `rg 'old-pattern' --glob '*.md'` (or `grep -r --include='*.md'`) |
 | "Verify X was updated to Y" | Read file and assert content | Read file, check the specific line |
 | "Ensure X discovers both A and B" | Run discovery, check output contains both | Execute script, grep output for A and B |
-| "Update X" (imperative fix item) | Verify the fix was applied | `git diff origin/BASE -- path/to/file` |
+| "Update X" (imperative fix item) | Verify the fix was applied | `git diff origin/BASE — path/to/file` |
 | "Verify endpoint/API returns X" | HTTP probe with curl/httpie, assert response | `curl -sf -X POST http://localhost:PORT/api -d '{...}' \| jq -e '.field=="value"'` |
 | "Check the page/UI shows X" | Drive browser via MCP tool, assert DOM/text | `mcp__plugin_superpowers-chrome_chrome__use_browser` (CDP-based, lightweight). See 5.4.5 |
 | "Smoke-test the flow A->B->C" | Playwright spec executing the full path | `npx playwright test specs/pr-NNN-smoke.spec.ts` (see `scry:browser-recording` for spec patterns) |
@@ -230,7 +230,7 @@ partially automated:
   `make -n target` to see what WOULD execute without
   side effects, then run the actual target
 - **Diff inspection**: For "verify X changed", use
-  `git diff origin/BASE -- file` to show the exact change
+  `git diff origin/BASE — file` to show the exact change
 - **HTTP probing**: For API endpoints, prefer `curl -sf
   -w '%{http_code}'` (fail-on-error + status code
   capture) over manual `curl | grep`; use `jq -e` to make
@@ -300,9 +300,9 @@ option cannot answer the question.
 
 | Tier | Tool | Use when | Cost |
 |------|------|----------|------|
-| 1 | `mcp__plugin_superpowers-chrome_chrome__use_browser` | Navigate, read DOM/text, and click; reusing local Chrome | Lightest -- one MCP call per action |
+| 1 | `mcp__plugin_superpowers-chrome_chrome__use_browser` | Navigate, read DOM/text, and click; reusing local Chrome | Lightest — one MCP call per action |
 | 2 | Playwright spec (`scry:browser-recording` patterns) | Multi-step user journeys, login, file upload, visual regression | Spawns a browser per spec; ~5-15s/run |
-| 3 | `Skill(phantom:computer-control)` | Native desktop UI, OS dialogs, non-web targets | Heavy -- full Computer Use API and sandbox |
+| 3 | `Skill(phantom:computer-control)` | Native desktop UI, OS dialogs, non-web targets | Heavy — full Computer Use API and sandbox |
 
 **Default to Tier 1.** If you find yourself writing a
 Playwright spec just to assert one DOM value, that is a
@@ -328,7 +328,7 @@ the limitation in the result row.
 
 **Rules:**
 - Attempt EVERY item, even if verification is only partial
-- Never fake evidence -- if you cannot verify, mark SKIP
+- Never fake evidence — if you cannot verify, mark SKIP
   with an honest explanation
 - Items marked MEDIUM, LOW, or SKIP deserve extra attention
   from human QA
@@ -405,7 +405,7 @@ Skill(sanctum:validate-mr) with:
 2. Generates at least one verification step per area
 3. Executes each step and captures evidence (`[E1]`, `[E2]`, ...)
 4. Runs one revert-test: breaks a representative fix, confirms the
-   test fails, restores via `git checkout -- <file>`
+   test fails, restores via `git checkout — <file>`
 5. Runs the final full-suite test (cargo test --workspace or
    uv run pytest)
 6. Produces a summary table: Area | Step | Evidence | Result

@@ -50,10 +50,10 @@ architectural foundation.
 
 ## Required TodoWrite Items
 
-1. `arch-init:research-completed` -- Online research completed
-2. `arch-init:paradigm-selected` -- Architecture paradigm chosen
-3. `arch-init:templates-customized` -- Templates adapted to paradigm
-4. `arch-init:decision-recorded` -- ADR created
+1. `arch-init:research-completed` — Online research completed
+2. `arch-init:paradigm-selected` — Architecture paradigm chosen
+3. `arch-init:templates-customized` — Templates adapted to paradigm
+4. `arch-init:decision-recorded` — ADR created
 
 ## 5-Step Workflow
 
@@ -138,17 +138,17 @@ and clear decision rationale.
 
 ## Related Skills
 
-- `Skill(archetypes:architecture-paradigms)` -- paradigm catalog
-- `Skill(archetypes:architecture-paradigm-*)` -- per-paradigm
+- `Skill(archetypes:architecture-paradigms)` — paradigm catalog
+- `Skill(archetypes:architecture-paradigm-*)` — per-paradigm
   implementation guidance
-- `Skill(attune:project-brainstorming)` -- ideation before
+- `Skill(attune:project-brainstorming)` — ideation before
   architecture
-- `Skill(attune:project-specification)` -- requirements after
+- `Skill(attune:project-specification)` — requirements after
   the paradigm is chosen
 
 ## See Also
 
-- `/attune:project-init` -- basic project initialization
-- `/attune:blueprint` -- architecture planning after paradigm
+- `/attune:project-init` — basic project initialization
+- `/attune:blueprint` — architecture planning after paradigm
   selection
-- `plugins/archetypes/README.md` -- full paradigm reference
+- `plugins/archetypes/README.md` — full paradigm reference

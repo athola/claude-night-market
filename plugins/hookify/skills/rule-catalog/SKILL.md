@@ -77,7 +77,7 @@ python3 plugins/hookify/scripts/install_rule.py --all
 | Rule | Action | Default | Description |
 |------|--------|---------|-------------|
 | `block-force-push` | block | enabled | Prevent force push to main/master |
-| `block-destructive-git` | block | enabled | Block reset --hard, checkout -- ., clean -fd, etc. |
+| `block-destructive-git` | block | enabled | Block reset --hard, checkout — ., clean -fd, etc. |
 | `warn-risky-git` | warn | enabled | Warn about rebase -i, soft reset, etc. |
 | `warn-large-commits` | warn | enabled | Warn about large binary files |
 
