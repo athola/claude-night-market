@@ -105,9 +105,9 @@ Ensure all fixes are correct and quality gates pass.
   headless browser (CDP MCP / Playwright); see Section 5.4
 - Run quality gates
 - Document results
+- **5.7 Diff-derived validation** (`Skill(sanctum:validate-mr)`): area-targeted checks + revert-test. Halts before Step 6 on FAIL. Bypass: `--skip-validate`.
 
-**Output:** All tests passing, quality gates green,
-manual test plan agent-verified with evidence
+**Output:** Tests passing, validate-mr summary table ready for Gate 3
 
 ---
 

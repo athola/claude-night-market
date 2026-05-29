@@ -17,6 +17,7 @@
     "./skills/knowledge-intake",
     "./skills/review-chamber",
     "./skills/palace-diagram",
+    "./skills/memory-clarity-probe",
     "./skills/palace-index-curator"
   ],
   "agents": [
