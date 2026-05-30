@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/double_shot_latte.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
