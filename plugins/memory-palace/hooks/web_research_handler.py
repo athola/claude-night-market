@@ -144,11 +144,11 @@ def extract_content_from_webfetch(
 # "The server returned HTTP 429 Too Many Requests." Anchoring on this
 # exact phrase keeps the detector precise: an article that merely
 # mentions "404" or "HTTP 500" in prose is not a failed fetch.
-_FETCH_STATUS_RE = re.compile(r"server returned HTTP\s+(\d{3})", re.IGNORECASE)
+_FETCH_STATUS_RE = re.compile(r"server returned HTTP\s+(\d{3})")
 
 
 def detect_failed_fetch_status(
-    tool_response: dict[str, Any],
+    tool_response: dict[str, Any] | str,
     content: str,
 ) -> int | None:
     """Return the HTTP status of a non-2xx fetch, or None if it looks OK.
@@ -169,7 +169,7 @@ def detect_failed_fetch_status(
     match = _FETCH_STATUS_RE.search(content or "")
     if match:
         code = int(match.group(1))
-        if not 200 <= code < 300:
+        if 100 <= code < 600 and not 200 <= code < 300:
             return code
     return None
 

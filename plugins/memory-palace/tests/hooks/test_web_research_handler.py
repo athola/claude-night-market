@@ -284,6 +284,28 @@ class TestDetectFailedFetchStatus:
         """Given a non-2xx structured status, flag it regardless of content."""
         assert detect_failed_fetch_status({"status": 429}, "looks fine") == 429
 
+    @pytest.mark.unit
+    def test_lowercase_failure_phrase_in_prose_returns_none(self):
+        """Lowercase prose must not be flagged (PR #555 NB1).
+
+        WebFetch emits the exact-case 'The server returned HTTP' phrase,
+        so the regex is case-sensitive. Prose that mentions a lowercase
+        'http 404' is not a failed fetch. Restoring re.IGNORECASE on the
+        regex makes this fail.
+        """
+        body = "Note: the server returned http 404 earlier in the logs."
+        assert detect_failed_fetch_status({}, body) is None
+
+    @pytest.mark.unit
+    def test_out_of_range_code_in_signature_returns_none(self):
+        """A code outside the 100-599 HTTP range is not a failure (PR #555 NB3).
+
+        A body quoting an implausible code is not a real fetch failure.
+        Removing the ``100 <= code < 600`` guard makes this fail.
+        """
+        body = "The server returned HTTP 999 Nonstandard Marker."
+        assert detect_failed_fetch_status({}, body) is None
+
 
 class TestRecentIntakePending:
     """Feature: Skip prompts when research_interceptor already flagged the query."""
@@ -1124,6 +1146,59 @@ class TestNonOkFetchRejection:
             web_research_handler.main()
 
         mock_store.assert_not_called()
+
+    @pytest.mark.unit
+    def test_structured_status_code_field_is_not_stored(
+        self,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        """A non-2xx structured status is rejected through main() (PR #555 NB4).
+
+        Guards the structured-status channel end-to-end: a clean body paired
+        with a non-2xx ``status_code`` field must still be rejected, even
+        though the body carries no failure signature. The unit tests cover
+        the structured channel directly; this proves the call-site seam in
+        ``_handle_webfetch`` actually passes the response dict through.
+        """
+        clean_body = "A perfectly clean article body with no error text. " * 6
+        payload = {
+            "tool_name": "WebFetch",
+            "tool_input": {"url": "https://example.com/page", "prompt": "get"},
+            "tool_response": {
+                "content": clean_body,
+                "status_code": 503,
+                "url": "https://example.com/page",
+            },
+        }
+        safety_result = MagicMock()
+        safety_result.is_safe = True
+        safety_result.should_sanitize = False
+
+        with (
+            patch("sys.stdin", _json_stdin(payload)),
+            patch(
+                "web_research_handler.get_config",
+                return_value=_default_config(auto_capture=True),
+            ),
+            patch(
+                "web_research_handler.is_safe_content",
+                return_value=safety_result,
+            ),
+            patch("web_research_handler.is_known", return_value=False),
+            patch(
+                "web_research_handler.store_webfetch_content",
+                return_value="/tmp/stored.md",
+            ) as mock_store,
+            pytest.raises(SystemExit),
+        ):
+            web_research_handler.main()
+
+        mock_store.assert_not_called()
+        ctx = json.loads(capsys.readouterr().out.strip())["hookSpecificOutput"][
+            "additionalContext"
+        ]
+        assert "503" in ctx
+        assert "not captured" in ctx.lower()
 
     @pytest.mark.unit
     def test_article_mentioning_status_codes_is_still_stored(self):
