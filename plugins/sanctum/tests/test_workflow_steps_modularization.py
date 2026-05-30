@@ -244,8 +244,8 @@ class TestNoContentLoss:
         # +270 lines for mandatory issue creation enforcement (Gates 2 & 3)
         # +183 lines from modularizing 6-complete into sub-modules (issue #122)
         # +64 lines for HTTP/browser/Playwright strategies in 5.4 (validate)
-        # +49 lines for Step 5.7 validate-mr diff-derived validation (issue #548)
-        # +5 lines for workflow-steps hub update referencing validate-mr
+        # +49 lines for Step 5.7 validate-pr diff-derived validation (issue #548)
+        # +5 lines for workflow-steps hub update referencing validate-pr
         ORIGINAL_LINE_COUNT = 2137
         TOLERANCE = 0.20  # Allow 20% variance for added navigation/headers/structure
 

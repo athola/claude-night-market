@@ -23,7 +23,7 @@
     "./commands/update-tests.md",
     "./commands/update-tutorial.md",
     "./commands/update-version.md",
-    "./commands/validate-mr.md"
+    "./commands/validate-pr.md"
   ],
   "skills": [
     "./skills/commit-messages",
@@ -44,7 +44,7 @@
     "./skills/update-readme",
     "./skills/version-updates",
     "./skills/workflow-improvement",
-    "./skills/validate-mr"
+    "./skills/validate-pr"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",

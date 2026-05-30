@@ -382,9 +382,9 @@ steps on-the-fly:
 3. Run overall quality gates
 4. Document results
 
-## 5.7 Diff-Derived Validation (validate-mr)
+## 5.7 Diff-Derived Validation (validate-pr)
 
-After 5.1-5.6, run `Skill(sanctum:validate-mr)` to generate and
+After 5.1-5.6, run `Skill(sanctum:validate-pr)` to generate and
 execute a validation plan matched to what actually changed in this
 MR. This step replaces the generic "suite passes" claim with
 targeted, area-level evidence and a revert-test quality check.
@@ -392,7 +392,7 @@ targeted, area-level evidence and a revert-test quality check.
 **Invocation (automatic from `/fix-pr`):**
 
 ```markdown
-Skill(sanctum:validate-mr) with:
+Skill(sanctum:validate-pr) with:
   mr: <current MR number>
   post: false          # results feed into Step 6 Gate 3, not posted here
   revert_tests: 1      # one representative revert-test quality check
@@ -412,7 +412,7 @@ Skill(sanctum:validate-mr) with:
 
 **Halt condition:**
 
-If `validate-mr` reports any **FAIL** step, `/fix-pr` halts before
+If `validate-pr` reports any **FAIL** step, `/fix-pr` halts before
 Step 6 (Complete/Gate 3). Fix the failures, then re-run from Step 5.
 Pass `--skip-validate` to bypass for scope=minor or
 formatting-only fixes.
@@ -425,12 +425,12 @@ formatting-only fixes.
 
 **Summary table feeds Gate 3:**
 
-The validate-mr summary table is included verbatim in the Step 6.5
+The validate-pr summary table is included verbatim in the Step 6.5
 summary comment, so the full validation evidence appears in Gate 3.
 
 **Step 5 Output**: All tests passing, quality gates green,
 manual test plan agent-verified with evidence, diff-derived
-validate-mr summary table ready for Gate 3
+validate-pr summary table ready for Gate 3
 
 ---
 

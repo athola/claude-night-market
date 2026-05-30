@@ -1,20 +1,20 @@
 ---
-name: validate-mr
-description: Generate and self-execute a diff-derived test plan for an MR. Reads
+name: validate-pr
+description: Generate and self-execute a diff-derived test plan for a PR. Reads
   the diff, groups changes by area, runs targeted verifications, proves
   revert-tests are genuine guards, and reports a structured summary table.
-usage: /sanctum:validate-mr [<mr-number> | <pr-url> | <mr-url>] [--post] [--revert-tests <N>]
+usage: /sanctum:validate-pr [<pr-number> | <pr-url>] [--post] [--revert-tests <N>]
 ---
 
-# validate-mr
+# validate-pr
 
 Generate and self-execute a step-by-step validation plan matched to what
-actually changed in an MR. Bridges the gap between "tests pass" and "the
+actually changed in a PR. Bridges the gap between "tests pass" and "the
 fix does what it claims."
 
 ## When To Use
 
-- Standalone after any MR fix, to produce targeted validation evidence
+- Standalone after any PR fix, to produce targeted validation evidence
 - Called automatically by `/fix-pr` at the end of Step 5 (Validate)
 - When you need proof that revert-tests catch regressions
 
@@ -28,37 +28,37 @@ fix does what it claims."
 
 | Option | Description |
 |--------|-------------|
-| `<mr-number>` | Target MR/PR number (default: current branch PR) |
-| `<pr-url>` / `<mr-url>` | Full GitHub or GitLab URL to the PR/MR |
-| `--post` | Post the summary table as a PR/MR comment |
+| `<pr-number>` | Target PR number (default: current branch PR) |
+| `<pr-url>` | Full GitHub or GitLab URL to the PR |
+| `--post` | Post the summary table as a PR comment |
 | `--revert-tests <N>` | Number of revert-test quality checks to run (default: 1) |
 
 ## Quick Reference
 
 ```bash
 # Run on current branch PR
-/sanctum:validate-mr
+/sanctum:validate-pr
 
 # Run on a specific PR
-/sanctum:validate-mr 123
+/sanctum:validate-pr 123
 
 # Run and post results as a PR comment
-/sanctum:validate-mr 123 --post
+/sanctum:validate-pr 123 --post
 
 # Run with two revert-test checks
-/sanctum:validate-mr 123 --revert-tests 2
+/sanctum:validate-pr 123 --revert-tests 2
 ```
 
 ## Workflow
 
-See `Skill(sanctum:validate-mr)` for the full algorithm:
+See `Skill(sanctum:validate-pr)` for the full algorithm:
 
-1. Fetch the MR diff and group changed files by area (Rust, Python, Shell,
+1. Fetch the PR diff and group changed files by area (Rust, Python, Shell,
    grammar, build/config)
 2. Generate at least one verification step per area
 3. Execute each step, capture output as evidence (`[E1]`, `[E2]`, ...)
 4. Run a revert-test quality check: break a representative fix, confirm
-   the corresponding test fails, restore via `git checkout — <file>`
+   the corresponding test fails, restore via `git checkout -- <file>`
 5. Run the final full-suite test (cargo test --workspace or uv run pytest)
 6. Produce a summary table: Area | Step | Evidence | Result
 7. If `--post`: post the table as a PR comment
@@ -72,7 +72,7 @@ with non-zero status. When called from `/fix-pr`, it halts before Step 6
 ## Output Format
 
 ```markdown
-### validate-mr: PR #123
+### validate-pr: PR #123
 
 | Area | Step | Evidence | Result |
 |------|------|----------|--------|
@@ -87,7 +87,7 @@ with non-zero status. When called from `/fix-pr`, it halts before Step 6
 
 ## See Also
 
-- `Skill(sanctum:validate-mr)` — full algorithm and step details
+- `Skill(sanctum:validate-pr)` — full algorithm and step details
 - `/fix-pr` — calls this skill automatically after Step 4 (Fix)
 - `Skill(imbue:proof-of-work)` — `[E1]`/`[E2]` evidence capture conventions
 - `Skill(leyline:git-platform)` — GitHub/GitLab CLI command mapping
