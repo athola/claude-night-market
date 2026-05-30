@@ -56,6 +56,15 @@ MAX_CONTINUATIONS = 3
 #: Sliding window, in seconds, over which MAX_CONTINUATIONS is counted.
 THROTTLE_WINDOW_SECONDS = 300
 
+#: Filename prefix for per-session throttle state in the temp dir. Shared by
+#: the path builder and the orphan sweep so they stay in lock-step.
+_THROTTLE_PREFIX = "double-shot-latte-"
+
+#: Age, in seconds, after which an orphaned throttle file is reclaimed. Far
+#: larger than the throttle window so a live session's file is never swept;
+#: only files left by abandoned sessions age out.
+THROTTLE_TTL_SECONDS = 3600
+
 #: Only the trailing slice of the assistant message is inspected for await /
 #: completion signals, so an early "next" in a long summary cannot flip a
 #: finished turn back to CONTINUE.
@@ -222,7 +231,28 @@ def classify(text: str) -> tuple[bool, str]:
 def _throttle_path(session_id: str) -> Path:
     """Return the throttle state file path for a session, OS-portable."""
     safe = re.sub(r"[^A-Za-z0-9_.-]", "_", session_id or "unknown")
-    return Path(tempfile.gettempdir()) / f"double-shot-latte-{safe}.json"
+    return Path(tempfile.gettempdir()) / f"{_THROTTLE_PREFIX}{safe}.json"
+
+
+def _sweep_stale_throttles(now: float) -> None:
+    """Best-effort removal of throttle files left by abandoned sessions.
+
+    A session that keeps continuing and is then closed without a final stop
+    leaves its throttle file behind. Files whose mtime predates the TTL (far
+    longer than the throttle window) are unlinked so the temp dir does not
+    accumulate orphans. Every error is swallowed: this is housekeeping and must
+    never affect the stop decision.
+    """
+    try:
+        tmp = Path(tempfile.gettempdir())
+        for path in tmp.glob(f"{_THROTTLE_PREFIX}*.json"):
+            try:
+                if now - path.stat().st_mtime > THROTTLE_TTL_SECONDS:
+                    path.unlink()
+            except OSError:
+                continue
+    except OSError:
+        pass
 
 
 def _read_throttle(path: Path) -> tuple[int, float]:
@@ -331,6 +361,8 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
     """
     if os.environ.get(JUDGE_MODE_ENV) == "true":
         return _approve("Running in judge mode; allowing stop.")
+
+    _sweep_stale_throttles(now)
 
     session_id = str(event.get("session_id", "unknown"))
     throttle = _throttle_path(session_id)

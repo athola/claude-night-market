@@ -13,6 +13,7 @@ These tests encode the three defects the reimplementation fixes:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -402,3 +403,96 @@ class TestLlmTimeoutBudget:
         hooks_json = json.loads((HOOKS_DIR / "hooks.json").read_text(encoding="utf-8"))
         hook_timeout = hooks_json["hooks"]["Stop"][0]["hooks"][0]["timeout"]
         assert dsl.LLM_TIMEOUT_SECONDS < hook_timeout
+
+
+class TestHookRegistrationPortable:
+    """Feature: the hook is registered in a way that runs on every platform.
+
+    H3: ``python3`` is frequently absent on native Windows (the launcher is
+    ``py`` and ``python3.exe`` ships only with the Store build). Invoking the
+    script directly lets the shebang drive it on Unix and the ``.py`` file
+    association (``py`` launcher) drive it on Windows.
+    """
+
+    @pytest.mark.unit
+    def test_command_does_not_hardcode_python3(self):
+        """
+        Scenario: portable hook invocation
+        Given the registered Stop hook command
+        When inspected
+        Then it invokes the script directly, not via a hardcoded 'python3'
+        """
+        hooks_json = json.loads((HOOKS_DIR / "hooks.json").read_text(encoding="utf-8"))
+        cmd = hooks_json["hooks"]["Stop"][0]["hooks"][0]["command"]
+        assert not cmd.startswith("python3 ")
+        assert not cmd.startswith("python ")
+        assert cmd.endswith("double_shot_latte.py")
+
+    @pytest.mark.unit
+    def test_script_has_python_shebang(self):
+        """
+        Scenario: direct invocation precondition
+        Given the hook script
+        When its first line is read
+        Then it carries a python shebang (and is executable off Windows)
+        """
+        script = HOOKS_DIR / "double_shot_latte.py"
+        first_line = script.read_text(encoding="utf-8").splitlines()[0]
+        assert first_line.startswith("#!") and "python" in first_line
+        if sys.platform != "win32":
+            assert os.access(script, os.X_OK)
+
+
+class TestThrottleSweep:
+    """Feature: abandoned-session throttle files are eventually reclaimed.
+
+    H4: a session that keeps continuing and is then closed without a final
+    stop leaves its per-session throttle file in the temp dir. A best-effort
+    sweep removes files older than the TTL so the temp dir does not accumulate
+    orphans across sessions.
+    """
+
+    @pytest.mark.unit
+    def test_sweep_removes_stale_keeps_fresh(self, tmp_path, monkeypatch):
+        """
+        Scenario: orphan reclamation
+        Given one throttle file aged past the TTL and one recent file
+        When the sweep runs
+        Then the stale file is removed and the fresh file is kept
+        """
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        now = 1_000_000.0
+        stale = dsl._throttle_path("abandoned")
+        fresh = dsl._throttle_path("active")
+        dsl._write_throttle(stale, 2, now)
+        dsl._write_throttle(fresh, 1, now)
+        aged = now - dsl.THROTTLE_TTL_SECONDS - 100
+        os.utime(stale, (aged, aged))
+        os.utime(fresh, (now, now))
+
+        dsl._sweep_stale_throttles(now)
+
+        assert not stale.exists()
+        assert fresh.exists()
+
+    @pytest.mark.unit
+    def test_sweep_tolerates_missing_tempdir(self, tmp_path, monkeypatch):
+        """Given a non-existent temp dir, when sweeping, then no error is raised."""
+        monkeypatch.setattr(
+            dsl.tempfile, "gettempdir", lambda: str(tmp_path / "does-not-exist")
+        )
+        dsl._sweep_stale_throttles(1000.0)  # must not raise
+
+    @pytest.mark.unit
+    def test_sweep_only_targets_throttle_files(self, tmp_path, monkeypatch):
+        """Given an unrelated old file, when sweeping, then it is left untouched."""
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        now = 1_000_000.0
+        unrelated = tmp_path / "important-other-tool.json"
+        unrelated.write_text("{}", encoding="utf-8")
+        aged = now - dsl.THROTTLE_TTL_SECONDS - 100
+        os.utime(unrelated, (aged, aged))
+
+        dsl._sweep_stale_throttles(now)
+
+        assert unrelated.exists()
