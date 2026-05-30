@@ -7,4 +7,4 @@ agent loop.
 
 from __future__ import annotations
 
-__version__ = "1.9.9"
+__version__ = "1.9.10"

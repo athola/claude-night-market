@@ -5,6 +5,53 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.10] - 2026-05-29
+
+### Added
+
+- **conserve, memory-palace: MMPO anchor-clarity gates (#550, #551,
+  #552).** Skill descriptions and memory summaries are now scored for
+  anchor clarity and fail fast when an anchor is too vague to act on,
+  applying the Minimal Meaningful Probe Output method from the MMPO
+  paper.
+- **memory-palace/memory-clarity-probe skill.** A dual-anchor probe
+  (task progress, information gaps) for verifying session state or a
+  summary before handoff or compression, derived from the MMPO paper.
+- **pensive/safety-critical-patterns via `/full-review` (#538).** The
+  NASA Power of 10 ruleset is now reachable from the unified review
+  command for financial, medical, and high-reliability code paths.
+- **sanctum/validate-pr skill (#548).** Generates and self-executes a
+  diff-derived test plan: groups changed files by area, runs targeted
+  verifications, and proves revert-tests are genuine guards rather than
+  dead assertions.
+- **scribe: Tier 5 slop patterns wired into the runtime.** The
+  2026 cross-source slop patterns (spatial copula, negative
+  parallelism, throat-clearing) now run in the detector path, not just
+  the markdown skill.
+
+### Changed
+
+- **README simplified to an index (435 to 200 lines).** The root README
+  now leads with everyday workflows and links depth out to `book/`
+  instead of inlining a 95-line "What's New" history and a 23-row
+  plugin catalog.
+- **sanctum/update-readme teaches the index-not-manual shape.** The
+  skill now favors concision with a soft line budget and a concrete,
+  falsifiable Exit Criteria so future README passes default to linking
+  over inlining.
+- **sanctum: renamed `validate-mr` to `validate-pr` for naming
+  consistency** with `pr-review`, `fix-pr`, and `prepare-pr`. MR
+  references became PR throughout; the `leyline:git-platform`
+  dependency stays so GitLab CLI mapping still works.
+
+### Fixed
+
+- **memory-palace/knowledge-intake rejects non-2xx fetches (#547).** A
+  fetch that returns an error page no longer gets stored as if it were
+  the requested resource.
+- **conserve: pinned frozen benchmark fixture for the log-hygiene test
+  (#540).** The test no longer drifts with the live corpus.
+
 ## [1.9.9] - 2026-05-26
 
 ### Added

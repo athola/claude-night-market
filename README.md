@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.9-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.10-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-188-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-191-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -139,8 +139,9 @@ override any conflicting skill or hook;
 
 ## What's New
 
-**1.9.9** adds a verify-before-promote gate so the Insight Engine
-stops minting issues for findings the codebase already resolved.
+**1.9.10** adds MMPO anchor-clarity gates so skills and memory
+summaries fail fast on low-clarity anchors, plus naming and docs
+cleanup (`validate-pr`, a slimmer README).
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development
