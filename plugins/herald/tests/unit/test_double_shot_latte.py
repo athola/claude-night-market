@@ -355,12 +355,13 @@ class TestDecide:
         assert calls != []
 
     @pytest.mark.unit
-    def test_throttle_forces_stop_after_max(self, tmp_path, monkeypatch):
+    def test_throttle_prompts_user_after_max(self, tmp_path, monkeypatch):
         """
-        Scenario: runaway loop guard
+        Scenario: cap reached -> hand back to the user with a prompt
         Given the throttle already at MAX within the window
         When deciding on an otherwise-continue turn with stop_hook_active
-        Then the stop is forced (approve)
+        Then the stop is approved and the reason prompts the user to continue,
+              naming the limit that was hit (legitimate long runs can resume)
         """
         monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
         monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
@@ -380,7 +381,76 @@ class TestDecide:
             now=1001.0,
         )
         assert out["decision"] == "approve"
-        assert "Maximum continuation" in out["reason"]
+        # The message must prompt the user (not just announce a hard stop) and
+        # name the concrete limit that tripped, so the user knows why it paused.
+        assert "continue" in out["reason"].lower()
+        assert str(dsl.MAX_CONTINUATIONS) in out["reason"]
+
+    @pytest.mark.unit
+    def test_max_continuations_is_ten(self):
+        """
+        Scenario: the auto-continue budget is raised from 3 to 10
+        Given the configured continuation cap
+        When read
+        Then it is 10 (longer autonomous runs are allowed before a check-in)
+        """
+        assert dsl.MAX_CONTINUATIONS == 10
+
+    @pytest.mark.unit
+    def test_below_new_limit_still_continues(self, tmp_path, monkeypatch):
+        """
+        Scenario: the cap genuinely moved, not just relabeled
+        Given the throttle one short of MAX within the window (would have tripped
+              the old cap of 3)
+        When deciding on an explicit next-action turn with stop_hook_active
+        Then the turn still blocks (continue), proving the budget is now larger
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("s9")
+        dsl._write_throttle(throttle, dsl.MAX_CONTINUATIONS - 1, 1000.0)
+
+        out = dsl.decide(
+            {
+                "session_id": "s9",
+                "transcript_path": str(transcript),
+                "stop_hook_active": True,
+            },
+            now=1001.0,
+        )
+        assert out["decision"] == "block"
+
+    @pytest.mark.unit
+    def test_cap_clears_throttle_for_fresh_window(self, tmp_path, monkeypatch):
+        """
+        Scenario: after the prompt, a user who continues gets a fresh budget
+        Given the throttle at MAX within the window
+        When the cap forces a stop
+        Then the throttle file is cleared, so re-engaging starts a new count
+              rather than instantly re-tripping the cap
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Now I'll keep going forever."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("s10")
+        dsl._write_throttle(throttle, dsl.MAX_CONTINUATIONS, 1000.0)
+
+        dsl.decide(
+            {
+                "session_id": "s10",
+                "transcript_path": str(transcript),
+                "stop_hook_active": True,
+            },
+            now=1001.0,
+        )
+        assert not throttle.exists()
 
 
 class TestLlmTimeoutBudget:

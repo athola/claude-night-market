@@ -49,9 +49,11 @@ from pathlib import Path
 
 # --- Tunables (named to satisfy PLR2004 and document intent) ---------------
 
-#: Maximum CONTINUE decisions allowed inside the throttle window before a stop
-#: is forced. Prevents runaway auto-continue loops.
-MAX_CONTINUATIONS = 3
+#: Maximum CONTINUE decisions allowed inside the throttle window before the
+#: judge pauses and hands control back to the user. High enough to let a
+#: genuine long autonomous run proceed, low enough that a runaway loop is
+#: caught and surfaced for a human check-in rather than spinning unbounded.
+MAX_CONTINUATIONS = 10
 
 #: Sliding window, in seconds, over which MAX_CONTINUATIONS is counted.
 THROTTLE_WINDOW_SECONDS = 300
@@ -132,6 +134,16 @@ _COMPLETE_RE = re.compile("|".join(_COMPLETE_PATTERNS), re.IGNORECASE)
 #: classify branch is a confident read, so the optional LLM second shot is
 #: consulted only when ``classify`` returns this exact reason.
 REASON_DEFAULT_STOP = "No explicit continuation intent; defaulting to stop."
+
+#: Verdict reason emitted when the continuation cap is hit. Unlike a hard stop,
+#: this hands control back to the user with an explicit invitation to resume:
+#: long autonomous runs are legitimate, so the judge pauses for a check-in
+#: instead of refusing outright. The throttle is cleared alongside this verdict
+#: so a user who continues starts a fresh window rather than re-tripping the cap.
+REASON_CONTINUATION_LIMIT = (
+    f"Paused after {MAX_CONTINUATIONS} auto-continuation cycles for a check-in. "
+    "Reply to continue if there is more work to do."
+)
 
 
 # --- Pure helpers (unit-tested directly) -----------------------------------
@@ -373,7 +385,7 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
         within_window = (now - last) <= THROTTLE_WINDOW_SECONDS
         if within_window and count >= MAX_CONTINUATIONS:
             _clear_throttle(throttle)
-            return _approve("Maximum continuation cycles reached; forcing stop.")
+            return _approve(REASON_CONTINUATION_LIMIT)
 
     transcript_path = str(event.get("transcript_path", ""))
     if not transcript_path or not Path(transcript_path).is_file():
