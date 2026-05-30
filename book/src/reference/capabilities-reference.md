@@ -454,4 +454,4 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
-| `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |
+| `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting; skips non-2xx error pages (#547) |

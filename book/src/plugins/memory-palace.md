@@ -48,7 +48,7 @@ that use spatial metaphors for organization and retrieval.
 | `research_interceptor.py` | PreToolUse | Checks local knowledge before web searches |
 | `url_detector.py` | UserPromptSubmit | Detects URLs for intake |
 | `local_doc_processor.py` | PostToolUse | Processes local docs after reads |
-| `web_research_handler.py` | PostToolUse | Processes web content and prompts for knowledge storage |
+| `web_research_handler.py` | PostToolUse | Processes web content, skips non-2xx error pages (#547), and prompts for knowledge storage |
 
 ## Usage Examples
 

@@ -30,6 +30,7 @@ import web_research_handler
 from web_research_handler import (
     _build_storage_reminder,
     _recent_intake_pending,
+    detect_failed_fetch_status,
     extract_content_from_webfetch,
     extract_results_from_websearch,
     extract_title_from_content,
@@ -209,6 +210,79 @@ class TestExtractResultsFromWebsearch:
         response = {"results": ["not a dict", {"url": "https://x.com", "title": "X"}]}
         results = extract_results_from_websearch(response)
         assert len(results) == 1
+
+
+class TestDetectFailedFetchStatus:
+    """Feature: identify non-2xx WebFetch responses before storage (#547).
+
+    Two detection channels exist and must both be guarded:
+    1. A structured status field on the response dict
+       (``status_code`` / ``status`` / ``http_status``).
+    2. The failure signature WebFetch writes into content text
+       (``server returned HTTP <code>``).
+
+    The integration tests in ``TestNonOkFetchRejection`` exercise the
+    content-signature channel through ``main()``; these unit tests pin
+    the structured-field channel and the boolean guard, which had no
+    direct coverage.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("key", ["status_code", "status", "http_status"])
+    def test_structured_non_2xx_status_returns_code(self, key: str):
+        """Given a non-2xx status under any accepted key, return that code."""
+        assert detect_failed_fetch_status({key: 503}, "body text") == 503
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("code", [200, 201, 204, 299])
+    def test_structured_2xx_status_returns_none(self, code: int):
+        """Given a 2xx status, treat the fetch as successful (return None)."""
+        assert detect_failed_fetch_status({"status_code": code}, "body text") is None
+
+    @pytest.mark.unit
+    def test_boolean_status_is_not_treated_as_int(self):
+        """Given a bool status field, do not read it as HTTP status 1.
+
+        Encodes the invariant behind the ``isinstance(val, bool)`` guard:
+        ``bool`` subclasses ``int`` in Python, so without the guard
+        ``status_code: True`` would be read as status ``1`` (non-2xx) and
+        wrongly reject a successful fetch. If this test breaks, the guard
+        was removed -- flag for human review, do not relax the assertion.
+        """
+        assert detect_failed_fetch_status({"status_code": True}, "body text") is None
+        assert detect_failed_fetch_status({"status_code": False}, "body text") is None
+
+    @pytest.mark.unit
+    def test_content_signature_non_2xx_returns_code(self):
+        """Given the WebFetch failure signature in content, return the code."""
+        body = "The server returned HTTP 500 Internal Server Error."
+        assert detect_failed_fetch_status({}, body) == 500
+
+    @pytest.mark.unit
+    def test_content_signature_2xx_returns_none(self):
+        """Given a 2xx code in the failure signature, do not flag it."""
+        body = "The server returned HTTP 200 OK."
+        assert detect_failed_fetch_status({}, body) is None
+
+    @pytest.mark.unit
+    def test_prose_mentioning_status_codes_returns_none(self):
+        """Given prose that merely cites status codes, do not flag it.
+
+        Keeps the detector precise: only the literal failure signature
+        counts, not an article discussing 404 or 429.
+        """
+        body = "A 404 means Not Found and a 429 means Too Many Requests."
+        assert detect_failed_fetch_status({}, body) is None
+
+    @pytest.mark.unit
+    def test_clean_response_returns_none(self):
+        """Given no status field and clean content, return None."""
+        assert detect_failed_fetch_status({}, "A perfectly ordinary article.") is None
+
+    @pytest.mark.unit
+    def test_structured_field_takes_precedence_over_clean_content(self):
+        """Given a non-2xx structured status, flag it regardless of content."""
+        assert detect_failed_fetch_status({"status": 429}, "looks fine") == 429
 
 
 class TestRecentIntakePending:
