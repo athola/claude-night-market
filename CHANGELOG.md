@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2026 cross-source slop patterns (spatial copula, negative
   parallelism, throat-clearing) now run in the detector path, not just
   the markdown skill.
+- **herald/double-shot-latte Stop-hook continuation judge.** A
+  cross-platform Stop hook that reads the last assistant message and
+  continues only on explicit intent to keep working, defaulting to stop
+  so finished work is not nagged. It is pure standard library, so it
+  needs no `jq`, `claude` CLI, or `/tmp`. A throttle allows up to 10
+  auto-continue cycles within a 5-minute window, then pauses and invites
+  the user to resume with a fresh budget; the cap is configurable via
+  `DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS`. An optional LLM second shot
+  (`DOUBLE_SHOT_LATTE_LLM=1`) breaks ties on ambiguous turns and falls
+  back to the deterministic verdict when `claude` is unavailable.
 
 ### Changed
 

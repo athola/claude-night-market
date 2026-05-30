@@ -49,11 +49,19 @@ from pathlib import Path
 
 # --- Tunables (named to satisfy PLR2004 and document intent) ---------------
 
-#: Maximum CONTINUE decisions allowed inside the throttle window before the
-#: judge pauses and hands control back to the user. High enough to let a
+#: Default maximum CONTINUE decisions allowed inside the throttle window before
+#: the judge pauses and hands control back to the user. High enough to let a
 #: genuine long autonomous run proceed, low enough that a runaway loop is
 #: caught and surfaced for a human check-in rather than spinning unbounded.
+#: Overridable per session via ``MAX_CONTINUATIONS_ENV`` (see
+#: ``_max_continuations``); this constant is the fallback when that is unset or
+#: invalid.
 MAX_CONTINUATIONS = 10
+
+#: Environment variable that overrides ``MAX_CONTINUATIONS`` at decision time.
+#: Must parse to a positive integer; anything else falls back to the default so
+#: a typo can never silently disable the runaway-loop guard.
+MAX_CONTINUATIONS_ENV = "DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS"
 
 #: Sliding window, in seconds, over which MAX_CONTINUATIONS is counted.
 THROTTLE_WINDOW_SECONDS = 300
@@ -135,15 +143,39 @@ _COMPLETE_RE = re.compile("|".join(_COMPLETE_PATTERNS), re.IGNORECASE)
 #: consulted only when ``classify`` returns this exact reason.
 REASON_DEFAULT_STOP = "No explicit continuation intent; defaulting to stop."
 
-#: Verdict reason emitted when the continuation cap is hit. Unlike a hard stop,
-#: this hands control back to the user with an explicit invitation to resume:
-#: long autonomous runs are legitimate, so the judge pauses for a check-in
-#: instead of refusing outright. The throttle is cleared alongside this verdict
-#: so a user who continues starts a fresh window rather than re-tripping the cap.
-REASON_CONTINUATION_LIMIT = (
-    f"Paused after {MAX_CONTINUATIONS} auto-continuation cycles for a check-in. "
-    "Reply to continue if there is more work to do."
-)
+
+def _max_continuations() -> int:
+    """Resolve the continuation cap from the environment, default ``MAX_CONTINUATIONS``.
+
+    Read at decision time (not import time) so a session can tune the cap via
+    ``MAX_CONTINUATIONS_ENV`` without reimporting. Any value that is not a
+    positive integer falls back to the default: a malformed override must never
+    disable the runaway-loop guard.
+    """
+    raw = os.environ.get(MAX_CONTINUATIONS_ENV)
+    if raw is None:
+        return MAX_CONTINUATIONS
+    try:
+        value = int(raw.strip())
+    except (ValueError, AttributeError):
+        return MAX_CONTINUATIONS
+    return value if value >= 1 else MAX_CONTINUATIONS
+
+
+def _continuation_limit_reason(limit: int) -> str:
+    """Build the cap-reached verdict reason for a resolved ``limit``.
+
+    Unlike a hard stop, this hands control back to the user with an explicit
+    invitation to resume: long autonomous runs are legitimate, so the judge
+    pauses for a check-in instead of refusing outright. The throttle is cleared
+    alongside this verdict so a user who continues starts a fresh window rather
+    than re-tripping the cap. The reason names the resolved ``limit`` so the
+    message stays truthful when the cap is overridden via the environment.
+    """
+    return (
+        f"Paused after {limit} auto-continuation cycles for a check-in. "
+        "Reply to continue if there is more work to do."
+    )
 
 
 # --- Pure helpers (unit-tested directly) -----------------------------------
@@ -383,9 +415,10 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
     if stop_active:
         count, last = _read_throttle(throttle)
         within_window = (now - last) <= THROTTLE_WINDOW_SECONDS
-        if within_window and count >= MAX_CONTINUATIONS:
+        limit = _max_continuations()
+        if within_window and count >= limit:
             _clear_throttle(throttle)
-            return _approve(REASON_CONTINUATION_LIMIT)
+            return _approve(_continuation_limit_reason(limit))
 
     transcript_path = str(event.get("transcript_path", ""))
     if not transcript_path or not Path(transcript_path).is_file():

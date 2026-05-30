@@ -452,6 +452,68 @@ class TestDecide:
         )
         assert not throttle.exists()
 
+    @pytest.mark.unit
+    def test_cap_ignored_when_not_stop_hook_active(self, tmp_path, monkeypatch):
+        """
+        Scenario: the cap is a re-entrancy guard, not a global counter
+        Given the throttle already at MAX within the window
+        And this is a fresh stop (stop_hook_active is absent/false)
+        When deciding on an explicit next-action turn
+        Then the cap does NOT fire and the turn continues (block)
+
+        Invariant: the continuation cap is gated on ``stop_hook_active`` so it
+        only restrains the harness's own re-entrant Stop loop. Dropping that
+        gate would turn it into a global "10 continuations ever" counter and
+        flip this turn to approve -- which is what this test forbids.
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("s11")
+        dsl._write_throttle(throttle, dsl.MAX_CONTINUATIONS, 1000.0)
+
+        out = dsl.decide(
+            {"session_id": "s11", "transcript_path": str(transcript)},
+            now=1001.0,
+        )
+        assert out["decision"] == "block"
+
+    @pytest.mark.unit
+    def test_cap_ignored_when_window_expired(self, tmp_path, monkeypatch):
+        """
+        Scenario: a stale max-count does not force a stop
+        Given the throttle at MAX but last updated before the window elapsed
+        When deciding on an explicit next-action turn with stop_hook_active
+        Then the cap does NOT fire (out-of-window) and the turn continues
+
+        Invariant: the cap is counted over a sliding window. Dropping the
+        ``within_window`` check would let an old, abandoned count force a stop
+        on a freshly resumed session -- this test forbids that regression.
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("s12")
+        dsl._write_throttle(throttle, dsl.MAX_CONTINUATIONS, 1000.0)
+        # now is well past last + THROTTLE_WINDOW_SECONDS, so the count is stale.
+        stale_now = 1000.0 + dsl.THROTTLE_WINDOW_SECONDS + 1.0
+
+        out = dsl.decide(
+            {
+                "session_id": "s12",
+                "transcript_path": str(transcript),
+                "stop_hook_active": True,
+            },
+            now=stale_now,
+        )
+        assert out["decision"] == "block"
+
 
 class TestLlmTimeoutBudget:
     """Feature: the LLM second shot must finish within the hook's time budget.
@@ -566,3 +628,93 @@ class TestThrottleSweep:
         dsl._sweep_stale_throttles(now)
 
         assert unrelated.exists()
+
+
+class TestConfigurableContinuationLimit:
+    """Feature: the continuation cap is configurable via env, default 10.
+
+    As an operator running long autonomous sessions
+    I want to raise or lower the auto-continue budget without editing code
+    So that the cap fits the workload, while the safe default stays 10.
+    """
+
+    @pytest.mark.unit
+    def test_default_when_env_unset(self, monkeypatch):
+        """Given no override, when resolved, then the default constant (10)."""
+        monkeypatch.delenv(dsl.MAX_CONTINUATIONS_ENV, raising=False)
+        assert dsl._max_continuations() == dsl.MAX_CONTINUATIONS == 10
+
+    @pytest.mark.unit
+    def test_env_overrides_default(self, monkeypatch):
+        """Given a valid override, when resolved, then the override wins."""
+        monkeypatch.setenv(dsl.MAX_CONTINUATIONS_ENV, "5")
+        assert dsl._max_continuations() == 5
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("bad", ["", "   ", "abc", "0", "-3", "3.5", "1e2"])
+    def test_invalid_env_falls_back_to_default(self, monkeypatch, bad):
+        """
+        Scenario: a malformed or out-of-range override is ignored
+        Given a non-positive-integer override
+        When resolved
+        Then the default is used (a bad env var must never disable the cap)
+        """
+        monkeypatch.setenv(dsl.MAX_CONTINUATIONS_ENV, bad)
+        assert dsl._max_continuations() == dsl.MAX_CONTINUATIONS
+
+    @pytest.mark.unit
+    def test_env_limit_enforced_in_decide(self, tmp_path, monkeypatch):
+        """
+        Scenario: a lowered cap trips sooner
+        Given a custom limit of 2 and the throttle already at 2 in-window
+        When deciding on a continue turn with stop_hook_active
+        Then the cap fires and the prompt names the configured limit (2)
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setenv(dsl.MAX_CONTINUATIONS_ENV, "2")
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Now I'll keep going forever."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("env1")
+        dsl._write_throttle(throttle, 2, 1000.0)
+
+        out = dsl.decide(
+            {
+                "session_id": "env1",
+                "transcript_path": str(transcript),
+                "stop_hook_active": True,
+            },
+            now=1001.0,
+        )
+        assert out["decision"] == "approve"
+        assert "2" in out["reason"]
+
+    @pytest.mark.unit
+    def test_env_limit_allows_more_when_raised(self, tmp_path, monkeypatch):
+        """
+        Scenario: a raised cap permits longer runs
+        Given a custom limit of 20 and the throttle at 10 (the old default)
+        When deciding on a continue turn with stop_hook_active
+        Then the turn still blocks, because 10 is below the configured 20
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setenv(dsl.MAX_CONTINUATIONS_ENV, "20")
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        throttle = dsl._throttle_path("env2")
+        dsl._write_throttle(throttle, 10, 1000.0)
+
+        out = dsl.decide(
+            {
+                "session_id": "env2",
+                "transcript_path": str(transcript),
+                "stop_hook_active": True,
+            },
+            now=1001.0,
+        )
+        assert out["decision"] == "block"
