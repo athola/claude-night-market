@@ -65,8 +65,12 @@ TAIL_CHARS = 800
 #: transcript never blows up memory. 256 KiB comfortably holds the final turn.
 TRANSCRIPT_READ_BYTES = 262_144
 
-#: Timeout for the optional LLM second shot.
-LLM_TIMEOUT_SECONDS = 30
+#: Timeout for the optional LLM second shot. Must stay strictly below the hook
+#: timeout registered in ``hooks.json`` (10s): the harness kills the whole hook
+#: at that budget, so a larger value here means the hook is killed mid-call and
+#: emits no decision at all. 8s leaves margin for interpreter startup, transcript
+#: read, and printing the verdict; a guard test keeps it below the hook budget.
+LLM_TIMEOUT_SECONDS = 8
 
 #: Recursion guard: when the optional LLM judge spawns ``claude``, this env var
 #: is set so the nested instance's own Stop hook short-circuits to "approve".
@@ -113,6 +117,12 @@ _COMPLETE_PATTERNS = (
 _CONTINUE_RE = re.compile("|".join(_CONTINUE_PATTERNS), re.IGNORECASE)
 _AWAIT_RE = re.compile("|".join(_AWAIT_PATTERNS), re.IGNORECASE)
 _COMPLETE_RE = re.compile("|".join(_COMPLETE_PATTERNS), re.IGNORECASE)
+
+#: Verdict reason emitted when no positive signal (question, await, completion,
+#: or continuation) matched. This is the only *ambiguous* outcome: every other
+#: classify branch is a confident read, so the optional LLM second shot is
+#: consulted only when ``classify`` returns this exact reason.
+REASON_DEFAULT_STOP = "No explicit continuation intent; defaulting to stop."
 
 
 # --- Pure helpers (unit-tested directly) -----------------------------------
@@ -203,7 +213,7 @@ def classify(text: str) -> tuple[bool, str]:
         return False, "Assistant signaled the work is complete."
     if _CONTINUE_RE.search(tail):
         return True, "Assistant stated explicit intent to keep working."
-    return False, "No explicit continuation intent; defaulting to stop."
+    return False, REASON_DEFAULT_STOP
 
 
 # --- Throttle state (cross-platform temp dir) ------------------------------
@@ -340,9 +350,13 @@ def decide(event: dict[str, object], now: float) -> dict[str, str]:
     text = extract_last_assistant_text(_read_tail(Path(transcript_path)))
     should_continue, reason = classify(text)
 
-    second = _llm_second_shot(text)
-    if second is not None:
-        should_continue, reason = second
+    # The LLM "second shot" is a tiebreaker for ambiguous turns only. A confident
+    # deterministic verdict (question, await, completion, or explicit intent) is
+    # trusted as-is, so the LLM cannot undo the STOP-by-default guarantee.
+    if reason == REASON_DEFAULT_STOP:
+        second = _llm_second_shot(text)
+        if second is not None:
+            should_continue, reason = second
 
     if should_continue:
         count, last = _read_throttle(throttle)

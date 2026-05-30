@@ -295,6 +295,65 @@ class TestDecide:
         assert out["decision"] == "block"
 
     @pytest.mark.unit
+    def test_llm_not_consulted_on_confident_verdict(self, tmp_path, monkeypatch):
+        """
+        Scenario: the optional LLM second shot must not override a confident verdict
+        Given a transcript whose last message confidently reports completion
+        And the LLM second shot is enabled
+        When deciding
+        Then the deterministic STOP stands and the LLM is never consulted
+              (H2: the second shot is a tiebreaker for ambiguous turns only)
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setenv("DOUBLE_SHOT_LATTE_LLM", "1")
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        calls: list[str] = []
+        monkeypatch.setattr(
+            dsl, "_llm_second_shot", lambda text: (calls.append(text), (True, "x"))[1]
+        )
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("The task is complete and verified. Nothing left to do."),
+            encoding="utf-8",
+        )
+
+        out = dsl.decide(
+            {"session_id": "c1", "transcript_path": str(transcript)}, now=1000.0
+        )
+        assert out["decision"] == "approve"
+        assert calls == []
+
+    @pytest.mark.unit
+    def test_llm_consulted_on_ambiguous_verdict(self, tmp_path, monkeypatch):
+        """
+        Scenario: an ambiguous (default fall-through) turn may defer to the LLM
+        Given a neutral transcript that matches no continuation/completion signal
+        And the LLM second shot is enabled and returns 'continue'
+        When deciding
+        Then the LLM is consulted and its verdict is used (block)
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setenv("DOUBLE_SHOT_LATTE_LLM", "1")
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        calls: list[str] = []
+        monkeypatch.setattr(
+            dsl,
+            "_llm_second_shot",
+            lambda text: (calls.append(text), (True, "llm: keep going"))[1],
+        )
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("I reviewed the configuration values in the file."),
+            encoding="utf-8",
+        )
+
+        out = dsl.decide(
+            {"session_id": "c2", "transcript_path": str(transcript)}, now=1000.0
+        )
+        assert out["decision"] == "block"
+        assert calls != []
+
+    @pytest.mark.unit
     def test_throttle_forces_stop_after_max(self, tmp_path, monkeypatch):
         """
         Scenario: runaway loop guard
@@ -321,3 +380,25 @@ class TestDecide:
         )
         assert out["decision"] == "approve"
         assert "Maximum continuation" in out["reason"]
+
+
+class TestLlmTimeoutBudget:
+    """Feature: the LLM second shot must finish within the hook's time budget.
+
+    H1: the Stop hook is registered in hooks.json with a wall-clock timeout.
+    If the LLM subprocess is allowed to run longer than that, the harness kills
+    the whole hook before it can print any decision -- so the LLM timeout must
+    be strictly less than the registered hook timeout, with margin for startup.
+    """
+
+    @pytest.mark.unit
+    def test_llm_timeout_fits_within_hook_timeout(self):
+        """
+        Scenario: cross-component timeout consistency
+        Given the hook timeout registered in hooks.json
+        When compared to LLM_TIMEOUT_SECONDS
+        Then the LLM timeout is strictly smaller, leaving margin to emit output
+        """
+        hooks_json = json.loads((HOOKS_DIR / "hooks.json").read_text(encoding="utf-8"))
+        hook_timeout = hooks_json["hooks"]["Stop"][0]["hooks"][0]["timeout"]
+        assert dsl.LLM_TIMEOUT_SECONDS < hook_timeout
