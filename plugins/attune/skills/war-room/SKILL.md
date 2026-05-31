@@ -285,6 +285,25 @@ Saved to Strategeion:
 - Premortem analysis
 - Final decision
 
+### Record the Tradeoff (decision journal)
+
+The Supreme Commander Decision is a tradeoff record by construction: a selected
+approach, the COAs weighed against it, and the dissenting views. Mirror it into
+`docs/tradeoffs.md` so the reasoning lives with the code, not only in
+Strategeion (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry. Map directly: Selected Approach to `decision`, the RS and
+  rationale to a Y-statement, the rejected COAs to `options`, and Dissenting
+  Views to `consequences_negative`. Set `phase` to the originating phase (for
+  example `plan`). Record the RS in the entry links. Append on confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
+If the decision is architectural enough to warrant a numbered ADR in
+`docs/adr/`, write the ADR and reference its number from the tradeoff entry
+rather than duplicating it.
+
 ## Anonymization
 
 Expert contributions are anonymized during deliberation using Merkle-DAG:
@@ -434,6 +453,16 @@ If GitHub Discussions are unavailable (non-GitHub
 platform, Discussions disabled, `gh` not authenticated),
 warn the user and skip. Publishing failures never
 block the war room workflow.
+
+## Exit Criteria
+
+- [ ] A Reversibility Score and decision type are computed and recorded.
+- [ ] A Supreme Commander Decision document with a selected approach,
+  rationale, and dissenting views is produced.
+- [ ] The decision is mirrored to `docs/tradeoffs.md` (and to a numbered ADR
+  in `docs/adr/` if architectural).
+- [ ] Premortem watch points and, for Type 1 decisions, a reversal plan are
+  captured.
 
 ## Related Skills
 

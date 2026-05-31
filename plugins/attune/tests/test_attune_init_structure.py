@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 import sys
+import types
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -20,6 +21,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from attune_init import (
+    _create_docs_scaffolding,
+    _journal_scaffold,
     copy_templates,
     create_project_structure,
     main,
@@ -151,6 +154,67 @@ class TestAttuneInitScenario:
         assert (project_dir / "src" / "myproject" / "__init__.py").exists()
         assert (project_dir / "tests" / "__init__.py").exists()
         assert (project_dir / "README.md").exists()
+
+
+@pytest.mark.unit
+class TestDocsScaffolding:
+    """Test docs/ decision-journal scaffolding."""
+
+    def test_creates_both_journal_files(self, tmp_path):
+        """Given a project, when scaffolding docs, then both journals exist."""
+        _create_docs_scaffolding(tmp_path, dry_run=False)
+
+        tradeoffs = tmp_path / "docs" / "tradeoffs.md"
+        lessons = tmp_path / "docs" / "lessons-learned.md"
+        assert tradeoffs.exists()
+        assert lessons.exists()
+
+    def test_journal_files_have_structural_markers(self, tmp_path):
+        """Given scaffolding, then each journal has index, archive, template."""
+        _create_docs_scaffolding(tmp_path, dry_run=False)
+
+        tradeoffs = (tmp_path / "docs" / "tradeoffs.md").read_text()
+        lessons = (tmp_path / "docs" / "lessons-learned.md").read_text()
+        for body, placeholder in ((tradeoffs, "TR-NNN"), (lessons, "LL-NNN")):
+            assert "## Active index" in body
+            assert "## Archive" in body
+            assert placeholder in body
+
+    def test_dry_run_writes_nothing(self, tmp_path):
+        """Given dry_run=True, when scaffolding docs, then no files are written."""
+        _create_docs_scaffolding(tmp_path, dry_run=True)
+
+        assert not (tmp_path / "docs" / "tradeoffs.md").exists()
+        assert not (tmp_path / "docs" / "lessons-learned.md").exists()
+
+    def test_does_not_clobber_existing_journal(self, tmp_path):
+        """Given an existing journal, when scaffolding, then it is preserved."""
+        docs = tmp_path / "docs"
+        docs.mkdir()
+        (docs / "tradeoffs.md").write_text("# Existing, hands off\n")
+
+        _create_docs_scaffolding(tmp_path, dry_run=False)
+
+        assert (docs / "tradeoffs.md").read_text() == "# Existing, hands off\n"
+        # The missing one is still created.
+        assert (docs / "lessons-learned.md").exists()
+
+    def test_scaffold_prefers_leyline_template_when_importable(self, monkeypatch):
+        """Given leyline is installed, when scaffolding, then its template wins."""
+        fake = types.ModuleType("leyline.decision_journal")
+        fake.new_file_content = lambda kind: f"LEYLINE-CANONICAL-{kind}\n"
+        monkeypatch.setitem(sys.modules, "leyline", types.ModuleType("leyline"))
+        monkeypatch.setitem(sys.modules, "leyline.decision_journal", fake)
+
+        assert _journal_scaffold("tradeoffs") == "LEYLINE-CANONICAL-tradeoffs\n"
+
+    def test_scaffold_falls_back_to_vendored_when_leyline_absent(self, monkeypatch):
+        """Given leyline is not importable, when scaffolding, then vendored wins."""
+        monkeypatch.setitem(sys.modules, "leyline.decision_journal", None)
+
+        out = _journal_scaffold("lessons")
+        assert "LL-NNN" in out
+        assert "## Active index" in out
 
 
 @pytest.mark.unit

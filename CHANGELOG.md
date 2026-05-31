@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   anchor clarity and fail fast when an anchor is too vague to act on,
   applying the Minimal Meaningful Probe Output method from the MMPO
   paper.
+- **leyline/decision-journal: project decision journal contract.** A
+  new shared contract creates and maintains `docs/tradeoffs.md` and
+  `docs/lessons-learned.md` as append-only logs with stable IDs and a
+  supersede-don't-delete discipline (MADR plus Y-statement for
+  tradeoffs, PMI register plus blameless postmortem for lessons).
+  `attune:project-init` scaffolds both files, and the decision and
+  lesson workflows across attune, sanctum, spec-kit, and imbue record
+  entries at their natural endpoints with a draft-and-confirm step.
+  Captures the decisions, tradeoffs, and rework that AI-assisted
+  workflows tend to drop.
 - **memory-palace/memory-clarity-probe skill.** A dual-anchor probe
   (task progress, information gaps) for verifying session state or a
   summary before handoff or compression, derived from the MMPO paper.

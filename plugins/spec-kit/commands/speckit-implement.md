@@ -150,4 +150,16 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+### Record Lessons Learned (decision journal)
+
+If this work involved rework, a failed approach, or a blocker, record it to
+`docs/lessons-learned.md` so the insight survives past the session (draft and
+confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
+  set `phase` to `execute`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
+  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit-tasks` first to regenerate the task list.

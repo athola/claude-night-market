@@ -158,6 +158,18 @@ def store_findings(findings, pr_info):
     return created
 ```
 
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `review`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ## Output Integration
 
 Add knowledge capture summary to the review report:

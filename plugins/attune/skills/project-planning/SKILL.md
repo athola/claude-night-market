@@ -58,6 +58,18 @@ Before completing plan:
 - ✅ Risks assessed with mitigations
 - ✅ Sprints balanced by capacity
 
+## Record the Tradeoff (decision journal)
+
+Planning is where architecture and scope decisions get made: the pattern
+chosen, the dependency accepted, the work deferred. Record each decision that
+had real alternatives to `docs/tradeoffs.md` (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `plan`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ## Post-Completion: Workflow Continuation (REQUIRED)
 
 **Automatic Trigger**: After Quality Checks pass and `docs/implementation-plan.md` is saved, MUST auto-invoke the next phase.
@@ -80,6 +92,14 @@ Before completing plan:
 - User explicitly requests to stop after planning
 
 **Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+
+## Exit Criteria
+
+- [ ] `docs/implementation-plan.md` exists, is non-empty, and passes Quality
+  Checks (acyclic dependencies, FRs mapped, critical path identified).
+- [ ] Architecture and scope decisions with alternatives are recorded to
+  `docs/tradeoffs.md`.
+- [ ] The execution phase is auto-invoked unless a bypass condition holds.
 
 ## Related Skills
 

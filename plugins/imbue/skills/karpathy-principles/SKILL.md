@@ -123,6 +123,18 @@ proof on every addition,
 `Skill(conserve:code-quality-principles)` for the
 KISS / YAGNI / SOLID foundation.
 
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `plan`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ### 3. Surgical Changes
 
 **Touch only what you must. Clean up only your own
@@ -243,3 +255,6 @@ When invoked as a pre-flight gate, create:
 - The senior-engineer test was applied at least once.
 - Verifiable success criteria are written down before
   the implementation begins.
+- The chosen approach and its simplicity tradeoff are
+  recorded to `docs/tradeoffs.md` (or the in-file
+  template) when real alternatives were weighed.

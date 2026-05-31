@@ -259,6 +259,25 @@ Key decision factors:
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+### Phase 5.5: Record the Tradeoff (decision journal)
+
+Persist the Phase 5 selection to `docs/tradeoffs.md` now, while the reasoning
+is live. This is the entry that survives past the session: the decision, the
+alternatives weighed, and what was given up. Draft and confirm:
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and follow
+  it to append a tradeoff entry. The Phase 5 fields map directly: Selected
+  Approach to `decision`, the rationale to a Y-statement, Trade-offs Accepted
+  to `consequences_negative`, and Rejected Approaches to `options`. Set
+  `phase` to `brainstorm`. Show the drafted entry; append on user confirmation
+  (status starts `proposed`).
+- Fallback (leyline absent): append an entry to `docs/tradeoffs.md` by hand
+  using the in-file ENTRY TEMPLATE; assign the next `TR-NNN` id and add an
+  active-index row.
+
+Skip only when there was genuinely one obvious approach with no meaningful
+trade-off (the same condition that bypasses War Room).
+
 ## Output: Project Brief
 
 Final output saved to `docs/project-brief.md`:
@@ -428,6 +447,15 @@ review loop.
 - `--standalone` flag was provided
 - `--skip-review` flag was provided
 - Spec document is under 200 words (too small to review)
+
+## Exit Criteria
+
+- [ ] 3-5 distinct approaches were generated and compared.
+- [ ] One approach is selected with explicit rationale, accepted trade-offs,
+  and rejected alternatives.
+- [ ] The selection is recorded to `docs/tradeoffs.md` as a `proposed` entry
+  (or the single-obvious-approach bypass condition is documented).
+- [ ] A project brief capturing the decision is produced.
 
 ## Related Skills
 

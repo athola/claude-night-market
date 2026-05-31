@@ -22,6 +22,7 @@ skills:
 - skills/authentication-patterns
 - skills/content-sanitization
 - skills/damage-control
+- skills/decision-journal
 - skills/deferred-capture
 - skills/document-conversion
 - skills/error-patterns

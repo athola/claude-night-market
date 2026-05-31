@@ -57,6 +57,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `data-flow` | [cartograph](../plugins/cartograph.md) | Data movement diagrams |
+| `decision-journal` | [leyline](../plugins/leyline.md) | Contract for the project decision journal (tradeoffs and lessons-learned logs) |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |

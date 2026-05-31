@@ -103,6 +103,26 @@ role: library
 3. Check code quality metrics
 4. Generate completion report
 5. Prepare for deployment/release
+6. Record lessons learned (see below)
+
+### Record Lessons Learned (decision journal)
+
+Implementation is where the honest lessons appear: the approach that had to be
+reworked, the blocker that cost a day, the assumption from planning that did
+not hold. Capture these in `docs/lessons-learned.md` now, blamelessly, instead
+of letting them vanish into "done." Draft and confirm one entry per
+substantive lesson:
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and follow
+  it to append a lesson entry: `what_happened`, `what_didnt_work`,
+  `root_cause`, and a concrete `action`. Set `phase` to `execute`. Show the
+  draft; append on confirmation (status starts `open`).
+- Fallback (leyline absent): append to `docs/lessons-learned.md` by hand using
+  the in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
+Trigger this whenever execution involved rework, a failed approach, or a
+blocker that exhausted the two-challenge / 3-attempt limit. A clean run with no
+surprises needs no entry.
 
 ### Terminal Phase Notice
 
@@ -379,6 +399,14 @@ On track? = Estimated completion <= Sprint end date
 - Reduce scope (drop low-priority tasks)
 - Increase focus (reduce distractions)
 - Request help or extend timeline
+
+## Exit Criteria
+
+- [ ] All planned tasks are marked complete and the full test suite passes.
+- [ ] A completion report is generated.
+- [ ] Any rework, failed approach, or exhausted-retry blocker is recorded to
+  `docs/lessons-learned.md` as an `open` entry (a clean run needs none).
+- [ ] No subsequent phase is auto-invoked (this is the terminal phase).
 
 ## Related Skills
 

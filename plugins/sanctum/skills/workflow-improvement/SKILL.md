@@ -251,9 +251,33 @@ pensive:skill-review --skill sanctum:<component> --recommendations
 
 This creates a feedback loop where future `/fix-workflow` and `/update-plugins` runs will reference this lesson.
 
+### Record Lessons Learned (decision journal)
+
+If this work involved rework, a failed approach, or a blocker, record it to
+`docs/lessons-learned.md` so the insight survives past the session (draft and
+confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
+  set `phase` to `review`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
+  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
 ## Supporting Modules
 
 - [Auto issue creation](modules/auto-issue-creation.md) - patterns for automatically creating GitHub issues from deferred items
+
+## Exit Criteria
+
+- [ ] The session slice is captured with a stated boundary, trigger, goal, and
+      artifacts touched
+- [ ] At least 3 distinct improvement approaches were generated and scored
+- [ ] One approach was chosen with acceptance criteria and a bounded file list
+      (<= 5 files unless justified)
+- [ ] Validation records before/after metrics (step count, tool calls, or
+      failure points), not prose
+- [ ] If the slice involved rework, a failed approach, or a blocker, the lesson
+      is recorded to `docs/lessons-learned.md` via the decision journal
 
 ## Troubleshooting
 

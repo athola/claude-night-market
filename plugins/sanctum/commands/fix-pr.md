@@ -408,6 +408,18 @@ The PR summary comment (Step 6.5) must include:
 
 **The `--to` flag cannot skip Step 6** - use `--to validate` for dry runs, but completing the workflow always requires thread resolution.
 
+### Record Lessons Learned (decision journal)
+
+If this work involved rework, a failed approach, or a blocker, record it to
+`docs/lessons-learned.md` so the insight survives past the session (draft and
+confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
+  set `phase` to `review`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
+  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
 ## See Also
 
 - `/pr` - Create pull request
