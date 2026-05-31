@@ -7,6 +7,7 @@ entry append, supersession, idempotency) and the file-level apply helper
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -294,6 +295,89 @@ def test_append_works_on_vendored_style_scaffold() -> None:
     assert out.index("## TR-001:") < out.index("## Archive")
     index = out.split("## Active index", 1)[1].split("## Decisions", 1)[0]
     assert "TR-001" in index
+
+
+# ---------------------------------------------------------------------------
+# Adversarial inputs (regression guards for reviewed findings)
+# ---------------------------------------------------------------------------
+
+
+def test_newline_in_title_does_not_inject_a_heading() -> None:
+    """C1: a newline in the title must not forge a second `## TR-` heading."""
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {"title": "Real\n## TR-050: injected", "context": "x"},
+    )
+    headings = re.findall(r"^## TR-\d+:", content, re.M)
+    assert headings == ["## TR-001:"]
+    assert next_id(content, "TR") == "TR-002"
+
+
+def test_next_id_does_not_collide_past_999() -> None:
+    """C2: IDs beyond 999 must keep incrementing, not wrap to a collision."""
+    content = "## TR-999:\n## TR-1000:\n"
+    assert next_id(content, "TR") == "TR-1001"
+
+
+def test_options_table_escapes_pipes_in_cells() -> None:
+    """I1: a pipe in an option's pros/cons must not add a stray column."""
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {
+            "title": "Pick",
+            "options": [
+                {"name": "A", "pros": "fast | cheap", "cons": "x", "chosen": True}
+            ],
+        },
+    )
+    row = next(ln for ln in content.splitlines() if ln.startswith("| A (chosen)"))
+    assert row.replace(r"\|", "").count("|") == 4  # 3 cells => 4 pipes
+
+
+def test_append_to_malformed_file_raises_clear_error() -> None:
+    """I2: a file missing a structural marker yields a named error, not a bare one."""
+    broken = "# Tradeoffs\n\nno markers here\n"
+    with pytest.raises(ValueError, match="malformed"):
+        append_entry(broken, "tradeoffs", {"title": "X", "context": "y"})
+
+
+def test_whitespace_only_title_rejected() -> None:
+    """I4: a whitespace-only title is rejected like an empty one."""
+    with pytest.raises(ValueError, match="title"):
+        append_entry(new_file_content("tradeoffs"), "tradeoffs", {"title": "   "})
+
+
+def test_supersede_entry_without_status_line_raises() -> None:
+    """I5: superseding a hand-edited entry that lost its Status line errors."""
+    content = new_file_content("tradeoffs")
+    content = append_entry(content, "tradeoffs", {"title": "Old", "context": "x"})
+    # Simulate a hand-edit that removed the Status line.
+    content = content.replace("- Status: proposed\n", "", 1)
+    with pytest.raises(ValueError, match="Status"):
+        append_entry(
+            content, "tradeoffs", {"title": "New", "context": "y"}, supersedes="TR-001"
+        )
+
+
+def test_unicode_title_round_trips() -> None:
+    """S5: unicode titles render in both heading and index."""
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {"title": "採用 gRPC", "context": "x"},
+    )
+    assert "## TR-001: 採用 gRPC" in content
+
+
+def test_same_core_different_status_is_still_deduped() -> None:
+    """S5: the dedup key ignores volatile fields (status), so no duplicate."""
+    base = {"title": "Pick Postgres", "context": "durable"}
+    content = append_entry(new_file_content("tradeoffs"), "tradeoffs", dict(base))
+    content2 = append_entry(content, "tradeoffs", {**base, "status": "accepted"})
+    assert content2.count("## TR-001:") == 1
+    assert "## TR-002:" not in content2
 
 
 # ---------------------------------------------------------------------------

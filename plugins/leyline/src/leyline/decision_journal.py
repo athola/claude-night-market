@@ -36,7 +36,7 @@ _KINDS = {
         "title": "Tradeoffs",
         "default_status": "proposed",
         "intro": (
-            "Decisions made over this project's lifetime -- and the "
+            "Decisions made over this project's lifetime, and the "
             "alternatives\nwe deliberately gave up. Records the *why*, not "
             "just the *what*.\n"
         ),
@@ -46,7 +46,7 @@ _KINDS = {
         "title": "Lessons Learned",
         "default_status": "open",
         "intro": (
-            "Insights, failed approaches, rework, and blockers -- captured "
+            "Insights, failed approaches, rework, and blockers, captured "
             "blamelessly\nso the team replicates what worked and avoids what "
             "did not.\n"
         ),
@@ -185,7 +185,10 @@ def new_file_content(kind: str) -> str:
 
 def next_id(content: str, prefix: str) -> str:
     """Return the next free ``<prefix>-NNN`` id given current file content."""
-    nums = [int(m) for m in re.findall(rf"^## {prefix}-(\d{{3}}):", content, re.M)]
+    # Capture the full integer (not exactly three digits) so the allocator
+    # does not collide once the log passes 999 entries.
+    pattern = rf"^## {re.escape(prefix)}-(\d+):"
+    nums = [int(m) for m in re.findall(pattern, content, re.M)]
     nxt = (max(nums) + 1) if nums else 1
     return f"{prefix}-{nxt:03d}"
 
@@ -203,6 +206,11 @@ def _entry_key(fields: dict[str, Any]) -> str:
     # Not a security hash -- just a stable dedup fingerprint for idempotency.
     digest = hashlib.sha1(blob.encode("utf-8"), usedforsecurity=False)
     return digest.hexdigest()[:12]
+
+
+def _oneline(text: str) -> str:
+    """Collapse a value to a single trimmed line (safe for a heading)."""
+    return " ".join(text.split())
 
 
 def _opt_section(heading: str, value: object) -> str:
@@ -227,7 +235,9 @@ def _render_options_table(options: list[dict[str, Any]]) -> str:
         name = opt.get("name", "?")
         if opt.get("chosen"):
             name = f"{name} (chosen)"
-        rows.append(f"| {name} | {opt.get('pros', '')} | {opt.get('cons', '')} |")
+        pros = _escape_cell(str(opt.get("pros", "")))
+        cons = _escape_cell(str(opt.get("cons", "")))
+        rows.append(f"| {_escape_cell(str(name))} | {pros} | {cons} |")
     return "\n".join(rows) + "\n"
 
 
@@ -255,7 +265,7 @@ def _render_tradeoff(
         if neg:
             cons += f"- Negative / debt accepted: {neg}\n"
     body = (
-        f"## {entry_id}: {fields['title']}\n\n"
+        f"## {entry_id}: {_oneline(fields['title'])}\n\n"
         + "\n".join(meta)
         + "\n"
         + _opt_section("Context & problem", fields.get("context"))
@@ -284,7 +294,7 @@ def _render_lesson(
         meta.append(f"- Supersedes: {supersedes}")
     meta.append(f"<!-- key: {_entry_key(fields)} -->")
     body = (
-        f"## {entry_id}: {fields['title']}\n\n"
+        f"## {entry_id}: {_oneline(fields['title'])}\n\n"
         + "\n".join(meta)
         + "\n"
         + _opt_section("What happened", fields.get("what_happened"))
@@ -303,9 +313,21 @@ def _render_lesson(
 # ---------------------------------------------------------------------------
 
 
+def _require(content: str, marker: str, *, start: int = 0) -> int:
+    """Locate ``marker`` or raise a clear "malformed journal" error."""
+    pos = content.find(marker, start)
+    if pos == -1:
+        raise ValueError(
+            f"journal is malformed: required marker {marker!r} not found; "
+            "the file may have been hand-edited. Restore the section or "
+            "regenerate it from the scaffold."
+        )
+    return pos
+
+
 def _index_bounds(content: str) -> tuple[int, int]:
-    start = content.index("## Active index")
-    nxt = content.index("\n## ", start + 1)
+    start = _require(content, "## Active index")
+    nxt = _require(content, "\n## ", start=start + 1)
     return start, nxt
 
 
@@ -352,7 +374,7 @@ def append_entry(
     the file returns the content unchanged.
     """
     cfg = _cfg(kind)
-    if "title" not in fields or not fields["title"]:
+    if not str(fields.get("title", "")).strip():
         raise ValueError("entry requires a non-empty 'title'")
 
     # Idempotency: skip if an entry with this key is already present.
@@ -370,7 +392,7 @@ def append_entry(
 
     # Insert the entry above the Archive heading.
     marker = f"\n{_ARCHIVE_HEADING}"
-    pos = content.index(marker)
+    pos = _require(content, marker)
     new_content = content[:pos] + "\n" + entry + content[pos:]
 
     # Update the active index.
@@ -388,13 +410,21 @@ def append_entry(
 
 def _supersede(content: str, old_id: str, new_id: str) -> str:
     """Flip ``old_id``'s status line to point at ``new_id`` and update index."""
-    old_start = content.index(f"## {old_id}:")
-    # The status line is the first metadata bullet after the heading.
+    old_start = _require(content, f"## {old_id}:")
+    # Bound the search to this entry only (up to the next heading), so a
+    # missing Status line is detected rather than silently grabbing the next
+    # entry's status.
+    # A heading (at minimum "## Archive") always follows an entry.
+    entry_end = _require(content, "\n## ", start=old_start + 1)
     status_re = re.compile(r"^- Status: .*$", re.M)
-    m = status_re.search(content, old_start)
-    if m:
-        new_status = f"- Status: superseded-by: {new_id}"
-        content = content[: m.start()] + new_status + content[m.end() :]
+    m = status_re.search(content, old_start, entry_end)
+    if m is None:
+        raise ValueError(
+            f"entry {old_id} has no '- Status:' line to supersede; "
+            "the entry may have been hand-edited."
+        )
+    new_status = f"- Status: superseded-by: {new_id}"
+    content = content[: m.start()] + new_status + content[m.end() :]
     content = _set_index_status(content, old_id, f"superseded-by: {new_id}")
     return content
 

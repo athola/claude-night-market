@@ -39,7 +39,10 @@ _FILENAME = {"tradeoffs": "tradeoffs.md", "lessons": "lessons-learned.md"}
 def _parse_fields(args: argparse.Namespace) -> dict[str, Any]:
     fields: dict[str, Any] = {}
     if args.json:
-        fields.update(json.loads(args.json))
+        try:
+            fields.update(json.loads(args.json))
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"error: --json is not valid JSON: {exc}") from exc
     for pair in args.field or []:
         if "=" not in pair:
             raise SystemExit(f"--field expects key=value, got {pair!r}")

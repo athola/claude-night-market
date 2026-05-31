@@ -89,20 +89,23 @@ an entry whose substantive fields already appear is a no-op.
 `title` (required), `context`, `drivers` (list), `options` (list of
 `{name, pros, cons, chosen}`), `decision`, `ystatement`,
 `consequences_positive`, `consequences_negative`, `phase`, `deciders`,
-`links`. Prefer `--json` for the list-valued fields.
+`links`. Prefer `--json` for the list-valued fields. `status` and `date`
+are auto-set (`proposed` / today) but can be overridden.
 
 ### Lesson fields
 
 `title` (required), `what_happened`, `what_went_well`, `what_didnt_work`,
-`root_cause`, `action`, `category`, `owner`, `phase`, `links`.
+`root_cause`, `action`, `category`, `owner`, `phase`, `links`. `status`
+and `date` are auto-set (`open` / today) but can be overridden.
 
 ## Fallback (leyline Absent)
 
 The entry template ships inside each scaffolded file as an HTML-comment footer
 (`<!-- ENTRY TEMPLATE ... -->`). When the helper is unavailable, a consumer (or
 a human) copies that block into the section above `## Archive`, assigns the
-next sequential ID, fills it in, and adds an index row by hand. Format stays
-identical because the template is the same source.
+next sequential ID, fills it in, and adds an index row by hand. The fallback
+template covers the same core sections as the canonical one so entries stay
+consistent across the two paths.
 
 ## Consumer Hook Shape
 
@@ -117,7 +120,7 @@ Each workflow adds one block at its natural endpoint:
 
 ## Compliance Test
 
-    python3 scripts/journal_append.py tradeoffs \
+    python3 ${LEYLINE}/scripts/journal_append.py tradeoffs \
       --title "Compliance check" --field context="verify" --dry-run
 
 Must print a rendered entry containing `## TR-001:` and write nothing.

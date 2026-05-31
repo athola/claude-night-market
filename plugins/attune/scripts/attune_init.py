@@ -199,17 +199,26 @@ next TR-NNN id, and fill it in.
 - Status: proposed
 - Date: YYYY-MM-DD
 - Phase: brainstorm | specify | plan | execute | review
+- Deciders: <names/roles>
 - Links: <PR/commit/issue>, <code paths>
 
 ### Context & problem
 
 <the situation forcing a choice>
 
+### Decision drivers
+
+- <competing quality / constraint>
+
 ### Options considered
 
 | Option | Pros | Cons / what it sacrifices |
 |--------|------|---------------------------|
 | A (chosen) | ... | ... |
+
+### Decision
+
+We chose A.
 
 ### Y-statement
 
@@ -260,6 +269,10 @@ LL-NNN id, and fill it in.
 
 <blameless, factual: the situation/activity>
 
+### What went well / where we got lucky
+
+<successes worth replicating>
+
 ### What did not work
 
 <the gap or failure>
@@ -279,13 +292,18 @@ LL-NNN id, and fill it in.
 def _journal_scaffold(kind: str) -> str:
     """Return a journal scaffold, preferring leyline's canonical template.
 
-    leyline is an optional dependency; when it is not importable, fall back to
-    the vendored template so project-init never hard-depends on it.
+    leyline is an optional dependency; when it is not installed, fall back to
+    the vendored template so project-init never hard-depends on it. A leyline
+    that is present but fails to import (a real bug) is NOT masked: the error
+    propagates instead of silently degrading to the vendored template.
     """
     try:
         module = importlib.import_module("leyline.decision_journal")
-    except ImportError:
-        return _VENDORED_JOURNAL[kind]
+    except ModuleNotFoundError as exc:
+        root = (exc.name or "").split(".")[0]
+        if root == "leyline":
+            return _VENDORED_JOURNAL[kind]
+        raise
     return str(module.new_file_content(kind))
 
 

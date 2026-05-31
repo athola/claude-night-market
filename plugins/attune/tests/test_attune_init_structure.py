@@ -216,6 +216,39 @@ class TestDocsScaffolding:
         assert "LL-NNN" in out
         assert "## Active index" in out
 
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_actually_scaffolds_the_journal(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+    ):
+        """main() must invoke docs scaffolding for real (regression guard).
+
+        copy_templates and create_project_structure are mocked, but
+        _create_docs_scaffolding is NOT, so dropping its call from main()
+        would fail this test instead of silently shipping no journal.
+        """
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = True
+        mock_detector_cls.return_value = mock_detector
+        mock_copy_templates.return_value = []
+
+        with patch(
+            "sys.argv",
+            ["attune_init.py", "--lang", "python", "--path", str(mock_project_path)],
+        ):
+            main()
+
+        assert (mock_project_path / "docs" / "tradeoffs.md").exists()
+        assert (mock_project_path / "docs" / "lessons-learned.md").exists()
+
 
 @pytest.mark.unit
 class TestMain:

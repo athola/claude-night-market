@@ -76,6 +76,25 @@ class TestJournalAppendCli:
         assert not (tmp_path / "docs" / "tradeoffs.md").exists()
 
     @pytest.mark.unit
+    def test_malformed_json_exits_cleanly(self, tmp_path: Path) -> None:
+        """Scenario: malformed --json
+        When I pass invalid JSON
+        Then the CLI exits with a usage error, not an uncaught traceback.
+        """
+        with pytest.raises(SystemExit) as exc:
+            main(
+                [
+                    "tradeoffs",
+                    "--json",
+                    "{not valid",
+                    "--project-root",
+                    str(tmp_path),
+                ]
+            )
+        assert "valid JSON" in str(exc.value)
+        assert not (tmp_path / "docs" / "tradeoffs.md").exists()
+
+    @pytest.mark.unit
     def test_unknown_supersede_returns_1(self, tmp_path: Path) -> None:
         """Scenario: supersede a non-existent entry
         When I supersede TR-999 in a fresh journal
