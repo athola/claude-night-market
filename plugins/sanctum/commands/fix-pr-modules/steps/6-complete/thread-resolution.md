@@ -140,6 +140,9 @@ mutation {
 - Briefly describe what was changed
 - Reference the file/line if helpful
 - Keep it concise (1-2 sentences)
+- Pass the reply body through `../../shared/output-hygiene.md`
+  (Contract A): no `"+"` as a conjunction (use `and`), no em-dash
+  `—`, no prose `--`, no `->` / `→` connectors, no smart quotes.
 
 **Common mistakes to avoid:**
 - Do NOT use `addPullRequestReviewComment` - it lacks thread support
