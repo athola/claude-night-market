@@ -309,12 +309,17 @@ def _index_bounds(content: str) -> tuple[int, int]:
     return start, nxt
 
 
+def _escape_cell(text: str) -> str:
+    """Make free text safe for a markdown table cell (escape pipes, flatten)."""
+    return text.replace("|", r"\|").replace("\n", " ")
+
+
 def _add_index_row(
     content: str, entry_id: str, status: str, title: str, date: str
 ) -> str:
     start, nxt = _index_bounds(content)
     section = content[start:nxt]
-    row = f"| {entry_id} | {status} | {title} | {date} |"
+    row = f"| {entry_id} | {status} | {_escape_cell(title)} | {date} |"
     lines = section.rstrip("\n").splitlines()
     # Append after the last table line (header/separator/existing rows).
     insert_at = max(i for i, ln in enumerate(lines) if ln.lstrip().startswith("|"))

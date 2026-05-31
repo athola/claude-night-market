@@ -252,6 +252,51 @@ def test_lesson_supersession_links_both_ways() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Robustness: table-breaking characters and cross-tool compatibility
+# ---------------------------------------------------------------------------
+
+
+def test_index_row_escapes_pipe_in_title() -> None:
+    """A pipe in the title must not add a stray column to the index table."""
+    content = append_entry(
+        new_file_content("tradeoffs"),
+        "tradeoffs",
+        {"title": "Use A | B routing", "context": "x"},
+    )
+    index = content.split("## Active index", 1)[1].split("## Decisions", 1)[0]
+    row = next(ln for ln in index.splitlines() if ln.startswith("| TR-001"))
+    # Four data cells (id, status, title, date) => exactly five unescaped pipes.
+    assert row.replace(r"\|", "").count("|") == 5
+    assert r"\|" in row
+
+
+def test_append_works_on_vendored_style_scaffold() -> None:
+    """Guard the contract attune:project-init's vendored fallback relies on.
+
+    When leyline is absent, attune scaffolds the journal from its own vendored
+    template. A file created that way may later be appended to by leyline, so
+    leyline's appender must accept the shared structural shape: frontmatter, an
+    Active index table, a Decisions section, an Archive heading, and a footer
+    template. This pins that contract from leyline's side.
+    """
+    vendored = (
+        "---\nmaturity: growing\ntype: tradeoffs\n---\n\n"
+        "# Tradeoffs\n\nintro\n\n"
+        "## Active index\n\n"
+        "| ID | Status | Title | Date |\n"
+        "|----|--------|-------|------|\n\n"
+        "## Decisions\n\n"
+        "## Archive\n\nnote\n\n"
+        "<!-- ENTRY TEMPLATE ... TR-NNN ... -->\n"
+    )
+    out = append_entry(vendored, "tradeoffs", {"title": "X", "context": "y"})
+    assert "## TR-001: X" in out
+    assert out.index("## TR-001:") < out.index("## Archive")
+    index = out.split("## Active index", 1)[1].split("## Decisions", 1)[0]
+    assert "TR-001" in index
+
+
+# ---------------------------------------------------------------------------
 # File-level apply helper
 # ---------------------------------------------------------------------------
 
