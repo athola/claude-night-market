@@ -3,7 +3,9 @@
   "version": "1.9.10",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
+    "./skills/assisted-mastery",
     "./skills/catchup",
+    "./skills/dependency-verification",
     "./skills/diff-analysis",
     "./skills/feature-review",
     "./skills/latent-space-engineering",

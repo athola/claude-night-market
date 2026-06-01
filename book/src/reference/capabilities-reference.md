@@ -37,6 +37,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
+| `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
@@ -62,6 +63,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
+| `dependency-verification` | [imbue](../plugins/imbue.md) | Package-hallucination and slopsquat defense: verifies a package exists before install |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |

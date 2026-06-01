@@ -45,8 +45,10 @@ Iron Law enforced through proof-of-work validation.
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
 | `scope-guard` | Anti-overengineering with RICE+WSJF scoring | Evaluating features, sprint planning, roadmap reviews |
-| `proof-of-work` | Evidence-based validation with output-contracts and retry-protocol modules | Enforcing Iron Law TDD discipline |
+| `proof-of-work` | Evidence-based validation with output-contracts, retry-protocol, and independent-verification modules | Enforcing Iron Law TDD discipline |
 | `rigorous-reasoning` | Anti-sycophancy guardrails | Analyzing conflicts, evaluating contested claims |
+| `assisted-mastery` | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help | Reviewing or learning from agent-written code |
+| `dependency-verification` | Package-hallucination and slopsquat defense | Adding, recommending, or installing any package |
 
 ### Workflow Automation
 
@@ -74,6 +76,7 @@ Iron Law enforced through proof-of-work validation.
 | `session-start.sh` | SessionStart | Initializes scope-guard, Iron Law, and learning mode |
 | `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
 | `tdd_bdd_gate.py` | PreToolUse | Enforces Iron Law at write-time |
+| `guard_package_hallucination.py` | PreToolUse (Bash) | Flags installs of hallucinated or typosquatted packages; warns by default, blocks with `VOW_SHADOW_MODE=0` |
 | `vow_bounded_reads.py` | PreToolUse (Read/Grep/Glob) | Warns or blocks when discovery read budget (15 reads) is exceeded; set `VOW_SHADOW_MODE=0` to block |
 | `vow_bounded_reads_reset.py` | PreToolUse (Write/Edit/MultiEdit) | Resets the per-session read counter when implementation begins |
 | `vow_no_ai_attribution.py` | PreToolUse | Blocks AI attribution strings in git commit messages |

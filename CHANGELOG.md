@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **imbue/assisted-mastery skill.** Addresses the assistance dilemma
+  in agent-assisted coding: makes the agent's reasoning a first-class
+  deliverable (assumptions, alternatives considered, ramifications),
+  surfaces tradeoffs before a design is chosen, and fades assistance
+  so the human builds judgment instead of dependence (explain mode
+  versus produce mode). Grounded in the expertise reversal effect,
+  productive failure, and cognitive offloading research.
+- **imbue/dependency-verification skill plus
+  `guard_package_hallucination.py` hook.** Confirms a suggested
+  package exists before install, defending against package
+  hallucination (5.2-21.7% of LLM-recommended packages do not exist)
+  and slopsquatting. The PreToolUse Bash hook flags typosquats of
+  popular packages offline and looks up unknown names in the registry,
+  defaulting to shadow mode and never blocking on a network failure.
+- **imbue/proof-of-work: independent-verification module.** For
+  high-stakes changes, the producing agent may no longer be its own
+  sole verifier; a second independent check (fresh agent, untuned
+  gate, or human) is required, per the four-eyes and nuclear
+  independent-verification principles.
+- **leyline/risk-classification: automation-tiers module.** Pairs each
+  risk tier with a default automation tier (A3 autonomous to A0
+  manual) and a pre-licensed downgrade trigger that drops the agent a
+  tier on repeated failure, confidence loss, or a stakes spike (the
+  aviation "children of the magenta" fix), rather than re-prompting at
+  the same level. Research basis recorded in
+  `docs/research/19c28f3c-ai-workflow-guardrails.md`.
 - **conserve, memory-palace: MMPO anchor-clarity gates (#550, #551,
   #552).** Skill descriptions and memory summaries are now scored for
   anchor clarity and fail fast when an anchor is too vague to act on,

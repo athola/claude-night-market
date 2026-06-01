@@ -43,6 +43,16 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8
+          }
+        ]
+      },
+      {
         "matcher": "Read|Grep|Glob",
         "hooks": [
           {
