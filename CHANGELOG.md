@@ -34,6 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   diff-derived test plan: groups changed files by area, runs targeted
   verifications, and proves revert-tests are genuine guards rather than
   dead assertions.
+- **sanctum/output-hygiene shared module.** A single source of truth
+  for the text every sanctum workflow emits (commit messages, PR
+  comments, thread replies, summaries). Contract A strips
+  character-level slop markers (a `+` used as a conjunction, em-dashes,
+  double-dashes, arrow connectors, and smart quotes) that the
+  word-level checks let through; Contract B requires commit messages to
+  state a change's reader-facing effect rather than the cleanup process
+  behind it. Consumed by `commit-msg`, `commit-messages`, `pr-review`
+  Phase 1.7, and `fix-pr`, each with an inline fallback for partial
+  installs. Covered by `test_output_hygiene.py`.
 - **scribe: Tier 5 slop patterns wired into the runtime.** The
   2026 cross-source slop patterns (spatial copula, negative
   parallelism, throat-clearing) now run in the detector path, not just
