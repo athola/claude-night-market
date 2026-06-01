@@ -350,14 +350,14 @@ class TestBudgetConstants:
         """Scenario: Budget limit accommodates the marketplace size.
 
         Given the DEFAULT_BUDGET constant
-        Then it should be large enough to fit 310+ components
-        (overhead alone is 310 * 109 = 33,790 chars).
+        Then it should cover 326 components at the 160-char cap
+        (326 * (160 + 109) = 87,694 chars) with headroom.
         """
         assert BUDGET_LIMIT > 0
-        # 60K chars accommodates ~310 components with overhead.
-        # Set lower (e.g., 16K) and the per-component overhead alone
-        # exceeds the budget.
-        assert DEFAULT_BUDGET == 60000
+        # 90K chars covers 326 components each at the 160-char
+        # description cap (87,694) plus modest headroom. The real
+        # hard-fail gate is the per-description cap, not this total.
+        assert DEFAULT_BUDGET == 90000
 
     @pytest.mark.bdd
     @pytest.mark.unit

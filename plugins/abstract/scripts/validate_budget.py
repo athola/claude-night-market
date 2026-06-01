@@ -10,13 +10,18 @@ from pathlib import Path
 
 # Claude Code budgets a portion of the context window for skill metadata
 # in the available_skills section. With 1M context, the original 2%
-# allocation gave 16,000 chars, but at 310+ components in this
-# marketplace the per-component overhead alone (310 * 109 = 33,790 chars)
-# already exceeds that budget. The realistic budget for a marketplace
-# this size is closer to 6% (~60,000 chars).
+# allocation gave 16,000 chars, but at 326 components in this marketplace
+# the per-component overhead alone (326 * 109 = 35,534 chars) consumes
+# most of a 6% budget before a single description is counted. The
+# realistic ceiling, with every component at the 160-char description
+# cap, is 326 * (160 + 109) = 87,694 chars. The budget is set to ~9% of
+# 1M (90,000) to cover that ceiling with modest headroom. The real
+# quality gate stays the per-description 160-char cap (DESCRIPTION_MAX),
+# which is the only hard-fail condition; the total is a warning so a
+# growing component count never silently blocks unrelated commits.
 # See: https://gist.github.com/alexey-pelykh/faa3c304f731d6a962efc5fa2a43abe1
 # and github.com/anthropics/claude-code #11045.
-DEFAULT_BUDGET = 60000  # ~6% of 1M context, accommodates 310+ components
+DEFAULT_BUDGET = 90000  # ~9% of 1M context, covers 326 components at 160-char cap
 OVERHEAD_PER_COMPONENT = 109  # XML tags, name, location per skill/cmd
 BUDGET_LIMIT = int(os.environ.get("SLASH_COMMAND_TOOL_CHAR_BUDGET", DEFAULT_BUDGET))
 WARN_THRESHOLD = int(BUDGET_LIMIT * 0.90)  # Warn at 90% usage
