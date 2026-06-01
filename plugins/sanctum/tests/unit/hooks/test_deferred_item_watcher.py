@@ -381,7 +381,7 @@ class TestLedger:
                 "timestamp": "2026-03-19T10:00:00",
             },
         )
-        # Update using prefixed variant -- should still match after normalization
+        # Update using prefixed variant: should still match after normalization
         update_ledger_entry(
             ledger_path,
             title="[Deferred] Some feature",

@@ -425,7 +425,7 @@ Save session to `.attune/brainstorm-session.json`:
 - `docs/project-brief.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after brainstorming
 
-**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
 
 
 ### Phase 6.5: Spec Review Gate

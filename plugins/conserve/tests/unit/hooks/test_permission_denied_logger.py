@@ -1,5 +1,5 @@
 # ruff: noqa: D101,D102,D103,D205,D212,PLR2004,E501,E402,I001
-"""Tests for permission_denied_logger hook — in-process coverage.
+"""Tests for permission_denied_logger hook: in-process coverage.
 
 Tests PermissionDenied event handling: JSON parsing from stdin,
 JSONL log file creation, and auto-retry signaling for read-only tools.
@@ -53,7 +53,7 @@ class TestRetrySafeTools:
 
 
 # ============================================================================
-# main() — retry signaling
+# main(): retry signaling
 # ============================================================================
 
 
@@ -164,7 +164,7 @@ class TestMainRetrySignaling:
 
 
 # ============================================================================
-# main() — logging behavior
+# main(): logging behavior
 # ============================================================================
 
 
@@ -274,7 +274,7 @@ class TestMainLogging:
 
 
 # ============================================================================
-# main() — error handling
+# main(): error handling
 # ============================================================================
 
 

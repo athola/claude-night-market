@@ -1,4 +1,4 @@
-"""Architecture review skill -- mixin-based composition (AR-01).
+"""Architecture review skill: mixin-based composition (AR-01).
 
 Public API preserved verbatim from the prior 968-line
 ``architecture_review.py`` module so existing imports keep

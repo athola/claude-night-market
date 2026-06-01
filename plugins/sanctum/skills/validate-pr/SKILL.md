@@ -1,6 +1,6 @@
 ---
 name: validate-pr
-description: Use when you need a diff-derived test plan for a PR — reads the
+description: Use when you need a diff-derived test plan for a PR: reads the
   diff, groups changes by area, runs targeted verifications, and proves
   revert-tests are genuine guards, not dead assertions.
 alwaysApply: false
@@ -156,7 +156,7 @@ Prove at least one test is a genuine guard, not a dead assertion.
 
 ```bash
 if ! git diff --exit-code > /dev/null 2>&1; then
-  echo "[RT] SKIP: working tree dirty — revert-test unsafe"
+  echo "[RT] SKIP: working tree dirty: revert-test unsafe"
   # Mark INCONCLUSIVE and continue
 fi
 ```
@@ -177,18 +177,18 @@ fi
 **Revert-test output format:**
 
 ```
-[RT-1] Target: <file>:<line> — <description of fix>
+[RT-1] Target: <file>:<line>: <description of fix>
 [RT-2] Broke fix: <edit description>
 [RT-3] Ran: <test command> → <test name> FAILED (expected)
 [RT-4] Restored: git checkout -- <file>
 [RT-5] Ran: <test command> → <test name> PASSED
-Result: PASS — test is a genuine guard
+Result: PASS: test is a genuine guard
 ```
 
 **When no covering test exists:**
 
 ```
-Revert-test: INCONCLUSIVE — no covering test for <changed area>
+Revert-test: INCONCLUSIVE: no covering test for <changed area>
 Recommendation: add a test for <changed function or behaviour>
 ```
 
@@ -223,7 +223,7 @@ Capture full output as final evidence `[En]`.
 | Revert-test: lib.rs:45 | break/fail/restore | [RT-1..5] genuine guard | PASS |
 | Final: cargo test --workspace | full suite | [E5] 694 passed, 0 failed | PASS |
 
-**Totals**: 6 steps — 6 PASS, 0 FAIL, 0 INCONCLUSIVE
+**Totals**: 6 steps: 6 PASS, 0 FAIL, 0 INCONCLUSIVE
 ```
 
 ## Step 6: Posting (--post flag only)
@@ -234,7 +234,7 @@ When `--post` is given, post the summary table as a PR comment:
 gh pr comment "$PR_NUMBER" --body "$(cat /tmp/validate-pr-summary.md)"
 ```
 
-Skip posting when invoked from `/fix-pr` — results feed into the Gate 3
+Skip posting when invoked from `/fix-pr`: results feed into the Gate 3
 summary comment instead.
 
 ## Failure Behaviour

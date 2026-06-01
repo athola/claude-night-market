@@ -36,19 +36,19 @@ drive execution.
 
 Different scopes expose different candidate actions.
 
-**self** — the top-level Claude instance answering a user:
+**self**: the top-level Claude instance answering a user:
 
 - `respond`, `retrieve`, `tool_call`, `verify`, `delegate`,
   `stop`
 - `delegate` triggers a new dispatch-scope evaluation;
   the nested scope selects its own `a*` independently.
 
-**subagent** — a spawned agent executing a delegated task:
+**subagent**: a spawned agent executing a delegated task:
 
 - `respond`, `retrieve`, `tool_call`, `verify`, `stop`
 - No `delegate`; subagents execute, they do not orchestrate.
 
-**dispatch** — an orchestrator managing a fleet of subagents:
+**dispatch**: an orchestrator managing a fleet of subagents:
 
 - `respond`, `delegate`, `retrieve`, `tool_call`, `verify`,
   `stop`

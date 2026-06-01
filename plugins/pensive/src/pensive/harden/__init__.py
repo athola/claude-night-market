@@ -1,4 +1,4 @@
-"""Active security hardening — Python detector MVP.
+"""Active security hardening: Python detector MVP.
 
 This package backs the /harden command. The `pensive:harden` skill
 documents the contract; this module implements a starter set of

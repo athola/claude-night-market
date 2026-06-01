@@ -268,7 +268,7 @@ class TestSidecarScorer:
             mock_urlopen.return_value = make_urlopen_response(payload)
             scorer.score({"feat_a": 0.5})
 
-        # Now access blend_weights without patching — must use the cache (line 192).
+        # Now access blend_weights without patching: must use the cache (line 192).
         assert scorer.blend_weights == pytest.approx((0.4, 0.6))
 
     # ------------------------------------------------------------------

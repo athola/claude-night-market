@@ -151,10 +151,10 @@ Before ANY completion claim, ask yourself:
 
 If you catch yourself violating proof-of-work:
 
-1. **STOP** — do not send the completion claim
-2. **Run the validation** — actually test the assumption
-3. **Capture evidence** — document what you find
-4. **Update your claim** — replace assumption with proof
+1. **STOP**: do not send the completion claim
+2. **Run the validation**: actually test the assumption
+3. **Capture evidence**: document what you find
+4. **Update your claim**: replace assumption with proof
 
 ## The Ultimate Red Flag
 

@@ -20,7 +20,7 @@ examples:
   assistant: Let me generate dependency-ordered tasks from your artifacts.
 - context: User is starting implementation phase
   user: What tasks do I need to implement this feature?
-  assistant: I'll analyze your spec and plan to generate actionable tasks.
+  assistant: I'll analyze your spec and plan to generate concrete tasks.
 ---
 
 # Task Generator Agent

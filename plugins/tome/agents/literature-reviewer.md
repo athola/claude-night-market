@@ -83,4 +83,4 @@ the given topic.
 - Read only pages 1-10 of each PDF unless critical
 - Never use Sci-Hub or other unauthorized access methods
 - If APIs are rate-limited, note in errors and continue
-- Do NOT hallucinate papers — only return what you find
+- Do NOT hallucinate papers: only return what you find

@@ -109,7 +109,7 @@ def _load_or_scan(root: Path, *, no_cache: bool) -> ScanResult:
         try:
             save_cache(root, result)
         except OSError:
-            pass  # read-only filesystem (CI, Docker) -- scan result is still valid
+            pass  # read-only filesystem (CI, Docker): scan result is still valid
     return result
 
 

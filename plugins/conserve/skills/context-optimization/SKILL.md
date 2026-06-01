@@ -104,7 +104,7 @@ def select_optimal_modules(context_situation, task_complexity):
 
 - **Avoid pre-emptive reads**: Large outputs are referenced, not automatically loaded into context.
 - **Read selectively**: Use `head`, `tail`, or `grep` on file references.
-- **Leverage full data**: Quality gates can access complete test results via files.
+- **Use full data**: Quality gates can access complete test results via files.
 - **Monitor growth**: File references are small, but reading the full files adds to context.
 
 ## Integration Points

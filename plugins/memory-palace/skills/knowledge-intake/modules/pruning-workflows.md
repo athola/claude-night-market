@@ -10,7 +10,8 @@ estimated_tokens: 600
 
 # Knowledge Tidying Workflows
 
-KonMari-inspired approaches for curating the knowledge palace. Time is not the criterion—alignment with who you are becoming is.
+KonMari-inspired approaches for curating the knowledge palace. The
+criterion is not time. It is alignment with who you are becoming.
 
 > "A cluttered palace is a cluttered mind."
 
@@ -173,7 +174,7 @@ When initiating a knowledge review, Claude should ask:
 > 1. What kind of developer are you becoming?
 > 2. What genuinely excites you right now?
 > 3. What have you consciously decided to leave behind?
-> 4. Imagine your ideal knowledge palace—what's in it?"
+> 4. Imagine your ideal knowledge palace. What's in it?"
 
 These answers guide all subsequent decisions. The curator's aspirations are the only valid filter.
 

@@ -16,7 +16,7 @@ Use this command when you need to:
 - Break down work into dependency-ordered tasks
 - Estimate effort and plan sprints
 - Define component interfaces and data flow
-- Create actionable roadmap for execution
+- Create concrete roadmap for execution
 
 ## When NOT To Use
 
@@ -56,7 +56,7 @@ When superpowers plugin is available:
 
 Without superpowers:
 - Falls back to attune's native planning skill
-- Provides similar structured approach
+- Provides similar step-by-step approach
 - Documents tasks systematically
 
 ## Workflow

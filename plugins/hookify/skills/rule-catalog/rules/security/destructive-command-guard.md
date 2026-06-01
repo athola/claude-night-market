@@ -73,6 +73,6 @@ temporarily:
 
 ## Related
 
-- `block-destructive-git` — blocks irreversible local git ops
-- `block-force-push` — blocks force push to main/master
+- `block-destructive-git`: blocks irreversible local git ops
+- `block-force-push`: blocks force push to main/master
 - Source: HN #48022742, Replit/SaaStr incident (2025-07)

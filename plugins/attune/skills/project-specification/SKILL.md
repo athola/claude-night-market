@@ -13,7 +13,7 @@ role: library
 ---
 ## Delegation
 
-For detailed specification writing workflows, this skill delegates to `spec-kit:spec-writing` as the canonical implementation. Use this skill for quick specification needs; use spec-kit for comprehensive specification documents.
+For detailed specification writing workflows, this skill delegates to `spec-kit:spec-writing` as the canonical implementation. Use this skill for quick specification needs; use spec-kit for thorough specification documents.
 
 ## When To Use
 
@@ -77,7 +77,7 @@ data model, an interface boundary, a constraint accepted), record it to
 - `docs/specification.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after specification
 
-**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
 
 ## Exit Criteria
 

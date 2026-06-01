@@ -116,7 +116,7 @@ class TestSanctumConfig:
         assert result.returncode != 0
 
     def test_no_enrichment_applied(self) -> None:
-        """Sanctum has no enrich_context — body matches raw context."""
+        """Sanctum has no enrich_context: body matches raw context."""
         result = _run(
             "--title",
             "T",

@@ -3,7 +3,7 @@
 
 Tests cross-platform notification sending, deduplication state machine,
 content hashing, background mode CLI argument parsing, and terminal info
-detection -- all with mocked subprocess calls (no real notifications).
+detection, all with mocked subprocess calls (no real notifications).
 """
 
 from __future__ import annotations

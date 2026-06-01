@@ -186,7 +186,7 @@ in `Skill(scribe:slop-detector)` module `anti-goals.md`:
   just because it is short
 - Do not touch generated code, vendored code, or
   historical changelog entries
-- Do not auto-apply `confidence: low` findings — surface
+- Do not auto-apply `confidence: low` findings; surface
   them for human decision
 
 ## Why three layers

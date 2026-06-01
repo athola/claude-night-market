@@ -230,7 +230,7 @@ Conclude with:
 ### Retrospective Summary
 - **Workflow Slice**: The reconstructed workflow (1 screen max)
 - **Improvements Applied**: Per-file changes with before/after metrics
-- **Validation Evidence**: Commands run + results showing improvement
+- **Validation Evidence**: Commands run and results showing improvement
 - **Follow-ups**: Deferred items with TodoWrite references
 
 ### Metrics Comparison

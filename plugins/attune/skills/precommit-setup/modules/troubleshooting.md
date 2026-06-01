@@ -20,13 +20,13 @@ load_when: hooks are slow or failing
 
 ## Optimization Strategies
 
-1. **Only test changed components** — default behavior in
+1. **Only test changed components**: default behavior in
    the Layer 2 scripts.
-2. **Parallel execution** — pre-commit runs hooks
+2. **Parallel execution**: pre-commit runs hooks
    concurrently when possible.
-3. **Caching** — dependencies cached by uv; mypy uses
+3. **Caching**: dependencies cached by uv; mypy uses
    `.mypy_cache/`.
-4. **Incremental mypy** — enable `--incremental` for repeat
+4. **Incremental mypy**: enable `--incremental` for repeat
    commits in the same session.
 
 ## Hooks Too Slow
@@ -78,7 +78,7 @@ pythonpath = ["src"]
 ## Type Checking Errors
 
 **Fix the implementation first.** A typecheck error
-almost always points at a real bug — a value that
+almost always points at a real bug: a value that
 might be `None`, a return type that doesn't match,
 a function that lies about its signature. Loosening
 the typechecker hides the bug; it does not solve it.
@@ -91,7 +91,7 @@ narrow the scope tightly and leave a comment naming
 the underlying issue.
 
 \`\`\`toml
-# LAST RESORT — fix the implementation before reaching for this.
+# LAST RESORT: fix the implementation before reaching for this.
 # Narrow the scope to the offending module only; do not blanket-disable.
 [[tool.mypy.overrides]]
 module = "legacy_module.*"

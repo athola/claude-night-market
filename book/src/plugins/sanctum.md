@@ -144,7 +144,7 @@ to deduplicate logic across commands.
 
 The test plan injection module checks whether a PR
 description already contains a test plan section
-(recognized heading + 3 or more checkbox items).
+(recognized heading and 3 or more checkbox items).
 When missing, it generates one from triage data and
 injects it before the review summary or appends it
 to the body.

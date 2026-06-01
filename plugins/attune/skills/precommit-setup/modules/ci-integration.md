@@ -7,7 +7,7 @@ load_when: configuring CI to run the same checks as pre-commit
 
 # CI Integration
 
-Verify CI runs the same comprehensive checks that pre-commit
+Verify CI runs the same thorough checks that pre-commit
 runs locally. Drift between local hooks and CI is the most
 common cause of "works on my machine" PRs.
 

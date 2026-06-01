@@ -74,4 +74,4 @@ Each area produces findings in the standard format:
 `.coordination/agents/tier3-{area-slug}.findings.md`
 
 Final synthesis reads all findings files and produces
-a comprehensive report.
+a thorough report.

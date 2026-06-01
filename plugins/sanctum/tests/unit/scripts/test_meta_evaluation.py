@@ -805,7 +805,7 @@ class TestCheckCodeExamples:
         When check_code_examples is called
         Then it returns True and records no issues
         """
-        # Arrange — 2-line block, under the MIN_CODE_BLOCK_LINES=3 threshold
+        # Arrange: 2-line block, under the MIN_CODE_BLOCK_LINES=3 threshold
         content = "# Skill\n\n```\nshort line\nanother\n```\n"
 
         # Act

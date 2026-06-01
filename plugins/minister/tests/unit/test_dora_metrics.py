@@ -507,7 +507,7 @@ class TestBuildParser:
 
 
 # =============================================================================
-# Issue #526 — CLI argument validation
+# Issue #526: CLI argument validation
 # =============================================================================
 
 
@@ -563,7 +563,7 @@ class TestCliArgumentValidation:
 
 
 # =============================================================================
-# Issue #525 — Collector partial flags + --strict + datetime resilience
+# Issue #525: Collector partial flags and --strict and datetime resilience
 # =============================================================================
 
 
@@ -701,7 +701,7 @@ class TestStrictFlag:
 
 
 # =============================================================================
-# Issue #527 — Empty-window metrics should report N/A, not Elite
+# Issue #527: Empty-window metrics should report N/A, not Elite
 # =============================================================================
 
 
@@ -711,7 +711,7 @@ class TestEmptyWindowNotElite:
 
     Lead Time, Change Failure Rate, and Time to Restore Service all default
     to 0 when their input is empty. Under the previous behavior 0 classified
-    as Elite — indistinguishable from "perfect quality." The fix returns
+    as Elite, indistinguishable from "perfect quality." The fix returns
     None for these metrics when input is empty and surfaces "N/A" in the
     tier table. Deployment Frequency stays float since 0 deploys/day has a
     well-defined meaning (Low tier).
@@ -780,7 +780,7 @@ class TestEmptyWindowNotElite:
 
 
 # =============================================================================
-# Issue #529 — Type design refinements
+# Issue #529: Type design refinements
 # =============================================================================
 
 

@@ -30,7 +30,7 @@ estimated_tokens: 1200
 
 ## Overview
 
-Transforms specifications and implementation plans into actionable, dependency-ordered tasks. Creates phased breakdowns that guide systematic implementation.
+Transforms specifications and implementation plans into concrete, dependency-ordered tasks. Creates phased breakdowns that guide systematic implementation.
 
 ## When To Use
 

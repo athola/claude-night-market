@@ -3,7 +3,7 @@
 Each detector function takes an `ast.Call` node and a `Context`; it
 appends Findings to `ctx.findings` when its pattern matches. The
 dispatcher walks the tree once and applies every detector to each
-call node, so the cost is O(N detectors x N calls) — fine for the
+call node, so the cost is O(N detectors x N calls), fine for the
 < ~50 detectors we ship.
 
 The patterns are deliberately conservative: they fire on known

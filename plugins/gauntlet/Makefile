@@ -59,7 +59,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
 
 # ---------------------------------------------------------------------------
-# LIVE demo targets — dogfood gauntlet's own scripts on its own codebase.
+# LIVE demo targets: dogfood gauntlet's own scripts on its own codebase.
 # These run actual functionality and produce real output, not static echoes.
 # ---------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ demo-all: demo-gauntlet demo-gauntlet-extract demo-gauntlet-curate \
 	@echo "=== demo-all complete ==="
 
 # ---------------------------------------------------------------------------
-# Per-command test targets — scope pytest to the surface each command exercises.
+# Per-command test targets: scope pytest to the surface each command exercises.
 # ---------------------------------------------------------------------------
 
 # Per-command test targets use --no-cov: they exercise a slice of the

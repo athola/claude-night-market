@@ -101,7 +101,7 @@ Before deploying hooks, verify:
 
 ## Detailed Examples
 
-For comprehensive test examples including:
+For more test examples including:
 - Full unit test suites
 - Integration test patterns
 - Security test cases

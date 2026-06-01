@@ -19,7 +19,7 @@ Two payload shapes are accepted:
 
 The hook is non-critical: any failure path exits 0 silently so it
 never blocks tool execution. Empty/unparseable payloads are skipped
-without writing -- this prevents the ledger pollution regression
+without writing: this prevents the ledger pollution regression
 that produced 394 empty entries in ``tasks_unknown.jsonl``.
 """
 
@@ -120,7 +120,7 @@ def main() -> None:
         with open(ledger_file, "a") as f:
             f.write(json.dumps(entry) + "\n")
     except OSError:
-        pass  # Non-critical -- never block the tool call.
+        pass  # Non-critical: never block the tool call.
 
     print(
         f"[TaskCreated] Tracking task {task_id}: {task_description[:80]}",

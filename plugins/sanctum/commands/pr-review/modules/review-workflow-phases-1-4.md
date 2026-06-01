@@ -770,4 +770,4 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
     - Verify all issues have been addressed
 
 
-> **Next**: [Phases 5-6](review-workflow-phases-5-6.md) — test plan generation and PR description update.
+> **Next**: [Phases 5-6](review-workflow-phases-5-6.md): test plan generation and PR description update.

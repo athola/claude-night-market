@@ -138,7 +138,7 @@ Real-world scenarios       → 9. Enhance retention
 
 **Anti-patterns** (feel effective but aren't):
 - Long prose explanations
-- Comprehensive coverage without practice
+- Thorough coverage without practice
 - Learning styles myths (visual/auditory)
 - Information dumps
 

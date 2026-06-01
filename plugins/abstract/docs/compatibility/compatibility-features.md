@@ -26,13 +26,13 @@ Plugin-author-relevant changes only; UI, IDE, and CLI-internal
 fixes are omitted. See `~/.claude/release-notes` for the full log.
 
 - **2.1.136**: `skills` entry in `plugin.json` listing a file path
-  now errors instead of failing silently — must be a directory;
+  now errors instead of failing silently; must be a directory;
   `AskUserQuestion` array multi-select fix; plugin uninstall and
   enable/disable now slug-matched case-insensitively; `CronList`
   output includes qualifiers and scheduled prompt; plugin slash
   commands with spaces (e.g. `/myplugin review`) resolve to
   namespaced form
-- **2.1.133**: `worktree.baseRef` setting (`fresh` | `head`) —
+- **2.1.133**: `worktree.baseRef` setting (`fresh` | `head`):
   default `fresh` reverts the 2.1.128 default of local HEAD;
   hooks now receive `effort.level` JSON field and `$CLAUDE_EFFORT`
   env var; Bash tool subprocesses also get `$CLAUDE_EFFORT`;
@@ -230,7 +230,7 @@ fixes are omitted. See `~/.claude/release-notes` for the full log.
   `/loop` available on all providers, skill file deadlock fix,
   background bash process cleanup
 - **2.1.72**: ExitWorktree tool, effort simplified to 3 levels (max
-  removed for Opus 4.6 — `max` was reintroduced for Opus 4.7 in
+  removed for Opus 4.6; `max` was reintroduced for Opus 4.7 in
   2.1.111, alongside `xhigh`), CLAUDE.md HTML comments hidden,
   skill hook double-fire
   fix, parallel tool call cascade fix (only Bash cascades), prompt

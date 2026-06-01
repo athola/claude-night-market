@@ -13,7 +13,7 @@ Feature: validate-pr skill generates diff-derived test plans with genuine guards
 
 These tests are regression guards for the skill's CONTENT CONTRACT.
 A failing test means a load-bearing section was changed or removed.
-Do NOT silently update the assertion — the failure warrants human review.
+Do NOT silently update the assertion: the failure warrants human review.
 """
 
 from __future__ import annotations

@@ -98,6 +98,6 @@ When logs include metrics or measurements:
 
 - Use aggregation (counts, uniques) over raw logs
 - Sample representative entries, don't reproduce all
-- Reference log files + line numbers for detail
+- Reference log files and line numbers for detail
 - Summarize patterns rather than listing every entry
 - Defer deep debugging to specialized tools/skills

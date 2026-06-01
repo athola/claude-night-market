@@ -3,9 +3,9 @@
 Multi-source research plugin for Claude Code.
 
 Tome runs autonomous research sessions across four
-channels — code repositories, community discourse,
+channels (code repositories, community discourse,
 academic literature, and cross-domain analogical
-reasoning (TRIZ) — then synthesizes findings into
+reasoning via TRIZ), then synthesizes findings into
 domain-appropriate reports.
 
 ## Commands

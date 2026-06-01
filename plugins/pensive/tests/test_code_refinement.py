@@ -146,7 +146,7 @@ class TestCleanupCommand:
 
     As a user
     I want /unbloat --cleanup to orchestrate multiple cleanup commands
-    So that I get comprehensive codebase maintenance
+    So that I get thorough codebase maintenance
 
     Note: The standalone /cleanup command was merged into /unbloat --cleanup.
     """

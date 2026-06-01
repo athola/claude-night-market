@@ -22,9 +22,9 @@ This command can cause **irreversible data loss** - uncommitted changes, local b
 | Command | Risk | What It Destroys |
 |---------|------|------------------|
 | `git reset --hard` | 🔴 Critical | All uncommitted changes (staged and unstaged) |
-| `git checkout — .` | 🔴 Critical | All unstaged changes in working directory |
-| `git checkout HEAD — <file>` | 🟡 High | Specific file's uncommitted changes |
-| `git checkout <branch> — <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |
+| `git checkout -- .` | 🔴 Critical | All unstaged changes in working directory |
+| `git checkout HEAD -- <file>` | 🟡 High | Specific file's uncommitted changes |
+| `git checkout <branch> -- <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |
 | `git restore --source` | 🟡 High | Overwrites files from another ref |
 | `git clean -fd` | 🔴 Critical | All untracked files and directories |
 | `git stash drop` | 🟡 High | Stashed changes permanently |
@@ -67,7 +67,7 @@ git reset --hard HEAD
 git checkout HEAD -- path/to/file
 ```
 
-### Instead of `git checkout — .`
+### Instead of `git checkout -- .`
 ```bash
 # Option 1: Review what you're discarding
 git diff                         # See all changes first

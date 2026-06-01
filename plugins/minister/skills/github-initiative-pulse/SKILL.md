@@ -62,7 +62,7 @@ Turns tracker data and GitHub board metadata into initiative-level summaries. Pr
 
 - All initiatives represented with updated metrics.
 - Markdown digest pasted into relevant GitHub thread.
-- Risk follow-ups filed as issues with owners + due dates.
+- Risk follow-ups filed as issues with owners and due dates.
 ## Troubleshooting
 
 ### Common Issues

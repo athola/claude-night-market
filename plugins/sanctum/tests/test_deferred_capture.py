@@ -96,7 +96,7 @@ def test_help_output_proves_leyline_delegation_with_sanctum_config():
         return
     combined = (result.stdout + result.stderr).lower()
     # At least one of the configured discriminators must appear in
-    # the help text -- either the source-help phrase or a label name.
+    # the help text: either the source-help phrase or a label name.
     assert (
         "origin skill" in combined or "war-room" in combined or "deferred" in combined
     ), f"help output does not reflect CONFIG: {combined[:300]!r}"

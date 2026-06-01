@@ -67,6 +67,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``message-broker`` — Kafka, NATS, RabbitMQ; the durable channel between producers and consumers
-- ``event-stream-processor`` — Flink, Faust, or similar; consumes streams and emits derived events
-- ``distributed-tracing`` — OpenTelemetry-style correlation IDs across asynchronous hops
+- ``message-broker``: Kafka, NATS, RabbitMQ; the durable channel between producers and consumers
+- ``event-stream-processor``: Flink, Faust, or similar; consumes streams and emits derived events
+- ``distributed-tracing``: OpenTelemetry-style correlation IDs across asynchronous hops

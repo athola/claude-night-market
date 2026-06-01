@@ -63,4 +63,4 @@ existing implementations of the given topic on GitHub.
 - Prefer repos updated within the last 2 years
 - Extract actual patterns, not just descriptions
 - If GitHub API rate limits hit, fall back to WebSearch
-- Do NOT hallucinate repos — only return what you find
+- Do NOT hallucinate repos: only return what you find

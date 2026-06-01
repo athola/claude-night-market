@@ -49,7 +49,7 @@ Skill(conserve:clear-context)
 - Mid-critical-operation where handoff would lose state
 - **Consider "Summarize from here" first** (Claude Code 2.1.32+): Before full auto-clear,
   try partial summarization via the message selector. This compresses older context while
-  preserving recent work — often sufficient to relieve pressure without a full handoff.
+  preserving recent work, often sufficient to relieve pressure without a full handoff.
 
 ## The Auto-Clear Pattern
 
@@ -93,8 +93,8 @@ Before triggering auto-clear, gather:
 **Important**: Before saving state or spawning a continuation agent, reconcile the task list:
 
 1. **Review all tasks** via `TaskList`
-2. **Mark completed tasks** as `completed` via `TaskUpdate` — do NOT leave done work as `in_progress`
-3. **Record existing task IDs** — collect all task IDs (pending and in_progress) to pass in the session state so the continuation agent references them instead of creating duplicates
+2. **Mark completed tasks** as `completed` via `TaskUpdate`: do NOT leave done work as `in_progress`
+3. **Record existing task IDs**: collect all task IDs (pending and in_progress) to pass in the session state so the continuation agent references them instead of creating duplicates
 4. **Include task IDs in session state** under the `existing_task_ids` field (see Step 2)
 
 This prevents the continuation agent from creating duplicate tasks.
@@ -273,7 +273,7 @@ If Task tool is unavailable (permissions, context restrictions):
 3. **Let auto-compact handle continuation** - Claude Code compresses context automatically
 4. **Manual continuation options**:
    - `claude --continue` to resume session
-   - New session + `/catchup` to understand changes
+   - New session and `/catchup` to understand changes
    - Read `.claude/session-state.md` for saved context
 
 > **Fixed in 2.1.63**: `/clear` now properly resets cached skills. Previously, stale skill content could persist into the new conversation. The `/clear` and `/catchup` pattern is now fully reliable.
@@ -352,14 +352,14 @@ For hooks where speed matters, use heuristics:
 ## Best Practices
 
 1. **Checkpoint Frequently**: During long tasks, save state at natural breakpoints
-2. **Clear Instructions**: Continuation agent needs specific, actionable guidance
+2. **Clear Instructions**: Continuation agent needs specific, concrete guidance
 3. **Verify Handoff**: Ensure state file is written before spawning subagent
 4. **Monitor Recursion**: Continuation agents can also hit limits - design for chaining
 
 ## Troubleshooting
 
 ### Continuation agent doesn't have full context
-- Ensure session-state.md is comprehensive
+- Ensure session-state.md is complete
 - Include all relevant file paths
 - Document implicit assumptions
 

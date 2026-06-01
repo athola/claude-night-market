@@ -45,7 +45,7 @@ class TestUnifiedReviewSkillContent:
         self, skill_content: str
     ) -> None:
         """Isolation guidance must specify waiting for ALL results before
-        synthesizing — not just dispatching concurrently."""
+        synthesizing, rather than only dispatching concurrently."""
         assert "ALL agents have returned" in skill_content or (
             "all agent" in skill_content.lower()
             and "synthesize" in skill_content.lower()

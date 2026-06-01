@@ -24,7 +24,7 @@ environments through screenshots and mouse/keyboard actions.
 > **Why this stays opt-in.** Per
 > [docs/inclusive-defaults.md][inc] (TRUE-exception
 > category 4), Computer Use takes screenshots and
-> synthesizes keyboard/mouse input — cross-process side
+> synthesizes keyboard/mouse input: cross-process side
 > effects that must always be explicitly invoked, never
 > default-on.
 

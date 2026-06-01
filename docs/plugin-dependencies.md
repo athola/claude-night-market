@@ -22,9 +22,9 @@ capabilities when paired.
 
 **Modules using leyline:**
 
-- `scripts/quota_tracker.py` — token estimation via
+- `scripts/quota_tracker.py`: token estimation via
   `leyline.tokens.estimate_tokens`
-- `scripts/delegation_executor.py` — quota tracking via
+- `scripts/delegation_executor.py`: quota tracking via
   `leyline.quota_tracker.QuotaTracker`
 
 **Fallback behavior:** Both modules use `try/except

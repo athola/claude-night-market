@@ -79,11 +79,11 @@ Skill description character budgets now **scale with context window** at 2% of a
 | 200K (Sonnet/Haiku) | ~4,000 characters |
 | 1M (Opus 4.6 GA) | ~20,000 characters |
 
-Previously constrained skills can use more descriptive text on larger windows. However, keep descriptions concise regardless — longer is not better. The scaling primarily prevents truncation for skills with legitimately complex trigger conditions, not as an invitation to add verbose content.
+Previously constrained skills can use more descriptive text on larger windows. However, keep descriptions concise regardless: longer is not better. The scaling primarily prevents truncation for skills with legitimately complex trigger conditions, not as an invitation to add verbose content.
 
 ### Plugin Name Auto-Display (Claude Code 2.1.33+)
 
-Plugin names are now automatically shown alongside skill descriptions in the `/skills` menu. Do not repeat the plugin name in skill descriptions — it is redundant and wastes character budget. Focus descriptions on what the skill does and when to use it.
+Plugin names are now automatically shown alongside skill descriptions in the `/skills` menu. Do not repeat the plugin name in skill descriptions: it is redundant and wastes character budget. Focus descriptions on what the skill does and when to use it.
 
 ## The TDD Cycle for Skills
 

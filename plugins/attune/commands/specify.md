@@ -55,7 +55,7 @@ When spec-kit plugin is available:
 
 Without spec-kit:
 - Falls back to attune's native specification skill
-- Provides similar structured approach
+- Provides similar step-by-step approach
 - Documents requirements systematically
 
 ## Workflow

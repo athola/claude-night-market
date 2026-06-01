@@ -111,7 +111,7 @@ def main() -> None:
     try:
         stale = find_stale_sessions(project_dir)
     except OSError as exc:
-        # Non-critical -- never block session start, but emit a
+        # Non-critical: never block session start, but emit a
         # stderr breadcrumb so the cause is recoverable from logs.
         print(
             f"brainstorm_session_warn: scan failed ({exc})",

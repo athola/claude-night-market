@@ -12,7 +12,7 @@ Utility command that detects installed plugins and reinstalls them. Use when plu
 
 The following plugins are **automatically excluded** from reinstallation to prevent breaking the reinstall process:
 
-- **hookify** — Removing this plugin during reinstall can break hook execution
+- **hookify**: Removing this plugin during reinstall can break hook execution
 
 ## Modes
 

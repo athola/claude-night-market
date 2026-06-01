@@ -66,6 +66,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``plugin-loader`` — discovers, validates, and activates plugins at runtime
-- ``sandbox-executor`` — runs each plugin in an isolated context with a constrained capability set
-- ``sdk-generator`` — produces language-specific SDKs from the kernel's stable interface
+- ``plugin-loader``: discovers, validates, and activates plugins at runtime
+- ``sandbox-executor``: runs each plugin in an isolated context with a constrained capability set
+- ``sdk-generator``: produces language-specific SDKs from the kernel's stable interface

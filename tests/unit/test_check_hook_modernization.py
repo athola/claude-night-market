@@ -29,7 +29,7 @@ from check_hook_modernization import (
 
 
 # ============================================================================
-# check_python_source — PostToolUse invalid decisions
+# check_python_source: PostToolUse invalid decisions
 # ============================================================================
 
 
@@ -131,7 +131,7 @@ class TestPostToolUseInvalidDecision:
 
 
 # ============================================================================
-# check_python_source — PreToolUse output forms
+# check_python_source: PreToolUse output forms
 # ============================================================================
 
 
@@ -221,7 +221,7 @@ class TestPreToolUseOutputForms:
 
 
 # ============================================================================
-# check_python_source — missing error handling
+# check_python_source: missing error handling
 # ============================================================================
 
 
@@ -334,7 +334,7 @@ class TestGetHookEventTypes:
 
 
 # ============================================================================
-# run_audit — integration with filesystem
+# run_audit: integration with filesystem
 # ============================================================================
 
 

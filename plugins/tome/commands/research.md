@@ -55,6 +55,6 @@ Reports are saved to `docs/research/{session}-{topic}.md`.
 
 ## See Also
 
-- `/tome:dig` — refine results interactively
-- `/tome:cite` — generate bibliography
-- `/tome:export` — export to memory-palace format
+- `/tome:dig`: refine results interactively
+- `/tome:cite`: generate bibliography
+- `/tome:export`: export to memory-palace format

@@ -1,9 +1,9 @@
 ---
 name: code-refiner
 description: |
-  Orchestrate code quality refinement — analyze living code for duplication,
+  Orchestrate code quality refinement: analyze living code for duplication,
   algorithmic inefficiency, clean code violations, and architectural misfit.
-  Generate actionable refactoring plans with before/after examples.
+  Generate concrete refactoring plans with before/after examples.
 
   Use PROACTIVELY for: code quality improvement, refactoring sprints, anti-slop remediation
 
@@ -174,7 +174,7 @@ Fallback behavior:
 
 ## Safety Protocol
 
-1. **Read-only by default** — report only, no modifications
+1. **Read-only by default**: report only, no modifications
 2. **`--apply` flag** for interactive remediation (like unbloat)
 3. **Never auto-refactor** without preview and approval
 4. **Test after each change** when applying
@@ -190,8 +190,8 @@ Escalate when:
 
 ## Related
 
-- `pensive:code-refinement` skill — Analysis dimensions and detection patterns
-- `pensive:code-reviewer` agent — Bug-focused review (complementary)
-- `conserve:unbloat-remediator` agent — Dead code removal (complementary)
-- `/refine-code` command — User-facing interface
-- `/cleanup` command — Unified orchestrator (if conserve installed)
+- `pensive:code-refinement` skill: Analysis dimensions and detection patterns
+- `pensive:code-reviewer` agent: Bug-focused review (complementary)
+- `conserve:unbloat-remediator` agent: Dead code removal (complementary)
+- `/refine-code` command: User-facing interface
+- `/cleanup` command: Unified orchestrator (if conserve installed)

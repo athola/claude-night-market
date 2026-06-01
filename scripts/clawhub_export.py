@@ -312,7 +312,7 @@ def generate_openclaw_skill_md(
     # Add provenance notice to body
     plugin = openclaw_fm.get("source_plugin", "unknown")
     provenance = (
-        f"> **Night Market Skill** — ported from "
+        f"> **Night Market Skill**: ported from "
         f"[claude-night-market/{plugin}]"
         f"(https://github.com/athola/claude-night-market"
         f"/tree/master/plugins/{plugin}). "

@@ -4,7 +4,7 @@ Publish completed war room deliberations to GitHub Discussions for cross-session
 
 ## When This Module Applies
 
-This module activates **after Phase 7 (Supreme Commander Synthesis)** completes. It is an additional publication channel — the local strategeion archive continues as the primary record.
+This module activates **after Phase 7 (Supreme Commander Synthesis)** completes. It is an additional publication channel: the local strategeion archive continues as the primary record.
 
 ## Prerequisites
 
@@ -122,11 +122,11 @@ mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
 Post each major phase as a threaded comment on the Discussion. This preserves the deliberation trail without overwhelming the Discussion body.
 
 **Comments to post** (in order):
-1. **Intelligence Report** — key findings from Phase 1
-2. **Situation Assessment** — Phase 2 analysis summary
-3. **COA Summary** — brief of each Course of Action (Phase 3)
-4. **Red Team Challenges** — key challenges and responses (Phase 4)
-5. **Supreme Commander Synthesis** — the final decision rationale (Phase 7)
+1. **Intelligence Report**: key findings from Phase 1
+2. **Situation Assessment**: Phase 2 analysis summary
+3. **COA Summary**: brief of each Course of Action (Phase 3)
+4. **Red Team Challenges**: key challenges and responses (Phase 4)
+5. **Supreme Commander Synthesis**: the final decision rationale (Phase 7)
 
 > Phases 5-6 (War Game execution and Decision Briefing) are internal deliberation artifacts that don't warrant separate comments. Their outputs are incorporated into the Red Team Challenges and Supreme Commander Synthesis.
 
@@ -149,7 +149,7 @@ mutation($discussionId: ID!, $body: String!) {
 
 ### Step 5: Mark Synthesis as Answer (Q&A Categories Only)
 
-> **Skip this step for the "Decisions" category.** It uses Announcement format, which does not support answers. The synthesis is already the last comment — no further marking is needed.
+> **Skip this step for the "Decisions" category.** It uses Announcement format, which does not support answers. The synthesis is already the last comment, so no further marking is needed.
 
 For Q&A-format categories (e.g., "Knowledge"), mark the synthesis comment as the answer:
 
@@ -171,8 +171,8 @@ If the mutation fails (wrong category format), log a warning and continue.
 Apply labels to the Discussion for discoverability. Labels must already exist on the repository.
 
 Recommended labels:
-- `war-room` — always applied
-- `type-1a`, `type-1b`, or `type-2` — matching the decision type from RS assessment
+- `war-room`: always applied
+- `type-1a`, `type-1b`, or `type-2`: matching the decision type from RS assessment
 - Topic-relevant labels (e.g., `architecture`, `performance`, `security`)
 
 Label application requires a separate mutation:
@@ -200,11 +200,11 @@ discussion_number: NUMBER
 published_at: YYYY-MM-DDTHH:MM:SSZ
 ```
 
-This cross-reference allows future sessions to navigate from local artifact to the published Discussion and vice versa.
+This cross-reference allows future sessions to move from local artifact to the published Discussion and vice versa.
 
 ## Error Handling
 
-- **Network failure during publishing**: Log warning, preserve local artifacts. Do not retry automatically — the user can re-publish manually.
+- **Network failure during publishing**: Log warning, preserve local artifacts. Do not retry automatically: the user can re-publish manually.
 - **Rate limiting**: If GitHub returns 429, warn the user and skip. Do not block the session.
 - **Missing category**: Warn and skip. Do not auto-create categories.
 - **`gh` not authenticated**: Skip with message: "GitHub CLI not authenticated. Run `gh auth login` to enable Discussion publishing."

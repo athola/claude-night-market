@@ -2,7 +2,7 @@
 name: session-state
 description: |
   Session state persistence format and management for context handoffs.
-  Defines the checkpoint structure that enables seamless continuation.
+  Defines the checkpoint structure that enables smooth continuation.
 category: conservation
 ---
 

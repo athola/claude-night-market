@@ -69,7 +69,7 @@ See `modules/reversibility-assessment.md` for full scoring guide.
 - Routine implementation tasks
 - Well-documented patterns with clear solutions
 - Time-critical decisions requiring immediate action
-- **Type 2 decisions** (RS ≤ 0.40) — use Express mode or skip War Room entirely
+- **Type 2 decisions** (RS ≤ 0.40): use Express mode or skip War Room entirely
 
 ## Expert Panel
 
@@ -289,7 +289,7 @@ Saved to Strategeion:
 
 The Supreme Commander Decision is a tradeoff record by construction: a selected
 approach, the COAs weighed against it, and the dissenting views. Mirror it into
-`docs/tradeoffs.md` so the reasoning lives with the code, not only in
+`docs/tradeoffs.md` so the reasoning stays with the code, not only in
 Strategeion (draft and confirm):
 
 - If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
@@ -378,8 +378,8 @@ When `--agent-teams` is specified (or auto-selected for Full Council / Delphi mo
 
 | Mode | Without Agent Teams | With Agent Teams | Benefit |
 |------|-------------------|-----------------|---------|
-| Express | Sonnet direct call | N/A (overkill) | None — skip |
-| Lightweight | 3 sequential delegations | N/A (overhead exceeds benefit) | None — skip |
+| Express | Sonnet direct call | N/A (overkill) | None: skip |
+| Lightweight | 3 sequential delegations | N/A (overhead exceeds benefit) | None: skip |
 | Full Council | 7 sequential/parallel delegations | 7 teammates with live inbox messaging | Experts can **react** to each other's COAs in real-time |
 | Delphi | Multiple delegation rounds | Persistent team iterates until convergence | No re-invocation cost per round; state preserved across rounds |
 
@@ -421,11 +421,11 @@ Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonn
 
 ### Falling Back to Conjure Delegation
 
-If agent teams fails (tmux unavailable, team creation error), the War Room automatically falls back to standard conjure delegation. The deliberation protocol is identical — only the execution backend differs.
+If agent teams fails (tmux unavailable, team creation error), the War Room automatically falls back to standard conjure delegation. The deliberation protocol is identical: only the execution backend differs.
 
 ### Cost Considerations
 
-Agent teams is significantly more token-intensive than conjure delegation (each teammate maintains its own context window). Use only when the coordination value justifies the cost — typically Delphi mode where multiple rounds of revision make persistent teammates worthwhile.
+Agent teams is significantly more token-intensive than conjure delegation (each teammate maintains its own context window). Use only when the coordination value justifies the cost, typically Delphi mode where multiple rounds of revision make persistent teammates worthwhile.
 
 ### Discussion Publishing (REQUIRED)
 

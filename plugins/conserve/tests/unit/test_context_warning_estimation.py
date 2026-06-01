@@ -926,7 +926,7 @@ class TestResolveProjectDir:
         claude_projects = tmp_path / "projects"
         cwd = Path("relative/path")
         dir_name = str(cwd).replace(os.sep, "-")
-        # dir_name = "relative-path" — no leading dash
+        # dir_name = "relative-path", no leading dash
         assert not dir_name.startswith("-")
 
         expected_dir = claude_projects / ("-" + dir_name)

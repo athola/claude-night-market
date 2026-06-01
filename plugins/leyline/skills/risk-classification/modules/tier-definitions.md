@@ -10,9 +10,9 @@ estimated_tokens: 250
 
 ## Tier Table
 
-### GREEN — Safe
+### GREEN: Safe
 
-**Scope**: Single file, trivially reversible (`git checkout — <file>`)
+**Scope**: Single file, trivially reversible (`git checkout -- <file>`)
 
 **Criteria:**
 - Changes confined to a single file
@@ -26,7 +26,7 @@ estimated_tokens: 250
 
 ---
 
-### YELLOW — Caution
+### YELLOW: Caution
 
 **Scope**: Module-level changes, user-visible modifications
 
@@ -42,7 +42,7 @@ estimated_tokens: 250
 
 ---
 
-### RED — Danger
+### RED: Danger
 
 **Scope**: Cross-module changes, security-sensitive, data-affecting
 
@@ -58,7 +58,7 @@ estimated_tokens: 250
 
 ---
 
-### CRITICAL — Stop
+### CRITICAL: Stop
 
 **Scope**: Irreversible changes, regulated operations, production impact
 

@@ -159,7 +159,7 @@ formula recency_factor).
 ## Friction Report Format
 
 ```markdown
-## Friction Report -- Session {date}
+## Friction Report: Session {date}
 
 ### New Signals (Tier 1)
 - [RETRY] `rg` command failed 3x, fell back to `grep`

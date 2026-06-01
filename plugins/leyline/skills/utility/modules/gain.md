@@ -35,13 +35,13 @@ exploratory.
 
 ## Scope-Specific Guidance
 
-**self** — Will reading this file or calling this tool fill a specific
+**self**: Will reading this file or calling this tool fill a specific
 gap in my current understanding?
 
-**subagent** — Will this finding advance my assigned task, or am I
+**subagent**: Will this finding advance my assigned task, or am I
 exploring outside my scope?
 
-**dispatch** — Will this agent produce findings that existing agents
+**dispatch**: Will this agent produce findings that existing agents
 haven't covered?
 
 Match the question to your current execution scope before scoring.

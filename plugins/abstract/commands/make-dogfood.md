@@ -6,7 +6,7 @@ usage: /make-dogfood [--mode analyze|generate|apply] [--plugin <name>] [--dry-ru
 
 # Makefile Dogfooding Command
 
-Use the makefile-dogfooder script to analyze, test, and enhance Makefiles across the claude-night-market project with comprehensive safety checks and auto-generation capabilities.
+Use the makefile-dogfooder script to analyze, test, and enhance Makefiles across the claude-night-market project with thorough safety checks and auto-generation capabilities.
 
 ## When To Use
 
@@ -117,7 +117,7 @@ python3 plugins/abstract/scripts/makefile_dogfooder.py --mode apply  # Apply all
 
 ## Safety Features
 
-The script includes comprehensive safety checks:
+The script includes thorough safety checks:
 
 1. **Preflight Validation** (automatic in apply mode)
    - Directory existence checks

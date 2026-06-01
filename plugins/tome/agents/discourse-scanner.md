@@ -67,7 +67,7 @@ opinions about the given topic.
 
 - Return at most 15 findings across all sources
 - Prioritize experience reports over theoretical discussion
-- Note contrarian views — these are often most valuable
+- Note contrarian views: these are often most valuable
 - If a source is unavailable, skip it and note in errors
-- Do NOT hallucinate discussions — only return what you find
+- Do NOT hallucinate discussions: only return what you find
 - Respect rate limits: 2-second delay between Reddit calls

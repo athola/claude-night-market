@@ -6,12 +6,7 @@ released in March 2026.
 > **See Also**:
 > [Features Index](compatibility-features.md) |
 > [March 2026 Recent](compatibility-features-march2026-recent.md) |
-> [February 2026 Early](compatibility-features-feb2026-early.md) |
-> [February 2026 Late](compatibility-features-feb2026-late.md) |
-> [January 2026](compatibility-features-jan2026.md) |
-> [Plugin Compatibility](compatibility-features-plugin-compat.md) |
-> [Reference](compatibility-reference.md) |
-> [2025 Archive](compatibility-features-2025.md)
+> [Plugin Compatibility](compatibility-features-plugin-compat.md)
 
 ## Feature Timeline
 
@@ -306,16 +301,16 @@ released in March 2026.
     hooks), superpowers:using-git-worktrees (documentation update),
     conjure agent-teams (agents with `isolation: worktree` can now have
     setup/teardown)
-  - **Action Required**: None — additive. Evaluate whether existing
+  - **Action Required**: None, additive. Evaluate whether existing
     worktree setup scripts should migrate to hook events
 
 - ✅ **`claude agents` CLI Command**: New subcommand listing all
   configured agents in the workspace
   - **Impact**: Debugging agent configurations and verifying plugin agent
     registrations no longer requires manual directory inspection
-  - **Affected**: All plugins registering agents — useful for verifying
+  - **Affected**: All plugins registering agents, useful for verifying
     agent discovery during development
-  - **Action Required**: None — informational tool
+  - **Action Required**: None, informational tool
 
 - ✅ **LSP `startupTimeout` Configuration**: New `startupTimeout` field
   in LSP server configuration controls how long Claude Code waits for
@@ -325,17 +320,17 @@ released in March 2026.
     to non-LSP operation
   - **Affected**: pensive (LSP-based code review), sanctum (LSP
     documentation)
-  - **Action Required**: None — defaults unchanged. Consider setting
+  - **Action Required**: None, defaults unchanged. Consider setting
     `startupTimeout` if LSP initialization is flaky on large repos
 
 - ✅ **`isolation: worktree` in Agent Definitions**: Agents can now
   declaratively specify `isolation: worktree` in their frontmatter to
   request worktree-based isolation
   - **Impact**: Seven agents in the night-market ecosystem already
-    adopted this field prior to official support — those definitions now
+    adopted this field prior to official support; those definitions now
     activate official isolation behavior
   - **Affected**: Any agent definitions using `isolation: worktree` in
-    frontmatter — verify all seven are correctly isolated now that the
+    frontmatter; verify all seven are correctly isolated now that the
     field is official
   - **Action Required**: Audit agents with `isolation: worktree` to
     confirm isolation behavior matches intent
@@ -346,7 +341,7 @@ released in March 2026.
     context windows can opt out of 1M context
   - **Affected**: conserve:context-optimization (document as a tuning
     option)
-  - **Action Required**: None — opt-in flag, no behavior change without
+  - **Action Required**: None, opt-in flag, no behavior change without
     setting it
 
 - ✅ **Opus 4.6 Fast Mode 1M Context**: Fast mode now includes the full
@@ -356,16 +351,16 @@ released in March 2026.
   - **Affected**: conjure agent-teams (Opus 4.6 fast mode users get
     longer context), conserve:context-optimization (update fast mode
     guidance)
-  - **Action Required**: None — passive capability expansion
+  - **Action Required**: None, passive capability expansion
 
 - ✅ **`CLAUDE_CODE_SIMPLE` Enhancement**: Now also disables MCP tools,
   attachments, hooks, and CLAUDE.md file loading
   - **Impact**: `CLAUDE_CODE_SIMPLE=1` now provides a fully
-    stripped-down session — useful for benchmarking or constrained
+    stripped-down session, useful for benchmarking or constrained
     environments
   - **Affected**: abstract:escalation-governance (document SIMPLE mode
     implications), imbue:governance (CLAUDE.md loading disabled in
-    SIMPLE mode — governance will not load)
+    SIMPLE mode, governance will not load)
   - **Action Required**: Ensure governance-critical workflows never run
     with `CLAUDE_CODE_SIMPLE=1`
 
@@ -375,11 +370,11 @@ released in March 2026.
   ChildProcess/AbortController references, LSP diagnostic data,
   completed task state objects, and agent teams completed teammate tasks
   - **Impact**: Long sessions with heavy Task tool spawning benefit
-    significantly — RSS growth over time is reduced
+    significantly; RSS growth over time is reduced
   - **Affected**: conserve:context-optimization (update memory
     management guidance), conjure agent-teams (teammate task cleanup now
     automatic)
-  - **Action Required**: None — passive improvement. Remove any manual
+  - **Action Required**: None, passive improvement. Remove any manual
     workarounds for memory pressure in long sessions
 
 - ✅ **Resumed Sessions with Symlinked Working Directories**: Fixed
@@ -390,7 +385,7 @@ released in March 2026.
   - **Now Fixed**: Session lookup now resolves symlinks before matching
   - **Affected**: sanctum session-management (resume patterns), conserve
     (session restart guidance)
-  - **Action Required**: None — passive fix. Remove any workarounds that
+  - **Action Required**: None, passive fix. Remove any workarounds that
     avoided symlinked working directories
 
 - ✅ **Session Data Loss on SSH Disconnect**: Fixed session state loss on
@@ -402,7 +397,7 @@ released in March 2026.
   - **Now Fixed**: Flush happens first in shutdown sequence
   - **Affected**: sanctum session-management (session persistence
     reliability improves)
-  - **Action Required**: None — passive reliability fix for SSH users
+  - **Action Required**: None, passive reliability fix for SSH users
 
 **Performance**:
 - ✅ **Memory Reduction After Compaction**: Internal caches cleared after
@@ -412,7 +407,7 @@ released in March 2026.
     no longer grows without bound in very long sessions
   - **Affected**: conserve:context-optimization (update compaction
     guidance to note memory benefit)
-  - **Action Required**: None — passive improvement
+  - **Action Required**: None, passive improvement
 
 **Notes**:
 - The worktree lifecycle hooks and `isolation: worktree` frontmatter
@@ -420,10 +415,8 @@ released in March 2026.
   workflows
 - Memory leak fixes across 6+ sites plus post-compaction cache clearing
   make this a meaningful quality release for long sessions
-- `CLAUDE_CODE_SIMPLE` now fully disables governance loading — ensure
+- `CLAUDE_CODE_SIMPLE` now fully disables governance loading; ensure
   imbue/leyline governance is not expected to run in SIMPLE mode
 
-> **Next**: See
-> [February 2026 Early](compatibility-features-feb2026-early.md)
-
-> **Next**: See [February 2026 Early](compatibility-features-feb2026-early.md) for versions 2.1.38-2.1.49.
+> **See Also**: [Features Index](compatibility-features.md) for the full
+> compatibility timeline.

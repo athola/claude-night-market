@@ -149,7 +149,7 @@ This enables delegation workflows through MCP servers that require pre-configure
 
 ### Claude.ai MCP Connectors (Claude Code 2.1.46+)
 
-As an alternative to manual OAuth setup, users can configure MCP servers directly in claude.ai at claude.ai/settings/connectors. These connectors are automatically available in Claude Code when logged in with a claude.ai account — no `claude mcp add` or credential management required. This provides a browser-based auth flow that may be simpler for services with complex OAuth requirements.
+As an alternative to manual OAuth setup, users can configure MCP servers directly in claude.ai at claude.ai/settings/connectors. These connectors are automatically available in Claude Code when logged in with a claude.ai account: no `claude mcp add` or credential management required. This provides a browser-based auth flow that may be simpler for services with complex OAuth requirements.
 
 ## Worktree Isolation for File-Modifying Delegations (Claude Code 2.1.49+)
 

@@ -68,7 +68,7 @@ Between phases, the orchestrator performs lightweight transitions:
 
 ### brainstorm → specify
 
-- Verify project brief is actionable (has goals and constraints)
+- Verify project brief is concrete (has goals and constraints)
 - Pass brief path to specification skill
 - **Backlog triage**: Scan spec/brief for "Out of Scope"
   section. Create a GitHub issue for each deferred item.

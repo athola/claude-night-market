@@ -44,13 +44,13 @@ Use `${VAR:?message}` so the shell emits the message and exits
 immediately when the variable is unset or empty.
 
 ```sh
-# Bad — branches on unset, then exits
+# Bad: branches on unset, then exits
 if [ -z "${DIR}" ]; then
   log 4 "DIR is unset"
   exit 1
 fi
 
-# Good — parameter expansion handles it
+# Good: parameter expansion handles it
 process_dir "${DIR:?DIR must be set}"
 ```
 
@@ -67,11 +67,11 @@ directory does not persist and a failed `cd` cannot leave the
 script in the wrong directory.
 
 ```sh
-# Bad — cd leaks to caller scope; fails silently without set -e
+# Bad: cd leaks to caller scope; fails silently without set -e
 cd "${build_dir}"
 make clean
 
-# Good — scoped and guarded
+# Good: scoped and guarded
 (cd "${build_dir:?No build dir}" && make clean)
 ```
 
@@ -87,10 +87,10 @@ External files must be sourced relative to the script's own
 location, not the caller's working directory.
 
 ```sh
-# Bad — breaks when invoked from any other directory
+# Bad: breaks when invoked from any other directory
 . ./logging.sh
 
-# Good — always resolves from the script's directory
+# Good: always resolves from the script's directory
 MYDIR="${0%/*}"
 . "${MYDIR%/}/logging.sh"
 ```
@@ -120,7 +120,7 @@ When a script must verify a library was sourced, use the canonical
 `case` form, not `[ -z … ]` or `[ -n … ]`:
 
 ```sh
-# Required form — distinguishes unset/empty/loaded
+# Required form: distinguishes unset/empty/loaded
 case "${__logging_loaded:-NULL}" in
   1) : ;;    # loaded
   *) printf 'logging.sh not loaded\n' >&2; exit 1 ;;
@@ -152,10 +152,10 @@ fixed format string. Never build the format string from untrusted
 text.
 
 ```sh
-# Bad — echo interprets escape sequences inconsistently
+# Bad: echo interprets escape sequences inconsistently
 echo "Processing ${file}"
 
-# Good — fixed format, no interpretation surprises
+# Good: fixed format, no interpretation surprises
 printf 'Processing %s\n' "${file}"
 ```
 

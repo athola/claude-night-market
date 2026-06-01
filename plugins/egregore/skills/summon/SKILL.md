@@ -81,7 +81,7 @@ guards.
 
 **Always launch the orchestrator agent in the FOREGROUND.**
 Do not use `run_in_background: true`. The main session
-becomes the egregore — it blocks on the orchestrator agent
+becomes the egregore: it blocks on the orchestrator agent
 until the egregore finishes or is dismissed.
 
 ```

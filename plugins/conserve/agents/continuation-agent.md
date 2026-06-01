@@ -59,9 +59,9 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 
 1. **CHECK STATE VERSION** (before anything else):
    - Look for `state_version: N` in the first 5 lines of the file
-   - If `state_version: 1` — proceed normally
-   - If no `state_version` line (v0, unversioned) — treat as v1 and proceed normally. If you update the file later, add `state_version: 1` at that time.
-   - If `state_version` is greater than 1 — log a warning ("Session state version N is newer than expected, reading with best effort") then proceed, skipping any unrecognized sections
+   - If `state_version: 1`, proceed normally
+   - If no `state_version` line (v0, unversioned), treat as v1 and proceed normally. If you update the file later, add `state_version: 1` at that time.
+   - If `state_version` is greater than 1, log a warning ("Session state version N is newer than expected, reading with best effort") then proceed, skipping any unrecognized sections
 
 2. **CHECK EXECUTION MODE** (before starting work):
    - Look for the "Execution Mode" section
@@ -246,7 +246,7 @@ you may create a task for it. But first verify via TaskList that no existing tas
 - Do not ignore the session state file
 - Do not start over from scratch unless explicitly instructed
 - Do maintain the handoff chain if context pressure builds
-- Do NOT create duplicate tasks — use TaskUpdate on existing tasks instead
+- Do NOT create duplicate tasks: use TaskUpdate on existing tasks instead
 - Do NOT stop working until ALL tasks are marked complete
 - Do NOT require user re-prompting to continue in unattended mode
 - Do NOT claim completion without running self-validation checklist

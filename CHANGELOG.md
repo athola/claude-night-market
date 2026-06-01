@@ -274,8 +274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`minister:dora-metrics` skill (#487).** Computes the four
   DORA delivery-performance metrics (deployment frequency, lead
-  time for changes, change failure rate, time to restore service
-  — median) from GitHub PR and deployment data, and classifies
+  time for changes, change failure rate, time to restore service,
+  median) from GitHub PR and deployment data, and classifies
   the result into the Elite / High / Medium / Low tier from the
   Accelerate research. Intended for quarterly delivery retros. See
   `plugins/minister/skills/dora-metrics/` and the entry in
@@ -332,7 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `docs(abstract)`: refresh effort levels and add
   2.1.97-2.1.138 compat notes.
-- `docs(pensive)`: add Verification + Testing sections to
+- `docs(pensive)`: add Verification and Testing sections to
   `performance-review` (#469).
 - `docs(archetypes)`: restore paradigm-component vocabulary
   in 13 SKILL.md files (#463).
@@ -385,8 +385,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     frontmatter (5 plugins, ~10 tests).
   - Unrelated: per-skill *adaptation* versioning
     (`adaptation.current_version` / `version_history`
-    consumed by `abstract.skill_versioning`) is unchanged
-    — that's a different feature.
+    consumed by `abstract.skill_versioning`) is unchanged;
+    that's a different feature.
 
 ### Fixed
 
@@ -563,7 +563,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `frontmatter.py`, pensive
   `architecture_review/__init__.py`, sanctum
   `test_generator.py` and `update_plugin_registrations.py`,
-  memory-palace README -- all corrected with
+  memory-palace README: all corrected with
   regression coverage.
 - **slop-scan-for-docs Layer 0 P0 hits**: corrected
   identity-leak / hallucination patterns in
@@ -602,7 +602,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (Phase 5 R1-R7, Phase 6).
 - **Hygiene fixes (Tier 3)**: F-01, F-04, F-06 through
   F-13, F-17 applied across the codebase.
-- **Em-dash polish + "actionable" purge** (slop Phase 4):
+- **Em-dash polish and "actionable" purge** (slop Phase 4):
   prose cleanup pass across documentation.
 - **Truthful docstrings for stub safety / dependency
   methods** (B-03, B-15): docstrings now match the
@@ -620,53 +620,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   history at commit `a50a9352`.
 - **PR #470 deferred-items closure** (#484, #485):
   closed on this branch instead of carrying to 1.10.x.
-  - **S2** -- `gh_graphql` widens ``variables`` to
+  - **S2**: `gh_graphql` widens ``variables`` to
     ``dict[str, Any]``; ``int`` / ``float`` / ``bool`` /
     ``None`` are routed via ``gh -F`` (typed-field) so
     GraphQL ``Int!`` / ``Boolean!`` / nullable variables
     match their schema types.
-  - **S3** -- `bootstrap.add_plugin_src_to_path` swaps
+  - **S3**: `bootstrap.add_plugin_src_to_path` swaps
     CPython-private ``sys._getframe(1)`` for
     ``inspect.stack()[1].filename`` and falls back to
     ``Path.cwd()`` when the caller frame is synthetic.
-  - **S6** -- the residual "future GitLab/Bitbucket"
+  - **S6**: the residual "future GitLab/Bitbucket"
     sentence is removed from the `git_platform`
     docstring's user story in the test file.
-  - **S8** -- `PROJECT_PALACE_ROOMS` /
+  - **S8**: `PROJECT_PALACE_ROOMS` /
     `REVIEW_CHAMBER_ROOMS` are typed via
     ``dict[RoomType, RoomMetadata]`` /
     ``dict[ReviewSubroom, RoomMetadata]`` with a frozen
     ``RoomMetadata`` dataclass; the manager preserves
     string-keyed palace JSON via ``RoomType.value``.
-  - **S9** -- `cli_envelope` exports ``SuccessEnvelope``
+  - **S9**: `cli_envelope` exports ``SuccessEnvelope``
     / ``ErrorEnvelope`` ``TypedDict``s plus a
     discriminated ``Envelope`` union; ``success_envelope``
     / ``error_envelope`` return the typed shapes.
-  - **S10** -- ``GhCommandError`` now carries ``cmd:
+  - **S10**: ``GhCommandError`` now carries ``cmd:
     list[str]``, ``returncode: int | None``, and
     ``stderr: str | None`` for programmatic error
     handling; ``str(exc)`` stays human-readable.
-  - **S11** -- `test_dir_utils` adds three negative-path
+  - **S11**: `test_dir_utils` adds three negative-path
     scenarios: ``CLAUDE_HOME`` unset (falls back to
     ``HOME``), ``not-a-dir`` collision (raises
     ``FileExistsError``), unwritable parent (raises
     ``PermissionError``, skipped under root).
-  - **gh_api `=` field key guard** -- ``gh_api`` raises
+  - **gh_api `=` field key guard**: ``gh_api`` raises
     ``ValueError`` if a field key contains ``=`` so the
     argv pair cannot be split to smuggle extra fields.
-  - **C7** -- `ReviewEntry` is now
+  - **C7**: `ReviewEntry` is now
     ``@dataclass(frozen=True, slots=True)``;
     ``from_dict`` is a regular constructor call (no
     post-hoc attribute mutation), and read-tracking
     flows through a new ``with_access()`` method that
     returns a new instance.
-  - **C9** -- `TestQualityMixin` and
+  - **C9**: `TestQualityMixin` and
     `TestRecommendationMixin` are demoted to
     module-level functions in ``_quality`` /
     ``_recommendations``; ``TestingGuideSkill`` becomes
     a thin facade that delegates to them. Behavioural
     surface unchanged for downstream consumers.
-  - **SKILL.md `version:` frontmatter drift** -- 170
+  - **SKILL.md `version:` frontmatter drift**: 170
     SKILL.md files were stuck at ``version: 1.9.3``
     while ``plugin.json`` was at 1.9.4. ``update_versions``
     learns to bump the frontmatter ``version:`` (only
@@ -796,7 +796,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **spec-kit speckit-tasks now generates test tasks by
   default**. Previously the wording said "Tests are
   OPTIONAL: only generate test tasks if explicitly
-  requested" — defaulting away from the project's
+  requested", defaulting away from the project's
   iron-law TDD posture. New default is ON; opt-out via
   `--no-tdd` or explicit spec opt-out for
   spikes/throwaways.
@@ -2141,38 +2141,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Rules evaluation skill** (abstract) — `rules-eval` skill and `/rules-eval` command validate Claude Code rules in `.claude/rules/` directories for YAML frontmatter, glob pattern quality, content metrics, and organization patterns
-- **Daily learning aggregation hook** (abstract) — `aggregate_learnings_daily.py` UserPromptSubmit hook runs on a 24h cadence to generate LEARNINGS.md, then chains to `auto_promote_learnings.py` for severity-based GitHub Issue creation (score > 5.0) or Discussion posting (score 2.0–5.0)
-- **Research storage prompt** (memory-palace) — PostToolUse hook detects WebSearch usage and prompts user to store findings via `memory-palace:knowledge-intake` skill
+- **Rules evaluation skill** (abstract): `rules-eval` skill and `/rules-eval` command validate Claude Code rules in `.claude/rules/` directories for YAML frontmatter, glob pattern quality, content metrics, and organization patterns
+- **Daily learning aggregation hook** (abstract): `aggregate_learnings_daily.py` UserPromptSubmit hook runs on a 24h cadence to generate LEARNINGS.md, then chains to `auto_promote_learnings.py` for severity-based GitHub Issue creation (score > 5.0) or Discussion posting (score 2.0–5.0)
+- **Research storage prompt** (memory-palace): PostToolUse hook detects WebSearch usage and prompts user to store findings via `memory-palace:knowledge-intake` skill
 
 ### Fixed
 
-- **Mermaid rendering in mdbook** — CDN-based mermaid.js initialization so diagrams render in the published book
-- **Sanctum 6-complete modularization** — split 26KB hub into slim hub + 6 sub-modules for on-demand loading
-- **Shared CACHE_EXCLUDES** — extract duplicate exclude lists into `update_plugins_modules/constants.py`
-- **Skill frontmatter cleanup** — improved pytest-config description and verification steps
+- **Mermaid rendering in mdbook**: CDN-based mermaid.js initialization so diagrams render in the published book
+- **Sanctum 6-complete modularization**: split 26KB hub into slim hub + 6 sub-modules for on-demand loading
+- **Shared CACHE_EXCLUDES**: extract duplicate exclude lists into `update_plugins_modules/constants.py`
+- **Skill frontmatter cleanup**: improved pytest-config description and verification steps
 
 ## [1.4.4] - 2026-02-19
 
 ### Added
 
-- **GitHub Discussions as agent collective memory** — Cross-session decision retrieval and knowledge sharing via GitHub Discussions GraphQL API
-  - **Discussion CRUD operations** (leyline) — `command-mapping.md` extended with create, comment, search, mark-as-answer, get, update, and list-by-category GraphQL templates; GitHub-only with graceful degradation for GitLab/Bitbucket
-  - **Discussion category templates** — `.github/DISCUSSION_TEMPLATE/` with 4 structured forms: decisions (announcement), deliberations (open), learnings (retrospective), knowledge (Q&A)
-  - **War room discussion publishing** (attune) — `discussion-publishing` module publishes completed deliberations to a "Decisions" Discussion after user approval; checks for prior decisions to avoid duplicates
-  - **Session-start discussion retrieval** (leyline) — `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent Decisions discussions via a bounded GraphQL query (3s timeout, <600 tokens)
-  - **Knowledge promotion to Discussions** (memory-palace) — `discussion-promotion` module promotes evergreen corpus entries to a "Knowledge" Discussion category; supports both create and update flows
-  - **Scope-guard discussion linking** (imbue) — `github-integration.md` extended with optional Step 4 that creates a companion Discussion with full scoring breakdown when deferring features
+- **GitHub Discussions as agent collective memory**: Cross-session decision retrieval and knowledge sharing via GitHub Discussions GraphQL API
+  - **Discussion CRUD operations** (leyline): `command-mapping.md` extended with create, comment, search, mark-as-answer, get, update, and list-by-category GraphQL templates; GitHub-only with graceful degradation for GitLab/Bitbucket
+  - **Discussion category templates**: `.github/DISCUSSION_TEMPLATE/` with 4 structured forms: decisions (announcement), deliberations (open), learnings (retrospective), knowledge (Q&A)
+  - **War room discussion publishing** (attune): `discussion-publishing` module publishes completed deliberations to a "Decisions" Discussion after user approval; checks for prior decisions to avoid duplicates
+  - **Session-start discussion retrieval** (leyline): `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent Decisions discussions via a bounded GraphQL query (3s timeout, <600 tokens)
+  - **Knowledge promotion to Discussions** (memory-palace): `discussion-promotion` module promotes evergreen corpus entries to a "Knowledge" Discussion category; supports both create and update flows
+  - **Scope-guard discussion linking** (imbue): `github-integration.md` extended with optional Step 4 that creates a companion Discussion with full scoring breakdown when deferring features
 
 ### Fixed
 
-- **Minister playbook broken CLI commands** (minister) — Replaced non-functional `gh discussion create/comment/list` CLI calls with working GraphQL mutations in `github-program-rituals.md` and `release-train-health.md`
+- **Minister playbook broken CLI commands** (minister): Replaced non-functional `gh discussion create/comment/list` CLI calls with working GraphQL mutations in `github-program-rituals.md` and `release-train-health.md`
 
 ### Changed
 
-- **TDD gate relaxed for markdown modules** (imbue) — `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
+- **TDD gate relaxed for markdown modules** (imbue): `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
 
-- **Claude Code compatibility updates 2.1.41–2.1.47** (abstract, conserve, sanctum, conjure, leyline, scribe) — Documented 7 new Claude Code releases:
+- **Claude Code compatibility updates 2.1.41–2.1.47** (abstract, conserve, sanctum, conjure, leyline, scribe): Documented 7 new Claude Code releases:
   - 2.1.47: `last_assistant_message` hook field, background agent transcript fix, parallel file write resilience, plan mode compaction fix, bash permission validation, concurrent agent streaming fix, memory improvements, Edit tool unicode fix, LSP gitignore filter
   - 2.1.46: Claude.ai MCP connectors, macOS orphan process fix
   - 2.1.45: Sonnet 4.6, plugin hot-loading, subagent skill compaction fix, background agent crash fix, SDK rate limit types
@@ -2181,13 +2181,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 2.1.42: Deferred schema init, prompt cache improvement, /resume interrupt title fix
   - 2.1.41: `claude auth` CLI, `/rename` auto-name, streaming notifications, plan mode tick fix, permission rule refresh
 
-- **Agent worktree isolation** (abstract, attune, conserve, pensive, sanctum, spec-kit) — Added `isolation: worktree` frontmatter to 6 agents: skill-improver, project-implementer, unbloat-remediator, code-refiner, dependency-updater, workflow-improvement-implementer. Documented worktree isolation patterns in conjure agent-teams, delegation-core, conserve subagent-coordination, and sanctum parallel-execution.
+- **Agent worktree isolation** (abstract, attune, conserve, pensive, sanctum, spec-kit): Added `isolation: worktree` frontmatter to 6 agents: skill-improver, project-implementer, unbloat-remediator, code-refiner, dependency-updater, workflow-improvement-implementer. Documented worktree isolation patterns in conjure agent-teams, delegation-core, conserve subagent-coordination, and sanctum parallel-execution.
 
-- **Agent background execution** (conserve, scribe) — Added `background: true` to 4 agents: ai-hygiene-auditor, bloat-auditor, doc-verifier, slop-hunter. Documented background agent MCP restriction (background agents cannot use MCP tools).
+- **Agent background execution** (conserve, scribe): Added `background: true` to 4 agents: ai-hygiene-auditor, bloat-auditor, doc-verifier, slop-hunter. Documented background agent MCP restriction (background agents cannot use MCP tools).
 
-- **Learnings-to-Discussions pipeline** (abstract) — `aggregate-logs` command extended with Phase 6a (post learnings to Discussions) and linked to new `/promote-discussions` command (Phase 6c).
+- **Learnings-to-Discussions pipeline** (abstract): `aggregate-logs` command extended with Phase 6a (post learnings to Discussions) and linked to new `/promote-discussions` command (Phase 6c).
 
-- **Configuration change audit hook** (sanctum) — `config_change_audit.py` ConfigChange hook logs all settings mutations (user, project, local, policy, skills) to stderr for security audit trail; observe-only, never blocks changes.
+- **Configuration change audit hook** (sanctum): `config_change_audit.py` ConfigChange hook logs all settings mutations (user, project, local, policy, skills) to stderr for security audit trail; observe-only, never blocks changes.
 
 ## [1.4.3] - 2026-02-15
 

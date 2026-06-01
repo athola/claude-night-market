@@ -19,7 +19,7 @@ model_hint: standard
 - Creating GitHub issues manually
 
 Specification that all plugin deferred-capture wrappers implement.
-Not a runtime dependency — a convention.
+Not a runtime dependency, just a convention.
 
 ## CLI Interface
 

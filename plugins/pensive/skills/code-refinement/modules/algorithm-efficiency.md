@@ -14,7 +14,7 @@ Identify time and space complexity inefficiencies at the code block level.
 
 ## Scope
 
-This module focuses on **code-block-level** optimizations — not system architecture or database query optimization. It catches patterns where a better algorithm or data structure eliminates unnecessary work.
+This module focuses on **code-block-level** optimizations, not system architecture or database query optimization. It catches patterns where a better algorithm or data structure eliminates unnecessary work.
 
 ## Detection Patterns
 

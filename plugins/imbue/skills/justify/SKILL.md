@@ -332,7 +332,7 @@ choice, or API contract without acknowledging
 that a design invariant is being revised.
 **Fix**: Name the invariant. Present the 3 options
 (preserve, layer, revise) to a human. Do not make
-the judgment call yourself — models default to the
+the judgment call yourself: models default to the
 "average" of training data, and wrong invariant
 decisions compound into unsalvageable codebases.
 

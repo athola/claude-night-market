@@ -68,7 +68,7 @@ Expert agent for Git repository analysis and workspace state assessment.
 - Conflict detection
 - Stash state awareness
 - Remote tracking status
-- **Claude Code 2.1.30+**: Additional read-only flags available: `--topo-order`, `--cherry-pick`, `--format`, `--raw` for `git log` and `git show` — enables structured output and more precise change detection
+- **Claude Code 2.1.30+**: Additional read-only flags available: `--topo-order`, `--cherry-pick`, `--format`, `--raw` for `git log` and `git show`: enables structured output and more precise change detection
 
 ### Diff Interpretation
 - Change statistics collection
@@ -150,4 +150,4 @@ For simple queries, parent can execute directly:
 - `git diff --stat` → Parent runs Bash directly
 - "What branch am I on?" → Parent runs `git branch --show-current`
 
-**Use this agent** for comprehensive workspace analysis, not simple git commands.
+**Use this agent** for thorough workspace analysis, not simple git commands.

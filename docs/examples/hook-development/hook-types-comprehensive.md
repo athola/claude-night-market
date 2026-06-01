@@ -319,4 +319,4 @@ for appropriate use cases
 - **sdk-callbacks.md**: Full SDK implementation patterns
 - **security-patterns.md**: Security best practices for hooks
 - **performance-guidelines.md**: Detailed optimization techniques
-- **testing-hooks.md**: Comprehensive testing strategies
+- **testing-hooks.md**: Thorough testing strategies

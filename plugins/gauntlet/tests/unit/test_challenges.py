@@ -296,7 +296,7 @@ class TestProblemVariationFallback:
     anthropic import inside _generate_problem_variation must
     flow ImportError through the broader except Exception block
     that already handles network and API errors. Do not weaken
-    this assertion without explicit reasoning — silent removal
+    this assertion without explicit reasoning; silent removal
     re-introduces the precommit hook traceback bug.
     """
 

@@ -14,7 +14,7 @@ located.
 
 ## Supported Schemes
 
-### `file://` — Local Files
+### `file://`: Local Files
 
 Prefix the absolute path with `file://`:
 
@@ -39,7 +39,7 @@ Step 1: /home/user/docs/report.docx
 Step 2: file:///home/user/docs/report.docx
 ```
 
-### `http://` and `https://` — Remote URLs
+### `http://` and `https://`: Remote URLs
 
 Use the URL as-is:
 
@@ -51,7 +51,7 @@ https://example.com/slides.pptx
 No transformation needed. The MCP server fetches the
 remote resource.
 
-### `data:` — Inline Content
+### `data:`: Inline Content
 
 For content already in memory (rare):
 

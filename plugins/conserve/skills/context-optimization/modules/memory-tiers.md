@@ -28,7 +28,7 @@ memory hierarchy to keep context lean and prioritized.
 ## Hot Tier: memory.md
 
 - **Always loaded** at session start
-- **200-line hard limit** — forces prioritization
+- **200-line hard limit**: forces prioritization
 - Contains: current priorities, active warnings,
   recent decisions, next actions
 - Updated every session
@@ -63,12 +63,12 @@ At the end of every significant session:
 ## Why This Works
 
 - The 200-line constraint forces agents to decide
-  what matters — no unbounded accumulation
+  what matters: no unbounded accumulation
 - Agents control what they remember, not a retrieval
   algorithm
 - Warm tier provides depth without context pollution
 - Cold tier preserves history without cost
-- The file system IS the database — zero infrastructure
+- The file system IS the database: zero infrastructure
 
 ## Integration
 

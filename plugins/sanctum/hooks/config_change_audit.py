@@ -94,7 +94,7 @@ def _handle_pre_tool_use(input_data: dict) -> bool:
     file_path = tool_input.get("file_path", "")
 
     if not _is_settings_file(file_path):
-        return True  # Editing some other file -- not config audit material.
+        return True  # Editing some other file: not config audit material.
 
     session_id = input_data.get("session_id", "unknown")
     source = _infer_source(file_path)
@@ -120,7 +120,7 @@ def main():
         print(f"[DEBUG] ConfigChange hook input parse failed: {e}", file=sys.stderr)
         sys.exit(0)
 
-    # PreToolUse migration path -- detect by event name or tool_name presence.
+    # PreToolUse migration path: detect by event name or tool_name presence.
     is_pre_tool_use = (
         input_data.get("hook_event_name") == "PreToolUse" or "tool_name" in input_data
     )

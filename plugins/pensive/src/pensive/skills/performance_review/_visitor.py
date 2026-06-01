@@ -176,7 +176,7 @@ class _PerfVisitor(ast.NodeVisitor):
             for op, right in zip(node.ops, node.comparators, strict=False):
                 if isinstance(op, ast.In) and isinstance(right, ast.Name):
                     if right.id in self._non_list_names:
-                        # RHS is provably a dict, set, or string —
+                        # RHS is provably a dict, set, or string,
                         # not a list. Skip.
                         continue
                     self.findings.append(

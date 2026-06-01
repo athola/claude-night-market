@@ -14,9 +14,9 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 **Recommended Version**: Claude Code 2.1.47+
 - ✅ `last_assistant_message` field in Stop/SubagentStop hook inputs
-- ✅ Background agent transcript fix — `run_in_background` agents return final answer
-- ✅ Parallel file write/edit resilience — independent mutations complete on sibling failure
-- ✅ Plan mode compaction fix — plan mode survives context compaction
+- ✅ Background agent transcript fix: `run_in_background` agents return final answer
+- ✅ Parallel file write/edit resilience: independent mutations complete on sibling failure
+- ✅ Plan mode compaction fix: plan mode survives context compaction
 - ✅ Plugin agent skill fully-qualified name fix
 - ✅ Concurrent agent streaming stability fix
 - ✅ All 2.1.46 features (Claude.ai MCP connectors, macOS orphan process fix, Sonnet 4.6)

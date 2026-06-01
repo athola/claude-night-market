@@ -93,7 +93,7 @@ Loaded from `frontier-checks.md` for full coverage. Brief list:
 - PEP 740 sigstore attestations on PyPI (verify before install);
   see Trail of Bits' "Attestations: a new generation of
   signatures on PyPI" (Nov 2024).
-- Tarfile member filter (PEP 706) — `tarfile.data_filter` default
+- Tarfile member filter (PEP 706): `tarfile.data_filter` default
   in Python 3.12+; verify the codebase does not still pass
   `filter=None`.
 - pyproject.toml `[[tool.uv.index]]` priority pinning to defeat

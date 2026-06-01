@@ -1,4 +1,4 @@
-# scripts/logging.sh — POSIX logging library
+# scripts/logging.sh: POSIX logging library
 # Source this file before calling log() or banner().
 # No shebang, no execute bit, no set -e or set -u.
 

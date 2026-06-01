@@ -84,8 +84,8 @@ Omitting Task restrictions allows spawning any agent.
 
 **Agent Team Hooks (2.1.33+)**:
 Two new hook events for multi-agent coordination:
-- `TeammateIdle` — triggered when a teammate agent becomes idle
-- `TaskCompleted` — triggered when a task finishes execution
+- `TeammateIdle`: triggered when a teammate agent becomes idle
+- `TaskCompleted`: triggered when a task finishes execution
 
 **Model Selection**:
 | Model | Use Case | Cost |

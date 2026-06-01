@@ -264,7 +264,7 @@ The Supreme Commander may override when:
 - Precedent-setting decision
 
 ### De-escalation
-Equally important—identify over-deliberation:
+Equally important, identify over-deliberation:
 - Challenge "false irreversibility" claims
 - Recommend express mode for clear Type 2 decisions
 - Track de-escalation rate as health metric
@@ -392,11 +392,11 @@ For Full Council and Delphi modes, experts can optionally run as persistent Clau
 
 **Trade-offs**:
 - **Gain**: Real-time inter-expert messaging (experts react to each other's COAs, challenges, and premortems)
-- **Gain**: Delphi rounds don't re-invoke experts — teammates persist across iterations
+- **Gain**: Delphi rounds don't re-invoke experts: teammates persist across iterations
 - **Lose**: Model diversity (all teammates are Claude; no Gemini/Qwen/GLM)
 - **Lose**: Higher token cost (each teammate maintains full context)
 
-**When NOT to use**: Express and Lightweight modes — the coordination overhead exceeds benefit for ≤3 experts.
+**When NOT to use**: Express and Lightweight modes: the coordination overhead exceeds benefit for ≤3 experts.
 
 **Fallback**: If tmux is unavailable or team creation fails, automatically falls back to conjure delegation.
 

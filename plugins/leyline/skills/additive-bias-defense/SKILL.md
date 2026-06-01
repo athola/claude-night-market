@@ -48,8 +48,8 @@ contract provides a systemic defense.
 
 ## The Scrutiny Questions
 
-Applied to every proposed addition — code, files,
-abstractions, error handling, configuration:
+Applied to every proposed addition (code, files,
+abstractions, error handling, configuration):
 
 1. **Priority alignment**: Is this a deviation from the
    current priority?

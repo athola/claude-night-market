@@ -124,7 +124,7 @@ class TestMainHook:
     def test_warning_includes_batch_rm_command(self, tmp_path) -> None:
         """The warning must include a copy-pasteable batch ``rm -rf`` line.
 
-        Listing paths is not enough -- forcing the user to compose the
+        Listing paths is not enough: forcing the user to compose the
         cleanup command by hand for every session creates friction and
         invites mistakes. The hook must emit one line that, when copied
         verbatim into a shell, removes all listed sessions.

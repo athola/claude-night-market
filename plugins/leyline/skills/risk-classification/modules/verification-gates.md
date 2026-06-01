@@ -10,7 +10,7 @@ estimated_tokens: 250
 
 ## Per-Tier Requirements
 
-### GREEN — No Gates
+### GREEN: No Gates
 
 No verification required. Agent completes task and marks as done.
 
@@ -18,7 +18,7 @@ No verification required. Agent completes task and marks as done.
 Task complete → Mark completed
 ```
 
-### YELLOW — Standard Gates
+### YELLOW: Standard Gates
 
 ```
 Task complete
@@ -31,7 +31,7 @@ Task complete
 
 **Test pass**: Run tests directly related to changed files. Full test suite not required.
 
-### RED — Enhanced Gates
+### RED: Enhanced Gates
 
 ```
 Task complete
@@ -47,7 +47,7 @@ Task complete
 
 **Code review**: Lead agent reviews changes for correctness, security implications, and architectural alignment. For tasks touching auth/security, human review is strongly recommended.
 
-### CRITICAL — Maximum Gates
+### CRITICAL: Maximum Gates
 
 ```
 Task complete
@@ -81,7 +81,9 @@ Risk tiers constrain which tasks can execute in parallel:
 
 **RED and RED**: Two high-risk tasks running simultaneously create compounding risk. Merge conflicts between RED tasks could produce dangerous states. Execute sequentially.
 
-**Any and CRITICAL**: CRITICAL tasks require dedicated oversight — only GREEN tasks may run in parallel, since they cannot interfere. All YELLOW, RED, and CRITICAL tasks must wait.
+**Any and CRITICAL**: CRITICAL tasks require dedicated oversight.
+Only GREEN tasks may run in parallel, since they cannot interfere. All
+YELLOW, RED, and CRITICAL tasks must wait.
 
 ### Conflict Monitoring for Mixed-Tier Parallel
 

@@ -12,7 +12,7 @@ estimated_tokens: 800
 
 ## Overview
 
-Spec-kit uses a structured approach to organizing specification, planning, and implementation artifacts. This document defines the purpose and structure of each artifact type.
+Spec-kit uses a step-by-step approach to organizing specification, planning, and implementation artifacts. This document defines the purpose and structure of each artifact type.
 
 ## Directory Structure
 
@@ -147,7 +147,7 @@ project-root/
 
 ### tasks.md - Implementation Tasks
 
-**Purpose**: Actionable, dependency-ordered tasks for implementation.
+**Purpose**: Concrete, dependency-ordered tasks for implementation.
 
 **Audience**: Developers executing the feature.
 
@@ -240,7 +240,7 @@ API contracts (OpenAPI, GraphQL schemas) generated from functional requirements.
 2. **Clarify**: Resolve [NEEDS CLARIFICATION] markers
 3. **Checklist**: Validate spec quality with requirements.md checklist
 4. **Plan**: Create plan.md (technical design)
-5. **Tasks**: Generate tasks.md (actionable implementation)
+5. **Tasks**: Generate tasks.md (concrete implementation)
 6. **Implement**: Execute tasks, mark complete
 7. **Validate**: Domain-specific checklists (ux.md, api.md, etc.)
 

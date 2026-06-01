@@ -288,11 +288,11 @@ complexity.
 
 **Key checks:**
 
-1. **Additive bias score** — flag changes with high
+1. **Additive bias score**: flag changes with high
    add/delete ratio (>5:1) that lack justification
-2. **Iron Law compliance** — verify test assertions were
+2. **Iron Law compliance**: verify test assertions were
    not weakened to match broken implementations
-3. **Minimal intervention** — confirm each changed file
+3. **Minimal intervention**: confirm each changed file
    was necessary and the change was the smallest fix
 
 **Classify justify findings using the scope framework:**
@@ -311,7 +311,7 @@ the Phase 6 report.
 
 Check whether the PR touches existing design invariants.
 This is a judgment problem that models get wrong far too
-often — surface conflicts for human review rather than
+often: surface conflicts for human review rather than
 silently accepting or rejecting them.
 
 **Quick detection heuristic:**
@@ -346,22 +346,22 @@ category:
 1. **The invariant**: Name the design decision and why
    it was made (reference ADRs if available)
 2. **The conflict**: What this PR does that clashes
-3. **Option A — Preserve**: Don't merge this change;
+3. **Option A, Preserve**: Don't merge this change;
    the invariant pays dividends elsewhere
-4. **Option B — Layer**: Merge as-is, accepting
+4. **Option B, Layer**: Merge as-is, accepting
    inelegance; not every feature must be elegant
-5. **Option C — Revise**: The invariant is wrong;
+5. **Option C, Revise**: The invariant is wrong;
    here's what a redesign would look like
 
 **Classification:** INVARIANT findings are always
-BLOCKING — not because the code is wrong, but because
+BLOCKING, not because the code is wrong, but because
 the judgment call requires human input. Only the human
 reviewer can decide which of the three options is right.
 
 **Why this matters:** Bad invariant decisions compound.
 A few wrong calls and the codebase becomes unsalvageable.
 This is not a context problem solvable with better
-documentation — it is a judgment problem that requires
+documentation: it is a judgment problem that requires
 human wisdom.
 
 ### Phase 5: Backlog Triage
@@ -551,7 +551,7 @@ especially true for AI-assisted code: generation speed creates
 the illusion of understanding.
 
 **Do:** Before marking a PR ready, ask the reviewing agent to
-question you about the changed code — how each part works, what
+question you about the changed code: how each part works, what
 assumptions it makes, and what inputs would break it. Continue
 until you can answer without hesitation. Only merge code you
 own front-to-back.

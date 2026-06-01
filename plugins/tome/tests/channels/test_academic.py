@@ -436,7 +436,7 @@ class TestSemanticScholar:
         findings = parse_semantic_scholar_response(data)
 
         assert len(findings) == 1
-        # venue key present and falsy, or absent — either is acceptable
+        # venue key present and falsy, or absent: either is acceptable
         venue = findings[0].metadata.get("venue")
         assert venue is None or venue == ""
 

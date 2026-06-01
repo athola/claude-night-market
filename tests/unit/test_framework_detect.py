@@ -1,4 +1,4 @@
-"""Tests for framework_detect.py — agentic framework auto-detection.
+"""Tests for framework_detect.py: agentic framework auto-detection.
 
 Feature: Detect which agentic framework is running
 

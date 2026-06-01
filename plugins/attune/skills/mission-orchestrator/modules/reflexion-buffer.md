@@ -67,7 +67,7 @@ not just the most recent.
 ```
 ## Reflexion Buffer (Phase: {phase}, Attempt {N}/{max})
 
-### Attempt 1 -- FAILED
+### Attempt 1: FAILED
 **Action**: {action}
 **Result**: {result}
 **Diagnosis**: {diagnosis}

@@ -13,7 +13,7 @@ role: library
 ---
 ## Delegation
 
-For detailed task planning workflows, this skill delegates to `spec-kit:task-planning` as the canonical implementation. Use this skill for quick planning needs; use spec-kit for comprehensive project plans.
+For detailed task planning workflows, this skill delegates to `spec-kit:task-planning` as the canonical implementation. Use this skill for quick planning needs; use spec-kit for thorough project plans.
 
 ## When To Use
 
@@ -21,7 +21,7 @@ For detailed task planning workflows, this skill delegates to `spec-kit:task-pla
 - Need to design system architecture
 - Need task breakdown for implementation
 - Planning sprints and resource allocation
-- Converting requirements into actionable tasks
+- Converting requirements into concrete tasks
 - Defining component interfaces and dependencies
 
 ## When NOT To Use
@@ -91,7 +91,7 @@ had real alternatives to `docs/tradeoffs.md` (draft and confirm):
 - `docs/implementation-plan.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after planning
 
-**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
 
 ## Exit Criteria
 

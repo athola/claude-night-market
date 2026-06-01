@@ -334,7 +334,7 @@ class TestValidateProposedEntries:
 
 
 # ---------------------------------------------------------------------------
-# Feature: Safety invariant — no writes to data/problems/
+# Feature: Safety invariant: no writes to data/problems/
 # ---------------------------------------------------------------------------
 
 
@@ -383,7 +383,7 @@ class TestNoWriteToProblems:
         output_path = tmp_path / "report.md"
         cp.generate_report(tmp_path, output_path)
 
-        # Bank files must be unchanged — check that the only new file is the report
+        # Bank files must be unchanged: check that the only new file is the report
         all_yaml = list(tmp_path.glob("*.yaml"))
         # Two: trees.yaml + _manifest.yaml
         assert len(all_yaml) == 2

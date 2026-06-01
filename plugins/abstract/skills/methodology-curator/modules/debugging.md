@@ -18,7 +18,7 @@ Expert frameworks for systematic troubleshooting, root cause analysis, and effic
 
 **Source**: Andreas Zeller - "Why Programs Fail" (2009)
 
-**Core Idea**: Apply scientific method to debugging—hypothesis, experiment, conclusion.
+**Core Idea**: Apply scientific method to debugging: hypothesis, experiment, conclusion.
 
 **The Scientific Debugging Process**:
 ```
@@ -72,7 +72,7 @@ GOOD: "The query times out because it scans all rows without index"
 - #5: Changing multiple things hoping something works
 - #9: Seeing issue disappear and assuming it's fixed
 
-**Use When**: Any debugging situation—these are universal.
+**Use When**: Any debugging situation; these are universal.
 
 ---
 
@@ -80,7 +80,7 @@ GOOD: "The query times out because it scans all rows without index"
 
 **Source**: Diomidis Spinellis - "Effective Debugging" (2016)
 
-**Core Idea**: Comprehensive toolkit organized by debugging phase.
+**Core Idea**: Thorough toolkit organized by debugging phase.
 
 **Strategy Categories**:
 

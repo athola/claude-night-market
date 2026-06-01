@@ -143,7 +143,7 @@ Each plugin (attune, sanctum, spec-kit) has its own copy with:
 **Date**: 2026-03-24 (10:39 UTC - 16:00 UTC)
 **Affected versions**: `1.82.7`, `1.82.8` (both removed from PyPI)
 **Attack vector**: Compromised maintainer PyPI credentials (linked to Trivy CI/CD supply chain attack)
-**Payload**: Credential stealer in `proxy_server.py` and `litellm_init.pth` — harvested environment variables, SSH keys, cloud provider credentials, Kubernetes tokens, and database passwords
+**Payload**: Credential stealer in `proxy_server.py` and `litellm_init.pth`: harvested environment variables, SSH keys, cloud provider credentials, Kubernetes tokens, and database passwords
 **Source**: https://docs.litellm.ai/blog/security-update-march-2026
 
 **Impact on our ecosystem**: None. Only `simple-resume` uses litellm, locked to `1.81.15`.
@@ -156,8 +156,8 @@ Patched with version exclusions: `litellm>=1.0,<2.0,!=1.82.7,!=1.82.8`
 **Lessons learned**:
 1. Lockfile hash pinning (uv.lock SHA256) would have caught a tampered reinstall
 2. Version exclusions (`!=`) are a lightweight defense for known-bad releases
-3. Safety/CVE databases lag behind zero-day supply chain attacks — need OSV scanning
-4. Daily CI scans are insufficient for attacks with <6 hour windows — SessionStart hooks provide per-session defense
+3. Safety/CVE databases lag behind zero-day supply chain attacks: need OSV scanning
+4. Daily CI scans are insufficient for attacks with <6 hour windows: SessionStart hooks provide per-session defense
 
 ### Incident Response Checklist
 

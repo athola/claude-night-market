@@ -77,7 +77,7 @@ role: entrypoint
 
 ## Overview
 
-Wraps the entire attune development lifecycle (brainstorm → specify → plan → execute) into a single mission with automatic state detection, type selection, and phase routing. Follows the "persistent presence lens" pattern from `spec-kit:speckit-orchestrator` — delegates entirely to existing skills via `Skill()` calls, never re-implements phase logic.
+Wraps the entire attune development lifecycle (brainstorm → specify → plan → execute) into a single mission with automatic state detection, type selection, and phase routing. Follows the "persistent presence lens" pattern from `spec-kit:speckit-orchestrator`: delegates entirely to existing skills via `Skill()` calls, never re-implements phase logic.
 
 ## When To Use
 

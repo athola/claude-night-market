@@ -493,7 +493,7 @@ duplicate injection.
 
 ## See Complete Guide
 
-The comprehensive hook types guide includes:
+The complete hook types guide includes:
 - Detailed lifecycle diagrams
 - Complete code examples for each hook type
 - Advanced patterns and combinations

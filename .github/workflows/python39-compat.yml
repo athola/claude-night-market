@@ -9,10 +9,10 @@ name: Python 3.9 Hook Compatibility (issue #204)
 # pensive.
 #
 # Two gates per plugin:
-#   1. ruff UP007 — flags bare `X | Y` union annotations that
+#   1. ruff UP007: flags bare `X | Y` union annotations that
 #      require Python 3.10+ without `from __future__ import
 #      annotations`.
-#   2. pytest hooks — runs only the tests that exercise hook
+#   2. pytest hooks: runs only the tests that exercise hook
 #      scripts under CPython 3.9.
 
 on:
@@ -61,7 +61,7 @@ jobs:
   # TypeError at import time on Python 3.9.                             #
   # ------------------------------------------------------------------ #
   syntax-check:
-    name: ruff UP007 — union annotation syntax
+    name: ruff UP007 union annotation syntax
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
         run: uv tool install ruff
 
       - name: Check hook files for 3.10+ union syntax (UP007)
-        # UP007: Use `X | Y` for type annotations — ruff flags this when
+        # UP007: Use `X | Y` for type annotations; ruff flags this when
         # the file would fail on Python 3.9 without the future import.
         # We target only the hooks directories of the six plugins.
         run: |
@@ -104,7 +104,7 @@ jobs:
   # focused on what matters: hook script importability and behaviour.    #
   # ------------------------------------------------------------------ #
   hook-tests:
-    name: pytest hooks — ${{ matrix.plugin }}
+    name: pytest hooks ${{ matrix.plugin }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -136,7 +136,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      # Hook scripts use only stdlib — we install pytest in an
+      # Hook scripts use only stdlib; we install pytest in an
       # isolated venv to avoid the plugin's requires-python
       # constraint (most plugins target >=3.12 for their main
       # code, but hooks must run under system Python 3.9).

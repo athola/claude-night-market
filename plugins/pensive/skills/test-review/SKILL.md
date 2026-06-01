@@ -152,9 +152,9 @@ Record executed commands, outputs, and recommendations.
 
 ### Invariant-Encoding Tests
 
-Tests do not just verify behavior — they encode design
-invariants. A test that asserts "module A never imports
-from module B" encodes a layer boundary. A test that
+Tests encode design invariants as well as verifying behavior.
+A test that asserts "module A never imports from module B"
+encodes a layer boundary. A test that
 asserts "this function is pure" encodes a concurrency
 model. These tests are load-bearing in ways that
 coverage metrics cannot capture.
@@ -197,7 +197,7 @@ present the three options to the human:
    implementation to satisfy the invariant
 2. **Layer**: Keep the invariant test, add the new
    behavior alongside it (accepting inelegance)
-3. **Revise**: The invariant is genuinely wrong — remove
+3. **Revise**: The invariant is genuinely wrong; remove
    the old test AND write a new test encoding the
    replacement invariant
 

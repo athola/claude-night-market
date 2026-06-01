@@ -128,7 +128,7 @@ go list -m -versions <module>
 
 Scan the repository **recursively** for ALL dependency files, including nested workspaces:
 
-Use Glob tool for parallel discovery (preferred over bash find — Claude Code 2.1.31+ strongly steers toward native tools):
+Use Glob tool for parallel discovery (preferred over bash find: Claude Code 2.1.31+ strongly steers toward native tools):
 
 ```
 Glob("**/pyproject.toml")  # Python - catches plugins/*/pyproject.toml, plugins/*/hooks/pyproject.toml

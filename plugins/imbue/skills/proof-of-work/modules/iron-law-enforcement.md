@@ -505,7 +505,7 @@ Based on community best practices:
 
 ## Summary
 
-The Iron Law is not just a principle - it's a system of enforcement:
+The Iron Law is a system of enforcement, not only a principle:
 
 1. **Self-Enforcement**: Red flags table, self-check protocol
 2. **Adversarial Verification**: RED/GREEN/REFACTOR subagents

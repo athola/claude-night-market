@@ -21,7 +21,7 @@ You: "I just wrote a security skill. Let me test it."
 Claude: [Knows to demonstrate security practices]
 ```
 
-This isn't a real test—Claude is cooperating, not behaving naturally.
+This isn't a real test: Claude is cooperating, not behaving naturally.
 
 ### Fresh Instance Benefits
 
@@ -527,7 +527,7 @@ You: "Let me test if this works"
 ```
 Prompt: "Create a user registration endpoint."
 ```
-No pressure factors—Claude will naturally do well.
+No pressure factors: Claude will naturally do well.
 
 **Right:**
 ```
@@ -543,7 +543,7 @@ Multiple pressure factors trigger realistic behavior.
 Claude: "Here's the endpoint. You might want to consider
 adding rate limiting before production."
 ```
-Skill failed—requirement was deferred, not implemented.
+Skill failed: requirement was deferred, not implemented.
 
 **Success:**
 ```

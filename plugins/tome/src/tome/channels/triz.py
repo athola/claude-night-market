@@ -129,7 +129,7 @@ _CONTRADICTION_CATALOGUE: list[tuple[str, str, list[str]]] = [
         "flexibility",
         "complexity",
         [],
-    ),  # fallback — empty keyword list means never matches
+    ),  # fallback: empty keyword list means never matches
 ]
 
 # Ideal result templates indexed by (improving, worsening)
@@ -315,7 +315,7 @@ _PRINCIPLE_MAPPINGS: list[tuple[tuple[str, str], list[int]]] = [
 
 _DEFAULT_PRINCIPLES: list[int] = [1, 13, 22, 25]
 
-# Application hints per (principle_number, contradiction_key) — keyed by
+# Application hints per (principle_number, contradiction_key), keyed by
 # principle number and contradiction improving fragment.
 _APPLICATION_HINTS: dict[tuple[int, str], str] = {
     (1, "speed"): (

@@ -28,8 +28,8 @@ Currently, this requires manual setup or copying from reference projects, leadin
 ## Constraints
 
 - Must work within claude-night-market plugin ecosystem
-- Should leverage leyline for shared infrastructure patterns
-- Should leverage abstract for skill/hook/command creation capabilities
+- Should use leyline for shared infrastructure patterns
+- Should use abstract for skill/hook/command creation capabilities
 - Must be non-intrusive (ask before overwriting files)
 - Should be idempotent (running twice shouldn't break things)
 - Templates must stay up-to-date with current best practices
@@ -106,7 +106,7 @@ Currently, this requires manual setup or copying from reference projects, leadin
 **Description**: Use claude-night-market skills to guide human through initialization, generate configurations with AI.
 
 **Pros**:
-- Leverages LLM strengths (understanding context)
+- Uses LLM strengths (understanding context)
 - Highly adaptable to user needs
 - Can explain choices
 - Easy to update (just update skill docs)

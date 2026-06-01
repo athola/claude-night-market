@@ -126,7 +126,7 @@ Automatically applies fixes for common issues:
 
 ## Detailed Validation Guides
 
-For comprehensive validation patterns, see the validate-hook source code and examples in the abstract validation framework.
+For more validation patterns, see the validate-hook source code and examples in the abstract validation framework.
 
 ## Best Practices
 

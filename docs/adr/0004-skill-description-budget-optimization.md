@@ -134,7 +134,7 @@ Anthropic's recommended activation format:
 **Why**: The majority of skills had noun-phrase descriptions that told
 Claude WHAT a skill does but not WHEN to invoke it. The `description:`
 field is the only signal in the system-reminder Claude uses for skill
-selection — triggering skills requires action-oriented triggers.
+selection; triggering skills requires action-oriented triggers.
 
 **Results**:
 
@@ -154,7 +154,7 @@ over minimal budget.
 
 **Template doc**: `docs/skill-description-guide.md`
 
-**Commands excluded**: Slash command `.md` files were not updated —
+**Commands excluded**: Slash command `.md` files were not updated:
 command descriptions appear in `/help` output for humans and use
 noun-phrase format by design (commands are user-typed, not
 Claude-selected).

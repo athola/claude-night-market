@@ -1,4 +1,4 @@
-"""Tests for clawhub-export.py — ClawHub/OpenClaw skill exporter.
+"""Tests for clawhub-export.py: ClawHub/OpenClaw skill exporter.
 
 Feature: Export night-market skills as OpenClaw-compatible packages
 

@@ -1,4 +1,4 @@
-"""Performance review skill -- module decomposition.
+"""Performance review skill: module decomposition.
 
 Public API preserved verbatim from the prior 745-line
 ``performance_review.py`` module so existing imports keep

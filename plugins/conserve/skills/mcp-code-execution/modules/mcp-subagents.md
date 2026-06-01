@@ -54,7 +54,7 @@ Before ANY Task invocation:
 
 ## SDK MCP Tool Access Fix (Claude Code 2.1.30+)
 
-**Critical fix**: Prior to 2.1.30, subagents could not access SDK-provided MCP tools because they were not synced to the shared application state. This meant any workflow delegating MCP tool usage to subagents was **silently broken** — the subagent would simply not have the MCP tools available.
+**Critical fix**: Prior to 2.1.30, subagents could not access SDK-provided MCP tools because they were not synced to the shared application state. This meant any workflow delegating MCP tool usage to subagents was **silently broken**: the subagent would simply not have the MCP tools available.
 
 **Now fixed**: MCP tools are properly synced across subagent boundaries. No workarounds needed.
 

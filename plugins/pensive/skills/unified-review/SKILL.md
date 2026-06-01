@@ -1,6 +1,6 @@
 ---
 name: unified-review
-description: Orchestrates multi-domain review (code, arch, tests, security) in a single pass. Use when comprehensive pre-release review is needed.
+description: Orchestrates multi-domain review (code, arch, tests, security) in a single pass. Use when thorough pre-release review is needed.
 alwaysApply: false
 category: orchestration
 tags:
@@ -155,7 +155,7 @@ Use this mapping to resolve skill names to agent types:
 Dispatch ALL selected agents in a SINGLE parallel Agent tool
 call. Do not read or process any agent's output until ALL agents
 have returned their results. Reading the first result before the
-others are in anchors synthesis toward that perspective — each
+others are in anchors synthesis toward that perspective: each
 subsequent result gets evaluated against the first rather than
 independently. Collect all results, then synthesize once.
 

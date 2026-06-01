@@ -62,7 +62,7 @@ The harden report joins these on file:line and advisory ID.
 | environment-driven config | `secrecy::SecretString` for secrets | wrapper prevents `Debug`/`Display` leaks |
 | ad-hoc retry loops | `tower::retry` with backoff and budget | bounded resource consumption (CWE-400) |
 
-These are recommendations, not blocking findings — surface in
+These are recommendations, not blocking findings: surface in
 the report as MEDIUM advisories with the rationale in the
 proposal.
 

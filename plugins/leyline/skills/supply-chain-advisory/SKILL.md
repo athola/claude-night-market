@@ -58,9 +58,10 @@ responding to compromised packages in Python ecosystems.
 The blocklist is at `${CLAUDE_SKILL_DIR}/known-bad-versions.json`.
 It is consumed by:
 
-1. **SessionStart hook** — warns per-session when compromised versions detected
-2. **`make supply-chain-scan`** — CI/local scanning target
-3. **This skill** — manual audit guidance
+1. **SessionStart hook**: warns per-session when compromised
+   versions detected
+2. **`make supply-chain-scan`**: CI/local scanning target
+3. **This skill**: manual audit guidance
 
 ### Blocklist Format
 
@@ -118,7 +119,7 @@ will fail with a hash mismatch. This is your strongest automatic defense.
 
 ## Limitations
 
-- Zero-day supply chain attacks have no prior advisory — lockfile hashes
+- Zero-day supply chain attacks have no prior advisory: lockfile hashes
   are the only automatic defense during the attack window
 - Safety/CVE databases lag behind real-world compromises
 - OSV provides broader coverage but is still reactive

@@ -7,7 +7,7 @@ prescriptive (opt-in, frontmatter-controlled).
 
 > **Why prescriptive stays opt-in.** Per
 > [docs/inclusive-defaults.md][inc] (TRUE-exception
-> category 9), advisory IS the inclusive default —
+> category 9), advisory IS the inclusive default:
 > prescriptive mode requires per-skill consent because
 > it changes orchestration behavior, not just analysis.
 

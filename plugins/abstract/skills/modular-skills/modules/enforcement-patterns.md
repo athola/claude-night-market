@@ -48,7 +48,7 @@ Classify your skill to determine appropriate enforcement language:
 | Category | Description | Examples |
 |----------|-------------|----------|
 | **Discipline-Enforcing** | Process must be followed exactly | TDD, security, compliance |
-| **Workflow** | Structured approach to tasks | Brainstorming, debugging, review |
+| **Workflow** | Step-by-step approach to tasks | Brainstorming, debugging, review |
 | **Technique** | Best practices, optional patterns | Caching, optimization |
 | **Reference** | Information retrieval | API docs, examples |
 

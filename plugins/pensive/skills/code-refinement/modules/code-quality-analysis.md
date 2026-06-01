@@ -93,7 +93,7 @@ effort: SMALL|MEDIUM|LARGE
 
 ## Full Analysis: Invoke pensive:code-refinement
 
-For comprehensive code quality analysis, invoke the full `pensive:code-refinement` skill:
+For thorough code quality analysis, invoke the full `pensive:code-refinement` skill:
 
 ```
 Skill(pensive:code-refinement)

@@ -1,4 +1,4 @@
-"""Tests for build_bridge.py — OpenClaw bridge plugin builder.
+"""Tests for build_bridge.py: OpenClaw bridge plugin builder.
 
 Feature: Build OpenClaw bridge plugin from ClawHub export
 

@@ -1,4 +1,4 @@
-"""Test review skill -- mixin-based composition.
+"""Test review skill: mixin-based composition.
 
 Public API preserved verbatim from the prior 902-line
 ``test_review.py`` module so existing imports keep working:

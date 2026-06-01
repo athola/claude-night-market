@@ -186,8 +186,8 @@ mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
 ```
 
 **4c. Apply labels:**
-- `scope-guard` — always
-- `deferred` — always
+- `scope-guard`: always
+- `deferred`: always
 - Branch name label (if exists)
 
 **4d. Update the issue with Discussion link:**

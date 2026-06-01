@@ -16,8 +16,8 @@ without propagating or logging the reason for failure.
 Patterns where a branch exits the function or loop without surfacing why a
 value was absent or erroneous:
 
-- `let x = expr else { return; }` — let-else with bare return
-- `let x = expr else { continue; }` — let-else with bare continue
+- `let x = expr else { return; }`: let-else with bare return
+- `let x = expr else { continue; }`: let-else with bare continue
 - Match arms using `=> return` or `=> continue` on error/None variants
 
 ## Why It Matters

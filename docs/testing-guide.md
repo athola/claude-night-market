@@ -309,7 +309,7 @@ Test one thing per test and use fixtures for setup.
 Keep tests fast by mocking external dependencies.
 
 **For Plugin Maintainers**
-Aim for 85% coverage. Keep tests isolated—avoid shared state.
+Aim for 85% coverage. Keep tests isolated: avoid shared state.
 Document requirements and review failures promptly.
 Ensure all scripts in `scripts/` have corresponding tests.
 

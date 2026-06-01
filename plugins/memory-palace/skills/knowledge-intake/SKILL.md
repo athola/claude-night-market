@@ -276,7 +276,8 @@ Is the knowledge...
 
 > "A cluttered palace is a cluttered mind."
 
-New knowledge often displaces old—but **time is not the criterion**. Relevance and aspirational alignment are.
+New knowledge often displaces old, but **time is not the criterion**.
+Relevance and aspirational alignment are.
 
 ### The Master Curator
 The human in the loop defines what stays. Before major tidying:

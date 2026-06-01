@@ -46,7 +46,7 @@ scoring.
 
 Key files:
 
-- `hooks/daemon_lifecycle.py` — starts/stops the HTTP daemon
-- `src/oracle/provision.py` — venv provisioning logic
-- `skills/setup/` — guided setup skill
-- `commands/oracle-setup.md` — `/oracle:setup` slash command
+- `hooks/daemon_lifecycle.py`: starts/stops the HTTP daemon
+- `src/oracle/provision.py`: venv provisioning logic
+- `skills/setup/`: guided setup skill
+- `commands/oracle-setup.md`: `/oracle:setup` slash command

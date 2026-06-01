@@ -354,7 +354,7 @@ class ScanResult:
 
 
 # ---------------------------------------------------------------------------
-# File-system helpers (no sibling imports — safe for all modules)
+# File-system helpers (no sibling imports, safe for all modules)
 # ---------------------------------------------------------------------------
 
 

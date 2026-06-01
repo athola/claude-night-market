@@ -91,7 +91,7 @@ role: library
    - Identify blockers
 ```
 
-**Task Completion Discipline**: Always call `TaskUpdate(taskId: "X", status: "completed")` right after finishing each task—never defer completions to end of session.
+**Task Completion Discipline**: Always call `TaskUpdate(taskId: "X", status: "completed")` right after finishing each task. Never defer completions to end of session.
 
 **Verification:** Run `pytest -v` to verify tests pass.
 

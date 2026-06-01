@@ -55,7 +55,7 @@ Before launching 4+ agents, your plan should specify:
 This rule applies to ALL multi-agent dispatches, including:
 - Research/audit missions (web + codebase analysis)
 - Large refactoring across many files
-- Comprehensive review tasks
+- Thorough review tasks
 - Any task requiring continuation agents
 
 ## WARNING: Remote Control / Headless Limitations
@@ -256,7 +256,7 @@ Lead collects completion messages, runs quality gates, shuts down team.
 
 ### Key Difference from Task Tool
 
-Task tool subagents are **fire-and-forget** — they can't communicate mid-execution. Agent teams teammates can **send messages to each other** when they discover shared concerns. This prevents merge conflicts and duplicate work that Task tool batches would catch only at the review gate.
+Task tool subagents are **fire-and-forget**: they can't communicate mid-execution. Agent teams teammates can **send messages to each other** when they discover shared concerns. This prevents merge conflicts and duplicate work that Task tool batches would catch only at the review gate.
 
 ### Fallback
 

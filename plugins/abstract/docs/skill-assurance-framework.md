@@ -41,7 +41,7 @@ Skills that are marked as infrastructure, such as `shared` skills, provide modul
 When multiple skills could apply to a given context, the system prioritizes the more specific skill, such as selecting `rust-review` over a generic `unified-review`. To manage these overlaps, include explicit routing in the negative triggers using the `- use [specific-skill] instead` pattern.
 
 ### Agent vs Skill Selection
-The distinction between agents and skills is based on the level of autonomy required. Agents are designed for autonomous, multi-step tasks and include `examples:` in their descriptions for matching. Skills are used for guided workflows and rely on `Triggers:` keywords for discovery. Both utilize `DO NOT use when:` clauses to ensure proper routing.
+The distinction between agents and skills is based on the level of autonomy required. Agents are designed for autonomous, multi-step tasks and include `examples:` in their descriptions for matching. Skills are used for guided workflows and rely on `Triggers:` keywords for discovery. Both use `DO NOT use when:` clauses to ensure proper routing.
 
 ### Progressive Loading Skills
 For skills with `progressive_loading: true`, core content loads by default while additional modules are loaded via `@include` only when necessary. The skill description should explicitly mention the availability of these optional modules to guide the assistant's loading decisions.

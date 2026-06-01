@@ -61,7 +61,7 @@ The validator recognizes and validates new 2.1.0 frontmatter fields:
 - `Bash(git * main)` - Git with main branch
 
 **Wildcard Normalization (2.1.20+):**
-- ⚠️ `Bash(*)` is now treated as equivalent to plain `Bash` — warn if encountered
+- ⚠️ `Bash(*)` is now treated as equivalent to plain `Bash`: warn if encountered
 - Scoped wildcards like `Bash(npm *)` remain distinct and valid
 - Validation should flag `Bash(*)` as redundant: suggest using `Bash` instead
 

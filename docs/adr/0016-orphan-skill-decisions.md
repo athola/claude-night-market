@@ -28,7 +28,7 @@ ambiguity from the skill graph.
 Per-skill decisions follow the issue's three criteria: demand
 signal, wiring cost, reference value if archived.
 
-### 1. ``gauntlet:gauntlet-curate`` — WIRE
+### 1. ``gauntlet:gauntlet-curate``: WIRE
 
 - **Demand signal**: ``/update-plugins`` already includes a
   "refresh problem bank" step in its workflow description; the
@@ -38,7 +38,7 @@ signal, wiring cost, reference value if archived.
   problem-bank refresh step.
 - **Action**: Wire in the next ``/sanctum:update-plugins`` PR.
 
-### 2. ``memory-palace:palace-diagram`` — WIRE
+### 2. ``memory-palace:palace-diagram``: WIRE
 
 - **Demand signal**: medium. Visual palace inspection has been
   asked for in two recent maintenance sessions; a slash command
@@ -47,7 +47,7 @@ signal, wiring cost, reference value if archived.
   command that delegates to the existing skill.
 - **Action**: Wire as a slash command in a follow-up PR.
 
-### 3. ``memory-palace:memory-palace-architect`` — ARCHIVE
+### 3. ``memory-palace:memory-palace-architect``: ARCHIVE
 
 - **Demand signal**: low. The audit found no inbound consumers
   and no recent demand. The content is reference material

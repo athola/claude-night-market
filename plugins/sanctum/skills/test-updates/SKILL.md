@@ -276,7 +276,7 @@ If an invariant-encoding test needs to change, do NOT
 silently update the assertion. Flag it for human review
 with the three options: preserve the invariant, layer
 on top, or revise the invariant. This is a judgment
-call that requires human wisdom — models default to
+call that requires human wisdom: models default to
 the "average" of training data and get these wrong far
 too often.
 

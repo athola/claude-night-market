@@ -17,7 +17,7 @@ defer it).
 | `detection_signal` | What pattern the scanner saw (in safe-to-quote form) |
 | `proposal` | One-paragraph description of the fix |
 | `diff` | Concrete diff or config snippet, not "consider doing X" |
-| `blast_radius` | low / medium / high — see below |
+| `blast_radius` | low / medium / high (see below) |
 | `reversal_plan` | Exact command to revert and the conditions to reapply |
 | `expected_test` | Test path that should pass after the change |
 
@@ -85,12 +85,12 @@ Iron Law.
 
 When the approval gate fires, the user gets:
 
-1. **apply** — apply the diff, commit, run gates, advance.
-2. **file** — create a GitHub issue with the proposal body and
+1. **apply**: apply the diff, commit, run gates, advance.
+2. **file**: create a GitHub issue with the proposal body and
    close out the finding.
-3. **defer** — log to `.harden/backlog.md` for future runs to
+3. **defer**: log to `.harden/backlog.md` for future runs to
    surface again.
-4. **reject** — record a rejection with optional rationale; the
+4. **reject**: record a rejection with optional rationale; the
    finding will not surface again unless code changes invalidate
    the rejection.
 

@@ -255,7 +255,7 @@ Used during force-kill and graceful shutdown after approval.
 
 ## iTerm2 Alternative
 
-Agent Teams also supports iTerm2 with the `it2` CLI as an alternative to tmux. The coordination protocol (files, messages, tasks) is identical — only the terminal multiplexer differs.
+Agent Teams also supports iTerm2 with the `it2` CLI as an alternative to tmux. The coordination protocol (files, messages, tasks) is identical: only the terminal multiplexer differs.
 
 ## Agent Name Validation
 
