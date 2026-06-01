@@ -127,3 +127,6 @@ plugins/memory-palace/data/staging/websearch-*.md
 plugins/memory-palace/data/staging/archive/
 **/*.claude/session-state.md
 clawhub/
+
+# Tome research session state (the report in docs/research/ is the deliverable)
+.tome/
