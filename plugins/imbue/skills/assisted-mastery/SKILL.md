@@ -134,6 +134,9 @@ ceremony, and ceremony trains people to ignore the gate.
 
 ## Related Skills
 
+- `imbue:graduated-implementation`: the other direction of the same
+  axis. This skill fades scaffolding; that one ramps the ambition
+  of the next increment as understanding is demonstrated.
 - `imbue:proof-of-work`: evidence that the code works; this skill
   adds evidence that the human understands it.
 - `imbue:rigorous-reasoning`: anti-sycophancy when evaluating the

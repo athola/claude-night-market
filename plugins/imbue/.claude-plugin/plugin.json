@@ -8,6 +8,7 @@
     "./skills/dependency-verification",
     "./skills/diff-analysis",
     "./skills/feature-review",
+    "./skills/graduated-implementation",
     "./skills/latent-space-engineering",
     "./skills/proof-of-work",
     "./skills/review-core",

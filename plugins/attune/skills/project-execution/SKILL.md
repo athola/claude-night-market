@@ -39,6 +39,11 @@ role: library
 - Uses `Skill(superpowers:verification-before-completion)` for validation
 - Uses `Skill(superpowers:test-driven-development)` for TDD workflow
 
+**With imbue**:
+- Uses `Skill(imbue:graduated-implementation)` at the ramp gate so
+  each increment's ambition is earned by demonstrated understanding
+  of the prior one, not ramped on completion alone
+
 **Without superpowers**:
 - Standalone execution framework
 - Built-in checkpoint validation
@@ -84,7 +89,16 @@ role: library
    - Code quality checks pass?
    - Documentation updated?
 
-4. CHECKPOINT
+4. RAMP GATE (before the next, more ambitious task)
+   - Invoke Skill(imbue:graduated-implementation)
+   - Demonstrate understanding of THIS increment, sized to stakes:
+     low-stakes on the evidence gate (green tests plus a recorded
+     tradeoff), high-stakes on the human explaining the diff unaided
+   - On a clean demonstration, record it in the ramp ledger and
+     mark the rung widened; below the band, hold and split the next
+     task smaller instead of ramping
+
+5. CHECKPOINT
    - Mark task complete IMMEDIATELY (do NOT batch)
    - Update execution state
    - Report progress

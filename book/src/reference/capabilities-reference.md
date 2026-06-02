@@ -38,6 +38,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
+| `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |

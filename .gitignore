@@ -130,3 +130,6 @@ clawhub/
 
 # Tome research session state (the report in docs/research/ is the deliverable)
 .tome/
+
+# imbue scope-ramp token (a per-session demonstration marker, not source)
+.imbue/

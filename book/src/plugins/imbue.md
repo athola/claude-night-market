@@ -48,6 +48,7 @@ Iron Law enforced through proof-of-work validation.
 | `proof-of-work` | Evidence-based validation with output-contracts, retry-protocol, and independent-verification modules | Enforcing Iron Law TDD discipline |
 | `rigorous-reasoning` | Anti-sycophancy guardrails | Analyzing conflicts, evaluating contested claims |
 | `assisted-mastery` | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help | Reviewing or learning from agent-written code |
+| `graduated-implementation` | Bounded start, ramp ambition a notch only on demonstrated competence of the prior increment | Building a feature the human must understand, not just ship |
 | `dependency-verification` | Package-hallucination and slopsquat defense | Adding, recommending, or installing any package |
 
 ### Workflow Automation
@@ -77,6 +78,7 @@ Iron Law enforced through proof-of-work validation.
 | `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
 | `tdd_bdd_gate.py` | PreToolUse | Enforces Iron Law at write-time |
 | `guard_package_hallucination.py` | PreToolUse (Bash) | Flags installs of hallucinated or typosquatted packages; warns by default, blocks with `VOW_SHADOW_MODE=0` |
+| `guard_scope_ramp.py` | PreToolUse (Write/Edit/MultiEdit) | Holds each increment to the current rung; ramps a notch per recorded demonstration; warns by default, blocks with `VOW_SHADOW_MODE=0` |
 | `vow_bounded_reads.py` | PreToolUse (Read/Grep/Glob) | Warns or blocks when discovery read budget (15 reads) is exceeded; set `VOW_SHADOW_MODE=0` to block |
 | `vow_bounded_reads_reset.py` | PreToolUse (Write/Edit/MultiEdit) | Resets the per-session read counter when implementation begins |
 | `vow_no_ai_attribution.py` | PreToolUse | Blocks AI attribution strings in git commit messages |

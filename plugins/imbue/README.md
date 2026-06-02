@@ -63,6 +63,25 @@ dependence. It pairs explain mode (human writes the load-bearing
 code, agent narrates) with produce mode (agent writes, human
 reviews), chosen deliberately from the task's risk.
 
+### Graduated Implementation
+
+`graduated-implementation` is the other direction of the
+assisted-mastery axis: that skill fades scaffolding, this one ramps
+the ambition of the next increment. Start at the smallest intentional
+slice and widen the rung a notch only when the prior increment's
+understanding is demonstrated and recorded. The check is sized to
+stakes: low-stakes increments ramp on an evidence gate (green tests
+plus a recorded tradeoff), high-stakes ones (auth, migrations, money,
+infra, crypto) ramp only when the human explains the prior diff
+unaided, the aviation "children of the magenta" hand-fly check. The
+`guard_scope_ramp.py` PreToolUse hook holds each Write, Edit, and
+MultiEdit to the current rung (default ~40 added lines), halves it for
+high-stakes paths, and widens it one notch per recorded demonstration
+(`touch .imbue/ramp-ok`). Shadow mode (warn) is the default; set
+`VOW_SHADOW_MODE=0` to block over-rung increments. Grounded in the 85%
+optimal-learning rule (Wilson 2019) and competence-based curriculum
+learning (Platanios 2019).
+
 ### Dependency Verification
 
 `dependency-verification` confirms a suggested package actually exists
@@ -157,6 +176,7 @@ imbue/
 │   ├── pre_pr_scope_check.sh     # Branch threshold monitoring
 │   ├── tdd_bdd_gate.py           # PreToolUse: Iron Law enforcement
 │   ├── guard_package_hallucination.py # PreToolUse (Bash): block hallucinated/typosquat installs
+│   ├── guard_scope_ramp.py       # PreToolUse (Write/Edit/MultiEdit): hold increment to the current rung
 │   ├── vow_bounded_reads.py      # PreToolUse (Read/Grep/Glob): warn/block past 15 reads
 │   ├── vow_bounded_reads_reset.py # PreToolUse (Write/Edit/MultiEdit): reset read counter
 │   ├── vow_no_ai_attribution.py  # PreToolUse: block AI attribution in commits
@@ -174,6 +194,7 @@ imbue/
     ├── scope-guard/        # Anti-overengineering guardrails
     ├── rigorous-reasoning/ # Anti-sycophancy guardrails
     ├── assisted-mastery/   # Assistance dilemma: visible reasoning and fading
+    ├── graduated-implementation/ # Bounded start, ramp ambition on demonstrated competence
     ├── dependency-verification/ # Package hallucination and slopsquat defense
     ├── feature-review/     # Feature prioritization framework
     ├── proof-of-work/      # Verification enforcement

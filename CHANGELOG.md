@@ -16,6 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so the human builds judgment instead of dependence (explain mode
   versus produce mode). Grounded in the expertise reversal effect,
   productive failure, and cognitive offloading research.
+- **imbue/graduated-implementation skill plus
+  `guard_scope_ramp.py` hook.** The other direction of the
+  assisted-mastery axis: assisted-mastery fades scaffolding, this
+  ramps the ambition of the next increment. Start at the smallest
+  intentional slice (~40 added lines) and widen the rung a notch
+  only when the prior increment's understanding is demonstrated and
+  recorded, low-stakes on an evidence gate, high-stakes on the human
+  explaining the diff unaided (the aviation hand-fly check). The
+  PreToolUse Write/Edit/MultiEdit hook holds each increment to the
+  current rung, halves it for high-stakes paths, and defaults to
+  shadow mode. Research basis in
+  `docs/research/3dfdba53-graduated-implementation.md` (Wilson 2019
+  85% rule; Platanios 2019 competence gate; GDL clean-record gating).
+  The rung is driven by the full `leyline:risk-classification` tier
+  scale (GREEN/YELLOW keep the rung, RED halves it, CRITICAL quarters
+  it) via an `IMBUE_STAKES` signal, not path-regex alone. A
+  `ramp-ledger` module records each notch climbed for later audit
+  (pairing with `leyline:decision-journal`), and `attune`'s
+  project-execution loop gains a ramp gate that demonstrates
+  understanding of each increment before ramping to the next.
 - **imbue/dependency-verification skill plus
   `guard_package_hallucination.py` hook.** Confirms a suggested
   package exists before install, defending against package
