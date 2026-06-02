@@ -70,6 +70,26 @@ estimated_tokens: 350
    Also reject: "it's worth noting", "at its core",
    "in essence", "a testament to"
 
+4a. **Character-level slop check**: load `shared/output-hygiene.md`
+   (Contract A) and strip these markers. Inline fallback if that
+   module is absent:
+
+   | Marker | Replace with |
+   |--------|--------------|
+   | `"+"` as a prose conjunction | `and` (keep `+` in versions/code) |
+   | em-dash `—` | colon, period, comma, or rewrite |
+   | `--` as prose punctuation | colon or rewrite |
+   | arrows `->` / `→` as connectors | `to` / `into` |
+   | smart quotes `“ ” ‘ ’` | straight `"` and `'` |
+
+4b. **Subject-matter check** (Contract B): describe the change by its
+   reader-facing effect. Name neither the AI origin nor the specific
+   marker removed. Do NOT write `remove AI slop`, `de-slop`,
+   `AI-generated content`, `AI phrasing`, `replace em-dashes`, or
+   `remove smart quotes`. Test: if the subject only makes sense as "I
+   cleaned up AI output", rewrite it. For example `docs: clarify the
+   setup section`, not `style: replace em-dashes with colons`.
+
 5. **Write** to `./commit_msg.txt` and preview.
 
 ## Rules

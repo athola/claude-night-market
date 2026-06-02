@@ -22,6 +22,22 @@
 - **Separate**: One commit per fix category
 - **Manual**: Stage changes, user commits
 
+### Commit message hygiene (MANDATORY)
+
+Load `../../shared/output-hygiene.md` before writing the message.
+Inline fallback if that module is absent:
+
+- **Contract A (characters)**: no `"+"` used as a conjunction (use
+  `and`; keep `+` in versions and code), no em-dash `—`, no prose
+  `--`, no arrows `->` / `→` as connectors, no smart quotes
+  `“ ” ‘ ’`. Replace with plain punctuation.
+- **Contract B (subject matter)**: if a fix removed AI slop, describe
+  the change by its reader-facing effect. Name neither the AI origin
+  nor the specific marker removed. Do NOT write `remove AI slop`,
+  `de-slop`, `AI-generated content`, `AI phrasing`, `replace
+  em-dashes`, or `remove smart quotes`. For example `docs: clarify
+  wording`, not `style: replace em-dashes with colons`.
+
 **Step 4 Output**: Applied fixes, commits created
 
 ---

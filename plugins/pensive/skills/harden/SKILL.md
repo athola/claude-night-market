@@ -50,7 +50,7 @@ modules:
 
 # Harden Codebase Skill
 
-Active security hardening — scan the existing repository for
+Active security hardening: scan the existing repository for
 vulnerabilities and forward-facing threats, then propose concrete
 remediations the user can approve, defer, or file.
 
@@ -78,24 +78,24 @@ checks rather than line-level review of in-flight code.
 
 ## Required TodoWrite Items
 
-1. `harden:discovery` — inventory languages, build files, hooks,
+1. `harden:discovery`: inventory languages, build files, hooks,
    CI workflows
-2. `harden:scan-python` — run python-checks.md detectors when
+2. `harden:scan-python`: run python-checks.md detectors when
    Python is present
-3. `harden:scan-rust` — run rust-checks.md detectors when Rust
+3. `harden:scan-rust`: run rust-checks.md detectors when Rust
    is present
-4. `harden:scan-cross-cutting` — run cross-cutting.md detectors
+4. `harden:scan-cross-cutting`: run cross-cutting.md detectors
    (deps, secrets, SBOM, CI)
-5. `harden:scan-frontier` — run frontier-checks.md (PQC, LLM
+5. `harden:scan-frontier`: run frontier-checks.md (PQC, LLM
    supply chain, sandboxing)
-6. `harden:nist-mapping` — map findings to NIST SSDF practices
-7. `harden:proposals` — for each finding above the threshold,
+6. `harden:nist-mapping`: map findings to NIST SSDF practices
+7. `harden:proposals`: for each finding above the threshold,
    draft a concrete remediation per `modules/proposal-shape.md`
-8. `harden:approval-gate` — present proposals to the user for
+8. `harden:approval-gate`: present proposals to the user for
    apply / file / defer / reject
-9. `harden:apply-and-validate` — apply approved proposals as
+9. `harden:apply-and-validate`: apply approved proposals as
    discrete commits, re-run gates, capture evidence
-10. `harden:report` — write `reviews/harden-<date>.md` and
+10. `harden:report`: write `reviews/harden-<date>.md` and
     optionally post to Discussions
 
 ## Progressive Loading
@@ -116,7 +116,7 @@ The module hub keeps the SKILL.md itself under the
 
 ## Core Workflow
 
-### Phase 1 — Discovery
+### Phase 1: Discovery
 
 Inventory the repo without modifying anything:
 
@@ -139,7 +139,7 @@ find . -path ./node_modules -prune -o -type f \
 Dispatch `/discovery-prefilter` if the repo has > 5000 source files
 to bound the scan.
 
-### Phase 2 — Citation-backed scan
+### Phase 2: Citation-backed scan
 
 For each detected language, load the matching module and run its
 detector list. Each detector outputs findings with the schema
@@ -147,14 +147,14 @@ defined in `modules/proposal-shape.md`. The citation column is
 mandatory: a finding without a NIST/CWE reference is downgraded
 to "advisory" and not eligible for active proposal.
 
-### Phase 3 — NIST mapping
+### Phase 3: NIST mapping
 
 Group findings by SSDF practice (PW.4, PW.8, RV.1, etc.) and CWE
 ID. The mapping table lives in `modules/nist-controls.md`. The
 report's executive summary references SSDF practice coverage so
 the audit is comparable across runs.
 
-### Phase 4 — Proposal generation
+### Phase 4: Proposal generation
 
 For each finding above the configured severity threshold, draft a
 concrete remediation per `modules/proposal-shape.md`:
@@ -165,14 +165,14 @@ concrete remediation per `modules/proposal-shape.md`:
 - Reversal plan: how to revert if the change breaks behavior
 - Test that should pass after the change
 
-### Phase 5 — Approval gate
+### Phase 5: Approval gate
 
 Present proposals one at a time via `AskUserQuestion`. Default
 options: **apply**, **file as issue**, **defer to backlog**,
 **reject**. Auto-apply is opt-in via the `--auto-apply` flag and
 respects a per-finding severity threshold.
 
-### Phase 6 — Apply and validate
+### Phase 6: Apply and validate
 
 Apply each approved proposal as a discrete commit:
 
@@ -190,7 +190,7 @@ make test --quiet && make lint && make type-check
 If a gate fails, revert the commit (`git revert HEAD --no-edit`)
 and downgrade the finding to "needs human design."
 
-### Phase 7 — Report
+### Phase 7: Report
 
 Write `reviews/harden-<date>.md` with:
 
@@ -270,16 +270,16 @@ NIST SSDF PW.7 (Review and analyze human-readable code).
 
 The skill composes (rather than re-implements):
 
-- `pensive:rust-review` — full Rust audit when Rust is present
-- `pensive:bug-review` — bug-hunting backbone
-- `pensive:safety-critical-patterns` — NASA Power-of-10 adapted
-- `pensive:tiered-audit` — three-tier discipline (`--tier 1/2/3`)
-- `pensive:blast-radius` — change-impact assessment for proposals
-- `leyline:supply-chain-advisory` — dependency posture
-- `leyline:authentication-patterns` — auth/credential review
-- `leyline:content-sanitization` — input handling
-- `abstract:hook-authoring` — hook-event security
-- `imbue:proof-of-work` — evidence discipline for findings
+- `pensive:rust-review`: full Rust audit when Rust is present
+- `pensive:bug-review`: bug-hunting backbone
+- `pensive:safety-critical-patterns`: NASA Power-of-10 adapted
+- `pensive:tiered-audit`: three-tier discipline (`--tier 1/2/3`)
+- `pensive:blast-radius`: change-impact assessment for proposals
+- `leyline:supply-chain-advisory`: dependency posture
+- `leyline:authentication-patterns`: auth/credential review
+- `leyline:content-sanitization`: input handling
+- `abstract:hook-authoring`: hook-event security
+- `imbue:proof-of-work`: evidence discipline for findings
 
 ## Exit Criteria
 

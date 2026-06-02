@@ -43,11 +43,11 @@ model_hint: standard
 - **When budget is spent**: ask the user if more context is needed. Do NOT
   self-authorize additional reads. Only explicit user approval overrides the budget.
 - Prefer `Read` with `offset`/`limit` params or `Grep` tool over loading whole files.
-  A `Read` targeting <50 lines counts as 0.5 reads. Avoid `cat`/`sed`/`awk` via Bash
-  — Claude Code 2.1.21+ steers toward native file tools (Read, Edit, Write, Grep, Glob).
+  A `Read` targeting <50 lines counts as 0.5 reads. Avoid `cat`/`sed`/`awk` via Bash:
+  Claude Code 2.1.21+ steers toward native file tools (Read, Edit, Write, Grep, Glob).
 - **PDFs (Claude Code 2.1.30+)**: Use `Read` with `pages: "1-5"` for targeted PDF reading
   instead of loading entire documents. Large PDFs (>10 pages) return a lightweight
-  reference when @-mentioned — use the `pages` parameter to read specific sections.
+  reference when @-mentioned, so use the `pages` parameter to read specific sections.
   Hard limits: **100 pages max, 20MB max per PDF**. Exceeding these previously locked
   sessions permanently (fixed in 2.1.31).
 - Convert prose instructions into bullet lists before prompting so only essential
@@ -66,7 +66,7 @@ model_hint: standard
   when the model has already processed the information (cite snippet IDs).
 - Decide whether the current thread should be compacted:
   - If only recent context is stale, use **"Summarize from here"** (Claude Code 2.1.32+)
-    via the message selector to partially summarize the conversation — this preserves
+    via the message selector to partially summarize the conversation. This preserves
     recent context while compressing older portions
   - If the active workflow is finished and earlier context will not be reused,
     instruct the user to run `/new`
@@ -74,7 +74,7 @@ model_hint: standard
     prompt them to run `/compact` before continuing
 - **Automatic memory** (Claude Code 2.1.32+): Claude now records and recalls session
   memories automatically. This adds minor token overhead but improves cross-session
-  continuity. No action needed — be aware it contributes to baseline context usage.
+  continuity. No action needed: be aware it contributes to baseline context usage.
 
 ## Step 5 – Logging (`logging`)
 

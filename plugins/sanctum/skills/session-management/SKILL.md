@@ -121,7 +121,7 @@ The `/resume` screen provides:
 
 ### 6. Resume Hint on Exit (Claude Code 2.1.31+)
 
-Claude Code now shows a resume hint when you exit, displaying the command to continue your conversation. This makes session resumption more discoverable — users no longer need to know about `--resume` beforehand.
+Claude Code now shows a resume hint when you exit, displaying the command to continue your conversation. This makes session resumption more discoverable: users no longer need to know about `--resume` beforehand.
 
 ## Best Practices
 
@@ -170,16 +170,16 @@ If a named session isn't appearing in `/resume`:
 ### Duplicate Sessions in VS Code
 
 If you see duplicate session entries when resuming in VS Code:
-- **Claude Code 2.1.38+**: Fixed — resume now correctly reuses the existing session without creating duplicates
+- **Claude Code 2.1.38+**: Fixed: resume now correctly reuses the existing session without creating duplicates
 - **Older versions**: Ignore the duplicate entries; they point to the same underlying session
 
 ### Lost Context After Resume
 
 If context seems incomplete or resume is slow:
-- **Claude Code 2.1.30+**: 68% memory reduction for `--resume` via stat-based session loading with progressive enrichment — especially impactful for users with many sessions. Also fixes hangs when resuming sessions with corrupted transcript files (parentUuid cycles).
-- **Claude Code 2.1.29+**: Fixed slow startup when resuming sessions with many `once: true` hooks — `saved_hook_context` loading is now optimized
-- **Claude Code 2.1.21+**: Fixed API errors when resuming sessions interrupted during tool execution — previously these sessions could fail to resume entirely
-- **Claude Code 2.1.20+**: Session compaction/resume is now fixed — resume correctly loads the compact summary instead of full history
+- **Claude Code 2.1.30+**: 68% memory reduction for `--resume` via stat-based session loading with progressive enrichment, especially impactful for users with many sessions. Also fixes hangs when resuming sessions with corrupted transcript files (parentUuid cycles).
+- **Claude Code 2.1.29+**: Fixed slow startup when resuming sessions with many `once: true` hooks: `saved_hook_context` loading is now optimized
+- **Claude Code 2.1.21+**: Fixed API errors when resuming sessions interrupted during tool execution: previously these sessions could fail to resume entirely
+- **Claude Code 2.1.20+**: Session compaction/resume is now fixed: resume correctly loads the compact summary instead of full history
 - Use `/catchup` to refresh git state
 - Use `/debug` (Claude Code 2.1.30+) for session troubleshooting diagnostics
 - Re-run `Skill(sanctum:git-workspace-review)` if needed
@@ -200,7 +200,7 @@ Claude now automatically records and recalls memories as it works. Session summa
 
 - **No action required**: Memory recording is automatic on first-party Anthropic API
 - **Complements named sessions**: Automatic memory handles implicit continuity; named sessions provide explicit organization
-- **Token overhead**: Recalled memories add to baseline context — factor this into MECW budgets
+- **Token overhead**: Recalled memories add to baseline context, factor this into MECW budgets
 
 ### 8. Agent Persistence on Resume (Claude Code 2.1.32+)
 

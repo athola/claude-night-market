@@ -116,7 +116,7 @@ Displays commit message and diff for a specific commit.
 ### Use Limits
 - Always limit `git log` output (e.g., `-10`, `-20`)
 - Use `--stat` before full diffs to understand scope
-- For large diffs, consider `git diff --cached — <specific-file>`
+- For large diffs, consider `git diff --cached -- <specific-file>`
 
 ### Error Handling
 - Check if `git status` shows "Not a git repository"

@@ -17,7 +17,7 @@ parallel agents. Before dispatching:
 
 **MUST enter plan mode first:**
 
-1. `EnterPlanMode` — design the agent strategy
+1. `EnterPlanMode`: design the agent strategy
 2. Specify: agent roster, scope per agent, output
    contract
 3. Get user approval before launching agents

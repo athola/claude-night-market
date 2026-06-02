@@ -99,7 +99,7 @@ practices for Python and Rust.
 
 ## Output
 
-- `reviews/harden-<date>.md` — full markdown report with
+- `reviews/harden-<date>.md`: full markdown report with
   findings table, citation column, and per-finding proposal.
 - Optional GitHub issues for findings above the chosen severity.
 - Applied diffs as discrete commits per finding (one finding =
@@ -107,11 +107,11 @@ practices for Python and Rust.
 
 ## See Also
 
-- `Skill(pensive:harden)` — the skill this command invokes
+- `Skill(pensive:harden)`: the skill this command invokes
 - `pensive:rust-review`, `pensive:bug-review`,
-  `pensive:safety-critical-patterns` — composed
+  `pensive:safety-critical-patterns` (composed)
 - `leyline:supply-chain-advisory`,
   `leyline:authentication-patterns`,
-  `leyline:content-sanitization` — composed
-- Built-in `/security-review` — pending-diff scanner (different
+  `leyline:content-sanitization` (composed)
+- Built-in `/security-review`: pending-diff scanner (different
   scope)

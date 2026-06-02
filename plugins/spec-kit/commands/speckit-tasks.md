@@ -12,7 +12,7 @@ Before proceeding, load the `speckit-orchestrator` skill for workflow coordinati
 ## When To Use
 
 Use this command when you need to:
-- Converting spec/plan into actionable task list
+- Converting spec/plan into concrete task list
 - Creating dependency-ordered implementation roadmap
 
 ## When NOT To Use
@@ -77,7 +77,7 @@ The tasks.md should be immediately executable - each task must be specific enoug
 
 **CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
 
-**Tests are DEFAULT ON** (since 1.9.3, per `docs/inclusive-defaults.md`): Generate test tasks for every user story by default. Skip test generation only if the user passes `--no-tdd` or the feature specification explicitly opts out (e.g. spike, throwaway prototype). The Iron Law (no implementation without a failing test first) is the project's TDD posture — defaulting to test generation makes that posture discoverable from the task list.
+**Tests are DEFAULT ON** (since 1.9.3, per `docs/inclusive-defaults.md`): Generate test tasks for every user story by default. Skip test generation only if the user passes `--no-tdd` or the feature specification explicitly opts out (e.g. spike, throwaway prototype). The Iron Law (no implementation without a failing test first) is the project's TDD posture: defaulting to test generation makes that posture discoverable from the task list.
 
 ### Checklist Format (REQUIRED)
 

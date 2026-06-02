@@ -27,7 +27,7 @@ Claude Code 2.1.16+ provides a native Tasks system for state management. The `at
 2. Run `TaskUpdate(taskId: "X", status: "completed")`
 3. Then move to next task
 
-Do NOT batch task completions at the end—update status as you go. This ensures:
+Do NOT batch task completions at the end: update status as you go. This ensures:
 - Accurate progress tracking for users
 - Proper state recovery if session ends unexpectedly
 - Clear signal to other agents about task availability

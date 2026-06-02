@@ -60,14 +60,14 @@ Do not:
 - Present "Next Steps" or options to the user
 - Summarize progress and wait for direction
 - Distinguish between "planning" and "execution" phases
-  as a reason to pause — they are all just work items
+  as a reason to pause: they are all just work items
 
 **Phase transitions are NOT stopping points.**
 When you finish a batch of work items (e.g. all research or
 planning items), the next active item is your immediate next
 action. Do NOT summarize what was completed and ask whether
 to proceed. Just proceed. The manifest tells you what to do
-next — read it and do it.
+next: read it and do it.
 
 **No elaborate status output.**
 Do not generate status tables, feasibility assessments,
@@ -127,7 +127,7 @@ the run mode.**
 - **Bounded mode** (`--bounded`): run until the time
   window expires (e.g. `"time_window": "2d"`). When all
   current items complete before the window ends, scan for
-  new work and keep going — just like indefinite mode.
+  new work and keep going, just like indefinite mode.
   The ONLY difference is that bounded mode has a hard
   time limit. Check the manifest's `time_window` and
   `started_at` fields. If `now >= started_at + window`,
@@ -144,9 +144,9 @@ for new work," not "stop."
 
 **First**, read these three files:
 
-1. `.egregore/manifest.json` — your source of truth
-2. `.egregore/config.json` — overseer preferences
-3. `.egregore/budget.json` — token/rate-limit budget
+1. `.egregore/manifest.json`: your source of truth
+2. `.egregore/config.json`: overseer preferences
+3. `.egregore/budget.json`: token/rate-limit budget
 
 Then increment `session_count` in the manifest metadata and
 save the manifest back to disk. This marks the start of your

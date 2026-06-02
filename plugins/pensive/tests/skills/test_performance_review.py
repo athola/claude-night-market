@@ -395,7 +395,7 @@ class TestPerformanceReviewSkill:
     @pytest.mark.unit
     def test_t5_skipped_when_lru_cache_present(self, mock_skill_context) -> None:
         """
-        Scenario: T5 negative — function decorated with @lru_cache
+        Scenario: T5 negative, function decorated with @lru_cache
         Given a recursive function with @lru_cache decorator
         When the skill analyzes the file
         Then no T5 memoization warning is emitted
@@ -505,7 +505,7 @@ class TestPerformanceReviewSkill:
     @pytest.mark.unit
     def test_s2_list_wrapping_generator_in_reducer(self, mock_skill_context) -> None:
         """
-        Scenario: S2 `max(list(g))` — list materializes generator
+        Scenario: S2 `max(list(g))`, list materializes generator
         Given a generator wrapped in list/dict/tuple inside a reducer
         When the skill analyzes the file
         Then a LOW-severity space finding suggests dropping the wrapper

@@ -48,7 +48,7 @@ makefile_dogfooder.py --mode full --apply
 ```
 
 The generation phase creates:
-- **Demo targets** to showcase plugin functionality
+- **Demo targets** to show plugin functionality
 - **Dogfood targets** for self-testing
 - **Quick-run targets** for common workflows
 - **Check-all targets** for aggregator Makefiles
@@ -57,7 +57,7 @@ The generation phase creates:
 
 ### For Leaf Plugins
 - Always include: help, clean, test, lint
-- Add demo target to showcase functionality
+- Add demo target to show functionality
 - Include dogfood target for self-testing
 - Use shared includes from abstract when possible
 

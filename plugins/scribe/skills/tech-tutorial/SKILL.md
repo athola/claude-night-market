@@ -56,7 +56,7 @@ Before writing a single line, answer these questions:
 - How many readers? How often will each one read it?
 - What will they build or accomplish by the end?
 - **What is the one sentence they must walk away with?**
-  (the thesis — not the topic)
+  (the thesis, not the topic)
 - What is the single prerequisite the reader must have installed?
 - What is explicitly out of scope?
 

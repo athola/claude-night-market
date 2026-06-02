@@ -72,6 +72,18 @@ estimated_tokens: 1500
 - Log every command/output that informs the review (e.g., `git diff --stat`, `make -pn`, `cargo doc`, `web.run` citations). Keep snippets or line numbers for later reference.
 - Track open questions or variances found during preflight; if they block progress, record owners/timelines now.
 
+### Record Lessons Learned (decision journal)
+
+If this work involved rework, a failed approach, or a blocker, record it to
+`docs/lessons-learned.md` so the insight survives past the session (draft and
+confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
+  set `phase` to `review`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
+  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
 ## Step 4 – Structure Deliverables (`review-core:deliverables-structured`)
 - Prepare the reporting skeleton shared by all reviews:
   - Summary (baseline, scope, recommendation)
@@ -87,3 +99,4 @@ estimated_tokens: 1500
 ## Exit Criteria
 - All TodoWrite items complete with concrete notes (commands run, files listed, evidence paths).
 - Domain-specific review can now assume consistent context/evidence/deliverable scaffolding and focus on specialized analysis.
+- Any rework, failed approach, or blocker uncovered during evidence capture is recorded to `docs/lessons-learned.md` (or the in-file template).

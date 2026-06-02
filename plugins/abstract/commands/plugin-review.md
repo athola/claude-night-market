@@ -117,7 +117,7 @@ Checks all commands for:
 **Source**: `validate_plugin.py` command validation
 
 ### 4. Hooks Evaluation
-Comprehensive hook analysis:
+Thorough hook analysis:
 - Security scanning (command injection, secrets exposure)
 - Performance benchmarking (execution time, memory usage)
 - Compliance validation (structure, error handling)

@@ -54,5 +54,5 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``api-contract-generator`` — produces machine-readable OpenAPI/RPC contracts the client and server share
-- ``networking-debugger`` — captures request/response traces for diagnosing latency, retries, and timeout issues
+- ``api-contract-generator``: produces machine-readable OpenAPI/RPC contracts the client and server share
+- ``networking-debugger``: captures request/response traces for diagnosing latency, retries, and timeout issues

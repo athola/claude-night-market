@@ -1,4 +1,4 @@
-"""API review skill -- mixin-based composition.
+"""API review skill: mixin-based composition.
 
 Public API preserved verbatim from the prior 760-line
 ``api_review.py`` module so existing imports keep working:

@@ -30,8 +30,10 @@ estimated_tokens: 500
 - [Information Categories](#information-categories)
 - [Core Workflow](#core-workflow)
 - [Session Lifecycle](#session-lifecycle)
+- [Clarity Checkpoints](#clarity-checkpoints)
 - [Detailed Resources](#detailed-resources)
 - [Integration](#integration)
+- [Exit Criteria](#exit-criteria)
 
 
 # Session Palace Builder
@@ -127,6 +129,39 @@ Create → Populate → Navigate → Export/Archive
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+## Clarity Checkpoints
+
+A session palace decays silently: each `Populate` step can add
+ambiguity that only surfaces at `Export`, when it is too late to
+recover the lost state. MMPO (arXiv:2605.30159, Section 3) frames
+this as a case for sub-trajectory dense rewards: check intermediate
+quality at each transition, not just the final outcome.
+
+At every `Checkpoint` arrow in the lifecycle above (and before any
+`Export/Archive`), run the dual-probe gate against the current
+palace state:
+
+```
+Skill(memory-palace:memory-clarity-probe)
+```
+
+The probe returns a `Clarity Assessment` with progress/gap verdicts
+and a `Recommendation`:
+
+| Recommendation | Action at the checkpoint |
+|----------------|--------------------------|
+| Proceed | Palace state is clear; continue the session |
+| Expand memory | Add the gap probe's open items to the palace before continuing |
+| Regenerate | Flag the session as ambiguous: the progress probe hedges, so reconstruct the current-state room before more work lands on it |
+
+Flagging at the checkpoint, not at export, is the point: an
+ambiguous palace caught early costs one room rebuild; caught at
+export it costs the session.
+
+When `memory-clarity-probe` is not installed, ask the two anchor
+questions inline (progress: what is done and what state is the task
+in; gap: what concrete items remain) and apply the same table.
+
 ## Detailed Resources
 
 - **Template Details**: See `modules/templates.md`
@@ -138,3 +173,16 @@ Create → Populate → Navigate → Export/Archive
 - `memory-palace-architect` - Export important concepts to permanent palaces
 - `knowledge-locator` - Search session content
 - `digital-garden-cultivator` - Seed garden with session insights
+- `memory-clarity-probe` - Dual-probe clarity gate at session checkpoints
+
+## Exit Criteria
+
+- [ ] A session palace is created with a template and spatial layout
+  before any state is populated
+- [ ] The dual-probe clarity gate runs at each `Checkpoint` transition
+  and before `Export/Archive`, not only at the end
+- [ ] A checkpoint returning `Expand memory` or `Regenerate` is acted
+  on (gap items added or current-state room rebuilt) before more work
+  lands, and the ambiguous session is flagged
+- [ ] Exported concepts round-trip into a permanent palace via
+  `memory-palace-architect`

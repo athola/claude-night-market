@@ -116,7 +116,7 @@ def _extract_pdf_link(entry_xml: str) -> str:
 def parse_arxiv_response(xml_text: str) -> list[Finding]:
     """Parse arXiv Atom XML response into Finding objects.
 
-    Uses regex/string parsing only — no lxml or xml.etree dependency.
+    Uses regex/string parsing only: no lxml or xml.etree dependency.
 
     Args:
         xml_text: Raw Atom XML string from the arXiv API.
@@ -131,7 +131,7 @@ def parse_arxiv_response(xml_text: str) -> list[Finding]:
     entry_blocks = re.findall(r"<entry>(.*?)</entry>", xml_text, re.DOTALL)
 
     for block in entry_blocks:
-        # Title — strip leading/trailing whitespace and normalise inner spaces
+        # Title: strip leading/trailing whitespace and normalise inner spaces
         title_raw = _extract_tag_text(block, "title") or ""
         title = " ".join(title_raw.split())
 

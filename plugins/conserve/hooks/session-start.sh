@@ -137,14 +137,14 @@ Proactive checking prevents auto-compact penalties.
 ### 1M Context Strategy
 
 The 1M window (GA for Opus/Sonnet 4.6) does not replace
-conservation -- it changes what conservation means.
+conservation; it changes what conservation means.
 A 1M window full of stale tool outputs performs worse
-than 200K of structured, relevant state.
+than 200K of relevant, well-organized state.
 
 **Plan-Clear-Implement pattern** (recommended workflow):
 1. Build the full plan (spec-kit, built-in planning, etc.)
 2. `/clear` or `/compact` to start clean
-3. Implement without compaction -- maintain full context
+3. Implement without compaction: maintain full context
 4. Iterate while still on topic with the same context
 5. Repeat for the next plan
 
@@ -180,10 +180,10 @@ Set `CONSERVATION_MODE` environment variable:
 
 ### Scope-Guard Principles (from imbue)
 
-- **Worthiness**: `(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)` -- >2.0 implement, 1-2 discuss, <1 defer
+- **Worthiness**: `(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)`: >2.0 implement, 1-2 discuss, <1 defer
 - **Anti-overengineering**: Ask before proposing; no abstraction until 3rd use; defer nice-to-haves; stay within branch budget
 - **Branch thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days (green/yellow/red)
-- **Proof-of-work**: Never claim "should work" -- run it, test it, cite evidence `[E1]`/`[E2]`
+- **Proof-of-work**: Never claim "should work"; run it, test it, cite evidence `[E1]`/`[E2]`
 - **Iron Law**: No implementation without a failing test first
 - **Rigorous reasoning**: No courtesy agreement; follow analysis checklists, not gut reactions
 - Invoke `Skill(imbue:scope-guard)`, `Skill(imbue:proof-of-work)`, or `Skill(imbue:rigorous-reasoning)` for full methodology'

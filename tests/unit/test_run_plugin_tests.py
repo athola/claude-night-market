@@ -17,7 +17,7 @@ import pytest
 
 SCRIPT = Path(__file__).parents[2] / "scripts" / "run-plugin-tests.sh"
 
-# Awk program body — the same logic embedded in run-plugin-tests.sh.
+# Awk program body: the same logic embedded in run-plugin-tests.sh.
 # Reads coverage_threshold from the [tool.nightmarket] TOML section.
 # Passed directly to subprocess.run (no shell quoting needed).
 AWK_PROGRAM = r"""

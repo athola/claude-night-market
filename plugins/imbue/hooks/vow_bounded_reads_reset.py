@@ -20,6 +20,16 @@ import os
 import sys
 from pathlib import Path
 
+# The symlink-safe state primitives live in shared/vow_utils, the same
+# home the increment hook uses, so both compute an identical private
+# counter path and share one audited CWE-59 defense.
+sys.path.insert(0, str(Path(__file__).parent))
+from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+    fd_owned_by_us,
+    secure_open,
+    secure_state_dir,
+)
+
 # fcntl is POSIX-only; degrade to unlocked truncate on Windows.
 try:
     import fcntl as _fcntl  # type: ignore[import-not-found]  # POSIX-only; Windows takes the except branch
@@ -42,11 +52,18 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
 # Duplicated from vow_bounded_reads.py — a shared import would pay the
 # same startup cost this script is designed to avoid.
 def _counter_path(session_id: str) -> Path:
-    """Return the path to the session-scoped counter file."""
+    """Return the path to the session-scoped counter file.
+
+    Must match ``vow_bounded_reads._counter_path`` exactly so the reset
+    truncates the same file the increment writes; both resolve to a
+    private per-user dir.
+    """
     safe_id = (
         session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
     )
-    return Path(f"/tmp/vow_read_counter_{safe_id[:200]}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
+    return (
+        secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
+    )
 
 
 # Duplicated from vow_bounded_reads.py — a shared import would pay the
@@ -76,11 +93,14 @@ def _atomic_reset(path: Path) -> None:
     try:
         # O_RDWR (not O_TRUNC) so the lock is acquired BEFORE any
         # destructive operation; truncation happens after the lock.
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o600)
+        # O_NOFOLLOW (via secure_open) refuses a symlinked counter path.
+        fd = secure_open(path, os.O_RDWR | os.O_CREAT, 0o600)
         try:
             os.fchmod(fd, 0o600)
         except OSError:
             pass
+        if not fd_owned_by_us(fd):
+            return
         if _HAS_FCNTL and _fcntl is not None:
             try:
                 _fcntl.flock(fd, _fcntl.LOCK_EX)

@@ -140,7 +140,7 @@ database driver documentation as this varies by library and version).
 Works with:
 - `conserve:response-compression` - Keeps sourced responses concise
 - `conserve:token-conservation` - Weighs source cost vs value
-- `memory-palace:research` - Full sourcing for knowledge corpus
+- `memory-palace:knowledge-intake` - Full sourcing for knowledge corpus
 
 ## When To Use Full Sourcing
 
@@ -155,4 +155,4 @@ Escalate to full sourcing (accept high token cost) for:
 - Compliance/legal claims (audit requirements)
 - Research tasks (user expects thorough investigation)
 
-For these cases, use `memory-palace:research` workflow which is designed for comprehensive sourcing.
+For these cases, use `memory-palace:knowledge-intake` workflow which is designed for thorough sourcing.

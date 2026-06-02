@@ -42,7 +42,7 @@ role: entrypoint
 > don't surface inconsistencies, don't present
 > tradeoffs, don't push back when they should.
 >
-> — Andrej Karpathy, on agentic coding failure modes
+> (Andrej Karpathy, on agentic coding failure modes)
 
 ## What This Is
 
@@ -101,7 +101,7 @@ speculative.**
 > They really like to overcomplicate code and APIs,
 > bloat abstractions.
 >
-> — Andrej Karpathy, on the same agentic-coding thread
+> (Andrej Karpathy, on the same agentic-coding thread)
 
 
 
@@ -122,6 +122,18 @@ worthiness formula and branch budgets,
 proof on every addition,
 `Skill(conserve:code-quality-principles)` for the
 KISS / YAGNI / SOLID foundation.
+
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `plan`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
 
 ### 3. Surgical Changes
 
@@ -243,3 +255,6 @@ When invoked as a pre-flight gate, create:
 - The senior-engineer test was applied at least once.
 - Verifiable success criteria are written down before
   the implementation begins.
+- The chosen approach and its simplicity tradeoff are
+  recorded to `docs/tradeoffs.md` (or the in-file
+  template) when real alternatives were weighed.

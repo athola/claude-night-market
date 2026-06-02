@@ -574,5 +574,5 @@ Following these function extraction guidelines will:
 5. **Improve Code Review**: Smaller functions are easier to review
    and understand
 
-Remember: **The goal is not just to make functions smaller,
-but to make the code more readable, maintainable, and testable.**
+Remember: **The goal is to make the code more readable, maintainable,
+and testable, with smaller functions as the means.**

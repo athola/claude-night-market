@@ -49,7 +49,7 @@ Avoid this command if:
 
 When superpowers plugin is available:
 - Uses `Skill(superpowers:brainstorming)` for Socratic method
-- Leverages structured ideation frameworks
+- Uses structured ideation frameworks
 - Applies constraint-based thinking
 
 Without superpowers:

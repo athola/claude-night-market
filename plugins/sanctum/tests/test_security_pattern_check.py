@@ -1,5 +1,5 @@
 # ruff: noqa: D101,D102,D103,PLR2004,E501,E402
-"""Tests for security_pattern_check hook — in-process coverage.
+"""Tests for security_pattern_check hook: in-process coverage.
 
 Tests context-aware security pattern detection that distinguishes
 between actual code and documentation examples. All tests call
@@ -461,7 +461,7 @@ class TestCheckContentEarlyExit:
 
 
 # ============================================================================
-# main() — Tool Dispatch
+# main(): Tool Dispatch
 # ============================================================================
 
 
@@ -549,7 +549,7 @@ class TestMainToolDispatch:
 
 
 # ============================================================================
-# main() — Early Exit Paths
+# main(): Early Exit Paths
 # ============================================================================
 
 
@@ -589,7 +589,7 @@ class TestMainEarlyExits:
 
 
 # ============================================================================
-# main() — Error Handling
+# main(): Error Handling
 # ============================================================================
 
 

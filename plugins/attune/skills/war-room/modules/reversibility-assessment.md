@@ -18,7 +18,7 @@ Evaluate decision reversibility to calibrate deliberation intensity. Based on Am
 ## Core Principle
 
 > "Make reversible decisions as soon as possible and make irreversible decisions as late as possible."
-> — Jeff Bezos
+> (Jeff Bezos)
 
 **The Problem**: Organizations tend to apply heavyweight Type 1 processes to all decisions, stifling speed and innovation. This framework ensures resources match stakes.
 
@@ -275,7 +275,7 @@ For Type 1 decisions, finalize when:
 2. **LOP**: Losing meaningful opportunities by waiting
 3. **KNOW**: Clarity has emerged about the right choice
 
-Do NOT wait for 100% certainty on Type 1 decisions—wait for the right moment.
+Do NOT wait for 100% certainty on Type 1 decisions: wait for the right moment.
 
 ## Audit Trail
 

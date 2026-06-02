@@ -1,4 +1,4 @@
-"""Bug review skill -- mixin-based composition.
+"""Bug review skill: mixin-based composition.
 
 Public API preserved verbatim from the prior 749-line
 ``bug_review.py`` module so existing imports keep working:

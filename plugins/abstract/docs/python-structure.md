@@ -207,7 +207,7 @@ issues = validate_skill_frontmatter(content, config.skill_validation)
 
 ## Integration with Claude Code
 
-The structure is designed to work seamlessly with Claude Code:
+The structure is designed to work with Claude Code:
 
 1. **Plugin files unchanged**: Skills, scripts, and plugin.json in expected locations
 2. **Shared code accessible**: Python modules available to all scripts

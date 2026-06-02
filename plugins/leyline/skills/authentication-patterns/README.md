@@ -416,7 +416,7 @@ ensure_auth github
 
 ## Examples
 
-See `examples/workflow-integration.md` for comprehensive examples:
+See `examples/workflow-integration.md` for complete examples:
 - PR Review command integration
 - Create Issue command integration
 - Multi-service workflows

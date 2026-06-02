@@ -15,7 +15,7 @@ Recommendations for which Claude models to use for different plugin tasks.
 Opus 4.6 introduces features that affect model selection strategy:
 
 - **Adaptive Thinking**: `thinking: {type: "adaptive"}` lets Claude decide when and how deeply to think
-- **Effort Controls**: 3 levels — `low` ○, `medium` ◐, `high` ● — trade reasoning depth against speed/cost. `max` removed in 2.1.72. Set via `/effort` command (2.1.76+), `/model` menu, `--effort` CLI flag, or `CLAUDE_CODE_EFFORT_LEVEL` env var
+- **Effort Controls**: 3 levels (`low` ○, `medium` ◐, `high` ●) trade reasoning depth against speed/cost. `max` removed in 2.1.72. Set via `/effort` command (2.1.76+), `/model` menu, `--effort` CLI flag, or `CLAUDE_CODE_EFFORT_LEVEL` env var
 - **128K Max Output**: Opus 4.6 default 64k tokens (2.1.77+, was 32k), upper bound 128k for both Opus 4.6 and Sonnet 4.6. Override via `CLAUDE_CODE_MAX_OUTPUT_TOKENS`
 - **Server-Side Compaction**: Automatic context summarization on the API side, enabling effectively infinite conversations
 - **1M Context Window (GA, 2.1.75+)**: Default for Opus 4.6 on Max/Team/Enterprise plans with no extra usage required. Opt out with `CLAUDE_CODE_DISABLE_1M_CONTEXT=1`
@@ -466,7 +466,11 @@ Track these metrics after optimization:
 
 ### Server-Side Compaction (Opus 4.6 / Claude Code 2.1.32+)
 
-Opus 4.6 introduces **server-side context compaction** — the API automatically summarizes earlier conversation parts when context approaches the window limit. This is separate from Claude Code's client-side auto-compaction and provides an additional safety net for long-running workflows.
+Opus 4.6 introduces **server-side context compaction**: the API
+automatically summarizes earlier conversation parts when context approaches
+the window limit. This is separate from Claude Code's client-side
+auto-compaction and provides an additional safety net for long-running
+workflows.
 
 ### Auto-Compaction (Claude Code 2.1.1+)
 

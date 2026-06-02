@@ -260,6 +260,6 @@ shfmt -p -i 2 -ci -w scripts/*.sh
 - [ ] `usage()` present and accepts `-h` / `usage`/`help` variants
 - [ ] `-x`/`-t` flags supported and enable xtrace
 - [ ] Non-modified globals are `readonly`
-- [ ] Platform branching uses `uname -s` + INSTALLER pattern
+- [ ] Platform branching uses `uname -s` and INSTALLER pattern
 - [ ] `case` used instead of `[ ]` for branching
 - [ ] `shfmt -p -i 2 -ci -d` reports no diff

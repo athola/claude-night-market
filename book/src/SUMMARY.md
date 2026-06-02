@@ -54,8 +54,8 @@
 # Reference
 
 - [Capabilities Reference](reference/capabilities-reference.md)
-- [Commands — Core Plugins](reference/capabilities-commands.md)
-- [Commands — Extended Plugins](reference/capabilities-commands-extended.md)
+- [Commands: Core Plugins](reference/capabilities-commands.md)
+- [Commands: Extended Plugins](reference/capabilities-commands-extended.md)
 - [Superpowers Integration](reference/superpowers-integration.md)
 - [Function Extraction Guidelines](reference/function-extraction-guidelines.md)
 

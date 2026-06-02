@@ -108,7 +108,7 @@ class TestModuleConstants:
 
 
 # ============================================================================
-# main() — Full Governance Path (non-lightweight agents)
+# main(): Full Governance Path (non-lightweight agents)
 # ============================================================================
 
 
@@ -183,7 +183,7 @@ class TestFullGovernancePath:
 
 
 # ============================================================================
-# main() — Lightweight Agent Path
+# main(): Lightweight Agent Path
 # ============================================================================
 
 
@@ -237,7 +237,7 @@ class TestLightweightAgentPath:
 
 
 # ============================================================================
-# main() — Error Handling
+# main(): Error Handling
 # ============================================================================
 
 
@@ -332,7 +332,7 @@ class TestErrorHandling:
         # But list does have .get? No. Let's verify the behaviour.
         # Actually list does NOT have .get, so this will raise AttributeError.
         # The hook's except only catches (OSError, json.JSONDecodeError).
-        # So this would be an unhandled error — let's verify.
+        # So this would be an unhandled error: let's verify.
         # Actually re-reading the code: the except is around the entire block
         # including the .get(), but it only catches OSError and JSONDecodeError.
         # An AttributeError from list.get() would propagate.

@@ -277,7 +277,7 @@ Skills should be transparent about their persuasive intent:
 
 This skill uses directive language and commitment techniques
 to validate security requirements are never skipped under time
-pressure. The authoritative tone is intentional—security
+pressure. The authoritative tone is intentional: security
 breaches are permanent, while code can be refactored.
 
 If you need flexibility (prototypes, exploration), explicitly
@@ -381,7 +381,7 @@ Every major framework validates inputs by default:
 - Spring: Bean validation standard
 - Express: Validator middleware common
 
-This isn't optional—it's the baseline professional standard.
+This is the baseline professional standard, not an option.
 Custom APIs that skip validation are security incidents
 waiting to happen.
 ```

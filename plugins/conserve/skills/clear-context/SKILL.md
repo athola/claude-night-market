@@ -49,7 +49,7 @@ Skill(conserve:clear-context)
 - Mid-critical-operation where handoff would lose state
 - **Consider "Summarize from here" first** (Claude Code 2.1.32+): Before full auto-clear,
   try partial summarization via the message selector. This compresses older context while
-  preserving recent work — often sufficient to relieve pressure without a full handoff.
+  preserving recent work, often sufficient to relieve pressure without a full handoff.
 
 ## The Auto-Clear Pattern
 
@@ -93,8 +93,8 @@ Before triggering auto-clear, gather:
 **Important**: Before saving state or spawning a continuation agent, reconcile the task list:
 
 1. **Review all tasks** via `TaskList`
-2. **Mark completed tasks** as `completed` via `TaskUpdate` — do NOT leave done work as `in_progress`
-3. **Record existing task IDs** — collect all task IDs (pending and in_progress) to pass in the session state so the continuation agent references them instead of creating duplicates
+2. **Mark completed tasks** as `completed` via `TaskUpdate`: do NOT leave done work as `in_progress`
+3. **Record existing task IDs**: collect all task IDs (pending and in_progress) to pass in the session state so the continuation agent references them instead of creating duplicates
 4. **Include task IDs in session state** under the `existing_task_ids` field (see Step 2)
 
 This prevents the continuation agent from creating duplicate tasks.
@@ -178,6 +178,35 @@ if parent_state and parent_state.get("execution_mode"):
     execution_mode = parent_state["execution_mode"]
 ```
 
+### Step 2.5: Verify Session-State Clarity Before Handoff
+
+A continuation agent inherits only what `session-state.md` says. If
+the draft is ambiguous, the new agent starts from corrupted task
+state. Before spawning, gate the handoff on the belief-clarity check
+(the `belief-clarity` module of `Skill(conserve:context-optimization)`),
+which asks two anchor questions against the draft state:
+
+1. **Progress probe**: what is the current task progress: what is
+   done, and what state is the task in now?
+2. **Gap probe**: what information is still needed to finish: a
+   bounded list of concrete open items, not generic categories.
+
+Gate logic:
+
+- Both answers specific and bounded: save and proceed to Step 3.
+- Gap probe open-ended or progress probe hedging: append the failing
+  probe's answer to `session-state.md` as explicit `Current state:`
+  and `Still needed:` bullets, then re-score.
+- Progress probe vague or empty: do not hand off. Confirm current
+  state with the user (or `imbue:proof-of-work` in unattended mode)
+  before writing state and retrying.
+
+When `memory-palace:memory-clarity-probe` is installed, delegate the
+dual-probe evaluation to it and use its "Proceed" composite as the
+gate. This check is qualitative: it catches drift and omission, not
+confidently-wrong state, so pair it with task-state verification for
+high-stakes handoffs.
+
 ### Step 3: Spawn Continuation Agent
 
 Use the Task tool to delegate. **Important**: Include execution mode in the task prompt:
@@ -244,7 +273,7 @@ If Task tool is unavailable (permissions, context restrictions):
 3. **Let auto-compact handle continuation** - Claude Code compresses context automatically
 4. **Manual continuation options**:
    - `claude --continue` to resume session
-   - New session + `/catchup` to understand changes
+   - New session and `/catchup` to understand changes
    - Read `.claude/session-state.md` for saved context
 
 > **Fixed in 2.1.63**: `/clear` now properly resets cached skills. Previously, stale skill content could persist into the new conversation. The `/clear` and `/catchup` pattern is now fully reliable.
@@ -323,14 +352,14 @@ For hooks where speed matters, use heuristics:
 ## Best Practices
 
 1. **Checkpoint Frequently**: During long tasks, save state at natural breakpoints
-2. **Clear Instructions**: Continuation agent needs specific, actionable guidance
+2. **Clear Instructions**: Continuation agent needs specific, concrete guidance
 3. **Verify Handoff**: Ensure state file is written before spawning subagent
 4. **Monitor Recursion**: Continuation agents can also hit limits - design for chaining
 
 ## Troubleshooting
 
 ### Continuation agent doesn't have full context
-- Ensure session-state.md is comprehensive
+- Ensure session-state.md is complete
 - Include all relevant file paths
 - Document implicit assumptions
 
@@ -360,3 +389,15 @@ Configure thresholds via environment:
 - `CONSERVE_EMERGENCY_THRESHOLD`: Override 80% default (e.g., "0.75")
 - `CONSERVE_CONTEXT_ESTIMATION`: Set to "0" to disable fallback
 - `CONSERVE_CONTEXT_WINDOW_BYTES`: Override 800000 byte estimate
+
+## Exit Criteria
+
+- [ ] The task list is reconciled (completed tasks marked, open task
+  IDs recorded) before any state is written
+- [ ] `.claude/session-state.md` exists and records current task,
+  progress, execution mode, and continuation instructions
+- [ ] The session-state clarity gate (Step 2.5) passed, or the failing
+  probe's answer was appended and re-scored, before handoff
+- [ ] A continuation agent was spawned with the execution mode and the
+  existing task IDs passed through (no duplicate task creation)
+- [ ] Handoff is refused when the progress probe is vague or empty

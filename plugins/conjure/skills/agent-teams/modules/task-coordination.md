@@ -114,7 +114,7 @@ When `leyline:risk-classification` is available, the lead validates risk tier be
 
 1. **Read `risk_tier`** from task metadata (default: `"GREEN"` if absent)
 2. **Validate assignment**: Check that the assigned agent's role is compatible with the tier (see `conjure:agent-teams/modules/crew-roles.md`)
-3. **Apply parallel constraints**: Respect the risk-tier parallel safety matrix — no RED+RED, never parallel CRITICAL
+3. **Apply parallel constraints**: Respect the risk-tier parallel safety matrix: no RED+RED, never parallel CRITICAL
 4. **Set verification gates**: Task completion requires passing the tier-appropriate verification gates from `leyline:risk-classification/modules/verification-gates.md`
 
 ## Concurrency Safety

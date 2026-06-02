@@ -26,7 +26,7 @@ The retry prompt combines the validation feedback with
 the original task:
 
 ```markdown
-## Contract Validation Failed -- Retry Required
+## Contract Validation Failed: Retry Required
 
 {validator.retry_feedback() output}
 

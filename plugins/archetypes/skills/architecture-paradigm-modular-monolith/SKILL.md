@@ -76,6 +76,6 @@ required dependencies and they are not part of the skill's
 restrictions). Use this list to disambiguate during architecture
 discussions.
 
-- ``dependency-analyzer`` — module dependency graph builder for spotting forbidden edges
-- ``module-boundary-enforcer`` — fails the build when a module imports across a boundary
-- ``refactoring-planner`` — ranks modules by extraction-readiness for a future split
+- ``dependency-analyzer``: module dependency graph builder for spotting forbidden edges
+- ``module-boundary-enforcer``: fails the build when a module imports across a boundary
+- ``refactoring-planner``: ranks modules by extraction-readiness for a future split

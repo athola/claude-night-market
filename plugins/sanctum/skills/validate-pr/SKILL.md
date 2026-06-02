@@ -1,13 +1,12 @@
 ---
-name: validate-mr
-description: Use when you need a diff-derived test plan for an MR — reads the
+name: validate-pr
+description: Use when you need a diff-derived test plan for a PR: reads the
   diff, groups changes by area, runs targeted verifications, and proves
   revert-tests are genuine guards, not dead assertions.
 alwaysApply: false
 category: validation
 tags:
 - pr
-- mr
 - validation
 - test-plan
 - diff
@@ -28,16 +27,16 @@ dependencies:
 role: entrypoint
 ---
 
-# validate-mr: Diff-Derived Test Plan
+# validate-pr: Diff-Derived Test Plan
 
 Generate and self-execute a validation plan matched to what actually changed
-in an MR. Replaces generic "tests pass" with area-targeted evidence and
+in a PR. Replaces generic "tests pass" with area-targeted evidence and
 revert-test quality checks that prove tests catch regressions.
 
 ## When To Use
 
 - End of `/fix-pr` Step 5 (Validate), before Step 6 (Complete)
-- Standalone after any MR fix, to generate targeted validation evidence
+- Standalone after any PR fix, to generate targeted validation evidence
 - When you need proof that revert-tests are genuine guards
 
 ## When NOT To Use
@@ -55,10 +54,10 @@ fetch diff -> group by area -> generate steps -> execute -> revert-test -> table
 ## Step 1: Fetch Diff and Detect Areas
 
 ```bash
-# Get changed file list from the MR
-MR_NUMBER=<number from invocation or current branch>
-CHANGED=$(gh pr diff "$MR_NUMBER" --name-only)
-# Fallback when no MR number:
+# Get changed file list from the PR
+PR_NUMBER=<number from invocation or current branch>
+CHANGED=$(gh pr diff "$PR_NUMBER" --name-only)
+# Fallback when no PR number:
 # CHANGED=$(git diff "origin/$(git rev-parse --abbrev-ref HEAD@{upstream})...HEAD" \
 #   --name-only 2>/dev/null)
 ```
@@ -157,7 +156,7 @@ Prove at least one test is a genuine guard, not a dead assertion.
 
 ```bash
 if ! git diff --exit-code > /dev/null 2>&1; then
-  echo "[RT] SKIP: working tree dirty — revert-test unsafe"
+  echo "[RT] SKIP: working tree dirty: revert-test unsafe"
   # Mark INCONCLUSIVE and continue
 fi
 ```
@@ -171,25 +170,25 @@ fi
 2. Identify the specific changed line or block from the diff.
 3. Edit that line to revert the fix to its broken state.
 4. Run the targeted test: confirm it **FAILS** (expected).
-5. Restore: `git checkout — <file>` (git-based restore, safe on interrupt).
+5. Restore: `git checkout -- <file>` (git-based restore, safe on interrupt).
 6. Run the targeted test again: confirm it **PASSES**.
 7. If any step cannot complete, mark INCONCLUSIVE with the reason.
 
 **Revert-test output format:**
 
 ```
-[RT-1] Target: <file>:<line> — <description of fix>
+[RT-1] Target: <file>:<line>: <description of fix>
 [RT-2] Broke fix: <edit description>
 [RT-3] Ran: <test command> → <test name> FAILED (expected)
 [RT-4] Restored: git checkout -- <file>
 [RT-5] Ran: <test command> → <test name> PASSED
-Result: PASS — test is a genuine guard
+Result: PASS: test is a genuine guard
 ```
 
 **When no covering test exists:**
 
 ```
-Revert-test: INCONCLUSIVE — no covering test for <changed area>
+Revert-test: INCONCLUSIVE: no covering test for <changed area>
 Recommendation: add a test for <changed function or behaviour>
 ```
 
@@ -213,7 +212,7 @@ Capture full output as final evidence `[En]`.
 ## Step 5: Produce Summary Table
 
 ```markdown
-### validate-mr: <MR title or number>
+### validate-pr: <PR title or number>
 
 | Area | Step | Evidence | Result |
 |------|------|----------|--------|
@@ -224,7 +223,7 @@ Capture full output as final evidence `[En]`.
 | Revert-test: lib.rs:45 | break/fail/restore | [RT-1..5] genuine guard | PASS |
 | Final: cargo test --workspace | full suite | [E5] 694 passed, 0 failed | PASS |
 
-**Totals**: 6 steps — 6 PASS, 0 FAIL, 0 INCONCLUSIVE
+**Totals**: 6 steps: 6 PASS, 0 FAIL, 0 INCONCLUSIVE
 ```
 
 ## Step 6: Posting (--post flag only)
@@ -232,10 +231,10 @@ Capture full output as final evidence `[En]`.
 When `--post` is given, post the summary table as a PR comment:
 
 ```bash
-gh pr comment "$MR_NUMBER" --body "$(cat /tmp/validate-mr-summary.md)"
+gh pr comment "$PR_NUMBER" --body "$(cat /tmp/validate-pr-summary.md)"
 ```
 
-Skip posting when invoked from `/fix-pr` — results feed into the Gate 3
+Skip posting when invoked from `/fix-pr`: results feed into the Gate 3
 summary comment instead.
 
 ## Failure Behaviour

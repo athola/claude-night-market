@@ -156,7 +156,7 @@ Run `Skill(scribe:slop-detector)` on edited documentation to detect AI-generated
 
 ### Scribe Integration
 
-The scribe plugin provides comprehensive AI slop detection:
+The scribe plugin provides thorough AI slop detection:
 
 ```
 Skill(scribe:slop-detector) --target [edited-files]

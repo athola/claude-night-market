@@ -71,7 +71,7 @@ Identifies common bypass patterns:
 - Spirit vs Letter: "Technically following the approach"
 
 ### Step 3: Generate Rationalization Table
-Creates comprehensive mapping of rationalizations → counters.
+Creates thorough mapping of rationalizations → counters.
 
 ### Step 4: Create Red Flags List
 Builds self-check questions to catch bypass attempts.
@@ -119,7 +119,7 @@ Recommendation: Address all CRITICAL and HIGH before production
 
 ## Detailed Guides
 
-For comprehensive patterns and examples, see the bulletproof-skill source code and the abstract methodology framework.
+For more patterns and examples, see the bulletproof-skill source code and the abstract methodology framework.
 
 ## Best Practices
 

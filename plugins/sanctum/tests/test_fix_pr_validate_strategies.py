@@ -14,7 +14,7 @@ encode three load-bearing decisions:
    for single-DOM-assertion items.
 
 These tests are regression guards. If one fails, do NOT silently
-update the assertion -- the failure indicates a conscious decision
+update the assertion: the failure indicates a conscious decision
 to change the documented strategy, which deserves human review.
 """
 

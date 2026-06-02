@@ -48,7 +48,7 @@ that use spatial metaphors for organization and retrieval.
 | `research_interceptor.py` | PreToolUse | Checks local knowledge before web searches |
 | `url_detector.py` | UserPromptSubmit | Detects URLs for intake |
 | `local_doc_processor.py` | PostToolUse | Processes local docs after reads |
-| `web_research_handler.py` | PostToolUse | Processes web content and prompts for knowledge storage |
+| `web_research_handler.py` | PostToolUse | Processes web content, skips non-2xx error pages (#547), and prompts for knowledge storage |
 
 ## Usage Examples
 
@@ -219,7 +219,7 @@ Unlike palaces (structured), gardens are organic:
 
 Evergreen corpus entries can be promoted to a GitHub Discussion in the
 "Knowledge" (Q&A) category.
-The `discussion-promotion` module in `knowledge-intake` checks entry maturity —
+The `discussion-promotion` module in `knowledge-intake` checks entry maturity:
 only entries at the `evergreen` lifecycle stage are eligible.
 Promotion creates a structured Discussion with title, summary, key findings,
 and source references. Entries that already have a `discussion_url` field are

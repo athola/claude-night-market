@@ -1,4 +1,4 @@
-"""Tests for a2a_cards.py — A2A agent card generator.
+"""Tests for a2a_cards.py: A2A agent card generator.
 
 Feature: Generate A2A protocol agent cards for night-market agents
 

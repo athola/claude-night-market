@@ -19,17 +19,17 @@ catalog).
 
 ## The Four Principles (verbatim source framing)
 
-1. **Think Before Coding** — State assumptions explicitly.
+1. **Think Before Coding**: State assumptions explicitly.
    If multiple interpretations exist, present them. If
    simpler exists, push back. If unclear, stop and ask.
-2. **Simplicity First** — Minimum code that solves the
+2. **Simplicity First**: Minimum code that solves the
    problem. No speculative features. No abstractions for
    single-use code. No error handling for impossible
    scenarios.
-3. **Surgical Changes** — Touch only what you must. Don't
+3. **Surgical Changes**: Touch only what you must. Don't
    improve adjacent code. Match existing style. Every
    changed line traces to the user's request.
-4. **Goal-Driven Execution** — Define verifiable success
+4. **Goal-Driven Execution**: Define verifiable success
    criteria. "Add validation" becomes "write tests for
    invalid inputs, then make them pass."
 

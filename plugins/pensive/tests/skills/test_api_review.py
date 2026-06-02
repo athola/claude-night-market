@@ -234,7 +234,7 @@ class TestApiReviewSkill:
         method = getattr(self.skill, method_name)
         api_surface = method(mock_skill_context, filename)
 
-        # Assert -- exact equality on every key
+        # Assert: exact equality on every key
         for key, expected_value in expected.items():
             assert api_surface[key] == expected_value, (
                 f"{lang} {key}: got {api_surface[key]}, expected {expected_value}"

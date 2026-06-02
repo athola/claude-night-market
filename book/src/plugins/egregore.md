@@ -133,6 +133,6 @@ Discussions with rate limiting and deduplication.
 
 ## Related Plugins
 
-- [conjure](conjure.md) — External LLM delegation
-- [conserve](conserve.md) — Context management
-- [sanctum](sanctum.md) — Git workflow integration
+- [conjure](conjure.md): External LLM delegation
+- [conserve](conserve.md): Context management
+- [sanctum](sanctum.md): Git workflow integration

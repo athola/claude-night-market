@@ -301,6 +301,18 @@ If `--commit` is set and Status is PASS:
 
 Default behavior is no-commit; the user reviews the diff and commits manually.
 
+### Record Lessons Learned (decision journal)
+
+If this work involved rework, a failed approach, or a blocker, record it to
+`docs/lessons-learned.md` so the insight survives past the session (draft and
+confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a lesson entry (`what_happened`, `what_didnt_work`, `root_cause`, `action`;
+  set `phase` to `execute`). Show the draft; append on confirmation.
+- Fallback (leyline absent): append to `docs/lessons-learned.md` using the
+  in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
 ## Configuration and Options
 
 | Flag | Default | Effect |

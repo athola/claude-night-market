@@ -47,9 +47,9 @@ File must contain more than just whitespace or a single heading. Minimum: 100 ch
 ### Frontmatter Status
 
 If the artifact has YAML frontmatter with a `status` field, it must be:
-- `complete` or `approved` — artifact is ready
-- `draft` or `in-progress` — artifact exists but is not ready (treated as non-existent for type detection)
-- `rejected` — artifact should be regenerated
+- `complete` or `approved`: artifact is ready
+- `draft` or `in-progress`: artifact exists but is not ready (treated as non-existent for type detection)
+- `rejected`: artifact should be regenerated
 
 ## Staleness Detection
 

@@ -22,6 +22,7 @@ modules:
 - modules/acceptance-criteria.md
 - modules/anti-cargo-cult.md
 - modules/evidence-logging.md
+- modules/independent-verification.md
 - modules/iron-law-enforcement.md
 - modules/output-contracts.md
 - modules/red-flags.md
@@ -179,6 +180,9 @@ by the user. Ensure you are proving rather than assuming.
   conventions and safe deletion rules for imbue TodoWrite items
 - [Evidence logging](modules/evidence-logging.md): structured
   evidence capture, audit trails, and reproducibility patterns
+- [Independent verification](modules/independent-verification.md): for
+  high-stakes changes, why the producing agent may not be its own
+  sole verifier, and what counts as an independent check
 
 ## Related Skills
 

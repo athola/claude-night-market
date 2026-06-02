@@ -61,15 +61,17 @@ class TestCounterFilePath:
         assert "my-session-123" in str(path)
 
     @pytest.mark.unit
-    def test_counter_file_in_tmp(self, hook_module):
+    def test_counter_file_in_private_tmp_subdir(self, hook_module):
         """
-        Scenario: Counter file lives under /tmp
+        Scenario: Counter file lives in a private per-user temp subdir
         Given any session ID
         When _counter_path is called
-        Then the path is under /tmp
+        Then the path sits inside an imbue-vow-state-<uid> directory so
+        another user cannot plant a symlink at it (CWE-59 defense)
         """
         path = hook_module._counter_path("some-session")
-        assert str(path).startswith("/tmp")
+        assert "imbue-vow-state" in str(path.parent.name)
+        assert (path.parent.stat().st_mode & 0o777) == 0o700
 
     @pytest.mark.unit
     def test_counter_path_fallback_when_no_session(self, hook_module):

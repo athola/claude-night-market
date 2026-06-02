@@ -429,7 +429,7 @@ Each task follows this systematic pattern:
 # Report progress
 ```
 
-**Task Completion Discipline**: Call `TaskUpdate(taskId, status: "completed")` right after finishing each task—never defer to end of session.
+**Task Completion Discipline**: Call `TaskUpdate(taskId, status: "completed")` right after finishing each task. Never defer to end of session.
 
 ## Terminal Phase
 

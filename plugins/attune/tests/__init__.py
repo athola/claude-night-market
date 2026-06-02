@@ -3,4 +3,4 @@
 Comprehensive test coverage for attune project initialization functionality.
 """
 
-__version__ = "1.9.9"
+__version__ = "1.9.10"

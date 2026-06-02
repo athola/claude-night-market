@@ -20,7 +20,7 @@ Each team member has a `role` that determines their capabilities and the types o
 | `reviewer` | Read-only and comment | Code review, quality | Reviewing PRs, auditing code quality |
 | `architect` | All tools | Planning, design | System design, architectural decisions |
 
-**Default role**: `implementer` (backward compatible — members without an explicit role are treated as implementers).
+**Default role**: `implementer` (backward compatible: members without an explicit role are treated as implementers).
 
 ## Capability Matrix
 

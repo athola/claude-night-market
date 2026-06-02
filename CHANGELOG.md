@@ -5,6 +5,129 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.10] - 2026-05-29
+
+### Added
+
+- **imbue/assisted-mastery skill.** Addresses the assistance dilemma
+  in agent-assisted coding: makes the agent's reasoning a first-class
+  deliverable (assumptions, alternatives considered, ramifications),
+  surfaces tradeoffs before a design is chosen, and fades assistance
+  so the human builds judgment instead of dependence (explain mode
+  versus produce mode). Grounded in the expertise reversal effect,
+  productive failure, and cognitive offloading research.
+- **imbue/graduated-implementation skill plus
+  `guard_scope_ramp.py` hook.** The other direction of the
+  assisted-mastery axis: assisted-mastery fades scaffolding, this
+  ramps the ambition of the next increment. Start at the smallest
+  intentional slice (~40 added lines) and widen the rung a notch
+  only when the prior increment's understanding is demonstrated and
+  recorded, low-stakes on an evidence gate, high-stakes on the human
+  explaining the diff unaided (the aviation hand-fly check). The
+  PreToolUse Write/Edit/MultiEdit hook holds each increment to the
+  current rung, halves it for high-stakes paths, and defaults to
+  shadow mode. Research basis in the graduated-implementation skill's
+  `modules/research-basis.md` (Wilson 2019 85% rule; Platanios 2019
+  competence gate; GDL clean-record gating).
+  The rung is driven by the full `leyline:risk-classification` tier
+  scale (GREEN/YELLOW keep the rung, RED halves it, CRITICAL quarters
+  it) via an `IMBUE_STAKES` signal, not path-regex alone. A
+  `ramp-ledger` module records each notch climbed for later audit
+  (pairing with `leyline:decision-journal`), and `attune`'s
+  project-execution loop gains a ramp gate that demonstrates
+  understanding of each increment before ramping to the next.
+- **imbue/dependency-verification skill plus
+  `guard_package_hallucination.py` hook.** Confirms a suggested
+  package exists before install, defending against package
+  hallucination (5.2-21.7% of LLM-recommended packages do not exist)
+  and slopsquatting. The PreToolUse Bash hook flags typosquats of
+  popular packages offline and looks up unknown names in the registry,
+  defaulting to shadow mode and never blocking on a network failure.
+- **imbue/proof-of-work: independent-verification module.** For
+  high-stakes changes, the producing agent may no longer be its own
+  sole verifier; a second independent check (fresh agent, untuned
+  gate, or human) is required, per the four-eyes and nuclear
+  independent-verification principles.
+- **leyline/risk-classification: automation-tiers module.** Pairs each
+  risk tier with a default automation tier (A3 autonomous to A0
+  manual) and a pre-licensed downgrade trigger that drops the agent a
+  tier on repeated failure, confidence loss, or a stakes spike (the
+  aviation "children of the magenta" fix), rather than re-prompting at
+  the same level. Research basis recorded in the assisted-mastery
+  skill's `modules/research-basis.md`.
+- **conserve, memory-palace: MMPO anchor-clarity gates (#550, #551,
+  #552).** Skill descriptions and memory summaries are now scored for
+  anchor clarity and fail fast when an anchor is too vague to act on,
+  applying the Minimal Meaningful Probe Output method from the MMPO
+  paper.
+- **leyline/decision-journal: project decision journal contract.** A
+  new shared contract creates and maintains `docs/tradeoffs.md` and
+  `docs/lessons-learned.md` as append-only logs with stable IDs and a
+  supersede-don't-delete discipline (MADR plus Y-statement for
+  tradeoffs, PMI register plus blameless postmortem for lessons).
+  `attune:project-init` scaffolds both files, and the decision and
+  lesson workflows across attune, sanctum, spec-kit, and imbue record
+  entries at their natural endpoints with a draft-and-confirm step.
+  Captures the decisions, tradeoffs, and rework that AI-assisted
+  workflows tend to drop.
+- **memory-palace/memory-clarity-probe skill.** A dual-anchor probe
+  (task progress, information gaps) for verifying session state or a
+  summary before handoff or compression, derived from the MMPO paper.
+- **pensive/safety-critical-patterns via `/full-review` (#538).** The
+  NASA Power of 10 ruleset is now reachable from the unified review
+  command for financial, medical, and high-reliability code paths.
+- **sanctum/validate-pr skill (#548).** Generates and self-executes a
+  diff-derived test plan: groups changed files by area, runs targeted
+  verifications, and proves revert-tests are genuine guards rather than
+  dead assertions.
+- **sanctum/output-hygiene shared module.** A single source of truth
+  for the text every sanctum workflow emits (commit messages, PR
+  comments, thread replies, summaries). Contract A strips
+  character-level slop markers (a `+` used as a conjunction, em-dashes,
+  double-dashes, arrow connectors, and smart quotes) that the
+  word-level checks let through; Contract B requires commit messages to
+  state a change's reader-facing effect rather than the cleanup process
+  behind it. Consumed by `commit-msg`, `commit-messages`, `pr-review`
+  Phase 1.7, and `fix-pr`, each with an inline fallback for partial
+  installs. Covered by `test_output_hygiene.py`.
+- **scribe: Tier 5 slop patterns wired into the runtime.** The
+  2026 cross-source slop patterns (spatial copula, negative
+  parallelism, throat-clearing) now run in the detector path, not just
+  the markdown skill.
+- **herald/double-shot-latte Stop-hook continuation judge.** A
+  cross-platform Stop hook that reads the last assistant message and
+  continues only on explicit intent to keep working, defaulting to stop
+  so finished work is not nagged. It is pure standard library, so it
+  needs no `jq`, `claude` CLI, or `/tmp`. A throttle allows up to 10
+  auto-continue cycles within a 5-minute window, then pauses and invites
+  the user to resume with a fresh budget; the cap is configurable via
+  `DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS`. An optional LLM second shot
+  (`DOUBLE_SHOT_LATTE_LLM=1`) breaks ties on ambiguous turns and falls
+  back to the deterministic verdict when `claude` is unavailable.
+
+### Changed
+
+- **README simplified to an index (435 to 200 lines).** The root README
+  now leads with everyday workflows and links depth out to `book/`
+  instead of inlining a 95-line "What's New" history and a 23-row
+  plugin catalog.
+- **sanctum/update-readme teaches the index-not-manual shape.** The
+  skill now favors concision with a soft line budget and a concrete,
+  falsifiable Exit Criteria so future README passes default to linking
+  over inlining.
+- **sanctum: renamed `validate-mr` to `validate-pr` for naming
+  consistency** with `pr-review`, `fix-pr`, and `prepare-pr`. MR
+  references became PR throughout; the `leyline:git-platform`
+  dependency stays so GitLab CLI mapping still works.
+
+### Fixed
+
+- **memory-palace/knowledge-intake rejects non-2xx fetches (#547).** A
+  fetch that returns an error page no longer gets stored as if it were
+  the requested resource.
+- **conserve: pinned frozen benchmark fixture for the log-hygiene test
+  (#540).** The test no longer drifts with the live corpus.
+
 ## [1.9.9] - 2026-05-26
 
 ### Added
@@ -207,8 +330,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`minister:dora-metrics` skill (#487).** Computes the four
   DORA delivery-performance metrics (deployment frequency, lead
-  time for changes, change failure rate, time to restore service
-  — median) from GitHub PR and deployment data, and classifies
+  time for changes, change failure rate, time to restore service,
+  median) from GitHub PR and deployment data, and classifies
   the result into the Elite / High / Medium / Low tier from the
   Accelerate research. Intended for quarterly delivery retros. See
   `plugins/minister/skills/dora-metrics/` and the entry in
@@ -265,7 +388,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `docs(abstract)`: refresh effort levels and add
   2.1.97-2.1.138 compat notes.
-- `docs(pensive)`: add Verification + Testing sections to
+- `docs(pensive)`: add Verification and Testing sections to
   `performance-review` (#469).
 - `docs(archetypes)`: restore paradigm-component vocabulary
   in 13 SKILL.md files (#463).
@@ -318,8 +441,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     frontmatter (5 plugins, ~10 tests).
   - Unrelated: per-skill *adaptation* versioning
     (`adaptation.current_version` / `version_history`
-    consumed by `abstract.skill_versioning`) is unchanged
-    — that's a different feature.
+    consumed by `abstract.skill_versioning`) is unchanged;
+    that's a different feature.
 
 ### Fixed
 
@@ -496,7 +619,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `frontmatter.py`, pensive
   `architecture_review/__init__.py`, sanctum
   `test_generator.py` and `update_plugin_registrations.py`,
-  memory-palace README -- all corrected with
+  memory-palace README: all corrected with
   regression coverage.
 - **slop-scan-for-docs Layer 0 P0 hits**: corrected
   identity-leak / hallucination patterns in
@@ -535,7 +658,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (Phase 5 R1-R7, Phase 6).
 - **Hygiene fixes (Tier 3)**: F-01, F-04, F-06 through
   F-13, F-17 applied across the codebase.
-- **Em-dash polish + "actionable" purge** (slop Phase 4):
+- **Em-dash polish and "actionable" purge** (slop Phase 4):
   prose cleanup pass across documentation.
 - **Truthful docstrings for stub safety / dependency
   methods** (B-03, B-15): docstrings now match the
@@ -553,53 +676,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   history at commit `a50a9352`.
 - **PR #470 deferred-items closure** (#484, #485):
   closed on this branch instead of carrying to 1.10.x.
-  - **S2** -- `gh_graphql` widens ``variables`` to
+  - **S2**: `gh_graphql` widens ``variables`` to
     ``dict[str, Any]``; ``int`` / ``float`` / ``bool`` /
     ``None`` are routed via ``gh -F`` (typed-field) so
     GraphQL ``Int!`` / ``Boolean!`` / nullable variables
     match their schema types.
-  - **S3** -- `bootstrap.add_plugin_src_to_path` swaps
+  - **S3**: `bootstrap.add_plugin_src_to_path` swaps
     CPython-private ``sys._getframe(1)`` for
     ``inspect.stack()[1].filename`` and falls back to
     ``Path.cwd()`` when the caller frame is synthetic.
-  - **S6** -- the residual "future GitLab/Bitbucket"
+  - **S6**: the residual "future GitLab/Bitbucket"
     sentence is removed from the `git_platform`
     docstring's user story in the test file.
-  - **S8** -- `PROJECT_PALACE_ROOMS` /
+  - **S8**: `PROJECT_PALACE_ROOMS` /
     `REVIEW_CHAMBER_ROOMS` are typed via
     ``dict[RoomType, RoomMetadata]`` /
     ``dict[ReviewSubroom, RoomMetadata]`` with a frozen
     ``RoomMetadata`` dataclass; the manager preserves
     string-keyed palace JSON via ``RoomType.value``.
-  - **S9** -- `cli_envelope` exports ``SuccessEnvelope``
+  - **S9**: `cli_envelope` exports ``SuccessEnvelope``
     / ``ErrorEnvelope`` ``TypedDict``s plus a
     discriminated ``Envelope`` union; ``success_envelope``
     / ``error_envelope`` return the typed shapes.
-  - **S10** -- ``GhCommandError`` now carries ``cmd:
+  - **S10**: ``GhCommandError`` now carries ``cmd:
     list[str]``, ``returncode: int | None``, and
     ``stderr: str | None`` for programmatic error
     handling; ``str(exc)`` stays human-readable.
-  - **S11** -- `test_dir_utils` adds three negative-path
+  - **S11**: `test_dir_utils` adds three negative-path
     scenarios: ``CLAUDE_HOME`` unset (falls back to
     ``HOME``), ``not-a-dir`` collision (raises
     ``FileExistsError``), unwritable parent (raises
     ``PermissionError``, skipped under root).
-  - **gh_api `=` field key guard** -- ``gh_api`` raises
+  - **gh_api `=` field key guard**: ``gh_api`` raises
     ``ValueError`` if a field key contains ``=`` so the
     argv pair cannot be split to smuggle extra fields.
-  - **C7** -- `ReviewEntry` is now
+  - **C7**: `ReviewEntry` is now
     ``@dataclass(frozen=True, slots=True)``;
     ``from_dict`` is a regular constructor call (no
     post-hoc attribute mutation), and read-tracking
     flows through a new ``with_access()`` method that
     returns a new instance.
-  - **C9** -- `TestQualityMixin` and
+  - **C9**: `TestQualityMixin` and
     `TestRecommendationMixin` are demoted to
     module-level functions in ``_quality`` /
     ``_recommendations``; ``TestingGuideSkill`` becomes
     a thin facade that delegates to them. Behavioural
     surface unchanged for downstream consumers.
-  - **SKILL.md `version:` frontmatter drift** -- 170
+  - **SKILL.md `version:` frontmatter drift**: 170
     SKILL.md files were stuck at ``version: 1.9.3``
     while ``plugin.json`` was at 1.9.4. ``update_versions``
     learns to bump the frontmatter ``version:`` (only
@@ -729,7 +852,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **spec-kit speckit-tasks now generates test tasks by
   default**. Previously the wording said "Tests are
   OPTIONAL: only generate test tasks if explicitly
-  requested" — defaulting away from the project's
+  requested", defaulting away from the project's
   iron-law TDD posture. New default is ON; opt-out via
   `--no-tdd` or explicit spec opt-out for
   spikes/throwaways.
@@ -2074,38 +2197,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Rules evaluation skill** (abstract) — `rules-eval` skill and `/rules-eval` command validate Claude Code rules in `.claude/rules/` directories for YAML frontmatter, glob pattern quality, content metrics, and organization patterns
-- **Daily learning aggregation hook** (abstract) — `aggregate_learnings_daily.py` UserPromptSubmit hook runs on a 24h cadence to generate LEARNINGS.md, then chains to `auto_promote_learnings.py` for severity-based GitHub Issue creation (score > 5.0) or Discussion posting (score 2.0–5.0)
-- **Research storage prompt** (memory-palace) — PostToolUse hook detects WebSearch usage and prompts user to store findings via `memory-palace:knowledge-intake` skill
+- **Rules evaluation skill** (abstract): `rules-eval` skill and `/rules-eval` command validate Claude Code rules in `.claude/rules/` directories for YAML frontmatter, glob pattern quality, content metrics, and organization patterns
+- **Daily learning aggregation hook** (abstract): `aggregate_learnings_daily.py` UserPromptSubmit hook runs on a 24h cadence to generate LEARNINGS.md, then chains to `auto_promote_learnings.py` for severity-based GitHub Issue creation (score > 5.0) or Discussion posting (score 2.0–5.0)
+- **Research storage prompt** (memory-palace): PostToolUse hook detects WebSearch usage and prompts user to store findings via `memory-palace:knowledge-intake` skill
 
 ### Fixed
 
-- **Mermaid rendering in mdbook** — CDN-based mermaid.js initialization so diagrams render in the published book
-- **Sanctum 6-complete modularization** — split 26KB hub into slim hub + 6 sub-modules for on-demand loading
-- **Shared CACHE_EXCLUDES** — extract duplicate exclude lists into `update_plugins_modules/constants.py`
-- **Skill frontmatter cleanup** — improved pytest-config description and verification steps
+- **Mermaid rendering in mdbook**: CDN-based mermaid.js initialization so diagrams render in the published book
+- **Sanctum 6-complete modularization**: split 26KB hub into slim hub + 6 sub-modules for on-demand loading
+- **Shared CACHE_EXCLUDES**: extract duplicate exclude lists into `update_plugins_modules/constants.py`
+- **Skill frontmatter cleanup**: improved pytest-config description and verification steps
 
 ## [1.4.4] - 2026-02-19
 
 ### Added
 
-- **GitHub Discussions as agent collective memory** — Cross-session decision retrieval and knowledge sharing via GitHub Discussions GraphQL API
-  - **Discussion CRUD operations** (leyline) — `command-mapping.md` extended with create, comment, search, mark-as-answer, get, update, and list-by-category GraphQL templates; GitHub-only with graceful degradation for GitLab/Bitbucket
-  - **Discussion category templates** — `.github/DISCUSSION_TEMPLATE/` with 4 structured forms: decisions (announcement), deliberations (open), learnings (retrospective), knowledge (Q&A)
-  - **War room discussion publishing** (attune) — `discussion-publishing` module publishes completed deliberations to a "Decisions" Discussion after user approval; checks for prior decisions to avoid duplicates
-  - **Session-start discussion retrieval** (leyline) — `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent Decisions discussions via a bounded GraphQL query (3s timeout, <600 tokens)
-  - **Knowledge promotion to Discussions** (memory-palace) — `discussion-promotion` module promotes evergreen corpus entries to a "Knowledge" Discussion category; supports both create and update flows
-  - **Scope-guard discussion linking** (imbue) — `github-integration.md` extended with optional Step 4 that creates a companion Discussion with full scoring breakdown when deferring features
+- **GitHub Discussions as agent collective memory**: Cross-session decision retrieval and knowledge sharing via GitHub Discussions GraphQL API
+  - **Discussion CRUD operations** (leyline): `command-mapping.md` extended with create, comment, search, mark-as-answer, get, update, and list-by-category GraphQL templates; GitHub-only with graceful degradation for GitLab/Bitbucket
+  - **Discussion category templates**: `.github/DISCUSSION_TEMPLATE/` with 4 structured forms: decisions (announcement), deliberations (open), learnings (retrospective), knowledge (Q&A)
+  - **War room discussion publishing** (attune): `discussion-publishing` module publishes completed deliberations to a "Decisions" Discussion after user approval; checks for prior decisions to avoid duplicates
+  - **Session-start discussion retrieval** (leyline): `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent Decisions discussions via a bounded GraphQL query (3s timeout, <600 tokens)
+  - **Knowledge promotion to Discussions** (memory-palace): `discussion-promotion` module promotes evergreen corpus entries to a "Knowledge" Discussion category; supports both create and update flows
+  - **Scope-guard discussion linking** (imbue): `github-integration.md` extended with optional Step 4 that creates a companion Discussion with full scoring breakdown when deferring features
 
 ### Fixed
 
-- **Minister playbook broken CLI commands** (minister) — Replaced non-functional `gh discussion create/comment/list` CLI calls with working GraphQL mutations in `github-program-rituals.md` and `release-train-health.md`
+- **Minister playbook broken CLI commands** (minister): Replaced non-functional `gh discussion create/comment/list` CLI calls with working GraphQL mutations in `github-program-rituals.md` and `release-train-health.md`
 
 ### Changed
 
-- **TDD gate relaxed for markdown modules** (imbue) — `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
+- **TDD gate relaxed for markdown modules** (imbue): `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
 
-- **Claude Code compatibility updates 2.1.41–2.1.47** (abstract, conserve, sanctum, conjure, leyline, scribe) — Documented 7 new Claude Code releases:
+- **Claude Code compatibility updates 2.1.41–2.1.47** (abstract, conserve, sanctum, conjure, leyline, scribe): Documented 7 new Claude Code releases:
   - 2.1.47: `last_assistant_message` hook field, background agent transcript fix, parallel file write resilience, plan mode compaction fix, bash permission validation, concurrent agent streaming fix, memory improvements, Edit tool unicode fix, LSP gitignore filter
   - 2.1.46: Claude.ai MCP connectors, macOS orphan process fix
   - 2.1.45: Sonnet 4.6, plugin hot-loading, subagent skill compaction fix, background agent crash fix, SDK rate limit types
@@ -2114,13 +2237,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 2.1.42: Deferred schema init, prompt cache improvement, /resume interrupt title fix
   - 2.1.41: `claude auth` CLI, `/rename` auto-name, streaming notifications, plan mode tick fix, permission rule refresh
 
-- **Agent worktree isolation** (abstract, attune, conserve, pensive, sanctum, spec-kit) — Added `isolation: worktree` frontmatter to 6 agents: skill-improver, project-implementer, unbloat-remediator, code-refiner, dependency-updater, workflow-improvement-implementer. Documented worktree isolation patterns in conjure agent-teams, delegation-core, conserve subagent-coordination, and sanctum parallel-execution.
+- **Agent worktree isolation** (abstract, attune, conserve, pensive, sanctum, spec-kit): Added `isolation: worktree` frontmatter to 6 agents: skill-improver, project-implementer, unbloat-remediator, code-refiner, dependency-updater, workflow-improvement-implementer. Documented worktree isolation patterns in conjure agent-teams, delegation-core, conserve subagent-coordination, and sanctum parallel-execution.
 
-- **Agent background execution** (conserve, scribe) — Added `background: true` to 4 agents: ai-hygiene-auditor, bloat-auditor, doc-verifier, slop-hunter. Documented background agent MCP restriction (background agents cannot use MCP tools).
+- **Agent background execution** (conserve, scribe): Added `background: true` to 4 agents: ai-hygiene-auditor, bloat-auditor, doc-verifier, slop-hunter. Documented background agent MCP restriction (background agents cannot use MCP tools).
 
-- **Learnings-to-Discussions pipeline** (abstract) — `aggregate-logs` command extended with Phase 6a (post learnings to Discussions) and linked to new `/promote-discussions` command (Phase 6c).
+- **Learnings-to-Discussions pipeline** (abstract): `aggregate-logs` command extended with Phase 6a (post learnings to Discussions) and linked to new `/promote-discussions` command (Phase 6c).
 
-- **Configuration change audit hook** (sanctum) — `config_change_audit.py` ConfigChange hook logs all settings mutations (user, project, local, policy, skills) to stderr for security audit trail; observe-only, never blocks changes.
+- **Configuration change audit hook** (sanctum): `config_change_audit.py` ConfigChange hook logs all settings mutations (user, project, local, policy, skills) to stderr for security audit trail; observe-only, never blocks changes.
 
 ## [1.4.3] - 2026-02-15
 

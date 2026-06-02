@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import shutil
 import subprocess
 import sys
@@ -162,6 +163,177 @@ def _write_or_preview(
     path.write_text(content)
     print(f"✓ Created: {path}")
     return True
+
+
+# Vendored fallback scaffolds for the decision journal. The canonical source is
+# leyline:decision-journal; init prefers it when importable and falls back to
+# these so project-init never hard-depends on leyline being installed.
+_VENDORED_JOURNAL = {
+    "tradeoffs": """\
+---
+maturity: growing
+type: tradeoffs
+---
+
+# Tradeoffs
+
+Decisions made over this project's lifetime, and the alternatives we
+deliberately gave up. Records the *why*, not just the *what*.
+
+## Active index
+
+| ID | Status | Title | Date |
+|----|--------|-------|------|
+
+## Decisions
+
+## Archive
+
+Superseded or deprecated entries sink here; nothing is deleted.
+
+<!-- ENTRY TEMPLATE -- copy a block into Decisions above Archive, assign the
+next TR-NNN id, and fill it in.
+
+## TR-NNN: <short decision title>
+
+- Status: proposed
+- Date: YYYY-MM-DD
+- Phase: brainstorm | specify | plan | execute | review
+- Deciders: <names/roles>
+- Links: <PR/commit/issue>, <code paths>
+
+### Context & problem
+
+<the situation forcing a choice>
+
+### Decision drivers
+
+- <competing quality / constraint>
+
+### Options considered
+
+| Option | Pros | Cons / what it sacrifices |
+|--------|------|---------------------------|
+| A (chosen) | ... | ... |
+
+### Decision
+
+We chose A.
+
+### Y-statement
+
+In the context of <X>, facing <concern>, we chose A over B,
+to achieve <quality>, accepting <the sacrifice / road not taken>.
+
+### Consequences
+
+- Positive: <what gets easier>
+- Negative / debt accepted: <what gets harder>
+-->
+""",
+    "lessons": """\
+---
+maturity: growing
+type: lessons
+---
+
+# Lessons Learned
+
+Insights, failed approaches, rework, and blockers, captured blamelessly so the
+team replicates what worked and avoids what did not.
+
+## Active index
+
+| ID | Status | Title | Date |
+|----|--------|-------|------|
+
+## Lessons
+
+## Archive
+
+Closed or superseded entries sink here; nothing is deleted.
+
+<!-- ENTRY TEMPLATE -- copy a block into Lessons above Archive, assign the next
+LL-NNN id, and fill it in.
+
+## LL-NNN: <short lesson title>
+
+- Status: open
+- Date: YYYY-MM-DD
+- Phase: execute | review
+- Category: process | technology | requirements | testing | communication
+- Owner: <who carries the follow-up>
+- Links: <PR/commit/issue>, <related TR-NNN>
+
+### What happened
+
+<blameless, factual: the situation/activity>
+
+### What went well / where we got lucky
+
+<successes worth replicating>
+
+### What did not work
+
+<the gap or failure>
+
+### Root cause
+
+<5 Whys / contributing factors>
+
+### Recommendation / action item
+
+- Action: <specific change> -- Owner: <name> -- Due: <date>
+-->
+""",
+}
+
+
+def _journal_scaffold(kind: str) -> str:
+    """Return a journal scaffold, preferring leyline's canonical template.
+
+    leyline is an optional dependency; when it is not installed, fall back to
+    the vendored template so project-init never hard-depends on it. A leyline
+    that is present but fails to import (a real bug) is NOT masked: the error
+    propagates instead of silently degrading to the vendored template.
+    """
+    try:
+        module = importlib.import_module("leyline.decision_journal")
+    except ModuleNotFoundError as exc:
+        root = (exc.name or "").split(".")[0]
+        if root == "leyline":
+            return _VENDORED_JOURNAL[kind]
+        raise
+    return str(module.new_file_content(kind))
+
+
+def _create_docs_scaffolding(
+    project_path: Path,
+    dry_run: bool = False,
+) -> list[str]:
+    """Scaffold the decision-journal docs (tradeoffs + lessons-learned).
+
+    Creates ``docs/tradeoffs.md`` and ``docs/lessons-learned.md`` if missing.
+    Existing files are never clobbered. Honors ``dry_run``. Kept separate from
+    the template ``created_files`` count so the summary stays template-scoped.
+
+    Returns:
+        Paths created (or that would be created in dry-run).
+
+    """
+    docs_dir = project_path / "docs"
+    targets = {
+        "tradeoffs": docs_dir / "tradeoffs.md",
+        "lessons": docs_dir / "lessons-learned.md",
+    }
+    created: list[str] = []
+    for kind, path in targets.items():
+        if path.exists():
+            print(f"⊘ Skipped (exists): {path}")
+            continue
+        if _write_or_preview(path, _journal_scaffold(kind), dry_run):
+            created.append(str(path))
+    return created
 
 
 def _create_python_structure(
@@ -537,6 +709,8 @@ def main() -> None:
         project_name,
         dry_run=args.dry_run,
     )
+
+    _create_docs_scaffolding(project_path, dry_run=args.dry_run)
 
     _print_summary(project_path, created_files)
 

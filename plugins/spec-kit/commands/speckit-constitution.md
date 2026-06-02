@@ -32,17 +32,29 @@ Follow this execution flow:
    - If version bump type ambiguous, propose reasoning before finalizing.
 
 3. Draft the updated constitution content:
-   - Replace every placeholder with concrete text (no bracketed tokens left except intentionally retained template slots that the project has chosen not to define yet—explicitly justify any left).
+   - Replace every placeholder with concrete text (no bracketed tokens left except intentionally retained template slots that the project has chosen not to define yet: explicitly justify any left).
    - Preserve heading hierarchy and comments can be removed once replaced unless they still add clarifying guidance.
    - validate each Principle section: succinct name line, paragraph (or bullet list) capturing non‑negotiable rules, explicit rationale if not obvious.
    - validate Governance section lists amendment procedure, versioning policy, and compliance review expectations.
 
 4. Consistency propagation checklist (convert prior checklist into active validations):
    - Read `.specify/templates/plan-template.md` and validate any "Constitution Check" or rules align with updated principles.
-   - Read `.specify/templates/spec-template.md` for scope/requirements alignment—update if constitution adds/removes mandatory sections or constraints.
+   - Read `.specify/templates/spec-template.md` for scope/requirements alignment: update if constitution adds/removes mandatory sections or constraints.
    - Read `.specify/templates/tasks-template.md` and validate task categorization reflects new or removed principle-driven task types (e.g., observability, versioning, testing discipline).
    - Read each command file in `.specify/templates/commands/*.md` (including this one) to verify no outdated references (agent-specific names like CLAUDE only) remain when generic guidance is required.
    - Read any runtime guidance docs (e.g., `README.md`, `docs/quickstart.md`, or agent-specific guidance files if present). Update references to principles changed.
+
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `plan`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
 
 5. Produce a Sync Impact Report (prepend as an HTML comment at top of the constitution file after update):
    - Version change: old → new

@@ -108,7 +108,7 @@ or any URL.
 > **Why opt-in?** Per [docs/inclusive-defaults.md][inc],
 > webhooks send session data to external services using
 > user-supplied URLs. There is no reasonable default URL,
-> so flipping is impossible — not just unwise.
+> so flipping is impossible, not merely unwise.
 
 [inc]: ../../docs/inclusive-defaults.md
 

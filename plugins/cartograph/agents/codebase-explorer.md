@@ -1,5 +1,5 @@
 ---
-description: "Explore codebase structure for visualization — analyzes modules, imports, relationships, and produces a JSON structural model for diagram generation"
+description: "Explore codebase structure for visualization: analyzes modules, imports, relationships, and produces a JSON structural model for diagram generation"
 maxTurns: 30
 ---
 

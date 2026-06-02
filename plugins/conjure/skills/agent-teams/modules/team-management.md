@@ -78,7 +78,7 @@ Config persistence uses a two-phase atomic write to prevent partial reads from c
 
 1. Create temporary file via `mkstemp()` in the same directory
 2. Write full JSON content to temp file
-3. `os.replace(temp_path, config_path)` — atomic on POSIX systems
+3. `os.replace(temp_path, config_path)`: atomic on POSIX systems
 
 This guarantees that any agent reading `config.json` sees either the old or new version, never a partial write.
 
@@ -105,7 +105,10 @@ healthy → stalled → unresponsive → replaced
 - **unresponsive**: Failed to respond to health_check within 30s
 - **replaced**: Agent decommissioned, fresh agent spawned with new identity
 
-Members without a `health` object work as before (no health monitoring). See `modules/health-monitoring.md` for full protocol. The `role` field (default: `"implementer"`) determines the agent's capability set — see `modules/crew-roles.md`.
+Members without a `health` object work as before (no health monitoring). See
+`modules/health-monitoring.md` for full protocol. The `role` field (default:
+`"implementer"`) determines the agent's capability set. See
+`modules/crew-roles.md`.
 
 ## Single Team Per Session
 

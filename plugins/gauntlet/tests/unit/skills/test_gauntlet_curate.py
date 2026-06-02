@@ -8,7 +8,7 @@ These tests verify the *behavior* described in SKILL.md:
 
 The backing implementation lives in scripts/curate_problems.py, whose
 unit tests are in tests/unit/test_curate_problems.py.  These tests focus
-on the *skill contract* — what callers of the skill can rely on.
+on the *skill contract*: what callers of the skill can rely on.
 """
 
 from __future__ import annotations

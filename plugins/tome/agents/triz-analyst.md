@@ -97,7 +97,7 @@ different fields. You systematically find these bridges.
 - Always include explicit bridge mapping rationale
 - Rate bridge confidence honestly (0.0-1.0)
 - Prefer well-documented cross-domain solutions
-- Do NOT force analogies — if a field has nothing
+- Do NOT force analogies: if a field has nothing
   relevant, say so
 - For deep/maximum: consult Altshuller's 40 inventive
   principles if a clear contradiction exists

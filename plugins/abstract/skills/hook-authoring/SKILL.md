@@ -685,7 +685,7 @@ fi
 exit 0
 ```
 
-**Important**: Before Claude Code 2.1.39, stderr from exit code 2 was silently swallowed ([#10964](https://github.com/anthropics/claude-code/issues/10964)). Users would see a generic "hook error" instead of the custom message. This is now fixed — stderr is properly displayed to the user.
+**Important**: Before Claude Code 2.1.39, stderr from exit code 2 was silently swallowed ([#10964](https://github.com/anthropics/claude-code/issues/10964)). Users would see a generic "hook error" instead of the custom message. This is now fixed: stderr is properly displayed to the user.
 
 **Plugin hooks**: Before 2.1.39, plugin-installed hooks had a separate code path that also failed to show stderr for exit code 2 ([#10412](https://github.com/anthropics/claude-code/issues/10412)). Both plugin and project hooks now work correctly.
 

@@ -24,7 +24,14 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SKILL_DIR = REPO_ROOT / "plugins" / "conserve" / "skills" / "compression-strategy"
 MODULE_FILE = SKILL_DIR / "modules" / "log-debugging-hygiene.md"
 PARENT_SKILL = SKILL_DIR / "SKILL.md"
-FIXTURE = REPO_ROOT / "plugins" / "memory-palace" / "data" / "intake_queue.jsonl"
+# Deterministic synthetic fixture committed under this test directory
+# (issue #540). The previous path pointed at plugins/memory-palace/data/,
+# a gitignored mutable runtime artifact: on a fresh clone the benchmark
+# was missing, and its byte profile drifted as the queue grew. A frozen
+# synthetic intake log makes test_filter_first_claim_is_reproducible
+# reproducible from a clone and keeps the committed fixture under the
+# 1 MB pre-commit ceiling.
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "intake_queue.jsonl"
 
 
 def test_module_file_exists() -> None:

@@ -1,6 +1,6 @@
 # Security Patterns for Hook Development
 
-Comprehensive security guidance for writing safe,
+Thorough security guidance for writing safe,
 secure hooks that protect agents and systems from vulnerabilities.
 
 ## Security Principles
@@ -97,7 +97,7 @@ safe_command = ["grep", user_pattern, file_path]
 
 ### Never Log Secrets
 
-Implement comprehensive secret sanitization:
+Implement thorough secret sanitization:
 
 ```python
 import re

@@ -34,7 +34,7 @@ Larger skills split content into a `modules/` directory.
 Many skills define TodoWrite items as checkpoints
 and exit criteria that mark the skill complete.
 As of Claude Code 2.1.20+,
-completed tasks can be deleted via TaskUpdate to reduce clutter — though
+completed tasks can be deleted via TaskUpdate to reduce clutter, though
 proof-of-work and audit items should be preserved.
 
 **Skill Description Budget (2.1.32+)**:
@@ -255,7 +255,7 @@ Context compression strategy recommendations.
 **Invocation**: `Skill(conserve:compression-strategy)`
 
 Analyzes current context usage and recommends optimal compression strategies:
-clear + catchup, continuation agent, archive + summarize, or delegate to subagent.
+clear and catchup, continuation agent, archive and summarize, or delegate to subagent.
 Integrates with the PreCompact hook for automatic context preservation.
 
 ### `abstract:modular-skills` (includes optimization techniques)

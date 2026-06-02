@@ -39,6 +39,11 @@ role: library
 - Uses `Skill(superpowers:verification-before-completion)` for validation
 - Uses `Skill(superpowers:test-driven-development)` for TDD workflow
 
+**With imbue**:
+- Uses `Skill(imbue:graduated-implementation)` at the ramp gate so
+  each increment's ambition is earned by demonstrated understanding
+  of the prior one, not ramped on completion alone
+
 **Without superpowers**:
 - Standalone execution framework
 - Built-in checkpoint validation
@@ -84,14 +89,23 @@ role: library
    - Code quality checks pass?
    - Documentation updated?
 
-4. CHECKPOINT
+4. RAMP GATE (before the next, more ambitious task)
+   - Invoke Skill(imbue:graduated-implementation)
+   - Demonstrate understanding of THIS increment, sized to stakes:
+     low-stakes on the evidence gate (green tests plus a recorded
+     tradeoff), high-stakes on the human explaining the diff unaided
+   - On a clean demonstration, record it in the ramp ledger and
+     mark the rung widened; below the band, hold and split the next
+     task smaller instead of ramping
+
+5. CHECKPOINT
    - Mark task complete IMMEDIATELY (do NOT batch)
    - Update execution state
    - Report progress
    - Identify blockers
 ```
 
-**Task Completion Discipline**: Always call `TaskUpdate(taskId: "X", status: "completed")` right after finishing each task—never defer completions to end of session.
+**Task Completion Discipline**: Always call `TaskUpdate(taskId: "X", status: "completed")` right after finishing each task. Never defer completions to end of session.
 
 **Verification:** Run `pytest -v` to verify tests pass.
 
@@ -103,6 +117,26 @@ role: library
 3. Check code quality metrics
 4. Generate completion report
 5. Prepare for deployment/release
+6. Record lessons learned (see below)
+
+### Record Lessons Learned (decision journal)
+
+Implementation is where the honest lessons appear: the approach that had to be
+reworked, the blocker that cost a day, the assumption from planning that did
+not hold. Capture these in `docs/lessons-learned.md` now, blamelessly, instead
+of letting them vanish into "done." Draft and confirm one entry per
+substantive lesson:
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and follow
+  it to append a lesson entry: `what_happened`, `what_didnt_work`,
+  `root_cause`, and a concrete `action`. Set `phase` to `execute`. Show the
+  draft; append on confirmation (status starts `open`).
+- Fallback (leyline absent): append to `docs/lessons-learned.md` by hand using
+  the in-file ENTRY TEMPLATE; assign the next `LL-NNN` id.
+
+Trigger this whenever execution involved rework, a failed approach, or a
+blocker that exhausted the two-challenge / 3-attempt limit. A clean run with no
+surprises needs no entry.
 
 ### Terminal Phase Notice
 
@@ -379,6 +413,14 @@ On track? = Estimated completion <= Sprint end date
 - Reduce scope (drop low-priority tasks)
 - Increase focus (reduce distractions)
 - Request help or extend timeline
+
+## Exit Criteria
+
+- [ ] All planned tasks are marked complete and the full test suite passes.
+- [ ] A completion report is generated.
+- [ ] Any rework, failed approach, or exhausted-retry blocker is recorded to
+  `docs/lessons-learned.md` as an `open` entry (a clean run needs none).
+- [ ] No subsequent phase is auto-invoked (this is the terminal phase).
 
 ## Related Skills
 

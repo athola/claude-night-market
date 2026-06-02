@@ -110,16 +110,16 @@ Before executing Level 1+ tasks, complete the risk assessment
 checklist from `modules/risk-assessment-checklist.md`. Answer
 these five questions:
 
-1. **What could fail in production?** — List specific failure
-   scenarios
-2. **How would we detect it quickly?** — Monitoring, alerts,
-   logs
-3. **What is the fastest safe rollback?** — Step-by-step
-   procedure
-4. **What dependency could invalidate this plan?** — External
-   dependencies
-5. **What assumption is least certain?** — Weakest link in
-   the plan
+1. **What could fail in production?** List specific failure
+   scenarios.
+2. **How would we detect it quickly?** Monitoring, alerts,
+   logs.
+3. **What is the fastest safe rollback?** Step-by-step
+   procedure.
+4. **What dependency could invalidate this plan?** External
+   dependencies.
+5. **What assumption is least certain?** Weakest link in
+   the plan.
 
 Required for Level 1 (Watch) and above. See
 `modules/risk-assessment-checklist.md` for the full template and

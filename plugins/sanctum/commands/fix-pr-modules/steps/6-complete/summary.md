@@ -27,6 +27,27 @@ Include this table in the summary:
 
 ---
 
+### Output hygiene (MANDATORY before posting)
+
+The summary comment, thread replies, and any issue body posted in
+Step 6 are emitted text and MUST pass
+`../../shared/output-hygiene.md` (Contract A). Scrub each body before
+sending. Inline fallback if that module is absent: replace `"+"` used
+as a conjunction with `and` (keep `+` in versions and code), em-dash
+`—` with a colon or a rewrite, prose `--` with a colon or a rewrite,
+arrows `->` / `→` with `to` or `into`, and smart quotes `“ ” ‘ ’`
+with straight `"` and `'`.
+
+```bash
+# $BODY holds the summary/reply about to be posted.
+printf '%s\n' "$BODY" | grep -nE '\w \+ \w' && echo "fix: '+' conjunction"
+printf '%s\n' "$BODY" | grep -n '—'          && echo "fix: em-dash"
+printf '%s\n' "$BODY" | grep -n ' -- '         && echo "fix: double-dash"
+printf '%s\n' "$BODY" | grep -nE '[^`]( -> | → )[^`]' && echo "fix: arrow"
+```
+
+Correct any match in `$BODY` before the `gh pr comment` call below.
+
 ### Post Summary Comment
 
 After completing all fixes, thread resolutions, and issue linkage, post a detailed summary comment to the PR.

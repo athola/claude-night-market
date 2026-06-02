@@ -42,7 +42,7 @@ Per [docs/inclusive-defaults.md][inc] (TRUE-exception
 category 3), conjure delegation requires external CLIs
 (`gemini`, `qwen`) that must be separately installed and
 authenticated against third-party LLM providers. There is
-no reasonable default — flipping is impossible, not just
+no reasonable default: flipping is impossible, not merely
 unwise.
 
 [inc]: ../../docs/inclusive-defaults.md

@@ -13,7 +13,7 @@ try:
         SessionStore,
         validate_session_id,
     )
-except ImportError:  # pragma: no cover — standalone fallback
+except ImportError:  # pragma: no cover, standalone fallback
     import re as _re
 
     def validate_session_id(session_id: str) -> bool:

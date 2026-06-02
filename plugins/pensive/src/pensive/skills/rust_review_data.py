@@ -196,7 +196,7 @@ BUILTIN_MANUAL_COMBINATOR_PATTERNS: list[tuple[str, str, str, str]] = [
     ),
 ]
 
-# Exclusion patterns -- functions that should NOT be flagged
+# Exclusion patterns: functions that should NOT be flagged
 BUILTIN_EXCLUSION_PATTERNS: list[str] = [
     r"\bfn\s+to_lossy",
     r"\bfn\s+with_\w+\s*\(self",

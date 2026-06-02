@@ -78,6 +78,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 **Output**: data-model.md, /contracts/*, quickstart.md, agent-specific file
 
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `plan`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ## Key rules
 
 - Use absolute paths

@@ -18,7 +18,7 @@ window and the work that depends on coherent results.
 Tasks involving comprehensive analysis, audits, or research across the codebase typically require 4+ parallel agents. Before dispatching:
 
 **MUST enter plan mode first:**
-1. `EnterPlanMode` — design the agent strategy
+1. `EnterPlanMode`: design the agent strategy
 2. Specify: agent roster, scope per agent, output contract
 3. Get user approval before launching agents
 

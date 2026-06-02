@@ -4,7 +4,7 @@ Prevents superficial technical artifacts created through copy-paste methodology 
 
 ## The Cargo Cult Problem
 
-**Definition:** Cargo cult programming is the ritual inclusion of code, patterns, or practices that serve no understood purpose - code that "looks right" but nobody can explain WHY it works.
+**Definition:** Cargo cult programming is the ritual inclusion of code, patterns, or practices that serve no understood purpose: code that "looks right" but nobody can explain WHY it works.
 
 **AI Amplification:** AI-generated code is syntactically correct, follows best practices, and comes with confident explanations. This makes cargo cult coding faster and far more convincing than ever before. Studies show up to 48% of AI-generated code snippets contain exploitable vulnerabilities from unexamined adoption.
 

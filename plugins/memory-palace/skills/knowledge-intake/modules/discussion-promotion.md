@@ -77,7 +77,7 @@ mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
 
 **Title format**: `[Knowledge] <entry title>`
 
-**Body structure** (keep concise — link to local corpus for full details):
+**Body structure** (keep concise, link to local corpus for full details):
 ```markdown
 ## Topic
 
@@ -103,8 +103,8 @@ mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
 ### Step 5: Apply Labels
 
 Apply labels matching the entry's tags. Common labels:
-- `knowledge` — always applied
-- `evergreen` — always applied
+- `knowledge`: always applied
+- `evergreen`: always applied
 - Entry-specific tags (e.g., `graphql`, `python`, `architecture`)
 
 ### Step 6: Update Local Corpus Entry
@@ -158,7 +158,8 @@ mutation($discussionId: ID!, $body: String!) {
 ## Token Conservation
 
 - Discussion body: max 500 words (link to local file for full content)
-- Do NOT duplicate the entire corpus entry — the Discussion is a summary with a pointer
+- Do NOT duplicate the entire corpus entry: the Discussion is a summary
+  with a pointer
 - Include the local file path so sessions can `Read` the full entry
 
 ## Error Handling

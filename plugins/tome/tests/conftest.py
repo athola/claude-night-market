@@ -12,7 +12,7 @@ from tome.models import (
     ResearchSession,
 )
 
-from tests.factories import make_finding  # noqa: F401 — re-export
+from tests.factories import make_finding  # noqa: F401 - re-export
 
 
 @pytest.fixture

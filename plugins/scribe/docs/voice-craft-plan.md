@@ -50,7 +50,7 @@
 - Advisory table output format
 
 ### T8: Voice review skill (orchestrator)
-- Dispatch prose + craft reviewers in parallel
+- Dispatch prose and craft reviewers in parallel
 - Merge results into unified output
 - Present advisory tables to user
 - Apply accepted fixes

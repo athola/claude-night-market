@@ -81,9 +81,9 @@ update-docs   (independent)
 `plan_stage_execution("quality", steps)` produces waves:
 
 - **Wave 1** (parallel): `code-review`, `unbloat`,
-  `update-docs` — no interdependencies.
-- **Wave 2** (parallel): `code-refinement`, `update-tests`
-  — both depend on `code-review` completing first.
+  `update-docs`: no interdependencies.
+- **Wave 2** (parallel): `code-refinement`, `update-tests`:
+  both depend on `code-review` completing first.
 
 All steps in a wave can be dispatched simultaneously via
 `build_parallel_dispatch(wave, item_id)`. The orchestrator
@@ -134,7 +134,7 @@ context:
 
 - **brainstorm**: skipped when `config.pipeline
   .skip_brainstorm_for_issues` is `true` and the source is
-  a GitHub issue (the issue body serves as the brainstorm
+  a GitHub issue (the issue body is the brainstorm
   output).
 - **prioritize**: skipped when there is only one work item.
 - **merge**: skipped when `config.pipeline.auto_merge` is

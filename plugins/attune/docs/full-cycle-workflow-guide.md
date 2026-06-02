@@ -4,7 +4,7 @@ Complete guide to using Attune's brainstorm-plan-execute workflow for systematic
 
 ## Overview
 
-Attune provides a structured approach to project development:
+Attune provides a step-by-step approach to project development:
 
 ```
 IDEATION → WAR ROOM → SPECIFICATION → PLANNING → INITIALIZATION → IMPLEMENTATION
@@ -84,7 +84,7 @@ This prevents common development pitfalls:
 
 **Purpose**: Mandatory multi-expert deliberation for approach selection with intelligent routing
 
-**Always Invoked After Brainstorm**: The War Room is not optional—it ensures every project benefits from expert council review. However, it automatically routes to the appropriate intensity level to avoid over-deliberation.
+**Always Invoked After Brainstorm**: The War Room is not optional: it ensures every project benefits from expert council review. However, it automatically routes to the appropriate intensity level to avoid over-deliberation.
 
 **Activities**:
 1. Assess Reversibility Score (RS) across 5 dimensions
@@ -386,7 +386,7 @@ def test_debt_item_creation(db_session):
 
 **Best for**: Greenfield projects, unclear requirements, team projects
 
-**Note**: War Room is mandatory but routes intelligently—simple decisions get express mode (<2 min), complex decisions get full council deliberation.
+**Note**: War Room is mandatory but routes intelligently: simple decisions get express mode (<2 min), complex decisions get full council deliberation.
 
 ### Quick Start (Skip Early Phases)
 

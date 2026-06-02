@@ -18,8 +18,8 @@ This command overwrites or destroys work. Destructive git operations require exp
 | Pattern | Risk |
 |---------|------|
 | `git reset --hard` | Discards all uncommitted changes |
-| `git checkout — .` | Discards all working tree changes |
-| `git checkout <branch> — <path>` | Overwrites files from another branch (can undo intentional deletions) |
+| `git checkout -- .` | Discards all working tree changes |
+| `git checkout <branch> -- <path>` | Overwrites files from another branch (can undo intentional deletions) |
 | `git restore --source` | Overwrites files from another ref |
 | `git clean -fd` | Deletes untracked files permanently |
 | `git stash drop` | Destroys stashed changes |

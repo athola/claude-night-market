@@ -76,7 +76,7 @@ model_hint: standard
     - framework timeline tracers
 - Capture kernel/ops timelines, memory footprints, and data pipeline latency
   so you have evidence when throttling or parallelizing.
-- Record hot paths + I/O bottlenecks in notes so future reruns can jump straight to the culprit.
+- Record hot paths and I/O bottlenecks in notes so future reruns can jump straight to the culprit.
 
 ## Step 4: Throttle and Sequence Work
 - Use `nice`, `ionice`, or Kubernetes/Slurm quotas to prevent starvation of shared nodes.

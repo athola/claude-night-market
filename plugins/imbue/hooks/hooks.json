@@ -43,6 +43,26 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_scope_ramp.py",
+            "timeout": 3
+          }
+        ]
+      },
+      {
         "matcher": "Read|Grep|Glob",
         "hooks": [
           {

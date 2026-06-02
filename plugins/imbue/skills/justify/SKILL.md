@@ -332,7 +332,7 @@ choice, or API contract without acknowledging
 that a design invariant is being revised.
 **Fix**: Name the invariant. Present the 3 options
 (preserve, layer, revise) to a human. Do not make
-the judgment call yourself — models default to the
+the judgment call yourself: models default to the
 "average" of training data, and wrong invariant
 decisions compound into unsalvageable codebases.
 
@@ -368,6 +368,18 @@ a `Burden of Proof` section:
 Changes with `unjustified` verdict MUST be removed or
 reworked before the report passes.
 
+### Record the Tradeoff (decision journal)
+
+When this step settles a decision with real alternatives, record it to
+`docs/tradeoffs.md` while the reasoning is live (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `review`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ## The Wise Counsel
 
 > Is what you are doing a deviation of your priority?
@@ -375,6 +387,19 @@ reworked before the report passes.
 > Rely less on AI and initial lines of thinking.
 > Challenge yourself to be better, to think of a more
 > elegant implementation or a simpler solution.
+
+## Exit Criteria
+
+- [ ] An additive bias score is computed and its zone (GREEN/YELLOW/RED/STOP)
+  is reported.
+- [ ] Iron Law compliance is marked PASS or FAIL, with justification for any
+  modified test logic.
+- [ ] Every change carries a verdict (justified, needs_evidence, or
+  unjustified); no `unjustified` verdict survives in the final report.
+- [ ] Any detected invariant conflict is surfaced with the chosen option and a
+  human-review flag.
+- [ ] A justified non-trivial addition is recorded to `docs/tradeoffs.md` (or
+  the in-file template) before the report passes.
 
 ## Related Skills
 

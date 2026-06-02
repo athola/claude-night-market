@@ -81,6 +81,6 @@ When reviewing evolving documents (specs, designs, RFCs):
 
 **Token Conservation:**
 - Summarize content rather than quoting verbatim
-- Reference section headings + key points
+- Reference section headings and key points
 - List decisions/actions rather than narrative
 - Use bullet points for scanning efficiency

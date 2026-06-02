@@ -16,6 +16,7 @@ Run a detailed review using intelligent skill selection based on codebase analys
 /full-review rust         # Rust-specific review
 /full-review math         # Mathematical review
 /full-review makefile     # Makefile review
+/full-review safety-critical # NASA Power of 10 verifiable-code review
 /full-review all          # Run all applicable
 ```
 
@@ -38,6 +39,7 @@ Automatically selects review skills based on:
 | `Makefile`, `*.mk` | makefile-review |
 | Math algorithms | math-review, bug-review |
 | ADRs, architecture docs | architecture-review |
+| Low assertion density, unbounded loops, unproven recursion, fixed-bound violations | safety-critical-patterns |
 
 ## Execution Flow
 
@@ -61,6 +63,7 @@ Skills are NOT agents. Use this table to dispatch correctly:
 | math-review | `general-purpose` | Invoke `Skill(pensive:math-review)` |
 | makefile-review | `general-purpose` | Invoke `Skill(pensive:makefile-review)` |
 | shell-review | `general-purpose` | Invoke `Skill(pensive:shell-review)` |
+| safety-critical-patterns | `general-purpose` | Invoke `Skill(pensive:safety-critical-patterns)` |
 
 When `pensive:code-reviewer` covers multiple domains,
 dispatch once with combined scope rather than multiple

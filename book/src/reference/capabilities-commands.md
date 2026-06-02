@@ -1,4 +1,4 @@
-# Command Reference — Core Plugins
+# Command Reference: Core Plugins
 
 Flag and option documentation for core plugin commands (abstract, attune,
 conserve, imbue, sanctum).

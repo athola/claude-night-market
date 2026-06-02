@@ -241,7 +241,7 @@ fixing:
    is wrong if numbers do not move. Capture both timings as
    evidence references like `[E1]` (before) and `[E2]` (after).
    When 3+ data points exist, render a kuva chart and attach it
-   to the PR — see `modules/kuva-visualization.md`.
+   to the PR (see `modules/kuva-visualization.md`).
 4. **Sample two or three reported hotspots manually.** Findings can
    be true at the AST level and false at the call-graph level
    when callers short-circuit. Manual sampling catches that.

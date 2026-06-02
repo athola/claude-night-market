@@ -1,4 +1,4 @@
-"""Makefile review skill -- mixin-based composition.
+"""Makefile review skill: mixin-based composition.
 
 Public API preserved verbatim from the prior 921-line
 ``makefile_review.py`` module so existing imports keep working:

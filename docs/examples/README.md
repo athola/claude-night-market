@@ -1,7 +1,7 @@
 # Example Implementations
 
 This directory contains reference implementations
-and demo projects that showcase practical applications of Night Market plugin
+and demo projects that show practical applications of Night Market plugin
 patterns.
 
 ## Available Examples

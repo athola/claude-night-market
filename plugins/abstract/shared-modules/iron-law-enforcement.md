@@ -143,7 +143,7 @@ class TestFeatureName:
 AI-generated tests are particularly prone to cargo cult patterns:
 - Tests validate the AI's implementation, not desired behavior
 - Tests pass but don't catch intentional mutations
-- Tests look comprehensive but miss edge cases
+- Tests look thorough but miss edge cases
 - Tests mock so much they test mocks, not code
 
 **Prevention:** Apply mutation testing. If tests don't fail when code is intentionally broken, they're cargo cult tests.
@@ -422,7 +422,7 @@ I violated the Iron Law by writing implementation before tests.
 [Explain the rationalization that led to violation]
 
 ### Mitigation
-- Added comprehensive tests after the fact
+- Added thorough tests after the fact
 - Coverage gates still passed: [evidence]
 - Tests are behavior-driven, not implementation-driven: [evidence]
 

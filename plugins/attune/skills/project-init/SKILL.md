@@ -95,6 +95,16 @@ python3 plugins/attune/scripts/attune_init.py \
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+The script also scaffolds the project decision journal: `docs/tradeoffs.md`
+and `docs/lessons-learned.md`. These are append-only logs that later workflows
+(brainstorm, specify, plan, execute, review) write to as decisions and lessons
+arise. Existing journal files are never overwritten. The format follows the
+`leyline:decision-journal` contract; init uses leyline's template when present
+and a vendored copy otherwise, so it works with or without leyline installed.
+
+**Verification:** Confirm `docs/tradeoffs.md` and `docs/lessons-learned.md`
+exist and each contains an `## Active index` and an `## Archive` section.
+
 ### 5. Initialize Git (if needed)
 
 ```bash
@@ -147,6 +157,16 @@ make help
 - Git repository initialized
 - `make help` shows available targets
 - `make test` runs without errors (even if no tests yet)
+
+## Exit Criteria
+
+- [ ] Template files for the selected language are created (or, in dry-run,
+  reported) with no unconfirmed overwrites.
+- [ ] `docs/tradeoffs.md` and `docs/lessons-learned.md` exist, each with an
+  `## Active index` and an `## Archive` section.
+- [ ] A pre-existing journal file is detected and left unmodified.
+- [ ] Git is initialized (unless `--no-git`) and `make help` lists targets.
+- [ ] Running with `--dry-run` writes no files, including the journal.
 
 ## Examples
 

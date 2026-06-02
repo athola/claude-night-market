@@ -48,15 +48,15 @@ precisely because over-relying on it degrades decision quality.
 
 ## Scope-Specific Notes
 
-**self** — Uncertainty about your own evidence base: have you read
+**self**: uncertainty about your own evidence base. Have you read
 the files and called the tools needed to answer the question?
 
-**subagent** — Uncertainty about your assigned task specifically:
-are there task requirements you haven't confirmed or edge cases you
+**subagent**: uncertainty about your assigned task specifically.
+Are there task requirements you haven't confirmed or edge cases you
 haven't checked?
 
-**dispatch** — Uncertainty about whether existing agents have covered
-the problem space: are there dimensions of the problem no agent has
+**dispatch**: uncertainty about whether existing agents have covered
+the problem space. Are there dimensions of the problem no agent has
 been assigned?
 
 Match the question to your current execution scope before scoring.

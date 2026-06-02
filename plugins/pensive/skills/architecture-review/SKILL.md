@@ -141,7 +141,7 @@ Document:
 
 Before checking principles, identify whether the changes
 conflict with existing design invariants. This is the
-highest-judgment step in architecture review — models
+highest-judgment step in architecture review: models
 get this wrong more often than any other call.
 
 **Identify existing invariants:**
@@ -190,7 +190,7 @@ and escalate to human judgment:
 **Why this matters:** Bad invariant decisions compound.
 After a few wrong calls the codebase becomes
 unsalvageable. This is a judgment problem, not a context
-problem — the agent should surface it, not solve it.
+problem: the agent should surface it, not solve it.
 
 ### Step 4: Principle Checks (`arch-review:principle-checks`)
 

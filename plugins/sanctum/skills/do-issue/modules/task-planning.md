@@ -86,7 +86,7 @@ After task breakdown, classify each task's risk tier using `leyline:risk-classif
 - [ ] T015 [US2] [R:RED] Add user migration in migrations/002_add_users.py
 ```
 
-Tasks without `[R:TIER]` markers default to GREEN. Markers are additive — existing task formats remain valid without them.
+Tasks without `[R:TIER]` markers default to GREEN. Markers are additive: existing task formats remain valid without them.
 
 ## Next Phase
 

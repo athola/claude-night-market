@@ -82,7 +82,7 @@ def add_nightmarket_section(content: str, threshold: int) -> str:
             flags=re.DOTALL,
         )
         if "coverage_threshold" not in content[content.index("[tool.nightmarket]") :]:
-            # Section exists but key missing — append key after section header
+            # Section exists but key missing: append key after section header
             content = content.replace(
                 "[tool.nightmarket]",
                 f"[tool.nightmarket]\ncoverage_threshold = {threshold}",

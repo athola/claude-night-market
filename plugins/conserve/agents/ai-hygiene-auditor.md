@@ -25,7 +25,7 @@ examples:
 
 Specialized agent for detecting AI-specific code quality issues that traditional bloat detection misses.
 
-> **Tool Preference (Claude Code 2.1.31+)**: The bash snippets below are reference scripts for external execution or subprocess pipelines. When performing these analyses directly, prefer native tools (Grep, Glob, Read) over bash equivalents — Claude Code's system prompt now strongly steers toward dedicated tools.
+> **Tool Preference (Claude Code 2.1.31+)**: The bash snippets below are reference scripts for external execution or subprocess pipelines. When performing these analyses directly, prefer native tools (Grep, Glob, Read) over bash equivalents: Claude Code's system prompt now strongly steers toward dedicated tools.
 
 ## Why This Agent Exists
 
@@ -195,7 +195,7 @@ def assess_test_quality(test_path):
 ### Category 5: Documentation Slop Detection
 
 The quick local check below catches the highest-frequency
-hedge patterns. For comprehensive prose-level scanning
+hedge patterns. For thorough prose-level scanning
 (identity leaks, hallucinations, document-economy,
 evidence-backed-claims, anti-goals, the multi-pass cleanup
 workflow), delegate to `Skill(scribe:slop-detector)`. This

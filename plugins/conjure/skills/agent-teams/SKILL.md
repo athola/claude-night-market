@@ -116,7 +116,7 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 The team config contains:
 - `name`, `description`, `created_at` (ms timestamp)
 - `lead_agent_id`, `lead_session_id`
-- `members[]` — array of LeadMember and TeammateMember objects
+- `members[]`: array of LeadMember and TeammateMember objects
 
 ### 2. Spawn Teammates
 
@@ -167,15 +167,19 @@ See `modules/messaging-protocol.md` for message types and inbox operations.
 
 ## Coordination Workflow
 
-1. **`agent-teams:team-created`** — Initialize team config and directories
-2. **`agent-teams:teammates-spawned`** — Launch agents in tmux panes
-3. **`agent-teams:tasks-assigned`** — Create tasks with dependencies, assign owners
-4. **`agent-teams:coordination-active`** — Agents claim tasks, exchange messages, mark completion
-5. **`agent-teams:team-shutdown`** — Graceful shutdown with approval protocol
+1. **`agent-teams:team-created`**: Initialize team config and directories
+2. **`agent-teams:teammates-spawned`**: Launch agents in tmux panes
+3. **`agent-teams:tasks-assigned`**: Create tasks with dependencies, assign owners
+4. **`agent-teams:coordination-active`**: Agents claim tasks, exchange messages, mark completion
+5. **`agent-teams:team-shutdown`**: Graceful shutdown with approval protocol
 
 ## Crew Roles
 
-Each team member has a `role` that determines their capabilities and task compatibility. Five roles are defined: `implementer` (default), `researcher`, `tester`, `reviewer`, and `architect`. Roles constrain which risk tiers an agent can handle — see `modules/crew-roles.md` for the full capability matrix and role-risk compatibility table.
+Each team member has a `role` that determines their capabilities and task
+compatibility. Five roles are defined: `implementer` (default), `researcher`,
+`tester`, `reviewer`, and `architect`. Roles constrain which risk tiers an
+agent can handle. See `modules/crew-roles.md` for the full capability matrix
+and role-risk compatibility table.
 
 ## Team Formation
 
@@ -246,7 +250,9 @@ Filesystem timestamp resolution varies (HFS+ = 1s granularity). Use numbered fil
 Teammate agents could use incorrect model identifiers on enterprise providers, causing 400 errors. Upgrade to Claude Code 2.1.39+ for correct model ID qualification across all providers.
 
 **Nested session guard (2.1.39+)**
-If `claude` refuses to launch within an existing session, ensure you're using tmux pane splitting (not subshell invocation). The guard is intentional — see `modules/spawning-patterns.md` for details.
+If `claude` refuses to launch within an existing session, ensure you're using
+tmux pane splitting (not subshell invocation). The guard is intentional. See
+`modules/spawning-patterns.md` for details.
 
 ## Exit Criteria
 

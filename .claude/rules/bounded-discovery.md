@@ -8,7 +8,7 @@ alwaysApply: true
 When implementing features, fixes, or refactors, limit
 how many files you read before starting to write code.
 Reading "one more file for context" is the #1 cause of
-token waste — 68 tool calls burning 50k tokens on a
+token waste: 68 tool calls burning 50k tokens on a
 single turn.
 
 **Read budgets by task type:**

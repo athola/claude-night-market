@@ -253,9 +253,9 @@ AGENT_TEAMS_MEMBERS = {
 
 ### Model Selection Rationale
 
-- **Opus** for Supreme Commander — highest reasoning for final synthesis
-- **Sonnet** for Strategist, Intel, Tactician, Red Team — strong reasoning at moderate cost
-- **Haiku** for Scout, Logistics — speed-critical roles with simpler reasoning needs
+- **Opus** for Supreme Commander: highest reasoning for final synthesis
+- **Sonnet** for Strategist, Intel, Tactician, Red Team: strong reasoning at moderate cost
+- **Haiku** for Scout, Logistics: speed-critical roles with simpler reasoning needs
 
 ### Spawning Example
 
@@ -278,4 +278,4 @@ All external experts are invoked using `asyncio.create_subprocess_exec` which:
 - Captures stdout/stderr separately
 - Handles timeouts gracefully
 
-Agent teams teammates are invoked via `tmux split-window` with CLI identity flags — the same safety model applies (no shell interpretation of user input).
+Agent teams teammates are invoked via `tmux split-window` with CLI identity flags: the same safety model applies (no shell interpretation of user input).

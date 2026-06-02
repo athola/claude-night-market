@@ -287,6 +287,11 @@ A version validation section that will be included in the final PR review:
 
 This phase uses `Skill(scribe:slop-detector)` to identify AI-generated content markers.
 
+> **Output contract**: this command also emits text (test plan,
+> review summary, PR description update, line comments). All of it
+> MUST pass `shared/output-hygiene.md` (Contract A) before posting.
+> See "Sanitize the review's own output" at the end of this phase.
+
 1. **Scan Changed Documentation**
    ```bash
    # Get all changed .md files
@@ -312,6 +317,17 @@ This phase uses `Skill(scribe:slop-detector)` to identify AI-generated content m
      echo "⚠️ AI slop detected in commit messages:"
      echo "$SLOP_FOUND"
    fi
+
+   # Check for character-level markers (shared/output-hygiene.md, Contract A)
+   grep -nE '\w \+ \w' /tmp/commits.txt && echo "⚠️ '+' used as conjunction"
+   grep -n '—' /tmp/commits.txt          && echo "⚠️ em-dash in commit message"
+   grep -n ' -- ' /tmp/commits.txt        && echo "⚠️ double-dash in commit message"
+   grep -nE ' -> | → ' /tmp/commits.txt   && echo "⚠️ arrow connector in commit message"
+
+   # Check for AI-removal subject matter (shared/output-hygiene.md, Contract B)
+   # Flags both the AI origin and the specific marker named as removed.
+   grep -niE 'ai[ -]?slop|ai[ -]?generated|ai[ -]?phrasing|slop marker|de-?slop|remove[d]? ai|strip ai|em[ -]?dash|emdash|smart quote|curly quote' /tmp/commits.txt \
+     && echo "⚠️ commit message names AI-slop removal or the stripped marker (identity leak)"
    ```
 
 3. **Scan PR Description**
@@ -352,6 +368,30 @@ This phase uses `Skill(scribe:slop-detector)` to identify AI-generated content m
 - Run `/doc-polish docs/guide.md` to remediate
 - Consider rewording commit message for clarity
 ```
+
+5. **Sanitize the review's own output (MANDATORY before posting)**
+
+   The text this command posts (test plan, review summary, PR
+   description, line comments) is held to the same bar as the code
+   under review. Load `shared/output-hygiene.md` (Contract A) and
+   scrub each body before it is sent. Inline fallback if that module
+   is absent: replace `"+"` used as a conjunction with `and`
+   (keep `+` in versions and code), em-dash `—` with a colon or a
+   rewrite, prose `--` with a colon or a rewrite, arrows `->` / `→`
+   with `to` or `into`, and smart quotes `“ ” ‘ ’` with straight
+   `"` and `'`.
+
+   ```bash
+   # $BODY holds the comment/summary/description about to be posted.
+   printf '%s\n' "$BODY" | grep -nE '\w \+ \w' && echo "fix: '+' conjunction"
+   printf '%s\n' "$BODY" | grep -n '—'          && echo "fix: em-dash"
+   printf '%s\n' "$BODY" | grep -n ' -- '         && echo "fix: double-dash"
+   printf '%s\n' "$BODY" | grep -nE '[^`]( -> | → )[^`]' && echo "fix: arrow"
+   printf '%s\n' "$BODY" | grep -nE '[“”‘’]'      && echo "fix: smart quotes"
+   ```
+
+   Any match is corrected in `$BODY`, not merely reported. Posting
+   text that fails this check defeats the purpose of Phase 1.7.
 
 ### Phase 2: Code Analysis (Superpowers)
 
@@ -730,4 +770,4 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
     - Verify all issues have been addressed
 
 
-> **Next**: [Phases 5-6](review-workflow-phases-5-6.md) — test plan generation and PR description update.
+> **Next**: [Phases 5-6](review-workflow-phases-5-6.md): test plan generation and PR description update.

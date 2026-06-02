@@ -1,5 +1,5 @@
 # ruff: noqa: D101,D102,D103,D205,D212,PLR2004,E501,E402,I001
-"""Tests for task_created_tracker hook — in-process coverage.
+"""Tests for task_created_tracker hook: in-process coverage.
 
 Tests TaskCreated event handling: JSON parsing from stdin,
 ledger file creation, description truncation, and error resilience.
@@ -24,7 +24,7 @@ from task_created_tracker import main
 
 
 # ============================================================================
-# main() — task tracking
+# main(): task tracking
 # ============================================================================
 
 
@@ -141,7 +141,7 @@ class TestMainTaskTracking:
 
 
 # ============================================================================
-# main() — description truncation
+# main(): description truncation
 # ============================================================================
 
 
@@ -221,7 +221,7 @@ class TestMainDescriptionTruncation:
 
 
 # ============================================================================
-# main() — empty/missing task_id
+# main(): empty/missing task_id
 # ============================================================================
 
 
@@ -285,7 +285,7 @@ class TestMainEmptyTaskId:
 
 
 # ============================================================================
-# main() — PostToolUse payload (current Claude Code event shape)
+# main(): PostToolUse payload (current Claude Code event shape)
 # ============================================================================
 
 
@@ -453,13 +453,13 @@ class TestMainPostToolUsePayload:
                 pass
 
         # No ledger should be created when both id and description
-        # are unrecoverable -- prevents the pollution that produced
+        # are unrecoverable: prevents the pollution that produced
         # the 394-entry tasks_unknown.jsonl regression.
         assert not state_dir.exists() or not list(state_dir.iterdir())
 
 
 # ============================================================================
-# main() — error handling
+# main(): error handling
 # ============================================================================
 
 

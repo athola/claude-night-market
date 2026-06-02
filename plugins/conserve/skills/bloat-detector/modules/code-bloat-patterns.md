@@ -88,7 +88,7 @@ grep -rn "^def " --include="*.py" . | awk -F'def ' '{print $2}' | \
 **Confidence:** HIGH (85%) | **Action:** EXTRACT shared utility
 
 ### 7. Dead Wrapper / Facade Bloat
-**Definition:** Modules that wrap existing functionality without adding meaningful logic — thin facades, unused service interfaces, or re-export layers with no consumers.
+**Definition:** Modules that wrap existing functionality without adding meaningful logic: thin facades, unused service interfaces, or re-export layers with no consumers.
 
 **Signals:**
 - File imports from another internal module and re-exports similar API
@@ -150,7 +150,7 @@ grep -rL "Error\|Exception\|raises\|fail\|invalid" --include="test_*.py" .
 ```
 **Confidence:** MEDIUM (70%) | **Action:** ADD error path tests
 
-For comprehensive AI-specific patterns, see: `@module:ai-generated-bloat`
+For the full set of AI-specific patterns, see: `@module:ai-generated-bloat`
 
 ## Scoring
 

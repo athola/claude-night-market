@@ -95,7 +95,7 @@ def check_pass_token(gauntlet_dir: Path, staged_hash: str) -> bool:
         token_path.unlink(missing_ok=True)
         return False
 
-    # Valid — consume the token.
+    # Valid: consume the token.
     token_path.unlink(missing_ok=True)
     return True
 
@@ -362,7 +362,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
             f"{risk_context}\n{stale_warning}" if risk_context else stale_warning
         )
 
-    # No valid token — generate a challenge.
+    # No valid token: generate a challenge.
     staged_files = _get_staged_files()
     if staged_files is None:
         if mode == "gate":
@@ -381,7 +381,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     challenge = generate_challenge_for_files(gauntlet_dir, staged_files, developer_id)
 
     if challenge is None:
-        # No knowledge entries — still surface risk context if present.
+        # No knowledge entries: still surface risk context if present.
         if risk_context:
             return {"additionalContext": risk_context}
         return None
@@ -405,7 +405,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if mode == "nudge":
         return {"additionalContext": prompt_text}
 
-    # Default: gate mode — deny.
+    # Default: gate mode, deny.
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",

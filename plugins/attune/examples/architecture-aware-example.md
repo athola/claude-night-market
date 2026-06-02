@@ -269,7 +269,7 @@ Skill(architecture-paradigm-cqrs-es)
 ## Key Principles
 
 1. **Separation of Concerns**: Clear boundaries between layers/components
-2. **Testability**: Architecture enables comprehensive testing
+2. **Testability**: Architecture enables thorough testing
 3. **Maintainability**: Structure supports evolution and growth
 4. **Documentation**: Keep architectural decisions documented
 

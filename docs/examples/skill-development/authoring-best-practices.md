@@ -340,7 +340,7 @@ Make clear whether Claude should **execute** or **read** scripts:
 - "Run analyze_form.py to extract fields" (execute)
 - "See analyze_form.py for extraction algorithm" (read as reference)
 
-For most utility scripts, execution is preferred—more reliable and efficient.
+For most utility scripts, execution is preferred: more reliable and efficient.
 
 ### Create Verifiable Intermediate Outputs
 
@@ -429,7 +429,7 @@ reader = PdfReader("file.pdf")
 - Name files descriptively (`form_validation.md` not `doc2.md`)
 - Bundle detailed resources freely
 - Prefer scripts for deterministic operations
-- Test file access patterns—verify Claude can navigate your structure
+- Test file access patterns: verify Claude can navigate your structure
 
 ## For Claude 4.x Models
 

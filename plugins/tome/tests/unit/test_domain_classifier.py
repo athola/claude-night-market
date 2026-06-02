@@ -125,7 +125,7 @@ class TestDomainClassifierFallback:
         Then confidence is below 0.6 and domain falls back to general
         """
 
-        # Only one algorithm keyword — not enough for confident classification
+        # Only one algorithm keyword, not enough for confident classification
         result = classify("sort")
 
         assert result.domain == "general"

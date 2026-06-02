@@ -27,7 +27,7 @@ Each team member's config gains a `health` object for tracking operational statu
 }
 ```
 
-Members without a `health` object operate as before (no health monitoring — backward compatible).
+Members without a `health` object operate as before (no health monitoring, backward compatible).
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -137,7 +137,7 @@ stalled ──────────────────► unresponsive
 - `stalled → healthy`: Agent responds to health_check
 - `stalled → unresponsive`: Agent fails to respond within 30s of health_check
 - `unresponsive → replaced`: After 2 failed recovery attempts, fresh agent spawned
-- `replaced`: Terminal state — agent is decommissioned
+- `replaced`: Terminal state, agent is decommissioned
 
 ## Heartbeat Protocol
 

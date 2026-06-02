@@ -50,6 +50,51 @@ hook, which checks for corresponding test files during write operations to
 implementation files. Completion claims must be backed by evidence of problem
 reproduction and verified fixes with actual test runs.
 
+### Assisted Mastery
+
+`assisted-mastery` addresses the assistance dilemma: the same agent
+help that speeds output erodes the judgment needed to verify it.
+Scaffolding that helps a novice harms an expert (the expertise
+reversal effect), so the skill makes the agent's reasoning a
+first-class deliverable (assumptions, alternatives considered,
+ramifications), surfaces tradeoffs before a design is chosen, and
+fades assistance over time so the human builds skill instead of
+dependence. It pairs explain mode (human writes the load-bearing
+code, agent narrates) with produce mode (agent writes, human
+reviews), chosen deliberately from the task's risk.
+
+### Graduated Implementation
+
+`graduated-implementation` is the other direction of the
+assisted-mastery axis: that skill fades scaffolding, this one ramps
+the ambition of the next increment. Start at the smallest intentional
+slice and widen the rung a notch only when the prior increment's
+understanding is demonstrated and recorded. The check is sized to
+stakes: low-stakes increments ramp on an evidence gate (green tests
+plus a recorded tradeoff), high-stakes ones (auth, migrations, money,
+infra, crypto) ramp only when the human explains the prior diff
+unaided, the aviation "children of the magenta" hand-fly check. The
+`guard_scope_ramp.py` PreToolUse hook holds each Write, Edit, and
+MultiEdit to the current rung (default ~40 added lines), halves it for
+high-stakes paths, and widens it one notch per recorded demonstration
+(`touch .imbue/ramp-ok`). Shadow mode (warn) is the default; set
+`VOW_SHADOW_MODE=0` to block over-rung increments. Grounded in the 85%
+optimal-learning rule (Wilson 2019) and competence-based curriculum
+learning (Platanios 2019).
+
+### Dependency Verification
+
+`dependency-verification` confirms a suggested package actually exists
+before install, defending against package hallucination (5.2-21.7% of
+LLM-recommended packages do not exist) and slopsquatting. It is
+enforced by the `guard_package_hallucination.py` PreToolUse hook,
+which intercepts install commands (pip, uv, npm, pnpm, yarn, cargo,
+poetry, pdm), flags names that are typos of popular packages (offline,
+deterministic), and looks up unknown names in their registry. Shadow
+mode (warn) is the default; set `VOW_SHADOW_MODE=0` to block, and
+`IMBUE_PKG_REGISTRY_CHECK=0` to skip network lookups. The guard never
+blocks on a network failure.
+
 ### Hard Vow Hooks
 
 Three PreToolUse hooks enforce constraints that cannot be satisfied by
@@ -130,6 +175,8 @@ imbue/
 │   ├── user-prompt-submit.sh     # Per-prompt threshold checks
 │   ├── pre_pr_scope_check.sh     # Branch threshold monitoring
 │   ├── tdd_bdd_gate.py           # PreToolUse: Iron Law enforcement
+│   ├── guard_package_hallucination.py # PreToolUse (Bash): block hallucinated/typosquat installs
+│   ├── guard_scope_ramp.py       # PreToolUse (Write/Edit/MultiEdit): hold increment to the current rung
 │   ├── vow_bounded_reads.py      # PreToolUse (Read/Grep/Glob): warn/block past 15 reads
 │   ├── vow_bounded_reads_reset.py # PreToolUse (Write/Edit/MultiEdit): reset read counter
 │   ├── vow_no_ai_attribution.py  # PreToolUse: block AI attribution in commits
@@ -146,6 +193,9 @@ imbue/
     ├── catchup/            # Summarization methodology
     ├── scope-guard/        # Anti-overengineering guardrails
     ├── rigorous-reasoning/ # Anti-sycophancy guardrails
+    ├── assisted-mastery/   # Assistance dilemma: visible reasoning and fading
+    ├── graduated-implementation/ # Bounded start, ramp ambition on demonstrated competence
+    ├── dependency-verification/ # Package hallucination and slopsquat defense
     ├── feature-review/     # Feature prioritization framework
     ├── proof-of-work/      # Verification enforcement
     ├── justify/            # Anti-additive-bias audit

@@ -55,7 +55,7 @@ BLOCKING: Must fix before approval
 | Smell | Refactoring | Review Comment |
 |-------|-------------|----------------|
 | Long function | Extract Method | "This could be extracted into `calculateTotal()`" |
-| Repeated code | Extract Method/Class | "Duplicated in lines 45, 89—extract?" |
+| Repeated code | Extract Method/Class | "Duplicated in lines 45, 89: extract?" |
 | Long parameter list | Introduce Parameter Object | "Consider grouping these into a config object" |
 | Feature Envy | Move Method | "This method uses more of Order than Cart" |
 | Primitive Obsession | Replace with Value Object | "A Money type would prevent currency bugs" |
@@ -85,7 +85,7 @@ BLOCKING: Must fix before approval
 **Review Comments for Legacy**:
 ```
 "Before modifying this, consider adding a characterization test"
-"This method has too many dependencies—can we inject the database?"
+"This method has too many dependencies. Can we inject the database?"
 "Consider introducing a seam here for testability"
 ```
 
@@ -132,7 +132,7 @@ BLOCKING: Must fix before approval
 **Comment Formulas**:
 ```
 Instead of: "This is wrong"
-Try:        "I'm curious—what led to this approach?"
+Try:        "I'm curious: what led to this approach?"
 
 Instead of: "Use X pattern"
 Try:        "Have you considered X? It might help with Y"

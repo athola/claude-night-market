@@ -321,7 +321,7 @@ Include these sections when they add value, not by default.
 **Skip sections that**:
 - Contain implementation details
 - Duplicate other documentation
-- Add no actionable information
+- Add no concrete information
 - Are empty or speculative
 
 **Examples to Skip**:
@@ -333,7 +333,7 @@ Include these sections when they add value, not by default.
 ## Quality Guidelines
 
 ### Good Section Content
-- Specific and actionable
+- Specific and testable
 - User-focused language
 - Measurable where possible
 - Technology-agnostic

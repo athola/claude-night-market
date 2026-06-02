@@ -56,7 +56,7 @@ class TestExtractModuleRefsFromFile:
     def test_frontmatter_strips_modules_path_prefix(self, tmp_path: Path) -> None:
         """
         GIVEN a frontmatter modules: list where entries include path
-        prefixes (``modules/foo.md``, ``./modules/foo.md``) -- the two
+        prefixes (``modules/foo.md``, ``./modules/foo.md``): the two
         forms found in real plugins (leyline/utility and attune)
         WHEN extracting module refs
         THEN entries are normalized to bare filenames so set-membership
@@ -523,7 +523,7 @@ class TestAuditSkillModulesAdvanced:
 
     def test_multiple_skills_with_mixed_issues(self, tmp_path: Path) -> None:
         """
-        GIVEN a plugin with two skills — one with orphaned modules, one clean
+        GIVEN a plugin with two skills: one with orphaned modules, one clean
         WHEN auditing skill modules
         THEN only the problematic skill is reported.
         """

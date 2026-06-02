@@ -91,10 +91,10 @@ Avoid this command if:
 - Error handling completeness
 
 ### Tier 3: Deep (30-60 min)
-- All Tier 1 + Tier 2
+- All Tier 1 and Tier 2
 - Cross-module dependency analysis
 - Paradigm fitness evaluation (if archetypes available)
-- Comprehensive refactoring plan with before/after code
+- Thorough refactoring plan with before/after code
 - Quality score with benchmarks
 
 ## Example Session
@@ -185,8 +185,8 @@ When `--apply` is used:
 
 ## See Also
 
-- `code-refinement` skill — Analysis dimensions and detection patterns
-- `code-refiner` agent — Orchestration implementation
-- `/cleanup` command — Unified cleanup orchestrator (conserve, if available)
-- `conserve:code-quality-principles` — KISS/YAGNI/SOLID reference (if available)
-- `archetypes:architecture-paradigms` — Paradigm detection (if available)
+- `code-refinement` skill: Analysis dimensions and detection patterns
+- `code-refiner` agent: Orchestration implementation
+- `/cleanup` command: Unified cleanup orchestrator (conserve, if available)
+- `conserve:code-quality-principles`: KISS/YAGNI/SOLID reference (if available)
+- `archetypes:architecture-paradigms`: Paradigm detection (if available)

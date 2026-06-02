@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PostToolUse safety-net hook for deferred-item capture.
 
-PURE LEDGER WRITER -- no gh calls, no network I/O.
+PURE LEDGER WRITER: no gh calls, no network I/O.
 Detects deferral signals in watched skill outputs and writes
 entries to the session ledger. The Stop hook does the filing.
 """
@@ -200,7 +200,7 @@ def main() -> None:
     """PostToolUse hook entry point.
 
     Orchestration:
-    1. Check should_process() -- skip if not a watched skill.
+    1. Check should_process(): skip if not a watched skill.
     2. scan_for_deferrals() on CLAUDE_TOOL_OUTPUT.
     3. If signals found, extract titles and write ledger entries.
     """

@@ -88,7 +88,7 @@ git commit -m "fix: commit output for T<id> missed in prior session"
 Two possibilities:
 
 1. The file was committed under a different name or path.
-   Check `git log --all --full-history — <expected_path>`.
+   Check `git log --all --full-history -- <expected_path>`.
 
 2. The task did not actually complete despite the status.
    Reset the task to `pending` and note the discrepancy

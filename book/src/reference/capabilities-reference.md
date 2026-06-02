@@ -37,6 +37,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
+| `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
+| `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
@@ -57,10 +59,12 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
 | `damage-control` | [leyline](../plugins/leyline.md) | Agent crash recovery and state reconciliation |
 | `data-flow` | [cartograph](../plugins/cartograph.md) | Data movement diagrams |
+| `decision-journal` | [leyline](../plugins/leyline.md) | Contract for the project decision journal (tradeoffs and lessons-learned logs) |
 | `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `deferred-capture` | [leyline](../plugins/leyline.md) | Contract for unified deferred-item capture across plugins |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `dependency-graph` | [cartograph](../plugins/cartograph.md) | Import and dependency diagrams |
+| `dependency-verification` | [imbue](../plugins/imbue.md) | Package-hallucination and slopsquat defense: verifies a package exists before install |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `dig` | [tome](../plugins/tome.md) | Interactive research refinement |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
@@ -188,7 +192,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README maintenance and updates |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `utility` | [leyline](../plugins/leyline.md) | Utility-guided action selection for orchestration |
-| `validate-mr` | [sanctum](../plugins/sanctum.md) | Diff-derived MR test plan with revert-test quality checks |
+| `validate-pr` | [sanctum](../plugins/sanctum.md) | Diff-derived PR test plan with revert-test quality checks |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `voice-extract` | [scribe](../plugins/scribe.md) | SICO comparative extraction from writing samples |
@@ -332,8 +336,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/update-tutorial` | sanctum | Update tutorial content |
 | `/update-version` | sanctum | Bump versions |
 | `/validate-hook` | abstract | Validate hook compliance |
-| `/validate-mr` | sanctum | Diff-derived MR test plan with area-targeted checks and revert-test quality proof |
 | `/validate-plugin` | abstract | Check plugin structure |
+| `/validate-pr` | sanctum | Diff-derived PR test plan with area-targeted checks and revert-test quality proof |
 | `/verify-plugin` | leyline | Verify plugin behavioral contract history via GitHub Attestations |
 | `/visualize` | cartograph | Generate codebase diagrams via Mermaid Chart MCP |
 | `/voice-extract` | scribe | Extract writing voice from samples |
@@ -454,4 +458,4 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
-| `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting |
+| `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting; skips non-2xx error pages (#547) |

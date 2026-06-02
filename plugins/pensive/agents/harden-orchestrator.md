@@ -13,7 +13,7 @@ examples:
     user: "Harden just the Python code."
     assistant: "I'll launch harden-orchestrator with --focus python."
   - context: User wants a frontier-threat audit
-    user: "Check for forward-facing security issues — PQC readiness, LLM supply chain, that kind of thing."
+    user: "Check for forward-facing security issues: PQC readiness, LLM supply chain, that kind of thing."
     assistant: "I'll launch harden-orchestrator with the frontier modules loaded."
 ---
 
@@ -44,7 +44,7 @@ skills rather than re-implementing them.
   expected-passing test.
 - **Approval gate**: Per-finding apply / file / defer / reject.
   Auto-apply ceiling is opt-in.
-- **Apply + validate**: Discrete commit per finding; project
+- **Apply and validate**: Discrete commit per finding; project
   gates (test, lint, type-check) re-run after each apply; a
   gate failure reverts the commit and downgrades the finding.
 
@@ -68,7 +68,7 @@ skills rather than re-implementing them.
 
 ### Cross-cutting
 - SLSA build-level posture (L1-L3)
-- SBOM (CycloneDX + SPDX via syft)
+- SBOM (CycloneDX and SPDX via syft)
 - gitleaks/trufflehog secret scanning
 - Container hardening (distroless, non-root, seccomp)
 - GitHub Actions: SHA-pinning, OIDC publishing, scope minimization
@@ -122,7 +122,7 @@ When dispatched, accept these inputs in the prompt:
 
 Returns:
 
-- `reviews/harden-<date>.md` — full report
+- `reviews/harden-<date>.md`: full report
 - Per-finding disposition table (applied / filed / deferred /
   rejected / advisory)
 - Optional GitHub issue numbers for filed findings
@@ -144,13 +144,13 @@ Returns:
 
 ## Composed Skills (do not re-implement)
 
-- `pensive:rust-review` — full Rust audit
-- `pensive:bug-review` — bug-hunting backbone
-- `pensive:safety-critical-patterns` — NASA Power-of-10
-- `pensive:tiered-audit` — three-tier discipline
-- `pensive:blast-radius` — change-impact assessment
-- `leyline:supply-chain-advisory` — dependency posture
-- `leyline:authentication-patterns` — auth/credential review
-- `leyline:content-sanitization` — input handling
-- `abstract:hook-authoring` — hook-event security
-- `imbue:proof-of-work` — evidence discipline
+- `pensive:rust-review`: full Rust audit
+- `pensive:bug-review`: bug-hunting backbone
+- `pensive:safety-critical-patterns`: NASA Power-of-10
+- `pensive:tiered-audit`: three-tier discipline
+- `pensive:blast-radius`: change-impact assessment
+- `leyline:supply-chain-advisory`: dependency posture
+- `leyline:authentication-patterns`: auth/credential review
+- `leyline:content-sanitization`: input handling
+- `abstract:hook-authoring`: hook-event security
+- `imbue:proof-of-work`: evidence discipline

@@ -121,16 +121,16 @@ Load modules based on refinement focus:
 - **`modules/clean-code-checks.md`** (~450 tokens): Clean code, anti-slop, error handling
 - **`modules/architectural-fit.md`** (~400 tokens): Paradigm alignment and coupling
 
-Load all for comprehensive refinement. For focused work, load only relevant modules.
+Load all for thorough refinement. For focused work, load only relevant modules.
 
 ## Required TodoWrite Items
 
-1. `refine:context-established` — Scope, language, framework detection
-2. `refine:scan-complete` — Findings across all dimensions
-3. `refine:prioritized` — Findings ranked by impact and effort
-4. `refine:plan-generated` — Concrete refactoring plan with before/after
-5. `refine:evidence-captured` — Evidence appendix per `imbue:proof-of-work`
-6. `refine:execution-complete` — All wave-listed candidates closed-or-rationale'd (only required when invocation includes "execute findings" or stronger; see Step 6)
+1. `refine:context-established`: Scope, language, framework detection
+2. `refine:scan-complete`: Findings across all dimensions
+3. `refine:prioritized`: Findings ranked by impact and effort
+4. `refine:plan-generated`: Concrete refactoring plan with before/after
+5. `refine:evidence-captured`: Evidence appendix per `imbue:proof-of-work`
+6. `refine:execution-complete`: All wave-listed candidates closed-or-rationale'd (only required when invocation includes "execute findings" or stronger; see Step 6)
 
 ## Workflow
 
@@ -190,7 +190,7 @@ Document with `imbue:proof-of-work` (if available):
 
 ### Step 6: Execute Findings (`refine:execution-complete`)
 
-Steps 1-5 produce a **plan**. Steps 6 produces **closures**. Both are part of the skill — execution does not stop at planning unless the user explicitly says "plan only".
+Steps 1-5 produce a **plan**. Steps 6 produces **closures**. Both are part of the skill. Execution does not stop at planning unless the user explicitly says "plan only".
 
 #### Execution mode detection
 
@@ -212,16 +212,16 @@ The triggers compose: `--tier 3 --execute all findings --ignore-scope-guard` mea
 The task is **not complete** until ALL of the following hold:
 
 1. **Wave 2 candidates** (medium-effort, listed in synthesis "Wave 2 Candidates" section): every entry has either a closure commit or an explicit per-item line in the synthesis stating why it is not viable.
-2. **Wave 3 candidates** (large-effort, listed in synthesis "Wave 3 Candidates" section): same gate. Do not pre-emptively defer LARGE-effort items with generic "needs dedicated PR" rationale when the user said "execute all" — execute the mechanical ones (split-by-class, mixin-package, module-merge) and reserve "deferred" only for items requiring architecture-level decisions (schema changes, new dependency declarations, new venv layouts).
+2. **Wave 3 candidates** (large-effort, listed in synthesis "Wave 3 Candidates" section): same gate. Do not pre-emptively defer LARGE-effort items with generic "needs dedicated PR" rationale when the user said "execute all". Execute the mechanical ones (split-by-class, mixin-package, module-merge) and reserve "deferred" only for items requiring architecture-level decisions (schema changes, new dependency declarations, new venv layouts).
 3. **Synthesis updated**: `docs/refinement/<date>/00-synthesis.md` records every closure with its commit SHA and every deferral with one-sentence rationale.
 
 #### Anti-pattern detector for the agent itself
 
-If the model finds itself doing any of the following during execution, this is a stop-hook leak — go back to executing findings:
+If the model finds itself doing any of the following during execution, this is a stop-hook leak. Go back to executing findings:
 
 | Anti-pattern | Recognise as |
 |---|---|
-| "Wave 2 closed. Moving to Wave 3." (mid-run summary) | Premature turn-completion signal — keep working |
+| "Wave 2 closed. Moving to Wave 3." (mid-run summary) | Premature turn-completion signal: keep working |
 | "Documenting deferred items with rationale" before all mechanical items are done | Skipping execution under a paper trail |
 | Writing a completion summary while >0 listed candidates lack closure-or-rationale | Violation of completion gate |
 | Re-asking user "should I continue?" when invocation included "do not stop" | Ignoring the explicit no-mid-task-summary contract |
@@ -234,7 +234,7 @@ If the harness fires a stop signal mid-execution and the completion gate is not 
 |------|------|-------|
 | **1: Quick** (default) | 2-5 min | Complexity hotspots, obvious duplication, naming, magic values |
 | **2: Targeted** | 10-20 min | Algorithm analysis, full duplication scan, architectural alignment |
-| **3: Deep** | 30-60 min | All above and cross-module coupling, paradigm fitness, comprehensive plan |
+| **3: Deep** | 30-60 min | All above and cross-module coupling, paradigm fitness, thorough plan |
 
 ## Cross-Plugin Dependencies
 

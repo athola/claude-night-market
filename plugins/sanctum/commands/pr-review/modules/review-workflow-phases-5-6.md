@@ -577,4 +577,4 @@ Before completing the review, verify ALL items are complete:
 **If any item above is unchecked, GO BACK and complete Phase 6.**
 
 
-> **Next**: [Enforcement](review-workflow-enforcement.md) — mandatory output verification and options.
+> **Next**: [Enforcement](review-workflow-enforcement.md): mandatory output verification and options.

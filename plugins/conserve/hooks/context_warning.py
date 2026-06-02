@@ -217,7 +217,7 @@ def estimate_context_from_session() -> float | None:
 
     This is a FAST fallback for real-time hooks when CLAUDE_CONTEXT_USAGE
     is not available. Estimates based on **recent** conversation entries,
-    not total file size — JSONL files contain the full conversation history
+    not total file size. JSONL files contain the full conversation history
     including auto-compressed messages that are no longer in the context
     window.
 
@@ -298,7 +298,7 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
     try:
         file_size = session_file.stat().st_size
 
-        # Read only the tail of the file — recent conversation is at the end.
+        # Read only the tail of the file: recent conversation is at the end.
         # 4MB ≈ 1M tokens at ~4 chars/token, which is one full context
         # window.  Reading more than this means we're counting compressed
         # history that is no longer in the context.

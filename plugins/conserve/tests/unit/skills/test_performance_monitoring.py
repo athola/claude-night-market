@@ -254,7 +254,7 @@ tags:
         [alert for alert in all_alerts if "critical" in alert.lower() or "95%" in alert]
         [alert for alert in all_alerts if "warning" in alert.lower() or "80%" in alert]
 
-        # Assert -- first scenario produces 2 alerts (CPU+token),
+        # Assert: first scenario produces 2 alerts (CPU+token),
         # second produces 0 (CPU 45% is under threshold)
         assert len(all_alerts) == TWO
         assert all_alerts == [
@@ -618,7 +618,7 @@ tags:
         # Act - generate detailed report
         report = mock_performance_monitor.generate_report()
 
-        # Assert -- mock returns static values
+        # Assert: mock returns static values
         assert report == {
             "average_cpu": 25.3,
             "peak_memory": 2048,

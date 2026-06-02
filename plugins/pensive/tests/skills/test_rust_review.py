@@ -2,17 +2,17 @@
 
 This module has been split into focused sub-modules for maintainability:
 
-- test_rust_review_safety.py          -- TestRustReviewSafety
+- test_rust_review_safety.py          :  TestRustReviewSafety
                                          (unsafe code, ownership, data races,
                                          memory safety, panic propagation,
                                          async/await patterns)
-- test_rust_review_build_reporting.py -- TestRustReviewBuildReporting
+- test_rust_review_build_reporting.py :  TestRustReviewBuildReporting
                                          (Cargo.toml dependencies, macros,
                                          traits, const generics, build
                                          optimization, security report,
                                          severity categorization,
                                          best practices)
-- test_rust_review_patterns.py        -- TestRustReviewPatterns
+- test_rust_review_patterns.py        :  TestRustReviewPatterns
                                          (silent returns, collection types,
                                          SQL injection, cfg(test) misuse,
                                          error messages, duplicate validators,

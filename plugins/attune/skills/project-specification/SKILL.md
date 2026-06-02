@@ -13,7 +13,7 @@ role: library
 ---
 ## Delegation
 
-For detailed specification writing workflows, this skill delegates to `spec-kit:spec-writing` as the canonical implementation. Use this skill for quick specification needs; use spec-kit for comprehensive specification documents.
+For detailed specification writing workflows, this skill delegates to `spec-kit:spec-writing` as the canonical implementation. Use this skill for quick specification needs; use spec-kit for thorough specification documents.
 
 ## When To Use
 
@@ -43,6 +43,19 @@ For detailed specification writing workflows, this skill delegates to `spec-kit:
 - Requirement templates
 - Acceptance criteria patterns
 
+## Record the Tradeoff (decision journal)
+
+If the specification settled a design decision with real alternatives (a chosen
+data model, an interface boundary, a constraint accepted), record it to
+`docs/tradeoffs.md` before continuing (draft and confirm):
+
+- If leyline is installed, invoke `Skill(leyline:decision-journal)` and append
+  a tradeoff entry (the decision, the options weighed, and what was
+  sacrificed; set `phase` to `specify`). Show the draft; append on
+  confirmation.
+- Fallback (leyline absent): append to `docs/tradeoffs.md` using the in-file
+  ENTRY TEMPLATE; assign the next `TR-NNN` id.
+
 ## Post-Completion: Workflow Continuation (REQUIRED)
 
 **Automatic Trigger**: After Quality Checks pass and `docs/specification.md` is saved, MUST auto-invoke the next phase.
@@ -64,7 +77,15 @@ For detailed specification writing workflows, this skill delegates to `spec-kit:
 - `docs/specification.md` does not exist or is empty (phase failed)
 - User explicitly requests to stop after specification
 
-**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+**Do NOT prompt the user for confirmation**: this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+
+## Exit Criteria
+
+- [ ] `docs/specification.md` exists, is non-empty, and passes Quality Checks.
+- [ ] Every functional requirement has testable acceptance criteria.
+- [ ] Any design decision with real alternatives is recorded to
+  `docs/tradeoffs.md` (or there was no meaningful design fork).
+- [ ] The next phase is auto-invoked unless a bypass condition holds.
 
 ## Related Skills
 

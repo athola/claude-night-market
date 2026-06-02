@@ -1,4 +1,4 @@
-# Command Reference — Extended Plugins
+# Command Reference: Extended Plugins
 
 Flag and option documentation for extended plugin commands (memory-palace,
 parseltongue, pensive, spec-kit, scribe, scry, hookify, leyline).

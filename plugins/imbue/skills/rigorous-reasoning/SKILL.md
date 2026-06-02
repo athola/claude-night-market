@@ -81,13 +81,13 @@ When a change conflicts with an existing design decision
 (architecture, data structure, API contract, module boundary),
 there are exactly three options:
 
-1. **Preserve the invariant** — don't add the feature;
+1. **Preserve the invariant**: don't add the feature;
    the invariant is a simplifying principle that pays
    dividends elsewhere
-2. **Layer on top** — add the feature inelegantly or
+2. **Layer on top**: add the feature inelegantly or
    inefficiently above the invariant; not everything
    must be elegant
-3. **Revise the invariant** — new learning justifies a
+3. **Revise the invariant**: new learning justifies a
    fundamentally different approach
 
 Usually only one is right. One is very wrong with
@@ -97,11 +97,11 @@ judgment about which option fits THIS codebase.
 
 | Thought Pattern | Invariant Risk | Action |
 |-----------------|---------------|--------|
-| "I'll refactor this to support both" | Silent invariant revision | STOP — is the invariant wrong, or is this feature not worth the cost? |
-| "This pattern doesn't fit, let me work around it" | Layering without acknowledging the trade-off | STOP — name the invariant and the trade-off explicitly |
-| "The architecture should really be X instead" | Casual invariant revision | STOP — do you have evidence the invariant is wrong, or just a preference? |
-| "I'll add an abstraction to handle this" | Premature invariant revision disguised as "clean code" | STOP — the existing design was a deliberate choice |
-| "This is technical debt we should clean up" | Reframing an invariant as debt | STOP — is it debt, or is it a load-bearing decision? |
+| "I'll refactor this to support both" | Silent invariant revision | STOP: is the invariant wrong, or is this feature not worth the cost? |
+| "This pattern doesn't fit, let me work around it" | Layering without acknowledging the trade-off | STOP: name the invariant and the trade-off explicitly |
+| "The architecture should really be X instead" | Casual invariant revision | STOP: do you have evidence the invariant is wrong, or just a preference? |
+| "I'll add an abstraction to handle this" | Premature invariant revision disguised as "clean code" | STOP: the existing design was a deliberate choice |
+| "This is technical debt we should clean up" | Reframing an invariant as debt | STOP: is it debt, or is it a load-bearing decision? |
 
 **Recovery Protocol for Invariant Conflicts:**
 
@@ -109,7 +109,7 @@ judgment about which option fits THIS codebase.
 2. Name the invariant being affected
 3. Name the conflict (what feature/change clashes)
 4. Present all three options with trade-offs
-5. Escalate to human judgment — this is not a context
+5. Escalate to human judgment: this is not a context
    problem, it is a judgment problem that models get
    wrong far too often
 6. If no human is available, default to Option 1

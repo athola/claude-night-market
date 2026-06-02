@@ -34,6 +34,7 @@ authentication, storage, and testing patterns.
 | `stewardship` | Cross-cutting stewardship principles with five virtues (Care, Curiosity, Humility, Diligence, Foresight) | Working with project health, codebase improvement, or virtue-aligned development |
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
 | `deferred-capture` | Contract for unified deferred-item capture across plugins | Implementing or testing deferred-capture wrappers |
+| `decision-journal` | Contract for the project decision journal (tradeoffs and lessons-learned logs) | Recording a decision, tradeoff, or lesson, or building a consumer hook |
 | `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 | `supply-chain-advisory` | Known-bad version detection, lockfile auditing, incident response | After supply chain advisories, dependency audits, or suspected compromise |
 | `sem-integration` | sem CLI detection, install-on-first-use, fallback patterns | Skills consuming git diff output that benefit from entity-level diffs |
