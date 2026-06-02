@@ -15,14 +15,26 @@ bleeds between cases.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 HOOK_PATH = Path(__file__).resolve().parents[3] / "hooks" / "guard_scope_ramp.py"
+
+
+@pytest.fixture
+def hook():
+    """Import the hook module so its state helpers can be unit-tested."""
+    spec = importlib.util.spec_from_file_location("guard_scope_ramp", HOOK_PATH)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["guard_scope_ramp"] = mod
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def run_hook(
@@ -153,13 +165,17 @@ class TestGuardScopeRampHook:
         artifact lands there. A 55-line slice with a ramp token widens the
         rung 40->60 and appends one ledger entry capturing the notch.
         """
-        # State is /tmp-global keyed by session id (vow-hook convention), so
-        # isolate this case by clearing its state file before the run.
+        # Isolate rung state in a per-test dir so it cannot bleed across runs.
         session_id = "sess-ledger-write"
-        Path(f"/tmp/imbue_scope_ramp_{session_id}.json").unlink(missing_ok=True)
         env = os.environ.copy()
         env.pop("IMBUE_RAMP_OK", None)
-        env.update({"IMBUE_RAMP_OK": "1", "VOW_SHADOW_MODE": "1"})
+        env.update(
+            {
+                "IMBUE_RAMP_OK": "1",
+                "VOW_SHADOW_MODE": "1",
+                "IMBUE_STATE_DIR": str(tmp_path / "state"),
+            }
+        )
         payload = json.dumps(
             {
                 "tool_name": "Write",
@@ -197,3 +213,53 @@ class TestGuardScopeRampHook:
             check=False,
         )
         assert result.returncode == 0
+
+
+@pytest.mark.skipif(
+    not hasattr(os, "O_NOFOLLOW"), reason="symlink hardening is POSIX-only"
+)
+class TestStateFileSecurity:
+    """Feature: refuse to follow symlinks at the session-state path (CWE-59)."""
+
+    @pytest.mark.unit
+    def test_save_does_not_follow_a_planted_symlink(self, hook, tmp_path, monkeypatch):
+        """A symlink at the state path must not be truncated/overwritten."""
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        victim = tmp_path / "victim.txt"
+        victim.write_text("precious")
+        state_path = hook._state_path("attacker")
+        state_path.symlink_to(victim)
+
+        hook._save_state(state_path, {"rung": 999})
+
+        # The victim file is untouched; the symlink was not followed.
+        assert victim.read_text() == "precious"
+
+    @pytest.mark.unit
+    def test_load_does_not_follow_a_planted_symlink(self, hook, tmp_path, monkeypatch):
+        """A symlinked state path yields the safe default, not the target."""
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        secret = tmp_path / "secret.txt"
+        secret.write_text('{"rung": 9999, "increments": 7}')
+        state_path = hook._state_path("attacker")
+        state_path.symlink_to(secret)
+
+        state = hook._load_state(state_path)
+
+        assert state == {"rung": hook.RUNG_START, "increments": 0}
+
+    @pytest.mark.unit
+    def test_state_dir_is_private(self, hook, tmp_path, monkeypatch):
+        """The default per-user state dir is created mode 0o700."""
+        monkeypatch.delenv("IMBUE_STATE_DIR", raising=False)
+        monkeypatch.setenv("TMPDIR", str(tmp_path))
+        d = hook._state_dir()
+        assert (d.stat().st_mode & 0o777) == 0o700
+
+    @pytest.mark.unit
+    def test_roundtrip_through_secure_helpers(self, hook, tmp_path, monkeypatch):
+        """A normal save/load still works under the hardened path."""
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(tmp_path))
+        path = hook._state_path("normal")
+        hook._save_state(path, {"rung": 60, "increments": 2})
+        assert hook._load_state(path) == {"rung": 60, "increments": 2}

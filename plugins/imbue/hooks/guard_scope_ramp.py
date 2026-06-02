@@ -28,8 +28,15 @@ from __future__ import annotations
 import json
 import os
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+# O_NOFOLLOW makes open() fail (ELOOP) when the final path component is a
+# symlink, so an attacker who plants a symlink at the predictable state
+# path cannot redirect our truncating write onto their target (CWE-59).
+# Absent on non-POSIX platforms, where it degrades to 0 (no-op).
+_O_NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
 
 sys.path.insert(0, str(Path(__file__).parent))
 from shared.scope_ramp import (  # noqa: E402 - hook injects sys.path before importing sibling shared/ module
@@ -49,30 +56,89 @@ _LEDGER_FILE = ".imbue/ramp-ledger.jsonl"
 _OFF_VALUES = ("0", "false", "no")
 
 
+def _state_dir() -> Path:
+    """Return a private, per-user directory for rung-state files.
+
+    Defaults to ``<tmpdir>/imbue-state-<uid>`` created mode 0o700 so no
+    other user can plant files or symlinks inside it. Override the base
+    with ``IMBUE_STATE_DIR`` (used by tests for isolation). Falling back
+    to the shared tmpdir root only happens if the private dir cannot be
+    created, and the per-file ``O_NOFOLLOW`` guard still applies there.
+    """
+    override = os.environ.get("IMBUE_STATE_DIR")
+    if override:
+        base = Path(override)
+    else:
+        uid = getattr(os, "geteuid", lambda: 0)()
+        base = Path(tempfile.gettempdir()) / f"imbue-state-{uid}"
+    try:
+        base.mkdir(mode=0o700, exist_ok=True)
+    except OSError:
+        return Path(tempfile.gettempdir())
+    return base
+
+
 def _state_path(session_id: str) -> Path:
     """Return the session-scoped rung-state file path."""
     safe_id = (session_id or "default").replace("/", "_").replace("\\", "_")[:200]
-    return Path(f"/tmp/imbue_scope_ramp_{safe_id}.json")  # noqa: S108 - cross-process session state requires a shared tmpfs path
+    return _state_dir() / f"scope_ramp_{safe_id}.json"
+
+
+def _owned_by_us(fd: int) -> bool:
+    """Return True if the fd is owned by the current user (else distrust it)."""
+    geteuid = getattr(os, "geteuid", None)
+    if geteuid is None:  # non-POSIX: no uid model, nothing to compare
+        return True
+    try:
+        return os.fstat(fd).st_uid == geteuid()
+    except OSError:
+        return False
 
 
 def _load_state(path: Path) -> dict:
-    """Read rung state, returning the bounded default on any error."""
+    """Read rung state, returning the bounded default on any error.
+
+    Opens with ``O_NOFOLLOW`` so a symlinked state path is refused rather
+    than followed, and distrusts a file not owned by the current user.
+    """
+    default = {"rung": RUNG_START, "increments": 0}
     try:
-        return json.loads(path.read_text())
-    except FileNotFoundError:
-        return {"rung": RUNG_START, "increments": 0}
+        fd = os.open(str(path), os.O_RDONLY | _O_NOFOLLOW)
+    except OSError:  # missing, or ELOOP on a planted symlink
+        return default
+    try:
+        if not _owned_by_us(fd):
+            return default
+        raw = os.read(fd, 1_000_000).decode("utf-8")
+        return json.loads(raw) if raw else default
     except Exception:  # corrupt state must not crash the hook
-        return {"rung": RUNG_START, "increments": 0}
+        return default
+    finally:
+        os.close(fd)
 
 
 def _save_state(path: Path, state: dict) -> None:
-    """Persist rung state with 0o600 perms; failures are non-fatal."""
+    """Persist rung state with 0o600 perms; failures are non-fatal.
+
+    ``O_NOFOLLOW`` makes the open fail instead of truncating a symlink's
+    target, and the owner check refuses to write through a file planted
+    by another user.
+    """
     try:
-        fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(fd, "w") as fh:
-            fh.write(json.dumps(state))
+        fd = os.open(
+            str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC | _O_NOFOLLOW, 0o600
+        )
+    except OSError as exc:  # ELOOP on a planted symlink, or other open failure
+        print(f"[guard-scope-ramp] WARN: state open refused: {exc}", file=sys.stderr)
+        return
+    try:
+        if not _owned_by_us(fd):
+            return
+        os.write(fd, json.dumps(state).encode("utf-8"))
     except Exception as exc:  # noqa: S110 - state write is best-effort; hook must not crash
         print(f"[guard-scope-ramp] WARN: state write failed: {exc}", file=sys.stderr)
+    finally:
+        os.close(fd)
 
 
 def _explicit_stakes() -> str | None:
