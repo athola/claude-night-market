@@ -26,9 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   explaining the diff unaided (the aviation hand-fly check). The
   PreToolUse Write/Edit/MultiEdit hook holds each increment to the
   current rung, halves it for high-stakes paths, and defaults to
-  shadow mode. Research basis in
-  `docs/research/3dfdba53-graduated-implementation.md` (Wilson 2019
-  85% rule; Platanios 2019 competence gate; GDL clean-record gating).
+  shadow mode. Research basis in the graduated-implementation skill's
+  `modules/research-basis.md` (Wilson 2019 85% rule; Platanios 2019
+  competence gate; GDL clean-record gating).
   The rung is driven by the full `leyline:risk-classification` tier
   scale (GREEN/YELLOW keep the rung, RED halves it, CRITICAL quarters
   it) via an `IMBUE_STAKES` signal, not path-regex alone. A
@@ -53,8 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   manual) and a pre-licensed downgrade trigger that drops the agent a
   tier on repeated failure, confidence loss, or a stakes spike (the
   aviation "children of the magenta" fix), rather than re-prompting at
-  the same level. Research basis recorded in
-  `docs/research/19c28f3c-ai-workflow-guardrails.md`.
+  the same level. Research basis recorded in the assisted-mastery
+  skill's `modules/research-basis.md`.
 - **conserve, memory-palace: MMPO anchor-clarity gates (#550, #551,
   #552).** Skill descriptions and memory summaries are now scored for
   anchor clarity and fail fast when an anchor is too vague to act on,

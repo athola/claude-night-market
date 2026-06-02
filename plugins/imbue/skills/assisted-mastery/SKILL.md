@@ -22,6 +22,7 @@ estimated_tokens: 2200
 modules:
 - modules/modes-and-fading.md
 - modules/tradeoff-ledger.md
+- modules/research-basis.md
 role: library
 ---
 
@@ -147,6 +148,10 @@ ceremony, and ceremony trains people to ignore the gate.
   entries that outlive the session.
 - `leyline:risk-classification`: choosing the automation tier from
   the task's risk, the input to mode selection.
+
+The measured evidence for blind-trust failure, the learning-science
+basis for fading, and the six workflow principles are preserved in
+[research-basis.md](modules/research-basis.md).
 
 ## Exit Criteria
 

@@ -14,7 +14,7 @@ The pure logic lives in hooks/shared/scope_ramp.py so it can be
 tested without filesystem or hook plumbing. State is passed in and
 the new state returned, so these tests never touch disk.
 
-Research: docs/research/3dfdba53-graduated-implementation.md
+Research: graduated-implementation skill, modules/research-basis.md
 (Wilson 2019 85% band; Platanios 2019 competence gate; GDL clean
 record; children-of-the-magenta hand-fly guard).
 """

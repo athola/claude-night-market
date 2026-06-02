@@ -73,6 +73,32 @@ present in the registry passes. A name that cannot be checked
 because the registry is unreachable is reported as `unverified`,
 never blocked: the guard does not fail closed on a network error.
 
+## A Confidence Signal, Not a Gate
+
+Registry existence is the pass/fail check. Real-world usage is a
+separate, softer signal that builds confidence on top of it. Once a
+package clears the two signals above, cross-checking that it is
+actually used by other projects raises your confidence that the name
+is the established one rather than a freshly-registered impostor that
+happens to exist.
+
+Useful confidence signals, none of them blocking:
+
+- GitHub dependents or code search hits for the exact package name
+  (an established package is imported across many repositories).
+- Repository stars, recent commit activity, and release cadence on
+  the package's source.
+- Download counts and publish history on the registry (a popular
+  name registered yesterday is a red flag; a modest name with years
+  of releases is reassuring).
+
+Treat low usage as a prompt to look closer, never as a reason to
+reject on its own. New, niche, internal, and private packages are
+legitimately low-usage, so a missing GitHub footprint must not block
+an install the registry already confirmed. Use this signal to build
+confidence and to disambiguate between two similarly-named packages,
+not to gate.
+
 ## Verification Procedure
 
 1. Extract the exact package names the command or manifest edit

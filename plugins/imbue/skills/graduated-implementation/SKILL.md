@@ -22,6 +22,7 @@ estimated_tokens: 2300
 modules:
 - modules/advancement-gate.md
 - modules/ramp-ledger.md
+- modules/research-basis.md
 role: library
 ---
 
@@ -141,6 +142,10 @@ ceremony, and ceremony trains people to ignore the gate.
   gate (evidence vs explanation) applies.
 - `leyline:decision-journal`: the durable home for the recorded
   tradeoff that mints a ramp token.
+
+The empirical basis for the 85% band, the failure modes, and the
+cross-domain gate design is preserved in
+[research-basis.md](modules/research-basis.md).
 
 ## Exit Criteria
 

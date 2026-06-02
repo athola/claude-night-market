@@ -5,8 +5,8 @@ human cannot verify, the failure the research calls blind trust. The
 fix the learning sciences and five apprenticeship domains converged on
 is graduated practice: start at the smallest intentional increment and
 ramp ambition up a notch only after the prior increment's understanding
-is demonstrated and recorded (see
-docs/research/3dfdba53-graduated-implementation.md).
+is demonstrated and recorded (see the graduated-implementation skill's
+modules/research-basis.md for the evidence base).
 
 This module holds the pure decision logic so it can be unit-tested
 without hook plumbing or disk. The hook wrapper
