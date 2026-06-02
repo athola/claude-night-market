@@ -28,10 +28,14 @@ import os
 import sys
 from pathlib import Path
 
-# D-06: shadow_mode helper lives in shared/vow_utils.
+# D-06: shadow_mode helper lives in shared/vow_utils, which is also the
+# home of the symlink-safe state primitives (CWE-59 defense).
 sys.path.insert(0, str(Path(__file__).parent))
-from shared.vow_utils import (
-    shadow_mode_active,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+    fd_owned_by_us,
+    secure_open,
+    secure_state_dir,
+    shadow_mode_active,
 )
 
 # fcntl is POSIX-only.  On Windows we fall back to unlocked RMW; the
@@ -59,23 +63,36 @@ _BUDGET = 15
 
 
 def _counter_path(session_id: str) -> Path:
-    """Return the path to the session-scoped counter file."""
+    """Return the path to the session-scoped counter file.
+
+    Lives in a private per-user dir (mode 0o700) so another user cannot
+    plant a symlink at this predictable name; opens add ``O_NOFOLLOW``
+    as defense in depth. The reset companion computes the same path.
+    """
     safe_id = (
         session_id.replace("/", "_").replace("\\", "_") if session_id else "default"
     )
-    return Path(f"/tmp/vow_read_counter_{safe_id[:200]}.json")  # noqa: S108 - cross-process session counter requires a shared tmpfs path
+    return (
+        secure_state_dir("imbue-vow-state") / f"vow_read_counter_{safe_id[:200]}.json"
+    )
 
 
 def _read_counter(path: Path) -> int:
     """Read the current counter value from *path*, returning 0 on any error."""
     try:
-        data = json.loads(path.read_text())
-        return int(data.get("count", 0))
-    except FileNotFoundError:
+        fd = secure_open(path, os.O_RDONLY)
+    except OSError:  # missing, or ELOOP on a planted symlink
         return 0
+    try:
+        if not fd_owned_by_us(fd):
+            return 0
+        data = json.loads(os.read(fd, 4096).decode("utf-8") or "{}")
+        return int(data.get("count", 0))
     except Exception as exc:  # hook must not crash on corrupt counter file
         print(f"[vow-bounded-reads] WARN: counter read failed: {exc}", file=sys.stderr)
         return 0
+    finally:
+        os.close(fd)
 
 
 def _write_counter(path: Path, count: int) -> None:
@@ -87,29 +104,22 @@ def _write_counter(path: Path, count: int) -> None:
     permissions even when the file pre-existed with looser modes.
     """
     try:
-        fd = os.open(
-            str(path),
-            os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
-            0o600,
-        )
+        fd = secure_open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         try:
             os.fchmod(fd, 0o600)
         except OSError:
             pass
         try:
-            with os.fdopen(fd, "w") as fh:
-                fh.write(json.dumps({"count": count}))
-        except Exception:
-            try:
-                os.close(fd)
-            except OSError:
-                pass
-            raise
+            if not fd_owned_by_us(fd):
+                return
+            os.write(fd, json.dumps({"count": count}).encode("utf-8"))
+        finally:
+            os.close(fd)
     except Exception as exc:  # noqa: S110 - write failures are non-fatal; hook must not crash the agent
         print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
 
 
-def _atomic_increment(path: Path) -> int:
+def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - lock fallbacks plus the owner-check guard sit at the branch limit
     """Atomically read-modify-write the counter at *path*.
 
     Returns the new (post-increment) count.  Uses an exclusive POSIX
@@ -122,12 +132,15 @@ def _atomic_increment(path: Path) -> int:
     fd = -1
     try:
         # O_RDWR|O_CREAT (no O_TRUNC) so we can read the current value
-        # before overwriting it.  Mode 0o600 mirrors _write_counter.
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o600)
+        # before overwriting it.  O_NOFOLLOW (via secure_open) refuses a
+        # symlinked counter path.  Mode 0o600 mirrors _write_counter.
+        fd = secure_open(path, os.O_RDWR | os.O_CREAT, 0o600)
         try:
             os.fchmod(fd, 0o600)
         except OSError:
             pass
+        if not fd_owned_by_us(fd):
+            return 0
         if _HAS_FCNTL and _fcntl is not None:
             try:
                 _fcntl.flock(fd, _fcntl.LOCK_EX)
