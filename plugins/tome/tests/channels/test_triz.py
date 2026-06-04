@@ -875,3 +875,53 @@ class TestCanonicalMatrixLookup:
             assert numbers, f"cell (1, {worsening}) should be populated"
             for num in numbers:
                 assert 1 <= num <= 40
+
+    @pytest.mark.unit
+    def test_loader_returns_empty_dict_when_data_file_absent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: A missing vendored matrix CSV degrades gracefully
+        Given the contradiction_matrix.csv resource cannot be opened
+        When the matrix loader runs with a cleared cache
+        Then it returns an empty dict and the public lookup returns []
+             instead of raising
+        """
+        from tome.channels import triz
+
+        def _raise_missing(*_args: object, **_kwargs: object) -> object:
+            raise FileNotFoundError("simulated missing vendored data file")
+
+        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
+        monkeypatch.setattr(triz.resources, "files", _raise_missing)
+
+        assert triz._load_canonical_matrix() == {}
+        assert triz.lookup_canonical_principles(1, 2) == []
+
+    @pytest.mark.unit
+    def test_loader_skips_malformed_rows(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """
+        Scenario: Rows with non-integer parameters are skipped, not fatal
+        Given a matrix CSV with one valid row and one non-integer row
+        When the matrix loader parses it with a cleared cache
+        Then the valid row loads and the malformed row is ignored
+        """
+        from tome.channels import triz
+
+        csv_text = (
+            "improving_parameter,worsening_parameter,recommended_principles\n"
+            "1,2,1;8;15\n"
+            "x,2,3;4\n"  # non-integer improving param -> ValueError -> skipped
+        )
+
+        class _FakeResource:
+            def joinpath(self, _name: str) -> _FakeResource:
+                return self
+
+            def read_text(self, encoding: str = "utf-8") -> str:
+                return csv_text
+
+        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
+        monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
+
+        assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}

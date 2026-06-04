@@ -109,6 +109,14 @@ def test_rotation_plan_wraps_after_exhaustion() -> None:
     assert set(flat[:size]) == {m["id"] for m in load_methods()}
 
 
+def test_rotation_plan_empty_catalogue_degrades_to_empty_passes(monkeypatch) -> None:
+    # An empty catalogue must not raise: the cursor math indexes
+    # ``order[cursor % len(order)]`` and would ZeroDivisionError without the
+    # guard. Graceful degradation returns one empty pass per requested pass.
+    monkeypatch.setattr("tome.channels.ideation.load_methods", lambda: [])
+    assert rotation_plan(passes=3, n_per_pass=2) == [[], [], []]
+
+
 # ---------------------------------------------------------------------------
 # score_idea: weighted total + anti-inflation
 # ---------------------------------------------------------------------------
