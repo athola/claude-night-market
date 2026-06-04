@@ -60,9 +60,15 @@ to find solutions from adjacent fields.
 - Security: military strategy, immunology
 - Financial: game theory, ecology
 
+## Related
+
+TRIZ is the analogical method in the broader ideation catalog.
+For diverse, category-spanning ideation with rotation, see
+`Skill(tome:ideate)`.
+
 ## Limitations
 
-- The built-in contradiction catalogue maps common software
+- The built-in contradiction catalog maps common software
   trade-offs to principles. It is a convenience mapping, not
   part of the classical TRIZ Body of Knowledge, which is
   scoped to technological systems.

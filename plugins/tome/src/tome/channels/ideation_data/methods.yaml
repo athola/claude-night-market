@@ -1,0 +1,99 @@
+# Ideation methods catalog (curated, technical-problem-solving).
+#
+# Only methods that port to non-advertising technical work are listed,
+# each with an honest evidence grade. Categories drive diverse
+# selection: the selector picks across categories so a single pass
+# spans different reasoning modes (the lever against LLM mode collapse).
+#
+# evidence: one of strong | mixed | weak | anecdotal (conservative)
+# ports:    yes | partial  (does it transfer to technical work?)
+# prompt:   a REASONING prompt to hand the agent, not an output schema.
+#           Per "The Price of Format" (arXiv 2505.18949), structuring
+#           output collapses diversity; structure the reasoning instead.
+#
+# Order matters: first-appearance category order seeds diverse selection.
+
+methods:
+  - id: scamper
+    name: SCAMPER
+    category: transformation
+    evidence: weak
+    ports: yes
+    prompt: >-
+      Take the current design and apply each lens in turn: Substitute a
+      part, Combine two parts, Adapt something from another domain,
+      Modify or magnify an attribute, Put it to another use, Eliminate a
+      part assumed essential, Reverse the order or roles. Keep the
+      transformations that change the trade-off, not just the surface.
+    when: Feature, API, or workflow ideation where a baseline exists.
+
+  - id: morphological-analysis
+    name: Morphological analysis (Zwicky)
+    category: decomposition
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Decompose the problem into 3 to 5 independent parameters. List 2
+      to 4 concrete values for each. Enumerate combinations across the
+      parameters, then discard the internally contradictory ones. Report
+      the surviving combinations as distinct candidate solutions.
+    when: Solution space has separable dimensions (config, architecture).
+
+  - id: cross-domain-analogy
+    name: Cross-domain analogy (TRIZ, Synectics)
+    category: analogical
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Abstract the problem to its core contradiction, then ask which
+      distant field has solved the same shape of problem (biology,
+      logistics, game theory, immunology). Borrow that field's mechanism
+      and map it back, naming what transfers and what does not. See the
+      tome:triz skill for the structured form.
+    when: Stuck on a trade-off; a fresh mechanism from elsewhere helps.
+
+  - id: inversion
+    name: Inversion (reverse brainstorming, pre-mortem)
+    category: inversion
+    evidence: anecdotal
+    ports: yes
+    prompt: >-
+      Flip the goal: instead of "how do we make this work", ask "how
+      would we guarantee this fails", or "assume it has already failed
+      in six months, what caused it". Generate failure modes, then
+      invert each into a safeguard or design choice.
+    when: Risk, robustness, security, or debugging-adjacent ideation.
+
+  - id: constraint-provocation
+    name: Constraint provocation
+    category: perturbation
+    evidence: anecdotal
+    ports: yes
+    prompt: >-
+      Impose a deliberately extreme constraint and design under it: solve
+      it with 10x less time, zero of the current crutch (no database, no
+      network, no config), or one tenth the code. The forced constraint
+      surfaces assumptions the comfortable design hides.
+    when: The obvious design feels bloated or assumption-laden.
+
+  - id: sit-subtraction
+    name: SIT subtraction
+    category: decomposition
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Remove a component assumed essential, then ask what useful system
+      remains and what new use it enables. Do not replace the removed
+      part; find value in its absence.
+    when: Simplification, scope reduction, or removing accidental complexity.
+
+  - id: sit-task-unification
+    name: SIT task unification
+    category: transformation
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Assign an existing component an additional, unrelated job rather
+      than adding a new component. Ask which part is already present and
+      could absorb the new responsibility.
+    when: Avoiding new dependencies or moving parts; consolidation.
