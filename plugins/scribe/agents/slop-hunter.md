@@ -91,13 +91,29 @@ George Kao.
 - "unpack", "surface" (as verb), "drift", "cascade"
 - "a quiet shift", "the signal here is", "a sharp framing"
 
+### Spelling (British to American)
+
+Flag British spellings for normalization to American. Use an
+explicit word list, never a `-ise`/`-our` suffix rule: surprise,
+exercise, and analysis are correct in both dialects. Common families:
+
+- colour, behaviour, favourite, neighbour (-our)
+- organise, optimise, analyse, prioritise (-ise / -yse)
+- centre, metre, fibre, theatre (-re)
+- licence, defence, offence (-ence)
+- catalogue, grey, artefact, travelling, programme
+
+Skip code, inline code, URLs, proper nouns ("Labour Party"), and
+quotes. Report only (the prose-reviewer agent auto-fixes).
+
 ## Scan Workflow
 
 1. Read target files
 2. Count tier 1/2/3 occurrences
 3. Measure structural metrics
-4. Calculate density score
-5. Generate categorized report
+4. Flag British spellings (skip code, URLs, proper nouns)
+5. Calculate density score
+6. Generate categorized report
 
 ## Report Format
 

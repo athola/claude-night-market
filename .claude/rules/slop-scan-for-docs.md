@@ -75,7 +75,19 @@ After Layers 0 and 1 pass, you MUST run
 6. Scan for parallel "not just" / "not only X, but also Y"
 7. Check for participial tail-loading: sentences ending
    with ", [verb]-ing ..."
-8. Run full `Skill(scribe:slop-detector)` if file > 100
+8. Normalize British spellings to American (default).
+   Use `scribe.spelling.to_american` (preserves case; skips
+   code, inline code, and URLs) or scan manually:
+   `rg -ni '\b(colou?r|behaviou?r|organis|optimis|centre|\
+   licence|defence|catalogue|grey|artefact)\w*' file.md`.
+   Use an explicit word list, never a `-ise`/`-our` suffix
+   rule (surprise, exercise, analysis are correct as-is).
+   Opt out per project via `.slop-config.yaml`
+   (`spelling: british`) or per word via the allowlist;
+   leave proper nouns ("Labour Party") and quoted text
+   alone. Detail: `Skill(scribe:slop-detector)` module
+   `spelling-normalization.md`.
+9. Run full `Skill(scribe:slop-detector)` if file > 100
    words
 
 ## Layer 3: Evidence-backed claims (READMEs and public docs)
@@ -122,6 +134,12 @@ modesty.
   the sentence at the substantive content
 - Replace hedging seesaw with a position
 - Replace "not only X, but also Y" with the simpler form
+- Replace British spellings with American by default
+  (colour to color, organise to organize, centre to
+  center, licence to license, catalogue to catalog). In
+  prevention mode the target is zero British spellings.
+  Keep British only when the document opts out or the term
+  is a proper noun or direct quote
 
 ### Tier 5 / 2026 patterns (cross-source consensus)
 

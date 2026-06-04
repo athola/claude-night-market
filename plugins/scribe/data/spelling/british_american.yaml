@@ -1,0 +1,158 @@
+# British -> American spelling map for slop normalization.
+#
+# Curated common set. Keys are lowercase British spellings; values are the
+# American replacement. The detection code preserves case at match time, so
+# only the lowercase form is listed here.
+#
+# Design rules (read before adding entries):
+#   - NEVER add a generic suffix rule. "-ise -> -ize" is wrong for words that
+#     are -ise in BOTH dialects (surprise, exercise, advertise, comprise) and
+#     for nouns that are -ysis in both (analysis). List explicit words only.
+#   - List the inflected forms you want converted (colour, colours, coloured,
+#     colouring). Word-boundary matching will not catch "colourful" from a
+#     "colour" entry, so inflections are explicit.
+#   - A value must never also be a key (would oscillate). The test
+#     test_map_is_not_circular enforces this.
+#   - Proper nouns (Labour Party, World Health Organisation) are handled by the
+#     per-document allowlist, not by removing entries.
+
+mappings:
+  # -our / -or
+  colour: color
+  colours: colors
+  coloured: colored
+  colouring: coloring
+  colourful: colorful
+  colourless: colorless
+  behaviour: behavior
+  behaviours: behaviors
+  behavioural: behavioral
+  favour: favor
+  favours: favors
+  favoured: favored
+  favourite: favorite
+  favourites: favorites
+  honour: honor
+  honours: honors
+  honoured: honored
+  neighbour: neighbor
+  neighbours: neighbors
+  neighbouring: neighboring
+  labour: labor
+  flavour: flavor
+  flavours: flavors
+  harbour: harbor
+  rumour: rumor
+  endeavour: endeavor
+
+  # -ise / -ize (explicit; never blanket)
+  organise: organize
+  organised: organized
+  organising: organizing
+  organisation: organization
+  organisations: organizations
+  organisational: organizational
+  recognise: recognize
+  recognised: recognized
+  recognising: recognizing
+  realise: realize
+  realised: realized
+  realising: realizing
+  optimise: optimize
+  optimised: optimized
+  optimising: optimizing
+  optimisation: optimization
+  optimisations: optimizations
+  analyse: analyze
+  analysed: analyzed
+  analysing: analyzing
+  paralyse: paralyze
+  initialise: initialize
+  initialised: initialized
+  initialising: initializing
+  initialisation: initialization
+  serialise: serialize
+  serialised: serialized
+  serialisation: serialization
+  prioritise: prioritize
+  prioritised: prioritized
+  prioritisation: prioritization
+  customise: customize
+  customised: customized
+  synchronise: synchronize
+  synchronised: synchronized
+  categorise: categorize
+  categorised: categorized
+  summarise: summarize
+  summarised: summarized
+  minimise: minimize
+  maximise: maximize
+  emphasise: emphasize
+  standardise: standardize
+  standardised: standardized
+  normalise: normalize
+  normalised: normalized
+  normalisation: normalization
+  modularise: modularize
+
+  # -re / -er
+  centre: center
+  centres: centers
+  centred: centered
+  centring: centering
+  metre: meter
+  metres: meters
+  litre: liter
+  litres: liters
+  fibre: fiber
+  fibres: fibers
+  theatre: theater
+  calibre: caliber
+
+  # -ence / -ense
+  licence: license
+  defence: defense
+  offence: offense
+  pretence: pretense
+
+  # -ogue / -og
+  catalogue: catalog
+  catalogues: catalogs
+  catalogued: cataloged
+
+  # doubled-l before suffix
+  travelling: traveling
+  travelled: traveled
+  traveller: traveler
+  cancelled: canceled
+  cancelling: canceling
+  modelling: modeling
+  modelled: modeled
+  labelled: labeled
+  labelling: labeling
+  signalling: signaling
+  marvellous: marvelous
+
+  # ae / oe
+  encyclopaedia: encyclopedia
+  manoeuvre: maneuver
+  paediatric: pediatric
+
+  # misc common (software and prose)
+  artefact: artifact
+  artefacts: artifacts
+  grey: gray
+  greyscale: grayscale
+  programme: program
+  programmes: programs
+  practise: practice
+  practised: practiced
+  aluminium: aluminum
+  sceptical: skeptical
+  mould: mold
+  fulfil: fulfill
+  fulfilment: fulfillment
+  enrolment: enrollment
+  instalment: installment
+  skilful: skillful
+  jewellery: jewelry

@@ -14,7 +14,7 @@ tags:
 tools: []
 complexity: medium
 model_hint: fast
-estimated_tokens: 4200
+estimated_tokens: 4500
 progressive_loading: true
 modules:
 - modules/vocabulary-patterns.md
@@ -31,6 +31,7 @@ modules:
 - modules/structured-finding-output.md
 - modules/remediation-strategies.md
 - modules/language-handling.md
+- modules/spelling-normalization.md
 - modules/config-file.md
 - modules/reporting.md
 - modules/ci-integration.md
@@ -62,6 +63,17 @@ score lower than the same markers in API reference.
 - Load language-specific patterns from `data/languages/{lang}.yaml`
 - Fall back to English if detection confidence is low
 - See `modules/language-handling.md` for cultural calibration and concrete pattern sets
+
+### Spelling Normalization (British to American)
+
+Convert British spellings to American by default, in any scanned
+document, unless the document opts out via `.slop-config.yaml`
+(`spelling: british`) or a per-word allowlist. This is a consistency
+pass, separate from slop scoring. Use the tested `scribe.spelling`
+functions (`find_british_spellings`, `to_american`); both preserve
+case and skip code, inline code, and URLs.
+
+Load: `@modules/spelling-normalization.md`
 
 ### Vocabulary and Phrase Detection
 

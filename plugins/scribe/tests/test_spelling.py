@@ -1,0 +1,176 @@
+"""Tests for British -> American spelling normalization.
+
+The slop workflow normalizes British spellings to American by default
+(with a config opt-out and per-word allowlist for intentional British
+text). These tests pin the correctness traps that make naive
+implementations wrong:
+
+- Words that are ``-ise``/``-our``/``-re`` in form but identical in both
+  dialects (surprise, exercise, analysis, four, your) must NOT change.
+- Code blocks, inline code, and URLs must be left untouched.
+- Case must be preserved (Colour -> Color, COLOUR -> COLOR).
+- The allowlist suppresses conversion (Labour Party stays British).
+- Conversion is idempotent.
+"""
+
+from __future__ import annotations
+
+import pytest
+from scribe.spelling import (
+    find_british_spellings,
+    load_spelling_map,
+    to_american,
+)
+
+# ---------------------------------------------------------------------------
+# load_spelling_map
+# ---------------------------------------------------------------------------
+
+
+def test_map_loads_known_pairs() -> None:
+    mapping = load_spelling_map()
+    assert mapping["colour"] == "color"
+    assert mapping["organise"] == "organize"
+    assert mapping["centre"] == "center"
+    assert mapping["artefact"] == "artifact"
+
+
+def test_map_keys_are_lowercase_and_distinct() -> None:
+    mapping = load_spelling_map()
+    for british, american in mapping.items():
+        assert british == british.lower(), f"key not lowercase: {british}"
+        assert british != american, f"no-op mapping: {british}"
+
+
+def test_map_is_not_circular() -> None:
+    """An American value must never also be a British key (would oscillate)."""
+    mapping = load_spelling_map()
+    keys = set(mapping)
+    for american in mapping.values():
+        assert american not in keys, f"value {american!r} is also a key"
+
+
+# ---------------------------------------------------------------------------
+# find_british_spellings
+# ---------------------------------------------------------------------------
+
+
+def test_find_reports_line_and_suggestion() -> None:
+    text = "Intro line.\nThe colour scheme is nice.\n"
+    findings = find_british_spellings(text)
+    assert len(findings) == 1
+    f = findings[0]
+    assert f["british"] == "colour"
+    assert f["american"] == "color"
+    assert f["line"] == 2
+
+
+def test_find_is_case_insensitive() -> None:
+    findings = find_british_spellings("Colour and COLOUR and colour.")
+    assert len(findings) == 3
+
+
+def test_find_respects_allowlist() -> None:
+    findings = find_british_spellings("The Labour party.", allowlist=["labour"])
+    assert findings == []
+
+
+def test_find_skips_code_and_urls() -> None:
+    text = (
+        "Prose colour here.\n"
+        "Inline `colour` token.\n"
+        "See https://example.com/colour/page\n"
+        "```\ncolour = 1\n```\n"
+    )
+    findings = find_british_spellings(text)
+    # Only the first, prose occurrence counts.
+    assert len(findings) == 1
+    assert findings[0]["line"] == 1
+
+
+# ---------------------------------------------------------------------------
+# to_american: conversion + case preservation
+# ---------------------------------------------------------------------------
+
+
+def test_convert_basic() -> None:
+    assert to_american("The colour is bold.") == "The color is bold."
+
+
+def test_convert_preserves_case() -> None:
+    assert to_american("Colour") == "Color"
+    assert to_american("COLOUR") == "COLOR"
+    assert to_american("colour") == "color"
+
+
+@pytest.mark.parametrize(
+    ("british", "american"),
+    [
+        ("organise", "organize"),
+        ("organisation", "organization"),
+        ("centre", "center"),
+        ("behaviour", "behavior"),
+        ("licence", "license"),
+        ("catalogue", "catalog"),
+        ("travelling", "traveling"),
+        ("grey", "gray"),
+        ("analyse", "analyze"),
+        ("artefact", "artifact"),
+    ],
+)
+def test_convert_families(british: str, american: str) -> None:
+    assert to_american(british) == american
+
+
+# ---------------------------------------------------------------------------
+# to_american: false-positive guards (the load-bearing tests)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "unchanged",
+    [
+        "surprise",  # -ise in both dialects
+        "exercise",
+        "advertise",
+        "comprise",
+        "analysis",  # noun is -ysis in both
+        "four hours",  # 'our' substring must not trigger
+        "your colourless",  # 'your' unchanged; colourless may convert separately
+        "the meter reading",  # American already
+    ],
+)
+def test_does_not_corrupt_both_dialect_words(unchanged: str) -> None:
+    result = to_american(unchanged)
+    for token in ("surprize", "exercize", "advertize", "comprize", "analyzis"):
+        assert token not in result
+    # 'your' and 'four' must survive intact
+    assert "four hours" not in unchanged or "four hours" in result
+    assert "your" not in unchanged or "your" in result
+
+
+def test_convert_skips_code_and_urls() -> None:
+    text = (
+        "Prose colour.\n"
+        "Inline `var colour = 1`.\n"
+        "URL https://x.test/colour.\n"
+        "```python\ncolour = 2  # behaviour\n```\n"
+    )
+    out = to_american(text)
+    assert "Prose color." in out
+    assert "`var colour = 1`" in out  # inline code untouched
+    assert "https://x.test/colour" in out  # url untouched
+    assert "colour = 2  # behaviour" in out  # fenced code untouched
+
+
+def test_convert_respects_allowlist() -> None:
+    out = to_american("The Labour Party met.", allowlist=["labour"])
+    assert out == "The Labour Party met."
+
+
+def test_convert_is_idempotent() -> None:
+    text = "Colour the centre with favourite behaviour while travelling."
+    once = to_american(text)
+    twice = to_american(once)
+    assert once == twice
+    assert "colour" not in once.lower()

@@ -60,6 +60,13 @@ These are never advisory. Fix them without reporting:
 - **AI vocabulary**: delve, utilize, leverage, facilitate, moreover,
   furthermore, comprehensive, robust, seamless, cutting-edge,
   unpack (verb), surface (verb), boasts
+- **British spelling**: convert to American (colour -> color,
+  organise -> organize, centre -> center, licence -> license,
+  catalogue -> catalog). Use an explicit word list, not a suffix
+  rule (surprise, exercise, analysis are correct as-is). Skip code,
+  inline code, URLs, proper nouns ("Labour Party"), and quotes.
+  Honor a `.slop-config.yaml` `spelling: british`/`off` opt-out.
+  Prefer `scribe.spelling.to_american` (case-preserving)
 
 ## Critical Evaluations (Advisory Table)
 
