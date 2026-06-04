@@ -13,7 +13,10 @@ from tome.channels.triz import (
     build_cross_domain_search_queries,
     format_bridge_statement,
     formulate_contradiction,
+    formulate_ideality,
     get_adjacent_fields,
+    lookup_canonical_principles,
+    separation_strategies,
     suggest_inventive_principles,
 )
 from tome.models import Finding
@@ -651,3 +654,224 @@ class TestBridgeStatement:
         )
 
         assert isinstance(finding.url, str)
+
+
+class TestIdeality:
+    """
+    Feature: TRIZ Ideality / Ideal Final Result formulation
+
+    As a TRIZ analyst
+    I want to state the Ideal Final Result for a contradiction
+    So that I can reason about the solution that needs no compromise
+    """
+
+    @pytest.mark.unit
+    def test_returns_dict_with_all_required_keys(self) -> None:
+        """
+        Scenario: formulate_ideality returns all expected keys
+        Given a topic and a contradiction dict
+        When formulate_ideality is called
+        Then the result contains ifr_statement, ideality_question,
+             and ideality_ratio_hint
+        """
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        result = formulate_ideality("cache performance", contradiction)
+
+        required_keys = {"ifr_statement", "ideality_question", "ideality_ratio_hint"}
+        assert required_keys.issubset(result.keys())
+
+    @pytest.mark.unit
+    def test_all_values_are_non_empty_strings(self) -> None:
+        """
+        Scenario: Every value in the ideality dict is a non-empty string
+        Given a contradiction
+        When formulate_ideality is called
+        Then every returned value is a non-empty string
+        """
+        contradiction = formulate_contradiction("API security", "security")
+        result = formulate_ideality("API security", contradiction)
+
+        for key, value in result.items():
+            assert isinstance(value, str), f"Key {key!r} has non-string value"
+            assert value.strip() != "", f"Key {key!r} has empty value"
+
+    @pytest.mark.unit
+    def test_ifr_statement_expresses_function_without_system(self) -> None:
+        """
+        Scenario: The IFR states the function is delivered without the system
+        Given a topic
+        When formulate_ideality is called
+        Then the ifr_statement contains the topic and the word "without"
+        """
+        contradiction = formulate_contradiction("rate limiter", "algorithm")
+        result = formulate_ideality("rate limiter", contradiction)
+
+        ifr = result["ifr_statement"].lower()
+        assert "rate limiter" in ifr
+        assert "without" in ifr
+
+    @pytest.mark.unit
+    def test_ideality_question_is_a_question(self) -> None:
+        """
+        Scenario: The ideality question prompts the reader to remove the system
+        Given any contradiction
+        When formulate_ideality is called
+        Then ideality_question ends with a question mark
+        """
+        contradiction = formulate_contradiction("message queue", "architecture")
+        result = formulate_ideality("message queue", contradiction)
+
+        assert result["ideality_question"].rstrip().endswith("?")
+
+    @pytest.mark.unit
+    def test_reuses_contradiction_improving_term(self) -> None:
+        """
+        Scenario: The IFR references the improving parameter of the contradiction
+        Given a contradiction with improving="speed"
+        When formulate_ideality is called
+        Then the improving term appears somewhere in the output
+        """
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        result = formulate_ideality("cache performance", contradiction)
+
+        improving = contradiction["improving"].lower()
+        combined = " ".join(result.values()).lower()
+        assert any(word in combined for word in improving.split())
+
+    @pytest.mark.unit
+    def test_ratio_hint_names_useful_and_harmful(self) -> None:
+        """
+        Scenario: The ratio hint encodes the ideality formula
+        Given any contradiction
+        When formulate_ideality is called
+        Then ideality_ratio_hint mentions "useful" and "harmful"
+        """
+        contradiction = formulate_contradiction("distributed lock", "architecture")
+        result = formulate_ideality("distributed lock", contradiction)
+
+        hint = result["ideality_ratio_hint"].lower()
+        assert "useful" in hint
+        assert "harmful" in hint
+
+
+class TestSeparationStrategies:
+    """
+    Feature: TRIZ separation principles for physical contradictions
+
+    As a TRIZ analyst
+    I want the four canonical separation strategies for a contradiction
+    So that I can resolve mutually exclusive requirements on one parameter
+    """
+
+    @pytest.mark.unit
+    def test_returns_four_strategies(self) -> None:
+        """
+        Scenario: There are exactly four separation principles
+        Given any contradiction
+        When separation_strategies is called
+        Then exactly 4 strategies are returned
+        """
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        result = separation_strategies(contradiction)
+
+        assert len(result) == 4
+
+    @pytest.mark.unit
+    def test_each_strategy_has_axis_and_prompt(self) -> None:
+        """
+        Scenario: Each strategy carries an axis and a prompt
+        Given a contradiction
+        When separation_strategies is called
+        Then every entry has non-empty string axis and prompt keys
+        """
+        contradiction = formulate_contradiction("API security", "security")
+        result = separation_strategies(contradiction)
+
+        for entry in result:
+            assert {"axis", "prompt"}.issubset(entry.keys())
+            assert isinstance(entry["axis"], str) and entry["axis"].strip() != ""
+            assert isinstance(entry["prompt"], str) and entry["prompt"].strip() != ""
+
+    @pytest.mark.unit
+    def test_axes_are_the_four_canonical_separations(self) -> None:
+        """
+        Scenario: The axes match Altshuller's four separation principles
+        Given any contradiction
+        When separation_strategies is called
+        Then the axis set is exactly time, space, condition, system/scale
+        """
+        contradiction = formulate_contradiction("database latency", "algorithm")
+        result = separation_strategies(contradiction)
+
+        axes = {entry["axis"] for entry in result}
+        assert axes == {"time", "space", "condition", "system/scale"}
+
+    @pytest.mark.unit
+    def test_prompts_reference_the_contradiction(self) -> None:
+        """
+        Scenario: At least one prompt names the improving parameter
+        Given a contradiction with improving="speed"
+        When separation_strategies is called
+        Then at least one prompt contains "speed"
+        """
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        result = separation_strategies(contradiction)
+
+        improving = contradiction["improving"].lower()
+        prompts = " ".join(entry["prompt"].lower() for entry in result)
+        assert any(word in prompts for word in improving.split())
+
+
+class TestCanonicalMatrixLookup:
+    """
+    Feature: Optional canonical contradiction-matrix lookup
+
+    As a TRIZ analyst
+    I want to ground principle suggestions in Altshuller's classical matrix
+    So that I can cross-check the software heuristics against the source data
+    """
+
+    @pytest.mark.unit
+    def test_known_cell_returns_expected_principles(self) -> None:
+        """
+        Scenario: A populated cell returns its recorded principle numbers
+        Given the vendored cell improving=1, worsening=2 (1;8;15)
+        When lookup_canonical_principles is called
+        Then it returns [1, 8, 15]
+        """
+        assert lookup_canonical_principles(1, 2) == [1, 8, 15]
+
+    @pytest.mark.unit
+    def test_empty_cell_returns_empty_list(self) -> None:
+        """
+        Scenario: A valid but unpopulated cell returns an empty list
+        Given improving=1, worsening=5 which is absent from the matrix
+        When lookup_canonical_principles is called
+        Then it returns [] (empty-box: any of the 40 may apply)
+        """
+        assert lookup_canonical_principles(1, 5) == []
+
+    @pytest.mark.unit
+    def test_out_of_range_returns_empty_list_without_raising(self) -> None:
+        """
+        Scenario: Out-of-range parameter indices degrade gracefully
+        Given indices outside 1..39
+        When lookup_canonical_principles is called
+        Then it returns [] and does not raise
+        """
+        assert lookup_canonical_principles(0, 99) == []
+        assert lookup_canonical_principles(-1, 4) == []
+
+    @pytest.mark.unit
+    def test_returned_numbers_are_valid_triz_numbers(self) -> None:
+        """
+        Scenario: Every returned principle number is in the 1-40 range
+        Given any populated cell
+        When lookup_canonical_principles is called
+        Then all returned numbers are between 1 and 40 inclusive
+        """
+        for worsening in (2, 3, 14, 19, 27, 36):
+            numbers = lookup_canonical_principles(1, worsening)
+            assert numbers, f"cell (1, {worsening}) should be populated"
+            for num in numbers:
+                assert 1 <= num <= 40

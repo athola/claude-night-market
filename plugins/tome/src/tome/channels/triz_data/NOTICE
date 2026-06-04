@@ -1,0 +1,31 @@
+TRIZ reference data vendored in this directory
+==============================================
+
+Files:
+  - 39_parameters.yaml
+  - contradiction_matrix.csv
+
+Source:
+  Repository: NickScherbakov/Heinrich-The-Inventing-Machine
+  Path:       heinrich/knowledge/
+  URL:        https://github.com/NickScherbakov/Heinrich-The-Inventing-Machine
+  Retrieved:  2026-06-04 (branch main)
+
+License:
+  Apache License 2.0. The upstream LICENSE applies to these files.
+  See https://www.apache.org/licenses/LICENSE-2.0
+
+Modifications:
+  None. The files are unmodified verbatim copies of the upstream data.
+  Apache-2.0 section 4 requires that this attribution notice be retained
+  in any distribution that includes these files.
+
+Notes on the data:
+  The contradiction matrix is a SPARSE subset of Altshuller's classical
+  39x39 engineering-parameter table. The vendored copy contains 109 cells
+  and covers improving parameters 1 through 19 only. An absent cell does
+  not mean "no solution"; by the empty-box convention any of the 40
+  inventive principles may apply. The classical matrix has been frozen
+  since 1985 and maps engineering, not software, parameters. It is used
+  here as an OPTIONAL grounding lookup, secondary to the 40 inventive
+  principles and the Ideality heuristic.

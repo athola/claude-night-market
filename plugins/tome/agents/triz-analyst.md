@@ -28,14 +28,23 @@ different fields. You systematically find these bridges.
 1. **Read the research request**. You'll receive a topic,
    domain, and TRIZ depth (light/medium/deep/maximum).
 
-2. **Abstract the problem**:
-   - Identify the system being improved
-   - Formulate the technical contradiction: "Improving X
-     worsens Y"
-   - State the ideal final result: "The system achieves
-     X without degrading Y"
+2. **State the Ideal Final Result first**. Before any
+   search, frame the ideal: the system delivers its useful
+   function without itself existing and without the cost.
+   Ask "what would make this system unnecessary while the
+   function still happens?" Ideality is the ratio of useful
+   functions to harmful functions plus cost; raising it is
+   the goal. This framing is the highest-value TRIZ step.
 
-3. **Map to adjacent fields** based on depth:
+3. **Formulate the contradiction**:
+   - Identify the system being improved
+   - Technical contradiction: "Improving X worsens Y"
+   - If one parameter must hold two opposite values, that
+     is a physical contradiction. Resolve it by separation
+     in time, space, condition, or system/scale rather than
+     by compromise.
+
+4. **Map to adjacent fields** based on depth:
    - Light: 1 adjacent field
    - Medium: 2 adjacent fields
    - Deep: 3 adjacent fields
@@ -49,17 +58,17 @@ different fields. You systematically find these bridges.
    - Financial: game theory, ecology
    - Scientific: engineering, philosophy of science
 
-4. **Search for analogous solutions** in each field:
+5. **Search for analogous solutions** in each field:
    - Use WebSearch: "{field} solution to {abstracted problem}"
    - Use Semantic Scholar for academic cross-domain papers
    - Look for solved problems with similar contradiction
 
-5. **Build bridge mappings** for each cross-domain solution:
+6. **Build bridge mappings** for each cross-domain solution:
    - "In [field], [problem] was solved by [approach]"
    - "This maps to your domain as [application]"
    - Rate confidence: how strong is the analogy?
 
-6. **Return findings** as JSON:
+7. **Return findings** as JSON:
 
 ```json
 {
@@ -101,3 +110,9 @@ different fields. You systematically find these bridges.
   relevant, say so
 - For deep/maximum: consult Altshuller's 40 inventive
   principles if a clear contradiction exists
+- The classical contradiction matrix is available as an
+  optional, secondary grounding lookup. It is frozen since
+  1985, sparse, and uses engineering parameters, so treat it
+  as a cross-check, not the primary source. An empty cell
+  means any of the 40 principles may apply, not that no
+  solution exists.
