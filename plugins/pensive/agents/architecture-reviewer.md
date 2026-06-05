@@ -3,7 +3,7 @@ name: architecture-reviewer
 description: Architecture review for system design, ADR compliance, and coupling analysis. Use for major refactors.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: opus
-skills: pensive:architecture-review, imbue:proof-of-work
+skills: pensive:architecture-review, imbue:proof-of-work, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:
@@ -127,12 +127,23 @@ When dispatched, provide:
 3. Proposed changes (if any)
 4. ADR location and format
 
+## Verification Before Reporting
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED`
+any finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
+
 ## Output
 
 Returns:
 - Architecture assessment summary
 - ADR compliance status
-- Coupling violations with severity
+- Coupling violations with severity, each with `Location`
+  (file:line) and verbatim `Anchor` (exact source text at that line)
 - Pattern recommendations
 - Risk documentation
 - Recommendation (Approve/Block)

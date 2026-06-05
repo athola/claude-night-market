@@ -23,6 +23,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/dependency-graph.md
 - modules/deduplication-patterns.md
@@ -80,6 +82,7 @@ Audit Makefiles for best practices, deduplication, and portability.
 3. `makefile-review:dedup-candidates`
 4. `makefile-review:tooling-alignment`
 5. `makefile-review:evidence-logged`
+6. `makefile-review:findings-verified`
 
 ## Workflow
 
@@ -145,6 +148,7 @@ Makefile review findings
 ## Duplication Candidates
 ### [D1] Repeated command
 - Locations: [list]
+- Anchor: `verbatim source text at file:line`
 - Recommendation: [pattern rule]
 
 ## Portability Issues
@@ -159,6 +163,20 @@ Makefile review findings
 Approve / Approve with actions / Block
 ```
 
+## Verify Findings Are Grounded (`makefile-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - Context mapped
@@ -166,6 +184,9 @@ Approve / Approve with actions / Block
 - Deduplication reviewed
 - Portability checked
 - Evidence logged
+- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+  by `citation_verifier.py` (exit `0`), or unverified findings were dropped
+  or labeled `UNVERIFIED`
 ## Troubleshooting
 
 ### Common Issues

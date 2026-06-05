@@ -110,6 +110,21 @@ directory or with correct PYTHONPATH so that
 
 ## Output Formats
 
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
+
+Each finding in all output formats must include:
+
+- `location`: file:line reference
+- `anchor`: verbatim source text at that line
+
+Supported formats:
+
 - **markdown-report**: human-readable audit with
   findings, scores, and recommendations
 - **json-analysis**: machine-readable scores and

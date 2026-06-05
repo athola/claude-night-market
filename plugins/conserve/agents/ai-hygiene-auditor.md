@@ -471,10 +471,19 @@ Skill(scribe:slop-detector)  # auto-loads relevant modules
 - `/pr-review`: Include AI hygiene check for suspected AI PRs
 - `/prepare-pr`: Warn if PR shows vibe coding patterns
 
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
+
 ## Safety Protocol
 
 1. **Never auto-refactor** - all changes require approval
-2. **Evidence-based** - every finding includes verification command
+2. **Evidence-based** - every finding includes a `location` (file:line)
+   and a verbatim `anchor` (exact source text at that line)
 3. **Non-judgmental** - AI assistance is valid; quality matters
 4. **Actionable** - every finding includes specific recommendation
 

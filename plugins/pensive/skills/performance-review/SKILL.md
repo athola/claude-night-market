@@ -20,6 +20,9 @@ estimated_tokens: 280
 progressive_loading: true
 dependencies:
 - pensive:shared
+- imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/time-complexity.md
 - modules/space-complexity.md
@@ -97,6 +100,7 @@ for f in result.issues:
 3. `perf-review:findings-categorized`
 4. `perf-review:integration-checked`
 5. `perf-review:report-generated`
+6. `perf-review:findings-verified`
 
 ## Workflow
 
@@ -193,6 +197,7 @@ ReviewFinding(
     category="time",          # time | space
     message="Nested loop over the same iterable 'items'.",
     suggestion="Sort + two pointers, or hash-set membership.",
+    anchor="verbatim source text at file:line",
     code_snippet="",
 )
 ```
@@ -267,6 +272,20 @@ The Iron Law applies: a new detector without a failing test first
 is a request to skip TDD on a code-analysis component, which is
 exactly the place where TDD pays off most.
 
+## Verify Findings Are Grounded (`perf-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - [ ] A perf-review report file exists for the requested target.
@@ -282,3 +301,6 @@ exactly the place where TDD pays off most.
       positive ships with a regression test.
 - [ ] Findings flow into `Skill(pensive:unified-review)` without
       translation when invoked from the unified entry point.
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+      confirmed by `citation_verifier.py` (exit `0`), or unverified
+      findings were dropped or labeled `UNVERIFIED`

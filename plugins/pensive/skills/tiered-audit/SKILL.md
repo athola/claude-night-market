@@ -23,6 +23,8 @@ modules:
   - modules/tier3-gate.md
 dependencies:
   - imbue:proof-of-work
+  - imbue:review-core
+  - imbue:structured-output
 ---
 # Tiered Audit
 
@@ -102,6 +104,10 @@ evidence_count: {N}
 ## Churn Hotspots
 
 {top 10 most-changed files with change counts}
+
+For each flagged file, include:
+- Location: path/to/file.py:line (most-changed function or block)
+- Anchor: `verbatim source text at that line`
 
 [E1] Command: git log --format="" --name-only ...
      Output: {relevant output}
@@ -191,3 +197,28 @@ it reads source files and should produce deeper analysis.
 findings file exists and contains at least the minimum
 evidence count (`[E1]`, `[E2]`, etc.) before proceeding
 to the next tier or reporting results.
+
+### Verify Findings Are Grounded (`tiered-audit:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
+## Exit Criteria
+
+- [ ] Tier 1 findings file exists at
+      `.coordination/agents/tier1-audit.findings.md` and contains
+      at least 3 evidence entries (`[E1]`–`[E3]`).
+- [ ] Tier 2 is only started for areas explicitly flagged by Tier 1
+      escalation criteria.
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+      confirmed by `citation_verifier.py` (exit `0`), or unverified
+      findings were dropped or labeled `UNVERIFIED`.

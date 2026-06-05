@@ -86,11 +86,22 @@ output_contract:
   expected_artifacts: []
   retry_budget: 1
   strictness: normal
+  per_finding_required_fields:
+    - location   # file:line
+    - anchor     # verbatim source text at that line
 ```
 
 Every bloat finding must cite evidence (file stats,
 reference counts, staleness data) via `[EN]` tags.
 See `imbue:proof-of-work/modules/output-contracts`.
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
 
 ## Report Format
 

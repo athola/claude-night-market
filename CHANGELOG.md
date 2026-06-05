@@ -5,6 +5,42 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.11] - 2026-06-05
+
+### Added
+
+- **tome/ideate skill.** Generates diverse solution candidates using
+  category-spanning ideation methods with rotation, so design work
+  escapes repetitive LLM output. The catalog selects across method
+  categories and rotates picks to avoid mode collapse.
+- **Grounded-evidence review contract + `citation_verifier.py`.** Review
+  findings now carry a verbatim `Anchor` (the exact source text at the
+  cited `file:line`) alongside the location. A new validator,
+  `plugins/imbue/scripts/citation_verifier.py`, re-reads each citation
+  and fails the review if a path does not resolve, a line is out of
+  range, or the anchor does not match the source, so a finding cannot
+  reference code that was never there. Backed by 20 unit tests. The
+  schema lives in `imbue:structured-output`; the verification gate is
+  `imbue:review-core` Step 5; both are wired into 17 review skills
+  (`math-review`, `bug-review`, `rust-review`, and the rest) and 12
+  review/audit agents.
+
+### Changed
+
+- **tome/triz channel grounded in the canonical method.** The TRIZ
+  channel previously advertised "full matrix" depths while shipping a
+  six-entry hand-authored catalog. The channel now reflects the
+  researched canonical TRIZ method, closing the gap between the
+  advertised and implemented behavior.
+- **scribe slop workflow normalizes British spellings to American.**
+  The slop workflow now converts British spellings (colour, organise,
+  catalogue) to American by default, with case preservation and
+  opt-out support, skipping code, inline code, and URLs.
+
+### Tests
+
+- Added guards for workflow wiring and graceful degradation paths.
+
 ## [1.9.10] - 2026-05-29
 
 ### Added

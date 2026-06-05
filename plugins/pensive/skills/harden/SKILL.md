@@ -39,6 +39,8 @@ dependencies:
 - leyline:content-sanitization
 - abstract:hook-authoring
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/nist-controls.md
 - modules/python-checks.md
@@ -95,7 +97,9 @@ checks rather than line-level review of in-flight code.
    apply / file / defer / reject
 9. `harden:apply-and-validate`: apply approved proposals as
    discrete commits, re-run gates, capture evidence
-10. `harden:report`: write `reviews/harden-<date>.md` and
+10. `harden:findings-verified`: citations confirmed by
+    `citation_verifier.py`
+11. `harden:report`: write `reviews/harden-<date>.md` and
     optionally post to Discussions
 
 ## Progressive Loading
@@ -242,6 +246,7 @@ NIST SSDF PW.7 (Review and analyze human-readable code).
 
 **Detection signal:**
 - File: `src/x.py:45`
+- Anchor: `data = pickle.loads(user_supplied_input)`
 - Pattern: <module>.loads(user_supplied_input)
 - Reachability: untrusted, comes from request body
 
@@ -281,6 +286,20 @@ The skill composes (rather than re-implements):
 - `abstract:hook-authoring`: hook-event security
 - `imbue:proof-of-work`: evidence discipline for findings
 
+### Verify Findings Are Grounded (`harden:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - [ ] Discovery output lists every language and build manifest
@@ -299,3 +318,6 @@ The skill composes (rather than re-implements):
 - [ ] `reviews/harden-<date>.md` exists and lists every finding
       with a disposition (applied / filed / deferred / rejected /
       advisory).
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+      confirmed by `citation_verifier.py` (exit `0`), or unverified
+      findings were dropped or labeled `UNVERIFIED`.

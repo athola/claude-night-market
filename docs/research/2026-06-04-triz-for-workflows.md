@@ -106,7 +106,7 @@ Principles used as a checklist, plus Ideality as a framing question.
 ## Implications for our workflows
 
 1. `tome:triz` advertises "Full matrix" and "full TRIZ" at deeper
-   depths but implements a six-entry hand-authored catalogue. Close
+   depths but implements a six-entry hand-authored catalog. Close
    that gap honestly.
 2. The most-praised idea, Ideality/IFR, is buried as a template string
    inside contradiction formulation. Promote it to a first-class step.

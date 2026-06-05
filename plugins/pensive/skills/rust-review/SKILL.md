@@ -24,6 +24,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - ownership-analysis.md
 - error-handling.md
@@ -98,6 +100,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 4. `rust-review:unsafe-audit`
 5. `rust-review:cargo-deps`
 6. `rust-review:evidence-log`
+7. `rust-review:findings-verified`
 
 ## Progressive Loading
 
@@ -171,6 +174,7 @@ Rust audit findings
 ## Unsafe Audit
 ### [U1] file:line
 - Invariants: [documented]
+- Anchor: `verbatim source text at file:line`
 - Risk: [assessment]
 - Recommendation: [action]
 
@@ -182,6 +186,20 @@ Approve / Approve with actions / Block
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+## Verify Findings Are Grounded (`rust-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - All unsafe blocks audited
@@ -189,3 +207,4 @@ Approve / Approve with actions / Block
 - Dependencies scanned
 - Evidence logged
 - Action items assigned
+- Every reported finding carries a `Location` + verbatim `Anchor` confirmed by `citation_verifier.py` (exit `0`), or unverified findings were dropped or labeled `UNVERIFIED`

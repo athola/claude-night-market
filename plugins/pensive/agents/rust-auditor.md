@@ -3,7 +3,7 @@ name: rust-auditor
 description: Rust security audits for ownership, unsafe code, concurrency, and dependency scanning.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: opus
-skills: pensive:rust-review
+skills: pensive:rust-review, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:
@@ -164,12 +164,23 @@ When dispatched, provide:
 3. MSRV and edition constraints
 4. Existing audit history
 
+## Verification Before Reporting
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED`
+any finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
+
 ## Output
 
 Returns:
 - Safety audit summary
-- Unsafe block documentation
-- Concurrency analysis
+- Unsafe block documentation, each with `Location` (file:line) and
+  verbatim `Anchor` (exact source text at that line)
+- Concurrency analysis with per-finding `Location` and `Anchor`
 - Dependency scan results
 - Issue prioritization
 - Remediation recommendations

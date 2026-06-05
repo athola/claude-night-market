@@ -118,9 +118,17 @@ Fixed N hard failures:
 
 ### Advisory Table
 
-| # | Line | Pattern | Current | Proposed fix |
-|---|------|---------|---------|--------------|
-| 1 | "..." | Pattern name | What's wrong | Suggested direction |
+| # | Line | Pattern | Anchor | Proposed fix |
+|---|------|---------|--------|--------------|
+| 1 | 42 | Pattern name | verbatim text at that line | Suggested direction |
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
 
 ### Summary
 

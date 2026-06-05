@@ -103,6 +103,14 @@ skills rather than re-implementing them.
    post to Discussions via
    `abstract:post_review_insights`.
 
+Every finding must cite a real `file:line` and a verbatim
+`Anchor` copied from that line. Before reporting, write
+findings to `.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label
+`UNVERIFIED` any finding the verifier fails. See the
+`imbue:review-core` and `imbue:structured-output` skills.
+
 ## Usage
 
 When dispatched, accept these inputs in the prompt:
@@ -124,7 +132,9 @@ Returns:
 
 - `reviews/harden-<date>.md`: full report
 - Per-finding disposition table (applied / filed / deferred /
-  rejected / advisory)
+  rejected / advisory); each finding includes `Location`
+  (file:line) and a verbatim `Anchor` (exact source text at
+  that line)
 - Optional GitHub issue numbers for filed findings
 - Per-finding commit hashes for applied findings
 
@@ -154,3 +164,5 @@ Returns:
 - `leyline:content-sanitization`: input handling
 - `abstract:hook-authoring`: hook-event security
 - `imbue:proof-of-work`: evidence discipline
+- `imbue:review-core`: review-workflow scaffolding and
+  citation verification

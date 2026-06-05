@@ -179,6 +179,23 @@ demo-validator: ## Demo imbue validator (LIVE)
 	@echo ""
 	$(UV_RUN) python scripts/imbue_validator.py --root . --report
 
+demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
+	@echo "=== Imbue Citation Verifier Demo (LIVE) ==="
+	@echo ""
+	@printf '%s\n' \
+	  '[' \
+	  '  {"id":"REAL","file":"scripts/citation_verifier.py","line":1,"anchor":"#!/usr/bin/env python3"},' \
+	  '  {"id":"HALLUCINATED","file":"scripts/citation_verifier.py","line":1,"anchor":"fabricated banner never written here"}' \
+	  ']' > /tmp/imbue_citation_demo.json
+	@echo "Two findings cite the same file: one real anchor, one fabricated:"
+	@cat /tmp/imbue_citation_demo.json
+	@echo ""
+	@$(UV_RUN) python scripts/citation_verifier.py \
+	  --findings /tmp/imbue_citation_demo.json --repo-root . || true
+	@echo ""
+	@echo "The fabricated citation was rejected (exit 1). This gate runs in"
+	@echo "imbue:review-core Step 5 for every review."
+
 demo-skills: ## List imbue skills
 	@echo "=== Imbue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
@@ -202,7 +219,7 @@ test-feature-review: ## Test feature review (runs feature review unit tests)
 	$(PYTEST) tests/unit/skills/test_feature_review.py -v || \
 		$(PYTEST) tests/ -v -k "feature_review or feature-review"
 
-plugin-check: demo-catchup demo-validator demo-skills demo-feature-review ## Run all live demos
+plugin-check: demo-catchup demo-validator demo-citation-verifier demo-skills demo-feature-review ## Run all live demos
 	@echo ""
 	@echo "=== Imbue Plugin Check Complete ==="
 

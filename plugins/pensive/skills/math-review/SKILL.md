@@ -23,6 +23,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 ---
 ## Table of Contents
 
@@ -84,6 +86,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 3. `math-review:derivations-verified`
 4. `math-review:stability-assessed`
 5. `math-review:evidence-logged`
+6. `math-review:findings-verified`
 
 ## Core Workflow
 
@@ -110,6 +113,18 @@ jupyter nbconvert --execute derivation.ipynb
 ```
 **Verification:** Run `pytest -v tests/math/` to verify.
 Log deviations, recommend: Approve / Approve with actions / Block. **Load**: `modules/testing-strategies.md`
+
+### 6. Verify Findings Are Grounded (`math-review:findings-verified`)
+Every issue must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`);
+only verified findings enter the report. See `Skill(imbue:review-core)`
+Step 5 for the protocol and `Skill(imbue:structured-output)` for the
+finding schema.
 
 ## Progressive Loading
 
@@ -147,13 +162,19 @@ Files | Risk classification | Standards
 Condition number | Precision | Risks
 
 ## Issues
-[M1] [Title]: Location | Issue | Fix
+[M1] [Title]
+- Location: file.py:123
+- Anchor: `verbatim source text at line 123`
+- Issue: [what is wrong] | Fix: [remediation] | Evidence: [E1]
 
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+Every issue's `Anchor` is the exact source text at `Location`; it is what
+`citation_verifier.py` re-reads to prove the finding is real.
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 
 - Context synced, requirements mapped, derivations verified, stability assessed, evidence logged with citations
+- Every reported issue carries a `Location` + verbatim `Anchor`, and `citation_verifier.py` confirmed all citations (exit `0`) or unverified issues were dropped or labeled `UNVERIFIED`

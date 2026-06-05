@@ -23,6 +23,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/framework-detection.md
 - modules/coverage-analysis.md
@@ -86,6 +88,7 @@ Evaluate and improve test suites with TDD/BDD rigor.
 4. `test-review:invariant-preservation`
 5. `test-review:gap-remediation`
 6. `test-review:evidence-logged`
+7. `test-review:findings-verified`
 
 ## Progressive Loading
 
@@ -218,7 +221,7 @@ available.
 - Overall: X% | Critical: X% | Gaps: [list]
 
 ## Quality Issues
-[Q1] [Issue] - Location - Fix
+[Q1] [Issue] - Location - Anchor: `verbatim source text at file:line` - Fix
 
 ## Remediation Plan
 1. [Action] - Owner - Date
@@ -234,6 +237,20 @@ Approve / Approve with actions / Block
 - Reference `imbue:diff-analysis` for risk assessment
 - Format output using `imbue:structured-output` patterns
 
+## Verify Findings Are Grounded (`test-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - Frameworks detected and documented
@@ -241,6 +258,9 @@ Approve / Approve with actions / Block
 - Scenario quality assessed
 - Remediation plan created with owners and dates
 - Evidence logged with citations
+- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+  by `citation_verifier.py` (exit `0`), or unverified findings were dropped
+  or labeled `UNVERIFIED`
 ## Troubleshooting
 
 ### Common Issues
