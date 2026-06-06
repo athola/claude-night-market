@@ -313,15 +313,21 @@ information. "We use Python instead of Java" keeps a fact;
 
 | Pattern | Example |
 |---------|---------|
-| `It's not X, it's Y` | "It's not a tool, it's a transformation" |
+| `It's not X, it's Y` (leading) | "It's not a tool, it's a transformation" |
+| `It's X, not Y` (copula-led trailing) | "It's a tool, not a toy" |
 | `Not just X, but Y` | "Not just fast, but elegant" |
 | `Not only X, but also Y` | "Not only saves time, but also improves quality" |
 | `No X. No Y. Just Z.` | "No friction. No setup. Just code." |
 | `No X, no Y, no Z` | "No friction, no setup, no config." |
-| `Y, not X` (trailing) | "The API is clear, not clever." |
+| `Y, not X` (bare trailing) | "The API is clear, not a gimmick." |
 | `Not because X. Because Y.` | "Not because it's hard. Because it matters." |
 | `X. That's it. That's the Y.` | "Documentation. That's it. That's the feature." |
 | `And that's okay.` | (closing reassurance with no information) |
+
+The copula-led trailing form ("It's X, not Y", "This is X, not Y")
+is the one that survives casual proofreading: the opener reads as
+a plain definition, so the corrective tail slips through. It is the
+same scaffold as the leading "It's not X, it's Y", just reordered.
 
 ```python
 NEGATIVE_PARALLELISM = [
@@ -332,15 +338,25 @@ NEGATIVE_PARALLELISM = [
     r"\bNo \w+\.\s+No \w+\.\s+Just \w+",
     # Comma-joined variant: "No X, no Y, no Z"
     r"\bNo \w+,\s+no \w+(?:,\s+no \w+)*",
-    # Trailing corrective negation: "Y, not X." Genuine either/or
-    # choices (e.g. "Python, not Java") are slop too; rewrite as
-    # "Y instead of X" to keep the contrast without the negation.
-    r"\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]",
+    # Copula-led trailing corrective: "It's X, not Y" / "This is X,
+    # not Y". The opener marks a definitional statement, so the regex
+    # is high-precision even mid-sentence and with an article on Y.
+    r"\b(?:It's|It is|This is|That's|That is|These are|Those are)\s+[\w\s]+?,\s+not\b",
+    # Bare trailing corrective negation: "Y, not X." The optional
+    # article catches "clear, not a gimmick." as well as "clear, not
+    # clever." Genuine either/or choices (e.g. "Python, not Java") are
+    # slop too; rewrite as "Y instead of X" to keep the contrast
+    # without the negation.
+    r"\b\w+,\s+not\s+(?:just\s+|a\s+|an\s+|the\s+)?\w+[.!?]",
     r"\bNot because \w+\.\s+Because \w+",
     r"\.\s+That's it\.\s+That's the\b",
     r"\bAnd that's okay\.",
 ]
 ```
+
+These mirror `data/languages/en.yaml` § `tier5.negative_parallelism`
+(the runtime source). When you change one, change the other and run
+`pytest tests/test_slop_patterns.py tests/test_pattern_loader.py`.
 
 ### Prevention rule
 
@@ -352,6 +368,7 @@ isn't, then what it does.
 |------|---------|
 | "Not just fast, but elegant" | "Fast and elegant" or "Fast; the API is also clean" |
 | "It's not a tool, it's a transformation" | "It is a tool. It changes how you do X." |
+| "It's a tool, not a toy." | "It is a tool." (drop the corrective tail) |
 | "No friction. No setup. Just code." | "Zero-setup. Drop in and run." |
 | "No friction, no setup, no config." | "Zero-setup and zero-config." |
 | "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |

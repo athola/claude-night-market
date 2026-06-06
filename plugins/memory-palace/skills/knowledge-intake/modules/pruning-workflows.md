@@ -109,7 +109,7 @@ When knowledge no longer serves you:
 2. Thank it for its role in your development
 3. Archive or delete consciously
 
-This is cognitive closure, not sentiment.
+This is cognitive closure rather than sentiment.
 
 ### Archive
 Historical reference, accessible but not prominent.

@@ -69,8 +69,8 @@ For diverse, category-spanning ideation with rotation, see
 ## Limitations
 
 - The built-in contradiction catalog maps common software
-  trade-offs to principles. It is a convenience mapping, not
-  part of the classical TRIZ Body of Knowledge, which is
+  trade-offs to principles. It is a convenience mapping
+  rather than part of the classical TRIZ Body of Knowledge, which is
   scoped to technological systems.
 - The optional canonical matrix is a sparse subset of
   Altshuller's 39x39 engineering-parameter table. It has

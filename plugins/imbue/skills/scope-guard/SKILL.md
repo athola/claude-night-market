@@ -27,10 +27,9 @@ modules:
 - modules/baseline-scenarios.md
 role: library
 ---
-> Building more than what is needed takes choices away
-> from those who work here next. Scope-guard is humility
-> and foresight: preserving freedom by building only
-> what is earned.
+> The cheapest feature is the one you never build.
+> Scope-guard weighs each proposed feature against its value,
+> its cost, and the branch budget, so only what is earned ships.
 
 ## Table of Contents
 

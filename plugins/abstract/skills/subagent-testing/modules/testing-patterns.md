@@ -13,7 +13,7 @@ Skills must be empirically tested against real Claude instances to validate effe
 1. **Context Contamination**: Claude already knows what you're testing
 2. **Cooperation Bias**: Wants to validate your work
 3. **Recent Memory**: Remembers your intent and goals
-4. **No True Pressure**: Knows this is a test, not real work
+4. **No True Pressure**: Knows this is a test rather than real work
 
 **Example:**
 ```

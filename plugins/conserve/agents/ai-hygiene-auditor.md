@@ -233,7 +233,7 @@ def detect_documentation_slop(docs_path):
         "rooted in", "serves as", "boasts",
         "here's the thing", "let that sink in",
         "the uncomfortable truth is",
-        "not just", "not only", "it's not",
+        "not just", "not only", "it's not", ", not ",
         "stands as a testament", "marks a turning point",
         "underscores the importance",
     ]

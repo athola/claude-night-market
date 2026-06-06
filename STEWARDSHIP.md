@@ -143,9 +143,8 @@ become the legacy code everyone works around?
 ## The Soul of Stewardship
 
 The five principles describe what stewardship looks like in
-practice. But principles need something deeper to bring them
-to life: the dispositions that make a person (or an agent)
-naturally inclined to practice them. Claude's constitution
+practice. But principles need a source: the dispositions that
+incline a person (or an agent) to practice them. Claude's constitution
 describes character traits that emerge through training rather
 than external imposition: curiosity, warmth, directness,
 ethical commitment. The five virtues below name the

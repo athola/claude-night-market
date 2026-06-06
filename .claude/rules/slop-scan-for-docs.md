@@ -156,10 +156,13 @@ list above.
   with plain "is", "has", "uses", or delete. Heuristic: if
   the subject cannot literally do the verb, the verb is slop.
 - **Negative parallelism (contrastive negation)**: rewrite
-  "It's not X, it's Y", "Y, not X" (trailing), "Not just X,
-  but Y", "Not only X, but also Y", "No X. No Y. Just Z.",
-  "No X, no Y, no Z", "Not because X. Because Y.", "And
-  that's okay." Positively state Y; drop the X half.
+  "It's not X, it's Y", "It's X, not Y" (copula-led trailing,
+  e.g. "It's a tool, not a toy"), "Y, not X" (bare trailing),
+  "Not just X, but Y", "Not only X, but also Y", "No X. No Y.
+  Just Z.", "No X, no Y, no Z", "Not because X. Because Y.",
+  "And that's okay." Positively state Y; drop the X half. The
+  copula-led trailing form is the one that survives casual
+  proofreading because the opener reads as a plain definition.
 - **Contrastive parallelism (affirmative antithesis)**: the
   same scaffold without a "not" anchor. Rewrite "Less X,
   more Y", "Where others X, we Y", subject-swap clauses

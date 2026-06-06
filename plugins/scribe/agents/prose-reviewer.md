@@ -49,7 +49,10 @@ These are never advisory. Fix them without reporting:
   - "This isn't X. This is Y." -> rewrite
   - "Not just X, but Y" / "Not only X, but also Y" -> "X and Y"
   - "It's not X, it's Y" -> state Y positively
-  - "Y, not X" (trailing negation) -> "Y instead of X" or state Y alone
+  - "It's X, not Y" (copula-led trailing, e.g. "It's a tool, not
+    a toy"; also "This is X, not Y") -> state X alone, or keep the
+    contrast as "X rather than Y" when it carries information
+  - "Y, not X" (bare trailing negation) -> "Y instead of X" or state Y alone
   - "No X. No Y. Just Z." / "No X, no Y, no Z" -> "Z, with no X or Y"
   - "And that's okay." -> delete
 - **Three-fragment burst**: "Focused. Aligned. Measurable." ->

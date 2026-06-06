@@ -69,9 +69,13 @@ George Kao.
   "features" (when subject is inanimate)
 
 **Negative parallelism** (4):
-- "It's not X, it's Y"
+- "It's not X, it's Y" (leading)
+- "It's X, not Y" (copula-led trailing, e.g. "It's a tool,
+  not a toy"; also "This is X, not Y", "That's X, not Y").
+  Easy to miss because the opener reads as a plain definition;
+  flag it even mid-sentence and when Y carries an article.
 - "Not just X, but Y" / "Not only X, but also Y"
-- "Y, not X" (trailing corrective negation)
+- "Y, not X" (bare trailing corrective negation)
 - "No X. No Y. Just Z." / "No X, no Y, no Z"
 - "Not because X. Because Y."
 - "And that's okay."
