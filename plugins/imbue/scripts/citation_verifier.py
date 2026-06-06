@@ -18,7 +18,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 # A structured-output finding block: "- **Location**: path:line"
 LOCATION_PATTERN = re.compile(r"-\s*\*\*Location\*\*:\s*([^\s:]+):(\d+)", re.IGNORECASE)
@@ -69,7 +69,7 @@ class CitationResult:
     """Verdict for one finding's citation."""
 
     id: str
-    status: str  # "VERIFIED" | "FAILED"
+    status: Literal["VERIFIED", "FAILED"]
     reason: str = ""
 
 
@@ -214,14 +214,33 @@ def load_findings(path: Path) -> list[dict[str, Any]]:
     """Load findings from a JSON list, a wrapped object, or markdown."""
     text = path.read_text()
     if path.suffix.lower() in {".md", ".markdown"}:
-        return parse_markdown_findings(text)
+        return _parse_markdown_or_raise(text)
     if path.suffix.lower() == ".json":
         return _findings_from_json(json.loads(text))
     # Unknown suffix: try JSON, fall back to markdown.
     try:
         return _findings_from_json(json.loads(text))
     except json.JSONDecodeError:
-        return parse_markdown_findings(text)
+        return _parse_markdown_or_raise(text)
+
+
+def _parse_markdown_or_raise(text: str) -> list[dict[str, Any]]:
+    """Parse markdown findings, failing loudly on a malformed document.
+
+    A document carrying ``###`` finding headings but yielding zero parseable
+    findings is malformed (a typo'd ``**Location**`` line, wrong heading
+    depth), not an empty review. Returning [] there would let every
+    malformed citation escape the guard and report PASS, so it is raised as
+    a parse error (surfaced by ``main`` as exit 2). A document with no
+    finding headings is legitimately empty and returns [].
+    """
+    findings = parse_markdown_findings(text)
+    if not findings and HEADING_PATTERN.search(text):
+        raise ValueError(
+            "findings document has '###' headings but no parseable "
+            "'**Location**: file:line' lines; the document is malformed"
+        )
+    return findings
 
 
 def _findings_from_json(data: Any) -> list[dict[str, Any]]:

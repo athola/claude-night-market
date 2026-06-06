@@ -1,7 +1,9 @@
 """British -> American spelling normalization for slop detection.
 
 The slop workflow normalizes British spellings to American by default.
-This module provides three pure functions:
+This module provides three functions (the loader memoizes the map in a
+module-level cache; the detection and rewrite functions are pure given the
+loaded data):
 
 - :func:`load_spelling_map` loads the curated British -> American mapping.
 - :func:`find_british_spellings` reports occurrences with line/column and a

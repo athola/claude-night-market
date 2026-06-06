@@ -143,6 +143,24 @@ def test_novelty_capped_without_evidence() -> None:
     assert capped["capped"] is True
 
 
+def test_cap_lowers_the_weighted_total() -> None:
+    """The cap must actually reduce the score, not just the adjusted dict.
+
+    Guards the anti-inflation rule's whole point: a mutation computing
+    weighted_total from the raw (uncapped) scores would still pass the
+    adjusted_scores/capped assertions above, so pin the total directly.
+    """
+    scores = dict.fromkeys(IDEATION_CRITERIA, 5.0)
+    scores["novelty"] = 9.0
+    capped = score_idea(scores, novelty_evidence=False)
+    uncapped = score_idea(scores, novelty_evidence=True)
+    assert capped["weighted_total"] < uncapped["weighted_total"]
+    # The gap is exactly the novelty weight times the points clipped (9 -> 7).
+    assert round(uncapped["weighted_total"] - capped["weighted_total"], 4) == round(
+        IDEATION_CRITERIA["novelty"] * 2.0, 4
+    )
+
+
 def test_novelty_not_capped_with_evidence() -> None:
     scores = dict.fromkeys(IDEATION_CRITERIA, 5.0)
     scores["novelty"] = 9.0

@@ -227,6 +227,29 @@ class TestLoadFindings:
         assert findings[0]["line"] == 4
         assert findings[0]["anchor"] == "return a / b"
 
+    def test_malformed_markdown_with_headings_raises(self, source_repo: Path) -> None:
+        """A populated-but-malformed findings doc must not silently yield [].
+
+        A document with finding headings but no parseable Location lines is a
+        parse failure (e.g. a typo'd ``**Location**``), not an empty review.
+        Silently returning [] would let every malformed citation escape the
+        grounding guard and report PASS.
+        """
+        path = source_repo / "malformed.md"
+        path.write_text(
+            "### [HIGH] Division by zero unguarded\n"
+            "- **Locaiton**: src/calc.py:4\n"  # typo: not a valid Location line
+            "- **Anchor**: `return a / b`\n"
+        )
+        with pytest.raises(ValueError):
+            load_findings(path)
+
+    def test_genuinely_empty_markdown_returns_empty(self, source_repo: Path) -> None:
+        """A doc with no finding headings is legitimately empty, not malformed."""
+        path = source_repo / "empty.md"
+        path.write_text("# Review\n\nNo findings to report.\n")
+        assert load_findings(path) == []
+
 
 # --------------- CLI ---------------
 

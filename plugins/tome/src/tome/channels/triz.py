@@ -590,11 +590,14 @@ def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
         try:
             improving = int(row["improving_parameter"])
             worsening = int(row["worsening_parameter"])
-        except (KeyError, ValueError):
+            principles = [
+                int(n) for n in row["recommended_principles"].split(";") if n.strip()
+            ]
+        except (KeyError, ValueError, AttributeError):
+            # A missing column, non-integer parameter, or non-integer
+            # principle token drops just this row, honoring the documented
+            # graceful-degradation contract for this OPTIONAL lookup.
             continue
-        principles = [
-            int(n) for n in row["recommended_principles"].split(";") if n.strip()
-        ]
         matrix[(improving, worsening)] = principles
 
     _CANONICAL_MATRIX_CACHE = matrix
@@ -659,10 +662,7 @@ def format_bridge_statement(
         recording bridge_confidence, source_field, and target_field.
     """
     title = f"Bridge: {source_field} to {target_domain}"
-    summary = (
-        f"In {source_field}, {source_solution}. "
-        f"This maps to {target_domain} as {application}."
-    )
+    summary = f"In {source_field}, {source_solution}. This maps to {target_domain} as {application}."
     url = f"triz://bridge/{source_field.replace(' ', '-')}/{target_domain}"
 
     return Finding(

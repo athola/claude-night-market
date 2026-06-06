@@ -22,21 +22,32 @@ output collapses the diversity the method is meant to create.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from importlib import resources
+from types import MappingProxyType
 from typing import Any
 
 import yaml
 
 # Weighted scoring criteria for technical ideas (weights sum to 1.0).
 # Mirrors leyline:evaluation-framework's pattern with tome-specific axes.
-IDEATION_CRITERIA: dict[str, float] = {
-    "novelty": 0.25,
-    "fit": 0.20,
-    "feasibility": 0.20,
-    "simplicity": 0.15,
-    "reversibility": 0.10,
-    "impact": 0.10,
-}
+# Read-only (MappingProxyType) so an importer cannot corrupt scoring
+# process-wide by mutating a weight.
+IDEATION_CRITERIA: Mapping[str, float] = MappingProxyType(
+    {
+        "novelty": 0.25,
+        "fit": 0.20,
+        "feasibility": 0.20,
+        "simplicity": 0.15,
+        "reversibility": 0.10,
+        "impact": 0.10,
+    }
+)
+# The weighted_total contract depends on the weights summing to 1.0; guard
+# the invariant at import so an edit that breaks it fails loudly, not silently.
+assert abs(sum(IDEATION_CRITERIA.values()) - 1.0) < 1e-9, (
+    "criteria weights must sum to 1.0"
+)
 
 # Anti-inflation: a novelty score at or above this is capped to the cap
 # value unless the caller supplies evidence the idea is genuinely novel
@@ -132,11 +143,15 @@ def rotation_plan(passes: int, n_per_pass: int) -> list[list[str]]:
 
     Walks the category-diverse ordering, handing out ``n_per_pass`` ids
     per pass and wrapping to the start only after every method has been
-    used once.
+    used once. The no-repeat-until-exhausted guarantee holds across the
+    flattened schedule; within a single pass it requires
+    ``n_per_pass <= len(catalogue)``, since a pass cannot contain more
+    distinct methods than the catalogue holds.
 
     Args:
         passes: Number of passes to schedule.
-        n_per_pass: Methods per pass.
+        n_per_pass: Methods per pass. Pass a value no larger than the
+            catalogue size to keep each pass repeat-free.
 
     Returns:
         A list of ``passes`` lists, each holding ``n_per_pass`` ids.

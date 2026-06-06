@@ -925,3 +925,35 @@ class TestCanonicalMatrixLookup:
         monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
 
         assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}
+
+    @pytest.mark.unit
+    def test_loader_skips_malformed_principles_cell(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: A row whose principles cell is non-integer is skipped, not fatal
+        Given a matrix CSV with one valid row and one row whose
+              recommended_principles contains a non-integer token
+        When the matrix loader parses it with a cleared cache
+        Then the valid row loads and the malformed row is ignored, honoring
+             the documented "degrades gracefully rather than raising" contract
+        """
+        from tome.channels import triz
+
+        csv_text = (
+            "improving_parameter,worsening_parameter,recommended_principles\n"
+            "1,2,1;8;15\n"
+            "3,4,1;x;3\n"  # non-integer principle token -> must be skipped, not raise
+        )
+
+        class _FakeResource:
+            def joinpath(self, _name: str) -> _FakeResource:
+                return self
+
+            def read_text(self, encoding: str = "utf-8") -> str:
+                return csv_text
+
+        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
+        monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
+
+        assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}

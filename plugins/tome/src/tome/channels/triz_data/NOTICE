@@ -16,9 +16,13 @@ License:
   See https://www.apache.org/licenses/LICENSE-2.0
 
 Modifications:
-  None. The files are unmodified verbatim copies of the upstream data.
-  Apache-2.0 section 4 requires that this attribution notice be retained
-  in any distribution that includes these files.
+  39_parameters.yaml is an unmodified verbatim copy of the upstream file.
+  contradiction_matrix.csv is a SUBSET of the upstream contradiction
+  matrix: it contains the 109 populated cells for improving parameters 1
+  through 19; rows for improving parameters 20 through 39 were not
+  vendored. No cell values were altered. Apache-2.0 section 4 requires
+  that this attribution notice be retained in any distribution that
+  includes these files.
 
 Notes on the data:
   The contradiction matrix is a SPARSE subset of Altshuller's classical
