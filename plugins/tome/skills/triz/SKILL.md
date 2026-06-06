@@ -84,6 +84,16 @@ For diverse, category-spanning ideation with rotation, see
   framing question. ARIZ, Substance-Field analysis, and the
   76 standard solutions are out of scope here.
 
+## Sources
+
+- TRIZ Body of Knowledge (MATRIZ) and the classical
+  contradiction matrix (matriz.org).
+- AutoTRIZ (arXiv 2403.13002, 2024): LLM-driven TRIZ ideation.
+- The vendored canonical 39x39 matrix subset comes from
+  NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0);
+  see `src/tome/channels/triz_data/NOTICE` for attribution and
+  the exact vendored scope.
+
 ## Exit Criteria
 
 - [ ] An Ideal Final Result statement is produced before the

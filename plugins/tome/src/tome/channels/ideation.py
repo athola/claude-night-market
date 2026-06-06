@@ -2,9 +2,8 @@
 
 This channel generalizes the single-method ``triz`` channel into a small
 catalogue of ideation methods that port to technical problem-solving.
-The research synthesis
-(``docs/research/2026-06-04-ideation-methods-for-workflows.md``) found
-that the value is the meta-pattern, not the method bundle:
+The design finding (see ``Skill(tome:ideate)`` Sources) is that the
+value is the meta-pattern, not the method bundle:
 
 - :func:`select_methods` picks methods from DIFFERENT categories so a
   single pass spans distinct reasoning modes.

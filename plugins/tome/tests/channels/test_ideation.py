@@ -1,8 +1,8 @@
 """Tests for the ideation methods catalogue, selector, and scoring.
 
-The ideation channel adds methods beyond TRIZ. The research
-(docs/research/2026-06-04-ideation-methods-for-workflows.md) found the
-prize is the meta-pattern, not the method bundle:
+The ideation channel adds methods beyond TRIZ. The design finding (see
+the tome:ideate skill Sources) is that the prize is the meta-pattern,
+not the method bundle:
 
 - select methods from DIFFERENT categories (diversity by construction),
 - rotate methods across passes so none repeats until the catalogue is

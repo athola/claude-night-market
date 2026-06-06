@@ -35,8 +35,7 @@ reporting the final set.
 ## Catalog
 
 Seven methods that port to technical problem-solving, each tagged with
-an honest evidence grade (see the research synthesis in
-`docs/research/2026-06-04-ideation-methods-for-workflows.md`):
+an honest evidence grade (see Sources below):
 
 | Method | Category | Evidence |
 |--------|----------|----------|
@@ -86,6 +85,21 @@ found the idea genuinely new.
 - Do not present anecdotal-evidence methods as proven; cite the grade.
 - Do not import the full 20-method bundle; the catalog is curated on
   purpose.
+
+## Sources
+
+The diversity rationale and method evidence grades draw on:
+
+- Verbalized Sampling (arXiv 2510.01171): distributional prompting for
+  1.6 to 2.1x diversity gains, training-free.
+- The Price of Format (arXiv 2505.18949): rigid output schemas collapse
+  generation diversity. This is the basis for the
+  reasoning-prompt-not-schema rule above.
+- Barriers to Diversity in LLM-Generated Ideas (arXiv 2602.20408):
+  chain-of-thought reduces fixation; diverse personas restore collective
+  diversity.
+- The originality and SCAMPER / morphological-analysis education
+  literature underpins the per-method evidence grades.
 
 ## Exit Criteria
 
