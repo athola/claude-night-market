@@ -34,6 +34,7 @@ and adapts search depth automatically.
 - `discourse`: scan community discussions
 - `papers`: search academic literature
 - `triz`: cross-domain analogical reasoning
+- `ideate`: diverse ideation methods with rotation
 - `synthesize`: merge and rank findings
 - `dig`: interactive refinement
 

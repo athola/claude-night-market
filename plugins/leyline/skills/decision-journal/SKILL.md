@@ -22,8 +22,9 @@ model_hint: standard
   `docs/adr/`; reference its number from a journal entry instead of
   duplicating it.
 
-This is a convention plus a helper, not a hard runtime dependency. Consumers
-degrade gracefully when leyline is absent (see Fallback).
+This is a convention and a helper rather than a hard runtime
+dependency. Consumers degrade gracefully when leyline is absent
+(see Fallback).
 
 ## What This Captures, And Why
 

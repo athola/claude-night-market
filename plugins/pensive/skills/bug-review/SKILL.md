@@ -25,6 +25,8 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 - imbue:diff-analysis/modules/risk-assessment-framework
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/defect-documentation.md
 - modules/fix-preparation.md
@@ -85,6 +87,7 @@ Systematic bug identification and fixing with language-specific expertise.
 3. `bug-review:defects-documented`
 4. `bug-review:fixes-prepared`
 5. `bug-review:verification-plan`
+6. `bug-review:findings-verified`
 
 ## Progressive Loading
 
@@ -163,6 +166,20 @@ Document remaining risks using `imbue:diff-analysis/modules/risk-assessment-fram
 
 Assign owners and deadlines for follow-up items.
 
+### Step 6: Verify Findings Are Grounded (`bug-review:findings-verified`)
+
+Every defect must cite a real `file:line` and a verbatim `Anchor`. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any defect the verifier fails (exit `1`); only
+verified defects enter the report. See `Skill(imbue:review-core)` Step 5
+for the protocol and `Skill(imbue:structured-output)` for the schema.
+
 ## Defect Classification (Condensed)
 
 **Severity**: Critical (crash/data loss) → High (broken features) → Medium (degraded UX) → Low (edge cases)
@@ -178,6 +195,7 @@ Assign owners and deadlines for follow-up items.
 ## Defects Found
 ### [D1] file.rs:142 - Title
 - Severity: High
+- Anchor: `verbatim source text at file.rs:142`
 - Root Cause: Logic error
 - Impact: Data corruption possible
 - Fix: [description]
@@ -207,6 +225,7 @@ Assign owners and deadlines for follow-up items.
 ## Exit Criteria
 
 - All defects documented with precise references
+- Every defect carries a `file:line` + verbatim `Anchor`, and `citation_verifier.py` confirmed all citations (exit `0`) or unverified defects were dropped or labeled `UNVERIFIED`
 - Fixes prepared with test coverage verified
 - Verification plan includes commands and expected outputs
 - Remaining risks assessed and owners assigned

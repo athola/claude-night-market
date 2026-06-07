@@ -8,6 +8,8 @@ an agent passes to WebSearch/WebFetch tool calls.
 
 from __future__ import annotations
 
+import csv
+from importlib import resources
 from typing import Any
 
 from tome.models import Finding
@@ -193,6 +195,92 @@ def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
         "ideal_result": ideal_result,
         "contradiction": f"Improving {improving} worsens {worsening}",
     }
+
+
+def formulate_ideality(topic: str, contradiction: dict[str, str]) -> dict[str, str]:
+    """Formulate the Ideal Final Result (IFR) for a contradiction.
+
+    Ideality in TRIZ is the ratio of useful functions to the sum of
+    harmful functions and cost.  The Ideal Final Result is the limiting
+    case: the system delivers its useful function without the system
+    itself existing.  This is the most portable TRIZ idea, so it is a
+    first-class step here, applied downstream of contradiction
+    formulation rather than buried inside it.
+
+    Args:
+        topic: The system or problem being researched.
+        contradiction: A dict as produced by ``formulate_contradiction``;
+            the ``improving`` and ``worsening`` keys are reused.
+
+    Returns:
+        Dict with keys: ifr_statement, ideality_question,
+        ideality_ratio_hint.
+    """
+    improving = contradiction.get("improving", "the useful function")
+    worsening = contradiction.get("worsening", "any cost")
+
+    ifr_statement = (
+        f"The ideal {topic} delivers {improving} on its own, without the "
+        f"{topic} existing and without incurring {worsening}"
+    )
+    ideality_question = (
+        f"What would make the {topic} unnecessary while {improving} still happens?"
+    )
+    ideality_ratio_hint = (
+        "Ideality = sum of useful functions / (sum of harmful functions "
+        "+ cost); raise it by adding useful function or by removing "
+        "harmful function and cost"
+    )
+
+    return {
+        "ifr_statement": ifr_statement,
+        "ideality_question": ideality_question,
+        "ideality_ratio_hint": ideality_ratio_hint,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Separation principles (for physical contradictions)
+# ---------------------------------------------------------------------------
+# A physical contradiction asks one parameter to take two opposite values.
+# TRIZ resolves it by separating the conflicting demands along one of four
+# canonical axes rather than compromising between them.
+
+SEPARATION_PRINCIPLES: tuple[str, ...] = ("time", "space", "condition", "system/scale")
+
+_SEPARATION_HINTS: dict[str, str] = {
+    "time": "at different times (one demand early, the other late)",
+    "space": "in different places (one region serves each demand)",
+    "condition": "on a condition (a property or input selects which demand wins)",
+    "system/scale": "at different scales (part versus whole, or sub- versus super-system)",
+}
+
+
+def separation_strategies(contradiction: dict[str, str]) -> list[dict[str, str]]:
+    """Return the four TRIZ separation principles for a contradiction.
+
+    When a single parameter is required to hold two opposite values, the
+    classical resolution is to separate the demands along one of four
+    axes (time, space, condition, system/scale) instead of compromising.
+
+    Args:
+        contradiction: A dict as produced by ``formulate_contradiction``;
+            the ``improving`` and ``worsening`` keys are reused.
+
+    Returns:
+        A list of four dicts, each with keys ``axis`` and ``prompt``.
+    """
+    improving = contradiction.get("improving", "the requirement")
+    worsening = contradiction.get("worsening", "its opposite")
+
+    strategies: list[dict[str, str]] = []
+    for axis in SEPARATION_PRINCIPLES:
+        prompt = (
+            f"Can you separate {improving} and {worsening} {_SEPARATION_HINTS[axis]}?"
+        )
+        strategies.append({"axis": axis, "prompt": prompt})
+
+    return strategies
 
 
 def get_adjacent_fields(domain: str, depth: str) -> list[str]:
@@ -465,6 +553,84 @@ def suggest_inventive_principles(
         )
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Optional canonical contradiction-matrix lookup
+# ---------------------------------------------------------------------------
+# Vendored data: NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0).
+# See triz_data/NOTICE.  This is a sparse subset of Altshuller's classical
+# 39x39 engineering-parameter matrix and is OPTIONAL grounding, secondary to
+# the software-friendly suggest_inventive_principles catalogue above.
+
+_CANONICAL_MATRIX_CACHE: dict[tuple[int, int], list[int]] | None = None
+
+
+def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
+    """Lazily load and cache the vendored sparse contradiction matrix.
+
+    Returns an empty dict (and caches it) when the data file is absent, so
+    the optional lookup degrades gracefully rather than raising.
+    """
+    global _CANONICAL_MATRIX_CACHE
+    if _CANONICAL_MATRIX_CACHE is not None:
+        return _CANONICAL_MATRIX_CACHE
+
+    matrix: dict[tuple[int, int], list[int]] = {}
+    try:
+        data_file = resources.files("tome.channels.triz_data").joinpath(
+            "contradiction_matrix.csv"
+        )
+        text = data_file.read_text(encoding="utf-8")
+    except (FileNotFoundError, ModuleNotFoundError, OSError):
+        _CANONICAL_MATRIX_CACHE = matrix
+        return matrix
+
+    for row in csv.DictReader(text.splitlines()):
+        try:
+            improving = int(row["improving_parameter"])
+            worsening = int(row["worsening_parameter"])
+            principles = [
+                int(n) for n in row["recommended_principles"].split(";") if n.strip()
+            ]
+        except (KeyError, ValueError, AttributeError):
+            # A missing column, non-integer parameter, or non-integer
+            # principle token drops just this row, honoring the documented
+            # graceful-degradation contract for this OPTIONAL lookup.
+            continue
+        matrix[(improving, worsening)] = principles
+
+    _CANONICAL_MATRIX_CACHE = matrix
+    return matrix
+
+
+def lookup_canonical_principles(
+    improving_param: int,
+    worsening_param: int,
+) -> list[int]:
+    """Look up inventive principles for a canonical matrix cell.
+
+    OPTIONAL grounding lookup, SECONDARY to ``suggest_inventive_principles``.
+    The matrix is Altshuller's classical 39x39 engineering-parameter table,
+    frozen since 1985, mapping engineering rather than software parameters.
+
+    An empty cell does NOT mean "no solution": by the empty-box convention
+    any of the 40 principles may apply.  This function returns ``[]`` for
+    both empty cells and out-of-range indices, so callers branch on a
+    single "no recommendation" signal.
+
+    Args:
+        improving_param: Engineering parameter to improve (1-39).
+        worsening_param: Engineering parameter that worsens (1-39).
+
+    Returns:
+        A list of inventive-principle numbers (1-40), or ``[]`` when the
+        cell is empty or either index is out of range.
+    """
+    if not (1 <= improving_param <= 39 and 1 <= worsening_param <= 39):
+        return []
+    matrix = _load_canonical_matrix()
+    return list(matrix.get((improving_param, worsening_param), []))
 
 
 # ---------------------------------------------------------------------------

@@ -17,6 +17,8 @@ estimated_tokens: 600
 dependencies:
 - pensive:shared
 - pensive:code-refinement
+- imbue:review-core
+- imbue:structured-output
 ---
 # Safety-Critical Coding Patterns
 
@@ -149,6 +151,32 @@ Reference this skill from:
   auto-detection row when assertion density is low, loops are
   unbounded, or recursion lacks a termination proof
 
+## Violation Output Format
+
+For each rule violation, report:
+
+```
+Rule N: <rule name>
+Location: file.py:42
+Anchor: `<verbatim source text at line 42>`
+Issue: <what violates the rule>
+Fix: <concrete remediation>
+```
+
+### Verify Findings Are Grounded (`safety-critical:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - [ ] Each of the 10 rules has an explicit verdict for the target
@@ -163,6 +191,9 @@ Reference this skill from:
   termination argument
 - [ ] A summary states whether the target is suitable for
   safety-critical use, or which rules block that judgment
+- [ ] Every reported violation carries a `Location` + verbatim `Anchor`
+  confirmed by `citation_verifier.py` (exit `0`), or unverified
+  violations were dropped or labeled `UNVERIFIED`.
 
 ## Sources
 

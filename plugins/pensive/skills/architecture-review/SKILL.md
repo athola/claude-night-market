@@ -24,6 +24,8 @@ dependencies:
 - pensive:shared
 - imbue:proof-of-work
 - imbue:diff-analysis/modules/risk-assessment-framework
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/adr-audit.md
 - modules/coupling-analysis.md
@@ -100,6 +102,7 @@ Load all modules for full reviews. For focused reviews, load only relevant modul
 4. `arch-review:invariant-check`: Invariant conflict detection and 3-option analysis.
 5. `arch-review:principle-checks`: LoD, security, performance.
 6. `arch-review:risks-actions`: Recommendation and follow-ups.
+7. `arch-review:findings-verified`
 
 ## Workflow
 
@@ -181,6 +184,8 @@ and escalate to human judgment:
 ### Invariant Conflicts
 
 [I1] **[Invariant name]** — [what decision it represents]
+- **Location**: file.py:42
+- **Anchor**: `verbatim source text at line 42`
 - **Conflict**: [what change clashes]
 - **Options**: Preserve / Layer / Revise
 - **Recommendation**: ESCALATE TO HUMAN
@@ -189,8 +194,8 @@ and escalate to human judgment:
 
 **Why this matters:** Bad invariant decisions compound.
 After a few wrong calls the codebase becomes
-unsalvageable. This is a judgment problem, not a context
-problem: the agent should surface it, not solve it.
+unsalvageable. This is a judgment problem rather than a
+context problem: the agent should surface it, not solve it.
 
 ### Step 4: Principle Checks (`arch-review:principle-checks`)
 
@@ -244,3 +249,26 @@ Provide recommendation:
 - [ ] Changes are reversible.
 - [ ] Migration paths are clear.
 - [ ] ADRs document decisions.
+
+### Verify Findings Are Grounded (`arch-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
+## Exit Criteria
+
+- Context established, ADR audit complete, interaction mapping done,
+  invariant conflicts surfaced, principle checks run, risks and actions
+  documented.
+- Every reported finding carries a `Location` + verbatim `Anchor`
+  confirmed by `citation_verifier.py` (exit `0`), or unverified findings
+  were dropped or labeled `UNVERIFIED`.

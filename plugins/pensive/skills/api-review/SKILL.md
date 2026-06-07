@@ -22,6 +22,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/consistency-audit.md
 - modules/exemplar-research.md
@@ -46,6 +48,7 @@ Use this skill to review public API changes, design new surfaces, audit consiste
 3. `api-review:consistency-audit`
 4. `api-review:docs-governance`
 5. `api-review:evidence-log`
+6. `api-review:findings-verified`
 
 ## Workflow
 
@@ -85,7 +88,22 @@ Verify that all public APIs include usage examples and that the changelog reflec
 
 ## Output Format
 
-The final report must include a summary of the API surface, a numerical inventory of endpoints and public types, and an alignment analysis against researched exemplars. Document consistency issues and documentation gaps with precise file and line references. Conclude with a clear decision and a timed action plan.
+The final report must include a summary of the API surface, a numerical inventory
+of endpoints and public types, and an alignment analysis against researched
+exemplars. Document consistency issues and documentation gaps with precise file
+and line references. Conclude with a clear decision and a timed action plan.
+
+Each issue must follow this structure:
+
+```text
+[A1] Title
+- Location: file.py:42
+- Anchor: `verbatim source text at line 42`
+- Issue: what is wrong | Fix: remediation | Evidence: [E1]
+```
+
+The `Anchor` is the exact source text at `Location`; it is what
+`citation_verifier.py` re-reads to prove the finding is real.
 
 ## Technical Integration
 
@@ -97,6 +115,31 @@ Use `imbue:proof-of-work` for reproducible command capture and `imbue:structured
 - See `modules/exemplar-research.md` for researching API standards
 - See `modules/consistency-audit.md` for cross-API consistency checks
 
+### Verify Findings Are Grounded (`api-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
+## Exit Criteria
+
+- Surface inventoried, exemplars researched, consistency audited,
+  documentation governance checked, and evidence logged.
+- Every reported finding carries a `Location` + verbatim `Anchor`
+  confirmed by `citation_verifier.py` (exit `0`), or unverified findings
+  were dropped or labeled `UNVERIFIED`.
+
 ## Troubleshooting
 
-If the audit command is missing, verify that dependencies are installed and accessible in the system PATH. Check file permissions if access errors occur. Use the `--verbose` flag to inspect execution logs if the tool behaves unexpectedly.
+If the audit command is missing, verify that dependencies are installed and
+accessible in the system PATH. Check file permissions if access errors
+occur. Use the `--verbose` flag to inspect execution logs if the tool
+behaves unexpectedly.

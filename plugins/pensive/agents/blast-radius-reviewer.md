@@ -58,17 +58,31 @@ graph to focus review effort on high-risk changes.
 
    ### High Risk (score >= 0.7)
    - **auth.py::verify_token** (0.85): [finding]
+     - Location: auth.py:42
+     - Anchor: "def verify_token(token: str) -> bool:"
 
    ### Medium Risk (score 0.4-0.7)
    - **db.py::execute_query** (0.62): [finding]
+     - Location: db.py:87
+     - Anchor: "def execute_query(conn, sql, params=None):"
 
    ### Untested Code
    - api.py::handle_error (lines 45-60)
+     - Location: api.py:45
+     - Anchor: "def handle_error(exc: Exception) -> Response:"
 
    ### Recommendations
    1. [specific action]
    2. [specific action]
    ```
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED`
+any finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
 
 ## When Graph Is Missing
 

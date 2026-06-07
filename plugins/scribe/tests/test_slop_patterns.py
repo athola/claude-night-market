@@ -484,6 +484,50 @@ class TestTier5NegativeParallelism:
         assert len(trailing_not_pattern.findall(text)) == 1
 
     @pytest.mark.unit
+    def test_detects_copula_led_corrective_with_article(self) -> None:
+        """Scenario: 'It's X, not Y' with articles (the reported tic).
+
+        The trailing corrective led by a copula ("It's a tool, not a
+        toy") is the most common form seen in generated docs. The bare
+        trailing regex misses it because Y carries an article. Sourced
+        from the runtime YAML, not an inline fixture.
+        """
+        assert _category_hits("negative_parallelism", "It's a tool, not a toy.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_copula_led_corrective_mid_sentence(self) -> None:
+        """Scenario: copula-led corrective with no terminal punctuation.
+
+        "It's fast, not clever, and that matters." has the corrective
+        tail mid-sentence; the bare trailing regex needs a sentence-
+        final period and so misses it.
+        """
+        assert (
+            _category_hits(
+                "negative_parallelism", "It's fast, not clever, and that matters."
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_trailing_corrective_with_article(self) -> None:
+        """Scenario: trailing 'X, not a Y.' with an article before Y."""
+        assert (
+            _category_hits("negative_parallelism", "The API is clear, not a gimmick.")
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_copula_list_comma_is_not_corrective(self) -> None:
+        """Guard: an ordinary list comma must not trip the corrective regex."""
+        assert (
+            _category_hits(
+                "negative_parallelism", "It's a fast, reliable, well-tested tool."
+            )
+            == 0
+        )
+
+    @pytest.mark.unit
     def test_comma_no_ignores_single_no(self, comma_no_pattern: re.Pattern) -> None:
         """Scenario: A single 'No X.' is not the comma-joined pattern."""
         text = "No config required."

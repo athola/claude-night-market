@@ -31,9 +31,9 @@ modules:
 - modules/validation-protocols.md
 role: library
 ---
-> Claims without evidence fail the people who depend on
-> your work. Proof-of-work is humility in practice:
-> "it looks correct" is not "I verified it works."
+> "It looks correct" is not "I verified it works."
+> Proof-of-work is the discipline of closing that gap:
+> reproducible evidence before any claim that a task is done.
 
 # Proof of Work
 

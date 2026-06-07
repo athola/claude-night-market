@@ -227,8 +227,8 @@ inline `Skill(...)` invocations. The remaining two were
 a genuine entrypoint (`pensive:blast-radius`) and a real
 hook-target (`leyline:supply-chain-advisory`).
 
-This is a measurement bug in the audit, not a coverage
-problem in the marketplace. The taxonomy is now the
+This is a measurement bug in the audit rather than a
+coverage problem in the marketplace. The taxonomy is now the
 basis for orphan detection: only skills with **no entry
 path of any kind** (Skill() callers, slash command, hook
 handle, or `dependencies:` declaration) qualify as

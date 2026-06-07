@@ -40,6 +40,13 @@ custom_words:
 allowlist:
   - robust      # used correctly in our engineering specs
   - leverage    # used correctly in our physics docs
+  - labour      # proper noun: the Labour Party, keep British
+
+# British -> American spelling normalization.
+#   american (default): convert British spellings to American
+#   british:            keep British spelling, report nothing
+#   off:                skip the spelling pass entirely
+spelling: american
 
 # Score thresholds (warn < error required)
 thresholds:
@@ -62,7 +69,8 @@ extends: "../../.slop-config.yaml"
 |-------|------|---------|-------------|
 | `custom_words.tier1` | list[str] | `[]` | Additional tier-1 words (score 3 each) |
 | `custom_words.tier2` | list[str] | `[]` | Additional tier-2 words (score 2 each) |
-| `allowlist` | list[str] | `[]` | Words to ignore during detection |
+| `allowlist` | list[str] | `[]` | Words to ignore during detection (also suppresses spelling conversion for these words) |
+| `spelling` | str | `american` | Spelling normalization mode: `american`, `british`, or `off` |
 | `thresholds.warn` | float | `2.0` | Score at which to warn |
 | `thresholds.error` | float | `5.0` | Score at which to fail |
 | `exclude_patterns` | list[str] | `[]` | Glob patterns for files to skip |

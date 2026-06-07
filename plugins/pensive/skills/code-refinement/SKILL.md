@@ -25,6 +25,8 @@ dependencies:
 - pensive:safety-critical-patterns
 - imbue:proof-of-work
 - imbue:justify
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/duplication-analysis.md
 - modules/algorithm-efficiency.md
@@ -130,7 +132,8 @@ Load all for thorough refinement. For focused work, load only relevant modules.
 3. `refine:prioritized`: Findings ranked by impact and effort
 4. `refine:plan-generated`: Concrete refactoring plan with before/after
 5. `refine:evidence-captured`: Evidence appendix per `imbue:proof-of-work`
-6. `refine:execution-complete`: All wave-listed candidates closed-or-rationale'd (only required when invocation includes "execute findings" or stronger; see Step 6)
+6. `refine:findings-verified`: Citations confirmed by `citation_verifier.py`
+7. `refine:execution-complete`: All wave-listed candidates closed-or-rationale'd (only required when invocation includes "execute findings" or stronger; see Step 6)
 
 ## Workflow
 
@@ -174,6 +177,7 @@ Priority = HIGH impact + SMALL effort + LOW risk first.
 
 For each finding, produce:
 - File path and line range
+- Anchor: verbatim source text at the cited line
 - Current code snippet
 - Proposed improvement
 - Rationale (which principle/dimension)
@@ -227,6 +231,30 @@ If the model finds itself doing any of the following during execution, this is a
 | Re-asking user "should I continue?" when invocation included "do not stop" | Ignoring the explicit no-mid-task-summary contract |
 
 If the harness fires a stop signal mid-execution and the completion gate is not met, immediately resume with the next finding.
+
+### Verify Findings Are Grounded (`refine:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
+## Exit Criteria
+
+- [ ] All six analysis dimensions have a verdict (finding or "no issue
+      detected") for the target scope.
+- [ ] Each finding includes a file path, line range, and verbatim
+      `Anchor` (the exact source text at that line).
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+      confirmed by `citation_verifier.py` (exit `0`), or unverified
+      findings were dropped or labeled `UNVERIFIED`.
 
 ## Tiered Analysis
 

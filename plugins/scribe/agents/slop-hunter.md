@@ -69,9 +69,13 @@ George Kao.
   "features" (when subject is inanimate)
 
 **Negative parallelism** (4):
-- "It's not X, it's Y"
+- "It's not X, it's Y" (leading)
+- "It's X, not Y" (copula-led trailing, e.g. "It's a tool,
+  not a toy"; also "This is X, not Y", "That's X, not Y").
+  Easy to miss because the opener reads as a plain definition;
+  flag it even mid-sentence and when Y carries an article.
 - "Not just X, but Y" / "Not only X, but also Y"
-- "Y, not X" (trailing corrective negation)
+- "Y, not X" (bare trailing corrective negation)
 - "No X. No Y. Just Z." / "No X, no Y, no Z"
 - "Not because X. Because Y."
 - "And that's okay."
@@ -91,13 +95,29 @@ George Kao.
 - "unpack", "surface" (as verb), "drift", "cascade"
 - "a quiet shift", "the signal here is", "a sharp framing"
 
+### Spelling (British to American)
+
+Flag British spellings for normalization to American. Use an
+explicit word list, never a `-ise`/`-our` suffix rule: surprise,
+exercise, and analysis are correct in both dialects. Common families:
+
+- colour, behaviour, favourite, neighbour (-our)
+- organise, optimise, analyse, prioritise (-ise / -yse)
+- centre, metre, fibre, theatre (-re)
+- licence, defence, offence (-ence)
+- catalogue, grey, artefact, travelling, programme
+
+Skip code, inline code, URLs, proper nouns ("Labour Party"), and
+quotes. Report only (the prose-reviewer agent auto-fixes).
+
 ## Scan Workflow
 
 1. Read target files
 2. Count tier 1/2/3 occurrences
 3. Measure structural metrics
-4. Calculate density score
-5. Generate categorized report
+4. Flag British spellings (skip code, URLs, proper nouns)
+5. Calculate density score
+6. Generate categorized report
 
 ## Report Format
 
@@ -109,10 +129,10 @@ George Kao.
 **Words**: 1,450
 
 ### Vocabulary (18 findings)
-| Line | Word/Phrase | Tier | Suggestion |
-|------|-------------|------|------------|
-| 12 | delve into | 1 | explore |
-| 23 | leverage | 2 | use |
+| Line | Word/Phrase | Tier | Anchor | Suggestion |
+|------|-------------|------|--------|------------|
+| 12 | delve into | 1 | verbatim text at line 12 | explore |
+| 23 | leverage | 2 | verbatim text at line 23 | use |
 
 ### Structure
 | Metric | Value | Rating |
@@ -126,9 +146,17 @@ George Kao.
 3. Convert bullet list at lines 34-56 to prose
 ```
 
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
+
 ## Constraints
 
 - Report only, do not modify files
-- Provide specific line numbers
+- Provide specific line numbers and verbatim `Anchor` text
 - Include concrete alternatives
 - Score relative to document length

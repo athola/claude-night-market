@@ -168,7 +168,7 @@ Layers 1-3 (pre-commit hooks, CI checks) are **mechanical**:
 they run regardless of intent and cannot be reasoned with. The
 gate skills are **discursive**: they intervene by being read
 into context and shaping the model's reasoning, not by
-blocking actions outright. The two layers are complementary --
+blocking actions outright. The two layers are complementary:
 hooks catch what skills miss, and skills catch what hooks
 cannot articulate.
 

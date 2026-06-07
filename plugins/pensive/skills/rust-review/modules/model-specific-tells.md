@@ -166,7 +166,7 @@ just sometimes redundant.
 | 200-character lifetime annotations and `impl Trait` chains | Any model in reasoning mode |
 | "As a large language model" leaks | Bug, regardless of model — escalate to scribe:slop-detector |
 
-These are heuristics, not proofs. Use them to *weight*
+These are heuristics rather than proofs. Use them to *weight*
 the audit, not to attribute authorship.
 
 ## Currency note

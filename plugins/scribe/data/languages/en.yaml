@@ -167,7 +167,15 @@ tier5:
       - '\bNo \w+\.\s+No \w+\.\s+Just \w+'
       - '\bNo \w+,\s+no \w+(?:,\s+no \w+)*'
       - '\bAnd that''s okay\.'
-      - '\b\w+,\s+not\s+(?:just\s+)?\w+[.!?]'
+      # Copula-led trailing corrective: "It's X, not Y" / "This is X,
+      # not Y". The opener marks a definitional statement, so this is
+      # high-precision even mid-sentence and with articles before Y.
+      - '\b(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]+?,\s+not\b'
+      # Bare trailing corrective: "Y, not X." Optional article before
+      # the negated term catches "clear, not a gimmick." as well as
+      # "clear, not clever." Genuine either/or choices are slop too;
+      # rewrite as "Y instead of X".
+      - '\b\w+,\s+not\s+(?:just\s+|a\s+|an\s+|the\s+)?\w+[.!?]'
   contrastive_parallelism:
     score: 2
     confidence: low

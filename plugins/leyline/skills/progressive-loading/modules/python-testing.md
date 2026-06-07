@@ -170,8 +170,8 @@ shows reasons for skipped, expected-fail, and error tests.
    request a function-scoped one. The fixture module documents
    the scope hierarchy.
 3. **Using `unittest.mock` blindly**: `unittest.mock.patch`
-   requires the import path of the function as it is used, not
-   where it is defined. Mistakes here produce mocks that never
+   requires the import path of the function as it is used,
+   rather than where it is defined. Mistakes here produce mocks that never
    fire.
 4. **Skipping `--strict-markers`**: A typo in
    `@pytest.mark.skipif` becomes a silent no-op without strict

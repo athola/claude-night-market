@@ -146,7 +146,7 @@ paths:
   - "**/tests/**/*.py"
 ```
 
-This is enforced by the harness, not by Claude. A skill with a
+This is enforced by the harness rather than by Claude. A skill with a
 `paths:` glob will not appear in `/skills` for unrelated edits.
 
 ### Explicit gates inside the skill

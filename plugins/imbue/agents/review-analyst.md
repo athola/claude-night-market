@@ -59,10 +59,21 @@ evidence citations for each finding.
 ## Output Format
 
 The agent produces:
+
 - **Executive Summary**: Key findings and recommendations
-- **Detailed Findings**: Categorized by severity with evidence
+- **Detailed Findings**: Categorized by severity with evidence.
+  Each finding must include a `Location` (file:line) and a
+  verbatim `Anchor` (the exact source text at that line).
 - **Action Items**: Prioritized remediation steps
 - **Evidence Appendix**: Full command/citation log
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
 
 ## Integration
 
@@ -75,6 +86,8 @@ Uses imbue skills:
 ## Quality Standards
 
 - All findings include evidence references `[E1]`, `[E2]`
+- Every finding carries a `Location` (file:line) and a verbatim
+  `Anchor` (exact source text at that line)
 - Severity levels justified with specific criteria
 - Recommendations are actionable and specific
 - Report follows consistent template structure

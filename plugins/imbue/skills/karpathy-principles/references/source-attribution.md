@@ -104,8 +104,8 @@ coding rules:
 3. NMN.gl, "Vibe Coding Considered Harmful" (March
    2025): <https://nmn.gl/blog/dangers-vibe-coding>
 
-These are referenced for intellectual honesty, not
-to undermine the principles.
+These are referenced for intellectual honesty rather
+than to undermine the principles.
 
 ## License
 

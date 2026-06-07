@@ -19,6 +19,8 @@ dependencies:
 - scribe:voice-extract
 - scribe:voice-generate
 - scribe:slop-detector
+- imbue:review-core
+- imbue:structured-output
 ---
 
 # Voice Review Skill
@@ -41,6 +43,7 @@ Everything else returns as advisory tables for user decision.
 3. `voice-review:agents-dispatched` - Both reviewers launched
 4. `voice-review:hard-fails-fixed` - Auto-corrections applied
 5. `voice-review:advisories-presented` - Tables shown to user
+6. `voice-review:findings-verified` - Citations confirmed by verifier
 
 ## Step 1: Load Context
 
@@ -81,8 +84,8 @@ Present both tables to the user:
 
 **Prose Review Advisories:**
 
-| # | Line | Pattern | Current | Proposed fix |
-|---|------|---------|---------|--------------|
+| # | Line | Anchor | Pattern | Current | Proposed fix |
+|---|------|--------|---------|---------|--------------|
 
 **Craft Review:**
 
@@ -134,6 +137,20 @@ Can also be run on any existing text:
 /voice-review path/to/file.md --profile myvoice --register casual
 ```
 
+## Verify Findings Are Grounded (`voice-review:findings-verified`)
+
+Every advisory row must cite a real line and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the advisory tables. See `Skill(imbue:review-core)`
+Step 5 and `Skill(imbue:structured-output)` for the schema.
+
 ## Verification
 
 After the review completes, validate these conditions:
@@ -144,6 +161,17 @@ After the review completes, validate these conditions:
 - User decisions applied to the final text
 - Final text saved to disk
 - Snapshots saved (if learning mode active)
+
+## Exit Criteria
+
+- Both review agents returned results without timeout
+- Hard failures auto-fixed and diff shown to user
+- Advisory tables presented with accept/reject/rewrite options
+- User decisions applied to the final text
+- Final text saved to disk
+- Every advisory row carries a `Line` (file:line) and verbatim `Anchor`;
+  `citation_verifier.py` confirmed all citations (exit `0`) or unverified
+  rows are dropped/labeled `UNVERIFIED`
 
 ## Test Spec
 

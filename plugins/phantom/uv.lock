@@ -724,7 +724,7 @@ wheels = [
 
 [[package]]
 name = "phantom"
-version = "1.9.10"
+version = "1.9.11"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },

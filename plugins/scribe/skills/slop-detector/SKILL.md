@@ -14,7 +14,7 @@ tags:
 tools: []
 complexity: medium
 model_hint: fast
-estimated_tokens: 4200
+estimated_tokens: 4500
 progressive_loading: true
 modules:
 - modules/vocabulary-patterns.md
@@ -31,6 +31,7 @@ modules:
 - modules/structured-finding-output.md
 - modules/remediation-strategies.md
 - modules/language-handling.md
+- modules/spelling-normalization.md
 - modules/config-file.md
 - modules/reporting.md
 - modules/ci-integration.md
@@ -62,6 +63,17 @@ score lower than the same markers in API reference.
 - Load language-specific patterns from `data/languages/{lang}.yaml`
 - Fall back to English if detection confidence is low
 - See `modules/language-handling.md` for cultural calibration and concrete pattern sets
+
+### Spelling Normalization (British to American)
+
+Convert British spellings to American by default, in any scanned
+document, unless the document opts out via `.slop-config.yaml`
+(`spelling: british`) or a per-word allowlist. This is a consistency
+pass, separate from slop scoring. Use the tested `scribe.spelling`
+functions (`find_british_spellings`, `to_american`); both preserve
+case and skip code, inline code, and URLs.
+
+Load: `@modules/spelling-normalization.md`
 
 ### Vocabulary and Phrase Detection
 
@@ -196,12 +208,15 @@ Scan for:
    this guide...").
 4. **Hedging seesaw** ("While X has its merits, it's not
    without its challenges").
-5. **Contrastive constructions** as paragraph openers: both
-   contrastive negation ("not just X, but Y", "It's not X,
-   it's Y") and affirmative antithesis ("Less X, more Y",
-   "Where others X, we Y"). Avoid in all but the most
-   necessary cases; keep only when the contrast carries
-   information that survives removal.
+5. **Contrastive constructions**, opening a clause or trailing
+   it: both contrastive negation ("not just X, but Y", "It's not
+   X, it's Y", and the trailing "It's X, not Y" / "Y, not X")
+   and affirmative antithesis ("Less X, more Y", "Where others
+   X, we Y"). Avoid in all but the most necessary cases; keep
+   only when the contrast carries information that survives
+   removal. The trailing copula form ("It's a tool, not a toy")
+   is the easiest to miss because the opener reads as a plain
+   definition.
 
 See the module for the full pattern catalogue and false-
 positive guidance.
@@ -237,7 +252,7 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Em-dash overuse | — used as rhetorical pause | Most-cited single tell of 2026 |
 | Plus-sign for "and" | "hooks and skills" in prose | Strong: humans have "and" |
 | Spatial copula | "lives in", "sits at", "stands as", "boasts" | Inanimate subject with animate verb |
-| Negative parallelism (contrastive negation) | "Not X but Y", "No X. No Y. Just Z.", "No X, no Y, no Z", "It's not X, it's Y", "Y, not X" | Rhetorical scaffold with no argument |
+| Negative parallelism (contrastive negation) | "Not X but Y", "No X. No Y. Just Z.", "No X, no Y, no Z", "It's not X, it's Y", "It's X, not Y", "Y, not X" | Rhetorical scaffold with no argument |
 | Contrastive parallelism (affirmative antithesis) | "Less X, more Y", "Where others X, we Y", "Humans propose; machines dispose" | Manufactured punch; same scaffold without the "not" |
 | Throat-clearing openers | "Here's the thing,", "Look,", "Let that sink in." | Discourse markers signaling nothing |
 | Three-fragment burst | "Focused. Aligned. Measurable." | Rhythm without information |

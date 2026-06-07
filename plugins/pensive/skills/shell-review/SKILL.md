@@ -21,6 +21,8 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:proof-of-work
+- imbue:review-core
+- imbue:structured-output
 modules:
 - modules/exit-codes.md
 - modules/portability.md
@@ -75,6 +77,7 @@ Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate re
 4. `shell-review:safety-patterns-verified`
 5. `shell-review:structure-checked`
 6. `shell-review:evidence-logged`
+7. `shell-review:findings-verified`
 
 ## Workflow
 
@@ -133,6 +136,7 @@ Shell script review findings
 ## Exit Code Issues
 ### [E1] Pipeline masks failure
 - Location: script.sh:42
+- Anchor: `verbatim source text at file:line`
 - Pattern: `cmd | grep` loses exit code
 - Fix: Use pipefail or capture separately
 
@@ -146,6 +150,20 @@ Shell script review findings
 Approve / Approve with actions / Block
 ```
 
+## Verify Findings Are Grounded (`shell-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Exit Criteria
 
 - [ ] Exit code propagation verified (pipelines checked for pipefail or
@@ -156,3 +174,6 @@ Approve / Approve with actions / Block
 - [ ] Structure patterns verified (library/executable distinction, main call,
   preamble, depcheck, shfmt formatting)
 - [ ] Evidence logged with file:line references via `imbue:proof-of-work`
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+  confirmed by `citation_verifier.py` (exit `0`), or unverified findings
+  were dropped or labeled `UNVERIFIED`

@@ -39,6 +39,8 @@ dependencies:
 - pensive:unified-review
 - imbue:proof-of-work
 - imbue:justify
+- imbue:review-core
+- imbue:structured-output
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
@@ -410,6 +412,7 @@ optionally Proof. BACKLOG items need only a brief rationale.
 ### Blocking (1)
 1. [B1] SQL injection via string concatenation
    - **Location**: `db/queries.py:89`
+   - **Anchor**: `cursor.execute("SELECT * FROM t WHERE id = " + uid)`
    - **Issue**: User input interpolated directly into SQL
    - **Why**: String-interpolated SQL allows attackers to
      execute arbitrary queries (CWE-89). This is the #1
@@ -424,6 +427,7 @@ optionally Proof. BACKLOG items need only a brief rationale.
 ### In-Scope (1)
 1. [S1] Missing validation for edge case
    - **Location**: `api.py:45`
+   - **Anchor**: `def handle_request(payload):`
    - **Issue**: Empty input not handled per requirement
    - **Why**: Defensive validation at API boundaries
      prevents cascading failures in downstream logic.
@@ -560,6 +564,20 @@ This applies to self-reviews: run the same probe before
 requesting external review. Do not submit a PR for review that
 you yourself do not fully understand.
 
+### Verify Findings Are Grounded (`pr-review:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
 ## Integration with Other Tools
 
 - **`/fix-pr`**: After review identifies issues, use this to address them
@@ -596,6 +614,9 @@ Apply `scribe:slop-detector` to PR body:
 - Findings classified correctly
 - Backlog items tracked as issues
 - Clear recommendation provided
+- Every BLOCKING and IN-SCOPE finding carries a `Location` (file:line) and
+  verbatim `Anchor`; `citation_verifier.py` confirmed all citations
+  (exit `0`) or unverified findings are dropped/labeled `UNVERIFIED`
 
 ## Supporting Modules
 

@@ -96,6 +96,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
 | `hook-scope-guide` | [abstract](../plugins/abstract.md) | Decide where to place hooks (plugin/project/global) |
 | `hooks-eval` | [abstract](../plugins/abstract.md) | Hook security scanning |
+| `ideate` | [tome](../plugins/tome.md) | Diverse ideation methods with category-spanning selection and rotation |
 | `install-watchdog` | [egregore](../plugins/egregore.md) | Install crash-recovery watchdog |
 | `justify` | [imbue](../plugins/imbue.md) | Anti-additive-bias change audit |
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |

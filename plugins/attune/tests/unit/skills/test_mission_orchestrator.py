@@ -481,3 +481,101 @@ class TestInteractivePlanReview:
             "SKILL.md must surface User Directive Overrides at the "
             "skill index level, not bury them only in adaptive-constraints"
         )
+
+
+class TestBrainstormSocraticWiring:
+    """
+    Feature: Brainstorm phase and Socratic reasoning stay wired into the mission
+
+    As a workflow maintainer
+    I want the mission workflow to keep its brainstorm phase and its Socratic
+    questioning methodology
+    So that ideation and assumption-probing are not silently dropped from the
+    lifecycle by a future refactor
+
+    These guards exist because the older phase-coverage test only required
+    3-of-4 phase names, so a regression that removed brainstorm entirely could
+    still pass. They pin the specific brainstorm -> Socratic chain end to end.
+    """
+
+    # plugins/attune (four parents up from tests/unit/skills/<file>)
+    _ATTUNE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+    _BRAINSTORM_SKILL = _ATTUNE_DIR / "skills" / "project-brainstorming" / "SKILL.md"
+
+    @pytest.mark.bdd
+    def test_phase_routing_maps_brainstorm_to_brainstorming_skill(self) -> None:
+        """Scenario: the brainstorm phase routes to the brainstorming skill
+        Given the phase-routing.md module
+        When reading the skill invocation table
+        Then the brainstorm phase must invoke Skill(attune:project-brainstorming)
+        """
+        content = (MODULES_DIR / "phase-routing.md").read_text()
+        assert "Skill(attune:project-brainstorming)" in content, (
+            "phase-routing.md no longer maps the brainstorm phase to "
+            "Skill(attune:project-brainstorming) -- brainstorm has been "
+            "unwired from the mission workflow"
+        )
+
+    @pytest.mark.bdd
+    def test_full_mission_type_leads_with_brainstorm(self) -> None:
+        """Scenario: the full mission type still begins with brainstorm
+        Given the mission-types.md module
+        When reading the `full` type definition
+        Then brainstorm must appear and precede the specify phase
+        """
+        lowered = (MODULES_DIR / "mission-types.md").read_text().lower()
+        full_idx = lowered.find("### full")
+        assert full_idx != -1, "mission-types.md no longer defines a `full` type"
+        rest = lowered[full_idx + len("### full") :]
+        next_section = rest.find("### ")
+        full_block = rest if next_section == -1 else rest[:next_section]
+        assert "brainstorm" in full_block, (
+            "the `full` mission type dropped the brainstorm phase"
+        )
+        assert full_block.find("brainstorm") < full_block.find("specify"), (
+            "brainstorm is no longer the leading phase of the full mission type"
+        )
+
+    @pytest.mark.bdd
+    def test_brainstorming_skill_target_exists(self) -> None:
+        """Scenario: the brainstorming skill the workflow depends on exists
+        Given the phase-to-skill mapping targets project-brainstorming
+        When resolving that skill on disk
+        Then its SKILL.md must exist (the phase target is not dangling)
+        """
+        assert self._BRAINSTORM_SKILL.exists(), (
+            f"project-brainstorming SKILL.md missing at {self._BRAINSTORM_SKILL}; "
+            "the brainstorm phase target is dangling"
+        )
+
+    @pytest.mark.bdd
+    def test_brainstorming_skill_retains_socratic_methodology(self) -> None:
+        """Scenario: the brainstorming skill retains Socratic reasoning substance
+        Given the project-brainstorming SKILL.md
+        When reading its questioning methodology
+        Then it must document the Socratic method with assumption- and
+             reasoning-probing question banks, not merely name-drop the term
+        """
+        content = self._BRAINSTORM_SKILL.read_text()
+        assert "socratic" in content.lower(), (
+            "project-brainstorming SKILL.md no longer mentions the Socratic method"
+        )
+        for marker in ("Probing Assumptions", "Probing Reasoning"):
+            assert marker in content, (
+                f"Socratic questioning bank '{marker}' was stripped from "
+                "project-brainstorming SKILL.md"
+            )
+
+    @pytest.mark.bdd
+    def test_brainstorming_skill_delegates_socratic_to_superpowers(self) -> None:
+        """Scenario: Socratic delegation to superpowers is preserved
+        Given the project-brainstorming SKILL.md
+        When reading its integration section
+        Then it must delegate to Skill(superpowers:brainstorming) for the
+             Socratic method
+        """
+        content = self._BRAINSTORM_SKILL.read_text()
+        assert "Skill(superpowers:brainstorming)" in content, (
+            "project-brainstorming no longer delegates to "
+            "superpowers:brainstorming for the Socratic method"
+        )

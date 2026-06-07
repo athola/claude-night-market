@@ -49,7 +49,10 @@ These are never advisory. Fix them without reporting:
   - "This isn't X. This is Y." -> rewrite
   - "Not just X, but Y" / "Not only X, but also Y" -> "X and Y"
   - "It's not X, it's Y" -> state Y positively
-  - "Y, not X" (trailing negation) -> "Y instead of X" or state Y alone
+  - "It's X, not Y" (copula-led trailing, e.g. "It's a tool, not
+    a toy"; also "This is X, not Y") -> state X alone, or keep the
+    contrast as "X rather than Y" when it carries information
+  - "Y, not X" (bare trailing negation) -> "Y instead of X" or state Y alone
   - "No X. No Y. Just Z." / "No X, no Y, no Z" -> "Z, with no X or Y"
   - "And that's okay." -> delete
 - **Three-fragment burst**: "Focused. Aligned. Measurable." ->
@@ -60,6 +63,13 @@ These are never advisory. Fix them without reporting:
 - **AI vocabulary**: delve, utilize, leverage, facilitate, moreover,
   furthermore, comprehensive, robust, seamless, cutting-edge,
   unpack (verb), surface (verb), boasts
+- **British spelling**: convert to American (colour -> color,
+  organise -> organize, centre -> center, licence -> license,
+  catalogue -> catalog). Use an explicit word list, not a suffix
+  rule (surprise, exercise, analysis are correct as-is). Skip code,
+  inline code, URLs, proper nouns ("Labour Party"), and quotes.
+  Honor a `.slop-config.yaml` `spelling: british`/`off` opt-out.
+  Prefer `scribe.spelling.to_american` (case-preserving)
 
 ## Critical Evaluations (Advisory Table)
 
@@ -111,9 +121,17 @@ Fixed N hard failures:
 
 ### Advisory Table
 
-| # | Line | Pattern | Current | Proposed fix |
-|---|------|---------|---------|--------------|
-| 1 | "..." | Pattern name | What's wrong | Suggested direction |
+| # | Line | Pattern | Anchor | Proposed fix |
+|---|------|---------|--------|--------------|
+| 1 | 42 | Pattern name | verbatim text at that line | Suggested direction |
+
+Every finding must cite a real `file:line` and a verbatim `Anchor`
+copied from that line. Before reporting, write findings to
+`.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label `UNVERIFIED` any
+finding the verifier fails. See the `imbue:review-core` and
+`imbue:structured-output` skills.
 
 ### Summary
 

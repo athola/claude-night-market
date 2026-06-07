@@ -76,6 +76,7 @@ Mark each item complete as you finish the corresponding step.
   ```markdown
   ### [SEVERITY] Finding Title
   **Location**: file.rs:123
+  **Anchor**: `verbatim source text copied from line 123`
   **Category**: Security | Performance | Correctness | Style
   **Description**: Brief explanation of the issue.
   **Evidence**: [E1, E2] - Reference to evidence log.
@@ -84,6 +85,12 @@ Mark each item complete as you finish the corresponding step.
   **Verification:** Run the command with `--help` flag to verify availability.
 - Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
 - Order findings by severity, then by file location.
+- **Anchor is mandatory and grounds the finding.** Copy the exact
+  source text at `Location` (not a paraphrase). It is what a second
+  pass re-reads to confirm the finding is real. A finding whose anchor
+  does not appear at its cited line is treated as a hallucination and
+  dropped. The check is mechanical: `imbue:review-core` Step 6 runs
+  `plugins/imbue/scripts/citation_verifier.py` over the findings.
 
 ## Step 3: Assign Actions (`structured-output:actions-assigned`)
 - Convert findings to action items with assignee and priority:
@@ -117,6 +124,8 @@ Mark each item complete as you finish the corresponding step.
 
 ## Output Quality Checklist
 Before finalizing:
+- [ ] Every finding carries a verbatim `Anchor` the citation verifier
+      resolved (no unverified findings ship).
 - [ ] All findings have evidence references.
 - [ ] Severity levels are justified.
 - [ ] Recommendations are specific and name the next step.

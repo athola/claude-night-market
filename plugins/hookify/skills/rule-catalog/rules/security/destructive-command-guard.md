@@ -60,7 +60,7 @@ terraform plan -var-file=prod.tfvars   # For infra ops
 
 ## If You Are Sure
 
-This is a warning, not a block. The command will run.
+This is a warning rather than a block. The command will run.
 If you are certain and want to silence this rule
 temporarily:
 

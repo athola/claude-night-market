@@ -26,6 +26,7 @@ escalation:
 skills:
   - pensive:code-refinement
   - imbue:proof-of-work
+  - imbue:review-core
 examples:
   - context: User wants to improve code quality
     user: "Refine the code quality of this module"
@@ -107,12 +108,21 @@ def prioritize(findings):
 ### Phase 4: Generate Plan
 
 For each finding, produce:
-- **Location**: File, lines, function/class name
+- **Location**: File:line (e.g. `src/matching.py:45`)
+- **Anchor**: Verbatim source text at that line
 - **Issue**: What's wrong and which principle it violates
 - **Current**: Code snippet showing the problem
 - **Proposed**: Refactored code showing the improvement
 - **Rationale**: Why this change matters (with principle reference)
 - **Effort**: Estimated scope of change
+
+Every finding must cite a real `file:line` and a verbatim
+`Anchor` copied from that line. Before reporting, write
+findings to `.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py --findings
+.review/findings.json --repo-root .`; drop or label
+`UNVERIFIED` any finding the verifier fails. See the
+`imbue:review-core` and `imbue:structured-output` skills.
 
 ### Phase 5: Report
 

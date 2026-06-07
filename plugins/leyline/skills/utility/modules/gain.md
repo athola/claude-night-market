@@ -2,7 +2,7 @@
 
 The LLM self-estimates the marginal value of taking a candidate action
 before executing it.
-This is a heuristic signal, not a calibrated probability.
+This is a heuristic signal rather than a calibrated probability.
 
 ## Output
 

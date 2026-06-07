@@ -15,7 +15,7 @@ description: |
   analysis, full PR reviews, or architecture/API consistency reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
-skills: imbue:proof-of-work, pensive:bug-review
+skills: imbue:proof-of-work, pensive:bug-review, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:
@@ -192,13 +192,27 @@ output_contract:
   expected_artifacts: []
   retry_budget: 2
   strictness: normal
+  per_finding_required_fields:
+    - location   # file:line
+    - anchor     # verbatim source text at that line
 ```
 
 Every finding must include `[EN]` evidence tags with
-actual command outputs or file references.
+actual command outputs or file references. Each finding
+must carry a `Location` (file:line) and a verbatim `Anchor`
+(the exact source text at that line); anchors are verified
+by the citation verifier before the report is accepted.
 Zero-evidence output is unconditionally rejected.
 See `imbue:proof-of-work/modules/output-contracts` for
 the full contract schema.
+
+Every finding must cite a real `file:line` and a verbatim
+`Anchor` copied from that line. Before reporting, write
+findings to `.review/findings.json` and run
+`python plugins/imbue/scripts/citation_verifier.py
+--findings .review/findings.json --repo-root .`; drop or
+label `UNVERIFIED` any finding the verifier fails. See the
+`imbue:review-core` and `imbue:structured-output` skills.
 
 ## Output
 

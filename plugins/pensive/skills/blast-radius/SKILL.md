@@ -8,6 +8,9 @@ tags:
 - impact-analysis
 - risk-scoring
 tools: []
+dependencies:
+- imbue:review-core
+- imbue:structured-output
 ---
 
 # Blast Radius Analysis
@@ -82,11 +85,14 @@ Tell the user: "Run `/gauntlet-graph build` first."
 
    Format the output as a table:
    ```
-   Risk  | Node                    | File          | Reason
-   0.85  | auth.py::verify_token   | auth.py:45    | untested, security
-   0.62  | db.py::execute_query    | db.py:112     | high fan-in
-   0.41  | api.py::handle_request  | api.py:78     | flow participant
+   Risk  | Node                    | File          | Anchor                          | Reason
+   0.85  | auth.py::verify_token   | auth.py:45    | `def verify_token(token):`      | untested, security
+   0.62  | db.py::execute_query    | db.py:112     | `cursor.execute(query, params)` | high fan-in
+   0.41  | api.py::handle_request  | api.py:78     | `def handle_request(req):`      | flow participant
    ```
+
+   The `Anchor` column is the verbatim source text at the cited line.
+   It lets a reviewer confirm the finding without re-running the tool.
 
 4. **Highlight untested functions**: List any affected
    functions that lack test coverage (no TESTED_BY edge).
@@ -101,6 +107,30 @@ Tell the user: "Run `/gauntlet-graph build` first."
      and authorization logic carefully"
    - For high-fan-in nodes: "Changes here affect many
      callers; verify backward compatibility"
+
+### Verify Findings Are Grounded (`blast-radius:findings-verified`)
+
+Every finding must cite a real location and a verbatim anchor. Write
+findings to `.review/findings.json` and confirm each citation resolves:
+
+```bash
+python plugins/imbue/scripts/citation_verifier.py \
+  --findings .review/findings.json --repo-root .
+```
+
+Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
+verified findings enter the report. See `Skill(imbue:review-core)` Step 5
+and `Skill(imbue:structured-output)` for the schema.
+
+## Exit Criteria
+
+- [ ] Results table lists every affected node with a `File` (file:line)
+      and verbatim `Anchor` column.
+- [ ] Overall risk level (low/medium/high) is displayed based on the
+      maximum risk score.
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+      confirmed by `citation_verifier.py` (exit `0`), or unverified
+      findings were dropped or labeled `UNVERIFIED`.
 
 ## Risk Scoring Model
 
