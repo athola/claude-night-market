@@ -146,6 +146,15 @@ def test_build_digest_contains_head_tail_counts_and_retrieval(summarizer):
     assert "retrieve" in digest.lower()
 
 
+def test_build_digest_short_text_is_not_elided(summarizer):
+    # Given text shorter than head+tail, Then the full body shows, no elision.
+    text = "only\ntwo lines"
+    digest = summarizer.build_digest(text, "ccr-aaaaaaaaaaaa", head=20, tail=20)
+    assert "only" in digest
+    assert "two lines" in digest
+    assert "elided" not in digest
+
+
 # ---------------------------------------------------------------------------
 # tool_response extraction (handles str and dict shapes)
 # ---------------------------------------------------------------------------
@@ -164,6 +173,20 @@ def test_extract_tool_response_text_from_dict_stdout(summarizer):
 
 def test_extract_tool_response_text_missing_is_empty(summarizer):
     assert summarizer.extract_tool_response_text({}) == ""
+
+
+def test_extract_tool_response_text_unknown_dict_falls_back_to_json(summarizer):
+    # Given a dict with no recognized text keys
+    payload = {"tool_response": {"exitCode": 1, "meta": {"k": "v"}}}
+    # When extracting, Then nothing is silently dropped (JSON dump)
+    text = summarizer.extract_tool_response_text(payload)
+    assert "exitCode" in text
+    assert "meta" in text
+
+
+def test_extract_tool_response_text_other_type_is_stringified(summarizer):
+    # A list payload (unexpected shape) is stringified, not dropped.
+    assert summarizer.extract_tool_response_text({"tool_response": [1, 2]}) == "[1, 2]"
 
 
 # ---------------------------------------------------------------------------
@@ -208,6 +231,26 @@ def test_main_small_output_not_archived(summarizer, monkeypatch, tmp_path, capsy
     assert rc == 0
     archive_dir = tmp_path / ".claude" / "context-archive"
     assert not archive_dir.exists() or not list(archive_dir.glob("ccr-*.txt"))
+
+
+def test_main_is_fail_open_when_archive_errors(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    # Given archiving raises (e.g. disk error), When the hook runs,
+    # Then it never propagates the error into the host (returns 0).
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+
+    def _boom(*_args, **_kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(summarizer, "archive_large_output", _boom)
+    hook_input = {"tool_name": "Bash", "tool_response": {"stdout": "x" * 500}}
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    assert out.strip() == ""  # no digest emitted, no crash
 
 
 def test_main_ignores_non_target_tools(summarizer, monkeypatch, tmp_path, capsys):
@@ -256,6 +299,12 @@ def test_slice_content_line_range(retriever):
     assert retriever.slice_content(text, lines="3:5") == "2\n3\n4"
 
 
+def test_slice_content_open_ended_range(retriever):
+    text = "\n".join(str(i) for i in range(10))
+    # "8:" with no end runs to the last line -> values 7,8,9
+    assert retriever.slice_content(text, lines="8:") == "7\n8\n9"
+
+
 def test_grep_content_returns_matching_lines(retriever):
     text = "ok one\nFATAL boom\nok two\nFATAL crash"
     assert retriever.grep_content(text, "FATAL") == "FATAL boom\nFATAL crash"
@@ -272,6 +321,24 @@ def test_retrieve_roundtrip_via_main(retriever, tmp_path, capsys):
     assert rc == 0
     assert "FATAL boom" in out
     assert "ok" not in out.split("FATAL boom")[0].strip()
+
+
+def test_retrieve_head_slice_via_main(retriever, tmp_path, capsys):
+    handle = "ccr-feedface0002"
+    (tmp_path / f"{handle}.txt").write_text("a\nb\nc\nd\ne\n", encoding="utf-8")
+    rc = retriever.main([handle, "--head", "2", "--archive-dir", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert out.strip() == "a\nb"
+
+
+def test_retrieve_full_via_main(retriever, tmp_path, capsys):
+    handle = "ccr-feedface0003"
+    (tmp_path / f"{handle}.txt").write_text("x\ny\nz", encoding="utf-8")
+    rc = retriever.main([handle, "--archive-dir", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert out.strip() == "x\ny\nz"
 
 
 def test_retrieve_missing_handle_returns_nonzero(retriever, tmp_path):
