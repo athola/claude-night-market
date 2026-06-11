@@ -68,7 +68,7 @@ the thesis in one sentence, the tutorial is not ready to draft.
 The audience size and read frequency feed the reader-time
 budget (see `scribe:slop-detector` module `document-economy.md`).
 A tutorial that 500 developers will read once is a 40-hour
-reader-budget asset; spend the writing time accordingly.
+reader-budget asset. Spend the writing time accordingly.
 
 ### Step 2: Outline
 
@@ -98,7 +98,7 @@ Follow these rules:
 - One paragraph per step: what to run, what it does, what to expect
 - State the expected output after each command block
 - Use second person ("you") consistently throughout
-- Do not narrate what the reader will do next; just present the next step
+- Do not narrate what the reader will do next. Just present the next step
 
 ### Step 5: Build Complexity Gradually
 

@@ -498,6 +498,51 @@ semicolons=$(grep -o ';' file.md | wc -l)
 # Human ratio: roughly equal. AI ratio: 10:1 or worse.
 ```
 
+The avoidance heuristic is about a *missing* semicolon where a
+human would use one. It is not a license to add them. The
+opposite failure, below, is now the more common one.
+
+## Semicolon Splice
+
+Newer models reach for the semicolon as a sophistication
+marker, splicing two independent clauses where a period or a
+coordinating conjunction reads more naturally. The clause after
+the semicolon could stand alone as its own sentence, and almost
+always reads better that way. Use a semicolon in prose only
+when it is absolutely necessary: a list whose items already
+carry internal commas is the one durable case.
+
+Examples:
+
+- "The system is fast; it handles a million requests." (slop;
+  split into two sentences, or join with "and")
+- "Run the tests; they validate the change." (slop; "Run the
+  tests. They validate the change.")
+- "The cache holds three tiers: hot, in memory; warm, on
+  local disk; and cold, in object storage." (fine; the items
+  carry internal commas, so the semicolons disambiguate)
+
+Rephrase, in order of preference:
+
+1. Split into two sentences (period). Default choice.
+2. Join with a coordinating conjunction ("and", "but", "so")
+   when the clauses are tightly linked.
+3. Keep the semicolon only when removing it creates ambiguity
+   (a list with internal commas).
+
+```bash
+# Detect prose semicolons (word ; word). The awk pass strips
+# fenced code; the sed pass strips inline code (`x;`) and URLs,
+# so a backticked `arr.push();` never counts. This mirrors the
+# spelling normalizer's protected spans (fenced + inline + URL).
+# Confidence is low: every remaining hit is surfaced for human
+# judgment, not auto-rewritten. A list with internal commas is
+# a keep.
+awk '/^```/{c=!c}!c' file.md \
+  | sed -E 's/`[^`]*`//g; s#https?://[^ ]*##g' \
+  | grep -oP '\w;\s+\w' | wc -l
+```
+
 ## Sentence Length Clustering (Refined)
 
 Beyond uniformity (tracked above), the specific AI cluster is **15-25 words per sentence**. Human writing ranges from 3-word fragments to 40+ word complex sentences. AI avoids both extremes.

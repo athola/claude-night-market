@@ -778,3 +778,51 @@ class TestTier5ContrastiveParallelism:
         """Scenario: A direct positive statement matches no pattern."""
         text = "The config is small and the code is short."
         assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5SemicolonSplice:
+    """Feature: Detect prose semicolons that read more naturally rephrased.
+
+    Newer models reach for the semicolon as a sophistication marker,
+    splicing two independent clauses where a period or a coordinating
+    conjunction ("and", "but", "so") reads more naturally. The policy
+    is "semicolons in prose only when absolutely necessary", so this
+    category surfaces every prose semicolon for human judgment rather
+    than auto-rewriting: a list whose items carry internal commas is a
+    legitimate keep, a spliced clause is not.
+
+    The regex is sourced from the runtime pattern loader
+    (data/languages/en.yaml § tier5.semicolon_splice), not from an
+    inline fixture, so removing it from the YAML breaks these tests.
+    """
+
+    CATEGORY = "semicolon_splice"
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Semicolon findings surface, never auto-apply."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_detects_clause_splice(self) -> None:
+        """Scenario: Detect a semicolon joining two independent clauses."""
+        text = "The system is fast; it handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    def test_detects_imperative_splice(self) -> None:
+        """Scenario: Detect a semicolon between two imperatives."""
+        text = "Run the tests; they validate the change."
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    def test_period_passes(self) -> None:
+        """Scenario: Two sentences split by a period do not match."""
+        text = "The system is fast. It handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_conjunction_passes(self) -> None:
+        """Scenario: A coordinating conjunction does not match."""
+        text = "The system is fast and it handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 0

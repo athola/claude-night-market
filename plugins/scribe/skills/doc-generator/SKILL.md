@@ -47,7 +47,7 @@ for the full rubric.
 Use active voice and an authorial perspective. Explain the
 reasoning behind technical choices (why this database, not
 that one) rather than presenting neutral boilerplate. Use
-bullets sparingly for short, parallel summaries; convert
+bullets sparingly for short, parallel summaries. Convert
 multi-line bullet waterfalls into prose so the reasoning
 survives.
 
@@ -124,7 +124,7 @@ Apply voice, vocabulary, and structural guidelines.
 **Lead with the thesis.** The first paragraph must state the
 single takeaway. If a reader stops after the lead, they should
 still leave with the message. Echo the thesis once in the body
-and once at the close; cut every other repetition.
+and once at the close. Cut every other repetition.
 
 Follow the 10 core principles above. For each section:
 

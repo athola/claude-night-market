@@ -216,3 +216,17 @@ tier5:
       - '\bThe thing is,'
       - '\bLet that sink in\b'
       - '\bThe uncomfortable truth is\b'
+  semicolon_splice:
+    # Prose semicolons read as a sophistication marker: a clause
+    # spliced with a semicolon usually reads more naturally as two
+    # sentences or one coordinating conjunction. Low confidence
+    # because lists with internal commas need the semicolon, so this
+    # surfaces every prose semicolon for human judgment instead of
+    # auto-rewriting. Code and inline code are stripped before this
+    # runs (see the markdown application layer). Policy: semicolons in
+    # prose only when absolutely necessary.
+    score: 1
+    confidence: low
+    ignore_case: false
+    patterns:
+      - '\w;\s+\w'
