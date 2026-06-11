@@ -5,7 +5,7 @@
 
 .PHONY:
 .PHONY: benchmark check clean debug-variables demo-ai-hygiene-audit \
-	demo-bloat demo-bloat-scan demo-ccr demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
+	coverage demo-bloat demo-bloat-scan demo-ccr demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
 	fix-apply format help install-hooks lint memory-profile mutation-test perf-check plugin-check \
 	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \
 	test-unbloat token-estimate type-check typecheck validate-all validate-skills
@@ -139,6 +139,12 @@ mutation-test: ## Run mutation testing
 
 benchmark: ## Run performance benchmarks (bloat detection speed)
 	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+
+coverage: ## Measure test coverage for hooks and scripts (term + HTML)
+	@echo "Measuring coverage (hooks + scripts) via uv..."
+	$(UV_RUN) pytest --cov=hooks --cov=scripts --cov-report=term-missing --cov-report=html
+	@echo ""
+	@echo "HTML report written to htmlcov/index.html"
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \
