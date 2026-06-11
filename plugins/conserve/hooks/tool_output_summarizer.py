@@ -12,8 +12,10 @@ Environment variables:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -31,8 +33,121 @@ logger = logging.getLogger(__name__)
 # ~100KB of text is roughly 25K tokens, which is 2.5% of 1M context
 BLOAT_WARNING_THRESHOLD = 100_000
 
+# CCR (reversible compression): a single tool output at or above this many
+# characters is archived to an external cache so the original can be fetched
+# on demand via context_retrieve.py. ~25K chars is roughly 6K tokens.
+# Override with CONSERVE_CCR_THRESHOLD.
+CCR_THRESHOLD_DEFAULT = 25_000
+CCR_HANDLE_HEX_LEN = 12
+DIGEST_HEAD_LINES = 20
+DIGEST_TAIL_LINES = 20
+ARCHIVE_SUBDIR = Path(".claude") / "context-archive"
+
 
 __all__ = ["resolve_session_file"]
+
+
+def get_ccr_threshold() -> int:
+    """Return the single-output archive threshold in characters.
+
+    Reads ``CONSERVE_CCR_THRESHOLD`` from the environment, falling back to
+    ``CCR_THRESHOLD_DEFAULT`` when unset or not a valid integer.
+    """
+    raw = os.environ.get("CONSERVE_CCR_THRESHOLD")
+    if raw is None:
+        return CCR_THRESHOLD_DEFAULT
+    try:
+        return int(raw)
+    except ValueError:
+        logger.warning("Invalid CONSERVE_CCR_THRESHOLD=%r; using default", raw)
+        return CCR_THRESHOLD_DEFAULT
+
+
+def should_archive(text: str, threshold: int | None = None) -> bool:
+    """Return True when *text* is large enough to archive for retrieval."""
+    if threshold is None:
+        threshold = get_ccr_threshold()
+    return len(text) >= threshold
+
+
+def extract_tool_response_text(hook_input: dict[str, Any]) -> str:
+    """Extract the textual tool output from a PostToolUse payload.
+
+    Handles the shapes Claude Code emits for ``tool_response``: a bare
+    string, or a dict (Bash -> stdout/stderr, Read/Grep -> content). Unknown
+    dict shapes fall back to a JSON dump so nothing is silently dropped.
+    """
+    resp = hook_input.get("tool_response")
+    if resp is None:
+        return ""
+    if isinstance(resp, str):
+        return resp
+    if isinstance(resp, dict):
+        parts = [
+            str(resp[key])
+            for key in ("stdout", "stderr", "content", "output", "text")
+            if resp.get(key)
+        ]
+        if parts:
+            return "\n".join(parts)
+        return json.dumps(resp, ensure_ascii=False)
+    return str(resp)
+
+
+def archive_large_output(text: str, archive_dir: Path | str | None = None) -> str:
+    """Write *text* to a content-addressed archive file and return its handle.
+
+    The handle is ``ccr-<sha256(text)[:12]>`` so identical content always maps
+    to the same file (idempotent, dedupes naturally). This is the cache half
+    of reversible compression; ``context_retrieve.py`` reads it back.
+    """
+    if archive_dir is None:
+        archive_dir = Path.cwd() / ARCHIVE_SUBDIR
+    archive_dir = Path(archive_dir)
+    digest = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
+    handle = f"ccr-{digest[:CCR_HANDLE_HEX_LEN]}"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    (archive_dir / f"{handle}.txt").write_text(text, encoding="utf-8")
+    return handle
+
+
+def build_digest(
+    text: str,
+    handle: str,
+    head: int = DIGEST_HEAD_LINES,
+    tail: int = DIGEST_TAIL_LINES,
+) -> str:
+    """Build a compact digest of an archived output plus its retrieval command.
+
+    Shows the first *head* and last *tail* lines, the elided middle count, and
+    the exact ``context_retrieve.py`` invocation to fetch the original.
+    """
+    lines = text.split("\n")
+    total_lines = len(lines)
+    total_chars = len(text)
+    retrieve_cmd = (
+        f"python3 ${{CLAUDE_PLUGIN_ROOT}}/scripts/context_retrieve.py {handle}"
+    )
+
+    if total_lines <= head + tail:
+        body = text
+    else:
+        elided = total_lines - head - tail
+        body = "\n".join(
+            [
+                *lines[:head],
+                f"... [{elided} lines elided] ...",
+                *lines[-tail:],
+            ]
+        )
+
+    return (
+        f"Large tool output archived (CCR): {total_lines} lines, "
+        f"{total_chars / 1024:.1f}KB, handle {handle}\n"
+        f"{body}\n"
+        f"Retrieve the full original on demand with:\n  {retrieve_cmd}\n"
+        f"  (add --grep PATTERN, --head N, --tail N, or --lines A:B to slice)"
+    )
 
 
 def _count_tool_result_bytes(content: Any) -> int:
@@ -176,18 +291,44 @@ def main() -> int:
     if tool_name not in ("Bash", "Read", "Grep"):
         return 0
 
-    # Find and assess session
+    context_blocks: list[str] = []
+
+    # CCR: archive this single oversized output so the original is retrievable
+    # on demand (survives /clear and continuation-agent handoffs). The hook
+    # cannot redact the result already in context; its value is the durable
+    # external cache + retrieval handle.
+    output_text = extract_tool_response_text(hook_input)
+    if should_archive(output_text):
+        try:
+            handle = archive_large_output(output_text)
+            context_blocks.append(build_digest(output_text, handle))
+        except OSError as exc:  # fail-open: never break the host on archive error
+            logger.warning("CCR archive failed: %s", exc)
+
+    # Cumulative bloat warning across the whole session (unchanged behavior).
     session_file = resolve_session_file()
-    if not session_file:
+    if session_file:
+        assessment = assess_output_bloat(session_file)
+        if assessment["severity"] != "ok":
+            context_blocks.append(
+                format_hook_output(assessment)["hookSpecificOutput"][
+                    "additionalContext"
+                ]
+            )
+    else:
         logger.debug("No session file found")
-        return 0
 
-    assessment = assess_output_bloat(session_file)
-
-    # Only output if warning or critical
-    if assessment["severity"] != "ok":
-        output = format_hook_output(assessment)
-        print(json.dumps(output))
+    if context_blocks:
+        print(
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PostToolUse",
+                        "additionalContext": "\n\n".join(context_blocks),
+                    }
+                }
+            )
+        )
 
     return 0
 

@@ -153,6 +153,15 @@ When cumulative output exceeds 100KB (~25K tokens),
 it warns about context pressure.
 This helps identify when tool outputs are consuming excessive context.
 
+It also applies reversible compression (CCR) per output: any single
+result at or above `CONSERVE_CCR_THRESHOLD` characters (default 25,000)
+is archived to `.claude/context-archive/ccr-<hash>.txt` and replaced in
+later turns by a digest plus a retrieval handle. Fetch the original, or a
+slice, on demand with `scripts/context_retrieve.py <handle>`
+(`--grep`, `--head`, `--tail`, `--lines`). The archive survives `/clear`,
+so a continuation agent can read it by handle instead of re-running the
+command. See `skills/compression-strategy/modules/reversible-compression.md`.
+
 ### PreCompact Hook
 
 Preserves critical context before compression operations (`/compact`
