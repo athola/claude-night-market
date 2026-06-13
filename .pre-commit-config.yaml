@@ -80,12 +80,12 @@ repos:
       # determine changed files via 'git diff --cached' internally.
       # The 'files:' pattern only controls WHEN the hook triggers.
       - id: run-plugin-typecheck
-        name: Type Check Changed Plugins
-        entry: ./scripts/run-plugin-typecheck.sh --changed
+        name: Type Check All Plugins (strict)
+        entry: ./scripts/run-plugin-typecheck.sh --all
         language: system
-        pass_filenames: false  # Script uses git diff internally
+        pass_filenames: false  # Script checks every plugin internally
         stages: [pre-commit]
-        files: ^plugins/.*\.py$  # Triggers on .py changes
+        files: ^plugins/.*\.py$  # Triggers on any plugin .py change
         verbose: true
 
       - id: run-plugin-tests
@@ -397,36 +397,15 @@ repos:
         args: [--config, pyproject.toml]
         types: [python]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.0
-    hooks:
-      - id: mypy
-        name: Mypy - Global Type Checking
-        args: [
-          --ignore-missing-imports,
-          --explicit-package-bases,
-          --no-strict-optional,
-          --allow-untyped-defs,
-          --enable-incomplete-feature=NewGenericSyntax,
-          --disable-error-code=unreachable,
-          --disable-error-code=call-overload,
-          --disable-error-code=operator,
-          --disable-error-code=no-any-return,
-          --disable-error-code=var-annotated,
-          --disable-error-code=assignment,
-          --disable-error-code=unused-ignore,
-          --disable-error-code=no-untyped-def,
-          --disable-error-code=attr-defined,
-          --disable-error-code=no-redef,
-          --disable-error-code=misc,
-          --disable-error-code=call-arg,
-          --disable-error-code=return-value,
-          --disable-error-code=arg-type
-        ]
-        additional_dependencies:
-          - types-PyYAML
-        exclude: \.venv/|\.uv-cache/|__pycache__/|^fix_.*\.py$|tests/
-        files: ^(plugins|scripts)/.*\.py$
+  # Strict type checking is handled by the local `run-plugin-typecheck`
+  # hook above (and the typecheck.yml CI gate), which runs each plugin's
+  # own strict mypy config inside its uv environment. A single global
+  # mypy hook cannot type-check this src-layout monorepo: running mypy
+  # from the root collides on duplicate module names (e.g. abstract.utils
+  # resolves as both plugins.abstract.src.abstract.utils and
+  # abstract.utils). The previous global hook worked around this by
+  # disabling ~13 error codes, which silently let real type errors
+  # through. Per-plugin strict checking is the authoritative gate.
 
 # =================================================================
 # CI Configuration

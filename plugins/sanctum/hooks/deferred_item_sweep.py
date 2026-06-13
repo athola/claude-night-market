@@ -49,7 +49,8 @@ def call_capture_script(title: str, source: str) -> dict:
             check=False,
         )
         if result.returncode == 0:
-            return json.loads(result.stdout)
+            parsed = json.loads(result.stdout)
+            return parsed if isinstance(parsed, dict) else {}
         return {"status": "error", "message": result.stderr.strip()}
     except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError) as exc:
         return {"status": "error", "message": str(exc)}

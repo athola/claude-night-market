@@ -1,0 +1,54 @@
+name: Type Check (strict mypy, all plugins)
+
+# Enforces strict mypy across every plugin on each PR. The local
+# pre-commit `run-plugin-typecheck` hook runs the same `make typecheck`
+# (--all) target, but only fires for people who have hooks installed and
+# only on commit. This gate guarantees the whole monorepo is type-checked
+# before merge, so type errors stop accumulating in plugins a given change
+# did not touch.
+#
+# Why per-plugin and not one root mypy run: each plugin is its own
+# src-layout package with its own strict [tool.mypy] config. A single
+# `mypy plugins/` from the root collides on duplicate module names
+# (e.g. abstract.utils). run-plugin-typecheck.sh cd's into each plugin
+# and runs `uv run mypy` in that plugin's environment.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "plugins/**/*.py"
+      - "plugins/**/pyproject.toml"
+      - "scripts/run-plugin-typecheck.sh"
+      - "Makefile"
+      - ".github/workflows/typecheck.yml"
+  pull_request:
+    paths:
+      - "plugins/**/*.py"
+      - "plugins/**/pyproject.toml"
+      - "scripts/run-plugin-typecheck.sh"
+      - "Makefile"
+      - ".github/workflows/typecheck.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: typecheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: strict mypy across all plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Run strict type checking
+        run: make typecheck

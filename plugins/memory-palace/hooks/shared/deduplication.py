@@ -13,8 +13,10 @@ import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from types import ModuleType
 from typing import TYPE_CHECKING
 
+yaml: ModuleType | None
 try:
     import yaml
 except ImportError:
@@ -150,11 +152,13 @@ def get_entry(url: str | None = None, path: str | None = None) -> dict[str, Any]
 
     if url:
         url_key = get_url_key(url)
-        return index.get("entries", {}).get(url_key)
+        entry = index.get("entries", {}).get(url_key)
+        return entry if isinstance(entry, dict) else None
 
     if path:
         path_key = str(Path(path).resolve())
-        return index.get("entries", {}).get(path_key)
+        entry = index.get("entries", {}).get(path_key)
+        return entry if isinstance(entry, dict) else None
 
     return None
 

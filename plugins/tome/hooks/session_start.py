@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
-try:
-    from hooks._session_utils import load_active_session
-except ImportError:
-    from _session_utils import load_active_session
+# Ensure the plugin root is importable so the `hooks` package resolves whether
+# this file is run as a standalone script or imported as a module.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from hooks._session_utils import (
+    load_active_session,  # noqa: E402 - hook script must extend sys.path before importing the hooks package
+)
 
 
 def main() -> None:

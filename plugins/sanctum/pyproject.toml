@@ -59,7 +59,7 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
 explicit_package_bases = true
-mypy_path = ["src"]
+mypy_path = ["src", "hooks"]
 exclude = ['^\.venv', '^\.uv-cache']
 
 [[tool.mypy.overrides]]

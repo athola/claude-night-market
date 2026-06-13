@@ -120,7 +120,9 @@ def make_decision(
     autonomy_profile: AutonomyProfile | None = None,
 ) -> CacheInterceptDecision:
     """Make decision based on cache results and mode."""
-    return _make_decision(
+    # _make_decision is declared `-> Any` (it injects the decision type at call
+    # time); pin the result to the real return type before handing it back.
+    decision: CacheInterceptDecision = _make_decision(
         query,
         results,
         mode,
@@ -133,6 +135,7 @@ def make_decision(
         RedundancyLevel=RedundancyLevel,
         novelty_by_redundancy=_NOVELTY_BY_REDUNDANCY,
     )
+    return decision
 
 
 def emit_telemetry_event(

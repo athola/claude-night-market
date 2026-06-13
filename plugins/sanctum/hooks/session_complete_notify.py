@@ -167,7 +167,7 @@ def get_session_id() -> str:
     project_name = os.path.basename(cwd)
     ctx = _detect_terminal_context()
     kind = ctx["kind"]
-    session_name = ctx["session_name"]
+    session_name = ctx["session_name"] or ""
     tab_name = ctx["tab_name"]
 
     parts: list[str] = [project_name]
@@ -237,7 +237,7 @@ def get_terminal_info() -> str:
     project_name = os.path.basename(cwd)
     ctx = _detect_terminal_context()
     kind = ctx["kind"]
-    session_name = ctx["session_name"]
+    session_name = ctx["session_name"] or ""
     tab_name = ctx["tab_name"]
 
     session_prefix = ""

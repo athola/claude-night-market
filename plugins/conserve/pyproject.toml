@@ -102,6 +102,10 @@ disallow_untyped_decorators = true
 no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
+# Hooks inject their own directory onto sys.path at runtime before importing
+# sibling modules (e.g. `from shared.session_file import ...`). Mirror that here
+# so mypy resolves the real modules instead of reporting import-not-found.
+mypy_path = ["hooks"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 [[tool.mypy.overrides]]

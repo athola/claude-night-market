@@ -22,9 +22,10 @@ def consume_stdin() -> None:
 def load_manifest_data(manifest_path: Path) -> dict | None:
     """Load and parse manifest JSON, returning None on failure."""
     try:
-        return json.loads(manifest_path.read_text())
+        data = json.loads(manifest_path.read_text())
     except (json.JSONDecodeError, OSError, ValueError):
         return None
+    return data if isinstance(data, dict) else None
 
 
 def find_manifest() -> Path:
@@ -39,7 +40,8 @@ def find_manifest() -> Path:
 
 def get_items(data: dict) -> list:
     """Get work items from manifest, supporting both key names."""
-    return data.get("work_items", []) or data.get("items", [])
+    items = data.get("work_items") or data.get("items") or []
+    return items if isinstance(items, list) else []
 
 
 # Statuses that indicate remaining work

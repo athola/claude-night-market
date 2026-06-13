@@ -12,13 +12,14 @@ from ..rust_review_data import (
     UNSAFE_BLOCK_RE,
     UNSAFE_FN_RE,
 )
+from .line_cache import LineCacheMixin
 
 __all__ = ["SafetyMixin"]
 
 _SAFETY_DOC_RE = re.compile(r"(?i)safety|# SAFETY|/// # Safety")
 
 
-class SafetyMixin:
+class SafetyMixin(LineCacheMixin):
     """Mixin providing unsafe code block and memory safety analysis."""
 
     def _has_safety_doc(

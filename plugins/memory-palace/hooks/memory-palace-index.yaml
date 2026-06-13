@@ -1,2 +1,1113 @@
-entries: {}
-hashes: {}
+entries:
+  https://hn.algolia.com/api/v1/search?query=tui%20design&tags=story&hitsperpage=15:
+    content_hash: sha256:bba899d94138c521
+    stored_at: data/staging/webfetch-high-performing-stories-5-points-2026-06-09_23-25-42.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:42.734212+00:00'
+    title: High-Performing Stories (>5 Points)
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=TUI%20design&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=lazygit&tags=story&hitsperpage=10:
+    content_hash: sha256:be5fcea22390f2ab
+    stored_at: data/staging/webfetch-lazygit-stories-with-5-points-2026-06-09_23-25-43.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:43.705517+00:00'
+    title: Lazygit Stories with 5+ Points
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=lazygit&tags=story&hitsPerPage=10
+  ? https://export.arxiv.org/api/query?search_query=all:%22progressive+disclosure%22+and+all:%22user+interface%22&max_results=10&sortby=relevance
+  : content_hash: sha256:980308f2f27a95ce
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-06-09_23-25-48.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:48.440060+00:00'
+    title: arXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:%22progressive+disclosure%22+AND+all:%22user+interface%22&max_results=10&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=k9s%20kubernetes&tags=story&hitsperpage=8:
+    content_hash: sha256:aeccc7eb2ea69b60
+    stored_at: data/staging/webfetch-k9s-stories-with-5-points-2026-06-09_23-25-56.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:56.438774+00:00'
+    title: K9s Stories with 5+ Points
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=k9s%20kubernetes&tags=story&hitsPerPage=8
+  https://hn.algolia.com/api/v1/search?query=terminal%20user%20interface%20renaissance&tags=story&hitsperpage=10:
+    content_hash: sha256:977ef6229d03c5c7
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-06-09_23-25-57.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:57.055004+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=terminal%20user%20interface%20renaissance&tags=story&hitsPerPage=10
+  ? https://export.arxiv.org/api/query?search_query=all:%22information+density%22+and+all:dashboard&max_results=10&sortby=relevance
+  : content_hash: sha256:3706f2c69f772b0f
+    stored_at: data/staging/webfetch-based-on-the-arxiv-feed-provided-there-are-no-2026-06-09_23-25-58.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:25:58.993963+00:00'
+    title: Based on the arXiv feed provided, there are **no papers to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:%22information+density%22+AND+all:dashboard&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:%22terminal+user+interface%22+or+all:%22command-line+interface%22+usability&max_results=10&sortby=relevance
+  : content_hash: sha256:71d1df1ffc7bd1fb
+    stored_at: data/staging/webfetch-arxiv-papers-summary-2026-06-09_23-26-14.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:26:14.167889+00:00'
+    title: arXiv Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:%22terminal+user+interface%22+OR+all:%22command-line+interface%22+usability&max_results=10&sortBy=relevance
+  https://github.com/ratatui/crates-tui:
+    content_hash: sha256:21981fff2c856b2d
+    stored_at: data/staging/webfetch-crates-tui-architecture-overview-2026-06-09_23-26-19.md
+    importance_score: 95
+    last_updated: '2026-06-09T23:26:19.891289+00:00'
+    title: crates-tui Architecture Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ratatui/crates-tui
+  https://lobste.rs/s/quulrs/why_tuis_are_back:
+    content_hash: sha256:92d88b0996f63215
+    stored_at: data/staging/webfetch-lobsters-discussion-summary-why-tuis-are-back-2026-06-09_23-26-26.md
+    importance_score: 82
+    last_updated: '2026-06-09T23:26:26.341542+00:00'
+    title: 'Lobsters Discussion Summary: "Why TUIs are Back"'
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/quulrs/why_tuis_are_back
+  https://github.com/ratatui/ratatui/blob/main/examples/readme.md:
+    content_hash: sha256:5812933e2566eb1a
+    stored_at: data/staging/webfetch-layout-related-examples-in-ratatui-2026-06-09_23-26-32.md
+    importance_score: 95
+    last_updated: '2026-06-09T23:26:32.166903+00:00'
+    title: Layout-Related Examples in Ratatui
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ratatui/ratatui/blob/main/examples/README.md
+  https://github.com/gitui-org/gitui:
+    content_hash: sha256:a2eb534126e31a4c
+    stored_at: data/staging/webfetch-gitui-tui-architecture-2026-06-09_23-26-35.md
+    importance_score: 95
+    last_updated: '2026-06-09T23:26:35.026599+00:00'
+    title: GitUI TUI Architecture
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/gitui-org/gitui
+  https://news.ycombinator.com/item?id=45878578:
+    content_hash: sha256:acb743fb05d59260
+    stored_at: data/staging/webfetch-lazygit-interface-design-community-feedback-2026-06-09_23-26-45.md
+    importance_score: 80
+    last_updated: '2026-06-09T23:26:45.119464+00:00'
+    title: 'Lazygit Interface Design: Community Feedback Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=45878578
+  https://hn.algolia.com/api/v1/search?query=yazi%20file%20manager&tags=story&hitsperpage=6:
+    content_hash: sha256:5ed8438198197a57
+    stored_at: data/staging/webfetch-stories-with-more-than-5-points-2026-06-09_23-26-54.md
+    importance_score: 89
+    last_updated: '2026-06-09T23:26:54.942456+00:00'
+    title: Stories with More Than 5 Points
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=yazi%20file%20manager&tags=story&hitsPerPage=6
+  https://jensroemer.com/writing/tui-design:
+    content_hash: sha256:f12b2ea944c93b59
+    stored_at: data/staging/webfetch-tui-design-essay-summary-2026-06-09_23-27-16.md
+    importance_score: 79
+    last_updated: '2026-06-09T23:27:16.141280+00:00'
+    title: TUI Design Essay Summary
+    maturity: growing
+    routing_type: meta
+    url: https://jensroemer.com/writing/tui-design/
+  https://lobste.rs/s/ifbdw1/text_mode_lie_why_modern_tuis_are:
+    content_hash: sha256:86681d9977cb4b94
+    stored_at: data/staging/webfetch-tui-accessibility-discussion-summary-2026-06-09_23-27-30.md
+    importance_score: 82
+    last_updated: '2026-06-09T23:27:30.193602+00:00'
+    title: TUI Accessibility Discussion Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/ifbdw1/text_mode_lie_why_modern_tuis_are
+  https://eprints.gla.ac.uk/281864/1/281864.pdf:
+    content_hash: sha256:b608718376b19bc4
+    stored_at: data/staging/webfetch-to-give-you-accurate-properly-cited-design-2026-06-09_23-28-22.md
+    importance_score: 79
+    last_updated: '2026-06-09T23:28:22.256801+00:00'
+    title: To give you accurate, properly-cited design patterns from "Dashboard Design
+      Patterns" (Bach et al, I
+    maturity: growing
+    routing_type: meta
+    url: https://eprints.gla.ac.uk/281864/1/281864.pdf
+  https://github.com/chopratejas/headroom:
+    content_hash: sha256:ffea3a9704e7fe86
+    stored_at: data/staging/webfetch-headroom-context-compression-for-ai-agents-2026-06-11_14-31-19.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:31:19.671057+00:00'
+    title: 'Headroom: Context Compression for AI Agents'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/chopratejas/headroom
+  https://hn.algolia.com/api/v1/search?query=prompt%20caching%20kv%20cache&tags=story&hitsperpage=10:
+    content_hash: sha256:bf3a985646dc59f6
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-06-11_14-33-35.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:35.464523+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=prompt%20caching%20KV%20cache&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=context%20engineering%20agents&tags=story&hitsperpage=10:
+    content_hash: sha256:8e21b4256265abb3
+    stored_at: data/staging/webfetch-context-engineering-agents-stories-2026-06-11_14-33-35.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:35.631375+00:00'
+    title: Context Engineering & Agents Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=context%20engineering%20agents&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=prompt%20compression%20llm&tags=story&hitsperpage=10:
+    content_hash: sha256:4754dcd90163821a
+    stored_at: data/staging/webfetch-prompt-compression-for-llms-stories-2026-06-11_14-33-35.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:35.711208+00:00'
+    title: Prompt Compression for LLMs - Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=prompt%20compression%20LLM&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=claude%20code%20token%20cost%20context&tags=story&hitsperpage=10:
+    content_hash: sha256:2f117f3520811245
+    stored_at: data/staging/webfetch-claude-code-stories-search-results-2026-06-11_14-33-36.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:36.779825+00:00'
+    title: Claude Code Stories - Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Claude%20Code%20token%20cost%20context&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/items/45418251:
+    content_hash: sha256:5ee646570fdd9e83
+    stored_at: data/staging/webfetch-context-engineering-discussion-summary-2026-06-11_14-33-51.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:51.564709+00:00'
+    title: Context Engineering Discussion Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/45418251
+  https://export.arxiv.org/api/query?search_query=all:llmlingua+prompt+compression&max_results=10&sortby=relevance:
+    content_hash: sha256:2c61e6e132c3fa18
+    stored_at: data/staging/webfetch-arxiv-papers-prompt-compression-and-llms-2026-06-11_14-33-52.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:52.219740+00:00'
+    title: 'ArXiv Papers: Prompt Compression and LLMs'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLMLingua+prompt+compression&max_results=10&sortBy=relevance
+  https://hn.algolia.com/api/v1/items/45352901:
+    content_hash: sha256:940d1d5225949548
+    stored_at: data/staging/webfetch-context-engineering-for-ai-agents-thread-summary-2026-06-11_14-33-52.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:52.721527+00:00'
+    title: 'Context Engineering for AI Agents: Thread Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/45352901
+  https://hn.algolia.com/api/v1/items/44432596:
+    content_hash: sha256:18b477098fc5b649
+    stored_at: data/staging/webfetch-comment-themes-on-context-engineering-for-agents-2026-06-11_14-33-55.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:55.436541+00:00'
+    title: Comment Themes on Context Engineering for Agents
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/44432596
+  https://export.arxiv.org/api/query?search_query=all:gist+tokens+compress+prompts&max_results=10&sortby=relevance:
+    content_hash: sha256:c35d389a0c2e8bc0
+    stored_at: data/staging/webfetch-arxiv-papers-extracted-2026-06-11_14-33-55.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:55.620539+00:00'
+    title: ArXiv Papers Extracted
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:gist+tokens+compress+prompts&max_results=10&sortBy=relevance
+  https://github.com/ojuschugh1/sqz:
+    content_hash: sha256:342d024e2021cc6d
+    stored_at: data/staging/webfetch-sqz-llm-context-compression-tool-2026-06-11_14-33-59.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:33:59.226270+00:00'
+    title: 'sqz: LLM Context Compression Tool'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ojuschugh1/sqz
+  https://github.com/sliday/tamp:
+    content_hash: sha256:444375853583d543
+    stored_at: data/staging/webfetch-tamp-token-compression-proxy-2026-06-11_14-33-59.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:33:59.428363+00:00'
+    title: 'Tamp: Token Compression Proxy'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/sliday/tamp
+  https://export.arxiv.org/api/query?search_query=all:kv+cache+compression+long+context+llm&max_results=10&sortby=relevance:
+    content_hash: sha256:2bd458c4247b5486
+    stored_at: data/staging/webfetch-arxiv-papers-on-kv-cache-compression-and-long-2026-06-11_14-33-59.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:33:59.739652+00:00'
+    title: ArXiv Papers on KV Cache Compression and Long-Context LLMs
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:KV+cache+compression+long+context+LLM&max_results=10&sortBy=relevance
+  https://pypi.org/project/toon:
+    content_hash: sha256:bc6481658fd2d2f4
+    stored_at: data/staging/webfetch-toon-package-on-pypi-2026-06-11_14-34-11.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:34:11.279197+00:00'
+    title: Toon Package on PyPI
+    maturity: growing
+    routing_type: meta
+    url: https://pypi.org/project/toon/
+  https://github.com/toon-format/toon:
+    content_hash: sha256:f7f68e7b6277fe7e
+    stored_at: data/staging/webfetch-toon-format-overview-2026-06-11_14-34-12.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:34:12.202434+00:00'
+    title: TOON Format Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/toon-format/toon
+  ? https://export.arxiv.org/api/query?search_query=all:longllmlingua+long+context+prompt+compression&max_results=8&sortby=relevance
+  : content_hash: sha256:84b85165fdba3740
+    stored_at: data/staging/webfetch-arxiv-papers-on-long-context-prompt-compression-2026-06-11_14-34-21.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:34:21.742944+00:00'
+    title: ArXiv Papers on Long Context & Prompt Compression
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LongLLMLingua+long+context+prompt+compression&max_results=8&sortBy=relevance
+  ? https://api.semanticscholar.org/graph/v1/paper/search?query=prompt+compression+llm&limit=12&fields=title,abstract,year,citationcount,influentialcitationcount,isopenaccess,openaccesspdf,authors,venue,externalids
+  : content_hash: sha256:57436e2b7cfc8f4f
+    stored_at: data/staging/webfetch-llm-prompt-compression-papers-ranked-by-citation-2026-06-11_14-34-24.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:34:24.453010+00:00'
+    title: LLM Prompt Compression Papers - Ranked by Citation Count
+    maturity: growing
+    routing_type: meta
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=prompt+compression+LLM&limit=12&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds
+  ? https://export.arxiv.org/api/query?search_query=all:selective+context+compression+llm+self-information&max_results=10&sortby=relevance
+  : content_hash: sha256:0630efed274b40ed
+    stored_at: data/staging/webfetch-arxiv-research-papers-summary-2026-06-11_14-34-25.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:34:25.503992+00:00'
+    title: ArXiv Research Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:selective+context+compression+LLM+self-information&max_results=10&sortBy=relevance
+  https://pypi.org/project/python-toon:
+    content_hash: sha256:175b1e47b87c50bc
+    stored_at: data/staging/webfetch-python-toon-package-summary-2026-06-11_14-34-25.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:34:25.550430+00:00'
+    title: python-toon Package Summary
+    maturity: growing
+    routing_type: meta
+    url: https://pypi.org/project/python-toon/
+  https://github.com/rustkit-ai/trimcp:
+    content_hash: sha256:a2d20f9a4ea1fe0a
+    stored_at: data/staging/webfetch-trimcp-overview-2026-06-11_14-34-28.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:34:28.663414+00:00'
+    title: trimcp Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rustkit-ai/trimcp
+  https://manus.im/blog/context-engineering-for-ai-agents-lessons-from-building-manus:
+    content_hash: sha256:5fc86c83f23e2dd1
+    stored_at: data/staging/webfetch-key-lessons-from-context-engineering-for-ai-agents-2026-06-11_14-34-31.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:34:31.059425+00:00'
+    title: Key Lessons from Context Engineering for AI Agents
+    maturity: growing
+    routing_type: meta
+    url: https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus
+  ? https://export.arxiv.org/api/query?search_query=ti:%22compressing+context+to+enhance+inference+efficiency%22&max_results=5&sortby=relevance
+  : content_hash: sha256:a722ebf2b3a645b4
+    stored_at: data/staging/webfetch-paper-summary-2026-06-11_14-34-35.md
+    importance_score: 89
+    last_updated: '2026-06-11T14:34:35.353940+00:00'
+    title: Paper Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=ti:%22Compressing+Context+to+Enhance+Inference+Efficiency%22&max_results=5&sortBy=relevance
+  https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html:
+    content_hash: sha256:c5bf8a607b556ddd
+    stored_at: data/staging/webfetch-context-engineering-for-coding-agents-summary-2026-06-11_14-34-44.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:34:44.779112+00:00'
+    title: 'Context Engineering for Coding Agents: Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html
+  https://github.com/anthropics/claude-code/issues/29230:
+    content_hash: sha256:ed51bf0b0375a532
+    stored_at: data/staging/webfetch-claude-code-v2-1-62-kv-cache-stale-context-2026-06-11_14-34-47.md
+    importance_score: 95
+    last_updated: '2026-06-11T14:34:47.062397+00:00'
+    title: Claude Code v2.1.62 KV Cache Stale Context Regression
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/anthropics/claude-code/issues/29230
+  https://rlancemartin.github.io/2025/06/23/context_engineering:
+    content_hash: sha256:6e17b1efb9de65dc
+    stored_at: data/staging/webfetch-context-engineering-taxonomy-2026-06-11_14-35-02.md
+    importance_score: 80
+    last_updated: '2026-06-11T14:35:02.504764+00:00'
+    title: Context Engineering Taxonomy
+    maturity: growing
+    routing_type: meta
+    url: https://rlancemartin.github.io/2025/06/23/context_engineering/
+  https://github.com/chopratejas/headroom/tree/main/docs:
+    content_hash: sha256:439a01197bc223e0
+    stored_at: data/staging/webfetch-documentation-files-and-folders-in-docs-2026-06-11_15-29-11.md
+    importance_score: 95
+    last_updated: '2026-06-11T15:29:11.302348+00:00'
+    title: Documentation Files and Folders in `/docs`
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/chopratejas/headroom/tree/main/docs
+  https://raw.githubusercontent.com/chopratejas/headroom/main/readme.md:
+    content_hash: sha256:509fcf95ebbb27ab
+    stored_at: data/staging/webfetch-headroom-technical-deep-dive-2026-06-11_15-29-22.md
+    importance_score: 81
+    last_updated: '2026-06-11T15:29:22.544419+00:00'
+    title: 'Headroom: Technical Deep Dive'
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/chopratejas/headroom/main/README.md
+  https://hn.algolia.com/api/v1/search?query=headroom%20context%20compression&tags=story&hitsperpage=10:
+    content_hash: sha256:04317dd76ae40b8e
+    stored_at: data/staging/webfetch-stories-found-2026-06-11_19-09-16.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:16.744192+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=headroom%20context%20compression&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20token%20reduction%20context%20compression&tags=story&hitsperpage=15:
+    content_hash: sha256:e22b88da5bc99079
+    stored_at: data/staging/webfetch-llm-token-reduction-context-compression-stories-2026-06-11_19-09-20.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:20.403233+00:00'
+    title: LLM Token Reduction & Context Compression Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20token%20reduction%20context%20compression&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=prompt%20caching%20kv%20cache&tags=story&hitsperpage=15:
+    content_hash: sha256:1bd497f41d9f2e23
+    stored_at: data/staging/webfetch-stories-on-prompt-caching-kv-cache-2026-06-11_19-09-22.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:22.967499+00:00'
+    title: Stories on Prompt Caching & KV Cache
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=prompt%20caching%20KV%20cache&tags=story&hitsPerPage=15
+  https://github.com/logpare/logpare:
+    content_hash: sha256:5a65447b61409def
+    stored_at: data/staging/webfetch-logpare-semantic-log-compression-2026-06-11_19-09-29.md
+    importance_score: 95
+    last_updated: '2026-06-11T19:09:29.681794+00:00'
+    title: 'LogPare: Semantic Log Compression'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/logpare/logpare
+  https://github.com/microsoft/llmlingua:
+    content_hash: sha256:8dd662b1d77fffc4
+    stored_at: data/staging/webfetch-llmlingua-repository-analysis-2026-06-11_19-09-29.md
+    importance_score: 95
+    last_updated: '2026-06-11T19:09:29.771591+00:00'
+    title: LLMLingua Repository Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/microsoft/LLMLingua
+  https://lobste.rs/s/xankns/cutting_llm_token_usage_by_80_using_repl:
+    content_hash: sha256:88f5d8fea0bb6907
+    stored_at: data/staging/webfetch-thread-summary-2026-06-11_19-09-38.md
+    importance_score: 82
+    last_updated: '2026-06-11T19:09:38.483402+00:00'
+    title: Thread Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/xankns/cutting_llm_token_usage_by_80_using_repl
+  https://export.arxiv.org/api/query?search_query=all:kv+cache+compression+llm+long+context&max_results=10&sortby=relevance:
+    content_hash: sha256:19918d89529553f0
+    stored_at: data/staging/webfetch-kv-cache-compression-research-papers-2026-06-11_19-09-43.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:43.410096+00:00'
+    title: KV Cache Compression Research Papers
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:KV+cache+compression+LLM+long+context&max_results=10&sortBy=relevance
+  https://github.com/liyucheng09/selective_context:
+    content_hash: sha256:b51c975af85a0606
+    stored_at: data/staging/webfetch-selective-context-repository-summary-2026-06-11_19-09-44.md
+    importance_score: 95
+    last_updated: '2026-06-11T19:09:44.584029+00:00'
+    title: Selective Context Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/liyucheng09/Selective_Context
+  https://github.com/opencode-dcp/opencode-dynamic-context-pruning:
+    content_hash: sha256:bfb6e11142b5fab9
+    stored_at: data/staging/webfetch-dynamic-context-pruning-plugin-key-information-2026-06-11_19-09-46.md
+    importance_score: 95
+    last_updated: '2026-06-11T19:09:46.130190+00:00'
+    title: Dynamic Context Pruning Plugin - Key Information
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Opencode-DCP/opencode-dynamic-context-pruning
+  https://hn.algolia.com/api/v1/search?query=headroom%20chopratejas&tags=story&hitsperpage=10:
+    content_hash: sha256:acf7f4c79e191bb0
+    stored_at: data/staging/webfetch-headroom-stories-2026-06-11_19-09-52.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:52.996400+00:00'
+    title: Headroom Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=headroom%20chopratejas&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=anthropic%20prompt%20caching&tags=story&hitsperpage=15:
+    content_hash: sha256:6a0f9ddcd1329680
+    stored_at: data/staging/webfetch-anthropic-prompt-caching-stories-2026-06-11_19-09-57.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:57.839109+00:00'
+    title: Anthropic Prompt Caching Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Anthropic%20prompt%20caching&tags=story&hitsPerPage=15
+  ? https://export.arxiv.org/api/query?search_query=all:prompt+compression+recoverable+retrieval+lossless+llm&max_results=8&sortby=relevance
+  : content_hash: sha256:e7b5198e05af2069
+    stored_at: data/staging/webfetch-relevant-papers-from-search-results-2026-06-11_19-09-59.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:09:59.063665+00:00'
+    title: Relevant Papers from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:prompt+compression+recoverable+retrieval+lossless+LLM&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:longllmlingua+long+context+prompt+compression&max_results=6&sortby=relevance
+  : content_hash: sha256:db9e9071933c0d2b
+    stored_at: data/staging/webfetch-research-papers-summary-2026-06-11_19-10-00.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:00.737467+00:00'
+    title: Research Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LongLLMLingua+long+context+prompt+compression&max_results=6&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:selective+context+llm+inference+token+pruning&max_results=6&sortby=relevance
+  : content_hash: sha256:79e9126835c18127
+    stored_at: data/staging/webfetch-papers-from-arxiv-query-results-2026-06-11_19-10-02.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:02.264261+00:00'
+    title: Papers from arXiv Query Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:selective+context+LLM+inference+token+pruning&max_results=6&sortBy=relevance
+  https://hn.algolia.com/api/v1/items/46663757:
+    content_hash: sha256:8dbb757038f221e8
+    stored_at: data/staging/webfetch-comments-summary-headroom-llm-compression-tool-2026-06-11_19-10-11.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:11.523829+00:00'
+    title: 'Comments Summary: Headroom LLM Compression Tool'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/46663757
+  https://news.ycombinator.com/item?id=41284639:
+    content_hash: sha256:6f445469785fd99a
+    stored_at: data/staging/webfetch-main-comment-themes-on-anthropic-prompt-caching-2026-06-11_19-10-13.md
+    importance_score: 80
+    last_updated: '2026-06-11T19:10:13.679654+00:00'
+    title: Main Comment Themes on Anthropic Prompt Caching
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=41284639
+  ? https://export.arxiv.org/api/query?search_query=ti:%22compressing+context%22+or+all:self-information+content+filtering+llm&max_results=6&sortby=relevance
+  : content_hash: sha256:149a53d925c70430
+    stored_at: data/staging/webfetch-selective-context-paper-2026-06-11_19-10-19.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:19.944189+00:00'
+    title: Selective Context Paper
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=ti:%22compressing+context%22+OR+all:self-information+content+filtering+LLM&max_results=6&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:in-context+autoencoder+context+compression+memory+slots&max_results=6&sortby=relevance
+  : content_hash: sha256:60a030c2619410cc
+    stored_at: data/staging/webfetch-reversible-context-compression-papers-2026-06-11_19-10-23.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:23.237424+00:00'
+    title: Reversible Context Compression Papers
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:in-context+autoencoder+context+compression+memory+slots&max_results=6&sortBy=relevance
+  https://hn.algolia.com/api/v1/items/47363074:
+    content_hash: sha256:c46b4fb7d9325488
+    stored_at: data/staging/webfetch-summary-of-top-concerns-about-prompt-caching-tool-2026-06-11_19-10-23.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:23.363255+00:00'
+    title: Summary of Top Concerns About Prompt-Caching Tool
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/47363074
+  ? https://export.arxiv.org/api/query?search_query=all:prefix+caching+prompt+cache+reuse+attention+states+llm+serving&max_results=8&sortby=relevance
+  : content_hash: sha256:570490df796f3676
+    stored_at: data/staging/webfetch-papers-on-prompt-caching-prefix-kv-reuse-for-llm-2026-06-11_19-10-30.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:30.022010+00:00'
+    title: Papers on Prompt Caching / Prefix KV Reuse for LLM Serving
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:prefix+caching+prompt+cache+reuse+attention+states+LLM+serving&max_results=8&sortBy=relevance
+  https://arxiv.org/abs/2403.12968:
+    content_hash: sha256:1b5110382f6d3192
+    stored_at: data/staging/webfetch-llmlingua-2-performance-metrics-2026-06-11_19-10-44.md
+    importance_score: 92
+    last_updated: '2026-06-11T19:10:44.306274+00:00'
+    title: LLMLingua-2 Performance Metrics
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2403.12968
+  https://arxiv.org/abs/2304.12102:
+    content_hash: sha256:ab12917f12f86ae5
+    stored_at: data/staging/webfetch-selective-context-missing-quantitative-results-2026-06-11_19-10-44.md
+    importance_score: 92
+    last_updated: '2026-06-11T19:10:44.434663+00:00'
+    title: 'Selective Context: Missing Quantitative Results'
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2304.12102
+  ? https://export.arxiv.org/api/query?search_query=all:recomp+retrieval+compression+rag+or+compact+context+compression&max_results=6&sortby=relevance
+  : content_hash: sha256:a2a4f2193b0a28ce
+    stored_at: data/staging/webfetch-rag-retrieve-and-compress-papers-search-results-2026-06-11_19-10-49.md
+    importance_score: 89
+    last_updated: '2026-06-11T19:10:49.427533+00:00'
+    title: RAG Retrieve-and-Compress Papers Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:RECOMP+retrieval+compression+RAG+OR+CompAct+context+compression&max_results=6&sortBy=relevance
+  https://arxiv.org/abs/2310.04408:
+    content_hash: sha256:5d8446b2b457419a
+    stored_at: data/staging/webfetch-recomp-paper-summary-2026-06-11_19-11-01.md
+    importance_score: 92
+    last_updated: '2026-06-11T19:11:01.298608+00:00'
+    title: RECOMP Paper Summary
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2310.04408
+  https://github.com/dietrichgebert/ponytail:
+    content_hash: sha256:3e975fb32dc3d5bf
+    stored_at: data/staging/webfetch-ponytail-repository-summary-2026-06-12_03-33-05.md
+    importance_score: 95
+    last_updated: '2026-06-12T03:33:05.477071+00:00'
+    title: Ponytail Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/DietrichGebert/ponytail
+  https://hn.algolia.com/api/v1/search?query=dependency%20minimalism%20supply%20chain%20risk&tags=story&hitsperpage=10:
+    content_hash: sha256:fbb66a81958f7bb6
+    stored_at: data/staging/webfetch-search-results-2026-06-12_03-34-34.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:34.075141+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=dependency%20minimalism%20supply%20chain%20risk&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=best%20code%20is%20no%20code%20yagni&tags=story&hitsperpage=10:
+    content_hash: sha256:48ae0db87b34dec8
+    stored_at: data/staging/webfetch-hacker-news-stories-2026-06-12_03-34-32.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:32.430269+00:00'
+    title: Hacker News Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=best%20code%20is%20no%20code%20YAGNI&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=llm%20coding%20agents%20code%20bloat%20dependencies&tags=story&hitsperpage=10:
+    content_hash: sha256:4f7668f15fbd6704
+    stored_at: data/staging/webfetch-story-summary-2026-06-12_03-34-34.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:34.694876+00:00'
+    title: Story Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=LLM%20coding%20agents%20code%20bloat%20dependencies&tags=story&hitsPerPage=10
+  ? https://export.arxiv.org/api/query?search_query=all:code+complexity+metrics+defect+density+lines+of+code&max_results=12&sortby=relevance
+  : content_hash: sha256:ac55c29a4d273f12
+    stored_at: data/staging/webfetch-arxiv-search-results-code-metrics-and-defect-2026-06-12_03-34-42.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:42.925827+00:00'
+    title: 'ArXiv Search Results: Code Metrics and Defect Prediction'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:code+complexity+metrics+defect+density+lines+of+code&max_results=12&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=left-pad%20micro%20dependencies%20npm&tags=story&hitsperpage=15:
+    content_hash: sha256:bbf2cd1a874b1096
+    stored_at: data/staging/webfetch-search-results-2026-06-12_03-34-46.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:46.945429+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=left-pad%20micro%20dependencies%20npm&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=best%20code%20is%20no%20code&tags=story&hitsperpage=15:
+    content_hash: sha256:ff6ec13ff3f6d280
+    stored_at: data/staging/webfetch-hn-stories-best-code-is-no-code-2026-06-12_03-34-50.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:50.068739+00:00'
+    title: 'HN Stories: "Best Code Is No Code"'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=best%20code%20is%20no%20code&tags=story&hitsPerPage=15
+  ? https://export.arxiv.org/api/query?search_query=all:llm+generated+code+security+vulnerabilities+hallucinated+packages&max_results=12&sortby=relevance
+  : content_hash: sha256:62ac61f7e0b3ebba
+    stored_at: data/staging/webfetch-arxiv-research-on-llm-code-generation-security-2026-06-12_03-34-54.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:54.432729+00:00'
+    title: ArXiv Research on LLM Code Generation Security
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+generated+code+security+vulnerabilities+hallucinated+packages&max_results=12&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=ai%20generated%20code%20bloat&tags=story&hitsperpage=15:
+    content_hash: sha256:2a25add251c73372
+    stored_at: data/staging/webfetch-hn-stories-ai-generated-code-bloat-2026-06-12_03-34-55.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:34:55.432808+00:00'
+    title: 'HN Stories: AI Generated Code & Bloat'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=AI%20generated%20code%20bloat&tags=story&hitsPerPage=15
+  https://aipatternbook.com/yagni:
+    content_hash: sha256:ea5d9e2da3892b4f
+    stored_at: data/staging/webfetch-yagni-pattern-for-ai-agents-2026-06-12_03-35-06.md
+    importance_score: 80
+    last_updated: '2026-06-12T03:35:06.112373+00:00'
+    title: YAGNI Pattern for AI Agents
+    maturity: growing
+    routing_type: meta
+    url: https://aipatternbook.com/yagni
+  https://lobste.rs/s/lcldch/no_really_yagni:
+    content_hash: sha256:5cb08e14cf48e7dd
+    stored_at: data/staging/webfetch-summary-of-no-really-yagni-discussion-2026-06-12_03-35-11.md
+    importance_score: 82
+    last_updated: '2026-06-12T03:35:11.914580+00:00'
+    title: 'Summary of "No, Really: YAGNI" Discussion'
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/lcldch/no_really_yagni
+  ? https://export.arxiv.org/api/query?search_query=all:cyclomatic+complexity+software+maintainability+defects+empirical&max_results=10&sortby=relevance
+  : content_hash: sha256:4b4430cad0001228
+    stored_at: data/staging/webfetch-arxiv-search-results-software-quality-empirical-2026-06-12_03-35-13.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:35:13.226689+00:00'
+    title: 'ArXiv Search Results: Software Quality & Empirical Studies'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:cyclomatic+complexity+software+maintainability+defects+empirical&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:llm+code+generation+verbosity+redundancy+code+smells+conciseness&max_results=10&sortby=relevance
+  : content_hash: sha256:b55b202f246f9b54
+    stored_at: data/staging/webfetch-arxiv-search-results-llm-code-quality-generation-2026-06-12_03-35-16.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:35:16.842686+00:00'
+    title: 'arXiv Search Results: LLM Code Quality & Generation'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+code+generation+verbosity+redundancy+code+smells+conciseness&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:prompting+reduce+code+bloat+self-refine+self-critique+code+generation&max_results=10&sortby=relevance
+  : content_hash: sha256:141db41f74221be8
+    stored_at: data/staging/webfetch-arxiv-search-results-code-generation-with-2026-06-12_03-35-17.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:35:17.043013+00:00'
+    title: 'ArXiv Search Results: Code Generation with Prompting & Self-Refinement'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:prompting+reduce+code+bloat+self-refine+self-critique+code+generation&max_results=10&sortBy=relevance
+  https://lobste.rs/s/fc516s/0_dependencies:
+    content_hash: sha256:ce7a6a7f4ca8c218
+    stored_at: data/staging/webfetch-lobsters-discussion-0-dependencies-2026-06-12_03-35-23.md
+    importance_score: 82
+    last_updated: '2026-06-12T03:35:23.588548+00:00'
+    title: 'Lobsters Discussion: "0 Dependencies"'
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/fc516s/0_dependencies
+  https://lobste.rs/s/rygog1/we_should_all_be_using_dependency:
+    content_hash: sha256:6f84490ab1e38a75
+    stored_at: data/staging/webfetch-dependency-cooldowns-summary-2026-06-12_03-35-27.md
+    importance_score: 82
+    last_updated: '2026-06-12T03:35:27.980829+00:00'
+    title: Dependency Cooldowns Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/rygog1/we_should_all_be_using_dependency
+  https://lobste.rs/s/tiktds/ai_should_help_us_produce_better_code:
+    content_hash: sha256:20a1c142aa20f216
+    stored_at: data/staging/webfetch-summary-2026-06-12_03-35-31.md
+    importance_score: 82
+    last_updated: '2026-06-12T03:35:31.747117+00:00'
+    title: Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/tiktds/ai_should_help_us_produce_better_code
+  ? https://export.arxiv.org/api/query?search_query=all:over-engineering+speculative+generality+yagni+software+design&max_results=10&sortby=relevance
+  : content_hash: sha256:f18be1f207c37a3b
+    stored_at: data/staging/webfetch-arxiv-search-results-software-engineering-design-2026-06-12_03-35-38.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:35:38.535539+00:00'
+    title: 'ArXiv Search Results: Software Engineering & Design Complexity'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:over-engineering+speculative+generality+YAGNI+software+design&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:llm+code+correctness+length+conciseness+bias+benchmark&max_results=10&sortby=relevance
+  : content_hash: sha256:a01f6dbb8b7d6658
+    stored_at: data/staging/webfetch-arxiv-search-results-llm-code-length-correctness-2026-06-12_03-35-41.md
+    importance_score: 89
+    last_updated: '2026-06-12T03:35:41.624909+00:00'
+    title: 'arXiv Search Results: LLM Code Length & Correctness'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+code+correctness+length+conciseness+bias+benchmark&max_results=10&sortBy=relevance
+  https://research.swtch.com/deps:
+    content_hash: sha256:a4175dc78497b090
+    stored_at: data/staging/webfetch-russ-cox-s-software-dependency-problem-thesis-2026-06-12_03-35-47.md
+    importance_score: 80
+    last_updated: '2026-06-12T03:35:47.359625+00:00'
+    title: Russ Cox's Software Dependency Problem Thesis
+    maturity: growing
+    routing_type: meta
+    url: https://research.swtch.com/deps
+  https://arxiv.org/abs/1912.01142:
+    content_hash: sha256:eaf50e4df5b05e67
+    stored_at: data/staging/webfetch-paper-summary-2026-06-12_03-36-23.md
+    importance_score: 92
+    last_updated: '2026-06-12T03:36:23.981663+00:00'
+    title: Paper Summary
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/1912.01142
+  https://arxiv.org/abs/2406.10279:
+    content_hash: sha256:bd7a12d7c5e77d9b
+    stored_at: data/staging/webfetch-package-hallucinations-in-code-generating-llms-2026-06-12_03-36-26.md
+    importance_score: 92
+    last_updated: '2026-06-12T03:36:26.070334+00:00'
+    title: 'Package Hallucinations in Code-Generating LLMs: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2406.10279
+  https://arxiv.org/abs/2407.11470:
+    content_hash: sha256:434116a3280f48c8
+    stored_at: data/staging/webfetch-race-benchmark-findings-2026-06-12_03-36-27.md
+    importance_score: 92
+    last_updated: '2026-06-12T03:36:27.643303+00:00'
+    title: RACE Benchmark Findings
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2407.11470
+  https://hn.algolia.com/api/v1/search?query=make%20invalid%20states%20unrepresentable&tags=story&hitsperpage=10:
+    content_hash: sha256:5357b6d27efac27e
+    stored_at: data/staging/webfetch-stories-on-make-invalid-states-unrepresentable-2026-06-12_04-47-53.md
+    importance_score: 90
+    last_updated: '2026-06-12T04:47:53.762730+00:00'
+    title: Stories on "Make Invalid States Unrepresentable"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=make%20invalid%20states%20unrepresentable&tags=story&hitsPerPage=10
+  https://rust-lang.github.io/api-guidelines/interoperability.html:
+    content_hash: sha256:1aa854dcb5353edd
+    stored_at: data/staging/webfetch-rust-api-guidelines-conversion-traits-2026-06-12_04-47-54.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:47:54.527570+00:00'
+    title: 'Rust API Guidelines: Conversion Traits'
+    maturity: growing
+    routing_type: meta
+    url: https://rust-lang.github.io/api-guidelines/interoperability.html
+  https://hn.algolia.com/api/v1/search?query=idiomatic%20rust&tags=story&hitsperpage=15:
+    content_hash: sha256:961e675c7a161be4
+    stored_at: data/staging/webfetch-idiomatic-rust-stories-from-hacker-news-2026-06-12_04-47-55.md
+    importance_score: 90
+    last_updated: '2026-06-12T04:47:55.440633+00:00'
+    title: Idiomatic Rust Stories from Hacker News
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=idiomatic%20rust&tags=story&hitsPerPage=15
+  https://rust-unofficial.github.io/patterns/patterns/behavioural/newtype.html:
+    content_hash: sha256:6620d38bb5d31b7b
+    stored_at: data/staging/webfetch-newtype-pattern-in-rust-2026-06-12_04-47-56.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:47:56.048727+00:00'
+    title: Newtype Pattern in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://rust-unofficial.github.io/patterns/patterns/behavioural/newtype.html
+  https://doc.rust-lang.org/std/convert/trait.tryfrom.html:
+    content_hash: sha256:111a4d02643c9b1e
+    stored_at: data/staging/webfetch-tryfrom-trait-in-rust-2026-06-12_04-48-01.md
+    importance_score: 88
+    last_updated: '2026-06-12T04:48:01.127641+00:00'
+    title: TryFrom Trait in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/std/convert/trait.TryFrom.html
+  https://export.arxiv.org/api/query?search_query=all:typestate+oriented+programming&max_results=10&sortby=relevance:
+    content_hash: sha256:3b7e74d99267e816
+    stored_at: data/staging/webfetch-research-papers-on-typestate-and-related-2026-06-12_04-48-05.md
+    importance_score: 89
+    last_updated: '2026-06-12T04:48:05.180722+00:00'
+    title: Research Papers on Typestate and Related Programming Paradigms
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:typestate+oriented+programming&max_results=10&sortBy=relevance
+  https://export.arxiv.org/api/query?search_query=all:session+types+linear+rust&max_results=10&sortby=relevance:
+    content_hash: sha256:de2da6f1b3612921
+    stored_at: data/staging/webfetch-relevant-research-papers-on-session-types-and-2026-06-12_04-48-12.md
+    importance_score: 89
+    last_updated: '2026-06-12T04:48:12.494918+00:00'
+    title: Relevant Research Papers on Session Types and Rust Type Systems
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:session+types+linear+rust&max_results=10&sortBy=relevance
+  https://doc.rust-lang.org/rust-by-example/generics/new_types.html:
+    content_hash: sha256:d21bc9d115569c1a
+    stored_at: data/staging/webfetch-new-type-idiom-code-example-2026-06-12_04-48-14.md
+    importance_score: 88
+    last_updated: '2026-06-12T04:48:14.125484+00:00'
+    title: New Type Idiom Code Example
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/rust-by-example/generics/new_types.html
+  https://microsoft.github.io/rusttraining/rust-patterns-book/ch03-the-newtype-and-type-state-patterns.html:
+    content_hash: sha256:3c34898b07a3a461
+    stored_at: data/staging/webfetch-type-state-pattern-core-concepts-2026-06-12_04-48-14.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:48:14.661021+00:00'
+    title: 'Type-State Pattern: Core Concepts'
+    maturity: growing
+    routing_type: meta
+    url: https://microsoft.github.io/RustTraining/rust-patterns-book/ch03-the-newtype-and-type-state-patterns.html
+  https://corrode.dev/blog/illegal-state:
+    content_hash: sha256:d7e99acd79cedfdf
+    stored_at: data/staging/webfetch-making-illegal-states-unrepresentable-in-rust-2026-06-12_04-48-17.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:48:17.678293+00:00'
+    title: Making Illegal States Unrepresentable in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://corrode.dev/blog/illegal-state/
+  https://news.ycombinator.com/item?id=45164444:
+    content_hash: sha256:8d12e2803b9c8ed3
+    stored_at: data/staging/webfetch-summary-make-invalid-states-unrepresentable-2026-06-12_04-48-17.md
+    importance_score: 81
+    last_updated: '2026-06-12T04:48:17.897837+00:00'
+    title: 'Summary: "''Make invalid states unrepresentable'' considered harmful"'
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=45164444
+  https://corrode.dev/blog/enums:
+    content_hash: sha256:a0c16acecd9d3ac4
+    stored_at: data/staging/webfetch-using-enums-to-represent-state-in-rust-2026-06-12_04-48-19.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:48:19.179126+00:00'
+    title: Using Enums to Represent State in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://corrode.dev/blog/enums/
+  https://rust-lang.github.io/rust-clippy/master/index.html:
+    content_hash: sha256:e0669ed149a1e003
+    stored_at: data/staging/webfetch-clippy-lints-summary-2026-06-12_04-48-19.md
+    importance_score: 80
+    last_updated: '2026-06-12T04:48:19.358668+00:00'
+    title: Clippy Lints Summary
+    maturity: growing
+    routing_type: meta
+    url: https://rust-lang.github.io/rust-clippy/master/index.html#from_over_into
+  https://export.arxiv.org/api/query?search_query=all:phantom+types+invariants+api+design&max_results=8&sortby=relevance:
+    content_hash: sha256:cfd58b949cdc63a5
+    stored_at: data/staging/webfetch-arxiv-papers-analysis-2026-06-12_04-48-27.md
+    importance_score: 89
+    last_updated: '2026-06-12T04:48:27.680504+00:00'
+    title: arXiv Papers Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:phantom+types+invariants+API+design&max_results=8&sortBy=relevance
+  https://doc.rust-lang.org/std/str/trait.fromstr.html:
+    content_hash: sha256:6e9f80422dbec279
+    stored_at: data/staging/webfetch-fromstr-trait-in-rust-2026-06-12_04-48-30.md
+    importance_score: 88
+    last_updated: '2026-06-12T04:48:30.084733+00:00'
+    title: FromStr Trait in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/std/str/trait.FromStr.html
+  https://doc.rust-lang.org/reference/attributes/type_system.html:
+    content_hash: sha256:efd4e9ab27afdf79
+    stored_at: data/staging/webfetch-the-non-exhaustive-attribute-2026-06-12_04-48-32.md
+    importance_score: 88
+    last_updated: '2026-06-12T04:48:32.209979+00:00'
+    title: The `#[non_exhaustive]` Attribute
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/reference/attributes/type_system.html
+  https://hn.algolia.com/api/v1/search?query=parse%20don%27t%20validate&tags=story&hitsperpage=8:
+    content_hash: sha256:9a08a6cc277022a5
+    stored_at: data/staging/webfetch-parse-don-t-validate-stories-on-hacker-news-2026-06-12_04-48-48.md
+    importance_score: 90
+    last_updated: '2026-06-12T04:48:48.290773+00:00'
+    title: '"Parse, Don''t Validate" Stories on Hacker News'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=parse%20don%27t%20validate&tags=story&hitsPerPage=8
+  https://raw.githubusercontent.com/rust-lang/reference/master/src/lifetime-elision.md:
+    content_hash: sha256:1b977ac458704fee
+    stored_at: data/staging/webfetch-lifetime-elision-rules-summary-2026-06-12_05-38-58.md
+    importance_score: 81
+    last_updated: '2026-06-12T05:38:58.185435+00:00'
+    title: Lifetime Elision Rules Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/reference/master/src/lifetime-elision.md
+  https://raw.githubusercontent.com/rust-lang/reference/master/src/items/static-items.md:
+    content_hash: sha256:1ebc6365633891bb
+    stored_at: data/staging/webfetch-mutable-static-items-in-rust-2026-06-12_22-10-50.md
+    importance_score: 81
+    last_updated: '2026-06-12T22:10:50.354157+00:00'
+    title: Mutable Static Items in Rust
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/reference/master/src/items/static-items.md
+  https://raw.githubusercontent.com/rust-lang/reference/master/src/expressions/operator-expr.md:
+    content_hash: sha256:c38c1f0158afc563
+    stored_at: data/staging/webfetch-type-cast-expressions-as-operator-rules-2026-06-12_22-10-51.md
+    importance_score: 81
+    last_updated: '2026-06-12T22:10:51.270610+00:00'
+    title: 'Type Cast Expressions: `as` Operator Rules'
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/reference/master/src/expressions/operator-expr.md
+  https://raw.githubusercontent.com/rust-lang/reference/master/src/expressions/match-expr.md:
+    content_hash: sha256:0407c1f152e40d49
+    stored_at: data/staging/webfetch-the-spec-mentions-the-wildcard-pattern-in-an-2026-06-12_22-10-51.md
+    importance_score: 81
+    last_updated: '2026-06-12T22:10:51.535942+00:00'
+    title: 'The spec mentions the wildcard pattern in an example:'
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/reference/master/src/expressions/match-expr.md
+hashes:
+  sha256:bba899d94138c521: data/staging/webfetch-high-performing-stories-5-points-2026-06-09_23-25-42.md
+  sha256:be5fcea22390f2ab: data/staging/webfetch-lazygit-stories-with-5-points-2026-06-09_23-25-43.md
+  sha256:980308f2f27a95ce: data/staging/webfetch-arxiv-search-results-2026-06-09_23-25-48.md
+  sha256:aeccc7eb2ea69b60: data/staging/webfetch-k9s-stories-with-5-points-2026-06-09_23-25-56.md
+  sha256:977ef6229d03c5c7: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-06-09_23-25-57.md
+  sha256:3706f2c69f772b0f: data/staging/webfetch-based-on-the-arxiv-feed-provided-there-are-no-2026-06-09_23-25-58.md
+  sha256:71d1df1ffc7bd1fb: data/staging/webfetch-arxiv-papers-summary-2026-06-09_23-26-14.md
+  sha256:21981fff2c856b2d: data/staging/webfetch-crates-tui-architecture-overview-2026-06-09_23-26-19.md
+  sha256:92d88b0996f63215: data/staging/webfetch-lobsters-discussion-summary-why-tuis-are-back-2026-06-09_23-26-26.md
+  sha256:5812933e2566eb1a: data/staging/webfetch-layout-related-examples-in-ratatui-2026-06-09_23-26-32.md
+  sha256:a2eb534126e31a4c: data/staging/webfetch-gitui-tui-architecture-2026-06-09_23-26-35.md
+  sha256:acb743fb05d59260: data/staging/webfetch-lazygit-interface-design-community-feedback-2026-06-09_23-26-45.md
+  sha256:5ed8438198197a57: data/staging/webfetch-stories-with-more-than-5-points-2026-06-09_23-26-54.md
+  sha256:f12b2ea944c93b59: data/staging/webfetch-tui-design-essay-summary-2026-06-09_23-27-16.md
+  sha256:86681d9977cb4b94: data/staging/webfetch-tui-accessibility-discussion-summary-2026-06-09_23-27-30.md
+  sha256:b608718376b19bc4: data/staging/webfetch-to-give-you-accurate-properly-cited-design-2026-06-09_23-28-22.md
+  sha256:ffea3a9704e7fe86: data/staging/webfetch-headroom-context-compression-for-ai-agents-2026-06-11_14-31-19.md
+  sha256:bf3a985646dc59f6: data/staging/webfetch-stories-from-search-results-2026-06-11_14-33-35.md
+  sha256:8e21b4256265abb3: data/staging/webfetch-context-engineering-agents-stories-2026-06-11_14-33-35.md
+  sha256:4754dcd90163821a: data/staging/webfetch-prompt-compression-for-llms-stories-2026-06-11_14-33-35.md
+  sha256:2f117f3520811245: data/staging/webfetch-claude-code-stories-search-results-2026-06-11_14-33-36.md
+  sha256:5ee646570fdd9e83: data/staging/webfetch-context-engineering-discussion-summary-2026-06-11_14-33-51.md
+  sha256:2c61e6e132c3fa18: data/staging/webfetch-arxiv-papers-prompt-compression-and-llms-2026-06-11_14-33-52.md
+  sha256:940d1d5225949548: data/staging/webfetch-context-engineering-for-ai-agents-thread-summary-2026-06-11_14-33-52.md
+  sha256:18b477098fc5b649: data/staging/webfetch-comment-themes-on-context-engineering-for-agents-2026-06-11_14-33-55.md
+  sha256:c35d389a0c2e8bc0: data/staging/webfetch-arxiv-papers-extracted-2026-06-11_14-33-55.md
+  sha256:342d024e2021cc6d: data/staging/webfetch-sqz-llm-context-compression-tool-2026-06-11_14-33-59.md
+  sha256:444375853583d543: data/staging/webfetch-tamp-token-compression-proxy-2026-06-11_14-33-59.md
+  sha256:2bd458c4247b5486: data/staging/webfetch-arxiv-papers-on-kv-cache-compression-and-long-2026-06-11_14-33-59.md
+  sha256:bc6481658fd2d2f4: data/staging/webfetch-toon-package-on-pypi-2026-06-11_14-34-11.md
+  sha256:f7f68e7b6277fe7e: data/staging/webfetch-toon-format-overview-2026-06-11_14-34-12.md
+  sha256:84b85165fdba3740: data/staging/webfetch-arxiv-papers-on-long-context-prompt-compression-2026-06-11_14-34-21.md
+  sha256:57436e2b7cfc8f4f: data/staging/webfetch-llm-prompt-compression-papers-ranked-by-citation-2026-06-11_14-34-24.md
+  sha256:0630efed274b40ed: data/staging/webfetch-arxiv-research-papers-summary-2026-06-11_14-34-25.md
+  sha256:175b1e47b87c50bc: data/staging/webfetch-python-toon-package-summary-2026-06-11_14-34-25.md
+  sha256:a2d20f9a4ea1fe0a: data/staging/webfetch-trimcp-overview-2026-06-11_14-34-28.md
+  sha256:5fc86c83f23e2dd1: data/staging/webfetch-key-lessons-from-context-engineering-for-ai-agents-2026-06-11_14-34-31.md
+  sha256:a722ebf2b3a645b4: data/staging/webfetch-paper-summary-2026-06-11_14-34-35.md
+  sha256:c5bf8a607b556ddd: data/staging/webfetch-context-engineering-for-coding-agents-summary-2026-06-11_14-34-44.md
+  sha256:ed51bf0b0375a532: data/staging/webfetch-claude-code-v2-1-62-kv-cache-stale-context-2026-06-11_14-34-47.md
+  sha256:6e17b1efb9de65dc: data/staging/webfetch-context-engineering-taxonomy-2026-06-11_14-35-02.md
+  sha256:439a01197bc223e0: data/staging/webfetch-documentation-files-and-folders-in-docs-2026-06-11_15-29-11.md
+  sha256:509fcf95ebbb27ab: data/staging/webfetch-headroom-technical-deep-dive-2026-06-11_15-29-22.md
+  sha256:04317dd76ae40b8e: data/staging/webfetch-stories-found-2026-06-11_19-09-16.md
+  sha256:e22b88da5bc99079: data/staging/webfetch-llm-token-reduction-context-compression-stories-2026-06-11_19-09-20.md
+  sha256:1bd497f41d9f2e23: data/staging/webfetch-stories-on-prompt-caching-kv-cache-2026-06-11_19-09-22.md
+  sha256:5a65447b61409def: data/staging/webfetch-logpare-semantic-log-compression-2026-06-11_19-09-29.md
+  sha256:8dd662b1d77fffc4: data/staging/webfetch-llmlingua-repository-analysis-2026-06-11_19-09-29.md
+  sha256:88f5d8fea0bb6907: data/staging/webfetch-thread-summary-2026-06-11_19-09-38.md
+  sha256:19918d89529553f0: data/staging/webfetch-kv-cache-compression-research-papers-2026-06-11_19-09-43.md
+  sha256:b51c975af85a0606: data/staging/webfetch-selective-context-repository-summary-2026-06-11_19-09-44.md
+  sha256:bfb6e11142b5fab9: data/staging/webfetch-dynamic-context-pruning-plugin-key-information-2026-06-11_19-09-46.md
+  sha256:acf7f4c79e191bb0: data/staging/webfetch-headroom-stories-2026-06-11_19-09-52.md
+  sha256:6a0f9ddcd1329680: data/staging/webfetch-anthropic-prompt-caching-stories-2026-06-11_19-09-57.md
+  sha256:e7b5198e05af2069: data/staging/webfetch-relevant-papers-from-search-results-2026-06-11_19-09-59.md
+  sha256:db9e9071933c0d2b: data/staging/webfetch-research-papers-summary-2026-06-11_19-10-00.md
+  sha256:79e9126835c18127: data/staging/webfetch-papers-from-arxiv-query-results-2026-06-11_19-10-02.md
+  sha256:8dbb757038f221e8: data/staging/webfetch-comments-summary-headroom-llm-compression-tool-2026-06-11_19-10-11.md
+  sha256:6f445469785fd99a: data/staging/webfetch-main-comment-themes-on-anthropic-prompt-caching-2026-06-11_19-10-13.md
+  sha256:149a53d925c70430: data/staging/webfetch-selective-context-paper-2026-06-11_19-10-19.md
+  sha256:60a030c2619410cc: data/staging/webfetch-reversible-context-compression-papers-2026-06-11_19-10-23.md
+  sha256:c46b4fb7d9325488: data/staging/webfetch-summary-of-top-concerns-about-prompt-caching-tool-2026-06-11_19-10-23.md
+  sha256:570490df796f3676: data/staging/webfetch-papers-on-prompt-caching-prefix-kv-reuse-for-llm-2026-06-11_19-10-30.md
+  sha256:1b5110382f6d3192: data/staging/webfetch-llmlingua-2-performance-metrics-2026-06-11_19-10-44.md
+  sha256:ab12917f12f86ae5: data/staging/webfetch-selective-context-missing-quantitative-results-2026-06-11_19-10-44.md
+  sha256:a2a4f2193b0a28ce: data/staging/webfetch-rag-retrieve-and-compress-papers-search-results-2026-06-11_19-10-49.md
+  sha256:5d8446b2b457419a: data/staging/webfetch-recomp-paper-summary-2026-06-11_19-11-01.md
+  sha256:3e975fb32dc3d5bf: data/staging/webfetch-ponytail-repository-summary-2026-06-12_03-33-05.md
+  sha256:fbb66a81958f7bb6: data/staging/webfetch-search-results-2026-06-12_03-34-34.md
+  sha256:48ae0db87b34dec8: data/staging/webfetch-hacker-news-stories-2026-06-12_03-34-32.md
+  sha256:4f7668f15fbd6704: data/staging/webfetch-story-summary-2026-06-12_03-34-34.md
+  sha256:ac55c29a4d273f12: data/staging/webfetch-arxiv-search-results-code-metrics-and-defect-2026-06-12_03-34-42.md
+  sha256:bbf2cd1a874b1096: data/staging/webfetch-search-results-2026-06-12_03-34-46.md
+  sha256:ff6ec13ff3f6d280: data/staging/webfetch-hn-stories-best-code-is-no-code-2026-06-12_03-34-50.md
+  sha256:62ac61f7e0b3ebba: data/staging/webfetch-arxiv-research-on-llm-code-generation-security-2026-06-12_03-34-54.md
+  sha256:2a25add251c73372: data/staging/webfetch-hn-stories-ai-generated-code-bloat-2026-06-12_03-34-55.md
+  sha256:ea5d9e2da3892b4f: data/staging/webfetch-yagni-pattern-for-ai-agents-2026-06-12_03-35-06.md
+  sha256:5cb08e14cf48e7dd: data/staging/webfetch-summary-of-no-really-yagni-discussion-2026-06-12_03-35-11.md
+  sha256:4b4430cad0001228: data/staging/webfetch-arxiv-search-results-software-quality-empirical-2026-06-12_03-35-13.md
+  sha256:b55b202f246f9b54: data/staging/webfetch-arxiv-search-results-llm-code-quality-generation-2026-06-12_03-35-16.md
+  sha256:141db41f74221be8: data/staging/webfetch-arxiv-search-results-code-generation-with-2026-06-12_03-35-17.md
+  sha256:ce7a6a7f4ca8c218: data/staging/webfetch-lobsters-discussion-0-dependencies-2026-06-12_03-35-23.md
+  sha256:6f84490ab1e38a75: data/staging/webfetch-dependency-cooldowns-summary-2026-06-12_03-35-27.md
+  sha256:20a1c142aa20f216: data/staging/webfetch-summary-2026-06-12_03-35-31.md
+  sha256:f18be1f207c37a3b: data/staging/webfetch-arxiv-search-results-software-engineering-design-2026-06-12_03-35-38.md
+  sha256:a01f6dbb8b7d6658: data/staging/webfetch-arxiv-search-results-llm-code-length-correctness-2026-06-12_03-35-41.md
+  sha256:a4175dc78497b090: data/staging/webfetch-russ-cox-s-software-dependency-problem-thesis-2026-06-12_03-35-47.md
+  sha256:eaf50e4df5b05e67: data/staging/webfetch-paper-summary-2026-06-12_03-36-23.md
+  sha256:bd7a12d7c5e77d9b: data/staging/webfetch-package-hallucinations-in-code-generating-llms-2026-06-12_03-36-26.md
+  sha256:434116a3280f48c8: data/staging/webfetch-race-benchmark-findings-2026-06-12_03-36-27.md
+  sha256:5357b6d27efac27e: data/staging/webfetch-stories-on-make-invalid-states-unrepresentable-2026-06-12_04-47-53.md
+  sha256:1aa854dcb5353edd: data/staging/webfetch-rust-api-guidelines-conversion-traits-2026-06-12_04-47-54.md
+  sha256:961e675c7a161be4: data/staging/webfetch-idiomatic-rust-stories-from-hacker-news-2026-06-12_04-47-55.md
+  sha256:6620d38bb5d31b7b: data/staging/webfetch-newtype-pattern-in-rust-2026-06-12_04-47-56.md
+  sha256:111a4d02643c9b1e: data/staging/webfetch-tryfrom-trait-in-rust-2026-06-12_04-48-01.md
+  sha256:3b7e74d99267e816: data/staging/webfetch-research-papers-on-typestate-and-related-2026-06-12_04-48-05.md
+  sha256:de2da6f1b3612921: data/staging/webfetch-relevant-research-papers-on-session-types-and-2026-06-12_04-48-12.md
+  sha256:d21bc9d115569c1a: data/staging/webfetch-new-type-idiom-code-example-2026-06-12_04-48-14.md
+  sha256:3c34898b07a3a461: data/staging/webfetch-type-state-pattern-core-concepts-2026-06-12_04-48-14.md
+  sha256:d7e99acd79cedfdf: data/staging/webfetch-making-illegal-states-unrepresentable-in-rust-2026-06-12_04-48-17.md
+  sha256:8d12e2803b9c8ed3: data/staging/webfetch-summary-make-invalid-states-unrepresentable-2026-06-12_04-48-17.md
+  sha256:a0c16acecd9d3ac4: data/staging/webfetch-using-enums-to-represent-state-in-rust-2026-06-12_04-48-19.md
+  sha256:e0669ed149a1e003: data/staging/webfetch-clippy-lints-summary-2026-06-12_04-48-19.md
+  sha256:cfd58b949cdc63a5: data/staging/webfetch-arxiv-papers-analysis-2026-06-12_04-48-27.md
+  sha256:6e9f80422dbec279: data/staging/webfetch-fromstr-trait-in-rust-2026-06-12_04-48-30.md
+  sha256:efd4e9ab27afdf79: data/staging/webfetch-the-non-exhaustive-attribute-2026-06-12_04-48-32.md
+  sha256:9a08a6cc277022a5: data/staging/webfetch-parse-don-t-validate-stories-on-hacker-news-2026-06-12_04-48-48.md
+  sha256:1b977ac458704fee: data/staging/webfetch-lifetime-elision-rules-summary-2026-06-12_05-38-58.md
+  sha256:1ebc6365633891bb: data/staging/webfetch-mutable-static-items-in-rust-2026-06-12_22-10-50.md
+  sha256:c38c1f0158afc563: data/staging/webfetch-type-cast-expressions-as-operator-rules-2026-06-12_22-10-51.md
+  sha256:0407c1f152e40d49: data/staging/webfetch-the-spec-mentions-the-wildcard-pattern-in-an-2026-06-12_22-10-51.md

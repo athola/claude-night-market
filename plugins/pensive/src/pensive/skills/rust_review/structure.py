@@ -16,11 +16,12 @@ from ..rust_review_data import (
     TRAIT_DEF_RE,
     TRAIT_METHOD_RE,
 )
+from .line_cache import LineCacheMixin
 
 __all__ = ["StructureMixin"]
 
 
-class StructureMixin:
+class StructureMixin(LineCacheMixin):
     """Mixin providing macro, trait, and const generic analysis."""
 
     def analyze_macros(

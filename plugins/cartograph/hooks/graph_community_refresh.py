@@ -65,8 +65,10 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         sys.path.insert(0, str(gauntlet_src))
 
     try:
-        import gauntlet.communities as _gc
-        import gauntlet.graph as _gg
+        # Cross-plugin import resolved at runtime via the sys.path injection
+        # above; mypy cannot follow it statically.
+        import gauntlet.communities as _gc  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
+        import gauntlet.graph as _gg  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
 
         graph = _gg.GraphStore(str(db_path))
         communities = _gc.detect_communities(graph)

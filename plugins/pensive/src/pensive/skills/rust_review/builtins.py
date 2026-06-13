@@ -28,11 +28,12 @@ from ..rust_review_data import (
     BUILTIN_TO_STRING_REC,
     BUILTIN_TO_STRING_TRAIT,
 )
+from .line_cache import LineCacheMixin
 
 __all__ = ["BuiltinsMixin"]
 
 
-class BuiltinsMixin:
+class BuiltinsMixin(LineCacheMixin):
     """Mixin providing builtin trait preference analysis."""
 
     _BUILTIN_CONVERSION_PATTERNS: ClassVar[list[tuple[str, str, str]]] = (

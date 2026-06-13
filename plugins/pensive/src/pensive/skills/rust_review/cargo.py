@@ -11,6 +11,7 @@ from ..rust_review_data import (
     TARGET_SECTION_RE,
     UNWRAP_CALL_RE,
 )
+from .line_cache import LineCacheMixin
 
 __all__ = ["CargoBuildMixin"]
 
@@ -47,7 +48,7 @@ def _iter_toml_sections(
     return results
 
 
-class CargoBuildMixin:
+class CargoBuildMixin(LineCacheMixin):
     """Mixin providing Cargo.toml, build configuration, and panic analysis."""
 
     def analyze_panic_propagation(

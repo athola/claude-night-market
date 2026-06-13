@@ -204,7 +204,9 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
     config_path = gauntlet_dir / "config.json"
     if config_path.exists():
         try:
-            return json.loads(config_path.read_text())
+            data = json.loads(config_path.read_text())
+            if isinstance(data, dict):
+                return data
         except (json.JSONDecodeError, OSError):
             pass
     return {}

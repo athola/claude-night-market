@@ -21,78 +21,85 @@ FAILED_PLUGINS=()
 PASSED_PLUGINS=()
 SKIPPED_PLUGINS=()
 
+# Type check a plugin's hooks/ directory under its own (strict) mypy config.
+# Hooks are not part of src/ or the Makefile typecheck target for most plugins,
+# so without this they go unchecked and type errors accumulate. Returns 0 on
+# pass or when there is nothing to check, 1 on failure.
+run_hooks_typecheck() {
+    local plugin_dir="$1"
+
+    # Only run when hooks/ actually contains Python modules.
+    if ! ls "$plugin_dir"/hooks/*.py >/dev/null 2>&1; then
+        return 0
+    fi
+
+    echo -e "  ${YELLOW}↳ Type checking hooks/...${NC}"
+    if (cd "$plugin_dir" && uv run mypy hooks/ 2>&1); then
+        return 0
+    fi
+    return 1
+}
+
 run_plugin_typecheck() {
     local plugin_dir="$1"
     local plugin_name=$(basename "$plugin_dir")
+    local main_rc=0
+    local checked=0
 
     echo -e "${YELLOW}Type checking $plugin_name...${NC}"
 
-    # Check if plugin has Makefile with typecheck/type-check target FIRST
-    # This allows plugins with custom source layouts to use their own typecheck targets
-    if [ -f "$plugin_dir/Makefile" ]; then
-        # Check both the Makefile itself and if make recognizes the target (from includes)
-        if grep -qE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null || \
-           (cd "$plugin_dir" && make -n typecheck >/dev/null 2>&1); then
-            # Run using Makefile
-            # Prefer explicit target in Makefile, fall back to typecheck
-            local target=$(grep -oE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null | head -1 | tr -d ':')
-            if [ -z "$target" ]; then
-                target="typecheck"
-            fi
-            # Capture output and exit code separately to avoid pipeline exit code issues
-            local output
-            local exit_code
-            output=$(cd "$plugin_dir" && make "$target" 2>&1) || exit_code=$?
-            # Filter and display output (excluding make's nested job messages)
-            echo "$output" | grep -v "^make\[" || true
-            if [ "${exit_code:-0}" -eq 0 ]; then
-                echo -e "  ${GREEN}✓ Type checking passed${NC}"
-                PASSED_PLUGINS+=("$plugin_name")
-                return 0
-            else
-                echo -e "  ${RED}✗ Type checking failed${NC}"
-                FAILED_PLUGINS+=("$plugin_name")
-                return 1
-            fi
+    # Primary source check: prefer a Makefile typecheck target (custom layouts),
+    # then fall back to running mypy on src/ or scripts/ directly.
+    if [ -f "$plugin_dir/Makefile" ] && \
+       ( grep -qE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null || \
+         (cd "$plugin_dir" && make -n typecheck >/dev/null 2>&1) ); then
+        # Prefer explicit target in Makefile, fall back to typecheck
+        local target=$(grep -oE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null | head -1 | tr -d ':')
+        if [ -z "$target" ]; then
+            target="typecheck"
         fi
+        # Capture output and exit code separately to avoid pipeline exit code issues
+        local output
+        local exit_code=0
+        output=$(cd "$plugin_dir" && make "$target" 2>&1) || exit_code=$?
+        # Filter and display output (excluding make's nested job messages)
+        echo "$output" | grep -v "^make\[" || true
+        [ "$exit_code" -ne 0 ] && main_rc=1
+        checked=1
+    elif { [ -d "$plugin_dir/src" ] || [ -d "$plugin_dir/scripts" ]; } && \
+         [ -f "$plugin_dir/pyproject.toml" ] && \
+         grep -q "mypy" "$plugin_dir/pyproject.toml" 2>/dev/null; then
+        local src_target="src"
+        [ -d "$plugin_dir/src" ] || src_target="scripts"
+        if ! (cd "$plugin_dir" && uv run mypy "$src_target/" 2>&1); then
+            main_rc=1
+        fi
+        checked=1
     fi
 
-    # Check if plugin has source code
-    if [ ! -d "$plugin_dir/src" ] && [ ! -d "$plugin_dir/scripts" ]; then
-        echo -e "  ${YELLOW}⊘ No Python source code${NC}"
+    # Hooks check: always run when hooks/ has Python, regardless of how (or
+    # whether) the primary source was checked above. This is the gap that let
+    # hook type errors accumulate unnoticed.
+    if ls "$plugin_dir"/hooks/*.py >/dev/null 2>&1; then
+        run_hooks_typecheck "$plugin_dir" || main_rc=1
+        checked=1
+    fi
+
+    if [ "$checked" -eq 0 ]; then
+        echo -e "  ${YELLOW}⊘ No type checking configuration${NC}"
         SKIPPED_PLUGINS+=("$plugin_name")
         return 0
     fi
 
-    # Fallback: Run mypy directly if configured
-    if [ -f "$plugin_dir/pyproject.toml" ] && grep -q "mypy" "$plugin_dir/pyproject.toml" 2>/dev/null; then
-        # Check if src directory exists
-        if [ -d "$plugin_dir/src" ]; then
-            if (cd "$plugin_dir" && uv run mypy src/ 2>&1); then
-                echo -e "  ${GREEN}✓ Type checking passed${NC}"
-                PASSED_PLUGINS+=("$plugin_name")
-                return 0
-            else
-                echo -e "  ${RED}✗ Type checking failed${NC}"
-                FAILED_PLUGINS+=("$plugin_name")
-                return 1
-            fi
-        elif [ -d "$plugin_dir/scripts" ]; then
-            if (cd "$plugin_dir" && uv run mypy scripts/ 2>&1); then
-                echo -e "  ${GREEN}✓ Type checking passed${NC}"
-                PASSED_PLUGINS+=("$plugin_name")
-                return 0
-            else
-                echo -e "  ${RED}✗ Type checking failed${NC}"
-                FAILED_PLUGINS+=("$plugin_name")
-                return 1
-            fi
-        fi
+    if [ "$main_rc" -eq 0 ]; then
+        echo -e "  ${GREEN}✓ Type checking passed${NC}"
+        PASSED_PLUGINS+=("$plugin_name")
+        return 0
     fi
 
-    echo -e "  ${YELLOW}⊘ No type checking configuration${NC}"
-    SKIPPED_PLUGINS+=("$plugin_name")
-    return 0
+    echo -e "  ${RED}✗ Type checking failed${NC}"
+    FAILED_PLUGINS+=("$plugin_name")
+    return 1
 }
 
 # Parse arguments

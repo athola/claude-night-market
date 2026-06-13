@@ -13,6 +13,10 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Any
+
+# Blocklist maps a package name to its list of known-bad-version entries.
+Blocklist = dict[str, list[dict[str, Any]]]
 
 
 def _find_blocklist() -> Path | None:
@@ -39,7 +43,7 @@ def _find_blocklist() -> Path | None:
     return None
 
 
-def _scan_uv_lock(lockfile: Path, blocklist: dict) -> list[dict]:
+def _scan_uv_lock(lockfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
     """Check a uv.lock for known compromised versions."""
     findings = []
     content = lockfile.read_text()
@@ -64,7 +68,7 @@ def _scan_uv_lock(lockfile: Path, blocklist: dict) -> list[dict]:
     return findings
 
 
-def _scan_requirements(reqfile: Path, blocklist: dict) -> list[dict]:
+def _scan_requirements(reqfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
     """Check a requirements.txt for known compromised pinned versions."""
     findings = []
     for raw_line in reqfile.read_text().splitlines():
@@ -111,7 +115,7 @@ def main() -> None:
         return
 
     cwd = Path.cwd()
-    all_findings: list[dict] = []
+    all_findings: list[dict[str, Any]] = []
 
     # Scan lockfiles in current project
     for lockfile in cwd.rglob("uv.lock"):

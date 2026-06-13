@@ -108,7 +108,7 @@ def _handle_pre_tool_use(input_data: dict) -> bool:
     return True
 
 
-def main():
+def main() -> None:
     """Log configuration change events for audit purposes."""
     try:
         raw_input = sys.stdin.read()

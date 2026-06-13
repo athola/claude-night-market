@@ -104,6 +104,11 @@ or delegate to subagent).
 and hype words, saving between 150 and 350 tokens per response.
 `decisive-action` uses a reversibility/ambiguity matrix to determine when to
 proceed autonomously versus asking for clarification.
+`elegant-code` guides minimal, elegant code via a decision ladder
+(need-to-exist, stdlib, native, installed dependency, one line) while
+requiring full coverage of safety, performance, edge, and negative
+cases. Its `/elegant-code-review` command audits the current diff against
+that ladder.
 
 ## Token-Conscious Workflows
 

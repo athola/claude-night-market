@@ -139,7 +139,7 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
             sample = content[:5000]
             unique_chars = len(set(sample))
             if unique_chars < 20:  # Very low entropy
-                char_counts = {}
+                char_counts: dict[str, int] = {}
                 for c in sample:
                     char_counts[c] = char_counts.get(c, 0) + 1
                 max_freq = max(char_counts.values()) / len(sample)

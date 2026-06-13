@@ -120,7 +120,7 @@ def extract_file_paths(entries: list[dict]) -> list[str]:
             file_paths.update(matches)
 
     # Filter to existing files and limit
-    valid_paths = []
+    valid_paths: list[str] = []
     for path in file_paths:
         try:
             expanded = Path(path).expanduser()

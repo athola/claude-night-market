@@ -77,6 +77,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `document-conversion` | [leyline](../plugins/leyline.md) | Universal document-to-markdown conversion |
 | `dora-metrics` | [minister](../plugins/minister.md) | Compute DORA delivery-performance metrics with tier classification |
 | `dorodango` | [attune](../plugins/attune.md) | Iterative code polishing workflow |
+| `elegant-code` | [conserve](../plugins/conserve.md) | Minimal-code decision ladder with full safety, edge, and negative-case coverage |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
@@ -248,6 +249,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/do-issue` | sanctum | Fix GitHub issues |
 | `/doc-generate` | scribe | Generate new documentation |
 | `/doc-polish` | scribe | Clean up AI-generated content |
+| `/elegant-code-review` | conserve | Review the working diff against the elegant-code decision ladder |
 | `/evaluate-skill` | abstract | Evaluate skill execution quality |
 | `/filter-log` | conserve | Suggest tier-1 filter commands for a log file before any compression or paste |
 | `/fix-pr` | sanctum | Address PR review comments |

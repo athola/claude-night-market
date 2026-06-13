@@ -207,14 +207,3 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["gauntlet.*"]
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = [
-    "pensive.skills.rust_review.cargo",
-    "pensive.skills.rust_review.builtins",
-    "pensive.skills.rust_review.ownership",
-    "pensive.skills.rust_review.patterns",
-    "pensive.skills.rust_review.safety",
-    "pensive.skills.rust_review.structure",
-]
-disable_error_code = ["attr-defined"]
