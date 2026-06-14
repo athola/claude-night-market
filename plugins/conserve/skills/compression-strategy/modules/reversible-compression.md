@@ -35,8 +35,9 @@ Read, or Grep output at or above `CONSERVE_CCR_THRESHOLD` characters
 .claude/context-archive/ccr-<sha256[:12]>.txt
 ```
 
-It then surfaces a digest (first and last 20 lines, total line and byte
-counts) and the exact retrieval command. Fetch the original later with:
+It then surfaces a digest (first and last 20 lines, total line and
+character counts) and the exact retrieval command. Fetch the original
+later with:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/context_retrieve.py ccr-<hash> \
@@ -47,11 +48,12 @@ The handle is content-addressed, so identical outputs map to one file
 (natural dedup), and the archive survives `/clear` and continuation-agent
 handoffs.
 
-### Worked example
+### Worked example (illustrative)
 
-A 67 KB log dump (2,401 lines) is archived to `ccr-e722db719ab6.txt`. The
-model sees a ~2 KB digest. Later, one command pulls back only the line that
-matters:
+A 67 KB log dump (2,401 lines) is archived to an `ccr-<hash>.txt` handle.
+The handle below is illustrative, not a real run; yours is the SHA-256
+prefix of the actual output. The model sees a ~2 KB digest. Later, one
+command pulls back only the line that matters:
 
 ```bash
 context_retrieve.py ccr-e722db719ab6 --grep FATAL

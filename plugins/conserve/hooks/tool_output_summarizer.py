@@ -107,7 +107,11 @@ def archive_large_output(text: str, archive_dir: Path | str | None = None) -> st
     digest = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
     handle = f"ccr-{digest[:CCR_HANDLE_HEX_LEN]}"
     archive_dir.mkdir(parents=True, exist_ok=True)
-    (archive_dir / f"{handle}.txt").write_text(text, encoding="utf-8")
+    # errors="replace" mirrors the hash above: a lone surrogate (e.g. from
+    # os.fsdecode of a non-UTF-8 filename) must not raise UnicodeEncodeError,
+    # which is a ValueError and would escape the OSError fail-open guard. It
+    # also keeps the file content consistent with its content-addressed handle.
+    (archive_dir / f"{handle}.txt").write_text(text, encoding="utf-8", errors="replace")
     return handle
 
 
@@ -141,9 +145,11 @@ def build_digest(
             ]
         )
 
+    # Report characters, not bytes: total_chars is len(text) (a character
+    # count), so a "KB" label would overstate precision for multibyte UTF-8.
     return (
         f"Large tool output archived (CCR): {total_lines} lines, "
-        f"{total_chars / 1024:.1f}KB, handle {handle}\n"
+        f"{total_chars:,} chars, handle {handle}\n"
         f"{body}\n"
         f"Retrieve the full original on demand with:\n  {retrieve_cmd}\n"
         f"  (add --grep PATTERN, --head N, --tail N, or --lines A:B to slice)"
@@ -283,7 +289,8 @@ def main() -> int:
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as exc:
+        logger.warning("Invalid hook input JSON; treating as empty: %s", exc)
         hook_input = {}
 
     # Only process Bash, Read, Grep tools (verbose output tools)
@@ -302,7 +309,11 @@ def main() -> int:
         try:
             handle = archive_large_output(output_text)
             context_blocks.append(build_digest(output_text, handle))
-        except OSError as exc:  # fail-open: never break the host on archive error
+        except (OSError, UnicodeError) as exc:
+            # fail-open: never break the host turn on an archive error. The
+            # write uses errors="replace" so UnicodeError should not fire, but
+            # it is caught here too as a belt-and-suspenders net (it is a
+            # ValueError, not an OSError, so the narrow catch missed it).
             logger.warning("CCR archive failed: %s", exc)
 
     # Cumulative bloat warning across the whole session (unchanged behavior).

@@ -139,7 +139,7 @@ def test_build_digest_contains_head_tail_counts_and_retrieval(summarizer):
     # Middle content elided.
     assert "line-50" not in digest
     # Counts present.
-    assert "100" in digest  # total line count
+    assert "100 lines" in digest  # total line count, labeled (not a bare 100)
     # Retrieval affordance present.
     assert handle in digest
     assert "context_retrieve.py" in digest
@@ -344,3 +344,61 @@ def test_retrieve_full_via_main(retriever, tmp_path, capsys):
 def test_retrieve_missing_handle_returns_nonzero(retriever, tmp_path):
     rc = retriever.main(["ccr-missing", "--archive-dir", str(tmp_path)])
     assert rc != 0
+
+
+# ---------------------------------------------------------------------------
+# Regression coverage for PR #577 review findings (F1-F3)
+# ---------------------------------------------------------------------------
+
+
+def test_archive_large_output_handles_lone_surrogate(summarizer, tmp_path):
+    """A lone surrogate must not crash the strict-UTF-8 archive write.
+
+    UnicodeEncodeError is a ValueError, not an OSError, so it would escape
+    the OSError fail-open guard. The write uses errors='replace' to match
+    the handle hash, so the surrogate is archived instead of raising.
+    """
+    text = "start\n" + "\ud83d" + "\nend"  # lone high surrogate
+    handle = summarizer.archive_large_output(text, tmp_path)
+    archived = tmp_path / f"{handle}.txt"
+    assert archived.is_file()
+    # Round-trips through the same replace-on-error decoding retrieval uses.
+    archived.read_text(encoding="utf-8", errors="replace")
+
+
+def test_slice_content_tail_zero_returns_empty(retriever):
+    """`--tail 0` returns zero lines, not the whole archive.
+
+    `[-0:]` is `[0:]` (everything), the opposite of conserve's purpose.
+    """
+    text = "\n".join(str(i) for i in range(5))
+    assert retriever.slice_content(text, tail=0) == ""
+
+
+def test_slice_content_open_start_range(retriever):
+    """`--lines :3` (open start) reads from the beginning through line 3."""
+    text = "\n".join(str(i) for i in range(10))
+    assert retriever.slice_content(text, lines=":3") == "0\n1\n2"
+
+
+def test_retrieve_invalid_lines_returns_error(retriever, tmp_path):
+    """A non-integer `--lines` bound is a clean error (exit 2).
+
+    It must not surface an uncaught ValueError traceback.
+    """
+    handle = "ccr-feedface0010"
+    (tmp_path / f"{handle}.txt").write_text("a\nb\nc\n", encoding="utf-8")
+    rc = retriever.main([handle, "--lines", "abc", "--archive-dir", str(tmp_path)])
+    assert rc == 2
+
+
+def test_retrieve_invalid_grep_returns_error(retriever, tmp_path):
+    """An invalid `--grep` regex is a clean error (exit 2).
+
+    build_digest tells the model to pass --grep, so a malformed pattern is
+    a reachable input; it must not raise an uncaught re.error traceback.
+    """
+    handle = "ccr-feedface0011"
+    (tmp_path / f"{handle}.txt").write_text("a\nb\nc\n", encoding="utf-8")
+    rc = retriever.main([handle, "--grep", "(", "--archive-dir", str(tmp_path)])
+    assert rc == 2

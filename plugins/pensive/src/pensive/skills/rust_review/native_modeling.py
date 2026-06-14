@@ -26,6 +26,7 @@ from ..rust_review_data import (
     NATIVE_MODELING_EXCLUSION_PATTERNS_RE,
     NATIVE_STRINGLY_COMPARISON_RE,
     NATIVE_STRINGLY_COMPARISON_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -54,7 +55,7 @@ class NativeModelingMixin(LineCacheMixin):
             Dictionary with native_type_modeling_issues findings
         """
         content = context.get_file_content(file_path)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
         lines = self._get_lines(content)
 
         for i, line in enumerate(lines):

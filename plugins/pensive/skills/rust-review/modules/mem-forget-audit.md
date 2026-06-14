@@ -73,7 +73,9 @@ exit otherwise. For `drop`, pass the owned value, not a borrow.
   not the std functions.
 - **Owning drop**: `drop(value)` (no leading `&`) is the correct way to
   end a value early.
-- **Comments**: a `forget` shown in a `//` comment is not code.
+- **Comments**: a `forget` shown in a full-line `//` comment is not code.
+  The exclusion anchors to the line start (`^\s*//`), so a trailing inline
+  comment on a code line is still scanned.
 
 ## Related Clippy Lints
 

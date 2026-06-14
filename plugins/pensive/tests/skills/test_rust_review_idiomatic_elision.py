@@ -164,6 +164,48 @@ class TestIdiomaticElisionDetector:
         ]
         assert all(i["type"] != "needless_return" for i in issues)
 
+    def test_guard_return_before_comment_not_flagged(self, mock_skill_context) -> None:
+        """A guard `return` whose continuation begins with a comment is still
+        an early return, not a needless tail return. The comment precedes the
+        happy-path statement, so it must not be read as an item boundary
+        (PR #577 finding I1)."""
+        code = (
+            "fn f(x: i32) -> i32 {\n"
+            "    if x < 0 {\n"
+            "        return 0;\n"
+            "    }\n"
+            "    // compute the positive case\n"
+            "    x * 2\n"
+            "}\n"
+        )
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "f.rs")[
+            "idiomatic_elision_issues"
+        ]
+        assert all(i["type"] != "needless_return" for i in issues)
+
+    def test_tail_return_before_doc_comment_and_item_flagged(
+        self, mock_skill_context
+    ) -> None:
+        """A genuine tail return followed only by a doc comment and the next
+        item is still needless: the comment documents the following fn, it is
+        not a continuation. Guards the I1 fix against over-correcting into a
+        false negative."""
+        code = (
+            "fn first(x: i32) -> i32 {\n"
+            "    return x;\n"
+            "}\n"
+            "/// docs for second\n"
+            "fn second() {}\n"
+        )
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "m.rs")[
+            "idiomatic_elision_issues"
+        ]
+        nr = [i for i in issues if i["type"] == "needless_return"]
+        assert len(nr) == 1
+        assert nr[0]["line"] == 2
+
     def test_wired_into_analyze(self, mock_skill_context) -> None:
         """The aggregate analyze() surfaces idiomatic_elision info."""
         mock_skill_context.get_file_content.return_value = (

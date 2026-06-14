@@ -21,6 +21,7 @@ from ..rust_review_data import (
     ELISION_NEEDLESS_LIFETIME_REC,
     ELISION_NEEDLESS_RETURN_REC,
     ELISION_RETURN_STMT_RE,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -46,7 +47,7 @@ class IdiomaticElisionMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         issues.extend(self._find_needless_lifetimes(content))
         issues.extend(self._find_needless_returns(lines))
@@ -54,14 +55,14 @@ class IdiomaticElisionMixin(LineCacheMixin):
         return {"idiomatic_elision_issues": issues}
 
     @staticmethod
-    def _find_needless_lifetimes(content: str) -> list[dict[str, Any]]:
+    def _find_needless_lifetimes(content: str) -> list[Finding]:
         """Flag single-input-lifetime signatures that elision covers.
 
         Only flags when exactly one input reference uses the lifetime
         and the output reuses it (elision rules 2 and 3). Two inputs
         sharing a lifetime are load-bearing and are left alone.
         """
-        findings: list[dict[str, Any]] = []
+        findings: list[Finding] = []
         for match in ELISION_FN_LIFETIME_SIG_RE.finditer(content):
             lifetime, params, ret = match.group(1), match.group(2), match.group(3)
             token = re.compile(re.escape(lifetime) + r"\b")
@@ -78,7 +79,7 @@ class IdiomaticElisionMixin(LineCacheMixin):
         return findings
 
     @staticmethod
-    def _find_needless_returns(lines: list[str]) -> list[dict[str, Any]]:
+    def _find_needless_returns(lines: list[str]) -> list[Finding]:
         """Flag a `return <expr>;` in the function tail position.
 
         The return is in the tail position when it is immediately
@@ -88,14 +89,22 @@ class IdiomaticElisionMixin(LineCacheMixin):
         the first non-closing line that follows is a continuation rather
         than an item boundary, and it is left alone.
         """
-        findings: list[dict[str, Any]] = []
+        findings: list[Finding] = []
         for i, line in enumerate(lines):
             if not ELISION_RETURN_STMT_RE.match(line):
                 continue
             rest = [s.strip() for s in lines[i + 1 :] if s.strip()]
             if not rest or not _is_block_close(rest[0]):
                 continue
-            follow = next((s for s in rest if not _is_block_close(s)), "")
+            # Skip block-close AND comment lines to find the real continuation.
+            # A comment can precede either the happy-path statement (an early
+            # guard return) or the next item (a genuine tail return), so it is
+            # not itself a boundary. Stopping at a comment misclassifies a
+            # guard return whose continuation is preceded by a comment.
+            follow = next(
+                (s for s in rest if not _is_block_close(s) and not _is_comment(s)),
+                "",
+            )
             if follow == "" or _is_item_boundary(follow):
                 findings.append(
                     {
@@ -113,9 +122,21 @@ def _is_block_close(stripped: str) -> bool:
     return bool(stripped) and all(c in "});," for c in stripped)
 
 
+def _is_comment(stripped: str) -> bool:
+    """True for a line comment (`//`, `///`, `//!`) or a block-comment open.
+
+    Bare ``*`` is deliberately excluded: a continuation line such as
+    ``*ptr = 1;`` must not be mistaken for a block-comment interior line.
+    """
+    return stripped.startswith(("//", "/*"))
+
+
 # Item-level keywords: a line starting with one of these (after the
 # function's closing brace) marks a new item, so the preceding return
 # was the function tail rather than a guard before more statements.
+# Comment prefixes are intentionally absent: comments are skipped while
+# scanning for the continuation (see _find_needless_returns), not treated
+# as boundaries, because a comment may precede a guard's happy path.
 _ITEM_BOUNDARY_PREFIXES = (
     "fn ",
     "pub ",
@@ -134,11 +155,9 @@ _ITEM_BOUNDARY_PREFIXES = (
     "macro_rules!",
     "#[",
     "#!",
-    "///",
-    "//",
 )
 
 
 def _is_item_boundary(stripped: str) -> bool:
-    """True when a line begins a new top-level item or a comment."""
+    """True when a line begins a new top-level item."""
     return stripped.startswith(_ITEM_BOUNDARY_PREFIXES)

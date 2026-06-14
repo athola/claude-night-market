@@ -250,40 +250,58 @@ class TestMinimalElegantComplete:
         )
 
 
-def first_holding_rung(rung_holds: list[bool]) -> int:
-    """Return the 1-based index of the first rung that holds.
-
-    Mirrors the documented procedure: walk rungs in order, stop at the
-    first that solves the problem. Returns len+1 (new dependency, the
-    last resort) when no rung holds.
-    """
-    for index, holds in enumerate(rung_holds, start=1):
-        if holds:
-            return index
-    return len(rung_holds) + 1
-
-
 class TestLadderProcedure:
-    """Feature: the stop-at-first-rung procedure behaves as documented."""
+    """Feature: SKILL.md documents the stop-at-first-rung procedure.
+
+    These assert the shipped skill markdown, not a function defined in
+    this test file. Reverting or corrupting the documented ladder must
+    fail at least one of them (the revert test); a tautology over a
+    test-local helper could not (PR #577 finding I2).
+    """
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_stops_at_first_holding_rung(self) -> None:
-        """Scenario: stdlib covers it, so we stop at rung 2.
+    def test_five_rungs_documented_in_order(self, skill_text: str) -> None:
+        """Scenario: the five rungs appear in their documented order.
 
-        Given rung 1 does not hold but rung 2 does
-        When walking the ladder
-        Then the chosen rung is 2 and lower rungs are never reached
+        Given the elegant-code SKILL.md
+        When scanning for the rung names
+        Then need-to-exist, stdlib, native, installed dependency, and a
+        few lines appear in that order.
         """
-        assert first_holding_rung([False, True, True, True, True]) == 2
+        low = skill_text.lower()
+        rungs = [
+            "need-to-exist",
+            "builtin / stdlib",
+            "native platform",
+            "installed dependency",
+            "a few lines",
+        ]
+        positions = [low.find(r) for r in rungs]
+        missing = [r for r, p in zip(rungs, positions, strict=True) if p == -1]
+        assert not missing, f"missing rung(s): {missing}"
+        assert positions == sorted(positions), "rungs are out of documented order"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_new_dependency_only_when_no_rung_holds(self) -> None:
-        """Scenario: nothing on the ladder holds.
+    def test_stop_at_first_rung_rule_documented(self, skill_text: str) -> None:
+        """Scenario: the stop-at-first-rung rule is stated.
 
-        Given no rung holds
-        When walking the ladder
-        Then the result is the last resort (a new dependency), index 6
+        Given the SKILL.md
+        When reading the decision-ladder procedure
+        Then it instructs stopping at the first rung that solves the problem.
         """
-        assert first_holding_rung([False] * 5) == 6
+        normalized = " ".join(skill_text.split()).lower()
+        assert "stop at the first rung" in normalized
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_new_dependency_is_last_resort_documented(self, skill_text: str) -> None:
+        """Scenario: a new dependency is documented as the last resort.
+
+        Given the SKILL.md
+        When reading the guidance below the ladder
+        Then a new dependency is named the last resort.
+        """
+        normalized = " ".join(skill_text.split()).lower()
+        assert "new" in normalized and "dependency is the last resort" in normalized

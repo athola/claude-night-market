@@ -17,6 +17,7 @@ from ..rust_review_data import (
     REPR_PACKED_EXCLUSION_PATTERNS_RE,
     REPR_PACKED_RE,
     REPR_PACKED_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -42,7 +43,7 @@ class ReprPackedMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         for i, line in enumerate(lines):
             if any(rx.search(line) for rx in REPR_PACKED_EXCLUSION_PATTERNS_RE):

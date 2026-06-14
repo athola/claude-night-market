@@ -25,6 +25,7 @@ from ..rust_review_data import (
     NUMERIC_F32_CAST_REC,
     NUMERIC_LEN_TRUNCATION_CAST_RE,
     NUMERIC_LEN_TRUNCATION_CAST_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -50,7 +51,7 @@ class NumericCastMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         for i, line in enumerate(lines):
             if any(rx.search(line) for rx in NUMERIC_CAST_EXCLUSION_PATTERNS_RE):

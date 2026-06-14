@@ -9,6 +9,23 @@ analysis logic.
 from __future__ import annotations
 
 import re
+from typing import TypedDict
+
+
+class Finding(TypedDict):
+    """The uniform per-line record every rust-review detector emits.
+
+    Declaring the shape once gives mypy a schema to check the inline dict
+    literals against, instead of the record living implicitly across the
+    per-concern detector modules (PR #577 finding D2). All four keys are
+    required; the strictness is the point.
+    """
+
+    line: int
+    type: str
+    recommendation: str
+    clippy_lint: str
+
 
 # ── Regex patterns used across analysis methods ──────────────
 

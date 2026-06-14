@@ -17,6 +17,7 @@ from ..rust_review_data import (
     MUTABLE_STATIC_EXCLUSION_PATTERNS_RE,
     MUTABLE_STATIC_RE,
     MUTABLE_STATIC_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -42,7 +43,7 @@ class MutableStaticMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         for i, line in enumerate(lines):
             if any(rx.search(line) for rx in MUTABLE_STATIC_EXCLUSION_PATTERNS_RE):

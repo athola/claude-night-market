@@ -66,7 +66,9 @@ say why in a comment.
 - **Ordering comparisons**: `<`, `<=`, `>`, `>=` are well defined on
   floats and never match.
 - **Ranges**: `0.0..1.0` uses `..`, not an equality operator.
-- **Comments**: a comparison shown in a `//` comment is not code.
+- **Comments**: a comparison shown in a full-line `//` comment is not
+  code. The exclusion anchors to the line start (`^\s*//`), so a trailing
+  inline comment on a code line is still scanned.
 
 A known limitation is a float literal inside a string on the same line;
 this conservative, line-based pass does not strip string contents.

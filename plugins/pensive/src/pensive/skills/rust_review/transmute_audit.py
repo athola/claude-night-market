@@ -20,6 +20,7 @@ from ..rust_review_data import (
     TRANSMUTE_EXCLUSION_PATTERNS_RE,
     TRANSMUTE_RE,
     TRANSMUTE_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -45,7 +46,7 @@ class TransmuteAuditMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         for i, line in enumerate(lines):
             if any(rx.search(line) for rx in TRANSMUTE_EXCLUSION_PATTERNS_RE):

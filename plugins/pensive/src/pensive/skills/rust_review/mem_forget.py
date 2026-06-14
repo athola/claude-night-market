@@ -18,6 +18,7 @@ from ..rust_review_data import (
     MEM_FORGET_EXCLUSION_PATTERNS_RE,
     MEM_FORGET_RE,
     MEM_FORGET_REC,
+    Finding,
 )
 from .line_cache import LineCacheMixin
 
@@ -43,7 +44,7 @@ class MemForgetMixin(LineCacheMixin):
         """
         content = context.get_file_content(file_path)
         lines = self._get_lines(content)
-        issues: list[dict[str, Any]] = []
+        issues: list[Finding] = []
 
         for i, line in enumerate(lines):
             if any(rx.search(line) for rx in MEM_FORGET_EXCLUSION_PATTERNS_RE):

@@ -113,6 +113,19 @@ class TestNumericCastDetector:
         ]
         assert issues == []
 
+    def test_len_cast_to_byte_reported_once(self, mock_skill_context) -> None:
+        """`.len() as u8` is the more specific length-truncation finding and
+        must not also double-report as narrowing_to_byte_cast. Pins the
+        `elif` dedup branch the suite previously left untested (PR #577)."""
+        code = "fn n(v: &[u8]) -> u8 { v.len() as u8 }\n"
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_numeric_cast_safety(mock_skill_context, "c.rs")[
+            "numeric_cast_issues"
+        ]
+        types = [i["type"] for i in issues]
+        assert types.count("length_truncation_cast") == 1
+        assert "narrowing_to_byte_cast" not in types
+
     def test_wired_into_analyze(self, mock_skill_context) -> None:
         """The aggregate analyze() surfaces numeric_cast info."""
         mock_skill_context.get_file_content.return_value = "let b = x as u8;\n"

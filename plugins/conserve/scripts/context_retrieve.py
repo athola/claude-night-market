@@ -66,13 +66,20 @@ def slice_content(
     """
     if lines is not None:
         start_str, _, end_str = lines.partition(":")
-        start = max(1, int(start_str))
+        # An open start ("--lines :3") reads from the first line.
+        start = max(1, int(start_str)) if start_str else 1
         split = text.split("\n")
         end = int(end_str) if end_str else len(split)
         return "\n".join(split[start - 1 : end])
     if head is not None:
+        if head <= 0:
+            return ""
         return "\n".join(text.split("\n")[:head])
     if tail is not None:
+        # Guard tail <= 0: "[-0:]" is "[0:]" (the whole text), which would
+        # dump the entire archive for a request of zero trailing lines.
+        if tail <= 0:
+            return ""
         return "\n".join(text.split("\n")[-tail:])
     return text
 
@@ -111,10 +118,20 @@ def main(argv: list[str] | None = None) -> int:
         logger.warning("%s", exc)
         return 1
 
-    text = path.read_text(encoding="utf-8", errors="replace")
-    text = slice_content(text, head=args.head, tail=args.tail, lines=args.lines)
-    if args.grep:
-        text = grep_content(text, args.grep)
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        text = slice_content(text, head=args.head, tail=args.tail, lines=args.lines)
+        if args.grep:
+            text = grep_content(text, args.grep)
+    except ValueError as exc:  # malformed --lines bound
+        logger.warning("invalid --lines range %r: %s", args.lines, exc)
+        return 2
+    except re.error as exc:  # malformed --grep pattern
+        logger.warning("invalid --grep pattern %r: %s", args.grep, exc)
+        return 2
+    except OSError as exc:  # unreadable archive (permission, cleanup race)
+        logger.warning("could not read archive: %s", exc)
+        return 2
 
     print(text)
     return 0
