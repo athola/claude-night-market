@@ -381,6 +381,17 @@ def test_slice_content_open_start_range(retriever):
     assert retriever.slice_content(text, lines=":3") == "0\n1\n2"
 
 
+def test_slice_content_fully_open_range_returns_all(retriever):
+    """`--lines :` (both bounds open) returns every line.
+
+    Open start resolves to line 1 and open end to the last line, so a bare
+    colon is the whole archive. Pinned so the open-start fix's empty-bound
+    handling is documented behavior, not a silent surprise.
+    """
+    text = "\n".join(str(i) for i in range(5))
+    assert retriever.slice_content(text, lines=":") == text
+
+
 def test_retrieve_invalid_lines_returns_error(retriever, tmp_path):
     """A non-integer `--lines` bound is a clean error (exit 2).
 

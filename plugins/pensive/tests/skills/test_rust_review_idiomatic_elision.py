@@ -187,10 +187,15 @@ class TestIdiomaticElisionDetector:
     def test_tail_return_before_doc_comment_and_item_flagged(
         self, mock_skill_context
     ) -> None:
-        """A genuine tail return followed only by a doc comment and the next
-        item is still needless: the comment documents the following fn, it is
-        not a continuation. Guards the I1 fix against over-correcting into a
-        false negative."""
+        """Characterization: a tail return before a doc comment stays flagged.
+
+        This pins true-positive detection so the comment-skipping in the I1
+        fix cannot silently suppress a real tail return. It is NOT a revert
+        test for I1: both the pre- and post-fix code flag this input (the old
+        code stops at `///` as a boundary; the new code skips `///` and stops
+        at `fn second`). The discriminating revert test for I1 is
+        test_guard_return_before_comment_not_flagged above, which fails on
+        revert. This one is a forward over-correction guard."""
         code = (
             "fn first(x: i32) -> i32 {\n"
             "    return x;\n"
