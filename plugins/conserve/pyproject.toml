@@ -117,6 +117,7 @@ exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 minversion = "8.0"
 testpaths = ["tests"]
 python_files = ["test_*.py"]

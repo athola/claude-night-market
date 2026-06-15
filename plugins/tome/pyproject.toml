@@ -43,6 +43,7 @@ ignore = ["UP017", "S101"]
 "tests/conftest.py" = ["F401"]  # Re-exported fixtures
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["src", "."]

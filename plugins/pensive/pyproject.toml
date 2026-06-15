@@ -54,6 +54,7 @@ write_to = "src/pensive/_version.py"
 where = ["src"]
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 addopts = [
     "-v",
     "--strict-markers",
