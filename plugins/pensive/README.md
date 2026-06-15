@@ -28,7 +28,7 @@ Or reference from the marketplace:
 | **api-review** | Evaluates public API surfaces and consistency. |
 | **architecture-review** | Assesses architectural design and ADR compliance. |
 | **bug-review** | Identifies logic errors and security vulnerabilities. |
-| **rust-review** | Audits Rust code for ownership, safety, and concurrency issues. |
+| **rust-review** | Audits Rust code for ownership, safety, concurrency, and idiomatic type use (conversion, coercion, elision). |
 | **test-review** | Evaluates test suite coverage and quality. |
 | **math-review** | Reviews mathematical algorithms and numerical stability. |
 | **makefile-review** | Audits and optimizes build systems. |

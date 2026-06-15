@@ -59,6 +59,11 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 - **FFI Verification**: Audit foreign function interfaces
 - **Dependency Scanning**: Security and quality checks
 - **Performance Analysis**: Identify optimization opportunities
+- **Idiomatic Type Use**: Flag conversions that should be `From`/
+  `TryFrom` over `Into`/`TryInto` and discarded `try_into().unwrap()`
+  errors (conversion-traits); `&String`/`&Vec<T>`/`&PathBuf` parameters
+  that defeat deref coercion (coercion-params); explicit `-> ()` unit
+  returns and needless lifetimes the compiler elides (idiomatic-elision)
 - **Semantic Rust Analysis (LSP)**: Enhanced with rust-analyzer
   - Type inference verification: Check implicit type correctness
   - Lifetime analysis: Validate lifetime bounds and elisions

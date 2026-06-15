@@ -999,6 +999,151 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://raw.githubusercontent.com/rust-lang/reference/master/src/expressions/match-expr.md
+  https://doc.rust-lang.org/std/convert/index.html:
+    content_hash: sha256:cfb273fc4a143680
+    stored_at: data/staging/webfetch-guidance-on-from-into-and-tryfrom-tryinto-2026-06-15_20-23-49.md
+    importance_score: 89
+    last_updated: '2026-06-15T20:23:49.986904+00:00'
+    title: Guidance on From/Into and TryFrom/TryInto
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/std/convert/index.html
+  https://doc.rust-lang.org/reference/type-coercions.html:
+    content_hash: sha256:eab37f7de70dfe35
+    stored_at: data/staging/webfetch-type-coercions-rust-reference-2026-06-15_20-23-50.md
+    importance_score: 89
+    last_updated: '2026-06-15T20:23:50.765754+00:00'
+    title: Type Coercions - Rust Reference
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/reference/type-coercions.html
+  https://hn.algolia.com/api/v1/search?query=clippy%20ptr_arg&tags=story&hitsperpage=10:
+    content_hash: sha256:8f2c2a7896d92bf2
+    stored_at: data/staging/webfetch-search-results-for-clippy-ptr-arg-2026-06-15_20-23-54.md
+    importance_score: 90
+    last_updated: '2026-06-15T20:23:54.752378+00:00'
+    title: Search Results for Clippy ptr_arg
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=clippy%20ptr_arg&tags=story&hitsPerPage=10
+  https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/from_over_into.rs:
+    content_hash: sha256:3609cdc2070a0ceb
+    stored_at: data/staging/webfetch-from-over-into-lint-documentation-2026-06-15_20-24-06.md
+    importance_score: 83
+    last_updated: '2026-06-15T20:24:06.603282+00:00'
+    title: FROM_OVER_INTO Lint Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/from_over_into.rs
+  https://doc.rust-lang.org/std/ops/trait.deref.html:
+    content_hash: sha256:f7d3369195b1db3c
+    stored_at: data/staging/webfetch-deref-coercion-and-standard-library-2026-06-15_20-24-07.md
+    importance_score: 89
+    last_updated: '2026-06-15T20:24:07.939418+00:00'
+    title: Deref Coercion and Standard Library Implementations
+    maturity: growing
+    routing_type: meta
+    url: https://doc.rust-lang.org/std/ops/trait.Deref.html
+  https://github.com/rust-lang/rust-clippy/issues/9642:
+    content_hash: sha256:a5a8de1976b4e262
+    stored_at: data/staging/webfetch-clippy-ptr-arg-false-positive-issue-9642-2026-06-15_20-24-16.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:16.642818+00:00'
+    title: 'Clippy `ptr_arg` False Positive: Issue #9642'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/9642
+  https://github.com/rust-lang/rust-clippy/issues/8463:
+    content_hash: sha256:9852d0fac199210d
+    stored_at: data/staging/webfetch-false-positive-in-ptr-arg-lint-2026-06-15_20-24-18.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:18.433995+00:00'
+    title: False Positive in `ptr_arg` Lint
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/8463
+  https://github.com/rust-lang/rust-clippy/issues/9638:
+    content_hash: sha256:a87cb6b3af6bd51e
+    stored_at: data/staging/webfetch-the-from-over-into-problem-with-external-crate-2026-06-15_20-24-20.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:20.243336+00:00'
+    title: The From over Into Problem with External Crate Types
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/9638
+  https://github.com/rust-lang/rust-clippy/issues/8410:
+    content_hash: sha256:16af60584d8dae49
+    stored_at: data/staging/webfetch-clippy-ptr-arg-false-positive-in-trait-methods-2026-06-15_20-24-21.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:21.498770+00:00'
+    title: Clippy `ptr_arg` False Positive in Trait Methods
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/8410
+  https://github.com/rust-lang/rust-clippy/issues/6607:
+    content_hash: sha256:8afd256da0715154
+    stored_at: data/staging/webfetch-analysis-of-from-over-into-issue-6607-2026-06-15_20-24-22.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:22.168228+00:00'
+    title: 'Analysis of `from_over_into` Issue #6607'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/6607
+  https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/methods/mod.rs:
+    content_hash: sha256:1953e335857435a7
+    stored_at: data/staging/webfetch-mod-rs-2026-06-15_20-24-33.md
+    importance_score: 83
+    last_updated: '2026-06-15T20:24:33.669209+00:00'
+    title: Mod.Rs
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/methods/mod.rs
+  https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/ptr/mod.rs:
+    content_hash: sha256:d1b45ab62cbac82c
+    stored_at: data/staging/webfetch-ptr-arg-lint-documentation-2026-06-15_20-24-34.md
+    importance_score: 83
+    last_updated: '2026-06-15T20:24:34.484368+00:00'
+    title: PTR_ARG Lint Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/ptr/mod.rs
+  https://github.com/rust-lang/rust-clippy/issues/9067:
+    content_hash: sha256:026713c8b89b13a2
+    stored_at: data/staging/webfetch-false-positives-with-multiple-mut-vec-u8-2026-06-15_20-24-34.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:34.890718+00:00'
+    title: False Positives with Multiple `&mut Vec<u8>` Parameters
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/9067
+  https://github.com/rust-lang/rust-clippy/issues/13489:
+    content_hash: sha256:88be3a8cd6c2e127
+    stored_at: data/staging/webfetch-why-ptr-arg-should-not-warn-about-mut-vec-t-for-2026-06-15_20-24-35.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:35.565697+00:00'
+    title: Why `ptr_arg` Should Not Warn About `&mut Vec<T>` for Underscore-Prefixed
+      Parameters
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/13489
+  https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/needless_late_init.rs:
+    content_hash: sha256:92b44d9e7f0be795
+    stored_at: data/staging/webfetch-needless-late-init-lint-documentation-2026-06-15_20-24-36.md
+    importance_score: 83
+    last_updated: '2026-06-15T20:24:36.164242+00:00'
+    title: NEEDLESS_LATE_INIT Lint Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/rust-lang/rust-clippy/master/clippy_lints/src/needless_late_init.rs
+  https://github.com/rust-lang/rust-clippy/issues/214:
+    content_hash: sha256:7d93729bb199c4e0
+    stored_at: data/staging/webfetch-false-positive-in-ptr-arg-lint-for-vec-2026-06-15_20-24-37.md
+    importance_score: 98
+    last_updated: '2026-06-15T20:24:37.448217+00:00'
+    title: False Positive in `ptr_arg` Lint for &Vec
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rust-lang/rust-clippy/issues/214
 hashes:
   sha256:bba899d94138c521: data/staging/webfetch-high-performing-stories-5-points-2026-06-09_23-25-42.md
   sha256:be5fcea22390f2ab: data/staging/webfetch-lazygit-stories-with-5-points-2026-06-09_23-25-43.md
@@ -1111,3 +1256,19 @@ hashes:
   sha256:1ebc6365633891bb: data/staging/webfetch-mutable-static-items-in-rust-2026-06-12_22-10-50.md
   sha256:c38c1f0158afc563: data/staging/webfetch-type-cast-expressions-as-operator-rules-2026-06-12_22-10-51.md
   sha256:0407c1f152e40d49: data/staging/webfetch-the-spec-mentions-the-wildcard-pattern-in-an-2026-06-12_22-10-51.md
+  sha256:cfb273fc4a143680: data/staging/webfetch-guidance-on-from-into-and-tryfrom-tryinto-2026-06-15_20-23-49.md
+  sha256:eab37f7de70dfe35: data/staging/webfetch-type-coercions-rust-reference-2026-06-15_20-23-50.md
+  sha256:8f2c2a7896d92bf2: data/staging/webfetch-search-results-for-clippy-ptr-arg-2026-06-15_20-23-54.md
+  sha256:3609cdc2070a0ceb: data/staging/webfetch-from-over-into-lint-documentation-2026-06-15_20-24-06.md
+  sha256:f7d3369195b1db3c: data/staging/webfetch-deref-coercion-and-standard-library-2026-06-15_20-24-07.md
+  sha256:a5a8de1976b4e262: data/staging/webfetch-clippy-ptr-arg-false-positive-issue-9642-2026-06-15_20-24-16.md
+  sha256:9852d0fac199210d: data/staging/webfetch-false-positive-in-ptr-arg-lint-2026-06-15_20-24-18.md
+  sha256:a87cb6b3af6bd51e: data/staging/webfetch-the-from-over-into-problem-with-external-crate-2026-06-15_20-24-20.md
+  sha256:16af60584d8dae49: data/staging/webfetch-clippy-ptr-arg-false-positive-in-trait-methods-2026-06-15_20-24-21.md
+  sha256:8afd256da0715154: data/staging/webfetch-analysis-of-from-over-into-issue-6607-2026-06-15_20-24-22.md
+  sha256:1953e335857435a7: data/staging/webfetch-mod-rs-2026-06-15_20-24-33.md
+  sha256:d1b45ab62cbac82c: data/staging/webfetch-ptr-arg-lint-documentation-2026-06-15_20-24-34.md
+  sha256:026713c8b89b13a2: data/staging/webfetch-false-positives-with-multiple-mut-vec-u8-2026-06-15_20-24-34.md
+  sha256:88be3a8cd6c2e127: data/staging/webfetch-why-ptr-arg-should-not-warn-about-mut-vec-t-for-2026-06-15_20-24-35.md
+  sha256:92b44d9e7f0be795: data/staging/webfetch-needless-late-init-lint-documentation-2026-06-15_20-24-36.md
+  sha256:7d93729bb199c4e0: data/staging/webfetch-false-positive-in-ptr-arg-lint-for-vec-2026-06-15_20-24-37.md

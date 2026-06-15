@@ -736,3 +736,97 @@ REPR_PACKED_RE = re.compile(REPR_PACKED_PATTERN)
 REPR_PACKED_EXCLUSION_PATTERNS_RE: list[re.Pattern[str]] = [
     re.compile(p) for p in REPR_PACKED_EXCLUSION_PATTERNS
 ]
+
+# ── Idiomatic-elision: explicit unit return (#idiomatic-elision) ──
+#
+# An explicit `-> ()` writes the unit return type the compiler already
+# elides. Grounded in clippy::unused_unit ("Checks for unit `()`
+# expressions that can be removed ... add no value, but can make the code
+# less readable"). Only the redundant `-> ()` form is flagged.
+ELISION_UNIT_RETURN_PATTERN = r"->\s*\(\s*\)"
+ELISION_UNIT_RETURN_REC = (
+    "drop the explicit `-> ()`; the unit return type is the default and "
+    "is elided (clippy::unused_unit)"
+)
+ELISION_UNIT_RETURN_RE = re.compile(ELISION_UNIT_RETURN_PATTERN)
+
+# ── Coercion params (#coercion-params) ──────────────────────
+#
+# Flags function/binding types `&String`, `&Vec<T>`, `&PathBuf` that
+# defeat deref coercion. Grounded in the Rust Reference type-coercions
+# chapter (src/type-coercions.md): "`&T` or `&mut T` to `&U` if `T`
+# implements `Deref<Target = U>`", with function arguments listed as a
+# coercion site; std Deref impls (String->str, Vec<T>->[T], PathBuf->Path).
+# A `&str`/`&[T]`/`&Path` parameter accepts both an owned value's borrow
+# and a borrowed one, so it is strictly more general. clippy::ptr_arg.
+#
+# Detection keys on the typed-binding form `: &Type` (predominantly
+# parameters): the colon excludes return types (`-> &String`), and
+# requiring `&` adjacent to the type name excludes the load-bearing
+# `&mut String`/`&mut Vec<T>` growth cases. An optional lifetime
+# (`&'a String`) is tolerated. clippy::ptr_arg deliberately does NOT
+# flag `&Box<T>`, so neither does this detector.
+_COERCION_REF = r":\s*&(?:'[a-z_][a-z0-9_]*\s+)?"
+COERCION_STRING_PARAM_PATTERN = _COERCION_REF + r"String\b"
+COERCION_VEC_PARAM_PATTERN = _COERCION_REF + r"Vec\s*<"
+COERCION_PATHBUF_PARAM_PATTERN = _COERCION_REF + r"PathBuf\b"
+COERCION_STRING_PARAM_REC = (
+    "take `&str` instead of `&String`: deref coercion (String: "
+    "Deref<Target=str>) lets a caller pass either an owned String's "
+    "borrow or a `&str`, so `&str` is strictly more general "
+    "(clippy::ptr_arg)"
+)
+COERCION_VEC_PARAM_REC = (
+    "take `&[T]` instead of `&Vec<T>`: deref coercion (Vec<T>: "
+    "Deref<Target=[T]>) accepts either a borrowed Vec or a slice, so "
+    "`&[T]` is strictly more general (clippy::ptr_arg)"
+)
+COERCION_PATHBUF_PARAM_REC = (
+    "take `&Path` instead of `&PathBuf`: deref coercion (PathBuf: "
+    "Deref<Target=Path>) accepts either, so `&Path` is strictly more "
+    "general (clippy::ptr_arg)"
+)
+# A comment line is not code.
+COERCION_COMMENT_PATTERN = r"^\s*//"
+COERCION_STRING_PARAM_RE = re.compile(COERCION_STRING_PARAM_PATTERN)
+COERCION_VEC_PARAM_RE = re.compile(COERCION_VEC_PARAM_PATTERN)
+COERCION_PATHBUF_PARAM_RE = re.compile(COERCION_PATHBUF_PARAM_PATTERN)
+COERCION_COMMENT_RE = re.compile(COERCION_COMMENT_PATTERN)
+
+# ── Conversion traits (#conversion-traits) ──────────────────
+#
+# Two conversion smells. Grounded in the Rust API Guidelines
+# C-CONV-TRAITS ("never implement `Into`/`TryInto`; the blanket impl
+# derives them from `From`/`TryFrom`") and std::convert docs ("always
+# prefer implementing `From<T>`/`TryFrom<T>`"); clippy::from_over_into.
+#
+# 1. `impl Into<X> for Y` should be `impl From<Y> for X` (gives Into for
+#    free and composes with `?` via the std error blanket impl). The
+#    pattern anchors on a line-leading `impl ... Into<...> for <Type>`,
+#    so a generic *bound* `T: Into<U>` (which is correct) is never
+#    matched. Group 1 is the target X, group 2 the source Y.
+# 2. `.try_into().unwrap()` / `T::try_from(..).unwrap()` discards the
+#    error `TryFrom` exists to surface; propagate it with `?` instead.
+CONVERSION_IMPL_INTO_PATTERN = (
+    r"^\s*impl(?:\s*<[^>]*>)?\s+Into\s*<\s*([^>]+?)\s*>\s+for\s+(\w+)"
+)
+CONVERSION_IMPL_INTO_REC = (
+    "implement `impl From<{src}> for {dst}` instead of `impl Into<{dst}> "
+    "for {src}`: From gives the Into impl for free and composes with `?` "
+    "(clippy::from_over_into). Exception: if `{dst}` is a foreign type, "
+    "the orphan rule forbids the From impl and Into is the only option"
+)
+CONVERSION_TRY_INTO_UNWRAP_PATTERN = r"\.try_into\(\)\s*\.\s*(?:unwrap|expect)\("
+CONVERSION_TRY_FROM_UNWRAP_PATTERN = (
+    r"\btry_from\s*\([^)]*\)\s*\.\s*(?:unwrap|expect)\("
+)
+CONVERSION_DISCARDED_ERROR_REC = (
+    "a fallible conversion's error is discarded by `.unwrap()`/"
+    "`.expect()`; propagate it with `?` or handle it. `TryFrom` exists "
+    "to surface this error rather than panic (clippy::unwrap_used)"
+)
+CONVERSION_COMMENT_PATTERN = r"^\s*//"
+CONVERSION_IMPL_INTO_RE = re.compile(CONVERSION_IMPL_INTO_PATTERN)
+CONVERSION_TRY_INTO_UNWRAP_RE = re.compile(CONVERSION_TRY_INTO_UNWRAP_PATTERN)
+CONVERSION_TRY_FROM_UNWRAP_RE = re.compile(CONVERSION_TRY_FROM_UNWRAP_PATTERN)
+CONVERSION_COMMENT_RE = re.compile(CONVERSION_COMMENT_PATTERN)

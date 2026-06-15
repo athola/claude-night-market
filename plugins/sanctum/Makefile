@@ -174,10 +174,10 @@ demo-git-workspace: ## Demo git workspace review
 	@git status -sb
 	@echo ""
 	@echo "Recent activity:"
-	@git log --oneline --since="1 week ago" | head -10 || git log --oneline -5
+	@git log --oneline -n 10 --since="1 week ago" || git log --oneline -n 5
 	@echo ""
 	@echo "Branches:"
-	@git branch -a | head -10
+	@git branch -a | head -10 || true
 	@echo ""
 	@echo "Git workspace demo complete. Use sanctum:git-workspace-review for full analysis."
 

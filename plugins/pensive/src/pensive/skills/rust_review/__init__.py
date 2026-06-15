@@ -17,6 +17,8 @@ from typing import Any, ClassVar
 from ..base import AnalysisResult, BaseReviewSkill
 from .builtins import BuiltinsMixin
 from .cargo import CargoBuildMixin
+from .coercion_params import CoercionParamsMixin
+from .conversion_traits import ConversionTraitsMixin
 from .float_equality import FloatEqualityMixin
 from .idiomatic_elision import IdiomaticElisionMixin
 from .match_wildcard import MatchWildcardMixin
@@ -48,6 +50,8 @@ class RustReviewSkill(
     BuiltinsMixin,
     NativeModelingMixin,
     IdiomaticElisionMixin,
+    CoercionParamsMixin,
+    ConversionTraitsMixin,
     NumericCastMixin,
     MutableStaticMixin,
     MatchWildcardMixin,
@@ -91,6 +95,10 @@ class RustReviewSkill(
                 context, file_path
             )
             info["idiomatic_elision"] = self.analyze_idiomatic_elision(
+                context, file_path
+            )
+            info["coercion_params"] = self.analyze_coercion_params(context, file_path)
+            info["conversion_traits"] = self.analyze_conversion_traits(
                 context, file_path
             )
             info["numeric_cast"] = self.analyze_numeric_cast_safety(context, file_path)

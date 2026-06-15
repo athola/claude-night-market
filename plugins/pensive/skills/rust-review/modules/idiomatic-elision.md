@@ -24,6 +24,9 @@ The analyzer (`analyze_idiomatic_elision`) flags:
 2. **Needless return**: a `return <expr>;` in the function tail
    position. A block's final expression (no semicolon) is its value, so
    the explicit `return` is redundant (`clippy::needless_return`).
+3. **Unused unit return**: an explicit `-> ()` return type. The unit
+   return is the default and is elided, so `-> ()` writes what the
+   compiler already infers (`clippy::unused_unit`).
 
 ## Lifetime Elision
 
@@ -73,6 +76,30 @@ fn add(a: i32, b: i32) -> i32 {
 }
 ```
 
+## Unit Return
+
+A function with no `-> Type` returns `()`, the unit type. The Rust
+Reference makes the unit return the default, so an explicit `-> ()`
+states what is already inferred and reads as noise
+(`clippy::unused_unit`):
+
+```rust
+// Flag
+fn log(msg: &str) -> () {
+    println!("{msg}");
+}
+// Idiomatic
+fn log(msg: &str) {
+    println!("{msg}");
+}
+```
+
+This is the return-type analogue of elision: just as the compiler
+infers an output lifetime, it infers the unit return. Type-inference
+elision extends the same idea to bindings: a redundant turbofish or
+annotation (`let v: Vec<u8> = Vec::<u8>::new();`) repeats a type the
+compiler already fixes from the other side; prefer one or the other.
+
 ## Exclusions (Not Flagged)
 
 - **Load-bearing lifetimes**: two input references tied to the same
@@ -93,6 +120,7 @@ fn add(a: i32, b: i32) -> i32 {
 |------|---------|
 | `clippy::needless_lifetimes` | Explicit lifetimes elision would supply |
 | `clippy::needless_return` | Trailing `return` over a tail expression |
+| `clippy::unused_unit` | Explicit `-> ()` the default already supplies |
 | `clippy::extra_unused_lifetimes` | Declared lifetimes never used |
 | `clippy::let_and_return` | `let x = ...; return x;` over `...` |
 
@@ -105,6 +133,8 @@ fn add(a: i32, b: i32) -> i32 {
   assigned to the output (clippy::needless_lifetimes)
 - [file:line] Needless return: drop `return`; the tail expression is
   the value (clippy::needless_return)
+- [file:line] Unused unit return: drop `-> ()`; the unit return is the
+  elided default (clippy::unused_unit)
 ```
 
 ## Exit Criteria
@@ -115,4 +145,6 @@ fn add(a: i32, b: i32) -> i32 {
   flagged (load-bearing / conservative skip)
 - [ ] Trailing `return <expr>;` is flagged; early guard returns and
   bare `return;` are not
+- [ ] Explicit `-> ()` unit return types are flagged
+  (clippy::unused_unit); functions with a real return type are not
 - [ ] The `'_` anonymous-lifetime preference for paths is documented

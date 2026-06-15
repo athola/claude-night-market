@@ -166,7 +166,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
 	@echo "=== Parseltongue Testing Demo (LIVE) ==="
 	@echo ""
-	$(PYTEST) tests/ -v --tb=short -q --co 2>/dev/null | head -20 || $(PYTEST) tests/ -v --tb=short -q | head -30
+	$(PYTEST) tests/ --tb=short -q --no-cov
 
 demo-coverage: ## Run coverage analysis (LIVE)
 	@echo "=== Parseltongue Coverage Demo (LIVE) ==="

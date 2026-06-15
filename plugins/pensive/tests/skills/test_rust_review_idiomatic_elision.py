@@ -211,6 +211,37 @@ class TestIdiomaticElisionDetector:
         assert len(nr) == 1
         assert nr[0]["line"] == 2
 
+    def test_flags_explicit_unit_return(self, mock_skill_context) -> None:
+        """`-> ()` writes the unit return the compiler already elides
+        (clippy::unused_unit)."""
+        code = 'fn log(msg: &str) -> () {\n    println!("{msg}");\n}\n'
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "u.rs")[
+            "idiomatic_elision_issues"
+        ]
+        uu = [i for i in issues if i["type"] == "unused_unit"]
+        assert len(uu) >= 1
+        assert uu[0]["line"] == 1
+        assert uu[0]["clippy_lint"] == "clippy::unused_unit"
+
+    def test_non_unit_return_not_flagged(self, mock_skill_context) -> None:
+        """A real return type is not a unit return."""
+        code = "fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n"
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "n.rs")[
+            "idiomatic_elision_issues"
+        ]
+        assert all(i["type"] != "unused_unit" for i in issues)
+
+    def test_elided_unit_return_not_flagged(self, mock_skill_context) -> None:
+        """An already-elided signature (no `-> ()`) is not flagged."""
+        code = 'fn log(msg: &str) {\n    println!("{msg}");\n}\n'
+        mock_skill_context.get_file_content.return_value = code
+        issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "e.rs")[
+            "idiomatic_elision_issues"
+        ]
+        assert all(i["type"] != "unused_unit" for i in issues)
+
     def test_wired_into_analyze(self, mock_skill_context) -> None:
         """The aggregate analyze() surfaces idiomatic_elision info."""
         mock_skill_context.get_file_content.return_value = (
@@ -245,6 +276,11 @@ class TestIdiomaticElisionModuleDoc:
         low = text.lower()
         assert "needless_return" in text
         assert "tail expression" in low or "trailing return" in low
+
+    def test_covers_unit_return(self, text: str) -> None:
+        """The expanded module documents explicit `-> ()` unit returns."""
+        assert "unused_unit" in text
+        assert "-> ()" in text
 
     def test_covers_anonymous_lifetime(self, text: str) -> None:
         """The `'_` placeholder is the reference's preferred form in paths."""

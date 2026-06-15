@@ -6,6 +6,8 @@ Flags annotations the compiler already infers:
   (clippy::needless_lifetimes)
 - trailing `return <expr>;` statements that the block's tail
   expression makes redundant (clippy::needless_return)
+- explicit `-> ()` unit return types the compiler already elides
+  (clippy::unused_unit)
 
 Grounded in the Rust Reference: src/lifetime-elision.md and
 src/expressions/block-expr.md. See modules/idiomatic-elision.md.
@@ -21,6 +23,8 @@ from ..rust_review_data import (
     ELISION_NEEDLESS_LIFETIME_REC,
     ELISION_NEEDLESS_RETURN_REC,
     ELISION_RETURN_STMT_RE,
+    ELISION_UNIT_RETURN_RE,
+    ELISION_UNIT_RETURN_REC,
     Finding,
 )
 from .line_cache import LineCacheMixin
@@ -51,8 +55,32 @@ class IdiomaticElisionMixin(LineCacheMixin):
 
         issues.extend(self._find_needless_lifetimes(content))
         issues.extend(self._find_needless_returns(lines))
+        issues.extend(self._find_unit_returns(lines))
 
         return {"idiomatic_elision_issues": issues}
+
+    @staticmethod
+    def _find_unit_returns(lines: list[str]) -> list[Finding]:
+        """Flag an explicit `-> ()` unit return type.
+
+        The unit return type is the default and is elided, so writing
+        `-> ()` states what the compiler already infers
+        (clippy::unused_unit). Comment lines are skipped.
+        """
+        findings: list[Finding] = []
+        for i, line in enumerate(lines):
+            if line.lstrip().startswith("//"):
+                continue
+            if ELISION_UNIT_RETURN_RE.search(line):
+                findings.append(
+                    {
+                        "line": i + 1,
+                        "type": "unused_unit",
+                        "recommendation": ELISION_UNIT_RETURN_REC,
+                        "clippy_lint": "clippy::unused_unit",
+                    }
+                )
+        return findings
 
     @staticmethod
     def _find_needless_lifetimes(content: str) -> list[Finding]:

@@ -41,6 +41,8 @@ modules:
 - builtin-preference.md
 - native-type-modeling.md
 - idiomatic-elision.md
+- coercion-params.md
+- conversion-traits.md
 - numeric-cast-safety.md
 - mutable-static-audit.md
 - match-wildcard.md
@@ -110,15 +112,17 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 5. `rust-review:cargo-deps`
 6. `rust-review:native-modeling`
 7. `rust-review:idiomatic-elision`
-8. `rust-review:numeric-cast-safety`
-9. `rust-review:mutable-static-audit`
-10. `rust-review:match-wildcard`
-11. `rust-review:transmute-audit`
-12. `rust-review:float-equality`
-13. `rust-review:mem-forget-audit`
-14. `rust-review:repr-packed-audit`
-15. `rust-review:evidence-log`
-16. `rust-review:findings-verified`
+8. `rust-review:coercion-params`
+9. `rust-review:conversion-traits`
+10. `rust-review:numeric-cast-safety`
+11. `rust-review:mutable-static-audit`
+12. `rust-review:match-wildcard`
+13. `rust-review:transmute-audit`
+14. `rust-review:float-equality`
+15. `rust-review:mem-forget-audit`
+16. `rust-review:repr-packed-audit`
+17. `rust-review:evidence-log`
+18. `rust-review:findings-verified`
 
 ## Progressive Loading
 
@@ -157,8 +161,12 @@ Load modules as needed based on review scope:
 - See `modules/builtin-preference.md` for conversion traits and builtin preference
 - See `modules/native-type-modeling.md` for enums-over-primitives,
   newtype, type-state, and derived ordering
-- See `modules/idiomatic-elision.md` for lifetime elision and
-  expression-oriented returns
+- See `modules/idiomatic-elision.md` for lifetime elision,
+  expression-oriented returns, and explicit `-> ()` unit returns
+- See `modules/coercion-params.md` for `&String`/`&Vec<T>`/`&PathBuf`
+  parameters that defeat deref coercion (prefer `&str`/`&[T]`/`&Path`)
+- See `modules/conversion-traits.md` for `impl Into` that should be
+  `impl From`, and discarded `try_into().unwrap()` conversion errors
 
 ## Core Workflow
 
@@ -211,6 +219,11 @@ Load modules as needed based on review scope:
 - [ ] Comparison/ordering traits derived, not hand-written
 - [ ] Lifetimes elided where elision rules apply; `'_` in paths
 - [ ] Trailing `return` dropped in favor of the tail expression
+- [ ] Explicit `-> ()` unit returns dropped (default is elided)
+- [ ] Parameters take `&str`/`&[T]`/`&Path`, not `&String`/`&Vec<T>`/
+  `&PathBuf` (deref coercion accepts both, so the slice is more general)
+- [ ] Conversions implement `From`/`TryFrom`, not `Into`/`TryInto`; a
+  fallible conversion's error is propagated, not `unwrap()`ped
 - [ ] Error types well-designed
 - [ ] Documentation complete
 
@@ -240,7 +253,13 @@ Rust audit findings
 [stringly-typed comparisons, boolean blindness, newtype/type-state notes]
 
 ## Idiomatic Elision
-[needless lifetimes, trailing returns the compiler infers]
+[needless lifetimes, trailing returns, explicit `-> ()` unit returns]
+
+## Coercion Params
+[`&String`/`&Vec<T>`/`&PathBuf` params that should be borrowed slices]
+
+## Conversion Traits
+[`impl Into` over `impl From`; discarded `try_into().unwrap()` errors]
 
 ## Numeric Cast Safety
 [length-truncating, byte-narrowing, and f32 precision-losing `as` casts]
