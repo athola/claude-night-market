@@ -76,6 +76,7 @@ addopts = "-v --cov=scripts --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "bdd: BDD-style behavior-driven tests",
 ]
 
 [tool.coverage.run]

@@ -194,8 +194,9 @@ class InferenceDaemon:
         self._server.serve_forever()
 
     def shutdown(self) -> None:
-        """Stop the server loop."""
+        """Stop the server loop and release the listening socket."""
         self._server.shutdown()
+        self._server.server_close()
 
 
 def _parse_args() -> argparse.Namespace:

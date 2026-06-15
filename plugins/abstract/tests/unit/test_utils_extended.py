@@ -159,7 +159,8 @@ class TestExtractFrontmatter:
     def test_extracts_frontmatter_and_body(self):
         """Given content with frontmatter, returns (frontmatter, body) tuple."""
         content = "---\nname: test\n---\n\nBody text."
-        fm, body = extract_frontmatter(content)
+        with pytest.warns(DeprecationWarning):
+            fm, body = extract_frontmatter(content)
         assert "name: test" in fm
         assert "Body text" in body
 
@@ -167,7 +168,8 @@ class TestExtractFrontmatter:
     def test_no_frontmatter_returns_empty_and_full_body(self):
         """Given content without frontmatter, frontmatter is empty."""
         content = "Just plain text."
-        fm, body = extract_frontmatter(content)
+        with pytest.warns(DeprecationWarning):
+            fm, body = extract_frontmatter(content)
         assert fm == ""
         assert "Just plain text" in body
 
@@ -184,7 +186,8 @@ class TestParseFrontmatterFields:
     def test_parses_key_value_pairs(self):
         """Given frontmatter with key:value lines, returns correct dict."""
         fm = "---\nname: my-skill\ncategory: testing\n---"
-        result = parse_frontmatter_fields(fm)
+        with pytest.warns(DeprecationWarning):
+            result = parse_frontmatter_fields(fm)
         assert result["name"] == "my-skill"
         assert result["category"] == "testing"
 
@@ -192,20 +195,23 @@ class TestParseFrontmatterFields:
     def test_skips_list_items(self):
         """Given list items starting with '-', they are not parsed as keys."""
         fm = "---\ntags:\n- alpha\n- beta\n---"
-        result = parse_frontmatter_fields(fm)
+        with pytest.warns(DeprecationWarning):
+            result = parse_frontmatter_fields(fm)
         assert "alpha" not in result
 
     @pytest.mark.unit
     def test_empty_frontmatter_returns_empty_dict(self):
         """Given empty frontmatter, returns empty dict."""
-        result = parse_frontmatter_fields("---\n---")
+        with pytest.warns(DeprecationWarning):
+            result = parse_frontmatter_fields("---\n---")
         assert result == {}
 
     @pytest.mark.unit
     def test_value_with_colon_preserved(self):
         """Given a value containing a colon, only first colon is used as separator."""
         fm = "---\nurl: http://example.com\n---"
-        result = parse_frontmatter_fields(fm)
+        with pytest.warns(DeprecationWarning):
+            result = parse_frontmatter_fields(fm)
         assert result["url"] == "http://example.com"
 
 
@@ -224,7 +230,8 @@ class TestValidateSkillFrontmatter:
     def test_valid_content_returns_no_issues(self):
         """Given valid frontmatter with required fields, no issues returned."""
         content = "---\nname: test\ndescription: A test skill\ncategory: testing\n---\n\nBody."
-        result = validate_skill_frontmatter(content, self._config())
+        with pytest.warns(DeprecationWarning):
+            result = validate_skill_frontmatter(content, self._config())
         # May return info-level recommendations but no ERROR issues
         error_issues = [i for i in result if i.startswith("ERROR")]
         assert error_issues == []
@@ -232,13 +239,17 @@ class TestValidateSkillFrontmatter:
     @pytest.mark.unit
     def test_missing_frontmatter_returns_error(self):
         """Given content without frontmatter, returns an ERROR issue."""
-        result = validate_skill_frontmatter("Just plain text.", self._config())
+        with pytest.warns(DeprecationWarning):
+            result = validate_skill_frontmatter("Just plain text.", self._config())
         assert any("ERROR" in i for i in result)
 
     @pytest.mark.unit
     def test_returns_list(self):
         """Given any content, returns a list."""
-        result = validate_skill_frontmatter("---\nname: test\n---\n", self._config())
+        with pytest.warns(DeprecationWarning):
+            result = validate_skill_frontmatter(
+                "---\nname: test\n---\n", self._config()
+            )
         assert isinstance(result, list)
 
 
@@ -350,14 +361,16 @@ class TestParseYamlFrontmatter:
     def test_parses_fields_correctly(self):
         """Given valid YAML frontmatter, returns correct dict."""
         content = "---\nname: test\ncategory: testing\n---\nBody."
-        result = parse_yaml_frontmatter(content)
+        with pytest.warns(DeprecationWarning):
+            result = parse_yaml_frontmatter(content)
         assert result["name"] == "test"
         assert result["category"] == "testing"
 
     @pytest.mark.unit
     def test_no_frontmatter_returns_empty_dict(self):
         """Given content without frontmatter, returns empty dict."""
-        result = parse_yaml_frontmatter("Just text.")
+        with pytest.warns(DeprecationWarning):
+            result = parse_yaml_frontmatter("Just text.")
         assert result == {}
 
 

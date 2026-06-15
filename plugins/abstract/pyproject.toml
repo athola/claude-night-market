@@ -144,9 +144,9 @@ markers = [
     "slow: Slow running tests",
     "bdd: Behavior-driven development style tests",
 ]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]
+# pytest-asyncio is present in the test environment; pin the default loop
+# scope to silence its _DEFAULT_FIXTURE_LOOP_SCOPE_UNSET deprecation.
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 source = ["abstract"]
