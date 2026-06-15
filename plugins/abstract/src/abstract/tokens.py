@@ -61,8 +61,10 @@ def estimate_text_tokens(text: str) -> int:
         return 0
     if _HAS_LEYLINE:
         # leyline.tokens.estimate_tokens accepts (files, prompt); pass the
-        # text as the prompt with no files for a pure-text estimate.
-        return _leyline_estimate_tokens([], text)
+        # text as the prompt with no files for a pure-text estimate. Wrap in
+        # int() so the return type is concrete when leyline is an optional
+        # peer and mypy treats it as Any via ignore_missing_imports.
+        return int(_leyline_estimate_tokens([], text))
     return TokenAnalyzer.analyze_content(text)["total_tokens"]
 
 

@@ -112,6 +112,14 @@ exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 module = ["coordination_workspace"]
 disable_error_code = ["no-any-return"]
 
+# leyline is an optional peer plugin resolved via sys.path at runtime; in an
+# isolated venv mypy cannot see it, so suppress import-not-found. Matches the
+# pattern used by abstract, attune, conjure, egregore, imbue, memory-palace,
+# pensive, sanctum, and tome.
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
