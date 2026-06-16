@@ -303,6 +303,33 @@ class TestCallCaptureScriptDirect:
 
         assert result == {"status": "created", "number": 42}
 
+    def test_non_dict_json_logs_warning_and_returns_empty(self, caplog: object) -> None:
+        """Non-dict JSON (list/str/int) logs a warning and returns {}.
+
+        A drifted capture script that emits a JSON array would otherwise be
+        silently turned into an empty dict indistinguishable from "nothing
+        filed". The warning makes the drift visible.
+        """
+        from deferred_item_sweep import call_capture_script
+
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = "[1, 2, 3]"  # valid JSON, but not a dict
+
+        import logging
+
+        with (
+            patch("deferred_item_sweep.subprocess.run", return_value=mock_proc),
+            caplog.at_level(logging.WARNING, logger="deferred_item_sweep"),
+        ):
+            result = call_capture_script("Drifted output", "test")
+
+        assert result == {}
+        assert any(
+            "non-dict" in rec.getMessage().lower() and rec.levelno >= logging.WARNING
+            for rec in caplog.records
+        )
+
     def test_nonzero_returncode_returns_stderr(self) -> None:
         """When subprocess exits non-zero, stderr is returned as an error."""
         from deferred_item_sweep import call_capture_script

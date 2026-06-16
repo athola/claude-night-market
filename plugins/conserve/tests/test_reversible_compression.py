@@ -282,6 +282,30 @@ def test_resolve_handle_missing_raises(retriever, tmp_path):
         retriever.resolve_handle("ccr-doesnotexist", tmp_path)
 
 
+def test_resolve_handle_rejects_path_traversal(retriever, tmp_path):
+    """Traversal handles resolve inside archive_dir only.
+
+    Even when a same-named file exists just outside the dir, the handle must
+    not escape. Path(name).name strips directory components; this test pins
+    that guarantee so a future refactor (e.g. dropping .name) cannot silently
+    reintroduce a traversal read. ``../passwd`` would reach the planted
+    outside file if the basename confinement regressed.
+    """
+    outside = tmp_path.parent / "passwd.txt"
+    outside.write_text("leaked", encoding="utf-8")
+    try:
+        for handle in (
+            "../../etc/passwd",
+            "../passwd",
+            "/etc/passwd",
+            "..%2f..%2fpasswd",
+        ):
+            with pytest.raises(FileNotFoundError):
+                retriever.resolve_handle(handle, tmp_path)
+    finally:
+        outside.unlink(missing_ok=True)
+
+
 def test_slice_content_full(retriever):
     text = "a\nb\nc\nd"
     assert retriever.slice_content(text) == text

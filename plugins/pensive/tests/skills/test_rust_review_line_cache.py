@@ -41,6 +41,25 @@ class TestLineCacheMixin:
         assert first is not second
         assert second == ["three", "four"]
 
+    def test_equal_value_distinct_identity_resplits(self) -> None:
+        """Equal-value content from a distinct object re-splits.
+
+        The cache keys on identity (``is``), so a string equal by value but
+        not by identity is treated as new. This pins the identity-vs-value
+        consequence: a maintainer cannot silently flip the key to ``==``
+        (which would change behavior) without this test failing.
+        """
+        literal = "alpha\n"
+        # Build an equal-value string via a non-literal path so CPython does
+        # not intern it to the same object as the literal above.
+        rebuilt = "".join(["alph", "a", "\n"])
+        assert literal == rebuilt  # sanity: equal by value
+        assert literal is not rebuilt  # sanity: distinct by identity
+        first = self.cache._get_lines(literal)
+        second = self.cache._get_lines(rebuilt)
+        assert first is not second
+        assert second == ["alpha"]
+
     def test_empty_content_yields_no_lines(self) -> None:
         """Empty content splits to an empty list, not a crash."""
         assert self.cache._get_lines("") == []

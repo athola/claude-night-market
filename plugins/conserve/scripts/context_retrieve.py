@@ -47,6 +47,12 @@ def resolve_handle(handle: str, archive_dir: Path | str) -> Path:
     if not name.endswith(".txt"):
         name = f"{name}.txt"
     candidate = archive_dir / Path(name).name
+    # Defense in depth: Path(name).name already strips directory components,
+    # confining the read to archive_dir. Assert the resolved path stays
+    # inside archive_dir so a future refactor (e.g. dropping .name) cannot
+    # silently reintroduce a path-traversal read. is_relative_to is 3.9+.
+    if not candidate.resolve().is_relative_to(archive_dir.resolve()):
+        raise FileNotFoundError(f"Handle escapes archive dir: {handle}")
     if not candidate.is_file():
         raise FileNotFoundError(f"No archived output for handle: {handle}")
     return candidate

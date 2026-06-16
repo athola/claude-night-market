@@ -202,10 +202,25 @@ class StructureMixin(LineCacheMixin):
                     }
                 )
 
-                is_used = any(
-                    const_param in lines[j] and j != i
-                    for j in range(i, min(len(lines), i + 10))
-                )
+                # A const generic is in scope for its struct's body, not an
+                # arbitrary 10-line window. Scan until the struct's braces
+                # close so a const used late in a large struct is not falsely
+                # flagged as unconstrained.
+                is_used = False
+                depth = 0
+                body_started = False
+                for j in range(i, len(lines)):
+                    if j != i and const_param in lines[j]:
+                        is_used = True
+                        break
+                    for ch in lines[j]:
+                        if ch == "{":
+                            depth += 1
+                            body_started = True
+                        elif ch == "}":
+                            depth -= 1
+                    if body_started and depth <= 0:
+                        break
                 if not is_used:
                     unconstrained_usage.append(
                         {

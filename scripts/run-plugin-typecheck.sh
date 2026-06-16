@@ -28,8 +28,10 @@ SKIPPED_PLUGINS=()
 run_hooks_typecheck() {
     local plugin_dir="$1"
 
-    # Only run when hooks/ actually contains Python modules.
-    if ! ls "$plugin_dir"/hooks/*.py >/dev/null 2>&1; then
+    # Only run when hooks/ actually contains Python modules. compgen -G does
+    # the glob internally (no shellcheck SC2012 ls-as-test smell, and no
+    # reliance on a non-matching glob being passed literally to ls).
+    if ! compgen -G "$plugin_dir/hooks/*.py" >/dev/null; then
         return 0
     fi
 
@@ -80,7 +82,7 @@ run_plugin_typecheck() {
     # Hooks check: always run when hooks/ has Python, regardless of how (or
     # whether) the primary source was checked above. This is the gap that let
     # hook type errors accumulate unnoticed.
-    if ls "$plugin_dir"/hooks/*.py >/dev/null 2>&1; then
+    if compgen -G "$plugin_dir/hooks/*.py" >/dev/null; then
         run_hooks_typecheck "$plugin_dir" || main_rc=1
         checked=1
     fi
