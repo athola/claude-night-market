@@ -260,6 +260,10 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Smart quotes in technical prose | `"text"` / `"text"` instead of `"text"` | Word-processor paste signature |
 | Semicolon splice | "The system is fast; it scales" | Prose semicolon joining two independent clauses. Rephrase into two sentences unless absolutely necessary |
 | Loop/cascade vocab | "unpack", "surface" (verb), "a quiet shift" | 2026 systems-theory affectation |
+| Performative honesty | "to be honest", "Honestly,", "An Honest Review" | Manufactured authenticity |
+| Sophistication marker | "survey the prior art", "state of the art", "body of work" | Rigor signaling in non-academic prose |
+| Participial tail | ", highlighting", ", underscoring", ", paving the way for" | Fake-analysis tack-on |
+| Emphasis crutch | "Full stop.", "Make no mistake", "Read that again." | Manufactured-importance terminator |
 
 **Prevention rule**: when the slop-detector runs on docs the
 agent itself just generated (auto-invoked by `/doc-generate`,

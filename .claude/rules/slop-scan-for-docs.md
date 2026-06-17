@@ -191,8 +191,10 @@ list above.
 - **Throat-clearing openers**: delete "Here's the thing,",
   "Look,", "So," (non-contrastive), "The thing is,", "Let
   that sink in.", "The uncomfortable truth is", "Let me
-  explain.", "Bear with me." Start at the substantive
-  content.
+  explain.", "Bear with me.", "Let's dive in", "Picture
+  this:", "Imagine a world where", "In this article, we
+  will", "This article aims to", "Here's what nobody tells
+  you". Start at the substantive content.
 - **Three-fragment burst**: collapse "Focused. Aligned.
   Measurable." → "Focused, aligned, and measurable." Or
   rewrite as a complete sentence with content.
@@ -212,6 +214,28 @@ list above.
   metaphor) with "explain"; "surface" (verb, metaphor) with
   "raise" or "report"; "a quiet shift" with the named shift;
   "the signal here is" with "the point is".
+- **Performative honesty**: rewrite "to be honest,", "in all
+  honesty,", "Honestly,", "full disclosure,", "Let me be
+  clear", "Real talk:", and "Honest X" headline framings
+  ("An Honest Review", "The Honest Truth About", "My Honest
+  Results"). Manufactured authenticity. Scoped to framing
+  nouns so "an honest mistake" passes. High confidence.
+- **Sophistication marker ("prior art")**: rewrite "survey
+  the prior art", "benefit from prior art", "prior art in
+  this space", "standing on the shoulders of", "a body of
+  work", "building on prior work", "state of the art" when
+  used to sound rigorous in non-academic prose. Bare "prior
+  art" in a patent or academic context is NOT slop. The
+  collocation is. High confidence. Disable the category in
+  IP-adjacent repos.
+- **Participial tail**: rewrite comma-led fake-analysis
+  tack-ons: ", highlighting", ", showcasing", ",
+  underscoring", ", paving the way for", ", demonstrating",
+  ", proving that". State the consequence in a new sentence
+  instead.
+- **Emphasis crutch**: delete "Full stop.", "Make no
+  mistake", "Read that again.", "Mark my words". These stamp
+  authority or drama without adding information.
 
 ## Anti-goals (do not over-correct)
 

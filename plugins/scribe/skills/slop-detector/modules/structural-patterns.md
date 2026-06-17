@@ -169,11 +169,41 @@ participial_tail = r',\s+\w+ing\s+[\w\s]+\.$'
 # 3+ matches in a paragraph is a strong signal
 ```
 
+The generic detector catches any comma-led `-ing` tail. The
+runtime also pins the highest-signal specific words in
+`tier5.participial_tail` (`data/languages/en.yaml`):
+`, highlighting`, `, showcasing`, `, underscoring`,
+`, paving the way for`, `, demonstrating`, `, proving that`,
+`, reinforcing`, `, enabling`. These fake-analysis tack-ons are
+high-confidence. Flag any match.
+
 | Count per 500 words | Signal |
 |---------------------|--------|
 | 0-1 | Normal |
 | 2-3 | Elevated |
 | 4+ | Strong AI signal |
+
+## Emphasis Crutches
+
+Manufactured-importance terminators AI stamps onto a sentence to
+inject authority or drama. Mirrors `tier5.emphasis_crutch` in
+`data/languages/en.yaml`.
+
+| Phrase | Why it's slop |
+|--------|---------------|
+| "Full stop." | Pseudo-authoritative period-stamp |
+| "Make no mistake" | Dramatic-declarative throat-clearing |
+| "Read that again." | Emphasis crutch for a stat |
+| "Mark my words" | Prophetic-authority filler |
+
+```python
+TIER5_EMPHASIS_CRUTCH = [
+    r"\bfull stop\.",
+    r"\bmake no mistake\b",
+    r"\bread that again\.?",
+    r"\bmark my words\b",
+]
+```
 
 ## "From X to Y" Range Construction
 
@@ -616,6 +646,8 @@ def structural_score(metrics):
         score += 2
     if metrics.get('smart_quote_count', 0) >= 3:
         score += 1
+    if metrics.get('emphasis_crutch_count', 0) >= 1:
+        score += 2
     # Prevention mode: any em-dash in fresh prose is a finding
     if metrics.get('mode') == 'prevention' and metrics.get('em_dash_count', 0) > 0:
         score += min(5, metrics['em_dash_count'])
