@@ -16,7 +16,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -60,7 +60,7 @@ def get_session_id(explicit: str | None) -> str:
     env_id = os.environ.get("CLAUDE_SESSION_ID", "")
     if env_id:
         return env_id
-    return datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
+    return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
 
 def get_current_branch() -> str:
@@ -88,7 +88,7 @@ def build_body(
     captured_by: str,
 ) -> str:
     """Build the issue body from the leyline contract template."""
-    today = datetime.now(UTC).strftime("%Y-%m-%d")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     branch = get_current_branch()
     artifact = artifact_path if artifact_path else "N/A"
     return (

@@ -237,13 +237,21 @@ class _ReviewContext:
         self.repo_path = repo_path
         self.working_dir = repo_path
         self._files = files
+        # Memoize file contents by filename for the life of this context.
+        # A review pass runs roughly twenty analyze_* mixins over the same
+        # files; without this each mixin re-reads the file from disk. The
+        # repo is a static snapshot during one review, so caching is safe.
+        self._content_cache: dict[str, str] = {}
 
     def get_files(self) -> list[str]:
         """Get list of files."""
         return self._files
 
     def get_file_content(self, filename: str) -> str:
+        cached = self._content_cache.get(filename)
+        if cached is not None:
+            return cached
         file_path = self.repo_path / filename
-        if file_path.exists():
-            return file_path.read_text()
-        return ""
+        content = file_path.read_text() if file_path.exists() else ""
+        self._content_cache[filename] = content
+        return content
