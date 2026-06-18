@@ -46,6 +46,7 @@ module = ["_pytest.*", "pytest.*"]
 follow_imports = "skip"
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short --cov=phantom --cov-report=term-missing"

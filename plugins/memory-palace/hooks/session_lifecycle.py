@@ -127,6 +127,8 @@ def _derive_session_id(payload: dict) -> str:
 
 def _safe_float(value: object, default: float = 0.0) -> float:
     """Convert value to float, returning default on failure."""
+    if not isinstance(value, (int, float, str)):
+        return default
     try:
         return float(value)
     except (TypeError, ValueError):

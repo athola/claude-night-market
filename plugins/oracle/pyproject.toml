@@ -60,6 +60,10 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
+# Hooks extend sys.path to src/ at runtime before importing the oracle
+# package. Mirror that here so mypy resolves the real typed modules
+# (e.g. provision.get_oracle_data_dir -> Path) instead of falling back to Any.
+mypy_path = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"

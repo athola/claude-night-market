@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
+from .line_cache import LineCacheMixin
+
 __all__ = ["PatternsMixin"]
 
 # A-01: pre-compile patterns once at module load.
@@ -68,7 +70,7 @@ _DUPLICATE_VALIDATOR_RE = tuple(
 _MOD_TESTS_RE = re.compile(r"\bmod\s+tests\s*\{")
 
 
-class PatternsMixin:
+class PatternsMixin(LineCacheMixin):
     """Mixin providing Rust code pattern detection analysis."""
 
     _MIN_CONSOLIDATION_COUNT: ClassVar[int] = 3

@@ -47,7 +47,7 @@ A single "delve" is fine. Five "delves" near a "tapestry"
 and an "embark" is generated text. This skill scores
 density per 100 words, marker clustering, and whether
 the overall register fits the document type. It does not
-ban words; it flags concentrations.
+ban words. It flags concentrations.
 
 ## Execution Workflow
 
@@ -258,7 +258,12 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Three-fragment burst | "Focused. Aligned. Measurable." | Rhythm without information |
 | Significance cluster | "stands as a testament to", "marks a turning point" | Asserts importance without showing it |
 | Smart quotes in technical prose | `"text"` / `"text"` instead of `"text"` | Word-processor paste signature |
+| Semicolon splice | "The system is fast; it scales" | Prose semicolon joining two independent clauses. Rephrase into two sentences unless absolutely necessary |
 | Loop/cascade vocab | "unpack", "surface" (verb), "a quiet shift" | 2026 systems-theory affectation |
+| Performative honesty | "to be honest", "Honestly,", "An Honest Review" | Manufactured authenticity |
+| Sophistication marker | "survey the prior art", "state of the art", "body of work" | Rigor signaling in non-academic prose |
+| Participial tail | ", highlighting", ", underscoring", ", paving the way for" | Fake-analysis tack-on |
+| Emphasis crutch | "Full stop.", "Make no mistake", "Read that again." | Manufactured-importance terminator |
 
 **Prevention rule**: when the slop-detector runs on docs the
 agent itself just generated (auto-invoked by `/doc-generate`,

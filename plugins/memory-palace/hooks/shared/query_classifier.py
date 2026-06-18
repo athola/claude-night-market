@@ -22,10 +22,10 @@ _EVERGREEN_PATTERNS = re.compile(
 def extract_query_intent(tool_name: str, tool_input: dict[str, Any]) -> str:
     """Extract the query intent from tool parameters."""
     if tool_name == "WebSearch":
-        return tool_input.get("query", "")
+        return str(tool_input.get("query", ""))
     if tool_name == "WebFetch":
-        prompt = tool_input.get("prompt", "")
-        url = tool_input.get("url", "")
+        prompt = str(tool_input.get("prompt", ""))
+        url = str(tool_input.get("url", ""))
         return prompt or url
     return ""
 

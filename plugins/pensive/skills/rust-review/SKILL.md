@@ -39,6 +39,17 @@ modules:
 - error-messages.md
 - duplicate-validators.md
 - builtin-preference.md
+- native-type-modeling.md
+- idiomatic-elision.md
+- coercion-params.md
+- conversion-traits.md
+- numeric-cast-safety.md
+- mutable-static-audit.md
+- match-wildcard.md
+- transmute-audit.md
+- float-equality.md
+- mem-forget-audit.md
+- repr-packed-audit.md
 - model-specific-tells.md
 - iterator-and-allocation-slop.md
 - test-slop.md
@@ -99,8 +110,19 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 3. `rust-review:concurrency`
 4. `rust-review:unsafe-audit`
 5. `rust-review:cargo-deps`
-6. `rust-review:evidence-log`
-7. `rust-review:findings-verified`
+6. `rust-review:native-modeling`
+7. `rust-review:idiomatic-elision`
+8. `rust-review:coercion-params`
+9. `rust-review:conversion-traits`
+10. `rust-review:numeric-cast-safety`
+11. `rust-review:mutable-static-audit`
+12. `rust-review:match-wildcard`
+13. `rust-review:transmute-audit`
+14. `rust-review:float-equality`
+15. `rust-review:mem-forget-audit`
+16. `rust-review:repr-packed-audit`
+17. `rust-review:evidence-log`
+18. `rust-review:findings-verified`
 
 ## Progressive Loading
 
@@ -115,12 +137,36 @@ Load modules as needed based on review scope:
 
 **Safety Audit**:
 - See `modules/unsafe-audit.md` for unsafe block documentation
+- See `modules/mutable-static-audit.md` for `static mut` globals and
+  their thread-safe replacements
+- See `modules/numeric-cast-safety.md` for truncating and
+  precision-losing `as` casts
+- See `modules/match-wildcard.md` for catch-all arms that defeat enum
+  exhaustiveness
+- See `modules/transmute-audit.md` for `mem::transmute`/`transmute_copy`
+  calls that reinterpret bytes with no layout check
+- See `modules/repr-packed-audit.md` for `#[repr(packed)]` layouts whose
+  field borrows become unaligned references
+
+**Correctness Audit**:
+
+- See `modules/float-equality.md` for `==`/`!=` against float literals
+- See `modules/mem-forget-audit.md` for `mem::forget` leaks and no-op
+  `drop(&x)` reference drops
 
 **Dependency Review**:
 - See `modules/cargo-dependencies.md` for vulnerability scanning
 
 **Idiomatic Patterns**:
 - See `modules/builtin-preference.md` for conversion traits and builtin preference
+- See `modules/native-type-modeling.md` for enums-over-primitives,
+  newtype, type-state, and derived ordering
+- See `modules/idiomatic-elision.md` for lifetime elision,
+  expression-oriented returns, and explicit `-> ()` unit returns
+- See `modules/coercion-params.md` for `&String`/`&Vec<T>`/`&PathBuf`
+  parameters that defeat deref coercion (prefer `&str`/`&[T]`/`&Path`)
+- See `modules/conversion-traits.md` for `impl Into` that should be
+  `impl From`, and discarded `try_into().unwrap()` conversion errors
 
 ## Core Workflow
 
@@ -137,12 +183,26 @@ Load modules as needed based on review scope:
 - [ ] All unsafe blocks documented with SAFETY comments
 - [ ] FFI boundaries properly wrapped
 - [ ] Memory safety invariants maintained
+- [ ] No `static mut` globals; shared state uses `OnceLock`/`LazyLock`,
+  atomics, or a `Mutex`/`RwLock`
+- [ ] No `mem::transmute`/`transmute_copy`; bytes converted with
+  `from_le_bytes`/`from_bits`/`bytemuck` or pointers with `.cast()`
+- [ ] `#[repr(packed)]` fields copied out before borrowing (no unaligned
+  references)
+- [ ] No `mem::forget` leaks (use `ManuallyDrop`/scope) and no no-op
+  `drop(&x)` reference drops
 - [ ] `mlock`/`munlock` calls: RLIMIT verified, page-aligned,
   ENOMEM handled
 
 ### Correctness
 - [ ] Error handling complete
 - [ ] Concurrency patterns sound
+- [ ] Lossy `as` casts (length truncation, `as u8`/`i8`, `as f32`)
+  replaced with `TryFrom`/`From`
+- [ ] Enum matches exhaustive; no `_ => unreachable!()`/`panic!`/`{}`
+  catch-alls
+- [ ] Floats compared with a tolerance, not exact `==`/`!=` against a
+  float literal
 - [ ] Tests cover critical paths
 
 ### Performance
@@ -153,6 +213,17 @@ Load modules as needed based on review scope:
 ### Idioms
 - [ ] Standard traits implemented
 - [ ] Conversion traits preferred over helper functions
+- [ ] Stringly-typed values and boolean flags modeled as enums
+- [ ] Domain invariants encoded with newtypes (private field +
+  validating constructor) or type-state where warranted
+- [ ] Comparison/ordering traits derived, not hand-written
+- [ ] Lifetimes elided where elision rules apply; `'_` in paths
+- [ ] Trailing `return` dropped in favor of the tail expression
+- [ ] Explicit `-> ()` unit returns dropped (default is elided)
+- [ ] Parameters take `&str`/`&[T]`/`&Path`, not `&String`/`&Vec<T>`/
+  `&PathBuf` (deref coercion accepts both, so the slice is more general)
+- [ ] Conversions implement `From`/`TryFrom`, not `Into`/`TryInto`; a
+  fallible conversion's error is propagated, not `unwrap()`ped
 - [ ] Error types well-designed
 - [ ] Documentation complete
 
@@ -177,6 +248,39 @@ Rust audit findings
 - Anchor: `verbatim source text at file:line`
 - Risk: [assessment]
 - Recommendation: [action]
+
+## Native Type Modeling
+[stringly-typed comparisons, boolean blindness, newtype/type-state notes]
+
+## Idiomatic Elision
+[needless lifetimes, trailing returns, explicit `-> ()` unit returns]
+
+## Coercion Params
+[`&String`/`&Vec<T>`/`&PathBuf` params that should be borrowed slices]
+
+## Conversion Traits
+[`impl Into` over `impl From`; discarded `try_into().unwrap()` errors]
+
+## Numeric Cast Safety
+[length-truncating, byte-narrowing, and f32 precision-losing `as` casts]
+
+## Mutable Static Audit
+[`static mut` globals and their thread-safe replacements]
+
+## Match Wildcard
+[catch-all `_ =>` arms that defeat enum exhaustiveness]
+
+## Transmute Audit
+[`mem::transmute`/`transmute_copy` calls and their typed replacements]
+
+## Float Equality
+[exact `==`/`!=` comparisons against float literals]
+
+## Mem Forget Audit
+[`mem::forget` leaks and no-op `drop(&x)` reference drops]
+
+## Repr Packed Audit
+[`#[repr(packed)]` layouts whose field borrows become unaligned]
 
 ## Dependencies
 [cargo audit results]

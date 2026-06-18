@@ -102,17 +102,30 @@ disallow_untyped_decorators = true
 no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
+# Hooks inject their own directory onto sys.path at runtime before importing
+# sibling modules (e.g. `from shared.session_file import ...`). Mirror that here
+# so mypy resolves the real modules instead of reporting import-not-found.
+mypy_path = ["hooks"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 [[tool.mypy.overrides]]
 module = ["coordination_workspace"]
 disable_error_code = ["no-any-return"]
 
+# leyline is an optional peer plugin resolved via sys.path at runtime; in an
+# isolated venv mypy cannot see it, so suppress import-not-found. Matches the
+# pattern used by abstract, attune, conjure, egregore, imbue, memory-palace,
+# pensive, sanctum, and tome.
+[[tool.mypy.overrides]]
+module = ["leyline.*"]
+ignore_missing_imports = true
+
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 minversion = "8.0"
 testpaths = ["tests"]
 python_files = ["test_*.py"]

@@ -17,21 +17,23 @@ These words appear dramatically more often in AI-generated text. Research shows 
 ```
 delve, embark, unleash, unlock, revolutionize, spearhead,
 foster, harness, elevate, transcend, forge, ignite,
-propel, catalyze, galvanize, amplify
+propel, catalyze, galvanize, amplify,
+underpin, unravel, demystify
 ```
 
 ### Sophistication Signals (False Depth)
 ```
 multifaceted, nuanced, intricate, meticulous, profound,
 comprehensive, holistic, robust, pivotal, paramount,
-indispensable, quintessential
+indispensable, quintessential,
+invaluable, esteemed, unwavering, relentless, enlightening
 ```
 
 ### Metaphor Abuse
 ```
 tapestry, beacon, realm, landscape, symphony, mosaic,
 crucible, labyrinth, odyssey, cornerstone, bedrock,
-linchpin, nexus
+linchpin, nexus, plethora
 ```
 
 ### Display Verbs
@@ -120,7 +122,21 @@ Notes:
 "through this lens"
 "when it comes to"
 "at the end of the day"
+"shed light on"
 ```
+
+### RLHF Hedges (Score: 3 each)
+```
+"while it is true that"
+"while it's true that"
+"it could be argued that"
+"it's worth mentioning that"
+"it's worth pointing out"
+```
+
+Safety hedges AI uses to soft-pedal a claim instead of stating
+it. Say the thing directly. Mirrors `phrases.rlhf_hedge` in
+`data/languages/en.yaml`.
 
 ### Attribution Cliches (Score: 3)
 ```
@@ -286,10 +302,66 @@ saying anything. *Stop-Slop catalog, Hardik Pandya 2026.*
 "Let me explain."
 "Here's what I mean:"
 "Bear with me."
+"Let's dive in" / "Let me dive into"
+"Picture this:" / "Imagine a world where"
+"In this article/guide, we will..."
+"This article aims to..."
+"Here's what nobody tells you"
 ```
 
 These open paragraphs where the substance should. Delete and
 start at the substantive content.
+
+### Performative Honesty (Score: 3 each)
+
+"Honest X" headline framings and adverbial honesty markers:
+manufactured authenticity. Affiliate-SEO trope amplified by AI
+content farms. Adverbial forms flagged across 2026 discourse.
+Mirrors `tier5.performative_honesty` in `data/languages/en.yaml`.
+
+```
+"to be honest," / "in all honesty," / "truth be told,"
+"if I'm (being) honest," / "let's be honest,"
+"honestly,"  (sentence-initial)
+"full disclosure,"
+"An Honest Review/Take/Assessment of"
+"The Honest Truth About"
+"My Honest Results/Take/Review/Experience"
+"Honest Take on"
+"Real talk:"
+"Here's the truth"
+"Let me be clear"
+```
+
+False positives: dialogue, opinion prose, and affiliate-SEO
+titles use these genuinely. The regex scopes to framing nouns
+(review/take/truth) and discourse-marker forms so "an honest
+mistake" and "an honest answer" pass. High confidence per the
+2025-2026 update. Disable via `.slop-config.yaml` in dialogue-
+heavy or review content.
+
+### Sophistication Markers ("prior art", Score: 3 each)
+
+Collocations AI reaches for to sound rigorous in non-academic
+prose. This is an emerging tell. "prior art" itself is
+single-source (Reddit r/ClaudeAI). The adjacent cliches are
+stronger. Mirrors
+`tier5.sophistication_marker` in `data/languages/en.yaml`.
+
+```
+"survey the prior art"
+"benefit from (the) prior art"
+"prior art in this/our space"
+"standing on the shoulders of"
+"a rich/extensive body of work"
+"building on (the) prior/existing work"
+"state of the art"
+```
+
+Bare "prior art" is NOT matched, so legitimate patent prose
+("the examiner cited prior art", "run a prior art search") and
+academic novelty claims pass. High confidence per the 2025-2026
+update. IP-adjacent repos can disable via `.slop-config.yaml`.
 
 ### Loop/Signal/Cascade Vocabulary (Score: 2-3 each)
 
@@ -421,6 +493,13 @@ TIER5_THROAT_CLEARING = [
     r"\bThis matters because\b",
     r"^Let me explain\.",
     r"^Bear with me\.",
+    # 2025-2026 additions (mirror en.yaml tier5.throat_clearing)
+    r"\blet(?:'s| me) dive (?:right )?in\b",
+    r"\bpicture this\b",
+    r"\bimagine (?:a world where|this)\b",
+    r"\bin this (?:article|post|guide), we will\b",
+    r"\bthis (?:article|post) aims to\b",
+    r"\bhere's what nobody tells you\b",
 ]
 
 TIER5_NEGATIVE_PARALLELISM = [
@@ -458,6 +537,51 @@ TIER5_SIGNIFICANCE = [
     r'\bplays? a (?:key|pivotal|crucial) role\b',
     r'\bunderscores? the importance\b',
 ]
+
+TIER5_PERFORMATIVE_HONESTY = [
+    r"\bto be honest[,.]?\b",
+    r"\bin all honesty[,.]?\b",
+    r"\btruth be told[,.]?\b",
+    r"\bif i(?:'m| am) (?:being )?honest\b",
+    r"\blet(?:'s| us) be honest\b",
+    r"\bhonestly,",
+    r"\bfull disclosure[,.]?\b",
+    r"\ban honest (?:review|take|assessment|conversation|look)\b",
+    r"\bthe honest truth about\b",
+    r"\bmy honest (?:results|take|review|experience|opinion)\b",
+    r"\bhonest take (?:on|about)\b",
+    r"\breal talk:",
+    r"\bhere's the truth\b",
+    r"\blet me be clear\b",
+]
+
+TIER5_SOPHISTICATION_MARKER = [
+    r"\b(?:survey|surveying|surveys) (?:the )?prior art\b",
+    r"\bbenefit from (?:the )?prior art\b",
+    r"\bprior art in (?:this|the|our) (?:space|field|area|domain)\b",
+    r"\b(?:stand|stands|standing) on (?:the )?shoulders of\b",
+    r"\b(?:rich|extensive|vast|growing) body of (?:work|prior research|literature)\b",
+    r"\bbuilding on (?:the )?(?:prior|existing|previous) work\b",
+    r"\bstate of the art\b",
+]
+
+TIER5_PARTICIPIAL_TAIL = [
+    r",\s+highlighting\b",
+    r",\s+showcasing\b",
+    r",\s+underscoring\b",
+    r",\s+paving the way for\b",
+    r",\s+demonstrating\b",
+    r",\s+proving that\b",
+    r",\s+reinforcing\b",
+    r",\s+enabling\b",
+]
+
+TIER5_EMPHASIS_CRUTCH = [
+    r"\bfull stop\.",
+    r"\bmake no mistake\b",
+    r"\bread that again\.?",
+    r"\bmark my words\b",
+]
 ```
 
 ## Tier 5 False-Positive Exclusions
@@ -472,6 +596,18 @@ TIER5_SIGNIFICANCE = [
 | "rooted in" | Botanical, etymological | Abstract concepts "rooted" |
 | "loop" | Code loops, control structures | "feedback loop" as metaphor |
 | "signal" | Telecom, statistics, signals.h | Evaluative use ("the signal here is") |
+
+### Excluded: Not Slop (2026 research)
+
+These read like tells but are human discourse terms, not AI-
+distinctive. The 2025-2026 research explicitly ruled them out.
+Do not add them to the detector:
+
+- `permissionless` / `permissionless innovation`: a real tech-
+  policy term used by humans, not an AI fingerprint.
+- `vibe shift`: mainstream cultural-discourse term (human use).
+- `hyperstitious slur`: a label used *about* slop, not *in* it.
+- bare `slop` self-reference: humans use the word more than AI.
 
 ## Detection Regex Patterns
 

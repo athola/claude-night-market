@@ -8,12 +8,15 @@ filed=false, prints summary, cleans up.
 from __future__ import annotations
 
 import json
+import logging
 import subprocess
 import sys
 import traceback
 from pathlib import Path
 
 from _ledger_utils import get_ledger_path as _get_ledger_path
+
+logger = logging.getLogger(__name__)
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
@@ -49,7 +52,19 @@ def call_capture_script(title: str, source: str) -> dict:
             check=False,
         )
         if result.returncode == 0:
-            return json.loads(result.stdout)
+            parsed = json.loads(result.stdout)
+            if not isinstance(parsed, dict):
+                # Non-dict JSON (list, str, int) is unexpected: the capture
+                # script should always emit a JSON object. Log so a corrupted
+                # or drift script output is visible instead of silently
+                # becoming an empty dict indistinguishable from "nothing filed".
+                logger.warning(
+                    "deferred_capture returned non-dict JSON (%s): %r",
+                    type(parsed).__name__,
+                    parsed,
+                )
+                return {}
+            return parsed
         return {"status": "error", "message": result.stderr.strip()}
     except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError) as exc:
         return {"status": "error", "message": str(exc)}

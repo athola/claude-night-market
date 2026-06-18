@@ -18,6 +18,9 @@ tier1:
     - catalyze
     - galvanize
     - amplify
+    - underpin
+    - unravel
+    - demystify
   sophistication_signals:
     - multifaceted
     - nuanced
@@ -31,6 +34,11 @@ tier1:
     - paramount
     - indispensable
     - quintessential
+    - invaluable
+    - esteemed
+    - unwavering
+    - relentless
+    - enlightening
   metaphor_abuse:
     - tapestry
     - beacon
@@ -45,6 +53,7 @@ tier1:
     - bedrock
     - linchpin
     - nexus
+    - plethora
   display_verbs:
     - showcasing
     - exemplifying
@@ -140,6 +149,17 @@ phrases:
       - "through this lens"
       - "when it comes to"
       - "at the end of the day"
+      - "shed light on"
+  rlhf_hedge:
+    # RLHF-safety hedges AI uses to soft-pedal a claim: "while it is
+    # true that", "it could be argued that", "it's worth mentioning".
+    score: 3
+    patterns:
+      - "while it is true that"
+      - "while it's true that"
+      - "it could be argued that"
+      - "it's worth mentioning that"
+      - "it's worth pointing out"
 sycophantic:
   score: 3
   patterns:
@@ -216,3 +236,99 @@ tier5:
       - '\bThe thing is,'
       - '\bLet that sink in\b'
       - '\bThe uncomfortable truth is\b'
+      - '\blet(?:''s| me) dive (?:right )?in\b'
+      - '\bpicture this\b'
+      - '\bimagine (?:a world where|this)\b'
+      - '\bin this (?:article|post|guide), we will\b'
+      - '\bthis (?:article|post) aims to\b'
+      - '\bhere''s what nobody tells you\b'
+      - '\blet me explain\.'
+      - '\bbear with me\.'
+      - '\bthis matters because\b'
+  semicolon_splice:
+    # Prose semicolons read as a sophistication marker: a clause
+    # spliced with a semicolon usually reads more naturally as two
+    # sentences or one coordinating conjunction. Low confidence
+    # because lists with internal commas need the semicolon, so this
+    # surfaces every prose semicolon for human judgment instead of
+    # auto-rewriting. Code and inline code are stripped before this
+    # runs (see the markdown application layer). Policy: semicolons in
+    # prose only when absolutely necessary.
+    score: 1
+    confidence: low
+    ignore_case: false
+    patterns:
+      - '\w;\s+\w'
+  performative_honesty:
+    # "Honest X" headline framings and adverbial honesty throat-
+    # clearing ("to be honest", "Honestly,", "full disclosure"):
+    # manufactured authenticity. High confidence per the 2025-2026
+    # update (aggressive mode). Scoped to framing nouns and
+    # discourse-marker forms so ordinary uses like "an honest
+    # mistake" pass. Dialogue and affiliate-SEO contexts carry
+    # false-positive risk; disable via .slop-config.yaml there.
+    score: 3
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bto be honest[,.]?\b'
+      - '\bin all honesty[,.]?\b'
+      - '\btruth be told[,.]?\b'
+      - '\bif i(?:''m| am) (?:being )?honest\b'
+      - '\blet(?:''s| us) be honest\b'
+      - '\bhonestly,'
+      - '\bfull disclosure[,.]?\b'
+      - '\ban honest (?:review|take|assessment|conversation|look)\b'
+      - '\bthe honest truth about\b'
+      - '\bmy honest (?:results|take|review|experience|opinion)\b'
+      - '\bhonest take (?:on|about)\b'
+      - '\breal talk:'
+      - '\bhere''s the truth\b'
+      - '\blet me be clear\b'
+  sophistication_marker:
+    # "prior art" and adjacent markers AI reaches for to sound
+    # rigorous in non-academic prose: surveying prior art, standing
+    # on the shoulders of, a body of work, state of the art. Bare
+    # "prior art" is NOT matched, so legitimate patent and academic
+    # uses pass. High confidence per the 2025-2026 update; IP-
+    # adjacent repos can disable the category via .slop-config.yaml.
+    score: 3
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:survey|surveying|surveys) (?:the )?prior art\b'
+      - '\bbenefit from (?:the )?prior art\b'
+      - '\bprior art in (?:this|the|our) (?:space|field|area|domain)\b'
+      - '\b(?:stand|stands|standing) on (?:the )?shoulders of\b'
+      - '\b(?:rich|extensive|vast|growing) body of (?:work|prior research|literature)\b'
+      - '\bbuilding on (?:the )?(?:prior|existing|previous) work\b'
+      - '\bstate of the art\b'
+  participial_tail:
+    # Comma-led present-participle fake-analysis tails: AI appends
+    # ", highlighting", ", underscoring", ", paving the way for" to
+    # manufacture analysis. Requires a leading comma so a sentence
+    # that merely uses the word does not trip.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - ',\s+highlighting\b'
+      - ',\s+showcasing\b'
+      - ',\s+underscoring\b'
+      - ',\s+paving the way for\b'
+      - ',\s+demonstrating\b'
+      - ',\s+proving that\b'
+      - ',\s+reinforcing\b'
+      - ',\s+enabling\b'
+  emphasis_crutch:
+    # Manufactured-importance terminators: "Full stop.", "Make no
+    # mistake", "Read that again." stamp authority or drama onto a
+    # sentence.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bfull stop\.'
+      - '\bmake no mistake\b'
+      - '\bread that again\.?'
+      - '\bmark my words\b'

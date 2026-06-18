@@ -11,9 +11,76 @@ MIN_TEST_COVERAGE = 0.8  # Minimum acceptable test coverage
 MAX_DEPENDENCIES = 20  # Maximum recommended dependencies
 
 # A-11: severity buckets as frozensets so each call avoids list allocation.
-_CRITICAL_TYPES = frozenset({"buffer_overflow", "data_race"})
-_HIGH_TYPES = frozenset({"deprecated_dependency"})
-_MEDIUM_TYPES = frozenset({"unwrap_usage", "missing_docs"})
+# Severity classification for rust_review finding types. Every emitted
+# "type" should appear in exactly one set; an unmapped type falls through
+# to "low", which under-triages real memory-safety bugs. See
+# categorize_rust_severity below and test_rust_review_severity.py.
+_CRITICAL_TYPES = frozenset(
+    {
+        # Memory-undefined-behavior and data races.
+        "buffer_overflow",
+        "data_race",
+        "transmute",  # reinterpret cast: UB when sizes differ
+        "transmute_copy",  # copy-cast: UB
+        "repr_packed",  # unaligned reference to a packed field: UB
+        "mutable_static",  # `static mut`: the source of data races
+        "use_after_move",  # use after move: memory unsafety
+        "pointer_offset",  # unchecked pointer arithmetic: OOB is UB
+        "box_from_raw",  # unsafe raw-pointer construction: double-free risk
+    }
+)
+_HIGH_TYPES = frozenset(
+    {
+        # Security-relevant, concurrency UB, or likely-exploitable correctness.
+        "deprecated_dependency",
+        "refcell_threading",  # RefCell shared across threads: UB
+        "rc_in_async",  # Rc is not Send: data-race risk in async
+        "mixed_borrows",  # aliased mutable + immutable borrow: UB
+        "sql_format_interpolation",  # SQL injection
+        "potential_overflow",  # integer overflow: panic or wraparound
+        "index_access",  # unchecked indexing: OOB panic
+        "narrowing_to_byte_cast",  # numeric truncation: correctness/security
+        "precision_loss_cast",  # lossy numeric cast
+        "length_truncation_cast",  # length truncation
+        "mutex_usage",  # MutexGuard held across .await: deadlock
+    }
+)
+_MEDIUM_TYPES = frozenset(
+    {
+        # Likely-incorrect usage, best-practice, or resource leaks.
+        "unwrap_usage",
+        "missing_docs",
+        "unsafe_block",
+        "unsafe_function",
+        "float_exact_compare",  # exact float comparison: logic error
+        "mem_forget",  # resource leak via mem::forget
+        "drop_ref",  # dropped reference: resource leak
+        "unwrap",
+        "unwrap_panic",
+        "explicit_panic",
+        "missing_await",  # future dropped without await: correctness
+        "blocking_sleep",  # blocking call inside async
+        "wildcard_panic",
+        "wildcard_unreachable",
+        "wildcard_empty_arm",
+        "ptr_arg",  # &Vec<T> should be &[T]
+        "from_over_into",  # conversion direction
+        "discarded_conversion_error",
+        "silent_discard",  # result/Result dropped without inspection
+        "short_error_message",
+        "boolean_blindness",
+        "stringly_typed_comparison",
+        "vec_as_set_or_map",  # O(n) lookup where a set/map fits
+        "box_free",  # needless heap allocation
+        "rc_refcell_cycle",  # reference-count cycle: memory leak
+        "atomic_usage",  # concurrency worth reviewing
+        "custom_linker",
+        "hidden_control_flow",
+        "undocumented_unsafe_macro",
+        "cfg_test_outside_mod",
+        "magic_number_state_constant",
+    }
+)
 
 
 class ReportingMixin:

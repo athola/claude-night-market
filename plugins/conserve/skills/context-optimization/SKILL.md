@@ -14,6 +14,7 @@ modules:
 - modules/session-routing.md
 - modules/subagent-coordination.md
 - modules/belief-clarity.md
+- modules/cache-aligned-prefixes.md
 hooks:
   PreToolUse:
   - matcher: Read
@@ -119,8 +120,19 @@ def select_optimal_modules(context_situation, task_complexity):
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
 - **Context Waiting**: See `modules/context-waiting.md` for deferred loading strategies.
+- **Cache Alignment**: See `modules/cache-aligned-prefixes.md` for ordering context so provider KV caches hit (stable prefix first, volatile last).
 ## Troubleshooting
 
 ### Common Issues
 
 If context usage remains high after optimization, check for large files that were read entirely rather than selectively. If MECW assessments fail, ensure that your environment provides accurate token count metadata. For permission errors when writing output logs to `/tmp`, verify that the project's temporary directory is writable.
+
+## Exit Criteria
+
+- [ ] Context pressure assessed against the MECW 50% rule
+- [ ] A memory tier or routing decision recorded for the current state
+- [ ] Large outputs referenced by file or handle, not read in full
+- [ ] When the request controls the provider payload, prefix ordering checked
+      against `modules/cache-aligned-prefixes.md` (stable first, volatile last)
+- [ ] Optimization downgraded to advisory when the harness already caches
+      (cache writes cost more than they save on non-repeated prefixes)

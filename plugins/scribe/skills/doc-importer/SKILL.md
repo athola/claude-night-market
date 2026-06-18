@@ -92,7 +92,7 @@ If the user wants polishing or rewriting:
 - The doc-generator handles slop detection, style
   application, and quality gates
 
-Offer this step; do not assume the user wants remediation.
+Offer this step. Do not assume the user wants remediation.
 
 ## Output Quality
 

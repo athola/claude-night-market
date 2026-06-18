@@ -190,7 +190,7 @@ If tests already exist and you're extending functionality:
 - Then implement to make it pass"""
 
 
-def main():
+def main() -> None:
     """Run the TDD/BDD gate check."""
     try:
         raw_input = sys.stdin.read()

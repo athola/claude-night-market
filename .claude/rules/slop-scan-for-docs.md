@@ -65,6 +65,17 @@ After Layers 0 and 1 pass, you MUST run
    Replace with a real em-dash `—`, a colon, or rewrite
    the sentence. `--` is a shell end-of-options separator;
    it is not punctuation.
+2b. Scan for prose semicolon splices (outside fenced AND inline
+   code): `awk '/^```/{c=!c}!c' file.md | sed -E 's/`[^`]*`//g'
+   | grep -oP '\w;\s+\w'`. The `sed` pass matters here more than
+   for arrows or plus signs because semicolons are common inside
+   backticked code (`arr.push();`). A semicolon joining two
+   independent clauses reads more naturally as two sentences or
+   one coordinating conjunction.
+   Rephrase unless the semicolon is absolutely necessary: a
+   list whose items carry internal commas is the one durable
+   keep. Confidence is low, so surface each hit for a human to
+   judge rather than auto-rewriting.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)
@@ -130,7 +141,11 @@ modesty.
 - Replace `+` used as a prose conjunction with "and" or
   rewrite the sentence (fine in code, math, version strings,
   and diagram labels)
-- Strip "Let's", "We'll", "In this guide" framings; start
+- Replace a prose semicolon splice with a period (two
+  sentences) or a coordinating conjunction ("and", "but",
+  "so"). Keep the semicolon only when removing it creates
+  ambiguity, such as a list whose items carry internal commas
+- Strip "Let's", "We'll", "In this guide" framings. Start
   the sentence at the substantive content
 - Replace hedging seesaw with a position
 - Replace "not only X, but also Y" with the simpler form
@@ -176,8 +191,10 @@ list above.
 - **Throat-clearing openers**: delete "Here's the thing,",
   "Look,", "So," (non-contrastive), "The thing is,", "Let
   that sink in.", "The uncomfortable truth is", "Let me
-  explain.", "Bear with me." Start at the substantive
-  content.
+  explain.", "Bear with me.", "Let's dive in", "Picture
+  this:", "Imagine a world where", "In this article, we
+  will", "This article aims to", "Here's what nobody tells
+  you". Start at the substantive content.
 - **Three-fragment burst**: collapse "Focused. Aligned.
   Measurable." → "Focused, aligned, and measurable." Or
   rewrite as a complete sentence with content.
@@ -188,10 +205,37 @@ list above.
   surrounding facts carry significance better.
 - **Smart quotes outside code blocks**: replace `"`/`"`
   with `"` and `'`/`'` with `'` in technical prose.
+- **Semicolon splice**: a semicolon joining two independent
+  clauses ("The system is fast; it scales") is a sophistication
+  marker. Split into two sentences or join with "and"/"but"/
+  "so". Keep the semicolon only when a list's items carry
+  internal commas. Low confidence: surface, do not auto-rewrite.
 - **Loop/cascade vocabulary**: replace "unpack" (verb,
   metaphor) with "explain"; "surface" (verb, metaphor) with
   "raise" or "report"; "a quiet shift" with the named shift;
   "the signal here is" with "the point is".
+- **Performative honesty**: rewrite "to be honest,", "in all
+  honesty,", "Honestly,", "full disclosure,", "Let me be
+  clear", "Real talk:", and "Honest X" headline framings
+  ("An Honest Review", "The Honest Truth About", "My Honest
+  Results"). Manufactured authenticity. Scoped to framing
+  nouns so "an honest mistake" passes. High confidence.
+- **Sophistication marker ("prior art")**: rewrite "survey
+  the prior art", "benefit from prior art", "prior art in
+  this space", "standing on the shoulders of", "a body of
+  work", "building on prior work", "state of the art" when
+  used to sound rigorous in non-academic prose. Bare "prior
+  art" in a patent or academic context is NOT slop. The
+  collocation is. High confidence. Disable the category in
+  IP-adjacent repos.
+- **Participial tail**: rewrite comma-led fake-analysis
+  tack-ons: ", highlighting", ", showcasing", ",
+  underscoring", ", paving the way for", ", demonstrating",
+  ", proving that". State the consequence in a new sentence
+  instead.
+- **Emphasis crutch**: delete "Full stop.", "Make no
+  mistake", "Read that again.", "Mark my words". These stamp
+  authority or drama without adding information.
 
 ## Anti-goals (do not over-correct)
 

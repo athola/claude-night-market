@@ -8,6 +8,7 @@ dependencies:
   hub: []
   modules:
     - log-debugging-hygiene
+    - reversible-compression
 model_hint: standard
 ---
 # Compression Strategy
@@ -102,6 +103,12 @@ For the recommended strategy, estimate:
 | Continuation agent | 80-95% | Low, state preserved |
 | Archive and summarize | 20-40% | Very low |
 | Delegate to subagent | 30-50% | Low, parallel work |
+| Reversible compression (CCR) | 47-92% per archived output | Low, original cached |
+
+The CCR row is per oversized tool output, not whole-context: a large Bash,
+Read, or Grep result is archived to a handle and replaced by a digest for
+future turns. Savings are content-type-dependent (logs compress hard, prose
+barely at all). See `modules/reversible-compression.md`.
 
 ## Context Archive Location
 
@@ -129,6 +136,14 @@ is and is not warranted. On the committed `intake_queue.jsonl`
 fixture, `tail -n 100` beats lossless compression by 25
 percentage points; the module formalizes that asymmetry.
 
+Load `modules/reversible-compression.md` when large tool outputs
+(code search, log dumps, file reads) are the bloat source. That
+module documents the CCR pattern: the `tool_output_summarizer`
+hook archives any oversized output to a content-addressed handle
+under `.claude/context-archive/`, and `context_retrieve.py`
+fetches the original (or a slice) on demand, so the original
+survives `/clear` without staying resident.
+
 ## Example Usage
 
 ```
@@ -152,3 +167,14 @@ Commands:
 2. Summarize completed work
 3. Continue with leaner context
 ```
+
+## Exit Criteria
+
+- [ ] Context analyzed: current usage and tool-output share estimated
+- [ ] A single strategy recommended (A-D, or reversible compression) with a
+      stated reason
+- [ ] Savings estimated with the named risk from the Step 3 table
+- [ ] For large tool outputs, the CCR handle and `context_retrieve.py`
+      retrieval command are surfaced (not just a warning)
+- [ ] Recommendation refused or downgraded when the bloat source is dense
+      prose (compresses by roughly nothing)

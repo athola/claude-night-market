@@ -15,6 +15,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 # Allow importing from src/abstract/ when running as a hook
 _src = Path(__file__).resolve().parent.parent / "src"
@@ -56,7 +57,12 @@ def _get_improvement_trend(claude_home: Path, skill_ref: str) -> float | None:
 
 
 def _build_output(
-    skill_ref: str, gap: float, status: str, velocity: int, trend: float | None, **extra
+    skill_ref: str,
+    gap: float,
+    status: str,
+    velocity: int,
+    trend: float | None,
+    **extra: Any,
 ) -> dict:
     """Build hookSpecificOutput dict."""
     payload: dict = {
@@ -126,7 +132,7 @@ def _flag_and_build_output(
     gap: float,
     velocity: int,
     trend: float | None,
-) -> dict:
+) -> dict | None:
     """Flag degrading skill in queue and return output dict."""
     queue_file = claude_home / "skills" / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
@@ -196,7 +202,8 @@ def read_history(claude_home: Path) -> dict:
     if not history_file.exists():
         return {}
     try:
-        return json.loads(history_file.read_text())
+        data = json.loads(history_file.read_text())
+        return data if isinstance(data, dict) else {}
     except json.JSONDecodeError:
         sys.stderr.write(f"homeostatic_monitor: corrupt history file {history_file}\n")
         return {}
@@ -214,7 +221,7 @@ def calculate_stability_gap(history_entry: dict) -> float:
         return 0.0
     worst_case = min(accuracies)
     avg_accuracy = sum(accuracies) / len(accuracies)
-    return avg_accuracy - worst_case
+    return float(avg_accuracy - worst_case)
 
 
 def main() -> None:

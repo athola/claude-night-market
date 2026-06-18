@@ -166,6 +166,29 @@ def daemon_instance(tmp_path: Path):
     t.join(timeout=5.0)
 
 
+def test_shutdown_closes_listening_socket(tmp_path: Path):
+    """shutdown() must release the listening socket, not just stop the loop.
+
+    Regression guard for the unclosed-socket ResourceWarning. BaseServer
+    only signals serve_forever to stop on shutdown(); server_close() is
+    required to close the bound socket.
+    """
+    models_dir = tmp_path / "models"
+    models_dir.mkdir()
+    (models_dir / "test.yaml").write_text(TEST_MODEL_YAML)
+
+    d = InferenceDaemon(host="127.0.0.1", port=0, models_dir=models_dir)
+    listening_socket = d._server.socket
+    assert listening_socket.fileno() != -1  # open before shutdown
+
+    t = threading.Thread(target=d.serve_forever, daemon=True)
+    t.start()
+    d.shutdown()
+    t.join(timeout=5.0)
+
+    assert listening_socket.fileno() == -1, "listening socket left open after shutdown"
+
+
 class TestHealthEndpoint:
     """
     Feature: Health check endpoint

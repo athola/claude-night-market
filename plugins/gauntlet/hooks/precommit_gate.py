@@ -198,15 +198,19 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
                 data = safe_load(yaml_path.read_text())
                 if isinstance(data, dict):
                     return data
-            except (OSError, YAMLError):
-                pass
+            except (OSError, YAMLError) as exc:
+                # Surface, do not silently swallow: a corrupt config.yaml
+                # falling back to defaults can otherwise mask a user typo.
+                print(f"warning: could not read {yaml_path}: {exc}", file=sys.stderr)
 
     config_path = gauntlet_dir / "config.json"
     if config_path.exists():
         try:
-            return json.loads(config_path.read_text())
-        except (json.JSONDecodeError, OSError):
-            pass
+            data = json.loads(config_path.read_text())
+            if isinstance(data, dict):
+                return data
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"warning: could not read {config_path}: {exc}", file=sys.stderr)
     return {}
 
 

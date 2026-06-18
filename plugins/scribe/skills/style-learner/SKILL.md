@@ -46,7 +46,7 @@ The skill combines two methods because each fails alone:
 
 Together they form a profile precise enough to score new
 text and rich enough to guide rewrites. Metrics catch what
-exemplars miss; exemplars carry what metrics flatten.
+exemplars miss. Exemplars carry what metrics flatten.
 
 ## Required TodoWrite Items
 

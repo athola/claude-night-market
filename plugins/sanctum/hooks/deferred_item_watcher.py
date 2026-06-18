@@ -163,7 +163,7 @@ def _parse_skill_name(tool_input: dict) -> str:
     Sanitizes non-empty output to prevent path-traversal (consistent with
     abstract/hooks/shared/skill_utils.py).
     """
-    skill_ref = tool_input.get("skill", "")
+    skill_ref = str(tool_input.get("skill", ""))
     # Strip optional plugin prefix (e.g. "sanctum:war-room" -> "war-room")
     if ":" in skill_ref:
         skill_ref = skill_ref.split(":", 1)[1].strip()

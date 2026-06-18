@@ -260,7 +260,7 @@ demo-tokens: ## Demonstrate token estimation (LIVE)
 demo-analyzer: ## Demonstrate skill analyzer (LIVE)
 	@echo "=== Abstract Skill Analyzer Demo (LIVE) ==="
 	@echo ""
-	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path $(SKILLS_DIR)/skill-authoring
+	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --directory $(SKILLS_DIR)/skill-authoring
 
 demo-skills: ## List available skills
 	@echo "=== Abstract Skills ==="

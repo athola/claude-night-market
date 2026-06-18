@@ -16,6 +16,10 @@ Expert-level Rust audits for safety and correctness.
 4. **Unsafe & FFI**: Audit unsafe blocks
 5. **Traits & Generics**: Check API design
 6. **Cargo Dependencies**: Scan for issues
+7. **Idiomatic Type Use**: Conversions (`From`/`TryFrom` over
+   `Into`/`TryInto`, no discarded `try_into().unwrap()`), deref-coercion
+   parameters (`&str`/`&[T]`/`&Path` over `&String`/`&Vec<T>`/`&PathBuf`),
+   and elision (needless lifetimes, explicit `-> ()` unit returns)
 
 ## Scope
 

@@ -32,7 +32,7 @@ LOG_DIR = (
 )
 
 
-def main():
+def main() -> None:
     try:
         input_data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, ValueError):

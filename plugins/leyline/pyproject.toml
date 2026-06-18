@@ -83,6 +83,7 @@ module = ["leyline.session_store", "leyline.scripts.verify_plugin", "verify_plug
 disable_error_code = ["type-arg", "no-any-return"]
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --cov=leyline --cov-report=term-missing --strict-markers"

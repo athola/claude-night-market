@@ -14,6 +14,7 @@ from ..rust_review_data import (
     RC_NEW_REFCELL_RE,
     RC_REFCELL_RE,
 )
+from .line_cache import LineCacheMixin
 
 __all__ = ["OwnershipMixin"]
 
@@ -23,7 +24,7 @@ _FN_SIG_RE = re.compile(r"^\s*(pub\s+)?(async\s+)?fn\s+")
 _TRAIT_DEF_LINE_RE = re.compile(r"^\s*(pub\s+)?trait\s+")
 
 
-class OwnershipMixin:
+class OwnershipMixin(LineCacheMixin):
     """Mixin providing ownership, data race, and async pattern analysis."""
 
     def analyze_ownership(

@@ -104,6 +104,11 @@ or delegate to subagent).
 and hype words, saving between 150 and 350 tokens per response.
 `decisive-action` uses a reversibility/ambiguity matrix to determine when to
 proceed autonomously versus asking for clarification.
+`elegant-code` guides minimal, elegant code via a decision ladder
+(need-to-exist, stdlib, native, installed dependency, one line) while
+requiring full coverage of safety, performance, edge, and negative
+cases. Its `/elegant-code-review` command audits the current diff against
+that ladder.
 
 ## Token-Conscious Workflows
 
@@ -152,6 +157,15 @@ Monitors tool output bloat for verbose tools (Bash, Read, Grep).
 When cumulative output exceeds 100KB (~25K tokens),
 it warns about context pressure.
 This helps identify when tool outputs are consuming excessive context.
+
+It also applies reversible compression (CCR) per output: any single
+result at or above `CONSERVE_CCR_THRESHOLD` characters (default 25,000)
+is archived to `.claude/context-archive/ccr-<hash>.txt` and replaced in
+later turns by a digest plus a retrieval handle. Fetch the original, or a
+slice, on demand with `scripts/context_retrieve.py <handle>`
+(`--grep`, `--head`, `--tail`, `--lines`). The archive survives `/clear`,
+so a continuation agent can read it by handle instead of re-running the
+command. See `skills/compression-strategy/modules/reversible-compression.md`.
 
 ### PreCompact Hook
 

@@ -8,8 +8,10 @@ from __future__ import annotations
 import logging as _logging
 import os
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
+yaml: ModuleType | None
 try:
     import yaml
 except ImportError:

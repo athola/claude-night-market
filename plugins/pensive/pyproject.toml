@@ -54,6 +54,7 @@ write_to = "src/pensive/_version.py"
 where = ["src"]
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 addopts = [
     "-v",
     "--strict-markers",
@@ -207,14 +208,3 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["gauntlet.*"]
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = [
-    "pensive.skills.rust_review.cargo",
-    "pensive.skills.rust_review.builtins",
-    "pensive.skills.rust_review.ownership",
-    "pensive.skills.rust_review.patterns",
-    "pensive.skills.rust_review.safety",
-    "pensive.skills.rust_review.structure",
-]
-disable_error_code = ["attr-defined"]

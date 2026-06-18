@@ -778,3 +778,292 @@ class TestTier5ContrastiveParallelism:
         """Scenario: A direct positive statement matches no pattern."""
         text = "The config is small and the code is short."
         assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5SemicolonSplice:
+    """Feature: Detect prose semicolons that read more naturally rephrased.
+
+    Newer models reach for the semicolon as a sophistication marker,
+    splicing two independent clauses where a period or a coordinating
+    conjunction ("and", "but", "so") reads more naturally. The policy
+    is "semicolons in prose only when absolutely necessary", so this
+    category surfaces every prose semicolon for human judgment rather
+    than auto-rewriting: a list whose items carry internal commas is a
+    legitimate keep, a spliced clause is not.
+
+    The regex is sourced from the runtime pattern loader
+    (data/languages/en.yaml § tier5.semicolon_splice), not from an
+    inline fixture, so removing it from the YAML breaks these tests.
+    """
+
+    CATEGORY = "semicolon_splice"
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Semicolon findings surface, never auto-apply."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_detects_clause_splice(self) -> None:
+        """Scenario: Detect a semicolon joining two independent clauses."""
+        text = "The system is fast; it handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    def test_detects_imperative_splice(self) -> None:
+        """Scenario: Detect a semicolon between two imperatives."""
+        text = "Run the tests; they validate the change."
+        assert _category_hits(self.CATEGORY, text) == 1
+
+    @pytest.mark.unit
+    def test_period_passes(self) -> None:
+        """Scenario: Two sentences split by a period do not match."""
+        text = "The system is fast. It handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_conjunction_passes(self) -> None:
+        """Scenario: A coordinating conjunction does not match."""
+        text = "The system is fast and it handles a million requests."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5PerformativeHonesty:
+    """Feature: Detect performative-candor honesty framings.
+
+    Covers the "Honest X" headline trope and adverbial honesty
+    throat-clearing ("to be honest", "Honestly,", "full disclosure").
+    These read as manufactured authenticity. High confidence per the
+    2025-2026 update: broader matching, with the false-positive risk
+    in dialogue and affiliate-SEO accepted. Regexes are scoped to
+    framing nouns and discourse-marker forms so ordinary uses such
+    as "an honest mistake" still pass.
+
+    Sourced from data/languages/en.yaml section tier5.performative_honesty.
+    """
+
+    CATEGORY = "performative_honesty"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Honesty findings are high-confidence (aggressive mode)."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_detects_to_be_honest(self) -> None:
+        """Scenario: Detect 'to be honest' adverbial opener."""
+        assert _category_hits(self.CATEGORY, "To be honest, I didn't expect it.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_honestly_comma(self) -> None:
+        """Scenario: Detect sentence-initial 'Honestly,'."""
+        assert _category_hits(self.CATEGORY, "Honestly, the results surprised us.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_honest_review_headline(self) -> None:
+        """Scenario: Detect 'An Honest Review' affiliate-SEO headline."""
+        assert _category_hits(self.CATEGORY, "An Honest Review of the new model.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_the_honest_truth_about(self) -> None:
+        """Scenario: Detect 'The Honest Truth About' framing."""
+        assert _category_hits(self.CATEGORY, "The Honest Truth About async Rust.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_real_talk(self) -> None:
+        """Scenario: Detect 'Real talk:' pseudo-authenticity opener."""
+        assert _category_hits(self.CATEGORY, "Real talk: the API is fine.") >= 1
+
+    @pytest.mark.unit
+    def test_honest_mistake_passes(self) -> None:
+        """Guard: 'an honest mistake' is not a framing noun."""
+        assert _category_hits(self.CATEGORY, "That was an honest mistake.") == 0
+
+    @pytest.mark.unit
+    def test_honest_answer_passes(self) -> None:
+        """Guard: 'an honest answer' is not a framing noun."""
+        assert _category_hits(self.CATEGORY, "She gave an honest answer.") == 0
+
+    @pytest.mark.unit
+    def test_bare_honest_passes(self) -> None:
+        """Guard: 'honest' as a plain adjective is not flagged."""
+        assert _category_hits(self.CATEGORY, "He did an honest day's work.") == 0
+
+
+class TestTier5SophisticationMarker:
+    """Feature: Detect 'prior art' and adjacent sophistication markers.
+
+    Flags the collocations AI reaches for to sound rigorous in non-
+    academic prose: surveying prior art, standing on the shoulders
+    of, a body of work, state of the art. Bare "prior art" is NOT
+    matched: legitimate patent and academic uses lack the collocation
+    trigger and pass. High confidence per the 2025-2026 update; IP-
+    adjacent repos can disable the category via .slop-config.yaml.
+
+    Sourced from data/languages/en.yaml section tier5.sophistication_marker.
+    """
+
+    CATEGORY = "sophistication_marker"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Sophistication-marker findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_detects_survey_prior_art(self) -> None:
+        """Scenario: Detect 'survey the prior art' collocation."""
+        assert _category_hits(self.CATEGORY, "We survey the prior art first.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_standing_on_shoulders(self) -> None:
+        """Scenario: Detect 'standing on the shoulders of' cliche."""
+        text = "We stand on the shoulders of giants."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_state_of_the_art(self) -> None:
+        """Scenario: Detect 'state of the art' as a vague authority boost."""
+        assert _category_hits(self.CATEGORY, "It is state of the art.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_body_of_work(self) -> None:
+        """Scenario: Detect 'extensive body of work' padding."""
+        text = "An extensive body of work supports this."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_patent_prior_art_passes(self) -> None:
+        """Guard: a real patent sentence has no collocation trigger."""
+        text = "The examiner cited prior art in rejecting claim 1."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_prior_art_search_passes(self) -> None:
+        """Guard: 'prior art search' is a legitimate patent term."""
+        text = "Run a prior art search before filing."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5ParticipialTail:
+    """Feature: Detect comma-led present-participle fake-analysis tails.
+
+    AI appends ', highlighting', ', underscoring', ', paving the way
+    for' to sentences to manufacture analysis. Requires a leading
+    comma so a sentence that merely uses the word does not trip.
+
+    Sourced from data/languages/en.yaml section tier5.participial_tail.
+    """
+
+    CATEGORY = "participial_tail"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Participial-tail findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_detects_highlighting_tail(self) -> None:
+        """Scenario: Detect ', highlighting' participial tack-on."""
+        text = "The team shipped early, highlighting the new API."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_underscoring_tail(self) -> None:
+        """Scenario: Detect ', underscoring' significance tack-on."""
+        text = "Latency dropped, underscoring the rewrite's value."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_paving_the_way_tail(self) -> None:
+        """Scenario: Detect ', paving the way for' cliche tack-on."""
+        text = "The merger closed, paving the way for expansion."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_word_without_comma_passes(self) -> None:
+        """Guard: 'highlighting' with no leading comma is not a tail."""
+        assert _category_hits(self.CATEGORY, "Highlighting is a display verb.") == 0
+
+
+class TestTier5EmphasisCrutch:
+    """Feature: Detect manufactured-importance emphasis terminators.
+
+    'Full stop.', 'Make no mistake', 'Read that again.' are crutches
+    AI uses to stamp authority or drama onto a sentence.
+
+    Sourced from data/languages/en.yaml section tier5.emphasis_crutch.
+    """
+
+    CATEGORY = "emphasis_crutch"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Emphasis-crutch findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_detects_full_stop(self) -> None:
+        """Scenario: Detect 'Full stop.' authority terminator."""
+        assert _category_hits(self.CATEGORY, "This is broken. Full stop.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_make_no_mistake(self) -> None:
+        """Scenario: Detect 'Make no mistake' dramatic declarative."""
+        assert _category_hits(self.CATEGORY, "Make no mistake, this matters.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_read_that_again(self) -> None:
+        """Scenario: Detect 'Read that again.' emphasis crutch."""
+        assert _category_hits(self.CATEGORY, "Revenue doubled. Read that again.") >= 1
+
+    @pytest.mark.unit
+    def test_full_stop_without_period_passes(self) -> None:
+        """Guard: 'full stop' not terminating a sentence is not the crutch."""
+        text = "The bus came to a full stop at the light."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class Test2026VocabularyAndPhraseExtensions:
+    """Feature: 2025-2026 vocabulary and phrase additions are loadable.
+
+    Guards the tier1 word additions and the rlhf_hedge phrase
+    subcategory. Sources the lists from the runtime pattern loader so
+    a dropped entry fails here rather than silently leaving a gap.
+    """
+
+    @pytest.mark.unit
+    def test_new_tier1_words_present(self) -> None:
+        """Scenario: The 2026 vocabulary additions are in the tier1 lists."""
+        patterns = load_language_patterns("en")
+        words: set[str] = set()
+        for category in patterns["tier1"].values():
+            if isinstance(category, list):
+                words.update(w.lower() for w in category)
+        for word in (
+            "underpin",
+            "unravel",
+            "demystify",
+            "invaluable",
+            "esteemed",
+            "unwavering",
+            "relentless",
+            "enlightening",
+            "plethora",
+        ):
+            assert word in words, f"missing tier1 word: {word}"
+
+    @pytest.mark.unit
+    def test_throat_clearing_new_openers_present(self) -> None:
+        """Scenario: The new throat-clearing openers are wired in."""
+        text = "In this guide, we will explore the basics."
+        assert _category_hits("throat_clearing", text) >= 1
+
+    @pytest.mark.unit
+    def test_rlhf_hedge_phrases_present(self) -> None:
+        """Scenario: The rlhf_hedge phrase subcategory is loadable."""
+        patterns = load_language_patterns("en")
+        hedge = patterns["phrases"].get("rlhf_hedge", {})
+        phrase_list = [p.lower() for p in hedge.get("patterns", [])]
+        assert "while it is true that" in phrase_list
+        assert "it could be argued that" in phrase_list

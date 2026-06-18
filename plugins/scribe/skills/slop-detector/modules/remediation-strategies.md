@@ -224,6 +224,24 @@ stack labels in diagrams, math.
 | "X — Y." | "X: Y." | Definition / list-lead |
 | "X — Y." | "X. Y." | Two complete thoughts |
 
+### Semicolon Splice (Prevention Mode)
+
+A prose semicolon joining two independent clauses almost always
+reads more naturally as two sentences or one coordinating
+conjunction. Rephrase in this order. Keep the semicolon only
+when removing it creates ambiguity.
+
+| Original | Replacement | When |
+|----------|-------------|------|
+| "X; it does Y." | "X. It does Y." | Default: two complete thoughts |
+| "X; it does Y." | "X, and it does Y." | Clauses are tightly linked |
+| "X; therefore Y." | "X, so Y." | Causal link |
+| "X; however Y." | "X, but Y." or "X. However, Y." | Contrast |
+| "a, b; c, d; e, f" | (keep the semicolons) | List items carry internal commas |
+
+Confidence is low: surface every prose semicolon for a human to
+judge against "absolutely necessary" rather than auto-rewriting.
+
 ### Negative Parallelism (Contrastive Negation)
 
 | Slop | Replacement |

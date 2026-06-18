@@ -81,7 +81,7 @@ def _registry_exists(name: str, ecosystem: str) -> bool | None:
     )
     try:
         with urllib.request.urlopen(request, timeout=_REGISTRY_TIMEOUT) as response:  # noqa: S310 - https-only registry hosts, scheme guarded in _registry_url
-            return _HTTP_OK_MIN <= response.status < _HTTP_OK_MAX
+            return bool(_HTTP_OK_MIN <= response.status < _HTTP_OK_MAX)
     except urllib.error.HTTPError as exc:
         return False if exc.code == _HTTP_NOT_FOUND else None
     except (urllib.error.URLError, TimeoutError, OSError, ValueError):

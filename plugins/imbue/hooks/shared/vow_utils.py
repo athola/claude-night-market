@@ -79,7 +79,7 @@ def fd_owned_by_us(fd: int) -> bool:
     if geteuid is None:
         return True
     try:
-        return os.fstat(fd).st_uid == geteuid()
+        return bool(os.fstat(fd).st_uid == geteuid())
     except OSError:
         return False
 

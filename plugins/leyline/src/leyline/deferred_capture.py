@@ -164,7 +164,13 @@ def find_duplicate(bare_title: str) -> dict[str, object] | None:
 
 
 def create_issue(title: str, body: str, labels: list[str]) -> dict[str, object]:
-    """Create a GitHub issue and return parsed JSON result."""
+    """Create a GitHub issue and return ``{"number", "url"}``.
+
+    ``gh issue create`` does not accept ``--json`` (it is a mutation
+    command); on success it prints the new issue's URL to stdout. Parse that
+    URL to recover the issue number. Earlier code passed ``--json
+    number,url``, which gh rejects with "unknown flag: --json".
+    """
     label_args: list[str] = []
     for label in labels:
         label_args += ["--label", label]
@@ -179,8 +185,6 @@ def create_issue(title: str, body: str, labels: list[str]) -> dict[str, object]:
             "--body",
             body,
             *label_args,
-            "--json",
-            "number,url",
         ],
         capture_output=True,
         text=True,
@@ -189,7 +193,16 @@ def create_issue(title: str, body: str, labels: list[str]) -> dict[str, object]:
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip())
-    return dict(json.loads(result.stdout))
+    raw = result.stdout.strip()
+    # gh prints the new issue URL (possibly with surrounding whitespace or a
+    # trailing newline). Take the last non-empty line in case gh adds preamble.
+    url = raw.splitlines()[-1].strip() if raw else ""
+    number: object = ""
+    if url:
+        tail = url.rstrip("/").rsplit("/", 1)[-1]
+        if tail.isdigit():
+            number = int(tail)
+    return {"number": number, "url": url}
 
 
 # -------------------------------------------------------------------

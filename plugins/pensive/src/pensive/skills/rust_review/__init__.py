@@ -17,11 +17,22 @@ from typing import Any, ClassVar
 from ..base import AnalysisResult, BaseReviewSkill
 from .builtins import BuiltinsMixin
 from .cargo import CargoBuildMixin
+from .coercion_params import CoercionParamsMixin
+from .conversion_traits import ConversionTraitsMixin
+from .float_equality import FloatEqualityMixin
+from .idiomatic_elision import IdiomaticElisionMixin
+from .match_wildcard import MatchWildcardMixin
+from .mem_forget import MemForgetMixin
+from .mutable_statics import MutableStaticMixin
+from .native_modeling import NativeModelingMixin
+from .numeric_cast import NumericCastMixin
 from .ownership import OwnershipMixin
 from .patterns import PatternsMixin
 from .reporting import MAX_DEPENDENCIES, MIN_TEST_COVERAGE, ReportingMixin
+from .repr_packed import ReprPackedMixin
 from .safety import SafetyMixin
 from .structure import StructureMixin
+from .transmute_audit import TransmuteAuditMixin
 
 __all__ = [
     "MAX_DEPENDENCIES",
@@ -37,6 +48,17 @@ class RustReviewSkill(
     StructureMixin,
     PatternsMixin,
     BuiltinsMixin,
+    NativeModelingMixin,
+    IdiomaticElisionMixin,
+    CoercionParamsMixin,
+    ConversionTraitsMixin,
+    NumericCastMixin,
+    MutableStaticMixin,
+    MatchWildcardMixin,
+    TransmuteAuditMixin,
+    FloatEqualityMixin,
+    MemForgetMixin,
+    ReprPackedMixin,
     ReportingMixin,
     BaseReviewSkill,
 ):
@@ -44,17 +66,6 @@ class RustReviewSkill(
 
     skill_name: ClassVar[str] = "rust_review"
     supported_languages: ClassVar[list[str]] = ["rust"]
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._cached_content: str = ""
-        self._cached_lines: list[str] = []
-
-    def _get_lines(self, content: str) -> list[str]:
-        if self._cached_content is not content:
-            self._cached_content = content
-            self._cached_lines = content.splitlines()
-        return self._cached_lines
 
     def analyze(self, context: Any, file_path: str = "") -> AnalysisResult:
         result = AnalysisResult()
@@ -80,6 +91,25 @@ class RustReviewSkill(
             info["builtin_preference"] = self.analyze_builtin_preference(
                 context, file_path
             )
+            info["native_type_modeling"] = self.analyze_native_type_modeling(
+                context, file_path
+            )
+            info["idiomatic_elision"] = self.analyze_idiomatic_elision(
+                context, file_path
+            )
+            info["coercion_params"] = self.analyze_coercion_params(context, file_path)
+            info["conversion_traits"] = self.analyze_conversion_traits(
+                context, file_path
+            )
+            info["numeric_cast"] = self.analyze_numeric_cast_safety(context, file_path)
+            info["mutable_statics"] = self.analyze_mutable_statics(context, file_path)
+            info["match_exhaustiveness"] = self.analyze_match_exhaustiveness(
+                context, file_path
+            )
+            info["transmute"] = self.analyze_transmute_safety(context, file_path)
+            info["float_equality"] = self.analyze_float_equality(context, file_path)
+            info["mem_forget"] = self.analyze_mem_forget(context, file_path)
+            info["repr_packed"] = self.analyze_repr_packed(context, file_path)
             info["duplicate_validators"] = self.analyze_duplicate_validators(
                 context, file_path
             )

@@ -84,7 +84,7 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
 explicit_package_bases = true
-mypy_path = ["src", "scripts"]
+mypy_path = ["src", "scripts", "hooks"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 [[tool.mypy.overrides]]
@@ -144,9 +144,9 @@ markers = [
     "slow: Slow running tests",
     "bdd: Behavior-driven development style tests",
 ]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]
+# pytest-asyncio is present in the test environment; pin the default loop
+# scope to silence its _DEFAULT_FIXTURE_LOOP_SCOPE_UNSET deprecation.
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 source = ["abstract"]

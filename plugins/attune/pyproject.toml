@@ -184,6 +184,9 @@ markers = [
     "slow: Tests that take longer to execute",
     "bdd: Behavior-driven development style tests"
 ]
+# pytest-asyncio ships in the test environment; pin the default loop scope
+# to silence its _DEFAULT_FIXTURE_LOOP_SCOPE_UNSET deprecation.
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 omit = [

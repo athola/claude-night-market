@@ -70,6 +70,11 @@ strict = true
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --cov=minister --cov-report=term-missing"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+]
 
 [tool.coverage.run]
 source = ["src/minister"]

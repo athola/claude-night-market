@@ -12,6 +12,7 @@
     "./skills/context-optimization",
     "./skills/cpu-gpu-performance",
     "./skills/decisive-action",
+    "./skills/elegant-code",
     "./skills/mcp-code-execution",
     "./skills/response-compression",
     "./skills/smart-sourcing",
@@ -20,6 +21,7 @@
   "commands": [
     "./commands/ai-hygiene-audit.md",
     "./commands/bloat-scan.md",
+    "./commands/elegant-code-review.md",
     "./commands/filter-log.md",
     "./commands/optimize-context.md",
     "./commands/unbloat.md"
@@ -44,7 +46,11 @@
     "dead-code",
     "code-cleanup",
     "technical-debt",
-    "codebase-optimization"
+    "codebase-optimization",
+    "elegant-code",
+    "decision-ladder",
+    "minimalism",
+    "yagni"
   ],
   "author": {
     "name": "Alex Thola",

@@ -5,7 +5,7 @@
 
 .PHONY:
 .PHONY: benchmark check clean debug-variables demo-ai-hygiene-audit \
-	demo-bloat demo-bloat-scan demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
+	coverage demo-bloat demo-bloat-scan demo-ccr demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
 	fix-apply format help install-hooks lint memory-profile mutation-test perf-check plugin-check \
 	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \
 	test-unbloat token-estimate type-check typecheck validate-all validate-skills
@@ -140,6 +140,12 @@ mutation-test: ## Run mutation testing
 benchmark: ## Run performance benchmarks (bloat detection speed)
 	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
 
+coverage: ## Measure test coverage for hooks and scripts (term + HTML)
+	@echo "Measuring coverage (hooks + scripts) via uv..."
+	$(UV_RUN) pytest --cov=hooks --cov=scripts --cov-report=term-missing --cov-report=html
+	@echo ""
+	@echo "HTML report written to htmlcov/index.html"
+
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \
 		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
@@ -166,6 +172,22 @@ demo-tokens: ## Demo token estimation (LIVE)
 		echo "Token estimate: ~$$(find skills/ -name '*.md' -exec cat {} \; | wc -l | awk '{print $$1*4}') tokens"
 	@echo ""
 	@echo "Use 'make token-estimate ARGS=...' for detailed estimation."
+
+demo-ccr: ## Demo reversible compression: archive a large output, retrieve a slice (LIVE)
+	@echo "=== Conservation Reversible Compression (CCR) Demo (LIVE) ==="
+	@echo ""
+	@D=$$(mktemp -d); \
+	python3 -c "import json; body='\n'.join(f'INFO line {i}' for i in range(1500))+'\nFATAL: connection refused\n'; print(json.dumps({'tool_name':'Bash','tool_response':{'stdout':body}}))" > $$D/in.json; \
+	echo "Input: $$(python3 -c "import json;print(len(json.load(open('$$D/in.json'))['tool_response']['stdout']))") chars"; \
+	cd $$D && CONSERVE_CCR_THRESHOLD=2000 python3 $(CURDIR)/hooks/tool_output_summarizer.py < in.json \
+		| python3 -c "import sys,json;print('Digest head:', json.load(sys.stdin)['hookSpecificOutput']['additionalContext'].splitlines()[0])"; \
+	H=$$(basename $$D/.claude/context-archive/ccr-*.txt .txt); \
+	echo "Archived handle: $$H"; \
+	echo "Retrieve --grep FATAL:"; \
+	python3 $(CURDIR)/scripts/context_retrieve.py $$H --grep FATAL --archive-dir $$D/.claude/context-archive | sed 's/^/  /'; \
+	rm -rf $$D
+	@echo ""
+	@echo "Hook auto-archives outputs >=CONSERVE_CCR_THRESHOLD chars (default 25000)."
 
 demo-skills: ## Validate conservation skill structure
 	@echo "=== Conservation Skills Demo ==="

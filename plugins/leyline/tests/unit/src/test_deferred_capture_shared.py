@@ -22,6 +22,7 @@ from leyline.deferred_capture import (
     build_body,
     build_labels,
     build_title,
+    create_issue,
     find_duplicate,
     get_session_id,
     run_capture,
@@ -355,3 +356,31 @@ class TestRunCaptureWithEnrichment:
                 ["--title", "T", "--source", "x", "--context", "C", "--dry-run"],
             )
         assert rc == 0
+
+
+class TestCreateIssue:
+    """create_issue parses the URL gh prints (gh issue create rejects --json)."""
+
+    def test_parses_number_and_url_from_stdout(self) -> None:
+        mock = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="https://github.com/athola/claude-night-market/issues/99\n",
+            stderr="",
+        )
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            result = create_issue("T", "B", ["deferred", "review"])
+        assert result["number"] == 99
+        assert result["url"].endswith("/issues/99")
+
+    def test_raises_on_nonzero_returncode(self) -> None:
+        mock = subprocess.CompletedProcess(
+            args=[], returncode=1, stdout="", stderr="label not found"
+        )
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            try:
+                create_issue("T", "B", ["deferred"])
+            except RuntimeError as exc:
+                assert "label not found" in str(exc)
+            else:  # pragma: no cover - sanity guard
+                raise AssertionError("expected RuntimeError on nonzero returncode")

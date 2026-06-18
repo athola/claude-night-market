@@ -23,12 +23,13 @@ import re
 import sys
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 # A-11: avoid re-allocating list literal on every PreToolUse invocation.
 _TRIGGERING_TOOLS = frozenset({"Edit", "Write", "MultiEdit"})
 
 
-def get_security_patterns():
+def get_security_patterns() -> list[dict[str, Any]]:
     """Build patterns dynamically to avoid triggering other security hooks."""
     # Build pattern strings dynamically
     ev = "ev" + "al"
@@ -74,7 +75,7 @@ def get_security_patterns():
 
 
 @lru_cache(maxsize=1)
-def _get_compiled_patterns():
+def _get_compiled_patterns() -> tuple[dict[str, Any], ...]:
     """Return compiled security patterns, caching on first call."""
     return tuple(
         {**cfg, "compiled": re.compile(cfg["pattern"], re.IGNORECASE)}
@@ -198,7 +199,7 @@ def check_content(file_path: str, content: str) -> tuple:
     return best_match
 
 
-def main():
+def main() -> None:
     """Run the security pattern check hook."""
     try:
         raw_input = sys.stdin.read()

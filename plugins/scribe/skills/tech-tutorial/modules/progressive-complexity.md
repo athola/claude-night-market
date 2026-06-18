@@ -17,7 +17,7 @@ Add variation only after that baseline is solid.
 
 The first working example should be the shortest possible program
 that demonstrates the core concept.
-It need not be production-quality; it must be correct and runnable.
+It need not be production-quality, but it must be correct and runnable.
 
 ```markdown
 BAD: Start with a full web server including auth, logging,
