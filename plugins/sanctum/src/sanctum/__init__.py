@@ -16,7 +16,7 @@ from .validators import (
     SkillValidator,
 )
 
-__version__ = "1.9.11"
+__version__ = "1.9.12"
 
 __all__ = [
     "AgentValidationResult",

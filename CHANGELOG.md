@@ -5,6 +5,62 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.12] - 2026-06-18
+
+### Added
+
+- **conserve: reversible compression (CCR) for large tool outputs.**
+  The `tool_output_summarizer` PostToolUse hook now archives any single
+  oversized Bash/Read/Grep output (>=25 000 chars by default) to
+  `.claude/context-archive/ccr-<hash>.txt` and surfaces a digest plus a
+  retrieval handle. A new `scripts/context_retrieve.py` CLI fetches
+  the original or a slice (`--grep`/`--head`/`--tail`/`--lines`) on
+  demand. The archive is content-addressed (dedup) and survives
+  `/clear`, so a continuation agent can read it by handle instead of
+  re-running the command. Backed by 29 new tests (TDD).
+- **pensive/rust-review: coercion and conversion audit modules.**
+  New `coercion_params` and `conversion_traits` audit modules with
+  data tables, skill module docs, agent/command wiring, and unit tests.
+- **pensive/rust-review: expanded audit suite.**
+  Nine additional audit modules: float-equality, transmute, mem-forget,
+  mutable-statics, numeric-cast, repr-packed, match-wildcard,
+  native-modeling, and idiomatic-elision. The skill is split into
+  per-concern modules for surgical invocation.
+- **conserve: elegant-code skill and review command.**
+- **scribe: 2025-2026 AI slop detection patterns.**
+  Four new Tier 5 categories derived from nine cross-source references:
+  `performative_honesty` ("honestly,", "An Honest Review"),
+  `sophistication_marker` ("prior art" collocations),
+  `participial_tail` (", highlighting"), and `emphasis_crutch`
+  ("Full stop."). Extended `throat_clearing` openers, new
+  `rlhf_hedge` phrases, and nine Tier 1 vocabulary words.
+  Patterns are scoped to collocations and framing nouns so legitimate
+  uses pass (patent "prior art", dialogue "honestly").
+- **scribe: prose semicolon splice detection.**
+  New `semicolon_splice` Tier 5 pattern surfaces every prose semicolon
+  joining two independent clauses for human judgment (confidence: low).
+
+### Fixed
+
+- **leyline: Python 3.9 compatibility restored.**
+  `datetime.UTC` (Python 3.11+) in `decision_journal` and
+  `deferred_capture` broke the entire hook import chain under system
+  Python 3.9. Switched to `timezone.utc`; an AST-scanning guard test
+  now prevents re-introduction in CI.
+- **pensive: file reads memoized in review passes.**
+  `_ReviewContext.get_file_content` now memoizes by filename. A review
+  pass previously re-read each file from disk roughly twenty times
+  across `analyze_*` mixins; one read per filename is now enforced by
+  contract test.
+- **CI: strict mypy gating across all plugins.**
+  `run-plugin-typecheck` pre-commit hook runs `--all` instead of
+  `--changed`; the neutered global mirrors-mypy hook (which silently
+  disabled 13 error codes) is removed; a new `typecheck.yml` workflow
+  gates every PR.
+- Fixed `pytest-asyncio` loop scope warnings across plugins.
+- Resolved `leyline` mypy errors in `abstract` and `conserve`.
+- Addressed pre-existing test warnings surfaced by full-review pass.
+
 ## [1.9.11] - 2026-06-05
 
 ### Added
