@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "1.9.11",
+  "version": "1.9.12",
   "description": "Multi-source research plugin — code archaeology, community discourse, academic literature, and TRIZ cross-domain analysis with domain-adaptive depth",
   "skills": [
     "./skills/research",
