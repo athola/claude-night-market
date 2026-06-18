@@ -1,3 +1,16 @@
 {
-  "description": "claude-night-market project settings"
+  "description": "claude-night-market project settings",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/slop_scan_before_post.py\""
+          }
+        ]
+      }
+    ]
+  }
 }

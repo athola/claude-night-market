@@ -51,6 +51,21 @@ If Discussions are not enabled or the "Decisions" category doesn't exist, warn t
 ⚠ Discussions not available (feature disabled or "Decisions" category missing). Skipping publication.
 ```
 
+### Step 2.5: Slop-scan before publishing
+
+De-slop every string bound for the Discussion (the body below and each
+phase comment) before any `gh` call:
+
+1. Run `Skill(scribe:slop-detector)` on the text, or apply the markers in
+   `.claude/rules/slop-scan-for-docs.md`.
+2. Replace em-dashes and arrows, straighten smart quotes, and cut tier-1
+   filler ("comprehensive", "seamless", "actionable", "robust").
+3. Publish only after the text is clean.
+
+The project `slop-scan-before-post` hook blocks `gh` posting commands
+whose body still carries these markers, so cleaning first avoids a
+rejected publish.
+
 ### Step 3: Create the Discussion
 
 Create a Discussion in the "Decisions" category:

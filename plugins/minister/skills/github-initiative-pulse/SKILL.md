@@ -41,7 +41,12 @@ Turns tracker data and GitHub board metadata into initiative-level summaries. Pr
 1. Capture work via `tracker.py add` or sync from GitHub Projects.
 2. Review blockers/highlights using the **Blocker Radar** table.
 3. Generate GitHub comment via `tracker.py status --github-comment` or module snippets.
-4. Cross-link the weekly Status Template and share with stakeholders.
+4. De-slop the digest before posting: run `Skill(scribe:slop-detector)`
+   on it, or apply the markers in `.claude/rules/slop-scan-for-docs.md`
+   (replace em-dashes and arrows, straighten smart quotes, cut tier-1
+   filler). The `slop-scan-before-post` hook blocks `gh` posts that skip
+   this.
+5. Cross-link the weekly Status Template and share with stakeholders.
 
 ## Key Metrics
 

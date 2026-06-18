@@ -94,6 +94,20 @@ appears 3+ times:
 - Reference effective strategies from improvement_memory
 - Report as `[Improvement]` type
 
+### Step 5.5: Slop-scan findings before posting
+
+De-slop every finding's title and body before piping them to the posting
+script:
+
+1. Run `Skill(scribe:slop-detector)` on the finding text, or apply the
+   markers in `.claude/rules/slop-scan-for-docs.md`.
+2. Replace em-dashes and arrows, straighten smart quotes, and cut tier-1
+   filler ("comprehensive", "seamless", "actionable", "robust").
+3. Post only after the text is clean.
+
+The findings land on a public Discussion, so the same hygiene that guards
+docs and git output applies here.
+
 ### Step 6: Post Findings
 
 ```bash

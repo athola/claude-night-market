@@ -223,6 +223,11 @@ If user chooses to close:
 gh issue close <number> --repo <owner/repo> --reason completed --comment "Closed via /close-issue analysis. All acceptance criteria verified as met."
 ```
 
+If you replace the default `--comment` with a generated summary, de-slop
+it first: run `Skill(scribe:slop-detector)` on the text, or apply the
+markers in `.claude/rules/slop-scan-for-docs.md`. The
+`slop-scan-before-post` hook blocks the close command otherwise.
+
 #### If any issues are PARTIALLY DONE or NOT STARTED:
 
 ```

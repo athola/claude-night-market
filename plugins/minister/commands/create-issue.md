@@ -110,6 +110,20 @@ Use the AskUserQuestion tool for each section:
 
 The template mode builds the full `gh issue create` command from responses.
 
+### Phase 3.5: Slop-scan the body before posting
+
+De-slop `${body}` (and the title) before the `gh issue create` call:
+
+1. Run `Skill(scribe:slop-detector)` on the body, or apply the markers in
+   `.claude/rules/slop-scan-for-docs.md`.
+2. Replace em-dashes and arrows, straighten smart quotes, and cut tier-1
+   filler ("comprehensive", "seamless", "actionable", "robust").
+3. Create the issue only after the body is clean.
+
+The project `slop-scan-before-post` hook blocks the create command when
+the body still carries these markers, so cleaning first avoids a failed
+post.
+
 ### Phase 4: Create Issue
 
 Execute the GitHub CLI command to create the issue:

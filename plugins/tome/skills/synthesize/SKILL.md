@@ -31,6 +31,11 @@ Merge findings from all channels into a ranked report.
 2. Rank: `tome.synthesis.ranker.rank_findings()`
 3. Group: `tome.synthesis.ranker.group_by_theme()`
 4. Format: `tome.output.report.format_report()`
+5. De-slop: before the report leaves this skill (export, paste, or post),
+   run `Skill(scribe:slop-detector)` on it, or apply the markers in
+   `.claude/rules/slop-scan-for-docs.md`. Replace em-dashes and arrows,
+   straighten smart quotes, and cut tier-1 filler. A report posted to a
+   `gh` channel hits the `slop-scan-before-post` hook if it skips this.
 
 ## Output Formats
 
