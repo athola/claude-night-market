@@ -49,9 +49,22 @@ def scan_directory(root: Path) -> list[Finding]:
             continue
         try:
             findings.extend(scan_path(py_file))
-        except OSError:
-            # Unreadable file: skip silently. The report will simply
-            # not include findings from the file. A future addition
-            # could emit an ADVISORY for this case.
+        except OSError as exc:
+            # Unreadable file: an unscanned file is invisible to
+            # --strict (which fires on HIGH+), so a permission-denied
+            # path could hide a real finding. Surface it as an ADVISORY
+            # (issue #575, B2) reusing the PYSX shape so the operator
+            # sees the gap instead of a silent drop.
+            findings.append(
+                Finding(
+                    id="PYSX",
+                    severity="ADVISORY",
+                    citation=None,
+                    file=str(py_file),
+                    line=0,
+                    detection_signal=f"could not read file: {exc}",
+                    proposal=None,
+                )
+            )
             continue
     return findings

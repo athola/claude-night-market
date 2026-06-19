@@ -389,6 +389,29 @@ class TestCollectDeploymentsFromGit:
         )
         assert result.events == []
 
+    def test_wrong_field_count_marks_partial(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Issue #575, B3: a git log line with the wrong field count used
+        # to be skipped silently. It must now set partial=True and emit a
+        # warning, like the malformed-timestamp branch, so a broken
+        # pretty-format cannot yield a silent Elite-tier report.
+        from minister import dora_metrics
+
+        def fake_run_git(args: list[str], cwd: object = None) -> str:
+            # Two fields instead of three (missing commit_iso).
+            return "abc1234567890|2026-04-15T10:00:00+00:00\n"
+
+        monkeypatch.setattr(dora_metrics, "_run_git", fake_run_git)
+        result = dora_metrics.collect_deployments_from_git(
+            branch="main",
+            window_days=30,
+            window_end=datetime(2026, 5, 1, tzinfo=timezone.utc),
+        )
+        assert result.events == []
+        assert result.partial is True
+        assert len(result.warnings) >= 1
+
 
 class TestCollectFailuresFromGh:
     """gh CLI absence and JSON parsing edge cases."""

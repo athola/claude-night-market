@@ -58,6 +58,52 @@ class TestScannerSkipsVendored:
         scanned_segments = [p[len(str(tmp_path)) :] for p in files]
         assert not any("node_modules" in seg for seg in scanned_segments)
 
+    def test_uv_cache_skipped(self, tmp_path: Path) -> None:
+        # Revert guard (issue #575, B4): if ".uv-cache" is removed from
+        # _SKIP_COMPONENTS, the cached file is scanned and this fails.
+        cached = tmp_path / ".uv-cache" / "pkg"
+        cached.mkdir(parents=True)
+        (cached / "evil.py").write_text("import yaml\nyaml.load('x')\n")
+
+        own = tmp_path / "own.py"
+        own.write_text("import requests\nrequests.get('http://x')\n")
+
+        findings = scan_directory(tmp_path)
+        files = {getattr(f, "file", "?") for f in findings}
+        assert any(p.endswith("own.py") for p in files)
+        scanned_segments = [p[len(str(tmp_path)) :] for p in files]
+        assert not any(".uv-cache" in seg for seg in scanned_segments)
+
+    def test_cargo_skipped(self, tmp_path: Path) -> None:
+        # Revert guard (issue #575, B4): if ".cargo" is removed from
+        # _SKIP_COMPONENTS, the cached file is scanned and this fails.
+        cached = tmp_path / ".cargo" / "registry"
+        cached.mkdir(parents=True)
+        (cached / "evil.py").write_text("import yaml\nyaml.load('x')\n")
+
+        own = tmp_path / "own.py"
+        own.write_text("import requests\nrequests.get('http://x')\n")
+
+        findings = scan_directory(tmp_path)
+        files = {getattr(f, "file", "?") for f in findings}
+        assert any(p.endswith("own.py") for p in files)
+        scanned_segments = [p[len(str(tmp_path)) :] for p in files]
+        assert not any(".cargo" in seg for seg in scanned_segments)
+
+
+class TestScannerSurfacesUnreadable:
+    def test_unreadable_file_yields_advisory(self, tmp_path: Path) -> None:
+        # Issue #575, B2: a file the scanner cannot read used to be
+        # dropped silently, making it invisible to --strict. It must
+        # now surface an ADVISORY finding.
+        # A directory whose name ends in .py: rglob matches it, but
+        # read_text() raises IsADirectoryError (an OSError subclass).
+        (tmp_path / "unreadable.py").mkdir()
+
+        findings = scan_directory(tmp_path)
+        advisories = [f for f in findings if getattr(f, "severity", "") == "ADVISORY"]
+        assert any("unreadable.py" in getattr(f, "file", "") for f in advisories)
+
 
 class TestCliEntryPoint:
     def test_cli_emits_json(
