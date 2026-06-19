@@ -20,6 +20,7 @@ import pytest
 from scripts.citation_verifier import (
     Finding,
     VerificationReport,
+    _findings_from_json,
     load_findings,
     main,
     parse_markdown_findings,
@@ -332,3 +333,101 @@ class TestEdgeCases:
         assert findings[0]["line"] == 4
         report = verify_findings(findings, source_repo)
         assert report.passed is True
+
+
+# --------------- minimum anchor length (issue #569.1) ---------------
+
+
+class TestMinAnchorLength:
+    """A too-short anchor matches too easily and must not VERIFY.
+
+    A 3-char anchor like ``def`` is a substring of countless lines, so it
+    would VERIFY spuriously. Require a minimum number of non-space anchor
+    characters before a substring match is trusted.
+    """
+
+    def test_three_char_anchor_does_not_verify(self, source_repo: Path) -> None:
+        """The issue's example: ``def`` appears on line 3 but is too short."""
+        f = _finding(line=3, anchor="def")
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "FAILED"
+        assert "short" in result.reason.lower()
+
+    def test_seven_char_anchor_does_not_verify(self, source_repo: Path) -> None:
+        """Boundary: 7 non-space chars is still below the >=8 threshold."""
+        # "return a" has 7 non-space characters and is a substring of line 4.
+        f = _finding(line=4, anchor="return a")
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "FAILED"
+        assert "short" in result.reason.lower()
+
+    def test_eight_char_anchor_verifies(self, source_repo: Path) -> None:
+        """Boundary: exactly 8 non-space chars is long enough to verify."""
+        # "return a /" has 8 non-space characters and is on line 4.
+        f = _finding(line=4, anchor="return a /")
+        result = verify_finding(Finding.from_dict(f), source_repo)
+        assert result.status == "VERIFIED"
+
+    def test_long_real_anchor_still_verifies(self, source_repo: Path) -> None:
+        """A normal multi-word anchor (>=8 non-space chars) is unaffected."""
+        result = verify_finding(Finding.from_dict(_finding()), source_repo)
+        assert result.status == "VERIFIED"
+
+
+# --------------- coverage gaps (issue #569.4) ---------------
+
+
+class TestStrictnessStrictPath:
+    """The strict strictness value behaves like normal (fails on any miss)."""
+
+    def test_strict_fails_on_unresolved(self, source_repo: Path) -> None:
+        false_f = _finding(anchor="not anywhere in the file")
+        report = verify_findings([false_f], source_repo, strictness="strict")
+        assert report.passed is False
+        assert report.failed_count == 1
+
+    def test_strict_passes_when_all_verified(self, source_repo: Path) -> None:
+        report = verify_findings([_finding()], source_repo, strictness="strict")
+        assert report.passed is True
+        assert report.failed_count == 0
+
+
+class TestFindingsFromJson:
+    """Normalization branches of _findings_from_json."""
+
+    def test_bare_dict_is_wrapped_in_a_list(self) -> None:
+        """A single finding object (no 'findings' key) becomes a 1-item list."""
+        single = {"id": "F1", "file": "src/calc.py", "line": 4, "anchor": "x"}
+        assert _findings_from_json(single) == [single]
+
+    def test_non_list_findings_value_raises(self) -> None:
+        """A 'findings' key that is not a list is a malformed document."""
+        with pytest.raises(json.JSONDecodeError):
+            _findings_from_json({"findings": {"id": "F1"}})
+
+    def test_scalar_json_raises(self) -> None:
+        """A bare scalar (neither list nor dict) is an unexpected shape."""
+        with pytest.raises(json.JSONDecodeError):
+            _findings_from_json(42)
+
+
+class TestUnknownSuffixFallback:
+    """load_findings on an unknown suffix tries JSON, then markdown."""
+
+    def test_unknown_suffix_parses_json(self, source_repo: Path) -> None:
+        path = source_repo / "findings.txt"
+        path.write_text(json.dumps([_finding()]))
+        findings = load_findings(path)
+        assert len(findings) == 1
+        assert findings[0]["id"] == "F1"
+
+    def test_unknown_suffix_falls_back_to_markdown(self, source_repo: Path) -> None:
+        path = source_repo / "findings.txt"
+        path.write_text(
+            "### [HIGH] Title\n"
+            "- **Location**: src/calc.py:4\n"
+            "- **Anchor**: `return a / b`\n"
+        )
+        findings = load_findings(path)
+        assert len(findings) == 1
+        assert findings[0]["line"] == 4

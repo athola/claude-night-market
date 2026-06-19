@@ -58,6 +58,9 @@ def load_spelling_map() -> dict[str, str]:
     Raises:
         ImportError: If pyyaml is not installed.
         FileNotFoundError: If the data file is missing.
+        ValueError: If the data file is empty, unparseable, or carries no
+            entries. An empty map silently turns normalization into a
+            no-op, so it is treated as a packaging bug (issue #569).
     """
     global _MAP_CACHE
     if _MAP_CACHE is not None:
@@ -72,9 +75,15 @@ def load_spelling_map() -> dict[str, str]:
         raise FileNotFoundError(f"Spelling data file not found: {DATA_FILE}")
 
     with open(DATA_FILE, encoding="utf-8") as f:
-        raw: dict[str, Any] = yaml.safe_load(f) or {}
+        raw: dict[str, Any] | None = yaml.safe_load(f)
+
+    if not raw:
+        raise ValueError(f"Spelling map is empty or unparseable: {DATA_FILE}")
 
     mappings = raw.get("mappings", raw)
+    if not mappings:
+        raise ValueError(f"Spelling map has no entries: {DATA_FILE}")
+
     _MAP_CACHE = {str(k).lower(): str(v) for k, v in mappings.items()}
     return _MAP_CACHE
 

@@ -32,6 +32,12 @@ HEADING_PATTERN = re.compile(r"^###\s+(.+)$", re.MULTILINE)
 # How many lines on either side of the cited line the anchor may appear on.
 DEFAULT_WINDOW = 2
 
+# Minimum number of non-space characters an anchor must carry to be trusted.
+# A 3-char anchor like "def" is a substring of countless lines and would
+# VERIFY spuriously; requiring >=8 non-space chars keeps the substring match
+# meaningful (issue #569).
+MIN_ANCHOR_CHARS = 8
+
 
 def _normalize(text: str) -> str:
     """Collapse all whitespace runs and strip, for tolerant matching."""
@@ -143,6 +149,17 @@ def verify_finding(
             finding.id,
             "FAILED",
             f"line {finding.line} out of range (file has {total} lines)",
+        )
+
+    # A too-short anchor matches too easily to be trusted; reject it before
+    # the substring search rather than let it VERIFY spuriously (issue #569).
+    anchor_chars = "".join(finding.anchor.split())
+    if len(anchor_chars) < MIN_ANCHOR_CHARS:
+        return CitationResult(
+            finding.id,
+            "FAILED",
+            f"anchor too short ({len(anchor_chars)} non-space chars; "
+            f"need >={MIN_ANCHOR_CHARS}) to verify reliably",
         )
 
     # 1-indexed line -> 0-indexed slice, inclusive +/- window.
