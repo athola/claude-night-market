@@ -16,6 +16,20 @@ Shows all existing memory palaces with entry counts and last-modified dates.
 ```
 Displays the structure, districts, and entries of a specific palace.
 
+### Diagram Palace
+```
+/palace diagram <palace-id> [--type map|ascii|entity|heatmap]
+```
+Renders the palace as a diagram by invoking
+`Skill(memory-palace:palace-diagram)`. Types:
+
+- `map` (default): Mermaid flowchart of rooms, entities, and synapses
+- `ascii`: box-drawing text overview for inline display
+- `entity <entity-id>`: a single entity's connections and triples
+- `heatmap`: Mermaid graph with edges styled by synapse strength
+
+Mermaid output renders via the Mermaid Chart MCP; ASCII prints inline.
+
 ### Create Palace
 ```
 /palace create <name> <domain> [--metaphor <type>]

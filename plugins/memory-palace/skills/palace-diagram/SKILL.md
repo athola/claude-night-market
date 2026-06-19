@@ -25,12 +25,11 @@ Generate Mermaid and ASCII diagrams from the knowledge
 graph, showing palace structure, entity relationships,
 synapse connectivity, and tier assignments.
 
-> **Status: unwired**. As of v1.9.4, no command or agent
-> invokes `Skill(memory-palace:palace-diagram)`. The skill
-> defines the contract but the integration into `/palace`
-> (e.g. as `/palace diagram <palace-id>`) is pending. Use
-> the `palace_manager.py` script directly until the wiring
-> lands. Tracked for follow-up in the April 2026 skill audit.
+> **Status: wired**. Invoke via `/palace diagram <palace-id>
+> [--type map|ascii|entity|heatmap]`, which calls
+> `Skill(memory-palace:palace-diagram)`. The renderer lives in
+> `memory_palace.palace_renderer.PalaceRenderer`; see the Usage
+> section below for direct programmatic access.
 
 ## When To Use
 
