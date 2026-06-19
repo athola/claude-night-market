@@ -69,14 +69,20 @@ def _counter_path(session_id: str) -> Path:
 # Duplicated from vow_bounded_reads.py — a shared import would pay the
 # same startup cost this script is designed to avoid.
 def _get_session_id(data: dict) -> str:
-    """Extract session ID from stdin data, env var, or fall back to 'default'."""
+    """Extract session ID from stdin data, env var, or a process-scoped token.
+
+    Must match ``vow_bounded_reads._get_session_id`` exactly so the reset
+    targets the same file the increment writes. Issue #580: the last-resort
+    fallback is the parent pid rather than a fixed ``default`` so sessions
+    without a session_id do not share one counter.
+    """
     sid = data.get("session_id", "")
     if sid:
         return str(sid)
     sid = os.environ.get("CLAUDE_SESSION_ID", "")
     if sid:
         return sid
-    return "default"
+    return f"pid-{os.getppid()}"
 
 
 def _atomic_reset(path: Path) -> None:

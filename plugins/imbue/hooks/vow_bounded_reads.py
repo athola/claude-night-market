@@ -26,6 +26,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 # D-06: shadow_mode helper lives in shared/vow_utils, which is also the
@@ -60,6 +61,15 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
 
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
+
+# Issue #580: a counter not touched within this many seconds is treated as
+# stale and reset to zero on the next increment. Without this, a counter
+# left at count>budget by a prior session (especially the missing-session
+# fallback path, which several sessions could otherwise share) would make
+# every later Read emit advisory output indefinitely. Within an active
+# discovery phase reads happen far more often than the TTL, so a live
+# counter is never reset by accident.
+_COUNTER_TTL_SECONDS = 8 * 60 * 60
 
 
 def _counter_path(session_id: str) -> Path:
@@ -165,6 +175,15 @@ def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - lock fallbacks plus
             current = int(json.loads(raw or b"{}").get("count", 0))
         except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
             current = 0
+        # Issue #580: discard a counter left over from a prior session. A
+        # file untouched past the TTL cannot belong to the current
+        # discovery phase, so its count must not bleed forward.
+        if current:
+            try:
+                if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
+                    current = 0
+            except OSError:
+                pass
         new_count = current + 1
         try:
             os.lseek(fd, 0, os.SEEK_SET)
@@ -213,14 +232,23 @@ def _shadow_mode() -> bool:
 
 
 def _get_session_id(data: dict) -> str:
-    """Extract session ID from stdin data, env var, or fall back to 'default'."""
+    """Extract session ID from stdin data, env var, or a process-scoped token.
+
+    Issue #580: the last-resort fallback must not be a fixed constant. A
+    shared ``default`` filename made every session without a session_id
+    write to the same counter, so a stale count>budget bled into every
+    later session. Falling back to the parent pid (the Claude Code
+    process, stable within a session and distinct across concurrent
+    sessions) keeps each process on its own counter; the TTL reset in
+    ``_atomic_increment`` covers the residual pid-reuse case.
+    """
     sid = data.get("session_id", "")
     if sid:
         return str(sid)
     sid = os.environ.get("CLAUDE_SESSION_ID", "")
     if sid:
         return sid
-    return "default"
+    return f"pid-{os.getppid()}"
 
 
 def main() -> None:
@@ -254,14 +282,28 @@ def main() -> None:
                     else ""
                 )
             )
-            # Issue #517: Claude Code rejects the legacy hookSpecificOutput
-            # wrapper. Shadow mode injects advisory text via additionalContext
-            # (no permission change); block mode uses the {decision, reason}
-            # root keys to halt the tool call.
+            # Issue #580: Claude Code 2.1.178 rejects top-level
+            # additionalContext / decision keys with "(root): Invalid
+            # input". The valid PreToolUse output nests under
+            # hookSpecificOutput with hookEventName, matching the sibling
+            # tdd_bdd_gate and vow_no_emoji_commits hooks. Shadow mode
+            # injects advisory text via additionalContext (no permission
+            # change); block mode denies the tool call.
             if shadow:
-                output: dict[str, str] = {"additionalContext": reason}
+                output: dict[str, dict[str, str]] = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "additionalContext": reason,
+                    }
+                }
             else:
-                output = {"decision": "block", "reason": reason}
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": reason,
+                    }
+                }
             print(json.dumps(output))
             print(
                 f"[vow-bounded-reads] {decision.upper()}: "
