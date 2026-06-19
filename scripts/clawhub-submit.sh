@@ -86,32 +86,119 @@ if [ "$EXPORTED" -eq 0 ]; then
   exit 1
 fi
 
-# ---------- sync (bulk publish) ----------
+# ---------- publish each skill independently ----------
 
-SYNC_ARGS=(
-  --workdir "$REPO_ROOT/$SKILLS_DIR"
-  --dir .
-  --all
-  --tags latest
-  --changelog "Release $VERSION"
-  --concurrency 1
-)
+# Rationale (issue #570): `clawhub sync --all` is a single bulk call
+# that aborts on the first hard error. During the v1.9.11 release a
+# `Version already exists` collision on one skill halted the run after
+# 68/188 skills, leaving ~120 unpublished, and re-running made no
+# progress because the same skill kept colliding first.
+#
+# We instead publish each skill in its own `clawhub publish` call so
+# one skill's failure never blocks the rest. A version-collision
+# ("already exists") is treated as an idempotent skip, not a failure,
+# so re-runs converge. Real failures are collected and reported but do
+# not abort the run.
+#
+# Out of scope (clawhub CLI): the version string clawhub derives per
+# skill (the v1.9.11 collision was on "1.0.3", which matches neither
+# the release tag nor the manifest version). Fixing that derivation
+# belongs in the clawhub CLI, tracked as a follow-up. This script only
+# makes the publish loop resilient to it.
 
-if [ "$DRY_RUN" = true ]; then
-  SYNC_ARGS+=(--dry-run)
-fi
+SEMVER="${VERSION#v}"
 
 echo ""
-echo "Running: $CLAWHUB sync ${SYNC_ARGS[*]}"
+echo "Publishing $EXPORTED skill(s) individually for $VERSION..."
 echo ""
 
-# Capture exit code without tripping `set -e`.
-# Plain `$CLAWHUB sync ...; SYNC_EXIT=$?` is unreachable when sync
-# fails because errexit terminates the script first. The `|| ...`
-# tested-context exempts the command from errexit so we can fall
-# through to the partial-sync messaging below.
-SYNC_EXIT=0
-$CLAWHUB sync "${SYNC_ARGS[@]}" || SYNC_EXIT=$?
+SUMMARY=$(
+  SKILLS_DIR="$REPO_ROOT/$SKILLS_DIR" \
+  SEMVER="$SEMVER" VERSION="$VERSION" \
+  DRY_RUN="$DRY_RUN" CLAWHUB="$CLAWHUB" python3 -c '
+import json, os, shlex, subprocess, sys
+from pathlib import Path
+
+skills_dir = Path(os.environ["SKILLS_DIR"])
+semver = os.environ["SEMVER"]
+version = os.environ["VERSION"]
+dry_run = os.environ["DRY_RUN"] == "true"
+clawhub = shlex.split(os.environ["CLAWHUB"])
+
+manifest = json.loads((skills_dir / "manifest.json").read_text())
+skills = manifest.get("skills", [])
+
+published, skipped, failed = [], [], []
+
+for skill in skills:
+    slug = skill["slug"]
+    skill_dir = skills_dir / slug
+    if not skill_dir.is_dir():
+        print(f"  FAIL: {slug} (directory missing)")
+        failed.append((slug, "directory missing"))
+        continue
+
+    if dry_run:
+        print(f"  [dry-run] would publish: {slug}")
+        published.append(slug)
+        continue
+
+    cmd = clawhub + [
+        "publish", str(skill_dir),
+        "--slug", slug,
+        "--version", semver,
+        "--tags", "latest",
+        "--changelog", f"Release {version}",
+    ]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    except subprocess.TimeoutExpired:
+        print(f"  FAIL: {slug} (timeout)")
+        failed.append((slug, "timeout"))
+        continue
+    except Exception as e:  # noqa: BLE001 - keep the loop alive
+        print(f"  FAIL: {slug} ({e})")
+        failed.append((slug, str(e)))
+        continue
+
+    out = ((r.stderr or "") + (r.stdout or "")).strip()
+    low = out.lower()
+    if r.returncode == 0:
+        print(f"  OK: {slug}")
+        published.append(slug)
+    elif "already exists" in low:
+        # Idempotent: this version is already on ClawHub. Skip, do
+        # not fail, so the run completes and re-runs converge.
+        print(f"  SKIP: {slug} (version already exists)")
+        skipped.append(slug)
+    else:
+        msg = out or "unknown error"
+        if len(msg) > 200:
+            msg = msg[:200] + "..."
+        print(f"  FAIL: {slug} ({msg})")
+        failed.append((slug, msg))
+
+print("")
+print("=== ClawHub Publish Summary ===")
+print(f"Version:   {version}")
+print(f"Total:     {len(skills)}")
+print(f"Published: {len(published)}")
+print(f"Skipped:   {len(skipped)} (already exists)")
+print(f"Failed:    {len(failed)}")
+if dry_run:
+    print("Mode:      dry-run")
+if failed:
+    print("")
+    print("Failed skills:")
+    for slug, why in failed:
+        print(f"  - {slug}: {why}")
+
+# Exit non-zero only on genuine failures. Collisions/skips are fine.
+sys.exit(1 if failed else 0)
+'
+) && PUBLISH_EXIT=0 || PUBLISH_EXIT=$?
+
+echo "$SUMMARY"
 
 # ---------- publish package ----------
 
@@ -127,22 +214,12 @@ else
   fi
 fi
 
-# ---------- summary ----------
+# ---------- final status ----------
 
 echo ""
-echo "=== ClawHub Publish Summary ==="
-echo "Version: $VERSION"
-echo "Skills:  $EXPORTED"
-
-if [ "$DRY_RUN" = true ]; then
-  echo "Mode:    dry-run"
-fi
-
-if [ "$SYNC_EXIT" -ne 0 ]; then
-  echo "Status:  partial (rate limit or error)"
-  echo ""
-  echo "Re-run this script to continue publishing."
-  echo "clawhub sync only uploads new/updated skills."
+if [ "$PUBLISH_EXIT" -ne 0 ]; then
+  echo "Status:  completed with failures (see list above)"
+  echo "Re-run this script to retry; already-published skills are skipped."
   exit 1
 else
   echo "Status:  complete"

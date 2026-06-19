@@ -71,8 +71,18 @@ for TARGET in "${TARGETS[@]}"; do
   echo ""
   echo "=== $TARGET ==="
 
+  BASE_OWNER=$(echo "$TARGET" | cut -d/ -f1)
   REPO_NAME=$(echo "$TARGET" | cut -d/ -f2)
   BRANCH="add-night-market-${VERSION}"
+
+  # Issue #571: TARGETS contains two repos with the SAME name
+  # (vincentkoc/awesome-openclaw and SamurAIGPT/awesome-openclaw).
+  # A single account can only hold one fork named "awesome-openclaw",
+  # so reusing it sends a PR against the wrong upstream and GitHub
+  # rejects it ("No commits between SamurAIGPT:main and athola:...").
+  # Give each upstream its own fork, named after the upstream owner,
+  # so every PR is created from a fork whose parent matches its target.
+  FORK_NAME="${REPO_NAME}-${BASE_OWNER}"
 
   # Check for existing open PR from us before doing any work
   EXISTING=$(gh pr list \
@@ -90,21 +100,21 @@ for TARGET in "${TARGETS[@]}"; do
     continue
   fi
 
-  # Ensure fork exists
-  gh repo fork "$TARGET" --clone=false 2>&1 || true
+  # Ensure a dedicated fork exists for THIS upstream.
+  gh repo fork "$TARGET" --fork-name "$FORK_NAME" --clone=false 2>&1 || true
 
-  if ! gh repo view "${FORK_OWNER}/${REPO_NAME}" --json name -q .name > /dev/null 2>&1; then
-    echo "Warning: Cannot access fork ${FORK_OWNER}/${REPO_NAME}, skipping"
+  if ! gh repo view "${FORK_OWNER}/${FORK_NAME}" --json name -q .name > /dev/null 2>&1; then
+    echo "Warning: Cannot access fork ${FORK_OWNER}/${FORK_NAME}, skipping"
     continue
   fi
 
   # Sync fork
-  gh repo sync "${FORK_OWNER}/${REPO_NAME}" --branch main 2>&1 || true
+  gh repo sync "${FORK_OWNER}/${FORK_NAME}" --branch main 2>&1 || true
 
   WORKDIR=$(mktemp -d)
   trap 'rm -rf "$WORKDIR"' EXIT INT TERM
 
-  gh repo clone "${FORK_OWNER}/${REPO_NAME}" "$WORKDIR/repo" -- --depth=10
+  gh repo clone "${FORK_OWNER}/${FORK_NAME}" "$WORKDIR/repo" -- --depth=10
   cd "$WORKDIR/repo"
 
   git config user.name "$FORK_OWNER"
