@@ -1,7 +1,7 @@
 # ADR-0012: Confidence-Tagged Agent Claims (VERIFIED / INFERRED / ASSUMPTION)
 
 **Date**: 2026-05-06
-**Status**: Proposed (research, not yet adopted)
+**Status**: Superseded by ADR-0017
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #458, Discussion #448 Pattern 1
 
