@@ -4,7 +4,11 @@
 .claude/scheduled_tasks.lock
 .claude/state/
 .claude/worktrees/
+.claude/logs/
 *.txt
+
+# Transient PR-review findings cache (not source)
+.review/
 
 # Python
 **/*/__pycache__/
