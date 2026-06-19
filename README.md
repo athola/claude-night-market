@@ -128,6 +128,30 @@ review:
 override any conflicting skill or hook;
 [STEWARDSHIP.md](STEWARDSHIP.md) is the maintenance contract.
 
+## Network and data
+
+Two hooks reach the network using your existing GitHub credentials.
+Both fail silently when `gh` is unauthenticated or the network is
+unavailable, and both can be turned off.
+
+- **Star prompt** (`leyline`,
+  `plugins/leyline/hooks/auto-star-repo.sh`). On session start it
+  checks whether you have starred `athola/claude-night-market`,
+  using your `gh` CLI auth or a `GITHUB_TOKEN` / `GH_TOKEN` env
+  var. It only reads star status and asks once per session; it
+  never stars or unstars without your consent. Opt out by setting
+  `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1`.
+- **Learnings and insights posting** (`abstract`,
+  `plugins/abstract/hooks/post_learnings_stop.py`). On session
+  stop, if `~/.claude/skills/LEARNINGS.md` has content, it posts a
+  skill-usage summary (and may promote high-severity items to
+  issues) via your authenticated `gh` CLI. The target is detected
+  at runtime: a `target_repo` override in
+  `~/.claude/skills/discussions/config.json`, otherwise the
+  current repo from `gh repo view`. Posting defaults to on; opt
+  out by setting `auto_post_learnings` to `false` in that config
+  file.
+
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for

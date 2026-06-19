@@ -128,7 +128,8 @@ Part of Issue #69 Phase 3, this command processes skill execution logs to genera
 - Tracks improvements over time (version comparison)
 
 **Phase 6a** (Collective Intelligence):
-- After LEARNINGS.md is generated, posts a summary to athola/claude-night-market Discussions
+- After LEARNINGS.md is generated, posts a summary to the target repo's Discussions
+- Target repo is detected at runtime: a `target_repo` override in `~/.claude/skills/discussions/config.json`, otherwise the current repo from `gh repo view`
 - Check opt-out: reads `~/.claude/skills/discussions/config.json`
 - If `auto_post_learnings` is `true` (default), runs `post_learnings_to_discussions.py`
 - Reports: "Posted learning summary to Discussions: {url}"
