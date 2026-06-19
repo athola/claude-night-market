@@ -16,7 +16,10 @@ import hashlib
 import json
 import logging
 import os
+import random
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -43,6 +46,16 @@ DIGEST_HEAD_LINES = 20
 DIGEST_TAIL_LINES = 20
 ARCHIVE_SUBDIR = Path(".claude") / "context-archive"
 
+# Archives accumulate across sessions and /clears with nothing to prune them.
+# A retention sweep deletes handles older than this many days. Override with
+# CONSERVE_CCR_RETENTION_DAYS. The sweep runs opportunistically (see below).
+CCR_RETENTION_DAYS_DEFAULT = 7
+SECONDS_PER_DAY = 86_400
+# Probability that an archive write also triggers a retention sweep. Keeps the
+# directory scan off the hot path of most hook invocations while still pruning
+# regularly over a session's many large outputs.
+CCR_CLEANUP_PROBABILITY = 0.1
+
 
 __all__ = ["resolve_session_file"]
 
@@ -61,6 +74,50 @@ def get_ccr_threshold() -> int:
     except ValueError:
         logger.warning("Invalid CONSERVE_CCR_THRESHOLD=%r; using default", raw)
         return CCR_THRESHOLD_DEFAULT
+
+
+def get_ccr_retention_days() -> int:
+    """Return the archive retention window in days.
+
+    Reads ``CONSERVE_CCR_RETENTION_DAYS`` from the environment, falling back to
+    ``CCR_RETENTION_DAYS_DEFAULT`` when unset or not a valid integer.
+    """
+    raw = os.environ.get("CONSERVE_CCR_RETENTION_DAYS")
+    if raw is None:
+        return CCR_RETENTION_DAYS_DEFAULT
+    try:
+        return int(raw)
+    except ValueError:
+        logger.warning("Invalid CONSERVE_CCR_RETENTION_DAYS=%r; using default", raw)
+        return CCR_RETENTION_DAYS_DEFAULT
+
+
+def context_archive_cleanup(
+    archive_dir: Path | str, max_age_days: int | None = None
+) -> int:
+    """Delete CCR archives older than *max_age_days* and return the count removed.
+
+    Only files matching the ``ccr-*.txt`` handle pattern are considered, so a
+    user's own notes dropped in the archive dir are never touched. A missing
+    directory is a no-op (returns 0). Per-file errors are logged and skipped so
+    one unreadable archive cannot abort the sweep.
+    """
+    if max_age_days is None:
+        max_age_days = get_ccr_retention_days()
+    archive_dir = Path(archive_dir)
+    if not archive_dir.is_dir():
+        return 0
+
+    cutoff = time.time() - max_age_days * SECONDS_PER_DAY
+    removed = 0
+    for path in archive_dir.glob("ccr-*.txt"):
+        try:
+            if path.stat().st_mtime < cutoff:
+                path.unlink()
+                removed += 1
+        except OSError as exc:
+            logger.warning("CCR cleanup could not remove %s: %s", path, exc)
+    return removed
 
 
 def should_archive(text: str, threshold: int | None = None) -> bool:
@@ -107,11 +164,27 @@ def archive_large_output(text: str, archive_dir: Path | str | None = None) -> st
     digest = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
     handle = f"ccr-{digest[:CCR_HANDLE_HEX_LEN]}"
     archive_dir.mkdir(parents=True, exist_ok=True)
-    # errors="replace" mirrors the hash above: a lone surrogate (e.g. from
-    # os.fsdecode of a non-UTF-8 filename) must not raise UnicodeEncodeError,
-    # which is a ValueError and would escape the OSError fail-open guard. It
-    # also keeps the file content consistent with its content-addressed handle.
-    (archive_dir / f"{handle}.txt").write_text(text, encoding="utf-8", errors="replace")
+    target = archive_dir / f"{handle}.txt"
+    # Atomic write: stage to a temp file in the same directory, then os.replace
+    # onto the target. Two concurrent writers of identical content each rename
+    # their own complete temp file, so a reader (or the loser of the race) only
+    # ever sees a whole file, never a half-written one. errors="replace" mirrors
+    # the hash above: a lone surrogate (e.g. from os.fsdecode of a non-UTF-8
+    # filename) must not raise UnicodeEncodeError, which is a ValueError and
+    # would escape the OSError fail-open guard. It also keeps the file content
+    # consistent with its content-addressed handle.
+    fd, tmp_name = tempfile.mkstemp(dir=archive_dir, prefix=f"{handle}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", errors="replace") as tmp:
+            tmp.write(text)
+        os.replace(tmp_name, target)
+    except BaseException:
+        # Never leave a stray temp file behind on any failure (write or rename).
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
     return handle
 
 
@@ -309,6 +382,12 @@ def main() -> int:
         try:
             handle = archive_large_output(output_text)
             context_blocks.append(build_digest(output_text, handle))
+            # Opportunistic retention sweep so archives do not grow unbounded
+            # across sessions and /clears. Probabilistic to keep the directory
+            # scan off the hot path; over a session's many large outputs it
+            # runs often enough to bound disk use.
+            if random.random() < CCR_CLEANUP_PROBABILITY:  # noqa: S311 - sampling gate, not crypto
+                context_archive_cleanup(Path.cwd() / ARCHIVE_SUBDIR)
         except (OSError, UnicodeError) as exc:
             # fail-open: never break the host turn on an archive error. The
             # write uses errors="replace" so UnicodeError should not fire, but
