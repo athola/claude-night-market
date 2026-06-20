@@ -21,7 +21,6 @@ model_hint: standard
 estimated_tokens: 150
 progressive_loading: true
 dependencies:
-- pensive:shared
 - imbue:proof-of-work
 - imbue:review-core
 - imbue:structured-output

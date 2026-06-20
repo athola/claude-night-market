@@ -18,7 +18,6 @@ modules:
 - quality-gates.md
 - pr-template.md
 dependencies:
-- sanctum:shared
 - sanctum:git-workspace-review
 - imbue:proof-of-work
 - imbue:justify

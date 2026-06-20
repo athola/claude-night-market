@@ -22,7 +22,6 @@ model_hint: standard
 estimated_tokens: 450
 progressive_loading: true
 dependencies:
-- pensive:shared
 - imbue:proof-of-work
 - imbue:diff-analysis/modules/risk-assessment-framework
 - imbue:review-core

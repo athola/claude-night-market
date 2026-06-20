@@ -21,7 +21,6 @@ model_hint: deep
 estimated_tokens: 350
 progressive_loading: true
 dependencies:
-- pensive:shared
 - pensive:safety-critical-patterns
 - imbue:proof-of-work
 - imbue:justify

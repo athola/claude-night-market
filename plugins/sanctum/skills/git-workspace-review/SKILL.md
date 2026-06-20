@@ -13,8 +13,6 @@ tools: []
 complexity: low
 model_hint: fast
 estimated_tokens: 500
-dependencies:
-- sanctum:shared
 modules:
 - modules/git-commands.md
 hooks:

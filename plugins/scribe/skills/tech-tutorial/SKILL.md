@@ -20,7 +20,6 @@ modules:
 - modules/code-examples.md
 - modules/progressive-complexity.md
 dependencies:
-- scribe:shared
 - scribe:slop-detector
 ---
 # Tech Tutorial

@@ -20,7 +20,6 @@ modules:
 - modules/markdown-generation.md
 - modules/tape-validation.md
 dependencies:
-- sanctum:shared
 - sanctum:git-workspace-review
 - scry:vhs-recording
 - scry:browser-recording

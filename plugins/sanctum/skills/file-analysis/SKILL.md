@@ -14,7 +14,6 @@ complexity: medium
 model_hint: standard
 estimated_tokens: 800
 dependencies:
-- sanctum:shared
 - imbue:proof-of-work
 ---
 # File Analysis

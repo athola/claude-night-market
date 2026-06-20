@@ -20,7 +20,6 @@ modules:
 - modules/remediation-workflow.md
 - modules/quality-gates.md
 dependencies:
-- scribe:shared
 - scribe:slop-detector
 ---
 # Documentation Generator
