@@ -617,3 +617,23 @@ class TestMixinDemotion:
         mro_names = {cls.__name__ for cls in TestingGuideSkill.__mro__}
         assert "TestQualityMixin" not in mro_names
         assert "TestRecommendationMixin" not in mro_names
+
+    @pytest.mark.unit
+    def test_parse_code_sourced_from_async_analysis_base(self) -> None:
+        """_recommendations imports parse_code from async_analysis._base.
+
+        The duplicate in testing_guide/_constants.py was removed (SML-002).
+        Verify the shared implementation still works inside the
+        recommendation call path so we catch any future import regression.
+        """
+        from parseltongue.analysis.async_analysis._base import parse_code
+        from parseltongue.analysis.testing_guide import _recommendations
+
+        # Both must refer to the same underlying function after the redirect.
+        assert _recommendations.parse_code is parse_code
+
+        # End-to-end: generate_test_fixtures calls parse_code internally.
+        result = _recommendations.generate_test_fixtures(
+            "class Adder:\n    def __init__(self, x):\n        self.x = x\n"
+        )
+        assert "fixtures" in result
