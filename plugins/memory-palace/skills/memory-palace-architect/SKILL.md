@@ -140,3 +140,18 @@ Works with:
 ### Common Issues
 
 If palace creation fails, check that the `metaphor` argument matches one of the supported templates (Fortress, Library, Workshop, Garden, Observatory). For script errors, ensure the `palace_manager.py` script has executable permissions and that your Python environment meets the requirements listed in `pyproject.toml`.
+
+## Exit Criteria
+
+- [ ] `scripts/palace_manager.py create "<name>" "<domain>" --metaphor
+      <template>` completes without error and adds the palace to the
+      index
+- [ ] `scripts/palace_manager.py list` shows the newly created palace
+      by the name supplied during creation
+- [ ] Created palace schema includes spatial coordinates, a sensory
+      encoding profile, and a navigation guide
+- [ ] The `metaphor` argument resolves to one of the five supported
+      templates (Fortress, Library, Workshop, Garden, Observatory);
+      if not, error is reported with the valid list
+- [ ] Recall testing results or optimization recommendations are
+      produced as part of the Expected Outputs section

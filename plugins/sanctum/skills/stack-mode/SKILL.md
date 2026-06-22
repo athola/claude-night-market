@@ -317,3 +317,18 @@ Post via `gh pr comment "$ROOT_PR" --body-file <file>`.
 - `stack-mode` is a read/orchestration skill; it does NOT
   push, rebase, or edit branches. Those concerns are in
   `stack-create`, `stack-push`, and `stack-rebase`.
+
+## Exit Criteria
+
+- [ ] Stack membership resolved using at least one of the three
+      strategies (A: branch names, B: stack comment, C: base-chain
+      walk) and PRs ordered base-to-tip before iteration starts
+- [ ] The 3 required TodoWrite items (`stack-mode:membership-resolved`,
+      `stack-mode:iteration-complete`, `stack-mode:root-summary-posted`)
+      are created and marked complete in sequence
+- [ ] Root PR receives exactly one consolidated `## Stack <Command>
+      Summary` comment after all PRs are processed
+- [ ] If stack size is 1, warning `stack-mode: only one PR found;
+      --stack has no effect` is emitted and single-PR mode used
+- [ ] If a PR fails its gates, iteration halts and downstream PRs
+      are left untouched with a `stack-mode: halted at #<pr>` report

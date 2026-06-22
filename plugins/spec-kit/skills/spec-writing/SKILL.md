@@ -93,4 +93,21 @@ Focus on user value and business needs rather than implementation details. Avoid
 
 ### Common Issues
 
-If specifications are too vague, use the `success-criteria-patterns` module to enforce measurable outcomes. If implementation details leak into specs, review against the "Core Principles" and refactor to focus on user behavior.
+If specifications are too vague, use the `success-criteria-patterns`
+module to enforce measurable outcomes. If implementation details leak
+into specs, review against the "Core Principles" and refactor to focus
+on user behavior.
+
+## Exit Criteria
+
+- [ ] Spec document contains all 4 mandatory sections: Overview/Context,
+      User Scenarios, Functional Requirements, and Success Criteria
+- [ ] All success criteria are user-focused and measurable (e.g. "Users
+      complete checkout in under 3 minutes") not implementation metrics
+      (e.g. "API response under 200ms")
+- [ ] Quality checklist passes: no implementation details present,
+      requirements unambiguous, edge cases identified, scope bounded
+- [ ] No technology choices appear in requirements unless the spec
+      explicitly marks them as strictly necessary constraints
+- [ ] Each functional requirement has at least one testable acceptance
+      criterion that can be verified from outside the system

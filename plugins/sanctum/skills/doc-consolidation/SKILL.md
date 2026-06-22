@@ -292,3 +292,17 @@ Consolidation complete. Review the created files and commit when ready.
 - `sanctum:git-workspace-review` - Pre-flight workspace analysis
 - `sanctum:pr-prep` - Pull request preparation
 - `imbue:catchup` - Understanding recent changes
+
+## Exit Criteria
+
+- [ ] Consolidation plan presented to the user showing source files,
+      content categories, destination paths, and merge strategies
+      before any file is modified
+- [ ] All source ephemeral files (`*_REPORT.md`, `*_ANALYSIS.md`, etc.)
+      are deleted after their content is successfully merged
+- [ ] Each merged destination file has its frontmatter intact and
+      existing structure preserved after the merge
+- [ ] `git status` shows no untracked report-style markdown files
+      after consolidation completes
+- [ ] If no candidates are found, skill reports "no candidates" with
+      the search criteria used rather than silently completing

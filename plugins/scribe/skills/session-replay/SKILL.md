@@ -164,3 +164,17 @@ Generated tape: /tmp/session-replay-1711234567.tape
 Rendering GIF via scry...
 Done: session-replay.gif (18s, 960x540)
 ```
+
+## Exit Criteria
+
+- [ ] VHS tape file written to `{tempdir}/session-replay-{timestamp}.tape`
+      before rendering is attempted
+- [ ] GIF produced at the path specified in the tape's `Output`
+      directive and its size reported (duration, dimensions)
+- [ ] Temp tape file deleted after the GIF renders successfully
+- [ ] If VHS is not installed, error reported with the install command
+      `go install github.com/charmbracelet/vhs@latest` rather than
+      silently failing
+- [ ] If no JSONL path is given and `list_sessions()` returns empty,
+      user is told no sessions were found and directed to provide a
+      path directly

@@ -101,3 +101,18 @@ automatic relaunching is disabled.
 | `~/.config/systemd/user/egregore-watchdog.service` | Linux | systemd service unit |
 | `~/.egregore/watchdog.pid` | both | PID of last watchdog run |
 | `~/.egregore/watchdog.log` | macOS | watchdog output log |
+
+## Exit Criteria
+
+- [ ] On macOS: `~/Library/LaunchAgents/com.egregore.watchdog.plist`
+      does not exist after uninstall completes
+- [ ] On Linux: `~/.config/systemd/user/egregore-watchdog.timer` and
+      `egregore-watchdog.service` are both removed and `systemctl
+      --user daemon-reload` has run
+- [ ] Verification command returns empty output: `launchctl list |
+      grep egregore` (macOS) or `systemctl --user list-timers | grep
+      egregore` (Linux)
+- [ ] `~/.egregore/watchdog.pid` and `~/.egregore/watchdog.log` are
+      removed (or absent if they were never created)
+- [ ] User is notified that the watchdog has been removed and
+      automatic relaunching is disabled

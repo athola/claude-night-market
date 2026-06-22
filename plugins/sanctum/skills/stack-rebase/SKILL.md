@@ -220,3 +220,18 @@ done
   reviews as stale; remind reviewers to re-approve
 - The `stack-push` skill documents how to re-post the
   stack summary comment after a rebase changes PR SHAs
+
+## Exit Criteria
+
+- [ ] All 6 TodoWrite items (`stack-rebase:fetch-complete` through
+      `stack-rebase:prs-updated`) are created before the rebase starts
+      and marked complete in order
+- [ ] `git fetch origin` completes before the rebase trigger is
+      identified and classified as Case A, B, or C
+- [ ] `git rebase --update-refs` completes without abort for Cases A
+      and B; if conflicts occur, each is resolved before continuing
+- [ ] All slice branches force-pushed with `--force-with-lease`; plain
+      `--force` is never used
+- [ ] For Case A only: `gh pr edit <next-pr> --base master` updates
+      the new stack root's base target and the full stack topology
+      verified with `gh pr list` output

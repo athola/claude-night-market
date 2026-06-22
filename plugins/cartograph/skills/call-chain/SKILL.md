@@ -88,3 +88,16 @@ Skip graph-specific steps.
 | External calls | 0.20 | Unresolved dependencies |
 | Test gap | 0.15 | Untested nodes in flow |
 | Depth | 0.10 | Deep call chains |
+
+## Exit Criteria
+
+- [ ] Indented call tree displayed for the target function with
+      criticality scores in the form `[criticality: N.NN]`
+- [ ] Mermaid `flowchart LR` generated with edges representing
+      each caller-to-callee relationship in the traced path
+- [ ] Criticality breakdown table shown covering: file spread,
+      security sensitivity, external calls, test gap, and depth
+- [ ] If gauntlet is not installed, fallback to static `rg`/`grep`
+      analysis is used and the absence of graph data is noted
+- [ ] If gauntlet is installed but `graph.db` is absent, user is
+      told to run `/gauntlet-graph build` before the skill halts

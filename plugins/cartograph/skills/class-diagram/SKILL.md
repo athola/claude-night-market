@@ -106,3 +106,16 @@ Show the rendered diagram with analysis notes:
 - Total classes and relationship count
 - Key inheritance hierarchies identified
 - Composition patterns noted
+
+## Exit Criteria
+
+- [ ] Mermaid `classDiagram` syntax generated with at least one class
+      definition including public methods or attributes
+- [ ] `mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram`
+      called with `diagramType: "classDiagram"` and returns without error
+- [ ] Analysis notes include total class count, identified inheritance
+      hierarchies, and composition patterns
+- [ ] Private methods and dunder methods (`__init__`, `__repr__`, etc.)
+      are absent from the generated diagram
+- [ ] Diagram contains at most 15 classes; if more exist in scope,
+      aggregation is applied and noted

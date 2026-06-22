@@ -37,3 +37,16 @@ Merge findings from all channels into a ranked report.
 - **report**: Full sectioned markdown
 - **brief**: Condensed 1-2 pages
 - **transcript**: Raw session log
+
+## Exit Criteria
+
+- [ ] `merge_findings()`, `rank_findings()`, and `group_by_theme()`
+      all called in sequence before output is formatted
+- [ ] Output formatted via `format_report()` by default, or
+      `format_brief()` / `format_transcript()` when the flag is set
+- [ ] Findings grouped by theme in the report, not presented as raw
+      per-channel lists
+- [ ] If the merged finding count is 0, this is stated explicitly
+      rather than generating an empty or fabricated report
+- [ ] If no active session exists, error emitted directing the user
+      to run `/tome:research` first

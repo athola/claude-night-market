@@ -97,3 +97,17 @@ estimated_tokens: 350
 - NEVER use `git commit --no-verify` or `-n`
 - Write for humans, not to impress
 - If pre-commit hooks fail, fix the issues
+
+## Exit Criteria
+
+- [ ] `commit_msg.txt` written to the working directory containing
+      the drafted conventional commit message
+- [ ] Subject line follows `<type>(<scope>): <summary>` format and
+      is at most 50 characters
+- [ ] Slop word check passes: none of the banned words (leverage,
+      utilize, seamless, comprehensive, robust, etc.) appear in the
+      message
+- [ ] Character-level check passes: no em-dashes, no `+` as prose
+      conjunction, no smart quotes, no `->` as prose connector
+- [ ] If nothing is staged, skill halts immediately and reports
+      "nothing staged" without producing a commit message

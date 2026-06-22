@@ -39,3 +39,14 @@ Invoked as part of `/tome:research` or standalone.
    `build_github_api_search()` for richer metadata
 5. Rank via `rank_github_findings()`
 6. Return Finding objects
+
+## Exit Criteria
+
+- [ ] At least one GitHub search query built and executed via
+      WebSearch for the requested topic
+- [ ] Results parsed into Finding objects containing repo metadata
+      (name, URL, stars) and a relevance score
+- [ ] Findings returned from `rank_github_findings()` sorted by
+      relevance score descending
+- [ ] If no results are found for the query, this is reported
+      explicitly rather than returning an empty list silently

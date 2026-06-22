@@ -167,3 +167,17 @@ gh pr comment "${ROOT_PR}" --body "$(printf "${BODY}")"
   `git push --force-with-lease` (never `--force`)
 - When a base PR merges, run `Skill(sanctum:stack-rebase)`
   to cascade the rebase before updating the next PR's base
+
+## Exit Criteria
+
+- [ ] All 4 TodoWrite items (`stack-push:branches-listed` through
+      `stack-push:stack-summary-posted`) are created before pushing
+      starts and marked complete in order
+- [ ] Each slice branch confirmed to have ≥ 1 commit beyond its base
+      before `git push` is called; branches with 0 commits are blocked
+- [ ] One draft PR opened per slice, each targeting its parent branch
+      as base (root slice targets `master`/`main`)
+- [ ] Root PR receives a `## Stack` comment containing a table with
+      columns `#`, `Branch`, and `PR` listing all slices
+- [ ] `gh pr list --head <branch>` returns a PR number for each
+      pushed branch after the step completes

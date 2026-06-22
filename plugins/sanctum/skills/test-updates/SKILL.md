@@ -392,3 +392,17 @@ A: The analyzer uses naming conventions:
 2. Use `--verbose` flag for more information
 3. Review the validation report for specific recommendations
 4. Start with small modules to understand patterns before scaling
+
+## Exit Criteria
+
+- [ ] `pytest -v` passes with zero failures after all test updates
+      are applied to the target files
+- [ ] Test coverage for files in scope exceeds 85% as reported by
+      `pytest --cov`
+- [ ] All new tests include a GIVEN/WHEN/THEN docstring matching
+      the BDD pattern from `modules/bdd-patterns.md`
+- [ ] `quality_checker.py --validate <test_file> --output-json`
+      returns `quality_score` ≥ 80 for each updated test file
+- [ ] If an invariant-encoding test changes, it is flagged for human
+      review with the three options (preserve/layer/revise) before
+      any assertion is modified

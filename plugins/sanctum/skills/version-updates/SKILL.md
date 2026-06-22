@@ -98,3 +98,18 @@ grep -r "1\.2\.6" docs/ book/ --include="*.md" | grep -v node_modules
 ## Output Instructions
 - Summarize the files changed and the new version number.
 - Mention follow-up steps, such as publishing or tagging, if applicable.
+
+## Exit Criteria
+
+- [ ] All 5 TodoWrite items (`version-update:context-collected`
+      through `version-update:verification`) are created before any
+      file is modified and marked complete in order
+- [ ] `update_versions.py --dry-run <version>` run first and its
+      output reviewed before any version file is written
+- [ ] Version bumped consistently across all found config files
+      (`pyproject.toml`, `Cargo.toml`, `package.json`, `plugin.json`)
+      with no target file missing the update
+- [ ] `CHANGELOG.md` updated with a new version section dated today
+- [ ] `git diff` output confirms version changes in all identified
+      target files; a summary of files changed and new version number
+      is reported to the user

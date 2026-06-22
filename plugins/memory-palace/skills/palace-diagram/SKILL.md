@@ -108,3 +108,18 @@ Works with:
 - `memory-palace-architect`: visualize after palace creation
 - `knowledge-locator`: display search results as graph
 - `graph-analyzer`: tier-informed node sizing
+
+## Exit Criteria
+
+- [ ] At least one of the four diagram types (palace map, entity graph,
+      synapse heatmap, ASCII overview) is generated without a Python
+      exception from `PalaceRenderer`
+- [ ] Mermaid diagrams are passed to
+      `mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram`
+      and render successfully
+- [ ] ASCII overview displays rooms with box-drawing characters and
+      entity counts per room
+- [ ] Synapse edge styling matches strength thresholds: `==>` for
+      strength ≥ 0.7, `-->` for ≥ 0.4, `-.->` for < 0.4
+- [ ] If the requested palace ID does not exist in the knowledge graph,
+      an error is reported with the palace ID that was searched

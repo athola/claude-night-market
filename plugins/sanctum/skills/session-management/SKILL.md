@@ -219,3 +219,18 @@ claude --resume
 - `/catchup` - Refresh context from git changes
 - `/clear` - Start fresh session
 - `Skill(sanctum:git-workspace-review)` - Capture repo context
+
+## Exit Criteria
+
+- [ ] Session named via `/rename` using a hyphenated descriptive name
+      matching one of the documented patterns (e.g. `debugging-*`,
+      `feature-*`, `pr-review-*`)
+- [ ] Session resumes via `claude --resume <name>` without loss of
+      prior context (verified by presence of earlier conversation)
+- [ ] If a session name is not found on resume, the error is surfaced
+      with troubleshooting steps (check typos, session expiry)
+- [ ] For PR-linked sessions (Claude Code 2.1.27+), `claude --from-pr
+      <number>` correctly reopens the session associated with that PR
+- [ ] If session context seems incomplete after resume, `Skill(sanctum:
+      git-workspace-review)` is re-run and its output confirms current
+      repo state

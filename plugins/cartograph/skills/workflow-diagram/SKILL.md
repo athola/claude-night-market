@@ -89,3 +89,17 @@ If rendering fails, fix syntax and retry (max 2 retries).
 
 Show the rendered diagram with a brief description of
 the workflow stages and decision points (2-3 sentences).
+
+## Exit Criteria
+
+- [ ] Mermaid `flowchart` syntax generated containing at least one
+      diamond `{Decision}` node representing a conditional branch
+- [ ] `mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram`
+      called and returns without error (or retry attempted and result
+      reported)
+- [ ] Error/fallback paths rendered as dotted arrows (`-.->`) distinct
+      from happy-path arrows when error paths exist in the source
+- [ ] Node count is at most 20; if more steps exist, sub-processes
+      are collapsed into `[[Subroutine]]` nodes
+- [ ] A 2-3 sentence description of workflow stages and decision
+      points is shown alongside the diagram

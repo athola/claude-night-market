@@ -134,3 +134,17 @@ Then offer interactive refinement:
 | (default) | report | `format_report()` |
 | `--format brief` | brief | `format_brief()` |
 | `--format transcript` | transcript | `format_transcript()` |
+
+## Exit Criteria
+
+- [ ] Domain classified before agents are dispatched; if confidence
+      < 0.6, user confirmation is requested before proceeding
+- [ ] Code and discourse agents always dispatched; academic and triz
+      agents dispatched only when their channels are in the plan;
+      all eligible agents sent in a single parallel message
+- [ ] Session saved to `docs/research/{session.id}-{slug}.md` after
+      synthesis regardless of whether all agents succeeded
+- [ ] Top 3 findings by relevance score displayed to the user with
+      the path to the saved report
+- [ ] If all agents fail, error reported and manual alternatives
+      suggested; an empty report is never generated

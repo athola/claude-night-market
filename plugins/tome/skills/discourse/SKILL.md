@@ -41,3 +41,16 @@ Scan community channels for discussions on a topic.
 2. Execute via WebFetch (APIs) or WebSearch (fallback)
 3. Parse responses into Finding objects
 4. Merge across sources with source attribution
+
+## Exit Criteria
+
+- [ ] At least two community channels (HN, Lobsters, Reddit, or
+      tech blogs) queried per invocation
+- [ ] HN results fetched via Algolia API at `hn.algolia.com`
+      (WebFetch); WebSearch used as fallback if the API is
+      unreachable
+- [ ] Each Finding object includes a `source` field identifying
+      which channel (HN, Lobsters, Reddit, or blog) it came from
+- [ ] If all WebFetch and WebSearch calls fail for every channel,
+      the failure is reported explicitly rather than returning
+      fabricated or empty findings
