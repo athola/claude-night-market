@@ -246,6 +246,5 @@ class DetectionMixin:
                         "code": content_parser.extract_code_snippet(code, line_num),
                     }
                 )
-                break  # Limit to avoid too many matches
 
         return bugs

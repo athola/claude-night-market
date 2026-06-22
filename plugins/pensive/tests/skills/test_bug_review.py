@@ -739,4 +739,25 @@ class TestBugReviewSkill:
 
         assert isinstance(result, AnalysisResult)
         assert result.issues == []
-        assert result.warnings == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_integer_overflow_detects_all_occurrences(self, mock_skill_context) -> None:
+        """All overflow matches per pattern are returned, not just the first.
+
+        The break that capped results at 1 per pattern silently discards
+        every subsequent occurrence, making the detector unreliable in
+        files that have more than one overflow site.
+        """
+        # Two multiplications — both must be reported.
+        mock_skill_context.get_file_content.return_value = (
+            "width = a * b\narea = c * d\n"
+        )
+
+        bugs = self.skill.detect_integer_overflow(mock_skill_context, "calc.py")
+
+        overflow_bugs = [b for b in bugs if b["type"] == "integer_overflow"]
+        assert len(overflow_bugs) >= 2, (
+            f"Expected at least 2 overflow bugs, got {len(overflow_bugs)}. "
+            "The break on first match must be removed."
+        )
