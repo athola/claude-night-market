@@ -69,3 +69,14 @@ discussions.
 - ``plugin-loader``: discovers, validates, and activates plugins at runtime
 - ``sandbox-executor``: runs each plugin in an isolated context with a constrained capability set
 - ``sdk-generator``: produces language-specific SDKs from the kernel's stable interface
+
+## Exit Criteria
+
+- [ ] An ADR documents the microkernel's minimal responsibilities, the plugin contract
+  (registration, capability descriptors, lifecycle hooks), and the permission model.
+- [ ] A formal plugin SDK or specification (templates, testing harness, compatibility checker)
+  exists before any third-party plugin development begins.
+- [ ] An automated plugin validation pipeline (lint, test, sandbox execution) is operational
+  and gates plugin certification.
+- [ ] A compatibility matrix between core versions and supported plugin API versions is
+  published and updated whenever the core plugin contract changes.

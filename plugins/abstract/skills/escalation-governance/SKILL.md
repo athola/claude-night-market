@@ -271,3 +271,14 @@ Effort controls do NOT replace the escalation governance
 framework: they provide an additional axis. The Iron Law
 still applies: investigate before changing either model
 or effort level.
+
+## Exit Criteria
+
+- [ ] A decision (escalate / stay) is stated with a named trigger from the "When to Escalate" or
+  "When NOT to Escalate" tables, not a vague claim of complexity.
+- [ ] If escalation is recommended, the specific target model and the subtask scope are documented
+  before the escalation occurs.
+- [ ] Any instance of escalation triggered by "maybe a smarter model will figure it out" is flagged
+  as an Iron Law violation and blocked.
+- [ ] If the task is decomposable into smaller pieces that each fit the current model, that
+  decomposition is proposed instead of escalation.

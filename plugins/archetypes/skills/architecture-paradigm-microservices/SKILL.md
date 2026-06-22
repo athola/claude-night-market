@@ -104,3 +104,14 @@ discussions.
 - ``service-boundary-analyzer``: finds candidate seams via call-graph and data-ownership analysis
 - ``api-contract-generator``: OpenAPI/protobuf scaffolding for new service boundaries
 - ``resilience-patterns``: retry, circuit breaker, bulkhead, and timeout libraries
+
+## Exit Criteria
+
+- [ ] An ADR catalogs all service boundaries with their data stores and communication patterns
+  (synchronous API vs. asynchronous events) before any service is deployed independently.
+- [ ] Each service owns its own database or persistence mechanism; no service reads another
+  service's tables directly (verified via data-ownership review).
+- [ ] Resilience patterns (timeout, retry, circuit breaker, bulkhead) are documented and
+  implemented for every inter-service call before the service goes to production.
+- [ ] "Golden path" runbooks for creating and operating new services exist before a second team
+  begins adopting the architecture.

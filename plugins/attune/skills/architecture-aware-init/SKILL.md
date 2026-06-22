@@ -152,3 +152,15 @@ and clear decision rationale.
 - `/attune:blueprint`: architecture planning after paradigm
   selection
 - `plugins/archetypes/README.md`: full paradigm reference
+
+## Exit Criteria
+
+- [ ] All four TodoWrite items are checked off:
+  `arch-init:research-completed`, `arch-init:paradigm-selected`,
+  `arch-init:templates-customized`, `arch-init:decision-recorded`.
+- [ ] An ADR file exists in the initialized project explaining why the selected paradigm was
+  chosen, referencing evidence from the Step 2 research synthesis.
+- [ ] The project directory structure matches the layout prescribed by the chosen
+  `archetypes:architecture-paradigm-*` skill (verified by listing the created directories).
+- [ ] If the paradigm is undecided after research, the skill surfaces the top two candidates
+  with trade-offs and waits for explicit user selection rather than defaulting silently.

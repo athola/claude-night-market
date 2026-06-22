@@ -70,3 +70,15 @@ discussions.
 - ``data-grid-platform``: Hazelcast, Apache Ignite, or similar; in-memory partitioned data store
 - ``replication-manager``: moves writes asynchronously to durable storage and across regions
 - ``load-tester``: drives the grid past its single-region ceiling to validate scale-out
+
+## Exit Criteria
+
+- [ ] An ADR documents the chosen grid technology, partitioning scheme, replication strategy
+  (sync vs. async), data eviction policies, and durability SLA before any processing unit
+  is deployed.
+- [ ] Runbooks for scaling processing units and recovering from split-brain scenarios exist and
+  have been exercised in a non-production environment.
+- [ ] Load and chaos testing confirms the system handles >= 2x expected peak traffic without
+  data loss, measured before production promotion.
+- [ ] A monitoring suite tracks cache hit rates, replication lag, and failover events with
+  alerting thresholds set before the system accepts live traffic.

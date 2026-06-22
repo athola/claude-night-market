@@ -137,3 +137,15 @@ plugin_review:
 
 See the `/plugin-review` command reference for full
 usage examples.
+
+## Exit Criteria
+
+- [ ] The output includes a per-plugin table with columns: test, lint, type, reg, verdict, and
+  an aggregate PASS / PASS-WITH-WARNINGS / FAIL verdict.
+- [ ] Scope detection identifies affected plugins via `git diff main --name-only` filtered to
+  `plugins/*/`; if git diff is unavailable, the skill falls back to all-plugin scope and
+  states this explicitly.
+- [ ] Any plugin scoring below the `structure_min` (default 80) or `skills_min` (default 75)
+  threshold is listed as a FAIL, not a warning.
+- [ ] `--quality-gate` mode returns exit code 2 for blocking failures and exit code 1 for
+  non-blocking warnings, distinguishable by the calling CI step.

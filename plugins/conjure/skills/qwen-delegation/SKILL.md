@@ -119,3 +119,15 @@ python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
 
 For Qwen-specific models, CLI options, cost reference,
 and troubleshooting, see `modules/qwen-specifics.md`.
+
+## Exit Criteria
+
+- [ ] `qwen --version` and `qwen auth status` (or `QWEN_API_KEY` env var set) both exit 0
+  before any task is delegated; missing installation or failed authentication is reported
+  and stops execution.
+- [ ] The delegated task output is saved to `delegations/qwen/YYYYMMDD_HHMMSS.md` (timestamp
+  format matching the Quick Start example), and that file exists on disk after delegation.
+- [ ] If `conjure:delegation-core` selected a different provider (Gemini or local), this skill
+  is not invoked; Qwen delegation only runs when delegation-core explicitly routes to Qwen.
+- [ ] Smart delegation via `delegation_executor.py auto` logs which provider was selected and
+  why before executing the task, so the selection is auditable.

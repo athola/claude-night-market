@@ -118,3 +118,15 @@ After curating methodologies, the skill authoring workflow benefits from:
 - `/analyze-skill` - Analyze skill complexity
 - `/bulletproof-skill` - Harden against rationalization
 - `pensive:code-reviewer` - Code review (uses code-review domain)
+
+## Exit Criteria
+
+- [ ] The domain is identified by name (e.g., "Instruction Design", "Debugging") and at least one
+  module from `modules/` is loaded and consulted.
+- [ ] A methodology brief is produced naming at least one expert, their key framework, and a
+  "Use When / Avoid When" statement applicable to the current work.
+- [ ] If the task falls under a "Skip" condition (well-defined spec, purely mechanical fix), the
+  skip is stated explicitly rather than silently omitted.
+- [ ] Any framework selected references one of the documented modules
+  (`instruction-design.md`, `code-review.md`, `debugging.md`, `testing.md`,
+  `knowledge-management.md`, or `decision-making.md`) rather than an invented source.

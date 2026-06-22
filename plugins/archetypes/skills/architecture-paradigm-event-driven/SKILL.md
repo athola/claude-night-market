@@ -70,3 +70,14 @@ discussions.
 - ``message-broker``: Kafka, NATS, RabbitMQ; the durable channel between producers and consumers
 - ``event-stream-processor``: Flink, Faust, or similar; consumes streams and emits derived events
 - ``distributed-tracing``: OpenTelemetry-style correlation IDs across asynchronous hops
+
+## Exit Criteria
+
+- [ ] An ADR is produced documenting the event taxonomy, chosen broker technology, naming
+  conventions, versioning policy, and data retention settings.
+- [ ] A centralized schema repository or registry exists with CI validation that blocks
+  unregistered event schemas from reaching production.
+- [ ] Dead-Letter Queue (DLQ) configuration and retry policy are specified for every consumer
+  before any consumer is deployed.
+- [ ] Observability dashboards cover at minimum: consumer lag, message throughput, schema
+  validation failure rate, and DLQ depth.

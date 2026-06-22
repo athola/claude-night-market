@@ -197,3 +197,16 @@ To update workflows to latest versions:
 
 - `Skill(attune:project-init)` - Full project initialization
 - `Skill(sanctum:pr-prep)` - PR preparation with CI checks
+
+## Exit Criteria
+
+- [ ] All required workflow files for the detected language exist under `.github/workflows/`
+  (Python: test.yml + lint.yml + typecheck.yml; Rust: ci.yml; TypeScript: test.yml + lint.yml +
+  build.yml) and contain valid YAML syntax verified by
+  `python3 -c "import yaml; yaml.safe_load(open('...'))"`.
+- [ ] `gh workflow list` returns each created workflow file as an entry, confirming GitHub
+  recognizes the workflow definitions.
+- [ ] Any inline shell script in a workflow uses `set -eo pipefail` or explicit exit-code
+  capture; pipeline-masked failures (`cmd | grep`) without pipefail are flagged as errors.
+- [ ] If the project uses a CI platform other than GitHub Actions (GitLab CI, CircleCI), the
+  skill reports this incompatibility and stops rather than generating GitHub-specific files.

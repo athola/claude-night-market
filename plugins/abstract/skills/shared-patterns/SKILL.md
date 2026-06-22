@@ -69,3 +69,15 @@ For validation patterns, see the `shared-patterns` skill's
 [validation-patterns](../shared-patterns/modules/validation-patterns.md) module.
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
+
+## Exit Criteria
+
+- [ ] Each of the four module files (`validation-patterns.md`, `error-handling.md`,
+  `testing-templates.md`, `workflow-patterns.md`) exists under
+  `plugins/abstract/skills/shared-patterns/modules/`.
+- [ ] Any cross-skill reference to these modules uses a relative path beginning with
+  `../shared-patterns/modules/` and resolves to an existing file on disk.
+- [ ] No consuming skill references a path under the deprecated `skills/shared/modules/`
+  directory pattern; such references are surfaced as broken links.
+- [ ] The hub SKILL.md itself stays under 150 lines with no substantive pattern content
+  duplicated from the modules it links.

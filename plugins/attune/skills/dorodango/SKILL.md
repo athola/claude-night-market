@@ -128,3 +128,15 @@ small files.
 - `conserve:code-quality-principles` - KISS/YAGNI/SOLID
 - `imbue:latent-space-engineering` - frame pass prompts
   with emotional framing for better results
+
+## Exit Criteria
+
+- [ ] `.attune/dorodango-state.json` exists with `"converged": true` and all four dimensions
+  (`correctness`, `clarity`, `consistency`, `polish`) listed under `converged_dimensions`.
+- [ ] Total `pass_count` in the state file is <= 10; if 10 passes complete without full
+  convergence, the skill surfaces the unconverged dimensions to the user with a recommendation
+  to split the target into smaller units.
+- [ ] The correctness dimension converges only after all tests pass (exit code 0); a
+  correctness pass that finds failing tests never marks the dimension as converged.
+- [ ] Each pass is dispatched as a separate subagent for targets over 100 lines, confirmed by
+  the state file recording individual pass results rather than a single bulk entry.

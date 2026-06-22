@@ -267,3 +267,14 @@ This is particularly useful for:
 
 - [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
+
+## Exit Criteria
+
+- [ ] A single scope (plugin / project / global) is selected and the rationale traces through at
+  least two of the three decision questions (audience, version control, persistence).
+- [ ] The selected scope's file location (`hooks/hooks.json`, `.claude/settings.json`, or
+  `~/.claude/settings.json`) is confirmed to exist or is created at the correct path.
+- [ ] Plugin hooks do not add `"hooks": "./hooks/hooks.json"` to `plugin.json` (duplicate-load
+  guard); this absence is verified before the hook is deployed.
+- [ ] Global hooks are flagged with a security note confirming they apply to all Claude sessions
+  on this machine.

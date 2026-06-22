@@ -132,3 +132,14 @@ Detailed guides for implementation and maintenance:
 ### Tools and Examples
 - **Tools**: `skill_analyzer.py`, `token_estimator.py`, and `abstract_validator.py` in `../../scripts/`.
 - **Examples**: See `../../docs/examples/modular-skills/` for reference implementations.
+
+## Exit Criteria
+
+- [ ] Every module file produced is at or under 150 lines; any module exceeding 100 lines has a
+  Table of Contents immediately after its frontmatter.
+- [ ] No `skills/shared/modules/` directory exists; all modules live under
+  `skills/<skill-name>/modules/`.
+- [ ] `python scripts/abstract_validator.py --scan` exits 0 with no structural warnings on the
+  affected skill directory.
+- [ ] `python scripts/tokens.py` reports total estimated tokens within the declared
+  `estimated_tokens` budget for the hub SKILL.md.

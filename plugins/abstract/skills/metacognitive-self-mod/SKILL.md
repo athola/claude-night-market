@@ -275,3 +275,15 @@ Meta-insights stored: 5 new entries in improvement memory
   criteria could be refined by meta-insights
 - `abstract:aggregate-logs` - Data source for improvement
   metrics
+
+## Exit Criteria
+
+- [ ] The metacognitive report lists total outcomes analyzed (effective / regression / neutral
+  counts) sourced from `~/.claude/skills/improvement_memory.json`.
+- [ ] At least one causal hypothesis is recorded under `skill_ref: "_meta"` in
+  `improvement_memory.json` with cited evidence (skill refs and score deltas).
+- [ ] Any Tier 3 strategy recommendation (modify skill-improver priority weights, add avoidance
+  rules, adjust thresholds) is presented as a proposal requiring explicit user approval before
+  any change is applied.
+- [ ] If effectiveness rate is below 50% across 5+ outcomes, this condition is surfaced as the
+  primary trigger reason in the report output.

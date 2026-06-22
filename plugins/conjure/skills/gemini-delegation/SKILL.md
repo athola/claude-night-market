@@ -99,3 +99,15 @@ gemini -p "..." > delegations/gemini/$(date +%Y%m%d_%H%M%S).md
 
 For Gemini-specific models, CLI options, cost reference,
 and troubleshooting, see `modules/gemini-specifics.md`.
+
+## Exit Criteria
+
+- [ ] `gemini --version` and `gemini auth status` both exit 0 before any task is delegated;
+  missing installation or failed authentication is reported and stops execution.
+- [ ] The delegated task output is saved to
+  `delegations/gemini/YYYYMMDD_HHMMSS.md` (timestamp format matching the Quick Start example),
+  and that file exists on disk after the delegation completes.
+- [ ] If `conjure:delegation-core` selected a different provider (Qwen or local), this skill
+  is not invoked; Gemini delegation only runs when delegation-core explicitly routes to Gemini.
+- [ ] Tasks requiring > 1M tokens in context are flagged before submission; the skill reports
+  the estimated token count and confirms it falls within Gemini's supported window.

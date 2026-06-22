@@ -151,3 +151,14 @@ Improvements are prioritized by impact. Critical issues include security vulnera
 ### Tools and Automation
 - **Tools**: Executable analysis utilities in `scripts/` directory.
 - **Automation**: Setup and validation scripts in `scripts/automation/`.
+
+## Exit Criteria
+
+- [ ] Every audited skill receives a score across all five dimensions (structure compliance,
+  content quality, token efficiency, activation reliability, tool integration) summing to 100.
+- [ ] Any skill with a deprecated `skills/shared/` module reference is listed as a structural
+  warning in the audit output.
+- [ ] `make check-compliance TARGET=<skill>` exits 0 for skills reported as passing, confirming
+  the compliance-checker agrees with the audit score.
+- [ ] An improvement plan is produced for any skill scoring below 75, with findings ordered by
+  priority: critical > high > medium > low.

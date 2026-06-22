@@ -71,3 +71,14 @@ discussions.
 - ``event-store``: append-only log of domain events; the system of record from which projections are built
 - ``message-broker``: carries commands and integration events between bounded contexts
 - ``projection-builder``: rebuilds read-side views by replaying the event store
+
+## Exit Criteria
+
+- [ ] An ADR is produced naming the aggregates, the chosen event store technology, the projection
+  strategy, and the eventual-consistency SLA for each read model.
+- [ ] Command handler tests use in-memory event streams and pass before any persistence adapter
+  is wired.
+- [ ] A schema registry or versioning policy for event schemas is documented, and a CI gate
+  prevents emission of event versions not registered in that policy.
+- [ ] Operational tooling for event replay and state snapshots is identified (not just mentioned)
+  before the write-side is declared production-ready.

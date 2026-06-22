@@ -56,3 +56,14 @@ discussions.
 
 - ``api-contract-generator``: produces machine-readable OpenAPI/RPC contracts the client and server share
 - ``networking-debugger``: captures request/response traces for diagnosing latency, retries, and timeout issues
+
+## Exit Criteria
+
+- [ ] An ADR is produced naming client roles, server roles (and peer roles if applicable), trust
+  boundaries, and the API versioning strategy chosen.
+- [ ] A formal API or protocol specification exists (OpenAPI, protobuf, or equivalent) covering
+  all documented endpoints or capabilities.
+- [ ] The version-skew strategy (feature flags, `Accept` headers, or semantic versioning) is
+  documented before any client or server code is written.
+- [ ] If offline-first or P2P capability is included, the conflict-resolution strategy (CRDT,
+  last-write-wins, or consensus mechanism) is named in the ADR.

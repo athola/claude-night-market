@@ -324,3 +324,16 @@ requires_user_confirmation: true
 - `/pr-review` - PR review (uses this checkpoint)
 - `/architecture-review` - Architecture review (uses this checkpoint)
 - `/fix-pr` - PR fix (uses this checkpoint)
+
+## Exit Criteria
+
+- [ ] A structured checkpoint response is returned with all required fields: `reversibility_score`
+  (0.0-1.0), `selected_mode` (express / lightweight / full_council / delphi), `should_escalate`
+  (boolean), and `recommendation` or `orders`.
+- [ ] Any response with `reversibility_score` > profile threshold has `should_escalate: true`
+  and triggers the full War Room via `Skill(attune:war-room)` before returning.
+- [ ] Any response with `confidence` <= 0.8 sets `requires_user_confirmation: true` and presents
+  a confirmation prompt to the user rather than auto-continuing.
+- [ ] The checkpoint is logged to
+  `~/.claude/memory-palace/strategeion/checkpoints/{date}/{checkpoint-id}.json`; if this write
+  fails, the calling command proceeds and logs a warning rather than blocking the workflow.

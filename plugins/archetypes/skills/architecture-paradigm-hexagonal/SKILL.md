@@ -72,3 +72,14 @@ discussions.
 - ``boundary-validator``: checks every adapter conforms to the port contract
 - ``adapter-generator``: scaffolds primary and secondary adapters from a port spec
 - ``contract-tester``: validates each adapter against its port via shared contract tests
+
+## Exit Criteria
+
+- [ ] Port interfaces are defined as formal contracts (interfaces, abstract classes, or type
+  aliases) and stored inside the core domain module, not in adapter directories.
+- [ ] An ADR names every inbound driver port and outbound driven port with their corresponding
+  adapter implementations and dependency policies.
+- [ ] Automated architecture tests (e.g., ArchUnit, dep-cruise) enforce that no adapter imports
+  directly reference another adapter or the core's internal implementation.
+- [ ] Each adapter has at least one contract test that validates it correctly fulfills its port's
+  expectations before the adapter is merged.

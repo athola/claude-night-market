@@ -704,3 +704,14 @@ Check hook file permissions and ownership
 
 **Hook blocking message not shown (pre-2.1.39)**
 If using exit code 2 to block with a user-facing message and the message isn't appearing, upgrade to Claude Code 2.1.39+. In older versions, use exit 0 with stdout as a workaround.
+
+## Exit Criteria
+
+- [ ] The authored hook file exists at a valid scope location (`hooks/hooks.json`,
+  `.claude/settings.json`, or `~/.claude/settings.json`) with correct JSON or Python syntax.
+- [ ] The hook fires on the target event: a test invocation of the matching tool call triggers
+  the hook command or callback without error.
+- [ ] The hook contains no secret logging: no field names matching `api[_-]?key`, `password`,
+  `token`, `secret`, or `credential` appear in log output paths.
+- [ ] Blocking hooks exit with code 2 and write the user-facing explanation to stderr (not stdout).
+- [ ] If `abstract:validate-hook` is available, it exits 0 on the authored hook file.

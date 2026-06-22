@@ -79,3 +79,14 @@ discussions.
 - ``dependency-analyzer``: module dependency graph builder for spotting forbidden edges
 - ``module-boundary-enforcer``: fails the build when a module imports across a boundary
 - ``refactoring-planner``: ranks modules by extraction-readiness for a future split
+
+## Exit Criteria
+
+- [ ] An ADR maps module boundaries to business capabilities, defines rules for shared code, and
+  states the conditions under which a module would be extracted into a separate service.
+- [ ] Each module exposes functionality only through documented facades, APIs, or events; direct
+  database table access between modules is absent (verified by schema ownership review).
+- [ ] Automated dependency checks fail the CI build on any forbidden cross-module import, and at
+  least one such violation test case is documented.
+- [ ] Change-coupling metrics (modules that always change together) are tracked and any module
+  pair with > 50% coupling is flagged as a candidate for boundary review.
