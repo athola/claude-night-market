@@ -106,3 +106,17 @@ A markdown report at the path specified by `--output`, containing:
 - Space for the human reviewer to add proposed entries
 
 Human review is required before any YAML file changes.
+
+## Exit Criteria
+
+- [ ] Script runs without error and produces a markdown report at the
+  path given to `--output` (e.g., `/tmp/gauntlet-curate-report.md`)
+- [ ] Report contains a coverage summary table comparing expected
+  `neetcode_count` versus actual count for every category in
+  `_manifest.yaml`, with gaps sorted largest-first
+- [ ] No files under `plugins/gauntlet/data/problems/` are modified;
+  all proposals appear only in the report under "Proposed New
+  Problems"
+- [ ] Every proposed YAML entry passes `BankProblem.from_dict()`
+  validation (required fields: `id`, `title`, `difficulty`,
+  `prompt`) before appearing in the report

@@ -272,3 +272,16 @@ rm .claude/hookify.my-rule.local.md
 ### Common Issues
 
 If a rule doesn't trigger, verify that the `event` type matches the tool being used (e.g., use `bash` for command line tools). Check that the regex `pattern` is valid and matches the target text by testing it with a short Python script. If you encounter permission errors when creating rule files in `.claude/`, ensure that the directory is writable by your user.
+
+## Exit Criteria
+
+- [ ] Rule file exists at `.claude/hookify.<rule-name>.local.md`
+  with all required frontmatter fields present: `name` (kebab-case),
+  `enabled`, `event`, and either `pattern` or `conditions`
+- [ ] Regex pattern validated with
+  `python3 -c "import re; print(re.search(r'<pattern>', '<test>'))"
+  before the rule is saved; no untested patterns shipped
+- [ ] Rule triggers correctly on a matching input: `warn` action
+  shows the message body, `block` action prevents the operation
+- [ ] Rule does not fire on a non-matching input; false positive
+  tested with at least one known-safe example

@@ -161,3 +161,19 @@ export DISPLAY=:1
 3. Use keyboard shortcuts when UI elements are hard to click
 4. Provide example screenshots for repeatable workflows
 5. Set a system prompt with domain-specific instructions
+
+## Exit Criteria
+
+- [ ] `uv run python -m phantom.cli --check` exits 0 before any
+  task is launched; if it fails, required OS tools (xdotool,
+  scrot, xclip) are installed or Xvfb is started before
+  proceeding
+- [ ] `max_iterations` set on every `run_loop()` call; no task
+  launched without an explicit iteration cap to prevent runaway
+  API costs
+- [ ] Final result includes `result.iterations` count and
+  `result.final_text` confirming the task outcome; empty
+  `final_text` treated as failure, not success
+- [ ] Sensitive applications (password managers, banking, private
+  files) closed before task starts; task prompt does not contain
+  raw credentials

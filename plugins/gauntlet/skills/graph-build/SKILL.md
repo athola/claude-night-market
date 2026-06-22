@@ -58,3 +58,17 @@ Ruby, and PHP.
 - Auto-creates `.gauntlet/.gitignore` to prevent commits
 - Incremental updates use SHA-256 hashing to skip
   unchanged files
+
+## Exit Criteria
+
+- [ ] `.gauntlet/graph.db` exists and is a valid SQLite file after
+  the skill completes; `.gauntlet/.gitignore` exists to prevent
+  the database from being committed
+- [ ] Build report JSON includes all four keys: `files_parsed`,
+  `nodes_created`, `edges_created`, `duration`; values are
+  non-zero for non-empty codebases
+- [ ] Incremental update path used when `.gauntlet/graph.db` already
+  exists (script invoked with `--incremental`); full build only
+  on first run
+- [ ] Next-step suggestions presented to the user: search the graph
+  or run blast-radius analysis

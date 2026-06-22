@@ -168,3 +168,17 @@ Short inline links that keep the line under 80 chars are fine:
 OK:
 See [the guide](https://example.com) for details.
 ```
+
+## Exit Criteria
+
+- [ ] All prose lines in the edited file wrap at 80 characters or
+  fewer; verified with `awk 'length>80' <file>` returning no
+  matches on prose blocks (tables, code, headings, frontmatter
+  excluded)
+- [ ] Every heading has a blank line before and after it (except
+  the first line of a file); no setext-style underline headings
+  present
+- [ ] Every list is preceded by a blank line
+- [ ] Inline links that would push a line past 80 characters
+  converted to reference-style syntax with the URL definition at
+  the end of the section or document

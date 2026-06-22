@@ -208,3 +208,17 @@ To add rules to the catalog:
 - `Skill(hookify:writing-rules)` - Create custom rules
 - `/hookify:list` - Show installed rules
 - `/hookify:configure` - Manage installed rules
+
+## Exit Criteria
+
+- [ ] Installed rule file exists at
+  `.claude/hookify.<rule-name>.local.md` with `enabled: true`
+  in its frontmatter
+- [ ] Rule activates without requiring a session restart; verified
+  by triggering a matching pattern and observing the warn or
+  block response
+- [ ] When installing via Python script, exit code 0 is returned
+  and the rule file is present at the target path
+- [ ] Rule file structure matches the catalog source at
+  `skills/rule-catalog/rules/<category>/<rule>.md`; no fields
+  silently dropped during installation

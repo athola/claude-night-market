@@ -235,3 +235,16 @@ efficiency:
 - Hook integration for automatic monitoring
 - Efficiency scoring algorithm
 - Duplicate detection logic
+
+## Exit Criteria
+
+- [ ] All 4 TodoWrite phases completed: `capture-complete`,
+  `analysis-complete`, `report-generated`, and (if an issue is
+  created) `issue-created`
+- [ ] Every issue filed contains reproducible evidence: the exact
+  command that failed or was inefficient plus an output excerpt
+- [ ] Duplicate check run via `gh issue list --search` before
+  creating any issue; duplicate suppressed and existing issue
+  URL reported instead
+- [ ] No more than 5 issues created per session regardless of
+  how many anomalies are detected; rate limit enforced

@@ -112,3 +112,20 @@ Any wrapper can verify conformance with:
       --dry-run
 
 Must output valid JSON with a `status` field.
+
+## Exit Criteria
+
+- [ ] Compliance test passes: `deferred_capture.py --dry-run` outputs
+  valid JSON with a `status` field (`created`, `duplicate`, or
+  `error`) for any conformant wrapper
+- [ ] Created issues have title prefixed `[Deferred]`, carry both
+  the `deferred` label and the source label, and body matches the
+  required template (Source, Captured, Branch, Captured by,
+  Context, Original Artifact, Next Steps)
+- [ ] Duplicate detection runs before creation: `gh issue list
+  --search "<title> in:title"` called and exact match (after
+  stripping prefix and lowercasing) suppresses the new issue
+- [ ] JSON written to stdout on every invocation; `{"status":
+  "created", "issue_url": "...", "number": N}` on success,
+  `{"status": "duplicate", ...}` on duplicate, `{"status":
+  "error", "message": "..."}` on failure

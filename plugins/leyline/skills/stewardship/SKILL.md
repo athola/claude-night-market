@@ -130,3 +130,20 @@ At natural workflow boundaries (completing a task, preparing
 a commit, ending a session), use the reflection module for
 a brief self-assessment grounded in the five virtues. See
 `modules/reflection.md` for the full template.
+
+## Exit Criteria
+
+- [ ] All five "Is This a Stewardship Moment?" questions checked
+  before completing work on any plugin; any triggered question
+  results in the corresponding small action (comment, README
+  update, typo fix, abstraction reconsidered)
+- [ ] Layer-specific guidance applied: foundation plugins (leyline,
+  sanctum, imbue) use additive changes with migration guides for
+  breaking changes; domain plugins include examples, not just
+  references
+- [ ] Reflection checklist from `modules/reflection.md` completed
+  at the pre-commit boundary; output is a brief self-assessment
+  against the five virtues (Care, Curiosity, Humility, Diligence,
+  Foresight)
+- [ ] No clever abstraction accepted without the "seven iterations"
+  test: the design must hold up after seven major changes

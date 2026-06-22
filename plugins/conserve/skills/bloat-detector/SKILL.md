@@ -170,3 +170,19 @@ Also respects: `.gitignore`, `.bloat-ignore`
 - `bloat-auditor` agent - Executes scans
 - `unbloat-remediator` agent - Safe remediation
 - `context-optimization` skill - MECW principles
+
+## Exit Criteria
+
+- [ ] At least one tier of scan (Tier 1, 2, or 3) completed and
+  findings listed per bloat category (Code, AI-Generated,
+  Documentation, Dependencies, Git History)
+- [ ] Each finding assigned a confidence level (HIGH/MEDIUM/LOW) and
+  a priority score computed from the formula
+  `(Token_Savings × 0.4) + (Maintenance × 0.3) + (Confidence × 0.2)
+  + (Ease × 0.1)`
+- [ ] No auto-deletions executed without explicit user approval;
+  every proposed removal documented as DELETE, REFACTOR,
+  CONSOLIDATE, or ARCHIVE per `modules/remediation-types.md`
+- [ ] Ecosystem-level patterns checked (alwaysApply accumulation,
+  hook registration gaps, boilerplate footers, ToC bloat) if the
+  scan target contains plugin directories

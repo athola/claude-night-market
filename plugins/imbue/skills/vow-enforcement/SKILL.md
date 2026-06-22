@@ -271,3 +271,19 @@ the user provides an explicit override.
   that vow-enforcement classifies and may promote
 - See `docs/quality-gates.md#skill-level-quality-gate-composition`
   for the federation this skill governs
+
+## Exit Criteria
+
+- [ ] Every constraint under review is assigned to exactly one
+  enforcement layer (Soft Vow, Hard Vow, or Nen Court) with the
+  classification rationale recorded
+- [ ] Graduation criteria evaluated for any soft vow with 3+
+  violations in 30 days: binary constraints graduate to Hard Vow,
+  judgment constraints graduate to Nen Court
+- [ ] Nen Court validators called at phase boundaries return one
+  of three verdicts (`pass`, `violation`, `inconclusive`) via
+  exit codes 0, 1, 2; exit code 1 blocks phase advancement
+  unless the user provides an explicit override
+- [ ] Any demotion of a Hard Vow back to Soft is documented with
+  the false positive rate (>10%) or the specific concern that
+  no longer applies

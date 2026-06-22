@@ -74,3 +74,17 @@ incentives to increase rigor and thoroughness.
 | Emotional framing | Any agent prompt | emotional-framing |
 | Style gene transfer | Code/doc generation | style-gene-transfer |
 | Competitive review | 3+ parallel reviewers | competitive-review |
+
+## Exit Criteria
+
+- [ ] Dispatch prompts contain no threat-based language ("you must",
+  "don't fail", "or else"); replaced with calm, confident framing
+  per `modules/emotional-framing.md`
+- [ ] When generating code or docs to match an existing style, at
+  least one exemplar sample is injected into context before the
+  output is requested (style gene transfer applied)
+- [ ] When 3+ parallel review agents are dispatched, each agent
+  prompt includes a competitive framing element per
+  `modules/competitive-review.md`
+- [ ] The correct technique module is loaded for the task type;
+  irrelevant modules are not loaded (token efficiency maintained)

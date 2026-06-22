@@ -284,3 +284,17 @@ When reviewing code, check:
 
 - `imbue:karpathy-principles` - The "Simplicity First" principle wraps KISS, YAGNI, and SOLID into a four-principle synthesis derived from Karpathy's observations on LLM coding pitfalls
 - See `docs/quality-gates.md#skill-level-quality-gate-composition` for the full gate-skill federation graph
+
+## Exit Criteria
+
+- [ ] Every proposed code change checked against the integration
+  review checklist: no unnecessary complexity (KISS), no speculative
+  features (YAGNI), single responsibility per class (SRP), no god
+  classes over 500 lines, dependencies injected not created (DIP)
+- [ ] When KISS and SOLID conflict, the resolution is documented:
+  KISS wins for small projects, SOLID patterns applied as complexity
+  grows — the choice is explicit, not silent
+- [ ] `wc -l <file>` run on any modified file and result noted if
+  the file exceeds 500 lines (god-class threshold)
+- [ ] No new abstraction introduced with only one implementor unless
+  it serves as a mock boundary for testing

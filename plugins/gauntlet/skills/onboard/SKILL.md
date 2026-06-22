@@ -32,3 +32,17 @@ Walk a new developer through the codebase in structured stages.
 
 After stage 5, the developer enters the regular gauntlet.
 Answer history carries over.
+
+## Exit Criteria
+
+- [ ] Onboarding progress persists across invocations: current stage
+  and challenge count survive session restarts and are loaded at
+  Step 1
+- [ ] Advancement to the next stage requires 80% correct across 10+
+  challenges in the current stage; partial completion does not
+  advance
+- [ ] Mastery tracking requires correct answers twice for a given
+  challenge before it is marked mastered
+- [ ] After Stage 5 completion, the developer's answer history
+  carries over into the regular gauntlet challenge pool without
+  loss

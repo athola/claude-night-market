@@ -156,3 +156,19 @@ Escalate to full sourcing (accept high token cost) for:
 - Research tasks (user expects thorough investigation)
 
 For these cases, use `memory-palace:knowledge-intake` workflow which is designed for thorough sourcing.
+
+## Exit Criteria
+
+- [ ] Every claim categorized as requiring a source (version numbers,
+  performance claims, security recommendations, API specs, release
+  dates, pricing/limits, deprecated features) has an inline
+  citation or a verification note
+- [ ] No web search performed for claims categorized as general
+  concepts, code examples, opinions, common knowledge, logical
+  derivations, or stable syntax
+- [ ] Claims with medium confidence carry an explicit uncertainty
+  marker (e.g., "verify in release notes for your version") rather
+  than being stated as fact or sourced at high token cost
+- [ ] Decision tree applied: factual claim → harm if wrong →
+  verification cost-effective → source; each branch followed
+  explicitly for claims exceeding medium confidence

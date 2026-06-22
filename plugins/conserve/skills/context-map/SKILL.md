@@ -142,3 +142,16 @@ Package manager: uv
   Env vars: ~200
   File scanning: ~10,200
 ```
+
+## Exit Criteria
+
+- [ ] Scanner produces output covering at minimum: file count,
+  directory structure, detected frameworks, and hot files (imported
+  by 3+ others); output appears in the session before any feature
+  implementation reads begin
+- [ ] "Token Savings" line is present in the output with a numeric
+  estimate (e.g., `~12,600 tokens saved`)
+- [ ] If `--blast FILE` is used, blast-radius output names the
+  specific file and lists its importers by count
+- [ ] Context map guides subsequent reads: hot files and entry points
+  are consulted before any other file read in the session

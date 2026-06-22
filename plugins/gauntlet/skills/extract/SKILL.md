@@ -33,6 +33,19 @@ Build or rebuild the `.gauntlet/knowledge.json` knowledge base.
 7. **Report**: show summary by category, coverage gaps, difficulty
    distribution
 
+## Exit Criteria
+
+- [ ] `.gauntlet/knowledge.json` exists and is valid JSON after the
+  skill completes; entries from `.gauntlet/annotations/` are merged
+  and not overwritten
+- [ ] Report shows entry counts broken down by all 7 categories
+  (business_logic, architecture, data_flow, api_contract, pattern,
+  dependency, error_handling) with coverage gaps identified
+- [ ] Each extracted entry has a `detail` field containing a natural
+  language explanation (not just the raw AST node name)
+- [ ] Cross-reference links between related entries are present for
+  modules sharing imports, shared types, or data flow paths
+
 ## Category Priority
 
 1. business_logic (weight 7)

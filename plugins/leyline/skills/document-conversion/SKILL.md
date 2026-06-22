@@ -155,3 +155,20 @@ Then in their workflow: "Convert the document using the
 - Format support details: `modules/format-matrix.md`
 - Per-format fallback instructions: `modules/fallback-tiers.md`
 - URI construction rules: `modules/uri-construction.md`
+
+## Exit Criteria
+
+- [ ] Conversion tier attempted in order: Tier 1 (MCP markitdown)
+  first; Tier 2 (native tools) only if Tier 1 is unavailable or
+  fails; Tier 3 (user notification with install instructions) only
+  if Tier 2 has no coverage for the format
+- [ ] Converted content wrapped in
+  `--- EXTERNAL CONTENT [source: <tool>] ---` boundary markers
+  and truncated to 2000 words per section before being passed
+  downstream
+- [ ] For DOCX, PPTX, XLSX, audio, archives, and e-books with no
+  Tier 2 coverage, the exact Tier 3 user notification template is
+  shown including the `.mcp.json` snippet
+- [ ] Format detected from URI extension before attempting
+  conversion; unknown extension surfaced to the user rather than
+  passed to converters blindly

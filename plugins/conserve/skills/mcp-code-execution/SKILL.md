@@ -232,3 +232,20 @@ When MECW limits exceeded:
 - **MECW Compliance**: 100% adherence to 50% context rule
 - **Token Efficiency**: Maintain >80% savings vs traditional methods
 - **Module Coordination**: <5% overhead for hub orchestration
+
+## Exit Criteria
+
+- [ ] Workflow classified into one of the three MECW strategies
+  (aggressive/moderate/conservative) with the correct module
+  roster (`mcp-subagents`, `mcp-patterns`, `mcp-validation`)
+  selected based on tool-chain length and data size
+- [ ] Context usage remains at or below 50% of the total window
+  throughout the workflow; any breach triggers the hub-level
+  emergency response (delegate to mcp-validation, route to
+  mcp-subagents, apply compression)
+- [ ] `synthesize_module_results` returns a dict with all four
+  keys: `status`, `token_savings`, `mecw_compliance`,
+  `hallucination_risk`
+- [ ] Token savings reported at the end of the workflow are
+  greater than 80% compared to running the same workflow via
+  direct Bash tool chaining

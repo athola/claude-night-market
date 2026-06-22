@@ -54,3 +54,16 @@ register_in_loop_provider_if_inside_claude_code()
 | Pass | 1.0 | +1 |
 | Partial | 0.5 | reset |
 | Fail | 0.0 | reset |
+
+## Exit Criteria
+
+- [ ] `.gauntlet/knowledge.json` exists and is readable before a
+  challenge is generated; if missing, the skill surfaces the error
+  and suggests running `gauntlet:extract`
+- [ ] Each challenge attempt results in a score (1.0/0.5/0.0) written
+  to the developer's progress store and a streak update applied
+- [ ] `.gauntlet/state/pending_challenge.json` is evaluated before
+  generating a new challenge when it exists; the file is removed
+  or updated after evaluation
+- [ ] On fail, the correct answer and explanation are shown before
+  the next challenge is presented (not skipped silently)
