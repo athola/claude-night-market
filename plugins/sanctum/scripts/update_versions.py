@@ -64,36 +64,43 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     return sorted(version_files)
 
 
+def update_version_field(
+    content: str, field: str, new_version: str, *, json_style: bool = False
+) -> str:
+    """Replace a semver string for the given field name.
+
+    Handles two common file formats:
+    - TOML (json_style=False): ``field = "MAJOR.MINOR.PATCH"`` line-anchored
+    - JSON  (json_style=True):  ``"field": "MAJOR.MINOR.PATCH"``
+    """
+    semver_pat = "[0-9]+\\.[0-9]+\\.[0-9]+"
+    if json_style:
+        pattern = rf'"{re.escape(field)}"\s*:\s*"{semver_pat}"'
+        replacement = f'"{field}": "{new_version}"'
+        return re.sub(pattern, replacement, content)
+    pattern = rf'^{re.escape(field)}\s*=\s*"{semver_pat}"'
+    replacement = f'{field} = "{new_version}"'
+    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+
+
 def update_pyproject_version(content: str, new_version: str) -> str:
     """Update version in pyproject.toml content."""
-    # Match: version = "1.2.3"
-    pattern = r'^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'version = "{new_version}"'
-    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    return update_version_field(content, "version", new_version)
 
 
 def update_cargo_version(content: str, new_version: str) -> str:
     """Update version in Cargo.toml content."""
-    # Match: version = "1.2.3"
-    pattern = r'^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'version = "{new_version}"'
-    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    return update_version_field(content, "version", new_version)
 
 
 def update_package_json_version(content: str, new_version: str) -> str:
     """Update version in package.json content."""
-    # Match: "version": "1.2.3"
-    pattern = r'"version"\s*:\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'"version": "{new_version}"'
-    return re.sub(pattern, replacement, content)
+    return update_version_field(content, "version", new_version, json_style=True)
 
 
 def update_plugin_json_version(content: str, new_version: str) -> str:
     """Update version in plugin.json or marketplace.json content."""
-    # Match: "version": "1.2.3"
-    pattern = r'"version"\s*:\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'"version": "{new_version}"'
-    return re.sub(pattern, replacement, content)
+    return update_version_field(content, "version", new_version, json_style=True)
 
 
 def update_init_py_version(content: str, new_version: str) -> str:
