@@ -396,6 +396,14 @@ class TestUnparseAnnotation:
         result = _unparse_annotation(func_node.returns)
         assert "str" in result
 
+    @pytest.mark.unit
+    def test_memory_error_propagates(self):
+        """MemoryError must not be swallowed; only SyntaxError/ValueError are expected."""
+        node = MagicMock()
+        with patch("abstract.wrapper_base.ast.unparse", side_effect=MemoryError("oom")):
+            with pytest.raises(MemoryError):
+                _unparse_annotation(node)
+
 
 class TestCompareSymbols:
     """_compare_symbols detects removed symbols and changed signatures."""

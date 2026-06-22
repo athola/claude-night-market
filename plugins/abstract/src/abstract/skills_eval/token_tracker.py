@@ -54,7 +54,7 @@ class TokenUsageTracker:
         try:
             with open(skill_path, encoding="utf-8") as f:
                 content = f.read()
-        except Exception as e:
+        except OSError as e:
             return {
                 "name": skill_name,
                 "error": str(e),
@@ -417,7 +417,7 @@ class TokenUsageTracker:
             try:
                 with open(skill_path, encoding="utf-8") as f:
                     content = f.read()
-            except Exception:
+            except OSError:
                 return ["Error reading skill file"]
 
             total_tokens = estimate_tokens(content)

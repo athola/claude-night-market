@@ -250,7 +250,7 @@ def _unparse_annotation(node: Any) -> str | None:
         return None
     try:
         return ast.unparse(node)
-    except Exception:
+    except (SyntaxError, ValueError):
         return None
 
 

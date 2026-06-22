@@ -336,196 +336,26 @@ def _create_docs_scaffolding(
     return created
 
 
-def _create_python_structure(
-    project_path: Path,
-    module_name: str,
-    project_name: str,
+def _create_structure(
+    dirs: list[Path],
+    files: list[tuple[Path, str]],
     dry_run: bool,
 ) -> None:
-    """Create Python project directory structure.
+    """Create directory and file structure from a data-driven spec.
 
-    Args:
-        project_path: Path to the project root
-        module_name: Python module name (snake_case)
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
+    Each directory in dirs is created with mkdir(parents=True, exist_ok=True).
+    Each file in files is written only when it does not already exist.
+    Both operations print a dry-run preview instead of writing when
+    dry_run is True, so callers do not need to repeat that logic.
     """
-    src_dir = project_path / "src" / module_name
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    init_file = src_dir / "__init__.py"
-    if not init_file.exists():
-        _write_or_preview(
-            init_file,
-            f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n',
-            dry_run,
-        )
-
-    tests_dir = project_path / "tests"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {tests_dir}")
-    else:
-        tests_dir.mkdir(parents=True, exist_ok=True)
-
-    test_init = tests_dir / "__init__.py"
-    if not test_init.exists():
-        _write_or_preview(test_init, "", dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new Python project.
-
-## Installation
-
-```bash
-uv sync
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
-
-
-def _create_rust_structure(
-    project_path: Path,
-    project_name: str,
-    dry_run: bool,
-) -> None:
-    """Create Rust project directory structure.
-
-    Args:
-        project_path: Path to the project root
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
-    """
-    src_dir = project_path / "src"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    main_rs = src_dir / "main.rs"
-    if not main_rs.exists():
-        _write_or_preview(
-            main_rs,
-            'fn main() {\n    println!("Hello, world!");\n}\n',
-            dry_run,
-        )
-
-    lib_rs = src_dir / "lib.rs"
-    if not lib_rs.exists():
-        lib_content = f"""//! {project_name} library
-
-pub fn hello() -> String {{
-    "Hello from {project_name}!".to_string()
-}}
-
-#[cfg(test)]
-mod tests {{
-    use super::*;
-
-    #[test]
-    fn test_hello() {{
-        assert_eq!(hello(), "Hello from {project_name}!");
-    }}
-}}
-"""
-        _write_or_preview(lib_rs, lib_content, dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new Rust project.
-
-## Build
-
-```bash
-cargo build
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
-
-
-def _create_typescript_structure(
-    project_path: Path,
-    project_name: str,
-    dry_run: bool,
-) -> None:
-    """Create TypeScript project directory structure.
-
-    Args:
-        project_path: Path to the project root
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
-    """
-    src_dir = project_path / "src"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    index_ts = src_dir / "index.ts"
-    if not index_ts.exists():
-        index_content = (
-            'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n'
-        )
-        _write_or_preview(index_ts, index_content, dry_run)
-
-    app_tsx = src_dir / "App.tsx"
-    if not app_tsx.exists():
-        app_content = f"""import React from "react";
-
-function App() {{
-  return (
-    <div className="App">
-      <h1>Welcome to {project_name}</h1>
-    </div>
-  );
-}}
-
-export default App;
-"""
-        _write_or_preview(app_tsx, app_content, dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new TypeScript/React project.
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
+    for d in dirs:
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {d}")
+        else:
+            d.mkdir(parents=True, exist_ok=True)
+    for file_path, file_content in files:
+        if not file_path.exists():
+            _write_or_preview(file_path, file_content, dry_run)
 
 
 def create_project_structure(
@@ -546,11 +376,88 @@ def create_project_structure(
 
     """
     if language == "python":
-        _create_python_structure(project_path, module_name, project_name, dry_run)
+        src_dir = project_path / "src" / module_name
+        tests_dir = project_path / "tests"
+        _create_structure(
+            [src_dir, tests_dir],
+            [
+                (
+                    src_dir / "__init__.py",
+                    f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n',
+                ),
+                (tests_dir / "__init__.py", ""),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new Python project.\n\n"
+                    "## Installation\n\n```bash\nuv sync\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
     elif language == "rust":
-        _create_rust_structure(project_path, project_name, dry_run)
+        src_dir = project_path / "src"
+        lib_content = (
+            f"//! {project_name} library\n\n"
+            "pub fn hello() -> String {\n"
+            f'    "Hello from {project_name}!".to_string()\n'
+            "}\n\n"
+            "#[cfg(test)]\n"
+            "mod tests {\n"
+            "    use super::*;\n\n"
+            "    #[test]\n"
+            "    fn test_hello() {\n"
+            f'        assert_eq!(hello(), "Hello from {project_name}!");\n'
+            "    }\n"
+            "}\n"
+        )
+        _create_structure(
+            [src_dir],
+            [
+                (
+                    src_dir / "main.rs",
+                    'fn main() {\n    println!("Hello, world!");\n}\n',
+                ),
+                (src_dir / "lib.rs", lib_content),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new Rust project.\n\n"
+                    "## Build\n\n```bash\ncargo build\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
     elif language == "typescript":
-        _create_typescript_structure(project_path, project_name, dry_run)
+        src_dir = project_path / "src"
+        app_content = (
+            'import React from "react";\n\n'
+            "function App() {\n"
+            "  return (\n"
+            '    <div className="App">\n'
+            f"      <h1>Welcome to {project_name}</h1>\n"
+            "    </div>\n"
+            "  );\n"
+            "}\n\n"
+            "export default App;\n"
+        )
+        _create_structure(
+            [src_dir],
+            [
+                (
+                    src_dir / "index.ts",
+                    'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n',
+                ),
+                (src_dir / "App.tsx", app_content),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new TypeScript/React project.\n\n"
+                    "## Development\n\n```bash\nnpm install\nnpm run dev\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
 
 
 def _run_post_init_git(
