@@ -40,6 +40,13 @@ Pass a directory path to limit analysis
 | `call-chain` | flowchart | Execution paths from entry points |
 | `communities` | flowchart | Architectural clusters via community detection |
 
+## Design note
+
+Cartograph has no Python `src/` module. All analysis logic lives in
+the `codebase-explorer` agent and the `cartograph:*` skills. The
+hooks directory provides a single PostToolUse hook that triggers
+diagram generation. No Python package is installed.
+
 ## Requirements
 
 - Mermaid Chart MCP server (included with Claude Code)

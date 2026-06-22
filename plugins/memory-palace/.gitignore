@@ -1,3 +1,7 @@
 # Transient maintenance artifacts written by precommit_palace_maintenance.sh
 # (timestamped index backups). Recoverable state, not source.
 data/backups/
+
+# Virtualenv and uv package cache — not source, never committed.
+.venv/
+.uv-cache/

@@ -163,13 +163,6 @@ class TestQualityChecker:
                 QualityIssue("error", "structure", "No test functions found"),
             )
 
-        # Check for test classes
-        [
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ClassDef) and node.name.startswith("Test")
-        ]
-
         # Check for imports
         imports = [
             node

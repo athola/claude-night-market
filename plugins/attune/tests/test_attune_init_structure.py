@@ -21,6 +21,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from attune_init import (
+    _build_parser,
     _create_docs_scaffolding,
     _journal_scaffold,
     copy_templates,
@@ -1175,3 +1176,18 @@ class TestMainDryRunAndBackupFlags:
 
         call_kwargs = mock_copy_templates.call_args[1]
         assert call_kwargs["backup"] is False
+
+
+@pytest.mark.unit
+class TestBuildParserDefaults:
+    """--python-version must default to 3.9, the minimum supported by this repo."""
+
+    def test_python_version_defaults_to_3_9(self) -> None:
+        """Given no --python-version flag, parser default must be 3.9.
+
+        System Python is 3.9.6 (C-001). Scaffolded pyproject.toml must not
+        claim a higher minimum, or the project fails on the host interpreter.
+        """
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.python_version == "3.9"

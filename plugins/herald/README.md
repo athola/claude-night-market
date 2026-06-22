@@ -81,6 +81,14 @@ The optional LLM tiebreaker falls back to the deterministic
 verdict when `claude` is unavailable, so the default behavior
 never depends on the network.
 
+## Design note
+
+Herald registers no skills intentionally. It is a hook-and-script
+library: other plugins call its scripts directly or invoke its hooks
+rather than using it as a skill source. Adding skills here would
+create an inappropriate coupling layer between notification mechanics
+and skill dispatch.
+
 ## Development
 
 ```bash
