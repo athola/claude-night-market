@@ -315,3 +315,20 @@ one-sentence rationale each:
 | XPL-004 | `memory-palace/session_history.py` leyline fallback: same rationale as XPL-001. |
 | ABS-006 | `SuperpowerWrapper` (270 lines) is deprecated in production but has 20+ active test references. Deletion would break the test suite. Deferred: requires test migration to the replacement API first. |
 | SML-002 | CLOSED — `bdd3a996`. Import redirect verified, no circular import (async_analysis._base imports only ast stdlib). |
+
+### Phase 3 — Behavioral fixes (TDD-gated)
+
+Each finding: failing test written first, implementation confirmed passing, then committed.
+
+| ID(s) | Commit | Notes |
+|-------|--------|-------|
+| PEN-013 | `4993273b` | Removed `break` capping integer-overflow detection; `test_integer_overflow_detects_all_hits` |
+| CON-008 | `71a9b8ed` | `sys.exit(1)` → `raise FileNotFoundError` in `growth_analyzer.py`; callers can now handle |
+| GAT-001/002/003 | `debdf6e8` | Batch BFS IN-clause, weight-index dict; 4 test files |
+| SAN-009/010 | `ee4e4982` | `_parse_test_report` + `_run_check_or_validate` extracted; 39 tests |
+| CJR-001/002/003 | `fedb1c5b`, `7369215d` | Model ID constants; narrow auth/config exception handlers; 15 tests |
+| MP-002/003 | `0d4b5ca4` | WHERE-clause triples filter; batch entity IN-clause; 32 tests |
+| EGR-001 | `0a0d44bd` | `_find_herald_notify_path()` with env-var override; 4 tests |
+| SML-001 | `0913b04d` | `AsyncAnalysisSkill` delegation class removed; module functions in `__all__`; 34 tests |
+| ATT-001 | Already closed in Phase 1 (`e35e75cc`). `_create_python/rust/typescript_structure` were already consolidated into data-driven `_create_structure` before this session. |
+| ABS-001..022 | Pending — abstract agent running |
