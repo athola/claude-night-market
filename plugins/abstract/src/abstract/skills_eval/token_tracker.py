@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import re
@@ -36,6 +37,7 @@ class TokenUsageTracker:
         )
         self.max_limit = max_limit if max_limit is not None else self.DEFAULT_MAX_LIMIT
         self.usage_history: list[dict[str, Any]] = []
+        self._analysis_cache: dict[str, Any] | None = None
 
     def analyze_skill_tokens(self, skill_name: str) -> dict[str, Any]:
         """Analyze tokens for a single skill."""
@@ -106,9 +108,14 @@ class TokenUsageTracker:
             },
         }
 
+    @functools.cached_property
+    def _cached_skill_analysis(self) -> dict[str, Any]:
+        """Cached result of analyze_all_skills; computed once per tracker instance."""
+        return self.analyze_all_skills()
+
     def calculate_token_efficiency(self) -> dict[str, Any]:
         """Calculate token efficiency metrics."""
-        all_analysis = self.analyze_all_skills()
+        all_analysis = self._cached_skill_analysis
         skill_efficiencies = {}
         optimization_opportunities = []
 
@@ -142,7 +149,7 @@ class TokenUsageTracker:
 
     def suggest_modularization(self) -> list[dict[str, Any]]:
         """Suggest modularization strategies for large skills."""
-        all_analysis = self.analyze_all_skills()
+        all_analysis = self._cached_skill_analysis
         suggestions = []
 
         for skill in all_analysis.get("skills", []):
@@ -196,7 +203,7 @@ class TokenUsageTracker:
 
     def identify_optimization_opportunities(self) -> list[dict[str, Any]]:
         """Identify optimization opportunities for skills."""
-        all_analysis = self.analyze_all_skills()
+        all_analysis = self._cached_skill_analysis
         opportunities = []
 
         for skill in all_analysis.get("skills", []):
@@ -215,7 +222,7 @@ class TokenUsageTracker:
 
     def calculate_dependency_impact(self) -> dict[str, Any]:
         """Calculate token impact from skill dependencies."""
-        all_analysis = self.analyze_all_skills()
+        all_analysis = self._cached_skill_analysis
         skills_data = []
         dependency_chains: list[list[str]] = []
 
@@ -278,7 +285,7 @@ class TokenUsageTracker:
 
     def monitor_budgets(self, budget: int) -> dict[str, Any]:
         """Monitor token budgets and generate alerts."""
-        all_analysis = self.analyze_all_skills()
+        all_analysis = self._cached_skill_analysis
         total_tokens = all_analysis.get("summary", {}).get("total_tokens", 0)
         exceeded = total_tokens > budget
 
@@ -369,8 +376,8 @@ class TokenUsageTracker:
 
         token_counts = [entry["token_count"] for entry in entries]
         total_tokens = sum(token_counts)
-        skills_over_limit = len([t for t in token_counts if t > self.optimal_limit])
-        optimal_usage_count = len([t for t in token_counts if t <= self.optimal_limit])
+        skills_over_limit = sum(1 for t in token_counts if t > self.optimal_limit)
+        optimal_usage_count = sum(1 for t in token_counts if t <= self.optimal_limit)
 
         return {
             "total_skills": len(entries),

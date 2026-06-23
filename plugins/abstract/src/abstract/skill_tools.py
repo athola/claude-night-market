@@ -10,6 +10,7 @@ Usage from within a skill:
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -77,7 +78,7 @@ def analyze_skill(
 
             results.append(result)
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, KeyError) as e:
             results.append(
                 {
                     "path": str(skill_file),

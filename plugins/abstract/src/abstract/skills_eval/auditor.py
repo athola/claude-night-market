@@ -111,12 +111,10 @@ class SkillsAuditor:
             total_score += metrics.score
 
         average_score = total_score / len(skills_metrics) if skills_metrics else 0
-        well_structured = len(
-            [m for m in skills_metrics if m.score >= SCORE_WELL_STRUCTURED],
+        well_structured = sum(
+            1 for m in skills_metrics if m.score >= SCORE_WELL_STRUCTURED
         )
-        needs_improvement = len(
-            [m for m in skills_metrics if m.score < SCORE_ACCEPTABLE],
-        )
+        needs_improvement = sum(1 for m in skills_metrics if m.score < SCORE_ACCEPTABLE)
         recommendations = self._generate_recommendations(skills_metrics)
 
         return {

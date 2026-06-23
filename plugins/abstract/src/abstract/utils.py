@@ -21,6 +21,8 @@ import warnings
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
 
@@ -147,7 +149,7 @@ def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfi
     if config_file.exists():
         try:
             return AbstractConfig.from_yaml(config_file)
-        except Exception as e:
+        except (OSError, yaml.YAMLError, TypeError) as e:
             logger.debug(f"Failed to load config from {config_file}: {e}")
 
     return AbstractConfig()
