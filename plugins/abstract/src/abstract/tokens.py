@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 import sys
+import warnings
 from pathlib import Path
 
 from .frontmatter import FrontmatterProcessor
@@ -75,6 +76,11 @@ def estimate_tokens(text: str) -> int:
         Use :func:`estimate_text_tokens` to avoid name collision with
         ``leyline.tokens.estimate_tokens(files, prompt)``.
     """
+    warnings.warn(
+        "estimate_tokens is deprecated; use estimate_text_tokens instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return estimate_text_tokens(text)
 
 
