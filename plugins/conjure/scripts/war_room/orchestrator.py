@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.war_room import experts as _experts_mod
+from scripts.war_room.config import CLAUDE_HAIKU_3
 from scripts.war_room.delphi import (
     compute_convergence,
     convene_delphi,
@@ -190,7 +191,7 @@ class WarRoomOrchestrator:
             result = await self._invoke_external(expert, prompt)
         else:
             # Fallback to Haiku
-            actual_model = "claude-haiku-3"
+            actual_model = CLAUDE_HAIKU_3
             notice = (
                 f"{expert.role} ({expert.model}) unavailable, using Haiku as fallback"
             )
