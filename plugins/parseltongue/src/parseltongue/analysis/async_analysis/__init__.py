@@ -46,112 +46,42 @@ from .testing_eventloop import (
 )
 
 
-class AsyncAnalysisSkill:
-    """Skill for analyzing async Python code patterns."""
-
-    def __init__(self) -> None:
-        """Initialize the async analysis skill."""
-        pass
-
-    def _parse_code(self, code: str) -> tuple[ast.Module | None, dict | None]:
-        """Parse code into an AST, returning an error dict on failure."""
-        return parse_code(code)
-
-    def _is_call_to(self, node: ast.Call, target: str) -> bool:
-        """Check if a call node is calling a specific function."""
-        return is_call_to(node, target)
-
-    async def analyze_async_functions(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async functions in the provided code."""
-        return await analyze_async_functions(code, _tree=_tree)
-
-    async def analyze_context_managers(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async context managers in the code."""
-        return await analyze_context_managers(code, _tree=_tree)
-
-    async def analyze_concurrency_patterns(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Detect concurrency patterns in async code."""
-        return await analyze_concurrency_patterns(code, _tree=_tree)
-
-    async def detect_blocking_calls(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Detect blocking calls in async code."""
-        return await detect_blocking_calls(code, _tree=_tree)
-
-    async def detect_missing_await(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Detect missing await keywords in async code."""
-        return await detect_missing_await(code, _tree=_tree)
-
-    async def analyze_error_handling(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async error handling patterns."""
-        return await analyze_error_handling(code, _tree=_tree)
-
-    async def analyze_timeouts(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze timeout patterns in async code."""
-        return await analyze_timeouts(code, _tree=_tree)
-
-    async def analyze_resource_management(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async resource management patterns."""
-        return await analyze_resource_management(code, _tree=_tree)
-
-    async def analyze_performance(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async performance patterns."""
-        return await analyze_performance(code, _tree=_tree)
-
-    async def detect_race_conditions(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Detect potential race conditions in async code."""
-        return await detect_race_conditions(code, _tree=_tree)
-
-    async def analyze_testing_patterns(
-        self, code: str, _tree: ast.Module | None = None
-    ) -> dict[str, Any]:
-        """Analyze async testing patterns."""
-        return await analyze_testing_patterns(code, _tree=_tree)
-
-    async def analyze_event_loop_usage(self, code: str) -> dict[str, Any]:
-        """Analyze event loop usage patterns in async code."""
-        return await analyze_event_loop_usage(code)
-
-    async def validate_best_practices(self, code: str) -> dict[str, Any]:
-        """Validate async code against best practices."""
-        return await _validate_best_practices_impl(
-            code,
-            analyze_error_handling_fn=analyze_error_handling,
-            analyze_resource_management_fn=analyze_resource_management,
-        )
-
-    async def analyze_complex_scenarios(self, code: str) -> dict[str, Any]:
-        """Analyze complex async code scenarios."""
-        return await analyze_complex_scenarios(code)
-
-    async def suggest_improvements(self, code: str) -> dict[str, Any]:
-        """Suggest improvements for async code."""
-        return await _suggest_improvements_impl(
-            code,
-            detect_blocking_calls_fn=detect_blocking_calls,
-            analyze_performance_fn=analyze_performance,
-            detect_race_conditions_fn=detect_race_conditions,
-            detect_missing_await_fn=detect_missing_await,
-        )
+async def suggest_improvements(code: str) -> dict[str, Any]:
+    """Suggest improvements for async code with default dependency injection."""
+    return await _suggest_improvements_impl(
+        code,
+        detect_blocking_calls_fn=detect_blocking_calls,
+        analyze_performance_fn=analyze_performance,
+        detect_race_conditions_fn=detect_race_conditions,
+        detect_missing_await_fn=detect_missing_await,
+    )
 
 
-__all__ = ["AsyncAnalysisSkill"]
+async def validate_best_practices(code: str) -> dict[str, Any]:
+    """Validate async code against best practices with default dependency injection."""
+    return await _validate_best_practices_impl(
+        code,
+        analyze_error_handling_fn=analyze_error_handling,
+        analyze_resource_management_fn=analyze_resource_management,
+    )
+
+
+__all__ = [
+    "analyze_async_functions",
+    "analyze_complex_scenarios",
+    "analyze_concurrency_patterns",
+    "analyze_context_managers",
+    "analyze_error_handling",
+    "analyze_event_loop_usage",
+    "analyze_performance",
+    "analyze_resource_management",
+    "analyze_testing_patterns",
+    "analyze_timeouts",
+    "detect_blocking_calls",
+    "detect_missing_await",
+    "detect_race_conditions",
+    "is_call_to",
+    "parse_code",
+    "suggest_improvements",
+    "validate_best_practices",
+]

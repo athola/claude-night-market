@@ -15,7 +15,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
+import parseltongue.analysis.async_analysis as _async_analysis_mod
 from parseltongue.analysis.code_transformation import CodeTransformationSkill
 from parseltongue.analysis.compatibility_checker import CompatibilityChecker
 from parseltongue.analysis.pattern_matching import PatternMatchingSkill
@@ -687,8 +687,8 @@ def pytest_configure(config) -> None:
 
 @pytest.fixture
 def async_analysis_skill():
-    """Create an AsyncAnalysisSkill instance for testing."""
-    return AsyncAnalysisSkill()
+    """Expose async analysis module-level functions for backward-compat tests."""
+    return _async_analysis_mod
 
 
 @pytest.fixture
