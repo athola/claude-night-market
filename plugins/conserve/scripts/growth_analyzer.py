@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import sys
 from datetime import datetime, timezone
 
 # Constants
@@ -225,14 +224,9 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Load context data
-    try:
-        with open(args.context_file) as f:
-            context_data = json.load(f)
-    except FileNotFoundError:
-        sys.exit(1)
-    except json.JSONDecodeError:
-        sys.exit(1)
+    # Load context data -- let FileNotFoundError and JSONDecodeError propagate
+    with open(args.context_file) as f:
+        context_data = json.load(f)
 
     # Analyze growth patterns
     analyzer = GrowthAnalyzer()
