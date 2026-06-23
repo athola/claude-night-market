@@ -254,6 +254,65 @@ class Delegator:
 
         return command
 
+    def _launch_process(
+        self,
+        cmd: list[str],
+        service_name: str,
+        prompt: str,
+        files: list[str] | None,
+        timeout: int,
+        start_time: float,
+    ) -> ExecutionResult:
+        """Spawn subprocess and return ExecutionResult, handling all error paths."""
+        try:
+            result = subprocess.run(  # nosec B603
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                cwd=Path.cwd(),
+            )
+            duration = time.time() - start_time
+            tokens_used = estimate_tokens(files or [], prompt)
+            return ExecutionResult(
+                success=result.returncode == 0,
+                stdout=result.stdout,
+                stderr=result.stderr,
+                exit_code=result.returncode,
+                duration=duration,
+                tokens_used=tokens_used,
+                service=service_name,
+            )
+        except subprocess.TimeoutExpired:
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=f"Command timed out after {timeout} seconds",
+                exit_code=124,
+                duration=time.time() - start_time,
+                service=service_name,
+            )
+        except FileNotFoundError as e:
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=f"Command not found: {e}",
+                exit_code=127,
+                duration=time.time() - start_time,
+                service=service_name,
+            )
+        except Exception as e:
+            logger.exception("Unexpected error executing delegation")
+            return ExecutionResult(
+                success=False,
+                stdout="",
+                stderr=str(e),
+                exit_code=1,
+                duration=time.time() - start_time,
+                service=service_name,
+            )
+
     def execute(
         self,
         service_name: str,
@@ -264,74 +323,12 @@ class Delegator:
     ) -> ExecutionResult:
         """Execute delegation command."""
         start_time = time.time()
-
-        # Build command
         command = self.build_command(service_name, prompt, files, options)
-
-        # Execute
-        try:
-            # CLI execution
-            result = subprocess.run(  # nosec B603
-                command,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=Path.cwd(),
-            )
-
-            duration = time.time() - start_time
-            success = result.returncode == 0
-
-            # Estimate tokens used
-            tokens_used = estimate_tokens(files or [], prompt)
-
-            execution_result = ExecutionResult(
-                success=success,
-                stdout=result.stdout,
-                stderr=result.stderr,
-                exit_code=result.returncode,
-                duration=duration,
-                tokens_used=tokens_used,
-                service=service_name,
-            )
-
-            # Log usage
-            self.log_usage(service_name, command, execution_result)
-
-            return execution_result
-
-        except subprocess.TimeoutExpired:
-            duration = time.time() - start_time
-            return ExecutionResult(
-                success=False,
-                stdout="",
-                stderr=f"Command timed out after {timeout} seconds",
-                exit_code=124,
-                duration=duration,
-                service=service_name,
-            )
-        except FileNotFoundError as e:
-            duration = time.time() - start_time
-            return ExecutionResult(
-                success=False,
-                stdout="",
-                stderr=f"Command not found: {e}",
-                exit_code=127,
-                duration=duration,
-                service=service_name,
-            )
-        except Exception as e:
-            logger.exception("Unexpected error executing delegation")
-            duration = time.time() - start_time
-            return ExecutionResult(
-                success=False,
-                stdout="",
-                stderr=str(e),
-                exit_code=1,
-                duration=duration,
-                service=service_name,
-            )
+        execution_result = self._launch_process(
+            command, service_name, prompt, files, timeout, start_time
+        )
+        self.log_usage(service_name, command, execution_result)
+        return execution_result
 
     def log_usage(
         self,
