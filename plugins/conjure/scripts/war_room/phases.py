@@ -287,17 +287,22 @@ def compute_borda_scores(
     n = len(coa_labels)
 
     for vote_text in votes.values():
-        # Simple parsing: look for numbered list with COA labels
+        rank_pos: dict[int, int] = {
+            rank: vote_text.find(f"{rank}.")
+            for rank in range(1, n + 1)
+            if f"{rank}." in vote_text
+        }
         for label in coa_labels:
-            # Check if this label appears with a rank number
+            if label not in vote_text:
+                continue
+            label_pos = vote_text.find(label)
             for rank in range(1, n + 1):
-                if f"{rank}." in vote_text and label in vote_text:
-                    # Approximate: give points based on where label appears
-                    pos = vote_text.find(label)
-                    rank_pos = vote_text.find(f"{rank}.")
-                    if 0 <= rank_pos < pos < rank_pos + 200:
-                        scores[label] += n - rank + 1
-                        break
+                rp = rank_pos.get(rank, -1)
+                if rp < 0:
+                    continue
+                if 0 <= rp < label_pos < rp + 200:
+                    scores[label] += n - rank + 1
+                    break
 
     return scores
 
