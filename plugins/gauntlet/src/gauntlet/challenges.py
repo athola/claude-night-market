@@ -333,7 +333,7 @@ def _generate_problem_variation(problem: BankProblem) -> BankProblem:
             )
             return problem
         return dataclasses.replace(problem, prompt=varied_prompt.strip())
-    except Exception:
+    except Exception:  # broad: VariationProvider is arbitrary; any raise must fall back
         _log.warning(
             "Failed to generate variation for problem %s; using original",
             problem.id,
