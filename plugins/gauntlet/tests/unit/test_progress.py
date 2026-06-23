@@ -338,3 +338,45 @@ class TestCurrentDifficulty:
         progress = tracker.get_or_create("dev@example.com")
         progress.streak = 30
         assert tracker.current_difficulty(progress) == 4
+
+
+class TestSelectEntryHistoryScan:
+    """GAT-003: select_entry builds category dict index once, not per-entry scan."""
+
+    @pytest.mark.unit
+    def test_history_iterated_once_not_per_entry(self, tmp_gauntlet_dir: Path) -> None:
+        """
+        Scenario: history indexed before per-entry loop
+        Given 10 history records and 5 entries
+        When select_entry called
+        Then history iterated exactly once
+        """
+
+        class _CountingList(list):
+            def __init__(self, items: list) -> None:
+                super().__init__(items)
+                self.iter_count = 0
+
+            def __iter__(self):
+                self.iter_count += 1
+                return super().__iter__()
+
+        tracker = ProgressTracker(tmp_gauntlet_dir)
+        progress = tracker.get_or_create("dev@example.com")
+        records = [
+            AnswerRecord(
+                challenge_id=f"ch-{i}",
+                knowledge_entry_id=f"ke-{i % 3}",
+                challenge_type="explain_why",
+                category="business_logic",
+                difficulty=2,
+                result="pass",
+                answered_at="2026-01-01T00:00:00",
+            )
+            for i in range(10)
+        ]
+        h: _CountingList = _CountingList(records)
+        progress.history = h  # type: ignore[assignment]  # CountingList is a list subclass, type guard is enough
+        entries = [_entry(entry_id=f"ke-{i}") for i in range(5)]
+        tracker.select_entry(progress, entries)
+        assert h.iter_count == 1, f"history iterated {h.iter_count}x; expected 1"

@@ -350,3 +350,33 @@ class TestProblemVariationFallback:
         # Same object identity: the function fell back to the original
         # rather than mutating or wrapping it.
         assert result is problem
+
+
+class TestSelectChallengeTypeHistoryScan:
+    """GAT-002: select_challenge_type builds dict index once, not per-type scan."""
+
+    @pytest.mark.unit
+    def test_history_iterated_once_not_per_type(self) -> None:
+        """
+        Scenario: history indexed before per-type loop
+        Given 60 history records (10 per type)
+        When select_challenge_type called
+        Then history iterated exactly once
+        """
+
+        class _CountingList(list):
+            def __init__(self, items: list) -> None:
+                super().__init__(items)
+                self.iter_count = 0
+
+            def __iter__(self):
+                self.iter_count += 1
+                return super().__iter__()
+
+        records = [
+            _answer_record(ct, "pass") for ct in CHALLENGE_TYPES for _ in range(10)
+        ]
+        h: _CountingList = _CountingList(records)
+        progress = DeveloperProgress(developer_id="dev@example.com", history=h)  # type: ignore[arg-type]  # CountingList is a list subclass, type guard is enough
+        select_challenge_type(progress)
+        assert h.iter_count == 1, f"history iterated {h.iter_count}x; expected 1"

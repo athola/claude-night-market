@@ -189,3 +189,40 @@ class TestSearch:
         _insert_and_index(store, nodes)
         results = search(store, "func", limit=3)
         assert len(results) <= 3
+
+
+class TestSearchFtsBatchQuery:
+    """GAT-004: search_fts resolves FTS hits via batch SELECT IN, not N get_node calls."""
+
+    @pytest.mark.unit
+    def test_search_fts_does_not_call_get_node(self, store: GraphStore) -> None:
+        """
+        Scenario: Batch resolution replaces per-hit get_node calls
+        Given 3 nodes indexed in FTS
+        When search_fts called
+        Then get_node never invoked
+        """
+        if not store._has_fts:
+            pytest.skip("FTS5 not available")
+        nodes = [
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name=f"s.py::process_{i}",
+                file_path="s.py",
+                line_start=i * 10 + 1,
+                line_end=i * 10 + 5,
+            )
+            for i in range(3)
+        ]
+        _insert_and_index(store, nodes)
+        get_node_calls: list[str] = []
+        _original = store.get_node
+
+        def _counting(qn: str) -> object:
+            get_node_calls.append(qn)
+            return _original(qn)
+
+        store.get_node = _counting  # type: ignore[method-assign]  # call-tracking spy: instance attr shadows class method
+        result = store.search_fts("process")
+        assert get_node_calls == [], f"Expected 0 calls; got {get_node_calls}"
+        assert len(result) == 3

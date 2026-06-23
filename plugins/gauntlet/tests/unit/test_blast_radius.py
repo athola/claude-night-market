@@ -331,3 +331,74 @@ class TestLoadWeights:
         config.write_text("not json {{{")
         weights = load_weights(tmp_path)
         assert weights == _DEFAULT_WEIGHTS
+
+
+class TestImpactRadiusBatchQuery:
+    """GAT-001: impact_radius resolves nodes via batch SELECT IN, not N get_node calls."""
+
+    @pytest.mark.unit
+    def test_impact_radius_does_not_call_get_node(self, store: GraphStore) -> None:
+        """
+        Scenario: Batch resolution replaces per-node get_node calls
+        Given 3 nodes connected by CALLS edges
+        When impact_radius is called
+        Then get_node is never invoked (batch SELECT IN used instead)
+        """
+        for i in range(3):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"a.py::fn_{i}",
+                    file_path="a.py",
+                    line_start=i * 10 + 1,
+                    line_end=i * 10 + 5,
+                )
+            )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS, source_qn="a.py::fn_0", target_qn="a.py::fn_1"
+            )
+        )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.CALLS, source_qn="a.py::fn_1", target_qn="a.py::fn_2"
+            )
+        )
+        get_node_calls: list[str] = []
+        _original = store.get_node
+
+        def _counting(qn: str) -> object:
+            get_node_calls.append(qn)
+            return _original(qn)
+
+        store.get_node = _counting  # type: ignore[method-assign]  # call-tracking spy: instance attr shadows class method
+        result = store.impact_radius(["a.py"], depth=3)
+        assert get_node_calls == [], f"Expected 0 calls; got {get_node_calls}"
+        assert {n.qualified_name for n in result} == {
+            "a.py::fn_0",
+            "a.py::fn_1",
+            "a.py::fn_2",
+        }
+
+    @pytest.mark.unit
+    def test_impact_radius_batch_handles_large_visited_set(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: 500 visited nodes don't crash (chunked IN query required)
+        Given 500 isolated nodes in big.py
+        When impact_radius is called
+        Then all 500 are returned
+        """
+        for i in range(500):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"big.py::fn_{i}",
+                    file_path="big.py",
+                    line_start=i * 10 + 1,
+                    line_end=i * 10 + 5,
+                )
+            )
+        result = store.impact_radius(["big.py"], depth=1)
+        assert len(result) == 500
