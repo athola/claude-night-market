@@ -331,4 +331,4 @@ Each finding: failing test written first, implementation confirmed passing, then
 | EGR-001 | `0a0d44bd` | `_find_herald_notify_path()` with env-var override; 4 tests |
 | SML-001 | `0913b04d` | `AsyncAnalysisSkill` delegation class removed; module functions in `__all__`; 34 tests |
 | ATT-001 | Already closed in Phase 1 (`e35e75cc`). `_create_python/rust/typescript_structure` were already consolidated into data-driven `_create_structure` before this session. |
-| ABS-001..022 | Pending — abstract agent running |
+| ABS-001/002/005/006/009/012/013/017/019/022 | `7987649c` | ABS-003/004/011/015/018 already satisfied. ABS-006 deleted (0 consumers confirmed). ABS-019 narrowed to `(OSError, yaml.YAMLError, TypeError)` — config files are YAML, not JSON. 23 TDD tests. |
