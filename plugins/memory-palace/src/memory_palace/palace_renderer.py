@@ -58,16 +58,19 @@ class PalaceRenderer:
 
     def palace_map(self, palace_id: str) -> str:
         """Generate a Mermaid flowchart showing palace rooms and entities."""
-        palace = self._graph.get_entity(palace_id)
+        # Fetch residents first so palace + all resident entities can be
+        # retrieved in one batched IN query rather than N+1 round-trips.
+        residents = self._graph.get_residents_in_palace(palace_id)
+        all_ids = [palace_id] + [r["entity_id"] for r in residents]
+        entities: dict[str, dict[str, Any]] = self._graph.get_entities_batch(all_ids)
+
+        palace = entities.get(palace_id)
         if palace is None:
             return ""
 
         palace_name = _sanitize_label(palace["name"])
         lines = ["flowchart TD"]
         lines.append(f'    palace["{palace_name}"]')
-
-        # Get all residents in this palace
-        residents = self._graph.get_residents_in_palace(palace_id)
 
         # Group residents by room
         rooms: dict[str, list[dict[str, Any]]] = {}
@@ -81,11 +84,11 @@ class PalaceRenderer:
 
         # Render rooms as subgraphs
         for room_id, room_residents in rooms.items():
-            room_entity = self._graph.get_entity(room_id)
+            room_entity = entities.get(room_id)
             room_name = _sanitize_label(room_entity["name"] if room_entity else room_id)
             lines.append(f"    subgraph {room_id}[{room_name}]")
             for r in room_residents:
-                ent = self._graph.get_entity(r["entity_id"])
+                ent = entities.get(r["entity_id"])
                 if ent and ent["entity_type"] not in ("palace", "room"):
                     ent_label = _sanitize_label(ent["name"])
                     lines.append(f'        {r["entity_id"]}["{ent_label}"]')
@@ -95,7 +98,7 @@ class PalaceRenderer:
 
         # Render unroomed entities directly under palace
         for r in unroomed:
-            ent = self._graph.get_entity(r["entity_id"])
+            ent = entities.get(r["entity_id"])
             if ent and ent["entity_type"] not in ("palace", "room"):
                 ent_label = _sanitize_label(ent["name"])
                 lines.append(f'    {r["entity_id"]}["{ent_label}"]')
@@ -343,23 +346,23 @@ class PalaceRenderer:
         # Include the palace entity itself
         resident_ids.add(palace_id)
 
-        # Find triples where both subject and object are in the palace,
-        # applying temporal filter:
-        #   valid_from = '' OR valid_from IS NULL OR valid_from <= at_time
-        #   AND (valid_to = '' OR valid_to IS NULL OR valid_to > at_time)
-        active_triples = self._graph._conn.execute(
-            """SELECT * FROM triples
-               WHERE (valid_from = '' OR valid_from IS NULL OR valid_from <= ?)
-                 AND (valid_to = '' OR valid_to IS NULL OR valid_to > ?)""",
-            (at_time, at_time),
-        ).fetchall()
-
-        # Filter to only triples involving palace residents
-        filtered = [
-            t
-            for t in active_triples
-            if t["subject_id"] in resident_ids or t["object_id"] in resident_ids
-        ]
+        # Find triples involving palace residents, filtering in SQL so the
+        # DB never returns rows Python will immediately discard.
+        if resident_ids:
+            placeholders = ",".join("?" * len(resident_ids))
+            ids_list = list(resident_ids)
+            triples_query = (
+                f"SELECT * FROM triples"  # noqa: S608 - parameterized IN clause, placeholders are "?" repetitions not user data  # nosec B608
+                f" WHERE (valid_from = '' OR valid_from IS NULL OR valid_from <= ?)"
+                f"   AND (valid_to = '' OR valid_to IS NULL OR valid_to > ?)"
+                f"   AND (subject_id IN ({placeholders}) OR object_id IN ({placeholders}))"
+            )
+            filtered = self._graph._conn.execute(
+                triples_query,
+                (at_time, at_time, *ids_list, *ids_list),
+            ).fetchall()
+        else:
+            filtered = []
 
         if not filtered:
             return ""

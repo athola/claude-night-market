@@ -235,6 +235,19 @@ class KnowledgeGraph(SqliteGraphBase):
         ).fetchone()
         return dict(row) if row else None
 
+    def get_entities_batch(self, entity_ids: list[str]) -> dict[str, dict[str, Any]]:
+        """Fetch multiple entities by ID in a single query.
+
+        Returns a dict keyed by entity_id; missing IDs are absent from
+        the result rather than mapped to None.
+        """
+        if not entity_ids:
+            return {}
+        placeholders = ",".join("?" * len(entity_ids))
+        query = f"SELECT * FROM entities WHERE entity_id IN ({placeholders})"  # noqa: S608 - parameterized IN clause, placeholders are "?" repetitions not user data  # nosec B608
+        rows = self._conn.execute(query, entity_ids).fetchall()
+        return {row["entity_id"]: dict(row) for row in rows}
+
     def get_entities_by_type(self, entity_type: str) -> list[dict[str, Any]]:
         """Fetch all entities of a given type."""
         rows = self._conn.execute(
