@@ -159,7 +159,7 @@ class Delegator:
                             self.services[service_name] = ServiceConfig(
                                 **service_config,
                             )
-            except Exception as e:
+            except (json.JSONDecodeError, OSError) as e:
                 logger.debug("Failed to load service configurations: %s", e)
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
@@ -202,7 +202,12 @@ class Delegator:
                 )
                 if result.returncode != 0:
                     issues.append("Service not authenticated")
-            except Exception:
+            except (
+                subprocess.CalledProcessError,
+                FileNotFoundError,
+                subprocess.TimeoutExpired,
+                OSError,
+            ):
                 issues.append("Could not verify authentication status")
 
         return len(issues) == 0, issues
