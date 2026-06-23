@@ -761,3 +761,26 @@ class TestBugReviewSkill:
             f"Expected at least 2 overflow bugs, got {len(overflow_bugs)}. "
             "The break on first match must be removed."
         )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detect_logical_errors_ignores_age_comparison(
+        self, mock_skill_context
+    ) -> None:
+        r"""age > 18 in non-auth code must not be flagged as a logic error.
+
+        The pattern r"age\s*>\s*18" fires on any variable named 'age'
+        compared to 18 — a game engine, log rotation, materials check.
+        It is a domain-specific teaching example that shipped as a real
+        detector and produces false positives universally.
+        """
+        mock_skill_context.get_file_content.return_value = (
+            "material_age = 20\nif material_age > 18:\n    flag_for_inspection()\n"
+        )
+
+        bugs = self.skill.detect_logical_errors(mock_skill_context, "materials.py")
+
+        age_false_positives = [b for b in bugs if "age" in b.get("issue", "").lower()]
+        assert age_false_positives == [], (
+            f"age > 18 pattern fired on non-auth code: {age_false_positives}"
+        )
