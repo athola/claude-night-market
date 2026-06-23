@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
 from collections import deque
 from typing import Any
@@ -659,8 +660,9 @@ class GraphStore(SqliteGraphBase):
         )
 
 
+_FTS_SPECIAL_RE = re.compile(r'[+\-*()"]+')
+
+
 def _sanitize_fts_query(query: str) -> str:
-    """Escape FTS5 special characters."""
-    for ch in '+-*()"':
-        query = query.replace(ch, " ")
-    return " ".join(query.split())
+    """Replace FTS5 operator characters with spaces and normalise whitespace."""
+    return " ".join(_FTS_SPECIAL_RE.sub(" ", query).split())
