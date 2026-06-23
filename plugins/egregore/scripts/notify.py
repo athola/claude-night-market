@@ -23,6 +23,7 @@ from __future__ import annotations
 import enum
 import importlib.util
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,11 +36,23 @@ logger = logging.getLogger(__name__)
 
 _HERALD_AVAILABLE = False
 
+
+def _find_herald_notify_path() -> Path:
+    """Locate herald's notify.py via env var override or repo-relative default."""
+    env_override = os.getenv("HERALD_NOTIFY_PATH")
+    if env_override:
+        return Path(env_override)
+    return (
+        Path(__file__).resolve().parent.parent.parent
+        / "herald"
+        / "scripts"
+        / "notify.py"
+    )
+
+
 # Load herald's notify module from its known file path using
 # importlib.util.spec_from_file_location (safe, no exec).
-_herald_notify_path = (
-    Path(__file__).resolve().parent.parent.parent / "herald" / "scripts" / "notify.py"
-)
+_herald_notify_path = _find_herald_notify_path()
 
 try:
     _spec = importlib.util.spec_from_file_location(
