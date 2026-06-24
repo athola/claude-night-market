@@ -372,3 +372,9 @@ Each finding: failing test written first, implementation confirmed passing, then
 | MP-012 | DEFERRED | Duplicate config-write pattern in `enable_plugin`/`disable_plugin` — extract helper is medium effort, no behavior defect. |
 | MP-013 | DEFERRED | `rglob("skills")` fragile path discovery — fix changes which directory is selected, requires integration testing. |
 | MP-014 | DEFERRED | `journey_replay` 3-loop structure — combine into single pass is medium effort, no behavior defect. |
+| ABS-007/008/016 | `f996a30f` | Remove redundant `skills_root`/`skill_root` attribute aliases from `SkillsAuditor`, `TokenUsageTracker`, `ImprovementSuggester`; update 5 test files. |
+| ABS-021 | `73120c71` | Rename `in_progress_tasks` → `remaining_tasks` on `TaskState`; name now matches what the property computes (pending minus completed). 2 TDD tests. |
+| IMB-008 | `69fbd32c` | Remove body-text regex fallback in `_classify_skills` that matched "output/workflow/orchestrat" in any skill body; require explicit `category: review-patterns` or `review-workflow` in frontmatter. 4 existing tests updated; 1 new non-regression test. |
+| SAN-011 | STALE-FIXED | `_validate_registration` already returns `list[str]` and is a pure query with no mutation; mutation happens in separate `_apply_non_hooks_mutations`. Finding was stale at the time of execution; existing tests confirm correct behavior. |
+| SAN-013 | `78f47dd6` | `_extract_module_refs_from_file` refactored to delegate file I/O to `_safe_read`, eliminating a duplicate `try/except (OSError, UnicodeDecodeError)` block. 1 TDD delegation test. |
+| TOME-001 (blocking) | `034f6465` | Channel-blocking optimization in `fuzzy_deduplicate`: group findings by channel first, enumerate pairs only within groups via `itertools.combinations`. Eliminates O(n²) all-pairs enumeration when `cross_channel=False`. `cross_channel=True` retains full pair loop (required for threshold selection). 4 regression guard tests. |
