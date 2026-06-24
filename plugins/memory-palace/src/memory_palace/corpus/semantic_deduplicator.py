@@ -60,7 +60,6 @@ class SemanticDeduplicator:
         self.vector_dim = vector_dim
         self._near_duplicate_counts: dict[str, int] = {}
         self._use_faiss = True
-        self._stored_texts: list[str] = []  # Unused; Jaccard fallback is dead code
 
         # FAISS flat index with inner-product search on L2-normalised vectors
         # (inner product on unit vectors == cosine similarity)
@@ -103,45 +102,29 @@ class SemanticDeduplicator:
 
         """
         resolved_id = entry_id or _content_id(new_content)
-
-        if self._use_faiss:
-            return self._should_store_faiss(
-                new_content, existing_embeddings, resolved_id, new_vector
-            )
-        return self._should_store_jaccard(new_content, resolved_id)
+        return self._should_store_faiss(
+            new_content, existing_embeddings, resolved_id, new_vector
+        )
 
     def add_vector(self, entry_id: str, vector: list[float]) -> None:
         """Register a new vector in the internal FAISS index.
-
-        Only meaningful when FAISS is available.  In fallback mode the
-        corresponding text should be passed via ``add_text`` instead.
 
         Args:
             entry_id: Identifier for this vector.
             vector: Pre-normalised embedding vector of length ``vector_dim``.
 
         """
-        if not self._use_faiss:
-            logger.debug("add_vector called in fallback mode; use add_text instead")
-            return
         arr = np.array([vector], dtype="float32")
         _l2_normalize_rows(arr)
         self._index.add(arr)
         self._entry_ids.append(entry_id)
 
-    def add_text(self, text: str) -> None:
-        """Register raw text for Jaccard-based deduplication (fallback mode only).
+    def add_text(self, _text: str) -> None:
+        """No-op; FAISS is the sole backend.
 
-        In FAISS mode this is a no-op; use ``add_vector`` instead.
-
-        Args:
-            text: Raw text to store for future Jaccard comparisons.
-
+        Kept for API compatibility; use add_vector instead.
         """
-        if self._use_faiss:
-            logger.debug("add_text called in FAISS mode; use add_vector instead")
-            return
-        self._stored_texts.append(text)
+        logger.debug("add_text is a no-op; FAISS is the only supported backend")
 
     def get_near_duplicate_count(self, entry_id: str) -> int:
         """Return the number of near-duplicates seen for entry_id.
@@ -157,14 +140,12 @@ class SemanticDeduplicator:
 
     @property
     def uses_faiss(self) -> bool:
-        """True when the FAISS backend is active."""
-        return self._use_faiss
+        """True; FAISS is the only supported backend."""
+        return True
 
     @property
     def index_size(self) -> int:
-        """Number of vectors in the internal FAISS index (0 in fallback mode)."""
-        if not self._use_faiss:
-            return 0
+        """Number of vectors in the internal FAISS index."""
         return int(self._index.ntotal)
 
     # ------------------------------------------------------------------
@@ -204,34 +185,6 @@ class SemanticDeduplicator:
             )
             logger.debug(
                 "Near-duplicate detected (%.3f >= %.3f): suppressing %r",
-                best_score,
-                self.threshold,
-                entry_id,
-            )
-            return False
-        return True
-
-    def _should_store_jaccard(self, content: str, entry_id: str) -> bool:
-        """Jaccard-based duplicate check (fallback mode)."""
-        if not self._stored_texts:
-            return True
-
-        best_score = 0.0
-        best_idx = 0
-        for idx, stored in enumerate(self._stored_texts):
-            score = _jaccard_similarity(content, stored)
-            if score > best_score:
-                best_score = score
-                best_idx = idx
-
-        if best_score >= self.threshold:
-            # Use the best_idx position as a synthetic key
-            target_key = f"fallback:{best_idx}"
-            self._near_duplicate_counts[target_key] = (
-                self._near_duplicate_counts.get(target_key, 0) + 1
-            )
-            logger.debug(
-                "Near-duplicate detected via Jaccard (%.3f >= %.3f): suppressing %r",
                 best_score,
                 self.threshold,
                 entry_id,

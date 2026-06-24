@@ -44,6 +44,62 @@ def test_export_persists_provider_vectors(tmp_path: Path) -> None:
     assert data["metadata"]["default_provider"] == "hash"
 
 
+class TestMP008JaccardDeadCodeRemoved:
+    """MP-008: _stored_texts and _should_store_jaccard are dead; must be removed.
+
+    faiss-cpu is a mandatory dependency and _use_faiss is always True,
+    making _stored_texts and _should_store_jaccard unreachable. AST-based
+    tests avoid the faiss import so they run on system Python.
+    """
+
+    def _dedup_source(self) -> ast.Module:
+        src_path = (
+            Path(__file__).parent.parent
+            / "src"
+            / "memory_palace"
+            / "corpus"
+            / "semantic_deduplicator.py"
+        )
+        return ast.parse(src_path.read_text(encoding="utf-8"))
+
+    def test_stored_texts_attribute_removed_from_init(self) -> None:
+        """__init__ must not assign self._stored_texts.
+
+        _stored_texts was populated only by add_text which is a no-op in
+        FAISS mode, making the attribute permanently empty and misleading.
+        """
+        tree = self._dedup_source()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef) or node.name != "__init__":
+                continue
+            for child in ast.walk(node):
+                if (
+                    isinstance(child, ast.Assign)
+                    and isinstance(child.targets[0], ast.Attribute)
+                    and child.targets[0].attr == "_stored_texts"
+                ):
+                    assert False, (
+                        "Dead attribute self._stored_texts still assigned in __init__; "
+                        "remove it (MP-008)"
+                    )
+
+    def test_should_store_jaccard_method_removed(self) -> None:
+        """SemanticDeduplicator class must not define _should_store_jaccard.
+
+        The method is unreachable: should_store's else-branch only runs when
+        _use_faiss is False, which never happens with mandatory faiss-cpu.
+        """
+        tree = self._dedup_source()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name == "SemanticDeduplicator":
+                method_names = [
+                    m.name for m in ast.walk(node) if isinstance(m, ast.FunctionDef)
+                ]
+                assert "_should_store_jaccard" not in method_names, (
+                    "Dead method _should_store_jaccard still present; remove it (MP-008)"
+                )
+
+
 class TestMP011OptionalDepExceptionNarrowing:
     """MP-011: module-level optional-dep catches must use ImportError, not Exception."""
 
