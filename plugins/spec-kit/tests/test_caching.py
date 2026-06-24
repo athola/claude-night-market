@@ -644,20 +644,39 @@ class TestCacheManager:
                 return "planned"
 
             plan()
-            assert cache.get("my.plan") == "planned"
+            assert cache.get("plan_generation:my.plan") == "planned"
         finally:
             speckit.caching._cache_instance = original
 
-    def test_invalidate_category_clears_cache(self, tmp_path: Path) -> None:
-        """Should clear all caches when invalidating a category."""
+    def test_invalidate_category_clears_only_that_category(
+        self, tmp_path: Path
+    ) -> None:
+        """Invalidating spec_parsing removes only spec_parsing entries."""
         original = speckit.caching._cache_instance
         try:
             cache = SpecKitCache(cache_dir=tmp_path / "cache")
             speckit.caching._cache_instance = cache
-            cache.set("some_key", "some_value")
+            cache.set("spec_parsing:key_a", "spec_value")
+            cache.set("task_analysis:key_b", "task_value")
             CacheManager.invalidate_category("spec_parsing")
-            # invalidate_category calls cache.invalidate() which clears everything
-            assert cache.get("some_key") is None
+            assert cache.get("spec_parsing:key_a") is None
+            assert cache.get("task_analysis:key_b") == "task_value"
+        finally:
+            speckit.caching._cache_instance = original
+
+    def test_cache_result_embeds_category_in_key(self, tmp_path: Path) -> None:
+        """cache_result decorator keys are prefixed with category."""
+        original = speckit.caching._cache_instance
+        try:
+            cache = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = cache
+
+            @CacheManager.cache_result("spec_parsing", key="my_func")
+            def my_func() -> str:
+                return "result"
+
+            my_func()
+            assert cache.get("spec_parsing:my_func") == "result"
         finally:
             speckit.caching._cache_instance = original
 

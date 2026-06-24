@@ -135,6 +135,17 @@ class SpecKitCache:
             for cache_file in self.cache_dir.glob("*.json"):
                 cache_file.unlink(missing_ok=True)
 
+    def invalidate_prefix(self, prefix: str) -> None:
+        """Invalidate all cache entries whose key starts with prefix."""
+        stale_keys = [k for k in self._memory_cache if k.startswith(prefix)]
+        for k in stale_keys:
+            del self._memory_cache[k]
+            self._cache_timestamps.pop(k, None)
+
+        safe_prefix = "".join(c if c.isalnum() else "_" for c in prefix)
+        for cache_file in self.cache_dir.glob(f"{safe_prefix}*.json"):
+            cache_file.unlink(missing_ok=True)
+
     def get_cache_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         cache_files = list(self.cache_dir.glob("*.json"))
@@ -226,14 +237,12 @@ class CacheManager:
 
     @classmethod
     def cache_result(cls, category: str, key: str | None = None) -> Callable[[F], F]:
-        """Create a decorator with category-based TTL."""
+        """Create a decorator with category-based TTL and category-prefixed key."""
         ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
-        return cached(ttl=ttl, key=key)
+        prefixed_key = f"{category}:{key}" if key else None
+        return cached(ttl=ttl, key=prefixed_key)
 
     @classmethod
     def invalidate_category(cls, category: str) -> None:
         """Invalidate all cache entries for a category."""
-        cache = get_cache()
-        # This is a simplified implementation
-        # In practice, you might want more sophisticated category tracking
-        cache.invalidate()
+        get_cache().invalidate_prefix(f"{category}:")
