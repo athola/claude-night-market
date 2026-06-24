@@ -168,6 +168,21 @@ def test_static_analysis_bdd_missing_keywords(tmp_path):
     assert any("missing BDD" in i.message for i in out["bdd_compliance"])
 
 
+def test_bdd_check_detects_missing_keywords_in_single_quoted_docstring(tmp_path):
+    """AST-based BDD check flags missing keywords even for single-quoted docstrings."""
+    qc = _load_script()
+    f = tmp_path / "test_single_quote.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_some_thing_behavior():\n"
+        "    'No BDD keywords here.'\n"
+        "    assert True\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert any("missing BDD" in i.message for i in out["bdd_compliance"])
+
+
 def test_static_analysis_documentation_lacks_module_docstring(tmp_path):
     qc = _load_script()
     f = tmp_path / "test_docs.py"

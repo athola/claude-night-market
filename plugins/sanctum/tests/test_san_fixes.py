@@ -164,6 +164,9 @@ class TestSAN016BDDRegexNoOvermatch:
             '        """\n'
             "        assert True\n"
         )
+        import ast as ast_mod
+
+        tree = ast_mod.parse(content)
         analysis: dict = {
             "bdd_compliance": [],
             "assertion_issues": [],
@@ -171,10 +174,8 @@ class TestSAN016BDDRegexNoOvermatch:
             "structure_issues": [],
             "naming_issues": [],
         }
-        checker._check_bdd_compliance(content, analysis)
+        checker._check_bdd_compliance(tree, analysis)
         missing_bdd = [
             i for i in analysis["bdd_compliance"] if "second_method" in i.message
         ]
-        assert missing_bdd, (
-            "_check_bdd_compliance did not flag test_second_method (regex over-match)"
-        )
+        assert missing_bdd, "_check_bdd_compliance did not flag test_second_method"

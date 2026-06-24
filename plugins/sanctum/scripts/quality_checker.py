@@ -144,7 +144,7 @@ class TestQualityChecker:
         self._check_test_structure(tree, analysis)
         self._check_naming_conventions(tree, analysis)
         self._check_assertion_quality(tree, analysis)
-        self._check_bdd_compliance(test_content, analysis)
+        self._check_bdd_compliance(tree, analysis)
         self._check_documentation(test_content, analysis)
 
         return analysis
@@ -249,44 +249,29 @@ class TestQualityChecker:
                     ),
                 )
 
-    def _check_bdd_compliance(self, test_content: str, analysis: dict) -> None:
-        """Check BDD pattern compliance."""
-        bdd_patterns = {
-            "given": re.compile(r"(?i)given\s+"),
-            "when": re.compile(r"(?i)when\s+"),
-            "then": re.compile(r"(?i)then\s+"),
-            "and": re.compile(r"(?i)and\s+"),
-        }
+    _BDD_KEYWORDS = ("given", "when", "then", "and")
 
-        # Single pass: find each test function and its body together
-        func_pattern = re.compile(
-            r"def (test_[^(]+)\(.*?\):(.*?)(?=\n\s*def |\n\s*class |$)",
-            re.DOTALL,
-        )
-
-        for match in func_pattern.finditer(test_content):
-            test_name = match.group(1)
-            test_body = match.group(2)
-
-            # Check for BDD keywords in docstrings
-            docstring_match = re.search(r'"""(.*?)"""', test_body, re.DOTALL)
-            if docstring_match:
-                docstring = docstring_match.group(1)
-                missing_patterns = []
-
-                for pattern_name, pattern_regex in bdd_patterns.items():
-                    if not pattern_regex.search(docstring):
-                        missing_patterns.append(pattern_name.upper())
-
-                if missing_patterns:
-                    analysis["bdd_compliance"].append(
-                        QualityIssue(
-                            "warning",
-                            "bdd",
-                            f"Test '{test_name}' missing BDD patterns",
-                            suggestion=(f"Add {', '.join(missing_patterns)} patterns"),
-                        ),
-                    )
+    def _check_bdd_compliance(self, tree: ast.AST, analysis: dict) -> None:
+        """Check BDD pattern compliance using AST docstring extraction."""
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+            ):
+                continue
+            docstring = ast.get_docstring(node)
+            if not docstring:
+                continue
+            lower = docstring.lower()
+            missing = [kw.upper() for kw in self._BDD_KEYWORDS if kw not in lower]
+            if missing:
+                analysis["bdd_compliance"].append(
+                    QualityIssue(
+                        "warning",
+                        "bdd",
+                        f"Test '{node.name}' missing BDD patterns",
+                        suggestion=f"Add {', '.join(missing)} patterns",
+                    ),
+                )
 
     def _check_documentation(self, test_content: str, analysis: dict) -> None:
         """Check test documentation quality."""
