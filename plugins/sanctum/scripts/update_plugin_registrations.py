@@ -226,55 +226,50 @@ class PluginAuditor:
         - plugins/plugin-name/skills/skill-name/modules/filename.md
         """
         references: set[str] = set()
+        content = self._safe_read(md_file)
+        if not content:
+            return references
 
-        try:
-            content = md_file.read_text(encoding="utf-8")
-
-            # Extract from YAML frontmatter modules: list
-            frontmatter_match = re.match(r"^---\n(.*?\n)---", content, re.DOTALL)
-            if frontmatter_match:
-                frontmatter = frontmatter_match.group(1)
-                # Find the modules: block and extract bare names
-                modules_match = re.search(
-                    r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
-                )
-                if modules_match:
-                    for raw_name in re.findall(
-                        r"^- (.+)$", modules_match.group(1), re.MULTILINE
-                    ):
-                        entry = raw_name.strip()
-                        if entry and not entry.startswith("{"):
-                            # Normalize any path-prefixed entry to its
-                            # basename so the set comparison against
-                            # on-disk filenames in _scan_skill_modules
-                            # (which stores bare names) is apples-to-apples.
-                            # Handles: "modules/foo.md", "./modules/foo.md",
-                            # "../modules/foo.md", and bare "foo.md".
-                            if "/" in entry:
-                                entry = entry.rsplit("/", 1)[-1]
-                            # Convert bare name to filename: name -> name.md
-                            if not entry.endswith(".md"):
-                                entry = f"{entry}.md"
-                            references.add(entry)
-
-            # Content-level patterns
-            patterns = [
-                # Direct module references
-                r"@modules/([a-zA-Z0-9_-]+\.md)",
-                r"[`\s\(]modules/([a-zA-Z0-9_-]+\.md)",
-                r"See\s+`?modules/([a-zA-Z0-9_-]+\.md)",
-                # Full path references (captures entire path)
-                r"skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
-                r"plugins/[a-zA-Z0-9_-]+/skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
-            ]
-            for pattern in patterns:
-                matches = re.findall(pattern, content)
-                references.update(matches)
-        except (OSError, UnicodeDecodeError) as exc:
-            print(
-                f"[update_plugin_registrations] cannot read {md_file}: {exc}",
-                file=sys.stderr,
+        # Extract from YAML frontmatter modules: list
+        frontmatter_match = re.match(r"^---\n(.*?\n)---", content, re.DOTALL)
+        if frontmatter_match:
+            frontmatter = frontmatter_match.group(1)
+            # Find the modules: block and extract bare names
+            modules_match = re.search(
+                r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
             )
+            if modules_match:
+                for raw_name in re.findall(
+                    r"^- (.+)$", modules_match.group(1), re.MULTILINE
+                ):
+                    entry = raw_name.strip()
+                    if entry and not entry.startswith("{"):
+                        # Normalize any path-prefixed entry to its
+                        # basename so the set comparison against
+                        # on-disk filenames in _scan_skill_modules
+                        # (which stores bare names) is apples-to-apples.
+                        # Handles: "modules/foo.md", "./modules/foo.md",
+                        # "../modules/foo.md", and bare "foo.md".
+                        if "/" in entry:
+                            entry = entry.rsplit("/", 1)[-1]
+                        # Convert bare name to filename: name -> name.md
+                        if not entry.endswith(".md"):
+                            entry = f"{entry}.md"
+                        references.add(entry)
+
+        # Content-level patterns
+        patterns = [
+            # Direct module references
+            r"@modules/([a-zA-Z0-9_-]+\.md)",
+            r"[`\s\(]modules/([a-zA-Z0-9_-]+\.md)",
+            r"See\s+`?modules/([a-zA-Z0-9_-]+\.md)",
+            # Full path references (captures entire path)
+            r"skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+            r"plugins/[a-zA-Z0-9_-]+/skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+        ]
+        for pattern in patterns:
+            matches = re.findall(pattern, content)
+            references.update(matches)
 
         return references
 

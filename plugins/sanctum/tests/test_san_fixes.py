@@ -179,3 +179,39 @@ class TestSAN016BDDRegexNoOvermatch:
             i for i in analysis["bdd_compliance"] if "second_method" in i.message
         ]
         assert missing_bdd, "_check_bdd_compliance did not flag test_second_method"
+
+
+# ---------------------------------------------------------------------------
+# SAN-013: _extract_module_refs_from_file – use _safe_read to share file-read
+#           logic instead of duplicating the try/except error handling block.
+# ---------------------------------------------------------------------------
+
+
+class TestSAN013ExtractModuleRefsUsesSafeRead:
+    """_extract_module_refs_from_file must delegate file I/O to _safe_read.
+
+    GIVEN _safe_read is patched to return known content
+    WHEN _extract_module_refs_from_file is called on any path
+    THEN it uses the content returned by _safe_read (not reads the file itself).
+    """
+
+    def _make_registrar(self, tmp_path: Path):
+        mod = _load("update_plugin_registrations")
+        return mod.PluginRegistrationAuditor(tmp_path), mod
+
+    def test_extract_module_refs_delegates_to_safe_read(self, tmp_path: Path) -> None:
+        """_extract_module_refs_from_file uses _safe_read for file I/O."""
+        registrar, _ = self._make_registrar(tmp_path)
+        fake_path = tmp_path / "nonexistent.md"
+
+        injected_content = "@modules/injected-module.md\n"
+        with patch.object(
+            registrar, "_safe_read", return_value=injected_content
+        ) as mock_sr:
+            refs = registrar._extract_module_refs_from_file(fake_path)
+
+        mock_sr.assert_called_once_with(fake_path)
+        assert "injected-module.md" in refs, (
+            "_extract_module_refs_from_file did not use _safe_read; "
+            "it reads the file directly instead of calling the shared helper"
+        )
