@@ -144,10 +144,7 @@ class PalaceRenderer:
             lines.append(f"    {entity_id} {style} {syn['target_id']}")
 
         # Incoming synapses
-        # Query synapses targeting this entity
-        incoming = self._graph._conn.execute(
-            "SELECT * FROM synapses WHERE target_id = ?", (entity_id,)
-        ).fetchall()
+        incoming = self._graph.get_synapses_to(entity_id)
         for syn in incoming:
             source = self._graph.get_entity(syn["source_id"])
             if source and syn["source_id"] not in rendered:

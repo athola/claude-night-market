@@ -449,6 +449,13 @@ class KnowledgeGraph(SqliteGraphBase):
         ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_synapses_to(self, target_id: str) -> list[dict[str, Any]]:
+        """Get all incoming synapses whose target is target_id."""
+        rows = self._conn.execute(
+            "SELECT * FROM synapses WHERE target_id = ?", (target_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
     def strengthen_synapse(self, synapse_id: int, delta: float) -> None:
         """Increase synapse strength (capped at 1.0) and bump traversal count."""
         now = self._now()

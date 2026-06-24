@@ -223,6 +223,35 @@ class TestSynapses:
         synapses = graph.get_synapses_from("e1")
         assert len(synapses) == 2
 
+    def test_get_synapses_to_returns_incoming_synapses(
+        self, graph: KnowledgeGraph
+    ) -> None:
+        """get_synapses_to must return synapses whose target_id matches.
+
+        Renders use incoming synapse direction so KnowledgeGraph must expose
+        this query via public API rather than forcing callers to access
+        the private _conn attribute directly (MP-004).
+        """
+        graph.upsert_entity(entity_id="src1", entity_type="concept", name="Src1")
+        graph.upsert_entity(entity_id="src2", entity_type="concept", name="Src2")
+        graph.upsert_entity(entity_id="tgt", entity_type="concept", name="Tgt")
+        graph.create_synapse(source_id="src1", target_id="tgt")
+        graph.create_synapse(source_id="src2", target_id="tgt")
+        graph.create_synapse(source_id="src1", target_id="src2")  # unrelated
+
+        synapses = graph.get_synapses_to("tgt")
+
+        assert len(synapses) == 2
+        target_ids = {s["target_id"] for s in synapses}
+        assert target_ids == {"tgt"}
+
+    def test_get_synapses_to_empty_when_no_incoming(
+        self, graph: KnowledgeGraph
+    ) -> None:
+        """get_synapses_to must return empty list when entity has no incoming synapses."""
+        graph.upsert_entity(entity_id="lone", entity_type="concept", name="Lone")
+        assert graph.get_synapses_to("lone") == []
+
 
 class TestJourneys:
     """Journey and waypoint tracking."""
