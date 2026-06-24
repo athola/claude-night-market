@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -13,6 +14,8 @@ import yaml
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
+
+logger = logging.getLogger(__name__)
 
 AUTONOMY_STATE_ENV_VAR = "MEMORY_PALACE_AUTONOMY_STATE"
 _MIN_LEVEL = 0
@@ -347,7 +350,8 @@ class AutonomyStateStore:
         """Record a decision outcome and update metrics/timestamps."""
         try:
             state = self.load()
-        except Exception:
+        except (OSError, ValueError) as err:
+            logger.warning("record_decision: failed to load state: %s", err)
             return
         metrics = state.metrics
         if auto_approved:
