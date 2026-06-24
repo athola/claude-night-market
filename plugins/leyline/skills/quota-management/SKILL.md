@@ -53,7 +53,12 @@ modules:
 
 ## Overview
 
-Patterns for tracking and enforcing resource quotas across rate-limited services. This skill provides the infrastructure that other plugins use for consistent quota handling.
+Tracks cumulative token budgets and enforces limits. For per-call logging,
+use usage-logging.
+
+Patterns for tracking and enforcing resource quotas across rate-limited
+services. This skill provides the infrastructure that other plugins use for
+consistent quota handling.
 
 ## When To Use
 
