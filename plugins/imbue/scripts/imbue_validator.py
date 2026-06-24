@@ -81,11 +81,6 @@ _EVIDENCE_LOGGING_PATTERNS: tuple[str, ...] = (
     "workflow-orchestration",
 )
 
-_EVIDENCE_FALLBACK_RE = re.compile(
-    r"workflow|evidence|structured|output|orchestrat|checklist|deliverable",
-    re.IGNORECASE,
-)
-
 
 def _classify_skills(
     skill_files: list[Path],
@@ -114,7 +109,6 @@ def _classify_skills(
             if len(parts) >= FRONTMATTER_PARTS_COUNT:
                 frontmatter = parts[1]
 
-        is_review_skill = False
         if frontmatter:
             has_review_category = re.search(
                 r"^\s*category:\s*review-patterns\b",
@@ -128,10 +122,6 @@ def _classify_skills(
             )
             if has_review_category or has_review_usage:
                 review_workflow_skills.add(skill_name)
-                is_review_skill = True
-
-        if not is_review_skill and _EVIDENCE_FALLBACK_RE.search(content):
-            review_workflow_skills.add(skill_name)
 
     return skills_found, review_workflow_skills, scan_issues, content_map
 

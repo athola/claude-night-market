@@ -54,13 +54,14 @@ class TestImbueValidator:
         skills_dir = plugin_root / "skills"
         skills_dir.mkdir()
 
-        # review-core skill
+        # review-core skill — explicit frontmatter classification
         review_core_dir = skills_dir / "review-core"
         review_core_dir.mkdir()
         (review_core_dir / "SKILL.md").write_text("""---
 
 name: review-core
 description: Foundational workflow scaffolding
+category: review-patterns
 ---
 
 # Review Core
@@ -74,13 +75,14 @@ Evidence logging is important for reviews.
 We generate structured output for reviews.
 """)
 
-        # evidence-logging skill
+        # evidence-logging skill — explicit frontmatter classification
         evidence_log_dir = skills_dir / "evidence-logging"
         evidence_log_dir.mkdir()
         (evidence_log_dir / "SKILL.md").write_text("""---
 
 name: evidence-logging
 description: Evidence capture workflow
+category: review-patterns
 ---
 
 # Evidence Logging
@@ -275,14 +277,13 @@ This skill doesn't do reviews.
     def test_scan_review_workflows_detects_patterns(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Scan detects various review workflow patterns.
+        """Scenario: Only explicit frontmatter drives review-workflow classification.
 
-        Given skills with different review-related keywords
+        Given a skill with review-related body text but no frontmatter marker
         When scanning for review workflows
-        Then it should match multiple patterns
-        And categorize appropriately.
+        Then only skills with explicit category: review-patterns are classified.
         """
-        # Arrange - add a skill with workflow keyword
+        # Arrange - add a skill with workflow keyword but NO frontmatter marker
         workflow_dir = mock_plugin_structure / "skills" / "workflow-skill"
         workflow_dir.mkdir()
         (workflow_dir / "SKILL.md").write_text("""---
@@ -301,9 +302,10 @@ This provides workflow orchestration.
         # Act
         result = validator.scan_review_workflows()
 
-        # Assert
-        assert "workflow-skill" in result["review_workflow_skills"]
-        assert len(result["review_workflow_skills"]) >= 3
+        # Assert — body text alone does NOT classify the skill
+        assert "workflow-skill" not in result["review_workflow_skills"]
+        # review-core and evidence-logging have explicit frontmatter markers
+        assert len(result["review_workflow_skills"]) == 2
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -631,8 +633,8 @@ Also includes EVIDENCE logging.
         # Act
         result = validator.scan_review_workflows()
 
-        # Assert
-        assert "mixed-case" in result["review_workflow_skills"]
+        # Assert — body text alone does NOT classify the skill (fallback removed)
+        assert "mixed-case" not in result["review_workflow_skills"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -674,7 +676,7 @@ Also includes EVIDENCE logging.
 
         # Assert
         assert len(result["skills_found"]) == 3  # Still finds skills
-        assert len(result["review_workflow_skills"]) >= 2  # Still finds review patterns
+        assert len(result["review_workflow_skills"]) == 2  # Only explicit frontmatter
         # No evidence patterns added without plugin.json
         assert len(result["evidence_logging_patterns"]) == 0
 
@@ -1034,20 +1036,20 @@ No keywords needed in the body.
     def test_incomplete_frontmatter_falls_through_to_content_scan(
         self, tmp_path
     ) -> None:
-        """Scenario: Skills with incomplete frontmatter fall through to content scan.
+        """Scenario: Skills with incomplete frontmatter are not classified via body text.
 
         Given a skill that starts with '---' but has no closing '---'
         When scanning for review workflows
-        Then it should skip frontmatter parsing and check content patterns.
+        Then it should NOT be classified as a review-workflow skill.
 
-        This covers branch 133->136 where frontmatter remains None.
+        The body-text fallback (which matched "workflow" anywhere in content)
+        was removed in IMB-008 because it caused over-classification.
         """
         plugin_root = tmp_path / "test-plugin"
         skills_dir = plugin_root / "skills" / "incomplete-fm"
         skills_dir.mkdir(parents=True)
 
-        # Create skill with incomplete frontmatter (starts with --- but no closing ---)
-        # This causes split("---", 2) to produce fewer than 3 parts
+        # Create skill with incomplete frontmatter and review-related body text
         (skills_dir / "SKILL.md").write_text("""---
 name: incomplete-frontmatter
 This file starts with --- but never closes the frontmatter.
@@ -1059,8 +1061,8 @@ It contains workflow patterns in the content.
 
         # Skill should be found
         assert "incomplete-fm" in result["skills_found"]
-        # Should match via content pattern ("workflow" keyword), not frontmatter
-        assert "incomplete-fm" in result["review_workflow_skills"]
+        # Body text alone does NOT classify as review-workflow (fallback removed)
+        assert "incomplete-fm" not in result["review_workflow_skills"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -1090,3 +1092,44 @@ Just some generic text here.
 
         assert "broken-fm" in result["skills_found"]
         assert "broken-fm" not in result["review_workflow_skills"]
+
+
+class TestIMB008NoFallbackOverclassification:
+    """IMB-008: _EVIDENCE_FALLBACK_RE body-content fallback removed.
+
+    Before fix: a skill whose body mentions 'output' or 'workflow' anywhere
+    was classified as a review-workflow skill even without explicit frontmatter.
+    After fix: only explicit frontmatter (category: review-patterns or
+    uses: review-workflow) drives classification; body text is ignored.
+    """
+
+    @pytest.mark.unit
+    def test_skill_with_output_in_body_not_classified_as_review_workflow(
+        self, tmp_path
+    ):
+        """Skill that mentions 'output' in body but has no review frontmatter
+        must NOT be classified as a review-workflow skill.
+        """
+        plugin_root = tmp_path / "imbue"
+        plugin_root.mkdir()
+        (plugin_root / "plugin.json").write_text(
+            '{"name": "imbue", "version": "1.0.0", "skills": []}'
+        )
+        skills_dir = plugin_root / "skills"
+        skills_dir.mkdir()
+        plain_dir = skills_dir / "plain-tool"
+        plain_dir.mkdir()
+        (plain_dir / "SKILL.md").write_text(
+            "---\nname: plain-tool\ndescription: Produces output and runs workflow.\n---\n"
+            "This skill generates output, orchestrates steps, and delivers structured\n"
+            "deliverables via a checklist workflow.\n"
+        )
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "plain-tool" in result["skills_found"]
+        assert "plain-tool" not in result["review_workflow_skills"], (
+            "Body-text fallback caused over-classification; "
+            "only explicit frontmatter should drive review-workflow membership"
+        )
