@@ -116,9 +116,8 @@ class MetaEvaluator:
             return True  # No code blocks to verify
 
         # Check for verification patterns after code blocks
-        has_verification = (
-            "verification" in content.lower() or "verify" in content.lower()
-        )
+        content_lower = content.lower()
+        has_verification = "verification" in content_lower or "verify" in content_lower
 
         exceeds_threshold = len(code_blocks) > self.CODE_BLOCK_VERIFICATION_THRESHOLD
         if not has_verification and exceeds_threshold:
@@ -196,7 +195,8 @@ class MetaEvaluator:
             "evaluat",
         ]
 
-        has_quality = any(term in content.lower() for term in quality_terms)
+        content_lower = content.lower()
+        has_quality = any(term in content_lower for term in quality_terms)
 
         if not has_quality:
             self.issues.append(
@@ -227,9 +227,8 @@ class MetaEvaluator:
             "verification",
         ]
 
-        has_anti_cargo_cult = any(
-            term in content.lower() for term in anti_pattern_terms
-        )
+        content_lower = content.lower()
+        has_anti_cargo_cult = any(term in content_lower for term in anti_pattern_terms)
 
         if not has_anti_cargo_cult:
             # Only report as issue in verbose mode (low severity)
