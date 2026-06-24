@@ -145,12 +145,11 @@ def parse_arxiv_response(xml_text: str) -> list[Finding]:
         summary = " ".join(summary.split())
 
         # Authors
-        author_blocks = re.findall(r"<author>(.*?)</author>", block, re.DOTALL)
-        authors: list[str] = []
-        for ab in author_blocks:
-            name = _extract_tag_text(ab, "name")
-            if name:
-                authors.append(name)
+        authors = [
+            name
+            for ab in re.findall(r"<author>(.*?)</author>", block, re.DOTALL)
+            for name in re.findall(r"<name>(.*?)</name>", ab)
+        ]
 
         # Published year
         published = _extract_tag_text(block, "published") or ""
