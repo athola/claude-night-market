@@ -88,22 +88,12 @@ def update_version_field(
 
 
 def update_pyproject_version(content: str, new_version: str) -> str:
-    """Update version in pyproject.toml content."""
-    return update_version_field(content, "version", new_version)
-
-
-def update_cargo_version(content: str, new_version: str) -> str:
-    """Update version in Cargo.toml content."""
+    """Update version in TOML content (pyproject.toml, Cargo.toml, etc.)."""
     return update_version_field(content, "version", new_version)
 
 
 def update_package_json_version(content: str, new_version: str) -> str:
-    """Update version in package.json content."""
-    return update_version_field(content, "version", new_version, json_style=True)
-
-
-def update_plugin_json_version(content: str, new_version: str) -> str:
-    """Update version in plugin.json or marketplace.json content."""
+    """Update version in JSON content (package.json, plugin.json, etc.)."""
     return update_version_field(content, "version", new_version, json_style=True)
 
 
@@ -134,11 +124,11 @@ def update_version_file(
         if file_path.name == "pyproject.toml":
             content = update_pyproject_version(content, new_version)
         elif file_path.name == "Cargo.toml":
-            content = update_cargo_version(content, new_version)
+            content = update_pyproject_version(content, new_version)
         elif file_path.name == "package.json":
             content = update_package_json_version(content, new_version)
         elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
-            content = update_plugin_json_version(content, new_version)
+            content = update_package_json_version(content, new_version)
         elif file_path.name == "__init__.py":
             content = update_init_py_version(content, new_version)
         elif file_path.name == "openpackage.yml":

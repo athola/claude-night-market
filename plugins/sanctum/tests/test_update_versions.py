@@ -80,15 +80,15 @@ description = "test"
     assert 'version = "1.0.0"' not in updated
 
 
-def test_update_cargo_version():
-    """Test Cargo.toml version updating."""
+def test_update_pyproject_version_handles_cargo_toml_format():
+    """update_pyproject_version works for Cargo.toml (same TOML version field)."""
     content = """[package]
 name = "test"
 version = "1.0.0"
 edition = "2021"
 """
 
-    updated = update_versions.update_cargo_version(content, "2.0.0")
+    updated = update_versions.update_pyproject_version(content, "2.0.0")
 
     assert 'version = "2.0.0"' in updated
     assert 'version = "1.0.0"' not in updated
@@ -148,10 +148,10 @@ def test_nested_hooks_directory():
         assert any("memory-palace/hooks/pyproject.toml" in str(f) for f in files)
 
 
-def test_update_plugin_json_version():
-    """plugin.json / marketplace.json carries the same shape as package.json."""
+def test_update_package_json_version_handles_plugin_json():
+    """update_package_json_version works for plugin.json (same JSON shape)."""
     content = '{\n  "name": "x",\n  "version": "1.0.0",\n  "x": 1\n}\n'
-    updated = update_versions.update_plugin_json_version(content, "9.8.7")
+    updated = update_versions.update_package_json_version(content, "9.8.7")
     assert '"version": "9.8.7"' in updated
     assert '"version": "1.0.0"' not in updated
 
@@ -390,28 +390,10 @@ def test_update_pyproject_delegates_to_generic():
     ) == update_versions.update_version_field(content, "version", "5.0.0")
 
 
-def test_update_cargo_delegates_to_generic():
-    """update_cargo_version produces the same result as update_version_field."""
-    content = 'version = "1.0.0"\n'
-    assert update_versions.update_cargo_version(
-        content, "5.0.0"
-    ) == update_versions.update_version_field(content, "version", "5.0.0")
-
-
 def test_update_package_json_delegates_to_generic():
     """update_package_json_version produces same result as generic json_style."""
     content = '{"version":"1.0.0"}'
     assert update_versions.update_package_json_version(
-        content, "5.0.0"
-    ) == update_versions.update_version_field(
-        content, "version", "5.0.0", json_style=True
-    )
-
-
-def test_update_plugin_json_delegates_to_generic():
-    """update_plugin_json_version produces same result as generic json_style."""
-    content = '{"version":"1.0.0"}'
-    assert update_versions.update_plugin_json_version(
         content, "5.0.0"
     ) == update_versions.update_version_field(
         content, "version", "5.0.0", json_style=True
@@ -423,7 +405,6 @@ if __name__ == "__main__":
     test_find_version_files()
     test_find_version_files_include_cache()
     test_update_pyproject_version()
-    test_update_cargo_version()
     test_update_package_json_version()
     test_update_version_file_pyproject()
     test_nested_hooks_directory()
