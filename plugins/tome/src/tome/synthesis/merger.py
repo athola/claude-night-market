@@ -128,6 +128,8 @@ def deduplicate(findings: list[Finding]) -> list[Finding]:
     """Remove duplicate findings by URL, keeping the higher-relevance one.
 
     Findings with empty or falsy URLs are always kept (no dedup key).
+    Output order follows first URL encounter; dict insertion order is stable
+    in Python 3.7+.
     """
     best: dict[str, Finding] = {}
     no_url: list[Finding] = []
@@ -136,20 +138,11 @@ def deduplicate(findings: list[Finding]) -> list[Finding]:
         if not url:
             no_url.append(finding)
             continue
-        if url not in best or finding.relevance > best[url].relevance:
+        if url not in best:
             best[url] = finding
-    # Preserve original encounter order using first occurrence of winner.
-    seen: dict[str, bool] = {}
-    result: list[Finding] = []
-    for finding in findings:
-        url = finding.url
-        if not url:
-            continue  # added separately
-        if url not in seen and best[url] is finding:
-            seen[url] = True
-            result.append(finding)
-    result.extend(no_url)
-    return result
+        elif finding.relevance > best[url].relevance:
+            best[url] = finding
+    return list(best.values()) + no_url
 
 
 def merge_findings(channel_results: list[list[Finding]]) -> list[Finding]:
