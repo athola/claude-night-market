@@ -85,10 +85,7 @@ class MetaEvaluator:
 
     def check_file_exists(self, skill_path: Path) -> bool:
         """Check if skill SKILL.md exists."""
-        skill_file = skill_path / "SKILL.md"
-        if not skill_file.exists():
-            return False
-        return True
+        return (skill_path / "SKILL.md").exists()
 
     def read_skill_content(self, skill_path: Path) -> str | None:
         """Read skill content from SKILL.md."""
@@ -96,7 +93,7 @@ class MetaEvaluator:
         try:
             with skill_file.open(encoding="utf-8") as f:
                 return f.read()
-        except Exception as e:
+        except (OSError, UnicodeDecodeError) as e:
             if self.verbose:
                 print(f"[ERROR] Failed to read {skill_file}: {e}")
             return None

@@ -227,7 +227,6 @@ efficiency:
 
 - `imbue:proof-of-work`: Evidence capture methodology
 - `sanctum:fix-workflow`: Workflow improvement command
-- `imbue:proof-of-work`: Validation methodology
 
 ---
 

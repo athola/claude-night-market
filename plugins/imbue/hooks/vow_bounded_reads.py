@@ -129,7 +129,7 @@ def _write_counter(path: Path, count: int) -> None:
         print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
 
 
-def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - lock fallbacks plus the owner-check guard sit at the branch limit
+def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
     """Atomically read-modify-write the counter at *path*.
 
     Returns the new (post-increment) count.  Uses an exclusive POSIX

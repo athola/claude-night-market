@@ -21,6 +21,7 @@ from pathlib import Path
 
 __all__ = [
     "O_NOFOLLOW",
+    "_OFF_VALUES",
     "fd_owned_by_us",
     "is_git_commit",
     "secure_open",

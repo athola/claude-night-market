@@ -40,6 +40,7 @@ from shared.scope_ramp import (  # noqa: E402 - hook injects sys.path before imp
     stakes_for,
 )
 from shared.vow_utils import (  # noqa: E402 - same path-injection pattern as sibling vow hooks
+    _OFF_VALUES,
     fd_owned_by_us,
     secure_open,
     secure_state_dir,
@@ -49,7 +50,6 @@ from shared.vow_utils import (  # noqa: E402 - same path-injection pattern as si
 _CODE_TOOLS = frozenset({"Write", "Edit", "MultiEdit"})
 _RAMP_OK_FILE = ".imbue/ramp-ok"
 _LEDGER_FILE = ".imbue/ramp-ledger.jsonl"
-_OFF_VALUES = ("0", "false", "no")
 
 
 def _state_dir() -> Path:
@@ -79,7 +79,11 @@ def _load_state(path: Path) -> dict:
             return default
         raw = os.read(fd, 1_000_000).decode("utf-8")
         return json.loads(raw) if raw else default
-    except Exception:  # corrupt state must not crash the hook
+    except (ValueError, TypeError) as exc:  # corrupt state must not crash the hook
+        print(
+            f"[guard-scope-ramp] WARN: corrupt state file, using default: {exc}",
+            file=sys.stderr,
+        )
         return default
     finally:
         os.close(fd)

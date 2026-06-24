@@ -53,58 +53,75 @@ def fuzzy_deduplicate(
     findings: list[Finding],
     cross_channel: bool = False,
 ) -> list[Finding]:
-    """Remove duplicate findings by title similarity.
+    """Remove duplicate findings by title similarity using union-find.
 
-    Compares normalized titles using Jaccard similarity. Within the
-    same channel, requires similarity >= 0.8. Across channels (when
+    Compares normalized titles using Jaccard similarity. Within the same
+    channel, requires similarity >= 0.8. Across channels (when
     *cross_channel* is True), uses a lower threshold of 0.6.
 
-    When duplicates are found, keeps the higher-relevance finding.
+    Union-find groups transitive duplicates correctly: if A duplicates B
+    and B duplicates C, all three are in the same group. The
+    highest-relevance finding survives from each group, appearing at the
+    first-encounter position of any group member.
 
     Args:
         findings: List of findings to deduplicate.
         cross_channel: If True, also compare across different channels.
 
     Returns:
-        Deduplicated list preserving encounter order.
+        Deduplicated list preserving encounter order of first group member.
     """
     if not findings:
         return []
 
-    # Pre-compute normalized titles
+    n = len(findings)
     normals = [normalize_title(f.title) for f in findings]
 
-    # Track which indices are superseded
-    removed: set[int] = set()
+    # Union-Find with path compression
+    parent = list(range(n))
 
-    for i in range(len(findings)):
-        if i in removed:
-            continue
-        for j in range(i + 1, len(findings)):
-            if j in removed:
-                continue
+    def find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
 
+    def union(x: int, y: int) -> None:
+        parent[find(y)] = find(x)
+
+    for i in range(n):
+        for j in range(i + 1, n):
             same_channel = findings[i].channel == findings[j].channel
-
             if not cross_channel and not same_channel:
                 continue
-
             threshold = (
                 _JACCARD_THRESHOLD_SAME_CHANNEL
                 if same_channel
                 else _JACCARD_THRESHOLD_CROSS_CHANNEL
             )
+            if _jaccard_similarity(normals[i], normals[j]) >= threshold:
+                union(i, j)
 
-            sim = _jaccard_similarity(normals[i], normals[j])
-            if sim >= threshold:
-                # Remove the lower-relevance one
-                if findings[i].relevance >= findings[j].relevance:
-                    removed.add(j)
-                else:
-                    removed.add(i)
-                    break  # i is removed, stop comparing it
+    # Select highest-relevance representative per group
+    best_idx: dict[int, int] = {}
+    for i in range(n):
+        root = find(i)
+        if (
+            root not in best_idx
+            or findings[i].relevance > findings[best_idx[root]].relevance
+        ):
+            best_idx[root] = i
 
-    return [f for idx, f in enumerate(findings) if idx not in removed]
+    # Emit one finding per group in first-encounter order
+    seen_roots: set[int] = set()
+    result: list[Finding] = []
+    for i in range(n):
+        root = find(i)
+        if root not in seen_roots:
+            seen_roots.add(root)
+            result.append(findings[best_idx[root]])
+
+    return result
 
 
 def deduplicate(findings: list[Finding]) -> list[Finding]:
