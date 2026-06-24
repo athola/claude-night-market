@@ -54,7 +54,6 @@ class SkillsAuditor:
     def __init__(self, skills_dir: Path) -> None:
         """Initialize the skills auditor."""
         self.skills_dir = skills_dir
-        self.skills_root = skills_dir  # Add alias for compatibility
         self.audit_metrics = self._load_audit_metrics()
 
     @property

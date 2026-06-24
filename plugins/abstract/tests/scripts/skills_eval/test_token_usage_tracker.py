@@ -112,7 +112,7 @@ detailed troubleshooting guide covering common issues and their solutions.
     def test_tracker_initialization(self, sample_skills_dir) -> None:
         """Test tracker initializes correctly."""
         tracker = TokenUsageTracker(sample_skills_dir)
-        assert tracker.skills_root == sample_skills_dir
+        assert tracker.skills_dir == sample_skills_dir
         assert hasattr(tracker, "analyze_skill_tokens")
 
     def test_analyze_small_skill_tokens(self, sample_skills_dir) -> None:

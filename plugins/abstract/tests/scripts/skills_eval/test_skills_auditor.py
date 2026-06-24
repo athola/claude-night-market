@@ -69,7 +69,7 @@ category: detailed
     def test_auditor_initialization(self, sample_skills_dir) -> None:
         """Test auditor initializes correctly."""
         auditor = SkillsAuditor(sample_skills_dir)
-        assert auditor.skills_root == sample_skills_dir
+        assert auditor.skills_dir == sample_skills_dir
         assert len(auditor.skill_files) == EXPECTED_TOTAL_SKILLS
 
     def test_discover_skills(self, sample_skills_dir) -> None:

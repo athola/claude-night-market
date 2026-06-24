@@ -105,7 +105,7 @@ class TestInit:
         """Scenario: skills_dir and skills_root point to same path."""
         tracker = TokenUsageTracker(tmp_path)
         assert tracker.skills_dir == tmp_path
-        assert tracker.skills_root == tmp_path
+        assert tracker.skills_dir == tmp_path
 
     @pytest.mark.unit
     def test_usage_history_initially_empty(self, tmp_path: Path) -> None:
