@@ -139,7 +139,7 @@ class TestUnifiedReviewSkill:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_makefile_build_system(self, mock_skill_context) -> None:
-        """Given Makefile, skill returns both 'make' and 'makefile'."""
+        """Given Makefile, skill returns 'make' without duplicate 'makefile' label."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "Makefile",
@@ -153,7 +153,7 @@ class TestUnifiedReviewSkill:
         # Assert
         assert isinstance(build_systems, list)
         assert "make" in build_systems
-        assert "makefile" in build_systems
+        assert "makefile" not in build_systems
         mock_skill_context.get_files.assert_called_once()
 
     @pytest.mark.bdd

@@ -260,7 +260,7 @@ class TestQualityChecker:
 
         # Single pass: find each test function and its body together
         func_pattern = re.compile(
-            r"def (test_[^(]+)\(.*?\):(.*?)(?=\ndef |\nclass |$)",
+            r"def (test_[^(]+)\(.*?\):(.*?)(?=\n\s*def |\n\s*class |$)",
             re.DOTALL,
         )
 

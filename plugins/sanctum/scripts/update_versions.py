@@ -57,7 +57,11 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
                 try:
                     if "__version__" not in file.read_text(encoding="utf-8"):
                         continue
-                except Exception:
+                except (OSError, UnicodeDecodeError) as exc:
+                    print(
+                        f"[update_versions] cannot read {file}: {exc}",
+                        file=sys.stderr,
+                    )
                     continue
             version_files.append(file)
 

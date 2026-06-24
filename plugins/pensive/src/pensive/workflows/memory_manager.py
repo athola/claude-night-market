@@ -23,7 +23,7 @@ def get_optimal_strategy(file_count: int) -> dict[str, Any]:
     """
     try:
         available_mb = psutil.virtual_memory().available / (1024 * 1024)
-    except Exception:
+    except (OSError, AttributeError):
         # Default to conservative settings if psutil fails
         available_mb = LOW_MEMORY_THRESHOLD_MB
 

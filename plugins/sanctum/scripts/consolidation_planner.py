@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -189,12 +190,14 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
         if not git_path:
             return []
 
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         result = subprocess.run(
             [git_path, "status", "--porcelain"],
             cwd=repo_path,
             capture_output=True,
             text=True,
             check=True,
+            env=env,
         )
         untracked = []
         for line in result.stdout.splitlines():

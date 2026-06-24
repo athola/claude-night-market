@@ -170,6 +170,8 @@ Also respects: `.gitignore`, `.bloat-ignore`
 - `bloat-auditor` agent - Executes scans
 - `unbloat-remediator` agent - Safe remediation
 - `context-optimization` skill - MECW principles
+- `/bloat-scan` command - User-facing slash command that invokes this
+  skill; there is no separate `bloat-scan` skill
 
 ## Exit Criteria
 

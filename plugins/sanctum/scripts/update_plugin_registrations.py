@@ -672,70 +672,76 @@ class PluginAuditor:
         plugin_name: str,
         plugin_path: Path,
         plugin_data: dict[str, Any],
-    ) -> tuple[dict[str, Any], bool]:
-        """Apply discrepancy rules to plugin_data and report hooks needing manual fixes.
+    ) -> list[str]:
+        """Report hooks discrepancies that require manual fixes.
 
-        Mutates plugin_data in place for non-hooks categories.
+        Pure query: does NOT mutate plugin_data.
+        Call _apply_non_hooks_mutations for non-hooks fixes.
 
         Returns:
-            Tuple of (updated plugin_data, hooks_need_manual_fix flag).
+            List of warning strings for hooks discrepancies.
 
         """
         disc = self.discrepancies[plugin_name]
         standard_hooks_json = plugin_path / "hooks" / "hooks.json"
-        hooks_need_manual_fix = False
+        warnings: list[str] = []
 
-        # Fix missing entries (add them)
+        missing_hooks = disc["missing"].get("hooks", [])
+        stale_hooks = disc["stale"].get("hooks", [])
+
+        if missing_hooks:
+            if standard_hooks_json.exists() or isinstance(
+                plugin_data.get("hooks"), str
+            ):
+                hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                )
+                warnings.append(f"         Update {hooks_ref} to add missing hooks:")
+                for item in missing_hooks:
+                    warnings.append(f"           - {item}")
+            else:
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: no hooks.json found, create one with:"
+                )
+                for item in missing_hooks:
+                    warnings.append(f"           - {item}")
+
+        if stale_hooks:
+            hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+            if not missing_hooks:
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                )
+                warnings.append(f"         Update {hooks_ref} to remove stale hooks:")
+            for item in stale_hooks:
+                warnings.append(f"           - {item}")
+
+        return warnings
+
+    def _apply_non_hooks_mutations(
+        self,
+        plugin_name: str,
+        plugin_data: dict[str, Any],
+    ) -> None:
+        """Mutate plugin_data in place for non-hooks missing/stale discrepancies."""
+        disc = self.discrepancies[plugin_name]
+
         for category, items in disc["missing"].items():
-            # Hooks require manual update to hooks.json (NOT plugin.json)
-            # Claude Code auto-loads hooks/hooks.json; adding to plugin.json
-            # causes duplicate registrations
             if category == "hooks":
-                if standard_hooks_json.exists() or isinstance(
-                    plugin_data.get("hooks"), str
-                ):
-                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
-                    print(
-                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
-                    )
-                    print(f"         Update {hooks_ref} to add missing hooks:")
-                    for item in items:
-                        print(f"           - {item}")
-                    hooks_need_manual_fix = True
-                    continue
-                # No hooks.json exists, would need to create one or use array
-                # For now, skip and report
-                print(f"[MANUAL] {plugin_name}: no hooks.json found, create one with:")
-                for item in items:
-                    print(f"           - {item}")
-                hooks_need_manual_fix = True
                 continue
-
             if category not in plugin_data:
                 plugin_data[category] = []
             plugin_data[category].extend(items)
             plugin_data[category].sort()
 
-        # Fix stale entries (remove them)
         for category, items in disc["stale"].items():
-            # Hooks require manual update
             if category == "hooks":
-                if not hooks_need_manual_fix:
-                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
-                    print(
-                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
-                    )
-                    print(f"         Update {hooks_ref} to remove stale hooks:")
-                for item in items:
-                    print(f"           - {item}")
                 continue
-
             if category in plugin_data:
                 plugin_data[category] = [
                     item for item in plugin_data[category] if item not in items
                 ]
-
-        return plugin_data, hooks_need_manual_fix
 
     def _apply_fixes(
         self,
@@ -783,9 +789,11 @@ class PluginAuditor:
 
         plugin_path, plugin_json_path, plugin_data = discovered
 
-        plugin_data, _hooks_manual = self._validate_registration(
+        for warning in self._validate_registration(
             plugin_name, plugin_path, plugin_data
-        )
+        ):
+            print(warning)
+        self._apply_non_hooks_mutations(plugin_name, plugin_data)
 
         return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
 
@@ -962,3 +970,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# Alias for callers that reference the class by its full descriptive name.
+PluginRegistrationAuditor = PluginAuditor

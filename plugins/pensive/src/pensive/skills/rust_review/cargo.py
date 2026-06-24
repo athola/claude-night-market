@@ -179,7 +179,7 @@ class CargoBuildMixin(LineCacheMixin):
         """
         try:
             content = context.get_file_content("Cargo.toml")
-        except Exception:
+        except (AttributeError, FileNotFoundError, OSError):
             return {
                 "dependencies": [],
                 "version_issues": [],
