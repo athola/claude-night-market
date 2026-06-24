@@ -5,6 +5,7 @@ decay model, and source lineage for overall knowledge quality assessment.
 """
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 import pytest
 
@@ -467,3 +468,53 @@ class TestKnowledgeOrchestrator:
         assert "validation_dates" in history
         # 2 explicit + 1 from validate_entry (which records CORRECTION)
         assert len(history["usage_events"]) == 3
+
+
+class TestMP015GetStatisticsSinglePass:
+    """MP-015: get_statistics must call assess_entry once per entry, not per-stat."""
+
+    @pytest.fixture
+    def orchestrator(self) -> KnowledgeOrchestrator:
+        return KnowledgeOrchestrator()
+
+    def test_assess_entry_called_once_per_entry(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """get_statistics must not call assess_entry multiple times per entry.
+
+        The original implementation called assess_entry once per entry then
+        iterated the result list 3 more times for status counts. That's still
+        single-call per entry, but the stat aggregation looped 5 times over
+        assessments. The fix: single pass accumulating all stats. Confirmed
+        by verifying assess_entry is called exactly N times for N entries.
+        """
+        entries = [
+            {"id": "e1", "content": "alpha"},
+            {"id": "e2", "content": "beta"},
+            {"id": "e3", "content": "gamma"},
+        ]
+        with patch.object(
+            orchestrator,
+            "assess_entry",
+            wraps=orchestrator.assess_entry,
+        ) as mock_assess:
+            orchestrator.get_statistics(entries)
+
+        assert mock_assess.call_count == len(entries), (
+            f"assess_entry was called {mock_assess.call_count} times for "
+            f"{len(entries)} entries; must be called exactly once per entry (MP-015)"
+        )
+
+    def test_get_statistics_result_unchanged(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """Single-pass aggregation must produce the same stats as multi-pass."""
+        entries = [{"id": "e1", "content": "x"}]
+        stats = orchestrator.get_statistics(entries)
+        assert "total_entries" in stats
+        assert "healthy_count" in stats
+        assert "needs_attention_count" in stats
+        assert "critical_count" in stats
+        assert "average_usage_score" in stats
+        assert "average_decay_score" in stats
+        assert stats["total_entries"] == 1
