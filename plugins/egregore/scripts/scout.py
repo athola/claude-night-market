@@ -34,7 +34,7 @@ class ReviewTechnique:
     """A concrete review technique extracted from an exemplar."""
 
     description: str
-    category: str
+    category: str | None
     source: str
     confidence: float = 0.5
     raw_text: str = ""
@@ -217,8 +217,8 @@ _CATEGORY_KEYWORDS: dict[str, list[str]] = {
 }
 
 
-def classify_technique(description: str) -> str:
-    """Classify a review technique into a category."""
+def classify_technique(description: str) -> str | None:
+    """Classify a review technique into a category, or None when no keywords match."""
     lower = description.lower()
     scores: dict[str, int] = {}
 
@@ -228,7 +228,7 @@ def classify_technique(description: str) -> str:
             scores[category] = score
 
     if not scores:
-        return "general"
+        return None
 
     return max(scores, key=scores.get)
 

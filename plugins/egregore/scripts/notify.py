@@ -245,6 +245,14 @@ def send_webhook(
     )
 
 
+def _build_alert_title(event: Any, ctx: Any, source: str) -> str:
+    """Build the GitHub issue title for an alert event."""
+    title = f"[{source}] {event.value}"
+    if ctx.work_item_id:
+        title = f"{title} - {ctx.work_item_id}"
+    return title
+
+
 def alert(  # noqa: PLR0913 - backward-compat wrapper
     event: Any,
     overseer_method: str = "github-repo-owner",
@@ -278,9 +286,7 @@ def alert(  # noqa: PLR0913 - backward-compat wrapper
     body = build_issue_body(event=event, ctx=resolved_ctx, source=source)
 
     if overseer_method == "github-repo-owner":
-        title = f"[{source}] {event.value}"
-        if resolved_ctx.work_item_id:
-            title = f"[{source}] {event.value} - {resolved_ctx.work_item_id}"
+        title = _build_alert_title(event, resolved_ctx, source)
         labels = [source, event.value]
         if create_github_alert(title=title, body=body, labels=labels):
             success = True
@@ -347,6 +353,7 @@ __all__ = [
     "AlertContext",
     "AlertEvent",
     "WebhookURLError",
+    "_build_alert_title",
     "alert",
     "build_issue_body",
     "config_alert",

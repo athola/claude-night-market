@@ -139,7 +139,6 @@ class TestClassifyTechnique:
             ("Update the changelog", "documentation"),
             ("Use type hints for public functions", "style"),
             ("Check for security vulnerabilities", "security"),
-            ("Be nice to reviewers", "general"),
         ],
         ids=[
             "testing",
@@ -147,7 +146,6 @@ class TestClassifyTechnique:
             "documentation",
             "style",
             "security",
-            "general-fallback",
         ],
     )
     def test_classifies_correctly(
@@ -155,6 +153,10 @@ class TestClassifyTechnique:
     ) -> None:
         """Given a description, when classifying, then returns expected category."""
         assert classify_technique(description) == expected_category
+
+    def test_no_keywords_returns_none(self) -> None:
+        """Given a description with no matching keywords, returns None."""
+        assert classify_technique("Be nice to reviewers") is None
 
 
 class TestFormatDiscussion:
