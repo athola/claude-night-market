@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 
 from tome.models import Finding
@@ -89,18 +90,30 @@ def fuzzy_deduplicate(
     def union(x: int, y: int) -> None:
         parent[find(y)] = find(x)
 
-    for i in range(n):
-        for j in range(i + 1, n):
-            same_channel = findings[i].channel == findings[j].channel
-            if not cross_channel and not same_channel:
-                continue
-            threshold = (
-                _JACCARD_THRESHOLD_SAME_CHANNEL
-                if same_channel
-                else _JACCARD_THRESHOLD_CROSS_CHANNEL
-            )
-            if _jaccard_similarity(normals[i], normals[j]) >= threshold:
-                union(i, j)
+    if cross_channel:
+        for i in range(n):
+            for j in range(i + 1, n):
+                same_channel = findings[i].channel == findings[j].channel
+                threshold = (
+                    _JACCARD_THRESHOLD_SAME_CHANNEL
+                    if same_channel
+                    else _JACCARD_THRESHOLD_CROSS_CHANNEL
+                )
+                if _jaccard_similarity(normals[i], normals[j]) >= threshold:
+                    union(i, j)
+    else:
+        # Group by channel first to skip cross-channel pairs entirely.
+        # O(n) grouping + O(within-channel pairs) instead of O(n²) all-pairs.
+        channel_groups: dict[str | None, list[int]] = {}
+        for idx, finding in enumerate(findings):
+            channel_groups.setdefault(finding.channel, []).append(idx)
+        for indices in channel_groups.values():
+            for a, b in itertools.combinations(indices, 2):
+                if (
+                    _jaccard_similarity(normals[a], normals[b])
+                    >= _JACCARD_THRESHOLD_SAME_CHANNEL
+                ):
+                    union(a, b)
 
     # Select highest-relevance representative per group
     best_idx: dict[int, int] = {}

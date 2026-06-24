@@ -149,3 +149,69 @@ class TestTOME001FuzzyDeduplicateUnionFind:
             0.8, channel="academic", title="single paper", url="https://x.com"
         )
         assert fuzzy_deduplicate([f]) == [f]
+
+
+# ---------------------------------------------------------------------------
+# TOME-001 (blocking): multi-channel deduplication correctness
+#
+# The O(n²) pair-enumeration loop was replaced with channel-blocking:
+# group findings by channel, enumerate pairs only within groups.
+# Output is identical; this suite guards against regression.
+# ---------------------------------------------------------------------------
+
+
+class TestTOME001MultiChannelBlocking:
+    """Regression guard for channel-blocking optimization in fuzzy_deduplicate.
+
+    When cross_channel=False (default), findings in different channels must
+    NEVER be merged, even if their titles are identical. This was true before
+    and must remain true after the blocking refactor.
+    """
+
+    @pytest.mark.unit
+    def test_same_title_different_channels_not_merged(self) -> None:
+        """Identical titles in different channels survive as separate findings."""
+        f_a = make_finding(
+            0.8, channel="A", title="neural network", url="https://a.com"
+        )
+        f_b = make_finding(
+            0.8, channel="B", title="neural network", url="https://b.com"
+        )
+        result = fuzzy_deduplicate([f_a, f_b], cross_channel=False)
+        assert len(result) == 2
+
+    @pytest.mark.unit
+    def test_same_title_same_channel_merged(self) -> None:
+        """Identical titles in the same channel merge to the higher-relevance one."""
+        low = make_finding(
+            0.4, channel="A", title="neural network", url="https://a.com/1"
+        )
+        high = make_finding(
+            0.9, channel="A", title="neural network", url="https://a.com/2"
+        )
+        result = fuzzy_deduplicate([low, high], cross_channel=False)
+        assert len(result) == 1
+        assert result[0].relevance == 0.9
+
+    @pytest.mark.unit
+    def test_many_channels_only_within_channel_duplicates_merged(self) -> None:
+        """n findings from n channels with identical titles: none merged."""
+        findings = [
+            make_finding(0.8, channel=f"ch{i}", title="shared title", url=f"u{i}")
+            for i in range(20)
+        ]
+        result = fuzzy_deduplicate(findings, cross_channel=False)
+        assert len(result) == 20
+
+    @pytest.mark.unit
+    def test_cross_channel_true_merges_across_channels(self) -> None:
+        """With cross_channel=True identical titles across channels do merge."""
+        f_a = make_finding(
+            0.4, channel="A", title="neural network", url="https://a.com"
+        )
+        f_b = make_finding(
+            0.9, channel="B", title="neural network", url="https://b.com"
+        )
+        result = fuzzy_deduplicate([f_a, f_b], cross_channel=True)
+        assert len(result) == 1
+        assert result[0].relevance == 0.9
