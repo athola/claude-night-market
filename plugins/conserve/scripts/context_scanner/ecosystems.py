@@ -43,38 +43,40 @@ _MIN_MODULE_PARTS = 2
 # ---------------------------------------------------------------------------
 
 
-def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates data across many subsystems in one pass
-    """Walk a project directory and collect structure metadata."""
-    root = root.resolve()
-    project_name = root.name
+_CONFIG_PATTERNS = {
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "package.json",
+    "Cargo.toml",
+    "go.mod",
+    "pom.xml",
+    "build.gradle",
+    "Makefile",
+    "Dockerfile",
+    "docker-compose.yml",
+    "docker-compose.yaml",
+    ".env.example",
+    "tsconfig.json",
+    "vite.config.ts",
+    "vite.config.js",
+    "webpack.config.js",
+    "next.config.js",
+    "next.config.mjs",
+}
 
-    # Collect files per top-level directory
+
+def _scan_directory_structure(root: Path) -> ScanResult:
+    """Walk the directory tree and build the ScanResult skeleton.
+
+    Populates project_name, total_files, directories, and config_files.
+    Does not run ecosystem or analysis detectors.
+    """
+    root = root.resolve()
     dir_files: dict[str, list[str]] = {}
     root_files: list[str] = []
     config_files: list[str] = []
     total_files = 0
-
-    config_patterns = {
-        "pyproject.toml",
-        "setup.py",
-        "setup.cfg",
-        "package.json",
-        "Cargo.toml",
-        "go.mod",
-        "pom.xml",
-        "build.gradle",
-        "Makefile",
-        "Dockerfile",
-        "docker-compose.yml",
-        "docker-compose.yaml",
-        ".env.example",
-        "tsconfig.json",
-        "vite.config.ts",
-        "vite.config.js",
-        "webpack.config.js",
-        "next.config.js",
-        "next.config.mjs",
-    }
 
     def _walk(path: Path, depth: int, top_dir: str | None) -> None:
         nonlocal total_files
@@ -98,7 +100,7 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
             elif entry.is_file():
                 total_files += 1
                 rel = str(entry.relative_to(root))
-                if entry.name in config_patterns:
+                if entry.name in _CONFIG_PATTERNS:
                     config_files.append(rel)
                 if top_dir:
                     if top_dir not in dir_files:
@@ -109,7 +111,6 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
 
     _walk(root, 0, None)
 
-    # Build DirectoryInfo list
     directories: list[DirectoryInfo] = []
     for dirname, files in dir_files.items():
         ext_counts: Counter = Counter()
@@ -117,12 +118,10 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
             ext = Path(fname).suffix.lower()
             if ext:
                 ext_counts[ext] += 1
-
         primary_lang = None
         if ext_counts:
             top_ext = ext_counts.most_common(1)[0][0]
             primary_lang = EXTENSION_LANGUAGES.get(top_ext)
-
         directories.append(
             DirectoryInfo(
                 path=dirname,
@@ -130,23 +129,23 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
                 primary_language=primary_lang,
             )
         )
-
     directories.sort(key=lambda d: d.file_count, reverse=True)
 
-    result = ScanResult(
-        project_name=project_name,
+    return ScanResult(
+        project_name=root.name,
         total_files=total_files,
         directories=directories,
         config_files=config_files,
     )
 
-    # Run ecosystem detectors
+
+def _enrich_with_detectors(root: Path, result: ScanResult) -> None:
+    """Run ecosystem and analysis detectors, populating extended ScanResult fields."""
     for detector in [detect_python, detect_node, detect_rust, detect_go, detect_java]:
         eco = detector(root)
         if eco is not None:
             result.ecosystems.append(eco)
 
-    # Detect additional entry points from file patterns
     file_entry_points = detect_entry_points(root, result.all_entry_points)
     if file_entry_points:
         if not result.ecosystems:
@@ -154,13 +153,11 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
                 EcosystemResult(name="Generic", entry_points=file_entry_points)
             )
         else:
-            # Add file-based entry points to first ecosystem
             existing_paths = {e.path for e in result.all_entry_points}
             for ep in file_entry_points:
                 if ep.path not in existing_paths:
                     result.ecosystems[0].entry_points.append(ep)
 
-    # Extended analysis detectors
     result.import_graph = build_import_graph(root)
     result.hot_files = detect_hot_files(result.import_graph)
     result.hot_file_counts = {
@@ -173,6 +170,11 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
     result.schemas = detect_schemas(root)
     result.token_estimate = estimate_token_savings(result)
 
+
+def scan_directory(root: Path) -> ScanResult:
+    """Walk a project directory and collect structure metadata."""
+    result = _scan_directory_structure(root.resolve())
+    _enrich_with_detectors(root.resolve(), result)
     return result
 
 
@@ -181,12 +183,33 @@ def scan_directory(root: Path) -> ScanResult:  # noqa: PLR0915 - accumulates dat
 # ---------------------------------------------------------------------------
 
 
-def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]]:  # noqa: PLR0912, PLR0915 - handles many pyproject.toml format variants
-    """Extract dependencies from pyproject.toml text."""
+def _parse_optional_group_line(
+    stripped: str, current_group: str
+) -> tuple[str, list[Dependency]]:
+    """Parse one inline group assignment: ``group = ["pkg1", "pkg2"]``.
+
+    Returns the resolved group name and any dependencies found on this line.
+    """
+    deps: list[Dependency] = []
+    if "=" not in stripped or "[" not in stripped:
+        return current_group, deps
+    group = stripped.split("=")[0].strip()
+    items_part = stripped.split("[", 1)[1]
+    if "]" in items_part:
+        items_part = items_part.split("]")[0]
+    for item in items_part.split(","):
+        name = _extract_pkg_name(item.strip().strip("\"' "))
+        if name:
+            cat = "dev" if group in ("dev", "test", "testing") else "runtime"
+            deps.append(Dependency(name, _extract_version(item), cat))
+    return group, deps
+
+
+def _parse_project_deps(text: str) -> tuple[list[Dependency], list[Dependency]]:
+    """Parse [project.dependencies] and optional-dependency groups."""
     runtime_deps: list[Dependency] = []
     dev_deps: list[Dependency] = []
 
-    # Parse [project.dependencies] array
     in_deps = False
     in_optional = False
     current_group = ""
@@ -194,10 +217,8 @@ def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]
     for line in text.splitlines():
         stripped = line.strip()
 
-        # Section headers
         if stripped == "dependencies = [" or stripped.startswith("dependencies = ["):
             in_deps = True
-            # Check if single-line
             if stripped.endswith("]") and stripped != "dependencies = [":
                 items = stripped.split("[", 1)[1].rstrip("]")
                 for item in items.split(","):
@@ -215,15 +236,8 @@ def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]
             in_deps = False
             continue
         if stripped.startswith("[") and not stripped.startswith("[["):
-            if stripped == "[project.scripts]":
-                in_deps = False
-                in_optional = False
-            elif stripped.startswith("[project") or stripped.startswith("[tool"):
-                in_deps = False
-                in_optional = False
-            else:
-                in_deps = False
-                in_optional = False
+            in_deps = False
+            in_optional = False
             continue
 
         if in_deps and stripped == "]":
@@ -238,35 +252,33 @@ def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]
                 )
 
         if in_optional:
-            # Look for group = ["pkg1", "pkg2"] pattern
-            if "=" in stripped and "[" in stripped:
-                current_group = stripped.split("=")[0].strip()
-                items_part = stripped.split("[", 1)[1]
-                if "]" in items_part:
-                    items_part = items_part.split("]")[0]
-                for item in items_part.split(","):
-                    name = _extract_pkg_name(item.strip().strip("\"' "))
-                    if name:
-                        cat = (
-                            "dev"
-                            if current_group in ("dev", "test", "testing")
-                            else "runtime"
-                        )
-                        dev_deps.append(Dependency(name, _extract_version(item), cat))
+            current_group, found = _parse_optional_group_line(stripped, current_group)
+            dev_deps.extend(found)
 
-    # Parse [tool.poetry.dependencies] style
-    poetry_deps_match = re.search(
+    return runtime_deps, dev_deps
+
+
+def _parse_poetry_deps(text: str) -> list[Dependency]:
+    """Parse [tool.poetry.dependencies] from pyproject.toml text."""
+    deps: list[Dependency] = []
+    match = re.search(
         r"\[tool\.poetry\.dependencies\](.*?)(?=\n\[|\Z)", text, re.DOTALL
     )
-    if poetry_deps_match:
-        for line in poetry_deps_match.group(1).splitlines():
+    if match:
+        for line in match.group(1).splitlines():
             if "=" in line and not line.strip().startswith("#"):
                 parts = line.strip().split("=", 1)
                 name = parts[0].strip()
                 if name and name != "python":
                     version = parts[1].strip().strip("\"'{}^ ")
-                    runtime_deps.append(Dependency(name, version, "runtime"))
+                    deps.append(Dependency(name, version, "runtime"))
+    return deps
 
+
+def _parse_pyproject_deps(text: str) -> tuple[list[Dependency], list[Dependency]]:
+    """Extract dependencies from pyproject.toml text."""
+    runtime_deps, dev_deps = _parse_project_deps(text)
+    runtime_deps.extend(_parse_poetry_deps(text))
     return runtime_deps, dev_deps
 
 

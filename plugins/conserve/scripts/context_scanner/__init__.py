@@ -25,11 +25,15 @@ from .detection import (
 # Ecosystem detection
 from .ecosystems import (
     ENTRY_POINT_PATTERNS,
+    _enrich_with_detectors,
     _extract_pkg_name,
     _extract_version,
+    _parse_poetry_deps,
+    _parse_project_deps,
     _parse_pyproject_deps,
     _parse_pyproject_scripts,
     _parse_requirements_txt,
+    _scan_directory_structure,
     _walk_limited,
     detect_entry_points,
     detect_go,
@@ -123,6 +127,8 @@ __all__ = [
     "_VALID_SECTIONS",
     # Ecosystem detection
     "scan_directory",
+    "_scan_directory_structure",
+    "_enrich_with_detectors",
     "detect_python",
     "detect_node",
     "detect_rust",
@@ -131,6 +137,8 @@ __all__ = [
     "detect_entry_points",
     "_walk_limited",
     "_parse_pyproject_deps",
+    "_parse_project_deps",
+    "_parse_poetry_deps",
     "_extract_pkg_name",
     "_extract_version",
     "_parse_requirements_txt",
