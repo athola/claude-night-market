@@ -74,42 +74,31 @@ def _scan_directory_structure(root: Path) -> ScanResult:
     """
     root = root.resolve()
     dir_files: dict[str, list[str]] = {}
-    root_files: list[str] = []
     config_files: list[str] = []
     total_files = 0
+    exclusions: list[str] = []
 
-    def _walk(path: Path, depth: int, top_dir: str | None) -> None:
-        nonlocal total_files
-        if depth > _MAX_WALK_DEPTH:
-            return
-        try:
-            entries = sorted(path.iterdir(), key=lambda e: e.name)
-        except PermissionError:
-            return
+    # Track first-level excluded directories for ScanResult.exclusions
+    try:
+        for entry in root.iterdir():
+            if entry.is_dir() and (
+                entry.name in EXCLUDED_DIRS or entry.name.endswith(".egg-info")
+            ):
+                exclusions.append(entry.name)
+    except PermissionError:
+        pass
 
-        for entry in entries:
-            if entry.is_symlink():
-                continue
-            if entry.is_dir():
-                if entry.name in EXCLUDED_DIRS:
-                    continue
-                if entry.name.endswith(".egg-info"):
-                    continue
-                current_top = top_dir if top_dir else entry.name
-                _walk(entry, depth + 1, current_top)
-            elif entry.is_file():
-                total_files += 1
-                rel = str(entry.relative_to(root))
-                if entry.name in _CONFIG_PATTERNS:
-                    config_files.append(rel)
-                if top_dir:
-                    if top_dir not in dir_files:
-                        dir_files[top_dir] = []
-                    dir_files[top_dir].append(entry.name)
-                else:
-                    root_files.append(entry.name)
-
-    _walk(root, 0, None)
+    for dirpath_str, _subdirs, files in _walk_limited(root, max_depth=_MAX_WALK_DEPTH):
+        dirpath = Path(dirpath_str)
+        rel_parts = dirpath.relative_to(root).parts
+        top_dir = rel_parts[0] if rel_parts else None
+        for filename in files:
+            total_files += 1
+            rel = str(dirpath.relative_to(root) / filename)
+            if filename in _CONFIG_PATTERNS:
+                config_files.append(rel)
+            if top_dir:
+                dir_files.setdefault(top_dir, []).append(filename)
 
     directories: list[DirectoryInfo] = []
     for dirname, files in dir_files.items():
@@ -136,6 +125,7 @@ def _scan_directory_structure(root: Path) -> ScanResult:
         total_files=total_files,
         directories=directories,
         config_files=config_files,
+        exclusions=exclusions,
     )
 
 

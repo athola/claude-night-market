@@ -60,36 +60,32 @@ CCR_CLEANUP_PROBABILITY = 0.1
 __all__ = ["resolve_session_file"]
 
 
-def get_ccr_threshold() -> int:
-    """Return the single-output archive threshold in characters.
-
-    Reads ``CONSERVE_CCR_THRESHOLD`` from the environment, falling back to
-    ``CCR_THRESHOLD_DEFAULT`` when unset or not a valid integer.
-    """
-    raw = os.environ.get("CONSERVE_CCR_THRESHOLD")
+def _get_ccr_int_setting(env_var: str, default: int, warn_name: str) -> int:
+    """Read an integer CCR setting from the environment with a logged fallback."""
+    raw = os.environ.get(env_var)
     if raw is None:
-        return CCR_THRESHOLD_DEFAULT
+        return default
     try:
         return int(raw)
     except ValueError:
-        logger.warning("Invalid CONSERVE_CCR_THRESHOLD=%r; using default", raw)
-        return CCR_THRESHOLD_DEFAULT
+        logger.warning("Invalid %s=%r; using default", warn_name, raw)
+        return default
+
+
+def get_ccr_threshold() -> int:
+    """Return the single-output archive threshold in characters."""
+    return _get_ccr_int_setting(
+        "CONSERVE_CCR_THRESHOLD", CCR_THRESHOLD_DEFAULT, "CONSERVE_CCR_THRESHOLD"
+    )
 
 
 def get_ccr_retention_days() -> int:
-    """Return the archive retention window in days.
-
-    Reads ``CONSERVE_CCR_RETENTION_DAYS`` from the environment, falling back to
-    ``CCR_RETENTION_DAYS_DEFAULT`` when unset or not a valid integer.
-    """
-    raw = os.environ.get("CONSERVE_CCR_RETENTION_DAYS")
-    if raw is None:
-        return CCR_RETENTION_DAYS_DEFAULT
-    try:
-        return int(raw)
-    except ValueError:
-        logger.warning("Invalid CONSERVE_CCR_RETENTION_DAYS=%r; using default", raw)
-        return CCR_RETENTION_DAYS_DEFAULT
+    """Return the archive retention window in days."""
+    return _get_ccr_int_setting(
+        "CONSERVE_CCR_RETENTION_DAYS",
+        CCR_RETENTION_DAYS_DEFAULT,
+        "CONSERVE_CCR_RETENTION_DAYS",
+    )
 
 
 def context_archive_cleanup(

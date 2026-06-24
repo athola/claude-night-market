@@ -327,6 +327,7 @@ class ScanResult:
     middleware: list[MiddlewareInfo] = field(default_factory=list)
     schemas: list[SchemaModel] = field(default_factory=list)
     token_estimate: TokenEstimate | None = None
+    exclusions: list[str] = field(default_factory=list)
 
     @property
     def all_dependencies(self) -> list[Dependency]:
