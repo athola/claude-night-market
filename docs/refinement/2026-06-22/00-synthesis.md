@@ -322,6 +322,24 @@ Each finding: failing test written first, implementation confirmed passing, then
 
 | ID(s) | Commit | Notes |
 |-------|--------|-------|
+| GAT-005 | `0d28a260` | Narrow bare `except Exception` in `_generate_problem_variation`; 2 tests |
+| XPL-010a | `ab3735a4` | Emit `DeprecationWarning` from `estimate_tokens` so callers discover the rename |
+| SML-003/007 | `89faaaf7` | Narrow bare `except Exception` in hookify rule loaders; publish `get_bundled_rules_dir` |
+| GAT-FTS | `a0e4bf99` | Replace O(n*6) char-by-char FTS sanitizer with compiled `re.sub` |
+| CJR-004 | `d7cebb77` | O(n log n) Borda count via score-dict; eliminates triple-nested vote loop |
+| CJR-005 | `466a3a96` | Split 78-line `execute()` into `_build_command` + `_launch_process` helpers |
+| CJR-006 | `43895780` | Replace inline model-ID literal with `CLAUDE_HAIKU_3` constant in orchestrator |
+| CJR-007 | `0225355b` | `__getattr__` delegation removes 14 forwarder methods from `WarRoomOrchestrator` |
+| CJR-008 | `029fa525` | Leyline `iter_source_files` fallback verified compatible; no change needed |
+| LEY-001/002/004 | `10b4b790` | Narrow bare `Exception` handlers; document quota vs usage-logging boundary |
+| PEN-005..PEN-015 | `e0d1c464` | Narrow bare excepts, delegate build-system detection, remove callable guard |
+| MP-005/011 (first pass) | `52ae1459` | Narrow bare `Exception` handlers to specific types in memory-palace |
+| SML-005 | `7b32030f` | Split `suggest_improvements` into three helpers |
+| SML-006 | `af6aefdb` | Replace `TestingGuideSkill` delegation class with module-level functions |
+| ATT-002/003/005 | `fd6eee5b` | Add language templates and test coverage for init simplification |
+| EGR-003 | `a475daaa` | `classify_technique` returns `None` on no match; extract `_build_alert_title` |
+| CON-001..009 (tests) | `b2bf181f` | Add test suite for CON-001..009 refactors |
+| IMB-009 (tests) | `c6785d7b` | Add test suite for IMB-009 refactor |
 | PEN-013 | `4993273b` | Removed `break` capping integer-overflow detection; `test_integer_overflow_detects_all_hits` |
 | CON-008 | `71a9b8ed` | `sys.exit(1)` → `raise FileNotFoundError` in `growth_analyzer.py`; callers can now handle |
 | GAT-001/002/003 | `debdf6e8` | Batch BFS IN-clause, weight-index dict; 4 test files |
