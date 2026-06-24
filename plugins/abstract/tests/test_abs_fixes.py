@@ -158,7 +158,7 @@ def test_abs022_in_progress_tasks_excludes_completed():
         pending_tasks=["t1", "t2", "t3"],
         completed_tasks=["t1"],
     )
-    result = state.in_progress_tasks
+    result = state.remaining_tasks
     assert result == ["t2", "t3"]
 
 
@@ -170,7 +170,7 @@ def test_abs022_in_progress_tasks_all_completed_returns_empty():
         pending_tasks=["t1", "t2"],
         completed_tasks=["t1", "t2"],
     )
-    assert state.in_progress_tasks == []
+    assert state.remaining_tasks == []
 
 
 def test_abs022_in_progress_tasks_none_completed_returns_all_pending():
@@ -181,7 +181,37 @@ def test_abs022_in_progress_tasks_none_completed_returns_all_pending():
         pending_tasks=["t1", "t2", "t3"],
         completed_tasks=[],
     )
-    assert state.in_progress_tasks == ["t1", "t2", "t3"]
+    assert state.remaining_tasks == ["t1", "t2", "t3"]
+
+
+# ---------------------------------------------------------------------------
+# ABS-021 — TaskState.in_progress_tasks misnamed: computes pending-completed
+#            (remaining work), not tasks in an "in_progress" state bucket.
+#            Rename to remaining_tasks to match the computation.
+# Bucket: rename — old callers updated in same commit.
+# ---------------------------------------------------------------------------
+
+
+def test_abs021_remaining_tasks_name_reflects_computation():
+    """remaining_tasks returns pending tasks not yet completed."""
+    from abstract.tasks_manager_base import TaskState
+
+    state = TaskState(
+        pending_tasks=["a", "b", "c"],
+        completed_tasks=["a"],
+    )
+    assert state.remaining_tasks == ["b", "c"]
+
+
+def test_abs021_remaining_tasks_empty_when_all_completed():
+    """remaining_tasks is empty when every pending task is also completed."""
+    from abstract.tasks_manager_base import TaskState
+
+    state = TaskState(
+        pending_tasks=["x", "y"],
+        completed_tasks=["x", "y"],
+    )
+    assert state.remaining_tasks == []
 
 
 # ---------------------------------------------------------------------------

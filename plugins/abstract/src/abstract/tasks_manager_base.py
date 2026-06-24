@@ -67,8 +67,8 @@ class TaskState:
     total_count: int = 0
 
     @property
-    def in_progress_tasks(self) -> list[str]:
-        """Tasks currently in progress."""
+    def remaining_tasks(self) -> list[str]:
+        """Pending tasks not yet in the completed set."""
         completed = set(self.completed_tasks)
         return [t for t in self.pending_tasks if t not in completed]
 
