@@ -83,6 +83,13 @@ class TestQualityChecker:
         self.test_path = Path(test_path)
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
+        self._cached_content: str | None = None
+
+    def _get_test_content(self) -> str:
+        if self._cached_content is None:
+            with open(self.test_path) as f:
+                self._cached_content = f.read()
+        return self._cached_content
 
     def run_full_validation(self) -> dict[str, Any]:
         """Run complete quality validation."""
@@ -123,8 +130,7 @@ class TestQualityChecker:
             )
             return analysis
 
-        with open(self.test_path) as f:
-            test_content = f.read()
+        test_content = self._get_test_content()
 
         try:
             tree = ast.parse(test_content)
@@ -407,8 +413,7 @@ class TestQualityChecker:
         if not self.test_path.exists():
             return metrics
 
-        with open(self.test_path) as f:
-            content = f.read()
+        content = self._get_test_content()
 
         try:
             tree = ast.parse(content)

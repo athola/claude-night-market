@@ -665,3 +665,41 @@ def test_run_check_or_validate_returns_report_str(monkeypatch, tmp_path):
     checker = qc.TestQualityChecker(f)
     # Must not raise
     qc._run_check_or_validate(checker, args)
+
+
+# ---------------------------------------------------------------------------
+# SAN-019: cache file content to avoid double-reads
+# ---------------------------------------------------------------------------
+
+
+class TestSAN019FileCaching:
+    """TestQualityChecker must read test_path at most once per instance.
+
+    GIVEN a checker whose test file contains valid Python
+    WHEN run_static_analysis() and calculate_metrics() are both called
+    THEN the underlying file is opened exactly once.
+    """
+
+    def test_file_opened_once_across_static_and_metrics(self, tmp_path: Path) -> None:
+        from unittest.mock import patch
+
+        qc = _load_script()
+        test_file = tmp_path / "test_sample.py"
+        test_file.write_text("def test_foo():\n    assert True\n")
+
+        checker = qc.TestQualityChecker(test_file)
+        open_calls: list[str] = []
+        real_open = open
+
+        def counting_open(path, *args, **kwargs):
+            open_calls.append(str(path))
+            return real_open(path, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=counting_open):
+            checker.run_static_analysis()
+            checker.calculate_metrics()
+
+        file_reads = [c for c in open_calls if str(test_file) in c]
+        assert len(file_reads) <= 1, (
+            f"test_path opened {len(file_reads)} times; expected at most 1"
+        )
