@@ -573,74 +573,72 @@ def format_plan_markdown(plan: ConsolidationPlan) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
-    """Plan document consolidation."""
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Consolidation planner for doc-consolidation skill",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # scan command
     scan_parser = subparsers.add_parser(
-        "scan",
-        help="Scan for consolidation candidates",
+        "scan", help="Scan for consolidation candidates"
     )
     scan_parser.add_argument("--repo-path", default=".", help="Repository path")
     scan_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
-    # analyze command
     analyze_parser = subparsers.add_parser(
-        "analyze",
-        help="Analyze files and generate chunks",
+        "analyze", help="Analyze files and generate chunks"
     )
     analyze_parser.add_argument("files", nargs="+", help="Files to analyze")
     analyze_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
-    # plan command
     plan_parser = subparsers.add_parser("plan", help="Generate consolidation plan")
     plan_parser.add_argument("file", help="Source file to plan")
     plan_parser.add_argument(
-        "--docs-dir",
-        default="docs",
-        help="Documentation directory",
+        "--docs-dir", default="docs", help="Documentation directory"
     )
     plan_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
-    args = parser.parse_args()
+    return parser
 
-    if args.command == "scan":
-        candidates = scan_for_candidates(args.repo_path)
-        if args.json:
-            print(json.dumps([asdict(c) for c in candidates], indent=2))
-        elif candidates:
-            for c in candidates:
-                print(f"{c.path} (score={c.score}): {', '.join(c.reasons)}")
 
-    elif args.command == "analyze":
-        all_chunks = []
-        for file_path in args.files:
-            chunks = extract_chunks(file_path)
-            all_chunks.extend(chunks)
+def _run_scan(args: argparse.Namespace) -> None:
+    candidates = scan_for_candidates(args.repo_path)
+    if args.json:
+        print(json.dumps([asdict(c) for c in candidates], indent=2))
+    elif candidates:
+        for c in candidates:
+            print(f"{c.path} (score={c.score}): {', '.join(c.reasons)}")
 
-        if args.json:
-            print(json.dumps([asdict(c) for c in all_chunks], indent=2))
-        else:
-            for chunk in all_chunks:
-                print(f"## {chunk.header} ({chunk.category}, {chunk.value})")
 
-    elif args.command == "plan":
-        plan = generate_plan(args.file, args.docs_dir)
-        if args.json:
-            plan_dict = {
-                "source": plan.source,
-                "routes": [asdict(r) for r in plan.routes],
-                "skipped": plan.skipped,
-                "summary": plan.summary,
-            }
-            print(json.dumps(plan_dict, indent=2))
-        else:
-            print(format_plan_markdown(plan))
+def _run_analyze(args: argparse.Namespace) -> None:
+    all_chunks: list[ContentChunk] = []
+    for file_path in args.files:
+        all_chunks.extend(extract_chunks(file_path))
+    if args.json:
+        print(json.dumps([asdict(c) for c in all_chunks], indent=2))
+    else:
+        for chunk in all_chunks:
+            print(f"## {chunk.header} ({chunk.category}, {chunk.value})")
 
+
+def _run_plan(args: argparse.Namespace) -> None:
+    plan = generate_plan(args.file, args.docs_dir)
+    if args.json:
+        plan_dict = {
+            "source": plan.source,
+            "routes": [asdict(r) for r in plan.routes],
+            "skipped": plan.skipped,
+            "summary": plan.summary,
+        }
+        print(json.dumps(plan_dict, indent=2))
+    else:
+        print(format_plan_markdown(plan))
+
+
+def main() -> int:
+    """Plan document consolidation."""
+    args = _build_parser().parse_args()
+    {"scan": _run_scan, "analyze": _run_analyze, "plan": _run_plan}[args.command](args)
     return 0
 
 
