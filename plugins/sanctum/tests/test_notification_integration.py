@@ -683,20 +683,31 @@ class TestClearNotificationStateExceptionHandler:
     """Test the BLE001 exception handler in clear_notification_state()."""
 
     @pytest.mark.integration
-    def test_exception_in_get_session_id_is_caught(
+    def test_os_error_in_get_session_id_is_caught(
         self, capsys: pytest.CaptureFixture
     ) -> None:
-        """If get_session_id() raises, the error is printed to stderr and
-        does not propagate."""
+        """OSError from get_session_id() is caught and printed; hook must not crash."""
         with patch(
             "session_complete_notify.get_session_id",
-            side_effect=RuntimeError("boom"),
+            side_effect=OSError("cwd gone"),
         ):
             clear_notification_state()  # must not raise
 
         captured = capsys.readouterr()
         assert "clear_notification_state" in captured.err
-        assert "boom" in captured.err
+        assert "cwd gone" in captured.err
+
+    @pytest.mark.integration
+    def test_runtime_error_in_get_session_id_propagates(self) -> None:
+        """RuntimeError from get_session_id() propagates (programming bug, not I/O)."""
+        with (
+            patch(
+                "session_complete_notify.get_session_id",
+                side_effect=RuntimeError("boom"),
+            ),
+            pytest.raises(RuntimeError, match="boom"),
+        ):
+            clear_notification_state()
 
     @pytest.mark.integration
     def test_exception_in_load_is_caught(self, capsys: pytest.CaptureFixture) -> None:

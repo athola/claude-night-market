@@ -521,10 +521,10 @@ class TestRunNotification:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_fails_silently_on_error(self, tmp_path: Path) -> None:
-        """Given notification error, does not raise exception."""
+    def test_fails_silently_on_os_error(self, tmp_path: Path) -> None:
+        """Given OSError from terminal detection, does not raise exception."""
         with patch("session_complete_notify.get_terminal_info") as mock_info:
-            mock_info.side_effect = RuntimeError("failed to get info")
+            mock_info.side_effect = OSError("failed to get info")
             # Should not raise
             run_notification("test_session", str(tmp_path))
 
