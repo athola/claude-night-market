@@ -129,6 +129,37 @@ def _write_counter(path: Path, count: int) -> None:
         print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
 
 
+def _read_with_lock(fd: int) -> int:
+    """Read and parse the counter from an open, locked file descriptor.
+
+    Returns the current count, or 0 if the file is empty, unparseable,
+    or the mtime is older than _COUNTER_TTL_SECONDS.
+    """
+    try:
+        os.lseek(fd, 0, os.SEEK_SET)
+        raw = os.read(fd, 4096)
+    except OSError:
+        raw = b""
+    try:
+        current = int(json.loads(raw or b"{}").get("count", 0))
+    except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
+        current = 0
+    if current:
+        try:
+            if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
+                current = 0
+        except OSError:
+            pass
+    return current
+
+
+def _write_with_fd(fd: int, count: int) -> None:
+    """Write *count* as JSON to an open file descriptor, replacing prior content."""
+    os.lseek(fd, 0, os.SEEK_SET)
+    os.ftruncate(fd, 0)
+    os.write(fd, json.dumps({"count": count}).encode("utf-8"))
+
+
 def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
     """Atomically read-modify-write the counter at *path*.
 
@@ -166,29 +197,13 @@ def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock require
                     f"falling back to unlocked RMW: {exc}",
                     file=sys.stderr,
                 )
-        try:
-            os.lseek(fd, 0, os.SEEK_SET)
-            raw = os.read(fd, 4096)
-        except OSError:
-            raw = b""
-        try:
-            current = int(json.loads(raw or b"{}").get("count", 0))
-        except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
-            current = 0
         # Issue #580: discard a counter left over from a prior session. A
         # file untouched past the TTL cannot belong to the current
         # discovery phase, so its count must not bleed forward.
-        if current:
-            try:
-                if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
-                    current = 0
-            except OSError:
-                pass
+        current = _read_with_lock(fd)
         new_count = current + 1
         try:
-            os.lseek(fd, 0, os.SEEK_SET)
-            os.ftruncate(fd, 0)
-            os.write(fd, json.dumps({"count": new_count}).encode("utf-8"))
+            _write_with_fd(fd, new_count)
         except OSError as exc:
             print(
                 f"[vow-bounded-reads] WARN: counter write failed: {exc}",

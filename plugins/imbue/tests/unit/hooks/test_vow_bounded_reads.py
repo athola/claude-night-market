@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import stat
 import sys
 import time
@@ -1233,3 +1234,83 @@ class TestAtomicReset:
             f"count {count_value} outside [0, {n_increments}] -- "
             "indicates lost write or interleaved update"
         )
+
+
+# ---------------------------------------------------------------------------
+# IMB-017: extract _read_with_lock and _write_with_fd helpers
+# ---------------------------------------------------------------------------
+
+
+class TestReadWithLock:
+    """_read_with_lock(fd) returns the current count from an open fd.
+
+    GIVEN an open file descriptor
+    WHEN _read_with_lock is called
+    THEN it returns the integer count from the JSON content, or 0 on
+         empty / invalid / TTL-expired content.
+    """
+
+    def test_returns_count_from_valid_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b'{"count": 7}')
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 7
+
+    def test_returns_zero_for_empty_file(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 0
+
+    def test_returns_zero_for_invalid_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"not-json")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 0
+
+
+class TestWriteWithFd:
+    """_write_with_fd(fd, count) writes the count as JSON to an open fd.
+
+    GIVEN an open file descriptor
+    WHEN _write_with_fd is called with a count
+    THEN the fd contains JSON with the count and prior content is replaced.
+    """
+
+    def test_writes_count_as_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            hook_module._write_with_fd(fd, 5)
+            os.lseek(fd, 0, os.SEEK_SET)
+            raw = os.read(fd, 4096)
+        finally:
+            os.close(fd)
+        parsed = json.loads(raw)
+        assert parsed == {"count": 5}
+
+    def test_overwrites_existing_content(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b'{"count": 99, "extra": true}')
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            hook_module._write_with_fd(fd, 1)
+            os.lseek(fd, 0, os.SEEK_SET)
+            raw = os.read(fd, 4096)
+        finally:
+            os.close(fd)
+        parsed = json.loads(raw)
+        assert parsed == {"count": 1}
