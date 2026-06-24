@@ -17,6 +17,9 @@ from template_engine import (
     get_default_variables,
 )
 
+_TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+SUPPORTED_LANGUAGES = frozenset({"python", "rust", "typescript"})
+
 
 def initialize_git(project_path: Path, force: bool = False) -> bool:
     """Initialize git repository.
@@ -165,144 +168,26 @@ def _write_or_preview(
     return True
 
 
-# Vendored fallback scaffolds for the decision journal. The canonical source is
-# leyline:decision-journal; init prefers it when importable and falls back to
-# these so project-init never hard-depends on leyline being installed.
-_VENDORED_JOURNAL = {
-    "tradeoffs": """\
----
-maturity: growing
-type: tradeoffs
----
-
-# Tradeoffs
-
-Decisions made over this project's lifetime, and the alternatives we
-deliberately gave up. Records the *why*, not just the *what*.
-
-## Active index
-
-| ID | Status | Title | Date |
-|----|--------|-------|------|
-
-## Decisions
-
-## Archive
-
-Superseded or deprecated entries sink here; nothing is deleted.
-
-<!-- ENTRY TEMPLATE -- copy a block into Decisions above Archive, assign the
-next TR-NNN id, and fill it in.
-
-## TR-NNN: <short decision title>
-
-- Status: proposed
-- Date: YYYY-MM-DD
-- Phase: brainstorm | specify | plan | execute | review
-- Deciders: <names/roles>
-- Links: <PR/commit/issue>, <code paths>
-
-### Context & problem
-
-<the situation forcing a choice>
-
-### Decision drivers
-
-- <competing quality / constraint>
-
-### Options considered
-
-| Option | Pros | Cons / what it sacrifices |
-|--------|------|---------------------------|
-| A (chosen) | ... | ... |
-
-### Decision
-
-We chose A.
-
-### Y-statement
-
-In the context of <X>, facing <concern>, we chose A over B,
-to achieve <quality>, accepting <the sacrifice / road not taken>.
-
-### Consequences
-
-- Positive: <what gets easier>
-- Negative / debt accepted: <what gets harder>
--->
-""",
-    "lessons": """\
----
-maturity: growing
-type: lessons
----
-
-# Lessons Learned
-
-Insights, failed approaches, rework, and blockers, captured blamelessly so the
-team replicates what worked and avoids what did not.
-
-## Active index
-
-| ID | Status | Title | Date |
-|----|--------|-------|------|
-
-## Lessons
-
-## Archive
-
-Closed or superseded entries sink here; nothing is deleted.
-
-<!-- ENTRY TEMPLATE -- copy a block into Lessons above Archive, assign the next
-LL-NNN id, and fill it in.
-
-## LL-NNN: <short lesson title>
-
-- Status: open
-- Date: YYYY-MM-DD
-- Phase: execute | review
-- Category: process | technology | requirements | testing | communication
-- Owner: <who carries the follow-up>
-- Links: <PR/commit/issue>, <related TR-NNN>
-
-### What happened
-
-<blameless, factual: the situation/activity>
-
-### What went well / where we got lucky
-
-<successes worth replicating>
-
-### What did not work
-
-<the gap or failure>
-
-### Root cause
-
-<5 Whys / contributing factors>
-
-### Recommendation / action item
-
-- Action: <specific change> -- Owner: <name> -- Due: <date>
--->
-""",
-}
+# Decision-journal templates live in templates/decision_journal/. The canonical
+# source is leyline:decision-journal; init prefers it when importable and falls
+# back to these files so project-init never hard-depends on leyline being installed.
+_JOURNAL_TEMPLATES_DIR = _TEMPLATES_DIR / "decision_journal"
 
 
 def _journal_scaffold(kind: str) -> str:
     """Return a journal scaffold, preferring leyline's canonical template.
 
     leyline is an optional dependency; when it is not installed, fall back to
-    the vendored template so project-init never hard-depends on it. A leyline
-    that is present but fails to import (a real bug) is NOT masked: the error
-    propagates instead of silently degrading to the vendored template.
+    the file in templates/decision_journal/ so project-init never hard-depends
+    on it. A leyline that is present but fails to import (a real bug) is NOT
+    masked: the error propagates instead of silently degrading to the template.
     """
     try:
         module = importlib.import_module("leyline.decision_journal")
     except ModuleNotFoundError as exc:
         root = (exc.name or "").split(".")[0]
         if root == "leyline":
-            return _VENDORED_JOURNAL[kind]
+            return (_JOURNAL_TEMPLATES_DIR / f"{kind}.md").read_text(encoding="utf-8")
         raise
     return str(module.new_file_content(kind))
 
@@ -358,6 +243,17 @@ def _create_structure(
             _write_or_preview(file_path, file_content, dry_run)
 
 
+def _load_seed(lang: str, filename: str, **kwargs: str) -> str:
+    """Load a seed file from the templates directory and format it.
+
+    Reads templates/{lang}/{filename} and applies str.format(**kwargs).
+    Template files use {variable_name} for substitution and {{ / }} for
+    literal braces required in Rust and TypeScript templates.
+    """
+    path = _TEMPLATES_DIR / lang / filename
+    return path.read_text(encoding="utf-8").format(**kwargs)
+
+
 def create_project_structure(
     project_path: Path,
     language: str,
@@ -375,6 +271,10 @@ def create_project_structure(
         dry_run: Preview changes without writing files
 
     """
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(
+            f"Unsupported language: {language!r}. Supported: {sorted(SUPPORTED_LANGUAGES)}"
+        )
     if language == "python":
         src_dir = project_path / "src" / module_name
         tests_dir = project_path / "tests"
@@ -383,7 +283,7 @@ def create_project_structure(
             [
                 (
                     src_dir / "__init__.py",
-                    f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n',
+                    _load_seed("python", "__init__.py", module_name=module_name),
                 ),
                 (tests_dir / "__init__.py", ""),
                 (
@@ -397,28 +297,14 @@ def create_project_structure(
         )
     elif language == "rust":
         src_dir = project_path / "src"
-        lib_content = (
-            f"//! {project_name} library\n\n"
-            "pub fn hello() -> String {\n"
-            f'    "Hello from {project_name}!".to_string()\n'
-            "}\n\n"
-            "#[cfg(test)]\n"
-            "mod tests {\n"
-            "    use super::*;\n\n"
-            "    #[test]\n"
-            "    fn test_hello() {\n"
-            f'        assert_eq!(hello(), "Hello from {project_name}!");\n'
-            "    }\n"
-            "}\n"
-        )
         _create_structure(
             [src_dir],
             [
+                (src_dir / "main.rs", _load_seed("rust", "main.rs")),
                 (
-                    src_dir / "main.rs",
-                    'fn main() {\n    println!("Hello, world!");\n}\n',
+                    src_dir / "lib.rs",
+                    _load_seed("rust", "lib.rs", project_name=project_name),
                 ),
-                (src_dir / "lib.rs", lib_content),
                 (
                     project_path / "README.md",
                     f"# {project_name}\n\nA new Rust project.\n\n"
@@ -430,25 +316,14 @@ def create_project_structure(
         )
     elif language == "typescript":
         src_dir = project_path / "src"
-        app_content = (
-            'import React from "react";\n\n'
-            "function App() {\n"
-            "  return (\n"
-            '    <div className="App">\n'
-            f"      <h1>Welcome to {project_name}</h1>\n"
-            "    </div>\n"
-            "  );\n"
-            "}\n\n"
-            "export default App;\n"
-        )
         _create_structure(
             [src_dir],
             [
+                (src_dir / "index.ts", _load_seed("typescript", "index.ts")),
                 (
-                    src_dir / "index.ts",
-                    'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n',
+                    src_dir / "App.tsx",
+                    _load_seed("typescript", "App.tsx", project_name=project_name),
                 ),
-                (src_dir / "App.tsx", app_content),
                 (
                     project_path / "README.md",
                     f"# {project_name}\n\nA new TypeScript/React project.\n\n"
