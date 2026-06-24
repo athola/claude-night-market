@@ -332,3 +332,25 @@ Each finding: failing test written first, implementation confirmed passing, then
 | SML-001 | `0913b04d` | `AsyncAnalysisSkill` delegation class removed; module functions in `__all__`; 34 tests |
 | ATT-001 | Already closed in Phase 1 (`e35e75cc`). `_create_python/rust/typescript_structure` were already consolidated into data-driven `_create_structure` before this session. |
 | ABS-001/002/005/006/009/012/013/017/019/022 | `7987649c` | ABS-003/004/011/015/018 already satisfied. ABS-006 deleted (0 consumers confirmed). ABS-019 narrowed to `(OSError, yaml.YAMLError, TypeError)` — config files are YAML, not JSON. 23 TDD tests. |
+| SAN-018 | `bfebb1ad` | Narrow bare `Exception` handlers in `session_complete_notify.py`; 3 tests |
+| SML-004 | `5503d4c0` | Implement category-prefix invalidation in `CacheManager`; 4 tests |
+| SAN-016 | `5c0f3f36` | Use `ast.walk` for BDD compliance check instead of regex; 2 tests |
+| SAN-017 | `af42f302` | Pre-compute `content.lower()` once per check method; 2 tests |
+| SAN-012 | `6de67bb8` | Split `consolidation_planner` `main()` into `_build_parser` + 3 handlers; 5 tests |
+| SAN-019 | `07fa638d` | Cache test file content via `_get_test_content()` to avoid double-read; 3 tests |
+| TOME-003 | `3ee3ec6d` | Simplify author extraction in `parse_arxiv_response` to list comprehension; 3 tests |
+| TOME-004 | `ad2d2bd2` | Single-pass deduplication in `deduplicate()` using dict insertion order; 3 tests |
+| IMB-017 | `6d8dd3ca` | Extract `_read_with_lock` + `_write_with_fd` from `_atomic_increment`; 5 tests |
+| CON-021/022 | `afeaf58d` | Split `scan_directory` → `_scan_directory_structure` + `_enrich_with_detectors`; split `_parse_pyproject_deps` → `_parse_project_deps` + `_parse_poetry_deps`; 7 tests |
+| SAN-002 | DEFERRED | `_scan_plugin_for_module_refs` has direct test coverage in `test_update_plugin_registrations_modules.py`; not dead code. |
+| MP-005 | ALREADY FIXED | `autonomy_state.py` already uses `(OSError, ValueError)` — bare `except Exception:` was narrowed in a prior pass. |
+| MP-007/011 | `4084f3f3` | Delete dead `def line()` in prometheus block; narrow `except Exception` → `except ImportError` in embedding_index.py optional-dep blocks. 2 AST-based tests. |
+| MP-008 | `56c2ecec` | Remove dead Jaccard fallback (`_stored_texts`, `_should_store_jaccard`, else-branch in `should_store`); `add_text` kept as no-op. 2 AST-based tests. |
+| MP-015 | `b1ae6e01` | `get_statistics` consolidates 5-pass iteration to single accumulation loop. 2 tests. |
+| MP-004 | `87c981d1` | Add `KnowledgeGraph.get_synapses_to()` public API; remove direct `._conn` access from `entity_graph`. 2 tests. |
+| MP-006 | DEFERRED | Split 1245-line `MemoryPalaceCLI` god class into lifecycle/garden/routing modules. Requires defining module boundaries and public API — architecture decision outside code-refinement scope. |
+| MP-009 | DEFERRED | `get_source_lineage` is a delegation stub with direct test callers; inlining would break tests. Requires test migration first. |
+| MP-010 | DEFERRED | `batch_assess` delegation stub has direct test callers; deletion would break tests. Requires test migration first. |
+| MP-012 | DEFERRED | Duplicate config-write pattern in `enable_plugin`/`disable_plugin` — extract helper is medium effort, no behavior defect. |
+| MP-013 | DEFERRED | `rglob("skills")` fragile path discovery — fix changes which directory is selected, requires integration testing. |
+| MP-014 | DEFERRED | `journey_replay` 3-loop structure — combine into single pass is medium effort, no behavior defect. |
