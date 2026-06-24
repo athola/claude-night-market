@@ -17,7 +17,7 @@ try:
     import numpy as np
 
     _HAS_NUMPY = True
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     np = None
     _HAS_NUMPY = False
 
@@ -27,7 +27,7 @@ try:
     )
 
     _HAS_ST = True
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     SentenceTransformer = None
     _HAS_ST = False
 

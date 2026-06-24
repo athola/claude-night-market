@@ -398,11 +398,6 @@ class MemoryPalaceCLI:
         """
         self.print_status(f"Tending report for {ctx.target_path}")
         if opts.prometheus:
-            label_val = opts.label or ctx.target_path.stem
-
-            def line(metric: str, value: Any) -> str:
-                return f'{metric}{{garden="{label_val}"}} {value}'
-
             return
 
         if ctx.actions["prune"]:
