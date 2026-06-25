@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.11-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.13-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-196-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-197-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -163,13 +163,15 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.11** adds the `tome:ideate` skill for diverse solution
-ideation with category rotation, grounds the `tome:triz` channel in
-the canonical TRIZ method, normalizes British spellings to American
-in the scribe slop workflow, and adds a grounded-evidence review
-contract: every review finding now carries a verbatim source anchor
-that `citation_verifier.py` re-reads, so a finding cannot cite code
-that was never there.
+**1.9.13** is a code-quality and hardening release. It splits
+god-class CLIs into focused helpers across `sanctum`, `conjure`,
+`parseltongue`, and `conserve`, collapses several multi-pass
+algorithms to single-pass (an O(n log n) Borda count, single-pass
+statistics, a compiled-regex sanitizer), and narrows bare
+`except Exception` handlers across the ecosystem so real errors
+surface instead of being swallowed. New this release: per-language
+`attune` init templates and garbage collection for the `conserve`
+CCR context-archive.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development
