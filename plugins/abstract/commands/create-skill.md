@@ -299,7 +299,7 @@ Runs validation checks automatically:
 
 ```bash
 # Validate frontmatter structure
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/check_frontmatter.py \
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/skill_validator.py \
   skills/${skill_name}/SKILL.md
 
 # Validate skill structure
@@ -488,16 +488,6 @@ This command is the entry point to the full TDD skill development cycle:
 3. **Green** → Edit SKILL.md, then `/test-skill --phase green`
 4. **Refactor** → Use `/bulletproof-skill` for anti-rationalization
 5. **Validate** → Use `/validate-plugin` for final checks
-
-## Implementation
-
-```bash
-# Python script handles interactive prompts and file generation
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/skill_creator.py \
-  --name "${1}" \
-  --type "${2:-technique}" \
-  --interactive
-```
 
 ## See Also
 

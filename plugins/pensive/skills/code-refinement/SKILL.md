@@ -267,7 +267,6 @@ and `Skill(imbue:structured-output)` for the schema.
 
 | Dependency | Required? | Fallback |
 |------------|-----------|----------|
-| `pensive:shared` | Yes | Core review patterns |
 | `imbue:proof-of-work` | Optional | Inline evidence in report |
 | `conserve:code-quality-principles` | Optional | Built-in KISS/YAGNI/SOLID checks |
 | `archetypes:architecture-paradigms` | Optional | Principle-based checks only (no paradigm detection) |

@@ -240,7 +240,6 @@ Each review must:
 
 All review skills use a hub-and-spoke architecture with progressive loading:
 
-- **`pensive:shared`**: Common workflow, output templates, quality checklists
 - **Each skill has `modules/`**: Domain-specific details loaded on demand
 - **Cross-plugin deps**: `imbue:proof-of-work`, `imbue:diff-analysis/modules/risk-assessment-framework`
 

@@ -43,6 +43,16 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
 QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
+_EVAL_SCORES_TABLE = """## Evaluation Scores (Auto-Generated)
+
+| Criterion | Score | Rationale |
+|-----------|-------|-----------|
+| Novelty | TBD | Review needed |
+| Applicability | TBD | Review needed |
+| Durability | TBD | Review needed |
+| Connectivity | TBD | Review needed |
+| Authority | TBD | Review needed |"""
+
 # ---------------------------------------------------------------------------
 # src/ on sys.path so memory_palace.* imports work in hook context
 # ---------------------------------------------------------------------------
@@ -100,7 +110,7 @@ def extract_title_from_content(content: str, url: str) -> str:
     for raw_line in lines:
         line = raw_line.strip()
         # Skip empty lines and common prefixes
-        if not line or line.startswith("#") and len(line) < 5:
+        if not line or (line.startswith("#") and len(line) < 5):
             continue
         # Found a title-like line
         if line.startswith("#"):
@@ -301,15 +311,7 @@ auto_generated: true
 
 </details>
 
-## Evaluation Scores (Auto-Generated)
-
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| Novelty | TBD | Review needed |
-| Applicability | TBD | Review needed |
-| Durability | TBD | Review needed |
-| Connectivity | TBD | Review needed |
-| Authority | TBD | Review needed |
+{_EVAL_SCORES_TABLE}
 
 ## Next Actions
 
@@ -377,15 +379,7 @@ auto_generated: true
 
 {results_content}
 
-## Evaluation Scores (Auto-Generated)
-
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| Novelty | TBD | Review needed |
-| Applicability | TBD | Review needed |
-| Durability | TBD | Review needed |
-| Connectivity | TBD | Review needed |
-| Authority | TBD | Review needed |
+{_EVAL_SCORES_TABLE}
 
 ## Next Actions
 
@@ -456,8 +450,7 @@ def _handle_webfetch(
     if failed_status is not None:
         logger.info("Skipping non-2xx fetch (HTTP %s) from %s", failed_status, url)
         context_parts.append(
-            f"Memory Palace: Fetch from {url} returned HTTP "
-            f"{failed_status}; not captured.",
+            f"Memory Palace: Fetch from {url} returned HTTP {failed_status}; not captured.",
         )
         return context_parts, None, None
 

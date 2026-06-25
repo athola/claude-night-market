@@ -158,7 +158,6 @@ dependencies:
   - sanctum:git-workspace-review
   - sanctum:pr-prep
   - sanctum:pr-review
-  - sanctum:shared
 
   # Superpowers integration
   - superpowers:receiving-code-review

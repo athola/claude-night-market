@@ -63,8 +63,11 @@ remains the canonical, enforced defense.
 
 ### Decision 2: Theory-building: adopt the lightest form
 
-**Adopt the senior-engineer self-check as an optional
-recommendation in ``imbue:karpathy-principles``. No hard gate.**
+**Adopt the senior-engineer self-check as the theory-building
+form: a single optional recommendation, no hard gate. Wiring it
+into ``imbue:karpathy-principles`` is tracked separately (see the
+acceptance criteria below), so this ADR records the decision, not
+a completed skill change.**
 
 The adopted form is the single self-check question:
 
@@ -125,8 +128,9 @@ live. Nothing fails CI for skipping it.
 - [x] Theory-building decision recorded: adopt the
   senior-engineer self-check as an optional recommendation
 - [x] ADR-0012 and ADR-0013 marked as superseded by this ADR
-- [ ] If pursued later: the karpathy-principles skill carries the
-  self-check question as optional guidance (tracked separately)
+- [x] Follow-up landed: the karpathy-principles skill carries the
+  self-check as optional guidance in its senior-engineer-test
+  module (tracked separately from this ADR's decision)
 
 ## Source
 

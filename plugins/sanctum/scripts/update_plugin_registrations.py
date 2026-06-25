@@ -29,25 +29,8 @@ from update_plugins_modules import (
 from update_plugins_modules.constants import CACHE_EXCLUDES
 
 
-class PluginAuditor:
-    """Audit and sync plugin.json registrations with disk contents."""
-
-    MODULE_DESCRIPTION_MAX_LEN = 80
-    QUEUE_DISPLAY_LIMIT = 10
-
-    def __init__(self, plugins_root: Path, dry_run: bool = True):
-        """Initialize auditor with plugins root and dry-run mode."""
-        self.plugins_root = plugins_root
-        self.dry_run = dry_run
-        self.discrepancies: dict[str, Any] = {}
-        self.module_issues: dict[
-            str, dict[str, Any]
-        ] = {}  # Track module issues separately
-
-        # Initialize Phase 2-4 analyzers
-        self.performance_analyzer = PerformanceAnalyzer()
-        self.meta_evaluator = MetaEvaluator()
-        self.queue_checker = KnowledgeQueueChecker()
+class _ScanningMixin:
+    """Disk scanning: enumerate commands/skills/agents/hooks/modules."""
 
     def _should_exclude(self, path: Path) -> bool:
         """Check if path should be excluded based on cache/temp patterns."""
@@ -460,6 +443,43 @@ class PluginAuditor:
 
         return set(json_value) if json_value else set()
 
+    def _read_module_description(self, module_path: Path) -> str:
+        """Return the first prose line from a module file.
+
+        Skips YAML frontmatter (``---`` delimited), blank lines, and
+        heading lines (starting with ``#``).  If the resulting line
+        exceeds 80 characters it is truncated to 77 chars with an
+        ellipsis appended.  Returns an empty string when the file is
+        missing, unreadable, or contains no prose.
+        """
+        try:
+            lines = module_path.read_text(encoding="utf-8").splitlines()
+            in_frontmatter = False
+            for line in lines:
+                stripped = line.strip()
+                if stripped == "---":
+                    in_frontmatter = not in_frontmatter
+                    continue
+                if in_frontmatter or not stripped:
+                    continue
+                if stripped.startswith("#"):
+                    continue
+                if len(stripped) > self.MODULE_DESCRIPTION_MAX_LEN:
+                    return stripped[:77] + "..."
+                return stripped
+        except FileNotFoundError:
+            pass  # Expected: orphaned module may not exist on disk
+        except OSError as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
+                file=sys.stderr,
+            )
+        return ""
+
+
+class _ComparisonMixin:
+    """Compare disk vs plugin.json and apply registration fixes."""
+
     def compare_registrations(
         self,
         plugin_path: Path,
@@ -504,163 +524,6 @@ class PluginAuditor:
         # but aren't referenced by any hooks.json file.
 
         return discrepancies
-
-    def audit_plugin(self, plugin_name: str) -> bool:
-        """Audit a single plugin and return True if discrepancies found."""
-        plugin_path = self.plugins_root / plugin_name
-
-        if not plugin_path.exists() or not plugin_path.is_dir():
-            print(f"[SKIP] {plugin_name}: not a directory")
-            return False
-
-        # Read plugin.json
-        plugin_json_data = self.read_plugin_json(plugin_path)
-        if plugin_json_data is None:
-            print(f"[SKIP] {plugin_name}: no valid plugin.json")
-            return False
-
-        # Scan disk
-        on_disk = self.scan_disk_files(plugin_path)
-
-        # Compare registrations
-        discrepancies = self.compare_registrations(
-            plugin_path, on_disk, plugin_json_data
-        )
-
-        # Audit modules within skills
-        module_issues = self.audit_skill_modules(plugin_path)
-
-        # Report
-        has_discrepancies = bool(discrepancies["missing"] or discrepancies["stale"])
-        has_module_issues = bool(module_issues)
-
-        if has_discrepancies:
-            self.discrepancies[plugin_name] = discrepancies
-            self._print_discrepancies(plugin_name, discrepancies)
-
-        if has_module_issues:
-            self.module_issues[plugin_name] = module_issues
-            self._print_module_issues(plugin_name, module_issues)
-
-        return has_discrepancies or has_module_issues
-
-    def _print_discrepancies(
-        self, plugin_name: str, discrepancies: dict[str, Any]
-    ) -> None:
-        """Print discrepancies for a plugin."""
-        print(f"\n{'=' * 60}")
-        print(f"PLUGIN: {plugin_name}")
-        print("=" * 60)
-
-        if discrepancies["missing"]:
-            print("\n[MISSING] Files on disk but not in plugin.json:")
-            for category, items in discrepancies["missing"].items():
-                print(f"  {category}:")
-                for item in items:
-                    print(f"    - {item}")
-
-        if discrepancies["stale"]:
-            print("\n[STALE] Registered in plugin.json but not on disk:")
-            for category, items in discrepancies["stale"].items():
-                print(f"  {category}:")
-                for item in items:
-                    print(f"    - {item}")
-
-    def _read_module_description(self, module_path: Path) -> str:
-        """Return the first prose line from a module file.
-
-        Skips YAML frontmatter (``---`` delimited), blank lines, and
-        heading lines (starting with ``#``).  If the resulting line
-        exceeds 80 characters it is truncated to 77 chars with an
-        ellipsis appended.  Returns an empty string when the file is
-        missing, unreadable, or contains no prose.
-        """
-        try:
-            lines = module_path.read_text(encoding="utf-8").splitlines()
-            in_frontmatter = False
-            for line in lines:
-                stripped = line.strip()
-                if stripped == "---":
-                    in_frontmatter = not in_frontmatter
-                    continue
-                if in_frontmatter or not stripped:
-                    continue
-                if stripped.startswith("#"):
-                    continue
-                if len(stripped) > self.MODULE_DESCRIPTION_MAX_LEN:
-                    return stripped[:77] + "..."
-                return stripped
-        except FileNotFoundError:
-            pass  # Expected: orphaned module may not exist on disk
-        except OSError as exc:
-            print(
-                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
-                file=sys.stderr,
-            )
-        return ""
-
-    def _print_module_issues(
-        self, plugin_name: str, module_issues: dict[str, Any]
-    ) -> None:
-        """Print module issues for a plugin's skills."""
-        # Only print header if we haven't already printed discrepancies
-        if plugin_name not in self.discrepancies:
-            print(f"\n{'=' * 60}")
-            print(f"PLUGIN: {plugin_name}")
-            print("=" * 60)
-
-        print("\n[MODULES] Skill module issues:")
-        for skill_name, issues in sorted(module_issues.items()):
-            print(f"  {skill_name}/:")
-            if issues.get("orphaned"):
-                print("    Orphaned (exist but not referenced):")
-                for module in issues["orphaned"]:
-                    module_path = (
-                        self.plugins_root
-                        / plugin_name
-                        / "skills"
-                        / skill_name
-                        / "modules"
-                        / module
-                    )
-                    desc = self._read_module_description(module_path)
-                    if desc:
-                        print(f"      - modules/{module}")
-                        print(f"        {desc}")
-                    else:
-                        print(f"      - modules/{module}")
-            if issues.get("missing"):
-                print("    Missing (referenced but not found):")
-                for module in issues["missing"]:
-                    print(f"      - modules/{module}")
-
-    def _discover_plugin(
-        self, plugin_name: str
-    ) -> tuple[Path, Path, dict[str, Any]] | None:
-        """Load plugin paths and current plugin.json data.
-
-        Returns:
-            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
-            there is nothing to fix for this plugin.
-
-        """
-        if plugin_name not in self.discrepancies:
-            return None
-
-        plugin_path = self.plugins_root / plugin_name
-        plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
-
-        try:
-            with plugin_json_path.open(encoding="utf-8") as f:
-                plugin_data = json.load(f)
-        except (OSError, json.JSONDecodeError) as exc:
-            print(
-                f"[ERROR] {plugin_name}: failed to read {plugin_json_path}: {exc}",
-                file=sys.stderr,
-            )
-            return None
-
-        return plugin_path, plugin_json_path, plugin_data
 
     def _validate_registration(
         self,
@@ -714,30 +577,6 @@ class PluginAuditor:
 
         return warnings
 
-    def _apply_non_hooks_mutations(
-        self,
-        plugin_name: str,
-        plugin_data: dict[str, Any],
-    ) -> None:
-        """Mutate plugin_data in place for non-hooks missing/stale discrepancies."""
-        disc = self.discrepancies[plugin_name]
-
-        for category, items in disc["missing"].items():
-            if category == "hooks":
-                continue
-            if category not in plugin_data:
-                plugin_data[category] = []
-            plugin_data[category].extend(items)
-            plugin_data[category].sort()
-
-        for category, items in disc["stale"].items():
-            if category == "hooks":
-                continue
-            if category in plugin_data:
-                plugin_data[category] = [
-                    item for item in plugin_data[category] if item not in items
-                ]
-
     def _apply_fixes(
         self,
         plugin_name: str,
@@ -769,40 +608,66 @@ class PluginAuditor:
 
         return True
 
-    def fix_plugin(self, plugin_name: str) -> bool:
-        """Fix discrepancies by updating plugin.json or hooks.json.
 
-        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
-        discrepancies are reported but require manual fixes to hooks.json.
-        We do NOT add "hooks" key to plugin.json as that causes duplicates.
-        """
+class _ReportingMixin:
+    """Console reporting for discrepancies, modules, and summaries."""
+
+    def _print_discrepancies(
+        self, plugin_name: str, discrepancies: dict[str, Any]
+    ) -> None:
+        """Print discrepancies for a plugin."""
+        print(f"\n{'=' * 60}")
+        print(f"PLUGIN: {plugin_name}")
+        print("=" * 60)
+
+        if discrepancies["missing"]:
+            print("\n[MISSING] Files on disk but not in plugin.json:")
+            for category, items in discrepancies["missing"].items():
+                print(f"  {category}:")
+                for item in items:
+                    print(f"    - {item}")
+
+        if discrepancies["stale"]:
+            print("\n[STALE] Registered in plugin.json but not on disk:")
+            for category, items in discrepancies["stale"].items():
+                print(f"  {category}:")
+                for item in items:
+                    print(f"    - {item}")
+
+    def _print_module_issues(
+        self, plugin_name: str, module_issues: dict[str, Any]
+    ) -> None:
+        """Print module issues for a plugin's skills."""
+        # Only print header if we haven't already printed discrepancies
         if plugin_name not in self.discrepancies:
-            return True  # Nothing to fix
-        discovered = self._discover_plugin(plugin_name)
-        if discovered is None:
-            return False  # I/O error reading plugin.json
+            print(f"\n{'=' * 60}")
+            print(f"PLUGIN: {plugin_name}")
+            print("=" * 60)
 
-        plugin_path, plugin_json_path, plugin_data = discovered
-
-        for warning in self._validate_registration(
-            plugin_name, plugin_path, plugin_data
-        ):
-            print(warning)
-        self._apply_non_hooks_mutations(plugin_name, plugin_data)
-
-        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
-
-    def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
-        """Phase 2: Analyze skill execution metrics for performance issues."""
-        return self.performance_analyzer.analyze_plugin(plugin_name)
-
-    def check_meta_evaluation(self, plugin_path: Path) -> dict[str, Any]:
-        """Phase 3: Validate recursive quality of evaluation-related skills."""
-        return self.meta_evaluator.check_plugin(plugin_path)
-
-    def check_knowledge_queue(self) -> list[dict[str, Any]]:
-        """Phase 4: Scan memory-palace queue for pending research items."""
-        return self.queue_checker.check_queue()
+        print("\n[MODULES] Skill module issues:")
+        for skill_name, issues in sorted(module_issues.items()):
+            print(f"  {skill_name}/:")
+            if issues.get("orphaned"):
+                print("    Orphaned (exist but not referenced):")
+                for module in issues["orphaned"]:
+                    module_path = (
+                        self.plugins_root
+                        / plugin_name
+                        / "skills"
+                        / skill_name
+                        / "modules"
+                        / module
+                    )
+                    desc = self._read_module_description(module_path)
+                    if desc:
+                        print(f"      - modules/{module}")
+                        print(f"        {desc}")
+                    else:
+                        print(f"      - modules/{module}")
+            if issues.get("missing"):
+                print("    Missing (referenced but not found):")
+                for module in issues["missing"]:
+                    print(f"      - modules/{module}")
 
     def _print_performance_summary(self, report: dict[str, Any]) -> None:
         """Print Phase 2 performance analysis summary."""
@@ -851,6 +716,153 @@ class PluginAuditor:
             print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
         if len(queue_items) > limit:
             print(f"  ... and {len(queue_items) - limit} more")
+
+
+class PluginAuditor(_ScanningMixin, _ComparisonMixin, _ReportingMixin):
+    """Audit and sync plugin.json registrations with disk contents."""
+
+    MODULE_DESCRIPTION_MAX_LEN = 80
+    QUEUE_DISPLAY_LIMIT = 10
+
+    def __init__(self, plugins_root: Path, dry_run: bool = True):
+        """Initialize auditor with plugins root and dry-run mode."""
+        self.plugins_root = plugins_root
+        self.dry_run = dry_run
+        self.discrepancies: dict[str, Any] = {}
+        self.module_issues: dict[
+            str, dict[str, Any]
+        ] = {}  # Track module issues separately
+
+        # Initialize Phase 2-4 analyzers
+        self.performance_analyzer = PerformanceAnalyzer()
+        self.meta_evaluator = MetaEvaluator()
+        self.queue_checker = KnowledgeQueueChecker()
+
+    def audit_plugin(self, plugin_name: str) -> bool:
+        """Audit a single plugin and return True if discrepancies found."""
+        plugin_path = self.plugins_root / plugin_name
+
+        if not plugin_path.exists() or not plugin_path.is_dir():
+            print(f"[SKIP] {plugin_name}: not a directory")
+            return False
+
+        # Read plugin.json
+        plugin_json_data = self.read_plugin_json(plugin_path)
+        if plugin_json_data is None:
+            print(f"[SKIP] {plugin_name}: no valid plugin.json")
+            return False
+
+        # Scan disk
+        on_disk = self.scan_disk_files(plugin_path)
+
+        # Compare registrations
+        discrepancies = self.compare_registrations(
+            plugin_path, on_disk, plugin_json_data
+        )
+
+        # Audit modules within skills
+        module_issues = self.audit_skill_modules(plugin_path)
+
+        # Report
+        has_discrepancies = bool(discrepancies["missing"] or discrepancies["stale"])
+        has_module_issues = bool(module_issues)
+
+        if has_discrepancies:
+            self.discrepancies[plugin_name] = discrepancies
+            self._print_discrepancies(plugin_name, discrepancies)
+
+        if has_module_issues:
+            self.module_issues[plugin_name] = module_issues
+            self._print_module_issues(plugin_name, module_issues)
+
+        return has_discrepancies or has_module_issues
+
+    def _discover_plugin(
+        self, plugin_name: str
+    ) -> tuple[Path, Path, dict[str, Any]] | None:
+        """Load plugin paths and current plugin.json data.
+
+        Returns:
+            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
+            there is nothing to fix for this plugin.
+
+        """
+        if plugin_name not in self.discrepancies:
+            return None
+
+        plugin_path = self.plugins_root / plugin_name
+        plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
+
+        try:
+            with plugin_json_path.open(encoding="utf-8") as f:
+                plugin_data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"[ERROR] {plugin_name}: failed to read {plugin_json_path}: {exc}",
+                file=sys.stderr,
+            )
+            return None
+
+        return plugin_path, plugin_json_path, plugin_data
+
+    def _apply_non_hooks_mutations(
+        self,
+        plugin_name: str,
+        plugin_data: dict[str, Any],
+    ) -> None:
+        """Mutate plugin_data in place for non-hooks missing/stale discrepancies."""
+        disc = self.discrepancies[plugin_name]
+
+        for category, items in disc["missing"].items():
+            if category == "hooks":
+                continue
+            if category not in plugin_data:
+                plugin_data[category] = []
+            plugin_data[category].extend(items)
+            plugin_data[category].sort()
+
+        for category, items in disc["stale"].items():
+            if category == "hooks":
+                continue
+            if category in plugin_data:
+                plugin_data[category] = [
+                    item for item in plugin_data[category] if item not in items
+                ]
+
+    def fix_plugin(self, plugin_name: str) -> bool:
+        """Fix discrepancies by updating plugin.json or hooks.json.
+
+        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
+        discrepancies are reported but require manual fixes to hooks.json.
+        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        """
+        if plugin_name not in self.discrepancies:
+            return True  # Nothing to fix
+        discovered = self._discover_plugin(plugin_name)
+        if discovered is None:
+            return False  # I/O error reading plugin.json
+
+        plugin_path, plugin_json_path, plugin_data = discovered
+
+        for warning in self._validate_registration(
+            plugin_name, plugin_path, plugin_data
+        ):
+            print(warning)
+        self._apply_non_hooks_mutations(plugin_name, plugin_data)
+
+        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
+
+    def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
+        """Phase 2: Analyze skill execution metrics for performance issues."""
+        return self.performance_analyzer.analyze_plugin(plugin_name)
+
+    def check_meta_evaluation(self, plugin_path: Path) -> dict[str, Any]:
+        """Phase 3: Validate recursive quality of evaluation-related skills."""
+        return self.meta_evaluator.check_plugin(plugin_path)
+
+    def check_knowledge_queue(self) -> list[dict[str, Any]]:
+        """Phase 4: Scan memory-palace queue for pending research items."""
+        return self.queue_checker.check_queue()
 
     def audit_all(self, specific_plugin: str | None = None) -> int:
         """Audit all plugins or a specific plugin."""

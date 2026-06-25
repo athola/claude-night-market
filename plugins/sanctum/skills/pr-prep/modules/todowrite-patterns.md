@@ -1,5 +1,5 @@
 ---
-parent_skill: sanctum:shared
+parent_skill: sanctum:pr-prep
 name: todowrite-patterns
 description: TodoWrite naming conventions and patterns for sanctum skills
 category: patterns

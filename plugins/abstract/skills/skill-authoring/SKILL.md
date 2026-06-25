@@ -53,10 +53,10 @@ We categorize skills into three types: **Technique** skills for specific methods
 ### Skill Analysis
 \`\`\`bash
 # Analyze skill complexity
-python scripts/analyze.py
+python scripts/skill_analyzer.py
 
 # Estimate tokens
-python scripts/tokens.py
+python scripts/token_estimator.py
 \`\`\`
 
 ### Validation

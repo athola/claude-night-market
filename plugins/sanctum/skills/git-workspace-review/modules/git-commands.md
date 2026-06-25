@@ -1,5 +1,5 @@
 ---
-parent_skill: sanctum:shared
+parent_skill: sanctum:git-workspace-review
 name: git-commands
 description: Common git commands used across sanctum workflows
 category: patterns

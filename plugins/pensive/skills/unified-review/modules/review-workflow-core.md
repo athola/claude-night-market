@@ -1,7 +1,7 @@
 ---
 name: review-workflow-core
 description: Core workflow patterns for all pensive review skills
-parent_skill: pensive:shared
+parent_skill: pensive:unified-review
 category: review-infrastructure
 tags: [workflow, core, review, patterns]
 reusable_by: [pensive:bug-review, pensive:api-review, pensive:architecture-review, pensive:test-review, pensive:rust-review, pensive:makefile-review, pensive:math-review, pensive:unified-review]
