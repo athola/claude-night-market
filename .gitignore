@@ -138,3 +138,9 @@ clawhub/
 
 # imbue scope-ramp token (a per-session demonstration marker, not source)
 .imbue/
+
+# conserve unbloat scan log (transient artifact, not source)
+.unbloat-log
+
+# stale crashed-session refinement synthesis (superseded by 2026-06-22)
+docs/refinement/2026-06-20/
