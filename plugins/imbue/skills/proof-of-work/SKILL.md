@@ -200,7 +200,7 @@ by the user. Ensure you are proving rather than assuming.
 - [ ] At least one `[E1]`/`[E2]` evidence reference exists in the
       response, backed by a real command invocation and its output.
 - [ ] All acceptance criteria are explicitly stated and each has been
-      verified by running — not by inspection.
+      verified by running, not by inspection.
 - [ ] Any blocker is documented with the exact failure output and the
       next concrete step to unblock it.
 - [ ] The final response does not contain any "should work", "looks

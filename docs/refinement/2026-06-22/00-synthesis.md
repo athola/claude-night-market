@@ -7,7 +7,7 @@ verified: 176/176
 tool: pensive:code-refinement
 ---
 
-# Code Refinement Synthesis — 2026-06-22
+# Code Refinement Synthesis: 2026-06-22
 
 Tier 3 deep scan of 23 plugins, ~323K Python lines, ~190 SKILL.md files.
 All 176 findings verified by `citation_verifier.py` (exit 0).
@@ -40,7 +40,7 @@ These are confirmed stubs with no production callers.
 | ID | Location | Issue |
 |----|----------|-------|
 | PEN-003 | `pensive/src/pensive/skills/code_review.py:26` | `CodeReviewWorkflow.run()` always returns empty findings dict; never calls any real analysis |
-| PEN-004 | `pensive/src/pensive/skills/unified_review.py:14` | `dispatch_agent()` returns `f"{skill_name} execution result"` — fabricated string passed as real output |
+| PEN-004 | `pensive/src/pensive/skills/unified_review.py:14` | `dispatch_agent()` returns `f"{skill_name} execution result"`, fabricated string passed as real output |
 | ABS-006 | `abstract/src/abstract/wrapper_base.py:257` | `SuperpowerWrapper` (270 lines) is tagged deprecated, zero production consumers; delete |
 | IMB-013 | `imbue/skills/proof-of-work/SKILL.md:226` | Skeleton status declaration with no content; delete or fill |
 
@@ -56,7 +56,7 @@ Conserve (10): `bloat-detector`, `token-conservation`,
 `code-quality-principles`, `context-map`, `smart-sourcing`.
 
 Sanctum (2): `commit-messages`, `do-issue` (highest-complexity
-skill in the repo, model_hint: deep — highest priority).
+skill in the repo, model_hint: deep, highest priority).
 
 Fix: add an `## Exit Criteria` block with 3+ concrete, falsifiable
 checklist items to each file.
@@ -158,7 +158,7 @@ Key items:
 ### SKILL.md Exit Criteria gaps (MEDIUM, non-conserve)
 
 Leyline (9 skills), abstract (14 skills), sanctum (11 additional
-skills beyond Wave 1), imbue (most skills) — all missing Exit
+skills beyond Wave 1), imbue (most skills), all missing Exit
 Criteria sections. Total SKILL.md gap across the codebase:
 approximately 60 skills.
 
@@ -275,12 +275,12 @@ The full machine-readable dataset is at `.review/findings.json`.
 
 ## Execution Log
 
-### Phase 1 — Mechanical fixes (commit `refactor(codebase): Phase 1 mechanical fixes`)
+### Phase 1: Mechanical fixes (commit `refactor(codebase): Phase 1 mechanical fixes`)
 
 Closed: MP-001, ATT-004, CON-004, EGR-002, SAN-003, IMB-013, SML-008,
 SML-009, SML-010.
 
-### Phase 2 — Exit Criteria additions (complete)
+### Phase 2: Exit Criteria additions (complete)
 
 Closed all 105 SKILL.md files missing `## Exit Criteria` in three
 parallel agent batches:
@@ -289,7 +289,7 @@ parallel agent batches:
 - Batch B (conserve/gauntlet/hookify/imbue/leyline/oracle/phantom, 35 files): `c7c8f6f4`
 - Batch C (cartograph/egregore/memory-palace/sanctum/scribe/spec-kit/tome, 35 files): `78871f49`
 
-### Phase 2b — SML-002 import deduplication (complete)
+### Phase 2b: SML-002 import deduplication (complete)
 
 `parse_code` duplicate in `testing_guide/_constants.py` eliminated.
 `_recommendations.py` now imports from `async_analysis._base` (canonical source).
@@ -304,19 +304,19 @@ one-sentence rationale each:
 
 | ID | Rationale |
 |----|-----------|
-| PEN-003 | `CodeReviewWorkflow.run()` always returns empty dict; fixing it requires deciding the intended real behavior — Claude API dispatch, subprocess, or skill invocation. Design decision outside code-refinement scope. |
+| PEN-003 | `CodeReviewWorkflow.run()` always returns empty dict; fixing it requires deciding the intended real behavior: Claude API dispatch, subprocess, or skill invocation. Design decision outside code-refinement scope. |
 | PEN-004 | `dispatch_agent()` returns a format string to real callers; same design-decision blocker as PEN-003. |
 | PEN-014 | `execute_skills()` type mismatch is a downstream effect of the PEN-003/PEN-004 stubs; resolves when those are wired. |
 | PEN-001 | `rust_review_data.py` (832 lines) split requires agreeing on module boundaries and public API surface. Module reorganization design decision. |
 | PEN-002 | Same file as PEN-001; same rationale. |
-| XPL-001 | `sanctum/_frontmatter.py` leyline fallback: removal requires declaring leyline as hard dependency in pyproject.toml and adding integration tests. New dependency declaration — named deferral category in skill. |
+| XPL-001 | `sanctum/_frontmatter.py` leyline fallback: removal requires declaring leyline as hard dependency in pyproject.toml and adding integration tests. New dependency declaration, named deferral category in skill. |
 | XPL-002 | `gauntlet/graph.py` leyline fallback: same rationale as XPL-001. |
 | XPL-003 | `tome/session.py` leyline fallback: same rationale as XPL-001. |
 | XPL-004 | `memory-palace/session_history.py` leyline fallback: same rationale as XPL-001. |
 | ABS-006 | `SuperpowerWrapper` (270 lines) is deprecated in production but has 20+ active test references. Deletion would break the test suite. Deferred: requires test migration to the replacement API first. |
-| SML-002 | CLOSED — `bdd3a996`. Import redirect verified, no circular import (async_analysis._base imports only ast stdlib). |
+| SML-002 | CLOSED: `bdd3a996`. Import redirect verified, no circular import (async_analysis._base imports only ast stdlib). |
 
-### Phase 3 — Behavioral fixes (TDD-gated)
+### Phase 3: Behavioral fixes (TDD-gated)
 
 Each finding: failing test written first, implementation confirmed passing, then committed.
 
@@ -349,29 +349,29 @@ Each finding: failing test written first, implementation confirmed passing, then
 | EGR-001 | `0a0d44bd` | `_find_herald_notify_path()` with env-var override; 4 tests |
 | SML-001 | `0913b04d` | `AsyncAnalysisSkill` delegation class removed; module functions in `__all__`; 34 tests |
 | ATT-001 | Already closed in Phase 1 (`e35e75cc`). `_create_python/rust/typescript_structure` were already consolidated into data-driven `_create_structure` before this session. |
-| ABS-001/002/005/006/009/012/013/017/019/022 | `7987649c` | ABS-003/004/011/015/018 already satisfied. ABS-006 deleted (0 consumers confirmed). ABS-019 narrowed to `(OSError, yaml.YAMLError, TypeError)` — config files are YAML, not JSON. 23 TDD tests. |
+| ABS-001/002/005/006/009/012/013/017/019/022 | `7987649c` | ABS-003/004/011/015/018 already satisfied. ABS-006 deleted (0 consumers confirmed). ABS-019 narrowed to `(OSError, yaml.YAMLError, TypeError)`: config files are YAML, not JSON. 23 TDD tests. |
 | SAN-018 | `bfebb1ad` | Narrow bare `Exception` handlers in `session_complete_notify.py`; 3 tests |
 | SML-004 | `5503d4c0` | Implement category-prefix invalidation in `CacheManager`; 4 tests |
 | SAN-016 | `5c0f3f36` | Use `ast.walk` for BDD compliance check instead of regex; 2 tests |
 | SAN-017 | `af42f302` | Pre-compute `content.lower()` once per check method; 2 tests |
-| SAN-012 | `6de67bb8` | Split `consolidation_planner` `main()` into `_build_parser` + 3 handlers; 5 tests |
+| SAN-012 | `6de67bb8` | Split `consolidation_planner` `main()` into `_build_parser` and 3 handlers; 5 tests |
 | SAN-019 | `07fa638d` | Cache test file content via `_get_test_content()` to avoid double-read; 3 tests |
 | TOME-003 | `3ee3ec6d` | Simplify author extraction in `parse_arxiv_response` to list comprehension; 3 tests |
 | TOME-004 | `ad2d2bd2` | Single-pass deduplication in `deduplicate()` using dict insertion order; 3 tests |
 | IMB-017 | `6d8dd3ca` | Extract `_read_with_lock` + `_write_with_fd` from `_atomic_increment`; 5 tests |
 | CON-021/022 | `afeaf58d` | Split `scan_directory` → `_scan_directory_structure` + `_enrich_with_detectors`; split `_parse_pyproject_deps` → `_parse_project_deps` + `_parse_poetry_deps`; 7 tests |
 | SAN-002 | DEFERRED | `_scan_plugin_for_module_refs` has direct test coverage in `test_update_plugin_registrations_modules.py`; not dead code. |
-| MP-005 | ALREADY FIXED | `autonomy_state.py` already uses `(OSError, ValueError)` — bare `except Exception:` was narrowed in a prior pass. |
+| MP-005 | ALREADY FIXED | `autonomy_state.py` already uses `(OSError, ValueError)`: bare `except Exception:` was narrowed in a prior pass. |
 | MP-007/011 | `4084f3f3` | Delete dead `def line()` in prometheus block; narrow `except Exception` → `except ImportError` in embedding_index.py optional-dep blocks. 2 AST-based tests. |
 | MP-008 | `56c2ecec` | Remove dead Jaccard fallback (`_stored_texts`, `_should_store_jaccard`, else-branch in `should_store`); `add_text` kept as no-op. 2 AST-based tests. |
 | MP-015 | `b1ae6e01` | `get_statistics` consolidates 5-pass iteration to single accumulation loop. 2 tests. |
 | MP-004 | `87c981d1` | Add `KnowledgeGraph.get_synapses_to()` public API; remove direct `._conn` access from `entity_graph`. 2 tests. |
-| MP-006 | DEFERRED | Split 1245-line `MemoryPalaceCLI` god class into lifecycle/garden/routing modules. Requires defining module boundaries and public API — architecture decision outside code-refinement scope. |
+| MP-006 | DEFERRED | Split 1245-line `MemoryPalaceCLI` god class into lifecycle/garden/routing modules. Requires defining module boundaries and public API: architecture decision outside code-refinement scope. |
 | MP-009 | DEFERRED | `get_source_lineage` is a delegation stub with direct test callers; inlining would break tests. Requires test migration first. |
 | MP-010 | DEFERRED | `batch_assess` delegation stub has direct test callers; deletion would break tests. Requires test migration first. |
-| MP-012 | DEFERRED | Duplicate config-write pattern in `enable_plugin`/`disable_plugin` — extract helper is medium effort, no behavior defect. |
-| MP-013 | DEFERRED | `rglob("skills")` fragile path discovery — fix changes which directory is selected, requires integration testing. |
-| MP-014 | DEFERRED | `journey_replay` 3-loop structure — combine into single pass is medium effort, no behavior defect. |
+| MP-012 | DEFERRED | Duplicate config-write pattern in `enable_plugin`/`disable_plugin`: extract helper is medium effort, no behavior defect. |
+| MP-013 | DEFERRED | `rglob("skills")` fragile path discovery: fix changes which directory is selected, requires integration testing. |
+| MP-014 | DEFERRED | `journey_replay` 3-loop structure: combine into single pass is medium effort, no behavior defect. |
 | ABS-007/008/016 | `f996a30f` | Remove redundant `skills_root`/`skill_root` attribute aliases from `SkillsAuditor`, `TokenUsageTracker`, `ImprovementSuggester`; update 5 test files. |
 | ABS-021 | `73120c71` | Rename `in_progress_tasks` → `remaining_tasks` on `TaskState`; name now matches what the property computes (pending minus completed). 2 TDD tests. |
 | IMB-008 | `69fbd32c` | Remove body-text regex fallback in `_classify_skills` that matched "output/workflow/orchestrat" in any skill body; require explicit `category: review-patterns` or `review-workflow` in frontmatter. 4 existing tests updated; 1 new non-regression test. |
@@ -382,5 +382,5 @@ Each finding: failing test written first, implementation confirmed passing, then
 | SAN-008 | STALE-FIXED | `_check_assertion_quality` refactored to use early-return guard pattern; nesting depth reduced to ≤4. Unreachable branches removed in a prior session. |
 | CON-001 | STALE-FIXED | `ecosystems.py` no longer defines its own `_walk`; imports and uses `_walk_limited` from `models.py`. Already applied in a prior session. |
 | CON-009 | STALE-FIXED | No `sys.exit` present in `growth_controller.py`; the callee raises appropriate exceptions. Already applied in a prior session. |
-| CON-003 | DEFERRED | Remaining traversals in `ecosystems.py` are in separate detector functions (`detect_java`, `detect_entry_points`, `_scan_directory_structure`) each gathering different data. Merging them requires threading shared scan state across all ecosystem detectors — architectural redesign outside code-refinement scope. CON-021/022 (`afeaf58d`) addressed the god-function issue that was the actionable part. |
+| CON-003 | DEFERRED | Remaining traversals in `ecosystems.py` are in separate detector functions (`detect_java`, `detect_entry_points`, `_scan_directory_structure`) each gathering different data. Merging them requires threading shared scan state across all ecosystem detectors: architectural redesign outside code-refinement scope. CON-021/022 (`afeaf58d`) addressed the god-function issue that was the actionable part. |
 | CON-020 | NO ACTION | `bloat-detector` (skill) and `bloat-scan` (command) are different artifact types. The command is the user-facing slash command entry point; the skill is model guidance. Their descriptions are thematically related but structurally distinct and serve different purposes. No duplication to eliminate. |

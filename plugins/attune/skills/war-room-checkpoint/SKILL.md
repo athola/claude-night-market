@@ -3,7 +3,7 @@ name: war-room-checkpoint
 description: Assesses decision reversibility and risk at critical checkpoints. Use when a workflow reaches a high-stakes branch needing escalation check.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-sonnet-4
+model_preference: claude-sonnet-4-6
 category: strategic-planning
 tags: [checkpoint, embedded, escalation, reversibility, inline]
 dependencies:

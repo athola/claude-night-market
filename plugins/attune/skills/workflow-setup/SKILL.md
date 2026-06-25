@@ -4,7 +4,7 @@ description: Configures GitHub Actions CI/CD workflows for testing, linting, and
 globs: "**/.github/workflows/*.yml"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: claude-sonnet-4
+model: claude-sonnet-4-6
 tools: [Read, Write, Bash]
 category: infrastructure
 tags: [github-actions, ci-cd, workflows, automation, testing]

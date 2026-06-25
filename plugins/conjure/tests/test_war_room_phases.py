@@ -426,7 +426,7 @@ class TestSynthesisPhase:
             content="COA content",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
         session.artifacts = {
             "intel": {"scout_report": "Scout", "intel_report": "Intel"},

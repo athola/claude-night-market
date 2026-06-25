@@ -520,7 +520,7 @@ Not all matches indicate AI debt. Skip these intentional patterns:
 - High comment ratios in teaching/tutorial code or configuration files
 - Log density in error handlers and middleware (logging is the job)
 
-**Reddit data corrections (verified 2026 — lower confidence than assumed):**
+**Reddit data corrections (verified 2026, lower confidence than assumed):**
 
 - **Comment density alone**: only 48% of "over-commented" claims
   held up on re-read. Many were complaints about *something else*

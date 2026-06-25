@@ -2,7 +2,7 @@
 name: project-init
 description: Scaffolds new projects with git, CI/CD workflows, pre-commit hooks, and build config. Use when starting a new Python, Rust, or TypeScript project from scratch.
 alwaysApply: false
-model: claude-sonnet-4
+model: claude-sonnet-4-6
 tools: []
 modules:
 - ./modules/language-detection.md

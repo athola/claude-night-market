@@ -119,7 +119,7 @@ def _create_example_skill(project_path: Path, plugin_name: str) -> None:
     skill_md.write_text(f"""---
 name: example-skill
 description: Example skill for {plugin_name} plugin
-model: claude-sonnet-4
+model: claude-sonnet-4-6
 tools: [Read, Write, Bash]
 ---
 

@@ -27,24 +27,24 @@ class TestModelIdConstants:
     def test_constants_exist_in_config_module(self) -> None:
         """All 8 model IDs must be importable named constants."""
         from scripts.war_room.config import (
-            CLAUDE_HAIKU_3,
-            CLAUDE_OPUS_4,
-            CLAUDE_SONNET_4,
-            GEMINI_20_FLASH,
-            GEMINI_25_PRO,
-            GLM_47,
+            CLAUDE_HAIKU_45,
+            CLAUDE_OPUS_48,
+            CLAUDE_SONNET_46,
+            GEMINI_3_FLASH,
+            GEMINI_3_PRO,
+            GLM_52,
             QWEN_MAX,
             QWEN_TURBO,
         )
 
-        assert CLAUDE_OPUS_4 == "claude-opus-4"
-        assert CLAUDE_SONNET_4 == "claude-sonnet-4"
-        assert GEMINI_25_PRO == "gemini-2.5-pro-exp"
-        assert GLM_47 == "glm-4.7"
+        assert CLAUDE_OPUS_48 == "claude-opus-4-8"
+        assert CLAUDE_SONNET_46 == "claude-sonnet-4-6"
+        assert GEMINI_3_PRO == "gemini-3-pro"
+        assert GLM_52 == "glm-5.2"
         assert QWEN_TURBO == "qwen-turbo"
-        assert GEMINI_20_FLASH == "gemini-2.0-flash-exp"
+        assert GEMINI_3_FLASH == "gemini-3-flash"
         assert QWEN_MAX == "qwen-max"
-        assert CLAUDE_HAIKU_3 == "claude-haiku-3"
+        assert CLAUDE_HAIKU_45 == "claude-haiku-4-5"
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
         """Validation must raise ValueError for any empty model ID."""
@@ -58,7 +58,7 @@ class TestModelIdConstants:
         from scripts.war_room.config import validate_model_ids
 
         # Must not raise
-        validate_model_ids({"CLAUDE_OPUS_4": "claude-opus-4", "GLM": "glm-4.7"})
+        validate_model_ids({"CLAUDE_OPUS_48": "claude-opus-4-8", "GLM": "glm-5.2"})
 
     def test_experts_uses_constants_not_inline_strings(self) -> None:
         """experts.py must reference config constants, not duplicate literals."""
@@ -79,14 +79,14 @@ class TestModelIdConstants:
         ]
 
         banned_model_ids = {
-            "claude-opus-4",
-            "claude-sonnet-4",
-            "gemini-2.5-pro-exp",
-            "glm-4.7",
+            "claude-opus-4-8",
+            "claude-sonnet-4-6",
+            "gemini-3-pro",
+            "glm-5.2",
             "qwen-turbo",
-            "gemini-2.0-flash-exp",
+            "gemini-3-flash",
             "qwen-max",
-            "claude-haiku-3",
+            "claude-haiku-4-5",
         }
         found = banned_model_ids & set(string_literals)
         assert not found, (

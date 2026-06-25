@@ -235,7 +235,7 @@ class TestStrategeionPersistence:
             content="Test COA",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
 
         orchestrator._persist_session(session)

@@ -113,7 +113,7 @@ class TestPersistSessionAuditIntegration:
             content="COA content for merkle",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
 
         persist_session(tmp_path, session)

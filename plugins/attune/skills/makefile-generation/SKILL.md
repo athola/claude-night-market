@@ -4,7 +4,7 @@ description: Generates Makefiles with testing, linting, formatting, and automati
 globs: "**/Makefile"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: claude-sonnet-4
+model: claude-sonnet-4-6
 tools: [Read, Write, Bash]
 category: infrastructure
 tags: [makefile, automation, build-tools, development-workflow]

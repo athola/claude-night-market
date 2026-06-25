@@ -125,7 +125,7 @@ result = registry.execute(
     service="gemini",
     prompt="Analyze this code",
     files=["src/main.py"],
-    model="gemini-2.5-pro"
+    model="gemini-3-pro"
 )
 
 if result.success:

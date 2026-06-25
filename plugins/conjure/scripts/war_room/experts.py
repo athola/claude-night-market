@@ -14,12 +14,12 @@ import subprocess  # nosec B404 - Used safely with create_subprocess_exec (no sh
 from pathlib import Path
 
 from scripts.war_room.config import (
-    CLAUDE_HAIKU_3,
-    CLAUDE_OPUS_4,
-    CLAUDE_SONNET_4,
-    GEMINI_20_FLASH,
-    GEMINI_25_PRO,
-    GLM_47,
+    CLAUDE_HAIKU_45,
+    CLAUDE_OPUS_48,
+    CLAUDE_SONNET_46,
+    GEMINI_3_FLASH,
+    GEMINI_3_PRO,
+    GLM_52,
     QWEN_MAX,
     QWEN_TURBO,
 )
@@ -33,7 +33,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "supreme_commander": ExpertConfig(
         role="Supreme Commander",
         service="native",
-        model=CLAUDE_OPUS_4,
+        model=CLAUDE_OPUS_48,
         description="Final decision authority and synthesis",
         phases=["synthesis"],
         dangerous=False,
@@ -41,7 +41,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "chief_strategist": ExpertConfig(
         role="Chief Strategist",
         service="native",
-        model=CLAUDE_SONNET_4,
+        model=CLAUDE_SONNET_46,
         description="Approach generation and trade-off analysis",
         phases=["assessment", "coa"],
         dangerous=False,
@@ -49,15 +49,15 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "intelligence_officer": ExpertConfig(
         role="Intelligence Officer",
         service="gemini",
-        model=GEMINI_25_PRO,
+        model=GEMINI_3_PRO,
         description="Deep context analysis with 1M+ token window",
         phases=["intel"],
-        command=["gemini", "--model", GEMINI_25_PRO, "-p"],
+        command=["gemini", "--model", GEMINI_3_PRO, "-p"],
     ),
     "field_tactician": ExpertConfig(
         role="Field Tactician",
         service="glm",
-        model=GLM_47,
+        model=GLM_52,
         description="Implementation feasibility assessment",
         phases=["coa"],
         command_resolver="get_glm_command",
@@ -73,10 +73,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "red_team": ExpertConfig(
         role="Red Team Commander",
         service="gemini",
-        model=GEMINI_20_FLASH,
+        model=GEMINI_3_FLASH,
         description="Adversarial challenge and failure mode identification",
         phases=["red_team", "premortem"],
-        command=["gemini", "--model", GEMINI_20_FLASH, "-p"],
+        command=["gemini", "--model", GEMINI_3_FLASH, "-p"],
     ),
     "logistics_officer": ExpertConfig(
         role="Logistics Officer",
@@ -111,7 +111,7 @@ def get_haiku_command() -> list[str]:
     Provides diversity through smaller/faster Claude model.
     """
     if shutil.which("claude"):
-        return ["claude", "--model", CLAUDE_HAIKU_3, "-p"]
+        return ["claude", "--model", CLAUDE_HAIKU_45, "-p"]
     raise FileNotFoundError("Claude CLI not found in PATH; cannot use Haiku fallback")
 
 
@@ -168,7 +168,7 @@ def clear_availability_cache() -> None:
 
 
 def get_glm_command() -> list[str]:
-    """Resolve GLM-4.7 invocation command with fallback.
+    """Resolve GLM-5.2 invocation command with fallback.
 
     Priority:
     1. ccgd (alias) - if available in PATH
@@ -186,7 +186,7 @@ def get_glm_command() -> list[str]:
         return [str(local_bin), "--dangerously-skip-permissions", "-p"]
 
     raise RuntimeError(
-        "GLM-4.7 not available. Install claude-glm or configure ccgd alias.\n"
+        "GLM-5.2 not available. Install claude-glm or configure ccgd alias.\n"
         "Add to ~/.bashrc: alias ccgd='claude-glm --dangerously-skip-permissions'"
     )
 

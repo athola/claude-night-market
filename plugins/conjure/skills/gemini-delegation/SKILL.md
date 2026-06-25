@@ -84,7 +84,7 @@ gemini -p "@path/to/file Analyze this code"
 gemini -p "@src/**/*.py Summarize these files"
 
 # With specific model
-gemini --model gemini-2.5-pro-exp -p "..."
+gemini --model gemini-3-pro -p "..."
 
 # JSON output
 gemini --output-format json -p "..."

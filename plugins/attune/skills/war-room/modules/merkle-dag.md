@@ -42,7 +42,7 @@ class DeliberationNode:
 
     # Revealed after decision (sealed until then)
     expert_role: str       # "Intelligence Officer", "Red Team", etc.
-    expert_model: str      # "gemini-2.5-pro", "qwen-turbo", etc.
+    expert_model: str      # "gemini-3-pro", "qwen-turbo", etc.
 
     # Merkle linkage
     content_hash: str      # SHA-256 of content only
@@ -224,7 +224,7 @@ dag.add_contribution(
     phase="coa",
     round_number=1,
     expert_role="Field Tactician",
-    expert_model="glm-4.7"
+    expert_model="glm-5.2"
 )
 
 # Present to Red Team anonymized

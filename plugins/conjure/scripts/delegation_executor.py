@@ -457,13 +457,9 @@ class Delegator:
         # Execute with optimal settings
         options = {}
         if requirements.get("large_context"):
-            options["model"] = (
-                "gemini-2.5-pro-exp" if service == "gemini" else "qwen-max"
-            )
+            options["model"] = "gemini-3-pro" if service == "gemini" else "qwen-max"
         elif requirements.get("fast_response"):
-            options["model"] = (
-                "gemini-2.5-flash-exp" if service == "gemini" else "qwen-turbo"
-            )
+            options["model"] = "gemini-3-flash" if service == "gemini" else "qwen-turbo"
 
         result = self.execute(service, prompt, files, options)
         return service, result

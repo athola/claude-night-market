@@ -60,8 +60,8 @@ GEMINI_CONFIG = ServiceConfig(
         "tpm": 1000000,
         "daily": 1000
     },
-    models=["gemini-2.5-flash-exp", "gemini-2.5-pro-exp"],
-    default_model="gemini-2.5-flash-exp",
+    models=["gemini-3-flash", "gemini-3-pro"],
+    default_model="gemini-3-flash",
     max_context=1000000,
     health_check_cmd="gemini 'ping'",
     timeout_seconds=60

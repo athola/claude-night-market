@@ -1,2 +1,32 @@
-entries: {}
-hashes: {}
+entries:
+  https://code.claude.com/docs/en/claude_code_docs_map.md:
+    content_hash: sha256:484337a20976ddeb
+    stored_at: data/staging/webfetch-documentation-index-2026-06-25_22-41-12.md
+    importance_score: 90
+    last_updated: '2026-06-25T22:41:12.419649+00:00'
+    title: '> ## Documentation Index'
+    maturity: growing
+    routing_type: meta
+    url: https://code.claude.com/docs/en/claude_code_docs_map.md
+  https://code.claude.com/docs/en/fullscreen.md:
+    content_hash: sha256:8e0781b0cc4853fe
+    stored_at: data/staging/webfetch-documentation-index-2026-06-25_22-41-28.md
+    importance_score: 90
+    last_updated: '2026-06-25T22:41:28.648341+00:00'
+    title: '> ## Documentation Index'
+    maturity: growing
+    routing_type: meta
+    url: https://code.claude.com/docs/en/fullscreen.md
+  https://github.com/anthropics/claude-code/issues/65833:
+    content_hash: sha256:600eeee8c19a4f82
+    stored_at: data/staging/webfetch-solution-for-scroll-wheel-sending-arrow-keys-in-2026-06-25_22-41-32.md
+    importance_score: 95
+    last_updated: '2026-06-25T22:41:32.754430+00:00'
+    title: Solution for Scroll Wheel Sending Arrow Keys in Claude Code v2.1.150+
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/anthropics/claude-code/issues/65833
+hashes:
+  sha256:484337a20976ddeb: data/staging/webfetch-documentation-index-2026-06-25_22-41-12.md
+  sha256:8e0781b0cc4853fe: data/staging/webfetch-documentation-index-2026-06-25_22-41-28.md
+  sha256:600eeee8c19a4f82: data/staging/webfetch-solution-for-scroll-wheel-sending-arrow-keys-in-2026-06-25_22-41-32.md

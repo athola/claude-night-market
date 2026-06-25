@@ -60,8 +60,8 @@ and executes FFmpeg commands to produce the final composite media.
 
 The following tools must be available on PATH before using this skill:
 
-- `ffmpeg` — media composition and encoding
-- `yq` — YAML manifest parsing
+- `ffmpeg`: media composition and encoding
+- `yq`: YAML manifest parsing
 
 Run `ffmpeg -version` and `yq --version` to verify availability.
 

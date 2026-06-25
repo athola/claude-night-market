@@ -293,7 +293,7 @@ When reviewing code, check:
   classes over 500 lines, dependencies injected not created (DIP)
 - [ ] When KISS and SOLID conflict, the resolution is documented:
   KISS wins for small projects, SOLID patterns applied as complexity
-  grows — the choice is explicit, not silent
+  grows. The choice is explicit, not silent
 - [ ] `wc -l <file>` run on any modified file and result noted if
   the file exceeds 500 lines (god-class threshold)
 - [ ] No new abstraction introduced with only one implementor unless

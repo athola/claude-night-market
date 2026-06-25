@@ -54,7 +54,7 @@ estimated_tokens: 300
 ```json
 {
   "metadata": {
-    "model": "gemini-2.5-pro",
+    "model": "gemini-3-pro",
     "input_tokens": 5000,
     "output_tokens": 1000,
     "temperature": 0.7

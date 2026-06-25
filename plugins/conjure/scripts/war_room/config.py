@@ -8,22 +8,22 @@ and their corresponding CLI command arguments.
 from __future__ import annotations
 
 # Native Claude models (served by the orchestrating Claude process)
-CLAUDE_OPUS_4 = "claude-opus-4"
-CLAUDE_SONNET_4 = "claude-sonnet-4"
+CLAUDE_OPUS_48 = "claude-opus-4-8"
+CLAUDE_SONNET_46 = "claude-sonnet-4-6"
 
 # Gemini models (served via gemini CLI)
-GEMINI_25_PRO = "gemini-2.5-pro-exp"
-GEMINI_20_FLASH = "gemini-2.0-flash-exp"
+GEMINI_3_PRO = "gemini-3-pro"
+GEMINI_3_FLASH = "gemini-3-flash"
 
 # Qwen models (served via qwen CLI)
 QWEN_TURBO = "qwen-turbo"
 QWEN_MAX = "qwen-max"
 
 # GLM models (served via ccgd / claude-glm)
-GLM_47 = "glm-4.7"
+GLM_52 = "glm-5.2"
 
 # Haiku fallback (used when external LLMs are unavailable)
-CLAUDE_HAIKU_3 = "claude-haiku-3"
+CLAUDE_HAIKU_45 = "claude-haiku-4-5"
 
 
 def validate_model_ids(model_ids: dict[str, str]) -> None:
