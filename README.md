@@ -166,12 +166,14 @@ unavailable, and both can be turned off.
 **1.9.13** is a code-quality and hardening release. It splits
 god-class CLIs into focused helpers across `sanctum`, `conjure`,
 `parseltongue`, and `conserve`, collapses several multi-pass
-algorithms to single-pass (an O(n log n) Borda count, single-pass
-statistics, a compiled-regex sanitizer), and narrows bare
-`except Exception` handlers across the ecosystem so real errors
-surface instead of being swallowed. New this release: per-language
-`attune` init templates and garbage collection for the `conserve`
-CCR context-archive.
+algorithms to single-pass, and narrows bare `except Exception`
+handlers so real errors surface instead of being swallowed.
+New this release: per-language `attune` init templates, garbage
+collection for the `conserve` CCR context-archive,
+research-grounded `tome:triz`/`triz-analyst` skills (S-curve IFR
+analysis, Function-Oriented Search at deep/maximum depths), and
+`scribe:slop-detector` weights calibrated against a 23k-post
+empirical baseline.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development

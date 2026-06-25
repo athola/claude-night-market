@@ -36,6 +36,21 @@ exception handling across the ecosystem, and two small features.
 - **Removed dead code and redundant aliases.** Dropped the unused
   Jaccard fallback in memory-palace's `SemanticDeduplicator` and
   the attribute aliases in abstract's skills-eval classes.
+- **tome: research-grounded TRIZ and ideation skills.**
+  `triz-analyst` and `tome:triz` SKILL.md incorporate S-curve
+  evolutionary stage analysis for the IFR step (mature systems
+  get a next-generation IFR) and Function-Oriented Search (FOS)
+  for deep/maximum depths. Sources extended with TRIZ Agents
+  (arXiv 2506.18783, 2025) and Innovation Paradox (Shi et al.,
+  Design Science 2024; 31% originality decline across 4M+ patents
+  supports the diversity-by-selection framing in `tome:ideate`).
+- **scribe: research-grounded slop detection weights.**
+  `slop-detector` modules calibrated against an empirical baseline
+  from 23k posts across 55 subreddits (2020-2026):
+  boilerplate/tutorial-shaped code leads at 18.6%, hallucinated
+  APIs at 11.2%. New detectors cover sycophancy boilerplate,
+  reader sycophancy, and triad patterns. Data table mirrored in
+  `conserve:ai-hygiene-auditor` for agent-level visibility.
 
 ### Fixed
 
