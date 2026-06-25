@@ -50,7 +50,9 @@ an honest evidence grade (see Sources below):
 The grades are deliberately conservative. Individual-method evidence
 is thin; the value is the diverse-selection-plus-rotation pattern, not
 any single method. For the structured analogical form, use
-`Skill(tome:triz)`.
+`Skill(tome:triz)`. For finding an implied-but-empty cell in a
+concept space, map the field and its hidden optimization axis first,
+then apply generation methods to fill the gap.
 
 ## Workflow
 
@@ -100,6 +102,10 @@ The diversity rationale and method evidence grades draw on:
   diversity.
 - The originality and SCAMPER / morphological-analysis education
   literature underpins the per-method evidence grades.
+- Innovation Paradox (Shi et al., Design Science 2024): patent
+  analysis of 4M+ concepts found originality declined 31% from
+  1981-2016 as concept space expanded. Cognitive burden drives
+  clustering near familiar terrain rather than the edge.
 
 ## Exit Criteria
 

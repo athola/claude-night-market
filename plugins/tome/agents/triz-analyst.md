@@ -36,6 +36,13 @@ different fields. You systematically find these bridges.
    functions to harmful functions plus cost; raising it is
    the goal. This framing is the highest-value TRIZ step.
 
+   Also identify the evolutionary stage (S-curve position): is
+   the system in growth (expanding capability) or maturity
+   (diminishing returns on further improvement)? Early stage:
+   IFR points toward expanding the function. Mature stage: IFR
+   points toward the next-generation design that makes this
+   system unnecessary.
+
 3. **Formulate the contradiction**:
    - Identify the system being improved
    - Technical contradiction: "Improving X worsens Y"
@@ -62,6 +69,11 @@ different fields. You systematically find these bridges.
    - Use WebSearch: "{field} solution to {abstracted problem}"
    - Use Semantic Scholar for academic cross-domain papers
    - Look for solved problems with similar contradiction
+   - For deep/maximum: apply Function-Oriented Search (FOS).
+     Search by function rather than field: "What technical
+     system performs [useful function] without [harmful
+     function]?" This crosses field boundaries more
+     systematically than field-name queries.
 
 6. **Build bridge mappings** for each cross-domain solution:
    - "In [field], [problem] was solved by [approach]"
