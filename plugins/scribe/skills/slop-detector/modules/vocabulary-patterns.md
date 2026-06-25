@@ -53,6 +53,15 @@ consequently, additionally, likewise, nonetheless,
 henceforth, thereby, whereby
 ```
 
+**Audit-mode note:** these transitions have a low
+human citation rate (0.2%) relative to their keyword
+match rate (0.5%). They appear in human prose too.
+Treat a single match as noise; flag in clusters of 3+
+per 500 words. Do NOT add "however", "thus", or
+"hence" to this list: they keyword-match at 6.3% of
+on-topic Reddit posts but are cited as a tell 0% of
+the time (Reddit citation study, 2026).
+
 ### Hedging Stacks
 ```
 potentially, typically, generally, arguably, presumably,
@@ -608,6 +617,60 @@ Do not add them to the detector:
 - `vibe shift`: mainstream cultural-discourse term (human use).
 - `hyperstitious slur`: a label used *about* slop, not *in* it.
 - bare `slop` self-reference: humans use the word more than AI.
+
+## Audit-Mode False-Positive Register (2026 Reddit Data)
+
+Reddit corpus data (89,239 posts, 604 hand-audited) shows that
+the highest keyword-match terms in AI-writing discourse have a
+near-zero human citation rate as tells. This section documents
+those terms so they are not mistakenly added to the detector or
+over-weighted in audit findings.
+
+**The core lesson:** keyword match rate and human citation rate
+point in different directions for most vocabulary. Only em
+dash, the diction-meme cluster, and direct boilerplate artifacts
+have strong agreement between the two signals.
+
+### Terms NOT in the detector (with justification)
+
+Do not add these. They appear in AI-writing discourse because
+authors use them, not because authors cite them as tells.
+
+| Term | Keyword match% | Citation% | Reason |
+|------|---------------:|----------:|--------|
+| "however" / "thus" / "hence" | 6.3% | 0.0% | Ordinary connective prose |
+| "nuanced" / "nuance" | 1.8% | 0.0% | Common critical vocabulary |
+| "when it comes to" | 1.0% | 0.0% | Conversational filler humans use too |
+| "utilize" | 0.3% | 0.0% | Formal register, not AI-exclusive |
+| "embark" | 0.3% | 0.0% | Metaphor humans use |
+| "navigate" (non-spatial) | 0.2% | 0.0% | Metaphor humans use |
+| "ever-evolving" | 0.2% | 0.0% | Cliché, but human cliché |
+
+### Terms in the detector with inflated confidence
+
+These are in the detector but should be treated as triage hints
+in audit mode, not primary findings. Their keyword match
+over-counts because Reddit authors quote blocklists and parody
+AI output rather than independently observing the tells.
+
+| Term / cluster | Audit-mode confidence |
+|----------------|-----------------------|
+| delve, unleash, tapestry, game-changer, comprehensive, elevate | Medium (cluster of 3+ required for a finding) |
+| moreover, furthermore, additionally | Low in isolation (0.2% citation); cluster only |
+| robust | Low in isolation |
+
+**Prevention mode is different.** In prevention mode
+(agent-generated prose under review), these words are still
+findings. The goal is zero AI fingerprinting, not forensic
+proof of authorship. The distinction:
+
+- **Audit mode** (forensic, applied to existing prose):
+  a single vocabulary hit is a triage hint. Multiple tiers
+  hitting together make a finding.
+- **Prevention mode** (newly generated prose):
+  any Tier 1 or Tier 3 phrase is a finding regardless of
+  citation rate, because agents should not default to these
+  words even if humans sometimes do.
 
 ## Detection Regex Patterns
 
