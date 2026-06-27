@@ -24,6 +24,7 @@ from typing import Any
 from uuid import uuid4
 
 from shared.dir_utils import get_log_directory, get_observability_dir
+from shared.hook_io import read_hook_payload, tool_response_text
 from shared.skill_utils import parse_skill_name as _parse_skill_name
 
 # Threshold for triggering stability gap warnings
@@ -183,6 +184,7 @@ def create_log_entry(
     tool_output: str,
     pre_state: dict[str, Any] | None,
     evaluator: ContinualEvaluator | None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """Create structured log entry for skill execution.
 
@@ -191,11 +193,16 @@ def create_log_entry(
         tool_output: Tool execution output
         pre_state: Pre-execution state from pre_skill_execution.py
         evaluator: Continual evaluator for metrics
+        session_id: Session id from the hook payload. Falls back to the
+            legacy ``CLAUDE_SESSION_ID`` env var, then ``"unknown"``.
 
     Returns:
         Structured log entry dictionary
 
     """
+    resolved_session_id = (
+        session_id or os.environ.get("CLAUDE_SESSION_ID", "") or "unknown"
+    )
     plugin, skill = parse_skill_name(tool_input)
     skill_ref = f"{plugin}:{skill}"
     end_time = datetime.now(timezone.utc)
@@ -230,13 +237,13 @@ def create_log_entry(
     # Save minimal context on success to reduce log size; full context on failure
     if outcome in ["failure", "partial"]:
         context = {
-            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "session_id": resolved_session_id,
             "tool_input": tool_input,
             "output_preview": sanitize_output(tool_output, max_length=200),
         }
     else:
         context = {
-            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "session_id": resolved_session_id,
             "tool_input": {"skill": skill_ref},
         }
 
@@ -284,20 +291,18 @@ def save_log_entry(log_entry: dict[str, Any]) -> None:
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
-        # Read environment variables from Claude Code
-        tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
-        tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
-        tool_output = os.environ.get("CLAUDE_TOOL_OUTPUT", "")
+        # Claude Code delivers the hook payload as JSON on stdin (with a
+        # legacy CLAUDE_TOOL_* env-var fallback for the test harness).
+        payload = read_hook_payload()
+        tool_name = payload["tool_name"]
 
         # Filter non-Skill tools - hooks fire for all tool invocations
         if tool_name != "Skill":
             sys.exit(0)
 
-        # Parse tool input
-        try:
-            tool_input = json.loads(tool_input_str)
-        except json.JSONDecodeError:
-            tool_input = {"error": "malformed_input", "raw": tool_input_str[:200]}
+        tool_input = payload["tool_input"]
+        tool_output = tool_response_text(payload)
+        session_id = payload["session_id"]
 
         # Get skill reference
         plugin, skill = parse_skill_name(tool_input)
@@ -336,7 +341,9 @@ def main() -> None:
         evaluator = ContinualEvaluator(history_file)
 
         # Create log entry with pre-execution state and metrics
-        log_entry = create_log_entry(tool_input, tool_output, pre_state, evaluator)
+        log_entry = create_log_entry(
+            tool_input, tool_output, pre_state, evaluator, session_id
+        )
 
         # Save log entry
         save_log_entry(log_entry)

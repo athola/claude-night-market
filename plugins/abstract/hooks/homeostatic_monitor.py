@@ -17,10 +17,16 @@ import sys
 from pathlib import Path
 from typing import Any
 
-# Allow importing from src/abstract/ when running as a hook
+# Allow importing from src/abstract/ and the co-located shared/ package
+# when running as a hook.
 _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
+_hooks_dir = Path(__file__).resolve().parent
+if str(_hooks_dir) not in sys.path:
+    sys.path.insert(0, str(_hooks_dir))
+
+from shared.hook_io import read_hook_payload  # noqa: E402 - import after path setup
 
 try:
     from abstract.improvement_queue import ImprovementQueue
@@ -227,16 +233,12 @@ def calculate_stability_gap(history_entry: dict) -> float:
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
-        tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
+        payload = read_hook_payload()
+        tool_name = payload["tool_name"]
         if tool_name != "Skill":
             sys.exit(0)
 
-        tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
-        try:
-            tool_input = json.loads(tool_input_str)
-        except json.JSONDecodeError:
-            sys.exit(0)
-
+        tool_input = payload["tool_input"]
         skill_ref = tool_input.get("skill", "")
         if not skill_ref:
             sys.exit(0)
