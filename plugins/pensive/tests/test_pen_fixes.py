@@ -8,7 +8,14 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
+import psutil
 import pytest
+
+from pensive.analysis.repository_analyzer import RepositoryAnalyzer
+from pensive.skills.rust_review.cargo import CargoBuildMixin
+from pensive.skills.unified_review import UnifiedReviewSkill
+from pensive.workflows.code_review import CodeReviewWorkflow
+from pensive.workflows.memory_manager import get_optimal_strategy
 
 # ---------------------------------------------------------------------------
 # PEN-005 / PEN-015: RepositoryAnalyzer.detect_build_systems_from_files
@@ -19,8 +26,6 @@ class TestRepositoryAnalyzerDetectBuildSystemsFromFiles:
     """detect_build_systems_from_files classmethod (PEN-005)."""
 
     def _fn(self, files):
-        from pensive.analysis.repository_analyzer import RepositoryAnalyzer
-
         return RepositoryAnalyzer.detect_build_systems_from_files(files)
 
     def test_makefile_maps_to_make(self):
@@ -47,8 +52,6 @@ class TestPen005DetectBuildSystems:
     """UnifiedReviewSkill.detect_build_systems delegates correctly (PEN-005)."""
 
     def setup_method(self):
-        from pensive.skills.unified_review import UnifiedReviewSkill
-
         self.skill = UnifiedReviewSkill()
 
     def _ctx(self, files):
@@ -79,8 +82,6 @@ class TestPen007ExceptionNarrowing:
     """execute_skills catches non-fatal exceptions and propagates MemoryError (PEN-007)."""
 
     def _workflow(self, exc):
-        from pensive.workflows.code_review import CodeReviewWorkflow
-
         wf = CodeReviewWorkflow()
         mock_skill = Mock()
         mock_skill.analyze.side_effect = exc
@@ -113,8 +114,6 @@ class TestPen007ExceptionNarrowing:
             wf.execute_skills(["probe"], Mock())
 
     def test_continues_after_error(self):
-        from pensive.workflows.code_review import CodeReviewWorkflow
-
         wf = CodeReviewWorkflow()
         fail_skill = Mock()
         fail_skill.analyze.side_effect = ValueError("fail")
@@ -135,10 +134,6 @@ class TestPen008MemoryManagerExceptionNarrowing:
     """get_optimal_strategy catches psutil OSError/AttributeError (PEN-008)."""
 
     def _call(self, exc):
-        import psutil
-
-        from pensive.workflows.memory_manager import get_optimal_strategy
-
         with patch.object(psutil, "virtual_memory", side_effect=exc):
             return get_optimal_strategy(10)
 
@@ -166,8 +161,6 @@ class TestPen009CargoExceptionNarrowing:
     """analyze_dependencies returns empty dict on IO errors (PEN-009)."""
 
     def _mixin(self):
-        from pensive.skills.rust_review.cargo import CargoBuildMixin
-
         return CargoBuildMixin()
 
     def test_file_not_found_returns_empty(self):
@@ -209,8 +202,6 @@ class TestPen010DetectApiSurface:
     """detect_api_surface calls get_file_content as a method (PEN-010)."""
 
     def setup_method(self):
-        from pensive.skills.unified_review import UnifiedReviewSkill
-
         self.skill = UnifiedReviewSkill()
 
     def test_calls_get_file_content_as_method(self):
@@ -246,8 +237,6 @@ class TestPen012DetectLanguagesCorrectness:
     """detect_languages returns accurate language metadata (PEN-012)."""
 
     def setup_method(self):
-        from pensive.skills.unified_review import UnifiedReviewSkill
-
         self.skill = UnifiedReviewSkill()
 
     def _ctx(self, files):
@@ -297,8 +286,6 @@ class TestPen015AnalyzeDelegates:
     """analyze() must delegate to analyze_repository() (PEN-015)."""
 
     def test_analyze_calls_analyze_repository(self, tmp_path):
-        from pensive.analysis.repository_analyzer import RepositoryAnalyzer
-
         analyzer = RepositoryAnalyzer(tmp_path)
         with patch.object(
             analyzer,
@@ -314,8 +301,6 @@ class TestPen015AnalyzeDelegates:
             mock_ar.assert_called_once_with(tmp_path)
 
     def test_analyze_no_repo_path_returns_empty(self):
-        from pensive.analysis.repository_analyzer import RepositoryAnalyzer
-
         analyzer = RepositoryAnalyzer()
         result = analyzer.analyze()
         assert result == {"files": [], "languages": [], "findings": []}

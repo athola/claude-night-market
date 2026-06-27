@@ -10,6 +10,7 @@ import contextlib
 import hashlib
 import os
 import re
+import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -95,13 +96,11 @@ def _load_index() -> dict[str, Any]:
             # Issue #528: a corrupt index file must not take down web-research
             # store calls. Log to stderr so the operator notices, then fall
             # back to the empty-index sentinel.
-            import sys as _sys
-
             print(
                 f"[memory-palace] WARNING: corrupt YAML index at "
                 f"{index_path}: {exc}; falling back to empty index. "
                 f"Repair or delete the file to restore persistence.",
-                file=_sys.stderr,
+                file=sys.stderr,
             )
             _index_cache = {"entries": {}, "hashes": {}}
             _index_mtime = current_mtime

@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 
 import pytest
+from scripts.check_plugin_hooks import check_file, main
 
 
 class TestCheckPluginHooks:
@@ -35,8 +36,6 @@ class TestCheckPluginHooks:
                 }
             )
         )
-
-        from scripts.check_plugin_hooks import check_file
 
         errors = check_file(manifest)
         assert len(errors) == 1
@@ -61,8 +60,6 @@ class TestCheckPluginHooks:
             )
         )
 
-        from scripts.check_plugin_hooks import check_file
-
         errors = check_file(manifest)
         assert errors == []
 
@@ -83,8 +80,6 @@ class TestCheckPluginHooks:
                 }
             )
         )
-
-        from scripts.check_plugin_hooks import check_file
 
         errors = check_file(manifest)
         assert errors == []
@@ -110,8 +105,6 @@ class TestCheckPluginHooks:
             )
         )
 
-        from scripts.check_plugin_hooks import check_file
-
         errors = check_file(manifest)
         assert len(errors) == 1
         assert "./hooks/hooks.json" in errors[0]
@@ -133,8 +126,6 @@ class TestCheckPluginHooks:
             )
         )
 
-        from scripts.check_plugin_hooks import check_file
-
         errors = check_file(manifest)
         assert errors == []
 
@@ -148,8 +139,6 @@ class TestCheckPluginHooks:
         """
         manifest = tmp_path / "plugin.json"
         manifest.write_text("{invalid json")
-
-        from scripts.check_plugin_hooks import check_file
 
         errors = check_file(manifest)
         assert len(errors) == 1
@@ -173,8 +162,6 @@ class TestCheckPluginHooks:
             )
         )
 
-        from scripts.check_plugin_hooks import main
-
         exit_code = main([str(manifest)])
         assert exit_code == 1
 
@@ -195,8 +182,6 @@ class TestCheckPluginHooks:
                 }
             )
         )
-
-        from scripts.check_plugin_hooks import main
 
         exit_code = main([str(manifest)])
         assert exit_code == 0

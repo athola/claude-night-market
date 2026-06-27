@@ -19,6 +19,8 @@ from pathlib import Path
 
 import pytest
 
+from hookify.core.config_loader import ConfigLoader, get_bundled_rules_dir
+
 
 class TestSml003NarrowExceptions:
     """SML-003: bare Exception catch narrowed to (OSError, ValueError)."""
@@ -31,8 +33,6 @@ class TestSml003NarrowExceptions:
         Before fix: bare except Exception swallows RuntimeError silently.
         After fix: RuntimeError propagates to the caller.
         """
-        from hookify.core.config_loader import ConfigLoader
-
         rules_dir = tmp_path / "rules"
         rules_dir.mkdir()
         # Create a dummy rule file so the loop body executes
@@ -52,8 +52,6 @@ class TestSml003NarrowExceptions:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """RuntimeError from load_rule must propagate in bundled path too."""
-        from hookify.core.config_loader import ConfigLoader
-
         bundled_dir = tmp_path / "rules"
         cat_dir = bundled_dir / "git"
         cat_dir.mkdir(parents=True)
@@ -77,8 +75,6 @@ class TestSml003NarrowExceptions:
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """OSError from load_rule is caught and logged as a warning."""
-        from hookify.core.config_loader import ConfigLoader
-
         rules_dir = tmp_path / "rules"
         rules_dir.mkdir()
         (rules_dir / "hookify.test-rule.local.md").write_text("placeholder")
@@ -103,8 +99,6 @@ class TestSml003NarrowExceptions:
         caplog: pytest.LogCaptureFixture,
     ) -> None:
         """ValueError from load_rule is caught and logged as a warning."""
-        from hookify.core.config_loader import ConfigLoader
-
         rules_dir = tmp_path / "rules"
         rules_dir.mkdir()
         (rules_dir / "hookify.test-rule.local.md").write_text("placeholder")
@@ -135,14 +129,10 @@ class TestSml007PublicBundledRulesDir:
 
     def test_get_bundled_rules_dir_is_importable(self) -> None:
         """get_bundled_rules_dir must be importable without underscore prefix."""
-        from hookify.core.config_loader import get_bundled_rules_dir
-
         result = get_bundled_rules_dir()
         assert isinstance(result, Path)
 
     def test_get_bundled_rules_dir_matches_skills_catalog(self) -> None:
         """Returned path must point to the rule-catalog/rules directory."""
-        from hookify.core.config_loader import get_bundled_rules_dir
-
         result = get_bundled_rules_dir()
         assert result.parts[-3:] == ("skills", "rule-catalog", "rules")

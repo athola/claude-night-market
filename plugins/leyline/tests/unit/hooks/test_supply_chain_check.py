@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import importlib.util
 import inspect
+import io
 import json
 import sys
+import traceback as tb
 from pathlib import Path
 
 import pytest
@@ -453,9 +455,6 @@ class TestMainIntegration:
         try:
             _mod.main()
         except RuntimeError:
-            import io
-            import traceback as tb
-
             buf = io.StringIO()
             print("supply_chain_check: unexpected error", file=buf)
             tb.print_exc(file=buf)

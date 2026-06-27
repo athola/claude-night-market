@@ -8,6 +8,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "quality_checker.py"
 
@@ -681,8 +682,6 @@ class TestSAN019FileCaching:
     """
 
     def test_file_opened_once_across_static_and_metrics(self, tmp_path: Path) -> None:
-        from unittest.mock import patch
-
         qc = _load_script()
         test_file = tmp_path / "test_sample.py"
         test_file.write_text("def test_foo():\n    assert True\n")

@@ -12,6 +12,7 @@ shims collapse to one tested helper.
 
 from __future__ import annotations
 
+import importlib
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -146,8 +147,6 @@ class TestAddPluginSrcToPath:
         # Make the fake caller importable as a top-level module.
         monkeypatch.syspath_prepend(str(bar_scripts))
         try:
-            import importlib
-
             sys.modules.pop("_bootstrap_no_caller", None)
             mod = importlib.import_module("_bootstrap_no_caller")
             assert mod.RESULT == foo_src

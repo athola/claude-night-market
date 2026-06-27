@@ -14,6 +14,16 @@ from unittest.mock import patch
 
 import pytest
 
+import abstract.wrapper_base as wb
+from abstract.config import AbstractConfig
+from abstract.skill_tools import analyze_skill
+from abstract.skills_eval.auditor import SkillsAuditor
+from abstract.skills_eval.improvements import ImprovementSuggester
+from abstract.skills_eval.token_tracker import TokenUsageTracker
+from abstract.tasks_manager_base import TasksManager, TasksManagerConfig, TaskState
+from abstract.utils import load_config_with_defaults
+from abstract.wrapper_base import _unparse_annotation
+
 # ---------------------------------------------------------------------------
 # ABS-005 — wrapper_base._unparse_annotation: narrow except (SyntaxError, ValueError)
 #            to except (ValueError, TypeError)
@@ -24,7 +34,6 @@ import pytest
 
 def test_abs005_unparse_annotation_catches_type_error():
     """_unparse_annotation returns None when ast.unparse raises TypeError."""
-    from abstract.wrapper_base import _unparse_annotation
 
     # Use a valid Name node so ast.parse succeeds; mock overrides unparse behavior
     node = ast.Name(id="x", ctx=ast.Load())
@@ -35,7 +44,6 @@ def test_abs005_unparse_annotation_catches_type_error():
 
 def test_abs005_unparse_annotation_still_catches_value_error():
     """_unparse_annotation still returns None for ValueError from ast.unparse."""
-    from abstract.wrapper_base import _unparse_annotation
 
     node = ast.Name(id="x", ctx=ast.Load())
     with patch("ast.unparse", side_effect=ValueError("bad node")):
@@ -45,7 +53,6 @@ def test_abs005_unparse_annotation_still_catches_value_error():
 
 def test_abs005_unparse_annotation_returns_none_for_none_input():
     """_unparse_annotation returns None when node is None (existing behavior)."""
-    from abstract.wrapper_base import _unparse_annotation
 
     assert _unparse_annotation(None) is None
 
@@ -58,7 +65,6 @@ def test_abs005_unparse_annotation_returns_none_for_none_input():
 
 def test_abs006_superpower_wrapper_removed_from_module():
     """SuperpowerWrapper no longer exists in abstract.wrapper_base."""
-    import abstract.wrapper_base as wb
 
     assert not hasattr(wb, "SuperpowerWrapper"), (
         "SuperpowerWrapper is deprecated with 0 production consumers "
@@ -76,7 +82,6 @@ def test_abs006_superpower_wrapper_removed_from_module():
 
 def test_abs017_analyze_skill_propagates_runtime_error(tmp_path):
     """analyze_skill propagates RuntimeError from file read, not silently records it."""
-    from abstract.skill_tools import analyze_skill
 
     skill_dir = tmp_path / "my-skill"
     skill_dir.mkdir()
@@ -89,7 +94,6 @@ def test_abs017_analyze_skill_propagates_runtime_error(tmp_path):
 
 def test_abs017_analyze_skill_records_os_error_as_error_dict(tmp_path):
     """analyze_skill still catches OSError and returns error dict in results."""
-    from abstract.skill_tools import analyze_skill
 
     skill_dir = tmp_path / "my-skill"
     skill_dir.mkdir()
@@ -113,8 +117,6 @@ def test_abs017_analyze_skill_records_os_error_as_error_dict(tmp_path):
 
 def test_abs019_load_config_with_defaults_malformed_yaml_falls_back(tmp_path):
     """load_config_with_defaults falls back to AbstractConfig() on malformed YAML."""
-    from abstract.config import AbstractConfig
-    from abstract.utils import load_config_with_defaults
 
     config_dir = tmp_path / "config"
     config_dir.mkdir()
@@ -128,8 +130,6 @@ def test_abs019_load_config_with_defaults_malformed_yaml_falls_back(tmp_path):
 
 def test_abs019_load_config_with_defaults_os_error_falls_back(tmp_path):
     """load_config_with_defaults falls back to AbstractConfig() on OSError."""
-    from abstract.config import AbstractConfig
-    from abstract.utils import load_config_with_defaults
 
     config_dir = tmp_path / "config"
     config_dir.mkdir()
@@ -152,7 +152,6 @@ def test_abs019_load_config_with_defaults_os_error_falls_back(tmp_path):
 
 def test_abs022_in_progress_tasks_excludes_completed():
     """in_progress_tasks returns pending tasks not in completed."""
-    from abstract.tasks_manager_base import TaskState
 
     state = TaskState(
         pending_tasks=["t1", "t2", "t3"],
@@ -164,7 +163,6 @@ def test_abs022_in_progress_tasks_excludes_completed():
 
 def test_abs022_in_progress_tasks_all_completed_returns_empty():
     """in_progress_tasks returns empty list when all pending are completed."""
-    from abstract.tasks_manager_base import TaskState
 
     state = TaskState(
         pending_tasks=["t1", "t2"],
@@ -175,7 +173,6 @@ def test_abs022_in_progress_tasks_all_completed_returns_empty():
 
 def test_abs022_in_progress_tasks_none_completed_returns_all_pending():
     """in_progress_tasks returns all pending when completed list is empty."""
-    from abstract.tasks_manager_base import TaskState
 
     state = TaskState(
         pending_tasks=["t1", "t2", "t3"],
@@ -194,7 +191,6 @@ def test_abs022_in_progress_tasks_none_completed_returns_all_pending():
 
 def test_abs021_remaining_tasks_name_reflects_computation():
     """remaining_tasks returns pending tasks not yet completed."""
-    from abstract.tasks_manager_base import TaskState
 
     state = TaskState(
         pending_tasks=["a", "b", "c"],
@@ -205,7 +201,6 @@ def test_abs021_remaining_tasks_name_reflects_computation():
 
 def test_abs021_remaining_tasks_empty_when_all_completed():
     """remaining_tasks is empty when every pending task is also completed."""
-    from abstract.tasks_manager_base import TaskState
 
     state = TaskState(
         pending_tasks=["x", "y"],
@@ -223,7 +218,6 @@ def test_abs021_remaining_tasks_empty_when_all_completed():
 
 def test_abs001_002_load_fallback_state_method_exists(tmp_path):
     """TasksManager has a _load_fallback_state() method after extraction."""
-    from abstract.tasks_manager_base import TasksManager, TasksManagerConfig
 
     cfg = TasksManagerConfig(
         plugin_name="test",
@@ -246,7 +240,6 @@ def test_abs001_002_load_fallback_state_method_exists(tmp_path):
 
 def test_abs001_002_load_fallback_state_returns_dict_when_file_missing(tmp_path):
     """_load_fallback_state returns empty dict when state file is absent."""
-    from abstract.tasks_manager_base import TasksManager, TasksManagerConfig
 
     cfg = TasksManagerConfig(
         plugin_name="test",
@@ -268,7 +261,6 @@ def test_abs001_002_load_fallback_state_returns_dict_when_file_missing(tmp_path)
 
 def test_abs001_002_load_fallback_state_returns_dict_when_file_present(tmp_path):
     """_load_fallback_state returns parsed dict when state file exists."""
-    from abstract.tasks_manager_base import TasksManager, TasksManagerConfig
 
     state_file = tmp_path / "state.json"
     state_file.write_text(
@@ -295,7 +287,6 @@ def test_abs001_002_load_fallback_state_returns_dict_when_file_present(tmp_path)
 
 def test_abs001_002_get_state_still_works_after_extraction(tmp_path):
     """get_state behavior is unchanged after _load_fallback_state extraction."""
-    from abstract.tasks_manager_base import TasksManager, TasksManagerConfig
 
     state_file = tmp_path / "state.json"
     state_file.write_text(
@@ -338,7 +329,6 @@ def test_abs009_analyze_all_skills_called_once_across_efficiency_and_modularizat
     tmp_path,
 ):
     """Two callers share one analyze_all_skills traversal after caching."""
-    from abstract.skills_eval.token_tracker import TokenUsageTracker
 
     tracker = TokenUsageTracker(skills_dir=tmp_path)
 
@@ -355,7 +345,6 @@ def test_abs009_analyze_all_skills_called_once_across_efficiency_and_modularizat
 
 def test_abs009_analyze_all_skills_called_once_across_all_three_methods(tmp_path):
     """All three redundant callers of analyze_all_skills use at most one traversal."""
-    from abstract.skills_eval.token_tracker import TokenUsageTracker
 
     tracker = TokenUsageTracker(skills_dir=tmp_path)
 
@@ -381,7 +370,6 @@ def test_abs009_analyze_all_skills_called_once_across_all_three_methods(tmp_path
 
 def test_abs012_audit_skills_well_structured_count_is_correct(tmp_path):
     """audit_skills returns correct well_structured count (regression guard)."""
-    from abstract.skills_eval.auditor import SkillsAuditor
 
     skill_dir = tmp_path / "my-skill"
     skill_dir.mkdir()
@@ -401,7 +389,6 @@ def test_abs012_audit_skills_well_structured_count_is_correct(tmp_path):
 
 def test_abs013_get_usage_statistics_skills_over_limit_count_is_correct(tmp_path):
     """get_usage_statistics returns correct skills_over_limit count (regression guard)."""
-    from abstract.skills_eval.token_tracker import TokenUsageTracker
 
     skill_dir = tmp_path / "big-skill"
     skill_dir.mkdir()
@@ -426,7 +413,6 @@ def test_abs013_get_usage_statistics_skills_over_limit_count_is_correct(tmp_path
 
 def test_abs003_already_satisfied_analyze_skill_tokens_catches_os_error(tmp_path):
     """analyze_skill_tokens returns error dict (not raises) on OSError — already fixed."""
-    from abstract.skills_eval.token_tracker import TokenUsageTracker
 
     tracker = TokenUsageTracker(skills_dir=tmp_path)
     skill_dir = tmp_path / "some-skill"
@@ -442,7 +428,6 @@ def test_abs003_already_satisfied_analyze_skill_tokens_catches_os_error(tmp_path
 
 def test_abs004_already_satisfied_optimize_suggestions_catches_os_error(tmp_path):
     """optimize_suggestions returns error message (not raises) on OSError — already fixed."""
-    from abstract.skills_eval.token_tracker import TokenUsageTracker
 
     skill_dir = tmp_path / "test-skill"
     skill_dir.mkdir()
@@ -460,7 +445,6 @@ def test_abs011_018_already_satisfied_audit_all_skills_delegates_to_audit_skills
     tmp_path,
 ):
     """audit_all_skills already delegates to audit_skills — regression guard."""
-    from abstract.skills_eval.auditor import SkillsAuditor
 
     auditor = SkillsAuditor(skills_dir=tmp_path)
     with patch.object(auditor, "audit_skills", wraps=auditor.audit_skills) as spy:
@@ -472,7 +456,6 @@ def test_abs015_already_satisfied_generate_improvement_plan_calls_analyze_skill_
     tmp_path,
 ):
     """generate_improvement_plan calls analyze_skill exactly once — already satisfied."""
-    from abstract.skills_eval.improvements import ImprovementSuggester
 
     skill_dir = tmp_path / "test-skill"
     skill_dir.mkdir()

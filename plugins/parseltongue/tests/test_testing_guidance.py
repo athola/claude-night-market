@@ -11,6 +11,7 @@ import inspect
 import pytest
 
 from parseltongue.analysis import testing_guide
+from parseltongue.analysis.async_analysis._base import parse_code
 from parseltongue.analysis.testing_guide import (
     TestingGuideSkill,
     _quality,
@@ -626,9 +627,6 @@ class TestMixinDemotion:
         Verify the shared implementation still works inside the
         recommendation call path so we catch any future import regression.
         """
-        from parseltongue.analysis.async_analysis._base import parse_code
-        from parseltongue.analysis.testing_guide import _recommendations
-
         # Both must refer to the same underlying function after the redirect.
         assert _recommendations.parse_code is parse_code
 

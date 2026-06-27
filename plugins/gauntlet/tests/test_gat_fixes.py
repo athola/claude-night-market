@@ -98,9 +98,7 @@ class TestGAT004BatchFTS:
         # All inserted nodes that match should appear in results
         assert len(results) >= 1
         # Results must all be GraphNode instances
-        from gauntlet.models import GraphNode as GN
-
-        assert all(isinstance(r, GN) for r in results)
+        assert all(isinstance(r, GraphNode) for r in results)
 
 
 # ---------------------------------------------------------------------------

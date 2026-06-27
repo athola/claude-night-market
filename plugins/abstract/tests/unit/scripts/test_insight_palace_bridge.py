@@ -17,7 +17,15 @@ _scripts = Path(__file__).resolve().parents[3] / "scripts"
 if str(_scripts) not in sys.path:
     sys.path.insert(0, str(_scripts))
 
-from insight_types import Finding
+import hashlib
+
+from insight_palace_bridge import (
+    finding_to_markdown,
+    ingest_findings,
+    query_palace_insights,
+    score_finding,
+)
+from insight_types import AnalysisContext, Finding
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -76,34 +84,24 @@ class TestScoreFinding:
     """Score_finding applies severity mapping + bonuses."""
 
     def test_high_with_files_and_skill(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import score_finding
-
         # high=75, +10 related_files, +5 skill = 90
         assert score_finding(high_finding) == 90
 
     def test_info_no_bonuses(self, info_finding: Finding) -> None:
-        from insight_palace_bridge import score_finding
-
         # info=20, no bonuses
         assert score_finding(info_finding) == 20
 
     def test_medium_skill_only(self, medium_finding_no_files: Finding) -> None:
-        from insight_palace_bridge import score_finding
-
         # medium=55, +5 skill = 60
         assert score_finding(medium_finding_no_files) == 60
 
     def test_cap_at_100(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import score_finding
-
         # Manually set severity to something that would exceed 100
         high_finding.severity = "high"
         # high=75 + 10 + 5 = 90, within cap
         assert score_finding(high_finding) <= 100
 
     def test_unknown_severity_defaults_to_zero(self) -> None:
-        from insight_palace_bridge import score_finding
-
         f = Finding(
             type="Bug Alert",
             severity="unknown",
@@ -116,8 +114,6 @@ class TestScoreFinding:
         assert score_finding(f) == 0
 
     def test_low_with_files(self) -> None:
-        from insight_palace_bridge import score_finding
-
         f = Finding(
             type="Improvement",
             severity="low",
@@ -141,8 +137,6 @@ class TestAnalysisContextExtension:
     """AnalysisContext has a palace_insights field."""
 
     def test_default_empty_list(self) -> None:
-        from insight_types import AnalysisContext
-
         ctx = AnalysisContext(
             metrics={},
             previous_snapshot=None,
@@ -152,8 +146,6 @@ class TestAnalysisContextExtension:
         assert ctx.palace_insights == []
 
     def test_accepts_palace_insights(self) -> None:
-        from insight_types import AnalysisContext
-
         data = [{"title": "test", "severity": "high"}]
         ctx = AnalysisContext(
             metrics={},
@@ -174,21 +166,15 @@ class TestFindingToMarkdown:
     """finding_to_markdown produces frontmatter + body."""
 
     def test_has_yaml_frontmatter(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(high_finding)
         assert md.startswith("---\n")
         assert "\n---\n" in md[4:]  # closing frontmatter
 
     def test_frontmatter_source(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(high_finding)
         assert "source: insight-engine" in md
 
     def test_frontmatter_fields(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(high_finding)
         assert "finding_type: Trend" in md
         assert "severity: high" in md
@@ -197,8 +183,6 @@ class TestFindingToMarkdown:
         assert "importance_score: 90" in md
 
     def test_body_sections(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(high_finding)
         assert "## Finding" in md
         assert "## Evidence" in md
@@ -206,14 +190,10 @@ class TestFindingToMarkdown:
         assert "## Related Files" in md
 
     def test_no_skill_omits_skill_line(self, info_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(info_finding)
         assert "skill:" not in md.split("---")[1]
 
     def test_no_related_files_omits_section(self, info_finding: Finding) -> None:
-        from insight_palace_bridge import finding_to_markdown
-
         md = finding_to_markdown(info_finding)
         assert "## Related Files" not in md
 
@@ -227,26 +207,18 @@ class TestIngestFindings:
     """ingest_findings writes staging files and updates index."""
 
     def test_returns_zero_when_no_palace(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import ingest_findings
-
         with patch("insight_palace_bridge._HAS_PALACE", False):
             assert ingest_findings([high_finding]) == 0
 
     def test_returns_zero_when_empty(self) -> None:
-        from insight_palace_bridge import ingest_findings
-
         assert ingest_findings([]) == 0
 
     def test_skips_when_budget_low(self, high_finding: Finding) -> None:
-        from insight_palace_bridge import ingest_findings
-
         assert ingest_findings([high_finding], budget_remaining=0.5) == 0
 
     def test_ingests_finding_to_staging(
         self, high_finding: Finding, tmp_path: Path
     ) -> None:
-        from insight_palace_bridge import ingest_findings
-
         staging = tmp_path / "staging"
         staging.mkdir()
 
@@ -274,8 +246,6 @@ class TestIngestFindings:
         assert "insight://" in call_kwargs[1]["url"]
 
     def test_skips_known_findings(self, high_finding: Finding, tmp_path: Path) -> None:
-        from insight_palace_bridge import ingest_findings
-
         staging = tmp_path / "staging"
         staging.mkdir()
 
@@ -290,8 +260,6 @@ class TestIngestFindings:
         assert len(list(staging.glob("*.md"))) == 0
 
     def test_caps_at_10_findings(self, tmp_path: Path) -> None:
-        from insight_palace_bridge import ingest_findings
-
         staging = tmp_path / "staging"
         staging.mkdir()
         findings = [
@@ -331,14 +299,10 @@ class TestQueryPalaceInsights:
     """query_palace_insights reads insight entries from index."""
 
     def test_returns_empty_when_no_palace(self) -> None:
-        from insight_palace_bridge import query_palace_insights
-
         with patch("insight_palace_bridge._HAS_PALACE", False):
             assert query_palace_insights() == []
 
     def test_filters_insight_entries(self) -> None:
-        from insight_palace_bridge import query_palace_insights
-
         mock_index = {
             "entries": {
                 "insight://abc123": {
@@ -373,8 +337,6 @@ class TestQueryPalaceInsights:
         assert results[0]["severity"] == "high"
 
     def test_returns_empty_on_exception(self) -> None:
-        from insight_palace_bridge import query_palace_insights
-
         with (
             patch("insight_palace_bridge._HAS_PALACE", True),
             patch(
@@ -407,10 +369,6 @@ class TestIntegrationRoundTrip:
         Then query_palace_insights returns 3 entries
         And each entry has correct metadata
         """
-        from insight_palace_bridge import (
-            ingest_findings,
-            query_palace_insights,
-        )
 
         staging = tmp_path / "staging"
         staging.mkdir()
@@ -428,8 +386,6 @@ class TestIntegrationRoundTrip:
             return False
 
         def fake_get_content_hash(content):
-            import hashlib
-
             if isinstance(content, str):
                 content = content.encode()
             return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
@@ -521,7 +477,6 @@ class TestIntegrationRoundTrip:
         When ingest_findings is called again
         Then it returns 0 (skipped)
         """
-        from insight_palace_bridge import ingest_findings
 
         staging = tmp_path / "staging"
         staging.mkdir()

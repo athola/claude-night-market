@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast as _ast
 import importlib.util
 import json
 import sys
@@ -60,8 +61,6 @@ def test_extract_functions_skips_underscored(tmp_path):
     src = _make_source(tmp_path)
     cfg = module.TestConfig(style=module.TestStyle.PYTEST_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     tree = _ast.parse(src.read_text())
     functions = g._extract_functions(tree)
     names = {f.name for f in functions}
@@ -76,8 +75,6 @@ def test_extract_classes_returns_top_level(tmp_path):
     src = _make_source(tmp_path)
     cfg = module.TestConfig(style=module.TestStyle.PYTEST_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     tree = _ast.parse(src.read_text())
     classes = g._extract_classes(tree)
     assert any(c.name == "Calculator" for c in classes)
@@ -87,8 +84,6 @@ def test_extract_function_params_lists_arg_names():
     module = _load_script()
     cfg = module.TestConfig(style=module.TestStyle.PYTEST_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     func = _ast.parse("def f(a, b, c): pass").body[0]
     assert g._extract_function_params(func) == ["a", "b", "c"]
 
@@ -188,8 +183,6 @@ def test_generate_class_test_emits_setup_method():
     module = _load_script()
     cfg = module.TestConfig(style=module.TestStyle.PYTEST_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     cls = _ast.parse(
         "class Foo:\n    def bar(self): pass\n    def _hidden(self): pass\n"
     ).body[0]
@@ -203,8 +196,6 @@ def test_generate_method_test_pytest_bdd():
     module = _load_script()
     cfg = module.TestConfig(style=module.TestStyle.PYTEST_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     method = _ast.parse("def bar(self): pass").body[0]
     out = g._generate_method_test(method, "Foo")
     assert "test_bar_behavior" in out
@@ -215,8 +206,6 @@ def test_generate_method_test_docstring_bdd():
     module = _load_script()
     cfg = module.TestConfig(style=module.TestStyle.DOCSTRING_BDD)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     method = _ast.parse("def bar(self): pass").body[0]
     out = g._generate_method_test(method, "Foo")
     assert "test_bar_behavior" in out
@@ -227,8 +216,6 @@ def test_generate_method_test_gherkin_placeholder():
     module = _load_script()
     cfg = module.TestConfig(style=module.TestStyle.GHERKIN)
     g = module.TestGenerator(cfg)
-    import ast as _ast
-
     method = _ast.parse("def bar(self): pass").body[0]
     out = g._generate_method_test(method, "Foo")
     assert "Scenario:" in out

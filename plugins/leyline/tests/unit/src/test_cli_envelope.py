@@ -16,7 +16,13 @@ import json
 
 import pytest
 
-from leyline.cli_envelope import error_envelope, success_envelope
+from leyline import cli_envelope
+from leyline.cli_envelope import (
+    ErrorEnvelope,
+    SuccessEnvelope,
+    error_envelope,
+    success_envelope,
+)
 
 
 class TestSuccessEnvelope:
@@ -108,8 +114,6 @@ class TestEnvelopeTypedDicts:
         """SuccessEnvelope declares exactly ``success`` and ``data``
         as required keys so static checkers reject drift.
         """
-        from leyline.cli_envelope import SuccessEnvelope
-
         assert SuccessEnvelope.__required_keys__ == frozenset(
             {"success", "data"},
         )
@@ -120,8 +124,6 @@ class TestEnvelopeTypedDicts:
         """ErrorEnvelope declares exactly ``success`` and ``error``
         as required keys.
         """
-        from leyline.cli_envelope import ErrorEnvelope
-
         assert ErrorEnvelope.__required_keys__ == frozenset(
             {"success", "error"},
         )
@@ -133,6 +135,4 @@ class TestEnvelopeTypedDicts:
         exported so call sites can annotate as ``Envelope`` and let
         type narrowing on the ``success`` literal pick a branch.
         """
-        from leyline import cli_envelope
-
         assert hasattr(cli_envelope, "Envelope")

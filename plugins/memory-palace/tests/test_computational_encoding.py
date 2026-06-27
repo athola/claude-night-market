@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+import memory_palace.migration as migration_mod
 from memory_palace.migration import migrate_sensory_to_computational
 from memory_palace.palace_repository import PalaceRepository
 
@@ -228,8 +229,6 @@ class TestMigrateSensoryToComputational:
         Then the original file is still readable and parseable
         And its content is the pre-migration content
         """
-        import memory_palace.migration as migration_mod
-
         palaces_dir = tmp_path / "palaces"
         palaces_dir.mkdir()
         original_text = json.dumps(sample_palace_with_sensory, indent=2)

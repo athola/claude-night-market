@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sys
+import traceback
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -20,6 +21,7 @@ import pytest
 HOOKS_DIR = Path(__file__).resolve().parents[1] / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
+import security_pattern_check
 from security_pattern_check import (
     NEGATIVE_CONTEXT_WORDS,
     check_content,
@@ -677,12 +679,8 @@ class TestCrashHandler:
         ):
             # Simulate the __main__ guard behavior
             try:
-                from security_pattern_check import main as _main
-
-                _main()
+                security_pattern_check.main()
             except RuntimeError:
-                import traceback
-
                 traceback.print_exc(file=captured_stderr)
 
         stderr_out = captured_stderr.getvalue()

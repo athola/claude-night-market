@@ -9,6 +9,7 @@ from insight_types import Finding
 from post_insights_to_discussions import (
     format_insight_body,
     format_insight_title,
+    post_findings,
 )
 
 
@@ -111,7 +112,6 @@ def test_post_findings_empty_list_returns_empty():
     WHEN post_findings is called,
     THEN it returns empty without calling any APIs.
     """
-    from post_insights_to_discussions import post_findings
 
     result = post_findings([])
     assert result == []
@@ -122,7 +122,6 @@ def test_post_findings_no_repo_detected():
     WHEN post_findings is called,
     THEN it returns empty.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
     with patch(f"{_MODULE}.detect_target_repo", return_value=None):
@@ -135,7 +134,6 @@ def test_post_findings_no_category_found():
     WHEN post_findings is called,
     THEN it returns empty.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
     with (
@@ -151,7 +149,6 @@ def test_post_findings_fallback_to_learnings_category():
     WHEN post_findings is called,
     THEN it falls back to 'learnings' and posts.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
 
@@ -185,7 +182,6 @@ def test_post_findings_skips_duplicate():
     WHEN post_findings is called,
     THEN the finding is not posted.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
     registry = MagicMock()
@@ -208,7 +204,6 @@ def test_post_findings_records_posted_on_success():
     WHEN post_findings succeeds,
     THEN registry.record_posted is called with the URL.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
     registry = MagicMock()
@@ -232,7 +227,6 @@ def test_post_findings_handles_create_discussion_error():
     WHEN post_findings is called,
     THEN the error is caught and the finding is skipped.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
     registry = MagicMock()
@@ -257,7 +251,6 @@ def test_post_findings_repo_id_error():
     WHEN post_findings is called,
     THEN it returns empty.
     """
-    from post_insights_to_discussions import post_findings
 
     finding = _make_finding()
 

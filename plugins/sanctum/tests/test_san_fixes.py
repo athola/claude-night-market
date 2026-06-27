@@ -6,6 +6,7 @@ TDD RED tests are written first; GREEN after implementation.
 
 from __future__ import annotations
 
+import ast as ast_mod
 import importlib.util
 import json
 import sys
@@ -164,8 +165,6 @@ class TestSAN016BDDRegexNoOvermatch:
             '        """\n'
             "        assert True\n"
         )
-        import ast as ast_mod
-
         tree = ast_mod.parse(content)
         analysis: dict = {
             "bdd_compliance": [],

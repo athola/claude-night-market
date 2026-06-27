@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -313,8 +314,6 @@ class TestLoadWeights:
     @pytest.mark.unit
     def test_reads_custom_weights(self, tmp_path: Path) -> None:
         """Custom weights override defaults."""
-        import json
-
         config = tmp_path / "config.json"
         config.write_text(
             json.dumps({"risk_weights": {"test_gap": 0.50, "security": 0.10}})

@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from gauntlet.graph import GraphStore
 
 _HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
 sys.path.insert(0, str(_HOOKS_DIR))
@@ -131,8 +132,6 @@ class TestMainHook:
         # Enable auto-update
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
         # Create a dummy graph.db
-        from gauntlet.graph import GraphStore
-
         gs = GraphStore(str(gauntlet_dir / "graph.db"))
         gs.close()
 

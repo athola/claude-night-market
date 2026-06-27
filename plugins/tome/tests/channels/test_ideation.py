@@ -14,6 +14,8 @@ These tests pin that behavior.
 
 from __future__ import annotations
 
+import pytest as _pytest
+from tome.channels import ideation
 from tome.channels.ideation import (
     IDEATION_CRITERIA,
     get_method,
@@ -129,9 +131,6 @@ def test_load_methods_raises_on_empty_catalogue(monkeypatch) -> None:
     disables the whole channel; a missing/empty data file is a packaging
     bug, not a legitimate state.
     """
-    import pytest as _pytest
-    from tome.channels import ideation
-
     monkeypatch.setattr(ideation, "_METHODS_CACHE", None)
     monkeypatch.setattr(ideation.yaml, "safe_load", lambda *_a, **_k: None)
     with _pytest.raises(ValueError, match="empty|missing"):
@@ -142,9 +141,6 @@ def test_load_methods_raises_when_method_missing_id(monkeypatch) -> None:
     """A method lacking an 'id' is rejected at load, so downstream
     ``m["id"]`` access (rotation_plan) and ``m.get("id")`` (select_methods)
     are consistently safe."""
-    import pytest as _pytest
-    from tome.channels import ideation
-
     bad = {"methods": [{"name": "x", "category": "c", "evidence": "weak"}]}
     monkeypatch.setattr(ideation, "_METHODS_CACHE", None)
     monkeypatch.setattr(ideation.yaml, "safe_load", lambda *_a, **_k: bad)

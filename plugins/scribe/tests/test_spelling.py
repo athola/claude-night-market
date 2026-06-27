@@ -22,6 +22,8 @@ from scribe.spelling import (
     to_american,
 )
 
+from scribe import spelling
+
 # ---------------------------------------------------------------------------
 # load_spelling_map
 # ---------------------------------------------------------------------------
@@ -61,8 +63,6 @@ def test_load_raises_on_empty_data(monkeypatch) -> None:
     Treating an empty map as valid quietly turns the whole normalization
     feature into a no-op; a missing/empty bundled file is a packaging bug.
     """
-    from scribe import spelling
-
     monkeypatch.setattr(spelling, "_MAP_CACHE", None)
     monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
     monkeypatch.setattr(spelling.yaml, "safe_load", lambda *_a, **_k: None)
@@ -72,8 +72,6 @@ def test_load_raises_on_empty_data(monkeypatch) -> None:
 
 def test_load_raises_when_mappings_empty(monkeypatch) -> None:
     """A file that parses but carries no entries is equally unusable."""
-    from scribe import spelling
-
     monkeypatch.setattr(spelling, "_MAP_CACHE", None)
     monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
     monkeypatch.setattr(spelling.yaml, "safe_load", lambda *_a, **_k: {"mappings": {}})
@@ -83,8 +81,6 @@ def test_load_raises_when_mappings_empty(monkeypatch) -> None:
 
 def test_load_raises_when_file_missing(monkeypatch, tmp_path) -> None:
     """A missing data file surfaces FileNotFoundError (loader error branch)."""
-    from scribe import spelling
-
     monkeypatch.setattr(spelling, "_MAP_CACHE", None)
     monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
     monkeypatch.setattr(spelling, "DATA_FILE", tmp_path / "does_not_exist.yaml")
@@ -94,8 +90,6 @@ def test_load_raises_when_file_missing(monkeypatch, tmp_path) -> None:
 
 def test_load_raises_without_pyyaml(monkeypatch) -> None:
     """When pyyaml is unavailable the loader raises a clear ImportError."""
-    from scribe import spelling
-
     monkeypatch.setattr(spelling, "_MAP_CACHE", None)
     monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
     monkeypatch.setattr(spelling, "yaml", None)

@@ -9,12 +9,26 @@ CJR-007: convene() must call module-level phase functions directly.
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from scripts.delegation_executor import Delegator
+from scripts.war_room.config import (
+    CLAUDE_HAIKU_45,
+    CLAUDE_OPUS_48,
+    CLAUDE_SONNET_46,
+    GEMINI_3_FLASH,
+    GEMINI_3_PRO,
+    GLM_52,
+    QWEN_MAX,
+    QWEN_TURBO,
+    validate_model_ids,
+)
+from scripts.war_room.phases import compute_borda_scores
 
 # ---------------------------------------------------------------------------
 # CJR-001: Named model ID constants + startup validation
@@ -26,17 +40,6 @@ class TestModelIdConstants:
 
     def test_constants_exist_in_config_module(self) -> None:
         """All 8 model IDs must be importable named constants."""
-        from scripts.war_room.config import (
-            CLAUDE_HAIKU_45,
-            CLAUDE_OPUS_48,
-            CLAUDE_SONNET_46,
-            GEMINI_3_FLASH,
-            GEMINI_3_PRO,
-            GLM_52,
-            QWEN_MAX,
-            QWEN_TURBO,
-        )
-
         assert CLAUDE_OPUS_48 == "claude-opus-4-8"
         assert CLAUDE_SONNET_46 == "claude-sonnet-4-6"
         assert GEMINI_3_PRO == "gemini-3-pro"
@@ -48,23 +51,16 @@ class TestModelIdConstants:
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
         """Validation must raise ValueError for any empty model ID."""
-        from scripts.war_room.config import validate_model_ids
-
         with pytest.raises(ValueError, match="empty"):
             validate_model_ids({"MODEL_A": ""})
 
     def test_validate_model_ids_accepts_valid_ids(self) -> None:
         """Validation must pass silently for non-empty strings."""
-        from scripts.war_room.config import validate_model_ids
-
         # Must not raise
         validate_model_ids({"CLAUDE_OPUS_48": "claude-opus-4-8", "GLM": "glm-5.2"})
 
     def test_experts_uses_constants_not_inline_strings(self) -> None:
         """experts.py must reference config constants, not duplicate literals."""
-        import ast
-        from pathlib import Path
-
         experts_path = (
             Path(__file__).parent.parent / "scripts" / "war_room" / "experts.py"
         )
@@ -107,8 +103,6 @@ class TestVerifyServiceNarrowException:
         self, tmp_path: Path
     ) -> None:
         """RuntimeError from auth probe must propagate, not be swallowed."""
-        from scripts.delegation_executor import Delegator
-
         delegator = Delegator(config_dir=tmp_path)
 
         # --version call succeeds, auth status raises unexpected error
@@ -124,8 +118,6 @@ class TestVerifyServiceNarrowException:
 
     def test_timeout_is_caught_as_issue(self, tmp_path: Path) -> None:
         """TimeoutExpired from auth probe must be caught and reported as issue."""
-        from scripts.delegation_executor import Delegator
-
         delegator = Delegator(config_dir=tmp_path)
 
         ok_result = MagicMock()
@@ -144,8 +136,6 @@ class TestVerifyServiceNarrowException:
 
     def test_file_not_found_is_caught_as_issue(self, tmp_path: Path) -> None:
         """FileNotFoundError from auth probe must be caught and reported as issue."""
-        from scripts.delegation_executor import Delegator
-
         delegator = Delegator(config_dir=tmp_path)
 
         ok_result = MagicMock()
@@ -172,8 +162,6 @@ class TestLoadConfigurationsNarrowException:
         self, tmp_path: Path
     ) -> None:
         """TypeError from malformed service config must propagate."""
-        from scripts.delegation_executor import Delegator
-
         config_file = tmp_path / "config.json"
         # Valid JSON, valid "services" dict, but ServiceConfig(**{"bad": 1})
         # will raise TypeError for unknown field.
@@ -186,8 +174,6 @@ class TestLoadConfigurationsNarrowException:
 
     def test_json_decode_error_is_swallowed(self, tmp_path: Path) -> None:
         """JSONDecodeError from malformed config file must be silently skipped."""
-        from scripts.delegation_executor import Delegator
-
         config_file = tmp_path / "config.json"
         config_file.write_text("{ invalid json }")
 
@@ -198,8 +184,6 @@ class TestLoadConfigurationsNarrowException:
 
     def test_os_error_is_swallowed(self, tmp_path: Path) -> None:
         """OSError (e.g., permission denied) must be silently skipped."""
-        from scripts.delegation_executor import Delegator
-
         config_file = tmp_path / "config.json"
         config_file.write_text(json.dumps({"services": {}}))
 
@@ -235,8 +219,6 @@ class TestBordaScoresCharacterization:
 
     def test_normal_ballot(self) -> None:
         """Standard ballot produces same scores as original algorithm."""
-        from scripts.war_room.phases import compute_borda_scores
-
         labels = ["Alpha", "Beta", "Gamma"]
         votes = {
             "expert1": "1. Alpha is best\n2. Beta is second\n3. Gamma is third",
@@ -247,8 +229,6 @@ class TestBordaScoresCharacterization:
 
     def test_label_absent_from_ballot(self) -> None:
         """Label not mentioned in ballot gets 0 additional score."""
-        from scripts.war_room.phases import compute_borda_scores
-
         labels = ["Alpha", "Beta", "Zeta"]
         votes = {"expert1": "1. Alpha wins\n2. Beta second\n3. Delta not in list"}
         expected = self._original_borda(votes, labels)
@@ -256,8 +236,6 @@ class TestBordaScoresCharacterization:
 
     def test_rank_marker_far_from_label(self) -> None:
         """Label more than 200 chars after rank marker gets 0 score."""
-        from scripts.war_room.phases import compute_borda_scores
-
         labels = ["Alpha"]
         # Put Alpha 300 chars after "1."
         padding = "x" * 250
@@ -267,16 +245,12 @@ class TestBordaScoresCharacterization:
 
     def test_empty_votes(self) -> None:
         """Empty votes dict returns all-zero scores."""
-        from scripts.war_room.phases import compute_borda_scores
-
         labels = ["Alpha", "Beta"]
         expected = self._original_borda({}, labels)
         assert compute_borda_scores({}, labels) == expected
 
     def test_large_n_produces_same_output(self) -> None:
         """n=20 labels, 5 ballots: optimized output matches reference."""
-        from scripts.war_room.phases import compute_borda_scores
-
         labels = [f"COA_{i}" for i in range(20)]
         votes = {}
         for ballot_idx in range(5):

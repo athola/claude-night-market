@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
+import importlib
+import sys
+
 import pytest
 from gauntlet.challenges import (
     CHALLENGE_TYPES,
+    _generate_problem_variation,
     generate_challenge,
     select_challenge_type,
 )
-from gauntlet.models import AnswerRecord, DeveloperProgress, KnowledgeEntry
+from gauntlet.models import (
+    AnswerRecord,
+    BankProblem,
+    DeveloperProgress,
+    Difficulty,
+    KnowledgeEntry,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -312,11 +322,6 @@ class TestProblemVariationFallback:
         Then it returns the original problem unchanged (graceful
           fallback via the existing except Exception handler)
         """
-        import importlib
-        import sys
-
-        from gauntlet.challenges import _generate_problem_variation
-        from gauntlet.models import BankProblem, Difficulty
 
         # Block re-imports of anthropic. We use a meta_path finder so
         # the block is local to this test (monkeypatch auto-restores).

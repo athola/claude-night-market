@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os as _os
 import stat
 import sys
 from io import StringIO
@@ -157,8 +158,6 @@ class TestSessionIdResolution:
         fallback as the increment hook so both target the same counter
         file; a fixed 'default' name made all sessions share one counter.
         """
-        import os as _os
-
         env = {k: v for k, v in _os.environ.items() if k != "CLAUDE_SESSION_ID"}
         with patch.dict("os.environ", env, clear=True):
             sid = hook_module._get_session_id({})

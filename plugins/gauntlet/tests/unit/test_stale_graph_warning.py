@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 import time
@@ -79,8 +80,6 @@ class TestGraphStalenessWarning:
         When checking staleness
         Then a warning is returned
         """
-        import json
-
         (gauntlet_dir / "config.json").write_text(
             json.dumps({"stale_threshold_hours": 1})
         )

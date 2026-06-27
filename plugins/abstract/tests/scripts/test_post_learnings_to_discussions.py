@@ -16,6 +16,9 @@ import pytest
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+import hashlib
+
+from discussion_enrichment import parse_enriched_issues, parse_perf_summary
 from post_learnings_to_discussions import (
     DiscussionConfig,
     LearningSummary,
@@ -269,7 +272,6 @@ class TestFormatDiscussionBody:
         When I format them as discussion bodies
         Then their content hashes are identical
         """
-        import hashlib
 
         summary1 = LearningSummary(
             skills_analyzed=1,
@@ -309,7 +311,6 @@ class TestFormatDiscussionBody:
         When I format them
         Then their content hashes differ
         """
-        import hashlib
 
         summary1 = LearningSummary(
             skills_analyzed=1,
@@ -869,10 +870,6 @@ class TestRecordPostArtifacts:
     @pytest.mark.unit
     def test_snapshot_history_appended_and_capped(self) -> None:
         """Scenario: After 6 posts, only the last 5 snapshots remain."""
-        from discussion_enrichment import (
-            parse_enriched_issues,
-            parse_perf_summary,
-        )
 
         record = PostedRecord(posted={})
         for _ in range(6):
@@ -887,10 +884,6 @@ class TestRecordPostArtifacts:
     @pytest.mark.unit
     def test_fingerprint_records_skill_pipe_type(self) -> None:
         """Scenario: Fingerprint format is '{skill}|{issue_type}'."""
-        from discussion_enrichment import (
-            parse_enriched_issues,
-            parse_perf_summary,
-        )
 
         record = PostedRecord(posted={})
         _record_post_artifacts(

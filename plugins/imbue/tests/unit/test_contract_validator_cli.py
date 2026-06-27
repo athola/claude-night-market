@@ -13,8 +13,15 @@ import subprocess
 import sys
 import textwrap
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from scripts.contract_validator import (
+    ContractValidationResult,
+    _format_text,
+    _load_contract,
+    main,
+)
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "contract_validator.py"
 
@@ -187,8 +194,6 @@ class TestContractValidatorDirect:
     @pytest.mark.unit
     def test_load_contract_wrapped_key(self, tmp_path: Path) -> None:
         """_load_contract unwraps output_contract: key."""
-        from scripts.contract_validator import _load_contract
-
         contract_file = tmp_path / "contract.json"
         contract_file.write_text(
             json.dumps({"output_contract": {"required_sections": ["summary"]}})
@@ -199,8 +204,6 @@ class TestContractValidatorDirect:
     @pytest.mark.unit
     def test_load_contract_yaml_rejection(self, tmp_path: Path) -> None:
         """_load_contract rejects .yaml/.yml files."""
-        from scripts.contract_validator import _load_contract
-
         yaml_file = tmp_path / "contract.yaml"
         yaml_file.write_text("required_sections: []\n")
         with pytest.raises(SystemExit, match="YAML"):
@@ -209,11 +212,6 @@ class TestContractValidatorDirect:
     @pytest.mark.unit
     def test_format_text_fail_with_missing_and_warnings(self) -> None:
         """_format_text renders missing sections, artifacts, and warnings."""
-        from scripts.contract_validator import (
-            ContractValidationResult,
-            _format_text,
-        )
-
         result = ContractValidationResult(
             passed=False,
             evidence_count=0,
@@ -235,13 +233,8 @@ class TestContractValidatorDirect:
     @pytest.mark.unit
     def test_main_missing_findings(self, tmp_path: Path) -> None:
         """main() returns 2 when findings file missing."""
-        from scripts.contract_validator import main
-
         contract_file = tmp_path / "contract.json"
         contract_file.write_text('{"required_sections": []}')
-        import sys
-        from unittest.mock import patch
-
         with patch.object(
             sys,
             "argv",
@@ -252,13 +245,8 @@ class TestContractValidatorDirect:
     @pytest.mark.unit
     def test_main_missing_contract(self, tmp_path: Path) -> None:
         """main() returns 2 when contract file missing."""
-        from scripts.contract_validator import main
-
         findings_file = tmp_path / "findings.md"
         findings_file.write_text("## Summary\n\nOk.\n")
-        import sys
-        from unittest.mock import patch
-
         with patch.object(
             sys,
             "argv",

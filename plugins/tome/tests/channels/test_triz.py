@@ -9,6 +9,7 @@ So that agents can find non-obvious analogies from other fields
 from __future__ import annotations
 
 import pytest
+from tome.channels import triz
 from tome.channels.triz import (
     build_cross_domain_search_queries,
     format_bridge_statement,
@@ -887,7 +888,6 @@ class TestCanonicalMatrixLookup:
         Then it returns an empty dict and the public lookup returns []
              instead of raising
         """
-        from tome.channels import triz
 
         def _raise_missing(*_args: object, **_kwargs: object) -> object:
             raise FileNotFoundError("simulated missing vendored data file")
@@ -906,8 +906,6 @@ class TestCanonicalMatrixLookup:
         When the matrix loader parses it with a cleared cache
         Then the valid row loads and the malformed row is ignored
         """
-        from tome.channels import triz
-
         csv_text = (
             "improving_parameter,worsening_parameter,recommended_principles\n"
             "1,2,1;8;15\n"
@@ -961,8 +959,6 @@ class TestCanonicalMatrixLookup:
         Then row["recommended_principles"] raises KeyError per row, each row
              is skipped, and the matrix is empty
         """
-        from tome.channels import triz
-
         csv_text = (
             "improving_parameter,worsening_parameter\n"  # missing principles column
             "1,2\n"
@@ -992,8 +988,6 @@ class TestCanonicalMatrixLookup:
         Then the valid row loads and the malformed row is ignored, honoring
              the documented "degrades gracefully rather than raising" contract
         """
-        from tome.channels import triz
-
         csv_text = (
             "improving_parameter,worsening_parameter,recommended_principles\n"
             "1,2,1;8;15\n"

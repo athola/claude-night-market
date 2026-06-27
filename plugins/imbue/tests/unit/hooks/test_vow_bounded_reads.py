@@ -9,12 +9,16 @@ So that the bounded-discovery-reads vow is tracked and enforced.
 
 from __future__ import annotations
 
+import errno
 import importlib.util
 import json
 import os
+import os as _os
 import stat
 import sys
+import threading
 import time
+import time as _time
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -377,8 +381,6 @@ class TestGetSessionId:
         scoping to os.getppid() gives each Claude Code process its own
         counter)
         """
-        import os as _os
-
         env = {k: v for k, v in _os.environ.items() if k != "CLAUDE_SESSION_ID"}
         with patch.dict("os.environ", env, clear=True):
             sid = hook_module._get_session_id({})
@@ -640,9 +642,6 @@ class TestCounterLifetime:
         When _atomic_increment is called
         Then it returns 1 (the stale value is discarded), not 21
         """
-        import os as _os
-        import time as _time
-
         path = tmp_path / "vow_read_counter_stale.json"
         hook_module._write_counter(path, 20)
         # Age the file well past the TTL.
@@ -676,9 +675,6 @@ class TestCounterLifetime:
         When main() fires a single Read
         Then the stale value is discarded and no advisory is emitted
         """
-        import os as _os
-        import time as _time
-
         counter_path = tmp_path / "vow_read_counter_pid-stale.json"
         hook_module._write_counter(counter_path, 99)
         old = _time.time() - hook_module._COUNTER_TTL_SECONDS - 60
@@ -754,8 +750,6 @@ class TestAtomicIncrement:
         paired `..._loses_updates_without_flock_under_injected_race`)
         are what actually gate the flock fix.
         """
-        import threading
-
         path = tmp_path / "vow_read_counter_parallel.json"
         n_threads = 50
         results: list[int] = []
@@ -803,9 +797,6 @@ class TestAtomicIncrement:
         were absent -- which the paired negative-control test below
         demonstrates.
         """
-        import os as _os
-        import threading
-
         if not hook_module._HAS_FCNTL:
             pytest.skip("requires fcntl (POSIX-only)")
 
@@ -863,9 +854,6 @@ class TestAtomicIncrement:
         ineffective and both tests must be revisited (review finding
         B2's core concern).
         """
-        import os as _os
-        import threading
-
         path = tmp_path / "vow_read_counter_unflocked_race.json"
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
 
@@ -915,9 +903,6 @@ class TestAtomicIncrement:
         Operators relying on flock for correctness need to know the
         Windows path degrades silently.
         """
-        import os as _os
-        import threading
-
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
         path = tmp_path / "vow_read_counter_nofcntl_50_thread.json"
         n_threads = 50
@@ -1011,7 +996,6 @@ class TestAtomicIncrement:
         """
         if not hook_module._HAS_FCNTL:
             pytest.skip("fcntl unavailable; skipping fcntl warning test")
-        import errno
 
         def raising_flock(_fd, _op):
             raise OSError(errno.EWOULDBLOCK, "lock contention")
@@ -1186,8 +1170,6 @@ class TestAtomicReset:
         only) or matches the number of increments that completed before
         the reset — but the file is never corrupt and never negative.
         """
-        import threading
-
         path = tmp_path / "vow_read_counter_reset-race.json"
         n_increments = 30
         barrier = threading.Barrier(n_increments + 1)

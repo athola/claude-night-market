@@ -8,7 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from insight_registry import InsightRegistry
-from insight_types import Finding
+from insight_types import Finding, finding_hash
 
 
 def _make_finding(**overrides) -> Finding:
@@ -55,7 +55,6 @@ def test_stale_finding_can_repost(registry):
     f = _make_finding()
     registry.record_posted(f, "https://example.com/1")
     # Manually age the entry to 31 days
-    from insight_types import finding_hash
 
     h = finding_hash(f)
     registry._state["posted_hashes"][h]["posted_at"] = "2026-03-01"
@@ -89,8 +88,6 @@ def test_empty_state_has_empty_snapshot(registry):
 def test_record_posted_saves_metadata(registry):
     f = _make_finding(summary="test summary")
     registry.record_posted(f, "https://example.com/42")
-
-    from insight_types import finding_hash
 
     h = finding_hash(f)
     entry = registry._state["posted_hashes"][h]

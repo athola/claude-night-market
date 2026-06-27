@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml as real_yaml
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
@@ -148,8 +149,6 @@ class TestYamlUnavailable:
         """A corrupt YAML index file must not take down web-research store
         calls. The loader catches yaml.YAMLError, logs to stderr, and
         returns the empty-index sentinel (issue #528)."""
-        import yaml as real_yaml
-
         index_path = tmp_path / "dedup-index.yaml"
         # Write a syntactically invalid YAML file.
         index_path.write_text(
