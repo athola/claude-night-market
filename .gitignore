@@ -142,5 +142,5 @@ clawhub/
 # conserve unbloat scan log (transient artifact, not source)
 .unbloat-log
 
-# stale crashed-session refinement synthesis (superseded by 2026-06-22)
-docs/refinement/2026-06-20/
+# transient code-refinement synthesis artifacts (local eval, not source)
+docs/refinement/
